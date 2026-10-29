@@ -1460,6 +1460,50 @@ class DeviceServiceUnitTests(unittest.TestCase):
             bad_variant.exception.code,
             "invalid_runtime_env",
         )
+        with self.assertRaises(ServiceError) as partial_peer:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {"M5SW_ESPNOW_PEER_LOCAL_PORT": "18801"},
+                }
+            )
+        self.assertEqual(partial_peer.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as same_ports:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18801",
+                    },
+                }
+            )
+        self.assertEqual(same_ports.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as mixed_gate:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_LOOPBACK": "1",
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                    },
+                }
+            )
+        self.assertEqual(mixed_gate.exception.code, "invalid_runtime_env")
+
+    def test_external_espnow_peer_ports_are_trusted_local_fixtures(self):
+        runtime_env = {
+            "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+            "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+            "M5SW_ESPNOW_PEER_TRACE": "1",
+        }
+        with mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session(
+                {"device_id": "sticks3", "runtime_env": runtime_env}
+            )
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(session.runtime_env, runtime_env)
 
     def test_controller_trace_accept_only_explicit_boolean_enable(self):
         traces = {key: "1" for key in (
@@ -1953,6 +1997,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             device_service_module.set_s3_efuse_mac(bytearray(29), mac)
+
+    def test_qemu_wifi_binds_classic_efuse_mac_to_peer_station_address(self):
+        session_id = "b" * 32
+        mac = device_service_module.qemu_station_mac(session_id)
+        efuse = bytearray(64)
+        device_service_module.set_esp32_efuse_mac(efuse, mac)
+        self.assertEqual(
+            bytes(efuse[4:10]),
+            bytes.fromhex(mac.replace(":", "")),
+        )
+        with self.assertRaises(ValueError):
+            device_service_module.set_esp32_efuse_mac(bytearray(9), mac)
 
     def test_qemu_radio_capture_defaults_on_and_can_be_disabled(self):
         captured = device_service_module.parse_qemu_ble_execution(

@@ -110,8 +110,8 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-28` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
-| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-28` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
+| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-29` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
+| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-29` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-29` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Cardputer-ADV 当前参考固件 BMI270 已闭环，Core2 legacy 的 setup/main、非空帧和正常 WDT 仍 OPEN |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-29` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Cardputer-ADV 当前参考 BMI270 已移出，`FW-03` 仍保留真实业务和更多固件族 |
@@ -158,12 +158,13 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [StopWatch / StickS3 / Core2 UIFlow2 接口再次复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md) | 当前三设备证据 / M5UI runner | `2026-10-29` | `9bf74439…` 上三台重新完成 system/shared、协议、板级接口和 ESP-NOW；StopWatch/Core2 重跑 28 类、505 个 M5UI widget 方法与两个 lifecycle 项；requests2/Modbus/TLS/M5UI 与 `0021+0025` M5BLE candidate 全部复验；stock SDK、StopWatch/StickS3 BLE 和物理边界保留 |
 | [最新 QEMU 三设备 UIFlow2 接口复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r3/README.md) | 当前三设备证据 | `2026-10-29` | `05a43941…` 上三台 system/shared、协议、audio、ESP-NOW、BLE 和板级接口重跑；StopWatch/Core2 M5UI 仍 507 结果零漏测；stock SDK 缺陷和 candidate 结果保持不变；Core2 network 首轮并发扫描毛刺经隔离及 4 次并发重复控制；真机/RF/legacy 边界保留 |
 | [当前 QEMU 三设备 UIFlow2 接口复测 r4](evidence/2026-10-29-three-board-uiflow2-interface-retest-r4/README.md) | 当前三设备证据 | `2026-10-29` | `dd4b1b34…` 上三台并发重跑 system/shared、协议、audio、ESP-NOW、BLE、M5UI 和板级接口；Core2 network 首次并发恢复 `14/14`；stock SDK 与 BLE 边界不变，三台协议 candidate 和 StopWatch/Core2 M5UI candidate 全部通过 |
+| [ESP-NOW 外部明文 peer](evidence/2026-10-29-espnow-external-peer/README.md) | 当前 ESP-NOW 外部 peer 证据 | `2026-10-29` | `0076` 以成对 loopback UDP 端口连接两个独立 controller；StopWatch↔StickS3、Core2↔StopWatch 均经正常 TX/RX DMA 双向收到 action-frame payload；四个 session evidence/清理完整；PMK/LMK/CCMP、错误 key、lifecycle、RF 和真机仍 NOT RUN |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-28` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-28` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0067` 将 ESP-NOW 提升为同 guest controller-DMA loopback `PARTIAL`，外部/加密 peer 由 `RUNTIME-06` 跟踪；legacy `RUNTIME-03` 已修复 VFS/WiFi fixture 与 dual-SPI panel routing，原厂 startup UI、normal-WDT 和非空应用帧仍未闭环；`RUNTIME-05` S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍未覆盖 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-29` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0067` 提供同 guest controller-DMA loopback，`0076` 已完成两个独立 guest 的明文 external exchange，PMK/LMK/CCMP 与生命周期仍由 `RUNTIME-06 PARTIAL` 跟踪；legacy `RUNTIME-03` 原厂 startup UI、normal-WDT 和非空应用帧仍未闭环；`RUNTIME-05` S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍未覆盖 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU 与 `qemu-unified` companion partition fencing、namespace/container-local execution、同 guest 网络生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |

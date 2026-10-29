@@ -227,22 +227,22 @@ Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` �
 setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
 不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
 
-### RUNTIME-06：ESP-NOW controller loopback 已验证，外部/加密 peer 未建模
+### RUNTIME-06：ESP-NOW 外部明文 peer 已验证，加密与生命周期未建模
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `PARTIAL` |
-| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive 和 IRQ 路径；当前不覆盖外部 peer、PMK 加密、跨设备 fabric 和 RF/timing |
-| 当前模型 | `0067-esp32-espnow-controlled-peer-loopback.patch` 在明确设置 `M5SW_ESPNOW_LOOPBACK=1` 时，只对 802.11 management action frame 做同 guest 回环：guest 经正常 TX DMA 写帧，模型交换 peer/source 后经正常 RX DMA 送回；broadcast 使用固定 locally-administered fixture peer `02:00:00:00:00:42` |
-| 已验证 | 最终 QEMU `c3c3140322513de6f3ef724513e2f1272764e6af8a8fdd7c7bfd4448dc17f534` 上 StopWatch、StickS3、Core2 的 `m5espnow` unicast/broadcast/receive/IRQ PASS；native 三组 API 的 `send`/`recvinto`/`irq` 各 PASS；model patch 默认关闭 |
-| 未覆盖 | 两个独立 guest/外部 peer、PMK 加密 payload、错误 key、丢包/重试、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
-| 证据 | [`最终接口复测`](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)、[`0067 patch`](../patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch)、[`0067 contract`](../platform/tests/test_esp32_espnow_loopback_patch.py) |
+| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ 和两个独立 guest 的明文 exchange 路径；当前不覆盖 PMK/LMK、CCMP、错误 key、完整 peer 生命周期和 RF/timing |
+| 当前模型 | `0067-esp32-espnow-controlled-peer-loopback.patch` 提供同 guest controller loopback；`0076-esp32-external-espnow-peer-bridge.patch` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller，只转发 management action frame。TX 来自正常 controller TX DMA，peer frame 经正常 RX DMA 注入；Python host 不合成 payload 或 callback |
+| 已验证 | `0067`：最终 QEMU `c3c3140322513de6f3ef724513e2f1272764e6af8a8fdd7c7bfd4448dc17f534` 上 StopWatch、StickS3、Core2 的 unicast/broadcast/receive/IRQ 与 native API 各 PASS。`0076`：QEMU `df0e20f176494a9de8e32361dbc865688c5e72791207793d0bdb0b5a947b616a` 上 StopWatch↔StickS3 和 Core2↔StopWatch 两对独立 guest 完成未加密双向 action-frame exchange，四个 session 均保留 evidence 并完成 runtime 清理 |
+| 未覆盖 | PMK/LMK 加密 payload、CCMP、错误 key、peer add/update/delete、replay、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`外部明文 peer 证据`](evidence/2026-10-29-espnow-external-peer/README.md)、[`0076 patch`](../patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch)、[`0076 contract`](../platform/tests/test_esp32_espnow_external_peer_patch.py)、[`同 guest loopback 证据`](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md) |
 
 关闭条件：
 
-1. 使用两个独立 guest 或可审计外部 peer，完成真实 action-frame 交换；
-2. PMK 加密 payload、错误 key、peer add/update/delete 与 receive/IRQ 生命周期可重放；
-3. loopback、external 和 encrypted lane 分开记录，不能用 loopback 结果替代外部 peer；
+1. PMK/LMK 加密 payload、错误 key、CCMP 和 peer add/update/delete 生命周期可重放；
+2. replay、loss/retry、双 peer 以上 fabric 和 receive/IRQ 生命周期可重放；
+3. loopback、external plaintext 和 encrypted lane 分开记录，不能互相替代；
 4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模

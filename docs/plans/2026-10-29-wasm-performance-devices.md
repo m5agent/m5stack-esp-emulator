@@ -19,6 +19,6 @@
 
 ## 进行状态
 
-main 已同步至 `32213028`。共享快照、宿主 poll 等待、正常时钟 SDK 候选及其新旧浏览器组合均已取得运行证据，量测见[性能摘要](../evidence/2026-10-29-wasm-performance-devices/README.md)。
+main 已同步至 `38a7e8be`；新增原生 ESP-NOW 修复保持独立，本轮浏览器执行源码与已测 WASM 未变化。共享快照、宿主 poll 等待、正常时钟 SDK 候选及其新旧浏览器组合均已取得运行证据，量测见[性能摘要](../evidence/2026-10-29-wasm-performance-devices/README.md)。
 
 四板五示例已完成实际公众 UI：公开 v4 四例通过84项，新增 Core2 在公开 v5 单独通过17项；执行 JS/runtime 与其余1929资产身份一致，两个site manifest 分别记录，不冒称v5全聚合。Core2 首次 probe 因重复安装已占用 UART0 而未执行 main；专属 boot 保留固件 console 后已通过。AtomS3R 既有2行面板偏移仍保留边界，所有结果不从 native 或其它设备继承。最终 authority 文档、归档、scope 检查及后续 PR 正在收尾；正式 Pages 仍为既有部署，后续管理员重建发布另验。

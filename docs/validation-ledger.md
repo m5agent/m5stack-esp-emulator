@@ -1141,3 +1141,29 @@ Core2 使用保留固件 console 的专用 boot。每个 fixture 分别核对实
 分批报告、runtime/ROM/固件身份与检查结果见
 [性能与逐板证据](evidence/2026-10-29-wasm-performance-devices/README.md)和
 [逐板准入摘要](evidence/2026-10-29-wasm-performance-devices/board-admission-summary.json)。
+
+## 2026-10-29：ESP-NOW 两个独立 guest 的明文外部 peer 交换
+
+新增
+`0076-esp32-external-espnow-peer-bridge.patch`，SHA256
+`de39dd922d15bc2ad3827a13293d86dc2a2f0dafcfe2036783730dfab8037c62`。
+桥接只在两个 controller 都配置成对的 loopback UDP 端口时启用，只转发
+802.11 management action frame；发送仍经 guest 正常 controller TX DMA，
+接收仍经目标 controller 正常 RX DMA，不合成 Python payload/callback。
+同一 guest 的 `0067` loopback 与该 lane 明确互斥。最终 QEMU SHA256 为
+`df0e20f176494a9de8e32361dbc865688c5e72791207793d0bdb0b5a947b616a`。
+
+StopWatch↔StickS3 的两个独立 session 分别收到对方 payload
+`57/57` 与 `58/58`，bridge TX/RX 均为 `58/58`。Core2↔StopWatch 的
+Core2 收到 `14/14`，StopWatch 收到 `44/44`；Core2 较慢的 UIFlow2 初始化
+由 12 秒有界收敛窗口覆盖，4 秒窗口只作为 harness 过短失败保留在 ignored
+运行记录。四个 session 均使用 `purge=0` 停止，terminal state 为
+`stopped`、QEMU PID 已消失，停止前取得 serial/frame/evidence ZIP。
+
+该结果关闭 `RUNTIME-06` 的“两个独立 guest 完成未加密 action-frame
+交换”里程碑，但任务仍为 `PARTIAL`：PMK/LMK/CCMP、错误 key、
+peer add/update/delete、replay、loss/retry、超过两个 peer 的 fabric、
+channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
+`NOT RUN`。全部为 virtual-device validation。见
+[证据](evidence/2026-10-29-espnow-external-peer/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-external-peer/summary.json)。

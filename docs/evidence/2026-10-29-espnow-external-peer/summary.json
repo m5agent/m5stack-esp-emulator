@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "scope": "Unencrypted ESP-NOW management action-frame exchange between two independent emulated guests.",
+  "runtime_binary_sha256": "df0e20f176494a9de8e32361dbc865688c5e72791207793d0bdb0b5a947b616a",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch",
+    "sha256": "de39dd922d15bc2ad3827a13293d86dc2a2f0dafcfe2036783730dfab8037c62"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "a5bfcb7a7a1a88a64c3464a1ac7437a0b78080b887b0d86e5305918faedd780a",
+    "window_ms": 12000,
+    "encryption": false
+  },
+  "pairs": [
+    {
+      "left_device": "stopwatch",
+      "right_device": "sticks3",
+      "status": "PASS",
+      "results": [
+        {
+          "device": "stopwatch",
+          "role": "A",
+          "session_id": "15408c03af30478999ef27385c9b0ee4",
+          "firmware_sha256": "69ab9a2fad35401209d36e60e23270a604f4defb5228e8d64c05bb118beac36c",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "received_peer_payload": true,
+          "rx_packets": 57,
+          "source_matches": 57,
+          "payload_matches": 57,
+          "evidence_sha256": "df23a410354e0399cf52ade816ac749dd9b45d02c43cd6d763486cb63bb99a51",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "history_preserved": true,
+            "purge": 0
+          }
+        },
+        {
+          "device": "sticks3",
+          "role": "B",
+          "session_id": "d700433e22884fa198e73f9bf9e4871b",
+          "firmware_sha256": "05544f977fdb375c185f94e6161920561ef9e07666fb5354bd259ee6b1be3e3b",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "received_peer_payload": true,
+          "rx_packets": 58,
+          "source_matches": 58,
+          "payload_matches": 58,
+          "evidence_sha256": "5dd98062bec54bb0013cf8fe49621a8698fc0110b3b4e527d150d4a11aaf7a21",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "history_preserved": true,
+            "purge": 0
+          }
+        }
+      ]
+    },
+    {
+      "left_device": "core2",
+      "right_device": "stopwatch",
+      "status": "PASS",
+      "results": [
+        {
+          "device": "core2",
+          "role": "A",
+          "session_id": "cdeae8a415704d54b8be88f5108b0786",
+          "firmware_sha256": "a5323bf37e7ba92f622b65eea759d2dd9a6c5144385b6db166a5886e0218aabb",
+          "bridge_tx": 44,
+          "bridge_rx": 32,
+          "received_peer_payload": true,
+          "rx_packets": 14,
+          "source_matches": 14,
+          "payload_matches": 14,
+          "evidence_sha256": "810bdf60b2a1b307b37adf832c185504ab03d8d98604aa7f3e04bdf7cbc47cfe",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "history_preserved": true,
+            "purge": 0
+          }
+        },
+        {
+          "device": "stopwatch",
+          "role": "B",
+          "session_id": "a8b60a0d4cbb49d0b4d2cbe9ce0351f0",
+          "firmware_sha256": "4b0838fe8fda88a85124558df1add2d37738b8c157c352bea83c720776924f21",
+          "bridge_tx": 48,
+          "bridge_rx": 44,
+          "received_peer_payload": true,
+          "rx_packets": 44,
+          "source_matches": 44,
+          "payload_matches": 44,
+          "evidence_sha256": "107e685f5b28faac0ed15021d3fc2555c6d632e41ad9d6f91788c8ab9e1cfb77",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "history_preserved": true,
+            "purge": 0
+          }
+        }
+      ]
+    }
+  ],
+  "not_claimed": [
+    "PMK or LMK encryption",
+    "CCMP or wrong-key behavior",
+    "peer add/update/delete, replay, loss or retry lifecycle",
+    "more than two peers or a production cross-device fabric",
+    "channel/rate, RF, antenna, coexistence or electrical timing",
+    "physical hardware validation"
+  ]
+}

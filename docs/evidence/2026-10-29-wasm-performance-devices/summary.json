@@ -508,5 +508,12 @@
     "Normal-clock candidate input remains slow after QMP ACK; its cause is not uniquely isolated to controller, guest polling or LVGL.",
     "No arbitrary-firmware, other peripheral, mobile browser, long-soak or physical-hardware validation is inherited.",
     "No new production Pages deployment is claimed by this local result."
-  ]
+  ],
+  "final_main_integration": {
+    "main_commit": "38a7e8be606aa0d0ca8d8b75aae62773dc520710",
+    "browser_execution_sources_changed": false,
+    "wasm_runtime_changed": false,
+    "native_espnow_patch_0076": "not included in the frozen browser source lock; no browser ESP-NOW PASS inherited",
+    "note": "Browser executions were measured before this main update. Native/service tests are separately rerun on the merged source tree."
+  }
 }
