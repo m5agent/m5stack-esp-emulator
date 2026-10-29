@@ -57,7 +57,7 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 | --- | --- | --- | --- |
 | 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU 和 claim response-loss idempotency | `NET-04` 的物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
 | Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发和 legacy dual-SPI panel routing | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy startup UI 与 normal-WDT 仍未完成，probe 非空帧不等于原厂应用帧 | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
-| FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学，以及 aggregate/image/eFuse understatement、key mismatch 和 secure-version rollback fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
+| FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学、aggregate/image/eFuse understatement/key mismatch/secure-version rollback fail closed，以及 Device Service `1.51.0` operator runtime ACL | guest filesystem ACL、完整许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入、静态审查和 service runtime policy 可用；guest 运行态安全、trust root 和通用兼容性仍为 `PILOT` |
 
 这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
 完成某条路径”只证明该固件、设备、profile、输入和观察窗口，不等于物理 RF、
@@ -351,7 +351,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、lease-bound central evidence store、fencing、local QEMU | 物理跨主机 executor/reattach、queue/session/evidence 的跨主机复制、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；单 control-plane evidence store 不等于对象存储复制；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop | 大于当前容量、持续吞吐、其他更复杂 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
-| `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析 | 运行态 ACL/许可、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、签名数学和包内摘要自洽不等于运行态授权或设备 trust root |
+| `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析；Device Service API `1.51.0` 的外部 runtime ACL/执行策略 | Guest filesystem 自身 ACL、完整许可/法律审批、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、service runtime ACL、签名数学和包内摘要自洽分别成立，均不等于 guest 文件权限、设备 trust root 或生产沙箱 |
 | `RUNTIME-02`、`RUNTIME-04` 模型缺口 | C6 Zigbee 与 Core2 ATECC608 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP 与 `RUNTIME-05` WPA2 已关闭 | commissioning/join 或 ATECC608 fixture | 观察到帧或读取地址不等于完整生命周期 |
 | `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery | namespace-managed/Tab5/cross-host companion、warm pool、服务模块拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
 | `HW-01` 真机同路径 | 测试入口和分层规则已定义 | 代表设备同固件 SHA、同输入、同关键路径的 hardware validation | 仓库当前没有可引用的真机安全/RF/电气结论 |
@@ -368,7 +368,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 已限定通过。`m5ble.Server.get_client` 的 stock `set` indexing 错误已有 hash-pinned 候选修复并通过两个独立 session；原厂冻结固件失败继续保留，新固件需重新校验 |
 | Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；WDT-off Serial 到达 `APIKEY`，normal-WDT 在 BOARD/APIKEY 前 reset。`0075` 已排除 Flash WIP 和 `s32c1i` old-value 错误，并定位到 scheduler/list 锁竞争，但 pre-boot work/WDT deadline、display completion、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
-| FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
+| FirmwareManifest / WebBurner | 可用 | Device Service `1.51.0` operator runtime ACL 可用；guest filesystem 自身 ACL、live trust root、生产 key 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
 | Tab5 | `partial` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller 未闭环 |

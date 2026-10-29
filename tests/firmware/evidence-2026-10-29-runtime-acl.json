@@ -1,0 +1,120 @@
+{
+  "boundary": {
+    "guest_filesystem_acl": "NOT RUN",
+    "native_firmware_sandbox": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "qemu_guest": "NOT RUN"
+  },
+  "checks": [
+    {
+      "name": "policy file loads",
+      "policy_id": "cca8710adf1a3e9914da389bcfb9e6346dcb9a4b51002417db6f7174411aa044",
+      "status": "PASS"
+    },
+    {
+      "name": "unconfigured policy retains compatibility",
+      "status": "PASS"
+    },
+    {
+      "name": "undeclared device denied",
+      "status": "PASS"
+    },
+    {
+      "name": "policy symlink rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid policy fails before listener",
+      "returncode": 2,
+      "status": "PASS"
+    },
+    {
+      "name": "SIGHUP server reaches capacity",
+      "status": "PASS"
+    },
+    {
+      "name": "SIGHUP publishes valid policy",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid SIGHUP preserves active policy",
+      "status": "PASS"
+    },
+    {
+      "name": "session exposes effective ACL",
+      "status": "PASS"
+    },
+    {
+      "name": "capacity exposes semantic policy hash",
+      "status": "PASS"
+    },
+    {
+      "name": "program read allowed",
+      "status": "PASS"
+    },
+    {
+      "name": "program execute denied before console",
+      "status": "PASS"
+    },
+    {
+      "name": "serial read denied",
+      "status": "PASS"
+    },
+    {
+      "name": "serial marker wait denied",
+      "status": "PASS"
+    },
+    {
+      "name": "input write denied before QMP",
+      "status": "PASS"
+    },
+    {
+      "name": "guest reset denied before QMP",
+      "status": "PASS"
+    },
+    {
+      "name": "flash read denied",
+      "status": "PASS"
+    },
+    {
+      "code": "runtime_acl_denied",
+      "http_status": 403,
+      "name": "program.interrupt denied",
+      "policy_id": "cca8710adf1a3e9914da389bcfb9e6346dcb9a4b51002417db6f7174411aa044",
+      "status": "PASS"
+    },
+    {
+      "name": "snapshot and evidence hide denied runtime data",
+      "status": "PASS"
+    },
+    {
+      "name": "package deny path wins before console",
+      "status": "PASS"
+    },
+    {
+      "name": "denied package created no revision",
+      "status": "PASS"
+    },
+    {
+      "name": "allowed package reaches runtime gate",
+      "status": "PASS"
+    },
+    {
+      "denied_events": 7,
+      "name": "denials are auditable events",
+      "status": "PASS"
+    }
+  ],
+  "date": "2026-10-29",
+  "kind": "runtime-acl-http-validation",
+  "schema_version": 1,
+  "started_at": "2026-10-29T08:22:00.168240+00:00",
+  "status": "PASS",
+  "tools": {
+    "device_service.py": "16d668162b8100876ce3c681ad0a3a35b695c4a6ce1d910f13ec990a6750750c",
+    "run_test.py": "e34e22b6f3faa9cba52c00f552776ea30043cb936cd722f4d86c20766ae0d5a2",
+    "runtime_acl.py": "2dd9c7b84e5d82baafc3d3b8495df1e8d667d7765c6eb8c9aa7d740a76dc06e0",
+    "serve.py": "b0e9eaee46b793a5ba2766d0a04ed182f4cf9d4daf6a16217c3c57ffddb63f90"
+  },
+  "validation": "host-runtime validation"
+}

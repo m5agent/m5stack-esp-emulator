@@ -1555,3 +1555,34 @@ AtomS3、AtomS3 Lite、StickC、StickC Plus SE 和 Plus2 各自原厂固件的�
 经典 Atom 三款启动失败、原 StickC Plus 缺镜像、Dial 旋钮 deferred GPIO
 callback 状态合并继续开放；50ms 操作点不作为修复。所有结果为 virtual-device，
 未部署 Pages、未执行物理硬件验证。详见[限定结果与哈希](evidence/2026-10-29-expanded-hosts/README.md)。
+
+## 2026-10-29：Device Service runtime ACL
+
+Device Service API/OpenAPI 升至 `1.51.0`。新增外部 operator-owned runtime
+ACL：policy 文件必须是最大 64 KiB 的 regular UTF-8 JSON，不允许 symlink；
+unknown field/device/operation/entrypoint/path 在 listener 启动前拒绝。配置后
+按设备对 `serial.read`、`input.write`、`guest.reset`、`program.read`、
+`program.execute`、`program.interrupt`、`filesystem.write` 和 `flash.read`
+执行 allowlist，未声明 device/operation 默认 deny；未配置时返回
+`NOT_CONFIGURED` 并保留历史 local-control 兼容行为。
+
+program execution 另行要求 `main.py`/`main.mpy` 入口点 allowlist。完整 package
+在执行前逐个检查 canonical guest path，deny 优先，支持 exact path 和 trailing
+`/` directory prefix。实际 HTTP runner 使用 production `RuntimeACL`、
+`DeviceService`、`DeviceSession`、Handler 和 package preflight，确认 session/
+capacity 暴露 semantic policy SHA256；program status 正控可读；program
+execute、serial read、input、reset、flash read、program interrupt 和 denied
+package path 均在 console/QMP/flash I/O 或 revision 发布前返回
+`403 runtime_acl_denied`。denied operation 写入 policy-bound event，allowed
+package 路径到达预期的 unavailable-console gate；snapshot/evidence 对 denied
+program、serial/log 和 flash 数据显式脱敏，serial marker wait 也不能绕过
+read ACL；无效 policy 由 CLI 在 listener 启动前拒绝。真实服务进程还完成
+有效 SIGHUP 换 policy hash，以及后续无效 SIGHUP 保留旧 policy 的负控。
+23/23 checks PASS。
+
+该结果是 `host-runtime validation`，不是固件 guest filesystem ACL。任意 native
+firmware 运行后的文件权限、guest 对 ACL 的强制执行、QEMU 沙箱、guest
+quiescence 和 physical hardware 仍为 `NOT RUN`；`FW-01` 继续保留完整许可/
+法律审批和 guest filesystem 权限范围。见
+[证据](evidence/2026-10-29-runtime-acl/README.md)和
+[机器摘要](../tests/firmware/evidence-2026-10-29-runtime-acl.json)。

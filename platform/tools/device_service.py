@@ -112,6 +112,10 @@ from network_sandbox import (  # noqa: E402
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
+from runtime_acl import (  # noqa: E402
+    RuntimeACL,
+    RuntimeACLError,
+)
 from run_profile_ui_test import (  # noqa: E402
     QMP,
     QMPCommandError,
@@ -3375,6 +3379,7 @@ class DeviceSession:
         self._console = None
         self._program_lock = threading.Lock()
         self._program = None
+        self._runtime_acl_denials = set()
         self.network_config = dict(network_config or {})
         self.storage_config = dict(storage_config or {})
         self.storage_info = (
@@ -3513,6 +3518,104 @@ class DeviceSession:
         )
         self._persist_events()
 
+    def runtime_acl_summary(self) -> dict:
+        service = getattr(self, "service", None)
+        spec = getattr(self, "spec", None)
+        policy = getattr(service, "runtime_acl", None)
+        if policy is None:
+            policy = RuntimeACL.unconfigured()
+        return policy.summary(str(getattr(spec, "id", "unbound")))
+
+    def _runtime_permission_allowed(self, operation: str) -> bool:
+        service = getattr(self, "service", None)
+        spec = getattr(self, "spec", None)
+        policy = getattr(service, "runtime_acl", None)
+        if policy is None or spec is None or not getattr(spec, "id", None):
+            return True
+        try:
+            policy.check(spec.id, operation)
+        except RuntimeACLError:
+            return False
+        return True
+
+    def visible_events(self) -> list[dict]:
+        if DeviceSession._runtime_permission_allowed(self, "program.read"):
+            return [dict(event) for event in self.events]
+        return [
+            dict(event)
+            for event in self.events
+            if not str(event.get("event", "")).startswith("program_")
+        ]
+
+    def _require_runtime_permission(
+        self,
+        operation: str,
+        *,
+        path: str | None = None,
+        entrypoint: str | None = None,
+    ) -> str | None:
+        service = getattr(self, "service", None)
+        spec = getattr(self, "spec", None)
+        policy = getattr(service, "runtime_acl", None)
+        if policy is None or spec is None or not getattr(spec, "id", None):
+            policy = RuntimeACL.unconfigured()
+            device_id = "unbound"
+        else:
+            device_id = spec.id
+        try:
+            return policy.check(
+                device_id,
+                operation,
+                path=path,
+                entrypoint=entrypoint,
+            )
+        except RuntimeACLError as error:
+            self._raise_runtime_acl_error(error)
+
+    def _require_runtime_operation(self, operation: str) -> str | None:
+        service = getattr(self, "service", None)
+        spec = getattr(self, "spec", None)
+        policy = getattr(service, "runtime_acl", None)
+        if policy is None or spec is None or not getattr(spec, "id", None):
+            return None
+        try:
+            return policy.allow_operation(spec.id, operation)
+        except RuntimeACLError as error:
+            self._raise_runtime_acl_error(error)
+
+    def _raise_runtime_acl_error(self, error: RuntimeACLError) -> None:
+        denial_key = (
+            error.operation,
+            error.reason,
+            error.path,
+            error.entrypoint,
+            error.policy_id,
+        )
+        denials = getattr(self, "_runtime_acl_denials", None)
+        if denials is None:
+            denials = set()
+            self._runtime_acl_denials = denials
+        if denial_key not in denials:
+            denials.add(denial_key)
+            self._record_event(
+                "runtime_acl_denied",
+                operation=error.operation,
+                path=error.path,
+                entrypoint=error.entrypoint,
+                reason=error.reason,
+                policy_id=error.policy_id,
+            )
+        raise ServiceError(
+            error.code,
+            str(error),
+            error.status,
+            operation=error.operation,
+            reason=error.reason,
+            policy_id=error.policy_id,
+            path=error.path,
+            entrypoint=error.entrypoint,
+        ) from error
+
     def _persist_events(self) -> None:
         atomic_write_json(self.events_path, self.events)
 
@@ -3567,6 +3670,7 @@ class DeviceSession:
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
+            "runtime_acl": DeviceSession.runtime_acl_summary(self),
             **({"program_transport": self.program_transport} if self.program_transport else {}),
             **({"program_bootstrap": self.program_bootstrap,
                 "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
@@ -4092,8 +4196,11 @@ class DeviceSession:
                     self.source_artifacts[0] if self.source_artifacts else None
                 ),
                 "source_artifacts": list(self.source_artifacts),
+                "runtime_acl": DeviceSession.runtime_acl_summary(self),
                 **({"program_transport": self.program_transport,
-                    "program": self._program,
+                    **({"program": self._program}
+                       if DeviceSession._runtime_permission_allowed(self, "program.read")
+                       else {}),
                     "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
                 **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
@@ -6296,6 +6403,7 @@ class DeviceSession:
                     "cname_records": cname_records,
                     "log": str(self.dns_fixture_log),
                 }
+            http_profile = profile in UNIFIED_HTTP_PORTS
             if http_profile:
                 http_body = UNIFIED_HTTP_BODIES.get(profile)
                 http_port = UNIFIED_HTTP_PORTS.get(profile)
@@ -6502,6 +6610,9 @@ class DeviceSession:
                     503,
                 ) from error
 
+    def require_serial_read(self) -> None:
+        DeviceSession._require_runtime_permission(self, "serial.read")
+
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
         deadline = time.time() + max(0.1, timeout)
         while time.time() < deadline:
@@ -6648,6 +6759,7 @@ class DeviceSession:
         )
 
     def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
+        DeviceSession._require_runtime_permission(self, "serial.read")
         limit = min(max(int(limit), 1), MAX_SERIAL_READ)
         with self._lock:
             try:
@@ -6762,6 +6874,7 @@ class DeviceSession:
     def program_status(self) -> dict:
         from guest_console import GuestConsoleError
 
+        DeviceSession._require_runtime_permission(self, "program.read")
         with self._lock:
             program = getattr(self, "_program", None)
             if program is not None and not program.get("cancel_requested") and program["state"] in {"running", "submitting", "unknown"}:
@@ -6859,16 +6972,55 @@ class DeviceSession:
         maximum_timeout = 120 if package else 30
         if type(timeout) not in {int, float} or not 1 <= timeout <= maximum_timeout:
             raise ServiceError("invalid_program", f"timeout_seconds must be between 1 and {maximum_timeout}", 400)
-        if package and not reference and payload.get("entrypoint", "main.py") == "main.mpy":
-            # Known rejection precedes package publication or interruption.
-            _require_live_package_entrypoint(payload, self.program_capabilities())
+        acl_entrypoint = (
+            None
+            if reference
+            else payload.get("entrypoint", "main.py")
+            if package
+            else "main.py"
+        )
+        acl_policy_id = (
+            DeviceSession._require_runtime_operation(
+                self,
+                "program.execute",
+            )
+            if reference
+            else DeviceSession._require_runtime_permission(
+                self,
+                "program.execute",
+                entrypoint=acl_entrypoint,
+            )
+        )
+        if package and not reference:
             try:
-                _, _, inline_files = program_package_snapshot({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
-                _validate_checkpoint_bytecode(inline_files)
-                if payload.get("entrypoint") == "main.mpy":
-                    validate_mpy(inline_files, self.program_capabilities())
+                if acl_entrypoint == "main.mpy":
+                    # Known rejection precedes package publication or interruption.
+                    _require_live_package_entrypoint(
+                        payload,
+                        self.program_capabilities(),
+                    )
+                _, _, inline_package_files = program_package_snapshot(
+                    {
+                        key: payload[key]
+                        for key in ("files", "entrypoint", "source_kind")
+                        if key in payload
+                    }
+                )
+                if acl_entrypoint == "main.mpy":
+                    _validate_checkpoint_bytecode(inline_package_files)
+                    validate_mpy(inline_package_files, self.program_capabilities())
             except (ProgramPackageError, UIFlowRuntimeError) as error:
-                raise ServiceError(error.code, error.message, getattr(error, "status", 409)) from error
+                raise ServiceError(
+                    error.code,
+                    error.message,
+                    getattr(error, "status", 409),
+                ) from error
+            for path in sorted(inline_package_files):
+                DeviceSession._require_runtime_permission(
+                    self,
+                    "filesystem.write",
+                    path=path,
+                )
         if not self._program_lock.acquire(blocking=False):
             raise ServiceError("program_busy", "a program transfer already owns this console", 409)
         try:
@@ -6886,12 +7038,30 @@ class DeviceSession:
                                    execution_id=reserved_execution_id)
             try:
                 if reference:
-                    revision = self.service.program_packages.get(payload["revision_id"])
-                    _require_live_package_entrypoint(revision, self.program_capabilities())
-                    package_files = self.service.program_packages.read_files(payload["revision_id"])
+                    revision = self.service.program_packages.get(
+                        payload["revision_id"]
+                    )
+                    _require_live_package_entrypoint(
+                        revision,
+                        self.program_capabilities(),
+                    )
+                    package_files = self.service.program_packages.read_files(
+                        payload["revision_id"]
+                    )
                     _validate_checkpoint_bytecode(package_files)
                     if revision["entrypoint"] == "main.mpy":
                         validate_mpy(package_files, self.program_capabilities())
+                    acl_policy_id = DeviceSession._require_runtime_permission(
+                        self,
+                        "program.execute",
+                        entrypoint=revision["entrypoint"],
+                    )
+                    for path in sorted(package_files):
+                        DeviceSession._require_runtime_permission(
+                            self,
+                            "filesystem.write",
+                            path=path,
+                        )
                 elif package:
                     revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
                     package_files = self.service.program_packages.read_files(revision["revision_id"])
@@ -6923,6 +7093,7 @@ class DeviceSession:
                     "firmware_sha256": self.firmware_sha, "pid": self.pid,
                     "execution_mode": "same-guest-uart-repl", "cleanup_mode": "interrupt-only",
                     "serial_offset": console.offset(),
+                    "runtime_acl_policy_id": acl_policy_id,
                 }
                 if package:
                     self._program.update(source_kind="uiflow2-package", entrypoint=revision["entrypoint"],
@@ -7038,6 +7209,11 @@ class DeviceSession:
         from guest_console import GuestConsoleError
 
         self.require_management_handle(management_handle)
+        acl_policy_id = DeviceSession._require_runtime_permission(
+            self,
+            "program.interrupt",
+            entrypoint="main.py",
+        )
         if type(timeout_seconds) not in {int, float} or not 1 <= timeout_seconds <= 120:
             raise ServiceError("invalid_program", "timeout_seconds must be between 1 and 120", 400)
         if not self._program_lock.acquire(blocking=False):
@@ -7091,7 +7267,11 @@ class DeviceSession:
                         if previous.get("state") in {"running", "submitting", "unknown", "interrupt-requested"}:
                             previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
                             atomic_write_json(previous_path, previous)
-                self._record_event("program_interrupted", execution_id=expected_execution_id)
+                self._record_event(
+                    "program_interrupted",
+                    execution_id=expected_execution_id,
+                    runtime_acl_policy_id=acl_policy_id,
+                )
             return {**self.program_status(), "interrupt_ack": receipt}
         finally:
             self._program_lock.release()
@@ -7335,6 +7515,10 @@ class DeviceSession:
 
     def unit_input(self, payload: dict) -> dict:
         self._check_cancelled()
+        acl_policy_id = DeviceSession._require_runtime_permission(
+            self,
+            "input.write",
+        )
         if self.state != "running":
             raise ServiceError("session_not_running", f"session state is {self.state}", 409)
         command = self.validate_unit_input(payload)
@@ -7348,7 +7532,12 @@ class DeviceSession:
                 descriptor = profile["inputs"][field]
                 path = f"/machine/units/{attachment['id']}{descriptor.get('path', '')}"
                 self._qmp_call("qom-set", path=path, property=descriptor["property"], value=value)
-            self._record_event("unit_input", unit_id=attachment["id"], values=values)
+            self._record_event(
+                "unit_input",
+                unit_id=attachment["id"],
+                values=values,
+                runtime_acl_policy_id=acl_policy_id,
+            )
         # Read back guest state; accepting an input does not prove the firmware consumed it.
         return self.unit_state()
 
@@ -7499,6 +7688,10 @@ class DeviceSession:
 
     def inject(self, payload: dict) -> dict:
         self._check_cancelled()
+        acl_policy_id = DeviceSession._require_runtime_permission(
+            self,
+            "input.write",
+        )
         if self.state != "running":
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
@@ -7536,7 +7729,12 @@ class DeviceSession:
                     )
             else:
                 send_input(self._qmp, spec, frame_size, settle)
-            self._record_event("input", spec=spec, action=action)
+            self._record_event(
+                "input",
+                spec=spec,
+                action=action,
+                runtime_acl_policy_id=acl_policy_id,
+            )
         return {
             "session_id": self.id,
             "input": spec,
@@ -7785,6 +7983,7 @@ class DeviceSession:
         }
 
     def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
+        DeviceSession._require_runtime_permission(self, "flash.read")
         if self.virtual_flash is None or not self.virtual_flash.is_file():
             raise ServiceError(
                 "flash_not_available",
@@ -7838,6 +8037,7 @@ class DeviceSession:
         return path
 
     def flash_diff(self, before: str, after: str) -> dict:
+        DeviceSession._require_runtime_permission(self, "flash.read")
         before_path = self._flash_snapshot_path(before)
         after_path = self._flash_snapshot_path(after)
         left = before_path.read_bytes()
@@ -7887,12 +8087,16 @@ class DeviceSession:
             "qom",
         }
         files: dict[str, bytes] = {}
+        serial_read_allowed = DeviceSession._runtime_permission_allowed(
+            self,
+            "serial.read",
+        )
         manifest: dict[str, Any] = {
             "schema_version": 1,
             "generated_at": iso_now(),
             "session": self.snapshot(),
             "device": self.service.get_device(self.spec.id),
-            "timeline": list(self.events),
+            "timeline": self.visible_events(),
             "included": sorted(include),
             "files": {},
         }
@@ -7900,7 +8104,10 @@ class DeviceSession:
             files["firmware/uiflow-source.json"] = json.dumps(
                 self.firmware_provenance, ensure_ascii=False, indent=2,
             ).encode("utf-8")
-        if self.program_transport:
+        if self.program_transport and DeviceSession._runtime_permission_allowed(
+            self,
+            "program.read",
+        ):
             capability_path = self.dir / "program-capabilities.json"
             if capability_path.is_file():
                 files["program-capabilities.json"] = capability_path.read_bytes()
@@ -7924,6 +8131,12 @@ class DeviceSession:
                     source, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
                 ).encode("utf-8")
                 files[f"programs/{revision_id}/revision.json"] = json.dumps(metadata).encode("utf-8")
+        elif self.program_transport:
+            manifest["program_redaction"] = {
+                "status": "OMITTED",
+                "reason": "runtime_acl_program_read_denied",
+                "policy_id": DeviceSession.runtime_acl_summary(self).get("policy_id"),
+            }
         if self.units:
             manifest["units"] = self.unit_state()
             if manifest["units"].get("contract_status") == "frozen":
@@ -7936,11 +8149,11 @@ class DeviceSession:
                 files["units/state.json"] = self.unit_state_path.read_bytes()
         if self.unit_adc_calibration_path.is_file():
             files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
-        if "serial" in include:
+        if "serial" in include and serial_read_allowed:
             for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
                 if path.is_file():
                     files[name] = path.read_bytes()
-        if "logs" in include:
+        if "logs" in include and serial_read_allowed:
             stdout_name = (
                 "network-runner.stdout"
                 if self.runtime == "network"
@@ -7962,6 +8175,15 @@ class DeviceSession:
             ):
                 if path.is_file():
                     files[name] = path.read_bytes()
+        if (
+            {"serial", "logs"} & include
+            and not serial_read_allowed
+        ):
+            manifest["runtime_output_redaction"] = {
+                "status": "OMITTED",
+                "reason": "runtime_acl_serial_read_denied",
+                "policy_id": DeviceSession.runtime_acl_summary(self).get("policy_id"),
+            }
         if (
             "frames" in include
             and self.spec.has_display
@@ -8125,14 +8347,21 @@ class DeviceSession:
                     self.network_isolation_path.read_bytes()
                 )
         if self.virtual_flash and self.virtual_flash.is_file():
-            flash_data = self.virtual_flash.read_bytes()
-            manifest["flash"] = {
-                "size": len(flash_data),
-                "sha256": hashlib.sha256(flash_data).hexdigest(),
-                "retained": True,
-            }
-            if "flash" in include:
-                files["flash/virtual-flash.bin"] = flash_data
+            if DeviceSession._runtime_permission_allowed(self, "flash.read"):
+                flash_data = self.virtual_flash.read_bytes()
+                manifest["flash"] = {
+                    "size": len(flash_data),
+                    "sha256": hashlib.sha256(flash_data).hexdigest(),
+                    "retained": True,
+                }
+                if "flash" in include:
+                    files["flash/virtual-flash.bin"] = flash_data
+            else:
+                manifest["flash"] = {
+                    "status": "OMITTED",
+                    "reason": "runtime_acl_flash_read_denied",
+                    "policy_id": DeviceSession.runtime_acl_summary(self).get("policy_id"),
+                }
         elif self.flash_info:
             manifest["flash"] = {
                 "size": self.spec.flash_size,
@@ -8157,6 +8386,10 @@ class DeviceSession:
 
     def reset(self) -> dict:
         self._check_cancelled()
+        acl_policy_id = DeviceSession._require_runtime_permission(
+            self,
+            "guest.reset",
+        )
         owns_program = False
         if self.program_transport:
             owns_program = self._program_lock.acquire(blocking=False)
@@ -8172,7 +8405,10 @@ class DeviceSession:
                 if self.program_transport and self._program:
                     self._program.update(state="interrupted", interrupted_at=iso_now())
                     self._persist_program()
-                self._record_event("reset")
+                self._record_event(
+                    "reset",
+                    runtime_acl_policy_id=acl_policy_id,
+                )
         finally:
             if owns_program:
                 self._program_lock.release()
@@ -9147,11 +9383,14 @@ class DeviceService:
         worker_state_path: Path | None = None,
         worker_heartbeat_interval: float | None = None,
         worker_stale_after: float | None = None,
+        runtime_acl: RuntimeACL | None = None,
     ):
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.storage_policy = storage_policy or StoragePolicy.from_env()
         self.specs = load_device_specs()
+        self.runtime_acl = runtime_acl or RuntimeACL.unconfigured()
+        self.runtime_acl.validate_device_ids(set(self.specs))
         self.raw_matrix = json.loads(MATRIX.read_text())
         self.artifacts = ArtifactStore(self.state_dir / "artifacts")
         self.firmware = FirmwareStore(
@@ -11455,7 +11694,7 @@ class DeviceService:
         session = self.get_session(session_id)
         return {
             "session_id": session.id,
-            "events": list(session.events),
+            "events": session.visible_events(),
         }
 
     def capacity(self) -> dict:
@@ -11511,6 +11750,7 @@ class DeviceService:
             else "disabled"
         )
         worker = self._worker_summary()
+        runtime_acl = getattr(self, "runtime_acl", None)
         return {
             "max_sessions": self.max_sessions,
             "active_sessions": len(active),
@@ -11522,6 +11762,11 @@ class DeviceService:
             "max_per_device": self.max_per_device,
             "by_device": by_device,
             "worker": worker,
+            "runtime_acl": (
+                runtime_acl.policy_summary()
+                if runtime_acl is not None
+                else RuntimeACL.unconfigured().policy_summary()
+            ),
             "modes": {
                 "network": (
                     "enabled-separate-lane"

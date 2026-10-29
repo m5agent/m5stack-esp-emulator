@@ -91,7 +91,7 @@
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
-| `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
+| `FW-01` | 进行中 | operator-owned runtime ACL/执行策略已完成；继续 guest filesystem 权限、完整源码和依赖许可覆盖、法律审批 |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 |
@@ -108,27 +108,27 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`61` 个 Python 模块，`45354` 行；规模最大的模块如下。
+- `platform/tools`：`62` 个 Python 模块，`46109` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 12232 |
+| `device_service.py` | 12477 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
-| `serve.py` | 1619 |
+| `serve.py` | 1669 |
 | `worker_agent.py` | 1501 |
 
-- `tests/`：`131` 个可执行 Python 测试文件，分布在 `60` 个目录；`225` 个 evidence JSON。
+- `tests/`：`132` 个可执行 Python 测试文件，分布在 `61` 个目录；`226` 个 evidence JSON。
 - `patches/`：`16` 个补丁组，`178` 个 patch 文件。
-- 文档：`460` 个 Markdown 页面；除本生成页外共 `44475` 行。
+- 文档：`462` 个 Markdown 页面；除本生成页外共 `44669` 行。
 
 ## 文档与测试
 
-- 平台测试：`1551` 项。
-- Docs 新鲜度登记：`112` 行；其中非历史页 `101` 行，历史固定页 `11` 行。
-- 文档职责分布：待办 `3`，契约 `8`，证据/差异 `46`，历史固定 `11`，实现/设计 `9`，参考 `31`，工作流/导航 `4`。
-- 全量文档盘点：`460` 个 Markdown 页面；职责分布：权威/专题页 `112`，设备档案 `28`，示例 `1`，治理/入口 `3`，文档导航 `1`，其他 `3`，补丁说明 `19`，平台说明 `10`，仓内历史记录 `5`，测试/用例说明 `170`，未登记 docs 页面 `4`，第三方来源说明 `104`。
+- 平台测试：`1566` 项。
+- Docs 新鲜度登记：`113` 行；其中非历史页 `102` 行，历史固定页 `11` 行。
+- 文档职责分布：待办 `3`，契约 `8`，证据/差异 `47`，历史固定 `11`，实现/设计 `9`，参考 `31`，工作流/导航 `4`。
+- 全量文档盘点：`462` 个 Markdown 页面；职责分布：权威/专题页 `113`，设备档案 `28`，示例 `1`，治理/入口 `3`，文档导航 `1`，其他 `3`，补丁说明 `19`，平台说明 `10`，仓内历史记录 `5`，测试/用例说明 `171`，未登记 docs 页面 `4`，第三方来源说明 `104`。
 - 复核日期早于当前事实日期的非历史页：[project-snapshot.md](project-snapshot.md) `2026-10-26`，[code-map.md](code-map.md) `2026-10-27`，[evidence-retention.md](evidence-retention.md) `2026-10-27`，[browser-runtime-feasibility.md](browser-runtime-feasibility.md) `2026-10-28`，[plans/2026-10-28-public-simulator.md](plans/2026-10-28-public-simulator.md) `2026-10-28`，[evidence/2026-10-28-public-simulator/README.md](evidence/2026-10-28-public-simulator/README.md) `2026-10-28`，[plans/2026-10-27-source-pr-cleanup.md](plans/2026-10-27-source-pr-cleanup.md) `2026-10-27`，[evidence/2026-10-27-uiflow2-api-sweep/README.md](evidence/2026-10-27-uiflow2-api-sweep/README.md) `2026-10-28`，[evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md) `2026-10-28`，[evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md) `2026-10-28`，[evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md) `2026-10-28`，[evidence/2026-10-28-three-board-audio/README.md](evidence/2026-10-28-three-board-audio/README.md) `2026-10-28`，[evidence/2026-10-28-core2-touch-buttons/README.md](evidence/2026-10-28-core2-touch-buttons/README.md) `2026-10-28`，[evidence/2026-10-28-core2-intmatrix-pending-irq/README.md](evidence/2026-10-28-core2-intmatrix-pending-irq/README.md) `2026-10-28`，[evidence/2026-10-28-cooperative-highint-rmt/README.md](evidence/2026-10-28-cooperative-highint-rmt/README.md) `2026-10-28`，[evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md) `2026-10-28`，[evidence/2026-10-28-core2-dual-spi-panel-routing/README.md](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md) `2026-10-28`，[evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md) `2026-10-28`，[evidence/2026-10-28-concurrent-fixture-and-ready-state/README.md](evidence/2026-10-28-concurrent-fixture-and-ready-state/README.md) `2026-10-28`，[evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md) `2026-10-28`，[evidence/2026-10-28-core2-timg-wdt-feed/README.md](evidence/2026-10-28-core2-timg-wdt-feed/README.md) `2026-10-28`，[unit-agent-api.md](unit-agent-api.md) `2026-10-27`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[plans/2026-10-25-unit-runtime-integration.md](plans/2026-10-25-unit-runtime-integration.md) `2026-10-27`，[unit-integration-host-issues.md](unit-integration-host-issues.md) `2026-10-27`，[plans/2026-10-26-aiflow-live-preview-api.md](plans/2026-10-26-aiflow-live-preview-api.md) `2026-10-27`，[plans/2026-10-27-preview-run-control.md](plans/2026-10-27-preview-run-control.md) `2026-10-27`，[plans/2026-10-27-preview-web-consumer.md](plans/2026-10-27-preview-web-consumer.md) `2026-10-27`，[plans/2026-10-27-preview-controls-and-2relay.md](plans/2026-10-27-preview-controls-and-2relay.md) `2026-10-27`，[plans/2026-10-27-binary-checkpoint-and-unit-protocols.md](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) `2026-10-27`，[plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md](plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md) `2026-10-27`，[plans/2026-10-27-public-main-mpy-runtime.md](plans/2026-10-27-public-main-mpy-runtime.md) `2026-10-27`，[plans/2026-10-27-flashlight-route-history.md](plans/2026-10-27-flashlight-route-history.md) `2026-10-27`，[plans/2026-10-27-flashlight-cold-pad-observation.md](plans/2026-10-27-flashlight-cold-pad-observation.md) `2026-10-27`，[plans/2026-10-27-core2-startup-issues.md](plans/2026-10-27-core2-startup-issues.md) `2026-10-27`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`
@@ -141,7 +141,6 @@
   - [platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md](../platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md) `2026-10-26`
   - [platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md](../platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md) `2026-10-26`
   - [tests/README.md](../tests/README.md) `2026-10-26`
-  - [tests/firmware/README.md](../tests/firmware/README.md) `2026-10-26`
   - [tests/firmware/image_capability_observation/README.md](../tests/firmware/image_capability_observation/README.md) `2026-10-26`
   - [tests/firmware/manifest_policy/README.md](../tests/firmware/manifest_policy/README.md) `2026-10-26`
   - [tests/firmware/openai_nvs_precondition/README.md](../tests/firmware/openai_nvs_precondition/README.md) `2026-10-26`

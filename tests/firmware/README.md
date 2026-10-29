@@ -1,6 +1,6 @@
 # Firmware review and runtime evidence
 
-Last reviewed: `2026-10-26`
+Last reviewed: `2026-10-29`
 
 This directory stores committed evidence for firmware normalization, static
 review and public-firmware runtime tests. The evidence files are snapshots, not
@@ -56,7 +56,15 @@ PSRAM or cache timing.
 Filesystem inventories include a per-file `permission_policy`. FAT directory
 attributes are recorded without treating them as POSIX access control;
 LittleFS and SPIFFS explicitly report that Unix mode bits are absent. Runtime
-permission/ACL enforcement remains `NOT RUN`.
+permission/ACL enforcement inside the guest remains `NOT RUN`.
+
+Device Service API `1.51.0` separately provides an operator-owned service
+runtime ACL for serial/input/reset, program execute/interrupt/read, package
+paths and flash reads. Real HTTP validation is recorded in
+[`evidence-2026-10-29-runtime-acl.json`](evidence-2026-10-29-runtime-acl.json)
+with the runner at [`runtime_acl/run_test.py`](runtime_acl/run_test.py).
+This service policy is not firmware-authored filesystem permission proof and
+does not sandbox arbitrary native code.
 
 Required/optional capability consistency is covered by
 [`evidence-2026-10-25-capability-required-optional-consistency.json`](evidence-2026-10-25-capability-required-optional-consistency.json):
