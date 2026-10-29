@@ -628,6 +628,18 @@ behavior are unchanged. A short control before the fix terminated at
 `Bad icount read` after about `2.351 s` virtual time; the fixed binary
 completed both the short trace and repeated 50-second handoff-episode runs.
 
+`0090-icount-percpu-fairness-cap.patch` adds a validated per-vCPU virtual-time
+cap to multi-vCPU `-icount` round-robin scheduling. The shared Core2 profile
+sets it to `10 us` by default through `qemu_accel.py`; setting
+`M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` restores the uncapped control. On the public
+legacy Core2 image, the cap reduced the CPU1 initiator
+`can_start -> esp_ipc_call` return phase from `563.7 us` to `56.2 us` and the
+peer flash-block wait from `728.4 us` to `184.7 us`. The Core2 UIFlow2 device
+group remained `6/6 PASS`. Normal WDT still reset at TG0 stage 1 around
+`17.2429 s`, so this is a scheduling-fidelity improvement rather than closure
+of `RUNTIME-03`; see the
+[budget evidence](../../docs/evidence/2026-10-29-core2-icount-percpu-budget/README.md).
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

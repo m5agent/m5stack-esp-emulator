@@ -6,6 +6,9 @@ import os
 CORE2_TCG_TB_SIZE_MIB = 128
 CORE2_ICOUNT_SHIFT = 5
 CORE2_ICOUNT_SHIFT_ENV = "M5_CORE2_ICOUNT_SHIFT"
+CORE2_ICOUNT_MAX_PERCPU_NS = 10_000
+CORE2_ICOUNT_MAX_PERCPU_NS_ENV = "M5_CORE2_ICOUNT_MAX_PERCPU_NS"
+QEMU_ICOUNT_MAX_PERCPU_NS_ENV = "M5SW_ICOUNT_MAX_PERCPU_NS"
 CORE2_ICOUNT_MODE = (
     f"shift={CORE2_ICOUNT_SHIFT},align=off,sleep=off"
 )
@@ -29,6 +32,24 @@ def core2_accel_args() -> list[str]:
                 f"{CORE2_ICOUNT_SHIFT_ENV} must be auto or 0-10"
             )
         shift = str(value)
+    max_percpu_ns = os.environ.get(
+        CORE2_ICOUNT_MAX_PERCPU_NS_ENV,
+        str(CORE2_ICOUNT_MAX_PERCPU_NS),
+    )
+    try:
+        max_percpu_value = int(max_percpu_ns)
+    except ValueError as error:
+        raise ValueError(
+            f"{CORE2_ICOUNT_MAX_PERCPU_NS_ENV} must be 0 or 1000-1000000000"
+        ) from error
+    if max_percpu_value != 0 and not 1_000 <= max_percpu_value <= 1_000_000_000:
+        raise ValueError(
+            f"{CORE2_ICOUNT_MAX_PERCPU_NS_ENV} must be 0 or 1000-1000000000"
+        )
+    if max_percpu_value:
+        os.environ[QEMU_ICOUNT_MAX_PERCPU_NS_ENV] = str(max_percpu_value)
+    else:
+        os.environ.pop(QEMU_ICOUNT_MAX_PERCPU_NS_ENV, None)
     return [
         "-accel",
         f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}",

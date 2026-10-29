@@ -1948,3 +1948,34 @@ self-close 意图和最终强制 browser cleanup 不授予 PASS。本轮整体�
 [证据说明](evidence/2026-10-29-motion-command-followup/README.md)、
 [主摘要](evidence/2026-10-29-motion-command-followup/summary.json)和
 [StackChan v7 摘要](evidence/2026-10-29-motion-command-followup/stackchan-v7.summary.json)。
+
+## 2026-10-29：Core2 per-vCPU icount fairness budget
+
+`0090-icount-percpu-fairness-cap.patch` 给 multi-vCPU deterministic icount
+加入经校验的 per-vCPU virtual-time cap；Core2 的共享 accelerator 配置默认
+发送 `M5SW_ICOUNT_MAX_PERCPU_NS=10000`，设置
+`M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` 可关闭。该变更只限制 vCPU 切换预算，
+不改变 guest 指令、WDT 配置、Flash/SSI 数据面或外设模型。
+
+最终 QEMU `568079f3…`、同一 public legacy 固件 SHA、`runtime=qemu-wifi`、
+`icount shift=5` 和 normal WDT 的同 trace A/B：
+
+| 指标 | uncapped | `10 us` cap |
+| --- | ---: | ---: |
+| CPU1 initiator `can_start → IPC return` mean | `563.667 us` | `56.249 us` |
+| peer `spi_flash_op_block_func` wait mean | `728.443 us` | `184.689 us` |
+| handoff completed in trace window | `5,783` | `5,607` |
+| first TG0 timeout | `7.253607 s` | 未到该 virtual time |
+
+uncapped 运行在 `7.253606495 s` 记录 TG0 stage-0 timeout；capped trace
+只到约 `5.39 s` virtual，因此不能把“该短窗未出现 timeout”解释为 WDT 已
+修复。独立的 90 秒 wall-time capped 长窗到达 `17.242875841 s` 后仍触发
+TG0 stage-1 reset，serial 没有 `BOARD NAME`/`APIKEY`/REPL，frame 仍是
+302-byte 黑帧 SHA `57580743…`。
+
+同一最终 QEMU 的 Core2 UIFlow2 设备组为 `6/6 PASS`，默认
+`core2-peripherals` case 另行 `1/1 PASS`。因此该结果关闭“双 vCPU icount
+固定预算放大正常 IPC handoff”这一调度子问题，并证明候选产品路径无回归；
+它不关闭 `RUNTIME-03` 的正常启动、显示、REPL、非空应用帧或物理边界。
+见[证据](evidence/2026-10-29-core2-icount-percpu-budget/README.md)和
+[机器摘要](evidence/2026-10-29-core2-icount-percpu-budget/summary.json)。
