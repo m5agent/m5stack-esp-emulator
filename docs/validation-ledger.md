@@ -1974,3 +1974,24 @@ REPL 和稳定应用帧仍未出现，所以 `RUNTIME-03` 保持 `OPEN`。全部
 virtual-device validation；物理 watchdog/cache/PSRAM 与真机 `NOT RUN`。
 见[证据](evidence/2026-10-30-core2-timg-feed-reschedule/README.md)和
 [机器摘要](evidence/2026-10-30-core2-timg-feed-reschedule/summary.json)。
+
+## 2026-10-30：Core2 legacy menu after WiFi configuration stub
+
+在包含 classic-panel DMA 修复的 diagnostic QEMU `7d03bb18…` 上，使用
+public legacy firmware SHA `4d2d648b…` 的 VFS 诊断镜像
+`f4966a4a…`，只把 `wifiWebCfg.config_by_web` stub 为返回 true，不伪造
+panel/DMA 像素或 QOM 输入。`runtime=qemu-wifi/profile=core2-openmac`、
+`icount shift=2`、uncapped 和 WDT-off 诊断控制下，serial 到达
+BOARD/APIKEY、boot.py 与 WiFi stub marker，最终帧为 `320x240`、
+`76,760` nonblack pixels、`417` colors，SHA256
+`a4f683468cfb9edc70468efaabd23c226abbed7a3cdeaf6a397cab09c52a6078`，
+画面包含 UIFlow 标题和 App/Flow/Setup 菜单。
+
+原厂 normalized image 的专用 `wifi` 分区（offset `0xbff000`，size
+`0x1000`）为空。stub 绕过真实配置生命周期，因此这是 menu/display
+`DIAGNOSTIC_PASS`，不是原厂固件 `RUNTIME-03` PASS。剩余门禁是填充有效
+WiFi 配置、运行真实 `wifiWebCfg`/WiFi UI，并在 normal WDT 下稳定完成
+startup UI、REPL 和用户应用。全部为 virtual-device validation；RF、
+电气和物理硬件 `NOT RUN`。见
+[证据](evidence/2026-10-30-core2-wifi-stub-menu/README.md)和
+[机器摘要](evidence/2026-10-30-core2-wifi-stub-menu/summary.json)。

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "core2-legacy-wifi-stub-menu",
+  "validation": "virtual-device validation",
+  "status": "DIAGNOSTIC_PASS_RUNTIME03_OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "original_normalized_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+    "wifi_stub_normalized_sha256": "f4966a4a2a3983cc15f5752a28e9a04ef990f63ef868c3ce7ce8de3349871c1b"
+  },
+  "runtime": {
+    "device_id": "core2",
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac",
+    "icount_shift": 2,
+    "per_cpu_cap": "disabled",
+    "diagnostic_wdt_disabled": true,
+    "qemu_sha256": "7d03bb183a34cbbf8960a75e95703f92c2fec7fe6e14dad98707e9431caf83a4"
+  },
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 76760,
+    "unique_colors": 417,
+    "png_sha256": "a4f683468cfb9edc70468efaabd23c226abbed7a3cdeaf6a397cab09c52a6078"
+  },
+  "serial_markers": [
+    "BOARD NAME: M5STACK-CORE2",
+    "APIKEY: 7621FAE2",
+    "CORE2_LEGACY_ORIGINAL_BOOT_START",
+    "CORE2_LEGACY_ORIGINAL_BOOT_DONE",
+    "CORE2_LEGACY_WIFI_STUB_INSTALLED",
+    "CORE2_LEGACY_WIFI_STUB_CONFIG_BY_WEB"
+  ],
+  "remaining": [
+    "real wifiWebCfg configuration path",
+    "normal-WDT stable startup with the original firmware",
+    "REPL/setup and user application execution",
+    "physical hardware, RF and electrical validation"
+  ]
+}

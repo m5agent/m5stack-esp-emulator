@@ -231,6 +231,12 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   但长窗仍在约 `15.56 s` 触发 TG0 stage-1 reset，因此该修复只关闭
   watchdog timer replacement 子问题，`RUNTIME-03` 继续 OPEN。见
   [feed-reschedule 证据](evidence/2026-10-30-core2-timg-feed-reschedule/README.md)。
+  同一 diagnostic QEMU 上，仅把 `wifiWebCfg.config_by_web` stub 为返回
+  true，就得到完整 `320x240` UIFlow App/Flow/Setup 菜单帧（`76,760`
+  nonblack pixels、`417` colors）。原厂镜像的专用 `wifi` 分区为空，
+  因此剩余原厂路径是提供有效 WiFi 配置并重跑真实 `wifiWebCfg`/WiFi
+  UI 生命周期，而不是继续修 display/LVGL。见
+  [WiFi stub 菜单证据](evidence/2026-10-30-core2-wifi-stub-menu/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
