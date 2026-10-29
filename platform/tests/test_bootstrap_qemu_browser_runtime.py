@@ -41,6 +41,7 @@ class RuntimeDistributionTests(unittest.TestCase):
                  "source": {"commit": self.lock["qemu"]["commit"], "patches": self.lock["patches"], "patched_files_sha256": self.lock["patched_files"]},
                  "build": {"kind": "source-build", "all_objects_rebuilt": True, "lock_sha256": builder.sha(builder.LOCK_PATH), "recipe_sha256": builder.sha(builder.RECIPE / "build.py"), "emscripten": "3.1.50", "link_audit": builder.audit_link_arguments(["emcc", *self.lock["link_flags"]], self.lock["link_flags"])}, "profiles": ["cores3"],
                  "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"},
+                 "compiled_profiles": self.lock["compiled_profiles"], "frame_transport": self.lock["frame_transport"],
                  "assets": data, "required_rom": self.lock["required_rom"], "firmware_bundled": False}
         self.write(value)
         return value
@@ -48,11 +49,11 @@ class RuntimeDistributionTests(unittest.TestCase):
     def write(self, value): (self.root / "runtime.json").write_text(json.dumps(value))
 
     def test_fixed_patch_order_and_runtime_source_boundary(self):
-        self.assertEqual(len(self.lock["patches"]), 40)
-        self.assertEqual(len(self.lock["patched_files"]), 144)
+        self.assertEqual(len(self.lock["patches"]), 43)
+        self.assertEqual(len(self.lock["patched_files"]), 146)
         self.assertTrue(self.lock["patches"][30]["path"].endswith("0064-esp32-intmatrix-pending-irq-remap.patch"))
         suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:]]
-        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012"])
+        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015"])
         self.assertFalse(self.lock["required_rom"]["bundled"])
         self.assertIsNone(self.lock["required_rom"]["path"])
 
@@ -108,6 +109,8 @@ class RuntimeDistributionTests(unittest.TestCase):
                        lambda v: v["build"]["link_audit"]["effective"].update(STACK_SIZE="5MB"),
                        lambda v: v["build"]["link_audit"].update(argv_sha256="short"),
                        lambda v: v["source"].update(patched_files_sha256={}),
+                       lambda v: v.update(compiled_profiles=[]),
+                       lambda v: v["frame_transport"].update(kind="unknown"),
                        lambda v: v["execution_profile"].update(clock_divisor=1),
                        lambda v: v["assets"]["wasm"].update(path="../escape.wasm"),
                        lambda v: v["assets"].pop("source")]:

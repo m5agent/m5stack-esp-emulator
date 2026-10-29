@@ -1,0 +1,37 @@
+Subject: [WASM] retain mainline Core2 panel routing and WDT feed semantics
+
+Context port of native 0068 and 0069 from main 0769ae7c. Original patch
+identities remain in the native tree. No diagnostic/CAS patches are imported.
+The frozen SPI implementation already defers and consumes panel DMA once;
+native 0074 has a different immediate-DMA context and is not claimed here.
+
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -80,6 +80,7 @@
+     qdev_prop_set_bit(panel, "invert", true);
+     object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 15);
+     esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 15);
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -256,12 +256,11 @@
+         break;
+     }
+     case A_TIMG_WDTFEED:
+-        if (!esp32_timg_wdt_protected(&s->wdt)) {
+-            if (esp32_timg_trace_enabled()) {
+-                fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+-            }
+-            esp32_timg_wdt_feed(&s->wdt);
+-        }
++        /* ESP-IDF feeds without unlocking WDTPROTECT. */
++        if (esp32_timg_trace_enabled()) {
++            fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
++        }
++        esp32_timg_wdt_feed(&s->wdt);
+         break;
+     case A_TIMG_WDTPROTECT:
+         if (esp32_timg_trace_enabled()) {

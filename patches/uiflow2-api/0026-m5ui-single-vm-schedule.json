@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/libs/m5ui/port.py",
+  "preimage_sha256": "74f7e96362c0644f9d8f964bed3afcc27ccb94ac912404575580b576c7b95623",
+  "candidate_sha256": "5650593fef0983ef369da07dad13ae954eaff4667e7e9483606ae7b03dd42ba8",
+  "problem": "m5utils.Timer already queues Python timer_cb every 30 ms; the Python callback queues another LVGL callback without handling queue saturation and advances ticks by a fixed interval.",
+  "correction": "Call the LVGL handler from the existing VM callback, advance ticks from real elapsed guest milliseconds, release its execution guard in finally, make queued callbacks inert after deinit, and report the owned instance initialization state.",
+  "validation": "Six explicit browser-fixture behavior tests and eight independent exact-SDK before/after regressions PASS, including source/license hashes and forward/reverse application. The explicit CoreS3 candidate passed 25 normal-clock browser guest checks with real frame/touch/PIR transitions; this does not establish stock frozen-SDK scheduling, first-stage C Timer coalescing or physical hardware PASS.",
+  "browser_evidence": "docs/evidence/2026-10-29-browser-lvgl-wallclock/README.md"
+}

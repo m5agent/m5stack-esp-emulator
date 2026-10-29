@@ -38,8 +38,11 @@ static int erase_block(const struct lfs_config *c, lfs_block_t block) {
 }
 static int sync_block(const struct lfs_config *c) { (void)c; return 0; }
 
-int m5_lfs_mount(uint8_t *buffer, uint32_t size) {
-    if (mounted || !buffer || size != 4980736) return LFS_ERR_INVAL;
+int m5_lfs_mount_sized(uint8_t *buffer, uint32_t size) {
+    /* The caller binds this region to a verified, unencrypted VFS partition.
+     * This is capacity validation, never a format or board-name fallback. */
+    if (mounted || !buffer || size < 8192 || size > 16 * 1024 * 1024 ||
+        size % 4096 != 0) return LFS_ERR_INVAL;
     image = buffer;
     image_size = size;
     memset(&fs, 0, sizeof(fs));
@@ -59,6 +62,11 @@ int m5_lfs_mount(uint8_t *buffer, uint32_t size) {
     int result = lfs_mount(&fs, &config);
     mounted = result == 0;
     return result;
+}
+
+int m5_lfs_mount(uint8_t *buffer, uint32_t size) {
+    if (size != 4980736) return LFS_ERR_INVAL;
+    return m5_lfs_mount_sized(buffer, size);
 }
 
 int m5_lfs_unmount(void) {
@@ -139,7 +147,9 @@ int m5_lfs_scan(void) {
 
 int m5_lfs_write(const char *path, const uint8_t *data, uint32_t size) {
     if (!mounted || !path || !data || size > 262144
-        || (strcmp(path, "/boot.py") && strcmp(path, "/main.py"))) return LFS_ERR_INVAL;
+        || (strcmp(path, "/boot.py") && strcmp(path, "/main.py")
+            && strcmp(path, "/browser_probe_config.py")
+            && strcmp(path, "/candidate_lvgl_loop.py"))) return LFS_ERR_INVAL;
     lfs_file_t file;
     int result = lfs_file_open(&fs, &file, path, LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC);
     if (result < 0) return result;

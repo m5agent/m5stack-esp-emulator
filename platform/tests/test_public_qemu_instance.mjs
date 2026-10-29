@@ -2,6 +2,11 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
+import {readSharedQemuFrame} from '../web/public-qemu-frame.js';
+
+const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
+const profile=getQemuBrowserProfile('cores3',registry);
 
 const callbacks=new Map(),parent={},origin='https://example.test';
 class Worker {terminate(){}}
@@ -18,9 +23,11 @@ class TestURL extends URL {
   static revokeObjectURL(){}
 }
 const source=await readFile(new URL('../web/public-qemu-instance.js',import.meta.url),'utf8');
+const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,parent,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
+  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
-vm.runInContext(source,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
+vm.runInContext(executableSource,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
 const port=()=>({messages:[],closed:false,start(){this.started=true;},close(){this.closed=true;},postMessage(value){this.messages.push(value);}});
 const connect=callbacks.get('message'),one=port();
 for(const event of [{source:{},origin,data:{type:'m5-qemu-connect'},ports:[one]},
@@ -35,14 +42,19 @@ await one.onmessage({data:{id:1,op:'uart',value:{text:'contract'}}});assert.matc
 // Emscripten or any guest. Exercise the real UART write and PPM parser together.
 const fakeFactory=`export default async function(options){
   const devices=[];const stream={stream_ops:{}};
-  const module={ENV:{},HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,mkdirTree(){},writeFile(){},makedev:(a,b)=>b,
+  const files=new Map();const module={ENV:{},arguments:options.arguments,HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,files,mkdirTree(){},writeFile:(name,value)=>files.set(name,value),makedev:(a,b)=>b,
     registerDevice:(id,ops)=>devices[id]=ops,mkdev(){},getStream:()=>stream,
     ErrnoError:class extends Error{}}};
   for(const callback of options.preRun)callback(module);
   options.onRuntimeInitialized();return module;
 }`;
-await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),rom:new ArrayBuffer(0),firmware:new ArrayBuffer(0)}}});
+await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
 assert.equal(one.messages.at(-1).id,4);assert.equal(one.messages.at(-1).error,undefined);
+assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(module.arguments)',context)),buildQemuArguments(profile));
+assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8');
+assert.equal(vm.runInContext('module.ENV.M5_WASM_FRAMEBUFFER',context),'0');
+assert.equal(vm.runInContext(`module.FS.files.get('/rom/${profile.roms[0].name}').byteLength`,context),profile.roms[0].bytes);
+assert.equal(vm.runInContext("module.FS.files.get('/efuse.bin').byteLength",context),4096);
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
 const commands=()=>JSON.parse(vm.runInContext("JSON.stringify(new TextDecoder().decode(new Uint8Array(qmpInput.splice(0))).trim().split('\\n').filter(Boolean).map(line=>JSON.parse(line)))",context));
 const respond=(command,value)=>vm.runInContext(`output(${JSON.stringify(JSON.stringify({return:value,id:command.id})+'\n')})`,context);
@@ -63,6 +75,24 @@ vm.runInContext(`
   module.FS.devices[0].write(null,serialBytes,2,1);
 `,context);
 assert.equal(one.messages.filter(item=>item.type==='serial').map(item=>item.value).join(''),'中','frame parsing cannot consume a pending UART UTF-8 sequence');
+await one.onmessage({data:{id:10,op:'input',value:{type:'uart',text:'unadmitted'}}});assert.match(one.messages.at(-1).error,/not admitted/);assert.equal(commands().length,0,'UART rejection cannot enqueue a QMP command');
+const touch=one.onmessage({data:{id:11,op:'input',value:{type:'touch',x:319,y:239,down:true}}});
+const touchCommands=commands();assert.equal(touchCommands.length,1);assert.equal(touchCommands[0].execute,'input-send-event');
+assert.equal(touchCommands[0].arguments.events[0].data.value,32767);assert.equal(touchCommands[0].arguments.events[1].data.value,32767);respond(touchCommands[0],{});await touch;
+const pir=one.onmessage({data:{id:12,op:'input',value:{type:'pir',motion:true}}});
+const pirSet=commands();assert.equal(pirSet.length,1);assert.equal(pirSet[0].execute,'qom-set');assert.equal(pirSet[0].arguments.path,'/machine/units/pir');respond(pirSet[0],{});await tick();
+const pirGet=commands();assert.equal(pirGet.length,1);assert.equal(pirGet[0].execute,'qom-get');respond(pirGet[0],true);await pir;assert.equal(one.messages.at(-1).value.motion,true);
+// A synthetic host-side ABI buffer exercises the imported real shared-frame
+// reader through the instance port. It is not firmware/display validation.
+vm.runInContext(`
+  frameTransport='shared-rgb565-v1';module.HEAPU8=new Uint8Array(new SharedArrayBuffer(196608));
+  module._m5_wasm_frame_state=()=>32;
+  const words=new Uint32Array(module.HEAPU8.buffer,32,8);words.set([0x4d354642,2,320,240,640,64,1,0]);
+  module.HEAPU8[64]=0x34;module.HEAPU8[65]=0x12;
+`,context);
+await one.onmessage({data:{id:20,op:'frame'}});
+const sharedFrames=one.messages.filter(item=>item.type==='frame');assert.equal(sharedFrames.length,1);assert.equal(sharedFrames[0].value.source,'qemu-display-surface-shared');assert.equal(sharedFrames[0].value.sourceSequence,2);assert.equal(sharedFrames[0].value.pixels[0],0x34);
+await one.onmessage({data:{id:21,op:'frame'}});assert.equal(one.messages.at(-1).value.unchanged,true);assert.equal(one.messages.filter(item=>item.type==='frame').length,1);assert.equal(commands().length,0,'shared frames must not fall back to screendump QMP');
 await one.onmessage({data:{id:2,op:'dispose'}});assert.equal(one.messages.at(-1).id,2);assert.equal(one.messages.at(-1).value.workersRemaining,0);assert.equal(one.closed,true);
 const count=one.messages.length;await one.onmessage({data:{id:3,op:'uart',value:{text:'late'}}});assert.equal(one.messages.length,count,'disposed instances reject queued late operations');
 console.log('public QEMU instance parent/origin/one-port ownership and disposal fencing contracts passed; no guest executed');

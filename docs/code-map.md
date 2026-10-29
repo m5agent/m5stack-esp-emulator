@@ -143,17 +143,21 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/bootstrap_qemu_browser_runtime.py`、`scripts/qemu-wasm-build/` | 固定 C/QEMU、Emscripten 及依赖完整源码构建和对应源码归档；默认不打包 ROM/固件 | `test_bootstrap_qemu_browser_runtime.py`；[Pages 部署](pages-deployment.md) |
 | `scripts/browser-littlefs/`、`platform/web/public-demo-firmware.js` | 浏览器下载官方基底后本地组合固定 LVGL/PIR 示例，精确 SHA 和原文件保留校验 | `test_browser_littlefs_build.py`、`test_browser_littlefs.mjs` |
 | `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-coi.js` | 每实例 iframe / pthread、私有 MessageChannel、真实 QMP/UART/帧/输入、本地记录和 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs` |
+| `platform/web/qemu-browser-profiles.json`、`public-qemu-profiles.js` | 逐板 ROM、Flash/eFuse、物理帧坐标、输入与公开/候选准入；完整固件 SHA 绑定执行时钟，不能从 compiled 或原生结果继承公开准入 | `test_public_qemu_profiles.mjs`、`test_public_qemu_board_guest.mjs` |
+| `platform/web/public-qemu-frame.js`、QEMU WASM `0014`/`0015` | 真实显示 surface 的共享快照及序列防撕裂；SDK poll 的宿主线程等待，保留客体时钟 | `test_public_qemu_frame.mjs`、`test_wasm_poll_wait_patch.py`、`tests/browser-qemu/poll_wait/` |
+| `platform/tests/test_public_qemu_admitted_boards.mjs` | 串行执行本次导出中每个公开板型与 CoreS3 两种示例，失败阻止 Pages 发布 | `.github/workflows/public-site.yml`；性能另由 `test_public_qemu_performance.mjs` 量测 |
 | `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径 | `test_public_config.mjs`、`test_public_workbench_browser.mjs` |
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 
-`patches/qemu-wasm-probe/`保存未接入产品的C/QEMU宿主回移及依赖适配；
+`patches/qemu-wasm-probe/`保存独立于原生 bootstrap 的 C/QEMU 宿主回移及依赖适配，
+公开浏览器构建只使用源码 lock 明确选择的补丁；
 [研究说明](qemu-wasm-port-research.md)记录固定源码、完整构建、浏览器CLI/QMP
 证据及无固件退出修正，不属于现有native bootstrap或browser固件准入。
 `scripts/qemu-wasm-browser/`提供研究用可见session传输；
 `tests/browser-qemu/cores3_lvgl_pir/`固定真实固件fixture。
 [CoreS3证据](evidence/2026-10-28-qemu-wasm-cores3/README.md)分别记录浏览器CPU、
-LVGL/触摸/PIR与停止重开；`0009`修主CPU jump的C栈恢复，`0010`提供显式离线慢时钟，`0012`将浏览器stdio QMP绑定已有main-loop context（无OOB）；默认wallclock/LVGL队列与其它异常路径仍开放。
+LVGL/触摸/PIR与停止重开；`0009`修主CPU jump的C栈恢复，`0010`提供显式离线慢时钟，`0012`将浏览器stdio QMP绑定已有main-loop context（无OOB）。后续共享帧/host等待及显式正常时钟 SDK 候选见[本轮证据](evidence/2026-10-29-wasm-performance-devices/README.md)；stock SDK 第一层 C Timer coalescing、触摸延迟与其它异常路径仍开放。
 独立Fiber/SjLj最小C对照见`tests/browser-qemu/fiber_sjlj/`，固定guest源码见
 `tests/browser-qemu/cores3_lvgl_pir/`；均为显式opt-in，不纳普通CI执行。
 

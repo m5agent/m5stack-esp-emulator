@@ -124,6 +124,44 @@ def qemu_runtime_files(directory: Path, *, allow_diagnostic: bool = False) -> tu
     return runtime_files(directory, allow_incremental=allow_diagnostic)
 
 
+def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str, ...] = ()) -> tuple[dict, dict]:
+    """Export only individually admitted boards, or explicit preview candidates.
+
+    The engine manifest describes compiled availability. It is deliberately
+    insufficient to turn every machine into a public browser capability.
+    """
+    registry = json.loads((root / "platform/web/qemu-browser-profiles.json").read_text(encoding="utf-8"))
+    if (registry.get("schema_version") != 1 or registry.get("engine") != "qemu-wasm"
+            or registry.get("target") != "xtensa-softmmu"
+            or registry.get("source", {}).get("commit") != runtime_manifest.get("source", {}).get("commit")):
+        raise ValueError("QEMU browser profile source/target mismatch")
+    rows = registry.get("profiles", [])
+    by_id = {row["deviceId"]: row for row in rows}
+    if len(by_id) != len(rows) or len(set(candidates)) != len(candidates):
+        raise ValueError("duplicate QEMU browser profile")
+    for device_id in candidates:
+        if device_id not in by_id or by_id[device_id].get("admission") != "candidate":
+            raise ValueError("unknown or non-candidate QEMU preview profile")
+        if device_id not in runtime_manifest.get("compiled_profiles", runtime_manifest.get("profiles", [])):
+            raise ValueError("QEMU preview profile is not available in this runtime")
+    available = runtime_manifest.get("compiled_profiles", runtime_manifest.get("profiles", []))
+    selected = [row for row in rows if (row.get("admission") == "public" and row["deviceId"] in available)
+                or row["deviceId"] in candidates]
+    registry["profiles"] = selected
+    browser = {"schema_version": 1, "scope": "C/QEMU per-board browser admission; native coverage is not inherited",
+               "source": registry["source"], "devices": []}
+    for row in selected:
+        browser["devices"].append({"id": row["deviceId"], "browser": {
+            "board": row["board"], "status": "experimental" if row["admission"] == "public" else "candidate",
+            "description": f"C/QEMU / {row['deviceId']} / vm-div{row['clockDivisor']}",
+            "limitations": row["limitations"], "reference": {
+                "name": row["reference"]["name"], "url": row["reference"]["url"],
+                "sha256": row["reference"]["sha256"],
+            },
+        }})
+    return registry, browser
+
+
 def littlefs_runtime_files(directory: Path) -> dict[str, bytes]:
     directory = directory.resolve()
     manifest = json.loads((directory / "manifest.json").read_text())
@@ -137,6 +175,31 @@ def littlefs_runtime_files(directory: Path) -> dict[str, bytes]:
     if isinstance(rows, dict):
         rows = list(rows.values())
     allowed = {"littlefs.mjs", "littlefs.wasm", "LICENSE.littlefs", "LICENSE.composer", "LICENSE.emscripten", "LICENSE.musl", "fixture/boot.py", "fixture/main.py", "source.zip"}
+    variants = manifest.get("fixtures", {})
+    if not isinstance(variants, dict) or set(variants) - {"cores3-wasm-lvgl-wallclock-v1"}:
+        raise ValueError("unknown LittleFS fixture variant")
+    if variants:
+        fixture_id = "cores3-wasm-lvgl-wallclock-v1"
+        fixture = variants[fixture_id]
+        contract = json.loads((ROOT / "tests/browser-qemu/cores3_lvgl_wallclock/contract.json").read_text(encoding="utf-8"))
+        identity = contract["identity"]
+        names = {"boot.py", "candidate_lvgl_loop.py", "main.py"}
+        source_assets = {name: "wallclock." + name for name in names}
+        if (not isinstance(manifest["assets"], dict) or fixture.get("id") != fixture_id
+                or fixture.get("clock_divisor") != 1 or fixture.get("scheduler_candidate") != "sdk-python-single-schedule-v1"
+                or fixture.get("source_sha256") != identity["source_sha256"]
+                or fixture.get("source_files") != identity["files"] or set(fixture["source_files"]) != names
+                or fixture.get("source_assets") != source_assets
+                or fixture.get("vfs") != {"offset": 11141120, "size": 4980736}
+                or any(fixture.get(key) != {name: identity[key][name] for name in ("size", "sha256")}
+                       for key in ("raw_base", "normalized_base", "composed_firmware"))):
+            raise ValueError("LittleFS fixture variant identity mismatch")
+        for name, key in source_assets.items():
+            row = manifest["assets"].get(key, {})
+            path = f"fixtures/cores3-lvgl-wallclock/{name}"
+            if row.get("path") != path or row.get("sha256") != identity["files"][name]:
+                raise ValueError("LittleFS fixture variant source asset mismatch")
+            allowed.add(path)
     for row in rows:
         name = row["path"]
         if name not in allowed or (directory / name).is_symlink():
@@ -150,12 +213,14 @@ def littlefs_runtime_files(directory: Path) -> dict[str, bytes]:
     return files
 
 
-def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False) -> dict:
+def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = ()) -> dict:
     root, output = root.resolve(), output.resolve()
     base_path = normalize_base_path(base_path)
     service_url = normalize_service_url(service_url)
     if browser_runtime and qemu_runtime:
         raise ValueError("select one browser engine per exported site")
+    if qemu_candidate_profiles and not qemu_runtime:
+        raise ValueError("QEMU candidate profiles require a QEMU runtime")
     # Never overwrite a source tree or an arbitrary existing user directory.
     in_sources = any(path == output or path in output.parents for path in (root / "platform", root / "devices", root / ".git"))
     if output == root or output in root.parents or in_sources or any((output / name).exists() for name in (".git", "platform", "devices")) and not (output / MANIFEST_NAME).is_file():
@@ -196,16 +261,31 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             runtime_directory.mkdir(parents=True, exist_ok=True)
             for name, content in runtime_files.items():
                 (runtime_directory / name).write_bytes(content)
-            (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json({
-                "schema_version": 1, "scope": "C/QEMU offline CoreS3 vm-div8 only; no inherited native coverage",
-                "source": runtime_manifest["source"],
-                "devices": [{"id": "cores3", "browser": {
-                    "board": "m5cores3", "status": "experimental", "description": "C/QEMU · LVGL / 触摸 / PIR · 1/8 虚拟时钟",
-                    "limitations": ["仅验证离线 CoreS3 示例；任意固件兼容性未验证。", "虚拟时间与看门狗到期随墙钟慢放 8 倍。", "网络、音频及其它 Unit 未验证；刷新不保留 Flash。"],
-                }}],
-            }))
+            registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles)
+            (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
+            (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json(browser_profiles))
+            # Probe sources are text, not prebuilt or derived firmware. Copy
+            # only sources selected by an explicit per-board fixture identity.
+            for profile in registry["profiles"]:
+                for name, row in profile.get("fixture", {}).get("sources", {}).items():
+                    source_name = "core2_boot.py" if profile["deviceId"] == "core2" and name == "boot.py" else name
+                    expected_path = f"platform/runtime/qemu-probe/fixture/{source_name}"
+                    if name not in {"boot.py", "main.py"} or row.get("path") != expected_path:
+                        raise ValueError("invalid QEMU probe source path")
+                    source = root / "tests/browser-qemu/board_display" / source_name
+                    if source.is_symlink():
+                        raise ValueError("QEMU probe source cannot be a symlink")
+                    content = source.read_bytes()
+                    if len(content) != row.get("bytes") or hashlib.sha256(content).hexdigest() != row.get("sha256"):
+                        raise ValueError("QEMU probe source identity mismatch")
+                    destination = temporary / expected_path
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(content)
+        wallclock_example = False
         if littlefs_runtime:
-            for name, content in littlefs_runtime_files(littlefs_runtime).items():
+            littlefs_files = littlefs_runtime_files(littlefs_runtime)
+            wallclock_example = "cores3-wasm-lvgl-wallclock-v1" in json.loads(littlefs_files["manifest.json"]).get("fixtures", {})
+            for name, content in littlefs_files.items():
                 destination = temporary / "platform/runtime/littlefs" / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.write_bytes(content)
@@ -215,6 +295,9 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             "browser_board_execution": runtime_manifest is not None,
             "browser_runtime_engine": runtime_manifest.get("engine", "esp32sim") if runtime_manifest else None,
             "browser_runtime_build": runtime_manifest["build"]["kind"] if runtime_manifest else None,
+            "browser_candidate_profiles": list(qemu_candidate_profiles),
+            "publication_eligible": not bool(qemu_candidate_profiles),
+            "browser_wallclock_example": bool(qemu_runtime and wallclock_example),
         }
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))
         (temporary / "site-config.json").write_bytes(encode_json(config))
@@ -231,11 +314,22 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             if path.is_file():
                 content = path.read_bytes()
                 asset_rows.append({"path": path.relative_to(temporary).as_posix(), "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()})
+        if qemu_runtime:
+            admitted = [row["deviceId"] for row in registry["profiles"] if row["admission"] == "public"]
+            previews = [row["deviceId"] for row in registry["profiles"] if row["admission"] == "candidate"]
+            execution = ("browser C/QEMU; publicly admitted boards: " + (", ".join(admitted) or "none")
+                         + "; explicit preview candidates (not publicly admitted): " + (", ".join(previews) or "none")
+                         + "; per-board and exact-firmware execution clocks are defined by the exported qemu-browser-profiles.json")
+        else:
+            execution = ("browser esp32sim for papers3/stopwatch; other native boards require Device Service"
+                         if runtime_manifest else "native board firmware requires a separately configured Device Service")
         manifest = {
             "schema_version": 1, "kind": MANIFEST_KIND, "base_path": base_path,
             "entry": "index.html", "service_url": service_url,
-            "execution": "browser C/QEMU for CoreS3 offline LVGL/touch/PIR (vm-div8); other profiles need Device Service" if qemu_runtime else "browser esp32sim for papers3/stopwatch; other native boards require Device Service" if runtime_manifest else "native board firmware requires a separately configured Device Service",
+            "execution": execution,
             "firmware_bundled": False, "assets": asset_rows,
+            "candidate_profiles": list(qemu_candidate_profiles),
+            "publication_eligible": not bool(qemu_candidate_profiles),
         }
         (temporary / MANIFEST_NAME).write_bytes(encode_json(manifest))
         if output.exists():
@@ -256,9 +350,10 @@ def main() -> None:
     parser.add_argument("--qemu-runtime", type=Path, help="directory from bootstrap_qemu_browser_runtime.py")
     parser.add_argument("--littlefs-runtime", type=Path, help="source-built browser LittleFS composer")
     parser.add_argument("--allow-diagnostic-runtime", action="store_true", help="explicit preview-only opt-in for the pinned downloaded WASM")
+    parser.add_argument("--qemu-candidate-profile", action="append", default=[], help="preview-only board candidate; never supplied by the Pages publication workflow")
     args = parser.parse_args()
     try:
-        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime)
+        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile))
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"public site export failed: {error}\n")
     print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "bytes": sum(row["bytes"] for row in manifest["assets"]), "base_path": manifest["base_path"], "published": False}))

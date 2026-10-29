@@ -70,8 +70,13 @@ browser backend、公众首页与模型更新，限定官方固件的当前结�
 [公众入口证据](evidence/2026-10-28-public-simulator/README.md)。创建响应丢失后的同key/body恢复与安全停止已完成限定真实回归；
 最终合并检查已通过；按用户澄清优先复用定制C/QEMU，Rust两款演示保留为
 研究原型且暂不发布。WASM构建与无固件控制前置见
-[C/QEMU实验](qemu-wasm-port-research.md)；继续CoreS3真实
-LVGL/输入/Unit及实际guest停止重开已完成限定fixture，主CPU jump栈恢复已有修正；后续处理默认时钟下LVGL队列/未覆盖异常路径，公众浏览器离线 profile、资源生命周期和正式 GitHub Pages 已取得限定准入；正式 HTTPS 地址已独立复验，其它范围按[本轮证据](evidence/2026-10-29-github-pages-production/README.md)保留。
+[C/QEMU实验](qemu-wasm-port-research.md)。已满足的浏览器前置基线：固定
+CoreS3 fixture、主 CPU jump 栈恢复、离线 profile、资源生命周期与既有正式
+GitHub Pages 均有独立证据；本轮共享帧/host poll 修复和显式正常时钟 SDK
+候选的限定结果见[性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md)
+及[LVGL 候选证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
+线上仍为[既有版本](evidence/2026-10-29-github-pages-production/README.md)；
+剩余浏览器范围统一维护在 `UI-02`，不从原生设备矩阵或编译板型表继承准入。
 
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
@@ -229,7 +234,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UI-02` | 进行中 | C/QEMU默认时钟LVGL队列、未覆盖异常路径、长期稳定性及持久化；扩展设备/固件/Unit准入；Rust演示仅作研究原型 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
+| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；其余六个 Xtensa 候选为 StopWatch、Cardputer-ADV、StamPLC、StackChan、PaperColor、PaperMono，逐板补固件/输入/帧/清理证据；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；扩展固件/Unit，Rust 演示保持研究原型 | 精确绑定完整 Flash SHA、runtime/profile 和单板真实输入/帧；native PASS、compiled_profiles 和正常时钟候选不能授予其它板型或 stock SDK PASS；保留旧 div8 示例/分享兼容及取消/停止契约；静态构建不含凭据/固件/raw；本轮新版本部署后另验正式 HTTPS |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 

@@ -1055,3 +1055,89 @@ black PNG；因此 failed-CAS yield 被否定为修复，`RUNTIME-03` 保持
 `OPEN`。全部为 virtual-device validation；物理 cache/PSRAM timing、
 RF、电气和真机均 `NOT RUN`。见[证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)
 和[机器摘要](evidence/2026-10-29-core2-legacy-status-cas/summary.json)。
+
+## 2026-10-29：浏览器共享帧、host poll 与正常时钟 LVGL 候选
+
+在主线 `322130288ea4fb2c2aab49b689e232bb2beef7f7` 基础上，固定 QEMU
+来源、43 层补丁和 146 个修改文件完整重建 WASM
+`9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1`。
+`0014` 从真实 QEMU display surface 读取有界共享 RGB565 快照，校验一致性
+后只传 dirty update；`0015` 修正 SDK 3.1.50 忽略 poll timeout 的 host
+pthread 空转，没有改 guest 时钟、WDT 或 vCPU 指令执行。
+
+性能对照顺序运行于同一 Apple M4 Pro、Chrome 156 与 ANGLE Metal，
+旧、新 runtime 使用相同 stock/div8 fixture Flash
+`78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f`。
+CPU `100%` 为一个逻辑核；早期软件 renderer 和并行编译样本未用于对照。
+
+| 同固件测量 | 旧 runtime | 共享帧 + host 等待修复 |
+| --- | ---: | ---: |
+| 运行 CPU 平均 | 132.05% | 49.95% |
+| 暂停 CPU 平均 | 105.60% | 4.78% |
+| 停止 CPU 平均 | 3.02% | 2.62% |
+| 静态画面请求/s | 1.30 | 30.99 |
+| 静态画面传帧/s | 1.30（重复像素） | 0（无重绘） |
+| 触摸松开到计数像素，中位数 | 1317.66 ms | 966.82 ms |
+
+运行 CPU 下降约 `62.2%`；静态请求率不代表动画 FPS，触摸仍有明显延迟。
+真实 SDK poll/pipe/pthread 的六项 host controls 另验立即就绪、有限/无限
+等待和跨线程唤醒；这些 controls 本身不执行 guest。
+
+正常时钟使用独立 Flash
+`e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554`、
+div1 和显式 `0026` SDK Python 调度候选。候选在已有 VM callback 内直接执行
+LVGL、累计实际 guest elapsed ticks，并在 `finally` 清除 guard；未修改 stock
+frozen SDK，也未实现 C Timer 第一层 coalescing。严格同 guest 回归 `25/25`
+覆盖实际 RGB565/可读字形、负触摸、两次 pressed/released/clicked、PIR
+`0→1→0` 与 QOM/画面变化、LVGL timer 星标动画、暂停恢复、停止前 evidence
+和历史；exit `0`，五个 Workers 清零、显式 disposal 完成且 iframe 移除。
+SDK 固定 preimage 的八项回归、fixture 六项、composer 七项与真实 Chromium
+包装十九项分别通过，不混作 guest 功能检查。
+
+候选持续动画的独立 20 秒窗口实际像素变化约 `8.90/s`、轨迹速度
+`99.77 px/墙钟秒`（源码目标 `100 px/guest秒`），guest/LVGL 与 host 速率
+约 `0.9997`、调度错误为 `0`。该负载运行 CPU 为 `161.97%`，触摸松开到
+回调/计数像素中位数约 `867/1247 ms`；它与旧静态 fixture 不同，不能作为
+同固件 CPU 或输入提速对照。QMP/channel ACK 约 `35 ms`，较长延迟仍位于
+ACK 之后到 UART 观察到 guest release 之前，当前证据不能唯一归因到
+触控控制器、guest 读取、LVGL 或 UART 观察中的某层。
+
+这些均为本地 browser virtual-device validation；正式 Pages 仍为既有版本，
+native 设备组、其余板型/固件/Unit、长期稳定性及物理硬件不继承通过。
+原始 Flash/ROM/帧/日志在 ignored/local archive，完整运行、构建和报告哈希见
+[性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md)、
+[性能机器摘要](evidence/2026-10-29-wasm-performance-devices/summary.json)与
+[正常时钟 LVGL 候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
+
+## 2026-10-29：浏览器四板五个固定 fixture 的逐板公开 UI 准入
+
+相同 WASM `9c94a940…cba1` 下，public-v4 导出先串行完成 CoreS3
+stock/div8、CoreS3 wallclock candidate、AtomS3R 和 StickS3 四个 fixture，
+合计 `84/84` 检查通过。该导出 manifest SHA256 为
+`baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb`，
+aggregate 报告 SHA256 为
+`97eb67cc97d1ab56493f66e910bd3dce65ff6f02f011a708f862e8d697c5b345`。
+
+Core2 候选公开 UI 验证通过后，registry promotion 为 public，另导出
+public-v5 并单独重验 Core2，`17/17` 检查通过。该导出 manifest SHA256 为
+`187cf38ad80dc400af07d7d2ef6f35e9b9e73eaf167c9241fb76558f4204ea72`，
+Core2 报告 SHA256 为
+`ff67399261a7cb7e4c700d8009fe164d01f962fecf90ac3e39962e5677e550e8`。
+v4→v5 仅三个元数据/fixture 资产变化，其余 1929 个资产与执行 JS/runtime
+保持一致。`84+17` 是两次明确导出的检查总数，不能写成 v5 全聚合运行。
+
+| 新增设备 | 实际 framebuffer | 完整组合 Flash SHA256 | 真实公开 UI 输入 |
+| --- | --- | --- | --- |
+| AtomS3R | 128×128 | `39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80` | focused model button press/release |
+| StickS3 | 135×240 | `a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632` | focused model button press/release |
+| Core2 | 320×240 | `5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2` | DOM touch press/release |
+
+新增三板均在 div1 下使用原固件驱动、本地 LittleFS 组合与同 guest 帧/输入；
+Core2 使用保留固件 console 的专用 boot。每个 fixture 分别核对实际画面、
+输入结果和退出清理，公开 profile 必须同时存在于本次 runtime 的
+`compiled_profiles`；machine help、编译入库或 native PASS 不能单独准入。
+六个剩余 Xtensa candidate、C6 RISC-V、P4、Linux ARM64、stock 菜单、
+网络/音频/其它 Unit、任意固件和物理硬件均未继承。正式 Pages 仍为旧版本。
+分批报告、runtime/ROM/固件身份与检查结果见
+[性能与逐板证据](evidence/2026-10-29-wasm-performance-devices/README.md)和
+[逐板准入摘要](evidence/2026-10-29-wasm-performance-devices/board-admission-summary.json)。

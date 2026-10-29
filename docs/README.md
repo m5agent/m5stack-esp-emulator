@@ -42,6 +42,12 @@ Core2 legacy 的最新 status/CAS 诊断见
 [RDSR 与锁竞争关联](evidence/2026-10-29-core2-legacy-status-cas/README.md)；
 它只更新 `RUNTIME-03` 的排查入口，不表示 legacy 启动已通过。
 
+浏览器低帧率、正常时钟候选与逐设备准入按
+[WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md)推进；
+原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
+[浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
+SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
+
 ## 按角色继续阅读
 
 1. [工程交接总览](engineering-handoff.md)：用一页理解产品边界、代码阅读顺序、
@@ -114,10 +120,13 @@ Core2 legacy 的最新 status/CAS 诊断见
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
-| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-28` | C/QEMU CoreS3 浏览器入口、固定源码构建、共享内存首控、管理员部署步骤和许可边界 |
+| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-29` | C/QEMU 逐板准入、两种 CoreS3 示例、共享帧与每次构建的全公开板型门禁；固定源码构建、管理员部署步骤和许可边界 |
+| [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
+| [浏览器性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md) | 本地浏览器证据 | `2026-10-29` | 同固件 CPU 对照、实际动画像素变化与剩余触摸延迟；四板五示例按两个导出清单分别取证，不冒称正式 Pages 已更新 |
+| [LVGL 正常时钟候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) | 限定候选证据 | `2026-10-29` | 显式 SDK Python 调度候选在同 guest 验证时间推进、真实字形/动画/触摸/PIR 和清理；stock SDK、C Timer 第一层和硬件不继承 |
 | [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 当前部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |
 | [CoreS3 C/QEMU 静态网页验收](evidence/2026-10-28-qemu-wasm-pages/README.md) | 历史证据 | `2026-10-28` | 固定源码完整构建、浏览器本地组合、真实 LCD/触摸/PIR及第二场分享启动/清理，Pages 单独记录 |
-| [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 执行研究 | `2026-10-28` | 完整WASM/CLI/QMP；主CPU栈恢复修正后64KiB运行，显式慢虚拟时钟和stdio主循环QMP下CoreS3完整LVGL帧/触摸/PIR/停止重开；默认时钟队列缺口开放，不属公众产品准入 |
+| [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 历史执行研究 | `2026-10-28` | 固定当时完整WASM/CLI/QMP、CPU栈恢复、慢时钟CoreS3帧/触摸/PIR/停止重开；当时默认时钟失败保留，后续显式正常时钟候选、公众准入和部署分别以新证据为准 |
 | [公众模拟器计划](plans/2026-10-28-public-simulator.md) | 进行中计划 | `2026-10-28` | 公众首页、Unit信息层级、新模型、URL分享、静态导出与部署前门禁 |
 | [公众入口证据](evidence/2026-10-28-public-simulator/README.md) | 当前浏览器证据 | `2026-10-28` | exact WASM/ROM/固件绑定、真实串口/帧/输入/暂停停止；模型与原生桥接分别验证，未部署 |
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |

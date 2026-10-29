@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "kind": "browser-lvgl-wallclock-sdk-candidate-validation",
+  "date": "2026-10-29",
+  "status": "PASS_SCOPED_BROWSER_CANDIDATE",
+  "firmware": {
+    "fixture": "cores3-wasm-lvgl-wallclock-v1",
+    "scheduler_candidate": "sdk-python-single-schedule-v1",
+    "source_sha256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf",
+    "raw_base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "normalized_base_sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73",
+    "candidate_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+    "baseline_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f"
+  },
+  "sdk_patch": {
+    "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+    "preimage_sha256": "74f7e96362c0644f9d8f964bed3afcc27ccb94ac912404575580b576c7b95623",
+    "candidate_sha256": "5650593fef0983ef369da07dad13ae954eaff4667e7e9483606ae7b03dd42ba8",
+    "patch_sha256": "43460c14611fe01dcb0a40ac9068be73c624bdbea8a9edc695db627e2824cf27"
+  },
+  "offline_checks": {
+    "exact_sdk_before_after_behavior": {
+      "status": "PASS",
+      "tests": 8
+    },
+    "explicit_fixture_behavior": {
+      "status": "PASS",
+      "tests": 6
+    },
+    "littlefs_builder_contract": {
+      "status": "PASS",
+      "tests": 7
+    },
+    "public_demo_identity_and_cancellation_contract": "PASS"
+  },
+  "browser_packaging": {
+    "status": "PASS",
+    "browser": "156.0.8078.73",
+    "cases": 19,
+    "source_sha256": {
+      "test_script": "d0beaacb8f014360dfe3a000ef634e66e6679513ce06b7089278deaad0845ffb",
+      "demo_composer": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+    },
+    "composer_manifest_sha256": "121ded5bf82539bfc6fca2681fae0a6a708491f8dff706bc4411bd01ce74dd89",
+    "composer_assets": {
+      "module": {
+        "bytes": 12513,
+        "path": "littlefs.mjs",
+        "sha256": "9ba8b6475eb8ae81e665b0e6cddc120cd5aa1af3818e102e2e0f3b1d73d9446d"
+      },
+      "wasm": {
+        "bytes": 32804,
+        "path": "littlefs.wasm",
+        "sha256": "f19358bc10b65156aadb1f02c874a1ceb0b64e63dfd1deb1b1d097491bfd6377"
+      }
+    },
+    "report_sha256": "68572c548d9b83dfabb39d75510114e201af0323f043336f7b2146024d7d8bf1",
+    "outputs": [
+      {
+        "variant": "stock",
+        "mode": "download",
+        "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "source_readback_verified": true,
+        "preserved_file_count": 15
+      },
+      {
+        "variant": "stock",
+        "mode": "local",
+        "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "source_readback_verified": true,
+        "preserved_file_count": 15
+      },
+      {
+        "variant": "stock",
+        "mode": "legacy",
+        "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "source_readback_verified": true,
+        "preserved_file_count": 15
+      },
+      {
+        "variant": "wallclock",
+        "mode": "download",
+        "sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "source_readback_verified": true,
+        "preserved_file_count": 15
+      },
+      {
+        "variant": "wallclock",
+        "mode": "local",
+        "sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "source_readback_verified": true,
+        "preserved_file_count": 15
+      }
+    ],
+    "negative_case_count": 14,
+    "guest_execution": "NOT RUN by packaging test"
+  },
+  "browser_guest": {
+    "status": "PASS",
+    "started_at": "2026-10-29T01:50:17.567Z",
+    "finished_at": "2026-10-29T01:51:40.454Z",
+    "checks": 25,
+    "runtime_receipt": {
+      "engine": "qemu-wasm",
+      "deviceId": "cores3",
+      "board": "m5cores3",
+      "profile": "cores3-wasm-wallclock-candidate",
+      "clockDivisor": 1,
+      "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+      "javascriptSha256": "81367ff53f358d8af0ad085c175908fb837a1d06303d049aceb5baa88fb5c96d",
+      "workerSha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+      "wasmSha256": "9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1",
+      "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+        }
+      ],
+      "firmwareSha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "firmwareVariant": {
+        "clockDivisor": 1,
+        "firmwareSHA256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "fixture": "cores3-wasm-lvgl-wallclock-v1",
+        "profile": "cores3-wasm-wallclock-sdk-candidate",
+        "readyMarker": "\"kind\": \"ready\"",
+        "schedulerCandidate": "sdk-python-single-schedule-v1",
+        "sourceSHA256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf"
+      },
+      "build": {
+        "all_objects_rebuilt": true,
+        "commands_sha256": "473d0c627f933c22729b8b355210b623789b3f01a4fa9c47c7d93f97699085f2",
+        "emscripten": "3.1.50",
+        "guest_execution": "NOT RUN by builder",
+        "kind": "source-build",
+        "link_audit": {
+          "argv_sha256": "379eef60791478748c2e5ab2627fae8d16967a6addbc7aa5d6622e63745a6c77",
+          "effective": {
+            "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+            "STACK_OVERFLOW_CHECK": "2",
+            "STACK_SIZE": "64KB"
+          },
+          "required_flags": [
+            "-sSTACK_SIZE=64KB",
+            "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+            "-sSTACK_OVERFLOW_CHECK=2"
+          ],
+          "source": "ninja-link-command",
+          "verified": true
+        },
+        "lock_sha256": "949651e45757a122952756e15fc31b7999beb23eca668a48b34e22dd92898d11",
+        "recipe_sha256": "069ba7bdc0757015ed017c0c1f0bb5f9536055cf1c774d1678694693a2d267e1"
+      },
+      "frameTransport": "shared-rgb565-v1",
+      "controller": "same-origin-iframe-message-channel",
+      "persistentFlash": false,
+      "memoryBytes": 268435456,
+      "relocatedGlueSha256": "dfd5f64f10cad5ebf1b80c8a0f1b5802bcacd9ec5371a58ff21cd380f9fecb46"
+    },
+    "provenance": {
+      "site_manifest_sha256": "1b166df798ea21e43c1f48776277b0f93582b45159040830ed779eb4e99137e5",
+      "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+      "profile_registry_sha256": "af0013120adfd74ba5af85291d00e130e82abeb7a5e76ffb8d1022a63216fd1c",
+      "web": {
+        "platform/web/public-config.js": {
+          "source_sha256": "14a01bd386a74abc608250495019897069e6984a0e7afc4c702d3ba435f4d679",
+          "exported_sha256": "14a01bd386a74abc608250495019897069e6984a0e7afc4c702d3ba435f4d679"
+        },
+        "platform/web/public-firmware.js": {
+          "source_sha256": "a7dd6fe5a32e40dab863b3ce1cf3f224337321a09e1a3254a674ca7b1bbae4b4",
+          "exported_sha256": "a7dd6fe5a32e40dab863b3ce1cf3f224337321a09e1a3254a674ca7b1bbae4b4"
+        },
+        "platform/web/sha256.js": {
+          "source_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+          "exported_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413"
+        },
+        "platform/web/public-qemu-runtime.js": {
+          "source_sha256": "3bb81a563a3cdc410a049ad5e8eebbc6e3578dbbb2affb06f9d61f3322db5898",
+          "exported_sha256": "3bb81a563a3cdc410a049ad5e8eebbc6e3578dbbb2affb06f9d61f3322db5898"
+        },
+        "platform/web/public-qemu-instance.js": {
+          "source_sha256": "510cf9774923bca282ea987177fc607b8767fd5b645be857cd978193e8ca1e5d",
+          "exported_sha256": "510cf9774923bca282ea987177fc607b8767fd5b645be857cd978193e8ca1e5d"
+        },
+        "platform/web/public-qemu-instance.html": {
+          "source_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b",
+          "exported_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b"
+        },
+        "platform/web/public-qemu-profiles.js": {
+          "source_sha256": "b6035c15e046ff4fa6e50654e5de29d899e815ba8383efa3c07b95a0a28d3879",
+          "exported_sha256": "b6035c15e046ff4fa6e50654e5de29d899e815ba8383efa3c07b95a0a28d3879"
+        },
+        "platform/web/public-qemu-frame.js": {
+          "source_sha256": "ee1a52f7ea8c5a8b607d83a16756e554b5382f4bdd1203277fb46f8927f49311",
+          "exported_sha256": "ee1a52f7ea8c5a8b607d83a16756e554b5382f4bdd1203277fb46f8927f49311"
+        }
+      },
+      "test_script": {
+        "path": "platform/tests/test_public_qemu_wallclock_guest.mjs",
+        "sha256": "df5ff252e086d64f88908734654f9d80a8e050d120369929dd7a4185e33a1e4e"
+      },
+      "helper_sha256": "c9bff365f7bd27512322088c6c6f8f08268caa03c906a61199290fc226418db5"
+    },
+    "clocks": {
+      "host_delta_ms": 18359.920000076294,
+      "guest_delta_ms": 18344,
+      "lvgl_delta_ms": 18347,
+      "max_abs_elapsed_tick_difference_ms": 20,
+      "guest_to_host_rate": 0.9991328938210936,
+      "lvgl_to_host_rate": 0.9992962932258833
+    },
+    "heartbeat_samples": 10,
+    "scheduler_progress": {
+      "timer_callbacks": [
+        264,
+        875
+      ],
+      "task_runs": [
+        264,
+        875
+      ],
+      "animation_samples": [
+        66,
+        222
+      ],
+      "max_scheduler_errors": 0,
+      "max_scheduled": 0
+    },
+    "input": {
+      "boot_kinds": [
+        "begin",
+        "m5_ready",
+        "lvgl_ready",
+        "ready"
+      ],
+      "touch_event_sequence": [
+        "touch_pressed",
+        "touch_released",
+        "touch_clicked",
+        "touch_pressed",
+        "touch_released",
+        "touch_clicked"
+      ],
+      "click_values": [
+        1,
+        2
+      ],
+      "pir_guest_values": [
+        0,
+        1,
+        0
+      ],
+      "qom_motion_values": [
+        true,
+        false
+      ],
+      "final_heartbeat": {
+        "clicks": 2,
+        "pir": 0
+      }
+    },
+    "frame": {
+      "size": [
+        320,
+        240
+      ],
+      "last_frame_sha256": "e96039ef6a08fa552c82c4ab1addf82ab157bd0e2387a13028ea7bfefb12a874",
+      "pixel_audit": {
+        "background": [
+          16,
+          32,
+          49
+        ],
+        "button": [
+          33,
+          117,
+          255
+        ],
+        "title_white_pixels": 466
+      },
+      "two_count_and_button_roi_updates": true,
+      "pir_motion_roi_change_and_clear_restoration": true,
+      "animation": {
+        "frames": 180,
+        "distinct_roi": 130
+      },
+      "ready_motion_and_final_pngs_visually_inspected": true
+    },
+    "cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersCreated": 5,
+      "workersAtExit": 0,
+      "disposal": {
+        "workersRemaining": 0,
+        "workersTerminatedByDispose": 0
+      },
+      "explicitWorkerDisposal": true,
+      "iframeRemoved": true
+    },
+    "session_id_sha256": "b8cd76823c413e48ffd7aaacbdc770797713c843bd3756c029ba448806f2f59e",
+    "all_check_names": [
+      "dedicated-static-harness-shared-memory",
+      "same-guest-original-m5ui-drivers-ready",
+      "actual-guest-boot-markers",
+      "explicit-scheduler-candidate",
+      "normal-clock-exact-runtime-firmware",
+      "actual-framebuffer-pixels",
+      "expected-background-button-and-title-glyphs",
+      "background-touch-does-not-click",
+      "click-1-updates-real-count-and-button-frame",
+      "click-2-updates-real-count-and-button-frame",
+      "two-real-dom-touch-clicks",
+      "pir-motion-frame-changes-and-clear-frame-restores",
+      "pir-controller-input-and-guest-clear-motion-clear",
+      "continued-heartbeat-progress",
+      "normal-clock-rate-measured",
+      "elapsed-lvgl-ticks-preserved",
+      "scheduler-continues-without-errors",
+      "real-lvgl-animation-advances",
+      "qom-motion-readback",
+      "pause-stops-guest",
+      "single-guest-sequence-and-no-scheduler-errors",
+      "qemu-exit-worker-disposal-and-history",
+      "history-retains-source-session",
+      "no-native-service-requests",
+      "no-browser-errors"
+    ],
+    "raw_artifact_sha256": {
+      "report.json": "acd808a43d1815b063250047f2f2c57a92ec252c810ea3b0e4ddb61a041781be",
+      "running-boot.json": "88d3ca058b4e9402e97f3eca367eff30494ac6def94a2e9e53a320eb77d07f4f",
+      "running-final.json": "cb74e58d4a32cc66f0972b6bb07943833168dce8f22b41744c4fcb5183679d8e",
+      "stopped-final.json": "e944a0f9e64b9a6bbb4fdf1d52a04549654e3386487abc27ab26cab2e2737113",
+      "frame-ready.png": "081d9ffc0a93113a863a290e6da038618ec6a6c1a85bb0a236d38996941c2b61",
+      "frame-pir-motion.png": "ab8d546967ed315857f36a604236649e3d3e23b06538098165e5a9d17f7b769c",
+      "frame-final.png": "9679a033449983d3c8bb167812774f470495634593e01af17fbbac1f3b2832a8",
+      "executed-runner.mjs": "df5ff252e086d64f88908734654f9d80a8e050d120369929dd7a4185e33a1e4e"
+    }
+  },
+  "boundaries": {
+    "c_timer_coalescing": "NOT IMPLEMENTED",
+    "pir_input_level_and_event_count": "NOT OBSERVABLE through current browser input bridge",
+    "native_functional_validation": "NOT RUN in this lane",
+    "physical_hardware": "NOT RUN",
+    "production_default_profile_change": "not implied",
+    "stock_sdk_scheduler": "not established by candidate execution",
+    "full_fixture_controller_oracle": "additional input-level/input-events observations remain incomplete"
+  }
+}

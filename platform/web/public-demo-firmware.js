@@ -15,10 +15,25 @@ export const DEMO_FIRMWARE = Object.freeze({
   vfsSize: 4980736,
 });
 
+// Explicit SDK candidate; the original demo identity and API stay stable.
+export const WALLCLOCK_DEMO_FIRMWARE = Object.freeze({
+  ...DEMO_FIRMWARE,
+  fixture: 'cores3-wasm-lvgl-wallclock-v1',
+  firmwareSHA256: 'e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554',
+  sourceSHA256: '4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf',
+  clockDivisor: 1,
+  schedulerCandidate: 'sdk-python-single-schedule-v1',
+});
+
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCE_FILES = Object.freeze({
   'boot.py': {bytes: 214, sha256: '8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33'},
   'main.py': {bytes: 2301, sha256: '7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb'},
+});
+const WALLCLOCK_SOURCE_FILES = Object.freeze({
+  'boot.py': {bytes: 214, sha256: '8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33'},
+  'candidate_lvgl_loop.py': {bytes: 3055, sha256: '0a460dbbd04838811238dd9022044f4b5e85f76629e44f8b7ba8fb057710363e'},
+  'main.py': {bytes: 3491, sha256: 'e793b5ded4dc81510022723b8e10696a93d0cc4122c6cb5e58000a8ce9b84858'},
 });
 const CONFIG = Object.freeze({block_size: 4096, read_size: 128, prog_size: 32,
   lookahead_size: 128, block_cycles: 100, cache_size: 128, name_max: 255, disk_version: 0});
@@ -82,32 +97,44 @@ async function sha256(bytes) {
   return Array.from(hash, value => value.toString(16).padStart(2, '0')).join('');
 }
 
-function validateManifest(manifest) {
-  const fixture = manifest?.fixture;
+function validateManifest(manifest, wallclock = false) {
+  const demo = wallclock ? WALLCLOCK_DEMO_FIRMWARE : DEMO_FIRMWARE;
+  const sourceFiles = wallclock ? WALLCLOCK_SOURCE_FILES : SOURCE_FILES;
+  const fixture = wallclock ? manifest?.fixtures?.[demo.fixture] : manifest?.fixture;
   if (manifest?.kind !== 'm5stack-browser-littlefs' || manifest.schema_version !== 1
       || manifest.source?.commit !== SOURCE_COMMIT || manifest.source?.license !== 'BSD-3-Clause'
       || manifest.build?.kind !== 'source-build' || manifest.build?.emscripten !== '3.1.50'
       || manifest.firmware_bundled !== false || manifest.rom_bundled !== false
-      || fixture?.id !== DEMO_FIRMWARE.fixture
-      || fixture.base_url !== DEMO_FIRMWARE.baseURL
-      || fixture.raw_base?.size !== DEMO_FIRMWARE.rawBaseSize
-      || fixture.raw_base?.sha256 !== DEMO_FIRMWARE.rawBaseSHA256
-      || fixture.normalized_base?.size !== DEMO_FIRMWARE.flashSize
-      || fixture.normalized_base?.sha256 !== DEMO_FIRMWARE.normalizedBaseSHA256
-      || fixture.composed_firmware?.size !== DEMO_FIRMWARE.flashSize
-      || fixture.composed_firmware?.sha256 !== DEMO_FIRMWARE.firmwareSHA256
-      || fixture.vfs?.offset !== DEMO_FIRMWARE.vfsOffset || fixture.vfs?.size !== DEMO_FIRMWARE.vfsSize
+      || fixture?.id !== demo.fixture
+      || fixture.base_url !== demo.baseURL
+      || fixture.raw_base?.size !== demo.rawBaseSize
+      || fixture.raw_base?.sha256 !== demo.rawBaseSHA256
+      || fixture.normalized_base?.size !== demo.flashSize
+      || fixture.normalized_base?.sha256 !== demo.normalizedBaseSHA256
+      || fixture.composed_firmware?.size !== demo.flashSize
+      || fixture.composed_firmware?.sha256 !== demo.firmwareSHA256
+      || fixture.vfs?.offset !== demo.vfsOffset || fixture.vfs?.size !== demo.vfsSize
       || Object.entries(CONFIG).some(([key, value]) => manifest.fs_config?.[key] !== value)) {
     throw new Error('Composer manifest does not match the reviewed CoreS3 fixture');
   }
+  if (wallclock && (fixture.source_sha256 !== demo.sourceSHA256
+      || fixture.clock_divisor !== demo.clockDivisor || fixture.scheduler_candidate !== demo.schedulerCandidate
+      || fixture.base_file_count !== 17 || fixture.derived_file_count !== 18 || fixture.preserved_file_count !== 15
+      || Object.keys(fixture.source_files || {}).sort().join() !== Object.keys(sourceFiles).sort().join()
+      || Object.keys(fixture.source_assets || {}).sort().join() !== Object.keys(sourceFiles).sort().join())) {
+    throw new Error('Composer wallclock candidate identity mismatch');
+  }
   const expectedPaths = {module: 'littlefs.mjs', wasm: 'littlefs.wasm',
-    'boot.py': 'fixture/boot.py', 'main.py': 'fixture/main.py'};
+    ...Object.fromEntries(Object.keys(sourceFiles).map(name => [wallclock ? 'wallclock.' + name : name,
+      wallclock ? 'fixtures/cores3-lvgl-wallclock/' + name : 'fixture/' + name]))};
   for (const [key, path] of Object.entries(expectedPaths)) {
     const row = manifest.assets?.[key];
     if (row?.path !== path || !Number.isSafeInteger(row.bytes) || row.bytes < 1 || row.bytes > 1024 * 1024
         || !/^[a-f0-9]{64}$/.test(row.sha256)) throw new Error('Invalid composer asset identity');
-    if (SOURCE_FILES[key] && (row.bytes !== SOURCE_FILES[key].bytes || row.sha256 !== SOURCE_FILES[key].sha256
-        || fixture.source_files?.[key] !== SOURCE_FILES[key].sha256)) {
+    const name = wallclock ? key.replace(/^wallclock\./, '') : key;
+    if (sourceFiles[name] && (row.bytes !== sourceFiles[name].bytes || row.sha256 !== sourceFiles[name].sha256
+        || fixture.source_files?.[name] !== sourceFiles[name].sha256
+        || wallclock && fixture.source_assets[name] !== key)) {
       throw new Error('Composer source differs from the reviewed fixture');
     }
   }
@@ -119,12 +146,25 @@ function validateManifest(manifest) {
 export async function composeDemoFirmware({baseBytes, baseURL = DEMO_FIRMWARE.baseURL,
   manifestURL = new URL('../runtime/littlefs/manifest.json', import.meta.url), signal,
   onProgress = () => {}} = {}) {
+  return composeFixedDemoFirmware({baseBytes, baseURL, manifestURL, signal, onProgress}, false);
+}
+
+/** Compose only the named, hash-pinned SDK wallclock candidate. */
+export async function composeWallclockDemoFirmware({baseBytes, baseURL = WALLCLOCK_DEMO_FIRMWARE.baseURL,
+  manifestURL = new URL('../runtime/littlefs/manifest.json', import.meta.url), signal,
+  onProgress = () => {}} = {}) {
+  return composeFixedDemoFirmware({baseBytes, baseURL, manifestURL, signal, onProgress}, true);
+}
+
+async function composeFixedDemoFirmware({baseBytes, baseURL, manifestURL, signal, onProgress}, wallclock) {
+  const demo = wallclock ? WALLCLOCK_DEMO_FIRMWARE : DEMO_FIRMWARE;
+  const sourceFiles = wallclock ? WALLCLOCK_SOURCE_FILES : SOURCE_FILES;
   checkAbort(signal);
   const manifestLocation = safeURL(manifestURL, import.meta.url, true);
   onProgress({phase: 'load-composer'});
   const manifest = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(
     await fetchBytes(manifestLocation, 65536, signal)));
-  validateManifest(manifest);
+  validateManifest(manifest, wallclock);
   const loadAsset = async key => {
     const row = manifest.assets[key];
     const data = await fetchBytes(safeURL(row.path, manifestLocation, true), row.bytes, signal);
@@ -138,20 +178,21 @@ export async function composeDemoFirmware({baseBytes, baseURL = DEMO_FIRMWARE.ba
     if (baseBytes instanceof ArrayBuffer) raw = new Uint8Array(baseBytes).slice();
     else if (ArrayBuffer.isView(baseBytes)) raw = new Uint8Array(baseBytes.buffer, baseBytes.byteOffset, baseBytes.byteLength).slice();
     else throw new TypeError('baseBytes must be an ArrayBuffer or typed array');
-    if (raw.byteLength !== DEMO_FIRMWARE.rawBaseSize) throw new Error('CoreS3 raw base size mismatch');
+    if (raw.byteLength !== demo.rawBaseSize) throw new Error('CoreS3 raw base size mismatch');
   }
   onProgress({phase: raw ? 'verify-base' : 'download-base'});
-  const [moduleBytes, wasmBytes, boot, main, base] = await Promise.all([
-    loadAsset('module'), loadAsset('wasm'), loadAsset('boot.py'), loadAsset('main.py'),
-    raw || fetchBytes(safeURL(baseURL, import.meta.url), DEMO_FIRMWARE.rawBaseSize, signal),
+  const [moduleBytes, wasmBytes, files, base] = await Promise.all([
+    loadAsset('module'), loadAsset('wasm'),
+    Promise.all(Object.keys(sourceFiles).sort().map(async name => [name, await loadAsset(wallclock ? 'wallclock.' + name : name)])),
+    raw || fetchBytes(safeURL(baseURL, import.meta.url), demo.rawBaseSize, signal),
   ]);
-  if (base.length !== DEMO_FIRMWARE.rawBaseSize || await sha256(base) !== DEMO_FIRMWARE.rawBaseSHA256) {
+  if (base.length !== demo.rawBaseSize || await sha256(base) !== demo.rawBaseSHA256) {
     throw new Error('CoreS3 raw base SHA256 mismatch');
   }
   checkAbort(signal);
-  const image = new Uint8Array(DEMO_FIRMWARE.flashSize).fill(255);
+  const image = new Uint8Array(demo.flashSize).fill(255);
   image.set(base);
-  if (await sha256(image) !== DEMO_FIRMWARE.normalizedBaseSHA256) throw new Error('Normalized base SHA256 mismatch');
+  if (await sha256(image) !== demo.normalizedBaseSHA256) throw new Error('Normalized base SHA256 mismatch');
   const blob = URL.createObjectURL(new Blob([moduleBytes], {type: 'text/javascript'}));
   let engine, imagePointer = 0, mounted = false;
   const allocations = [];
@@ -173,20 +214,19 @@ export async function composeDemoFirmware({baseBytes, baseURL = DEMO_FIRMWARE.ba
       engine.HEAPU8.set(bytes, pointer);
       return pointer;
     };
-    imagePointer = allocate(image.subarray(DEMO_FIRMWARE.vfsOffset, DEMO_FIRMWARE.vfsOffset + DEMO_FIRMWARE.vfsSize));
+    imagePointer = allocate(image.subarray(demo.vfsOffset, demo.vfsOffset + demo.vfsSize));
     onProgress({phase: 'compose'});
-    call('_m5_lfs_mount', imagePointer, DEMO_FIRMWARE.vfsSize);
+    call('_m5_lfs_mount', imagePointer, demo.vfsSize);
     mounted = true;
     const beforeCount = call('_m5_lfs_scan');
     const beforeVersion = call('_m5_lfs_disk_version');
     if (beforeCount !== 17 || beforeVersion !== 0x20000) throw new Error('Unexpected existing CoreS3 filesystem');
-    const files = [['boot.py', boot], ['main.py', main]];
     const pointers = files.map(([name, bytes]) => ({name, bytes,
       path: allocate(new TextEncoder().encode('/' + name + '\0')), data: allocate(bytes)}));
     for (const file of pointers) call('_m5_lfs_write', file.path, file.data, file.bytes.length);
     call('_m5_lfs_unmount');
     mounted = false;
-    call('_m5_lfs_mount', imagePointer, DEMO_FIRMWARE.vfsSize);
+    call('_m5_lfs_mount', imagePointer, demo.vfsSize);
     mounted = true;
     const afterVersion = call('_m5_lfs_disk_version');
     for (const file of pointers) {
@@ -199,17 +239,18 @@ export async function composeDemoFirmware({baseBytes, baseURL = DEMO_FIRMWARE.ba
     const afterCount = call('_m5_lfs_scan');
     call('_m5_lfs_unmount');
     mounted = false;
-    if (afterCount !== beforeCount || afterVersion !== 0x20001) throw new Error('Unexpected composed CoreS3 filesystem');
-    image.set(engine.HEAPU8.subarray(imagePointer, imagePointer + DEMO_FIRMWARE.vfsSize), DEMO_FIRMWARE.vfsOffset);
+    if (afterCount !== beforeCount + (wallclock ? 1 : 0) || afterVersion !== 0x20001) throw new Error('Unexpected composed CoreS3 filesystem');
+    image.set(engine.HEAPU8.subarray(imagePointer, imagePointer + demo.vfsSize), demo.vfsOffset);
     onProgress({phase: 'verify-result'});
     const resultSHA = await sha256(image);
-    if (resultSHA !== DEMO_FIRMWARE.firmwareSHA256) throw new Error('Composed firmware SHA256 mismatch');
+    if (resultSHA !== demo.firmwareSHA256) throw new Error('Composed firmware SHA256 mismatch');
     checkAbort(signal);
-    return {bytes: image, sha256: resultSHA, fileName: 'cores3-wasm-lvgl-pir.bin',
-      provenance: {kind: 'browser-local-littlefs-composition', fixture: DEMO_FIRMWARE.fixture,
-        base_sha256: DEMO_FIRMWARE.rawBaseSHA256, firmware_sha256: resultSHA,
+    return {bytes: image, sha256: resultSHA, fileName: wallclock ? 'cores3-wasm-lvgl-wallclock-candidate.bin' : 'cores3-wasm-lvgl-pir.bin',
+      provenance: {kind: 'browser-local-littlefs-composition', fixture: demo.fixture,
+        ...(wallclock ? {source_sha256:demo.sourceSHA256,clock_divisor:demo.clockDivisor,scheduler_candidate:demo.schedulerCandidate} : {}),
+        base_sha256: demo.rawBaseSHA256, firmware_sha256: resultSHA,
         composer_commit: SOURCE_COMMIT, composer_wasm_sha256: manifest.assets.wasm.sha256,
-        files: Object.fromEntries(Object.entries(SOURCE_FILES).map(([name, row]) => [name, row.sha256])),
+        files: Object.fromEntries(Object.entries(sourceFiles).map(([name, row]) => [name, row.sha256])),
         preserved_file_count: beforeCount - 2, source_readback_verified: true,
         outside_vfs_unchanged: true, disk_version_before: beforeVersion, disk_version_after: afterVersion}};
   } finally {

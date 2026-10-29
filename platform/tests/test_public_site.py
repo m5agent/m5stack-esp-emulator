@@ -13,6 +13,92 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_littlefs_named_wallclock_variant_is_complete_and_source_pinned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            base_names = ["littlefs.mjs", "littlefs.wasm", "LICENSE.littlefs", "LICENSE.composer", "LICENSE.emscripten",
+                          "LICENSE.musl", "fixture/boot.py", "fixture/main.py", "source.zip"]
+            rows = {}
+            for name in base_names:
+                raw = name.encode()
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                rows[name] = {"path": name, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+            contract = json.loads((public.ROOT / "tests/browser-qemu/cores3_lvgl_wallclock/contract.json").read_text())
+            identity = contract["identity"]
+            source_assets = {}
+            for name in identity["files"]:
+                path = f"fixtures/cores3-lvgl-wallclock/{name}"
+                raw = (public.ROOT / "tests/browser-qemu/cores3_lvgl_wallclock" / name).read_bytes()
+                target = root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                key = "wallclock." + name
+                rows[key] = {"path": path, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+                source_assets[name] = key
+            variant = {"id": contract["fixture"], "clock_divisor": 1, "scheduler_candidate": "sdk-python-single-schedule-v1",
+                       "source_sha256": identity["source_sha256"], "source_files": identity["files"], "source_assets": source_assets,
+                       "vfs": {"offset": 11141120, "size": 4980736},
+                       **{key: {name: identity[key][name] for name in ("size", "sha256")}
+                          for key in ("raw_base", "normalized_base", "composed_firmware")}}
+            manifest = {"schema_version": 1, "kind": "m5stack-browser-littlefs", "source": {"commit": "6cb4e86540eca0d9ba62500a298385c9d863c8be"},
+                        "build": {"kind": "source-build"}, "firmware_bundled": False, "rom_bundled": False,
+                        "assets": rows, "fixtures": {contract["fixture"]: variant}}
+            def save():
+                (root / "manifest.json").write_text(json.dumps(manifest))
+            save()
+            self.assertEqual(len(public.littlefs_runtime_files(root)), len(base_names) + 3 + 1)
+            variant["clock_divisor"] = 8
+            save()
+            with self.assertRaisesRegex(ValueError, "variant identity"):
+                public.littlefs_runtime_files(root)
+            variant["clock_divisor"] = 1
+            row = rows.pop("wallclock.main.py")
+            save()
+            with self.assertRaisesRegex(ValueError, "source asset"):
+                public.littlefs_runtime_files(root)
+            rows["wallclock.main.py"] = row
+            manifest["fixtures"]["unknown"] = variant
+            save()
+            with self.assertRaisesRegex(ValueError, "unknown"):
+                public.littlefs_runtime_files(root)
+
+    def test_qemu_board_availability_does_not_inherit_public_admission(self):
+        registry = json.loads((public.ROOT / "platform/web/qemu-browser-profiles.json").read_text())
+        # Admission policy is tested with an isolated registry so subsequent
+        # evidence-backed promotions cannot silently change this negative case.
+        for row in registry["profiles"]:
+            row["admission"] = "public" if row["deviceId"] == "cores3" else "candidate"
+        source_root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, source_root)
+        registry_path = source_root / "platform/web/qemu-browser-profiles.json"
+        registry_path.parent.mkdir(parents=True)
+        registry_path.write_text(json.dumps(registry))
+        runtime = {"source": registry["source"], "profiles": ["cores3"], "compiled_profiles": [row["deviceId"] for row in registry["profiles"]]}
+        selected, browser = public.qemu_site_profiles(source_root, runtime)
+        self.assertEqual([row["deviceId"] for row in selected["profiles"]], ["cores3"])
+        self.assertEqual([row["id"] for row in browser["devices"]], ["cores3"])
+        promoted = json.loads(json.dumps(registry))
+        next(row for row in promoted["profiles"] if row["deviceId"] == "atoms3r")["admission"] = "public"
+        registry_path.write_text(json.dumps(promoted))
+        admitted, _ = public.qemu_site_profiles(source_root, runtime)
+        self.assertEqual({row["deviceId"] for row in admitted["profiles"]}, {"cores3", "atoms3r"}, "public registry entries must also be compiled")
+        runtime_without_atom = {**runtime, "compiled_profiles": ["cores3"]}
+        admitted, _ = public.qemu_site_profiles(source_root, runtime_without_atom)
+        self.assertEqual([row["deviceId"] for row in admitted["profiles"]], ["cores3"])
+        registry_path.write_text(json.dumps(registry))
+        selected, browser = public.qemu_site_profiles(source_root, runtime, ("atoms3r",))
+        self.assertEqual({row["deviceId"] for row in selected["profiles"]}, {"cores3", "atoms3r"})
+        self.assertEqual(next(row["browser"]["status"] for row in browser["devices"] if row["id"] == "atoms3r"), "candidate")
+        for requested in (("nanoc6",), ("cores3",), ("atoms3r", "atoms3r")):
+            with self.subTest(requested=requested), self.assertRaises(ValueError):
+                public.qemu_site_profiles(source_root, runtime, requested)
+        runtime["compiled_profiles"] = ["cores3"]
+        with self.assertRaisesRegex(ValueError, "not available"):
+            public.qemu_site_profiles(source_root, runtime, ("atoms3r",))
+        self.assertNotIn("--qemu-candidate-profile", (public.ROOT / ".github/workflows/public-site.yml").read_text())
+
     def test_littlefs_export_requires_source_pin_hashes_and_all_licenses(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

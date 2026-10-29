@@ -3,6 +3,12 @@
 核查日期：2026-10-28。按用户澄清，Rust 项目仅作参考；本实验复用当前定制
 C/QEMU，不把另一套内核的两款演示作为已有板级/Unit 能力的替代交付。
 
+本页保留 2026-10-28 的阶段实验范围与当时失败。后续公众入口及正式
+Pages 已有[独立部署证据](evidence/2026-10-29-github-pages-production/README.md)；
+共享帧、host poll、正常时钟候选和逐板准入见
+[2026-10-29 证据](evidence/2026-10-29-wasm-performance-devices/README.md)。
+本页的旧补丁数量、NOT RUN 和后续计划不反向定义当前状态。
+
 ## 当前结论
 
 C 可以编译成 WASM。现有 QEMU 的编译和链接已经实际打通，并在 Chromium
@@ -31,7 +37,9 @@ libffi、pthread/协程、文件描述符、事件唤醒、内存和生命周期
 
 所有浏览器实验使用独立随机端口和新上下文；自己的 SW、Workers、浏览器和
 服务均清理。用户测试服务没有被访问。无固件主循环实验属于后端移植回归；
-后续一般固件功能测试继续通过专用 Device Service 的可见 session 取证。
+一般固件功能测试继续通过专用 Device Service 的可见 session 取证；显式
+浏览器 WASM 验证按当前 AGENTS.md 使用独立静态端口和浏览器本地 session
+记录，不能拼接 Device Service 证据。
 
 QMP 实验仍出现 Emscripten 的 `prlimit64`、`mprotect`、`pipe2`、`madvise`
 不支持告警。请求响应正常不能证明这些宿主操作在所有路径都安全；当前只
@@ -174,7 +182,7 @@ r16的40秒观测证明socket始终存在、guest心跳与QEMU主循环继续；
 最终无诊断产物、真实交互/停止重开与独立idle/断连证据见阶段摘要，不以
 增加保活请求代替活性修复。
 
-## 下一步与准入边界
+## 当时下一步与准入边界
 
 当前已证明复用原C/QEMU运行真实CoreS3的路线可行，无需把所有外设重写成Rust。
 整体仍为PARTIAL：需继续默认时钟/调度兼容、未覆盖异常路径、长期稳定性和公众

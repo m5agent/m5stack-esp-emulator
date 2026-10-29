@@ -1,7 +1,9 @@
+import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
+import {readSharedQemuFrame} from './public-qemu-frame.js';
 // One same-origin frame owns one Emscripten module, MEMFS and all pthreads.
 // The transferred private port is the only control/data channel after init.
 let port, module, started = false, closed = false, serial = '', qmpLine = '';
-let nextId = 0;
+let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
 let workersCreated = 0;
 let relocatedGlueSha256;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
@@ -75,7 +77,7 @@ function ppm(bytes) {
   }
   if (token() !== 'P6') throw new Error('QEMU did not return a P6 framebuffer');
   const width = Number(token()), height = Number(token()), max = Number(token());
-  if (width !== 320 || height !== 240 || max !== 255) throw new Error('CoreS3 framebuffer profile mismatch');
+  if (width !== boardProfile.display.width || height !== boardProfile.display.height || max !== 255) throw new Error('QEMU framebuffer profile mismatch');
   if (bytes[offset] === 13 && bytes[offset + 1] === 10) offset += 2; else offset++;
   const stride = (width * 3 + 3) & ~3;
   if (bytes.length - offset !== stride * height) throw new Error('QEMU framebuffer length mismatch');
@@ -99,11 +101,10 @@ async function start(config) {
   relocatedGlueSha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(relocated))),n=>n.toString(16).padStart(2,'0')).join('');
   const script = blob(relocated, 'text/javascript'), worker = blob(config.worker, 'text/javascript');
   const {default:createQemu} = await import(script);
+  boardProfile=validateQemuProfile(config.profile);
+  frameTransport=config.frameTransport;
   const options = {
-    arguments:['-M','m5cores3','-drive','file=/flash.bin,if=mtd,format=raw','-L','/rom','-display','none',
-      '-serial','file:/bridge/uart.out','-serial','file:/bridge/serial1',
-      '-qmp','stdio','-drive','if=none,id=efuse,file=/efuse.bin,format=raw',
-      '-global','driver=nvram.esp32s3.efuse,property=drive,value=efuse'],
+    arguments:buildQemuArguments(boardProfile),
     wasmBinary:config.wasm, mainScriptUrlOrBlob:script,
     locateFile:(name) => name.endsWith('.worker.js') ? worker : name,
     print:(text) => output(String(text) + '\n'),
@@ -115,12 +116,16 @@ async function start(config) {
       module = m;
       m.FS.mkdirTree('/rom'); m.FS.mkdirTree('/bridge');
       m.FS.writeFile('/flash.bin', new Uint8Array(config.firmware));
-      m.FS.writeFile('/rom/esp32s3_rev0_rom.bin', new Uint8Array(config.rom));
-      m.FS.writeFile('/efuse.bin', new Uint8Array(4096));
-      m.FS.writeFile('/units.json', JSON.stringify({schema_version:1,attachments:[{id:'pir',unit_id:'pir',port_id:'port-a',
-        pins:{yellow:2,white:1},visual_port:'grove',initial:{motion:false}}]}));
+      if(!Array.isArray(config.roms)||config.roms.length!==boardProfile.roms.length)throw new Error('QEMU ROM set mismatch');
+      for(const [index,rom] of config.roms.entries()){
+        const expected=boardProfile.roms[index];
+        if(rom.name!==expected.name||rom.sha256!==expected.sha256||rom.bytes.byteLength!==expected.bytes)throw new Error('QEMU ROM identity mismatch');
+        m.FS.writeFile('/rom/'+rom.name,new Uint8Array(rom.bytes));
+      }
+      const efuse=buildQemuEfuse(boardProfile);if(efuse)m.FS.writeFile('/efuse.bin',efuse);
+      m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
-      Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:'8', M5_UNIT_CONFIG:'/units.json'});
+      Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
       for (const [index,path] of ['/bridge/uart.in','/bridge/uart.out','/bridge/serial1'].entries()) {
         const dev = m.FS.makedev(64,index);
         const serialDecoder = new TextDecoder();
@@ -155,21 +160,26 @@ async function request(op, value) {
   if (op === 'start') return start(value);
   if (op === 'dispose') { const workersTerminatedByDispose=workers.size;cleanup(); return {workersRemaining:workers.size,workersTerminatedByDispose}; }
   if (op === 'frame') {
+    // Explicit same-guest diagnostic control; never an automatic fallback.
+    if(frameTransport==='shared-rgb565-v1'&&value?.diagnosticTransport!=='qmp-screendump'){
+      const frame=readSharedQemuFrame(module,sourceSequence,boardProfile.display);
+      if(!frame)return {unchanged:true,sourceSequence};
+      sourceSequence=frame.sourceSequence;emit('frame',frame,[frame.pixels.buffer]);return {sourceSequence};
+    }
     await qmp('screendump',{filename:'/frame.ppm'});
     const frame = ppm(module.FS.readFile('/frame.ppm')); module.FS.unlink('/frame.ppm');
+    frame.source='qmp-screendump';
     emit('frame', frame, [frame.pixels.buffer]); return;
   }
   if (op === 'pause') return qmp('stop');
   if (op === 'resume') return qmp('cont');
   if (op === 'quit') return qmp('quit');
-  if (op === 'touch') return qmp('input-send-event',{events:[
-    {type:'abs',data:{axis:'x',value:Math.ceil(value.x*32767/319)}},
-    {type:'abs',data:{axis:'y',value:Math.ceil(value.y*32767/239)}},
-    {type:'btn',data:{button:'left',down:value.down}},
-  ]});
-  if (op === 'pir') {
-    await qmp('qom-set',{path:'/machine/units/pir',property:'motion',value:value.motion});
-    return {motion:await qmp('qom-get',{path:'/machine/units/pir',property:'motion'})};
+  if (op === 'input' || op === 'touch' || op === 'pir') {
+    const event=op==='input'?value:{...value,type:op};
+    const command=qemuInputCommand(boardProfile,event);
+    const result=await qmp(command.execute,command.arguments);
+    if(command.readback)return {motion:await qmp(command.readback.execute,command.readback.arguments)};
+    return result;
   }
   if (op === 'uart') throw new Error('This offline profile supports UART output only');
   throw new Error('Unsupported instance operation');

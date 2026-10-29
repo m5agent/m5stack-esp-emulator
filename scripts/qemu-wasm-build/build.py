@@ -436,6 +436,8 @@ def runtime_files(directory: Path, *, allow_incremental: bool = False) -> tuple[
         raise ValueError("runtime build recipe/toolchain lock mismatch")
     if manifest.get("execution_profile") != {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}:
         raise ValueError("runtime execution profile mismatch")
+    if manifest.get("compiled_profiles", ["cores3"]) != lock.get("compiled_profiles", ["cores3"]) or manifest.get("frame_transport") != lock.get("frame_transport"):
+        raise ValueError("runtime compiled boards or framebuffer ABI mismatch")
     if rebuilt is True:
         audit = build.get("link_audit", {})
         effective = {flag.split("=", 1)[0][2:]: flag.split("=", 1)[1] for flag in lock["link_flags"]}
@@ -488,7 +490,7 @@ def export_runtime(builder: Builder, output: Path, report: dict, *, runtime_dire
     lock = builder.lock
     manifest = {"schema_version": 1, "kind": RUNTIME_KIND, "engine": "qemu-wasm", "source": {**lock["qemu"], "native_patch_count": 31, "patches": lock["patches"], "patched_files_sha256": lock["patched_files"]},
         "build": {"kind": "source-build", "all_objects_rebuilt": report["all_objects_rebuilt"], "emscripten": "3.1.50", "recipe_sha256": builder.recipe_sha, "lock_sha256": builder.lock_sha, "commands_sha256": sha(builder.cache / "commands.json"), "guest_execution": "NOT RUN by builder", **({"link_audit": report["link_audit"]} if "link_audit" in report else {}), **({"reference_build_receipt_sha256": report["reference_build_receipt_sha256"], "reference_note": "Reviewed incremental source build; inherited object/library identities are in its original receipt. This is not a fresh full-object build."} if "reference_build_receipt_sha256" in report else {})},
-        "profiles": ["cores3"], "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in ASSET_NAMES.items()},
+        "profiles": ["cores3"], "compiled_profiles": lock.get("compiled_profiles", ["cores3"]), "frame_transport": lock.get("frame_transport"), "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in ASSET_NAMES.items()},
         "required_rom": lock["required_rom"], "firmware_bundled": False}
     write_json(output / "runtime.json", manifest)
     runtime_files(output, allow_incremental=not report["all_objects_rebuilt"])

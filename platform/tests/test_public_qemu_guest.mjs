@@ -7,17 +7,28 @@ import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
+import {DEMO_FIRMWARE,WALLCLOCK_DEMO_FIRMWARE} from '../web/public-demo-firmware.js';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const site=resolve(process.env.M5_PUBLIC_SITE||resolve(repo,'.work/qemu-public-site-test'));
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qemu-guest'));
 const base=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+const example=process.env.M5_QEMU_EXAMPLE||'stock-div8';
+assert.ok(['stock-div8','wallclock-candidate'].includes(example),'M5_QEMU_EXAMPLE must select a named reference example');
+const candidate=example==='wallclock-candidate',fixture=candidate?WALLCLOCK_DEMO_FIRMWARE:DEMO_FIRMWARE;
+const expectedProfile=candidate?'cores3-wasm-wallclock-sdk-candidate':'cores3-wasm-vm-div8';
 await mkdir(out,{recursive:true});
 const requests=[],errors=[],checks=[],workers=[];
 let server,browser,context,page;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2'};
-const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),checks,requests,errors};
+const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),example,checks,requests,errors};
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
+function exactReceipt(receipt){
+  return receipt.engine==='qemu-wasm'&&receipt.profile===expectedProfile&&receipt.clockDivisor===(candidate?1:8)
+    &&receipt.firmwareSha256===fixture.firmwareSHA256&&(candidate
+      ?receipt.firmwareVariant?.firmwareSHA256===fixture.firmwareSHA256&&receipt.firmwareVariant.sourceSHA256===fixture.sourceSHA256&&receipt.firmwareVariant.schedulerCandidate===fixture.schedulerCandidate
+      :!receipt.firmwareVariant);
+}
 function guestEvents(text){return text.split('\n').filter(line=>line.startsWith('CORES3_WASM ')).flatMap(line=>{try{return[JSON.parse(line.slice(12))];}catch{return[];}});}
 async function waitGuest(kind,predicate=()=>true,timeout=180000){
   await page.waitForFunction(({kind})=>document.querySelector('#serialOutput').textContent.includes(`"kind": "${kind}"`) || !document.querySelector('#errorBanner').hidden,{kind},{timeout});
@@ -51,6 +62,7 @@ try{
   report.url=url;report.deployment=process.env.M5_PUBLIC_URL?'remote-static-host':'local-static-project-prefix';
   browser=await chromium.launch({headless:true,...(process.env.M5_CHROME?{executablePath:process.env.M5_CHROME}:{}),args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
   context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
+  await context.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page=await context.newPage();
   page.on('pageerror',error=>errors.push(String(error)));
   page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
@@ -59,6 +71,8 @@ try{
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
   check('pages-service-worker-shared-memory',await page.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
+  await page.locator('#referenceExample').selectOption(example);
+  check('explicit-public-reference-example',await page.locator('#referenceExample').inputValue()===example,example);
   await page.locator('#startBtn').click();
   const ready=await waitGuest('ready');check('actual-cores3-lvgl-ready',ready.width===320&&ready.height===240,ready);
   await page.waitForFunction(()=>Number(document.querySelector('#deviceMount').dataset.frameSequence)>0);
@@ -70,7 +84,7 @@ try{
   },{},{timeout:30000});
   await page.locator('#nativeScreenBtn').click();
   const boot=await evidence('running-boot');
-  check('c-qemu-runtime-and-exact-fixture',boot.receipt.engine==='qemu-wasm'&&boot.receipt.profile==='cores3-wasm-vm-div8'&&boot.receipt.firmwareSha256==='78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f',boot.receipt);
+  check('c-qemu-runtime-and-exact-fixture',exactReceipt(boot.receipt),boot.receipt);
   check('real-frame-pixels',boot.last_frame.width===320&&boot.last_frame.pixels.length===153600&&new Set(boot.last_frame.pixels).size>8);
   await tap(310,235);await page.waitForTimeout(1200);
   check('negative-touch-does-not-click',!guestEvents(await page.locator('#serialOutput').textContent()).some(event=>event.kind==='touch_clicked'));
@@ -93,15 +107,17 @@ try{
   await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const stopped=await evidence('stopped-first');
   check('quit-and-container-cleanup',stopped.cleanup.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.iframeRemoved,stopped.cleanup);
-  check('no-instance-frame-after-stop',await page.locator('iframe[title="Local CoreS3 QEMU"]').count()===0);
-  check('local-history-retains-hash',await page.locator('#browserHistoryText').textContent().then(text=>text.includes('78961297e751')));
+  check('no-instance-frame-after-stop',await page.locator('iframe[src*="public-qemu-instance.html"]').count()===0);
+  check('local-history-retains-hash',await page.locator('#browserHistoryText').textContent().then(text=>text.includes(fixture.firmwareSHA256.slice(0,12))));
   const firstId=stopped.session_id;
   const shared=new URL(url);shared.searchParams.set('device','cores3');shared.searchParams.set('mode','browser');
-  shared.searchParams.set('sha256','78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f');
+  shared.searchParams.set('sha256',fixture.firmwareSHA256);
   await page.goto(shared.href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='running',{},{timeout:180000});
   await waitGuest('ready');
+  check('shared-reference-restores-example',await page.locator('#referenceExample').inputValue()===example);
   const reopened=await evidence('reopened-running');check('fresh-guest-reopen-from-shared-reference',reopened.session_id!==firstId&&!guestEvents(reopened.serial).some(event=>event.kind==='touch_clicked'));
+  check('shared-reference-exact-runtime-variant',exactReceipt(reopened.receipt),reopened.receipt);
   await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const final=await evidence('stopped-reopened');check('reopen-cleanup',final.cleanup.gracefulExit&&final.cleanup.explicitWorkerDisposal,final.cleanup);
   check('no-service-or-local-emulator-requests',!requests.some(row=>/\/api\/v1|:8787\b|:8830\b/.test(row.url)));

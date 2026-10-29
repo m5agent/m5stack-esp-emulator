@@ -33,6 +33,7 @@
 | [0023-modbus-async-socket.patch](0023-modbus-async-socket.patch) | MicroPython 下不再调用不存在的 `asyncio.Loop.sock_recv`，改为有界、可让出执行权的 `select.poll` + socket receive；CPython 路径保留 | StopWatch / StickS3 / Core2 stock 八个 async TCP 方法均报 `sock_recv`；候选须由真实 owned Modbus peer 验证读、写和回读 |
 | [0024-display-draw-pixel-transaction.patch](0024-display-draw-pixel-transaction.patch) | Python `Display.drawPixel` 使用嵌套安全的 `startWrite/endWrite`，让 framebuffer-backed panel 的 auto-display 提交 dirty range | StopWatch preimage 的 standalone 奇/偶像素不出现；StopWatch / StickS3 / Core2 候选通过 standalone、相邻像素保留和用户显式外层事务；真机 NOT RUN |
 | [0025-m5ble-server-client-index.patch](0025-m5ble-server-client-index.patch) | 在 `0021` UUID32 修正之后，`Server.get_client(index)` 按 `connect_handle` 排序内部 `set` 再应用零基索引，不再对 `set` 直接下标访问 | Core2 stock `m5ble-server` 保留 `21 PASS + 1 ERROR`；同一 stock base / ELF / QEMU 上两轮叠加后候选源码均 `22/22 PASS`，见[证据](../../docs/evidence/2026-10-29-m5ble-get-client-candidate/README.md)；StopWatch/StickS3、BLE 安全、RF 和真机 NOT RUN |
+| [0026-m5ui-single-vm-schedule.patch](0026-m5ui-single-vm-schedule.patch) | 从已在 VM 执行的 `m5utils.Timer` 回调直接调用 LVGL，按真实 guest elapsed tick 推进时间；异常时释放 guard，停用后的旧回调不再触碰 LVGL | 显式 fixture 六项、精确 SDK 原版/候选八项离线回归及正常时钟 browser guest 25 项检查 PASS，含真实动画/触摸/PIR 帧闭环，见[证据](../../docs/evidence/2026-10-29-browser-lvgl-wallclock/README.md)；不授予 stock 冻结 SDK 调度、C Timer 首层 coalescing 或真机 PASS |
 
 相邻 JSON 固定官方源码及 preimage / candidate SHA；`0001` 使用多文件
 `files` 清单，`0002` 使用 `source_path` / `postimage_sha256`。含

@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-browser-qemu-fixture",
+  "fixture": "cores3-wasm-lvgl-wallclock-v1",
+  "scope": "One CoreS3 guest with an explicit Python-only LVGL scheduler candidate, normal VM clock, original display/touch/PIR drivers and an elapsed-time animation. This contract is not an execution result.",
+  "target": {
+    "device_id": "cores3",
+    "chip": "esp32s3",
+    "machine": "m5cores3",
+    "firmware_family": "UIFlow2",
+    "firmware_version": "v2.5.3",
+    "flash_size": 16777216,
+    "display_size": [
+      320,
+      240
+    ]
+  },
+  "identity": {
+    "raw_base": {
+      "size": 16121856,
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "normalized_base": {
+      "size": 16777216,
+      "padding": "0xff",
+      "sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73"
+    },
+    "composed_firmware": {
+      "size": 16777216,
+      "sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554"
+    },
+    "rom": {
+      "name": "esp32s3_rev0_rom.bin",
+      "size": 393216,
+      "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+    },
+    "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+    "source_sha256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf",
+    "files": {
+      "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+      "candidate_lvgl_loop.py": "0a460dbbd04838811238dd9022044f4b5e85f76629e44f8b7ba8fb057710363e",
+      "main.py": "e793b5ded4dc81510022723b8e10696a93d0cc4122c6cb5e58000a8ce9b84858"
+    }
+  },
+  "execution": {
+    "route": "Dedicated static browser candidate harness using the real PublicQemuRuntime with allowCandidateProfiles=true; no Device Service or direct QEMU process is started",
+    "runtime": "qemu",
+    "backend_identity_required": true,
+    "same_session_and_guest_required": true,
+    "browser_execution_requires_actual_wasm_receipt": true,
+    "protected_ports": [
+      8787,
+      8830
+    ],
+    "source_composition": {
+      "tool": "tests/browser-qemu/cores3_lvgl_wallclock/compose.py",
+      "builder": "platform/tools/uiflow_source.py:build_uiflow_source_image",
+      "files": [
+        "boot.py",
+        "candidate_lvgl_loop.py",
+        "main.py"
+      ],
+      "explicit_imported_base_pin": "local raw or normalized base bytes must match identity.raw_base or identity.normalized_base SHA256",
+      "expected_result": "ignored local candidate.bin matching identity.composed_firmware and composition.json containing preservation and persisted-source readback; never inherited from the stock fixture"
+    },
+    "source_driver_overrides": true,
+    "direct_qemu_launch_allowed": false,
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a",
+        "initial": {
+          "motion": false
+        }
+      }
+    ],
+    "stop": {
+      "request_evidence_before_stop": true,
+      "evidence_format": "PublicQemuRuntime.evidence JSON exported before stop and again after cleanup",
+      "mechanism": "PublicQemuRuntime.stop sends QMP quit, disposes Workers and removes the iframe",
+      "expected_exit_code": 0,
+      "expected_workers_remaining": 0,
+      "expected_explicit_worker_disposal": true,
+      "expected_iframe_removed": true,
+      "expected_history": "same session ID, firmware/runtime receipt, serial and last-frame hash retained in local history",
+      "persistent_flash": false,
+      "device_service_lease": "not used in this browser lane"
+    },
+    "clock": {
+      "vm_clock_divisor": 1,
+      "icount": false,
+      "watchdog": "normal",
+      "guest_clock_source": "time.ticks_ms/time.ticks_diff"
+    },
+    "scheduler_candidate": {
+      "identity": "sdk-python-single-schedule-v1",
+      "overridden_class": "m5ui.port.event_loop",
+      "registry_module": "_m5emu_lvgl_loop_candidate",
+      "original_framebuffer_and_touch_drivers": true,
+      "c_timer_coalescing": false
+    }
+  },
+  "oracle": {
+    "serial_prefix": "CORES3_WASM ",
+    "fixture_field": "cores3-wasm-lvgl-wallclock-v1",
+    "sequence": "Strictly increasing seq in actual serial bytes; upload echo does not count.",
+    "ready_kinds": [
+      "begin",
+      "m5_ready",
+      "lvgl_ready",
+      "ready"
+    ],
+    "negative_touch": {
+      "x": 310,
+      "y": 235,
+      "expected_clicks": 0,
+      "require_subsequent_heartbeat": true
+    },
+    "positive_touch": {
+      "x": 160,
+      "y": 184,
+      "expected_click_sequence": [
+        1,
+        2
+      ],
+      "required_events": [
+        "touch_pressed",
+        "touch_released",
+        "touch_clicked"
+      ],
+      "frame_changed_regions_xyxy": [
+        [
+          20,
+          60,
+          230,
+          90
+        ],
+        [
+          90,
+          164,
+          240,
+          204
+        ]
+      ]
+    },
+    "pir": {
+      "driver": "unit.PIRUnit((1, 2)).get_status()",
+      "white_gpio": 1,
+      "yellow_gpio": 2,
+      "yellow_signal": "NC",
+      "qom_path": "/machine/units/pir",
+      "input_property": "motion",
+      "injected_sequence": [
+        false,
+        true,
+        false
+      ],
+      "required_controller_properties": [
+        "input-level",
+        "input-events"
+      ],
+      "expected_guest_values": [
+        0,
+        1,
+        0
+      ],
+      "hold_boundary": "motion=false can keep input-level high until the existing two-second virtual-clock hold expires.",
+      "frame_region_xyxy": [
+        20,
+        100,
+        240,
+        128
+      ],
+      "require_motion_frame_change_and_clear_restoration": true,
+      "final_heartbeat": {
+        "clicks": 2,
+        "pir": 0
+      }
+    },
+    "frame": {
+      "source": "Original QEMU framebuffer through the browser-WASM adapter",
+      "size": [
+        320,
+        240
+      ],
+      "samples": [
+        {
+          "x": 300,
+          "y": 120,
+          "rgb": [
+            16,
+            32,
+            48
+          ]
+        },
+        {
+          "x": 50,
+          "y": 184,
+          "rgb": [
+            33,
+            118,
+            255
+          ]
+        }
+      ],
+      "per_channel_tolerance": 8,
+      "title_glyph_region_xyxy": [
+        20,
+        18,
+        280,
+        48
+      ],
+      "title_white_pixel_count_range": [
+        101,
+        4999
+      ],
+      "visual_shell_alone_is_guest_display_proof": false
+    },
+    "wallclock": {
+      "required_heartbeat_fields": [
+        "guest_ms",
+        "lv_ms",
+        "tick_total",
+        "elapsed_ms",
+        "timer_callbacks",
+        "task_runs",
+        "scheduled",
+        "scheduler_errors",
+        "animation_samples",
+        "scheduler_candidate"
+      ],
+      "errors_must_be_zero": true,
+      "handler_must_not_enqueue_second_python_callback": true,
+      "clock_comparison": "Compare actual deltas to host monotonic intervals; retain measured rates and pauses."
+    }
+  },
+  "official_api_sources": {
+    "documentation_basis": "Bundled official UIFlow2 documentation consulted before writing the fixture; document paths are logical documentation names, not machine paths.",
+    "documents": [
+      "m5ui/_overview.md",
+      "m5ui/page.md",
+      "m5ui/button.md",
+      "m5ui/label.md",
+      "unit/pir.md",
+      "hardware/display.md",
+      "hardware/uart.md"
+    ],
+    "upstream": "https://github.com/m5stack/uiflow-micropython",
+    "api_source_reference_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+    "m5ui_source_paths": [
+      "m5stack/libs/m5ui/page.py",
+      "m5stack/libs/m5ui/button.py",
+      "m5stack/libs/m5ui/label.py"
+    ],
+    "pir_driver": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "note": "API reference only. The fixture imports the firmware's own frozen driver and does not upload this source."
+    },
+    "host_wiring": "https://docs.m5stack.com/en/core/CoreS3",
+    "pir_product": "https://docs.m5stack.com/en/unit/PIR",
+    "repository_wiring_contract": "platform/units/host-ports.json",
+    "repository_unit_contract": "platform/units/catalog.json",
+    "uart_bootstrap_reference": "tests/uiflow2/api_sweep/run_guest.py:live_boot"
+  },
+  "boundaries": [
+    "Native and browser-WASM results must retain separate exact runtime identities and receipts.",
+    "PIR is input-only; no guest-to-PIR actuator output is claimed.",
+    "No physical hardware, optical detection, electrical levels, RF, audio, other Unit, board or firmware compatibility result is implied.",
+    "This contract includes no firmware/ROM binaries, credentials, raw logs or machine-specific paths.",
+    "Candidate scheduler output never establishes stock m5utils.Timer queue coalescing or physical timing."
+  ]
+}
