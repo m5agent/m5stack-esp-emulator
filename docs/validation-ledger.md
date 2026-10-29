@@ -247,7 +247,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 | 固件许可策略 | provenance、文件系统 SPDX、SBOM 声明汇总；allowlist PASS、denylist REJECTED、无 allowlist/无声明/unknown 保持 REVIEW_REQUIRED；策略不是完整源码扫描或法律意见 | [`license-policy.json`](../tests/firmware/evidence-2026-10-24-license-policy.json) |
 | 跨厂商公开固件 runtime matrix | 6 台 S3/C6 设备、18 个 MOST_DOWNLOADED 非基线公开样本（8 官方、10 社区）；全部静态分析有效并经 Device Service 执行。10 个渲染非空首帧、保持运行且输入可观测为 PASS；8 个 PARTIAL，其中 Zigbee 未建模 radio 和 C6 软件复位 chip-id 错误标记为 2 个 `runtime_model_gap`。不是全设备族覆盖或硬件结论 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)、[`test_user_firmware_matrix.py`](../platform/tests/test_user_firmware_matrix.py) |
 | C6 Zigbee `thread-sim` 可行性 | 源码构建 ESP-IDF HA switch/light 在 `esp-emu 0.50.0 --thread-sim` 下产生 21 个 switch→light 和 17 个 light→switch 802.15.4 帧；协调器组网和 light steering 均启动，但 `Joined network` 与 On/Off 命令未出现，结构化返回 `PARTIAL/runtime_model_gap` | [`c6-zigbee-thread-sim-feasibility.json`](../tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json)、[`run_feasibility.py`](../tests/firmware/c6_zigbee_thread_sim/run_feasibility.py) |
-| Core2 热门公开固件扩展（2026-10-24 快照） | 3 个 MOST_DOWNLOADED 官方 Core2 固件以 90 秒窗口经 Device Service 执行，全部 `PARTIAL/runtime_model_gap`、0 黑帧。`UIFlow_Core2`/`Core2FactoryTest` 在 AXP 发现后暴露当时的 I2C 板级交接缺口，默认 AXP2101 与 AXP192 override 均复现；`Core2_For_AWS` 为 ATECC608 未建模。matrix HTTP wait 超时误杀已修复，失败快照保留。该行是历史快照；`UIFlow_Core2` 已由 `Core2 legacy shared board I2C` 行复核并越过原 I2C 错误，`Core2FactoryTest` 的修复后重跑仍为 `NOT RUN` | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)、[`shared-board follow-up`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`test_user_firmware_matrix.py`](../platform/tests/test_user_firmware_matrix.py) |
+| Core2 热门公开固件扩展（2026-10-24 快照） | 3 个 MOST_DOWNLOADED 官方 Core2 固件以 90 秒窗口经 Device Service 执行，全部 `PARTIAL/runtime_model_gap`、0 黑帧。`UIFlow_Core2`/`Core2FactoryTest` 在 AXP 发现后暴露当时的 I2C 板级交接缺口，默认 AXP2101 与 AXP192 override 均复现；`Core2_For_AWS` 当时为 ATECC608 未建模。matrix HTTP wait 超时误杀已修复，失败快照保留。该行是历史快照；`UIFlow_Core2` 已由 `Core2 legacy shared board I2C` 行复核并越过原 I2C 错误，`Core2FactoryTest` 的修复后重跑仍为 `NOT RUN`，ATECC608 初始化/identity 后续由 `0085` 关闭 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)、[`shared-board follow-up`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`ATECC608 follow-up`](evidence/2026-10-29-core2-atecc608/README.md)、[`test_user_firmware_matrix.py`](../platform/tests/test_user_firmware_matrix.py) |
 | C6 软件复位 Flash/PMP 修复 | 16 MiB Flash 的 4-byte 读模式保留；legacy `0x02/0x20` 固定按 3-byte 地址解析，显式 4-byte opcode 不变；C6 reset 清空 PMP/mseccfg/TLB。同一 Meshtastic SHA 经 Device Service 重跑不再出现 `Invalid chip id`，offset 0 bootloader 头保持 chip id 13，`runtime_model_gaps=[]`；Nesso 官方外设组 `5/5`、NanoC6 板级探针 PASS。样本仍有独立 Instruction access fault，完整功能 `PARTIAL`，物理硬件 `NOT RUN` | [`c6-soft-reset-flash-addressing.json`](../tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json)、[`0006-espressif-riscv-reset-pmp.patch`](../patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch) |
 | Core2 稳定性 | 确定性 TCG/icount 下独立启动 `10/10` 首轮 PASS；同 guest board+WiFi+公网+native-VHCI BLE `3/3` | [`native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) |
 | Core2 Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
@@ -1573,3 +1573,38 @@ quiescence 和 physical hardware 仍为 `NOT RUN`；`FW-01` 继续保留完整�
 法律审批和 guest filesystem 权限范围。见
 [证据](evidence/2026-10-29-runtime-acl/README.md)和
 [机器摘要](../tests/firmware/evidence-2026-10-29-runtime-acl.json)。
+
+## 2026-10-29：Core2 for AWS ATECC608 and DMA command phase
+
+新增 `0085-core2-atecc608.patch`，SHA256
+`797420fcb1b487f06e8e5fa1cec746ec0fd47a2316f18d10fd28e928c0872059`。
+Core2 machine 在 board I2C bus 的 7-bit address `0x35` 增加 ATECC608A
+slave，实现 wake/idle/sleep、CryptoAuthentication count/opcode/parameter/CRC
+framing、config/lock-word Read、Info revision 和 CryptoAuthLib `0x8005`
+CRC16。fixture 使用 locked deterministic config、revision `00 00 60 02`
+与 zero-filled data zone，不含生产 key 或证书。
+
+同一公开 `Core2_For_AWS` artifact
+`22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a`
+经 service 归一化为
+`104062aa0e6f52470f0c7f409d202af5d2dad5c3e5ee8f7e65815508a512ef3c`。
+最终 QEMU `a802d6a358b6bccb1e9d856b6179ca7245101751a627b7b6f3ddadc3a73fb5b0`
+通过真实 `/api/v1` 连续三个独立 session：
+
+- 串口从 `atcab_init returned f0` / `abort()` 推进到
+  `atecc608: ok: 60 02`；
+- 跟踪命令为 32-byte config Read、lock-word Read 和 Info；
+- 三轮 live frame 均为 `320x240`、`76,800` nonblack pixels、`160`
+  colors，frame SHA256 均为 `f3739940…`；
+- evidence ZIP 有效，全部以 `purge=0` 停止，history 保留、QEMU PID
+  消失且 worker lease 释放。
+
+同一 guest 暴露的 classic ESP32 DMA link-start 分段写入和 DC command/data
+分类也在 `0085` 中修复；否则初始化命令会被当作像素数据，应用没有可见帧。
+该结果关闭 `RUNTIME-04` 的 bounded virtual-device 初始化/identity/应用帧
+门禁。样本仍因独立 BMI270 错误保持 `PARTIAL`；ECDSA 生成/签名、生产
+slot/trust root、side-channel、电气和 physical hardware 为 `NOT RUN`，
+Core2 legacy `RUNTIME-03` 不继承。见
+[证据](evidence/2026-10-29-core2-atecc608/README.md)、
+[机器摘要](evidence/2026-10-29-core2-atecc608/summary.json)和
+[runner](../tests/firmware/core2_atecc608/run_service.py)。

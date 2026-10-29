@@ -277,7 +277,7 @@ zero `FAIL`.
 | --- | --- | --- | --- |
 | `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0042` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture, late register dump and partial SPI `TRANS_DONE` IRQ model. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. WDT-off 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 `0x40100049`. BIN-bound analysis identifies that loop as LVGL `lv_refr_vdb_flush`: `A2` is `lv_disp_buf_t` with `flushing=1`, and `A10` is the display driver with `wait_cb=null`. Display `flush_cb=0x40174758` runs, but completion `0x40174884`/`lv_disp_flush_ready` is not observed. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
-| `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
+| `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | The ATECC608 initialization gap is fixed: the model reaches the locked test config, Info revision, HOME screen and a three-run `320x240` nonempty frame. The broader firmware remains `PARTIAL` because BMI270 initialization errors persist and later tabs/features are not all validated |
 
 In the 2026-10-24 snapshot, the `UIFlow_Core2` sample was rerun with both the
 default AXP2101 and the narrow `M5SW_CORE2_PMIC=axp192` runtime override. Both
@@ -342,10 +342,13 @@ stops before display completion, so the next acceptance requires that path to
 reach `lv_disp_flush_ready` and a non-empty application frame under the normal
 WDT.
 
-These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
-post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
-AWS ATECC608 secure element. They remain `OPEN` until the relevant guest data
-paths complete.
+The remaining Core2 legacy UIFlow post-initialization WDT/non-empty-frame gate
+is `RUNTIME-03` and remains `OPEN`. `RUNTIME-04` for the Core2 for AWS ATECC608
+initialization/identity path is `FIXED` in virtual-device scope: three
+independent public-firmware sessions reach a nonempty frame with a locked
+deterministic config. The sample remains `PARTIAL` for independent BMI270 and
+later-tab coverage; production keys, ECDSA signing, trust roots, electrical
+behavior and hardware remain separate.
 
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),
