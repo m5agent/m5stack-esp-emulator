@@ -97,11 +97,11 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`64` 个 Python 模块，`45971` 行；规模最大的模块如下。
+- `platform/tools`：`64` 个 Python 模块，`45970` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 12417 |
+| `device_service.py` | 12416 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
