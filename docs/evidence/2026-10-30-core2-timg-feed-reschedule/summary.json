@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "core2-timg-watchdog-feed-reschedule",
+  "validation": "virtual-device validation",
+  "status": "SEMANTIC_FIX_RUNTIME03_OPEN",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0091-esp32-timg-feed-reschedule.patch",
+    "old_call": "timer_mod_anticipate_ns",
+    "new_call": "timer_mod_ns"
+  },
+  "firmware": {
+    "normalized_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "device_id": "core2",
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac",
+    "icount_shift": 2
+  },
+  "virtual_frame_at_8s": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 3651,
+    "unique_colors": 36,
+    "sha256": "35aedd447284a3e812e6cd9bec3e3167559a50f2c121eb43482dcfc7ab108fcc"
+  },
+  "remaining_failure": {
+    "classification": "TG0_STAGE1_SYS_RESET",
+    "observed_ns": 15562762178,
+    "factory_ui": "NOT OBSERVED",
+    "repl": "NOT OBSERVED",
+    "runtime03": "OPEN"
+  },
+  "boundaries": [
+    "Virtual-device validation only.",
+    "No physical watchdog timing, cache, PSRAM or electrical validation.",
+    "The binary frame demonstrates a live display path, not a completed legacy application startup."
+  ]
+}

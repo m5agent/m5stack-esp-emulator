@@ -224,6 +224,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   `wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`。
   下一项应解释 boot.py 后的 WiFi 配置/UI 线程等待，再检查 display flush
   completion。见[post-boot wait 证据](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md)。
+  `0091` 另修正 TIMG watchdog stage timer 的 feed 重调度语义：
+  `timer_mod_anticipate_ns()` 会保留更早的 pending deadline，不能在
+  `WDTFEED` 后正确替换后续阶段。改用 `timer_mod_ns()` 后，同固件
+  8 秒虚拟时点得到 `320x240`、`3,651` nonblack pixels 的 live frame；
+  但长窗仍在约 `15.56 s` 触发 TG0 stage-1 reset，因此该修复只关闭
+  watchdog timer replacement 子问题，`RUNTIME-03` 继续 OPEN。见
+  [feed-reschedule 证据](evidence/2026-10-30-core2-timg-feed-reschedule/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API

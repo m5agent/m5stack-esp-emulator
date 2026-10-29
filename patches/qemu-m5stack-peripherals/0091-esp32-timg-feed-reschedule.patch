@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Fri, 30 Oct 2026 03:10:00 +0800
+Subject: [PATCH] esp32: allow TIMG watchdog feeds to postpone later stages
+
+The TIMG watchdog used timer_mod_anticipate_ns() for every arm operation.
+That API intentionally preserves an earlier pending deadline.  A WDTFEED
+that restarts stage 0 can therefore leave an already armed stage 1 deadline
+in place, producing a system reset even though the guest fed the watchdog.
+
+Use timer_mod_ns() for the watchdog stage timer.  This preserves the
+existing timeout and interrupt behavior while allowing a feed to replace
+the pending stage deadline with the newly armed one.
+---
+diff --git a/hw/timer/esp32_timg.c b/hw/timer/esp32_timg.c
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -718,7 +718,12 @@ static void esp32_timg_wdt_arm(Esp32TimgWdtState *ws, uint64_t ns_now)
+     }
+     TIMG_DEBUG_LOG("%s: TG%d ns=0x%08llx stage %d count=0x%08x count_to_timeout=0x%08x ns_to_timeout=0x%08llx\n",
+                    __func__, ws->parent->id, ns_now, ws->cur_stage, cur_count, count_to_timeout, ns_to_timeout);
+-    timer_mod_anticipate_ns(&ws->stage_timer, ns_now + ns_to_timeout);
++    /*
++     * A watchdog feed must be able to postpone an already armed later stage.
++     * timer_mod_anticipate_ns() deliberately keeps the earlier deadline, which
++     * makes a stage-1 reset fire even after a successful WDTFEED.
++     */
++    timer_mod_ns(&ws->stage_timer, ns_now + ns_to_timeout);
+ }
+ 
+ static void esp32_timg_wdt_cb(void *opaque)
+-- 
+2.51.0
