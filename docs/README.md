@@ -40,7 +40,9 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 不下载归档，具体保留范围与显式验证入口见[证据保留规则](evidence-retention.md)。
 Core2 legacy 的最新 status/CAS 诊断见
 [RDSR 与锁竞争关联](evidence/2026-10-29-core2-legacy-status-cas/README.md)；
-它只更新 `RUNTIME-03` 的排查入口，不表示 legacy 启动已通过。
+`0088` 的跨核 CAS 调度 A/B 见
+[contended-CAS scheduler](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)；
+这些结果只更新 `RUNTIME-03` 的排查入口，不表示 legacy 启动已通过。
 
 浏览器低帧率、正常时钟候选与逐设备准入按
 [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md)推进；
@@ -152,6 +154,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Core2 legacy UART 与虚拟时钟对齐](evidence/2026-10-29-core2-legacy-uart-clock/README.md) | 当前 Core2 启动证据 | `2026-10-29` | `0070` 给 opt-in UART trace 加虚拟时间戳；WDT-off 下 BOARD/APIKEY 到 `55.00 s`、boot.py 到 `77.11 s`，normal WDT 仍 `17.25 s` reset；`shift=2` 也未消除 reset，不能把 accelerator override 当修复 |
 | [Core2 legacy status/CAS 关联](evidence/2026-10-29-core2-legacy-status-cas/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | `0075` 证明 RDSR WIP/BUSY 始终为 0，主要预算位于 `0xBB/64` 后的 scheduler/list 跨核锁竞争；failed-CAS slice yield 与原 normal-WDT 都在约 `17.249 s` 重置，`RUNTIME-03` 仍 OPEN |
 | [Core2 legacy contended-CAS episodes](evidence/2026-10-29-core2-legacy-cas-episodes/README.md) | 当前 Core2 诊断证据 / 诊断修复 | `2026-10-29` | `0086` 修正 no-I/O TB 的 `Bad icount read`；热锁结构匹配到 `xTaskQueueMutex`/queue mux，failed-CAS yield 可缩短 10 秒 task-queue 等待，但 15 秒时等待转移到 queue mux 且 normal-WDT reset 不变；`RUNTIME-03` 仍 OPEN |
+| [Core2 contended-CAS scheduler attribution](evidence/2026-10-29-core2-contended-cas-scheduler/README.md) | 当前 Core2 调度证据 | `2026-10-29` | `0088` 同 binary A/B 将 5 秒 CAS/contended/episode time 从 `1,070,625/984,964/2.240 s` 降到 `91,465/2,702/1.018 s`，SSI 工作近似不变；normal-WDT 仍 TG0 stage-1 reset，只证明 100 ms RR 放大 spin，不关闭 `RUNTIME-03` |
 | [Cardputer-ADV 当前参考固件 BMI270 闭环](evidence/2026-10-29-cardputer-adv-imu/README.md) | 当前设备证据 | `2026-10-29` | I2C `0x69`、CHIP_ID/INIT/data-ready 与 `0x0C..0x17` 读取可达；Device Service 注入经官方 `Imu.getAccel/getGyro` 回读，原样矩阵首轮 PASS；关闭当前参考固件 IMU 全零待办，物理精度仍 NOT RUN |
 | [Core2 legacy pre-boot phase profile](evidence/2026-10-29-core2-preboot-phase-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | 显式 PC/UART sampling 记录 WDT-off 80 秒的 SSI transaction/RX 聚合总量与 108 个采样 begin event；全量 command/length 分布仍未知，四类立即切核控制均无改善并丢弃，normal-WDT 仍 stage-1 reset |
 | [Core2 SSI transaction profile](evidence/2026-10-29-core2-ssi-transaction-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | `0071` 输出完整 command、RX-length、completion→next-command gap 聚合；无采样控制得到约五万组 `0x05` 与 `0xBB/64B`，`79.7/80 s` 位于相邻 command 间隔；normal-WDT 仍 `17.2537 s` reset，`RUNTIME-03` 保持 OPEN |

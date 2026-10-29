@@ -51,6 +51,8 @@ stock `espnow.ESPNow` lifecycle runner 在 StopWatch↔StickS3 与 Core2↔StopW
 随后 `0077` 在 QEMU `5340171c…` 上给 external bridge 加入真实 AES-CCMP/MIC：PMK 只保存 wrapped LMK，TX 以新 PN/MIC 加密 action body，RX 在 normal DMA 前验证并在失败时丢弃。StopWatch↔StickS3 完成明文、正确 key、错误 LMK 和 wrong-PMK/same-LMK，Core2↔StopWatch 完成正确 key 与错误 LMK；十二条 session 路径中正确 key 均双向交付，错误 LMK 的所有方向均为 `EXPECTED_DROP` 且 `rx_packets=0`。PMK/LMK 已从 API snapshot 与 persisted session JSON 脱敏。`RUNTIME-06` 仍为 `PARTIAL`，因为该 lane 使用 explicit key fixture，不证明 guest `set_pmk`/`add_peer` 状态传播，peer lifecycle、replay、loss/retry、fabric、channel/rate、RF 和真机仍未覆盖，见[external CCMP 证据](evidence/2026-10-29-espnow-external-ccmp/README.md)。
 Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp32_wifi` NIC；改用 UIFlow 自带 packer 与 `/api/v1` 的 `runtime=qemu-wifi` 后，120 秒诊断已执行注入的 `CORE2_LEGACY_VFS_BOOT`。随后 `0068` 修复 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 的共享 panel routing，legacy `m5stack`/`lcd` probe 从 0 变为 1422 nonblack pixels；`0069` 修正 protected `WDTPROTECT` 下合法 `WDTFEED` 被丢弃的模型错误，但同固件 60 秒正常 WDT 仍在 `17.2529 s` 触发 TG0 stage-1 reset。原厂 startup UI、setup/REPL 和应用帧仍未完成，`RUNTIME-03` 保持 `OPEN`。`0071`-`0073` 又把 WDT-off 的工作预算收窄到稳定的 `0xBB/64 -> 0x05/1` 循环：`0x05` 主要由 ROM read-command 区间的 `0x4006222c` 发起，`0xBB/64` 主要来自应用 segment 5 的 `0x40093b57`；同一 frozen QEMU 的 normal-WDT 仍在 `17.2536 s` reset。没有 matching legacy ELF/MAP，当前仍不能把 issuer PC 命名成精确应用函数或据此关闭启动问题，见[issuer PC 证据](evidence/2026-10-29-core2-ssi-command-pc/README.md)。旧无 NIC 黑帧不再单独作为显示完成路径结论，见[协作 IRQ/RMT 证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)、[VFS/WiFi fixture 校正](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、[dual-SPI panel routing](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)和[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)。`0075` 表明 RDSR bit0 始终为 `0`，主要预算位于 `0xBB/64` 后的 scheduler/list 跨核锁竞争；failed-CAS slice yield 没有移动 normal-WDT 的 `17.249 s` TG0 stage-1 reset，`RUNTIME-03` 仍 `OPEN`，见 [status/CAS 证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)。`0086` 修正 episode 诊断在 no-I/O translation block 中读取 virtual clock 导致的 `Bad icount read`，并用同一 public SHA 的 normal-WDT/WDT-off 两个 10 秒 freeze 测得 `0x3ffbf2cc` 分别有 `162/166` 个等待区间、累计 `6.743/6.601 s`、最长 `483/581 ms`。控制流与 public ESP-IDF v3.3.5 匹配后，热锁是 `xTaskQueueMutex`，主要 waiter 为 `xTaskIncrementTick`/`vTaskSwitchContext`；失败 CAS yield 在 10 秒降低 task-queue 等待，但 15 秒时总预算转移到 queue mux `0x3ffb7ab0`，normal-WDT reset 和黑帧不变。exact legacy ELF/MAP、host-vCPU 调度延迟与实际 guest 长临界区仍未区分，`RUNTIME-03` 保持 `OPEN`，见[episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)。
 
+`0088` 的同 binary A/B 进一步证明单线程 RR 的 100 ms quantum 会把跨核 spin 放大：5 秒 WDT-off 的 CAS/contended/episode time 从 `1,070,625/984,964/2.240 s` 降到 `91,465/2,702/1.018 s`，SSI 工作近似不变；但 normal-WDT 仍在 `17.248 s` TG0 stage-1 reset。exact legacy ELF/MAP 与启动生命周期仍未闭环，`RUNTIME-03` 保持 `OPEN`，见[episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和[scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
+
 ## 本轮目标盘点
 
 | 目标 | 已经落地 | 当前缺口 | 结论 |
@@ -427,8 +429,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 - 当前能力与风险：本文。
 - 未完成范围、优先级和验收：[项目 Backlog](project-backlog.md)。
 - 带日期的运行结果和 evidence：[验证证据台账](validation-ledger.md)。
-- 设备、固件样本、模型缺口和 Task 计数：
-  [自动项目快照](project-snapshot.md)。
+- 设备、固件样本、模型缺口和 Task 计数：[自动项目快照](project-snapshot.md)。
 - 源码、测试和生成物入口：[代码与验证入口地图](code-map.md)。
 - 已知模型缺口与关闭条件：
   [运行时模型缺口登记](runtime-model-gap-register.md)。
@@ -444,7 +445,6 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
   [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、
   [state sweep evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、
   [setter PC trace evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json)。
-- 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及
-  `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
+- 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及 `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
 
 详细运行轮次、旧失败 control 和 evidence 不回写本页；当前入口已推翻的旧说法应删除，历史页保留原日期并标明取代关系。
