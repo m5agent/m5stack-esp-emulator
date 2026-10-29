@@ -33,16 +33,20 @@ async function deferIframeRemoval() {
   });
 }
 async function closeWorkersBeforeRemovingIframe(name,total) {
-  // Playwright can defer Worker close delivery until page teardown on macOS.
-  // The browser target graph is authoritative and must be empty before the
-  // iframe is removed.
-  const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total,timeoutMs:30000});
+  // Nested pthreads must close while the iframe remains. The engine target is
+  // checked again after normal iframe DOM removal, where macOS Chrome releases
+  // any remaining dedicated-Worker target even after owner finalization.
+  const nestedClose=await workerTargetObserver.waitUntilOnly({minimumObserved:total,
+    allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
     removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
   (report.iframe_removal_controls||=[]).push({...held,removal_deferred_by_harness:true});
-  (report.worker_target_lifecycles||=[]).push({name,target_close:targetClose,playwright_worker_events:workers});
-  check(name,targetClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1);
+  check(`${name}-pthreads-before-iframe-finalization`,nestedClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1,
+    {worker_targets:nestedClose,playwright_worker_events:workers});
   await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
+  const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total,timeoutMs:30000});
+  (report.worker_target_lifecycles||=[]).push({name,nested_before_removal:nestedClose,all_after_removal:targetClose,playwright_worker_events:workers});
+  check(`${name}-all-targets-after-iframe-finalization`,targetClose.ok,targetClose);
 }
 function exactReceipt(receipt){
   return receipt.engine==='qemu-wasm'&&receipt.profile===expectedProfile&&receipt.clockDivisor===(candidate?1:8)

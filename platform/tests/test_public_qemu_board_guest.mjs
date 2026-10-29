@@ -544,8 +544,7 @@ try {
     !/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred|Traceback \(most recent call last\):/.test(completeSerial));
   const running = await page.evaluate(() => boardRun.runtime.evidence()); await writeFile(resolve(output, 'running-after-input.json'), JSON.stringify(running, null, 2) + '\n');
   if (publicUI) report.public_ui_inputs = await page.evaluate(() => boardRun.uiInputs);
-  // Defer only DOM destruction so real UI stop/quit/dispose must close all
-  // workers on their own. Removing the iframe must not manufacture this PASS.
+  // Defer DOM destruction to verify pthread exit before normal iframe removal.
   await page.evaluate(() => {
     const frame=boardRun.runtime.iframe, remove=frame.remove;
     globalThis.boardDeferredRemoval={frame,remove,requests:0};
@@ -560,25 +559,30 @@ try {
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
     && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  // Query the browser target graph directly. This proves the engine and every
-  // nested pthread Worker targets are gone without depending on delayed
-  // Playwright Worker close event delivery.
+  // Check nested pthreads while the iframe is held, then all targets after
+  // normal DOM removal. Bind both phases to the same run's actual worker count.
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');
-  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets,timeoutMs:30000});
-  report.worker_targets=workerClose; report.playwright_worker_events=workerObservations;
+  const nestedClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,
+    allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
     removal_requests:boardDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe').length}));
   report.iframe_removal_control={...deferredRemoval,removal_deferred_by_harness:true,
-    scope:'Real UI stop/quit/dispose with iframe DOM removal deferred until the browser target graph has no live Worker targets.'};
-  check('engine-and-created-pthreads-close-before-iframe-removal', workerClose.ok
-    &&workerClose.observed.length===expectedWorkerTargets
-    &&workerClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1&&deferredRemoval.iframe_present
-    && deferredRemoval.removal_requests===1 && deferredRemoval.iframe_count===1,
-    {worker_targets:workerClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
+    scope:'Real UI stop/quit/dispose; nested pthread targets are checked before iframe DOM removal, then all targets after it.'};
+  check('created-pthreads-close-before-iframe-finalization', nestedClose.ok
+    &&nestedClose.observed.length===expectedWorkerTargets
+    &&nestedClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1
+    &&deferredRemoval.iframe_present&&deferredRemoval.removal_requests===1&&deferredRemoval.iframe_count===1,
+    {worker_targets:nestedClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
   await page.evaluate(() => {
     const held=boardDeferredRemoval;held.remove.call(held.frame);delete globalThis.boardDeferredRemoval;
   });
+  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets,timeoutMs:30000});
+  report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
+  report.playwright_worker_events=workerObservations;
+  check('engine-and-created-pthreads-close-after-iframe-finalization',targetClose.ok
+    &&targetClose.observed.length===expectedWorkerTargets
+    &&targetClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,targetClose);
   check('no-leftover-guest-iframe', await page.locator('iframe').count() === 0);
   check('no-page-errors', errors.length === 0, errors);
   check('no-device-service-requests', !requests.some(row => /\/api\/v1|:8787\b|:8830\b/.test(row.url)));

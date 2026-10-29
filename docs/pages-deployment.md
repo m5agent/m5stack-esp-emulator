@@ -96,9 +96,10 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 dispose。engine 依次回复私有端口确认、关闭端口、发送 owner closing 通知并
 调用 `self.close()`；owner 收到该通知后显式 finalize 自己的 Worker handle，
 避免 macOS Chrome 把 engine target 保留到 iframe 移除。真实客体验收通过
-Chrome CDP `Target.getTargets` 核对 engine 与全部嵌套 pthread target 均消失，
-不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、错误
-或 iframe pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
+Chrome CDP `Target.getTargets` 分两阶段核对：iframe 保留时五个嵌套 pthread
+target 必须消失；正常移除 iframe 后 engine 与全部 Worker target 也必须消失。
+该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
+错误或 iframe pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
 记录；成功清理门禁要求 fallback 次数为零，不能把强制回收写成正常退出。
 
 原生 RGB565 帧同时交给可见原始屏幕和 `model-shell.js` 的显示纹理。
