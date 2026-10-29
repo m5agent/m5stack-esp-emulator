@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 22:30:00 +0800
+Subject: [PATCH] icount: cap multi-vCPU round-robin slices
+
+Single-threaded TCG with icount divides the next timer deadline across
+all vCPUs. Depending on the earliest guest timer, a runnable peer CPU can
+wait hundreds of microseconds before observing a normal-priority IPC wakeup.
+
+Add an opt-in per-vCPU virtual-time cap. A deployment can set it to 10us to
+keep dual-core rendezvous responsive without changing guest instructions,
+interrupt semantics, watchdog configuration or peripheral data planes. The
+value is validated at configuration time and remains disabled when unset.
+---
+diff --git a/accel/tcg/icount-common.c b/accel/tcg/icount-common.c
+--- a/accel/tcg/icount-common.c
++++ b/accel/tcg/icount-common.c
+@@ -45,6 +45,7 @@
+  * is TCG-specific, and does not need to be built for other accels.
+  */
+ static bool icount_sleep = true;
++static int64_t icount_max_percpu_ns;
+ /* Arbitrarily pick 1MIPS as the minimum allowable speed.  */
+ #define MAX_ICOUNT_SHIFT 10
+ 
+@@ -417,9 +418,20 @@ void icount_account_warp_timer(void)
+ bool icount_configure(QemuOpts *opts, Error **errp)
+ {
+     const char *option = qemu_opt_get(opts, "shift");
++    const char *max_percpu_ns = getenv("M5SW_ICOUNT_MAX_PERCPU_NS");
+     bool sleep = qemu_opt_get_bool(opts, "sleep", true);
+     bool align = qemu_opt_get_bool(opts, "align", false);
+     long time_shift = -1;
++    unsigned long max_percpu_value = 0;
++
++    if (max_percpu_ns && *max_percpu_ns
++        && (qemu_strtoul(max_percpu_ns, NULL, 0, &max_percpu_value) < 0
++            || max_percpu_value < 1000
++            || max_percpu_value > NANOSECONDS_PER_SECOND)) {
++        error_setg(errp, "M5SW_ICOUNT_MAX_PERCPU_NS must be 1000..1000000000");
++        return false;
++    }
++    icount_max_percpu_ns = max_percpu_value;
+ 
+     if (!option) {
+         if (qemu_opt_get(opts, "align") != NULL) {
+@@ -490,6 +502,11 @@ bool icount_configure(QemuOpts *opts, Error **errp)
+     return true;
+ }
+ 
++int64_t icount_get_max_percpu_ns(void)
++{
++    return icount_max_percpu_ns;
++}
++
+ void icount_notify_exit(void)
+ {
+     assert(icount_enabled());
+diff --git a/accel/tcg/tcg-accel-ops-icount.c b/accel/tcg/tcg-accel-ops-icount.c
+--- a/accel/tcg/tcg-accel-ops-icount.c
++++ b/accel/tcg/tcg-accel-ops-icount.c
+@@ -122,6 +122,11 @@ int64_t icount_percpu_budget(int cpu_count)
+ {
+     int64_t limit = icount_get_limit();
+     int64_t timeslice = limit / cpu_count;
++    int64_t max_slice_ns = icount_get_max_percpu_ns();
++
++    if (cpu_count > 1 && max_slice_ns > 0) {
++        timeslice = MIN(timeslice, icount_round(max_slice_ns));
++    }
+     if (timeslice == 0) {
+         timeslice = limit;
+     }
+diff --git a/include/sysemu/cpu-timers.h b/include/sysemu/cpu-timers.h
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -67,6 +67,7 @@ bool icount_configure(QemuOpts *opts, Error **errp);
+ 
+ /* used by tcg vcpu thread to calc icount budget */
+ int64_t icount_round(int64_t count);
++int64_t icount_get_max_percpu_ns(void);
+ 
+ /*
+  * Fine-grained round-robin scheduling is required while an Xtensa
+diff --git a/stubs/icount.c b/stubs/icount.c
+--- a/stubs/icount.c
++++ b/stubs/icount.c
+@@ -18,6 +18,10 @@ int64_t icount_get_raw(void)
+     abort();
+     return 0;
+ }
++int64_t icount_get_max_percpu_ns(void)
++{
++    return 0;
++}
+ void icount_note_high_priority_irq(int cpu_index, bool active)
+ {
+ }
+-- 
+2.51.0

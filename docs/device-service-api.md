@@ -2812,8 +2812,12 @@ restart.
   batch but an independent confirmation failed `3/5`. The current default is
   fixed `icount shift=5,align=off,sleep=off`; `M5_CORE2_ICOUNT_SHIFT` accepts
   `auto` or `0-10` only as an explicit diagnostic override, while the
-  concurrency gate requires the fixed value. The unified test workload starts
-  its BLE server before WiFi and sustained PSRAM stress. Two new independent
+  concurrency gate requires the fixed value. Core2 also defaults the QEMU
+  per-vCPU icount slice cap to `10000` ns; set
+  `M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` to reproduce the uncapped scheduler or
+  provide an explicit `1000-1000000000` value for a diagnostic A/B. The cap
+  does not change the guest API or watchdog configuration. The unified test
+  workload starts its BLE server before WiFi and sustained PSRAM stress. Two new independent
   zero-stagger `5×120s` batches then pass `5/5` each (`10/10`) at maximum
   concurrency 5, with 14-15 PSRAM sweeps per lease and zero HLI/reset/panic/
   dropped counters. Two independent zero-stagger `6×120s` batches then pass

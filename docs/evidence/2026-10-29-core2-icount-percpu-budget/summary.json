@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "core2-icount-percpu-budget",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": "5",
+    "wdt_disabled": false,
+    "qemu_binary_sha256": "568079f3b9e818ef1cc29b9e7cd1c5c036af19196668a12174ed79ec96c262ed",
+    "default_icount_max_percpu_ns": 10000
+  },
+  "comparison": {
+    "uncapped": {
+      "icount_max_percpu_ns": 0,
+      "virtual_time_last_pc_event_ns": 8350390399,
+      "first_wdt_timeout_ns": 7253606495,
+      "complete_handoffs": 5783,
+      "cpu1_initiator": {
+        "complete_episodes": 5472,
+        "can_start_to_call_return_mean_ns": 563667,
+        "peer_block_wait_mean_ns": 728443,
+        "queue_wake_to_callback_enter_mean_ns": 24620,
+        "complete_to_callback_return_mean_ns": 181869
+      }
+    },
+    "capped": {
+      "icount_max_percpu_ns": 10000,
+      "virtual_time_last_pc_event_ns": 5393385343,
+      "first_wdt_timeout_ns": null,
+      "complete_handoffs": 5607,
+      "cpu1_initiator": {
+        "complete_episodes": 5296,
+        "can_start_to_call_return_mean_ns": 56249,
+        "peer_block_wait_mean_ns": 184689,
+        "queue_wake_to_callback_enter_mean_ns": 24336,
+        "complete_to_callback_return_mean_ns": 34074
+      }
+    }
+  },
+  "core2_uiflow2_device_group": {
+    "status": "PASS",
+    "cases": {
+      "core2-peripherals": "PASS",
+      "core2-audio": "PASS",
+      "core2-mic": "PASS",
+      "core2-power-monitor": "PASS",
+      "core2-imu": "PASS",
+      "core2-axp192": "PASS"
+    },
+    "case_count": 6,
+    "pass_count": 6,
+    "retry_used": false
+  },
+  "platform_tests": {
+    "passed": 1574,
+    "failed": 0,
+    "skipped": 1
+  },
+  "legacy_normal_wdt": {
+    "first_wdt_timeout_ns": 7242815742,
+    "first_wdt_reset_ns": 17242875841,
+    "serial_has_micropython_banner": true,
+    "serial_has_board_name": false,
+    "serial_has_apikey": false,
+    "serial_has_repl_prompt": false,
+    "frame_bytes": 302,
+    "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+  },
+  "classification": {
+    "fixed_ipc_scheduler_delay": "FIXED",
+    "runtime03": "OPEN",
+    "physical_timing": "NOT RUN"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "The cap changes vCPU scheduling granularity, not guest instructions or watchdog configuration.",
+    "Normal WDT still resets before BOARD NAME/APIKEY/REPL.",
+    "No physical cache, Flash, electrical, RF or hardware equivalence is claimed."
+  ]
+}
