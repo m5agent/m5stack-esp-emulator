@@ -548,6 +548,15 @@ real forwarded frame for a per-peer replay negative control. This lane uses a
 shared LMK; per-peer LMK routing, PN wrap, loss/retry, RF and physical
 controller behavior remain separate.
 
+`0082-esp32-espnow-per-peer-key-routing.patch` captures the stock controller
+key-entry metadata written by `hal_crypto_set_key_entry`: the first six bytes
+contain the peer MAC and the LMK starts at offset eight. Fabric TX selects the
+guest LMK by receiver peer and RX selects it by transmitter peer. Each key slot
+keeps its own transmit PN, while the authenticated replay window remains scoped
+to the source peer. The runner covers three pairwise LMKs and an intentional
+B/A cross-wire negative control; PN wrap, loss/retry, RF and physical-controller
+behavior remain separate.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

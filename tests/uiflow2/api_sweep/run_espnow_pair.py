@@ -425,8 +425,8 @@ import time
 
 ROLE = __ROLE__
 PEER_MACS = __PEER_MACS__
+PEER_LMKS = __PEER_LMKS__
 PMK = __PMK__
-LMK = __LMK__
 
 
 def emit(kind, **values):
@@ -468,7 +468,13 @@ node.active(True)
 node.config(rxbuf=4096, timeout_ms=100)
 node.set_pmk(PMK)
 for peer_role, peer_mac in PEER_MACS.items():
-    node.add_peer(peer_mac, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+    node.add_peer(
+        peer_mac,
+        lmk=PEER_LMKS[peer_role],
+        channel=0,
+        ifidx=0,
+        encrypt=True,
+    )
 
 peer_count = list(node.peer_count())
 registered = (
@@ -953,6 +959,14 @@ def trace_summary(evidence: Path) -> dict:
     }
 
 
+FABRIC_SCENARIOS = frozenset({
+    "fabric",
+    "fabric-replay",
+    "fabric-per-peer-key",
+    "fabric-per-peer-key-negative",
+})
+
+
 def run_one(
     *,
     api: str,
@@ -969,6 +983,7 @@ def run_one(
     lmk: bytes,
     rotated_lmk: bytes,
     peer_macs: dict[str, bytes] | None = None,
+    peer_lmks: dict[str, bytes] | None = None,
     public_mac: bytes | None = None,
 ) -> dict:
     if scenario in {"lifecycle", "guest-key-rotation"}:
@@ -977,7 +992,7 @@ def run_one(
     elif scenario == "lifecycle-m5espnow":
         source_template = M5ESPNOW_LIFECYCLE_SOURCE
         done_marker = "ESPNOW_M5_LIFECYCLE_DONE " + role
-    elif scenario in {"fabric", "fabric-replay"}:
+    elif scenario in FABRIC_SCENARIOS:
         source_template = THREE_PEER_SOURCE
         done_marker = "ESPNOW_FABRIC_DONE " + role
     else:
@@ -989,6 +1004,7 @@ def run_one(
         .replace("__LMK__", repr(lmk))
         .replace("__ROTATED_LMK__", repr(rotated_lmk))
         .replace("__PEER_MACS__", repr(peer_macs or {}))
+        .replace("__PEER_LMKS__", repr(peer_lmks or {}))
         .replace("__ENCRYPT__", repr(encrypt))
         .replace(
             "__EXPECTED_HASH__",
@@ -1006,7 +1022,7 @@ def run_one(
         "M5SW_ESPNOW_PEER_REMOTE_PORT": str(remote_port),
         "M5SW_ESPNOW_PEER_TRACE": "1",
     }
-    if scenario in {"fabric", "fabric-replay"}:
+    if scenario in FABRIC_SCENARIOS:
         runtime_env["M5SW_ESPNOW_PEER_FABRIC"] = "1"
     if public_mac is not None:
         runtime_env["M5SW_ESPNOW_PEER_PUBLIC_MAC"] = public_mac.hex()
@@ -1058,7 +1074,7 @@ def run_one(
         records = parse_lifecycle_records(serial)
     elif scenario == "lifecycle-m5espnow":
         records = parse_m5espnow_lifecycle_records(serial)
-    elif scenario in {"fabric", "fabric-replay"}:
+    elif scenario in FABRIC_SCENARIOS:
         records = parse_fabric_records(serial)
     else:
         records = parse_pair_records(serial)
@@ -1098,7 +1114,47 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
         for index, (role, device) in enumerate(devices.items())
     }
     pmk = b"0123456789abcdef"
-    lmk = b"fedcba9876543210"
+    shared_lmk = b"fedcba9876543210"
+    pair_lmks = {
+        frozenset(("A", "B")): bytes.fromhex(
+            "101112131415161718191a1b1c1d1e1f"
+        ),
+        frozenset(("A", "C")): bytes.fromhex(
+            "202122232425262728292a2b2c2d2e2f"
+        ),
+        frozenset(("B", "C")): bytes.fromhex(
+            "303132333435363738393a3b3c3d3e3f"
+        ),
+    }
+    per_peer_key = args.scenario in {
+        "fabric-per-peer-key",
+        "fabric-per-peer-key-negative",
+    }
+    expected_links = {
+        "A-B": True,
+        "A-C": True,
+        "B-C": True,
+    }
+    if args.scenario == "fabric-per-peer-key-negative":
+        expected_links["A-B"] = False
+
+    def link_name(left: str, right: str) -> str:
+        return "-".join(sorted((left, right)))
+
+    role_lmks = {}
+    for role in roles:
+        role_lmks[role] = {
+            peer_role: (
+                pair_lmks[frozenset((role, peer_role))]
+                if per_peer_key
+                else shared_lmk
+            )
+            for peer_role in roles
+            if peer_role != role
+        }
+    if args.scenario == "fabric-per-peer-key-negative":
+        role_lmks["B"]["A"] = pair_lmks[frozenset(("B", "C"))]
+
     duplicate_once = args.scenario == "fabric-replay"
     broker = PeerFabric(
         roles=roles,
@@ -1120,13 +1176,14 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
                 encrypt=True,
                 guest_key=True,
                 pmk=pmk,
-                lmk=lmk,
-                rotated_lmk=lmk,
+                lmk=shared_lmk,
+                rotated_lmk=shared_lmk,
                 peer_macs={
                     peer_role: macs[peer_role]
                     for peer_role in roles
                     if peer_role != role
                 },
+                peer_lmks=role_lmks[role],
                 public_mac=macs[role],
             )
         )
@@ -1185,26 +1242,46 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
         and row.get("peer_count") == [2, 2]
         for row in registration_results.values()
     )
+    def peer_expected(role: str, peer: str) -> bool:
+        return expected_links[link_name(role, peer)]
+
     ready_ok = all(
-        row.get("status") == "PASS"
-        and sorted(row.get("ready_peers", []))
-        == sorted(set(roles) - {role})
+        sorted(row.get("ready_peers", []))
+        == sorted(
+            peer
+            for peer in set(roles) - {role}
+            if peer_expected(role, peer)
+        )
         for role, row in ready_results.items()
     )
     payload_ok = all(
-        payload_results[result["role"]].get("status") == "PASS"
+        sorted(
+            payload_results[role].get("payload_matches", {})
+        ) == sorted(set(roles) - {role})
         and sorted(
-            payload_results[result["role"]].get("payload_matches", {})
-        ) == sorted(set(roles) - {result["role"]})
+            payload_results[role].get("source_matches", {})
+        ) == sorted(set(roles) - {role})
         and all(
-            payload_results[result["role"]].get(
-                "payload_matches", {}
-            ).values()
+            (
+                payload_results[role]
+                .get("payload_matches", {})
+                .get(peer, 0)
+                > 0
+            )
+            == peer_expected(role, peer)
+            and (
+                payload_results[role]
+                .get("source_matches", {})
+                .get(peer, 0)
+                > 0
+            )
+            == peer_expected(role, peer)
+            for peer in set(roles) - {role}
         )
-        for result in results
+        for role in roles
     )
     guest_key_ok = all(
-        result["trace"]["guest_key_ready"] > 0 for result in results
+        result["trace"]["guest_key_ready"] >= 2 for result in results
     )
     traffic_ok = all(
         result["trace"]["tx"] > 0 and result["trace"]["rx"] > 0
@@ -1248,7 +1325,16 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
         "scenario": args.scenario,
         "encryption": True,
         "key_source": "guest-controller-key-store",
-        "key_scope": "shared LMK; per-peer key routing NOT RUN",
+        "key_scope": (
+            "pairwise LMK; role B/A intentionally cross-wired"
+            if args.scenario == "fabric-per-peer-key-negative"
+            else (
+                "pairwise LMK"
+                if per_peer_key
+                else "shared LMK"
+            )
+        ),
+        "expected_links": expected_links,
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {
             "transport": "IPv4 loopback UDP three-guest fabric broker",
@@ -1305,6 +1391,8 @@ def main() -> int:
             "guest-key-rotation",
             "fabric",
             "fabric-replay",
+            "fabric-per-peer-key",
+            "fabric-per-peer-key-negative",
             "lifecycle",
             "lifecycle-m5espnow",
         ),
@@ -1318,16 +1406,14 @@ def main() -> int:
 
     output = args.out_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    if args.scenario in {"fabric", "fabric-replay"}:
+    if args.scenario in FABRIC_SCENARIOS:
         return run_fabric_mode(args, output)
     encrypt = args.scenario != "plaintext"
     guest_key = args.scenario in {
         "guest-key",
         "guest-key-wrong-lmk",
         "guest-key-rotation",
-        "fabric",
-        "fabric-replay",
-    }
+    } | FABRIC_SCENARIOS
     keys = {
         "stopwatch": (
             b"0123456789abcdef",

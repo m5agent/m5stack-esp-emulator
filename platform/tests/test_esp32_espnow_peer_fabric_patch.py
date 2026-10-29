@@ -153,14 +153,12 @@ class Esp32EspNowPeerFabricPatchTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)
 
-    def test_scope_is_shared_lmk_and_not_multi_key_routing(self):
+    def test_base_patch_scope_is_shared_lmk(self):
         text = " ".join(PATCH.read_text().split())
         self.assertIn("shared-LMK test lane", text)
         runner = RUNNER.read_text()
-        self.assertIn(
-            "shared LMK; per-peer key routing NOT RUN",
-            runner,
-        )
+        self.assertIn('else "shared LMK"', runner)
+        self.assertIn('"pairwise LMK"', runner)
 
 
 if __name__ == "__main__":
