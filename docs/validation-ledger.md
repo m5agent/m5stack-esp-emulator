@@ -1746,3 +1746,36 @@ fixture均PASS。该结果关闭 `UNIT-HOST-37` 的 cold constructor/低基线�
 电气或 physical hardware。见
 [四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)和
 [机器摘要](evidence/2026-10-29-flashlight-cold-route-four-host/summary.json)。
+
+## 2026-10-29：Core2 legacy IPC/flash handoff stack attribution
+
+在同一 public `UIFlow_Core2 v1.15.4` SHA、same QEMU
+`75e7fa97…`、`runtime=qemu-wifi`、`icount shift=5` 和 normal WDT
+下，通过三个独立 lease 在 `17.200000 s` 做 bounded register/stack/object
+freeze。三次 serial 均为 507 bytes、SHA256 `e9962765…`，没有
+`BOARD NAME`、`APIKEY` 或 setup/REPL。
+
+CPU0 分别位于 `0x40087988`、`0x40087984`、`0x4008798e`，寄存器
+`A0=0x80088a31`、`A9=0x3ffc7ec8`、`A12=0x3ffbf2cc` 三次一致；
+稳定栈帧含 `0x400889c4`、`0x40087950` 和 `0x800840a0`。BIN 控制流与
+public ESP-IDF `cache_utils.c`/`ipc.c` source shape 匹配为
+`spi_flash_op_block_func` 等 complete flag，并由 `ipc_task` 分发；
+CPU1 三次 PC 分别 `0x40084312`、`0x4008448a`、`0x40095c5c`，另一次
+捕获到 `xQueueGenericSend` 的 `A0=0x801ec834` IPC 返回点。
+
+该结果再次拒绝双核永久 deadlock：CPU0 在每个 flash 操作的 block callback
+中等待，CPU1 继续推进跨核 IPC 和启动工作。由于没有 matching private
+legacy ELF/MAP，函数名只作为 BIN-bound source-shape 结果，不作为 exact
+linker symbol。
+
+同时修正诊断解释：默认 trace 每 1024 个 event 才保留一条，
+`transaction-begin` 与后续采样 `transaction-end` 不能配对。runner 新增
+`--trace-sample` 并在每个 snapshot 记录有效值；2 秒 `sample=1` 控制得到
+13 个 begin、13 个 end、11 个 receive-data，13 对 begin/end 全部为同步
+`0 ns`，从而排除“单个短 Flash 命令事务耗时约 0.4 秒”的误读。
+
+normal-WDT reset、startup UI、setup/REPL、非空应用帧和 physical hardware
+仍未通过，`RUNTIME-03` 保持 OPEN。下一步应直接量化 per-flash-operation
+CPU0 park time 和 CPU1 boot phase，而不是继续猜测匿名 vtable。见
+[证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)和
+[机器摘要](evidence/2026-10-29-core2-ipc-handoff-attribution/summary.json)。

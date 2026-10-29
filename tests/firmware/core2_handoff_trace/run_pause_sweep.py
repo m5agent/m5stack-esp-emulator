@@ -1065,6 +1065,7 @@ def run_target(
     capture_frame: bool,
     pc_sample_ns: int | None,
     uart_trace: bool,
+    trace_sample: int,
     service_port: int | None = None,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"pause-{target_ns}-attempt-{attempt}"
@@ -1079,7 +1080,7 @@ def run_target(
             "M5_CORE2_RADIO_QEMU": str(qemu),
             "M5_CORE2_ICOUNT_SHIFT": icount_shift,
             "M5SW_ESP32_HANDOFF_TRACE": "1",
-            "M5SW_ESP32_HANDOFF_TRACE_SAMPLE": "1024",
+            "M5SW_ESP32_HANDOFF_TRACE_SAMPLE": str(trace_sample),
             "M5SW_ESP32_HANDOFF_PAUSE_NS": str(target_ns),
             "M5SW_ESP32_HANDOFF_DUMP_STATE": "1",
         }
@@ -1238,6 +1239,7 @@ def run_target(
                 "serial_sha256": sha256_bytes(serial.encode()),
                 "uart_tx_lines": parse_uart_tx_lines(stderr),
                 "phase_profile": summarize_phase_profile(stderr),
+                "trace_sample": trace_sample,
             }
         )
         return snapshot
@@ -1297,6 +1299,12 @@ def main() -> int:
         help="record UART TX bytes with virtual timestamps",
     )
     parser.add_argument(
+        "--trace-sample",
+        type=int,
+        default=1024,
+        help="record every Nth routine handoff event (default: 1024)",
+    )
+    parser.add_argument(
         "--capture-frame",
         action="store_true",
         help="capture the current PNG before stopping the lease",
@@ -1325,6 +1333,8 @@ def main() -> int:
         1_000_000 <= args.pc_sample_ns <= 1_000_000_000
     ):
         parser.error("--pc-sample-ns must be from 1000000 to 1000000000")
+    if not 1 <= args.trace_sample <= 1_000_000:
+        parser.error("--trace-sample must be from 1 to 1000000")
     image_sha256 = sha256_file(args.image)
     if image_sha256 != args.expected_image_sha256.lower():
         parser.error(
@@ -1353,6 +1363,7 @@ def main() -> int:
                     args.capture_frame,
                     args.pc_sample_ns,
                     args.uart_trace,
+                    args.trace_sample,
                     args.service_port,
                 )
                 snapshots.append(snapshot)
@@ -1402,7 +1413,7 @@ def main() -> int:
         "runtime": {
             "machine": "m5core2",
             "qemu_binary_sha256": sha256_file(args.qemu),
-            "trace_sample": 1024,
+            "trace_sample": args.trace_sample,
             "pc_sampling_ns": args.pc_sample_ns,
             "uart_trace": args.uart_trace,
             "runtime": args.runtime,

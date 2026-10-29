@@ -188,6 +188,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   Flash 数据面变慢。候选仍无法阻止 normal-WDT 在 `17.248 s` 触发 TG0
   stage-1 reset，所以 `RUNTIME-03` 继续 OPEN。见
   [scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
+  三次 `17.2 s` normal-WDT bounded-stack freeze 进一步把 CPU0 稳定绑定到
+  `spi_flash_op_block_func` 等待循环，CPU1 则在 IPC/队列/调度路径间变化；
+  同 binary 的 sampled trace 不能把 1024 分频后的 begin/end 当作同一
+  transaction，新增 `--trace-sample` 显式控制后，短窗全量 trace 的 13 对
+  事务均为同步 `0 ns`。下一步量化 per-operation CPU0 park time 与 CPU1
+  启动阶段，而不是继续猜测匿名 vtable。见
+  [IPC handoff 证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API

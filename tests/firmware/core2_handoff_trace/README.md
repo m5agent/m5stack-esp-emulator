@@ -25,10 +25,15 @@ python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
   --image path/to/normalized-core2.bin \
   --qemu path/to/qemu-system-xtensa \
   --pause-seconds 80 --disable-wdt --runtime qemu-wifi \
-  --pc-sample-ns 50000000 --uart-trace \
+  --pc-sample-ns 50000000 --uart-trace --trace-sample 1024 \
   --timeout-seconds 300 \
   --out-dir /tmp/core2-phase-profile
 ```
+
+`--trace-sample 1` records every routine event. Use it only for a short,
+explicit virtual-time window when transaction begin/end pairing is required;
+the default sampled stream cannot pair a retained begin line with its own end
+line. The evidence JSON records the effective `trace_sample` per snapshot.
 
 Each snapshot records `phase_profile` with sampled PC clusters and exact
 controller-side SSI command, RX-length and completion-to-next-command gap
