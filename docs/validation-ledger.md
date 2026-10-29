@@ -1954,3 +1954,23 @@ timer 停止。
 virtual-device validation，真机、RF、物理 cache/PSRAM 和电气边界 `NOT RUN`。
 见[证据](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md)和
 [机器摘要](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/summary.json)。
+
+## 2026-10-30：Core2 TIMG watchdog feed rescheduling
+
+新增 `0091-esp32-timg-feed-reschedule.patch`。旧模型对每次 watchdog arm
+使用 `timer_mod_anticipate_ns()`；该 API 会保留更早的 pending deadline，
+因此 `WDTFEED` 将阶段重置到 stage 0 后，旧的 stage-1 deadline 仍可能保留。
+新实现改为 `timer_mod_ns()`，只替换 watchdog stage timer，不关闭 WDT、
+不修改 timeout/中断配置、不 warp 虚拟时钟。
+
+patch 正向/反向合同、protected-feed 和 status/CAS 回归均 PASS。同一
+public legacy 固件 SHA
+`4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4`
+的 `runtime=qemu-wifi` 8 秒虚拟时点产生 `320x240`、`3,651` nonblack pixels、
+`36` colors 的 live frame，SHA256 为
+`35aedd447284a3e812e6cd9bec3e3167559a50f2c121eb43482dcfc7ab108fcc`。
+长窗仍在约 `15.56 s` 触发 TG0 stage-1 `TG0WDT_SYS_RESET`，factory UI、
+REPL 和稳定应用帧仍未出现，所以 `RUNTIME-03` 保持 `OPEN`。全部为
+virtual-device validation；物理 watchdog/cache/PSRAM 与真机 `NOT RUN`。
+见[证据](evidence/2026-10-30-core2-timg-feed-reschedule/README.md)和
+[机器摘要](evidence/2026-10-30-core2-timg-feed-reschedule/summary.json)。

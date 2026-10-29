@@ -640,6 +640,17 @@ group remained `6/6 PASS`. Normal WDT still reset at TG0 stage 1 around
 of `RUNTIME-03`; see the
 [budget evidence](../../docs/evidence/2026-10-29-core2-icount-percpu-budget/README.md).
 
+`0091-esp32-timg-feed-reschedule.patch` changes the classic ESP32 TIMG
+watchdog stage timer to replace a pending deadline after `WDTFEED`.
+`timer_mod_anticipate_ns()` intentionally keeps an earlier deadline, which can
+leave an obsolete later stage armed after the guest has fed the watchdog.
+The patch uses `timer_mod_ns()` without changing timeout values, interrupt
+masks, clock warping or the disable control. A source rebuild reached a live
+`320x240` UIFlow frame with `3,651` nonblack pixels at 8 seconds virtual time,
+but the original firmware still later hit TG0 stage-1 reset, so `RUNTIME-03`
+remains open. See the
+[feed-reschedule evidence](../../docs/evidence/2026-10-30-core2-timg-feed-reschedule/README.md).
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
