@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-issuer-phases",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": "5",
+    "wdt_disabled": false
+  },
+  "issuer_correlation": {
+    "qemu_binary_sha256": "7d9b1f43ecc5a9b842c370dd52981ae7eab1c71e996f5dbf26a61bb3b2c0f353",
+    "virtual_time_reached_ns": 10966525694,
+    "episodes": 8234,
+    "fast_read_issuer_pc": "0x40093b57",
+    "status_read_issuer_pc": "0x4006222c",
+    "groups": [
+      {
+        "fast_reads": 1,
+        "status_reads": 1,
+        "episodes": 6806,
+        "total_ns": 5857184128,
+        "mean_ns": 860591,
+        "p50_ns": 891776,
+        "max_ns": 1104800
+      },
+      {
+        "fast_reads": 0,
+        "status_reads": 0,
+        "episodes": 1342,
+        "total_ns": 1192171392,
+        "mean_ns": 888354,
+        "p50_ns": 887904,
+        "max_ns": 4750784
+      },
+      {
+        "fast_reads": 0,
+        "status_reads": 1,
+        "episodes": 48,
+        "total_ns": 42949728,
+        "mean_ns": 894786,
+        "p50_ns": 888832,
+        "max_ns": 1020256
+      }
+    ]
+  },
+  "initiator_phases": {
+    "qemu_binary_sha256": "d14e31e1270e2f42be44a46af2b3bc3c84ffa342ce83edcb424e123769922b27",
+    "episodes": 1974,
+    "virtual_time_reached_ns": 4526291870,
+    "mean_ns": {
+      "prepare_to_ipc_return": 615595,
+      "ipc_return_to_can_start_exit": 2181,
+      "vTaskSuspendAll_source_shape": 1322,
+      "priority_change_source_shape": 34083,
+      "first_cache_disable_source_shape": 101104,
+      "second_cache_disable_source_shape": 52053,
+      "block_wait_to_complete": 63733
+    }
+  },
+  "discarded_controls": [
+    {
+      "name": "100us contended-CAS RR quantum",
+      "result": "NO_IMPROVEMENT"
+    },
+    {
+      "name": "experimental immediate yield after can_start",
+      "result": "NO_IMPROVEMENT"
+    }
+  ],
+  "classification": {
+    "data_length_bound": "REJECTED",
+    "single_command_bound": "REJECTED",
+    "cross_core_ipc_wakeup_bound": "OBSERVED",
+    "runtime03": "OPEN"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "PCs and source-shape names are BIN-bound.",
+    "Normal WDT was not extended or disabled.",
+    "No physical cache, Flash, electrical or hardware equivalence is claimed."
+  ]
+}
