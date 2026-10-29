@@ -2030,3 +2030,24 @@ markers 后触发 `Cache disabled but cached memory region accessed`，黑帧
 validation；物理硬件、真实 cache/PSRAM、RF、DHCP 和网络连接均 `NOT RUN`）。
 见[证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)和
 [机器摘要](evidence/2026-10-30-core2-legacy-wifi-config-overlay/summary.json)。
+
+## 2026-10-30：Core2 WiFi IRQ cache handoff gate
+
+`0092` 把 DPORT 的 per-CPU instruction-cache-ready 状态接入 ESP32
+INTMATRIX，并在 cache disabled 窗口只暂存 WiFi MAC level；cache 恢复后
+保留的 level 重新驱动 CPU output，因此 IRQ 被延迟而不是丢弃。cross-core、
+timer 和 cache-illegal-access source 保持不门控，patch 不关闭 WDT、不修改
+timeout 或 warp 虚拟时钟。
+
+修复前 diagnostic QEMU `54d31e90…` 在同固件到达 BOARD/APIKEY/boot markers
+后进入 `Cache disabled but cached memory region accessed` 并保持黑帧。
+修复后 QEMU `a4cfa2b8…` 以默认 per-vCPU budget、normal WDT、`shift=2`
+再次到达 BOARD/APIKEY/boot markers，不再出现该 panic，并得到
+`320x240`、`75,559` nonblack pixels、`512` colors 的原厂 API Key 页面；
+PNG SHA256 `737df08a…`。随后仍进入 `TG0WDT_SYS_RESET`，所以只关闭 WiFi
+IRQ/cache-handoff 子问题，`RUNTIME-03` 保持 OPEN。同 patch 的 Core2
+UIFlow2 设备组 `6/6 PASS`，每例 attempts 1 且无 retry。全部为
+virtual-device validation；物理硬件、cache/PSRAM、RF 和电气测试
+`NOT RUN`。见
+[证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)和
+[机器摘要](evidence/2026-10-30-core2-wifi-irq-cache-gate/summary.json)。

@@ -244,6 +244,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   `Connecting to myssid`，默认 WDT 仍在 boot 后触发 cache-disabled panic。
   因此这是配置/取证里程碑，`RUNTIME-03` 继续 OPEN。见
   [legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)。
+  `0092` 接着把 DPORT 的 per-CPU instruction-cache-ready 状态送入
+  INTMATRIX，在 cache disabled 窗口只暂存 WiFi MAC level，恢复后重放；
+  cross-core、timer 和 cache-illegal source 不受门控。默认 budget 的
+  normal-WDT 会话不再出现 cached ISR panic，并渲染原厂 API Key 页面，但
+  随后仍进入 TG0 WDT reset。因此 cache/WiFi IRQ 子问题已修复，稳定
+  startup、setup/REPL 和应用帧继续 OPEN。见
+  [WiFi IRQ cache gate 证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
