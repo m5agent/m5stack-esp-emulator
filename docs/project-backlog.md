@@ -281,7 +281,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap，证明跨核 IPC 返回延迟下降约一个数量级但启动仍 reset | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
@@ -292,7 +292,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
-| `SVC-03` | 进行中 | `ServiceError` 与首批无状态 parser 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数/设备规格，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
+| `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略与私有 env 脱敏已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数/设备规格，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
@@ -657,9 +657,11 @@ HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何�
 
 1. 已固定 `ServiceError.payload()`、当前 parser 行为及 public re-export，并由
    `test_device_service_parsing.py` 锁定；
-2. 已移动 `parse_int`、`parse_size`、`parse_capture_pcap` 和 SHA256 检查；
-   继续移动其余无状态请求解析、运行参数构造和设备规格加载，保持原模块
-   re-export；
+2. 已移动 `parse_int`、`parse_size`、`parse_capture_pcap`、SHA256 检查、
+   QEMU/runtime 内存策略和私有 runtime env 脱敏；生产 Core2 unified
+   service path 已在同一变更中完成三次重绑，并修正 QOM readiness 与 peer
+   write settle。继续移动其余无状态请求解析、运行参数构造和设备规格加载，
+   保持原模块 re-export；
 3. 拆 content-addressed firmware/artifact store；
 4. 拆 QEMU、Tab5、network runtime adapters；
 5. 拆 evidence collector 和 lifecycle/history repository；

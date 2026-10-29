@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "svc03": {
+    "moved_symbols": [
+      "PRIVATE_RUNTIME_ENV",
+      "qemu_runtime_memory",
+      "redacted_runtime_env",
+      "runtime_psram_mismatch"
+    ],
+    "compatibility_reexport": true,
+    "focused_tests": 6
+  },
+  "core2_unified": {
+    "profile": "core2-native-hci",
+    "attempts": 3,
+    "attempts_passed": 3,
+    "firmware_sha256": "c3eaa35b9c41204cc6337e30b1d81f60bf06eab2d747f3547af5d8b8ba0ea99f",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "568079f3b9e818ef1cc29b9e7cd1c5c036af19196668a12174ed79ec96c262ed",
+    "device_service_sha256": "ca42bf183b8cbac31be71d987a9c544561d5b868911f597a109e61f8ebf33627",
+    "ble_runtime_limits_sha256": "30148f7f3df98fd930a8ee35ed61ec0f6fe6baed3b7a026cea757e34072ea385",
+    "runner_sha256": "a3b6429ce28d657bc773a0e33c93ed51ff44789bcb362919dadc1c7793856640",
+    "frame_sha256": "fa98d48fc9fd2a18e78fbf327374ae1725a473dc7cad7bc81418895ac8c96c33",
+    "qom_nodes": 32,
+    "effective_psram_bytes": 8388608,
+    "native_hli_posts": 45,
+    "native_hli_consumed": 45,
+    "native_hli_errors": 0,
+    "notification": "ACK:M5_CORE2_UNIFIED",
+    "evidence_zip_sha256": [
+      "bb9b65b2d72076d542e0dd71efbd6af6bf504d0d1e672963c5b0e4b013c28863",
+      "dc052cf5c903b5978114c53ee41144085eefed1b0fc4b29398a4bbd1da168959",
+      "5655f9c7760455198da35ddbda2c35915ae187736f84e51b276b289055b52da6"
+    ]
+  },
+  "scheduling_fix": {
+    "profile_qom_timeout": "session-ready-timeout",
+    "core2_unified_default_ready_seconds": 180,
+    "unified_peer_write_delay_seconds": 10,
+    "reconnect_cycle_budget_seconds": 16
+  },
+  "regression": {
+    "platform_tests": 1581,
+    "platform_skips": 1,
+    "device_service_tests": 142,
+    "runtime_boundary_tests": 6,
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "ruff_e9_f": "PASS",
+    "compileall": "PASS",
+    "diff_check": "PASS"
+  },
+  "not_claimed": [
+    "physical hardware validation",
+    "RF, antenna or coexistence behavior",
+    "BLE pairing or security",
+    "bit-exact Espressif BT controller or baseband",
+    "Core2 legacy UIFlow RUNTIME-03 closure"
+  ]
+}

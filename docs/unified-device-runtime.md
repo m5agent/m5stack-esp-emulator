@@ -101,6 +101,12 @@ uses `qemu-unified`. Core2 new work uses `profile=core2-native-hci`.
 `core2-native-vhci` remains diagnostic because its GDB-mediated control plane is
 not a stable production executor.
 
+Core2 unified profiles default to a 180-second session readiness budget. The
+external unified BLE peer waits ten seconds after subscription before writing
+the NUS characteristic so a slower guest can finish processing CCCD state
+before exercising its TX path. That settle interval is a service scheduling
+boundary, not RF timing or a hardware measurement.
+
 ## Integration rule
 
 Do not launch one emulator behind another, copy a prebuilt emulator into a QEMU

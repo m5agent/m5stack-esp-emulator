@@ -1828,6 +1828,39 @@ re-export 同名对象，因此现有调用方和公开导入路径不变。
 `SVC-03` 继续 `进行中`，下一项是继续提取其余请求解析、运行参数构造和
 设备规格加载。
 
+## 2026-10-29：SVC-03 runtime boundary 与 Core2 unified stability
+
+`SVC-03` 继续按无状态边界拆分：`device_service_runtime.py` 接管
+`PRIVATE_RUNTIME_ENV`、QEMU PSRAM runtime policy、
+`runtime_psram_mismatch()` 和 `redacted_runtime_env()`；`device_service.py`
+保留 same-object re-export。新增 `test_device_service_runtime.py` 锁定
+Core2 native 8 MiB QOM policy、普通/缺失/非法 memory、mismatch payload、
+私有 runtime env 脱敏和 public symbol identity。
+
+目标 unified lease 暴露出两个 service harness 问题：
+
+- profile QOM 注入曾固定等待 20 秒，短于 Core2 的 session readiness；
+  现在跟随 `self.ready_timeout`，Core2 unified/native profiles 默认 180 秒；
+- unified external peer 在订阅后只等待 2 秒便写 GATT。慢 guest 已执行
+  Python RX handler，但 TX path 尚未稳定时，peer 会报 notification timeout。
+  共享 unified write delay 现在为 10 秒，reconnect per-cycle budget 同步
+  调整为 16 秒。
+
+正确合成的 firmware `c3eaa35b…`、matching ELF `5bec056b…`、最终 QEMU
+`568079f3…` 与当前 service hash 上，`core2-native-hci` 三个独立 lease
+均为 PASS：WiFi DHCP/HTTP、公网 DNS/HTTP、Bumble NUS discovery/subscription/
+write/`ACK:M5_CORE2_UNIFIED`、3,888-byte 同 SHA frame、32-node QOM、
+8 MiB effective PSRAM、HLI `45/45`、36 events/9 ACLs、零 errors/queues/
+drops、pcap、manifest、ZIP、stop 和清理完整。旧 QEMU `54e7a7f7…` 的同一
+10 秒 settle 也为 `3/3 PASS`，用于排除单 QEMU binary 偶然性。
+
+全量 platform 为 `1581 PASS + 1 skip`；runtime coverage、peripheral catalog、
+QEMU profiles、snapshot、Ruff `E9/F`、compileall 和 diff check 均 PASS。
+全部为 virtual-device validation；物理硬件、RF、BLE 安全/配对、bit-exact
+controller 和 Core2 legacy `RUNTIME-03` 不继承。见
+[证据](evidence/2026-10-29-svc03-runtime-boundary/README.md)和
+[机器摘要](evidence/2026-10-29-svc03-runtime-boundary/summary.json)。
+
 ## 2026-10-29：Core2 legacy handoff issuer 与 phase 归因
 
 在 `0089` 的 icount-safe PC trace 上增加 `0x40093b57` fast-read issuer 和
