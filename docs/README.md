@@ -174,7 +174,8 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [ESP-NOW CCMP PN exhaustion and rekey](evidence/2026-10-29-espnow-ccmp-pn-exhaustion/README.md) | 当前 ESP-NOW PN lifecycle 证据 | `2026-10-29` | `0083` 在 `0xffffffffffff` fail closed、不回绕；新 LMK 后恢复双向 payload，相同 LMK 重写保持 PN/replay 并继续 drop；shared-LMK、pairwise 正控和 cross-wire 回归 PASS；loss/retry、channel/rate、RF 和真机仍 NOT RUN |
 | [ESP-NOW loss/retry, channel/rate and soak](evidence/2026-10-29-espnow-loss-channel-rate/README.md) | 当前 ESP-NOW link-condition 证据 | `2026-10-29` | `0084` 在真实 frame bridge 上传递并校验 channel/rate metadata；受控丢两帧后重试恢复，channel 6 正控 PASS、1↔6 各 40 次 drop，11/24 Mbps 混合交付，60 秒双向 soak 超千次 TX/RX 且无重复/错误；仅为 virtual link，RF、bit-exact controller 和真机仍 NOT RUN |
 | [Worker claim response-loss idempotency](evidence/2026-10-29-worker-claim-idempotency/README.md) | 当前 durable queue claim 证据 | `2026-10-29` | 真实 HTTP/WorkerAgent 在首个 claim response 被丢弃后复用同 key 重试；restart 前后同 job/lease，第二 job 保持 queued，异请求 409、过期 lease fail closed，raw key 不落盘；物理跨主机、QEMU guest 和外部 side-effect fence 仍 NOT RUN |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-29` | `1.49.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；新增 identity-bound claim response-loss replay，保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
+| [Lease-bound remote evidence store](evidence/2026-10-29-lease-bound-evidence-store/README.md) | 当前 worker evidence 证据 | `2026-10-29` | 真实 HTTP WorkerAgent 上传约 2 MiB ZIP，上传 response 丢失后同 bytes 重试返回原 evidence ID；control-plane restart 后 metadata/content 一致，异 bytes 与错误 result binding 409，`0600` 文件且 raw payload 不进入 queue/log；物理跨主机和对象存储复制仍 NOT RUN |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-29` | `1.50.0`；新增 HMAC-authenticated、job/lease/generation-bound evidence upload/read/delete 和 result evidence ID/SHA 联合校验；保留 claim response-loss replay、Unit准入、冻结 schema、lease/evidence 及网络契约 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
@@ -339,6 +340,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 - [本地 worker drain/restart lifecycle](../tests/network/worker_lifecycle/README.md)
 - [远程 durable job queue 与 lease supervisor](../tests/network/worker_queue/README.md)
 - [Worker claim response-loss idempotency](../tests/network/worker_claim_idempotency/README.md)
+- [Lease-bound remote evidence persistence](../tests/network/evidence_store/README.md)
 - [HTTP-only worker executor](../tests/network/worker_executor/README.md)
 - [Worker HTTPS/mTLS transport](../tests/network/worker_tls/README.md)
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)

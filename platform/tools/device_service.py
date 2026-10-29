@@ -50,6 +50,11 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+from evidence_store import (  # noqa: E402
+    DEFAULT_EVIDENCE_RETENTION_SECONDS,
+    EvidenceStore,
+    EvidenceStoreError,
+)
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
 from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
@@ -9218,6 +9223,15 @@ class DeviceService:
                 os.environ.get("M5_JOB_LEASE_SECONDS", "60")
             ),
         )
+        self.evidence_store = EvidenceStore(
+            self.state_dir / "evidence",
+            retention_seconds=float(
+                os.environ.get(
+                    "M5_EVIDENCE_RETENTION_SECONDS",
+                    str(DEFAULT_EVIDENCE_RETENTION_SECONDS),
+                )
+            ),
+        )
         try:
             self.worker.start()
         except WorkerRegistryError as error:
@@ -10966,6 +10980,22 @@ class DeviceService:
                 )
         return retention
 
+    def _evidence(self) -> EvidenceStore:
+        # Lightweight retention tests construct DeviceService without __init__.
+        with self._lock:
+            store = getattr(self, "evidence_store", None)
+            if store is None:
+                store = self.evidence_store = EvidenceStore(
+                    self.state_dir / "evidence",
+                    retention_seconds=float(
+                        os.environ.get(
+                            "M5_EVIDENCE_RETENTION_SECONDS",
+                            str(DEFAULT_EVIDENCE_RETENTION_SECONDS),
+                        )
+                    ),
+                )
+            return store
+
     def preview_allocation_guard(self):
         return self._retention().allocation()
 
@@ -11047,6 +11077,7 @@ class DeviceService:
                 "entries": len(self.firmware.list()),
                 "bytes": firmware_bytes,
             },
+            "evidence": self._evidence().stats(),
             "flash_cache": {
                 "entries": (
                     len([path for path in flash_cache_root.rglob("*.bin") if path.is_file()])
@@ -11166,6 +11197,7 @@ class DeviceService:
         }
         if include_cache:
             cache_result = self._prune_firmware_caches(now=now)
+        evidence_result = self._evidence().prune(now=now)
 
         result = {
             "pruned_sessions": len(removed_sessions),
@@ -11174,7 +11206,12 @@ class DeviceService:
             "skipped_sessions": skipped_sessions,
             "freed_session_bytes": freed_session_bytes,
             "cache": cache_result,
-            "freed_bytes": freed_session_bytes + cache_result["freed_bytes"],
+            "evidence": evidence_result,
+            "freed_bytes": (
+                freed_session_bytes
+                + cache_result["freed_bytes"]
+                + evidence_result["bytes_removed"]
+            ),
             "policy": policy.as_dict(),
         }
         self._last_storage_prune_at = now
@@ -11735,6 +11772,81 @@ class DeviceService:
                 error.status,
             ) from error
 
+    def store_remote_evidence(
+        self,
+        *,
+        job_id: str,
+        lease_id: str,
+        identity: dict[str, Any],
+        data: bytes,
+        content_type: str,
+    ) -> dict:
+        try:
+            ownership = self.worker_queue.validate_lease(
+                job_id,
+                {
+                    **identity,
+                    "lease_id": lease_id,
+                },
+            )
+            record = self._evidence().put(
+                job_id=job_id,
+                lease_id=ownership["lease_id"],
+                identity=ownership["worker"],
+                data=data,
+                content_type=content_type,
+            )
+            return {"evidence": record}
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+        except EvidenceStoreError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+                **error.details,
+            ) from error
+
+    def get_remote_evidence(self, evidence_id: str) -> dict:
+        try:
+            return {"evidence": self._evidence().get(evidence_id)}
+        except EvidenceStoreError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+                **error.details,
+            ) from error
+
+    def get_remote_evidence_content(
+        self,
+        evidence_id: str,
+    ) -> tuple[bytes, dict]:
+        try:
+            return self._evidence().content(evidence_id)
+        except EvidenceStoreError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+                **error.details,
+            ) from error
+
+    def delete_remote_evidence(self, evidence_id: str) -> dict:
+        try:
+            return self._evidence().delete(evidence_id)
+        except EvidenceStoreError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+                **error.details,
+            ) from error
+
     def claim_remote_job(self, payload: dict) -> dict:
         try:
             workers = self.worker_directory.list_workers()["workers"]
@@ -11770,6 +11882,30 @@ class DeviceService:
         payload: dict,
     ) -> dict:
         try:
+            evidence_id = payload.get("evidence_id")
+            evidence_sha256 = payload.get("evidence_sha256")
+            if isinstance(evidence_id, str):
+                if not isinstance(evidence_sha256, str):
+                    raise EvidenceStoreError(
+                        "invalid_job_result",
+                        "evidence_id requires evidence_sha256",
+                    )
+                ownership = self.worker_queue.validate_lease(
+                    job_id,
+                    payload,
+                )
+                evidence = self._evidence().require_for_result(
+                    job_id=job_id,
+                    lease_id=ownership["lease_id"],
+                    identity=ownership["worker"],
+                    evidence_sha256=evidence_sha256,
+                )
+                if evidence.get("evidence_id") != evidence_id:
+                    raise EvidenceStoreError(
+                        "evidence_id_mismatch",
+                        "job result evidence_id does not match its lease",
+                        409,
+                    )
             return {
                 "job": self.worker_queue.result(job_id, payload)
             }
@@ -11778,6 +11914,13 @@ class DeviceService:
                 error.code,
                 error.message,
                 error.status,
+            ) from error
+        except EvidenceStoreError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+                **error.details,
             ) from error
 
     def cancel_remote_job(

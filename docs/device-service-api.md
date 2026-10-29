@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-29`.
 
-Status: local MVP with unified-device runtime contract `1.49.0` and bounded
+Status: local MVP with unified-device runtime contract `1.50.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -626,6 +626,28 @@ is current. Reusing the key for another `job_id` returns
 change returns `409 claim_idempotency_stale`. Empty no-job polls are not
 persisted.
 
+### Lease-bound remote evidence
+
+`POST /evidence` accepts one `application/zip` body from an authenticated
+worker. `X-M5-Job-Id`, `X-M5-Lease-Id` and `X-M5-Evidence-SHA256` bind the ZIP
+to the exact job lease and body digest. The service validates the live
+worker/instance/generation lease before writing content-addressed bytes and an
+immutable metadata record under `<state-dir>/evidence`.
+
+The same bytes for the same lease are an idempotent replay and return the
+original evidence ID. Different bytes for the same lease fail closed with
+`409 evidence_conflict`. `GET /evidence/{id}` returns metadata,
+`GET /evidence/{id}/content` returns the ZIP and `DELETE /evidence/{id}`
+removes the record plus unreferenced content. Evidence has its own bounded
+capacity and default 90-day retention, included in `/storage` and
+`/storage/prune`.
+
+WorkerAgent uploads collected evidence before reporting a result. The result
+then carries both `evidence_id` and `evidence_sha256`; the service accepts that
+pair only when it matches the same live job, lease and worker generation.
+Legacy callers that report only a historical hash remain accepted, but do not
+gain the new central-evidence guarantee.
+
 The claim response includes a `lease_id` and lease expiry. The worker must
 heartbeat with the same identity and lease before expiry, then submit
 `PASS`, `PARTIAL`, `FAIL` or `REVIEW` to `/jobs/{id}/result`.
@@ -739,7 +761,8 @@ credential-bearing, query-bearing or fragment-bearing URLs. Advertising an
 endpoint is static registration, not automatic discovery or connectivity proof.
 
 When a service API token is configured, worker-only mutation endpoints
-(`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
+(`/evidence`, `/jobs/claim`, job heartbeat/result and worker
+heartbeat/drain/stop/results)
 also require an HMAC signature derived from:
 
 ```text
@@ -2315,10 +2338,14 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/jobs/{job_id}` | Read one durable job |
 | POST | `/api/v1/jobs/claim` | Claim the oldest compatible job for a ready registered worker |
 | POST | `/api/v1/jobs/{job_id}/heartbeat` | Extend the identity-bound worker lease |
-| POST | `/api/v1/jobs/{job_id}/result` | Record a terminal result and optional evidence SHA256 |
+| POST | `/api/v1/jobs/{job_id}/result` | Record a terminal result and optional lease-bound evidence ID/SHA256 |
 | POST | `/api/v1/jobs/{job_id}/cancel` | Cancel a queued or leased job |
 | GET | `/api/v1/storage` | Session/cache/disk usage and retention limits |
 | POST | `/api/v1/storage/prune` | Apply retention; `include_cache=0` skips cache GC |
+| POST | `/api/v1/evidence` | Upload authenticated worker evidence bound to a live job lease |
+| GET | `/api/v1/evidence/{evidence_id}` | Evidence metadata and content digest |
+| GET | `/api/v1/evidence/{evidence_id}/content` | Download the stored evidence ZIP |
+| DELETE | `/api/v1/evidence/{evidence_id}` | Delete evidence and unreferenced content |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |
 | GET | `/api/v1/artifacts/{artifact_id}` | Artifact metadata |
 | DELETE | `/api/v1/artifacts/{artifact_id}` | Delete an artifact |

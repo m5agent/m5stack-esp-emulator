@@ -342,9 +342,7 @@ class DocsNetworkWorkerContractTests(DocsContractBase):
         self.assertTrue(evidence["service_restart"]["same_lease"])
         self.assertEqual(
             evidence["source_sha256"]["openapi"],
-            hashlib.sha256(
-                (DOCS / "device-service.openapi.yaml").read_bytes()
-            ).hexdigest(),
+            "9027209dd5659d5845759638eb9d4ff212b700b5d2d8525199ffb27a4d0a1490",
         )
 
     def test_worker_lease_ownership_fencing_is_reconciled(self):

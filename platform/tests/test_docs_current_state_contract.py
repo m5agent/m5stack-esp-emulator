@@ -433,6 +433,8 @@ class DocsCurrentStateContractTests(DocsContractBase):
         self.assertIn("/jobs/claim", openapi)
         self.assertIn("/jobs/{job_id}/heartbeat", openapi)
         self.assertIn("/jobs/{job_id}/result", openapi)
+        self.assertIn("/evidence", openapi)
+        self.assertIn("/evidence/{evidence_id}/content", openapi)
         self.assertIn("WorkerJobList", openapi)
         self.assertIn("idempotency_key", openapi)
         self.assertIn("X-M5-Worker-Signature", openapi)

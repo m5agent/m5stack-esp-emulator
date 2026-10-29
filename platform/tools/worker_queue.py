@@ -677,6 +677,24 @@ class WorkerJobQueue:
             self._write_locked()
             return self._job_snapshot(job)
 
+    def validate_lease(
+        self,
+        job_id: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Read-only ownership check used before accepting lease-bound evidence."""
+        with self._lock:
+            job, identity, now = self._owned_lease(job_id, payload)
+            lease = job["lease"]
+            assert isinstance(lease, dict)
+            return {
+                "job_id": job_id,
+                "lease_id": lease["lease_id"],
+                "worker": identity,
+                "expires_at": lease["expires_at"],
+                "validated_at": _iso_now(now),
+            }
+
     def result(
         self,
         job_id: str,
@@ -698,6 +716,21 @@ class WorkerJobQueue:
                 "invalid_job_result",
                 "evidence_sha256 must be a lowercase SHA256",
             )
+        evidence_id = payload.get("evidence_id")
+        if evidence_id is not None and (
+            not isinstance(evidence_id, str)
+            or len(evidence_id) != 64
+            or any(char not in "0123456789abcdef" for char in evidence_id)
+        ):
+            raise WorkerQueueError(
+                "invalid_job_result",
+                "evidence_id must be a lowercase SHA256",
+            )
+        if evidence_id is not None and evidence_sha256 is None:
+            raise WorkerQueueError(
+                "invalid_job_result",
+                "evidence_id requires evidence_sha256",
+            )
         summary = _json_object(
             payload.get("summary", {}),
             "summary",
@@ -709,6 +742,7 @@ class WorkerJobQueue:
             job["result"] = {
                 "state": state,
                 "lease_id": lease_id,
+                "evidence_id": evidence_id,
                 "evidence_sha256": evidence_sha256,
                 "summary": summary,
                 "worker": identity,

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.49.0
+  version: 1.50.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1197,6 +1197,123 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+  /evidence:
+    post:
+      summary: Upload lease-bound evidence ZIP from an authenticated worker
+      description: >
+        Requires the configured control token plus worker HMAC headers. The ZIP
+        is stored once per job, lease and worker generation. Repeating the same
+        bytes returns the original record; different bytes for the same lease
+        fail with 409 evidence_conflict.
+      parameters:
+        - name: X-M5-Job-Id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-M5-Lease-Id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-M5-Evidence-SHA256
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      requestBody:
+        required: true
+        content:
+          application/zip:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: Idempotent replay of an existing evidence record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [evidence]
+                properties:
+                  evidence:
+                    $ref: "#/components/schemas/Evidence"
+        "201":
+          description: Evidence stored
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [evidence]
+                properties:
+                  evidence:
+                    $ref: "#/components/schemas/Evidence"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /evidence/{evidence_id}:
+    get:
+      summary: Read evidence metadata
+      parameters:
+        - $ref: "#/components/parameters/EvidenceId"
+      responses:
+        "200":
+          description: Evidence metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [evidence]
+                properties:
+                  evidence:
+                    $ref: "#/components/schemas/Evidence"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Delete evidence and unreferenced content
+      parameters:
+        - $ref: "#/components/parameters/EvidenceId"
+      responses:
+        "200":
+          description: Evidence deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [evidence_id, deleted]
+                properties:
+                  evidence_id:
+                    type: string
+                  deleted:
+                    type: boolean
+        "404":
+          $ref: "#/components/responses/Error"
+  /evidence/{evidence_id}/content:
+    get:
+      summary: Download the stored evidence ZIP
+      parameters:
+        - $ref: "#/components/parameters/EvidenceId"
+      responses:
+        "200":
+          description: Evidence ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
   /artifact-uploads:
     post:
       summary: Start a resumable streaming artifact upload
@@ -2201,6 +2318,7 @@ components:
         timestamp_window_seconds: 90
         nonce_replay_cache: true
         protected_operations:
+          - POST /evidence
           - POST /jobs/claim
           - POST /jobs/{job_id}/heartbeat
           - POST /jobs/{job_id}/result
@@ -2244,6 +2362,13 @@ components:
       schema:
         type: string
         pattern: "^[0-9a-f]{32}$"
+    EvidenceId:
+      name: evidence_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
   responses:
     Error:
       description: Service error
@@ -3116,6 +3241,47 @@ components:
           type: boolean
         received_bytes:
           type: integer
+    Evidence:
+      type: object
+      required:
+        - schema_version
+        - evidence_id
+        - job_id
+        - lease_id
+        - worker
+        - content_sha256
+        - size
+        - content_type
+        - created_at
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        evidence_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        job_id:
+          type: string
+        lease_id:
+          type: string
+        worker:
+          $ref: "#/components/schemas/WorkerJobIdentity"
+        content_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        size:
+          type: integer
+          minimum: 1
+          maximum: 100663296
+        content_type:
+          type: string
+          const: application/zip
+        created_at:
+          type: string
+          format: date-time
+        idempotent_replay:
+          type: boolean
+          description: Present on direct upload responses.
     Artifact:
       type: object
       required: [artifact_id, sha256, size, name]
@@ -4943,6 +5109,13 @@ components:
             evidence_sha256:
               type: [string, "null"]
               pattern: "^[0-9a-f]{64}$"
+            evidence_id:
+              type: [string, "null"]
+              pattern: "^[0-9a-f]{64}$"
+              description: >
+                Optional central evidence record bound to this job, live lease
+                and worker generation. When present, evidence_sha256 is also
+                required and must match the stored ZIP.
             summary:
               type: object
               additionalProperties: true
@@ -4952,6 +5125,7 @@ components:
       required:
         - state
         - lease_id
+        - evidence_id
         - evidence_sha256
         - summary
         - worker
@@ -4963,6 +5137,9 @@ components:
         lease_id:
           type: string
         evidence_sha256:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{64}$"
+        evidence_id:
           type: [string, "null"]
           pattern: "^[0-9a-f]{64}$"
         summary:

@@ -45,6 +45,9 @@ class WorkerAuthTests(unittest.TestCase):
     def test_worker_paths_are_explicit(self):
         self.assertTrue(is_worker_auth_path("POST", self.path))
         self.assertTrue(
+            is_worker_auth_path("POST", "/api/v1/evidence")
+        )
+        self.assertTrue(
             is_worker_auth_path(
                 "POST",
                 "/api/v1/jobs/job-a/result",

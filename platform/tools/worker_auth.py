@@ -28,6 +28,7 @@ WORKER_SIGNATURE_HEADERS = {
 }
 WORKER_AUTH_PATH = re.compile(
     r"^/api/v1/(?:"
+    r"evidence|"
     r"jobs/claim|"
     r"jobs/[^/]+/(?:heartbeat|result)|"
     r"workers/[^/]+/(?:heartbeat|drain|stop|results)"

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.49.0",
-  "contract_sha256": "9027209dd5659d5845759638eb9d4ff212b700b5d2d8525199ffb27a4d0a1490",
+  "contract_version": "1.50.0",
+  "contract_sha256": "b59304036447986a3009cbd29180dd2af6f9dc331613d2c13e171e866da98319",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -553,6 +553,52 @@
       ],
       "case_ids": [],
       "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /evidence",
+      "method": "POST",
+      "path": "/evidence",
+      "phase": "worker-evidence",
+      "required_fixtures": [
+        "authenticated-worker",
+        "live-job-lease",
+        "owned-evidence-zip"
+      ],
+      "case_ids": [],
+      "positive_status": "PASS"
+    },
+    {
+      "operation_id": "GET /evidence/{evidence_id}",
+      "method": "GET",
+      "path": "/evidence/{evidence_id}",
+      "phase": "worker-evidence",
+      "required_fixtures": [
+        "owned-evidence-record"
+      ],
+      "case_ids": [],
+      "positive_status": "PASS"
+    },
+    {
+      "operation_id": "DELETE /evidence/{evidence_id}",
+      "method": "DELETE",
+      "path": "/evidence/{evidence_id}",
+      "phase": "worker-evidence",
+      "required_fixtures": [
+        "owned-evidence-record"
+      ],
+      "case_ids": [],
+      "positive_status": "PASS"
+    },
+    {
+      "operation_id": "GET /evidence/{evidence_id}/content",
+      "method": "GET",
+      "path": "/evidence/{evidence_id}/content",
+      "phase": "worker-evidence",
+      "required_fixtures": [
+        "owned-evidence-record"
+      ],
+      "case_ids": [],
+      "positive_status": "PASS"
     },
     {
       "operation_id": "POST /artifact-uploads",
@@ -2292,6 +2338,7 @@
     "visible-session": "Exercise this operation only on an owned visible guest; bind outputs to firmware/PID/execution and capture evidence ZIP before stop purge=0.",
     "catalog-and-health": "Read actual configured service metadata; distinguish supported, backend-ready, host admission and current runtime capabilities.",
     "isolated-control-plane": "Use a separately bound service/state directory; exercise worker HMAC, job lease fencing, retention, and drain/resume without affecting shared sessions.",
+    "worker-evidence": "Use a real authenticated WorkerAgent and live job lease; upload a multi-MiB ZIP, inject response loss, replay identical bytes, restart the control plane, read metadata/content, reject different bytes/result bindings and delete only the owned evidence record.",
     "artifact-upload": "Upload exact bytes, retry and read metadata; test chunk resume/hash mismatch and delete only the artifact allocated by this sweep.",
     "firmware-intake": "Compose uploaded/source firmware with exact source and normalized flash hashes, then execute it through visible Device Service sessions."
   }

@@ -40,6 +40,7 @@ class FakeApi:
         self.calls = []
         self.session_states = list(session_states or ["running"])
         self.evidence = evidence_zip()
+        self.evidence_uploads = []
 
     def json(self, path, *, method="GET", payload=None, timeout=60):
         self.calls.append((method, path, payload))
@@ -90,10 +91,36 @@ class FakeApi:
             return {"worker": {"worker_id": payload["worker_id"]}}
         raise AssertionError((method, path, payload))
 
-    def request(self, path, *, method="GET", payload=None, timeout=60):
+    def request(
+        self,
+        path,
+        *,
+        method="GET",
+        payload=None,
+        data=None,
+        headers=None,
+        timeout=60,
+    ):
         self.calls.append((method, path, payload))
         if "/evidence?" in path:
             return 200, self.evidence, "application/zip"
+        if path == "/api/v1/evidence":
+            self.evidence_uploads.append(
+                {"data": data, "headers": dict(headers or {})}
+            )
+            return (
+                201,
+                json.dumps(
+                    {
+                        "evidence": {
+                            "evidence_id": "e" * 64,
+                            "content_sha256": hashlib.sha256(data).hexdigest(),
+                            "size": len(data),
+                        }
+                    }
+                ).encode(),
+                "application/json",
+            )
         raise AssertionError((method, path, payload))
 
 
@@ -169,6 +196,38 @@ class TransientClaimApi(FakeApi):
         )
 
 
+class TransientEvidenceUploadApi(FakeApi):
+    def __init__(self):
+        super().__init__()
+        self.upload_failures = 1
+
+    def request(
+        self,
+        path,
+        *,
+        method="GET",
+        payload=None,
+        data=None,
+        headers=None,
+        timeout=60,
+    ):
+        if path == "/api/v1/evidence" and self.upload_failures:
+            self.upload_failures -= 1
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub evidence upload response lost",
+                transient=True,
+            )
+        return super().request(
+            path,
+            method=method,
+            payload=payload,
+            data=data,
+            headers=headers,
+            timeout=timeout,
+        )
+
+
 class FakeRuntimeApi:
     def __init__(self):
         self.calls = []
@@ -192,7 +251,16 @@ class FakeRuntimeApi:
             return {"session_id": "b" * 32, "state": "stopped"}
         raise AssertionError((method, path, payload))
 
-    def request(self, path, *, method="GET", payload=None, timeout=60):
+    def request(
+        self,
+        path,
+        *,
+        method="GET",
+        payload=None,
+        data=None,
+        headers=None,
+        timeout=60,
+    ):
         self.calls.append((method, path, payload))
         if "/evidence?" in path:
             return 200, self.evidence, "application/zip"
@@ -223,7 +291,16 @@ class TransientRuntimeApi(FakeRuntimeApi):
             timeout=timeout,
         )
 
-    def request(self, path, *, method="GET", payload=None, timeout=60):
+    def request(
+        self,
+        path,
+        *,
+        method="GET",
+        payload=None,
+        data=None,
+        headers=None,
+        timeout=60,
+    ):
         if "/evidence?" in path and self.evidence_failures:
             self.evidence_failures -= 1
             self.calls.append((method, path, payload))
@@ -235,6 +312,8 @@ class TransientRuntimeApi(FakeRuntimeApi):
             path,
             method=method,
             payload=payload,
+            data=data,
+            headers=headers,
             timeout=timeout,
         )
 
@@ -407,6 +486,18 @@ class WorkerAgentTests(unittest.TestCase):
         expected_sha = hashlib.sha256(api.evidence).hexdigest()
         self.assertEqual(result["state"], "PASS")
         self.assertEqual(result["evidence_sha256"], expected_sha)
+        self.assertEqual(result["summary"]["evidence_id"], "e" * 64)
+        self.assertEqual(
+            result["summary"]["evidence_storage"],
+            "central",
+        )
+        self.assertEqual(len(api.evidence_uploads), 1)
+        upload = api.evidence_uploads[0]
+        self.assertEqual(upload["data"], api.evidence)
+        self.assertEqual(
+            upload["headers"]["X-M5-Evidence-SHA256"],
+            expected_sha,
+        )
         self.assertTrue(evidence_path.is_file())
         self.assertEqual(
             evidence_path.stat().st_mode & 0o777,
@@ -472,6 +563,8 @@ class WorkerAgentTests(unittest.TestCase):
             result["evidence_sha256"],
             hashlib.sha256(runtime_api.evidence).hexdigest(),
         )
+        self.assertEqual(result["summary"]["evidence_storage"], "central")
+        self.assertEqual(len(control_api.evidence_uploads), 1)
 
         with mock.patch.object(
             sys,
@@ -527,6 +620,36 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertEqual(
             len(control_api.calls),
             control_calls_before_recheck,
+        )
+
+    def test_evidence_upload_retries_without_changing_lease_or_payload(self):
+        api = TransientEvidenceUploadApi()
+        agent = self.agent(api, control_reconnect_timeout=2)
+
+        self.assertTrue(agent.work_once())
+
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "PASS")
+        self.assertEqual(result["summary"]["evidence_storage"], "central")
+        upload_attempts = [
+            call
+            for call in api.calls
+            if call[1] == "/api/v1/evidence"
+        ]
+        self.assertEqual(len(upload_attempts), 2)
+        self.assertEqual(api.upload_failures, 0)
+        self.assertEqual(len(api.evidence_uploads), 1)
+        result_calls = [
+            call
+            for call in api.calls
+            if call[1] == "/api/v1/jobs/job-test/result"
+        ]
+        self.assertEqual(len(result_calls), 1)
+        self.assertEqual(
+            result_calls[0][2]["evidence_id"],
+            "e" * 64,
         )
 
     def test_evidence_delay_is_bounded_and_applied_after_ready(self):
