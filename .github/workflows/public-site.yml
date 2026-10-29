@@ -72,6 +72,8 @@ jobs:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
           M5_PUBLIC_BASE_PATH: ${{ inputs.base_path }}
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_admitted_boards.mjs
       - name: Retain browser acceptance evidence
         if: always()

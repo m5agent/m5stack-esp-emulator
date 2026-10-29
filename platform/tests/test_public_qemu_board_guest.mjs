@@ -14,6 +14,7 @@ const device = process.env.M5_QEMU_DEVICE || 'atoms3r', basePath = process.env.M
 const clockDivisor = process.env.M5_QEMU_CLOCK_DIVISOR ? Number(process.env.M5_QEMU_CLOCK_DIVISOR) : undefined;
 const diagnostic = process.env.M5_QEMU_FRAME_DIAGNOSTIC === '1';
 const publicUI = process.env.M5_PUBLIC_UI === '1';
+const hardwareGPU = process.env.M5_WASM_GPU === 'hardware';
 assert.ok(!publicUI || clockDivisor === undefined, 'public UI validation uses the exported default clock');
 assert.ok(clockDivisor === undefined || [1, 8].includes(clockDivisor), 'candidate clock override must be explicit 1 or 8');
 const output = resolve(process.env.M5_PUBLIC_QEMU_OUT || resolve(repo, '.work/public-qemu-board-' + device));
@@ -69,7 +70,10 @@ try {
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}${basePath}`; report.url = origin;
-  browser = await chromium.launch({headless:true, ...(process.env.M5_WASM_CHROME ? {executablePath:process.env.M5_WASM_CHROME} : {}), args:['--enable-webgl', '--use-gl=angle', '--use-angle=swiftshader']}); report.browser = browser.version();
+  browser = await chromium.launch({headless:true,
+    ...(process.env.M5_WASM_CHROME ? {executablePath:process.env.M5_WASM_CHROME} : {}),
+    args:['--enable-webgl', '--use-gl=angle', ...(hardwareGPU ? ['--use-angle=metal', '--ignore-gpu-blocklist'] : ['--use-angle=swiftshader'])]});
+  report.browser = browser.version(); report.hardware_gpu = hardwareGPU;
   page = await browser.newPage({viewport:{width:1200,height:900}});
   await page.route(url => [8787,8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname), route => route.abort('blockedbyclient'));
   page.on('worker', worker => {
@@ -155,6 +159,13 @@ try {
     await page.locator(`[data-device-id="${device}"]`).click();
     await page.waitForFunction(id => document.querySelector('#deviceMount')?.dataset.deviceId === id
       && globalThis.boardUiShell?.device.id === id, device, {timeout:45000});
+    report.webgl_renderer = await page.evaluate(() => {
+      const gl = boardUiShell.viewer.renderer.getContext();
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    });
+    if (hardwareGPU) assert.doesNotMatch(report.webgl_renderer, /swiftshader|software/i,
+      'hardware WebGL was required but the browser selected software rendering');
     await page.locator('.advanced-options > summary').click();
     await page.locator('#runtimeMode').selectOption('browser');
     await page.locator('input[name="firmwareSource"][value="reference"]').check();

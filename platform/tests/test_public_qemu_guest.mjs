@@ -14,6 +14,7 @@ const site=resolve(process.env.M5_PUBLIC_SITE||resolve(repo,'.work/qemu-public-s
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qemu-guest'));
 const base=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
 const example=process.env.M5_QEMU_EXAMPLE||'stock-div8';
+const hardwareGPU=process.env.M5_WASM_GPU==='hardware';
 assert.ok(['stock-div8','wallclock-candidate'].includes(example),'M5_QEMU_EXAMPLE must select a named reference example');
 const candidate=example==='wallclock-candidate',fixture=candidate?WALLCLOCK_DEMO_FIRMWARE:DEMO_FIRMWARE;
 const expectedProfile=candidate?'cores3-wasm-wallclock-sdk-candidate':'cores3-wasm-vm-div8';
@@ -77,7 +78,8 @@ try{
     await new Promise(done=>server.listen(0,'127.0.0.1',done));url=`http://127.0.0.1:${server.address().port}${base}`;
   }
   report.url=url;report.deployment=process.env.M5_PUBLIC_URL?'remote-static-host':'local-static-project-prefix';
-  browser=await chromium.launch({headless:true,...(process.env.M5_CHROME?{executablePath:process.env.M5_CHROME}:{}),args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
+  browser=await chromium.launch({headless:true,...(process.env.M5_CHROME?{executablePath:process.env.M5_CHROME}:{}),
+    args:['--enable-webgl','--use-gl=angle',...(hardwareGPU?['--use-angle=metal','--ignore-gpu-blocklist']:['--use-angle=swiftshader'])]});
   context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
   await context.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page=await context.newPage();
@@ -87,6 +89,14 @@ try{
   page.on('worker',worker=>{const row={url:worker.url(),kind:worker.url().includes('/public-qemu-engine.js')?'engine':'nested-pthread',created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
+  report.webgl_renderer=await page.evaluate(()=>{
+    const gl=document.querySelector('#deviceMount .three-device-stage canvas')?.getContext('webgl2')
+      ||document.querySelector('#deviceMount .three-device-stage canvas')?.getContext('webgl');
+    const info=gl?.getExtension('WEBGL_debug_renderer_info');
+    return gl?(info?gl.getParameter(info.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)):null;
+  });
+  if(hardwareGPU)assert.doesNotMatch(report.webgl_renderer||'',/swiftshader|software/i,
+    'hardware WebGL was required but the browser selected software rendering');
   check('pages-service-worker-shared-memory',await page.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
   await page.locator('#referenceExample').selectOption(example);
   check('explicit-public-reference-example',await page.locator('#referenceExample').inputValue()===example,example);
