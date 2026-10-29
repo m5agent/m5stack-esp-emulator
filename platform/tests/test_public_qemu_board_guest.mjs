@@ -130,6 +130,7 @@ try {
           this.onError = error => { observedErrors.push(error.message); onError(error); };
           this.input = function(event) { uiInputs.push(structuredClone(event)); return input.call(this, event); };
           globalThis.boardRun = {profile, runtime, errors:observedErrors, uiInputs,
+            renderPausedAtStart: globalThis.boardUiShell?.viewer?.renderingPaused,
             get serial(){return runtime.serial || '';}, get frame(){return runtime.lastFrame;}};
         }
         return start.apply(this, args);
@@ -204,6 +205,11 @@ try {
   const dimensions = await page.evaluate(() => boardRun.profile.display);
   const logicalDimensions = await page.evaluate(() => boardRun.profile.fixture.logicalDisplay || boardRun.profile.display);
   check('same-guest-ready-and-display', ready.device === device && ready.width === logicalDimensions.width && ready.height === logicalDimensions.height, ready);
+  if (publicUI) {
+    const rendering = await page.evaluate(() =>
+      ({at_start: boardRun.renderPausedAtStart, at_ready: boardUiShell.viewer.renderingPaused}));
+    check('model-rendering-paused-until-guest-ready', rendering.at_start === true && rendering.at_ready === false, rendering);
+  }
   if (diagnostic) {
     try { await page.waitForFunction(() => boardRun.frame, {}, {timeout:15000}); } catch { report.shared_first_frame_timeout = true; }
     const snapshot = async () => {

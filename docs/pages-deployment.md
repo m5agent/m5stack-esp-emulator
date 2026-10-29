@@ -34,9 +34,10 @@ LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机
 runner 曾连续两次在 StickS3 按键后触发真实
 `Interrupt wdt timeout on CPU1`，`macos-14` 上的 SwiftShader 也复现了
 同一资源竞争。硬件渲染路径不降低公开 profile 的 `clockDivisor=1`，不关闭
-WDT，也不放宽客体断言。发布门禁只把客体 ready 预算设为 6 分钟，避免
-Core2 在共享 runner 上超过原 3 分钟启动窗口而被误判；所有帧、输入、暂停、
-恢复和清理断言保持原样。较慢的访问者设备仍不在当前正常时钟验收范围内。
+WDT，也不放宽客体断言。页面在固件下载与客体启动阶段暂停 3D 渲染循环，
+客体 ready、失败或停止后恢复，避免模型刷新与双 vCPU 争用；发布门禁只把
+客体 ready 预算设为 6 分钟，所有帧、输入、暂停、恢复和清理断言保持原样。
+较慢的访问者设备仍不在当前正常时钟验收范围内。
 不要只复制 `index.html`：模型、字体、WASM、Worker、固件组合器和对应源码包
 都必须按 artifact 中的目录结构保留。
 
