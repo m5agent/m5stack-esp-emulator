@@ -164,13 +164,13 @@ try {
     await page.waitForFunction(() => document.querySelector('#deviceMount')?.dataset.deviceId === 'cores3', {}, {timeout:45000});
     const shellReady = () => page.waitForFunction(id => document.querySelector('#deviceMount')?.dataset.deviceId === id
       && globalThis.boardUiShell?.device.id === id, device, {timeout:45000});
-    await page.locator(`[data-device-id="${device}"]`).click();
+    await page.locator(`button[data-device-id="${device}"]`).click();
     try { await shellReady(); }
     catch (error) {
       report.model_shell_selection_retry = {first_error:error.message,
         dom_device:await page.evaluate(() => document.querySelector('#deviceMount')?.dataset.deviceId || null)};
       await page.waitForTimeout(1000);
-      await page.locator(`[data-device-id="${device}"]`).click();
+      await page.locator(`button[data-device-id="${device}"]`).click();
       await shellReady();
     }
     report.webgl_renderer = await page.evaluate(() => {
