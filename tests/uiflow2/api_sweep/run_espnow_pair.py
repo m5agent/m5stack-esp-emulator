@@ -8,8 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 from pathlib import Path
+import select
 import socket
 import sys
+import threading
+import time
 from types import SimpleNamespace
 import zipfile
 
@@ -152,6 +155,91 @@ def port_pair() -> tuple[int, int]:
             return first, second
 
 
+def distinct_ports(count: int) -> tuple[int, ...]:
+    ports: list[int] = []
+    while len(ports) < count:
+        candidate = free_udp_port()
+        if candidate not in ports:
+            ports.append(candidate)
+    return tuple(ports)
+
+
+class ReplayProxy:
+    """Forward one ESP-NOW frame twice to exercise receiver PN rejection."""
+
+    def __init__(
+        self,
+        *,
+        left_service_port: int,
+        right_service_port: int,
+        left_proxy_port: int,
+        right_proxy_port: int,
+    ) -> None:
+        address = "127.0.0.1"
+        self._left_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._right_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._left_socket.bind((address, left_proxy_port))
+        self._right_socket.bind((address, right_proxy_port))
+        self._left_service = (address, left_service_port)
+        self._right_service = (address, right_service_port)
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._forwarded = {"left_to_right": 0, "right_to_left": 0}
+        self._replay_sent = False
+        self._errors: list[str] = []
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def close(self) -> None:
+        self._stop.set()
+        self._thread.join(timeout=2)
+        self._left_socket.close()
+        self._right_socket.close()
+
+    def summary(self) -> dict:
+        return {
+            "forwarded": dict(self._forwarded),
+            "replay_sent": self._replay_sent,
+            "errors": list(self._errors),
+        }
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            try:
+                readable, _, _ = select.select(
+                    [self._left_socket, self._right_socket],
+                    [],
+                    [],
+                    0.1,
+                )
+            except (OSError, ValueError) as error:
+                self._errors.append(type(error).__name__)
+                return
+            for source in readable:
+                if self._stop.is_set():
+                    return
+                try:
+                    data, _ = source.recvfrom(65535)
+                except OSError as error:
+                    self._errors.append(type(error).__name__)
+                    return
+                if source is self._left_socket:
+                    self._forwarded["left_to_right"] += 1
+                    self._right_socket.sendto(data, self._right_service)
+                    if (
+                        not self._replay_sent
+                        and self._forwarded["left_to_right"] >= 2
+                        and self._forwarded["right_to_left"] > 0
+                    ):
+                        time.sleep(0.05)
+                        self._right_socket.sendto(data, self._right_service)
+                        self._replay_sent = True
+                else:
+                    self._forwarded["right_to_left"] += 1
+                    self._left_socket.sendto(data, self._left_service)
+
+
 def wifi_profile(device: str) -> str:
     return {
         "sticks3": "uiflow2-sticks3-wifi",
@@ -174,7 +262,7 @@ def parse_pair_records(serial: str) -> list[dict]:
 
 def trace_summary(evidence: Path) -> dict:
     if not evidence.is_file():
-        return {"tx": 0, "rx": 0, "sha256": None}
+        return {"tx": 0, "rx": 0, "replay_drops": 0, "sha256": None}
     with zipfile.ZipFile(evidence) as archive:
         try:
             raw = archive.read("qemu.stderr")
@@ -184,6 +272,9 @@ def trace_summary(evidence: Path) -> dict:
     return {
         "tx": text.count("[espnow-peer] TX "),
         "rx": text.count("[espnow-peer] RX "),
+        "replay_drops": text.count(
+            "[espnow-peer] RX drop: CCMP PN replay"
+        ),
         "sha256": hashlib.sha256(raw).hexdigest(),
     }
 
@@ -288,7 +379,13 @@ def main() -> int:
     parser.add_argument("--token-file", type=Path, required=True)
     parser.add_argument(
         "--scenario",
-        choices=("plaintext", "encrypted", "wrong-lmk", "wrong-pmk"),
+        choices=(
+            "plaintext",
+            "encrypted",
+            "wrong-lmk",
+            "wrong-pmk",
+            "replay",
+        ),
         required=True,
     )
     parser.add_argument("--left-device", default="stopwatch")
@@ -327,7 +424,26 @@ def main() -> int:
         )
     left_pmk, left_lmk = keys[args.left_device]
     right_pmk, right_lmk = keys[args.right_device]
-    left_port, right_port = port_pair()
+    replay_proxy = None
+    left_proxy_port = None
+    right_proxy_port = None
+    if args.scenario == "replay":
+        (
+            left_port,
+            right_port,
+            left_proxy_port,
+            right_proxy_port,
+        ) = distinct_ports(4)
+        replay_proxy = ReplayProxy(
+            left_service_port=left_port,
+            right_service_port=right_port,
+            left_proxy_port=left_proxy_port,
+            right_proxy_port=right_proxy_port,
+        )
+    else:
+        left_port, right_port = port_pair()
+    left_remote_port = left_proxy_port or right_port
+    right_remote_port = right_proxy_port or left_port
     jobs = (
         dict(
             api=args.api,
@@ -335,7 +451,7 @@ def main() -> int:
             device=args.left_device,
             role="A",
             local_port=left_port,
-            remote_port=right_port,
+            remote_port=left_remote_port,
             output=output / "role-a",
             encrypt=encrypt,
             pmk=left_pmk,
@@ -347,16 +463,23 @@ def main() -> int:
             device=args.right_device,
             role="B",
             local_port=right_port,
-            remote_port=left_port,
+            remote_port=right_remote_port,
             output=output / "role-b",
             encrypt=encrypt,
             pmk=right_pmk,
             lmk=right_lmk,
         ),
     )
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = [executor.submit(run_one, **job) for job in jobs]
-        results = [future.result() for future in futures]
+    if replay_proxy:
+        replay_proxy.start()
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(run_one, **job) for job in jobs]
+            results = [future.result() for future in futures]
+    finally:
+        if replay_proxy:
+            replay_proxy.close()
+    proxy_stats = replay_proxy.summary() if replay_proxy else None
 
     delivery_results = [
         row
@@ -393,6 +516,18 @@ def main() -> int:
         if expected_drop
         else all(row.get("status") == "PASS" for row in delivery_results)
     )
+    replay_ok = (
+        args.scenario != "replay"
+        or (
+            proxy_stats is not None
+            and proxy_stats["replay_sent"] is True
+            and not proxy_stats["errors"]
+            and any(
+                result["trace"]["replay_drops"] > 0
+                for result in results
+            )
+        )
+    )
     status_ok = (
         len(registration_results) == 2
         and all(row.get("status") == "PASS" for row in registration_results)
@@ -402,6 +537,7 @@ def main() -> int:
         and all(result["returncode"] == 0 for result in results)
         and cleanup_ok
         and bridge_traffic_ok
+        and replay_ok
     )
     summary = {
         "schema_version": 1,
@@ -411,10 +547,15 @@ def main() -> int:
         "encryption": encrypt,
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {
-            "transport": "IPv4 loopback UDP action-frame bridge",
+            "transport": (
+                "IPv4 loopback UDP replay proxy"
+                if args.scenario == "replay"
+                else "IPv4 loopback UDP action-frame bridge"
+            ),
             "left_local_port": left_port,
             "right_local_port": right_port,
             "bridge_traffic_ok": bridge_traffic_ok,
+            **({"replay_proxy": proxy_stats} if proxy_stats else {}),
         },
         "results": results,
     }

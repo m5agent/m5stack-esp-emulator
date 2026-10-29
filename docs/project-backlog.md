@@ -100,6 +100,9 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 错误 LMK 在 RX DMA 前丢弃，错误 PMK 但同 LMK 按官方语义继续通信。
 guest key-state 传播、完整 peer 生命周期与 RF/timing 仍由 `RUNTIME-06`
 跟踪。
+`0078` 又为单个 encrypted external peer 增加 CCMP PN 单调 anti-replay：
+MIC 成功后拒绝 equal/older PN，并在 RX DMA 前丢弃；UDP replay proxy
+重复一帧后只有一次 `CCMP PN replay` drop，正确 payload 与 Core2 回归保持。
 StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
 完整执行；stock 仍保留 Canvas triangle、Image float scale 和 integer
 Spinbox step 三个失败。Core2 candidate 的条带随后定位为 panel DMA 与
@@ -225,7 +228,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
-| `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；`0076` 完成独立 guest 明文 exchange；`0077` 已完成 key fixture 驱动的 CCMP 正负控；下一项是 guest key-state 传播、peer add/update/delete、replay 与丢包/重试 | 保留 loopback、external plaintext、encrypted、wrong-LMK 和 RF/timing 分 lane；encrypted fixture PASS 不能替代 guest key lifecycle 或物理 controller |
+| `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；`0076` 完成独立 guest 明文 exchange；`0077` 完成 key fixture CCMP 正负控；`0078` 完成单 peer monotonic PN replay drop；下一项是 guest key-state 传播、peer add/update/delete、多 peer/乱序 replay 与丢包/重试 | 保留 loopback、external plaintext、encrypted、wrong-LMK、replay 和 RF/timing 分 lane；fixture PASS 不能替代 guest key lifecycle、production replay window 或物理 controller |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -468,16 +471,23 @@ DMA 注入前验证 MIC。StopWatch↔StickS3 与 Core2↔StopWatch 的正确 ke
 外部 key fixture，不证明 guest `set_pmk`/`add_peer` 已把 key-state 写入
 controller。
 
+`0078-esp32-espnow-external-ccmp-replay.patch` 为当前单 peer lane 保存
+最后一个 MIC 成功的 CCMP PN；equal/older PN 在正常 RX DMA 前丢弃，
+authentication failure 不推进 state。StopWatch→StickS3 的 UDP replay proxy
+在两个方向均开始通信后重复一帧，StickS3 记录一次 replay drop，guest
+payload 仍为正常唯一帧数量；wrong-LMK 和 Core2 encrypted 回归保持。
+
 开放范围：
 
 - guest key-state 进入 controller 的完整传播和 key rotation；
-- peer add/update/delete、重放、丢包/重试和生命周期；
+- peer add/update/delete、多 peer/乱序 replay window、丢包/重试和生命周期；
 - channel/rate、bit-exact controller、RF/antenna 和电气时序。
 
 验收：external plaintext 与 encrypted lane 分开记录，不能在 Python 中合成
 payload、CCMP 或 callback；encrypted lane 必须使用实际 key-bound
 controller 路径并包含错误 key 负控。`0077` 已满足 fixture 路径，但
-`RUNTIME-06` 仍须在 lifecycle、replay 和 key-state 传播完成后才能关闭。
+`0078` 只关闭单 peer monotonic replay；`RUNTIME-06` 仍须在 lifecycle、
+多 peer/乱序 replay window 和 key-state 传播完成后才能关闭。
 
 ### RUNTIME-04 Core2 for AWS ATECC608
 

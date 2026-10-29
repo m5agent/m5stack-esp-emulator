@@ -511,6 +511,14 @@ a wrong-PMK negative control. This milestone does not prove guest
 `set_pmk`/`add_peer` state propagation, peer add/update/delete, replay
 protection, loss/retry, cross-fabric routing, RF, timing or physical hardware.
 
+`0078-esp32-espnow-external-ccmp-replay.patch` adds a monotonic PN guard for
+the single external encrypted peer. It records the last successfully
+authenticated CCMP PN and drops equal or older PNs after MIC validation but
+before normal RX DMA delivery. Authentication failures never advance the
+counter. Session realize/cleanup resets the receiver PN state with the wrapped
+key state. This is not a multi-peer replay window, key-rotation lifecycle,
+loss/retry model or physical-controller validation.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

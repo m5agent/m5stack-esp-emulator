@@ -119,7 +119,10 @@ class Esp32EspNowExternalCcmpPatchTests(unittest.TestCase):
             ROOT / "tests/uiflow2/api_sweep/run_espnow_pair.py"
         ).read_text()
         for marker in (
-            'choices=("plaintext", "encrypted", "wrong-lmk", "wrong-pmk")',
+            '"plaintext",',
+            '"encrypted",',
+            '"wrong-lmk",',
+            '"wrong-pmk",',
             "node.set_pmk(PMK)",
             "node.add_peer(PEER_MAC, lmk=LMK",
             "encrypt=True",

@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: reject replayed external ESP-NOW CCMP
+
+Track the last authenticated CCMP packet number for the single external
+ESP-NOW peer. A frame with an equal or older PN is dropped after MIC
+validation and before normal RX DMA delivery, so unauthenticated traffic
+cannot advance the replay counter. Session realize and cleanup reset the
+receiver PN state together with the wrapped key state.
+
+This adds a monotonic single-peer replay guard, not a multi-peer replay
+window or key-rotation lifecycle.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ 2 files changed, 16 insertions(+)
+
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -43,6 +43,8 @@
+     uint8_t espnow_peer_pmk[16];
+     uint8_t espnow_peer_wrapped_lmk[16];
+     uint64_t espnow_peer_tx_pn;
++    bool espnow_peer_rx_pn_valid;
++    uint64_t espnow_peer_last_rx_pn;
+     uint32_t ap_state;
+     int inject_queue_size;
+     struct mac80211_frame *inject_queue;
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -275,6 +275,16 @@
+                 continue;
+             }
+             memset(key, 0, sizeof(key));
++            if (s->espnow_peer_rx_pn_valid &&
++                pn <= s->espnow_peer_last_rx_pn) {
++                if (s->espnow_peer_trace) {
++                    fprintf(stderr,
++                            "[espnow-peer] RX drop: CCMP PN replay\n");
++                }
++                continue;
++            }
++            s->espnow_peer_rx_pn_valid = true;
++            s->espnow_peer_last_rx_pn = pn;
+             if (!espnow_peer_wrap_rx_envelope(&frame, pn)) {
+                 if (s->espnow_peer_trace) {
+                     fprintf(stderr,
+@@ -332,6 +342,8 @@
+     s->espnow_peer_remote_port = 0;
+     s->espnow_peer_encrypted = false;
+     s->espnow_peer_tx_pn = 0;
++    s->espnow_peer_rx_pn_valid = false;
++    s->espnow_peer_last_rx_pn = 0;
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
+@@ -430,6 +442,8 @@
+     s->espnow_peer_fd = -1;
+     s->espnow_peer_encrypted = false;
+     s->espnow_peer_tx_pn = 0;
++    s->espnow_peer_rx_pn_valid = false;
++    s->espnow_peer_last_rx_pn = 0;
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));

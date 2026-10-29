@@ -227,21 +227,21 @@ Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` �
 setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
 不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
 
-### RUNTIME-06：ESP-NOW external plaintext/CCMP 已验证，key 与 peer 生命周期未闭环
+### RUNTIME-06：ESP-NOW external plaintext/CCMP/replay 已验证，key 与 peer 生命周期未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `PARTIAL` |
 | 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext 与 key-fixture CCMP 路径；当前不覆盖 guest key-state 进入 controller、完整 peer 生命周期和 RF/timing |
-| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界以 PMK wrapped LMK 执行真实 AES-CCMP/MIC。TX 来自正常 controller TX DMA，认证成功的 peer frame 经正常 RX DMA 注入；Python host 不合成 payload 或 callback，认证失败不进入 DMA |
-| 已验证 | `0067`：QEMU `c3c31403…` 上 StopWatch、StickS3、Core2 的 unicast/broadcast/receive/IRQ 与 native API 各 PASS。`0076`：QEMU `df0e20f1…` 上两个 independent-guest 明文 exchange PASS。`0077`：QEMU `5340171c…` 上 StopWatch↔StickS3 完成 plaintext、encrypted、wrong-LMK、wrong-PMK/same-LMK，Core2↔StopWatch 完成 encrypted 与 wrong-LMK；十二个独立 session 均保留 evidence 并完成 runtime 清理 |
-| 未覆盖 | guest `set_pmk`/`add_peer` key-state 写入 controller、key rotation、peer add/update/delete、replay、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
-| 证据 | [`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md)、[`0077 patch`](../patches/qemu-m5stack-peripherals/0077-esp32-espnow-external-ccmp.patch)、[`0077 contract`](../platform/tests/test_esp32_espnow_external_ccmp_patch.py)、[`外部明文 peer 证据`](evidence/2026-10-29-espnow-external-peer/README.md)、[`0076 patch`](../patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch)、[`同 guest loopback 证据`](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md) |
+| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界以 PMK wrapped LMK 执行真实 AES-CCMP/MIC；`0078` 对 MIC 成功的单 peer CCMP PN 执行单调 replay check。TX 来自正常 controller TX DMA，认证成功的 peer frame 经正常 RX DMA 注入；Python host 不合成 payload 或 callback，认证失败/旧 PN 不进入 DMA |
+| 已验证 | `0067`：QEMU `c3c31403…` 上 StopWatch、StickS3、Core2 的 unicast/broadcast/receive/IRQ 与 native API 各 PASS。`0076`：QEMU `df0e20f1…` 上两个 independent-guest 明文 exchange PASS。`0077`：QEMU `5340171c…` 上 twelve-session CCMP 正负控 PASS。`0078`：QEMU `be7c3765…` 上 UDP replay proxy 重复一帧，StickS3 controller drop 一次且 guest payload 不重复；wrong-LMK 与 Core2 encrypted 回归保持 |
+| 未覆盖 | guest `set_pmk`/`add_peer` key-state 写入 controller、key rotation、peer add/update/delete、多 peer/乱序 replay window、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`CCMP replay 证据`](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)、[`0078 patch`](../patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch)、[`0078 contract`](../platform/tests/test_esp32_espnow_external_ccmp_replay_patch.py)、[`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md)、[`0077 patch`](../patches/qemu-m5stack-peripherals/0077-esp32-espnow-external-ccmp.patch)、[`0076 patch`](../patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch)、[`同 guest loopback 证据`](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md) |
 
 关闭条件：
 
 1. guest key-state 传播、key rotation、错误 LMK 和 peer add/update/delete 生命周期可重放；
-2. replay、loss/retry、双 peer 以上 fabric 和 receive/IRQ 生命周期可重放；
+2. 多 peer/乱序 replay window、key rotation、loss/retry、双 peer 以上 fabric 和 receive/IRQ 生命周期可重放；
 3. loopback、external plaintext 和 encrypted lane 分开记录，不能互相替代；
 4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
 

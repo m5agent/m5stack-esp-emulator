@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "scope": "Authenticated CCMP packet-number replay rejection for one external ESP-NOW peer.",
+  "runtime_binary_sha256": "be7c376550829427b0fc72ada75f9d06e2246feaa64b2c222904d5a17a3c4076",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch",
+    "sha256": "b30c56272dba2fd6e4000ee8b12f82a08e57ccadf8bc8e0d0d42488b5baa1adc"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "9778e0d8a10e05e839c6f6aff542077ff8c7da5bb5e943aab71d427240992ac9",
+    "exchange_window_ms": 12000
+  },
+  "scenarios": [
+    {
+      "name": "replay",
+      "pair": ["stopwatch", "sticks3"],
+      "expected": "one duplicate dropped",
+      "status": "PASS",
+      "replay_proxy": {
+        "forwarded_left_to_right": 58,
+        "forwarded_right_to_left": 58,
+        "replay_sent": true,
+        "errors": []
+      },
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "b6baab9fa89d706a1e97da9302306c19f6f3f45abf171fa3c4dcab5e35dddb08",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "replay_drops": 0,
+          "peer_payloads": 57,
+          "result": "PASS",
+          "evidence_sha256": "dee94595b90c021d4dbbf7dda4b0fba64da680ee2a0e095b59ff3dbfb6a3fac0",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "a36fdff4efaee90b1b9bc1eed265b660d7e009b2fd391552a0d8205ed508ee6c",
+          "bridge_tx": 58,
+          "bridge_rx": 59,
+          "replay_drops": 1,
+          "peer_payloads": 58,
+          "result": "PASS",
+          "evidence_sha256": "95531c92ec99703cccff1d31e3af167179439e851c710f26644908b97bb42e6c",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "wrong-lmk-regression",
+      "pair": ["stopwatch", "sticks3"],
+      "expected": "DROP",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "bridge_tx": 40,
+          "bridge_rx": 40,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "bridge_tx": 40,
+          "bridge_rx": 40,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP"
+        }
+      ]
+    },
+    {
+      "name": "core2-encrypted-regression",
+      "pair": ["core2", "stopwatch"],
+      "expected": "PASS",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "core2",
+          "bridge_tx": 44,
+          "bridge_rx": 31,
+          "peer_payloads": 15,
+          "result": "PASS"
+        },
+        {
+          "role": "B",
+          "device": "stopwatch",
+          "bridge_tx": 48,
+          "bridge_rx": 44,
+          "peer_payloads": 44,
+          "result": "PASS"
+        }
+      ]
+    }
+  ],
+  "replay_control": {
+    "only_after_bidirectional_traffic": true,
+    "duplicate_authenticated_datagram_count": 1,
+    "drop_trace_count": 1,
+    "duplicate_reached_guest_callback": false
+  },
+  "not_claimed": [
+    "multi-peer or reordering replay window",
+    "PN wrap or key rotation lifecycle",
+    "guest set_pmk/add_peer key-state propagation",
+    "peer add/update/delete, loss/retry or channel/rate",
+    "RF, antenna, coexistence, electrical, timing or physical hardware validation"
+  ]
+}

@@ -1197,3 +1197,27 @@ channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
 `NOT RUN`。全部为 virtual-device validation。见
 [证据](evidence/2026-10-29-espnow-external-ccmp/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-external-ccmp/summary.json)。
+
+## 2026-10-29：ESP-NOW external CCMP PN anti-replay
+
+新增 `0078-esp32-espnow-external-ccmp-replay.patch`，SHA256
+`b30c56272dba2fd6e4000ee8b12f82a08e57ccadf8bc8e0d0d42488b5baa1adc`。
+该 patch 只允许 MIC 验证成功的 encrypted frame 推进单 peer receiver PN；
+equal/older PN 在 `espnow_peer_wrap_rx_envelope` 和 normal RX DMA 之前
+丢弃。Session realize/cleanup 与 wrapped key state 一起重置 PN。最终 QEMU
+SHA256 为 `be7c376550829427b0fc72ada75f9d06e2246feaa64b2c222904d5a17a3c4076`。
+
+replay fixture 使用 UDP proxy 转发真实 bridge datagram；在两个方向都已
+通信后，仅对一帧 left→right datagram 额外发送一次。两个方向各转发 `58`
+帧、`replay_sent=true`，StickS3 receiver 的 trace 从 `58` 增至 `59` 并记录
+一次 `[espnow-peer] RX drop: CCMP PN replay`；双方正常 peer payload 仍为
+`57/58`，没有重复到达 guest callback。wrong-LMK 回归两侧仍
+`rx_packets=0`，Core2↔StopWatch encrypted 回归为 `15/44`。
+
+六个 session 均 `purge=0` 停止，terminal state 为 `stopped`、QEMU PID
+已消失并保留 history。该结果关闭单 peer monotonic replay fixture，但
+`RUNTIME-06` 仍为 `PARTIAL`：多 peer/乱序 replay window、PN wrap 与
+key rotation、guest key-state 传播、peer lifecycle、loss/retry、
+channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
+`NOT RUN`。见[证据](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)
+和[机器摘要](evidence/2026-10-29-espnow-external-ccmp-replay/summary.json)。
