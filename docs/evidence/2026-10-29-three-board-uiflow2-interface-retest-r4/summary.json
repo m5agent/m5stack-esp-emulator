@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "source_commit": "0769ae7c0136f81aa34d85a58588c67fd879fc19",
+  "qemu_sha256": "dd4b1b34a4003a6fe84263974efade9d8d85e584fcd7397bc0f13b2d77337435",
+  "runtime_consistent": true,
+  "new_emulator_regressions": 0,
+  "devices": {
+    "stopwatch": {
+      "base_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "display": {"width": 468, "height": 468, "status": "PASS"},
+      "system": {"PASS": 50, "STATE_PASS": 1},
+      "shared": {"PASS": 7},
+      "m5ui": {
+        "sessions": 29,
+        "results": 507,
+        "unobserved": 0,
+        "counts": {
+          "STATE_PASS": 409,
+          "PENDING_FRAME_OR_INPUT": 80,
+          "PENDING_FRAME_OBJECT_REMOVAL": 3,
+          "DOCUMENTATION_MISMATCH": 11,
+          "EXPECTED_UNSUPPORTED": 1,
+          "FAIL": 3
+        },
+        "failures": ["M5Canvas.draw_triangle", "M5Image.set_scale", "M5Spinbox.set_step"]
+      }
+    },
+    "sticks3": {
+      "base_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "display": {"width": 135, "height": 240, "status": "PASS"},
+      "system": {"PASS": 50, "STATE_PASS": 1},
+      "shared": {"PASS": 7},
+      "m5ui": "NOT_EXPORTED"
+    },
+    "core2": {
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "display": {"width": 320, "height": 240, "status": "PASS"},
+      "system": {"PASS": 50, "STATE_PASS": 1},
+      "shared": {"PASS": 7},
+      "m5ui": {
+        "sessions": 29,
+        "results": 507,
+        "unobserved": 0,
+        "counts": {
+          "STATE_PASS": 409,
+          "PENDING_FRAME_OR_INPUT": 80,
+          "PENDING_FRAME_OBJECT_REMOVAL": 3,
+          "DOCUMENTATION_MISMATCH": 11,
+          "EXPECTED_UNSUPPORTED": 1,
+          "FAIL": 3
+        },
+        "failures": ["M5Canvas.draw_triangle", "M5Image.set_scale", "M5Spinbox.set_step"]
+      }
+    }
+  },
+  "protocols": {
+    "sockets": {"PASS": 23, "devices": 3},
+    "easysocket": {"PASS": 57, "NOT_APPLICABLE_LISTENER": 1, "devices": 3},
+    "mqtt": {"PASS": 42, "devices": 3},
+    "network": {"PASS": 14, "devices": 3},
+    "ezdata": {"PASS": 17, "devices": 3},
+    "espnow": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1, "devices": 3},
+    "espnow_native": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3, "devices": 3},
+    "audio_player": {"stopwatch": 15, "sticks3": 15, "core2": "NOT_EXPORTED"},
+    "audio_recorder": {"stopwatch": 12, "sticks3": 12, "core2": "NOT_EXPORTED"}
+  },
+  "stock_failures": {
+    "requests2_urlencode": {"PASS": 15, "FAIL": 1, "devices": 3},
+    "modbus_async": {"PASS": 42, "ERROR": 8, "error": "Loop.sock_recv missing", "devices": 3},
+    "tls_epoch": {"STATE_PASS": 3, "ERROR": 2, "devices": 3},
+    "core2_m5ble_get_client": {"PASS": 21, "ERROR": 1, "error": "TypeError('set' object isn't subscriptable)"},
+    "m5ui": ["draw_triangle", "Image.set_scale", "Spinbox.set_step"]
+  },
+  "candidate": {
+    "requests2_sha256": "40d1a98d2413b379e14c1732b329004feb8b6675655ae2548931ef2dd16ba052",
+    "requests2": {"stopwatch": 2, "sticks3": 2, "core2": 2},
+    "modbus_async_sha256": "86125ad2cff3929849709a6670750847835f8e8fa3f9d0c493d37fe0042ed37a",
+    "modbus_async": {"stopwatch": 50, "sticks3": 50, "core2": 50},
+    "tls": {"stopwatch": 5, "sticks3": 5, "core2": 5},
+    "tls_firmware_sha256": {
+      "stopwatch": "0b49d9aadbee22038bbe0c22f8f0ce3d4db3283d8f781c41cb9562540d3a1519",
+      "sticks3": "56eab792673221bcfb4b8669d0749347793ef38a3b353f364274d5cca4269981",
+      "core2": "f6c5e99d200a78ebb2a3a4974ae176c58df60a9fdec1560038ee5ab3373da6b9"
+    },
+    "m5ui": {
+      "patch_sha256": "a05eda779d819a7e50210da457a267be6be87ecdebb82e968fc370335ff77da7",
+      "stopwatch": {
+        "STATE_PASS": 4,
+        "FRAME_PASS": 2,
+        "frame_sha256": "195231931ebca534a6b1377a84f6057f570236efc290e5c3e552fe60880ae91b"
+      },
+      "core2": {
+        "STATE_PASS": 4,
+        "FRAME_PASS": 2,
+        "frame_sha256": "5a074d2987258112f79cecc800578df7325e6f35c32ceace859b828c8f942403"
+      }
+    },
+    "m5ble_sha256": "d82c1aec593de997d2d63f6bc409f6786a3b90e8b4b793c722cb9c61b8c82703",
+    "m5ble": {"core2": 22}
+  },
+  "ble": {
+    "stopwatch": {"ble-nus": "BLOCKED_MODEL", "m5ble-server": "BLOCKED_MODEL", "clients": "NOT_RUN"},
+    "sticks3": {"ble-nus": "BLOCKED_MODEL", "m5ble-server": "BLOCKED_MODEL", "clients": "NOT_RUN"},
+    "core2": {
+      "ble-nus": 8,
+      "m5ble-server_stock": {"PASS": 21, "ERROR": 1},
+      "m5ble-server_candidate": 22,
+      "clients": "NOT_RUN"
+    }
+  },
+  "hardware_matrix": {
+    "CALL_OK": 115,
+    "API_ASSERTION_PASS": 66,
+    "OBSERVED": 1,
+    "devices": 3
+  },
+  "deltas_vs_r3": {
+    "core2_network_first_concurrent": {"r3": "13/14", "r4": "14/14", "classification": "improvement_no_regression"},
+    "stable_interface_status_changes": 0
+  },
+  "controls": {
+    "core2_missing_radio_env": {
+      "initial": "503 qemu_wifi_backend_unavailable",
+      "rerun": "network 14/14 with explicit M5_CORE2_RADIO_QEMU"
+    },
+    "stopwatch_tls_candidate_bootstrap": {
+      "native": "FAIL_UART_REPL_NOT_READY",
+      "rerun": "PASS 5/5 with dupterm"
+    },
+    "sticks3_tls_candidate_bootstrap": {
+      "dupterm": "FAIL_ESP_ERR_INVALID_STATE",
+      "rerun": "PASS 5/5 with native"
+    },
+    "m5ui_candidate_session": {
+      "missing_program_transport": "EXPECTED_REJECTION",
+      "rerun": "PASS with program_transport=uart-repl"
+    }
+  },
+  "checks": {
+    "platform_tests": {"ran": 1433, "status": "PASS", "skipped": 1},
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "diff_check": "PASS",
+    "runtime_processes_remaining": 0,
+    "device_services_remaining": 0
+  },
+  "not_run": [
+    "physical hardware",
+    "RF, antenna, coexistence and BLE security",
+    "external or encrypted ESP-NOW and cross-device fabric",
+    "Core2 legacy UIFlow normal-WDT startup and application frame",
+    "physical acoustic, optical, electrical and PSRAM/cache timing"
+  ]
+}

@@ -121,6 +121,10 @@ ESP-NOW、音频和板级接口稳定；StopWatch/Core2 M5UI 的 505 个 widget
 TLS 和三设备 M5BLE candidate 也重新通过。新增结果没有改变本文仍开放的
 stock SDK、StopWatch/StickS3 controller、真机和物理边界，见
 [接口再次复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)。
+当前 QEMU `dd4b1b34…` 的 r4 三设备并发复测再次重绑 system/shared、
+通信、audio、ESP-NOW、BLE、M5UI 和板级接口；Core2 network 首轮
+`14/14`，没有新增稳定模拟器缺陷。stock/candidate 分层与以上开放边界
+保持不变，见[接口复测 r4](evidence/2026-10-29-three-board-uiflow2-interface-retest-r4/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
