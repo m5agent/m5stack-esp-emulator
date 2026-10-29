@@ -142,6 +142,7 @@ ROLE = __ROLE__
 PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
 PMK = __PMK__
 LMK = __LMK__
+ROTATED_LMK = __ROTATED_LMK__
 
 
 def emit(kind, **values):
@@ -236,7 +237,7 @@ except OSError:
 time.sleep_ms(600)
 node.add_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, encrypt=True)
 readded_count = list(node.peer_count())
-node.mod_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+node.mod_peer(PEER_MAC, lmk=ROTATED_LMK, channel=0, ifidx=0, encrypt=True)
 peer_info = node.get_peer(PEER_MAC)
 modified = (
     bytes(peer_info[0]) == PEER_MAC
@@ -659,7 +660,14 @@ def parse_m5espnow_lifecycle_records(serial: str) -> list[dict]:
 
 def trace_summary(evidence: Path) -> dict:
     if not evidence.is_file():
-        return {"tx": 0, "rx": 0, "replay_drops": 0, "sha256": None}
+        return {
+            "tx": 0,
+            "rx": 0,
+            "replay_drops": 0,
+            "guest_key_ready": 0,
+            "guest_key_cleared": 0,
+            "sha256": None,
+        }
     with zipfile.ZipFile(evidence) as archive:
         try:
             raw = archive.read("qemu.stderr")
@@ -671,6 +679,12 @@ def trace_summary(evidence: Path) -> dict:
         "rx": text.count("[espnow-peer] RX "),
         "replay_drops": text.count(
             "[espnow-peer] RX drop: CCMP PN replay"
+        ),
+        "guest_key_ready": text.count(
+            "[espnow-peer] guest-key state=ready"
+        ),
+        "guest_key_cleared": text.count(
+            "[espnow-peer] guest-key state=cleared"
         ),
         "sha256": hashlib.sha256(raw).hexdigest(),
     }
@@ -687,10 +701,12 @@ def run_one(
     output: Path,
     scenario: str,
     encrypt: bool,
+    guest_key: bool,
     pmk: bytes,
     lmk: bytes,
+    rotated_lmk: bytes,
 ) -> dict:
-    if scenario == "lifecycle":
+    if scenario in {"lifecycle", "guest-key-rotation"}:
         source_template = LIFECYCLE_SOURCE
         done_marker = "ESPNOW_LIFECYCLE_DONE " + role
     elif scenario == "lifecycle-m5espnow":
@@ -703,6 +719,7 @@ def run_one(
         source_template.replace("__ROLE__", repr(role))
         .replace("__PMK__", repr(pmk))
         .replace("__LMK__", repr(lmk))
+        .replace("__ROTATED_LMK__", repr(rotated_lmk))
         .replace("__ENCRYPT__", repr(encrypt))
         .replace(
             "__EXPECTED_HASH__",
@@ -720,7 +737,7 @@ def run_one(
         "M5SW_ESPNOW_PEER_REMOTE_PORT": str(remote_port),
         "M5SW_ESPNOW_PEER_TRACE": "1",
     }
-    if encrypt:
+    if encrypt and not guest_key:
         runtime_env.update({
             "M5SW_ESPNOW_PEER_PMK": pmk.hex(),
             "M5SW_ESPNOW_PEER_LMK": lmk.hex(),
@@ -764,7 +781,7 @@ def run_one(
     serial = (
         serial_path.read_text(errors="replace") if serial_path.is_file() else ""
     )
-    if scenario == "lifecycle":
+    if scenario in {"lifecycle", "guest-key-rotation"}:
         records = parse_lifecycle_records(serial)
     elif scenario == "lifecycle-m5espnow":
         records = parse_m5espnow_lifecycle_records(serial)
@@ -798,6 +815,9 @@ def main() -> int:
             "wrong-pmk",
             "replay",
             "reorder",
+            "guest-key",
+            "guest-key-wrong-lmk",
+            "guest-key-rotation",
             "lifecycle",
             "lifecycle-m5espnow",
         ),
@@ -811,6 +831,11 @@ def main() -> int:
     output = args.out_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
     encrypt = args.scenario != "plaintext"
+    guest_key = args.scenario in {
+        "guest-key",
+        "guest-key-wrong-lmk",
+        "guest-key-rotation",
+    }
     keys = {
         "stopwatch": (
             b"0123456789abcdef",
@@ -825,7 +850,7 @@ def main() -> int:
             b"fedcba9876543210",
         ),
     }
-    if args.scenario == "wrong-lmk":
+    if args.scenario in {"wrong-lmk", "guest-key-wrong-lmk"}:
         _, right_lmk = keys[args.right_device]
         keys[args.right_device] = (
             b"0123456789abcdef",
@@ -837,6 +862,7 @@ def main() -> int:
             bytes(value ^ 0xff for value in right_pmk),
             right_lmk,
         )
+    rotated_lmk = b"fedcba9876543211"
     left_pmk, left_lmk = keys[args.left_device]
     right_pmk, right_lmk = keys[args.right_device]
     replay_proxy = None
@@ -878,8 +904,10 @@ def main() -> int:
             output=output / "role-a",
             scenario=args.scenario,
             encrypt=encrypt,
+            guest_key=guest_key,
             pmk=left_pmk,
             lmk=left_lmk,
+            rotated_lmk=rotated_lmk,
         ),
         dict(
             api=args.api,
@@ -891,8 +919,10 @@ def main() -> int:
             output=output / "role-b",
             scenario=args.scenario,
             encrypt=encrypt,
+            guest_key=guest_key,
             pmk=right_pmk,
             lmk=right_lmk,
+            rotated_lmk=rotated_lmk,
         ),
     )
     test_proxy = replay_proxy or reorder_proxy
@@ -945,7 +975,10 @@ def main() -> int:
         if row.get("kind") == "RESULT"
         and row.get("api") == "external_peer_lifecycle_m5espnow"
     ]
-    expected_drop = args.scenario == "wrong-lmk"
+    expected_drop = args.scenario in {
+        "wrong-lmk",
+        "guest-key-wrong-lmk",
+    }
     delivery_ok = (
         all(
             row.get("status") == "EXPECTED_DROP"
@@ -956,8 +989,12 @@ def main() -> int:
         if expected_drop
         else all(row.get("status") == "PASS" for row in delivery_results)
     )
+    native_lifecycle = args.scenario in {
+        "lifecycle",
+        "guest-key-rotation",
+    }
     lifecycle_ok = (
-        args.scenario != "lifecycle"
+        not native_lifecycle
         or (
             len(lifecycle_results) == 2
             and all(
@@ -1017,12 +1054,20 @@ def main() -> int:
             )
         )
     )
+    guest_key_ok = (
+        not guest_key
+        or all(
+            result["trace"]["guest_key_ready"]
+            >= (2 if args.scenario == "guest-key-rotation" else 1)
+            for result in results
+        )
+    )
     status_ok = (
         len(registration_results) == 2
         and all(row.get("status") == "PASS" for row in registration_results)
         and (
             (
-                args.scenario == "lifecycle"
+                native_lifecycle
                 and lifecycle_ok
             )
             or (
@@ -1030,7 +1075,8 @@ def main() -> int:
                 and m5espnow_lifecycle_ok
             )
             or (
-                args.scenario not in {"lifecycle", "lifecycle-m5espnow"}
+                args.scenario
+                not in {"lifecycle", "lifecycle-m5espnow", "guest-key-rotation"}
                 and len(delivery_results) == 2
                 and delivery_ok
                 and all(
@@ -1044,6 +1090,7 @@ def main() -> int:
         and bridge_traffic_ok
         and replay_ok
         and reorder_ok
+        and guest_key_ok
     )
     summary = {
         "schema_version": 1,
@@ -1051,6 +1098,11 @@ def main() -> int:
         "hardware_validation": "NOT RUN",
         "scenario": args.scenario,
         "encryption": encrypt,
+        "key_source": (
+            "guest-controller-key-store"
+            if guest_key
+            else ("runtime-env-fixture" if encrypt else "none")
+        ),
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {
             "transport": (
@@ -1065,6 +1117,7 @@ def main() -> int:
             "left_local_port": left_port,
             "right_local_port": right_port,
             "bridge_traffic_ok": bridge_traffic_ok,
+            "guest_key_ok": guest_key_ok,
             **(
                 {
                     (
@@ -1095,7 +1148,7 @@ def main() -> int:
                         if record.get("api")
                         == (
                             "external_peer_lifecycle"
-                            if args.scenario == "lifecycle"
+                            if native_lifecycle
                             else (
                                 "external_peer_lifecycle_m5espnow"
                                 if args.scenario == "lifecycle-m5espnow"

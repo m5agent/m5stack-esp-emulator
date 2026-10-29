@@ -227,22 +227,22 @@ Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` �
 setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
 不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
 
-### RUNTIME-06：ESP-NOW external plaintext/CCMP/replay-window/lifecycle 已验证，key 状态未闭环
+### RUNTIME-06：ESP-NOW 单 peer guest key/replay/lifecycle 已验证，multi-peer fabric 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `PARTIAL` |
-| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay、native add/delete/modify 和 wrapper add/delete/re-add 生命周期；当前不覆盖 guest key-state 进入 QEMU bridge、key rotation 和 RF/timing |
-| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界执行真实 AES-CCMP/MIC；`0078` 拒绝 duplicate PN；`0079` 提供 64-frame authenticated replay window，允许单 peer bounded reordering；stock guest lifecycle runner 分别覆盖 native 与 M5ESPNow wrapper。Python host 不合成 payload 或 callback |
-| 已验证 | controller loopback、independent-guest plaintext、CCMP 正负控、单 peer duplicate drop、64-frame reorder、native add/delete/modify 和 M5ESPNow wrapper add/delete/re-add 均已通过；reorder proxy 交换两帧后 `replay_drops=0`，duplicate replay 仍 drop |
-| 未覆盖 | guest `set_pmk`/`add_peer` key-state 写入 QEMU bridge、key rotation、multi-peer replay window、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
-| 证据 | [`replay-window 证据`](evidence/2026-10-29-espnow-external-ccmp-window/README.md)、[`0079 patch`](../patches/qemu-m5stack-peripherals/0079-esp32-espnow-external-ccmp-window.patch)、[`native lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`M5ESPNow lifecycle 证据`](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)、[`lifecycle runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py)、[`CCMP replay 证据`](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)、[`0078 patch`](../patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch)、[`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md) |
+| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay、stock guest key-state/rotation、native add/delete/modify 和 wrapper add/delete/re-add 生命周期；当前不覆盖 multi-peer key routing/window、PN wrap、loss/retry、channel/rate 和 RF/timing |
+| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界执行真实 AES-CCMP/MIC；`0078` 拒绝 duplicate PN；`0079` 提供 64-frame authenticated replay window；`0080` 映射 classic ESP32/S3 controller key store，在没有 runtime-env LMK 时只采用 guest 完整写入且 valid bit 置位的 extended key slot。stock guest lifecycle runner 覆盖 native、M5ESPNow wrapper、错误 guest LMK 和 key rotation。Python host 不合成 payload 或 callback |
+| 已验证 | controller loopback、independent-guest plaintext、CCMP 正负控、单 peer duplicate drop、64-frame reorder、native add/delete/modify、M5ESPNow wrapper add/delete/re-add、无 env-key 的 guest LMK 正控、不同 guest LMK 双端 drop 和同 key replacement/post-resume 均已通过；guest key slot/valid bit、rotation reset 和 cleanup 有 trace/machine summary |
+| 未覆盖 | multi-peer key routing/replay window、3+ peer fabric、PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`guest key-state 证据`](evidence/2026-10-29-espnow-guest-key-state/README.md)、[`0080 patch`](../patches/qemu-m5stack-peripherals/0080-esp32-espnow-guest-key-state.patch)、[`replay-window 证据`](evidence/2026-10-29-espnow-external-ccmp-window/README.md)、[`0079 patch`](../patches/qemu-m5stack-peripherals/0079-esp32-espnow-external-ccmp-window.patch)、[`native lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`M5ESPNow lifecycle 证据`](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)、[`lifecycle runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py)、[`CCMP replay 证据`](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)、[`0078 patch`](../patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch)、[`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md) |
 
 关闭条件：
 
-1. guest key-state 传播和 key rotation 可重放；
-2. 多 peer replay window、key rotation、loss/retry、双 peer 以上 fabric 和 receive/IRQ 生命周期可重放；
-3. loopback、external plaintext 和 encrypted lane 分开记录，不能互相替代；
+1. 多 peer key routing、每 peer replay window 和双 peer 以上 fabric 可重放；
+2. PN wrap、loss/retry 和 receive/IRQ 生命周期可重放；
+3. loopback、external plaintext、env-key fixture 和 guest-key encrypted lane 分开记录，不能互相替代；
 4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模

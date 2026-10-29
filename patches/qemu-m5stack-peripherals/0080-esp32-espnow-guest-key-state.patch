@@ -1,0 +1,422 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: consume guest ESP-NOW controller keys
+
+Mirror the ESP32 and ESP32-S3 WiFi crypto key store at the controller
+MMIO boundary. When the external ESP-NOW bridge has no runtime-env key
+fixture, select the highest active extended key slot after all 16 bytes
+of guest-programmed LMK material have reached the controller. Key-slot
+clear and replacement reset the active key and replay state. The bridge
+still performs real CCMP/MIC before DMA delivery.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -10,6 +10,17 @@
+ #define TYPE_ESP32_WIFI "misc.esp32_wifi"
+ #define ESP32_WIFI(obj) OBJECT_CHECK(Esp32WifiState, (obj), TYPE_ESP32_WIFI)
+ 
++#define ESP32_WIFI_CRYPTO_CONTROL_BASE  0x3ff73800
++#define ESP32_WIFI_CRYPTO_KEY_BASE      0x3ff74400
++#define ESP32S3_WIFI_CRYPTO_CONTROL_BASE 0x60033800
++#define ESP32S3_WIFI_CRYPTO_KEY_BASE    0x60034400
++#define ESP32_WIFI_CRYPTO_CONTROL_SIZE  0x20
++#define ESP32_WIFI_CRYPTO_KEY_SIZE      0x3e8
++#define ESP32_WIFI_CRYPTO_KEY_SLOTS     25
++#define ESP32_WIFI_CRYPTO_KEY_STRIDE    40
++#define ESP32_WIFI_CRYPTO_KEY_OFFSET    8
++#define ESP32_WIFI_CRYPTO_KEY_LENGTH    16
++
+ typedef struct dma_list_item {
+     unsigned size:12;
+     unsigned length:12;
+@@ -42,6 +53,16 @@
+     bool espnow_peer_encrypted;
+     uint8_t espnow_peer_pmk[16];
+     uint8_t espnow_peer_wrapped_lmk[16];
++    MemoryRegion espnow_crypto_control_iomem;
++    MemoryRegion espnow_crypto_key_iomem;
++    uint32_t espnow_crypto_control[ESP32_WIFI_CRYPTO_CONTROL_SIZE / 4];
++    uint8_t espnow_crypto_key_bytes[
++        ESP32_WIFI_CRYPTO_KEY_SLOTS][ESP32_WIFI_CRYPTO_KEY_LENGTH];
++    uint16_t espnow_crypto_key_written[ESP32_WIFI_CRYPTO_KEY_SLOTS];
++    bool espnow_peer_use_guest_key;
++    bool espnow_peer_guest_key_valid;
++    uint8_t espnow_peer_guest_key_slot;
++    uint8_t espnow_peer_guest_lmk[16];
+     uint64_t espnow_peer_tx_pn;
+     bool espnow_peer_rx_pn_valid;
+     uint64_t espnow_peer_last_rx_pn;
+@@ -100,6 +121,7 @@
+ void Esp32_ESPNow_peer_realize(Esp32WifiState *s, Error **errp);
+ void Esp32_ESPNow_peer_cleanup(Esp32WifiState *s);
+ void Esp32_ESPNow_peer_send(Esp32WifiState *s, struct mac80211_frame *frame);
++void Esp32_WLAN_crypto_realize(Esp32WifiState *s, SysBusDevice *sbd);
+ bool Esp32_WLAN_ccmp_encrypt_payload(const uint8_t key[16],
+                                      struct mac80211_frame *frame,
+                                      uint64_t pn);
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -106,12 +106,243 @@
+     return true;
+ }
+ 
++static uint16_t espnow_key_byte_bit(unsigned int byte)
++{
++    return (uint16_t)(1u << byte);
++}
++
++static void espnow_peer_clear_guest_key(Esp32WifiState *s)
++{
++    bool was_valid = s->espnow_peer_guest_key_valid;
++
++    s->espnow_peer_guest_key_valid = false;
++    s->espnow_peer_guest_key_slot = 0;
++    memset(s->espnow_peer_guest_lmk, 0,
++           sizeof(s->espnow_peer_guest_lmk));
++    if (s->espnow_peer_use_guest_key) {
++        s->espnow_peer_encrypted = false;
++    }
++    if (was_valid) {
++        s->espnow_peer_tx_pn = 0;
++        s->espnow_peer_rx_pn_valid = false;
++        s->espnow_peer_last_rx_pn = 0;
++        s->espnow_peer_rx_pn_bitmap = 0;
++        if (s->espnow_peer_trace) {
++            fprintf(stderr,
++                    "[espnow-peer] guest-key state=cleared\n");
++        }
++    }
++}
++
++static void espnow_peer_set_guest_key(Esp32WifiState *s,
++                                      unsigned int slot,
++                                      const uint8_t key[16])
++{
++    bool changed;
++
++    if (!s->espnow_peer_use_guest_key ||
++        slot >= ESP32_WIFI_CRYPTO_KEY_SLOTS) {
++        return;
++    }
++    changed = !s->espnow_peer_guest_key_valid ||
++              s->espnow_peer_guest_key_slot != slot ||
++              memcmp(s->espnow_peer_guest_lmk, key, 16);
++    if (changed) {
++        memset(s->espnow_peer_guest_lmk, 0,
++               sizeof(s->espnow_peer_guest_lmk));
++        memcpy(s->espnow_peer_guest_lmk, key, 16);
++        s->espnow_peer_guest_key_slot = slot;
++        s->espnow_peer_guest_key_valid = true;
++        s->espnow_peer_encrypted = true;
++        s->espnow_peer_tx_pn = 0;
++        s->espnow_peer_rx_pn_valid = false;
++        s->espnow_peer_last_rx_pn = 0;
++        s->espnow_peer_rx_pn_bitmap = 0;
++        if (s->espnow_peer_trace) {
++            fprintf(stderr,
++                    "[espnow-peer] guest-key state=ready slot=%u\n",
++                    slot);
++        }
++    }
++}
++
++static void espnow_crypto_refresh_guest_key(Esp32WifiState *s)
++{
++    uint32_t valid = s->espnow_crypto_control[0x14 / 4];
++    int slot;
++
++    if (!s->espnow_peer_use_guest_key) {
++        return;
++    }
++    if (s->espnow_peer_guest_key_valid &&
++        !(valid & (1u << s->espnow_peer_guest_key_slot))) {
++        espnow_peer_clear_guest_key(s);
++    }
++    for (slot = ESP32_WIFI_CRYPTO_KEY_SLOTS - 1; slot >= 4; slot--) {
++        if ((valid & (1u << slot)) &&
++            s->espnow_crypto_key_written[slot] == 0xffff) {
++            espnow_peer_set_guest_key(
++                s, slot, s->espnow_crypto_key_bytes[slot]);
++            return;
++        }
++    }
++}
++
++static uint64_t espnow_crypto_control_read(void *opaque, hwaddr addr,
++                                           unsigned int size)
++{
++    Esp32WifiState *s = opaque;
++
++    if (size != 4 || (addr & 3) || addr >= ESP32_WIFI_CRYPTO_CONTROL_SIZE) {
++        return 0;
++    }
++    return s->espnow_crypto_control[addr / 4];
++}
++
++static void espnow_crypto_control_write(void *opaque, hwaddr addr,
++                                        uint64_t value, unsigned int size)
++{
++    Esp32WifiState *s = opaque;
++
++    if (size != 4 || (addr & 3) || addr >= ESP32_WIFI_CRYPTO_CONTROL_SIZE) {
++        return;
++    }
++    s->espnow_crypto_control[addr / 4] = value;
++    if (addr == 0x14) {
++        if (s->espnow_peer_trace) {
++            fprintf(stderr,
++                    "[espnow-peer] guest-key control=mask value=%08x\n",
++                    (uint32_t)value);
++        }
++        espnow_crypto_refresh_guest_key(s);
++    }
++}
++
++static uint64_t espnow_crypto_key_read(void *opaque, hwaddr addr,
++                                       unsigned int size)
++{
++    Esp32WifiState *s = opaque;
++    unsigned int index;
++    uint32_t value = 0;
++
++    if ((addr >= ESP32_WIFI_CRYPTO_KEY_SIZE) ||
++        addr + size > ESP32_WIFI_CRYPTO_KEY_SIZE) {
++        return 0;
++    }
++    for (index = 0; index < size; index++) {
++        hwaddr offset = addr + index;
++        unsigned int slot = offset / ESP32_WIFI_CRYPTO_KEY_STRIDE;
++        unsigned int slot_offset = offset % ESP32_WIFI_CRYPTO_KEY_STRIDE;
++
++        if (slot < ESP32_WIFI_CRYPTO_KEY_SLOTS &&
++            slot_offset >= ESP32_WIFI_CRYPTO_KEY_OFFSET &&
++            slot_offset < ESP32_WIFI_CRYPTO_KEY_OFFSET +
++                          ESP32_WIFI_CRYPTO_KEY_LENGTH) {
++            value |=
++                (uint32_t)s->espnow_crypto_key_bytes[
++                    slot][slot_offset - ESP32_WIFI_CRYPTO_KEY_OFFSET]
++                << (index * 8);
++        }
++    }
++    return value;
++}
++
++static void espnow_crypto_key_write(void *opaque, hwaddr addr,
++                                    uint64_t value, unsigned int size)
++{
++    Esp32WifiState *s = opaque;
++    unsigned int index;
++
++    if ((addr >= ESP32_WIFI_CRYPTO_KEY_SIZE) ||
++        addr + size > ESP32_WIFI_CRYPTO_KEY_SIZE) {
++        return;
++    }
++    for (index = 0; index < size; index++) {
++        hwaddr offset = addr + index;
++        unsigned int slot = offset / ESP32_WIFI_CRYPTO_KEY_STRIDE;
++        unsigned int slot_offset = offset % ESP32_WIFI_CRYPTO_KEY_STRIDE;
++
++        if (slot >= ESP32_WIFI_CRYPTO_KEY_SLOTS ||
++            slot_offset < ESP32_WIFI_CRYPTO_KEY_OFFSET ||
++            slot_offset >= ESP32_WIFI_CRYPTO_KEY_OFFSET +
++                           ESP32_WIFI_CRYPTO_KEY_LENGTH) {
++            continue;
++        }
++        if (slot_offset == ESP32_WIFI_CRYPTO_KEY_OFFSET) {
++            s->espnow_crypto_key_written[slot] = 0;
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] guest-key state=write slot=%u\n",
++                        slot);
++            }
++        }
++        s->espnow_crypto_key_bytes[
++            slot][slot_offset - ESP32_WIFI_CRYPTO_KEY_OFFSET] =
++            (value >> (index * 8)) & 0xff;
++        s->espnow_crypto_key_written[slot] |=
++            espnow_key_byte_bit(
++                slot_offset - ESP32_WIFI_CRYPTO_KEY_OFFSET);
++        if (s->espnow_crypto_key_written[slot] == 0xffff &&
++            s->espnow_peer_trace) {
++            fprintf(stderr,
++                    "[espnow-peer] guest-key state=bytes-ready slot=%u "
++                    "mask=%08x\n",
++                    slot, s->espnow_crypto_control[0x14 / 4]);
++        }
++    }
++    espnow_crypto_refresh_guest_key(s);
++}
++
++static const MemoryRegionOps espnow_crypto_control_ops = {
++    .read = espnow_crypto_control_read,
++    .write = espnow_crypto_control_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static const MemoryRegionOps espnow_crypto_key_ops = {
++    .read = espnow_crypto_key_read,
++    .write = espnow_crypto_key_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 4,
++};
++
++void Esp32_WLAN_crypto_realize(Esp32WifiState *s, SysBusDevice *sbd)
++{
++    memset(s->espnow_crypto_control, 0,
++           sizeof(s->espnow_crypto_control));
++    memset(s->espnow_crypto_key_bytes, 0,
++           sizeof(s->espnow_crypto_key_bytes));
++    memset(s->espnow_crypto_key_written, 0,
++           sizeof(s->espnow_crypto_key_written));
++    memory_region_init_io(
++        &s->espnow_crypto_control_iomem, OBJECT(s),
++        &espnow_crypto_control_ops, s,
++        "esp32.wifi.crypto-control", ESP32_WIFI_CRYPTO_CONTROL_SIZE);
++    memory_region_init_io(
++        &s->espnow_crypto_key_iomem, OBJECT(s),
++        &espnow_crypto_key_ops, s,
++        "esp32.wifi.crypto-keys", ESP32_WIFI_CRYPTO_KEY_SIZE);
++    sysbus_init_mmio(sbd, &s->espnow_crypto_control_iomem);
++    sysbus_init_mmio(sbd, &s->espnow_crypto_key_iomem);
++}
++
+ static bool espnow_peer_unwrap_lmk(Esp32WifiState *s, uint8_t lmk[16])
+ {
+-    return s->espnow_peer_encrypted &&
+-           espnow_peer_aes_ecb(
+-               s->espnow_peer_pmk, false,
+-               s->espnow_peer_wrapped_lmk, lmk);
++    if (!s->espnow_peer_encrypted) {
++        return false;
++    }
++    if (s->espnow_peer_use_guest_key) {
++        if (!s->espnow_peer_guest_key_valid) {
++            return false;
++        }
++        memcpy(lmk, s->espnow_peer_guest_lmk, 16);
++        return true;
++    }
++    return espnow_peer_aes_ecb(
++        s->espnow_peer_pmk, false, s->espnow_peer_wrapped_lmk, lmk);
+ }
+ 
+ static bool espnow_peer_encrypt_guest_frame(Esp32WifiState *s,
+@@ -368,6 +599,9 @@
+     s->espnow_peer_local_port = 0;
+     s->espnow_peer_remote_port = 0;
+     s->espnow_peer_encrypted = false;
++    s->espnow_peer_use_guest_key = false;
++    s->espnow_peer_guest_key_valid = false;
++    s->espnow_peer_guest_key_slot = 0;
+     s->espnow_peer_tx_pn = 0;
+     s->espnow_peer_rx_pn_valid = false;
+     s->espnow_peer_last_rx_pn = 0;
+@@ -375,6 +609,8 @@
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
++    memset(s->espnow_peer_guest_lmk, 0,
++           sizeof(s->espnow_peer_guest_lmk));
+     s->espnow_peer_trace =
+         getenv("M5SW_ESPNOW_PEER_TRACE") != NULL;
+ 
+@@ -428,6 +664,9 @@
+             memset(lmk, 0, sizeof(lmk));
+             memset(unwrapped, 0, sizeof(unwrapped));
+             s->espnow_peer_encrypted = true;
++        } else {
++            s->espnow_peer_use_guest_key = true;
++            espnow_crypto_refresh_guest_key(s);
+         }
+     }
+     if (parse_uint_full(local_value, 10, &local_port) ||
+@@ -462,13 +701,15 @@
+ 
+ void Esp32_ESPNow_peer_cleanup(Esp32WifiState *s)
+ {
+-    if (s->espnow_peer_fd < 0) {
+-        return;
++    if (s->espnow_peer_fd >= 0) {
++        qemu_set_fd_handler(s->espnow_peer_fd, NULL, NULL, NULL);
++        close(s->espnow_peer_fd);
++        s->espnow_peer_fd = -1;
+     }
+-    qemu_set_fd_handler(s->espnow_peer_fd, NULL, NULL, NULL);
+-    close(s->espnow_peer_fd);
+-    s->espnow_peer_fd = -1;
+     s->espnow_peer_encrypted = false;
++    s->espnow_peer_use_guest_key = false;
++    s->espnow_peer_guest_key_valid = false;
++    s->espnow_peer_guest_key_slot = 0;
+     s->espnow_peer_tx_pn = 0;
+     s->espnow_peer_rx_pn_valid = false;
+     s->espnow_peer_last_rx_pn = 0;
+@@ -476,6 +717,14 @@
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
++    memset(s->espnow_peer_guest_lmk, 0,
++           sizeof(s->espnow_peer_guest_lmk));
++    memset(s->espnow_crypto_control, 0,
++           sizeof(s->espnow_crypto_control));
++    memset(s->espnow_crypto_key_bytes, 0,
++           sizeof(s->espnow_crypto_key_bytes));
++    memset(s->espnow_crypto_key_written, 0,
++           sizeof(s->espnow_crypto_key_written));
+ }
+ 
+ void Esp32_ESPNow_peer_send(Esp32WifiState *s,
+@@ -659,6 +908,7 @@
+     memory_region_init_io(&s->iomem, OBJECT(dev), &esp32_wifi_ops, s,
+                           TYPE_ESP32_WIFI, 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
++    Esp32_WLAN_crypto_realize(s, sbd);
+     sysbus_init_irq(sbd, &s->irq);
+     memset(s->mem,0,sizeof(s->mem));
+     Esp32_WLAN_setup_ap(dev, s);
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -398,6 +398,7 @@
+     memory_region_init_io(&s->iomem, OBJECT(dev), &esp32s3_wifi_ops, s,
+                           TYPE_ESP32S3_WIFI, 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
++    Esp32_WLAN_crypto_realize(s, sbd);
+     sysbus_init_irq(sbd, &s->irq);
+     Esp32_WLAN_setup_ap(dev, s);
+     Esp32_ESPNow_peer_realize(s, errp);
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -942,6 +942,12 @@
+         sbd = SYS_BUS_DEVICE(wifi_dev);
+         sysbus_realize_and_unref(sbd, &error_fatal);
+         esp32_soc_add_periph_device(sys_mem, wifi_dev, DR_REG_WIFI_BASE);
++        memory_region_add_subregion_overlap(
++            sys_mem, ESP32_WIFI_CRYPTO_CONTROL_BASE,
++            sysbus_mmio_get_region(sbd, 1), 2);
++        memory_region_add_subregion_overlap(
++            sys_mem, ESP32_WIFI_CRYPTO_KEY_BASE,
++            sysbus_mmio_get_region(sbd, 2), 2);
+         sysbus_connect_irq(
+             sbd, 0,
+             qdev_get_gpio_in(DEVICE(&ss->intmatrix),
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -391,6 +391,12 @@
+     memory_region_add_subregion_overlap(
+         sys_mem, 0x60033000,
+         sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 0), 2);
++    memory_region_add_subregion_overlap(
++        sys_mem, ESP32S3_WIFI_CRYPTO_CONTROL_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 1), 3);
++    memory_region_add_subregion_overlap(
++        sys_mem, ESP32S3_WIFI_CRYPTO_KEY_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 2), 3);
+     sysbus_connect_irq(
+         SYS_BUS_DEVICE(wifi), 0,
+         qdev_get_gpio_in(DEVICE(&s->intmatrix),

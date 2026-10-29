@@ -18,7 +18,7 @@ class EspNowExternalPeerLifecycleTests(unittest.TestCase):
             "node.add_peer(PEER_MAC, lmk=LMK",
             "node.add_peer(PEER_MAC, lmk=LMK, channel=0",
             "node.del_peer(PEER_MAC)",
-            "node.mod_peer(PEER_MAC, lmk=LMK, channel=0",
+            "node.mod_peer(PEER_MAC, lmk=ROTATED_LMK, channel=0",
             "node.get_peer(PEER_MAC)",
             "list(node.peer_count())",
         ):
@@ -45,7 +45,7 @@ class EspNowExternalPeerLifecycleTests(unittest.TestCase):
 
     def test_modify_and_post_readd_delivery_are_required(self):
         for marker in (
-            "node.mod_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, "
+            "node.mod_peer(PEER_MAC, lmk=ROTATED_LMK, channel=0, ifidx=0, "
             "encrypt=True)",
             "modified = (",
             'b"POST", b"POST:" + other_role.encode(), 12000',
@@ -60,7 +60,7 @@ class EspNowExternalPeerLifecycleTests(unittest.TestCase):
         for marker in (
             '"replay",',
             '"lifecycle",',
-            'args.scenario == "lifecycle"',
+            "native_lifecycle = args.scenario in {",
             "parse_lifecycle_records(serial)",
             "external_peer_lifecycle",
             "ESPNOW_LIFECYCLE_DONE ",

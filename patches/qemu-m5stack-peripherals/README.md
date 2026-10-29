@@ -526,6 +526,17 @@ older than the window are dropped after MIC validation. This supports bounded
 single-peer reordering but remains separate from multi-peer replay windows,
 PN wrap, key rotation, loss/retry, RF and physical-controller validation.
 
+`0080-esp32-espnow-guest-key-state.patch` mirrors the classic ESP32 and
+ESP32-S3 WiFi crypto key-store MMIO windows. With the external ESP-NOW bridge
+configured without runtime-env PMK/LMK, the model arms the highest active
+extended key slot only after the guest has written its full 16-byte LMK and
+the controller valid bit. Slot clear and replacement reset the active key and
+replay state. The bridge still authenticates CCMP at its own RX boundary and
+delivers through normal DMA. This closes the stock `set_pmk`/`add_peer` LMK
+programming handoff for one external peer; multi-peer key routing, PN wrap,
+loss/retry, channel/rate, RF and physical-controller equivalence remain
+separate.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

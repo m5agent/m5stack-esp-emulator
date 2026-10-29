@@ -1289,3 +1289,32 @@ loss/retry、channel/rate、bit-exact controller、RF/antenna、电气时序和
 真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-external-ccmp-window/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-external-ccmp-window/summary.json)。
+
+## 2026-10-29：ESP-NOW stock guest controller key-state
+
+新增 `0080-esp32-espnow-guest-key-state.patch`，SHA256
+`c827a3e6e76f591b319379342e099a5cd4ffd086029fb514cb99c61a72e2babc`。
+匹配固件的 `mt_set_lmk -> ic_set_key -> hal_crypto_set_key_entry` 路径
+确认 classic ESP32 key store 位于 `0x3ff74400`，ESP32-S3 位于
+`0x60034400`；entry stride `40` bytes、key data offset `8`，本轮 stock
+固件使用 extended slot `24` 和 valid bit `0x01000000`。
+
+模型只在 16-byte LMK 全部写入且 valid bit 已置位后启用 external bridge
+key。runtime-env 不包含 PMK/LMK。StopWatch↔StickS3 与
+Core2↔StopWatch 的正控均为 PASS，双端 `guest_key_ready=1`，正常 peer
+payload 分别为 `58/59` 与 `15/45`。不同 guest LMK 负控中双端均
+`EXPECTED_DROP`、`rx_packets=0`，MIC failure 发生于 RX DMA 前。
+
+delete/re-add/modify 后把双端 LMK 轮换为新共享值，两设备对的
+pre-sync、peer 恢复和 post-resume 均为 true；每个 session 观察到四次
+key-ready 状态和两次 clear，证明 replacement 重置 active key/replay
+state 而不是继续沿用旧 fixture。十二个 session 均 `purge=0` 停止、
+runtime PID 消失并保留 history。最终 QEMU SHA256 为
+`d2f25608dce3d4b4ff8951b1b89a778d52a57286bfb460f7959ddec696e48796`。
+
+该结果关闭单 peer stock guest key-state 和 key rotation，`RUNTIME-06`
+仍为 `PARTIAL`：multi-peer key routing/每 peer replay window、
+3+ peer fabric、PN wrap、loss/retry、channel/rate、bit-exact controller、
+RF/antenna、电气时序和真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-guest-key-state/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-guest-key-state/summary.json)。

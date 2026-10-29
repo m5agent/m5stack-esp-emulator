@@ -126,10 +126,11 @@ class Esp32EspNowExternalCcmpPatchTests(unittest.TestCase):
             "node.set_pmk(PMK)",
             "node.add_peer(PEER_MAC, lmk=LMK",
             "encrypt=True",
-            'args.scenario == "wrong-lmk"',
+            'args.scenario in {"wrong-lmk", "guest-key-wrong-lmk"}',
             'args.scenario == "wrong-pmk"',
             "bytes(value ^ 0xff for value in right_lmk)",
-            "expected_drop = args.scenario == \"wrong-lmk\"",
+            "expected_drop = args.scenario in {",
+            '"guest-key-wrong-lmk",',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)
