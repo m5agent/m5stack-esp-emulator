@@ -189,7 +189,7 @@ BOARD/APIKEY、在 `8.50 s` 执行完 matching 原厂 `/flash/boot.py`；但
 `wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`；
 当前下一阻断是 boot.py 之后的 WiFi 配置/UI 线程等待，随后才是 display
 flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复。
-`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`，使 `WDTFEED` 可替换更早的 pending stage；同固件 8 秒虚拟时点得到 `3,651` nonblack pixels 的 live frame，但长窗仍在约 `15.56 s` TG0 stage-1 reset，因此只关闭 timer replacement 子问题；`RUNTIME-03`、normal-WDT 启动、factory UI、REPL 和非空应用帧仍 `OPEN`。
+`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset，剩余 blocker 是真实 `wifiWebCfg`/WiFi 分区与 normal-WDT 生命周期；`RUNTIME-03` 和原厂 factory UI/REPL 仍 `OPEN`。
 精确批次、通过率、artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
