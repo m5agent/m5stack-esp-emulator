@@ -557,6 +557,13 @@ to the source peer. The runner covers three pairwise LMKs and an intentional
 B/A cross-wire negative control; PN wrap, loss/retry, RF and physical-controller
 behavior remain separate.
 
+`0083-esp32-espnow-ccmp-pn-exhaustion.patch` makes the 48-bit CCMP transmit
+PN fail closed instead of wrapping to zero. An opt-in decimal seed lets the
+runner approach the limit through the normal controller bridge, burn the final
+PNs and observe explicit exhaustion drops. Reinstalling a new guest LMK resets
+that peer's PN chain and the direct pair resumes. Shared-LMK and pairwise-key
+fabric regressions remain separate.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

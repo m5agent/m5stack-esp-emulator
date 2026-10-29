@@ -206,6 +206,7 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_ESPNOW_PEER_PMK",
     "M5SW_ESPNOW_PEER_REMOTE_PORT",
     "M5SW_ESPNOW_PEER_TRACE",
+    "M5SW_ESPNOW_PEER_TX_PN_START",
     "M5SW_I2S_DMA_IRQ",
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
@@ -10603,6 +10604,28 @@ class DeviceService:
                         "M5SW_ESPNOW_PEER_PUBLIC_MAC requires the "
                         "ESP-NOW peer fabric and exactly 12 hexadecimal "
                         "characters",
+                        400,
+                    )
+            espnow_tx_pn_start = runtime_env.get(
+                "M5SW_ESPNOW_PEER_TX_PN_START"
+            )
+            if espnow_tx_pn_start is not None:
+                if (
+                    espnow_local_port is None
+                    or len(espnow_tx_pn_start) > 15
+                    or not espnow_tx_pn_start.isascii()
+                    or not espnow_tx_pn_start.isdigit()
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_TX_PN_START requires the "
+                        "external ESP-NOW peer bridge and a decimal CCMP PN",
+                        400,
+                    )
+                if int(espnow_tx_pn_start) > 0xffffffffffff:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_TX_PN_START must fit in 48 bits",
                         400,
                     )
             espnow_pmk = runtime_env.get("M5SW_ESPNOW_PEER_PMK")

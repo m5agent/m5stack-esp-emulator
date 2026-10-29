@@ -108,8 +108,9 @@ class Esp32EspNowGuestKeyPatchTests(unittest.TestCase):
             "ROTATED_LMK = __ROTATED_LMK__",
             "node.add_peer(PEER_MAC, lmk=LMK",
             "node.mod_peer(PEER_MAC, lmk=ROTATED_LMK",
-            "rotated_lmk = b\"fedcba9876543211\"",
-            ">= (2 if args.scenario == \"guest-key-rotation\" else 1)",
+            "else b\"fedcba9876543211\"",
+            "\"guest-key-rotation\",",
+            "\"guest-key-pn-rekey\",",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)

@@ -131,6 +131,153 @@ node.active(False)
 '''
 
 
+GUEST_KEY_PN_REKEY_SOURCE = r'''
+import M5
+import espnow
+import json
+import network
+import time
+
+ROLE = __ROLE__
+PEER_ROLE = "B" if ROLE == "A" else "A"
+PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
+PMK = __PMK__
+LMK = __LMK__
+ROTATED_LMK = __ROTATED_LMK__
+
+
+def emit(kind, **values):
+    values["kind"] = kind
+    print("ESPNOW_FABRIC_" + json.dumps(values, separators=(",", ":")))
+
+
+def receive(node, timeout_ms):
+    slot = [None, bytearray(250)]
+    count = node.recvinto(slot, timeout_ms)
+    if not count:
+        return None, b""
+    return bytes(slot[0]), bytes(slot[1][:count])
+
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    deadline = time.ticks_add(time.ticks_ms(), 5000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if any(row[0] == b"myssid" for row in wlan.scan()):
+            break
+        time.sleep_ms(100)
+    else:
+        raise RuntimeError("fixture AP absent")
+    wlan.connect("myssid")
+    deadline = time.ticks_add(time.ticks_ms(), 40000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if wlan.isconnected() and wlan.status() == 1010:
+            return wlan
+        time.sleep_ms(100)
+    raise RuntimeError("guest DHCP timed out")
+
+
+M5.begin()
+connect_wifi()
+node = espnow.ESPNow()
+node.active(True)
+node.config(rxbuf=4096, timeout_ms=100)
+node.set_pmk(PMK)
+node.add_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+peer_count = list(node.peer_count())
+registered = peer_count == [1, 1]
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_pn_registration",
+    status="PASS" if registered else "FAIL",
+    peer_count=peer_count,
+)
+if not registered:
+    raise RuntimeError("PN peer registration failed")
+
+time.sleep_ms(3000)
+barrier = False
+deadline = time.ticks_add(time.ticks_ms(), 30000)
+while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+    node.send(PEER_MAC, ("BARRIER:" + ROLE).encode(), False)
+    for _ in range(5):
+        source, payload = receive(node, 100)
+        if source is None:
+            break
+        if source == PEER_MAC and payload == (
+            "BARRIER:" + PEER_ROLE
+        ).encode():
+            barrier = True
+            break
+    if barrier:
+        break
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_pn_barrier",
+    status="PASS" if barrier else "FAIL",
+)
+if not barrier:
+    raise RuntimeError("PN readiness barrier failed")
+
+for _ in range(128):
+    node.send(PEER_MAC, ("BURN:" + ROLE).encode(), False)
+time.sleep_ms(1000)
+
+rekey_ok = False
+try:
+    node.mod_peer(
+        PEER_MAC,
+        lmk=ROTATED_LMK,
+        channel=0,
+        ifidx=0,
+        encrypt=True,
+    )
+    peer_info = node.get_peer(PEER_MAC)
+    rekey_ok = (
+        bytes(peer_info[0]) == PEER_MAC
+        and bool(peer_info[4])
+    )
+except OSError:
+    rekey_ok = False
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_pn_rekey",
+    status="PASS" if rekey_ok else "FAIL",
+)
+if not rekey_ok:
+    raise RuntimeError("PN rekey failed")
+
+payload_matches = 0
+expected = ("POST_FABRIC:" + PEER_ROLE + ":" + ROLE).encode()
+deadline = time.ticks_add(time.ticks_ms(), 15000)
+while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+    node.send(PEER_MAC, ("POST_READY:" + ROLE).encode(), False)
+    node.send(
+        PEER_MAC,
+        ("POST_FABRIC:" + ROLE + ":" + PEER_ROLE).encode(),
+        False,
+    )
+    for _ in range(3):
+        source, payload = receive(node, 100)
+        if source == PEER_MAC and payload == expected:
+            payload_matches += 1
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_pn_post",
+    status="PASS" if payload_matches else "FAIL",
+    payload_matches={PEER_ROLE: payload_matches},
+)
+emit("DONE", role=ROLE)
+print("ESPNOW_FABRIC_DONE " + ROLE)
+node.active(False)
+'''
+
+
 LIFECYCLE_SOURCE = r'''
 import M5
 import espnow
@@ -935,6 +1082,7 @@ def trace_summary(evidence: Path) -> dict:
             "replay_drops": 0,
             "guest_key_ready": 0,
             "guest_key_cleared": 0,
+            "pn_exhaustions": 0,
             "sha256": None,
         }
     with zipfile.ZipFile(evidence) as archive:
@@ -954,6 +1102,9 @@ def trace_summary(evidence: Path) -> dict:
         ),
         "guest_key_cleared": text.count(
             "[espnow-peer] guest-key state=cleared"
+        ),
+        "pn_exhaustions": text.count(
+            "[espnow-peer] TX drop: CCMP PN exhausted"
         ),
         "sha256": hashlib.sha256(raw).hexdigest(),
     }
@@ -986,7 +1137,13 @@ def run_one(
     peer_lmks: dict[str, bytes] | None = None,
     public_mac: bytes | None = None,
 ) -> dict:
-    if scenario in {"lifecycle", "guest-key-rotation"}:
+    if scenario in {
+        "guest-key-pn-rekey",
+        "guest-key-pn-stale-rekey",
+    }:
+        source_template = GUEST_KEY_PN_REKEY_SOURCE
+        done_marker = "ESPNOW_FABRIC_DONE " + role
+    elif scenario in {"lifecycle", "guest-key-rotation"}:
         source_template = LIFECYCLE_SOURCE
         done_marker = "ESPNOW_LIFECYCLE_DONE " + role
     elif scenario == "lifecycle-m5espnow":
@@ -1026,6 +1183,11 @@ def run_one(
         runtime_env["M5SW_ESPNOW_PEER_FABRIC"] = "1"
     if public_mac is not None:
         runtime_env["M5SW_ESPNOW_PEER_PUBLIC_MAC"] = public_mac.hex()
+    if scenario in {
+        "guest-key-pn-rekey",
+        "guest-key-pn-stale-rekey",
+    }:
+        runtime_env["M5SW_ESPNOW_PEER_TX_PN_START"] = "281474976710591"
     if encrypt and not guest_key:
         runtime_env.update({
             "M5SW_ESPNOW_PEER_PMK": pmk.hex(),
@@ -1074,7 +1236,10 @@ def run_one(
         records = parse_lifecycle_records(serial)
     elif scenario == "lifecycle-m5espnow":
         records = parse_m5espnow_lifecycle_records(serial)
-    elif scenario in FABRIC_SCENARIOS:
+    elif scenario in FABRIC_SCENARIOS or scenario in {
+        "guest-key-pn-rekey",
+        "guest-key-pn-stale-rekey",
+    }:
         records = parse_fabric_records(serial)
     else:
         records = parse_pair_records(serial)
@@ -1191,7 +1356,9 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
     broker.start()
     try:
         with ThreadPoolExecutor(max_workers=3) as executor:
-            futures = [executor.submit(run_one, **job) for job in jobs]
+            futures = [
+                executor.submit(run_one, **job) for job in jobs
+            ]
             results = [future.result() for future in futures]
     finally:
         broker.close()
@@ -1364,6 +1531,7 @@ def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
                 "guest_key_ready": row["trace"]["guest_key_ready"],
                 "replay_drops": row["trace"]["replay_drops"],
                 "payload": payload_results[row["role"]].get("status"),
+                "pn_exhaustions": row["trace"]["pn_exhaustions"],
             }
             for row in results
         },
@@ -1393,6 +1561,8 @@ def main() -> int:
             "fabric-replay",
             "fabric-per-peer-key",
             "fabric-per-peer-key-negative",
+            "guest-key-pn-rekey",
+            "guest-key-pn-stale-rekey",
             "lifecycle",
             "lifecycle-m5espnow",
         ),
@@ -1413,6 +1583,8 @@ def main() -> int:
         "guest-key",
         "guest-key-wrong-lmk",
         "guest-key-rotation",
+        "guest-key-pn-rekey",
+        "guest-key-pn-stale-rekey",
     } | FABRIC_SCENARIOS
     keys = {
         "stopwatch": (
@@ -1440,7 +1612,11 @@ def main() -> int:
             bytes(value ^ 0xff for value in right_pmk),
             right_lmk,
         )
-    rotated_lmk = b"fedcba9876543211"
+    rotated_lmk = (
+        b"fedcba9876543210"
+        if args.scenario == "guest-key-pn-stale-rekey"
+        else b"fedcba9876543211"
+    )
     left_pmk, left_lmk = keys[args.left_device]
     right_pmk, right_lmk = keys[args.right_device]
     replay_proxy = None
@@ -1532,12 +1708,20 @@ def main() -> int:
         result["trace"]["tx"] > 0 and result["trace"]["rx"] > 0
         for result in results
     )
+    pair_registration_api = (
+        "fabric_pn_registration"
+        if args.scenario in {
+            "guest-key-pn-rekey",
+            "guest-key-pn-stale-rekey",
+        }
+        else "external_peer_registration"
+    )
     registration_results = [
         row
         for result in results
         for row in result["records"]
         if row.get("kind") == "RESULT"
-        and row.get("api") == "external_peer_registration"
+        and row.get("api") == pair_registration_api
     ]
     lifecycle_results = [
         row
@@ -1552,6 +1736,27 @@ def main() -> int:
         for row in result["records"]
         if row.get("kind") == "RESULT"
         and row.get("api") == "external_peer_lifecycle_m5espnow"
+    ]
+    pn_barrier_results = [
+        row
+        for result in results
+        for row in result["records"]
+        if row.get("kind") == "RESULT"
+        and row.get("api") == "fabric_pn_barrier"
+    ]
+    pn_rekey_results = [
+        row
+        for result in results
+        for row in result["records"]
+        if row.get("kind") == "RESULT"
+        and row.get("api") == "fabric_pn_rekey"
+    ]
+    pn_post_results = [
+        row
+        for result in results
+        for row in result["records"]
+        if row.get("kind") == "RESULT"
+        and row.get("api") == "fabric_pn_post"
     ]
     expected_drop = args.scenario in {
         "wrong-lmk",
@@ -1607,6 +1812,52 @@ def main() -> int:
             )
         )
     )
+    pn_rekey = args.scenario in {
+        "guest-key-pn-rekey",
+        "guest-key-pn-stale-rekey",
+    }
+    pn_stale_rekey = args.scenario == "guest-key-pn-stale-rekey"
+    pn_rekey_ok = (
+        not pn_rekey
+        or (
+            len(pn_barrier_results) == 2
+            and len(pn_rekey_results) == 2
+            and len(pn_post_results) == 2
+            and all(
+                row.get("status") == "PASS"
+                for row in pn_barrier_results
+            )
+            and all(
+                row.get("status") == "PASS"
+                for row in pn_rekey_results
+            )
+            and (
+                all(
+                    row.get("status") == "FAIL"
+                    and not any(
+                        row.get("payload_matches", {}).values()
+                    )
+                    for row in pn_post_results
+                )
+                if pn_stale_rekey
+                else all(
+                    row.get("status") == "PASS"
+                    and all(
+                        row.get("payload_matches", {}).values()
+                    )
+                    for row in pn_post_results
+                )
+            )
+            and all(
+                result["trace"]["pn_exhaustions"] > 0
+                for result in results
+            )
+            and all(
+                result["trace"]["replay_drops"] == 0
+                for result in results
+            )
+        )
+    )
     replay_ok = (
         args.scenario != "replay"
         or (
@@ -1636,7 +1887,16 @@ def main() -> int:
         not guest_key
         or all(
             result["trace"]["guest_key_ready"]
-            >= (2 if args.scenario == "guest-key-rotation" else 1)
+            >= (
+                1
+                if args.scenario == "guest-key-pn-stale-rekey"
+                else 2
+                if args.scenario in {
+                    "guest-key-rotation",
+                    "guest-key-pn-rekey",
+                }
+                else 1
+            )
             for result in results
         )
     )
@@ -1653,8 +1913,18 @@ def main() -> int:
                 and m5espnow_lifecycle_ok
             )
             or (
+                pn_rekey
+                and pn_rekey_ok
+            )
+            or (
                 args.scenario
-                not in {"lifecycle", "lifecycle-m5espnow", "guest-key-rotation"}
+                not in {
+                    "lifecycle",
+                    "lifecycle-m5espnow",
+                    "guest-key-rotation",
+                    "guest-key-pn-rekey",
+                    "guest-key-pn-stale-rekey",
+                }
                 and len(delivery_results) == 2
                 and delivery_ok
                 and all(
@@ -1680,6 +1950,15 @@ def main() -> int:
             "guest-controller-key-store"
             if guest_key
             else ("runtime-env-fixture" if encrypt else "none")
+        ),
+        "key_scope": (
+            (
+                "same guest LMK rejected after CCMP PN exhaustion"
+                if pn_stale_rekey
+                else "new guest LMK resumes after CCMP PN exhaustion"
+            )
+            if pn_rekey
+            else None
         ),
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {

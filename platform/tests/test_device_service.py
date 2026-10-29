@@ -1476,6 +1476,19 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(orphan_fabric.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as orphan_tx_pn_start:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_TX_PN_START": "42",
+                    },
+                }
+            )
+        self.assertEqual(
+            orphan_tx_pn_start.exception.code,
+            "invalid_runtime_env",
+        )
         with self.assertRaises(ServiceError) as same_ports:
             self.service.create_session(
                 {
@@ -1576,6 +1589,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(
             invalid_public_mac.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as invalid_pn_start:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_FABRIC": "1",
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_TX_PN_START": "281474976710656",
+                    },
+                }
+            )
+        self.assertEqual(
+            invalid_pn_start.exception.code,
             "invalid_runtime_env",
         )
 
