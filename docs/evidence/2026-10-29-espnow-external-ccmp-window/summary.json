@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "scope": "A 64-frame authenticated CCMP replay window for one external ESP-NOW peer.",
+  "runtime_binary_sha256": "ef88746915960fe26a275cccfefcbb506cbc0f7d322747faad81a4a0916661cd",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0079-esp32-espnow-external-ccmp-window.patch",
+    "sha256": "c4f40a614412db0b0c642f448820bb1acb8cf9bbe980df4e20e15d5c74556e0c"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "264f475e9c1d1725fde16112025219e8933e5fb7678b361e9f131692f1211708",
+    "scenario": "reorder",
+    "window_frames": 64
+  },
+  "reorder_control": {
+    "forwarded_left_to_right": 58,
+    "forwarded_right_to_left": 58,
+    "reordered": true,
+    "held_frame_released": true,
+    "errors": [],
+    "receiver_replay_drops": 0,
+    "sessions": [
+      {
+        "role": "A",
+        "device": "stopwatch",
+        "firmware_sha256": "b6baab9fa89d706a1e97da9302306c19f6f3f45abf171fa3c4dcab5e35dddb08",
+        "bridge_tx": 58,
+        "bridge_rx": 58,
+        "peer_payloads": 57,
+        "result": "PASS",
+        "evidence_sha256": "13a67280e38ff825021750f7647810b7ff8bb3e89994d2bdfbe3548e130564e3",
+        "cleanup": "stopped; runtime_pid_gone; purge=0"
+      },
+      {
+        "role": "B",
+        "device": "sticks3",
+        "firmware_sha256": "a36fdff4efaee90b1b9bc1eed265b660d7e009b2fd391552a0d8205ed508ee6c",
+        "bridge_tx": 58,
+        "bridge_rx": 58,
+        "peer_payloads": 58,
+        "result": "PASS",
+        "evidence_sha256": "f62ecc6a259d67d2d0b6207875b5c94f7d506bb9aca93dd875b1c91d01d0026f",
+        "cleanup": "stopped; runtime_pid_gone; purge=0"
+      }
+    ]
+  },
+  "regressions": [
+    {
+      "name": "duplicate replay",
+      "pair": ["stopwatch", "sticks3"],
+      "status": "PASS",
+      "details": "StickS3 RX 59, replay drop 1, guest payload not duplicated"
+    },
+    {
+      "name": "core2 encrypted",
+      "pair": ["core2", "stopwatch"],
+      "status": "PASS",
+      "details": "Core2 14 and StopWatch 44 source/payload matches"
+    }
+  ],
+  "not_claimed": [
+    "multi-peer replay windows",
+    "PN wrap or key rotation lifecycle",
+    "guest key-state propagation into the QEMU bridge",
+    "loss/retry, channel/rate or bit-exact controller behavior",
+    "RF, antenna, coexistence, electrical, timing or physical hardware validation"
+  ]
+}

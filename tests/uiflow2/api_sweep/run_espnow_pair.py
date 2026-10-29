@@ -524,6 +524,91 @@ class ReplayProxy:
                     self._left_socket.sendto(data, self._left_service)
 
 
+class ReorderProxy:
+    """Swap two authenticated frames after both peer directions are active."""
+
+    def __init__(
+        self,
+        *,
+        left_service_port: int,
+        right_service_port: int,
+        left_proxy_port: int,
+        right_proxy_port: int,
+    ) -> None:
+        address = "127.0.0.1"
+        self._left_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._right_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._left_socket.bind((address, left_proxy_port))
+        self._right_socket.bind((address, right_proxy_port))
+        self._left_service = (address, left_service_port)
+        self._right_service = (address, right_service_port)
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._forwarded = {"left_to_right": 0, "right_to_left": 0}
+        self._held: bytes | None = None
+        self._reordered = False
+        self._errors: list[str] = []
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def close(self) -> None:
+        self._stop.set()
+        self._thread.join(timeout=2)
+        self._left_socket.close()
+        self._right_socket.close()
+
+    def summary(self) -> dict:
+        return {
+            "forwarded": dict(self._forwarded),
+            "reordered": self._reordered,
+            "held_frame_released": self._held is None,
+            "errors": list(self._errors),
+        }
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            try:
+                readable, _, _ = select.select(
+                    [self._left_socket, self._right_socket],
+                    [],
+                    [],
+                    0.1,
+                )
+            except (OSError, ValueError) as error:
+                self._errors.append(type(error).__name__)
+                return
+            for source in readable:
+                if self._stop.is_set():
+                    return
+                try:
+                    data, _ = source.recvfrom(65535)
+                except OSError as error:
+                    self._errors.append(type(error).__name__)
+                    return
+                if source is self._left_socket:
+                    self._forwarded["left_to_right"] += 1
+                    if (
+                        not self._reordered
+                        and self._forwarded["right_to_left"] > 0
+                    ):
+                        if self._held is None:
+                            self._held = data
+                            continue
+                        self._right_socket.sendto(data, self._right_service)
+                        time.sleep(0.05)
+                        self._right_socket.sendto(
+                            self._held, self._right_service
+                        )
+                        self._held = None
+                        self._reordered = True
+                    else:
+                        self._right_socket.sendto(data, self._right_service)
+                else:
+                    self._forwarded["right_to_left"] += 1
+                    self._left_socket.sendto(data, self._left_service)
+
+
 def wifi_profile(device: str) -> str:
     return {
         "sticks3": "uiflow2-sticks3-wifi",
@@ -712,6 +797,7 @@ def main() -> int:
             "wrong-lmk",
             "wrong-pmk",
             "replay",
+            "reorder",
             "lifecycle",
             "lifecycle-m5espnow",
         ),
@@ -754,21 +840,29 @@ def main() -> int:
     left_pmk, left_lmk = keys[args.left_device]
     right_pmk, right_lmk = keys[args.right_device]
     replay_proxy = None
+    reorder_proxy = None
     left_proxy_port = None
     right_proxy_port = None
-    if args.scenario == "replay":
+    if args.scenario in {"replay", "reorder"}:
         (
             left_port,
             right_port,
             left_proxy_port,
             right_proxy_port,
         ) = distinct_ports(4)
-        replay_proxy = ReplayProxy(
+        proxy_class = (
+            ReplayProxy if args.scenario == "replay" else ReorderProxy
+        )
+        proxy = proxy_class(
             left_service_port=left_port,
             right_service_port=right_port,
             left_proxy_port=left_proxy_port,
             right_proxy_port=right_proxy_port,
         )
+        if args.scenario == "replay":
+            replay_proxy = proxy
+        else:
+            reorder_proxy = proxy
     else:
         left_port, right_port = port_pair()
     left_remote_port = left_proxy_port or right_port
@@ -801,16 +895,17 @@ def main() -> int:
             lmk=right_lmk,
         ),
     )
-    if replay_proxy:
-        replay_proxy.start()
+    test_proxy = replay_proxy or reorder_proxy
+    if test_proxy:
+        test_proxy.start()
     try:
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [executor.submit(run_one, **job) for job in jobs]
             results = [future.result() for future in futures]
     finally:
-        if replay_proxy:
-            replay_proxy.close()
-    proxy_stats = replay_proxy.summary() if replay_proxy else None
+        if test_proxy:
+            test_proxy.close()
+    proxy_stats = test_proxy.summary() if test_proxy else None
 
     delivery_results = [
         row
@@ -909,6 +1004,19 @@ def main() -> int:
             )
         )
     )
+    reorder_ok = (
+        args.scenario != "reorder"
+        or (
+            proxy_stats is not None
+            and proxy_stats["reordered"] is True
+            and proxy_stats["held_frame_released"] is True
+            and not proxy_stats["errors"]
+            and all(
+                result["trace"]["replay_drops"] == 0
+                for result in results
+            )
+        )
+    )
     status_ok = (
         len(registration_results) == 2
         and all(row.get("status") == "PASS" for row in registration_results)
@@ -935,6 +1043,7 @@ def main() -> int:
         and cleanup_ok
         and bridge_traffic_ok
         and replay_ok
+        and reorder_ok
     )
     summary = {
         "schema_version": 1,
@@ -947,12 +1056,26 @@ def main() -> int:
             "transport": (
                 "IPv4 loopback UDP replay proxy"
                 if args.scenario == "replay"
-                else "IPv4 loopback UDP action-frame bridge"
+                else (
+                    "IPv4 loopback UDP reorder proxy"
+                    if args.scenario == "reorder"
+                    else "IPv4 loopback UDP action-frame bridge"
+                )
             ),
             "left_local_port": left_port,
             "right_local_port": right_port,
             "bridge_traffic_ok": bridge_traffic_ok,
-            **({"replay_proxy": proxy_stats} if proxy_stats else {}),
+            **(
+                {
+                    (
+                        "replay_proxy"
+                        if args.scenario == "replay"
+                        else "reorder_proxy"
+                    ): proxy_stats
+                }
+                if proxy_stats
+                else {}
+            ),
         },
         "results": results,
     }

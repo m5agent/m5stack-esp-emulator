@@ -519,6 +519,13 @@ counter. Session realize/cleanup resets the receiver PN state with the wrapped
 key state. This is not a multi-peer replay window, key-rotation lifecycle,
 loss/retry model or physical-controller validation.
 
+`0079-esp32-espnow-external-ccmp-window.patch` replaces that strict monotonic
+guard with a 64-frame authenticated replay window. Newer PNs shift a bitmap;
+older unseen PNs inside the window are accepted once; duplicates and packets
+older than the window are dropped after MIC validation. This supports bounded
+single-peer reordering but remains separate from multi-peer replay windows,
+PN wrap, key rotation, loss/retry, RF and physical-controller validation.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

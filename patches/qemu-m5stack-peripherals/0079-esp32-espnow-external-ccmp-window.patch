@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: add external ESP-NOW CCMP replay window
+
+Replace the strict monotonic external ESP-NOW PN check with a 64-frame
+authenticated replay window. Newer PNs shift a bitmap; older unseen PNs
+inside the window are accepted once; duplicates and packets older than
+the window are dropped. MIC validation still precedes all replay state.
+
+The window is scoped to the current single external peer. Multi-peer
+replay windows remain separate.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ 2 files changed, 34 insertions(+), 4 deletions(-)
+
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -45,6 +45,7 @@
+     uint64_t espnow_peer_tx_pn;
+     bool espnow_peer_rx_pn_valid;
+     uint64_t espnow_peer_last_rx_pn;
++    uint64_t espnow_peer_rx_pn_bitmap;
+     uint32_t ap_state;
+     int inject_queue_size;
+     struct mac80211_frame *inject_queue;
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -159,6 +159,36 @@
+     return true;
+ }
+ 
++static bool espnow_peer_accept_rx_pn(Esp32WifiState *s, uint64_t pn)
++{
++    uint64_t bit;
++    uint64_t delta;
++
++    if (!s->espnow_peer_rx_pn_valid) {
++        s->espnow_peer_rx_pn_valid = true;
++        s->espnow_peer_last_rx_pn = pn;
++        s->espnow_peer_rx_pn_bitmap = 1;
++        return true;
++    }
++    if (pn > s->espnow_peer_last_rx_pn) {
++        delta = pn - s->espnow_peer_last_rx_pn;
++        s->espnow_peer_rx_pn_bitmap =
++            delta >= 64 ? 0 : s->espnow_peer_rx_pn_bitmap << delta;
++        s->espnow_peer_rx_pn_bitmap |= 1;
++        s->espnow_peer_last_rx_pn = pn;
++        return true;
++    }
++    if (s->espnow_peer_last_rx_pn - pn >= 64) {
++        return false;
++    }
++    bit = 1ULL << (s->espnow_peer_last_rx_pn - pn);
++    if (s->espnow_peer_rx_pn_bitmap & bit) {
++        return false;
++    }
++    s->espnow_peer_rx_pn_bitmap |= bit;
++    return true;
++}
++
+ static bool espnow_peer_wrap_rx_envelope(struct mac80211_frame *frame,
+                                          uint64_t pn)
+ {
+@@ -275,16 +305,13 @@
+                 continue;
+             }
+             memset(key, 0, sizeof(key));
+-            if (s->espnow_peer_rx_pn_valid &&
+-                pn <= s->espnow_peer_last_rx_pn) {
++            if (!espnow_peer_accept_rx_pn(s, pn)) {
+                 if (s->espnow_peer_trace) {
+                     fprintf(stderr,
+                             "[espnow-peer] RX drop: CCMP PN replay\n");
+                 }
+                 continue;
+             }
+-            s->espnow_peer_rx_pn_valid = true;
+-            s->espnow_peer_last_rx_pn = pn;
+             if (!espnow_peer_wrap_rx_envelope(&frame, pn)) {
+                 if (s->espnow_peer_trace) {
+                     fprintf(stderr,
+@@ -344,6 +371,7 @@
+     s->espnow_peer_tx_pn = 0;
+     s->espnow_peer_rx_pn_valid = false;
+     s->espnow_peer_last_rx_pn = 0;
++    s->espnow_peer_rx_pn_bitmap = 0;
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
+@@ -444,6 +472,7 @@
+     s->espnow_peer_tx_pn = 0;
+     s->espnow_peer_rx_pn_valid = false;
+     s->espnow_peer_last_rx_pn = 0;
++    s->espnow_peer_rx_pn_bitmap = 0;
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));

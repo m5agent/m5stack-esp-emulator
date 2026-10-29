@@ -1266,3 +1266,26 @@ key rotation、多 peer/乱序 replay window、loss/retry、channel/rate、
 bit-exact controller、RF/antenna、电气时序和真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-m5espnow-lifecycle/summary.json)。
+
+## 2026-10-29：ESP-NOW external CCMP 64-frame replay window
+
+新增 `0079-esp32-espnow-external-ccmp-window.patch`，SHA256
+`c4f40a614412db0b0c642f448820bb1acb8cf9bbe980df4e20e15d5c74556e0c`。
+该 patch 将单 peer 严格 monotonic PN 检查升级为 64-frame authenticated
+bitmap：新 PN 向前移位窗口，window 内未见 PN 接受一次，duplicate 和窗口外
+PN 在 MIC 成功后丢弃；MIC 失败不推进 state。最终 QEMU SHA256 为
+`ef88746915960fe26a275cccfefcbb506cbc0f7d322747faad81a4a0916661cd`。
+
+`ReorderProxy` 在两个方向均已通信后暂存一帧 left→right datagram，收到下一
+帧后先发第二帧再发 held first frame。双向各转发 `58` 帧、`reordered=true`、
+held frame released、proxy error 0；receiver `replay_drops=0`，StopWatch/
+StickS3 peer payload 为 `57/58`。duplicate replay 负控仍令 StickS3 RX `59`
+且记录一次 replay drop；Core2↔StopWatch encrypted 回归收到 `14/44`。
+
+六个 session 均 `purge=0` 停止、runtime PID 消失并保留 history。该结果
+关闭单 peer bounded reordering，`RUNTIME-06` 仍为 `PARTIAL`：multi-peer
+replay window、PN wrap/key rotation、guest key-state 写入 bridge、
+loss/retry、channel/rate、bit-exact controller、RF/antenna、电气时序和
+真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-external-ccmp-window/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-external-ccmp-window/summary.json)。
