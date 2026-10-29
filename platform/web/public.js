@@ -3,8 +3,10 @@ import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES} f
 import {sha256Blob} from './sha256.js';
 import {PublicDeviceService} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
-import {PublicQemuRuntime, QEMU_BROWSER_PROFILE, browserQemuHistory} from './public-qemu-runtime.js';
-import {composeDemoFirmware} from './public-demo-firmware.js';
+import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
+import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
+import {loadQemuBrowserProfiles,getQemuBrowserProfile} from './public-qemu-profiles.js';
+import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
 import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
@@ -57,13 +59,18 @@ function error(error) {
 }
 function browserProfile(id) {
   if (state.browserUnavailable) return null;
-  if (state.config.browser_runtime_engine === 'qemu-wasm') return id === 'cores3' ? QEMU_BROWSER_PROFILE : null;
+  if (state.config.browser_runtime_engine === 'qemu-wasm') return state.qemuProfiles ? getQemuBrowserProfile(id,state.qemuProfiles,{allowCandidateProfiles:state.config.publication_eligible===false}) : null;
   return getBrowserProfile(id);
 }
 function reference(device = state.selected) {
-  if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm')
-    return {name:'CoreS3 LVGL + PIR 示例',composed:true,
-      sha256:'78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f'};
+  const profile=browserProfile(device?.id);
+  if (profile?.fixture?.id==='xtensa-board-display-v1') return {name:`${device.name} 屏幕与输入示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
+  if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
+    if (state.config.browser_wallclock_example && $('referenceExample').value !== 'stock-div8')
+      return {name:'CoreS3 LVGL + PIR（正常速度，候选修复）',composed:true,wallclockCandidate:true,
+        sha256:WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256};
+    return {name:'CoreS3 LVGL + PIR（原始基线，1/8 速度）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
+  }
   return (
     device?.browser?.reference ||
     (device?.uiflow2?.firmware?.download_url
@@ -119,8 +126,8 @@ function status(status, detail) {
     !state.run || state.run.kind !== 'browser' || state.run.controller instanceof PublicQemuRuntime || !['running', 'paused'].includes(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
-  $('nativeScreenBtn').hidden = !(state.run?.kind === 'browser' && state.selected?.id === 'cores3');
-  $('browserPirPanel').hidden = !(state.run?.kind === 'browser' && state.selected?.id === 'cores3');
+  $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime);
+  $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
   $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
   $('stopBtn').hidden = !state.run;
@@ -148,8 +155,11 @@ function updateCapability() {
         : selectedLane === 'model'
           ? '可旋转、缩放并探索模型；本模式不执行固件。'
           : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
-  if (selectedLane === 'browser' && device?.id === 'cores3')
-    $('capabilityText').textContent = 'C/QEMU 在浏览器执行 CoreS3。已验证离线 LVGL、触摸和 Port A PIR；虚拟时间为墙钟的 1/8，看门狗也慢放。刷新不保存 Flash。';
+  if (selectedLane === 'browser' && state.config.browser_runtime_engine==='qemu-wasm') {
+    const p=browserProfile(device?.id);
+    const wallclock=source()==='reference'&&reference()?.wallclockCandidate;
+    $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor===8?'虚拟时间与看门狗按 1/8 慢放。':'采用正常虚拟时钟。'}刷新不保存 Flash。`;
+  }
   if ($('runtimeMode').value === 'browser' && selectedAttachments().length) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
@@ -204,8 +214,11 @@ function renderDetails() {
   for (const text of [...(device.browser?.limitations || []), ...(device.runtime?.blockers || [])])
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
+  $('referenceExampleFields').hidden = !(device?.id==='cores3' && state.config.browser_runtime_engine==='qemu-wasm' && state.config.browser_wallclock_example);
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref
+  $('referenceDescription').textContent = ref?.wallclockCandidate
+    ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
+    : ref
     ? '已为当前设备选择对应固件。也可以使用自己的链接或本地文件。'
     : '请选择固件链接或本地 .bin 文件。';
 }
@@ -321,6 +334,7 @@ async function deliverInput(command, original = {}) {
   if (!active(run) || state.busy) return;
   try {
     if (run.kind === 'browser') {
+      if (command.type==='touch' && run.controller instanceof PublicQemuRuntime && !run.controller.profile?.inputs.touch) return;
       if (command.type === 'button') {
         if (command.down) state.holds.set(command.id, command);
         else state.holds.delete(command.id);
@@ -386,9 +400,15 @@ async function firmware(signal, runGeneration) {
     expected = normalizeFirmwareSha256(
       $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
     );
+  if (selectedSource === 'reference' && ref?.composedProbe) {
+    const result=await composeQemuProbeFirmware({profile:browserProfile(state.selected.id),root,signal,onProgress:()=>message('runProgress','正在本地组合设备示例')});
+    if(expected&&expected!==result.sha256)throw new Error('设备示例 SHA-256 与预期不一致。');
+    return {...result,name:result.fileName||`${state.selected.id}-probe.bin`,size:result.bytes.byteLength};
+  }
   if (selectedSource === 'reference' && ref?.composed) {
     const phases = {'load-composer':'加载本地固件组合器','download-base':'下载官方固件基底','verify-base':'校验官方固件','compose':'写入示例源码','verify-result':'校验最终 Flash'};
-    const result = await composeDemoFirmware({signal,onProgress:(p)=>message('runProgress',phases[p.phase]||'正在准备浏览器示例')});
+    const compose=ref.wallclockCandidate?composeWallclockDemoFirmware:composeDemoFirmware;
+    const result = await compose({signal,onProgress:(p)=>message('runProgress',phases[p.phase]||'正在准备浏览器示例')});
     if (expected && expected !== result.sha256) throw new Error('示例 SHA-256 与预期不一致。');
     return {...result,name:result.fileName||'cores3-lvgl-pir.bin',size:result.bytes.byteLength};
   }
@@ -416,7 +436,7 @@ async function firmware(signal, runGeneration) {
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
-  if (state.selected.id === 'cores3' || state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
+  if (state.config.browser_runtime_engine==='qemu-wasm' || state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
     const canvas = $('rawFrameCanvas');
     canvas.width = frame.width;
     canvas.height = frame.height;
@@ -430,7 +450,8 @@ function applyBrowserFrame(frame, run) {
       image.data[p + 3] = 255;
     }
     context.putImageData(image, 0, 0);
-    $('rawFrameDescription').textContent = `完整 ${frame.width} × ${frame.height} 固件帧 · 支持触摸`;
+    const touch=!(run.controller instanceof PublicQemuRuntime)||run.controller.profile?.inputs.touch;
+    $('rawFrameDescription').textContent = `完整 ${frame.width} × ${frame.height} 固件帧 · ${touch?'支持触摸':'请使用设备按键'}`;
     if (state.selected.id === 'stopwatch') {
       const first = $('rawFramePanel').hidden;
       $('rawFramePanel').hidden = false;
@@ -506,16 +527,16 @@ async function startRun() {
       },
     };
     if (kind === 'browser') {
-      const BrowserRuntime = state.selected.id === 'cores3' ? PublicQemuRuntime : PublicBrowserRuntime;
+      const BrowserRuntime = state.config.browser_runtime_engine==='qemu-wasm' ? PublicQemuRuntime : PublicBrowserRuntime;
       run.controller = new BrowserRuntime({
         ...callbacks,
-        root,
+        root,profiles:state.qemuProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onState: (value) => {
           if (active(run)) status(value.status);
         },
       });
-      if (state.selected.id === 'cores3') {
+      if (run.controller instanceof PublicQemuRuntime) {
         state.lastBrowserController = run.controller;
         $('browserPir').checked = false;
         $('browserPirState').textContent = 'QOM: CLEAR';
@@ -781,6 +802,7 @@ async function init() {
   state.config = config;
   if (config.browser_runtime_engine === 'qemu-wasm') {
     try {
+      state.qemuProfiles=await loadQemuBrowserProfiles({root});
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
@@ -818,6 +840,8 @@ async function init() {
     launch = {device: null, warnings: [], mode: 'auto', serviceUrl: '', firmware: null};
   }
   $('runtimeMode').value = launch.mode;
+  if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
+  else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
   $('serviceUrl').value = launch.serviceUrl || config.service_url || '';
   if (launch.firmware) {
     $('firmwareUrl').value = launch.firmware;
@@ -834,7 +858,7 @@ async function init() {
   }
   if ($('serviceUrl').value && launch.device && (launch.mode === 'service' || !browserProfile(launch.device.id)))
     await connectService();
-  const sharedReference = launch.device?.id === 'cores3' && reference()?.composed && launch.sha256 === reference().sha256;
+  const sharedReference = (reference()?.composed || reference()?.composedProbe) && launch.sha256 === reference().sha256;
   if ((launch.firmware || sharedReference) && launch.autostart && launch.device) {
     if (lane()) await startRun();
     else message('launchNotice', '已读取链接中的设备与固件。此设备需要仿真服务，连接后点击开始运行。');
@@ -843,7 +867,7 @@ async function init() {
 function renderBrowserHistory() {
   const rows = browserQemuHistory();
   $('browserHistory').hidden = rows.length === 0;
-  $('browserHistoryText').textContent = rows.map(row=>`${row.stopped_at} · CoreS3 · ${row.receipt.firmwareSha256.slice(0,12)} · ${row.cleanup.gracefulExit ? '正常退出' : '已释放浏览器容器'}`).join('\n');
+  $('browserHistoryText').textContent = rows.map(row=>`${row.stopped_at} · ${row.receipt.deviceId||'cores3'} · ${row.receipt.firmwareSha256.slice(0,12)} · ${row.cleanup.gracefulExit ? '正常退出' : '已释放浏览器容器'}`).join('\n');
 }
 $('search').addEventListener('input', renderDevices);
 $('unitSearch').addEventListener('input', renderUnits);
@@ -863,6 +887,11 @@ for (const button of document.querySelectorAll('[data-unit-filter]'))
   });
 for (const input of document.querySelectorAll('[name="firmwareSource"]'))
   input.addEventListener('change', sourceChanged);
+$('referenceExample').addEventListener('change', () => {
+  $('firmwareSha').value='';
+  $('shareStatus').textContent='';
+  renderDetails();updateCapability();
+});
 for (const button of document.querySelectorAll('[data-view]'))
   button.addEventListener('click', () => view(button.dataset.view));
 $('resetViewBtn').addEventListener('click', () => {
@@ -920,7 +949,7 @@ $('serialForm').addEventListener('submit', async (event) => {
 });
 $('browserPir').addEventListener('change', async (event) => {
   const run = state.run;
-  if (!active(run) || state.selected.id !== 'cores3') return;
+  if (!active(run) || !run.controller.profile?.inputs.pir) return;
   try { const receipt = await run.controller.input({type:'pir',motion:event.target.checked});
     $('browserPirState').textContent = receipt.result.motion ? 'QOM: MOTION' : 'QOM: CLEAR';
   } catch (cause) { error(cause); }
@@ -933,7 +962,7 @@ $('browserEvidenceBtn').addEventListener('click', () => {
   const controller = state.lastBrowserController;
   if (!controller?.receipt) return;
   const url = URL.createObjectURL(new Blob([JSON.stringify(controller.evidence(),null,2)],{type:'application/json'}));
-  const link = document.createElement('a');link.href=url;link.download=`cores3-${controller.sessionId}.json`;link.click();
+  const link = document.createElement('a');link.href=url;link.download=`${controller.receipt.deviceId||'cores3'}-${controller.sessionId}.json`;link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 $('unitExplorer').addEventListener('toggle', () => {

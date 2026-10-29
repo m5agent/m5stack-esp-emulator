@@ -177,6 +177,18 @@
     {
       "path": "patches/qemu-wasm-probe/0012-wasm-stdio-qmp-main-loop.patch",
       "sha256": "a1947cb20f7475d3b7154119dac79514899b5aca12729f76d1f371f7aece982f"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0013-wasm-main076-functional-context.patch",
+      "sha256": "386a9429c9834a197ff3a6d1ee87d56ff748e98d3ac7a26aa0737812cdf846f2"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0014-wasm-shared-display-snapshot.patch",
+      "sha256": "a75b8065cb46228d7cdb3f1de118adf8e7b7be6e93b32b0dbf63c19bcb97b276"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0015-wasm-poll-host-wait.patch",
+      "sha256": "71bdbe8f22857fcc09cedc941b06ac2d9dfe3bb5eb39acab8077705495252287"
     }
   ],
   "patched_files": {
@@ -228,7 +240,7 @@
     "hw/m5stopwatch/m5_unit_runtime.h": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
     "hw/m5stopwatch/m5cardputeradv.c": "5b77c693588433f5223810c44bde987d4de70fe96b0c673f5e403e28ee000792",
-    "hw/m5stopwatch/m5core2.c": "c06768d0aededd6c4a836297b3761ef9af49d02ab9a42efd734ff78cbecb3353",
+    "hw/m5stopwatch/m5core2.c": "9174f969f2940a02038765ddcd7f12b9bcfa8c02f5c72717710a4da4f15ee06d",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
     "hw/m5stopwatch/m5papermono.c": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
@@ -260,7 +272,7 @@
     "hw/ssi/bcm2835_spi.c": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
     "hw/ssi/esp32_spi.c": "2008366ba5d0919fd018ed8e493a7956237e92b855ffa3143aa38af987461e22",
     "hw/ssi/esp32s3_spi.c": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
-    "hw/timer/esp32_timg.c": "7fd28a5224f926b6884d61744d95891e897f296d76213592165fe112eba4eaec",
+    "hw/timer/esp32_timg.c": "4dd7194130b905fcc189747a05c33fb9d7c9759553dec1622402a2ab61d2b97f",
     "hw/timer/esp32s3_timg.c": "33c44e520a6b407716b1d95271d3ee88b3332ada37b7d7bde8b950d283e67007",
     "hw/timer/esp_timg.c": "2bea866b4d46e5074ae7b43423d7731161471f788008ffb284798cc9ed9eff4e",
     "hw/xtensa/esp32.c": "2cdba42a47c09c105902c4a3f366560e0259e69e28f9d86d58c5557baeca3a14",
@@ -323,7 +335,9 @@
     "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
     "util/coroutine-wasm.c": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
     "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
-    "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da"
+    "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
+    "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
+    "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0"
   },
   "subprojects": [
     {
@@ -452,5 +466,39 @@
     "distribution": "user-supplied-or-upstream-fetch",
     "license_status": "not-confirmed",
     "bundled": false
+  },
+  "compiled_profiles": [
+    "stopwatch",
+    "sticks3",
+    "atoms3r",
+    "cores3",
+    "cardputer-adv",
+    "stamplc",
+    "stackchan",
+    "papercolor",
+    "papermono",
+    "core2"
+  ],
+  "frame_transport": {
+    "kind": "shared-rgb565-v1",
+    "abi": 1,
+    "maxWidth": 1024,
+    "maxHeight": 1024
+  },
+  "native_context": {
+    "commit": "0769ae7c",
+    "ported_functional_patches": [
+      "0068",
+      "0069"
+    ],
+    "not_inherited": [
+      "0070",
+      "0071",
+      "0072",
+      "0073",
+      "0074",
+      "0075"
+    ],
+    "note": "Core2 SPI implementation differs; no inherited native device PASS"
   }
 }

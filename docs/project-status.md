@@ -2,8 +2,7 @@
 
 日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
-本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
-[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
+本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
@@ -362,7 +361,9 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 能力 | 当前状态 | 主要边界 |
 | --- | --- | --- |
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
-| 公众 C/QEMU / CoreS3 | 本地、Linux Actions 与正式 GitHub Pages 限定通过 | 浏览器本地组合固定示例、LCD/触摸/PIR/暂停/分享重开；正式 HTTPS 地址独立 21 项验收通过。虚拟时间和 WDT 为墙钟 1/8，UART 只输出，无 Flash 持久化；其它设备/固件/Unit 不继承。[正式部署证据](evidence/2026-10-29-github-pages-production/README.md) / [部署](pages-deployment.md) |
+| 线上公众 C/QEMU / CoreS3 | 正式 GitHub Pages 仍为既有版本 | 固定示例的 LCD/触摸/PIR/暂停/分享重开和正式 HTTPS 独立 21 项验收保留。该线上版本的虚拟时间和 WDT 为墙钟 1/8；本轮性能、多板型和正常时钟候选尚未部署。UART 只输出，无 Flash 持久化。[既有部署证据](evidence/2026-10-29-github-pages-production/README.md) / [部署](pages-deployment.md) |
+| 本地 C/QEMU 性能 / CoreS3 正常时钟候选 | 限定 browser virtual-device validation 通过 | WASM `9c94a940…cba1` 的共享帧/host poll 修复在同一旧 stock/div8 fixture `78961297…bd3f` 上将 CPU `132.05%→49.95%`、暂停 `105.60%→4.78%`（100% 为一核），触摸到计数像素中位数仍 `966.82 ms`。独立 Flash `e9500994…9554` 才选择 div1 与显式 SDK Python 候选，实际 LVGL 动画/触摸/PIR/帧及清理通过；持续动画实际像素变化约 `8.90/s`，时间接近墙钟，但 CPU `161.97%`、触摸约 `1247 ms`。这是不同负载，不构成同固件提速比较；C Timer 第一层 coalescing、延迟/开销、长期稳定性和 stock frozen SDK 调度仍开放。旧示例/分享保持 div8，不授予任意固件/Unit或硬件 PASS。[性能与板型](evidence/2026-10-29-wasm-performance-devices/README.md) / [LVGL 候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) |
+| 本地 C/QEMU / AtomS3R、StickS3、Core2 | 固定 probe 的公开 UI 准入通过 | 三板分别在 div1 下完成真实网页选择、本地组合、物理尺寸 framebuffer、板级按键或触摸 press/release 与停止清理；Core2 promotion 后另跑 public-v5 单例。与 CoreS3 两例共同构成四板五个固定 fixture 的证据，精确分批身份见[逐板准入摘要](evidence/2026-10-29-wasm-performance-devices/board-admission-summary.json)。stock 菜单、其它应用/外设及正式 Pages 部署不继承；其余六个已编译 Xtensa profile 仍为 candidate |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 已限定通过。`m5ble.Server.get_client` 的 stock `set` indexing 错误已有 hash-pinned 候选修复并通过两个独立 session；原厂冻结固件失败继续保留，新固件需重新校验 |
 | Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；WDT-off Serial 到达 `APIKEY`，normal-WDT 在 BOARD/APIKEY 前 reset。`0075` 已排除 Flash WIP 和 `s32c1i` old-value 错误，并定位到 scheduler/list 锁竞争，但 pre-boot work/WDT deadline、display completion、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
@@ -393,8 +394,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
-设备、后端、外设和 profile 的动态计数见
-[自动项目快照](project-snapshot.md)。
+以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。
 
 ## 当前风险
 

@@ -199,3 +199,33 @@ branch logs `M5_WASM_QMP_CONTEXT stdio=1 context=main-loop use_io_thread=0
 oob_offered=0` once after installing handlers. Runtime acceptance requires
 fresh guest interactions, evidence, stop/reopen and separate idle/reconnect
 controls; patch application alone is not PASS.
+
+## Host display and wait path (2026-10-29)
+
+`0013` is a context port of native `0068`/`0069` from `0769ae7c`: attach
+Core2's panel to both SPI2/SPI3 and allow the ESP-IDF WDT feed write while
+WDTPROTECT remains locked. The frozen classic SPI path already defers panel
+DMA until its transaction and consumes it once; native `0074` has a different
+preimage and is not applied or claimed. Diagnostic native `0070`–`0073`/`0075`
+are not inherited. Subsequent main `32213028` changes only documentation.
+
+`0014` adds an opt-in `M5_WASM_FRAMEBUFFER=1` display listener and the
+`shared-rgb565-v1` transport. It snapshots the real QEMU console surface after
+its existing controller refresh, with a bounded static buffer, dimensions,
+stride and odd/even sequence. Readers copy into private memory and check the
+sequence before validating metadata and after the copy. Dirty surface updates
+are distinct from repeated browser requests; a static scene must not acquire
+an invented animation FPS. QMP screendump remains an explicitly requested
+same-guest diagnostic control and the legacy transport, never an automatic
+fallback hiding a bad shared snapshot. Native and opt-out paths are unchanged.
+
+`0015` addresses the pinned SDK 3.1.50 `__syscall_poll`, which ignores its
+`timeout`. QEMU's proxied host pthread checks readiness immediately and sleeps
+in at most five-millisecond host slices only when there is no event. This
+preserves zero-timeout, ready-fd and error results, uses host monotonic time,
+and does not scale guest clocks, throttle vCPUs or change WDT semantics. The
+main-loop call releases BQL/replay locks before waiting. Native poll/ppoll
+branches remain unchanged. Deterministic C controls and the real SDK
+poll/pipe/pthread experiment are in
+[`poll_wait`](../../tests/browser-qemu/poll_wait/README.md); actual browser CPU,
+input and exit results still require their own runtime-bound evidence.

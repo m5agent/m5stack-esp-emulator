@@ -139,6 +139,13 @@
             ><label><input type="radio" name="firmwareSource" value="local" /><span>本地文件</span></label>
           </fieldset>
           <div id="referenceFields" class="firmware-source-fields">
+            <div id="referenceExampleFields" hidden>
+              <label class="public-label" for="referenceExample">交互示例</label>
+              <select class="public-field" id="referenceExample">
+                <option value="wallclock-candidate">正常速度（LVGL 调度候选修复）</option>
+                <option value="stock-div8">原始基线（1/8 速度）</option>
+              </select>
+            </div>
             <div class="reference-firmware">
               <strong id="referenceTitle">正在读取…</strong><span id="referenceDescription"></span>
             </div>

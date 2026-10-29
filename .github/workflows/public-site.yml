@@ -59,18 +59,18 @@ jobs:
           node-version: "22"
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
-      - name: Run actual CoreS3 guest in the exported static site
+      - name: Run every admitted board and CoreS3 example in the exported static site
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
           M5_PUBLIC_BASE_PATH: ${{ inputs.base_path }}
-        run: node platform/tests/test_public_qemu_guest.mjs
+        run: node platform/tests/test_public_qemu_admitted_boards.mjs
       - name: Retain browser acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-qemu-acceptance
-          path: .work/public-qemu-guest
+          path: .work/public-qemu-admitted
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

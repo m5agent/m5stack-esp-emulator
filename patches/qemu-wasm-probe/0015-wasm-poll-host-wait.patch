@@ -1,0 +1,54 @@
+Subject: [WASM] honor QEMU poll deadlines without busy-waiting
+
+Emscripten 3.1.50 __syscall_poll ignores timeout. Keep nonblocking ready,
+zero-timeout and error semantics, and wait in bounded host pthread slices
+when no fd is ready. Recheck JS-backed descriptors within each 5 ms slice.
+No guest time scaling, vCPU throttling or native branch changes.
+
+--- a/util/qemu-timer.c
++++ b/util/qemu-timer.c
+@@ -30,6 +30,11 @@
+ #include "sysemu/replay.h"
+ #include "sysemu/cpus.h"
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten/emscripten.h>
++#include <emscripten/threading.h>
++#endif
++
+ #ifdef CONFIG_POSIX
+ #include <pthread.h>
+ #endif
+@@ -324,7 +329,31 @@
+  */
+ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
+ {
+-#ifdef CONFIG_PPOLL
++#ifdef __EMSCRIPTEN__
++    /* SDK 3.1.50 poll() ignores its timeout. QEMU runs on a proxied pthread:
++     * wait on that host worker, outside the BQL, instead of spinning the
++     * main loop. Poll again at most 5 ms later so JS-backed fd readiness
++     * (which has no native wakeup fd) is still observed. Host time only;
++     * guest clocks, vCPU scheduling and controller semantics are unchanged.
++     */
++    const double deadline = emscripten_get_now() +
++                            (timeout > 0 ? timeout / 1000000.0 : 0);
++
++    for (;;) {
++        int result = g_poll(fds, nfds, 0);
++        double wait_ms;
++
++        if (result != 0 || timeout == 0) {
++            return result;
++        }
++        wait_ms = timeout < 0 ? 5.0 :
++                  MIN(5.0, deadline - emscripten_get_now());
++        if (wait_ms <= 0) {
++            return 0;
++        }
++        emscripten_thread_sleep(wait_ms);
++    }
++#elif defined(CONFIG_PPOLL)
+     if (timeout < 0) {
+         return ppoll((struct pollfd *)fds, nfds, NULL, NULL);
+     } else {

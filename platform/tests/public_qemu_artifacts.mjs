@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {isDeepStrictEqual} from 'node:util';
 
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
@@ -14,6 +15,8 @@ export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
   'platform/web/vendor/coi-serviceworker/coi-serviceworker.js',
   'platform/web/public-qemu-runtime.js','platform/web/public-qemu-instance.js',
   'platform/web/public-qemu-instance.html',
+  'platform/web/public-qemu-profiles.js','platform/web/qemu-browser-profiles.json',
+  'platform/web/public-qemu-frame.js','platform/web/public-qemu-probe-firmware.js',
 ]);
 
 function safePath(path){
@@ -44,18 +47,36 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
     assert.equal(sha256(bytes),row.sha256,`site manifest SHA mismatch: ${path}`);
     return bytes;
   }
+  const runtimeBytes=await verified('platform/runtime/qemu/runtime.json'),runtime=JSON.parse(runtimeBytes);
+  assert.equal(runtime.engine,'qemu-wasm');assert.equal(runtime.schema_version,1);
   const web={};
   for(const path of webPaths){
     const source=await readFile(resolve(repo,safePath(path))),exported=await verified(path);
-    const rewritten=Buffer.from(source.toString('utf8').replace(/(?<=["'`(])\/(platform|devices|data)\//g,(_,group)=>manifest.base_path+group+'/'));
-    assert.deepEqual(exported,rewritten,`export does not match current source: ${path}`);
-    web[path]={source_sha256:sha256(source),exported_sha256:sha256(exported)};
+    const row={source_sha256:sha256(source),exported_sha256:sha256(exported)};
+    if(path==='platform/web/qemu-browser-profiles.json'){
+      const canonical=JSON.parse(source),actual=JSON.parse(exported),candidates=manifest.candidate_profiles??[];
+      assert.equal(canonical.schema_version,1);assert.equal(canonical.engine,'qemu-wasm');assert.equal(canonical.target,'xtensa-softmmu');assert.equal(canonical.source?.commit,runtime.source?.commit);
+      assert.ok(Array.isArray(canonical.profiles)&&Array.isArray(candidates)&&Array.isArray(runtime.profiles),'invalid registry transform inputs');
+      const available=runtime.compiled_profiles??runtime.profiles;assert.ok(Array.isArray(available),'invalid compiled profile list');
+      const byId=new Map(canonical.profiles.map(profile=>[profile.deviceId,profile]));
+      assert.equal(byId.size,canonical.profiles.length,'duplicate canonical profile');assert.equal(new Set(candidates).size,candidates.length,'duplicate preview candidate');
+      assert.equal(manifest.publication_eligible,candidates.length===0,'preview candidates cannot be publication eligible');
+      for(const id of candidates){assert.equal(byId.get(id)?.admission,'candidate','preview must select a canonical candidate');assert.ok(available.includes(id),'preview candidate is not compiled');}
+      const publicProfiles=canonical.profiles.filter(profile=>profile.admission==='public'&&available.includes(profile.deviceId)).map(profile=>profile.deviceId);
+      const selected=canonical.profiles.filter(profile=>publicProfiles.includes(profile.deviceId)||candidates.includes(profile.deviceId));
+      assert.ok(isDeepStrictEqual(actual,{...canonical,profiles:selected}),`registry export does not match canonical deterministic selection: ${path}`);
+      const builder=await readFile(resolve(repo,'platform/tools/build_public_site.py'));
+      row.transform={identity:'build_public_site.qemu_site_profiles-v1',builder_path:'platform/tools/build_public_site.py',builder_sha256:sha256(builder),
+        public_profiles:publicProfiles,explicit_candidates:candidates,selected_profiles:selected.map(profile=>profile.deviceId)};
+    }else{
+      const rewritten=Buffer.from(source.toString('utf8').replace(/(?<=["'`(])\/(platform|devices|data)\//g,(_,group)=>manifest.base_path+group+'/'));
+      assert.equal(sha256(exported),sha256(rewritten),`export does not match current source: ${path}`);
+    }
+    web[path]=row;
   }
   // The root copies have a different pathname but must be the same execution.
   assert.deepEqual(await verified('index.html'),await verified('platform/web/index.html'),'root entry differs from public web entry');
   assert.deepEqual(await verified('coi-serviceworker.js'),await verified('platform/web/public-coi-serviceworker.js'),'project-root isolation wrapper differs');
-  const runtimeBytes=await verified('platform/runtime/qemu/runtime.json'),runtime=JSON.parse(runtimeBytes);
-  assert.equal(runtime.engine,'qemu-wasm');assert.equal(runtime.schema_version,1);
   const runtimeAssets={};
   for(const row of Object.values(runtime.assets)){
     const path='platform/runtime/qemu/'+safePath(row.path),bytes=await verified(path);

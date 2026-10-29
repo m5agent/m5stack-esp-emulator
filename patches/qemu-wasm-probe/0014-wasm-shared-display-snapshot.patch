@@ -1,0 +1,135 @@
+Subject: [WASM] publish bounded sequence-checked display snapshots
+
+Opt-in shared RGB565 snapshots of the real QEMU console surface. The BQL
+serializes producers; JS must copy and verify the sequence before use. No
+QMP coroutine, PPM file, generated guest values or emulated timing changes.
+Native builds and non-opt-in CLI/control runs retain existing behavior.
+
+--- a/ui/console.c
++++ b/ui/console.c
+@@ -1567,8 +1567,125 @@
+     }
+ }
+ 
++
++#ifdef __EMSCRIPTEN__
++#include <emscripten/emscripten.h>
++
++/*
++ * Browser transport for the real emulated display surface. All writers run
++ * under the BQL. A bounded seqlock snapshot lets JS copy shared bytes without
++ * blocking the browser thread, racing realloc/free, or entering QMP. Odd
++ * sequence values and changed sequences must be dropped by the consumer.
++ * This does not generate guest pixels or advance guest time.
++ */
++#define M5_WASM_FRAME_SIDE 1024
++#define M5_WASM_FRAME_BYTES (M5_WASM_FRAME_SIDE * M5_WASM_FRAME_SIDE * 2)
++static uint32_t m5_wasm_pixels[M5_WASM_FRAME_BYTES / 4];
++static struct {
++    uint32_t magic;
++    uint32_t sequence;
++    uint32_t width;
++    uint32_t height;
++    uint32_t stride;
++    uint32_t pixels;
++    uint32_t updates;
++    uint32_t rejected;
++} m5_wasm_frame;
++static pixman_image_t *m5_wasm_target;
++static DisplayChangeListener m5_wasm_dcl;
++
++EMSCRIPTEN_KEEPALIVE uintptr_t m5_wasm_frame_state(void)
++{
++    return (uintptr_t)&m5_wasm_frame;
++}
++
++static void m5_wasm_publish(DisplayChangeListener *dcl)
++{
++    DisplaySurface *surface = qemu_console_surface(dcl->con);
++    int width, height, stride;
++
++    if (!surface || !surface->image) {
++        return;
++    }
++    width = surface_width(surface);
++    height = surface_height(surface);
++    if (width <= 0 || height <= 0 || width > M5_WASM_FRAME_SIDE ||
++        height > M5_WASM_FRAME_SIDE) {
++        __atomic_add_fetch(&m5_wasm_frame.rejected, 1, __ATOMIC_RELAXED);
++        return;
++    }
++    stride = (width * 2 + 3) & ~3;
++    if (!m5_wasm_target || pixman_image_get_width(m5_wasm_target) != width ||
++        pixman_image_get_height(m5_wasm_target) != height) {
++        if (m5_wasm_target) {
++            pixman_image_unref(m5_wasm_target);
++        }
++        m5_wasm_target = pixman_image_create_bits(PIXMAN_r5g6b5, width, height,
++                                                 m5_wasm_pixels, stride);
++        if (!m5_wasm_target) {
++            __atomic_add_fetch(&m5_wasm_frame.rejected, 1, __ATOMIC_RELAXED);
++            return;
++        }
++    }
++    __atomic_add_fetch(&m5_wasm_frame.sequence, 1, __ATOMIC_SEQ_CST);
++    pixman_image_composite32(PIXMAN_OP_SRC, surface->image, NULL,
++                            m5_wasm_target, 0, 0, 0, 0, 0, 0, width, height);
++    m5_wasm_frame.width = width;
++    m5_wasm_frame.height = height;
++    m5_wasm_frame.stride = stride;
++    m5_wasm_frame.updates++;
++    __atomic_add_fetch(&m5_wasm_frame.sequence, 1, __ATOMIC_SEQ_CST);
++}
++
++static void m5_wasm_refresh(DisplayChangeListener *dcl)
++{
++    graphic_hw_update(dcl->con);
++}
++
++static void m5_wasm_update(DisplayChangeListener *dcl,
++                           int x, int y, int width, int height)
++{
++    m5_wasm_publish(dcl);
++}
++
++static void m5_wasm_switch(DisplayChangeListener *dcl, DisplaySurface *surface)
++{
++    m5_wasm_publish(dcl);
++}
++
++static const DisplayChangeListenerOps m5_wasm_display_ops = {
++    .dpy_name = "m5-wasm-shared-framebuffer",
++    .dpy_refresh = m5_wasm_refresh,
++    .dpy_gfx_update = m5_wasm_update,
++    .dpy_gfx_switch = m5_wasm_switch,
++};
++
++static void m5_wasm_display_init(void)
++{
++    const char *enabled = getenv("M5_WASM_FRAMEBUFFER");
++    QemuConsole *con;
++
++    if (!enabled || strcmp(enabled, "1")) {
++        return;
++    }
++    con = qemu_console_lookup_by_index(0);
++    if (!con || !QEMU_IS_GRAPHIC_CONSOLE(con)) {
++        return;
++    }
++    m5_wasm_frame.magic = 0x4d354642; /* M5FB, ABI v1 */
++    m5_wasm_frame.pixels = (uintptr_t)m5_wasm_pixels;
++    m5_wasm_dcl.con = con;
++    m5_wasm_dcl.ops = &m5_wasm_display_ops;
++    m5_wasm_dcl.update_interval = 33;
++    register_displaychangelistener(&m5_wasm_dcl);
++}
++#endif
++
+ void qemu_display_init(DisplayState *ds, DisplayOptions *opts)
+ {
++#ifdef __EMSCRIPTEN__
++    m5_wasm_display_init();
++#endif
+     assert(opts->type < DISPLAY_TYPE__MAX);
+     if (opts->type == DISPLAY_TYPE_NONE) {
+         return;

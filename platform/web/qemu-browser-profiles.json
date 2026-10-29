@@ -1,0 +1,856 @@
+{
+  "schema_version": 1,
+  "engine": "qemu-wasm",
+  "target": "xtensa-softmmu",
+  "source": {
+    "repository": "https://github.com/espressif/qemu.git",
+    "commit": "40edccac415693c5130f91c01d84176ae6008566"
+  },
+  "scope": "Each browser profile needs its own firmware, frame, controller-input and cleanup acceptance; candidate profiles are never publicly admitted.",
+  "profiles": [
+    {
+      "deviceId": "stopwatch",
+      "board": "m5stopwatch",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 466,
+        "height": 466,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stopwatch-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": true,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (stopwatch)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002172/2113079049317601281/bin/2113079049317601282.bin",
+        "bytes": 16773120,
+        "sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 0,
+        "input": "touch:233,348",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "sticks3",
+      "board": "m5sticks3",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 8,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 135,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "sticks3-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 1
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (sticks3)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001693/2113078299069861889/bin/2113078299069861890.bin",
+        "bytes": 8384512,
+        "sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "browserValidation": "PASS for the exact composed normal-clock display/input probe through public UI selection, local composition, native frame, focused model-button press/release and clean stop; stock-menu and arbitrary-firmware acceptance are not inherited."
+      },
+      "fixture": {
+        "vfsOffset": 6623232,
+        "vfsSize": 1761280,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "fd7c2ee224cd730dd7fafe783131a59fa4869de95dc0101cc8ba57e2e6a909c3",
+        "firmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser acceptance covers the fixed composed display/input probe and the execution profile recorded in its result.",
+        "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632"
+    },
+    {
+      "deviceId": "atoms3r",
+      "board": "m5atoms3r",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 8,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 128,
+        "height": 128,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "atoms3r-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 1
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "button": "a",
+          "a": "a"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (atoms3r)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001772/2098279973173547010/bin/2098279973173547011.bin",
+        "bytes": 8384512,
+        "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "browserValidation": "PASS for the exact composed normal-clock display/input probe through public UI selection, local composition, native frame, focused model-button press/release and clean stop; stock-menu and arbitrary-firmware acceptance are not inherited."
+      },
+      "fixture": {
+        "vfsOffset": 6557696,
+        "vfsSize": 1826816,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "7091e9e207300313dc8ef551b6f1c1804ecf36f2962f7de6ec1c703bddcf5da0",
+        "firmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser acceptance covers the fixed composed display/input probe and the execution profile recorded in its result.",
+        "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "The AtomS3R display model has an observed +2 physical-row offset for the 8x8 probe marker; input/frame acceptance does not establish pixel-coordinate calibration.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80"
+    },
+    {
+      "deviceId": "cores3",
+      "board": "m5cores3",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 320,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "cores3-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": true,
+        "buttons": {},
+        "keyboard": [],
+        "pir": {
+          "path": "/machine/units/pir",
+          "property": "motion"
+        },
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": [
+          {
+            "id": "pir",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "motion": false
+            }
+          }
+        ]
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (cores3)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2102696305989775362/bin/2102696305989775363.bin",
+        "bytes": 16121856,
+        "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "browserValidation": "The stock/base profile and composed div8 baseline remain separate from the exact-firmware normal-clock SDK candidate; each browser claim requires its own fixture evidence, and stock-menu acceptance is not inherited."
+      },
+      "fixture": {
+        "vfsOffset": 11141120,
+        "vfsSize": 4980736,
+        "uiRotation": 1,
+        "input": "longpress:160,183,1.0",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser acceptance is scoped to the fixed CoreS3 LVGL/touch/PIR fixture and execution profile recorded in each result.",
+        "The base profile uses virtual time at 1/8 wall-clock speed. Only the exact firmware SHA in firmwareProfiles selects the normal-clock SDK scheduler candidate; other firmware keeps the base profile.",
+        "The normal-clock example and the stock/div8 baseline have separate validation evidence; neither establishes physical timing or arbitrary stock-menu compatibility.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+          "profile": "cores3-wasm-wallclock-sdk-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "\"kind\": \"ready\"",
+          "fixture": "cores3-wasm-lvgl-wallclock-v1",
+          "sourceSHA256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf",
+          "schedulerCandidate": "sdk-python-single-schedule-v1"
+        }
+      ]
+    },
+    {
+      "deviceId": "cardputer-adv",
+      "board": "m5cardputeradv",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 8,
+      "psramMb": 0,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 240,
+        "height": 135,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "cardputer-adv-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {},
+        "keyboard": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m",
+          "n",
+          "o",
+          "p",
+          "q",
+          "r",
+          "s",
+          "t",
+          "u",
+          "v",
+          "w",
+          "x",
+          "y",
+          "z",
+          "ret",
+          "spc",
+          "tab",
+          "backspace",
+          "left",
+          "right",
+          "up",
+          "down"
+        ],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (cardputer-adv)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000936/2113079532912463874/bin/2113079532912463875.bin",
+        "bytes": 8384512,
+        "sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 6623232,
+        "vfsSize": 1761280,
+        "uiRotation": 0,
+        "input": "key:a",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "stamplc",
+      "board": "m5stamplc",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 8,
+      "psramMb": 0,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 240,
+        "height": 135,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stamplc-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "key1": "a",
+          "key2": "b",
+          "key3": "c",
+          "a": "a",
+          "b": "b",
+          "c": "c"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (stamplc)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001222/2098280653347049473/bin/2098280653347049474.bin",
+        "bytes": 8384512,
+        "sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 6557696,
+        "vfsSize": 1826816,
+        "uiRotation": 0,
+        "input": "key:a",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "stackchan",
+      "board": "m5stackchan",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 320,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stackchan-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": true,
+        "buttons": {},
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (stackchan)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002716/2098280583558025217/bin/2098280583558025218.bin",
+        "bytes": 16121856,
+        "sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 11141120,
+        "vfsSize": 4980736,
+        "uiRotation": 1,
+        "input": "longpress:160,183,1.0",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "papercolor",
+      "board": "m5papercolor",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 400,
+        "height": 600,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "papercolor-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "key1": "a",
+          "key2": "b",
+          "key3": "c",
+          "power": "p",
+          "a": "a",
+          "b": "b",
+          "c": "c",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (papercolor)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002033/2098280498975690753/bin/2098280498975690754.bin",
+        "bytes": 16773120,
+        "sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 0,
+        "input": "key:a",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "papermono",
+      "board": "m5papermono",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 480,
+        "height": 800,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "papermono-wasm-vm-div8",
+      "clockDivisor": 8,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": true,
+        "buttons": {
+          "key1": "a",
+          "key2": "b",
+          "power": "p",
+          "a": "a",
+          "b": "b",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (papermono)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/2089633464953118721/2098280529426337794/bin/2098280529426337795.bin",
+        "bytes": 16773120,
+        "sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "browserValidation": "NOT RUN"
+      },
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 0,
+        "input": "longpress:240,650,1.0",
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser board acceptance required; native results cannot be inherited.",
+        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": null
+    },
+    {
+      "deviceId": "core2",
+      "board": "m5core2",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 320,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "core2-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": null,
+      "inputs": {
+        "touch": true,
+        "buttons": {},
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (core2)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin",
+        "bytes": 16773120,
+        "sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "browserValidation": "PASS for the exact composed normal-clock display/input probe with Core2-specific boot preserving the firmware console, public UI local composition, native frame, DOM touch press/release and clean stop; stock-menu and arbitrary-firmware acceptance are not inherited."
+      },
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 1,
+        "input": "longpress:160,183,1.5",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "touch",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "4f790f4c0dc9c33b91b2a2b058f6f0f3a43d1a4b74cd95e626ea41532ef1f796",
+        "firmwareSHA256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Browser acceptance covers the fixed Core2-specific console-preserving boot/main display/input probe and the execution profile recorded in its result.",
+        "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+      ],
+      "readyFirmwareSHA256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2"
+    }
+  ]
+}

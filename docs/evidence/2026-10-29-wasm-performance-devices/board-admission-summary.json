@@ -1,0 +1,676 @@
+{
+  "schema_version": 1,
+  "kind": "browser-qemu-board-admission-summary",
+  "date": "2026-10-29",
+  "status": "PASS",
+  "scope": "Browser-local virtual-device evidence for the exact firmware, profile and input paths listed here.",
+  "hardware_validation": "NOT RUN",
+  "remote_pages_deployment": "NOT RUN by these local static-host gates",
+  "runtime": {
+    "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "wasm_sha256": "9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1",
+    "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d"
+  },
+  "execution_batches": [
+    {
+      "export": "public-v4",
+      "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+      "mode": "four-case public aggregate",
+      "status": "PASS",
+      "checks_passed": 84,
+      "cases": [
+        "sticks3",
+        "atoms3r",
+        "cores3-stock-div8",
+        "cores3-wallclock-candidate"
+      ],
+      "report_sha256": "97eb67cc97d1ab56493f66e910bd3dce65ff6f02f011a708f862e8d697c5b345"
+    },
+    {
+      "export": "public-v5",
+      "site_manifest_sha256": "187cf38ad80dc400af07d7d2ef6f35e9b9e73eaf167c9241fb76558f4204ea72",
+      "mode": "additional Core2 public UI gate",
+      "status": "PASS",
+      "checks_passed": 17,
+      "cases": [
+        "core2"
+      ],
+      "report_sha256": "ff67399261a7cb7e4c700d8009fe164d01f962fecf90ac3e39962e5677e550e8"
+    }
+  ],
+  "export_identity": {
+    "status": "PASS",
+    "audit_sha256": "03ff8309e8bd98542509b8f48cf8368ec55bb5a2f9063b12aaa54a271320ae38",
+    "changed_assets": [
+      "platform/runtime/qemu-probe/fixture/core2_boot.py",
+      "platform/web/browser-profiles.json",
+      "platform/web/qemu-browser-profiles.json"
+    ],
+    "unchanged_asset_count": 1929,
+    "all_execution_javascript_and_runtime_assets_identical": true,
+    "claim_boundary": "The four-case aggregate used public-v4; Core2 uses an additional public-v5 run. This is not a complete public-v5 aggregate execution."
+  },
+  "cases": [
+    {
+      "case": "sticks3",
+      "device": "sticks3",
+      "status": "PASS",
+      "export": "public-v4",
+      "checks_passed": 18,
+      "firmware_sha256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+      "profile": "sticks3-wasm-wallclock",
+      "clock_divisor": 1,
+      "browser_session_id": "cae76abc-bcb5-4da0-93c1-e5405bad8467",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+        }
+      ],
+      "serial": {
+        "sha256": "968af2fd8e474f4c3e6a4d4d0adb24007b92cac62518630fd45722b6d083248c",
+        "ready": {
+          "seq": 2,
+          "height": 240,
+          "input": "button",
+          "width": 135,
+          "kind": "ready",
+          "device": "sticks3",
+          "board": 26
+        },
+        "event_kinds": [
+          "begin",
+          "ready",
+          "pressed",
+          "count",
+          "released",
+          "heartbeat"
+        ]
+      },
+      "frame": {
+        "width": 135,
+        "height": 240,
+        "sequence": 9,
+        "format": "rgb565le",
+        "source": "qemu-display-surface-shared",
+        "source_sequence": 314,
+        "source_updates": 157,
+        "sha256": "0f4efd7eda743907d1063359ced117cc91c60dc7ffaade94f49d5d459e67e8f1",
+        "guest_marker_offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "input": {
+        "path": "focused DOM keyboard -> 3D model button -> ModelDeviceShell -> public input -> controller -> guest",
+        "accepted": [
+          {
+            "type": "button",
+            "id": "a",
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "button",
+            "id": "a",
+            "down": false,
+            "result": {}
+          }
+        ],
+        "guest_count": 1,
+        "guest_release_observed": true,
+        "red_marker_pixels": 64,
+        "same_pixel_mask_all_green": true,
+        "old_red_pixels_remaining": 0,
+        "pause_freezes_guest": true,
+        "resume_has_fresh_guest_heartbeat": true,
+        "focused_key": "Space",
+        "screen_click_ignored_without_touch_or_error": true
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0
+        },
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "evidence": {
+        "report_sha256": "23fc83b12f7bed04383db9d2b62fa66b59d0a15d6c57c06392081e77ddcbe62a",
+        "stopped_evidence_sha256": "1b020a6bb64f47463eadf444802a90aef0308c641dfd5b389463e83420795be7",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_board_guest.mjs",
+          "sha256": "a0ff3fc1b1cc599abe1a16a4fb248207e821d550328b8324e1fcff47437e9849"
+        },
+        "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+        "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+        "local_report": ".work/public-qemu-admitted-final-v4/sticks3/report.json"
+      }
+    },
+    {
+      "case": "atoms3r",
+      "device": "atoms3r",
+      "status": "PASS",
+      "export": "public-v4",
+      "checks_passed": 18,
+      "firmware_sha256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+      "profile": "atoms3r-wasm-wallclock",
+      "clock_divisor": 1,
+      "browser_session_id": "8e3c01a7-f538-45e4-82cd-fde00b6fbcab",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+        }
+      ],
+      "serial": {
+        "sha256": "035b2fc6fa9dcbe74ab405f3ccd110bb35b604233fccc4b0d964c3f49a08916f",
+        "ready": {
+          "seq": 2,
+          "height": 128,
+          "input": "button",
+          "width": 128,
+          "kind": "ready",
+          "device": "atoms3r",
+          "board": 18
+        },
+        "event_kinds": [
+          "begin",
+          "ready",
+          "pressed",
+          "count",
+          "released",
+          "heartbeat"
+        ]
+      },
+      "frame": {
+        "width": 128,
+        "height": 128,
+        "sequence": 8,
+        "format": "rgb565le",
+        "source": "qemu-display-surface-shared",
+        "source_sequence": 298,
+        "source_updates": 149,
+        "sha256": "6e0fb3d07c4990c0b3dd44cee513ec934ffe395b141cde1c26373881469469bd",
+        "guest_marker_offset": {
+          "x": 0,
+          "y": 2
+        }
+      },
+      "input": {
+        "path": "focused DOM keyboard -> 3D model button -> ModelDeviceShell -> public input -> controller -> guest",
+        "accepted": [
+          {
+            "type": "button",
+            "id": "a",
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "button",
+            "id": "a",
+            "down": false,
+            "result": {}
+          }
+        ],
+        "guest_count": 1,
+        "guest_release_observed": true,
+        "red_marker_pixels": 64,
+        "same_pixel_mask_all_green": true,
+        "old_red_pixels_remaining": 0,
+        "pause_freezes_guest": true,
+        "resume_has_fresh_guest_heartbeat": true,
+        "focused_key": "Space",
+        "screen_click_ignored_without_touch_or_error": true
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0
+        },
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "evidence": {
+        "report_sha256": "57875696ff611550138aea713d9130cbe128c971292d7567193422921f68647e",
+        "stopped_evidence_sha256": "ce125982915aca03caed48a605c430e9e9c13be6b0b8dbc27fb90979c2cfffff",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_board_guest.mjs",
+          "sha256": "a0ff3fc1b1cc599abe1a16a4fb248207e821d550328b8324e1fcff47437e9849"
+        },
+        "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+        "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+        "local_report": ".work/public-qemu-admitted-final-v4/atoms3r/report.json"
+      }
+    },
+    {
+      "case": "cores3-stock-div8",
+      "device": "cores3",
+      "status": "PASS",
+      "export": "public-v4",
+      "checks_passed": 24,
+      "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "profile": "cores3-wasm-vm-div8",
+      "clock_divisor": 8,
+      "browser_session_id": "22ae2514-c6bc-488e-83fe-d16c7c778ad4",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+        }
+      ],
+      "serial": {
+        "sha256": "e39e40af0f4376519ac307c39c2507ea45863450ea1bdffb7ac075c5f1044f37",
+        "ready": {
+          "button_center": [
+            160,
+            184
+          ],
+          "seq": 4,
+          "height": 240,
+          "width": 320,
+          "white_gpio": 1,
+          "fixture": "cores3-wasm-lvgl-pir-v1",
+          "kind": "ready",
+          "yellow_gpio": 2
+        },
+        "event_kinds": [
+          "begin",
+          "m5_ready",
+          "lvgl_ready",
+          "ready",
+          "pir",
+          "touch_pressed",
+          "touch_released",
+          "touch_clicked",
+          "heartbeat"
+        ]
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "sequence": 54,
+        "format": "rgb565le",
+        "source": "qemu-display-surface-shared",
+        "source_sequence": 170,
+        "source_updates": 85,
+        "sha256": "2d9930668c45ebdf76b3416c998d2d5bdf44d403db0edc5cd762bb29b34842ad"
+      },
+      "input": {
+        "path": "actual public raw-canvas DOM pointer / PIR checkbox -> controller/QOM -> guest",
+        "accepted": [
+          {
+            "type": "touch",
+            "x": 310,
+            "y": 234,
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 310,
+            "y": 234,
+            "down": false,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 184,
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 184,
+            "down": false,
+            "result": {}
+          },
+          {
+            "type": "pir",
+            "motion": true,
+            "result": {
+              "motion": true
+            }
+          },
+          {
+            "type": "pir",
+            "motion": false,
+            "result": {
+              "motion": false
+            }
+          }
+        ],
+        "negative_touch_does_not_click": true,
+        "guest_touch_click_count": 1,
+        "pir_guest_values": [
+          0,
+          1,
+          0
+        ],
+        "pir_qom_both_transitions": true
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0
+        },
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "evidence": {
+        "report_sha256": "6cb73fe71d8c9c20b3ea5a7610f8c1cf390183c123f83614969eaad61f7838a4",
+        "stopped_evidence_sha256": "53ed3f395a1706fa0af3181675cfef3bc6e249183db684a5fc325e8bc2feaf39",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_guest.mjs",
+          "sha256": "941421a508302e27b57e00bc7fdbff2fbf07cdb144988beb486a29c04be1fffb"
+        },
+        "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+        "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+        "local_report": ".work/public-qemu-admitted-final-v4/cores3-stock-div8/report.json"
+      },
+      "share_reopen": {
+        "new_browser_session": true,
+        "same_exact_firmware_variant": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      }
+    },
+    {
+      "case": "cores3-wallclock-candidate",
+      "device": "cores3",
+      "status": "PASS",
+      "export": "public-v4",
+      "checks_passed": 24,
+      "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "profile": "cores3-wasm-wallclock-sdk-candidate",
+      "clock_divisor": 1,
+      "browser_session_id": "29e321b0-0d8d-43c9-a6ae-d1bfe8c24a8b",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+        }
+      ],
+      "serial": {
+        "sha256": "0299471dc28e7d9cc1ce049b0c948809f9769c97907417391a4cfe799cbab0d2",
+        "ready": {
+          "button_center": [
+            160,
+            184
+          ],
+          "seq": 4,
+          "height": 240,
+          "width": 320,
+          "white_gpio": 1,
+          "fixture": "cores3-wasm-lvgl-wallclock-v1",
+          "kind": "ready",
+          "yellow_gpio": 2
+        },
+        "event_kinds": [
+          "begin",
+          "m5_ready",
+          "lvgl_ready",
+          "ready",
+          "pir",
+          "touch_pressed",
+          "heartbeat",
+          "touch_released",
+          "touch_clicked"
+        ]
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "sequence": 113,
+        "format": "rgb565le",
+        "source": "qemu-display-surface-shared",
+        "source_sequence": 402,
+        "source_updates": 201,
+        "sha256": "d93093d6ae6d7f7d2e8be2d6bb0d3146e9857b6950f084cc569822f1ee4ca9c4"
+      },
+      "input": {
+        "path": "actual public raw-canvas DOM pointer / PIR checkbox -> controller/QOM -> guest",
+        "accepted": [
+          {
+            "type": "touch",
+            "x": 310,
+            "y": 234,
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 310,
+            "y": 234,
+            "down": false,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 184,
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 184,
+            "down": false,
+            "result": {}
+          },
+          {
+            "type": "pir",
+            "motion": true,
+            "result": {
+              "motion": true
+            }
+          },
+          {
+            "type": "pir",
+            "motion": false,
+            "result": {
+              "motion": false
+            }
+          }
+        ],
+        "negative_touch_does_not_click": true,
+        "guest_touch_click_count": 1,
+        "pir_guest_values": [
+          0,
+          1,
+          0
+        ],
+        "pir_qom_both_transitions": true
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0
+        },
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "evidence": {
+        "report_sha256": "206babc5ef375c87786324d5b346ddd296d069325eaa3ae28d9f31e3147708f6",
+        "stopped_evidence_sha256": "f610de399f3fa5fee7036639d77f5583631cbb69216e21123d6b85211ef5819c",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_guest.mjs",
+          "sha256": "941421a508302e27b57e00bc7fdbff2fbf07cdb144988beb486a29c04be1fffb"
+        },
+        "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+        "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+        "local_report": ".work/public-qemu-admitted-final-v4/cores3-wallclock-candidate/report.json"
+      },
+      "share_reopen": {
+        "new_browser_session": true,
+        "same_exact_firmware_variant": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      },
+      "firmware_variant": {
+        "clockDivisor": 1,
+        "firmwareSHA256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "fixture": "cores3-wasm-lvgl-wallclock-v1",
+        "profile": "cores3-wasm-wallclock-sdk-candidate",
+        "readyMarker": "\"kind\": \"ready\"",
+        "schedulerCandidate": "sdk-python-single-schedule-v1",
+        "sourceSHA256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf"
+      }
+    },
+    {
+      "case": "core2",
+      "device": "core2",
+      "status": "PASS",
+      "export": "public-v5",
+      "checks_passed": 17,
+      "firmware_sha256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2",
+      "profile": "core2-wasm-wallclock",
+      "clock_divisor": 1,
+      "browser_session_id": "e5b43932-b9c3-44ba-85ea-dab89594df0c",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b"
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442"
+        }
+      ],
+      "serial": {
+        "sha256": "d71e6d9ac6dc98d0a644fa386e966963b24924c8a4e3287ebf46f10f4e22cd68",
+        "ready": {
+          "seq": 2,
+          "height": 240,
+          "input": "touch",
+          "width": 320,
+          "kind": "ready",
+          "device": "core2",
+          "board": 2
+        },
+        "event_kinds": [
+          "begin",
+          "ready",
+          "pressed",
+          "count",
+          "released",
+          "heartbeat"
+        ]
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "sequence": 19,
+        "format": "rgb565le",
+        "source": "qemu-display-surface-shared",
+        "source_sequence": 1086,
+        "source_updates": 543,
+        "sha256": "569a97e47555a5069ff88a1b54bbe6bca28df5a91edc7ecd1b9eb105d4cbc807",
+        "guest_marker_offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "input": {
+        "path": "actual public raw-canvas DOM pointer -> FT5x06 controller -> guest",
+        "accepted": [
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 120,
+            "down": true,
+            "result": {}
+          },
+          {
+            "type": "touch",
+            "x": 160,
+            "y": 120,
+            "down": false,
+            "result": {}
+          }
+        ],
+        "guest_count": 1,
+        "guest_release_observed": true,
+        "red_marker_pixels": 64,
+        "same_pixel_mask_all_green": true,
+        "old_red_pixels_remaining": 0,
+        "pause_freezes_guest": true,
+        "resume_has_fresh_guest_heartbeat": true
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0
+        },
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "evidence": {
+        "report_sha256": "ff67399261a7cb7e4c700d8009fe164d01f962fecf90ac3e39962e5677e550e8",
+        "stopped_evidence_sha256": "b71808fb545ef8a7cb368b6e6c03af3dee9d1aed532f0cbaf7d405907207905f",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_board_guest.mjs",
+          "sha256": "f4cff6aa26a3e9edf5dbf8bdd67271231c49f49df743f11467fef23b04e6eafa"
+        },
+        "site_manifest_sha256": "187cf38ad80dc400af07d7d2ef6f35e9b9e73eaf167c9241fb76558f4204ea72",
+        "runtime_manifest_sha256": "c1698f0ebaa81dbd16e242fd1cabf2555ea5f1af4bd2c2aa9f0aa7b07feb651d",
+        "local_report": ".work/public-qemu-core2-final-public-v5/report.json"
+      },
+      "boot_source": {
+        "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+        "bytes": 24,
+        "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+      }
+    }
+  ],
+  "known_boundaries": [
+    "AtomS3R retains a +2 physical-row offset for the 8x8 probe marker; functional input/frame acceptance does not establish complete pixel calibration.",
+    "CoreS3 stock/div8 and the exact-firmware normal-clock SDK scheduler candidate have separate evidence and execution profiles.",
+    "Core2 uses a pinned console-preserving boot file; the earlier generic S3 UART0 boot is not an accepted Core2 fixture.",
+    "These fixed display/input probes do not establish networking, BLE, audio, other Units, arbitrary firmware, other browsers or physical hardware equivalence.",
+    "The local evidence consists of the public-v4 four-case aggregate plus the public-v5 Core2 run; it is not a complete public-v5 aggregate execution. The publication workflow runs every admitted case on each new build."
+  ]
+}

@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "kind": "browser-qemu-performance-and-board-admission",
+  "date": "2026-10-29",
+  "status": "PASS_SCOPED_BROWSER_VALIDATION",
+  "source_main_base": "322130288ea4fb2c2aab49b689e232bb2beef7f7",
+  "category": "browser virtual-device validation",
+  "runtime": {
+    "wasm_sha256": "9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1",
+    "source_archive_sha256": "634c0df8c7dee05227561ddc623ebfac55b9a787d9f5656e0e2c7cee4ef0ad41",
+    "lock_sha256": "949651e45757a122952756e15fc31b7999beb23eca668a48b34e22dd92898d11",
+    "all_objects_rebuilt": true,
+    "emscripten": "3.1.50",
+    "compiled_profiles": [
+      "stopwatch",
+      "sticks3",
+      "atoms3r",
+      "cores3",
+      "cardputer-adv",
+      "stamplc",
+      "stackchan",
+      "papercolor",
+      "papermono",
+      "core2"
+    ],
+    "frame_transport": {
+      "abi": 1,
+      "kind": "shared-rgb565-v1",
+      "maxHeight": 1024,
+      "maxWidth": 1024
+    },
+    "patch_layers": 43,
+    "patched_files": 146
+  },
+  "performance": {
+    "status": "PASS",
+    "host": {
+      "platform": "darwin",
+      "release": "25.6.0",
+      "arch": "arm64",
+      "logical_cpus": 12,
+      "cpu_model": "Apple M4 Pro",
+      "total_memory_bytes": 25769803776,
+      "load_average_at_start": [
+        5.31396484375,
+        6.43212890625,
+        6.06689453125
+      ],
+      "load_average_at_finish": [
+        5.64501953125,
+        6.1962890625,
+        6.01611328125
+      ]
+    },
+    "browser": "156.0.8078.73",
+    "gpu_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+    "cpu_definition": "100 percent is one CPU core; sums owned browser process CPU deltas.",
+    "memory_definition": "Summed process RSS may double-count shared pages; not unique resident memory.",
+    "scope": "Same Apple M4 Pro, Chrome 156, ANGLE Metal; browser virtual guest evidence only. Stock comparisons share firmware SHA. Wallclock candidate is a separate continuously animated workload.",
+    "runs": [
+      {
+        "name": "baseline-r4-isolated",
+        "report_sha256": "112d199446928fce54ed6f940a43cc39d0bde8b70e27f81a6b924455ca250143",
+        "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "wasm_sha256": "4e707f78d54fc813840cb3dde4d93786743b3ca35d49f33773229830ce732b87",
+        "startup_ms": {
+          "start_click_to_guest_ready": 49304.48000001907,
+          "start_click_to_first_varied_frame": 50521.109999895096,
+          "runtime_start_to_guest_ready": 47684.60000014305
+        },
+        "steady_frames": {
+          "duration_seconds": 10.001795000076294,
+          "requests": 13,
+          "requests_per_second": 1.299766691868893,
+          "delivered_frames": 13,
+          "delivered_frames_per_second": 1.299766691868893,
+          "pixel_change_frames": 0,
+          "pixel_change_frames_per_second": 0,
+          "pixel_payload_bytes": 1996800
+        },
+        "input_frames": {
+          "duration_seconds": 14.355594999790192,
+          "requests": 19,
+          "requests_per_second": 1.3235257751613698,
+          "delivered_frames": 19,
+          "delivered_frames_per_second": 1.3235257751613698,
+          "pixel_change_frames": 14,
+          "pixel_change_frames_per_second": 0.9752295185399568,
+          "pixel_payload_bytes": 2918400
+        },
+        "release_to_counter_pixels_p50_ms": 1317.6575000286102,
+        "release_to_callback_p50_ms": 698.0025000572205,
+        "cpu_mean_by_phase": {
+          "steady": 132.050006516907,
+          "paused": 105.60448123172516,
+          "stopped": 3.0247237866838304
+        },
+        "rss_sum_mean_kib": 1452547.2,
+        "input_rpc_ms": {
+          "n": 12,
+          "p50": 32.832499980926514,
+          "min": 30.819999933242798,
+          "max": 36.24000000953674
+        },
+        "input_post_ack_p50_ms": {
+          "release_input_rpc_ms": 32.080000042915344,
+          "release_ack_to_uart_released_ms": 646.0374999046326,
+          "uart_released_to_uart_clicked_ms": 20.774999976158142,
+          "release_ack_to_uart_clicked_ms": 666.4199999570847,
+          "callback_to_counter_pixels_ms": 629.3799999952316
+        },
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "runtime_worker_targets_after_stop": 0
+      },
+      {
+        "name": "shared-v1-r2-isolated",
+        "report_sha256": "98ab62670c6d3bb84e22d5763ef99fe500028d93f5e92e60812379a1b2588727",
+        "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "wasm_sha256": "3fd16e31b0c2207a80c1b9349a6d9b74bae3b57ed81fac89d68e22d0af0cda20",
+        "startup_ms": {
+          "start_click_to_guest_ready": 50660.41000008583,
+          "start_click_to_first_varied_frame": 51344.395000219345,
+          "runtime_start_to_guest_ready": 48805.549999952316
+        },
+        "steady_frames": {
+          "duration_seconds": 10.001765000104903,
+          "requests": 312,
+          "requests_per_second": 31.1944941714515,
+          "delivered_frames": 0,
+          "delivered_frames_per_second": 0,
+          "pixel_change_frames": 0,
+          "pixel_change_frames_per_second": 0,
+          "pixel_payload_bytes": 0
+        },
+        "input_frames": {
+          "duration_seconds": 11.599139999866486,
+          "requests": 357,
+          "requests_per_second": 30.77814389722939,
+          "delivered_frames": 139,
+          "delivered_frames_per_second": 11.98364706362713,
+          "pixel_change_frames": 28,
+          "pixel_change_frames_per_second": 2.413972070370933,
+          "pixel_payload_bytes": 21350400
+        },
+        "release_to_counter_pixels_p50_ms": 953.9074999094009,
+        "release_to_callback_p50_ms": 610.9250000715256,
+        "cpu_mean_by_phase": {
+          "steady": 130.75055676994424,
+          "paused": 103.76330151624474,
+          "stopped": 3.7330041654066637
+        },
+        "rss_sum_mean_kib": 1448928,
+        "input_rpc_ms": {
+          "n": 12,
+          "p50": 34.2700001001358,
+          "min": 30.96500015258789,
+          "max": 35.59999990463257
+        },
+        "input_post_ack_p50_ms": {
+          "release_input_rpc_ms": 32.75499999523163,
+          "release_ack_to_uart_released_ms": 557.0900000333786,
+          "uart_released_to_uart_clicked_ms": 21.230000019073486,
+          "release_ack_to_uart_clicked_ms": 578.3725000619888,
+          "callback_to_counter_pixels_ms": 354.84250009059906
+        },
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "runtime_worker_targets_after_stop": 0
+      },
+      {
+        "name": "shared-v2-stock-r1-isolated",
+        "report_sha256": "743b0bf483f382f4c6bd0785d3ee61829bf59a629a3016f1d3f2252ba08f7a2e",
+        "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "wasm_sha256": "9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1",
+        "startup_ms": {
+          "start_click_to_guest_ready": 48507.75999999046,
+          "start_click_to_first_varied_frame": 49087.44500017166,
+          "runtime_start_to_guest_ready": 46371.99000000954
+        },
+        "steady_frames": {
+          "duration_seconds": 10.002025000095367,
+          "requests": 310,
+          "requests_per_second": 30.993723770640866,
+          "delivered_frames": 0,
+          "delivered_frames_per_second": 0,
+          "pixel_change_frames": 0,
+          "pixel_change_frames_per_second": 0,
+          "pixel_payload_bytes": 0
+        },
+        "input_frames": {
+          "duration_seconds": 11.607169999837875,
+          "requests": 355,
+          "requests_per_second": 30.584543864263082,
+          "delivered_frames": 129,
+          "delivered_frames_per_second": 11.113820164760387,
+          "pixel_change_frames": 31,
+          "pixel_change_frames_per_second": 2.6707629853300157,
+          "pixel_payload_bytes": 19814400
+        },
+        "release_to_counter_pixels_p50_ms": 966.8150000572205,
+        "release_to_callback_p50_ms": 658.5300000905991,
+        "cpu_mean_by_phase": {
+          "steady": 49.94685173250154,
+          "paused": 4.779691047176374,
+          "stopped": 2.619426604257971
+        },
+        "rss_sum_mean_kib": 1062566.4,
+        "input_rpc_ms": {
+          "n": 12,
+          "p50": 35.06499993801117,
+          "min": 31.990000009536743,
+          "max": 42.019999980926514
+        },
+        "input_post_ack_p50_ms": {
+          "release_input_rpc_ms": 32.612499952316284,
+          "release_ack_to_uart_released_ms": 607.8324999809265,
+          "uart_released_to_uart_clicked_ms": 18.477500081062317,
+          "release_ack_to_uart_clicked_ms": 626.3100000619888,
+          "callback_to_counter_pixels_ms": 306.352499961853
+        },
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "runtime_worker_targets_after_stop": 0
+      },
+      {
+        "name": "shared-v2-wallclock-r1-isolated",
+        "report_sha256": "379917987ce2e9ead8e1ed3ce42a1105214592f67646d75f446ef501438e6a15",
+        "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "wasm_sha256": "9c94a9407893fa7d953d1bf1932769ff52e90b3b1455f98a90185ff2bf05cba1",
+        "startup_ms": {
+          "start_click_to_guest_ready": 50948.60500001907,
+          "start_click_to_first_varied_frame": 51414.94499993324,
+          "runtime_start_to_guest_ready": 48377.16499996185
+        },
+        "steady_frames": {
+          "duration_seconds": 20.001394999980928,
+          "requests": 609,
+          "requests_per_second": 30.447876260659854,
+          "delivered_frames": 186,
+          "delivered_frames_per_second": 9.299351370250793,
+          "pixel_change_frames": 178,
+          "pixel_change_frames_per_second": 8.899379268304523,
+          "pixel_payload_bytes": 28569600
+        },
+        "input_frames": {
+          "duration_seconds": 13.408105000019074,
+          "requests": 406,
+          "requests_per_second": 30.28019246563347,
+          "delivered_frames": 283,
+          "delivered_frames_per_second": 21.106636620133674,
+          "pixel_change_frames": 164,
+          "pixel_change_frames_per_second": 12.231407793999727,
+          "pixel_payload_bytes": 43468800
+        },
+        "release_to_counter_pixels_p50_ms": 1247.3700000047684,
+        "release_to_callback_p50_ms": 867.1525000333786,
+        "cpu_mean_by_phase": {
+          "steady": 161.9677463991719,
+          "paused": 5.551006354652341,
+          "stopped": 2.766691300098573
+        },
+        "rss_sum_mean_kib": 1137669.6,
+        "input_rpc_ms": {
+          "n": 12,
+          "p50": 35.107500076293945,
+          "min": 31.81499981880188,
+          "max": 38.605000019073486
+        },
+        "input_post_ack_p50_ms": {
+          "release_input_rpc_ms": 32.8675000667572,
+          "release_ack_to_uart_released_ms": 812.9874999523163,
+          "uart_released_to_uart_clicked_ms": 20.18250012397766,
+          "release_ack_to_uart_clicked_ms": 833.6725000143051,
+          "callback_to_counter_pixels_ms": 379.34249997138977
+        },
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "runtime_worker_targets_after_stop": 0
+      }
+    ],
+    "animation": {
+      "roi": {
+        "x": 20,
+        "y": 128,
+        "width": 280,
+        "height": 24
+      },
+      "period_pixels": 260,
+      "nominal_guest_velocity_pixels_per_second": 100,
+      "meaning": "Observed yellow glyph centroid and guest UART clocks; framebuffer delivery can repeat pixels and is not optical timing or physical hardware validation",
+      "phases": {
+        "steady": {
+          "duration_seconds": 20.001394999980928,
+          "frame_samples": 186,
+          "glyph_samples": 179,
+          "distinct_roi": 137,
+          "changed_roi_samples": 171,
+          "changed_roi_samples_per_second": 8.549403679101536,
+          "wraps": 8,
+          "centroid_velocity_pixels_per_host_second": 99.7663367381166,
+          "observer_ms": {
+            "samples": 186,
+            "min": 0.004999876022338867,
+            "p50": 0.009999990463256836,
+            "p90": 0.01250004768371582,
+            "p95": 0.015000104904174805,
+            "max": 0.3000001907348633,
+            "mean": 0.010618273929883074
+          },
+          "clocks": {
+            "samples": 10,
+            "guest_to_host_rate": 0.9997112982152797,
+            "lvgl_to_host_rate": 0.9997655654662956,
+            "animation_callbacks": 156,
+            "scheduler_errors": 0
+          }
+        },
+        "input": {
+          "duration_seconds": 13.408105000019074,
+          "frame_samples": 283,
+          "glyph_samples": 184,
+          "distinct_roi": 49,
+          "changed_roi_samples": 50,
+          "changed_roi_samples_per_second": 3.7290877420730872,
+          "wraps": 5,
+          "centroid_velocity_pixels_per_host_second": 99.1692125620315,
+          "observer_ms": {
+            "samples": 283,
+            "min": 0,
+            "p50": 0.009999990463256836,
+            "p90": 0.009999990463256836,
+            "p95": 0.014999866485595703,
+            "max": 0.019999980926513672,
+            "mean": 0.00839222109359903
+          },
+          "clocks": {
+            "samples": 5,
+            "guest_to_host_rate": 0.9978982546645845,
+            "lvgl_to_host_rate": 0.9978982546645845,
+            "animation_callbacks": 30,
+            "scheduler_errors": 0
+          }
+        },
+        "paused": {
+          "duration_seconds": 10.00230999994278,
+          "frame_samples": 0,
+          "glyph_samples": 0,
+          "distinct_roi": 0,
+          "changed_roi_samples": 0,
+          "changed_roi_samples_per_second": 0,
+          "wraps": 0,
+          "centroid_velocity_pixels_per_host_second": null,
+          "observer_ms": {
+            "samples": 0,
+            "min": null,
+            "p50": null,
+            "p90": null,
+            "p95": null,
+            "max": null,
+            "mean": null
+          },
+          "clocks": {
+            "samples": 0,
+            "guest_to_host_rate": null,
+            "lvgl_to_host_rate": null,
+            "animation_callbacks": null,
+            "scheduler_errors": null
+          }
+        },
+        "stopped": {
+          "duration_seconds": 10.055009999990464,
+          "frame_samples": 0,
+          "glyph_samples": 0,
+          "distinct_roi": 0,
+          "changed_roi_samples": 0,
+          "changed_roi_samples_per_second": 0,
+          "wraps": 0,
+          "centroid_velocity_pixels_per_host_second": null,
+          "observer_ms": {
+            "samples": 0,
+            "min": null,
+            "p50": null,
+            "p90": null,
+            "p95": null,
+            "max": null,
+            "mean": null
+          },
+          "clocks": {
+            "samples": 0,
+            "guest_to_host_rate": null,
+            "lvgl_to_host_rate": null,
+            "animation_callbacks": null,
+            "scheduler_errors": null
+          }
+        }
+      }
+    },
+    "animation_csv_sha256": "4459b27c05d1b46246f36c0d141a2d47c419e422622cfa7997fa73944c4cfc85",
+    "input_attribution": "Input RPC includes private channel and real QMP acknowledgement, measured around 35 ms. Most release-to-callback delay follows acknowledgement and precedes observed guest touch_released. Existing telemetry cannot uniquely separate emulated touch-controller handling, guest polling, LVGL, and UART observation."
+  },
+  "host_poll_controls": {
+    "kind": "wasm-host-poll-control",
+    "sdk": "3.1.50",
+    "guest_execution": "NOT RUN",
+    "source_sha256": "d687c95bb48371fe3b369064cc077d22eb90cc0e9c0264349d07802a69f9202e",
+    "patch_sha256": "71bdbe8f22857fcc09cedc941b06ac2d9dfe3bb5eb39acab8077705495252287",
+    "actual_branch_sha256": "ea2f4d49af8d2cde2504e7479b6ebfc56c924d7d7af51c07810ee144fd4238b2",
+    "status": "PASS",
+    "result": {
+      "sdk_ignored_timeout_ms": 0.364,
+      "finite_ms": 31.23,
+      "nonblocking_ms": 0.152,
+      "ready_ms": 0.083,
+      "finite_wake_ms": 36.894,
+      "infinite_wake_ms": 18.89,
+      "controls": 6
+    },
+    "exit_code": 0,
+    "artifact_sha256": "77ee761d2b6f509ee456e65164a8fb13fef4ef7d89a6b390279a8e6c6f621b37"
+  },
+  "public_board_gate": {
+    "status": "PASS",
+    "category": "actual public UI; isolated browser virtual-device validation",
+    "summary": "board-admission-summary.json",
+    "public_devices": [
+      "cores3",
+      "core2",
+      "atoms3r",
+      "sticks3"
+    ],
+    "independent_board_example_cases": 5,
+    "checks_passed": 101,
+    "executions": [
+      {
+        "export": "public-v4",
+        "case_count": 4,
+        "checks_passed": 84,
+        "site_manifest_sha256": "baab0f78c82de2bd93013fa937934443ae363c37b212e241db4bb67e443e4bcb",
+        "aggregate_report_sha256": "97eb67cc97d1ab56493f66e910bd3dce65ff6f02f011a708f862e8d697c5b345"
+      },
+      {
+        "export": "public-v5",
+        "case_count": 1,
+        "device": "core2",
+        "checks_passed": 17,
+        "site_manifest_sha256": "187cf38ad80dc400af07d7d2ef6f35e9b9e73eaf167c9241fb76558f4204ea72",
+        "report_sha256": "ff67399261a7cb7e4c700d8009fe164d01f962fecf90ac3e39962e5677e550e8"
+      }
+    ],
+    "export_identity": {
+      "status": "PASS",
+      "unchanged_assets": 1929,
+      "all_runtime_and_execution_javascript_identical": true,
+      "changed_assets": [
+        "platform/runtime/qemu-probe/fixture/core2_boot.py",
+        "platform/web/browser-profiles.json",
+        "platform/web/qemu-browser-profiles.json"
+      ]
+    },
+    "claim_boundary": "Four cases used public-v4 and newly admitted Core2 used public-v5. This is not a complete public-v5 aggregate execution; each future publication build must execute all five cases.",
+    "native_full_matrix": "NOT RUN; native backend was not changed and no native validation is inherited",
+    "physical_hardware": "NOT RUN",
+    "new_production_deployment": "NOT RUN"
+  },
+  "limits": [
+    "The baseline and stock v2 use the same div8 Flash; the animated wallclock candidate is a different workload and cannot support a like-for-like CPU or input-speed claim.",
+    "Normal-clock candidate input remains slow after QMP ACK; its cause is not uniquely isolated to controller, guest polling or LVGL.",
+    "No arbitrary-firmware, other peripheral, mobile browser, long-soak or physical-hardware validation is inherited.",
+    "No new production Pages deployment is claimed by this local result."
+  ],
+  "final_main_integration": {
+    "main_commit": "38a7e8be606aa0d0ca8d8b75aae62773dc520710",
+    "browser_execution_sources_changed": false,
+    "wasm_runtime_changed": false,
+    "native_espnow_patch_0076": "not included in the frozen browser source lock; no browser ESP-NOW PASS inherited",
+    "note": "Browser executions were measured before this main update. Native/service tests are separately rerun on the merged source tree."
+  }
+}

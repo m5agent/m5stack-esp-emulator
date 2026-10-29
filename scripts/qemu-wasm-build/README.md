@@ -80,3 +80,19 @@ labelled a fresh full-object build. Public-site and Pages workflows must not
 fetch or bundle firmware/ROM. Source Git contains no runtime binaries.
 The manifest binds the recipe and lock inside its corresponding-source archive;
 later validator improvements do not invalidate an unchanged frozen build.
+
+The source lock also describes the `shared-rgb565-v1` display ABI and the
+compiled Xtensa machines. `compiled_profiles` means the binary contains a
+machine, not that the public site admits or validates it. Public admission
+comes from the canonical per-board registry, selected against this compiled
+set, and the Pages job must run the real fixed guest for each public board.
+The legacy `profiles` field retains the original CoreS3 build baseline.
+An explicit candidate export is ineligible for publication.
+
+Host patches `0014`/`0015` retain the original emulated display/controller and
+guest timing paths. The shared frame transport removes QMP/PPM work from
+ordinary capture. The poll patch supplies host-thread waiting missing from the
+pinned SDK's `poll` implementation. Build PASS alone proves neither frame
+rate nor reduced CPU: use the browser benchmark and same-guest input/frame/
+cleanup receipts, and keep compiler/background-load and GPU renderer details
+with resource measurements.

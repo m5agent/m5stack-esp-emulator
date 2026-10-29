@@ -1,13 +1,19 @@
 // Host adapter contracts only. Mock downloads/messages never execute a guest.
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
+import {getQemuBrowserProfile,validateQemuFirmware} from '../web/public-qemu-profiles.js';
+import {sha256Bytes} from '../web/sha256.js';
 
 const root='https://example.test/showcase/';
+const profiles=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
+const coreProfile=getQemuBrowserProfile('cores3',profiles);
+const roms=new Map(profiles.profiles.flatMap(profile=>profile.roms).map(rom=>[rom.url,rom]));
 const romSha='b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913';
-const manifest={schema_version:1,engine:'qemu-wasm',source:{commit:'40edccac415693c5130f91c01d84176ae6008566'},profiles:['cores3'],execution_profile:{id:'cores3-wasm-vm-div8'},build:{kind:'contract-fixture'},
+const manifest={schema_version:1,engine:'qemu-wasm',source:{commit:'40edccac415693c5130f91c01d84176ae6008566'},profiles:['cores3'],compiled_profiles:profiles.profiles.map(profile=>profile.deviceId),execution_profile:{id:'cores3-wasm-vm-div8'},build:{kind:'contract-fixture'},
   assets:{javascript:{path:'qemu-system-xtensa.js',sha256:'1'.repeat(64),bytes:8},wasm:{path:'qemu-system-xtensa.wasm',sha256:'2'.repeat(64),bytes:8},worker:{path:'qemu-system-xtensa.worker.js',sha256:'3'.repeat(64),bytes:8}},
   required_rom:{url:'https://example.test/rom.bin',sha256:romSha,bytes:393216}};
-function firmware(){const bytes=new Uint8Array(0x10100),view=new DataView(bytes.buffer);for(const at of [0,0x10000]){bytes[at]=0xe9;bytes[at+1]=1;view.setUint16(at+12,9,true);view.setUint32(at+28,4,true);}view.setUint16(0x8000,0x50aa,true);view.setUint32(0x8004,0x10000,true);view.setUint32(0x8008,0x1000,true);return bytes.buffer;}
+function firmware(profile=coreProfile){const bytes=new Uint8Array(0x10100),view=new DataView(bytes.buffer);for(const at of [profile.bootloaderOffset,0x10000]){bytes[at]=0xe9;bytes[at+1]=1;view.setUint16(at+12,profile.imageChipId,true);view.setUint32(at+28,4,true);}view.setUint16(0x8000,0x50aa,true);view.setUint32(0x8004,0x10000,true);view.setUint32(0x8008,0x1000,true);return bytes.buffer;}
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 async function until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,5));}throw new Error('Contract phase did not arrive');}
 function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
@@ -19,13 +25,14 @@ const mockDocument={
     if(config.throwConnect)throw new Error('connect clone failure');
     const port=ports[0];frame.channel=port;frame.calls=[];
     port.onmessage=({data})=>{
-      frame.calls.push(data.op);
+      frame.calls.push(data);
       if(config.ignore?.includes(data.op))return;
       if(data.op==='start'&&config.rejectStart){port.postMessage({id:data.id,error:'contract start rejection'});return;}
-      port.postMessage({id:data.id,value:data.op==='pir'?{motion:data.value.motion}:data.op==='dispose'?{workersRemaining:0}:undefined});
+      if(data.op==='start')frame.profile=data.value.profile;
+      port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}:data.op==='dispose'?{workersRemaining:0}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
-      if(data.op==='frame')port.postMessage({type:'frame',value:{width:320,height:240,pixels:new Uint8Array(320*240*2),format:'rgb565le',source:'contract-fixture'}});
+      if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
     };
     port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
   }}};frames.push(frame);return frame;},
@@ -37,18 +44,23 @@ const unhandled=[];const unhandledListener=error=>unhandled.push(error);process.
 const runtimes=[];
 function create(overrides={}){
   const downloads=[],states=[],errors=[];
-  const runtime=new PublicQemuRuntime({root,storage:storage(),requestTimeout:100,onState:value=>states.push(value.status),onError:error=>errors.push(error.message),
-    fetchImpl:async function(url){assert.equal(this,undefined,'native fetch receiver must stay unbound');assert.equal(url,root+'platform/runtime/qemu/runtime.json');return new Response(JSON.stringify(manifest));},
-    downloadImpl:async(url,config)=>{downloads.push({url,...config});const size=url.endsWith('/rom.bin')?393216:8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};},...overrides});
+  const runtime=new PublicQemuRuntime({root,profiles,storage:storage(),requestTimeout:100,onState:value=>states.push(value.status),onError:error=>errors.push(error.message),
+    fetchImpl:async function(url){assert.equal(this,undefined,'native fetch receiver must stay unbound');assert.ok([root+'platform/runtime/qemu/runtime.json',root+'platform/web/qemu-browser-profiles.json'].includes(url));return new Response(JSON.stringify(url.endsWith('qemu-browser-profiles.json')?profiles:manifest));},
+    downloadImpl:async(url,config)=>{downloads.push({url,...config});const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};},...overrides});
   runtimes.push(runtime);return {runtime,downloads,states,errors};
 }
 try {
   const normal=create();await normal.runtime.start({device:'cores3',firmware:firmware()});await until(()=>normal.runtime.lastFrame);
   assert.equal(normal.runtime.observe().status,'running');assert.equal(normal.runtime.observe().persistentStorage,false);
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
+  assert.equal(normal.runtime.receipt.firmwareVariant,null,'an unknown complete Flash hash stays on the baseline clock profile');
+  const startMessage=frames.at(-1).calls.find(row=>row.op==='start');
+  assert.equal(startMessage.value.profile.deviceId,'cores3');assert.deepEqual(startMessage.value.roms.map(({name,sha256})=>({name,sha256})),coreProfile.roms.map(({name,sha256})=>({name,sha256})));
+  assert.equal(startMessage.value.roms[0].bytes.byteLength,coreProfile.roms[0].bytes);assert.equal(startMessage.value.rom,undefined,'the old singular-ROM protocol must not leak through');
   assert.ok(normal.downloads.every(row=>row.signal instanceof AbortSignal&&typeof row.fetchImpl==='function'));
   assert.equal((await normal.runtime.input({type:'pir',motion:true})).result.motion,true);
-  await normal.runtime.input({type:'touch',x:160,y:184,down:true});await normal.runtime.input({type:'uart',text:'hello\n'});
+  await normal.runtime.input({type:'touch',x:160,y:184,down:true});
+  const beforeUart=frames.at(-1).calls.length;await assert.rejects(normal.runtime.input({type:'uart',text:'hello\n'}),/not admitted/);assert.equal(frames.at(-1).calls.length,beforeUart,'unadmitted UART cannot cross the private port');
   await assert.rejects(normal.runtime.input({type:'touch',x:320,y:1,down:true}));await assert.rejects(normal.runtime.input({type:'uart',text:'a'.repeat(129)}));
   await normal.runtime.pause();assert.equal(normal.runtime.status,'paused');await normal.runtime.input({type:'touch',x:160,y:184,down:false});
   await assert.rejects(normal.runtime.input({type:'pir',motion:false}));await normal.runtime.resume();assert.equal(normal.runtime.status,'running');
@@ -56,6 +68,53 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  options={};const frameSources=create({fetchImpl:async(url)=>{assert.equal(url,root+'platform/runtime/qemu/runtime.json');return new Response(JSON.stringify({...manifest,frame_transport:{kind:'shared-rgb565-v1'}}));}});
+  await frameSources.runtime.start({device:'cores3',firmware:firmware()});await until(()=>frameSources.runtime.lastFrame);await frameSources.runtime.pause();
+  const sourceGeneration=frameSources.runtime.generation,sourceFrameCount=frameSources.runtime.sequence;
+  const sharedPixels=new Uint8Array([0x00,0xf8,0xe0,0x07]);
+  frameSources.runtime.receive({type:'frame',value:{width:2,height:1,pixels:sharedPixels,format:'rgb565le',source:'qemu-display-surface-shared',sourceSequence:42,sourceUpdates:7}},sourceGeneration);
+  const sharedEvidence=frameSources.runtime.evidence();
+  assert.equal(sharedEvidence.receipt.frameTransport,'shared-rgb565-v1');
+  assert.deepEqual(sharedEvidence.last_frame,{width:2,height:1,sequence:sourceFrameCount+1,format:'rgb565le',source:'qemu-display-surface-shared',source_sequence:42,source_updates:7,sha256:sha256Bytes(sharedPixels),pixels:Array.from(sharedPixels)},'shared frame evidence must retain the actual source counters as snake_case fields');
+  const diagnosticPixels=new Uint8Array([0x1f,0x00,0xff,0xff]);
+  frameSources.runtime.receive({type:'frame',value:{width:2,height:1,pixels:diagnosticPixels,format:'rgb565le',source:'qmp-screendump'}},sourceGeneration);
+  const diagnosticEvidence=frameSources.runtime.evidence();
+  assert.equal(diagnosticEvidence.receipt.frameTransport,'shared-rgb565-v1','the configured transport remains independent of the actual diagnostic frame source');
+  assert.deepEqual(diagnosticEvidence.last_frame,{width:2,height:1,sequence:sourceFrameCount+2,format:'rgb565le',source:'qmp-screendump',source_sequence:null,source_updates:null,sha256:sha256Bytes(diagnosticPixels),pixels:Array.from(diagnosticPixels)},'a QMP diagnostic frame must not inherit the previous shared frame source or counters');
+  await frameSources.runtime.stop();
+
+  options={};const remoteProfiles=create({profiles:undefined});await remoteProfiles.runtime.start({device:'cores3',firmware:firmware()});assert.equal(remoteProfiles.runtime.profile.board,coreProfile.board);await remoteProfiles.runtime.stop();
+  // Bind the real canonical variant metadata to this synthetic host-only Flash.
+  // This checks adapter resolution without depending on an ignored firmware cache.
+  const variantProfiles=structuredClone(profiles),variantProfile=variantProfiles.profiles.find(profile=>profile.deviceId==='cores3');
+  const variant=variantProfile.firmwareProfiles[0];variant.firmwareSHA256=sha256Bytes(validateQemuFirmware(firmware(),coreProfile));
+  const matched=create({profiles:variantProfiles});await matched.runtime.start({device:'cores3',firmware:firmware()});
+  assert.equal(matched.runtime.receipt.profile,variant.profile);assert.equal(matched.runtime.receipt.clockDivisor,1);
+  assert.deepEqual(matched.runtime.receipt.firmwareVariant,variant);assert.deepEqual(frames.at(-1).profile.firmwareVariant,variant);
+  assert.equal(frames.at(-1).profile.readyFirmwareSHA256,variant.firmwareSHA256);await matched.runtime.stop();
+  const override=create();await assert.rejects(override.runtime.start({device:'cores3',firmware:firmware(),clockDivisor:1}),/候选/);
+  assert.equal(override.downloads.length,0,'public callers cannot override the clock for an unknown firmware hash');
+  const core2=getQemuBrowserProfile('core2',profiles,{allowCandidateProfiles:true});
+  const candidateProfiles=structuredClone(profiles);candidateProfiles.profiles.find(profile=>profile.deviceId==='core2').admission='candidate';
+  const candidate=create({profiles:candidateProfiles,allowCandidateProfiles:true});await candidate.runtime.start({device:'core2',firmware:firmware(core2)});
+  assert.equal(candidate.runtime.receipt.roms.length,2);assert.equal(candidate.runtime.receipt.deviceId,'core2');
+  await candidate.runtime.input({type:'touch',x:160,y:184,down:true});await assert.rejects(candidate.runtime.input({type:'button',id:'a',down:true}),/not admitted/);await assert.rejects(candidate.runtime.input({type:'pir',motion:true}));await candidate.runtime.stop();
+  const unadmitted=create({profiles:candidateProfiles});await assert.rejects(unadmitted.runtime.start({device:'core2',firmware:firmware(core2)}),/准入/);assert.equal(unadmitted.downloads.length,0);
+
+  const profileFetch=deferred(),profileCancel=new AbortController();let profileSignal;
+  const profileLoading=create({profiles:undefined,fetchImpl:async(url,config)=>{assert.ok(url.endsWith('qemu-browser-profiles.json'));profileSignal=config.signal;return profileFetch.promise;}});
+  const profileStart=profileLoading.runtime.start({device:'cores3',firmware:firmware(),signal:profileCancel.signal});profileStart.catch(()=>{});await until(()=>profileSignal);
+  profileCancel.abort();await until(()=>profileLoading.runtime.status==='stopped');assert.equal(profileSignal.aborted,true);
+  profileFetch.resolve(new Response(JSON.stringify(profiles)));await assert.rejects(profileStart,{name:'AbortError'});assert.equal(profileLoading.downloads.length,0);assert.equal(profileLoading.runtime.profile,null);
+
+  const registryRequests=[];
+  const concurrent=create({profiles:undefined,fetchImpl:async(url,config)=>{if(url.endsWith('qemu-browser-profiles.json')){const request=deferred();registryRequests.push({...request,signal:config.signal});return request.promise;}assert.ok(url.endsWith('runtime.json'));return new Response(JSON.stringify(manifest));}});
+  const older=concurrent.runtime.start({device:'cores3',firmware:firmware()});older.catch(()=>{});
+  const newer=concurrent.runtime.start({device:'cores3',firmware:firmware()});newer.catch(()=>{});await until(()=>registryRequests.length===2);
+  registryRequests[1].resolve(new Response(JSON.stringify(profiles)));await newer;const currentSession=concurrent.runtime.sessionId,currentReceipt=concurrent.runtime.receipt;
+  registryRequests[0].resolve(new Response(JSON.stringify(profiles)));await assert.rejects(older,{name:'AbortError'});
+  assert.equal(concurrent.runtime.status,'running');assert.equal(concurrent.runtime.sessionId,currentSession);assert.equal(concurrent.runtime.receipt,currentReceipt);assert.equal(concurrent.downloads.length,4);await concurrent.runtime.stop();
 
   options={ignoreLoad:true};const loading=create(),cancel=new AbortController();const load=loading.runtime.start({device:'cores3',firmware:firmware(),signal:cancel.signal});await until(()=>loading.runtime.iframe);cancel.abort();await assert.rejects(load,{name:'AbortError'});await loading.runtime.stop();assert.equal(loading.runtime.iframe,null);assert.equal(loading.runtime.pending.size,0);assert.equal(loading.runtime.waiters.size,0);
   options={};const pending=create();pending.runtime.port={postMessage(){throw new DOMException('bad transfer','DataCloneError');}};
