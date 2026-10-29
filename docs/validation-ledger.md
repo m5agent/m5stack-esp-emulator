@@ -946,6 +946,44 @@ QOM 503 都保留为 harness control，不写成固件失败；补 fixture 与
 真机、RF、安全和物理 timing 仍 `NOT RUN`。见[证据](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)
 和[机器摘要](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/summary.json)。
 
+## 2026-10-29：最新 QEMU 三设备 UIFlow2 接口复测
+
+在 QEMU `05a43941c087642f274a4521c495edde88269ec1f99187742b509cc98ac49d59`
+上重新并发执行三台 stock UIFlow2 `v2.5.3`。全部报告实际加载的 runtime
+哈希一致；system runtime 各 `50 PASS + 1 STATE_PASS`、shared corrections
+各 `7/7`，board display 分别为 StopWatch `468x468`、StickS3 `135x240`、
+Core2 `320x240`。Sockets、EasySocket、MQTT、network、EzData 和
+ESP-NOW/native ESP-NOW 继续保持通过；StopWatch/StickS3 audio player/recorder
+为 `15/15`、`12/12`。
+
+三台 stock 仍复现 `requests2.urlencode`、八个 Modbus async 和 TLS epoch
+缺陷；对应 candidate 分别为三台各 `2/2`、`50/50`、`5/5`。Core2 stock
+`m5ble-server` 保持 `21 PASS + 1 ERROR`，`0021+0025` candidate 为
+`22/22 PASS`；stock `ble-nus` 使用 `core2-native-hci` 和 matching ELF
+为 `8/8 PASS`。StopWatch/StickS3 stock GATT 继续为 `BLOCKED_MODEL`，
+client 组为 `NOT_RUN / BLOCKED_FIXTURE`。
+
+StopWatch/Core2 各执行 29 个 M5UI session、507 个结果且没有漏测；分类仍为
+`409 STATE_PASS + 80 PENDING_FRAME_OR_INPUT + 3
+PENDING_FRAME_OBJECT_REMOVAL + 11 DOCUMENTATION_MISMATCH +
+1 EXPECTED_UNSUPPORTED + 3 FAIL`。Stock 三失败保持，candidate 均为
+`4/4 STATE_PASS + 2/2 FRAME_PASS`，frame SHA256 分别保持
+`19523193…`、`5a074d29…`。三台 hardware matrix 各
+`115 CALL_OK + 66 API_ASSERTION_PASS + 1 OBSERVED`，设备本地
+StopWatch M5IOE1/M5PM1/vibration、StickS3 IR TX/RX 和 Core2
+INA3221/IMU/AXP192/Mic/Speaker 均重跑。
+
+Core2 network 在三设备首轮冷启动并发时出现过一次 re-activate 后立即 scan
+未看到 fixture AP；隔离重跑与随后 `4/4` 三设备并发重复均为 `14/14 PASS`。
+StickS3 TLS candidate 首轮缺少 native UART-REPL bootstrap，修正后
+`5/5 PASS`。两者均保留为测试控制，不写成模拟器稳定回归。平台套件
+`1432` 项 `OK`、`1` 项既有 skip，四个生成器检查和 `git diff --check`
+PASS；三个隔离服务、QEMU 和 BLE peer 全部清理。全部为
+virtual-device validation，真机、RF、安全、声学/光学/电气和 legacy
+`RUNTIME-03` 仍 `NOT RUN`/开放。见
+[证据](evidence/2026-10-29-three-board-uiflow2-interface-retest-r3/README.md)
+和[机器摘要](evidence/2026-10-29-three-board-uiflow2-interface-retest-r3/summary.json)。
+
 ## 2026-10-29：Core2 legacy RDSR 与 CAS 关联诊断
 
 `0075-esp32-legacy-status-cas-correlation.patch` 在既有 handoff freeze
