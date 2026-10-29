@@ -918,7 +918,7 @@
     "scope": "managed uiflow-live ready; two same-VM button/frame Runs, RuntimeError failure and recovery, nonce/PID/firmware retained and stale execution rejected; 22 checks total"
   },
   "public_export": {
-    "manifest_sha256": "11d0a7b0f21835b21edc57808d53f1733e8212400bfd83fc4db657de049be0f5",
+    "manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
     "publication_eligible": true,
     "candidate_profiles": [],
     "profiles": [
@@ -939,7 +939,7 @@
       "stickc-plus-se"
     ],
     "published": false,
-    "browser_gate": "RUNNING"
+    "browser_gate": "RUNNING_AFTER_PR27_SYNC"
   },
   "source_reviews": {
     "visual_commit": "4879ab51eb8bb11ce024e670ae6880529e3d0f42",
@@ -956,12 +956,13 @@
       "tests_run": 1551,
       "skipped": 10,
       "passed": 1541,
-      "report_sha256": "841d2e91fa157cfd6caab12003dce9bca55e396f8d1fb2e9983b8525157d7f95"
+      "report_sha256": "ec6dd0c1158ac9cefdf503881bc2245c9b092546d4e57e34f75e180411fba503"
     },
     "node_contracts": "PASS",
     "runtime_coverage": "PASS",
     "peripheral_catalog": "PASS",
     "qemu_profiles": "PASS",
     "project_snapshot": "PENDING_FINAL_REGENERATION"
-  }
+  },
+  "emulator_base_commit": "39544effb0e266d0463da33d80f347a708c07423"
 }

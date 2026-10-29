@@ -166,6 +166,7 @@ try{
   check('clean-guest-and-worker-stop',stopped.cleanup?.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.workersAtExit===0
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
+    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===1
     &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const workerClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});report.worker_targets=workerClose;
   const held=await page.evaluate(()=>({connected:headlessDeferredRemoval.frame.isConnected,requests:headlessDeferredRemoval.requests}));

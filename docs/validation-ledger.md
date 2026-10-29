@@ -1542,3 +1542,16 @@ worker active lease 归零，下一 attempt 仍能创建并完成同样 workload
 该结果只扩展 virtual-device teardown 模式，不证明 bit-exact controller/
 baseband、物理 cache/PSRAM timing、RF、跨主机迁移或真机。见
 [证据](../tests/uiflow2/core2_native_hci/evidence-2026-10-29-core2-post-reset-stop-recovery-3x.json)。
+
+
+### 2026-10-29 / Atom 与 Stick 主机内部运行接入
+
+AtomS3、AtomS3 Lite、StickC、StickC Plus SE 和 Plus2 各自原厂固件的原生
+显示/LED、输入及选定外设通过；五款纯浏览器独立验收 117/117，WASM
+`ab1691d6…`；AtomS3/Plus2 同 VM live Run/异常恢复 22/22。正式 native42
+`70bd68ee…` 的既有完整矩阵 68/68；同步 main@39544eff（PR #27）后平台
+1551 项（1541 通过、10 条件跳过）和 Node/来源门禁通过。五款加入默认公开
+准入，共 15 款；最新公开导出的 16 case 整体验收仍在运行，尚不据此授予全门禁 PASS。
+经典 Atom 三款启动失败、原 StickC Plus 缺镜像、Dial 旋钮 deferred GPIO
+callback 状态合并继续开放；50ms 操作点不作为修复。所有结果为 virtual-device，
+未部署 Pages、未执行物理硬件验证。详见[限定结果与哈希](evidence/2026-10-29-expanded-hosts/README.md)。
