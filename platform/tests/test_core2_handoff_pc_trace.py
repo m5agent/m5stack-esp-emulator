@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import importlib.util
 import json
+import sys
 import unittest
 
 from _docs_contract_support import DocsContractBase, ROOT
@@ -17,6 +19,11 @@ PATCH = (
     / "patches/qemu-m5stack-peripherals/"
     "0040-xtensa-handoff-pc-trace.patch"
 )
+IO_BOUNDARY_PATCH = (
+    ROOT
+    / "patches/qemu-m5stack-peripherals/"
+    "0089-xtensa-handoff-pc-trace-io-boundary.patch"
+)
 RUNNER = (
     ROOT
     / "tests/firmware/core2_handoff_trace/run_pc_trace.py"
@@ -24,6 +31,66 @@ RUNNER = (
 
 
 class Core2HandoffPcTraceTests(DocsContractBase):
+    def load_runner(self):
+        runner_dir = str(RUNNER.parent)
+        if runner_dir not in sys.path:
+            sys.path.insert(0, runner_dir)
+        spec = importlib.util.spec_from_file_location(
+            "core2_handoff_pc_trace_runner",
+            RUNNER,
+        )
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        return module
+
+    def test_episode_summary_pairs_bin_bound_setter_phases(self) -> None:
+        runner = self.load_runner()
+        events = [
+            {"now_ns": 1_900_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087A25},
+            {"now_ns": 2_000_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087965},
+            {"now_ns": 2_100_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x4008797A},
+            {"now_ns": 2_500_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087B02},
+            {"now_ns": 2_800_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087A25},
+            {"now_ns": 3_000_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087965},
+            {"now_ns": 3_050_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x4008797A},
+            {"now_ns": 3_400_000_000, "component": "cpu", "event": "pc-trace", "pc": 0x40087B02},
+        ]
+        summary = runner.summarize_handoff_episodes(events, None)
+        self.assertEqual(summary["events"], 8)
+        self.assertEqual(summary["incomplete_blocks"], 0)
+        self.assertEqual(
+            summary["block_wait"],
+            {
+                "count": 2,
+                "total_ns": 900_000_000,
+                "mean_ns": 450_000_000,
+                "p50_ns": 500_000_000,
+                "p95_ns": 500_000_000,
+                "max_ns": 500_000_000,
+            },
+        )
+        self.assertEqual(
+            summary["clear_to_can_start"]["total_ns"],
+            150_000_000,
+        )
+        self.assertEqual(
+            summary["can_start_to_complete"]["total_ns"],
+            750_000_000,
+        )
+        self.assertEqual(
+            summary["complete_to_initiator_prepare"]["total_ns"],
+            300_000_000,
+        )
+        self.assertEqual(
+            summary["initiator_prepare_to_block_clear"]["total_ns"],
+            300_000_000,
+        )
+        self.assertEqual(
+            summary["complete_to_block_clear"]["total_ns"],
+            500_000_000,
+        )
+
     def test_setter_trace_proves_repeated_completed_handoffs(self) -> None:
         evidence = json.loads(EVIDENCE.read_text())
         self.assertEqual(evidence["kind"], "core2-handoff-pc-trace")
@@ -71,6 +138,21 @@ class Core2HandoffPcTraceTests(DocsContractBase):
         self.assertIn("0x40087B02", runner)
         self.assertIn("first_wdt_reset_ns", runner)
         self.assertIn("permanent_deadlock", runner)
+        self.assertIn("summarize_handoff_episodes", runner)
+        self.assertIn("block_wait", runner)
+        self.assertIn("clear_to_can_start", runner)
+        self.assertIn("can_start_to_complete", runner)
+        self.assertIn("complete_to_initiator_prepare", runner)
+        self.assertIn("initiator_prepare_to_block_clear", runner)
+        self.assertIn("complete_to_block_clear", runner)
+        self.assertIn("--expected-image-sha256", runner)
+
+    def test_pc_trace_io_boundary_prevents_bad_icount_read(self) -> None:
+        patch = IO_BOUNDARY_PATCH.read_text()
+        self.assertIn("translator_io_start(&dc->base)", patch)
+        self.assertIn("!cpu->neg.can_do_io", patch)
+        self.assertIn("Bad icount read", patch)
+        self.assertNotIn("M5SW_DISABLE_WDT", patch)
 
 
 if __name__ == "__main__":

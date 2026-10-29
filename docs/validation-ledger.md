@@ -1779,3 +1779,31 @@ normal-WDT reset、startup UI、setup/REPL、非空应用帧和 physical hardwar
 CPU0 park time 和 CPU1 boot phase，而不是继续猜测匿名 vtable。见
 [证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)和
 [机器摘要](evidence/2026-10-29-core2-ipc-handoff-attribution/summary.json)。
+
+## 2026-10-29：Core2 legacy flash handoff episode budget
+
+`0089-xtensa-handoff-pc-trace-io-boundary.patch` 修复 BIN-bound PC trace
+在 no-I/O translation block 中读取虚拟时钟导致的 `Bad icount read`。匹配
+PC 的 TB 现在通过 `translator_io_start()` 结束，helper 同时保留
+`can_do_io` fail-safe。pre-fix control 在约 `2.351 s` 直接终止；修复版
+QEMU `7d9b1f43…` 完成两次 50 秒 wall-time、normal-WDT 运行。
+
+两次运行都在约 `17.25 s` 触发 `TG0WDT_SYS_RESET`，reset 前分别完成
+`12,645/12,693` 个完整 handoff。CPU1 `spi_flash_op_block_func` wait：
+
+| run | total | mean | p50 | p95 | max | reset budget |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | `9.851852864 s` | `779.110 us` | `782.400 us` | `813.312 us` | `6.655552 ms` | `57.1%` |
+| 2 | `9.828771008 s` | `774.345 us` | `781.824 us` | `804.704 us` | `6.781792 ms` | `57.0%` |
+
+“complete 到下一次 block wait”另占 `5.047361117/5.071124609 s`，两段
+合计约 `86.4%` reset 预算。最大单次 wait 始终小于 `6.8 ms`，而累计
+episode 频率约 `733-736/s`。因此当前不支持“某个 handshake 永久或长时间
+不返回”的解释，下一优化入口是正常 handoff 周期的频率或累计成本。
+
+两次 serial 都没有 `BOARD NAME`、`APIKEY`、setup/REPL，302-byte frame 仍为
+同一黑帧 SHA。该结果是 diagnostic tooling fix 加 virtual-device 预算归因；
+`RUNTIME-03`、startup UI、非空应用帧、物理 cache/Flash timing 和真机仍
+`OPEN/NOT RUN`。见
+[证据](evidence/2026-10-29-core2-handoff-episode-budget/README.md)和
+[机器摘要](evidence/2026-10-29-core2-handoff-episode-budget/summary.json)。
