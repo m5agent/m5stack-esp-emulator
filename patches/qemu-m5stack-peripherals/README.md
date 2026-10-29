@@ -618,6 +618,16 @@ stayed within eight operations. Normal WDT still reset at TG0 stage 1 in both
 lanes, so this is scheduler attribution rather than `RUNTIME-03` closure; see
 the [scheduler evidence](../../docs/evidence/2026-10-29-core2-contended-cas-scheduler/README.md).
 
+`0089-xtensa-handoff-pc-trace-io-boundary.patch` makes the existing
+default-off, BIN-bound `M5SW_XTENSA_PC_TRACE` helper safe under deterministic
+`-icount`. Before the fix, a match inside a no-I/O translation block aborted
+QEMU with `Bad icount read`. The patch calls `translator_io_start()` for a
+matching PC and keeps a defensive `can_do_io` guard in the helper. Guest
+instructions, watchdog deadlines, peripheral paths and default runtime
+behavior are unchanged. A short control before the fix terminated at
+`Bad icount read` after about `2.351 s` virtual time; the fixed binary
+completed both the short trace and repeated 50-second handoff-episode runs.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

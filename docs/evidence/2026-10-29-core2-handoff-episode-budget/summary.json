@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-episode-budget",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": "5",
+    "wdt_disabled": false,
+    "qemu_binary_sha256": "7d9b1f43ecc5a9b842c370dd52981ae7eab1c71e996f5dbf26a61bb3b2c0f353",
+    "patch_sha256": "14326ad71d3c93ee564173387bba6b6efc38b61f24830e363134261e8e2b0dde"
+  },
+  "pre_fix_control": {
+    "result": "Bad icount read",
+    "qemu_stderr_sha256": "709220574aff14597508508e9af577cb5cb38d0e3884049304de01e6108a5477"
+  },
+  "normal_wdt_runs": [
+    {
+      "first_timeout_ns": 7249439872,
+      "first_reset_ns": 17249519230,
+      "pc_events": 50583,
+      "handoff_events": {
+        "0x40087965": 12646,
+        "0x4008797a": 12646,
+        "0x40087a25": 12646,
+        "0x40087b02": 12645
+      },
+      "block_wait": {
+        "count": 12645,
+        "total_ns": 9851852864,
+        "mean_ns": 779110,
+        "p50_ns": 782400,
+        "p95_ns": 813312,
+        "max_ns": 6655552
+      },
+      "can_start_to_complete": {
+        "count": 12645,
+        "total_ns": 9848500512,
+        "mean_ns": 778845,
+        "p50_ns": 782144,
+        "p95_ns": 813056,
+        "max_ns": 6655296
+      },
+      "complete_to_block_clear": {
+        "count": 12645,
+        "total_ns": 5047361117,
+        "mean_ns": 399158,
+        "p50_ns": 227008,
+        "p95_ns": 397184,
+        "max_ns": 589996032
+      },
+      "block_wait_fraction": 0.5711378232,
+      "covered_fraction": 0.8637466229,
+      "episodes_per_virtual_second": 733.0639093,
+      "serial_bytes": 1207,
+      "first_boot_serial_sha256": "6e0cf9989485542022127cce4287ae028c7f4eabcdc51a8e111324900214c6ea",
+      "serial_sha256": "bc5563f6fa9a829c934a115d3e5832cd1d7df95facfe1e51af8ecc35a7bfa80e",
+      "qemu_stderr_sha256": "828126a04a4f9cc3fc9fc750abcb0f1cd3c0d1a15b1a6db55013d3324e20e489",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    },
+    {
+      "first_timeout_ns": 7253551388,
+      "first_reset_ns": 17253553502,
+      "pc_events": 50772,
+      "handoff_events": {
+        "0x40087965": 12693,
+        "0x4008797a": 12693,
+        "0x40087a25": 12693,
+        "0x40087b02": 12693
+      },
+      "block_wait": {
+        "count": 12693,
+        "total_ns": 9828771008,
+        "mean_ns": 774345,
+        "p50_ns": 781824,
+        "p95_ns": 804704,
+        "max_ns": 6781792
+      },
+      "can_start_to_complete": {
+        "count": 12693,
+        "total_ns": 9825450848,
+        "mean_ns": 774084,
+        "p50_ns": 781568,
+        "p95_ns": 804448,
+        "max_ns": 6781536
+      },
+      "complete_to_block_clear": {
+        "count": 12692,
+        "total_ns": 5071124609,
+        "mean_ns": 399552,
+        "p50_ns": 227424,
+        "p95_ns": 398432,
+        "max_ns": 589997026
+      },
+      "block_wait_fraction": 0.5696664752,
+      "covered_fraction": 0.8635841663,
+      "episodes_per_virtual_second": 735.6745379,
+      "serial_bytes": 1055,
+      "first_boot_serial_sha256": "91c7f8c67c2369a70c95ec44b667198fb248d6a3c23734d9953c0be6229f012c",
+      "serial_sha256": "91c7f8c67c2369a70c95ec44b667198fb248d6a3c23734d9953c0be6229f012c",
+      "qemu_stderr_sha256": "92cdfbc13dc265140765f2594615c1b6198bb9c9e64ca109dab37f0749dd6190",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    }
+  ],
+  "classification": {
+    "single_long_handoff_deadlock": "REJECTED",
+    "high_frequency_cumulative_handoff_budget": "OBSERVED",
+    "runtime03": "OPEN"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "PC addresses and source-shape names are BIN-bound.",
+    "Normal WDT was not extended or disabled.",
+    "No physical cache, PSRAM, Flash, electrical, RF or hardware equivalence is claimed."
+  ]
+}

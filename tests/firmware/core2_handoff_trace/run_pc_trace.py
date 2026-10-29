@@ -38,6 +38,10 @@ DEFAULT_PCS = (
     0x40087A25,
     0x40087B02,
 )
+HANDOFF_BLOCK_CLEAR_PC = 0x40087965
+HANDOFF_BLOCK_READY_PC = 0x4008797A
+HANDOFF_FLASH_RELEASE_PC = 0x40087A25
+HANDOFF_BLOCK_COMPLETE_PC = 0x40087B02
 
 
 def first_boot_serial(serial: str) -> str:
@@ -47,6 +51,100 @@ def first_boot_serial(serial: str) -> str:
         return serial
     end = serial.find("\n", index)
     return serial if end < 0 else serial[: end + 1]
+
+
+def duration_profile(values: list[int]) -> dict[str, int]:
+    if not values:
+        return {
+            "count": 0,
+            "total_ns": 0,
+            "mean_ns": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "max_ns": 0,
+        }
+    ordered = sorted(values)
+
+    def percentile(fraction: float) -> int:
+        index = max(0, min(len(ordered) - 1, int(len(ordered) * fraction)))
+        return ordered[index]
+
+    total = sum(ordered)
+    return {
+        "count": len(ordered),
+        "total_ns": total,
+        "mean_ns": total // len(ordered),
+        "p50_ns": percentile(0.50),
+        "p95_ns": percentile(0.95),
+        "max_ns": ordered[-1],
+    }
+
+
+def summarize_handoff_episodes(
+    events: list[dict[str, Any]],
+    reset_ns: int | None,
+) -> dict[str, Any]:
+    """Measure each CPU0 flash-block wait using four BIN-bound setter PCs."""
+    selected = [
+        event
+        for event in events
+        if event["component"] == "cpu"
+        and event["event"] == "pc-trace"
+        and event["now_ns"] > 1_000_000_000
+        and (reset_ns is None or event["now_ns"] <= reset_ns)
+    ]
+    block_wait = []
+    can_start_latency = []
+    can_start_to_complete = []
+    complete_to_prepare = []
+    prepare_to_block_clear = []
+    complete_to_block_clear = []
+    clear_ns: int | None = None
+    ready_ns: int | None = None
+    prepare_ns: int | None = None
+    last_complete_ns: int | None = None
+
+    for event in selected:
+        now_ns = event["now_ns"]
+        pc = event["pc"]
+        if pc == HANDOFF_BLOCK_CLEAR_PC:
+            if last_complete_ns is not None:
+                complete_to_block_clear.append(now_ns - last_complete_ns)
+            if prepare_ns is not None:
+                prepare_to_block_clear.append(now_ns - prepare_ns)
+            clear_ns = now_ns
+            ready_ns = None
+        elif pc == HANDOFF_BLOCK_READY_PC and clear_ns is not None:
+            can_start_latency.append(now_ns - clear_ns)
+            ready_ns = now_ns
+        elif pc == HANDOFF_FLASH_RELEASE_PC:
+            if last_complete_ns is not None:
+                complete_to_prepare.append(now_ns - last_complete_ns)
+            prepare_ns = now_ns
+        elif pc == HANDOFF_BLOCK_COMPLETE_PC and clear_ns is not None:
+            block_wait.append(now_ns - clear_ns)
+            if ready_ns is not None:
+                can_start_to_complete.append(now_ns - ready_ns)
+            last_complete_ns = now_ns
+            clear_ns = None
+            ready_ns = None
+
+    return {
+        "events": len(selected),
+        "incomplete_blocks": int(clear_ns is not None),
+        "block_wait": duration_profile(block_wait),
+        "clear_to_can_start": duration_profile(can_start_latency),
+        "can_start_to_complete": duration_profile(can_start_to_complete),
+        "complete_to_initiator_prepare": duration_profile(
+            complete_to_prepare
+        ),
+        "initiator_prepare_to_block_clear": duration_profile(
+            prepare_to_block_clear
+        ),
+        "complete_to_block_clear": duration_profile(
+            complete_to_block_clear
+        ),
+    }
 
 
 def summarize_trace(
@@ -91,6 +189,7 @@ def summarize_trace(
     }
     first_boot = first_boot_serial(serial)
     complete_count = counts.get("0x40087b02", 0)
+    episodes = summarize_handoff_episodes(first_boot_events, first_reset_ns)
     return {
         "trace_events": len(events),
         "pc_events": len(pc_events),
@@ -108,6 +207,7 @@ def summarize_trace(
         "first_boot_last_pc_ns": (
             first_boot_events[-1]["now_ns"] if first_boot_events else None
         ),
+        "handoff_episodes": episodes,
         "serial": {
             "bytes": len(serial.encode()),
             "sha256": sha256_bytes(serial.encode()),
@@ -276,6 +376,10 @@ def main() -> int:
         default=None,
     )
     parser.add_argument(
+        "--expected-image-sha256",
+        default=EXPECTED_IMAGE_SHA256,
+    )
+    parser.add_argument(
         "--runtime",
         choices=("qemu", "qemu-wifi"),
         default="qemu",
@@ -292,10 +396,10 @@ def main() -> int:
     if not args.qemu.is_file():
         parser.error(f"QEMU does not exist: {args.qemu}")
     image_sha256 = sha256_file(args.image)
-    if image_sha256 != EXPECTED_IMAGE_SHA256:
+    if image_sha256 != args.expected_image_sha256.lower():
         parser.error(
             f"image SHA256 mismatch: expected "
-            f"{EXPECTED_IMAGE_SHA256}, got {image_sha256}"
+            f"{args.expected_image_sha256}, got {image_sha256}"
         )
     if args.observe_seconds < 2 or args.observe_seconds > 120:
         parser.error("--observe-seconds must be from 2 to 120")

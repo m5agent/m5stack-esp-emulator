@@ -195,6 +195,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   事务均为同步 `0 ns`。下一步量化 per-operation CPU0 park time 与 CPU1
   启动阶段，而不是继续猜测匿名 vtable。见
   [IPC handoff 证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)。
+  `0089` 随后修复 PC trace 在 no-I/O TB 中读取虚拟时钟触发的
+  `Bad icount read`，并完成两次 50 秒 wall-time、normal-WDT 复测。固定版
+  QEMU 在 reset 前记录 `12,645/12,693` 次完整 handoff；CPU1 block wait
+  累计 `9.8519/9.8288 s`，约占 reset 预算 `57%`，单次最大仅约
+  `6.7-6.8 ms`。下一项应降低正常 handoff 周期频率或单周期成本，而不是
+  继续寻找一个不存在的长锁超时。见
+  [episode budget 证据](evidence/2026-10-29-core2-handoff-episode-budget/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
