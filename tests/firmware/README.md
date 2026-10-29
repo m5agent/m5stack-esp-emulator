@@ -41,6 +41,16 @@ Widgets, LVGL and offline WLAN startup paths through visible Device Service
 sessions, with pinned stock executable bytes and retained-history checks.
 It does not replace private full-application or legacy UIFlow1 validation.
 
+## Core2 for AWS ATECC608
+
+[`core2_atecc608/`](core2_atecc608/README.md) drives the public Core2 for AWS
+factory image through three visible Device Service sessions. The `0085` QEMU
+patch implements the ATECC608 wake/Read/Info/CRC path with a deterministic
+locked test config and fixes the classic ESP32 DMA link-start/DC command phase.
+Each run must reach `atecc608: ok: 60 02` and a nonempty frame, then stop with
+`purge=0` while retaining evidence. Production key material, ECDSA signing,
+electrical behavior and hardware validation remain separate.
+
 ## Core2 8 MiB PSRAM bank switch
 
 [`core2_psram_himem/`](core2_psram_himem/) builds a small ESP-IDF firmware that

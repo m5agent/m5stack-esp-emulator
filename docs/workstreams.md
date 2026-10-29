@@ -28,7 +28,7 @@
 | 网络隔离、双 guest fabric 与 worker | `network_*.py`、`worker_*.py`、`evidence_store.py`、`transport_security.py`、`tests/network/` | namespace、controlled DNS/TLS、CNAME、有界 IPv4/IPv6 egress、pcap、双 guest、跨 container 的 worker-local QEMU、同 guest IPv6 TCP/HTTP、generation-pointer credential migration、claim/evidence response-loss 幂等、lease-bound evidence store、lease ownership `409` fencing、network-partition process/QEMU/`qemu-unified` companion fencing 和 companion continuity 已进入统一执行链；`NET-05`、`NET-06` 已完成当前虚拟设备范围 | `NET-04`：物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller side effect、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | Core2 无线、映射与长稳 | `tests/uiflow2/core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py`、`qemu_accel.py` | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop 和当前单设备容量门禁已有虚拟设备证据 | `CORE2-02`：大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`runtime_acl.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、ZIP/资源/build 选择 fail-closed、capability、文件系统、SD/NVS fixture、SBOM、许可声明、Secure Boot v2 镜像分析和 operator runtime ACL 可执行 | `FW-01`、`FW-02`、`FW-03`：guest filesystem ACL/完整许可、live eFuse/生产 key、真实云端业务和更多固件族 |
-| 运行时模型缺口 | runtime coverage、QEMU patches、firmware/runtime evidence | `RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已关闭；`RUNTIME-03` 已修复 shared I2C、timer、WDT mask、stateful SSI、pending SPI remap 和 classic RMT，并由 `0065` 关闭 high-priority DPORT handoff 调度死锁。legacy Serial 到达 `APIKEY`，但 normal-WDT reset、WDT-off 黑帧、display completion、setup/REPL 和非空帧继续 OPEN。`0067` 补齐 loopback，`0076` 完成 plaintext，`0077` 完成 CCMP，`0078/0079` 完成 duplicate/reorder window，native/M5ESPNow wrapper 完成 lifecycle；guest key-state、key rotation 与多 peer replay 仍 OPEN | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04`、`RUNTIME-06` |
+| 运行时模型缺口 | runtime coverage、QEMU patches、firmware/runtime evidence | `RUNTIME-01` Flash/PMP、`RUNTIME-04` Core2 for AWS ATECC608 初始化与 `RUNTIME-05` S3 WPA2 已关闭；`RUNTIME-03` 已修复 shared I2C、timer、WDT mask、stateful SSI、pending SPI remap 和 classic RMT，并由 `0065` 关闭 high-priority DPORT handoff 调度死锁。legacy Serial 到达 `APIKEY`，但 normal-WDT reset、WDT-off 黑帧、display completion、setup/REPL 和非空帧继续 OPEN。`0067` 补齐 loopback，`0076` 完成 plaintext，`0077` 完成 CCMP，`0078/0079` 完成 duplicate/reorder window，native/M5ESPNow wrapper 完成 lifecycle；guest key-state、key rotation 与多 peer replay 仍 OPEN | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-06` |
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py`、docs contract tests | lease、history、artifact upload、QEMU/QMP 与 companion recovery、控制面/本地 runtime API 分离可执行 | `SVC-01`、`SVC-02`、`SVC-03` |
 | 真机同路径验证 | Device Test Center 和硬件证据流程 | 已有测试入口与分层规则；当前仓库结论仍以 virtual-device validation 为主 | `HW-01` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | 烧录、画面、触摸、RS-485、ESP-Hosted 和部分 I2C 可用，外设仍为 `partial` | `TAB5-01` |
@@ -67,7 +67,7 @@
 | `FW-03` | 进行中 | 真实云端业务、更多设备与固件族 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 Zigbee/802.15.4 commissioning |
 | `RUNTIME-03` | 进行中 | high-priority DPORT handoff 与 classic RMT 已修复；Core2 legacy UIFlow 到 `APIKEY` 后仍 normal-WDT reset/黑帧，尚无 display completion、setup/REPL 或 non-empty frame |
-| `RUNTIME-04` | 进行中 | Core2 for AWS ATECC608 fixture |
+| `RUNTIME-04` | 已关闭（virtual-device） | Core2 for AWS ATECC608 wake/Read/Info/CRC、确定性 config 与应用帧 |
 | `RUNTIME-06` | 进行中 | controller loopback、plaintext、CCMP、单 peer 64-frame replay window、native 与 wrapper lifecycle 已有证据；guest key-state 写入 bridge、key rotation、multi-peer replay、跨设备 fabric 与 RF/timing 仍 OPEN |
 | `SVC-01` | 进行中 | 跨主机/namespace-managed/Tab5 companion 与跨主机幂等 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
@@ -90,7 +90,7 @@ Task 的依赖、下一项最小交付和验收条件只在
 | 可并行工程 | `FW-01`、`FW-03`、`SVC-03`、`UI-01`、`CZ-01` | 当前仓库和现有虚拟设备即可推进；代码拆分遵守“一次只移动一个边界” |
 | 需要多机环境 | `NET-04` 以及依赖它的跨主机部分 | 两个可失联、可 drain、可独立寻址的节点；单机 namespace/container 不计为完成 |
 | 需要真机/授权 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、外部观测和敏感 key/eFuse 流程授权 |
-| 后端/安全元件阻塞 | `RUNTIME-02`、`RUNTIME-04`、`TAB5-01` | 可重建 radio MAC 路径、匹配 ELF/ATECC fixture，或明确的 P4 backend 决策；ESP-NOW key fixture 已不再是外部 peer 阻塞 |
+| 后端阻塞 | `RUNTIME-02`、`TAB5-01` | 可重建 radio MAC 路径或明确的 P4 backend 决策；ATECC608 初始化与 ESP-NOW key fixture 已不再是外部 peer 阻塞 |
 
 完成一轮工作后的固定顺序是：先落 evidence，再更新
 `validation-ledger.md`；只有能力或边界变化时才改 `project-status.md`；

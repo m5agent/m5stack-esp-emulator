@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "date": "2026-10-29",
+  "device_id": "core2",
+  "runtime": "qemu",
+  "machine": "m5core2",
+  "firmware": {
+    "source_artifact_sha256": "22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a",
+    "service_normalized_sha256": "104062aa0e6f52470f0c7f409d202af5d2dad5c3e5ee8f7e65815508a512ef3c"
+  },
+  "runtime_artifact": {
+    "qemu_sha256": "a802d6a358b6bccb1e9d856b6179ca7245101751a627b7b6f3ddadc3a73fb5b0",
+    "qemu_patch": "patches/qemu-m5stack-peripherals/0085-core2-atecc608.patch",
+    "qemu_patch_sha256": "797420fcb1b487f06e8e5fa1cec746ec0fd47a2316f18d10fd28e928c0872059",
+    "runner": "tests/firmware/core2_atecc608/run_service.py",
+    "runner_sha256": "6ff1dacee453bda12e6c47803bb9270c7e39709a30113cc9d379b56bff35b936"
+  },
+  "atecc608": {
+    "i2c_address_7bit": "0x35",
+    "qom_path": "/machine/atecc608",
+    "revision": "00 00 60 02",
+    "serial": "01 23 45 67 89 AB CD EF 12",
+    "config_zone": "test fixture, locked",
+    "data_zone": "test fixture, locked, zero-filled",
+    "production_key_material": false,
+    "observed_commands": [
+      "READ param1=0x80 param2=0x0000 count=7 (32-byte config)",
+      "READ param1=0x00 param2=0x0015 count=7 (lock word)",
+      "INFO param1=0x00 param2=0x0000 count=7 (revision)"
+    ],
+    "serial_marker": "atecc608: ok: 60 02"
+  },
+  "dma_fix": {
+    "descriptor_start_reuses_saved_link": true,
+    "command_phase_observes_gpio15_dc": true,
+    "completed_dma_not_replayed_by_cpu_path": true
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "frame_sha256": "f373994099403fea3b0e42d0dbf9b0486d2d9306cbb9c6cb27455794b602eb10",
+      "evidence_sha256": "f491ce6715fc96f21a520cb0cfaa24c8cd30351d2ada8ea6bea7b950de2be1c4"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "frame_sha256": "f373994099403fea3b0e42d0dbf9b0486d2d9306cbb9c6cb27455794b602eb10",
+      "evidence_sha256": "89b84e5bc7362c9ce8034094b514eece0e921d3ddebd15a60fa392a0028c48ec"
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "frame_sha256": "f373994099403fea3b0e42d0dbf9b0486d2d9306cbb9c6cb27455794b602eb10",
+      "evidence_sha256": "0c77e2c46a97c885d0fced571009c45b9aa678a7ba1301f77ad3cf3d2817320c"
+    }
+  ],
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "png_bytes": 10178,
+    "nonblack_pixels": 76800,
+    "unique_colors": 160
+  },
+  "checks": {
+    "ready": true,
+    "atecc_marker": true,
+    "no_atecc_failure_marker": true,
+    "frame_nonblank": true,
+    "frame_colors": true,
+    "evidence_zip_valid": true,
+    "terminal_stopped": true,
+    "history_retained": true,
+    "pid_gone": true,
+    "lease_released": true
+  },
+  "boundaries": [
+    "No physical hardware validation.",
+    "No production key, certificate or trust-root material.",
+    "ECDSA key generation and signing are not claimed.",
+    "Electrical, optical and side-channel behavior are not modeled.",
+    "BMI270 failure in this firmware is independent.",
+    "Core2 legacy UIFlow RUNTIME-03 remains open."
+  ]
+}

@@ -151,6 +151,16 @@
       "data_plane": "AXP192 chip ID, status, battery/VBUS/APS ADC registers, charge configuration/current and GPIO/IRQ register file over ESP32 I2C",
       "tested_devices": ["core2"]
     },
+    "atecc608": {
+      "kind": "secure-element",
+      "interface": "i2c",
+      "address": "0x35",
+      "capabilities": ["secure-element", "device-identity"],
+      "status": "simulated",
+      "injection": ["deterministic-test-config", "crypto-auth-command-data-plane"],
+      "data_plane": "ATECC608A wake/idle/sleep tokens, CryptoAuthentication count/opcode/parameter/CRC framing, config and lock-word reads, Info revision and deterministic test identity over the Core2 board I2C bus; the fixture contains no production key or certificate material",
+      "tested_devices": ["core2"]
+    },
     "axp2101": {
       "kind": "pmic",
       "interface": "i2c",
@@ -823,7 +833,8 @@
         {"id": "microphone", "model": "spm1423", "interface": "i2s0-pdm"},
         {"id": "speaker", "model": "ns4168", "interface": "i2s1"},
         {"id": "power-key", "model": "pwr-button"},
-        {"id": "legacy-pmic-compat", "model": "axp192", "compatibility": true, "qom_path": "/machine/axp192", "status": "simulated"}
+        {"id": "legacy-pmic-compat", "model": "axp192", "compatibility": true, "qom_path": "/machine/axp192", "status": "simulated"},
+        {"id": "secure-element-aws-compat", "model": "atecc608", "interface": "i2c", "address": "0x35", "compatibility": true, "qom_path": "/machine/atecc608", "status": "simulated"}
       ]
     },
     "nesso-n1": {

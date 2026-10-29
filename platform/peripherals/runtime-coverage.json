@@ -85,6 +85,11 @@
       "test": "tests/uiflow2/unified_core2/run_test.py",
       "evidence": "tests/uiflow2/unified_core2/evidence-2026-10-23.json"
     },
+    "core2-atecc608": {
+      "device": "core2",
+      "test": "tests/firmware/core2_atecc608/run_service.py",
+      "evidence": "docs/evidence/2026-10-29-core2-atecc608/summary.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -194,6 +199,7 @@
       "spm1423",
       "pwr-button"
     ],
+    "core2-atecc608": ["atecc608"],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
     "sticks3-mic": ["es8311"],
@@ -589,7 +595,8 @@
         "core2-axp192"
       ],
       "external": [
-        "core2-unified"
+        "core2-unified",
+        "core2-atecc608"
       ],
       "models": [
         "axp2101",
@@ -600,7 +607,8 @@
         "spm1423",
         "ns4168",
         "pwr-button",
-        "axp192"
+        "axp192",
+        "atecc608"
       ]
     },
     "nesso-n1": {
@@ -682,6 +690,7 @@
     "keyboard-tca8418": {"matrix": ["cardputer-adv-keyboard"]},
     "m5pm1": {"matrix": ["stopwatch-m5pm1-full"]},
     "axp192": {"matrix": ["core2-axp192"]},
+    "atecc608": {"external": ["core2-atecc608"]},
     "axp2101": {"matrix": ["cores3-peripherals"]},
     "m5ioe1": {"matrix": ["stopwatch-m5ioe1-full"]},
     "aw9523": {"matrix": ["cores3-aw9523-full"]},
