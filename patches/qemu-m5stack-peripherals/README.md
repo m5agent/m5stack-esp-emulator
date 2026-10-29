@@ -595,6 +595,16 @@ factory firmware changes from `atcab_init=f0` plus abort to
 private key, certificate, ECDSA signing, live trust root or electrical
 equivalence is claimed; BMI270 errors in the same firmware remain independent.
 
+`0086-esp32-legacy-cas-episode-profile.patch` extends the freeze-only
+`s32c1i` diagnostics with bounded contention episodes. It tracks each CPU's
+current contended lock, failed-attempt count, maximum inter-attempt gap and
+hold duration, then emits overall and per-lock aggregates at the existing
+freeze point. Virtual-clock sampling is skipped while the vCPU is executing a
+no-I/O translation block, where QEMU would terminate with `Bad icount read`;
+the next I/O-capable observation continues or closes the episode. This changes
+diagnostics only and does not alter guest instructions, lock outcomes,
+interrupts, watchdog behavior or default scheduling.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

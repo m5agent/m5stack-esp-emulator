@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "0a63c37f62752a3020988bb6b087b5eb11f4a6af323255f978ccb7012cb8be73"
+  },
+  "patch": {
+    "name": "0086-esp32-legacy-cas-episode-profile.patch",
+    "sha256": "4e86512c3d19a30c23ffd22824a69fc7d5d2f10d0db5aa7a2e81668090b608f8"
+  },
+  "diagnostic_fix": {
+    "failure": "Bad icount read",
+    "cause": "QEMU_CLOCK_VIRTUAL sampled while the vCPU was in a no-I/O translation block",
+    "behavior": "skip unsafe observation without terminating QEMU or changing CAS outcomes",
+    "verified": true
+  },
+  "source_attribution": {
+    "reference": "m5stack/esp-idf v3.3.5",
+    "reference_commit": "03810c4a065a1ecdd24a803b2c9dc4e834c7dab5",
+    "method": "BIN instruction/control-flow matching",
+    "matching_application_elf_map": false,
+    "xTaskQueueMutex": {
+      "lock_address": "0x3ffbf2cc",
+      "literal_vma": "0x40081174",
+      "wait_sites": [
+        "xTaskIncrementTick:0x4009582d",
+        "vTaskSwitchContext:0x40096554"
+      ]
+    },
+    "queue_mux": {
+      "lock_address": "0x3ffb7ab0",
+      "queue_base": "0x3ffb7a64",
+      "mux_offset": 76,
+      "wait_sites": [
+        "0x40094e8d",
+        "0x400951cb",
+        "0x40095255"
+      ]
+    }
+  },
+  "normal_wdt_10s": {
+    "evidence_sha256": "13441b476b3feac59afa99a19ab098e328f1c38c42bf71c34f837eea1c506ed7",
+    "qemu_stderr_sha256": "1940898f1e4acdc31d7d4840796451945c746bcca65f746650c58a4bea216eaa",
+    "freeze_ns": 10000000000,
+    "cpu": {
+      "0": "0x40087986",
+      "1": "0x40095c3c"
+    },
+    "episodes": {
+      "count": 238,
+      "duration_ns_total": 9316534114,
+      "duration_ns_max": 631000000,
+      "incomplete": 2
+    },
+    "episode_buckets": {
+      "0": 68,
+      "4": 31,
+      "5": 113,
+      "6": 26
+    },
+    "locks": {
+      "0x3ffbf2cc": {
+        "count": 162,
+        "duration_ns_total": 6743534018,
+        "duration_ns_max": 482823328,
+        "attempts_total": 1001,
+        "attempts_max": 53,
+        "attempt_gap_ns_max": 110034978
+      },
+      "0x3ffb7ab0": {
+        "count": 31,
+        "duration_ns_total": 2559000096,
+        "duration_ns_max": 631000000,
+        "attempts_total": 144,
+        "attempts_max": 32,
+        "attempt_gap_ns_max": 203000000
+      }
+    }
+  },
+  "wdt_off_10s": {
+    "evidence_sha256": "24eaec07ee2a6679e71106e91d951c011707e4574c2a4e4e07a9fece66c86332",
+    "qemu_stderr_sha256": "fc5f0c4d5b0a3687e3bf674b5e88ecdd144921874a97c7ca6fea15ad175c908f",
+    "freeze_ns": 10000000031,
+    "cpu": {
+      "0": "0x4008798b",
+      "1": "0x400871fb"
+    },
+    "episodes": {
+      "count": 253,
+      "duration_ns_total": 7825981502,
+      "duration_ns_max": 581176638,
+      "incomplete": 2
+    },
+    "episode_buckets": {
+      "0": 83,
+      "2": 1,
+      "4": 34,
+      "5": 112,
+      "6": 23
+    },
+    "locks": {
+      "0x3ffbf2cc": {
+        "count": 166,
+        "duration_ns_total": 6600981470,
+        "duration_ns_max": 581176638,
+        "attempts_total": 1145,
+        "attempts_max": 65,
+        "attempt_gap_ns_max": 80997600
+      },
+      "0x3ffb7ab0": {
+        "count": 30,
+        "duration_ns_total": 1133000000,
+        "duration_ns_max": 274000000,
+        "attempts_total": 67,
+        "attempts_max": 7,
+        "attempt_gap_ns_max": 173999968
+      }
+    }
+  },
+  "failed_cas_yield_controls": {
+    "wdt_off_10s": {
+      "evidence_sha256": "c33674b7760c9200b1957e7e4bcfcc6b31236e3a7dee8f83739b9a695420954f",
+      "qemu_stderr_sha256": "147252b9c90452f2b232c0f43e45e4c337e69f1b299d859c70e9321a91d928c9",
+      "episodes": {
+        "count": 64,
+        "duration_ns_total": 1400290688,
+        "duration_ns_max": 264999968,
+        "incomplete": 1
+      },
+      "locks": {
+        "0x3ffbf2cc": {
+          "count": 21,
+          "duration_ns_total": 446291456,
+          "duration_ns_max": 168068320,
+          "attempts_total": 27,
+          "attempts_max": 3,
+          "attempt_gap_ns_max": 91010144
+        },
+        "0x3ffb7ab0": {
+          "count": 42,
+          "duration_ns_total": 953999232,
+          "duration_ns_max": 264999968,
+          "attempts_total": 62,
+          "attempts_max": 6,
+          "attempt_gap_ns_max": 100000000
+        }
+      }
+    },
+    "wdt_off_15s": {
+      "evidence_sha256": "ef391c15c9077ddb3783a05f8efdae1fc01c91540e29aa05b405004bdefe1c94",
+      "qemu_stderr_sha256": "cf0b9753da73d05c5c6cb657e34f7610ccc156f01bac1cab4284df7ca6397353",
+      "episodes": {
+        "count": 101,
+        "duration_ns_total": 5383785888,
+        "duration_ns_max": 493000000,
+        "incomplete": 0
+      },
+      "locks": {
+        "0x3ffbf2cc": {
+          "count": 26,
+          "duration_ns_total": 849786112,
+          "duration_ns_max": 262000064,
+          "attempts_total": 51,
+          "attempts_max": 22,
+          "attempt_gap_ns_max": 168000064
+        },
+        "0x3ffb7ab0": {
+          "count": 75,
+          "duration_ns_total": 4533999776,
+          "duration_ns_max": 493000000,
+          "attempts_total": 192,
+          "attempts_max": 12,
+          "attempt_gap_ns_max": 158000000
+        }
+      }
+    }
+  },
+  "wdt_off_15s": {
+    "evidence_sha256": "0944d8d6cffbde95a1f838ee2f92de27351cd6cb1be0faf7d696d098c78f874f",
+    "qemu_stderr_sha256": "4cedd7adc8802a2f6a2aff03fa205910ee496759174e37af8c5a586445443cd6",
+    "freeze_ns": 15000000000,
+    "cpu": {
+      "0": "0x4026306e",
+      "1": "0x400d2ff0"
+    },
+    "episodes": {
+      "count": 597,
+      "duration_ns_total": 6090325855,
+      "duration_ns_max": 400000512,
+      "incomplete": 1
+    },
+    "locks": {
+      "0x3ffbf2cc": {
+        "count": 468,
+        "duration_ns_total": 5236325055,
+        "duration_ns_max": 306999968,
+        "attempts_total": 818,
+        "attempts_max": 83,
+        "attempt_gap_ns_max": 200000256
+      },
+      "0x3ffb7ab0": {
+        "count": 35,
+        "duration_ns_total": 825000736,
+        "duration_ns_max": 400000512,
+        "attempts_total": 46,
+        "attempts_max": 5,
+        "attempt_gap_ns_max": 250000352
+      }
+    }
+  },
+  "interpretation": {
+    "diagnostic_abort_fixed": true,
+    "contention_persists_without_watchdog": true,
+    "main_lock": "0x3ffbf2cc",
+    "main_lock_holder_cpu": 1,
+    "malformed_atomic_semantics_proven": false,
+    "matching_legacy_elf_map_available": false,
+    "failed_cas_yield_reduces_task_queue_mutex_wait": true,
+    "failed_cas_yield_changes_dominant_lock_at_15s": true,
+    "failed_cas_yield_is_complete_fix": false
+  },
+  "next_actions": [
+    "Bind the exact queue object through matching UIFlow_Core2 v1.15.4 source/ELF/MAP",
+    "Distinguish host-vCPU scheduling delay from a guest critical section that remains held",
+    "Evaluate scheduler fairness changes without changing guest lock semantics or WDT limits",
+    "Require normal-WDT setup/REPL, non-empty application frame and stable runtime before closing RUNTIME-03"
+  ]
+}

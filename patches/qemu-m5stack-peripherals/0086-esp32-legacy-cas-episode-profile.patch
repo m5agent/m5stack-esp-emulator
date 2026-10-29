@@ -1,0 +1,376 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 18:20:00 +0800
+Subject: [PATCH] esp32: profile legacy contended-CAS hold intervals
+
+Add default-off S32C1I episode aggregation to the existing handoff trace.
+An episode starts on cross-core contention for one lock, records every
+failed attempt and closes when that CPU succeeds, changes lock or reaches
+an I/O-capable helper boundary. Fixed-size buckets and lock slots keep the
+trace bounded.
+
+Virtual-clock sampling is skipped while the current vCPU is executing a
+no-I/O translation block. Reading QEMU_CLOCK_VIRTUAL in that state aborts
+the VM with "Bad icount read"; the next I/O-capable helper observation
+continues or closes the episode.
+
+The data plane, contention outcomes, guest scheduling, watchdog semantics
+and default runtime configuration are unchanged.
+---
+diff --git a/include/hw/misc/esp32_handoff_trace.h b/include/hw/misc/esp32_handoff_trace.h
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -28,6 +28,10 @@
+ #define ESP32_HANDOFF_S32C1I_OLD_SLOTS 64u
+ #define ESP32_HANDOFF_S32C1I_CALLER_SLOTS 512u
+ #define ESP32_HANDOFF_S32C1I_HOLDER_SLOTS 512u
++#define ESP32_HANDOFF_S32C1I_EPISODE_BUCKETS 8u
++#define ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS 128u
++#define ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS 2u
++
+ typedef struct Esp32HandoffCacheSnapshot {
+     uint64_t sync_calls;
+     uint64_t sync_pages;
+@@ -150,6 +154,63 @@
+     uint8_t s32c1i_holder_cpus[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
+     uint64_t s32c1i_holder_counts[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
+     uint64_t s32c1i_holder_overflow;
++    uint64_t s32c1i_episode_count;
++    uint64_t s32c1i_episode_duration_ns_total;
++    uint64_t s32c1i_episode_duration_ns_max;
++    uint64_t s32c1i_episode_attempts_total;
++    uint64_t s32c1i_episode_attempts_max;
++    uint64_t s32c1i_episode_gap_ns_max;
++    uint64_t s32c1i_episode_buckets[
++        ESP32_HANDOFF_S32C1I_EPISODE_BUCKETS
++    ];
++    uint64_t s32c1i_episode_incomplete;
++    uint32_t s32c1i_episode_lock_keys[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_counts[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_duration_ns[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_duration_ns_max[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_attempts[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_attempts_max[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_gap_ns_max[
++        ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS
++    ];
++    uint64_t s32c1i_episode_lock_overflow;
++    bool s32c1i_episode_active[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint32_t s32c1i_episode_active_lock[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint64_t s32c1i_episode_active_start_ns[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint64_t s32c1i_episode_active_last_ns[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint64_t s32c1i_episode_active_attempts[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint64_t s32c1i_episode_active_gap_ns_max[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint32_t s32c1i_episode_active_holder_cpu[
++        ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS
++    ];
++    uint64_t s32c1i_episode_last_lock;
++    uint64_t s32c1i_episode_last_duration_ns;
++    uint64_t s32c1i_episode_last_attempts;
++    uint64_t s32c1i_episode_last_holder_cpu;
+     uint64_t s32c1i_last_pc;
+     uint64_t s32c1i_last_addr;
+     uint64_t s32c1i_last_old;
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -1225,6 +1225,86 @@
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-episodes a=%" PRIu64
++            " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.s32c1i_episode_count,
++            esp32_handoff_metrics.s32c1i_episode_duration_ns_total,
++            esp32_handoff_metrics.s32c1i_episode_duration_ns_max,
++            esp32_handoff_metrics.s32c1i_episode_incomplete);
++    for (uint32_t bucket = 0;
++         bucket < ESP32_HANDOFF_S32C1I_EPISODE_BUCKETS; bucket++) {
++        uint64_t count =
++            esp32_handoff_metrics.s32c1i_episode_buckets[bucket];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-episode-bucket a=%u"
++                    " b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, bucket, count);
++        }
++    }
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS; slot++) {
++        uint32_t encoded =
++            esp32_handoff_metrics.s32c1i_episode_lock_keys[slot];
++        uint64_t count =
++            esp32_handoff_metrics.s32c1i_episode_lock_counts[slot];
++
++        if (encoded && count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-episode-lock a=%08" PRIx32
++                    " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++                    now_ns, encoded - 1, count,
++                    esp32_handoff_metrics
++                        .s32c1i_episode_lock_duration_ns[slot],
++                    esp32_handoff_metrics
++                        .s32c1i_episode_lock_duration_ns_max[slot]);
++        }
++    }
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS; slot++) {
++        uint32_t encoded =
++            esp32_handoff_metrics.s32c1i_episode_lock_keys[slot];
++        uint64_t count =
++            esp32_handoff_metrics.s32c1i_episode_lock_counts[slot];
++
++        if (encoded && count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-episode-lock-attempts a=%08" PRIx32
++                    " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++                    now_ns, encoded - 1,
++                    esp32_handoff_metrics
++                        .s32c1i_episode_lock_attempts[slot],
++                    esp32_handoff_metrics
++                        .s32c1i_episode_lock_attempts_max[slot],
++                    esp32_handoff_metrics
++                        .s32c1i_episode_lock_gap_ns_max[slot]);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-episode-lock-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_episode_lock_overflow);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-episode-last a=%08" PRIx64
++            " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.s32c1i_episode_last_lock,
++            esp32_handoff_metrics.s32c1i_episode_last_duration_ns,
++            esp32_handoff_metrics.s32c1i_episode_last_attempts,
++            esp32_handoff_metrics.s32c1i_episode_last_holder_cpu);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
+             " event=freeze-last a=%08" PRIx64
+             " b=%08" PRIx64 " c=%08" PRIx64
+             " d=%08" PRIx64 "\n",
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -296,6 +296,177 @@
+     }
+ }
+ 
++static uint32_t esp32_s32c1i_episode_bucket(uint64_t duration_ns)
++{
++    if (duration_ns <= 1000) {
++        return 0;
++    }
++    if (duration_ns <= 10000) {
++        return 1;
++    }
++    if (duration_ns <= 100000) {
++        return 2;
++    }
++    if (duration_ns <= 1000000) {
++        return 3;
++    }
++    if (duration_ns <= 10000000) {
++        return 4;
++    }
++    if (duration_ns <= 100000000) {
++        return 5;
++    }
++    if (duration_ns <= 1000000000) {
++        return 6;
++    }
++    return 7;
++}
++
++static void esp32_s32c1i_episode_finish(uint32_t cpu, uint64_t end_ns)
++{
++    uint64_t duration_ns;
++    uint32_t slot;
++
++    if (!esp32_handoff_metrics.s32c1i_episode_active[cpu]) {
++        return;
++    }
++    duration_ns =
++        end_ns >= esp32_handoff_metrics.s32c1i_episode_active_start_ns[cpu]
++        ? end_ns - esp32_handoff_metrics.s32c1i_episode_active_start_ns[cpu]
++        : 0;
++
++    ++esp32_handoff_metrics.s32c1i_episode_count;
++    esp32_handoff_metrics.s32c1i_episode_duration_ns_total += duration_ns;
++    esp32_handoff_metrics.s32c1i_episode_duration_ns_max =
++        MAX(esp32_handoff_metrics.s32c1i_episode_duration_ns_max,
++            duration_ns);
++    esp32_handoff_metrics.s32c1i_episode_attempts_total +=
++        esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu];
++    esp32_handoff_metrics.s32c1i_episode_attempts_max =
++        MAX(esp32_handoff_metrics.s32c1i_episode_attempts_max,
++            esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu]);
++    esp32_handoff_metrics.s32c1i_episode_gap_ns_max =
++        MAX(esp32_handoff_metrics.s32c1i_episode_gap_ns_max,
++            esp32_handoff_metrics.s32c1i_episode_active_gap_ns_max[cpu]);
++    ++esp32_handoff_metrics.s32c1i_episode_buckets[
++        esp32_s32c1i_episode_bucket(duration_ns)
++    ];
++
++    slot = (esp32_handoff_metrics.s32c1i_episode_active_lock[cpu]
++            * 2654435761u)
++           & (ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS - 1);
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS - 1);
++        uint32_t key =
++            esp32_handoff_metrics.s32c1i_episode_active_lock[cpu] + 1;
++
++        if (esp32_handoff_metrics.s32c1i_episode_lock_keys[index] == 0) {
++            esp32_handoff_metrics.s32c1i_episode_lock_keys[index] = key;
++        }
++        if (esp32_handoff_metrics.s32c1i_episode_lock_keys[index] == key) {
++            ++esp32_handoff_metrics.s32c1i_episode_lock_counts[index];
++            esp32_handoff_metrics.s32c1i_episode_lock_duration_ns[index] +=
++                duration_ns;
++            esp32_handoff_metrics.s32c1i_episode_lock_duration_ns_max[index] =
++                MAX(esp32_handoff_metrics
++                        .s32c1i_episode_lock_duration_ns_max[index],
++                    duration_ns);
++            esp32_handoff_metrics.s32c1i_episode_lock_attempts[index] +=
++                esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu];
++            esp32_handoff_metrics.s32c1i_episode_lock_attempts_max[index] =
++                MAX(esp32_handoff_metrics
++                        .s32c1i_episode_lock_attempts_max[index],
++                    esp32_handoff_metrics
++                        .s32c1i_episode_active_attempts[cpu]);
++            esp32_handoff_metrics.s32c1i_episode_lock_gap_ns_max[index] =
++                MAX(esp32_handoff_metrics
++                        .s32c1i_episode_lock_gap_ns_max[index],
++                    esp32_handoff_metrics
++                        .s32c1i_episode_active_gap_ns_max[cpu]);
++            break;
++        }
++        if (probe + 1 == ESP32_HANDOFF_S32C1I_EPISODE_LOCK_SLOTS) {
++            ++esp32_handoff_metrics.s32c1i_episode_lock_overflow;
++        }
++    }
++
++    esp32_handoff_metrics.s32c1i_episode_last_lock =
++        esp32_handoff_metrics.s32c1i_episode_active_lock[cpu];
++    esp32_handoff_metrics.s32c1i_episode_last_duration_ns = duration_ns;
++    esp32_handoff_metrics.s32c1i_episode_last_attempts =
++        esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu];
++    esp32_handoff_metrics.s32c1i_episode_last_holder_cpu =
++        esp32_handoff_metrics.s32c1i_episode_active_holder_cpu[cpu];
++    esp32_handoff_metrics.s32c1i_episode_active[cpu] = false;
++    --esp32_handoff_metrics.s32c1i_episode_incomplete;
++}
++
++static void esp32_s32c1i_note_episode(uint32_t cpu, uint32_t vaddr,
++                                      uint32_t holder_cpu, bool success)
++{
++    CPUState *cpu_state = qemu_get_cpu(cpu);
++    uint64_t now_ns;
++    bool contended;
++
++    if (cpu >= ESP32_HANDOFF_S32C1I_EPISODE_ACTIVE_SLOTS) {
++        return;
++    }
++    /*
++     * qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) is illegal while a vCPU is
++     * running in a no-I/O translation block. Skip that observation rather
++     * than terminating the VM; the next I/O-capable helper call can continue
++     * or close the current episode.
++     */
++    if (cpu_state && cpu_state->running && !cpu_state->neg.can_do_io) {
++        return;
++    }
++    now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    contended = !success && holder_cpu < 2 && holder_cpu != cpu;
++    if (esp32_handoff_metrics.s32c1i_episode_active[cpu]
++        && esp32_handoff_metrics.s32c1i_episode_active_lock[cpu] != vaddr) {
++        esp32_s32c1i_episode_finish(
++            cpu,
++            esp32_handoff_metrics.s32c1i_episode_active_last_ns[cpu]
++        );
++    }
++    if (contended) {
++        if (!esp32_handoff_metrics.s32c1i_episode_active[cpu]) {
++            esp32_handoff_metrics.s32c1i_episode_active[cpu] = true;
++            esp32_handoff_metrics.s32c1i_episode_active_lock[cpu] = vaddr;
++            esp32_handoff_metrics.s32c1i_episode_active_start_ns[cpu] =
++                now_ns;
++            esp32_handoff_metrics.s32c1i_episode_active_last_ns[cpu] =
++                now_ns;
++            esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu] = 1;
++            esp32_handoff_metrics.s32c1i_episode_active_gap_ns_max[cpu] = 0;
++            esp32_handoff_metrics.s32c1i_episode_active_holder_cpu[cpu] =
++                holder_cpu;
++            ++esp32_handoff_metrics.s32c1i_episode_incomplete;
++        } else {
++            uint64_t gap_ns =
++                now_ns >= esp32_handoff_metrics
++                          .s32c1i_episode_active_last_ns[cpu]
++                ? now_ns - esp32_handoff_metrics
++                           .s32c1i_episode_active_last_ns[cpu]
++                : 0;
++
++            ++esp32_handoff_metrics.s32c1i_episode_active_attempts[cpu];
++            esp32_handoff_metrics.s32c1i_episode_active_gap_ns_max[cpu] =
++                MAX(esp32_handoff_metrics
++                        .s32c1i_episode_active_gap_ns_max[cpu],
++                    gap_ns);
++            esp32_handoff_metrics.s32c1i_episode_active_last_ns[cpu] =
++                now_ns;
++            esp32_handoff_metrics.s32c1i_episode_active_holder_cpu[cpu] =
++                holder_cpu;
++        }
++    } else if (esp32_handoff_metrics.s32c1i_episode_active[cpu]) {
++        esp32_s32c1i_episode_finish(cpu, now_ns);
++    }
++}
++
+ void HELPER(s32c1i_trace)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
+                           uint32_t compare, uint32_t desired,
+                           uint32_t old, uint32_t success)
+@@ -488,6 +659,7 @@
+             && getenv("M5SW_XTENSA_CONTENDED_CAS_YIELD")) {
+             cpu_exit(env_cpu(env));
+         }
++        esp32_s32c1i_note_episode(cpu, vaddr, holder_cpu, success);
+     }
+ 
+     if (!getenv("M5SW_S32C1I_TRACE")) {

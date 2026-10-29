@@ -12,6 +12,11 @@ PATCH = (
     / "patches/qemu-m5stack-peripherals/"
     "0075-esp32-legacy-status-cas-correlation.patch"
 )
+EPISODE_PATCH = (
+    ROOT
+    / "patches/qemu-m5stack-peripherals/"
+    "0086-esp32-legacy-cas-episode-profile.patch"
+)
 RUNNER = (
     ROOT
     / "tests/firmware/core2_handoff_trace/run_pause_sweep.py"
@@ -42,6 +47,17 @@ class Core2LegacyStatusCasPatchTests(unittest.TestCase):
         self.assertIn("event=freeze-total", patch)
         self.assertIn("freeze-caller", patch)
         self.assertIn("M5SW_XTENSA_CONTENDED_CAS_YIELD", patch)
+
+    def test_episode_patch_counts_hold_intervals_without_icount_abort(self):
+        patch = EPISODE_PATCH.read_text()
+        self.assertIn("ESP32_HANDOFF_S32C1I_EPISODE_BUCKETS", patch)
+        self.assertIn("s32c1i_episode_duration_ns_max", patch)
+        self.assertIn("freeze-episodes", patch)
+        self.assertIn("freeze-episode-lock-attempts", patch)
+        self.assertIn("no-I/O translation block", patch)
+        self.assertIn("!cpu_state->neg.can_do_io", patch)
+        self.assertIn("qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)", patch)
+        self.assertNotIn("M5SW_DISABLE_WDT", patch)
 
     def test_patch_keeps_controls_opt_in_and_wdt_unchanged(self):
         patch = PATCH.read_text()
@@ -109,6 +125,12 @@ class Core2LegacyStatusCasRunnerTests(unittest.TestCase):
                 "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-caller-overflow a=0 b=0 c=0 d=0",
                 "[esp32-handoff] now=20 cpu=-1 pc=40096500 component=s32c1i event=freeze-holder a=40095b2e b=1 c=3ffbf2cc d=3",
                 "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-holder-overflow a=0 b=0 c=0 d=0",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episodes a=1 b=500 c=500 d=0",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episode-bucket a=0 b=1 c=0 d=0",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episode-lock a=3ffbf2cc b=1 c=500 d=500",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episode-lock-attempts a=3ffbf2cc b=3 c=3 d=200",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episode-lock-overflow a=0 b=0 c=0 d=0",
+                "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-episode-last a=3ffbf2cc b=500 c=3 d=1",
                 "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-last a=40095b2e b=3ffbf2cc c=b33fffff d=0000abab",
                 "[esp32-handoff] now=20 cpu=-1 pc=00000000 component=s32c1i event=freeze-last-context a=1 b=1 c=8009655c d=0",
             )
@@ -140,6 +162,31 @@ class Core2LegacyStatusCasRunnerTests(unittest.TestCase):
                 "site=0x40095b2e:lock=0x3ffbf2cc"
             ],
             3,
+        )
+        self.assertEqual(
+            profile["episodes"],
+            {
+                "count": 1,
+                "duration_ns_total": 500,
+                "duration_ns_max": 500,
+                "incomplete": 0,
+            },
+        )
+        self.assertEqual(
+            profile["episode_locks"]["0x3ffbf2cc"],
+            {
+                "count": 1,
+                "duration_ns_total": 500,
+                "duration_ns_max": 500,
+                "attempts_total": 3,
+                "attempts_max": 3,
+                "attempt_gap_ns_max": 200,
+            },
+        )
+        self.assertEqual(profile["episode_buckets"], {"0": 1})
+        self.assertEqual(
+            profile["episode_last"]["lock"],
+            "0x3ffbf2cc",
         )
         self.assertEqual(profile["last_context"]["caller"], 0x8009655C)
 

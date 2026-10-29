@@ -1635,3 +1635,55 @@ profiles/project snapshot均PASS。该结果是
 仍`NOT RUN`。见[证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)、
 [机器摘要](evidence/2026-10-29-unit-hard-reset-output-boundary/summary.json)和
 [runner](../tests/units/run_relay_reset_probe.py)。
+## 2026-10-29：Core2 legacy contended-CAS hold intervals
+
+新增 `0086-esp32-legacy-cas-episode-profile.patch`，SHA256
+`4e86512c3d19a30c23ffd22824a69fc7d5d2f10d0db5aa7a2e81668090b608f8`。
+该 patch 在既有 freeze-only handoff trace 中按 CPU/lock 聚合跨核
+`s32c1i` episode，记录失败 attempt、区间时长、最大 attempt gap 和最后
+holder CPU；桶与 lock slot 数量固定，overflow 单独计数。首版 episode
+采样在 no-I/O translation block 中读取 `QEMU_CLOCK_VIRTUAL`，触发
+`Bad icount read` 并终止 VM；最终版本跳过该不安全状态，不改变 guest
+指令、CAS 结果、中断、watchdog 或默认调度。
+
+同一 public `UIFlow_Core2 v1.15.4` normalized Flash
+`4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4`
+在 QEMU `0a63c37f…` 上执行两个独立 10 秒 exact-time freeze：
+
+| 控制 | 区间 | 总时长 | 最大 | `0x3ffbf2cc` 区间/时长/最大 | 最大失败尝试 |
+| --- | ---: | ---: | ---: | --- | ---: |
+| normal WDT | `238` | `9.316534114 s` | `631 ms` | `162 / 6.743534018 s / 482.823328 ms` | `53` |
+| WDT-off | `253` | `7.825981502 s` | `581 ms` | `166 / 6.600981470 s / 581.176638 ms` | `65` |
+
+两轮最后 holder 均为 CPU1；normal-WDT 中 `0x3ffb7ab0` 另有 `31`
+个区间，累计 `2.559000096 s`、最长 `631 ms`。因此主锁预算来自多轮失败
+CAS 形成的长持有区间，而不是孤立单次碰撞，且关闭 WDT 不会消除该模式。
+所有 session 均以 `purge=0` 停止、history 保留且 QEMU PID 消失。
+
+BIN 指令/控制流与 public `m5stack/esp-idf` v3.3.5 commit
+`03810c4a065a1ecdd24a803b2c9dc4e834c7dab5` 对比：`0x3ffbf2cc`
+对应 `xTaskQueueMutex`，主要 waiter 是 `xTaskIncrementTick` 和
+`vTaskSwitchContext`；`0x3ffb7ab0` 对应某个 `Queue_t + 76` 的 mux。
+这些是 source-structure 匹配，不是 matching application ELF/MAP 的
+符号查找。
+
+对既有 default-off failed-CAS yield 再做 10/15 秒 episode A/B：
+
+| 控制 | 区间 | 总时长 | `xTaskQueueMutex` | `Queue_t+76` |
+| --- | ---: | ---: | ---: | ---: |
+| 10 s baseline | `253` | `7.825981502 s` | `6.600981470 s` | `1.133000000 s` |
+| 10 s failed-CAS yield | `64` | `1.400290688 s` | `0.446291456 s` | `0.953999232 s` |
+| 15 s baseline | `597` | `6.090325855 s` | `5.236325055 s` | `0.825000736 s` |
+| 15 s failed-CAS yield | `101` | `5.383785888 s` | `0.849786112 s` | `4.533999776 s` |
+
+yield 在 10 秒大幅降低 scheduler-mutex 等待，但 15 秒时总预算转移到
+queue mux，episode 总时长仍约 `5.4 s`；既有 normal-WDT reset 边界不变。
+因此“yield 完全无效”被修正为“等待重新分配但未闭环”，不能作为产品修复。
+
+该结果只修正诊断并完成 `virtual-device validation`；仍没有 matching legacy
+ELF/MAP，不能确认 exact queue object，也不能区分 host-vCPU 调度延迟与
+guest 长临界区，也没有证明 Xtensa atomics 语义错误。normal-WDT stage-1
+reset、startup UI、setup/REPL、完整应用帧和 physical hardware 仍不通过，
+`RUNTIME-03` 保持 `OPEN`。见
+[证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和
+[机器摘要](evidence/2026-10-29-core2-legacy-cas-episodes/summary.json)。
