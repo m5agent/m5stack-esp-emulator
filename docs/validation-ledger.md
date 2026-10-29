@@ -1752,3 +1752,11 @@ phase 后，新 native `dc98b0fd…` / WASM `8f4e45bc…` 各 8 项通过，三�
 关断 native 13 项通过，正 EXT0、RTC 硅片等价性、其它新 runtime 板型、
 完整共享控制器矩阵和硬件均不继承。平台 1590 项、10 skip；四个 validator
 通过。详见[有界证据](evidence/2026-10-29-stackchan-arduino-nvs/README.md)。
+
+
+该轮最终 fork Pages 发布任务 `40870676825` 成功，payload
+`f0e11cd365c45289cc3a68a59f3aca05064e5c2b`，源码
+`2c1be6919b542cded3f47061953228790a6c369d`，公开 manifest
+`eed692b4cbdc23269b86c381737fd726d94b3efb95cac316b3cbb39ac03bae64`。
+公网首页/public.js/runtime.json/完整 WASM 的 SHA 全部匹配；本轮未另跑
+部署后的线上 guest，不将 HTTP 制品核验表述为公网功能复测。

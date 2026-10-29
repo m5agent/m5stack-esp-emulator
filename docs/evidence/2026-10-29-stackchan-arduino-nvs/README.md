@@ -34,3 +34,6 @@ public.js，Arduino 上传在 v7 另通过 10 项实际运动、同实例复位�
 松开无错误提示及 iframe 移除前 Worker 全关闭检查。两个 manifest 分别记录，
 不冒称未在 v7 重跑的全站验收。平台最终 1590 项测试完成，10 项跳过；四个
 catalog/runtime/profile/snapshot validator 通过。
+
+
+已部署至 [fork Pages](https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=2c1be691)，[发布任务](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40870676825)成功。公网 manifest、首页、public.js、runtime.json 与实际完整 WASM 均 HTTP 200 并逐字节摘要匹配最终导出。公开部署后没有另起 guest；功能证据来自该准确导出的本地实际浏览器运行，部署字节校验独立记录。上游生产站没有由本轮替换。

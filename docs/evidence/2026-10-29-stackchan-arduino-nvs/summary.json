@@ -694,5 +694,46 @@
     "runtime_status_after_poweroff": "stopped",
     "worker_close_verified_before_iframe_removal": true,
     "all_workers_closed": true
+  },
+  "deployment": {
+    "status": "DEPLOYED_AND_PUBLIC_BYTES_VERIFIED",
+    "at_utc": "2026-10-29T12:09:47.863637+00:00",
+    "url": "https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=2c1be691",
+    "run_url": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40870676825",
+    "payload_commit": "f0e11cd365c45289cc3a68a59f3aca05064e5c2b",
+    "source_commit": "2c1be6919b542cded3f47061953228790a6c369d",
+    "manifest_sha256": "eed692b4cbdc23269b86c381737fd726d94b3efb95cac316b3cbb39ac03bae64",
+    "assets": 2113,
+    "public_asset_verification": [
+      {
+        "path": "index.html",
+        "http_status": 200,
+        "bytes": 15326,
+        "sha256": "27e11f8cc1feb367388413792314a49e9f42647a39de0c3609144b81afaf3830",
+        "matches_manifest": true
+      },
+      {
+        "path": "platform/web/public.js",
+        "http_status": 200,
+        "bytes": 50441,
+        "sha256": "bcea81aa8f9aa3163320c1b166ddc67eed9ee95dd387b72a693f5bd485820889",
+        "matches_manifest": true
+      },
+      {
+        "path": "platform/runtime/qemu/runtime.json",
+        "http_status": 200,
+        "bytes": 30582,
+        "sha256": "0bb2d2b38f66f6b1c32a6ba2fcfbe95d6109f7bcb89f564b99da95743feb0c95",
+        "matches_manifest": true
+      },
+      {
+        "path": "platform/runtime/qemu/qemu-system-xtensa.wasm",
+        "http_status": 200,
+        "bytes": 24025419,
+        "sha256": "8f4e45bcd76e8de6473b480acc64f78ac429a07fa483ee5cedc169c89e61a592",
+        "matches_manifest": true
+      }
+    ],
+    "public_guest_after_deployment": "NOT RUN; final local export guest verified and exact public bytes matched"
   }
 }
