@@ -65,7 +65,7 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
             PERIPHERAL + "0091-board-power-lifecycle.patch",
             PERIPHERAL + "0092-classic-touch-measurement.patch",
         ))
-        self.assertLess(patches.index(NATIVE + "0004-native-classic-rmt-context.patch"),
+        self.assertLess(patches.index(NATIVE + "0004-esp32-classic-rmt-legacy.patch"),
                         patches.index(NATIVE + "0007-native-expanded-atom-rmt-delta.patch"))
 
     def test_context_ports_preserve_the_original_c_changes(self):

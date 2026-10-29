@@ -168,6 +168,19 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   `0x3ffbf2cc` 上存在真实跨核锁竞争。failed-CAS slice yield 与原
   normal-WDT 均在同一 TG0 stage-1 边界 reset，不能作为修复。见
   [status/CAS 证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)。
+  `0086` 随后修正 episode 诊断在 no-I/O TB 中读取 virtual clock 导致
+  `Bad icount read` 的问题，并完成正常 WDT/WDT-off 两个同 SHA 10 秒
+  freeze：`0x3ffbf2cc` 分别记录 `162/166` 个等待区间、累计
+  `6.743/6.601 s`、最长 `483/581 ms`，最长连续失败尝试为
+  `53/65`。BIN/控制流与 public ESP-IDF v3.3.5 匹配后，热锁是
+  `xTaskQueueMutex`，主要 waiter 为 `xTaskIncrementTick` 和
+  `vTaskSwitchContext`；第二热点是某个 `Queue_t + 76` mux。失败 CAS
+  yield 在 10 秒把 task-queue 等待从 `6.601 s` 降到 `0.446 s`，但
+  15 秒时 queue mux 等待从 `0.825 s` 升到 `4.534 s`，总 episode
+  仍约 `5.4 s`，因此 normal-WDT reset 不变。下一步须取得 exact legacy
+  ELF/MAP，区分 host-vCPU 调度延迟与 guest 长临界区；不能把 WDT-off、
+  扩大超时、改变原子指令语义或局部 yield 当作修复。见
+  [episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -186,8 +199,8 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
 已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
 共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
-二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，1.46已接有条件公共入口且CoreS3 stock/兼容固件及Web通过，继续更多固件/主机、reset/重连后能力恢复与完整清场；FlashLight部分数字路径/四host和CoreS3 mounted已验，动态S1、PWM/冷route边界仍开放，见[新证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。4Relay/FlashLight新协议冲突与模型边界见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-binary-checkpoint-admission/README.md)。
-FlashLight的OUT_SEL旧资格问题已按[限定路由证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)闭合；0047已有真实GPIO/IOMUX/RTC来源与无边沿连续低的C实现，软I2C显式上拉修复记录在[本轮收尾](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。用户要求当前bug修完即收尾，37仍需新runtime四host原constructor/API/取消再Run与mounted Web，及独立完整矩阵；准备包不算执行。36hard-reset、S1/PWM和电气边界继续开放。
+二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，1.46已接有条件公共入口且CoreS3 stock/兼容固件及Web通过，继续更多固件/主机、reset/重连后能力恢复与完整清场；FlashLight cold constructor已按[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)闭合，实时Web轮询、动态S1、PWM和完整controller边界仍开放。4Relay/FlashLight新协议冲突与模型边界见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-binary-checkpoint-admission/README.md)。
+FlashLight的OUT_SEL旧资格问题已按[限定路由证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)闭合；`0047` cold constructor/低基线已由新runtime四host原厂API、同PID Run替换和actual QOM Web replay验证；`UNIT-HOST-37`关闭该数字边界。`UNIT-HOST-36` Relay/Relay2 hard-reset数字边界已另按[0087 fixed/pre-fix](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)闭合；FlashLight实时Web、S1/PWM和电气边界继续开放。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
@@ -235,7 +248,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux，并证明 failed-CAS yield 只把等待从 task-queue 重分配到 queue mux | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -249,8 +262,8 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 10 款 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer IRQ/chord/CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；优先补齐 StackChan UART 舵机输出、逐板电源/复位闭环，并继续经典 Atom/Stick 适配；扩展固件/Unit，Rust 演示保持研究原型 | 精确绑定完整 Flash SHA、runtime/profile 和单板真实输入/帧；native PASS、compiled_profiles 和正常时钟候选不能授予其它板型或 stock SDK PASS；保留旧 div8 示例/分享兼容及取消/停止契约；静态构建不含凭据/固件/raw；本轮新版本部署后另验正式 HTTPS |
-| `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
+| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer IRQ/chord/CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；优先复现 Arduino 上传后的 StackChan 官方 Dance、零位/torque/运动时序与复位/断电行为，补齐 Plus2 HOLD/USB sleep 并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 | 精确绑定完整 Flash SHA、runtime/profile 和单板真实输入/帧；native PASS、compiled_profiles 和正常时钟候选不能授予其它板型或 stock SDK PASS；保留旧 div8 示例/分享兼容及取消/停止契约；静态构建不含凭据/固件/raw；本轮新版本部署后另验正式 HTTPS |
+| `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight实时Web与动态S1/PWM、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

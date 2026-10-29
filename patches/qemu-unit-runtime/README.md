@@ -1,6 +1,6 @@
 # Reproducible Xtensa source prelude for external Units
 
-Date: `2026-10-27`.
+Date: `2026-10-29`.
 
 The Unit patches are built from public source, rather than by modifying the
 published executable. This directory supplies the missing source prelude; the
@@ -16,6 +16,7 @@ register/controller attachments.
 `0049` keeps the Core2 WiFi controller present when no WiFi network backend
 is configured, with its synthetic radio disabled.
 `0050` fixes the classic SPI panel's DMA transaction boundary and FIFO stream.
+`0087` adds the shared hard-reset output observer used by Relay and Relay2.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -44,13 +45,24 @@ No firmware, ROM, executable or credential is added by these patches.
    `0047-unit-flashlight-cold-pad-observation.patch`, then
    `0048-unit-servos8-joystick2-nfc.patch`, then
    `0049-core2-offline-wifi-controller.patch`, then
-   `0050-esp32-spi-panel-dma-transaction.patch`.
+   `0050-esp32-spi-panel-dma-transaction.patch`, then the source-compatible
+   runtime layers through `0070-esp32-uart-tx-virtual-clock.patch`, then
+   `0087-unit-hard-reset-output-boundary.patch`. The exact executable order is
+   `scripts/bootstrap-unit-runtime.py::PATCHES`. This prelude's `0003`–`0006`
+   forward-port the `0065/0066/0069/0070` behavior onto the Unit source stack
+   without changing the preserved Core2 diagnostic patches.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
 `0033` intentionally references the new C files supplied by `0034` and `0035`;
 all three must be applied before configuring/building. Do not apply the older
 historical board/peripheral snapshots on top of this prelude again.
+
+`0003`–`0006` are bootstrap-local forward ports of `0065`, `0066`, `0069` and
+`0070`. The historical peripheral patches remain unchanged for retained Core2
+diagnostic stacks; the Unit bootstrap uses only these narrow context-compatible
+forms, so a rebuilt runtime does not depend on historical patches that are not
+part of its source receipt.
 
 `0036` removes the new permanent software-I2C handoff from the classic ESP32
 hardware transaction path. Core2 M5GFX/Power may return to bit-banged I2C after
@@ -176,6 +188,17 @@ not add descriptor-owner/writeback semantics, DMA error/IRQ status, receive DMA
 or descriptor continuation across several USR commands. Short chains deliver
 only their actual bytes, and a bounded descriptor walk prevents cyclic chains
 from hanging the host. Physical display timing remains outside this validation.
+
+`0087` adds a reset-observer path to the shared legacy GPIO model. GPIO reset
+first establishes reset routes and effective pad levels, then notifies reset
+observers and finally emits any normal line change through the existing output
+listener/IRQ path. Relay and Relay2 rebase their previous-output state from the
+post-reset pad and clear their digital transition counters. The observer runs
+before the normal notification, so the reset falling boundary is not counted
+as a new guest transition. New UIFlow2 guest A/B evidence covers fixed/pre-fix
+Relay and Relay2 on AtomS3R; the result is digital virtual-device validation,
+not mechanical contact, coil, load or electrical behavior. See the
+[hard-reset evidence](../../docs/evidence/2026-10-29-unit-hard-reset-output-boundary/README.md).
 
 ## Why a prelude is necessary
 

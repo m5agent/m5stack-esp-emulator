@@ -10,8 +10,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = (
     ROOT
-    / "patches/qemu-m5stack-peripherals/"
-    "0065-xtensa-high-priority-irq-cooperative-yield.patch"
+    / "patches/qemu-unit-runtime/"
+    "0003-xtensa-high-priority-irq-cooperative-yield.patch"
 )
 
 
@@ -145,6 +145,11 @@ class XtensaHighPriorityIrqCooperativeTests(unittest.TestCase):
         self.assertIn("if (!icount_enabled())", text)
         self.assertEqual(text.count("icount_enabled()"), 3)
         self.assertIn("xtensa_get_cintlevel(env) == 4", text)
+        # This patch must apply directly in scripts/bootstrap-unit-runtime.py;
+        # older Core2 diagnostics are not part of that reproducible stack.
+        self.assertNotIn("s32c1i_trace", text)
+        self.assertNotIn("xtensa_irq_diag", text)
+        self.assertNotIn("M5SW_XTENSA_IRQ_TRACE", text)
         self.assertNotIn("M5SW_DISABLE_WDT", text)
         self.assertNotIn("ICOUNT_HIGH_PRIORITY_IRQ_BUDGET", text)
 

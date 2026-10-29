@@ -4102,7 +4102,7 @@
         "stopwatch"
       ],
       "model_completeness": "partial",
-      "blocker": "Selected four-host UIFlow2 same-VM Preview paths have device-local evidence. This remains a partial nominal-powered GPIO/LED model: no coil/contact/load/electrical/hardware equivalence; hard-reset transition notifications remain UNIT-HOST-36.",
+      "blocker": "Selected four-host UIFlow2 same-VM Preview paths have device-local evidence. This remains a partial nominal-powered GPIO/LED model: no coil/contact/load/electrical/hardware equivalence. Patch 0087 closes the Relay/Relay2 digital hard-reset previous-output/counter boundary; it does not model retained mechanical contact state or other Units.",
       "inputs": {},
       "state": {
         "output-1-level": {
@@ -4249,7 +4249,7 @@
         "sticks3",
         "stopwatch"
       ],
-      "blocker": "Only the exact recorded nominal digital subsets are admitted; full 16-code guest/PWM/dynamic-S1/physical equivalence remain open. Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests. Historical 0045-only runtime 7c898 had unlatched route history (UNIT-HOST-38). The separate route_history_validation records scoped 0046/3f1617 API and Web acceptance; it does not upgrade the earlier guest/program_validation records. Cold-route/no-edge recovery, full OEN/IOMUX and hard-reset observation remain open.",
+      "blocker": "Only the exact recorded nominal digital subsets are admitted; full 16-code guest/PWM/dynamic-S1/physical equivalence remain open. Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, analog/electrical/optical/current/thermal or bit-exact equivalence. Historical 0045-only runtime had unlatched route history; 0046/3f1617 records scoped route-history acceptance, and 0047/e318 now verify the cold constructor low baseline plus original API on four S3 hosts. Mounted Web uses actual-QOM snapshot replay; live polling remains NOT RUN. Full OEN/IOMUX, real-time Web, dynamic S1/PWM and physical behavior remain open.",
       "inputs": {
         "flash-mode": {
           "property": "flash-mode",
@@ -4382,8 +4382,8 @@
         "flash_deadline": "first observed rising edge + nominal 220/1300ms",
         "torch": "steady EN high, no Flash deadline; EN PWM unqualified",
         "mode_selection": "creation-only synthetic fixture; default Flash; frozen after all initial values",
-        "cold_start": "A route-only transition without a pad edge can remain unknown; selected tests explicitly drive EN high-to-low then low >500us. No constructor-only known-off claim.",
-        "route_history": "Historical 0045-only/7c898 getter suppression did not latch route loss. In scoped 0046/3f1617 acceptance, actual OUT_SEL changes withdraw internal qualification, all three timers and prior low intervals; returning to GPIO does not restore old output. Recovery currently requires a fresh observed supported GPIO falling edge and complete long-low reset, then a new program. Route events do not add pad edges/decoded counts. This conservative recovery policy does not claim the chip requires an extra falling edge. UNIT-HOST-38 is fixed for the recorded OUT_SEL path; UNIT-HOST-37/36 and full OEN/IOMUX/PWM remain open."
+        "cold_start": "0047/e318 verifies that the original constructor's low write establishes a trusted low baseline without a prior high edge. The host waits for output-known/pad-synchronized instead of inferring from a low pad read.",
+        "route_history": "Historical 0045-only/7c898 getter suppression did not latch route loss. In scoped 0046/3f1617 acceptance, actual OUT_SEL changes withdraw internal qualification, all three timers and prior low intervals; returning to GPIO does not restore old output. Recovery requires a fresh observed supported GPIO falling edge and complete long-low reset, then a new program. Route events do not add pad edges/decoded counts. UNIT-HOST-38 is fixed for the recorded OUT_SEL path; UNIT-HOST-37 cold constructor is fixed separately by 0047/e318; full OEN/IOMUX/PWM and real-time Web remain open."
       },
       "route_history_validation": {
         "status": "PASS",
@@ -4626,20 +4626,24 @@
         }
       },
       "cold_pad_candidate": {
-        "status": "C_LOGIC_AND_TARGETED_REGRESSION_ONLY",
+        "status": "GUEST_API_AND_STATE_REPLAY_PASS",
         "patch": "0047-unit-flashlight-cold-pad-observation.patch",
-        "runtime_binary_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096",
-        "report": "docs/evidence/2026-10-27-flashlight-cold-pad/README.md",
-        "unit_api": "NOT RUN",
-        "mounted_web": "NOT RUN",
+        "runtime_binary_sha256": "e318b2b748d6e982cd2e592a1b991ec930a8e9501cf02a0c19925022a656b373",
+        "report": "docs/evidence/2026-10-29-flashlight-cold-route-four-host/README.md",
+        "unit_api": "PASS",
+        "mounted_web": "ACTUAL_QOM_SNAPSHOT_REPLAY_PASS",
+        "live_mounted_web": "NOT RUN",
         "full_matrix": "NOT RUN",
         "hardware": "NOT RUN",
-        "scope": "Fresh known-low t0/actual pad commit source lifecycle C implementation; CoreS3 soft-I2C pullup regression repair. No new Unit/host acceptance is inherited from historical validation.",
-        "public_contract": "Existing frozen Unit/Web readback contract retained. New pad observation QOM diagnostics are not added to public Unit state until versioned admission is validated.",
-        "evidence_storage": "external",
-        "evidence_commit": "a37342f61c05964c060719a6e35c2d568c828e84",
-        "validation_scope": "historical-exact-runtime",
-        "archive_url": "https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md"
+        "scope": "Four independent UIFlow-live sessions run the original constructor, 100%/220ms Flash call and off Run on CoreS3/AtomS3R/StickS3/StopWatch using the same runtime. Each starts ready-low, decodes one program and returns ready-low without reboot.",
+        "public_contract": "The current Unit profile exposes the 0047 pad/route/qualification fields used by the mounted consumer; CoreS3 actual QOM snapshots replay through the real Unit panel.",
+        "evidence_storage": "source",
+        "validation_scope": "virtual-device validation",
+        "historical_c_logic": {
+          "runtime_binary_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096",
+          "report": "docs/evidence/2026-10-27-flashlight-cold-pad/README.md",
+          "archive_url": "https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md"
+        }
       }
     }
   },

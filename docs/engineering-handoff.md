@@ -251,6 +251,13 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 和接线登记在 `platform/units/`；接入期间的主机问题另见
 [Unit 接入问题](unit-integration-host-issues.md)。视觉与协议目录不代表 guest
 数据面已验收，具体运行能力仍由状态页和同路径 evidence 决定。
+`UNIT-HOST-36` 已关闭 Relay/Relay2 的数字 hard-reset 基线/计数边界，但不关闭
+FlashLight reset、其它 Unit 或机械/电气状态；实现和 A/B 入口见
+[本块证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)。
+`UNIT-HOST-37` 已关闭 FlashLight cold constructor/低基线；四台 S3 主机的原厂
+API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
+实时轮询、动态 S1/PWM 和物理光电/热仍独立，见
+[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)。
 
 执行顺序和验收只由[项目 Backlog](project-backlog.md)维护。当前 P0 的最小
 交付可以概括为：

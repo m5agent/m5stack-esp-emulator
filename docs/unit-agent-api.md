@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-27`。API 契约：`1.47.0`。
+日期：`2026-10-29`。API 契约：`1.47.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
@@ -27,8 +27,13 @@ CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、ro
 资格；`active=false`而`output-known=false`不代表已知熄灭。原驱动部分长闪
 请求编码错误，超出推荐时序的波形保持unknown；详见
 [分层证据与限制](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。
-`0046/3f1617`已验范围修复OUT_SEL返回旧资格，采用新下降沿及完整低复位，见[路由验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)。
-`0047/faee96da`的C实现支持无假边沿的新可信低基线；新Unit API/Web及完整矩阵仍NOT RUN，见[冷pad边界](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。
+`0046` 已修复 OUT_SEL 返回旧资格；`0047` 进一步支持无假边沿的可信低基线。
+新 `e318b2b7…` 已在 CoreS3、AtomS3R、StickS3、StopWatch 四个独立
+UIFlow-live session 中执行原厂 `FlashLightUnit` constructor、100%/220ms
+flash 与 Run 替换；四台均从 `ready-low` 到 `flash-active` 再回
+`ready-low`，同一 PID 且无 reboot。mounted Web 已用 actual QOM snapshot
+replay 验证，实时 Web 轮询仍 `NOT RUN`；动态 S1、PWM、OEN/IOMUX 和物理
+光电/热不继承。见[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)。
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 
@@ -235,7 +240,12 @@ method 兼容 smoke，不冒称 frozen bytecode 逐字节身份已被证明。
 四主机各七Run，包含四组合、重复写、主机按键/触摸、取消后再跑和精确历史帧
 SHA，见[分层证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)。
 蓝灯只是额定供电假设下的 GPIO 功能指示；触点/线圈时序、负载和电气行为未
-模拟。transition 仅用于连续未重启区间，跨 hard-reset 的通知缺口仍 OPEN。
+模拟。`0087` 已将 GPIO hard-reset 的复位后电平通知接入 Relay/Relay2：
+复位先重定 `previous_output` 并清零 transition，再走正常 listener；AtomS3R
+同固件 fixed/pre-fix A/B 已用真实 UIFlow2 guest 验证单 Relay 与双通道，
+见[hard-reset 证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)。
+该结论只覆盖数字 GPIO 观察，不表示触点在 reset 前仍机械吸合，也不改变
+Preview reset 仍禁用或其它 Unit 的复位语义。
 默认离线计划与显式执行入口见
 [`test_live_relay2_preview_service_browser.mjs`](../platform/tests/test_live_relay2_preview_service_browser.mjs)。
 

@@ -7,8 +7,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = (
     ROOT
-    / "patches/qemu-m5stack-peripherals/"
-    "0066-esp32-classic-rmt-legacy.patch"
+    / "patches/qemu-unit-runtime/"
+    "0004-esp32-classic-rmt-legacy.patch"
 )
 
 

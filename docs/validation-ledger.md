@@ -1630,3 +1630,110 @@ Core2 legacy `RUNTIME-03` 不继承。见
 [证据](evidence/2026-10-29-core2-atecc608/README.md)、
 [机器摘要](evidence/2026-10-29-core2-atecc608/summary.json)和
 [runner](../tests/firmware/core2_atecc608/run_service.py)。
+
+## 2026-10-29：Unit Relay/Relay2 hard-reset 输出边界
+
+新增 `0087-unit-hard-reset-output-boundary.patch`。共享 ESP32/ESP32-S3 GPIO
+hold reset 现在先清寄存器并建立复位后route/电平，再通知 reset observer，
+最后才通过既有 output listener/IRQ 发布变化；Relay/Relay2 从实际post-reset
+pad重定previous level并清零transition。顺序保证 high→hard-reset-low 不会
+被记成新的 guest edge，Unit-local reset与GPIO reset无论先后都保持同一基线。
+
+同一 AtomS3R UIFlow2 guest `ab4dd742…` 在 pre-fix QEMU `9aca9a8d…` 与
+fixed QEMU `e318b2b7…` 上做 A/B。pre-fix单Relay reset后transition仍为`2`，
+Relay2仍为`1/1`；fixed reset观测为单Relay `0`、Relay2 `0/0`，随后
+gpio-1由`0/0`到`1/0`，gpio-2再到`1/1`。fixed/pre-fix每路均在停止前请求
+evidence并以`purge=0`停止；fixed Relay2证据SHA256为`67acff27…`，pre-fix
+为`cc259eff…`；fixed/pre-fix单Relay分别为`6ac5a022…`与`91b17622…`。
+
+为使该Unit runtime能从干净源重建，同一轮在
+`patches/qemu-unit-runtime/0003`–`0006` 增加 `0065/0066/0069/0070` 的窄范围
+forward port；历史Core2诊断patch保持原字节。新源码 receipt、forward/reverse
+apply与完整 `xtensa-softmmu`构建均通过；最终平台回归为
+`1558 tests OK, 10 skipped`，runtime coverage/peripheral catalog/QEMU
+profiles/project snapshot均PASS。该结果是
+`virtual-device validation`，只关闭Relay/Relay2数字GPIO hard-reset边界；
+机械触点、线圈、负载、电气、FlashLight reset、其它Unit及physical hardware
+仍`NOT RUN`。见[证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)、
+[机器摘要](evidence/2026-10-29-unit-hard-reset-output-boundary/summary.json)和
+[runner](../tests/units/run_relay_reset_probe.py)。
+
+## 2026-10-29：Core2 legacy contended-CAS hold intervals
+
+新增 `0086-esp32-legacy-cas-episode-profile.patch`，SHA256
+`4e86512c3d19a30c23ffd22824a69fc7d5d2f10d0db5aa7a2e81668090b608f8`。
+该 patch 在既有 freeze-only handoff trace 中按 CPU/lock 聚合跨核
+`s32c1i` episode，记录失败 attempt、区间时长、最大 attempt gap 和最后
+holder CPU；桶与 lock slot 数量固定，overflow 单独计数。首版 episode
+采样在 no-I/O translation block 中读取 `QEMU_CLOCK_VIRTUAL`，触发
+`Bad icount read` 并终止 VM；最终版本跳过该不安全状态，不改变 guest
+指令、CAS 结果、中断、watchdog 或默认调度。
+
+同一 public `UIFlow_Core2 v1.15.4` normalized Flash
+`4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4`
+在 QEMU `0a63c37f…` 上执行两个独立 10 秒 exact-time freeze：
+
+| 控制 | 区间 | 总时长 | 最大 | `0x3ffbf2cc` 区间/时长/最大 | 最大失败尝试 |
+| --- | ---: | ---: | ---: | --- | ---: |
+| normal WDT | `238` | `9.316534114 s` | `631 ms` | `162 / 6.743534018 s / 482.823328 ms` | `53` |
+| WDT-off | `253` | `7.825981502 s` | `581 ms` | `166 / 6.600981470 s / 581.176638 ms` | `65` |
+
+两轮最后 holder 均为 CPU1；normal-WDT 中 `0x3ffb7ab0` 另有 `31`
+个区间，累计 `2.559000096 s`、最长 `631 ms`。因此主锁预算来自多轮失败
+CAS 形成的长持有区间，而不是孤立单次碰撞，且关闭 WDT 不会消除该模式。
+所有 session 均以 `purge=0` 停止、history 保留且 QEMU PID 消失。
+
+BIN 指令/控制流与 public `m5stack/esp-idf` v3.3.5 commit
+`03810c4a065a1ecdd24a803b2c9dc4e834c7dab5` 对比：`0x3ffbf2cc`
+对应 `xTaskQueueMutex`，主要 waiter 是 `xTaskIncrementTick` 和
+`vTaskSwitchContext`；`0x3ffb7ab0` 对应某个 `Queue_t + 76` 的 mux。
+这些是 source-structure 匹配，不是 matching application ELF/MAP 的
+符号查找。
+
+对既有 default-off failed-CAS yield 再做 10/15 秒 episode A/B：
+
+| 控制 | 区间 | 总时长 | `xTaskQueueMutex` | `Queue_t+76` |
+| --- | ---: | ---: | ---: | ---: |
+| 10 s baseline | `253` | `7.825981502 s` | `6.600981470 s` | `1.133000000 s` |
+| 10 s failed-CAS yield | `64` | `1.400290688 s` | `0.446291456 s` | `0.953999232 s` |
+| 15 s baseline | `597` | `6.090325855 s` | `5.236325055 s` | `0.825000736 s` |
+| 15 s failed-CAS yield | `101` | `5.383785888 s` | `0.849786112 s` | `4.533999776 s` |
+
+yield 在 10 秒大幅降低 scheduler-mutex 等待，但 15 秒时总预算转移到
+queue mux，episode 总时长仍约 `5.4 s`；既有 normal-WDT reset 边界不变。
+因此“yield 完全无效”被修正为“等待重新分配但未闭环”，不能作为产品修复。
+
+该结果只修正诊断并完成 `virtual-device validation`；仍没有 matching legacy
+ELF/MAP，不能确认 exact queue object，也不能区分 host-vCPU 调度延迟与
+guest 长临界区，也没有证明 Xtensa atomics 语义错误。normal-WDT stage-1
+reset、startup UI、setup/REPL、完整应用帧和 physical hardware 仍不通过，
+`RUNTIME-03` 保持 `OPEN`。见
+[证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和
+[机器摘要](evidence/2026-10-29-core2-legacy-cas-episodes/summary.json)。
+
+## 2026-10-29：FlashLight cold constructor 四host
+
+`run_flashlight_route_probe.py` 在 QEMU `e318b2b7…` 上为 CoreS3、AtomS3R、
+StickS3、StopWatch 各创建一个独立 UIFlow-live session，并挂接 U152
+Flash/Torch fixture。每个 guest 在同一 PID 依次运行原厂
+`FlashLightUnit` constructor、`flash(BRIGHTNESS_100,TIME_220MS,False)` 和
+off Run。
+
+四台均在 constructor 后进入可信 `ready-low`：
+`output-known/pad-synchronized/gpio-route-supported=true`，没有借用旧高电平
+或 host 伪造低读数。原 API 后模型观察到一次上升沿并解出
+`100% / 220ms`、`decoded-programs=1`；off Run 后回到 `ready-low`。三次
+execution 保持同 PID，未增加 ESP-ROM reboot banner；每轮均在停止前请求
+evidence 并以 `purge=0` 停止。
+
+四份 evidence ZIP SHA256 分别为 CoreS3 `23b10c5f…`、AtomS3R
+`3e30a300…`、StickS3 `ca96473c…`、StopWatch `5f7ec5b1…`。mounted
+`test_flashlight_unit_web.mjs` 使用 CoreS3 actual QOM snapshots 回放真实
+controller state，输出 `mounted Web=ACTUAL-QOM-SNAPSHOT`；实时轮询会话
+仍 `NOT RUN`。最终平台回归为 `1559 tests OK, 10 skipped`，runtime
+coverage/peripheral catalog/QEMU profiles/project snapshot与两项 Web
+fixture均PASS。该结果关闭 `UNIT-HOST-37` 的 cold constructor/低基线数字
+边界，不关闭动态 S1、EN PWM、完整 OEN/IOMUX、bit-exact 时序、光度/热/
+电气或 physical hardware。见
+[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)和
+[机器摘要](evidence/2026-10-29-flashlight-cold-route-four-host/summary.json)。

@@ -577,11 +577,17 @@ def summarize_s32c1i_profile(events: list[dict[str, Any]]) -> dict[str, Any]:
     old_values: Counter[int] = Counter()
     callers: Counter[tuple[int, int, int, int, int]] = Counter()
     holders: Counter[tuple[int, int, int, int]] = Counter()
+    episode_buckets: Counter[int] = Counter()
+    episode_locks: dict[int, dict[str, int]] = {}
+    episode_lock_attempts: dict[int, dict[str, int]] = {}
+    episode_summary: dict[str, Any] = {}
+    episode_last: dict[str, Any] = {}
     pc_overflow = 0
     lock_overflow = 0
     old_overflow = 0
     caller_overflow = 0
     holder_overflow = 0
+    episode_lock_overflow = 0
     last: dict[str, Any] = {}
     last_context: dict[str, Any] = {}
 
@@ -639,6 +645,36 @@ def summarize_s32c1i_profile(events: list[dict[str, Any]]) -> dict[str, Any]:
             ] += int(event["d"], 10)
         elif name == "freeze-holder-overflow":
             holder_overflow += int(event["a"], 10)
+        elif name == "freeze-episodes":
+            episode_summary = {
+                "count": int(event["a"], 10),
+                "duration_ns_total": int(event["b"], 10),
+                "duration_ns_max": int(event["c"], 10),
+                "incomplete": int(event["d"], 10),
+            }
+        elif name == "freeze-episode-bucket":
+            episode_buckets[int(event["a"], 10)] += int(event["b"], 10)
+        elif name == "freeze-episode-lock":
+            episode_locks[int(event["a"], 16)] = {
+                "count": int(event["b"], 10),
+                "duration_ns_total": int(event["c"], 10),
+                "duration_ns_max": int(event["d"], 10),
+            }
+        elif name == "freeze-episode-lock-attempts":
+            episode_lock_attempts[int(event["a"], 16)] = {
+                "attempts_total": int(event["b"], 10),
+                "attempts_max": int(event["c"], 10),
+                "attempt_gap_ns_max": int(event["d"], 10),
+            }
+        elif name == "freeze-episode-lock-overflow":
+            episode_lock_overflow += int(event["a"], 10)
+        elif name == "freeze-episode-last":
+            episode_last = {
+                "lock": int(event["a"], 16),
+                "duration_ns": int(event["b"], 10),
+                "attempts": int(event["c"], 10),
+                "holder_cpu": int(event["d"], 10),
+            }
         elif name == "freeze-last":
             last = {
                 "pc": int(event["a"], 16),
@@ -704,6 +740,27 @@ def summarize_s32c1i_profile(events: list[dict[str, Any]]) -> dict[str, Any]:
             ), count in sorted(holders.items())
         },
         "holder_overflow": holder_overflow,
+        "episode_buckets": {
+            str(bucket): count
+            for bucket, count in sorted(episode_buckets.items())
+        },
+        "episode_locks": {
+            f"0x{address:08x}": {
+                **values,
+                **episode_lock_attempts.get(address, {}),
+            }
+            for address, values in sorted(episode_locks.items())
+        },
+        "episode_lock_overflow": episode_lock_overflow,
+        "episodes": episode_summary,
+        "episode_last": {
+            **episode_last,
+            **(
+                {"lock": f"0x{episode_last['lock']:08x}"}
+                if "lock" in episode_last
+                else {}
+            ),
+        },
         "last": {
             **last,
             **{

@@ -1,6 +1,6 @@
 # FlashLight 冷初始化与 GPIO pad 连续观察
 
-日期：2026-10-27。归属 UNIT-01 / UNIT-HOST-37；状态：当前bug修复收尾；后续验收暂停。
+日期：2026-10-27，复核：2026-10-29。归属 UNIT-01 / UNIT-HOST-37；状态：计划验收完成。
 本块从 `356d4ae2` 开始，前块已提交并 fetch/merge 最新 main，无冲突、未 push。
 工作顺序仍由 project-backlog.md 维护，本页记录本项实施契约。
 
@@ -56,5 +56,10 @@ CoreS3 另验实际 mounted Web。微秒级边界由 C 证据判断，HTTP 分�
 
 用户要求处理当前bug后收尾，不再扩展新Unit或AIFlow工作。0047 C实现、
 完整源码重放/冷构建、软I2C上拉修复、22项受影响回归及平台1226通过已留[仓内记录](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。
-新的四host原constructor/API/Preview与mounted Web、独立完整矩阵均NOT RUN；
-37保持OPEN，不以准备包或旧runtime结果替代新验收。
+后续新 `e318b2b7…` 已完成四 S3 主机原厂 constructor、100%/220ms Flash、
+off Run 替换与原驱动读回；四台均从 `ready-low` 到 `flash-active` 再回
+`ready-low`，保持同一 PID。CoreS3 actual QOM snapshots 已通过真实 mounted
+Unit panel replay，见[四host证据](../evidence/2026-10-29-flashlight-cold-route-four-host/README.md)。
+`UNIT-HOST-37` 的 cold constructor/低基线因此关闭。实时 Web 轮询、动态 S1、
+EN PWM、完整 OEN/IOMUX、bit-exact 时序、光度/热/电气/真机仍独立；本页旧轮
+准备包不替代这些结果。

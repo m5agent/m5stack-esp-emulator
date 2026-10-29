@@ -88,11 +88,13 @@ void error_setg_internal(Error **,const char *,int,const char *,const char *,...
 #define error_setg(errp,...) error_setg_internal(errp,__FILE__,__LINE__,__func__,__VA_ARGS__)
 extern Error *error_fatal;
 typedef void (*esp32_gpio_out_cb)(void *,int,int);
+typedef void (*esp32_gpio_reset_cb)(void *,int,int);
 int esp32_gpio_get_line(int);
 void esp32_gpio_set_input(int,int);
 void esp32_gpio_set_open_drain(int,bool);
 void esp32_gpio_force_line(int,int);
 void esp32_gpio_add_out_listener(int,esp32_gpio_out_cb,void *);
+void esp32_gpio_add_reset_listener(int,esp32_gpio_reset_cb,void *);
 void esp32_ledc_gpio_route_changed(bool);
 void m5_unit_gpio_route_changed(bool,unsigned);
 int esp32_gpio_matrix_out_signal(int,bool);

@@ -59,6 +59,14 @@ board probe when it temporarily enables internal pull-downs. Opposing weak
 sources remain unknown; compatibility reads do not establish electrical
 thresholds. CoreS3 R20/R32 evidence and the failed first candidate are retained
 in the [cold-pad record](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md).
+`0087` adds the shared GPIO hard-reset observer used by Relay and Relay2. GPIO
+reset now establishes the post-reset level, notifies reset observers, then
+publishes any normal line change. Relay models rebase their previous level and
+clear digital transition counters without treating the reset edge as a guest
+transition. The AtomS3R fixed/pre-fix guest A/B is virtual-device validation;
+contact, coil, load, electrical and physical-hardware behavior remain outside
+the model. See the
+[hard-reset evidence](../../docs/evidence/2026-10-29-unit-hard-reset-output-boundary/README.md).
 `0044` adds U131's two independent GPIO pad observers and schematic R3/R6
 digital pull-downs. White is channel 1, yellow channel 2; each transition
 counter is independent. Outputs are read-only. This is nominal-powered
@@ -586,6 +594,16 @@ factory firmware changes from `atcab_init=f0` plus abort to
 `atecc608: ok: 60 02` and a three-run nonempty `320x240` frame. No production
 private key, certificate, ECDSA signing, live trust root or electrical
 equivalence is claimed; BMI270 errors in the same firmware remain independent.
+
+`0086-esp32-legacy-cas-episode-profile.patch` extends the freeze-only
+`s32c1i` diagnostics with bounded contention episodes. It tracks each CPU's
+current contended lock, failed-attempt count, maximum inter-attempt gap and
+hold duration, then emits overall and per-lock aggregates at the existing
+freeze point. Virtual-clock sampling is skipped while the vCPU is executing a
+no-I/O translation block, where QEMU would terminate with `Bad icount read`;
+the next I/O-capable observation continues or closes the episode. This changes
+diagnostics only and does not alter guest instructions, lock outcomes,
+interrupts, watchdog behavior or default scheduling.
 
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
