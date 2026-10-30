@@ -44,7 +44,7 @@ async function closeWorkersBeforeRemovingIframe(name,total) {
   check(`${name}-pthreads-before-iframe-finalization`,nestedClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1,
     {worker_targets:nestedClose,playwright_worker_events:workers});
   await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
-  const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total,timeoutMs:30000});
+  const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total});
   (report.worker_target_lifecycles||=[]).push({name,nested_before_removal:nestedClose,all_after_removal:targetClose,playwright_worker_events:workers});
   check(`${name}-all-targets-after-iframe-finalization`,targetClose.ok,targetClose);
 }

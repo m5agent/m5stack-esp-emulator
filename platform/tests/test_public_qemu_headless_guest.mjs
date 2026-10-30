@@ -201,7 +201,7 @@ try{
     &&nestedClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,
     {worker_targets:nestedClose,playwright_worker_events:workers,iframe_removal:held});
   await page.evaluate(()=>{const held=headlessDeferredRemoval;held.remove.call(held.frame);delete globalThis.headlessDeferredRemoval;});
-  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets,timeoutMs:30000});
+  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets});
   report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
   check('engine-and-created-pthreads-close-after-iframe-finalization',targetClose.ok
     &&targetClose.observed.length===expectedWorkerTargets

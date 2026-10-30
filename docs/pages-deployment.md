@@ -108,6 +108,8 @@ dispose。engine 依次回复私有端口确认、关闭端口、发送 owner cl
 用于避免 engine target 被保留到 iframe 移除。该通知本身不是回收证明；真实客体验收通过
 Chrome CDP `Target.getTargets` 分两阶段核对：iframe 保留时五个嵌套 pthread
 target 必须消失；正常移除 iframe 后 engine 与全部 Worker target 也必须消失。
+后一阶段允许最多 60 秒的有界关闭回执，以容纳 macOS Chrome 约 32 秒的
+CDP target 延迟；预算结束时仍必须为零 target，不能把超时或强制回收写成 PASS。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
 错误或 iframe pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
 记录；成功清理门禁要求 fallback 次数为零，不能把强制回收写成正常退出。
