@@ -147,7 +147,7 @@ try{
   check('no-instance-frame-after-stop',await page.locator('iframe[src*="public-qemu-instance.html"]').count()===0);
   check('dedicated-engine-closing-notification-without-owner-fallback',stopped.cleanup.engineOwnership?.engineCloseNotificationReceived===true
     && stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===1
-    && stopped.cleanup.engineOwnership?.engineNormalTerminations===0
+    && stopped.cleanup.engineOwnership?.engineNormalTerminations===1
     && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup.engineOwnership);
   check('local-history-retains-hash',await page.locator('#browserHistoryText').textContent().then(text=>text.includes(fixture.firmwareSHA256.slice(0,12))));
   const firstId=stopped.session_id;
@@ -165,7 +165,7 @@ try{
   await closeWorkersBeforeRemovingIframe('both-engines-and-ten-pthreads-close-before-iframe-removal',12);
   check('reopened-engine-notification-without-owner-fallback',final.cleanup.engineOwnership?.engineCloseNotificationReceived===true
     &&final.cleanup.engineOwnership?.engineSelfCloseNotifications===1
-    &&final.cleanup.engineOwnership?.engineNormalTerminations===0
+    &&final.cleanup.engineOwnership?.engineNormalTerminations===1
     &&final.cleanup.engineOwnership?.engineFallbackTerminations===0,final.cleanup.engineOwnership);
   check('no-service-or-local-emulator-requests',!requests.some(row=>/\/api\/v1|:8787\b|:8830\b/.test(row.url)));
   check('no-javascript-errors',errors.length===0,errors);

@@ -2,9 +2,8 @@
 // All guest execution and MEMFS work belongs to one module DedicatedWorker.
 let connected=false,engine,heldPort,readyTimer;
 let engineWorkersCreated=0,engineOwnerLive=false,engineCloseNotificationReceived=false;
-let engineSelfCloseNotifications=0,engineFallbackTerminations=0,enginePortTransferred=false,engineTerminationRequested=false;
-// Compatibility field: normal disposal no longer calls owner terminate().
-const engineNormalTerminations=0;
+let engineSelfCloseNotifications=0,engineNormalTerminations=0,engineFallbackTerminations=0;
+let enginePortTransferred=false,engineTerminationRequested=false;
 Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze({
   engineWorkersCreated,engineOwnerLive,engineCloseNotificationReceived,
   engineSelfCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
@@ -12,13 +11,16 @@ Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze(
 function finalizeOwner() {
   if (engineTerminationRequested || engineCloseNotificationReceived) return;
   engineCloseNotificationReceived=true;engineSelfCloseNotifications++;engineOwnerLive=false;
-  // The engine owns its cooperative self.close(). An immediate terminate()
-  // here races that close and can leave its browser target behind. These
-  // fields record owner disposition and notification, never actual exit.
+  // The closing notification is sent after the engine requests self.close().
+  // The owner must still finalize its Worker handle so Chrome removes the
+  // DedicatedWorker target; this acknowledged path is not a fallback terminate.
+  engineTerminationRequested=true;engineNormalTerminations++;
+  const worker=engine;engine=null;worker?.terminate();
 }
 function terminateOwner() {
   if (!engine || engineTerminationRequested) return;
-  engineTerminationRequested=true;engineFallbackTerminations++;engineOwnerLive=false;engine.terminate();
+  engineTerminationRequested=true;engineFallbackTerminations++;engineOwnerLive=false;
+  const worker=engine;engine=null;worker.terminate();
 }
 function failBeforeTransfer(error) {
   if (!heldPort) return;
