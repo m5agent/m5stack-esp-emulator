@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "prepared-public-site-deployment",
+  "overall_status": "PARTIAL",
+  "deployment_status": "PASS",
+  "formal_all_admitted_gate": "NOT PASS",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "deployment": {
+    "run_id": 41058959787,
+    "run_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41058959787",
+    "workflow": "Deploy prepared public simulator preview",
+    "release_tag": "pages-preview-20261030-stackchan-dance",
+    "release_url": "https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-preview-20261030-stackchan-dance",
+    "asset_sha256": "ad0607f01cac1b7d313b21a1cd339341156f36535bfc5cbca0e21e5206757026",
+    "asset_bytes": 151909857
+  },
+  "site": {
+    "manifest_sha256": "3c3cdb2f3ea71b458d48c9b6203282ee14bc205e9edad257cb955094c24a958b",
+    "wasm_sha256": "5d6c36bdafc1129c2652b5ba9422f3deb5ab170475748cea96fdc4cf9520a993",
+    "worker_wrapper_sha256": "bb62533b0e8a2899e017ddcf78935b35759dd6784d6d6c855b601d5e8b49f753",
+    "cardputer_keymap_sha256": "28ec5ab41b3e636ee7fea3200de474eeaec62aadfad0de07729e4f8c8d1dd37b",
+    "base_path": "/m5stack-esp-emulator/"
+  },
+  "virtual_device": {
+    "stopwatch_checks": 24,
+    "sticks3_checks": 25,
+    "stackchan_checks": 11,
+    "cardputer_checks": 36,
+    "cardputer_physical_keys": 56,
+    "cardputer_direct_pc_codes": 55,
+    "stackchan_firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+    "stackchan_profile": "stackchan-wasm-dance-div6",
+    "stackchan_yaw": [
+      307,
+      613
+    ],
+    "stackchan_pitch": [
+      677,
+      850
+    ],
+    "cardputer_firmware_sha256": "4faaccde28367c257f7f140c139c434cf223be47de41ad853a168d9c25c2bd7b"
+  },
+  "remote_gate_failure": {
+    "run_id": 41056051554,
+    "run_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41056051554",
+    "device": "sticks3",
+    "error": "engine-and-created-pthreads-close-after-iframe-finalization",
+    "ownership_normal_terminations": 1,
+    "ownership_fallback_terminations": 0
+  },
+  "live_checks": {
+    "home_http_status": 200,
+    "cross_origin_isolated": true,
+    "manifest_match": true,
+    "worker_wrapper_match": true,
+    "cardputer_keymap_match": true,
+    "stackchan_firmware_profile_present": true,
+    "cores3_guest": "NOT RUN: upstream M5Burner composer returned HTTP 503"
+  },
+  "not_claimed": [
+    "formal remote all-admitted production PASS",
+    "physical hardware",
+    "mechanical servo travel",
+    "electrical or RF behavior",
+    "physical keyboard or LCD optics",
+    "other firmware SHAs or board profiles"
+  ]
+}

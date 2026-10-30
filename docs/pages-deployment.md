@@ -236,10 +236,14 @@ GitHub Pages 部署；部署后从正式 HTTPS 地址独立复验 21 项检查�
 `firmware_bundled=false`。运行时、固件 SHA、公开报告 SHA 和边界见
 [正式部署证据](evidence/2026-10-29-github-pages-production/README.md)。
 
-这些是原仓库该次正式发布的历史证据，不代表当前 main 已在该站点部署。
-后续新增板型的历史全量准入见
-[剩余 Xtensa 证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md)，新增 Atom/Stick
-及运动行为另见各次 evidence；每次重建仍需重新执行当前全设备发布门禁。
+2026-10-30 又通过 prepared-site 流程把当前网页更新到 manifest
+`3c3cdb2f…`，线上 StackChan 跳舞 profile、Cardputer keymap、Worker
+finalize wrapper 和完整 WASM 已逐一回读。最新 regular all-admitted 运行
+在 macOS hosted runner 的 Sticks3 CDP target graph 残留失败，因此这次是
+可访问的应急部署，不是远端全板型正式 PASS。当前限制、精确哈希和本机真实
+浏览器证据见
+[StackChan/Cardputer 部署证据](evidence/2026-10-30-pages-stackchan-cardputer-production/README.md)。
+后续 regular publication 仍必须消除该收尾差异并重新执行全设备门禁。
 
 fork 的[体验站点](https://yuyun2000.github.io/m5stack-esp-emulator/)在
 2026-10-30 更新到 manifest `a9631395…`，包含新 67-patch WASM 和默认

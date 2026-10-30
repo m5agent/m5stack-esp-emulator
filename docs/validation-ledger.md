@@ -2281,3 +2281,22 @@ Unit off/on→guest串口与320×240帧、RuntimeError检测与同session恢复�
 同日补充两套 Skill 的 ENV III 初始环境、运行中温湿度/气压输入与同 guest
 读数/画面/阈值恢复指引；字段和流程经当前 schema、helper 及服务路径审查。
 此补充仅为文档与分发包更新，未重新执行 ENV guest，不新增运行/硬件 PASS。
+
+## 2026-10-30：StackChan 跳舞 / Cardputer-ADV Pages 更新
+
+正式站点通过 prepared-site 应急流程更新到 manifest
+`3c3cdb2f3ea71b458d48c9b6203282ee14bc205e9edad257cb955094c24a958b`。
+部署运行 `41058959787` 的 prepare/deploy 均 PASS；release asset SHA256
+`ad0607f0…57026`，完整 WASM `5d6c36…a993`。线上首页与完整 WASM
+HTTP 200，manifest、Worker finalize wrapper、Cardputer keymap 和
+`stackchan-wasm-dance-div6` profile 与导出逐一一致。
+
+本机 M4 的当前 wrapper 上，StopWatch `24/24`、Sticks3 `25/25`、
+StackChan 完整 Flash `c854d3ac…04542` 的 `11/11` 和 Cardputer-ADV
+完整 Flash `4faaccde…2bd7b` 的 `36/36` 均通过；Cardputer 覆盖 56/56
+物理键。线上 CoreS3 guest 重跑因上游 M5Burner composer HTTP 503 未执行。
+最新 regular all-admitted 运行 `41056051554` 在 Sticks3 已 normal
+`Worker.terminate()` 且 fallback=0 后仍残留 engine CDP target，因此远端
+全板型正式发布保持 `PARTIAL`，本轮应急部署不把它改写为 PASS。物理硬件、
+机械、电气、键盘、光学和 RF 均 `NOT RUN`。见
+[部署证据](evidence/2026-10-30-pages-stackchan-cardputer-production/README.md)。

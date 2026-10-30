@@ -158,13 +158,14 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Cardputer 与 StackChan 输入修复计划](plans/2026-10-30-cardputer-stackchan-input.md) | 当前交付计划 | `2026-10-30` | 原键盘 IRQ、横竖屏与局部刷新、运动期间屏幕触摸及阻塞负控 |
 | [Cardputer 与 StackChan 输入证据](evidence/2026-10-30-cardputer-stackchan-input/README.md) | 限定浏览器虚拟设备证据 | `2026-10-30` | 67-patch 新 WASM、ADV 原键盘与四旋转、StackChan 后台 UART 与真实短按、保留失败 |
 | [StackChan 跳舞与 ADV 全键证据](evidence/2026-10-30-stackchan-dance-and-cardputer-all-keys/README.md) | 精确镜像虚拟设备证据 | `2026-10-30` | 跳舞 BIN app-bound div6、真实 SCS 位移、56 物理键与 55 PC code；硬件 `NOT RUN` |
+| [StackChan 跳舞与 ADV 全键 Pages 部署](evidence/2026-10-30-pages-stackchan-cardputer-production/README.md) | 当前部署证据 | `2026-10-30` | prepared-site 更新正式 HTTPS；线上 manifest/WASM/profile/keymap/wrapper 回读一致，本机 StopWatch/Sticks3 与两个原镜像通过；hosted macOS CDP target 残留使 regular all-admitted 仍 `PARTIAL` |
 | [新增主机模型接入](plans/2026-10-29-expanded-host-models.md) | 主机视觉接入计划 | `2026-10-29` | 21 款新增主机、完整 Atom/Stick 系列、型号配置、贴图、实际工作台入口与能力边界 |
 | [Atom / Stick 原厂固件运行接入](evidence/2026-10-29-expanded-hosts/README.md) / [Dial 旋钮诊断](evidence/2026-10-29-expanded-hosts/dial-rotary.md) | 当轮逐板限定验证 | `2026-10-29` | 原厂固件、原生与纯浏览器、GPIO/I2C/RMT、Flash 修复及未完成边界 |
 | [剩余 Xtensa 浏览器接入](plans/2026-10-29-wasm-remaining-xtensa.md) | 后续交付计划 | `2026-10-29` | 六板独立组合、矩阵键盘、EPD QUALITY 抖色与真实输入/帧/清理；新 runtime 逐板验收后才能准入 |
 | [剩余 Xtensa 浏览器准入证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) | 本地浏览器证据 | `2026-10-29` | 46 层固定源码、独立 engine Worker、矩阵键盘和 TCA W1C、EPD 精确抖色、10 板 11 例最终门禁；正式部署另验 |
 | [浏览器性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md) | 本地浏览器证据 | `2026-10-29` | 同固件 CPU 对照、实际动画像素变化与剩余触摸延迟；四板五示例按两个导出清单分别取证，不冒称正式 Pages 已更新 |
 | [LVGL 正常时钟候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) | 限定候选证据 | `2026-10-29` | 显式 SDK Python 调度候选在同 guest 验证时间推进、真实字形/动画/触摸/PIR 和清理；stock SDK、C Timer 第一层和硬件不继承 |
-| [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 当前部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |
+| [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 历史部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |
 | [Cardputer-ADV 用户固件兼容](evidence/2026-10-29-cardputer-adv-user-firmware/README.md) | 当前用户固件证据 | `2026-10-29` | 同一完整 Flash 的 ADC 错误、完整原生帧、自动竖屏设备/平面帧旋转、墙钟比例和旧矩阵输入门控；物理硬件不继承 |
 | [CoreS3 C/QEMU 静态网页验收](evidence/2026-10-28-qemu-wasm-pages/README.md) | 历史证据 | `2026-10-28` | 固定源码完整构建、浏览器本地组合、真实 LCD/触摸/PIR及第二场分享启动/清理，Pages 单独记录 |
 | [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 历史执行研究 | `2026-10-28` | 固定当时完整WASM/CLI/QMP、CPU栈恢复、慢时钟CoreS3帧/触摸/PIR/停止重开；当时默认时钟失败保留，后续显式正常时钟候选、公众准入和部署分别以新证据为准 |
