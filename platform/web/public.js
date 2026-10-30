@@ -549,7 +549,9 @@ function applyBrowserFrame(frame, run) {
       const rotated = context.createImageData(frame.height, frame.width);
       for (let y = 0; y < frame.height; y++) for (let x = 0; x < frame.width; x++) {
         const from = (y * frame.width + x) * 4;
-        const to = ((frame.width - 1 - x) * frame.height + y) * 4;
+        // Match the portrait device presentation: native glass top-left
+        // rotates clockwise into the flat-screen view.
+        const to = (x * frame.height + frame.height - 1 - y) * 4;
         rotated.data.set(image.data.subarray(from, from + 4), to);
       }
       context.putImageData(rotated, 0, 0);
@@ -1096,8 +1098,8 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
     const portrait = canvas.closest('#rawFramePanel')?.dataset.orientation === 'portrait';
     void deliverInput({
       type: 'touch',
-      x: portrait ? canvas.height - 1 - shownY : shownX,
-      y: portrait ? shownX : shownY,
+      x: portrait ? shownY : shownX,
+      y: portrait ? canvas.width - 1 - shownX : shownY,
       down: ['pointerdown', 'pointermove'].includes(type),
     });
   });

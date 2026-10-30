@@ -174,7 +174,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
-    "hw/m5stopwatch/m5_spi_panel.c": "9ab53bafb7f8c77b4f96aa11904bb4b36f4078a23eaa3bc6583142609e7f3c6b",
+    "hw/m5stopwatch/m5_spi_panel.c": "100d14f4b310e7ddd522fcd3e63875c5e4534770b8d589da373e07dacec7668f",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -188,7 +188,7 @@
     "hw/m5stopwatch/m5atoms3.c": "b8c135dd9d015e1fc3c549d36dbaf69aceda74f90d6003aa9899731a828bae78",
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
-    "hw/m5stopwatch/m5cardputeradv.c": "c74942754eefbf521ddad9ad39c6be85185eb35d23ffbc02100ec6569c6756f3",
+    "hw/m5stopwatch/m5cardputeradv.c": "b7b0b1f5e212d7de275e8f2db4c657a19b3c5615b634abe9008f092761847934",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
@@ -555,6 +555,14 @@
     {
       "path": "patches/qemu-wasm-probe/0021-board-bias-over-internal-pull.patch",
       "sha256": "22583685a5e3ce0468f69e48139655b7c10869e20edc81ce3e6ed2cff4e33a53"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0022-panel-madctl-orientation.patch",
+      "sha256": "2c612e6e898d7092dd5fcc6ba39763b579af9076657cc259dd9d0c0b6c1b0381"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0023-cardputer-adv-glass-mount.patch",
+      "sha256": "9f5fb8bcec6179fff6525404fb08b651c53eeff6bd6ad4f2c9a2cc83b4114bd7"
     }
   ],
   "qemu": {

@@ -366,3 +366,19 @@ identification resistor model.
 The same-Flash Cardputer-ADV browser run, frame hashes, clock ratio, input
 transition and explicit hardware limits are recorded in
 [the 2026-10-29 evidence](../../docs/evidence/2026-10-29-cardputer-adv-user-firmware/README.md).
+
+## Cardputer-ADV native input and display follow-up (`0022`–`0023`)
+
+`0022-panel-madctl-orientation.patch` derives presentation orientation from
+MADCTL.MV relative to the mounted glass. The latest CASET/RASET window can be
+an 8×8 partial update; its dimensions cannot identify the application rotation.
+`0023-cardputer-adv-glass-mount.patch` corrects only the ADV glass mounting
+from rotation 1 to 3, so the ordinary M5GFX rotation-1 text is upright relative
+to the enclosure and keyboard. Other board mounting values stay unchanged.
+
+The host regressions replay the actual locked getter and pixel functions,
+retain the old failures, and compare all four rotations against fixed M5GFX
+address windows. They do not replace a browser guest result. The separate
+[original keyboard/display probe](../../tests/firmware/cardputer_input_orientation/README.md)
+uses the normal TCA8418 GPIO IRQ reader, real key edges, four corner markers,
+and a partial update held between keyboard-driven stages.

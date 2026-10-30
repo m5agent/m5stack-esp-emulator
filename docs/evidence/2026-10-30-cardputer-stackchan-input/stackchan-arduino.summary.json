@@ -1,0 +1,267 @@
+{
+  "kind": "stackchan-screen-servo-final-bounded-validation",
+  "date": "2026-10-30",
+  "overall_status": "PARTIAL",
+  "functional_status": "PASS",
+  "cleanup_status": "PARTIAL",
+  "runtime": {
+    "patches": 67,
+    "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+    "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40"
+  },
+  "reference": {
+    "firmware_sha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+    "main_source_sha256": "e568bd00995466a0cf7b8fadbaa3b7837ee7b46aeac782e68fc78ed488a9a3b8",
+    "harness_sha256": "ebb91d36dbed663a3bd16dd02cb035305d7b7429fd3ebe4c8777cb1f343cb347",
+    "raw_runner_status": "PASS",
+    "checks_passed": 24,
+    "checks_total": 24,
+    "actual_UART_worker_started": true,
+    "event_queue_drops": 0,
+    "max_observed_input_poll_gap_ms": 187,
+    "pulses": [
+      {
+        "label": "reference-moving-100",
+        "source": "actual-DOM-panel",
+        "requested_hold_ms": 100,
+        "actual_hold_ms": 105.355,
+        "touch_down_then_up_detected": true,
+        "expected_touch": true,
+        "qom_samples_during_hold": 4,
+        "actual_position_range_ticks": [
+          20,
+          0
+        ]
+      },
+      {
+        "label": "reference-moving-300",
+        "source": "actual-DOM-panel",
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 302,
+        "touch_down_then_up_detected": true,
+        "expected_touch": true,
+        "qom_samples_during_hold": 9,
+        "actual_position_range_ticks": [
+          32,
+          24
+        ]
+      },
+      {
+        "label": "reference-moving-800",
+        "source": "actual-DOM-panel",
+        "requested_hold_ms": 800,
+        "actual_hold_ms": 802.825,
+        "touch_down_then_up_detected": true,
+        "expected_touch": true,
+        "qom_samples_during_hold": 20,
+        "actual_position_range_ticks": [
+          229,
+          0
+        ]
+      },
+      {
+        "label": "reference-raw-moving-300",
+        "source": "raw-frame-diagnostic",
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 330.995,
+        "touch_down_then_up_detected": true,
+        "expected_touch": true,
+        "qom_samples_during_hold": 10,
+        "actual_position_range_ticks": [
+          62,
+          63
+        ]
+      }
+    ],
+    "normal_stop_CDP_targets": {
+      "observed": 6,
+      "live_before_context_close": 0
+    },
+    "raw_report_sha256": "c89163a574e3721e1563c21758b9fb53c7889ab21a2ccd3bbb21f5b51c49ec2b",
+    "concise_summary_sha256": "6ab78c078457326da815ff3dbc0f93843e73c38b353b47cab1252cf48b13d65b"
+  },
+  "arduino": {
+    "harness_sha256": "9c5d7f35b845a091119831e501bef5bc3ea000ebf482fb11576a3c07cfb26f7a",
+    "raw_runner_status": "FAIL",
+    "checks_passed": 55,
+    "checks_total": 56,
+    "only_failed_check": "screen_polling: six-workers-zero-before-context-close",
+    "polling": {
+      "firmware_sha256": "ebeada8d4c62efc5aedcf9b7f6e3d77bca76471105cd79fbdab24915e677f69d",
+      "functional_status": "PASS",
+      "cleanup_status": "FAIL",
+      "max_observed_update_gap_ms": 164,
+      "max_observed_status_draw_us": 5235,
+      "pulses": [
+        {
+          "label": "idle-100",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 100,
+          "actual_hold_ms": 103.745,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 0,
+          "actual_position_range_ticks": [
+            0,
+            0
+          ]
+        },
+        {
+          "label": "idle-300",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 302.915,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 0,
+          "actual_position_range_ticks": [
+            0,
+            0
+          ]
+        },
+        {
+          "label": "idle-800",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 800,
+          "actual_hold_ms": 802.55,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 0,
+          "actual_position_range_ticks": [
+            0,
+            0
+          ]
+        },
+        {
+          "label": "moving-100",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 100,
+          "actual_hold_ms": 101.76,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 3,
+          "actual_position_range_ticks": [
+            4,
+            4
+          ]
+        },
+        {
+          "label": "moving-300",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 302.055,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 7,
+          "actual_position_range_ticks": [
+            20,
+            14
+          ]
+        },
+        {
+          "label": "moving-800",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 800,
+          "actual_hold_ms": 803.08,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 20,
+          "actual_position_range_ticks": [
+            34,
+            17
+          ]
+        },
+        {
+          "label": "raw-moving-300",
+          "source": "raw-frame-diagnostic",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 321.6,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 8,
+          "actual_position_range_ticks": [
+            45,
+            10
+          ]
+        }
+      ]
+    },
+    "blocked_control": {
+      "firmware_sha256": "27ac25c5a31f8ba7dcc8d08c08c79fb06519724d547f1db582839744892955ac",
+      "functional_status": "PASS",
+      "cleanup_status": "PASS",
+      "actual_block_ms": 6028,
+      "input_update_counter_before_after": [
+        761,
+        761
+      ],
+      "new_UART_SCS_packets_during_held_pulse": 12,
+      "new_UART_SCS_packets_during_whole_block": 247,
+      "pulses": [
+        {
+          "label": "idle-300",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 302.91,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 0,
+          "actual_position_range_ticks": [
+            0,
+            0
+          ]
+        },
+        {
+          "label": "blocked-300",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 302.79,
+          "touch_down_then_up_detected": false,
+          "expected_touch": false,
+          "qom_samples_during_hold": 9,
+          "actual_position_range_ticks": [
+            38,
+            10
+          ]
+        },
+        {
+          "label": "recovered-300",
+          "source": "actual-DOM-panel",
+          "requested_hold_ms": 300,
+          "actual_hold_ms": 302.745,
+          "touch_down_then_up_detected": true,
+          "expected_touch": true,
+          "qom_samples_during_hold": 0,
+          "actual_position_range_ticks": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "raw_report_sha256": "26b3558e57daec6ff3a245ec5c0d4a4cf4a8c533337b89a255aada013c3f7a9d",
+    "concise_summary_sha256": "1c18f5b7191aad568a509273ac0393cb8ec1876b7657ad5076236d91944beecc"
+  },
+  "cleanup_boundary": {
+    "first_normal_stop": "graceful exit and explicit disposal acknowledged; independent CDP pre-context-close fence FAIL at 6 observed / 1 live engine target",
+    "first_engine_target_sha256": "e764da56c2d91ba6026e7282d9add7f1f6dfd7a663cdf7c17a874d3a1f19ce87",
+    "first_engine_CDP_destroyed_at": "2026-10-30T02:44:46.559Z",
+    "second_case_first_target_created_at": "2026-10-30T02:44:48.065Z",
+    "first_ghost_inherited_by_second_case": false,
+    "second_normal_stop": "independent cumulative CDP fence PASS at 12 observed / 0 live before second context.close",
+    "immediately_after_first_context_close_CDP_snapshot": "NOT RUN",
+    "boundary": "First failed fence remains FAIL. Controlled context teardown followed it; later CDP destruction preceded second-case creation. Context teardown is not counted as successful normal-stop cleanup."
+  },
+  "global_checks": {
+    "frames_match_model_texture": true,
+    "runtime_or_UART_fallback_errors": 0,
+    "user_service_or_device_API_requests": 0,
+    "browser_contexts_closed_after_evidence": true
+  },
+  "limits": {
+    "physical_hardware": "NOT RUN",
+    "user_original_uploaded_firmware": "NOT RUN",
+    "universal_100ms_poll_deadline": "NOT ESTABLISHED; actual held pulses are listed, and observed maximum input gaps remain greater than 100 ms",
+    "scope": "Exact firmware/runtime/profile and harness identities only. No host-side touch extension or fake device input."
+  }
+}

@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-29`
+日期：`2026-10-30`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| `UI-02` / Cardputer-ADV 与 StackChan 输入 | 基线 main `e3f149c1`；67-patch 全新 WASM `a7fe7180…`。ADV 原 IRQ reader 的 56 物理键、PC 双 Shift/grave/Fn-Up、四旋转/四角/局部绘图及纹理读回通过。StackChan 原默认同步工作饥饿有计时负控，真实 UART 后台线程版 V4 默认镜像 `407f6260…` 的实际 105/302/803ms 点按与 Touch 坐标、同时实际位移、帧及正常 Stop 六 Worker 清场通过；187ms 最大观察轮询间隔不授任意短按保证。Arduino 对照独立记录；原用户镜像、硬件和本轮完整 native 矩阵未运行 | [范围、失败、复现](evidence/2026-10-30-cardputer-stackchan-input/README.md) |
 | `SVC-03` QEMU WiFi security/env boundary | `parse_qemu_wifi_security` 与 `apply_qemu_wifi_environment` 移入 `device_service_qemu_wifi.py`，`device_service.py` 以 same-object 方式 re-export。open/WPA2-PSK validation、password normalization、SSID bounds、S3-only trace gate 和 runtime env key/value 保持不变。专向 `4/4`、Device Service `126/126`、platform `1,678` 项为 `1,677 PASS + 1 skip`，生成器、compileall、scoped Ruff 和 diff check PASS。该结果仅为 platform-contract 边界重构，不改变 HTTP、network 配置、QEMU、session、evidence 或硬件语义 | [边界证据](evidence/2026-10-30-svc03-qemu-wifi/README.md)、[机器摘要](evidence/2026-10-30-svc03-qemu-wifi/summary.json)、[boundary tests](../platform/tests/test_device_service_qemu_wifi.py) |
 | `SVC-03` esp-emu network execution parsing boundary | `parse_network_execution` 移入 `device_service_network_execution.py`，只依赖 `ServiceError`、共享 SHA256/capture parser、`DeviceSpec` 和 network-lane normalizer；`device_service.py` 以 same-object 方式 re-export。profile 默认值、WiFi/BLE/TCP booleans、hostfwd/I2C normalization、ELF requirement、PSRAM 与 expected-marker bounds、network pcap rejection 和返回结构不变。专向 `4/4`、Device Service `126/126`、platform `1,674` 项为 `1,673 PASS + 1 skip`，生成器、compileall、scoped Ruff 和 diff check PASS。该结果仅为 platform-contract 边界重构，不改变 HTTP、network runtime、session、evidence、QEMU 或硬件语义 | [边界证据](evidence/2026-10-30-svc03-network-execution/README.md)、[机器摘要](evidence/2026-10-30-svc03-network-execution/summary.json)、[parser tests](../platform/tests/test_device_service_network_execution.py) |
 | `SVC-03` storage/NVS execution parsing boundary | storage/NVS 执行请求解析移入 `device_service_execution_parsing.py`，只依赖 `ServiceError`、共享 SHA256 validator 和 `DeviceSpec`；`device_service.py` 以 same-object 方式 re-export。SD capability、unknown-field fail closed、NVS partition label bounds、错误码与返回结构均不变。专向 `5/5`、Device Service `126/126`、platform `1,670` 项为 `1,669 PASS + 1 skip`，四个生成器检查和 scoped Ruff/compileall/diff check PASS。该结果是 platform-contract 边界重构，不改变 HTTP、session、runtime、evidence、QEMU 或硬件语义 | [边界证据](evidence/2026-10-30-svc03-execution-parsing/README.md)、[机器摘要](evidence/2026-10-30-svc03-execution-parsing/summary.json)、[parser tests](../platform/tests/test_device_service_execution_parsing.py) |

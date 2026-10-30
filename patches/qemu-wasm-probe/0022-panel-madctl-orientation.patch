@@ -1,0 +1,32 @@
+From: M5Stack Agent <agent@m5stack.local>
+Subject: [PATCH] Keep display orientation independent of the drawing window
+
+MADCTL.MV controls logical axes; CASET/RASET only select a drawing rectangle.
+Infer presentation relative to the physical glass mounting and keep partial
+fillRect/text writes from changing it. No pixel writes or address mapping change.
+
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -489,15 +489,13 @@
+ static char *m5_panel_logical_orientation_get(Object *obj, Error **errp)
+ {
+     M5SpiPanelState *s = (M5SpiPanelState *)obj;
+-    uint32_t width = s->xe >= s->xs ? s->xe - s->xs + 1 : 0;
+-    uint32_t height = s->ye >= s->ys ? s->ye - s->ys + 1 : 0;
+-    if (width == s->vis_h && height == s->vis_w) {
+-        return g_strdup("portrait");
+-    }
+-    if (width == s->vis_w && height == s->vis_h) {
+-        return g_strdup("landscape");
+-    }
+-    return g_strdup("unknown");
++    /* CASET/RASET select the next drawing rectangle, not the panel rotation.
++     * A small fillRect/text write must not change the presentation. MADCTL.MV
++     * exchanges logical axes; glass_rotation accounts for board mounting.
++     */
++    bool exchanged = s->apply_madctl && s->vis_w != s->vis_h &&
++                     (!!(s->madctl & 0x20) != !!(s->glass_rotation & 1));
++    return g_strdup(exchanged ? "portrait" : "landscape");
+ }
+ 
+ static uint8_t tca8418_event(int row, int col, bool down)

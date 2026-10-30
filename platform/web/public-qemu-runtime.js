@@ -150,7 +150,7 @@ export class PublicQemuRuntime {
       const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
-      this.display=this.profile.display === null ? null : await this.ask('display');
+      this.display=this.profile.deviceId === 'cardputer-adv' ? await this.ask('display') : null;
       this.state(!this.guestReady()?'booting':'running');
       this.poll(generation);return this.observe();
     }catch(error){if(generation===this.generation){await this.stop();if(error.name!=='AbortError'){this.state('error');this.onError(error);}}throw error;}
@@ -178,7 +178,7 @@ export class PublicQemuRuntime {
       if(this.status==='running'&&this.guestReady()){
         if(this.profile.display!==null)await this.ask('frame');
         if(this.profile.outputs&&!this.stopping&&!this.exit)await this.ask('outputs');
-        if(this.profile.display!==null&&performance.now()>=this.displayPollAt) {
+        if(this.profile.deviceId==='cardputer-adv'&&performance.now()>=this.displayPollAt) {
           this.displayPollAt=performance.now()+250;
           const display=await this.ask('display');
           if(display.orientation!==this.display?.orientation||display.deviceRotationDeg!==this.display?.deviceRotationDeg) {

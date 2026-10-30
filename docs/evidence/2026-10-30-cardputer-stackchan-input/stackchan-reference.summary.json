@@ -1,0 +1,333 @@
+{
+  "kind": "stackchan-screen-input-during-real-servo-motion",
+  "status": "PASS",
+  "started_at": "2026-10-30T02:37:10.037Z",
+  "finished_at": "2026-10-30T02:38:13.766Z",
+  "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+  "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+  "harness_sha256": "ebb91d36dbed663a3bd16dd02cb035305d7b7429fd3ebe4c8777cb1f343cb347",
+  "hardware_validation": "NOT RUN",
+  "instrumentation": "Only observers wrap production callbacks. Actual DOM mouse events target the current transformed LCD panel. QOM positions, original Touch API, optional guest I2C register observations and LCD pixels are independent observations. A raw-frame input is labelled diagnostic and never replaces DOM acceptance.",
+  "checks": [
+    {
+      "name": "reference:reference-moving-100: real-down-up-input",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-100: Touch-API-expectation",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-100: coordinates",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-100: actual-position-changed-during-hold",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-300: real-down-up-input",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-300: Touch-API-expectation",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-300: coordinates",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-300: actual-position-changed-during-hold",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-800: real-down-up-input",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-800: Touch-API-expectation",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-800: coordinates",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-moving-800: actual-position-changed-during-hold",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-raw-moving-300: real-down-up-input",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-raw-moving-300: Touch-API-expectation",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-raw-moving-300: coordinates",
+      "ok": true
+    },
+    {
+      "name": "reference:reference-raw-moving-300: actual-position-changed-during-hold",
+      "ok": true
+    },
+    {
+      "name": "reference: actual-original-UART-worker-started",
+      "ok": true
+    },
+    {
+      "name": "reference: bounded-UART-event-queue-no-drops",
+      "ok": true
+    },
+    {
+      "name": "reference: graceful-stop",
+      "ok": true
+    },
+    {
+      "name": "reference: six-workers-zero-before-context-close",
+      "ok": true
+    },
+    {
+      "name": "reference: actual-frame-to-model",
+      "ok": true
+    },
+    {
+      "name": "reference: no-runtime-or-UART-fallback-errors",
+      "ok": true
+    },
+    {
+      "name": "no-user-service-or-device-API-requests",
+      "ok": true
+    },
+    {
+      "name": "no-page-errors",
+      "ok": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "reference",
+      "status": "PASS",
+      "firmware_sha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+      "pulses": [
+        {
+          "label": "reference-moving-100",
+          "source": "actual-DOM-panel",
+          "hold_requested_ms": 100,
+          "hold_observed_ms": 105.35500001907349,
+          "touch_api_detected": true,
+          "expected_touch_api": true,
+          "qom_samples_during_hold": 4,
+          "present_ranges_during_hold": [
+            20,
+            0
+          ],
+          "guest_events": [
+            {
+              "kind": "servo-worker-ready",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "pressed",
+              "xy": [
+                160,
+                148
+              ]
+            },
+            {
+              "kind": "count",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "released",
+              "xy": [
+                160,
+                148
+              ]
+            }
+          ]
+        },
+        {
+          "label": "reference-moving-300",
+          "source": "actual-DOM-panel",
+          "hold_requested_ms": 300,
+          "hold_observed_ms": 302,
+          "touch_api_detected": true,
+          "expected_touch_api": true,
+          "qom_samples_during_hold": 9,
+          "present_ranges_during_hold": [
+            32,
+            24
+          ],
+          "guest_events": [
+            {
+              "kind": "servo-command",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "pressed",
+              "xy": [
+                159,
+                148
+              ]
+            },
+            {
+              "kind": "count",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "released",
+              "xy": [
+                159,
+                148
+              ]
+            }
+          ]
+        },
+        {
+          "label": "reference-moving-800",
+          "source": "actual-DOM-panel",
+          "hold_requested_ms": 800,
+          "hold_observed_ms": 802.8250000476837,
+          "touch_api_detected": true,
+          "expected_touch_api": true,
+          "qom_samples_during_hold": 20,
+          "present_ranges_during_hold": [
+            229,
+            0
+          ],
+          "guest_events": [
+            {
+              "kind": "pressed",
+              "xy": [
+                159,
+                148
+              ]
+            },
+            {
+              "kind": "count",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "servo-command",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "released",
+              "xy": [
+                159,
+                148
+              ]
+            }
+          ]
+        },
+        {
+          "label": "reference-raw-moving-300",
+          "source": "raw-frame-diagnostic",
+          "hold_requested_ms": 300,
+          "hold_observed_ms": 330.9949998855591,
+          "touch_api_detected": true,
+          "expected_touch_api": true,
+          "qom_samples_during_hold": 10,
+          "present_ranges_during_hold": [
+            62,
+            63
+          ],
+          "guest_events": [
+            {
+              "kind": "pressed",
+              "xy": [
+                160,
+                148
+              ]
+            },
+            {
+              "kind": "count",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "servo-command",
+              "xy": [
+                null,
+                null
+              ]
+            },
+            {
+              "kind": "released",
+              "xy": [
+                160,
+                148
+              ]
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 0,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "workers": {
+        "ok": true,
+        "observed": 6,
+        "remaining": 0,
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "boot_diagnostics": {
+        "psram_id_warning_count": 0,
+        "boundary": "All boot serial is retained. A PSRAM probe warning alone is not classified as a new screen/servo failure or physical-memory validation."
+      },
+      "reference_controller_boundary": "Official base/framework retained; default main.py changed. The original M5.Touch API remains the I2C delivery witness. Independent raw FT register telemetry exists only in the separate Arduino probe.",
+      "reference_input_polling": {
+        "max_observed_gap_ms": 187,
+        "heartbeat_records": 3
+      }
+    }
+  ],
+  "blocked_requests": 0,
+  "forced_cleanup_after_failure": false
+}

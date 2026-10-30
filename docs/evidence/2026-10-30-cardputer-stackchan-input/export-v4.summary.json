@@ -1,0 +1,36 @@
+{
+  "kind": "input-static-candidate-v4-freeze",
+  "status": "STATIC_PACKAGING_PASS",
+  "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+  "assets": 2115,
+  "asset_bytes": 261283583,
+  "runtime_manifest_sha256": "eeb6f5cedab9dfc4cb69e9467c832e0bb5e478c87c715855d40fb365194c4e44",
+  "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+  "source_lock_sha256": "36b0ae4381e53e02517ec35ddc49085b0bb489acc3b80f3383f1e20e611ccc58",
+  "stackchan_default": {
+    "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+    "firmware_sha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+    "source": {
+      "bytes": 8630,
+      "sha256": "e568bd00995466a0cf7b8fadbaa3b7837ee7b46aeac782e68fc78ed488a9a3b8"
+    },
+    "fresh_official_base": true,
+    "wasm_source_readback_verified": true,
+    "independent_python_preserved_file_hashes": 15
+  },
+  "audit": {
+    "checks": 27,
+    "sha256": "50b03441d94c77c5254e6c05391b71fb1ddb4d824f1337d7ec82442556248bbb"
+  },
+  "executed_web_provenance": {
+    "paths": 21,
+    "sha256": "c8f9a12c3ef9e22b77e403e8c668164fafb761cf7ad571e646bb299d90ff5949"
+  },
+  "composition": {
+    "sha256": "7bd6aed8680702decf9895022c2d4e70a89d6cc55d5a5915d87b5e95d77cb9a8",
+    "independent_readback_sha256": "55ddb7e893c1475960e51e7ed57e7e5efef642839cd0092ef746adf274add749"
+  },
+  "guest_execution": "NOT RUN by runtime agent; reserved for matching final candidate runners",
+  "hardware_validation": "NOT RUN",
+  "deployment": "NOT RUN"
+}

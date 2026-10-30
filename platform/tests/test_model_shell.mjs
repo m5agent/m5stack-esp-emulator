@@ -226,6 +226,23 @@ try {
           }
         }
       }
+      const pcAliases=[];
+      if(device.id==='cardputer-adv'){
+        const canvas=shell.viewer.renderer.domElement;
+        canvas.focus();
+        for(const code of ['ShiftLeft','ShiftRight','AltLeft','AltRight','Backquote']){
+          const start=controls.length;
+          canvas.dispatchEvent(new KeyboardEvent('keydown',{code,key:code,bubbles:true,shiftKey:code.startsWith('Shift'),altKey:code.startsWith('Alt')}));
+          canvas.dispatchEvent(new KeyboardEvent('keyup',{code,key:code,bubbles:true}));
+          pcAliases.push({code,component:shell.model.keymap[code],events:controls.splice(start).map(event=>[event.key,event.down])});
+        }
+        const start=controls.length;
+        for(const code of ['ShiftLeft','ShiftRight'])canvas.dispatchEvent(new KeyboardEvent('keydown',{code,bubbles:true,shiftKey:true}));
+        canvas.dispatchEvent(new KeyboardEvent('keyup',{code:'ShiftLeft',bubbles:true,shiftKey:true}));
+        if(controls.length!==start+1)throw new Error('Releasing one Shift alias released the still-held physical switch');
+        canvas.dispatchEvent(new KeyboardEvent('keyup',{code:'ShiftRight',bubbles:true}));
+        pcAliases.push({code:'two-shift-holds',events:controls.splice(start).map(event=>[event.key,event.down])});
+      }
       const before = raw.length;
       const presentationRotation = {
         initial: shell.presentationRotationDeg ?? 0,
@@ -240,7 +257,7 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, physicalAliases, touches, resets, presentationRotation,
+        frame, controls, physicalAliases, pcAliases, touches, resets, presentationRotation,
         ownership, outputs, artwork, outputEcho: raw.length - before,
       };
     }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
@@ -264,6 +281,8 @@ try {
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if(device.id==='cardputer-adv')assert.deepEqual(result.physicalAliases.map(row=>row.events),
       ['compose','shift','meta_l','alt','grave_accent','esc','grave_accent','esc'].map(code=>[[code,true],[code,false]]),'ADV physical matrix aliases and mixed-source Escape holds retain matching input edges');
+    if(device.id==='cardputer-adv')assert.deepEqual(result.pcAliases.map(row=>row.events),
+      ['shift','shift','alt','alt','grave_accent','shift'].map(code=>[[code,true],[code,false]]),'Focused PC aliases reach the original physical switch and preserve overlapping Shift holds');
     if (device.id === 'tab5') assert.equal(result.resets, 1);
     result.case = test.key; result.configuration = test.configuration; result.options = test.options;
     report.controllers.push(result);

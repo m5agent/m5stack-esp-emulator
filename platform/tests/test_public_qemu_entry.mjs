@@ -37,7 +37,7 @@ async function entry({search='',isolationError,registryFailure=false,publication
   const elements=new Map(),events=[],clipboard=[];
   const element=(id)=>{
     if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
-      addEventListener(){},setAttribute(){},replaceChildren(){},append(){},focus(){},scrollIntoView(){},
+      listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},replaceChildren(){},append(){},focus(){},scrollIntoView(){},
       classList:{add(){},remove(){},toggle(){}}});
     return elements.get(id);
   };
@@ -72,7 +72,7 @@ async function entry({search='',isolationError,registryFailure=false,publication
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
     connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
     startRun=async()=>events.push('start:'+lane());
-    globalThis.contract={state,browserProfile,lane,share,reference,status};
+    globalThis.contract={state,browserProfile,lane,share,reference,status,applyBrowserFrame,applyBrowserPresentation};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -146,5 +146,35 @@ for(const profile of registry.profiles){
     app.state.picker={attachments:()=>[{id:'unsupported-extra-unit'}]};assert.equal(app.lane(),null,'candidate browser admission cannot inherit arbitrary attached Units');app.element('runtimeMode').value='auto';app.state.serviceDevices=[{device_id:profile.deviceId,creatable:true}];assert.equal(app.lane(),'service');
   }
 }
-console.log('public QEMU entry COI fallback and exact composed-reference share/autostart contracts passed; no guest executed');
+// Execute the production frame and pointer handlers with an asymmetric raster.
+// This is a host contract; real driver/glass evidence is a separate guest test.
+const raster=await entry({search:'?device=cardputer-adv&mode=browser&autostart=0'});
+const rgba=[[255,0,0,255],[0,255,0,255],[0,0,255,255],
+  [255,255,255,255],[255,255,0,255],[0,255,255,255]];
+const packed=[0xf800,0x07e0,0x001f,0xffff,0xffe0,0x07ff];
+let painted;const canvas=raster.element('rawFrameCanvas');
+canvas.getContext=()=>({createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),
+  putImageData:image=>{painted=image;}});
+canvas.closest=()=>raster.element('rawFramePanel');
+canvas.getBoundingClientRect=()=>({left:0,top:0,width:canvas.width,height:canvas.height});
+canvas.setPointerCapture=()=>{};
+const controller=new PublicQemuRuntime({root:pageRoot,profiles:registry}),input=[];
+controller.profile={inputs:{touch:true}};controller.status='running';controller.input=async event=>{input.push(event);};
+const run={kind:'browser',generation:raster.state.runGeneration,controller};
+raster.state.run=run;raster.state.shell={setFrameLE:()=>true,setDeviceRotation:()=>{}};
+const frame={width:3,height:2,sequence:1,pixels:new Uint8Array(packed.flatMap(v=>[v&255,v>>8]))};
+controller.display={orientation:'portrait',deviceRotationDeg:-90};
+raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+assert.deepEqual([canvas.width,canvas.height],[2,3]);
+assert.deepEqual(Array.from(painted.data),[rgba[3],rgba[0],rgba[4],rgba[1],rgba[5],rgba[2]].flat(),
+  'portrait canvas must rotate the native glass clockwise without mirroring');
+canvas.listeners.get('pointerdown')({clientX:1.5,clientY:2.5,pointerId:1});
+assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,0,true],
+  'portrait pointer mapping must invert the displayed rotation');
+controller.display={orientation:'landscape',deviceRotationDeg:0};
+raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+assert.deepEqual([canvas.width,canvas.height],[3,2]);assert.deepEqual(Array.from(painted.data),rgba.flat());
+canvas.listeners.get('pointerup')({clientX:2.5,clientY:1.5,pointerId:1});
+assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,1,false]);
+console.log('public QEMU entry, exact reference sharing and asymmetric portrait/frame pointer contracts passed; no guest executed');
 console.log('public.js SHA256 '+createHash('sha256').update(source).digest('hex'));

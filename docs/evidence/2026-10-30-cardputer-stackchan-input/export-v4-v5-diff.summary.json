@@ -1,0 +1,51 @@
+{
+  "kind": "frozen-public-v4-to-v5-asset-diff",
+  "status": "PASS",
+  "source_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+  "before_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+  "after_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "assets_before": 2115,
+  "assets_after": 2115,
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "path": "devices/catalog.json",
+      "before": {
+        "bytes": 45283,
+        "path": "devices/catalog.json",
+        "sha256": "2f384f4f22c9a371acfbeb83ebb15e8f472ffb3c0d7151640a3d676e86c2a764"
+      },
+      "after": {
+        "bytes": 44705,
+        "path": "devices/catalog.json",
+        "sha256": "a201528f2cfb1fdc0028c343f05e75397b0933bbc02f05f9191c4b755a926436"
+      },
+      "changed_json_paths": [
+        "/devices/5/runtime/validation/concurrency_validation",
+        "/devices/5/runtime/validation/detail"
+      ]
+    },
+    {
+      "path": "devices/esp32-lx6/core2/device.json",
+      "before": {
+        "bytes": 7012,
+        "path": "devices/esp32-lx6/core2/device.json",
+        "sha256": "65e92df72d503fad1c889e9ffe7c568145e41c72bf4c9ba8e1f041ca2e7dc50e"
+      },
+      "after": {
+        "bytes": 6434,
+        "path": "devices/esp32-lx6/core2/device.json",
+        "sha256": "73754f218dd93cc4d026251d822238e090985c8e186df8127a55d0ebbfa711c6"
+      },
+      "changed_json_paths": [
+        "/runtime/validation/concurrency_validation",
+        "/runtime/validation/detail"
+      ]
+    }
+  ],
+  "unchanged_asset_count": 2113,
+  "executed_web_assets_identical": true,
+  "runtime_assets_identical": true,
+  "claim": "Only Core2 native validation prose metadata changes. No guest PASS granted by byte equality; matching V5 runs tracked separately."
+}

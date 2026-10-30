@@ -1,0 +1,218 @@
+{
+  "kind": "stackchan-reference-final-site-v5",
+  "date": "2026-10-30",
+  "status": "PASS",
+  "checks_passed": 24,
+  "checks_total": 24,
+  "site_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+  "firmware_sha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+  "main_source_sha256": "e568bd00995466a0cf7b8fadbaa3b7837ee7b46aeac782e68fc78ed488a9a3b8",
+  "harness_sha256": "9c5d7f35b845a091119831e501bef5bc3ea000ebf482fb11576a3c07cfb26f7a",
+  "max_observed_input_poll_gap_ms": 165,
+  "actual_UART_worker_started": true,
+  "event_queue_drops": 0,
+  "pulses": [
+    {
+      "label": "reference-moving-100",
+      "source": "actual-DOM-panel",
+      "requested_hold_ms": 100,
+      "actual_hold_ms": 104.8,
+      "touch_down_then_up_detected": true,
+      "qom_samples_during_hold": 3,
+      "actual_position_range_ticks": [
+        11,
+        0
+      ],
+      "actual_inputs": [
+        {
+          "type": "touch",
+          "x": 169,
+          "y": 148,
+          "down": true
+        },
+        {
+          "type": "touch",
+          "x": 169,
+          "y": 148,
+          "down": false
+        }
+      ],
+      "guest_touch_edges": [
+        {
+          "kind": "pressed",
+          "x": 169,
+          "y": 148,
+          "count": 0
+        },
+        {
+          "kind": "released",
+          "x": 169,
+          "y": 148,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "label": "reference-moving-300",
+      "source": "actual-DOM-panel",
+      "requested_hold_ms": 300,
+      "actual_hold_ms": 302.02,
+      "touch_down_then_up_detected": true,
+      "qom_samples_during_hold": 9,
+      "actual_position_range_ticks": [
+        101,
+        0
+      ],
+      "actual_inputs": [
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 148,
+          "down": true
+        },
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 148,
+          "down": false
+        }
+      ],
+      "guest_touch_edges": [
+        {
+          "kind": "pressed",
+          "x": 160,
+          "y": 148,
+          "count": 1
+        },
+        {
+          "kind": "released",
+          "x": 160,
+          "y": 148,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "label": "reference-moving-800",
+      "source": "actual-DOM-panel",
+      "requested_hold_ms": 800,
+      "actual_hold_ms": 802.66,
+      "touch_down_then_up_detected": true,
+      "qom_samples_during_hold": 9,
+      "actual_position_range_ticks": [
+        0,
+        76
+      ],
+      "actual_inputs": [
+        {
+          "type": "touch",
+          "x": 159,
+          "y": 148,
+          "down": true
+        },
+        {
+          "type": "touch",
+          "x": 159,
+          "y": 148,
+          "down": false
+        }
+      ],
+      "guest_touch_edges": [
+        {
+          "kind": "pressed",
+          "x": 159,
+          "y": 148,
+          "count": 2
+        },
+        {
+          "kind": "released",
+          "x": 159,
+          "y": 148,
+          "count": 3
+        }
+      ]
+    },
+    {
+      "label": "reference-raw-moving-300",
+      "source": "raw-frame-diagnostic",
+      "requested_hold_ms": 300,
+      "actual_hold_ms": 322.505,
+      "touch_down_then_up_detected": true,
+      "qom_samples_during_hold": 10,
+      "actual_position_range_ticks": [
+        59,
+        5
+      ],
+      "actual_inputs": [
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 148,
+          "down": true
+        },
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 148,
+          "down": false
+        }
+      ],
+      "guest_touch_edges": [
+        {
+          "kind": "pressed",
+          "x": 160,
+          "y": 148,
+          "count": 3
+        },
+        {
+          "kind": "released",
+          "x": 160,
+          "y": 148,
+          "count": 4
+        }
+      ]
+    }
+  ],
+  "normal_stop_CDP_targets": {
+    "observed": 6,
+    "live_before_context_close": 0
+  },
+  "frames_match_model_texture": true,
+  "user_service_or_device_API_requests": 0,
+  "raw_report_sha256": "9ca75d14de478b14991f8ea9d81782fc7127aad21bd3442d8eaab0f3b7f554ea",
+  "concise_summary_sha256": "89bcefdca723deeedf08e05c8fccb450bdf45f6b71594d67174a897f8b1fae17",
+  "hardware": "NOT RUN",
+  "user_original_uploaded_firmware": "NOT RUN",
+  "boundaries": [
+    "V5 reference only; Arduino results remain bound to V4 manifest and retain the first cleanup FAIL.",
+    "Observed held pulses do not establish a universal 100 ms deadline; maximum observed input poll gap is reported.",
+    "Normal-stop CDP fence is measured before context.close; no teardown substitution."
+  ],
+  "runtime_profile": {
+    "engine": "qemu-wasm",
+    "deviceId": "stackchan",
+    "board": "m5stackchan",
+    "profile": "stackchan-wasm-wallclock",
+    "clockDivisor": 1,
+    "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+    "wasmSha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+    "firmwareSha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+    "frameTransport": "shared-rgb565-v1",
+    "controller": "same-origin-iframe-message-channel",
+    "persistentFlash": false
+  },
+  "serial_artifact": {
+    "bytes": 4506,
+    "sha256": "203b5954bf72d1f10ca00cc3830ec3ec3b5d6bbb786e1677507c5cedd9154a98"
+  },
+  "frame_observations": {
+    "samples": 98,
+    "last": {
+      "sequence": 98,
+      "sha256": "eb888352dfc19c8598be81bcec529eb53bc8c4c6bf9903672ef24af8d6b67ada",
+      "lcd_sha256": "c0c865eef99aaa9177a8a553a86580bea8f9a92e5f336e64cbf81e71a0de4254",
+      "pixels_match": true
+    }
+  }
+}

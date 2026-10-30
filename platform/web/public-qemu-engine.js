@@ -208,6 +208,9 @@ async function request(op, value) {
     emit('device-state', state); return {observed:true};
   }
   if (op === 'display') {
+    // Only Cardputer's admitted native-glass presentation uses this QOM
+    // contract. E-paper and other panel types need no SPI-panel lookup.
+    if (boardProfile?.deviceId !== 'cardputer-adv') return null;
     if (!panelPath) {
       const children = await qmp('qom-list', {path:'/machine/unattached'});
       const panel = children.find(row => row.type === 'child<m5.spi-panel>');

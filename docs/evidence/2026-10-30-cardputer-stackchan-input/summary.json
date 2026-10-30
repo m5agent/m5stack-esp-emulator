@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "kind": "cardputer-stackchan-browser-input-followup",
+  "date": "2026-10-30",
+  "status": "PARTIAL",
+  "base_commit": "e3f149c1",
+  "browser_functional": "PASS for the exact Cardputer image and StackChan reference/Arduino input cases",
+  "worker_cleanup": "PARTIAL: first Arduino Stop 6/1; later case 12/0; initial failure retained",
+  "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+  "site_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "checks": {
+    "platform_unittest_initial": {
+      "status": "FAIL_DOCUMENTATION_ONLY",
+      "tests": 1660,
+      "failures": 3,
+      "skipped": 10,
+      "cause": "Generated snapshot test count/content and new-plan documentation index were stale",
+      "log_sha256": "d888eb2856af741c26b7072978359fee6e308770ca6f7020dce71e9e446cd820"
+    },
+    "node_contracts": {
+      "status": "PASS",
+      "log_sha256": "7b27132a93486e98ce70fc95471ccc961c8ef6bb4a1256847cacb11bc26ad188"
+    },
+    "targeted_ADV_model": {
+      "status": "PASS",
+      "scope": "Browser shell only, no guest",
+      "log_sha256": "144725e287eb66308a9691e7fa7c3dbbb89c4cabe113b5a8c51d36807b26801f"
+    },
+    "broad_model_sweep": {
+      "status": "NOT COMPLETED",
+      "reason": "Stopped the agent-owned broad sweep after selecting the affected ADV model case; no full-model PASS assigned"
+    },
+    "merged_docs_and_core2_capacity": {
+      "status": "ONE_DOCUMENT_LENGTH_FAILURE_FIXED",
+      "tests": 46,
+      "initial_failures": 1,
+      "remaining_tests_passed": 45,
+      "log_sha256": "6f0c2d878941345168e45abdb5a58fef2cc82a6947748c2ebc57a1df74c35b34"
+    },
+    "status_length_recheck": {
+      "status": "PASS",
+      "tests": 1,
+      "log_sha256": "c3dc4ce80790d0a5a68dcff2d3009be59564c24dfe01144e0f6b50051e539cc3"
+    },
+    "snapshot_and_count_recheck": {
+      "status": "PASS",
+      "tests": 2,
+      "log_sha256": "8b638844726183aad7de957d27b5491f9a1195044af810ca58f225dbde95ce90"
+    },
+    "four_generated_validators": {
+      "status": "PASS",
+      "tools": [
+        "runtime_coverage",
+        "peripheral_catalog",
+        "qemu_profiles",
+        "project_snapshot"
+      ]
+    },
+    "final_V5_guests": {
+      "cardputer": "33/33 PASS including normal Stop 6/0",
+      "stackchan_reference": "24/24 PASS including normal Stop 6/0",
+      "arduino": "Retained V4 identity: functionality PASS; 55/56 with first Stop cleanup FAIL"
+    },
+    "platform_full_before_service_parser_merge": {
+      "status": "PASS",
+      "source_commit": "90ca83d6252b2fbbf0267af702af34b8249d77a4",
+      "tests": 1667,
+      "skipped": 10,
+      "seconds": 240.668,
+      "log_sha256": "f75d9df7b9cde51c2a4700d2745cc042bf8a5dba31717b43d556748bc48ff75a",
+      "scope": "Not assigned to newly merged parser source; affected parser and final snapshot checks run separately"
+    },
+    "latest_parser_and_snapshot_checks": {
+      "status": "PASS",
+      "source_commit": "2f79892c79c28085ef6e2fbaf3c38012de13b3c6",
+      "tests": 19,
+      "seconds": 13.604,
+      "log_sha256": "c21e79b98dcc6c4cf8a09962c2c31046be770f03e7f784eabfae38d0e5191af3"
+    },
+    "latest_wifi_semantics_and_docs": {
+      "status": "PASS",
+      "tests": 7,
+      "seconds": 13.268,
+      "main_commit": "3fc436e4aa99176ef3a4f7a2d35d25c973659219",
+      "log_sha256": "56ac0c45130459d9f6d8b9639e49d7021deea754465418ab858a7ff743baa889",
+      "initial_orchestration_race_retained_log_sha256": "ff03194ee0b26f6c59a3235a4a27bd38b5e119427f55a9afa22bf3b0f97d0d47",
+      "race_boundary": "First check began before snapshot generation completed; rerun started only after generator exit."
+    }
+  },
+  "summaries": {
+    "cardputer-v5.summary.json": {
+      "bytes": 43249,
+      "sha256": "d1c113b8d573ace16f2663161a67c8a5e234028b8d1bff19f7859c615ffcf8fc"
+    },
+    "cardputer.summary.json": {
+      "bytes": 43002,
+      "sha256": "f6b4a7419e8177b3ea713a37c3e5ffb3ea085e8d4aa3bbf00f05c77c8f6b39cc"
+    },
+    "deployment.summary.json": {
+      "bytes": 17033,
+      "sha256": "ab799f0e69c4b35d6016860d52478d084f424b7ce0ed4a2f78b21a3ea30ac739"
+    },
+    "export-v4-v5-diff.summary.json": {
+      "bytes": 1803,
+      "sha256": "5e41b5fd9a27853a7fbd61a26273f974a0e58adc83acade4a36965cfec1ae011"
+    },
+    "export-v4.summary.json": {
+      "bytes": 1580,
+      "sha256": "bd3d2096c1109461b6d7b2f7506e5f6ad5b9068f16cdbd86c5ed048dd414ca0a"
+    },
+    "export-v5.summary.json": {
+      "bytes": 2016,
+      "sha256": "b754a19c6218cba2d4948014d4e9a47e2e1fef6f517f7ca53438b24805478564"
+    },
+    "runtime-build.summary.json": {
+      "bytes": 3114,
+      "sha256": "2165890e163172813899e14b670962c068ca1a93c2cc85f7284f580d61a16098"
+    },
+    "source-integration-equivalence.summary.json": {
+      "bytes": 2188,
+      "sha256": "6bc9ee3a1d0a8bfa43c4857f53eda8ad3137538ef0b6121493b56b9ee9154acd"
+    },
+    "stackchan-arduino.summary.json": {
+      "bytes": 9018,
+      "sha256": "ec0643aa6a165a562a119e6e5522980b806c23fcf520383d9334b81c9018d9e1"
+    },
+    "stackchan-diagnostics.summary.json": {
+      "bytes": 51336,
+      "sha256": "88e67636590ae9308d226063304f52c0d482196e864d9643e5d565b30f81da79"
+    },
+    "stackchan-reference-v5.summary.json": {
+      "bytes": 5715,
+      "sha256": "10840cd979cdae9884e633f9d0ecdc45c41bdef92d3c783efece6c41dbf2f465"
+    },
+    "stackchan-reference.summary.json": {
+      "bytes": 9049,
+      "sha256": "6ab78c078457326da815ff3dbc0f93843e73c38b353b47cab1252cf48b13d65b"
+    }
+  },
+  "hardware_validation": "NOT RUN",
+  "original_user_images": "NOT RUN: images unavailable",
+  "native_full_matrix": "NOT RUN this round; earlier native results retain their own identity",
+  "all_admitted_browser_publication_gate": "NOT RUN",
+  "deployment": {
+    "status": "PASS_FORK_PREVIEW_BYTES_ONLY",
+    "summary": "deployment.summary.json",
+    "workflow_url": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40994993932",
+    "preview_url": "https://yuyun2000.github.io/m5stack-esp-emulator/",
+    "payload_commit": "8108c7aeebc907fc417834c3d09ed5c2d05c10bf",
+    "source_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+    "manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+    "verified_public_assets": 36,
+    "verified_public_bytes": 60430333,
+    "public_guest_execution": "NOT RUN; functional guest tests use local identical V5 export; standard all-admitted publication NOT RUN"
+  },
+  "source_sync": {
+    "initial_base": "e3f149c1",
+    "capacity_main": "ccbfa71c60f62df2682fd6c449ce8abdaedfd871",
+    "initial_integration_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+    "latest_integrated_main": "3fc436e4aa99176ef3a4f7a2d35d25c973659219",
+    "latest_main_scope": "Device Service parser extraction and documentation only; browser assets unchanged",
+    "latest_integration_commit": "2f79892c79c28085ef6e2fbaf3c38012de13b3c6",
+    "fresh_export_equivalence": "source-integration-equivalence.summary.json",
+    "subsequent_wifi_semantics_scope": {
+      "exported_asset_path_intersection": [],
+      "changed_files": [
+        "docs/README.md",
+        "docs/code-map.md",
+        "docs/evidence/2026-10-30-svc03-qemu-wifi/README.md",
+        "docs/evidence/2026-10-30-svc03-qemu-wifi/summary.json",
+        "docs/project-backlog.md",
+        "docs/project-snapshot.md",
+        "docs/project-status.md",
+        "docs/validation-ledger.md",
+        "docs/workstreams.md",
+        "platform/tests/test_device_service_qemu_wifi.py",
+        "platform/tools/device_service.py",
+        "platform/tools/device_service_qemu_wifi.py"
+      ],
+      "previous_full_export_equivalence_retained": true
+    }
+  },
+  "delivery": {
+    "pull_request": "https://github.com/m5agent/m5stack-esp-emulator/pull/60",
+    "reviewed_head": "5bab1b6a0f2e8b5caed24e51b2e15f65a947692b",
+    "integrated_main": "9c1652dfd9a57307fb1834f4d135b818126b749f",
+    "git_merge_tree_check": "PASS",
+    "git_merge_tree": "3fc0867f600d3cfc71dca1f859ea19dd8c99b18d",
+    "github_compare_behind_by": 0
+  }
+}
