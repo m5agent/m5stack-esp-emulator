@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "svc03-qemu-wifi-boundary",
+  "validation": "platform-contract validation",
+  "status": "PASS",
+  "module": "platform/tools/device_service_qemu_wifi.py",
+  "moved_symbols": [
+    "parse_qemu_wifi_security",
+    "apply_qemu_wifi_environment"
+  ],
+  "public_identity": "re-exported through device_service.py",
+  "checks": {
+    "qemu_wifi_boundary_tests": "4/4 PASS",
+    "device_service_unit_tests": "126/126 PASS",
+    "full_suite": "1678 run, 1677 PASS + 1 skip",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "scoped_ruff_e9_f": "PASS",
+    "diff_check": "PASS"
+  },
+  "boundaries": [
+    "No HTTP, network configuration, QEMU, session or evidence behavior change.",
+    "No RF, electrical or hardware claim."
+  ]
+}
