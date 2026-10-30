@@ -53,10 +53,10 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
         await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
       }
     },
-    // Chrome can retain an engine Worker target for just over 30 seconds after
+    // Chrome can retain an engine Worker target for more than a minute after
     // iframe removal on macOS. Keep a bounded receipt window while still
     // requiring every observed target to disappear.
-    async waitUntilClosed({minimumObserved, timeoutMs = 60000}) {
+    async waitUntilClosed({minimumObserved, timeoutMs = 120000}) {
       return this.waitUntilOnly({minimumObserved, allowedUrlPart:'', timeoutMs});
     },
     async detach() {
