@@ -105,8 +105,8 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 经正常 TX/RX DMA 完成未加密双向 action-frame exchange。`0077` 随后用
 显式 PMK/LMK fixture 在 bridge 边界执行 AES-CCMP/MIC；正确 key 双向交付，
 错误 LMK 在 RX DMA 前丢弃，错误 PMK 但同 LMK 按官方语义继续通信。
-完整 peer 生命周期与 RF/timing 仍由 `RUNTIME-06`
-跟踪。
+该阶段尚待完整 peer 生命周期与 RF/timing；后续 `0080-0084` 已关闭
+virtual-controller 范围和 lifecycle，物理 RF/controller 等价性仍独立。
 `0078` 又为单个 encrypted external peer 增加 CCMP PN 单调 anti-replay：
 MIC 成功后拒绝 equal/older PN，并在 RX DMA 前丢弃；UDP replay proxy
 重复一帧后只有一次 `CCMP PN replay` drop，正确 payload 与 Core2 回归保持。
@@ -151,6 +151,9 @@ stock SDK、StopWatch/StickS3 controller、真机和物理边界，见
 通信、audio、ESP-NOW、BLE、M5UI 和板级接口；Core2 network 首轮
 `14/14`，没有新增稳定模拟器缺陷。stock/candidate 分层与以上开放边界
 保持不变，见[接口复测 r4](evidence/2026-10-29-three-board-uiflow2-interface-retest-r4/README.md)。
+以下 Core2 段落按时间保留 `RUNTIME-03` 关闭前的工作链；其中的阶段性
+`OPEN` 不覆盖后续 `0095` 的 virtual-device stock-startup 关闭结论。
+
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY

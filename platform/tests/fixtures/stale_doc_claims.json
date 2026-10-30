@@ -820,6 +820,31 @@
       "id": "STALE-160",
       "text": "secure_boot_config does not affect Device Service preflight",
       "reason": "Enabled secure-boot sdkconfig is a structured preflight rejection, not a warning-only field."
+    },
+    {
+      "id": "STALE-161",
+      "text": "| `RUNTIME-06` | 进行中 |",
+      "reason": "RUNTIME-06 virtual-controller functionality, replay, lifecycle, fabric and soak are complete; only physical RF/controller equivalence remains separate."
+    },
+    {
+      "id": "STALE-162",
+      "text": "legacy `RUNTIME-03` startup UI、normal-WDT、非空应用帧仍独立",
+      "reason": "0095 closed virtual-device normal-WDT stock startup; setup/REPL and arbitrary applications are now tracked by API-01."
+    },
+    {
+      "id": "STALE-163",
+      "text": "legacy UIFlow 在 display completion 前的 reset/stop",
+      "reason": "The current device matrix must describe the post-0095 startup closure and keep other application paths explicitly unverified."
+    },
+    {
+      "id": "STALE-164",
+      "text": "The remaining Core2 legacy UIFlow post-initialization WDT/non-empty-frame gate",
+      "reason": "The user-firmware matrix must label this as a dated checkpoint and point to the later 0095 startup closure."
+    },
+    {
+      "id": "STALE-165",
+      "text": "当前 `RUNTIME-03` 的阻断摘要",
+      "reason": "The Core2 narrative is historical; current RUNTIME-03 stock startup is closed and the page must not present the old blocker as current."
     }
   ]
 }

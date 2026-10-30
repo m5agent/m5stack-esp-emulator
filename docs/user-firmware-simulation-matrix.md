@@ -1,6 +1,6 @@
 # User firmware simulation matrix
 
-Last reviewed: `2026-10-26`
+Last reviewed: `2026-10-30`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
@@ -271,11 +271,13 @@ are maintained in the
 A separate 90-second Core2 run adds the three most-downloaded public Core2
 images. Combined with the six-device snapshot, current sample coverage is
 seven devices and 21 public non-baseline images: 10 `PASS`, 11 `PARTIAL` and
-zero `FAIL`.
+zero `FAIL`. These counts and the rows below are the hash-bound
+`2026-10-26` checkpoint; later successful follow-ups remain separate rather
+than being folded into the historical counts.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0042` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture, late register dump and partial SPI `TRANS_DONE` IRQ model. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. WDT-off 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 `0x40100049`. BIN-bound analysis identifies that loop as LVGL `lv_refr_vdb_flush`: `A2` is `lv_disp_buf_t` with `flushing=1`, and `A10` is the display driver with `wait_cb=null`. Display `flush_cb=0x40174758` runs, but completion `0x40174884`/`lv_disp_flush_ready` is not observed. Patch `0090` caps dual-vCPU icount slices at `10 us` and reduces measured IPC return/peer wait to `56.2/184.7 us` while Core2 UIFlow2 remains `6/6 PASS`; the capped legacy image still resets at `17.2429 s`. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL`（2026-10-26 checkpoint） | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0042` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture, late register dump and partial SPI `TRANS_DONE` IRQ model. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. WDT-off 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 `0x40100049`. BIN-bound analysis identifies that loop as LVGL `lv_refr_vdb_flush`: `A2` is `lv_disp_buf_t` with `flushing=1`, and `A10` is the display driver with `wait_cb=null`. Display `flush_cb=0x40174758` runs, but completion `0x40174884`/`lv_disp_flush_ready` is not observed. Patch `0090` caps dual-vCPU icount slices at `10 us` and reduces measured IPC return/peer wait to `56.2/184.7 us` while Core2 UIFlow2 remains `6/6 PASS`; the capped legacy image still resets at `17.2429 s`. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame at this checkpoint. The later `2026-10-30` `0095` follow-up closes normal-WDT stock startup, API Key and Wi-Fi Connect UI for the same public SHA; setup/REPL and arbitrary applications remain separate |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | The ATECC608 initialization gap is fixed: the model reaches the locked test config, Info revision, HOME screen and a three-run `320x240` nonempty frame. The broader firmware remains `PARTIAL` because BMI270 initialization errors persist and later tabs/features are not all validated |
 
@@ -342,13 +344,17 @@ stops before display completion, so the next acceptance requires that path to
 reach `lv_disp_flush_ready` and a non-empty application frame under the normal
 WDT.
 
-The remaining Core2 legacy UIFlow post-initialization WDT/non-empty-frame gate
-is `RUNTIME-03` and remains `OPEN`. `RUNTIME-04` for the Core2 for AWS ATECC608
-initialization/identity path is `FIXED` in virtual-device scope: three
-independent public-firmware sessions reach a nonempty frame with a locked
-deterministic config. The sample remains `PARTIAL` for independent BMI270 and
-later-tab coverage; production keys, ECDSA signing, trust roots, electrical
-behavior and hardware remain separate.
+At the `2026-10-26` checkpoint above, the Core2 legacy
+post-initialization WDT/non-empty-frame gate was `RUNTIME-03` and remained
+`OPEN`. The `2026-10-30` `0095` follow-up closed the virtual-device stock
+startup scope; setup/REPL and arbitrary applications now remain with
+`API-01`, while physical PSRAM/cache timing, bit-exact controller and hardware
+stay separate. Current authority is [Project current status](project-status.md).
+`RUNTIME-04` for the Core2 for AWS ATECC608 initialization/identity path is
+`FIXED` in virtual-device scope: three independent public-firmware sessions
+reach a nonempty frame with a locked deterministic config. The sample remains
+`PARTIAL` for independent BMI270 and later-tab coverage; production keys,
+ECDSA signing, trust roots, electrical behavior and hardware remain separate.
 
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),

@@ -1,14 +1,16 @@
 # Core2 intermittent cache-panic investigation
 
-Last reviewed: `2026-10-26`. Historical root-cause record; current capability
+Last reviewed: `2026-10-30`. Historical root-cause record; current capability
 and open production boundaries are maintained in
 [Project current status](project-status.md) and
 [project backlog](project-backlog.md).
 
-Status: **mitigated for the official UIFlow2 virtual-device path; the legacy
-UIFlow `RUNTIME-03` lane is still open, and physical/hardware equivalence
-remains open**. This is an emulator scheduling/runtime issue, not a
-peripheral-data failure.
+Status at the `2026-10-26` checkpoint: **mitigated for the official UIFlow2
+virtual-device path; the legacy UIFlow `RUNTIME-03` lane was still open, and
+physical/hardware equivalence remains open**. The later `0095` evidence closed
+the virtual-device normal-WDT stock-startup scope; setup/REPL and arbitrary
+legacy applications remain separate. This is an emulator scheduling/runtime
+issue, not a peripheral-data failure.
 
 > 历史根因页：2026-10-23 的后续定位已把最初 “cache panic” 命名修正为
 > interrupt-WDT/timer starvation。当前可用能力见
