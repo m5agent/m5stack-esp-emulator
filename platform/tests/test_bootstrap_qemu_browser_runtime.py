@@ -49,11 +49,11 @@ class RuntimeDistributionTests(unittest.TestCase):
     def write(self, value): (self.root / "runtime.json").write_text(json.dumps(value))
 
     def test_fixed_patch_order_and_runtime_source_boundary(self):
-        self.assertEqual(len(self.lock["patches"]), 46)
+        self.assertEqual(len(self.lock["patches"]), 49)
         self.assertEqual(len(self.lock["patched_files"]), 147)
         self.assertTrue(self.lock["patches"][30]["path"].endswith("0064-esp32-intmatrix-pending-irq-remap.patch"))
         suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:]]
-        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018"])
+        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021"])
         self.assertFalse(self.lock["required_rom"]["bundled"])
         self.assertIsNone(self.lock["required_rom"]["path"])
 

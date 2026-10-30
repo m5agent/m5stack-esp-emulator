@@ -440,12 +440,20 @@ async function firmware(signal, runGeneration) {
   if (expected && expected !== sha256) throw new Error('固件 SHA-256 与预期不一致，未加载固件。');
   return {bytes: await file.arrayBuffer(), name: file.name, size: file.size, sha256};
 }
+function applyBrowserPresentation(value) {
+  const display = value?.display || null;
+  state.shell?.setDeviceRotation?.(display?.deviceRotationDeg || 0);
+  const panel = $('rawFramePanel');
+  if (display?.orientation === 'portrait') panel.dataset.orientation = 'portrait';
+  else delete panel.dataset.orientation;
+}
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
   if (state.config.browser_runtime_engine==='qemu-wasm' || state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
     const canvas = $('rawFrameCanvas');
-    canvas.width = frame.width;
-    canvas.height = frame.height;
+    const portrait = run.controller instanceof PublicQemuRuntime && run.controller.display?.orientation === 'portrait';
+    canvas.width = portrait ? frame.height : frame.width;
+    canvas.height = portrait ? frame.width : frame.height;
     const context = canvas.getContext('2d'),
       image = context.createImageData(frame.width, frame.height);
     for (let i = 0, p = 0; i < frame.pixels.length; i += 2, p += 4) {
@@ -455,9 +463,20 @@ function applyBrowserFrame(frame, run) {
       image.data[p + 2] = ((value & 31) * 255) / 31;
       image.data[p + 3] = 255;
     }
-    context.putImageData(image, 0, 0);
+    if (!portrait) context.putImageData(image, 0, 0);
+    else {
+      const rotated = context.createImageData(frame.height, frame.width);
+      for (let y = 0; y < frame.height; y++) for (let x = 0; x < frame.width; x++) {
+        const from = (y * frame.width + x) * 4;
+        const to = ((frame.width - 1 - x) * frame.height + y) * 4;
+        rotated.data.set(image.data.subarray(from, from + 4), to);
+      }
+      context.putImageData(rotated, 0, 0);
+    }
     const touch=!(run.controller instanceof PublicQemuRuntime)||run.controller.profile?.inputs.touch;
-    $('rawFrameDescription').textContent = `完整 ${frame.width} × ${frame.height} 固件帧 · ${touch?'支持触摸':'请使用设备按键'}`;
+    $('rawFrameDescription').textContent = portrait
+      ? `竖屏应用 · ${frame.height} × ${frame.width} · 设备视图已同步旋转`
+      : `完整 ${frame.width} × ${frame.height} 固件帧 · ${touch?'支持触摸':'请使用设备按键'}`;
     if (state.selected.id === 'stopwatch' && !(run.controller instanceof PublicQemuRuntime)) {
       const first = $('rawFramePanel').hidden;
       $('rawFramePanel').hidden = false;
@@ -541,6 +560,7 @@ async function startRun() {
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onState: (value) => {
           if (active(run)) {
+            applyBrowserPresentation(value);
             status(value.status);
             if (['running', 'paused', 'error', 'stopped'].includes(value.status)) state.shell?.resumeRendering?.();
           }
@@ -552,6 +572,7 @@ async function startRun() {
         $('browserPirState').textContent = 'QOM: CLEAR';
       }
       state.run = run;
+      state.shell?.focusInput?.();
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
       const imported = await state.service.importFirmware(
@@ -986,13 +1007,13 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
     const canvas = $('rawFrameCanvas'),
       rect = canvas.getBoundingClientRect();
     if (type === 'pointerdown') canvas.setPointerCapture(event.pointerId);
+    const shownX = Math.max(0, Math.min(canvas.width - 1, Math.floor(((event.clientX - rect.left) * canvas.width) / rect.width)));
+    const shownY = Math.max(0, Math.min(canvas.height - 1, Math.floor(((event.clientY - rect.top) * canvas.height) / rect.height)));
+    const portrait = canvas.closest('#rawFramePanel')?.dataset.orientation === 'portrait';
     void deliverInput({
       type: 'touch',
-      x: Math.max(0, Math.min(canvas.width - 1, Math.floor(((event.clientX - rect.left) * canvas.width) / rect.width))),
-      y: Math.max(
-        0,
-        Math.min(canvas.height - 1, Math.floor(((event.clientY - rect.top) * canvas.height) / rect.height)),
-      ),
+      x: portrait ? canvas.height - 1 - shownY : shownX,
+      y: portrait ? shownX : shownY,
       down: ['pointerdown', 'pointermove'].includes(type),
     });
   });

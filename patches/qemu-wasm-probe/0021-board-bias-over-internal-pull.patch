@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: M5Stack Agent <agent@m5stack.local>
+Date: Thu, 29 Oct 2026 19:25:00 +0800
+Subject: [PATCH] hw/gpio: let board bias win over temporary internal pulls
+
+M5GFX identifies Cardputer ADV by temporarily enabling internal pull-downs
+on G8/G9 and observing the board's external pull-ups. Treating the opposing
+weak sources as an unknown conflict misidentified the board as the legacy
+Cardputer, which then selected the wrong keyboard and display configuration.
+
+Active and open-drain drive still wins before weak bias resolution, so an
+I2C ACK/data zero remains able to pull either line low.
+---
+ hw/gpio/esp32_gpio.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -227,13 +227,22 @@ static void gpio_snapshot_internal(Esp32GpioState *s, unsigned pin,
+             out->level = out->external_level;
+             out->source_mask = ESP32_GPIO_PAD_SOURCE_EXTERNAL;
+         } else {
++            bool board_up = out->bias_up_count != 0;
++            bool board_down = out->bias_down_count != 0;
+             bool up = out->bias_up_count || out->fun_pu;
+             bool down = out->bias_down_count || out->fun_pd;
+             if (out->bias_up_count) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_BOARD_UP; }
+             if (out->bias_down_count) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_BOARD_DOWN; }
+             if (out->fun_pu) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_IOMUX_UP; }
+             if (out->fun_pd) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_IOMUX_DOWN; }
+-            if (!out->pull_config_known) {
++            if (board_up != board_down) {
++                /* A board resistor is external to the SoC and is stronger
++                 * than the short-lived internal pull used by board probes.
++                 * Active/open-drain drive was handled above, so this cannot
++                 * prevent an I2C ACK/data zero from winning. */
++                out->known = true;
++                out->level = board_up;
++            } else if (!out->pull_config_known) {
+                 out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_RESET_UNKNOWN;
+             } else if (up && down) {
+                 out->conflict = true;
+             } else if (up || down) {
+-- 
+2.39.2
