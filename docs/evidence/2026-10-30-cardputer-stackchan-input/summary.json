@@ -7,7 +7,7 @@
   "browser_functional": "PASS for the exact Cardputer image and StackChan reference/Arduino input cases",
   "worker_cleanup": "PARTIAL: first Arduino Stop 6/1; later case 12/0; initial failure retained",
   "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
-  "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+  "site_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
   "checks": {
     "platform_unittest_initial": {
       "status": "FAIL_DOCUMENTATION_ONLY",
@@ -29,16 +29,63 @@
     "broad_model_sweep": {
       "status": "NOT COMPLETED",
       "reason": "Stopped the agent-owned broad sweep after selecting the affected ADV model case; no full-model PASS assigned"
+    },
+    "merged_docs_and_core2_capacity": {
+      "status": "ONE_DOCUMENT_LENGTH_FAILURE_FIXED",
+      "tests": 46,
+      "initial_failures": 1,
+      "remaining_tests_passed": 45,
+      "log_sha256": "6f0c2d878941345168e45abdb5a58fef2cc82a6947748c2ebc57a1df74c35b34"
+    },
+    "status_length_recheck": {
+      "status": "PASS",
+      "tests": 1,
+      "log_sha256": "c3dc4ce80790d0a5a68dcff2d3009be59564c24dfe01144e0f6b50051e539cc3"
+    },
+    "snapshot_and_count_recheck": {
+      "status": "PASS",
+      "tests": 2,
+      "log_sha256": "8b638844726183aad7de957d27b5491f9a1195044af810ca58f225dbde95ce90"
+    },
+    "four_generated_validators": {
+      "status": "PASS",
+      "tools": [
+        "runtime_coverage",
+        "peripheral_catalog",
+        "qemu_profiles",
+        "project_snapshot"
+      ]
+    },
+    "final_V5_guests": {
+      "cardputer": "33/33 PASS including normal Stop 6/0",
+      "stackchan_reference": "24/24 PASS including normal Stop 6/0",
+      "arduino": "Retained V4 identity: functionality PASS; 55/56 with first Stop cleanup FAIL"
     }
   },
   "summaries": {
+    "cardputer-v5.summary.json": {
+      "bytes": 43249,
+      "sha256": "d1c113b8d573ace16f2663161a67c8a5e234028b8d1bff19f7859c615ffcf8fc"
+    },
     "cardputer.summary.json": {
       "bytes": 43002,
       "sha256": "f6b4a7419e8177b3ea713a37c3e5ffb3ea085e8d4aa3bbf00f05c77c8f6b39cc"
     },
+    "deployment.summary.json": {
+      "bytes": 17033,
+      "sha256": "ab799f0e69c4b35d6016860d52478d084f424b7ce0ed4a2f78b21a3ea30ac739"
+    },
+    "export-v4-v5-diff.summary.json": {
+      "bytes": 1803,
+      "sha256": "5e41b5fd9a27853a7fbd61a26273f974a0e58adc83acade4a36965cfec1ae011"
+    },
     "export-v4.summary.json": {
       "bytes": 1580,
       "sha256": "bd3d2096c1109461b6d7b2f7506e5f6ad5b9068f16cdbd86c5ed048dd414ca0a"
+    },
+    "export-v5.summary.json": {
+      "bytes": 2016,
+      "sha256": "b754a19c6218cba2d4948014d4e9a47e2e1fef6f517f7ca53438b24805478564"
     },
     "runtime-build.summary.json": {
       "bytes": 3114,
@@ -52,6 +99,10 @@
       "bytes": 51336,
       "sha256": "88e67636590ae9308d226063304f52c0d482196e864d9643e5d565b30f81da79"
     },
+    "stackchan-reference-v5.summary.json": {
+      "bytes": 5715,
+      "sha256": "10840cd979cdae9884e633f9d0ecdc45c41bdef92d3c783efece6c41dbf2f465"
+    },
     "stackchan-reference.summary.json": {
       "bytes": 9049,
       "sha256": "6ab78c078457326da815ff3dbc0f93843e73c38b353b47cab1252cf48b13d65b"
@@ -61,5 +112,21 @@
   "original_user_images": "NOT RUN: images unavailable",
   "native_full_matrix": "NOT RUN this round; earlier native results retain their own identity",
   "all_admitted_browser_publication_gate": "NOT RUN",
-  "deployment": "NOT RUN for this candidate; fork preview planned"
+  "deployment": {
+    "status": "PASS_FORK_PREVIEW_BYTES_ONLY",
+    "summary": "deployment.summary.json",
+    "workflow_url": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40994993932",
+    "preview_url": "https://yuyun2000.github.io/m5stack-esp-emulator/",
+    "payload_commit": "8108c7aeebc907fc417834c3d09ed5c2d05c10bf",
+    "source_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+    "manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+    "verified_public_assets": 36,
+    "verified_public_bytes": 60430333,
+    "public_guest_execution": "NOT RUN; functional guest tests use local identical V5 export; standard all-admitted publication NOT RUN"
+  },
+  "source_sync": {
+    "latest_integrated_main": "ccbfa71c60f62df2682fd6c449ce8abdaedfd871",
+    "integration_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+    "production_source_unchanged_after_integration": true
+  }
 }

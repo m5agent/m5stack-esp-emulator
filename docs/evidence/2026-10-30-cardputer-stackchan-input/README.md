@@ -3,6 +3,8 @@
 基线为已合并 PR #30/#39 的 `main e3f149c1`。结果限定浏览器虚拟设备；
 原用户上传镜像、物理硬件和本轮完整 native 外设矩阵均为 **NOT RUN**。
 源码、构建检查和真实 guest 结果分别记录，不从旧 Pages 或 native 继承通过。
+收尾又合并 main `ccbfa71c`（Core2 容量更新），集成提交 `603adecb`。最终
+V5 仅两份 Core2 验证说明变化，其余 2113 资源字节一致，见[严格导出差异](export-v4-v5-diff.summary.json)。
 
 ## Cardputer-ADV
 
@@ -17,7 +19,7 @@ MADCTL.MV，`0023` 仅纠正 ADV 的玻璃安装方向；网页平面图及坐�
 
 四种旋转分别核验尺寸、独立四角颜色、64 像素局部绘制和实际模型纹理；键盘
 逐个验证 56 个物理键的按下/松开，并覆盖双 Shift、大写、grave、Fn-Up 与
-原修饰标志。最终导出的同包复核见 `cardputer.summary.json`。
+原修饰标志。独立 [V4 复核](cardputer.summary.json) 与最终 [V5 复核](cardputer-v5.summary.json)分别绑定自己的完整导出身份。
 构建与执行入口见[固定原始 Arduino 探针](../../../tests/firmware/cardputer_input_orientation/README.md)。
 
 早期观察器使用错误 ESM query 的 guest 未运行，旧 66-patch 包确实显示倒置。
@@ -36,12 +38,16 @@ MADCTL.MV，`0023` 仅纠正 ADV 的玻璃安装方向；网页平面图及坐�
 绘图每轮至多更新一个字符。串口事件由前台统一输出，异常断电也留在前台。
 没有拉长网页输入、伪造 Touch 或用目标角度代替实际位置。
 
-最终默认入口的实际 DOM 持有时间为 105.355、302.000、802.825ms，三档均读到
+V4 默认入口的实际 DOM 持有时间为 105.355、302.000、802.825ms，三档均读到
 原 Touch 按下/松开及匹配坐标；持有期间独立 QOM 实际位置分别变化
 20、32/24、229 ticks。另有 raw-frame 诊断。24 项检查全部通过，普通 Stop
 在 context 关闭前使六个 CDP Worker 归零。观察到的最大轮询间隔为 187ms，
 本次成功不构成普遍 100ms 响应上界或任意负载不漏短按保证。
 见[默认入口摘要](stackchan-reference.summary.json)。
+最终 V5 默认入口独立再次通过全部 24 项：实际 DOM 持有为
+104.800/302.020/802.660ms，同时实际位移为 11/101/76 ticks；队列零丢失，
+原 Touch 坐标、帧及正常 Stop 六 Worker 归零通过。最大观察轮询间隔 165ms，
+仍不授普遍短按保证，见[V5 同 guest 摘要](stackchan-reference-v5.summary.json)。
 
 独立[Arduino 原 BSP 探针](../../../tests/firmware/stackchan_screen_motion/README.md)
 同时运行真实 Motion task 与屏幕轮询；故意 `delay(6000)` 不轮询的负控保留。
@@ -57,8 +63,11 @@ exit0，清理等待预算结束仍有一个 engine CDP target，因此整体 **
 
 - [新运行时构建摘要](runtime-build.summary.json)：67 patches，158 源文件，
   全新 1446 个 Ninja target；WASM `a7fe7180…9230e`，构建检查不授 guest PASS。
-- [最终 V4 导出](export-v4.summary.json)：manifest `16ab2bb4…59f40`，
+- [V4 导出](export-v4.summary.json)：manifest `16ab2bb4…59f40`，
   2115 资源，19 public / 0 candidate，不含固件、ROM 或服务地址。
+- [最终 V5 导出](export-v5.summary.json)：manifest `a9631395…92144`，
+  同 67-patch runtime 与 `407f6260…` 默认镜像；Cardputer 和默认 StackChan
+  在此包独立复核，Arduino 结果保留其 V4 身份及首次清理失败。
 - [原失败与诊断](stackchan-diagnostics.summary.json)：原默认短按失效、I2C
   A/B、同步工作计时及 V3 最小优化失败原样分层保留；V3 raw300 的 Touch
   通过但运动重叠证据不足，不能称整项通过。
@@ -68,3 +77,6 @@ exit0，清理等待预算结束仍有一个 engine CDP target，因此整体 **
 已知自然 PWR 的 engine Worker 回收问题；其它板型、CFG1、RGB666、更多固件、
 长期稳定性、机械和电气仍独立。
 fork Pages 是预览发布；原仓库标准 all-admitted 发布门禁本轮未运行。
+
+最终发布身份和公网字节完整性见[总摘要](summary.json)的 deployment 条目；
+本地 guest 功能验证与公网文件核验分开，不将后者称为公网 guest 实测。

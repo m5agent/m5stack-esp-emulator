@@ -29,3 +29,13 @@
 状态；保存正常 Stop 和 context.close 前 Worker 清场结果。保持 virtual-device
 与 physical hardware 分开。更新当前状态、唯一 Backlog、台账和生成快照；
 通过窄测、相关平台契约和 diff/隐私检查后按既有 PR/预览交付流程收尾。
+
+## 结果与交付范围
+
+Cardputer 的原 IRQ reader、56 物理键、PC 修饰与四旋转/局部刷新已有独立浏览器
+证据；StackChan 默认示例的同步工作饥饿已有失败计时，真实 UART 后台线程版
+恢复运动中约 100/300/800ms 的屏幕点按。原 Arduino BSP 的并行与不轮询负控
+也完成，首例普通 Stop 的 engine target 延迟回收保持 PARTIAL，不以后续成功覆盖。
+收尾已合并 main `ccbfa71c`；V5 只含两份 Core2 元数据差异，WASM、生产 Web 和
+固件字节保持一致，再按最终包复核。精确身份、失败、命令入口和发布结果统一见
+[本轮证据](../evidence/2026-10-30-cardputer-stackchan-input/README.md)。

@@ -20,17 +20,7 @@ native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严
 三款经典 Atom 默认入口首轮通过，原 Plus 首轮超时后仅一次独立复核在
 189 秒通过；其首次超时原因和启动稳定性继续开放。
 
-本轮[Cardputer / StackChan 输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)
-使用全新 67-patch WASM `a7fe7180…`：ADV 原始 Arduino IRQ reader 的 56 个
-物理键、双 Shift/Fn 及四旋转/局部绘图通过，修复玻璃倒置、窗口误判和 PC 映射。
-StackChan 原默认示例前台同步 UART 与整条重画使轮询间隔超过一秒；改为
-真实 UART 后台线程及逐字符更新后，同一默认 guest 的实际约 105/302/803ms
-DOM 点按与舵机实际位移、Touch 坐标及正常 Stop 清场通过。最大观察轮询间隔
-仍为 187ms，不保证任意短脉冲或任意固件；原用户镜像、物理硬件和本轮完整
-native 矩阵未运行，既有自然 PWR 回收边界仍开放。发布身份在该 evidence 独立记录。
-独立 Arduino 屏幕/运动并行与故意阻塞负控的功能通过；首例普通 Stop 在等待
-预算结束仍留一个 engine target，第二例结束前累计全部归零。首例清理失败
-继续保留，资源回收整体仍为 PARTIAL。
+本轮[Cardputer / StackChan 输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)在新 67-patch WASM 上修复 ADV PC 按键、玻璃方向和局部绘图横竖屏；原 IRQ reader、四旋转及 StackChan 默认 UART 后台线程与运动中屏幕点按均有同 guest 证据。独立 Arduino 并行/阻塞负控的功能通过，但首次普通 Stop 的 engine target 未及时消失，资源回收仍为 PARTIAL。短按无普遍响应上界；用户原镜像、硬件和本轮完整 native 矩阵未测，精确身份、时间、失败及发布状态见该 evidence。
 
 ## 一页结论
 
