@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "name": "m5stack-esp-emulator",
+      "audience": "general-agent",
+      "files": [
+        "SKILL.md",
+        "scripts/emulator.py",
+        "references/api-workflows.md",
+        "references/capabilities-and-evidence.md",
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "uiflow2-simulator",
+      "audience": "aiflow-uiflow2",
+      "files": [
+        "SKILL.md",
+        "scripts/simulator.py",
+        "references/workflow.md",
+        "source.json",
+        "LICENSE"
+      ]
+    }
+  ]
+}

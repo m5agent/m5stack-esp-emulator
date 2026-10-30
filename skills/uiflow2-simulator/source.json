@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "project": "aiflow-sdk",
+    "skill": "uiflow2-simulator",
+    "files_sha256": {
+      "SKILL.md": "6a1352e8ff8782dfd2e2b660eadd9677c80950a6ce1b4998abaf1557f1f97a6d",
+      "scripts/simulator.py": "1aeb3836367eae511e0659108b993b5a721520d30528bf8bbe069d86be98cf2a",
+      "references/workflow.md": "825379466ab92396d514e170264adb94df0964cfcab66828af7b6a4257a24d73"
+    }
+  },
+  "local_adaptations": [
+    "Preserves the upstream uiflow2-simulator name for AIFlow runtime selection; trigger and examples identify its AIFlow-specific scope.",
+    "Portable operator examples preserve the current upstream Agent-mode two-task confirmation gate.",
+    "The helper requires an explicit service origin instead of a shared-port default.",
+    "Includes this repository MIT notice for standalone distribution.",
+    "Adds schema-driven ENV III initial/live environment scenarios and same-Run guest/UI/recovery checks to the instructions; helper behavior is unchanged."
+  ],
+  "maintenance": "Compare the three upstream hashes and the AIFlow runtime mode/skill-selection policy before refreshing; preserve explicit endpoint configuration and rerun the package recording-server tests."
+}

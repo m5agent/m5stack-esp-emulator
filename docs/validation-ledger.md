@@ -2259,3 +2259,24 @@ factory application、物理硬件、RF、电气和物理 cache/PSRAM timing 仍
 setup/REPL 与任意 legacy application 转 `API-01`。见
 [证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)和
 [机器摘要](evidence/2026-10-30-core2-legacy-wdt-level-delivery/summary.json)。
+
+## 2026-10-27：AIFlow simulator skill consumer
+
+本机 consumer 通过 Device Service 可见 Preview 完成 CoreS3/PIR 三文件程序、
+Unit off/on→guest串口与320×240帧、RuntimeError检测与同session恢复；关闭前ZIP
+与history保留已验。LAN bridge保留鉴权且未重启原服务；无模型sandbox代理/端口
+限制已验证。精确范围见[调用侧记录](plans/2026-10-27-aiflow-simulator-skill.md)。
+这是virtual-device和local integration验证，不代表局域网AIFlow已部署或真机验证。
+
+
+## 2026-10-29：通用与 AIFlow Agent skills 分发
+
+仓库新增通用 `m5stack-esp-emulator` 与保留上游名称的 AIFlow 专用
+`uiflow2-simulator`，各自可独立复制/打包；显式 endpoint/Token、白名单、幂等恢复、
+归属/帧/证据/清理契约及隔离服务限定验证见
+[本轮记录](plans/2026-10-29-agent-skills.md)。不修改原 AIFlow 服务、控制器或
+8787 用户测试服务，不把客户端契约通过扩大为其它固件族或硬件 PASS。
+
+同日补充两套 Skill 的 ENV III 初始环境、运行中温湿度/气压输入与同 guest
+读数/画面/阈值恢复指引；字段和流程经当前 schema、helper 及服务路径审查。
+此补充仅为文档与分发包更新，未重新执行 ENV guest，不新增运行/硬件 PASS。

@@ -59,6 +59,20 @@ cd m5stack-esp-emulator
 再通过工作台或 [Device Service API](docs/device-service-api.md)创建会话。
 `running` 仅表示控制通道启动，应用就绪需结合 `ready_marker`、串口和实际帧判断。
 
+## Agent Skills
+
+部署 Device Service 的用户可以将 [skills/](skills/README.md) 中的完整目录安装到
+自己的 Agent，不需要在 Agent 机器安装 QEMU：
+
+| Skill | 用途 |
+| --- | --- |
+| [m5stack-esp-emulator](skills/m5stack-esp-emulator/SKILL.md) | 通用固件上传/合成/Manifest、设备与 Unit、虚拟运行、串口/画面/交互、网络/Flash 取证与会话清理 |
+| [uiflow2-simulator](skills/uiflow2-simulator/SKILL.md) | AIFlow 专用 UIFlow2 完整代码/资源包、同 guest Preview/Run、报错与 UI 迭代 |
+
+两包独立携带 helper 和参考文件，服务地址与控制 Token 由部署者配置，不包含
+本机 IP 或凭据。AIFlow 版保留上游技能名和当前两阶段确认流程；通用版没有
+AIFlow 运行依赖。安装、环境变量、验证及独立 ZIP 打包见 [Skill 指南](skills/README.md)。
+
 ## 能力边界
 
 - 兼容性绑定具体设备、profile、控制器覆盖、Flash/PSRAM、分区和安全配置；

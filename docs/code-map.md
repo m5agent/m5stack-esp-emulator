@@ -435,6 +435,7 @@ HTTP / browser
 | `platform/tools/worker_discovery.py` | active-token HMAC multicast beacon、过期/来源校验和无硬编码 URL 的 worker bootstrap |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
 | `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查；验证日期/状态必须与设备目录一致 |
+| `platform/tools/agent_skills.py` | 通用/AIFlow 专用 skill 的分发白名单、独立相对链接检查、确定性 ZIP 与 SHA256 清单；入口见 [skills 指南](../skills/README.md) |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
 
 `device_service.py` 仍是主要编排热区。修改时应先锁定对外 API 和会话状态机，

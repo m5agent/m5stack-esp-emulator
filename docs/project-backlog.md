@@ -281,7 +281,7 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 FlashLight的OUT_SEL旧资格问题已按[限定路由证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)闭合；`0047` cold constructor/低基线已由新runtime四host原厂API、同PID Run替换和actual QOM Web replay验证；`UNIT-HOST-37`关闭该数字边界。`UNIT-HOST-36` Relay/Relay2 hard-reset数字边界已另按[0087 fixed/pre-fix](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)闭合；FlashLight实时Web、S1/PWM和电气边界继续开放。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
-checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
+checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow内嵌消费者未接；本机可分发skill调用侧已完成限定验证，局域网运行实例接入与产品化仍待验，见[调用侧记录](plans/2026-10-27-aiflow-simulator-skill.md)。
 Live sessions托管消费者已有CoreS3 PIR/Relay的[限定Web验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-web-consumer/README.md)，不转授其它Unit/主机或AIFlow；四主机HUB控制组和U131双GPIO/蓝灯、UNIT-HOST-35窄屏/长dt构图已完成[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；继续补未验Unit/主机与AIFlow调用侧，共享Bearer仍不等于多租户控制权。后续按既有Unit队列推进，并衔接AIFlow checkpoint/虚拟目标、SSE与revision有界回收。
 初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。

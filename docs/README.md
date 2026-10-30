@@ -133,6 +133,8 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [AIFlow simulator skill consumer](plans/2026-10-27-aiflow-simulator-skill.md) | 调用侧历史验证 | `2026-10-27` | CoreS3/PIR 本机限定验证，远端 AIFlow 未验 |
+| [通用与 AIFlow Agent Skills](plans/2026-10-29-agent-skills.md) | 调用侧分发 | `2026-10-29` | 独立 helper、配置与打包；不继承硬件 PASS |
 | [文档维护指引](AGENTS.md) | 维护契约 | `2026-10-30` | 首页双语对齐、权威/历史职责、插图来源、链接检查与生成快照顺序 |
 | [文档与首页整理计划](plans/2026-10-30-docs-readme-refresh.md) | 交付计划 | `2026-10-30` | 文档范围盘点、精简中文首页、英文入口、本轮截图和分层 AGENTS 的验收 |
 | [首页插图来源](images/README.md) | 插图来源 | `2026-10-30` | 本轮浏览器运行与仅模型画廊的不同来源、范围、复现及视觉检查 |
@@ -472,3 +474,9 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 设备本地 case README 只说明该 case 的运行方式和当时边界，不是当前能力
 来源。查当前状态先读 `project-status.md`，查动态设备/Task 计数先读
 `project-snapshot.md`，查测试归属先读 `tests/README.md`。
+
+## Agent Skills 调用侧资料
+
+- [通用与 AIFlow Skill 分发](plans/2026-10-29-agent-skills.md)
+- [AIFlow consumer 历史验证](plans/2026-10-27-aiflow-simulator-skill.md)
+- [安装与打包](../skills/README.md)
