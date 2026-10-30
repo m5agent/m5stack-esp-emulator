@@ -612,7 +612,7 @@ try {
   await page.evaluate(() => {
     const held=boardDeferredRemoval;held.remove.call(held.frame);delete globalThis.boardDeferredRemoval;
   });
-  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets,timeoutMs:30000});
+  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets});
   report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
   report.playwright_worker_events=workerObservations;
   check('engine-and-created-pthreads-close-after-iframe-finalization',targetClose.ok
