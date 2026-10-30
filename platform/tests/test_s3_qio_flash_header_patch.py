@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-PATCH = ROOT / "patches/qemu-m5stack-peripherals/0095-s3-qio-flash-model-header.patch"
+PATCH = ROOT / "patches/qemu-m5stack-peripherals/0106-s3-qio-flash-model-header.patch"
 
 
 def patched(path):

@@ -4191,6 +4191,11 @@ components:
         wifi_ssid:
           type: string
           maxLength: 32
+          description: >
+            Test AP SSID. ESP32-S3 qemu-wifi uses it for the modeled AP.
+            For Core2 qemu-wifi, it also selects an entry in a recognized
+            classic UIFlow deviceCfg config partition on the isolated
+            session Flash copy.
         wifi_password:
           type: string
           maxLength: 63
@@ -4198,6 +4203,8 @@ components:
           description: >
             WPA passphrase. ESP32-S3 qemu-wifi supports WPA2-PSK with an
             8-63 character passphrase or Open auth with an empty password.
+            For Core2 qemu-wifi, the value is applied only when the legacy
+            config partition matches the expected schema and checksum.
             The value is redacted from session snapshots and evidence.
         firmware_ap_password:
           type: string

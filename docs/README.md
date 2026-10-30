@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-29`
+日期：`2026-10-30`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -142,6 +142,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [浏览器性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md) | 本地浏览器证据 | `2026-10-29` | 同固件 CPU 对照、实际动画像素变化与剩余触摸延迟；四板五示例按两个导出清单分别取证，不冒称正式 Pages 已更新 |
 | [LVGL 正常时钟候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) | 限定候选证据 | `2026-10-29` | 显式 SDK Python 调度候选在同 guest 验证时间推进、真实字形/动画/触摸/PIR 和清理；stock SDK、C Timer 第一层和硬件不继承 |
 | [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 当前部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |
+| [Cardputer-ADV 用户固件兼容](evidence/2026-10-29-cardputer-adv-user-firmware/README.md) | 当前用户固件证据 | `2026-10-29` | 同一完整 Flash 的 ADC 错误、完整原生帧、自动竖屏设备/平面帧旋转、墙钟比例和旧矩阵输入门控；物理硬件不继承 |
 | [CoreS3 C/QEMU 静态网页验收](evidence/2026-10-28-qemu-wasm-pages/README.md) | 历史证据 | `2026-10-28` | 固定源码完整构建、浏览器本地组合、真实 LCD/触摸/PIR及第二场分享启动/清理，Pages 单独记录 |
 | [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 历史执行研究 | `2026-10-28` | 固定当时完整WASM/CLI/QMP、CPU栈恢复、慢时钟CoreS3帧/触摸/PIR/停止重开；当时默认时钟失败保留，后续显式正常时钟候选、公众准入和部署分别以新证据为准 |
 | [公众模拟器计划](plans/2026-10-28-public-simulator.md) | 进行中计划 | `2026-10-28` | 公众首页、Unit信息层级、新模型、URL分享、静态导出与部署前门禁 |
@@ -171,6 +172,15 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Core2 legacy flash handoff episode budget](evidence/2026-10-29-core2-handoff-episode-budget/README.md) | 当前 Core2 诊断证据 / 诊断修复 | `2026-10-29` | `0089` 修复 PC trace 的 `Bad icount read`；两次 normal-WDT 运行记录 reset 前约 `12.6k` 个 handoff，CPU0 block wait 累计约占 `57%`，单次最大 `<6.8 ms`；否定单次长 deadlock，启动仍在 WDT 前未完成，`RUNTIME-03` 保持 OPEN |
 | [Core2 legacy handoff issuer/phases](evidence/2026-10-29-core2-handoff-issuer-phases/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | 无 Flash issuer 的 handoff 仍约 `0.89 ms`；含一条 `0xBB/64` 和 status read 的 handoff 约 `0.86 ms`；initiator IPC 往返 source shape 独占约 `0.616 ms`。100us RR 与临时 can_start immediate-yield 均无改善，随后由 `0090` 的 per-vCPU icount budget cap 降低固定等待 |
 | [Core2 per-vCPU icount fairness budget](evidence/2026-10-29-core2-icount-percpu-budget/README.md) | 当前 Core2 调度证据 / 默认修复 | `2026-10-29` | `0090` 为双 vCPU deterministic icount 增加默认 `10 us` per-vCPU budget cap；同 trace A/B 将 initiator `can_start→IPC return` 从 `563.7 us` 降到 `56.2 us`、peer block wait 从 `728.4 us` 降到 `184.7 us`，Core2 UIFlow2 设备组 `6/6 PASS`；normal WDT 仍在 `17.2429 s` reset，`RUNTIME-03` 保持 OPEN |
+| [Core2 legacy boot budget 与 WiFi/UI wait](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md) | 当前 Core2 诊断证据 | `2026-10-30` | `shift=2` + `1 us` 在 normal WDT 下 `4.66 s` 到 BOARD/APIKEY、`8.50 s` 执行完原厂 boot.py，但仍为黑帧；WDT-off 15/20 秒双核 Waiti 且 Flash/cache 停在约 `9.36 s`，UART 诊断栈定位到 `wifiWebCfg/menu-wifi/m5stack_ui`，timing 控制不是产品修复 |
+| [Core2 TIMG watchdog feed rescheduling](evidence/2026-10-30-core2-timg-feed-reschedule/README.md) | 当前 Core2 watchdog 语义修复 | `2026-10-30` | `0091` 用 `timer_mod_ns()` 替换 anticipate 语义，使 `WDTFEED` 可推迟已武装的后续阶段；重建运行得到 `3,651` nonblack pixels 的 live frame，但 TG0 stage-1 仍 reset，`RUNTIME-03` 保持 OPEN |
+| [Core2 legacy menu after WiFi configuration stub](evidence/2026-10-30-core2-wifi-stub-menu/README.md) | 当前 Core2 启动诊断 | `2026-10-30` | 仅 stub `wifiWebCfg.config_by_web`，当前显示/LVGL 路径即可渲染完整 `320x240` UIFlow 菜单帧（`76,760` nonblack / `417` colors）；原厂 WiFi 配置分区仍为空，故 `RUNTIME-03` 保持 OPEN |
+| [Core2 legacy deviceCfg WiFi overlay](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md) | 当前 Core2 配置 fixture / 诊断 | `2026-10-30` | Core2 `qemu-wifi` 只对 session Flash 副本应用严格校验的 legacy `deviceCfg`，并记录 hashed SSID/base/effective SHA；同一 effective Flash 在诊断控制下显示真实 `Connecting to myssid`，默认 WDT 仍在 boot 后触发 cache panic，`RUNTIME-03` 保持 OPEN |
+| [Core2 WiFi IRQ cache handoff gate](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md) | 历史 Core2 中断语义修复 | `2026-10-30` | `0092` 在 instruction cache disabled 时只暂存 WiFi MAC level，cache restore 后重放；默认 budget 的同固件不再出现 cache-disabled panic，并到达 API Key 页面。该里程碑后的 TG0 WDT reset 已由 `0095` 记录解除 |
+| [Core2 classic WiFi station timing and data path](evidence/2026-10-30-core2-classic-wifi-station-time/README.md) | 历史 Core2 WiFi 语义/数据面修复 | `2026-10-30` | `0093/0094` 将 classic WiFi beacon/inject/timestamp 改用 virtual time，并让 station DHCP 与双向数据使用正常 slirp 路径；stock Core2 WiFi scan→association→DHCP→HTTP `5/5 PASS`、IP `10.0.2.15`。该轮 normal-WDT reset 后由 `0095` 记录解除 |
+| [Core2 legacy WDT level delivery](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md) | 当前 Core2 watchdog/startup 修复 | `2026-10-30` | `0095` 按 `WDTCONFIG0.LEVEL_INT_EN` 修复 legacy task-WDT level delivery；同一 public SHA 三次 normal-WDT Device Service 均越过原 stage-1 reset、稳定到 guest virtual 300 秒以上并保持 API Key startup UI，Core2 设备组 `6/6 PASS` |
+| [Device Service network parsing boundary](evidence/2026-10-30-svc03-network-parsing/README.md) | `SVC-03` 边界重构证据 | `2026-10-30` | network policy/CNAME parser 移到 `device_service_network.py`，`device_service.py` 保持 same-object re-export；定向与 network-focused tests PASS，不改变 HTTP/state/evidence 语义 |
+| [Device Service device-spec boundary](evidence/2026-10-30-svc03-device-specs/README.md) | `SVC-03` 边界重构证据 | `2026-10-30` | `DeviceSpec`、catalog/matrix/profile 解析、backend 路径与 runtime profile 选择移到 `device_service_specs.py`；原模块 same-object re-export，定向 `5/5 PASS`，不改变 HTTP/QEMU/session/evidence 语义 |
 | [Cardputer-ADV 当前参考固件 BMI270 闭环](evidence/2026-10-29-cardputer-adv-imu/README.md) | 当前设备证据 | `2026-10-29` | I2C `0x69`、CHIP_ID/INIT/data-ready 与 `0x0C..0x17` 读取可达；Device Service 注入经官方 `Imu.getAccel/getGyro` 回读，原样矩阵首轮 PASS；关闭当前参考固件 IMU 全零待办，物理精度仍 NOT RUN |
 | [Core2 legacy pre-boot phase profile](evidence/2026-10-29-core2-preboot-phase-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | 显式 PC/UART sampling 记录 WDT-off 80 秒的 SSI transaction/RX 聚合总量与 108 个采样 begin event；全量 command/length 分布仍未知，四类立即切核控制均无改善并丢弃，normal-WDT 仍 stage-1 reset |
 | [Core2 SSI transaction profile](evidence/2026-10-29-core2-ssi-transaction-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | `0071` 输出完整 command、RX-length、completion→next-command gap 聚合；无采样控制得到约五万组 `0x05` 与 `0xBB/64B`，`79.7/80 s` 位于相邻 command 间隔；normal-WDT 仍 `17.2537 s` reset，`RUNTIME-03` 保持 OPEN |
@@ -179,6 +189,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Core2 M5UI panel DMA 双写修复](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md) | 当前 Core2 UIFlow2 证据 | `2026-10-29` | `0074` 修复 DMA descriptor 与 CPU data-register 对同一 panel flush 的双消费；`6400`-byte strip 从写成 `12736` bytes 变为 exact，candidate 4 个状态与 2 个 frame oracle 全部 PASS |
 | [Core2 post-reset teardown](evidence/2026-10-29-core2-post-reset-teardown/README.md) | 当前 CORE2-02 teardown 证据 | `2026-10-29` | 三个 ready session 先冻结 frame/QOM/network/GATT/pcap，再执行 guest `system_reset`；同一 QEMU PID reboot-in-flight 时仍 running，随后 stop、companion/PID/lease cleanup 与下一轮恢复均 `3/3 PASS`；不关闭 controller/物理/真机边界 |
 | [Core2 stock BLE via native HCI](evidence/2026-10-29-core2-stock-ble-native-hci/README.md) | 当前 Core2 BLE 证据 / runner 修正 | `2026-10-29` | stock UIFlow2 `ble-nus` 改走 `core2-native-hci` + matching ELF；三个独立 session 各 `8/8 PASS`，peer 实际收到 `ACK:M5_CORE2_UNIFIED`；StopWatch/StickS3 stock controller、安全与 RF 不继承 |
+| [Device Service runtime boundary 与 Core2 unified 稳定性](evidence/2026-10-29-svc03-runtime-boundary/README.md) | 当前 service 证据 / 调度修复 | `2026-10-29` | 无状态 runtime 参数/脱敏边界独立；profile QOM 跟随 session readiness，Core2 unified 默认 180 秒；BLE peer 在订阅后等待 10 秒再写，避免慢 guest TX 未就绪；最终 firmware/ELF/QEMU 三条独立 lease 全 PASS，WiFi、公网、NUS ACK、frame/QOM、HLI、pcap、ZIP 和清理完整 |
 | [Core2 `m5ble.Server.get_client` candidate](evidence/2026-10-29-m5ble-get-client-candidate/README.md) | 当前 Core2 BLE 候选证据 / teardown 时序 | `2026-10-29` | stock `m5ble-server` 保留 `21 PASS + 1 ERROR`；`0021 → 0025` 最终候选两轮均 `22/22 PASS`；并发断连后的 `deinit` 竞争以 2 秒 settle 修正，stock/candidate 复核均 PASS；真机/安全/RF NOT RUN |
 | [StopWatch / StickS3 / Core2 UIFlow2 接口再次复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md) | 当前三设备证据 / M5UI runner | `2026-10-29` | `9bf74439…` 上三台重新完成 system/shared、协议、板级接口和 ESP-NOW；StopWatch/Core2 重跑 28 类、505 个 M5UI widget 方法与两个 lifecycle 项；requests2/Modbus/TLS/M5UI 与 `0021+0025` M5BLE candidate 全部复验；stock SDK、StopWatch/StickS3 BLE 和物理边界保留 |
 | [最新 QEMU 三设备 UIFlow2 接口复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r3/README.md) | 当前三设备证据 | `2026-10-29` | `05a43941…` 上三台 system/shared、协议、audio、ESP-NOW、BLE 和板级接口重跑；StopWatch/Core2 M5UI 仍 507 结果零漏测；stock SDK 缺陷和 candidate 结果保持不变；Core2 network 首轮并发扫描毛刺经隔离及 4 次并发重复控制；真机/RF/legacy 边界保留 |
@@ -287,6 +298,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 - [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md)
 - [Core2 首帧、离线 WLAN 与 LVGL 修复](evidence/2026-10-27-core2-startup/README.md)
 - [Cardputer-ADV BMI270 当前参考固件闭环](evidence/2026-10-29-cardputer-adv-imu/README.md)
+- [Cardputer-ADV 用户固件显示、时钟与输入兼容](evidence/2026-10-29-cardputer-adv-user-firmware/README.md)
 - [Core2 legacy pre-boot phase profile](evidence/2026-10-29-core2-preboot-phase-profile/README.md)
 - [固定版本外壳浏览器集成证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-model-integration/README.md)
 - [Encoder 官方协议冲突](unit-research/encoder-protocol-conflicts.md)

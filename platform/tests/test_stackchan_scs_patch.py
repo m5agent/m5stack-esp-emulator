@@ -12,9 +12,9 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCHES = ROOT / 'patches/qemu-m5stack-peripherals'
-PATCH = PATCHES / '0090-stackchan-scs-motion-observer.patch'
-WIRING_PATCH = PATCHES / '0094-stackchan-scs-uart-wiring.patch'
-COMMAND_EDGES_PATCH = PATCHES / '0096-stackchan-scs-command-edges.patch'
+PATCH = PATCHES / '0101-stackchan-scs-motion-observer.patch'
+WIRING_PATCH = PATCHES / '0105-stackchan-scs-uart-wiring.patch'
+COMMAND_EDGES_PATCH = PATCHES / '0107-stackchan-scs-command-edges.patch'
 COMMAND_EDGES_FIXTURE = ROOT / 'platform/tests/fixtures/stackchan_scs_command_edges.c'
 UNIT = 'hw/m5stopwatch/m5_scs_servo.c'
 

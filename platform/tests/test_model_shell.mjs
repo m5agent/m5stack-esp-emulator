@@ -227,6 +227,12 @@ try {
         }
       }
       const before = raw.length;
+      const presentationRotation = {
+        initial: shell.presentationRotationDeg ?? 0,
+        applied: shell.setDeviceRotation(-90),
+        portrait: shell.presentationRotationDeg,
+        reset: shell.setDeviceRotation(0),
+      };
       const ownership = window.modelProbe.ownership(shell, shell.model);
       const outputs = window.modelProbe.outputs(shell, shell.model);
       const artwork = await window.modelProbe.artwork(shell.model, expectedMinimum);
@@ -234,7 +240,8 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, physicalAliases, touches, resets, ownership, outputs, artwork, outputEcho: raw.length - before,
+        frame, controls, physicalAliases, touches, resets, presentationRotation,
+        ownership, outputs, artwork, outputEcho: raw.length - before,
       };
     }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
     assert.equal(result.source, 'm5stack-models', `${device.id} fell back to the old renderer`);
@@ -246,6 +253,8 @@ try {
       assert.equal(result.frame.littleEndianSequence, 9);
     }
     assert.equal(result.outputEcho, 0, `${device.id} output echoed as input`);
+    assert.deepEqual(result.presentationRotation,
+      {initial:0,applied:true,portrait:270,reset:true}, `${device.id} presentation rotation`);
     if (device.hardware.display?.touch) {
       assert.deepEqual(result.touches.map(event => [event.x, event.y, event.down]), [[12, 34, true], [12, 34, false]]);
     }

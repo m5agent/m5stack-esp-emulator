@@ -15,7 +15,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PATCH = ROOT / "patches/qemu-m5stack-peripherals/0092-classic-touch-measurement.patch"
+PATCH = ROOT / "patches/qemu-m5stack-peripherals/0103-classic-touch-measurement.patch"
 FIXTURE = ROOT / "platform/tests/fixtures/classic_touch_sens"
 SOURCE = Path("hw/m5stopwatch/esp32s3_sens.c")
 PREIMAGE_SHA256 = "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5"

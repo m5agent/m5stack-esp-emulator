@@ -69,7 +69,7 @@ class ClassicGpioRtcSleepTests(unittest.TestCase):
             self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
     def test_rtc_header_supplies_its_own_controller_dimensions(self):
-        header = patched("0093-classic-gpio-rtc-sleep.patch",
+        header = patched("0104-classic-gpio-rtc-sleep.patch",
                          "include/hw/misc/esp32_rtc_cntl.h")
         # QEMU transport types are irrelevant here. Keep the dimensions in a
         # separate dependency so the original include-order failure reproduces.
@@ -98,14 +98,14 @@ class ClassicGpioRtcSleepTests(unittest.TestCase):
                              'return 0;}\n', ("-I", str(root)))
 
     def test_classic_matrix_pad_drives_real_hold_observer(self):
-        gpio = patched("0093-classic-gpio-rtc-sleep.patch", "hw/gpio/esp32_gpio.c")
+        gpio = patched("0104-classic-gpio-rtc-sleep.patch", "hw/gpio/esp32_gpio.c")
         header = patched("0047-unit-flashlight-cold-pad-observation.patch",
                          "include/hw/gpio/esp32_gpio.h")
         types = header[header.index("#define ESP32_GPIO_PAD_SOURCE_GPIO"):
                        header.index("/* Borrowed current controller")]
         globals_ = gpio[gpio.index("#define GPIO_NPINS"):
                         gpio.index("static bool gpio_pad_valid")]
-        power = patched("0091-board-power-lifecycle.patch", "hw/m5stopwatch/m5stickcplus2.c")
+        power = patched("0102-board-power-lifecycle.patch", "hw/m5stopwatch/m5stickcplus2.c")
         helpers = r"""
 static uint64_t gpio_legacy_line64(void) { return g_ext_in; }
 static uint32_t rtc_override;
@@ -166,7 +166,7 @@ int main(void) {
                          + function(power, "plus2_hold_observe") + main)
 
     def test_sleep_and_ext0_wake_require_controller_configuration(self):
-        rtc = patched("0093-classic-gpio-rtc-sleep.patch", "hw/misc/esp32_rtc_cntl.c")
+        rtc = patched("0104-classic-gpio-rtc-sleep.patch", "hw/misc/esp32_rtc_cntl.c")
         table = rtc[rtc.index("typedef struct ClassicRtcPad"):
                     rtc.index("static void rtc_notify_pads")]
         prefix = r"""

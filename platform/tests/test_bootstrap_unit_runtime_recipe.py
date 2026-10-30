@@ -55,30 +55,30 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
             self.assertNotIn("wasm", name)
             self.assertFalse(re.match(r"00(?:7[1-9]|8[0-4])-", Path(name).name))
         self.assertEqual(patches[-15:], (
-            PERIPHERAL + "0085-atoms3-and-atoms3-lite-boards.patch",
-            PERIPHERAL + "0086-stickc-family-boards.patch",
-            PERIPHERAL + "0087-atoms3-rgb-and-dial-board.patch",
-            NATIVE + "0007-native-expanded-atom-rmt-delta.patch",
-            PERIPHERAL + "0089-esp32-qio-flash-model-header.patch",
-            NATIVE + "0008-native-core2-atecc608-context.patch",
-            PERIPHERAL + "0090-stackchan-scs-motion-observer.patch",
-            PERIPHERAL + "0091-board-power-lifecycle.patch",
-            PERIPHERAL + "0092-classic-touch-measurement.patch",
-            PERIPHERAL + "0093-classic-gpio-rtc-sleep.patch",
-            PERIPHERAL + "0094-stackchan-scs-uart-wiring.patch",
-            PERIPHERAL + "0095-s3-qio-flash-model-header.patch",
-            PERIPHERAL + "0096-stackchan-scs-command-edges.patch",
-            PERIPHERAL + "0097-s3-soft-i2c-reset-handoff.patch",
-            PERIPHERAL + "0098-uart-rxfifo-reset.patch",
+            PERIPHERAL + "0096-atoms3-and-atoms3-lite-boards.patch",
+            PERIPHERAL + "0097-stickc-family-boards.patch",
+            PERIPHERAL + "0098-atoms3-rgb-and-dial-board.patch",
+            NATIVE + "0013-native-expanded-atom-rmt-delta.patch",
+            PERIPHERAL + "0100-esp32-qio-flash-model-header.patch",
+            NATIVE + "0014-native-core2-atecc608-context.patch",
+            PERIPHERAL + "0101-stackchan-scs-motion-observer.patch",
+            PERIPHERAL + "0102-board-power-lifecycle.patch",
+            PERIPHERAL + "0103-classic-touch-measurement.patch",
+            PERIPHERAL + "0104-classic-gpio-rtc-sleep.patch",
+            PERIPHERAL + "0105-stackchan-scs-uart-wiring.patch",
+            PERIPHERAL + "0106-s3-qio-flash-model-header.patch",
+            PERIPHERAL + "0107-stackchan-scs-command-edges.patch",
+            PERIPHERAL + "0108-s3-soft-i2c-reset-handoff.patch",
+            PERIPHERAL + "0109-uart-rxfifo-reset.patch",
         ))
-        self.assertLess(patches.index(NATIVE + "0004-esp32-classic-rmt-legacy.patch"),
-                        patches.index(NATIVE + "0007-native-expanded-atom-rmt-delta.patch"))
+        self.assertLess(patches.index(NATIVE + "0010-native-classic-rmt-context.patch"),
+                        patches.index(NATIVE + "0013-native-expanded-atom-rmt-delta.patch"))
 
     def test_context_ports_preserve_the_original_c_changes(self):
         pairs = (
-            ("0003-native-high-priority-irq-context.patch", "0065-xtensa-high-priority-irq-cooperative-yield.patch"),
-            ("0004-native-classic-rmt-context.patch", "0066-esp32-classic-rmt-legacy.patch"),
-            ("0006-native-uart-trace-context.patch", "0070-esp32-uart-tx-virtual-clock.patch"),
+            ("0009-native-high-priority-irq-context.patch", "0065-xtensa-high-priority-irq-cooperative-yield.patch"),
+            ("0010-native-classic-rmt-context.patch", "0066-esp32-classic-rmt-legacy.patch"),
+            ("0012-native-uart-trace-context.patch", "0070-esp32-uart-tx-virtual-clock.patch"),
         )
         for native, original in pairs:
             with self.subTest(native=native):
@@ -88,8 +88,8 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
     def test_rmt_delta_replays_on_0066_and_matches_portable_source(self):
         name = "hw/m5stopwatch/m5_rmt_classic.c"
         seed = new_file(PERIPHERAL + "0066-esp32-classic-rmt-legacy.patch", name)
-        expected = new_file(PERIPHERAL + "0088-classic-atom-rmt-boards.patch", name)
-        patch = ROOT / NATIVE / "0007-native-expanded-atom-rmt-delta.patch"
+        expected = new_file(PERIPHERAL + "0099-classic-atom-rmt-boards.patch", name)
+        patch = ROOT / NATIVE / "0013-native-expanded-atom-rmt-delta.patch"
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory) / name
             target.parent.mkdir(parents=True)
@@ -105,7 +105,7 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("cc"), "C compiler required")
     def test_native_wdt_feed_runs_while_configuration_is_locked(self):
-        lines = sections(NATIVE + "0005-native-wdt-feed-context.patch")["hw/timer/esp32_timg.c"]
+        lines = sections(NATIVE + "0011-native-wdt-feed-context.patch")["hw/timer/esp32_timg.c"]
         postimage = "\n".join(line[1:] for line in lines if line[:1] in {" ", "+"})
         start = postimage.index("case A_TIMG_WDTFEED:")
         branch = postimage[start:postimage.index("break;", start) + len("break;")]

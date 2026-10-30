@@ -640,6 +640,52 @@ group remained `6/6 PASS`. Normal WDT still reset at TG0 stage 1 around
 of `RUNTIME-03`; see the
 [budget evidence](../../docs/evidence/2026-10-29-core2-icount-percpu-budget/README.md).
 
+`0091-esp32-timg-feed-reschedule.patch` changes the classic ESP32 TIMG
+watchdog stage timer to replace a pending deadline after `WDTFEED`.
+`timer_mod_anticipate_ns()` intentionally keeps an earlier deadline, which can
+leave an obsolete later stage armed after the guest has fed the watchdog.
+The patch uses `timer_mod_ns()` without changing timeout values, interrupt
+masks, clock warping or the disable control. A source rebuild reached a live
+`320x240` UIFlow frame with `3,651` nonblack pixels at 8 seconds virtual time,
+but the original firmware still later hit TG0 stage-1 reset, so `RUNTIME-03`
+remains open. See the
+[feed-reschedule evidence](../../docs/evidence/2026-10-30-core2-timg-feed-reschedule/README.md).
+
+`0092-esp32-wifi-irq-cache-gate.patch` exports the instruction-cache-ready
+state from DPORT to the ESP32 interrupt matrix and holds only the WiFi MAC
+level source while that cache is disabled. The retained input level is
+re-evaluated when the cache is restored, so the WiFi IRQ is delayed rather
+than discarded. Cross-core IRQs, timer sources and the cache-illegal-access
+source remain outside the gate so the flash handoff and exception path can
+progress. This removes the observed cached-ISR access during the legacy Core2
+flash window, but normal-WDT startup still later resets and `RUNTIME-03`
+remains open. See the
+[WiFi IRQ cache-gate evidence](../../docs/evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md).
+
+`0093-esp32-classic-wifi-virtual-time.patch` moves classic WiFi beacon,
+injected-frame and generated 802.11 timestamp scheduling from QEMU realtime
+to virtual time. Guest scan, association, DHCP and watchdog work all use the
+virtual clock under deterministic icount, so host wall-clock speed no longer
+changes their ordering. The default-off `M5SW_CLASSIC_WIFI_TRACE` stream
+records association state, frame direction and virtual timestamps for
+artifact-bound diagnostics.
+
+`0094-esp32-classic-wifi-station-data.patch` keeps station data on the normal
+WLAN/Ethernet/slirp translation path after association, including the DHCP
+handshake and host-to-station delivery. It removes the synthetic DHCP branch
+that consumed guest frames without forwarding them and the separate
+STA-associated delivery stub.
+
+`0095-esp32-legacy-wdt-level-delivery.patch` corrects the WDT level-delivery
+semantics introduced by `0035`. The classic ESP32 WDT level output is enabled
+by `WDTCONFIG0.LEVEL_INT_EN`; legacy ESP-IDF 3.3 registers the TG0 task-watchdog
+interrupt without programming `INT_ENA.WDT`. `0035` therefore left the stage-0
+ISR unreachable when `INT_ENA=2` and `INT_RAW=4`. `0095` preserves masked
+`INT_ST` and all non-WDT source masking, but drives only the WDT level output
+from `INT_RAW.WDT` while `LEVEL_INT_EN` is set. The same public firmware now
+clears the WDT status from its task-watchdog ISR and feeds the watchdog instead
+of reaching the stage-1 system reset.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
@@ -712,13 +758,12 @@ other deltas. A business-only control with tracing disabled passed the
 corrected `core2_flash_ipc` first-boot probe repeatedly; this does not close
 the separate legacy-UIFlow TG0/TG1 watchdog and black-frame failure.
 
-`0035-esp32-timg-wdt-int-ena.patch` corrects TIMG WDT level-interrupt masking.
-The model previously raised the WDT line whenever `INT_RAW.WDT` became set,
-even when `INT_ENA.WDT` was clear. The patch preserves raw status and the stage
-timer but drives the level only from `INT_RAW & INT_ENA`. The trace observed
-`INT_ENA=0`, `INT_RAW=4`, masked status `0`; two Device Service controls still
-reached `TG0WDT_SYS_RESET` after the fix. This patch is a model-semantics fix,
-not closure of the legacy UIFlow QIO/cross-core/flash-cache path.
+`0035-esp32-timg-wdt-int-ena.patch` is a retained historical attempt to drive
+the TIMG WDT level only from `INT_RAW & INT_ENA`. That assumption is wrong for
+legacy ESP-IDF task watchdog setup: the trace had `INT_ENA=0`, `INT_RAW=4` and
+masked status `0`, then the guest continued to `TG0WDT_SYS_RESET`. `0095`
+supersedes the WDT-level part of this patch while leaving its non-WDT mask
+semantics and the ordered history intact.
 
 `0036-ssi-transfer-buf.patch` adds an optional byte-buffer transfer callback to
 the generic SSI bus. Devices without the callback retain the original
@@ -932,14 +977,14 @@ by BLE controller startup, and the CO5300 accepts both
 same StopWatch image now produces the MotoNav link page while the reference
 UIFlow2 image still renders normally.
 
-`0085-atoms3-and-atoms3-lite-boards.patch` adds separate C123 AtomS3 and
+`0096-atoms3-and-atoms3-lite-boards.patch` adds separate C123 AtomS3 and
 C124 AtomS3 Lite machines after the browser recipe's 31-layer native base.
 The C123 GC9107 uses DC33/CS15 and MPU6886 on SDA38/SCL39, with no PSRAM.
 The screenless Lite reuses the physical single-button/WS2812 component on
 GPIO41/GPIO35 and the real RMT/GPIO-matrix data plane. Its nominal GPIO4
 input load does not establish analogue leakage or charge-retention accuracy.
 
-`0086-stickc-family-boards.patch` follows `0085` and registers independent
+`0097-stickc-family-boards.patch` follows `0096` and registers independent
 StickC, Plus, Plus SE and Plus2 machines with their own panel, memory and
 power topology. An optional panel power-key GPIO defaults to disabled, so
 older boards retain their PMIC key path. These two patches apply to native
@@ -948,18 +993,18 @@ to preserve its unchanged keyboard logic beside the new power-key branch.
 The recipe's locked source replay and compilation are separate from each
 exact board/firmware functional test; machine registration grants no PASS.
 
-`0087-atoms3-rgb-and-dial-board.patch` adds C123's documented GPIO35
+`0098-atoms3-rgb-and-dial-board.patch` adds C123's documented GPIO35
 WS2812 and the independent K130 Dial with GC9A01, FT3267/BM8563 and a
 GPIO41/40 quadrature encoder. Physical detents produce timed GPIO edges;
 the original guest RotaryIRQ still owns counting. RFID remains partial.
 
-`0088-classic-atom-rmt-boards.patch` adds Atom Lite, Matrix and Matrix v1.1
+`0099-classic-atom-rmt-boards.patch` adds Atom Lite, Matrix and Matrix v1.1
 with independent board/IMU identity, GPIO39 key and GPIO27 WS2812. It moves
 the native ESP32 RMT implementation out of the WASM-only context patch and
 adds FIFO/threshold interrupt acknowledgement, refill/wrap and complete-frame
 capture. The S3 RMT route remains a separate wrapper.
 
-`0089-esp32-qio-flash-model-header.patch` selects the real SSI flash model's
+`0100-esp32-qio-flash-model-header.patch` selects the real SSI flash model's
 QIOR header count: GigaDevice/Winbond use five mode/dummy bytes; ISSI uses
 three. The board configures this before realization, and the phase bridge
 applies only to flash CS0, preserving the independent PSRAM CS1 route.
@@ -967,16 +1012,16 @@ These source registrations do not inherit functional PASS between devices.
 
 ### Motion, RTC sleep and S3 Flash follow-up
 
-`0093-classic-gpio-rtc-sleep.patch` connects classic GPIO pad observation to
+`0104-classic-gpio-rtc-sleep.patch` connects classic GPIO pad observation to
 the RTC sleep/wake controller and preserves the RTC-fast memory path. Its
 controller contract and guest sleep validation remain distinct from physical
 RTC timing and power measurements.
 
-`0094-stackchan-scs-uart-wiring.patch` admits StackChan SCS bytes only through
+`0105-stackchan-scs-uart-wiring.patch` admits StackChan SCS bytes only through
 the board's UART1 TX6/RX7 GPIO matrix routes and exposes disconnected-route
 counters in the read-only QOM snapshot. It does not enable servo torque.
 
-`0095-s3-qio-flash-model-header.patch` selects the S3 SPI Flash QIOR phase for
+`0106-s3-qio-flash-model-header.patch` selects the S3 SPI Flash QIOR phase for
 the actual attached model: three serialized mode/dummy bytes for the 16 MiB
 ISSI model, five for the 2/4/8 MiB Winbond/GigaDevice models. The selection
 occurs before SPI1 realization and applies only to CS0; CS1 PSRAM and ordinary
@@ -985,7 +1030,7 @@ mixed-length TX/RX bounds. The independent Arduino NVS old/new comparison
 must establish readback and same-guest reset persistence separately from the
 controller C fixtures. See [Arduino browser behavior](../../docs/stackchan-arduino-browser.md).
 
-`0096-stackchan-scs-command-edges.patch` distinguishes a repeated torque
+`0107-stackchan-scs-command-edges.patch` distinguishes a repeated torque
 setting from a new position/time/speed command across WRITE, REG_WRITE/ACTION
 and SYNC_WRITE. Repeating EnableTorque(1) preserves an in-flight deadline;
 real torque transitions still stop or resume the held goal. It also accepts
@@ -994,7 +1039,7 @@ An intermediate inverted interval cannot drive position motion. Controller
 regressions retain both pre-fix failures; speed-only motion, PWM mechanics,
 EEPROM locking and servo ID reassignment remain outside this patch's scope.
 
-`0097-s3-soft-i2c-reset-handoff.patch` resets the ESP32-S3 GPIO I2C bridge's
+`0108-s3-soft-i2c-reset-handoff.patch` resets the ESP32-S3 GPIO I2C bridge's
 protocol and hardware-handoff state on GPIO reset. M5GFX can then repeat its
 real bit-banged discovery before the hardware controller opens again. The
 bridge ends only its own transfer and releases only its own SDA-low drive;
@@ -1004,7 +1049,7 @@ registration is unchanged. Exact-source C regressions include cold/warm
 handoff, interrupted ACK/RX, independent low sources and pre-fix controls;
 guest RESET validation remains a separately bound execution result.
 
-`0098-uart-rxfifo-reset.patch` implements the ESP32-S3 CONF0 RXFIFO_RST pulse
+`0109-uart-rxfifo-reset.patch` implements the ESP32-S3 CONF0 RXFIFO_RST pulse
 used by the real IDF UART input-flush path. It clears the hardware RX FIFO,
 cancels RX timeout/throttle state, recomputes IRQ through the existing parent
 write and notifies the character backend that input can resume. TX contents,

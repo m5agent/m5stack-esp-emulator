@@ -6,6 +6,21 @@ import {validateQemuBrowserProfiles, getQemuBrowserProfile, validateQemuFirmware
   qemuOnboardOutputQueries, validateQemuOnboardState} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 
+const s3AdcFields = [
+  [2,128,2,1], [2,149,8,0], [2,157,6,0], [2,163,6,0], [2,169,6,0],
+  [2,175,8,0], [2,183,6,0], [2,189,6,0], [2,195,6,0], [2,201,8,79],
+  [2,209,8,96], [2,217,8,66], [2,225,8,223], [2,233,8,40], [2,241,7,10],
+  [2,248,7,20], [1,186,6,15],
+];
+function efuseField(bytes, block, bitStart, bitCount) {
+  let value=0;
+  for(let bit=0;bit<bitCount;bit++){
+    const at=[0,24,48][block]*8+bitStart+bit;
+    value|=((bytes[at>>3]>>(at&7))&1)<<bit;
+  }
+  return value;
+}
+
 const registry = JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json', import.meta.url), 'utf8'));
 validateQemuBrowserProfiles(registry);
 const sortedRegistry=JSON.parse(JSON.stringify(registry,(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value));
@@ -119,7 +134,10 @@ for (const profile of registry.profiles) {
   assert.equal(args.includes('-global'), Boolean(profile.efuse));
   if (profile.efuse) {
     const offset=profile.chip==='esp32'?12:36, shift=profile.chip==='esp32'?9:21;
-    assert.equal(new DataView(buildQemuEfuse(profile).buffer).getUint32(offset,true),profile.efuse.packageVersion<<shift);
+    const efuse=buildQemuEfuse(profile);
+    assert.equal(new DataView(efuse.buffer).getUint32(offset,true),profile.efuse.packageVersion<<shift);
+    if(profile.chip==='esp32s3')for(const [block,start,bits,value] of s3AdcFields)
+      assert.equal(efuseField(efuse,block,start,bits),value,'S3 ADC calibration field mismatch');
   }
   else assert.equal(buildQemuEfuse(profile), null);
   const wrongChip = raw.slice(); new DataView(wrongChip.buffer).setUint16(profile.bootloaderOffset + 12, profile.imageChipId === 9 ? 0 : 9, true);

@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-PATCH = ROOT / 'patches/qemu-m5stack-peripherals/0088-classic-atom-rmt-boards.patch'
+PATCH = ROOT / 'patches/qemu-m5stack-peripherals/0099-classic-atom-rmt-boards.patch'
 
 
 def added_file(name):

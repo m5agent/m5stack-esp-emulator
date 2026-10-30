@@ -59,7 +59,8 @@
     "next_product_step": "Preserve the stateful SSI batch path and correlate flash-operation, cross-core/DPORT handoff, guest progress and watchdog feed on one virtual timeline; do not reduce the fix to a direct BlockBackend bypass."
   },
   "wdt_int_ena_semantics": {
-    "product_patch": "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+    "historical_attempt": "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+    "superseding_patch": "patches/qemu-m5stack-peripherals/0095-esp32-legacy-wdt-level-delivery.patch",
     "observed_register_state": {
       "INT_ENA": "0x00000000",
       "INT_RAW": "0x00000004",
@@ -84,7 +85,7 @@
         "serial_sha256": "7da630e3892e7eef7c64e7b6a119e0245488f4cea00bcc49bac9a8911cf052af"
       }
     ],
-    "classification": "The old model raised the WDT level line while INT_ENA.WDT was clear. Patch 0035 corrects that register semantic, but the same legacy firmware still enters TG0WDT_SYS_RESET. This is an independent model fix, not the root cause of RUNTIME-03."
+    "classification": "The observed register state remains valid, but the mask-gating conclusion in patch 0035 is superseded by 0095. Legacy ESP-IDF configures WDTCONFIG0.LEVEL_INT_EN without programming INT_ENA.WDT, so the WDT level must remain independent of the masked INT_ST value. The historical two controls still reset because they were run with 0035."
   },
   "crosscore_stall_diagnostic": {
     "temporary_switches": {
@@ -123,7 +124,7 @@
     "bulk_backing_store_bytes_match_ssi_stream": "PASS / diagnostic",
     "temporary_path_reaches_micropython_repl": "PASS / diagnostic",
     "temporary_path_bypasses_ssi_data_phase": "CONFIRMED",
-    "wdt_int_ena_mask_semantics": "FIXED BY 0035",
+    "wdt_int_ena_mask_semantics": "SUPERSEDED BY 0095",
     "legacy_firmware_still_resets_with_0035": "FAIL",
     "watchdog_disabled_removes_symptom": "PASS / diagnostic",
     "crosscore_handshake_completes": "NOT OBSERVED",

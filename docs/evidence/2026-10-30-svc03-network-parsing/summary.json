@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "svc03-network-parsing-boundary",
+  "validation": "platform-contract validation",
+  "status": "PASS",
+  "module": "platform/tools/device_service_network.py",
+  "moved_symbols": [
+    "parse_network_policy",
+    "parse_dns_cname_records"
+  ],
+  "public_identity": "re-exported through device_service.py",
+  "checks": {
+    "network_boundary_tests": "6/6 PASS",
+    "parser_boundary_tests": "7/7 PASS",
+    "network_focused_tests": "90/90 PASS",
+    "full_suite": "1589 run, 1588 PASS + 1 skip",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "diff_check": "PASS"
+  },
+  "boundaries": [
+    "No HTTP or network behavior change.",
+    "No session, evidence, runtime or hardware claim."
+  ]
+}

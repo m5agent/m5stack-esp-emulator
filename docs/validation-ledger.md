@@ -14,6 +14,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-10-29
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UI-02` / Cardputer-ADV 用户固件 | `Piano Tiles ADV 2.0` 完整 Flash `470aabe2…872f0a` 在最终 49-patch browser QEMU 中通过：ADC calibration 错误 `0`，240×135 原生帧全部有内容，135×240 竖屏自动旋转且无裁切，5.0126 秒墙钟对应 5.0119 秒虚拟时间。该固件发布于 M5GFX `5f8a783f` 修复前，确实上报 board 14；仅在 guest 实际执行旧矩阵扫描时启用兼容输入，Enter 保持 500ms 后画面切换、帧序号差 23。未把兼容路径称为 ADV 原生旧键盘接线或物理硬件 PASS | [范围、根因与复现](evidence/2026-10-29-cardputer-adv-user-firmware/README.md)、[机器摘要](evidence/2026-10-29-cardputer-adv-user-firmware/summary.json) |
+
 ## 2026-10-28
 
 | 工作流 | 结果 | 证据 |
@@ -1873,6 +1879,39 @@ re-export 同名对象，因此现有调用方和公开导入路径不变。
 `SVC-03` 继续 `进行中`，下一项是继续提取其余请求解析、运行参数构造和
 设备规格加载。
 
+## 2026-10-29：SVC-03 runtime boundary 与 Core2 unified stability
+
+`SVC-03` 继续按无状态边界拆分：`device_service_runtime.py` 接管
+`PRIVATE_RUNTIME_ENV`、QEMU PSRAM runtime policy、
+`runtime_psram_mismatch()` 和 `redacted_runtime_env()`；`device_service.py`
+保留 same-object re-export。新增 `test_device_service_runtime.py` 锁定
+Core2 native 8 MiB QOM policy、普通/缺失/非法 memory、mismatch payload、
+私有 runtime env 脱敏和 public symbol identity。
+
+目标 unified lease 暴露出两个 service harness 问题：
+
+- profile QOM 注入曾固定等待 20 秒，短于 Core2 的 session readiness；
+  现在跟随 `self.ready_timeout`，Core2 unified/native profiles 默认 180 秒；
+- unified external peer 在订阅后只等待 2 秒便写 GATT。慢 guest 已执行
+  Python RX handler，但 TX path 尚未稳定时，peer 会报 notification timeout。
+  共享 unified write delay 现在为 10 秒，reconnect per-cycle budget 同步
+  调整为 16 秒。
+
+正确合成的 firmware `c3eaa35b…`、matching ELF `5bec056b…`、最终 QEMU
+`568079f3…` 与当前 service hash 上，`core2-native-hci` 三个独立 lease
+均为 PASS：WiFi DHCP/HTTP、公网 DNS/HTTP、Bumble NUS discovery/subscription/
+write/`ACK:M5_CORE2_UNIFIED`、3,888-byte 同 SHA frame、32-node QOM、
+8 MiB effective PSRAM、HLI `45/45`、36 events/9 ACLs、零 errors/queues/
+drops、pcap、manifest、ZIP、stop 和清理完整。旧 QEMU `54e7a7f7…` 的同一
+10 秒 settle 也为 `3/3 PASS`，用于排除单 QEMU binary 偶然性。
+
+全量 platform 为 `1581 PASS + 1 skip`；runtime coverage、peripheral catalog、
+QEMU profiles、snapshot、Ruff `E9/F`、compileall 和 diff check 均 PASS。
+全部为 virtual-device validation；物理硬件、RF、BLE 安全/配对、bit-exact
+controller 和 Core2 legacy `RUNTIME-03` 不继承。见
+[证据](evidence/2026-10-29-svc03-runtime-boundary/README.md)和
+[机器摘要](evidence/2026-10-29-svc03-runtime-boundary/summary.json)。
+
 ## 2026-10-29：Core2 legacy handoff issuer 与 phase 归因
 
 在 `0089` 的 icount-safe PC trace 上增加 `0x40093b57` fast-read issuer 和
@@ -2004,3 +2043,207 @@ guest 或硬件 PASS。自然 PWR Worker 清理仍 PARTIAL。见
 不能把原失败归因为预算不足或宣称启动稳定性已关闭。所有测试只使用独立
 静态站端口，没有访问用户保留的服务。见
 [最终有界摘要](evidence/2026-10-29-motion-command-followup/classic-default-v7.summary.json)。
+## 2026-10-30：Core2 legacy boot budget 与 WiFi/UI wait
+
+在 public `UIFlow_Core2 v1.15.4` normalized SHA `4d2d648b…`、最终 QEMU
+`568079f3…`、matching VFS、`runtime=qemu-wifi/profile=core2-openmac` 下，
+只调整 deterministic `-icount` 与既有 per-vCPU cap。`shift=3` + `1 us`
+在 normal WDT 下于 `8.384395696/8.385523896 s` 输出 BOARD/APIKEY，
+`14.191426034-14.380873848 s` 执行原厂 boot.py；`shift=2` + `1 us`
+提前到 `4.659620404/4.660179256 s` 和 `8.340878020-8.504887849 s`。
+两者仍未进入 factory UI，frame 均为 `57580743…` 302-byte black PNG。
+默认 `shift=5` + `10 us` 保持 `17.242875841 s` normal-WDT reset 边界，
+因此 timing 控制没有作为产品配置修改。
+
+`shift=2` + `1 us` 的两个 WDT-off 控制分别在 15/20 秒停在双核 Waiti
+`0x4026306e`，serial SHA 均为
+`923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d`；
+20 秒快照的最后 Flash/cache sync 为 `9.358926093 s`，SSI/cache counter
+不再增长。FRC timer trace 仍记录到 `9.277506536 s` callback，排除全局
+timer 停止。
+
+显式 UART 诊断在 guest virtual `9.267433433 s` 捕获
+`wifiWebCfg.py:84 _thread_task -> menu/wifi.py:22 -> m5stack_ui.py:526`
+的现有等待栈。该输入只用于采样已存在的等待状态，不是产品路径。当前首
+阻断因此从 Flash handoff 改为 boot.py 后的 WiFi 配置/UI 生命周期等待；
+`RUNTIME-03`、factory UI、REPL 和非空应用帧仍 `OPEN`。全部为
+virtual-device validation，真机、RF、物理 cache/PSRAM 和电气边界 `NOT RUN`。
+见[证据](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/summary.json)。
+
+## 2026-10-30：Core2 TIMG watchdog feed rescheduling
+
+新增 `0091-esp32-timg-feed-reschedule.patch`。旧模型对每次 watchdog arm
+使用 `timer_mod_anticipate_ns()`；该 API 会保留更早的 pending deadline，
+因此 `WDTFEED` 将阶段重置到 stage 0 后，旧的 stage-1 deadline 仍可能保留。
+新实现改为 `timer_mod_ns()`，只替换 watchdog stage timer，不关闭 WDT、
+不修改 timeout/中断配置、不 warp 虚拟时钟。
+
+patch 正向/反向合同、protected-feed 和 status/CAS 回归均 PASS。同一
+public legacy 固件 SHA
+`4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4`
+的 `runtime=qemu-wifi` 8 秒虚拟时点产生 `320x240`、`3,651` nonblack pixels、
+`36` colors 的 live frame，SHA256 为
+`35aedd447284a3e812e6cd9bec3e3167559a50f2c121eb43482dcfc7ab108fcc`。
+长窗仍在约 `15.56 s` 触发 TG0 stage-1 `TG0WDT_SYS_RESET`，factory UI、
+REPL 和稳定应用帧仍未出现，所以 `RUNTIME-03` 保持 `OPEN`。全部为
+virtual-device validation；物理 watchdog/cache/PSRAM 与真机 `NOT RUN`。
+见[证据](evidence/2026-10-30-core2-timg-feed-reschedule/README.md)和
+[机器摘要](evidence/2026-10-30-core2-timg-feed-reschedule/summary.json)。
+
+## 2026-10-30：Core2 legacy menu after WiFi configuration stub
+
+在包含 classic-panel DMA 修复的 diagnostic QEMU `7d03bb18…` 上，使用
+public legacy firmware SHA `4d2d648b…` 的 VFS 诊断镜像
+`f4966a4a…`，只把 `wifiWebCfg.config_by_web` stub 为返回 true，不伪造
+panel/DMA 像素或 QOM 输入。`runtime=qemu-wifi/profile=core2-openmac`、
+`icount shift=2`、uncapped 和 WDT-off 诊断控制下，serial 到达
+BOARD/APIKEY、boot.py 与 WiFi stub marker，最终帧为 `320x240`、
+`76,760` nonblack pixels、`417` colors，SHA256
+`a4f683468cfb9edc70468efaabd23c226abbed7a3cdeaf6a397cab09c52a6078`，
+画面包含 UIFlow 标题和 App/Flow/Setup 菜单。
+
+原厂 normalized image 的专用 `wifi` 分区（offset `0xbff000`，size
+`0x1000`）为空。stub 绕过真实配置生命周期，因此这是 menu/display
+`DIAGNOSTIC_PASS`，不是原厂固件 `RUNTIME-03` PASS。剩余门禁是填充有效
+WiFi 配置、运行真实 `wifiWebCfg`/WiFi UI，并在 normal WDT 下稳定完成
+startup UI、REPL 和用户应用。全部为 virtual-device validation；RF、
+电气和物理硬件 `NOT RUN`。见
+[证据](evidence/2026-10-30-core2-wifi-stub-menu/README.md)和
+[机器摘要](evidence/2026-10-30-core2-wifi-stub-menu/summary.json)。
+
+## 2026-10-30：SVC-03 network parsing boundary
+
+继续 `SVC-03` 的无状态请求解析拆分。新增
+`platform/tools/device_service_network.py`，移动
+`parse_network_policy` 和 `parse_dns_cname_records`；`device_service.py`
+继续 re-export 同名对象，因此调用方、错误码、implicit endpoint merge 和
+bounded CNAME binding 语义不变。
+
+新增 `test_device_service_network.py` 锁定 policy/CNAME 行为及 public
+symbol identity。定向 parser `7/7`、network boundary `6/6`、network
+focused `90/90` PASS；全量平台 `1,589` 项为 `1,588 PASS + 1 skip`，
+runtime coverage、peripheral catalog、QEMU profiles、project snapshot、
+compileall 和 diff check 均 PASS。该步骤没有修改 HTTP、network sandbox、
+session state、evidence 字段或硬件路径；物理硬件、RF 和电气验证仍
+`NOT RUN`。见
+[证据](evidence/2026-10-30-svc03-network-parsing/README.md)和
+[机器摘要](evidence/2026-10-30-svc03-network-parsing/summary.json)。
+
+## 2026-10-30：Core2 legacy deviceCfg WiFi overlay
+
+Core2 `qemu-wifi` 现在识别 classic UIFlow `deviceCfg` schema、长度和
+checksum，并只把请求的 SSID/password 应用到 session-isolated Flash 的
+`config` 分区；非匹配固件的字节保持不变，事件只记录 hashed SSID、
+base/effective Flash SHA 和 password 是否提供。标准 QEMU
+`54e7a7f7…` 的 service 路径记录了 `legacy_wifi_config_applied`，并由
+原始 `4d2d648b…` 得到 effective Flash `b30f3014…`；同一 effective
+Flash 在 WDT-disabled 诊断控制下渲染真实 `Connecting to myssid` UI
+（`320x240`、`75,373` nonblack、`305` colors、PNG SHA
+`df9ba184…`）。diagnostic QEMU 的默认 WDT 控制仍到达 BOARD/APIKEY/boot
+markers 后触发 `Cache disabled but cached memory region accessed`，黑帧
+不变，因此只关闭配置/取证前置，`RUNTIME-03` 保持 OPEN（virtual-device
+validation；物理硬件、真实 cache/PSRAM、RF、DHCP 和网络连接均 `NOT RUN`）。
+见[证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-wifi-config-overlay/summary.json)。
+
+## 2026-10-30：Core2 WiFi IRQ cache handoff gate
+
+`0092` 把 DPORT 的 per-CPU instruction-cache-ready 状态接入 ESP32
+INTMATRIX，并在 cache disabled 窗口只暂存 WiFi MAC level；cache 恢复后
+保留的 level 重新驱动 CPU output，因此 IRQ 被延迟而不是丢弃。cross-core、
+timer 和 cache-illegal-access source 保持不门控，patch 不关闭 WDT、不修改
+timeout 或 warp 虚拟时钟。
+
+修复前 diagnostic QEMU `54d31e90…` 在同固件到达 BOARD/APIKEY/boot markers
+后进入 `Cache disabled but cached memory region accessed` 并保持黑帧。
+修复后 QEMU `a4cfa2b8…` 以默认 per-vCPU budget、normal WDT、`shift=2`
+再次到达 BOARD/APIKEY/boot markers，不再出现该 panic，并得到
+`320x240`、`75,559` nonblack pixels、`512` colors 的原厂 API Key 页面；
+PNG SHA256 `737df08a…`。随后仍进入 `TG0WDT_SYS_RESET`，所以只关闭 WiFi
+IRQ/cache-handoff 子问题，`RUNTIME-03` 保持 OPEN。同 patch 的 Core2
+UIFlow2 设备组 `6/6 PASS`，每例 attempts 1 且无 retry。全部为
+virtual-device validation；物理硬件、cache/PSRAM、RF 和电气测试
+`NOT RUN`。见
+[证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)和
+[机器摘要](evidence/2026-10-30-core2-wifi-irq-cache-gate/summary.json)。
+
+## 2026-10-30：Core2 classic WiFi station timing and data path
+
+`0093-esp32-classic-wifi-virtual-time.patch`（SHA256 `ecf75318…`）将
+classic ESP32 beacon、injected frame 和生成的 802.11 timestamp 从
+QEMU realtime 改为 virtual time；`0094-esp32-classic-wifi-station-data.patch`
+（SHA256 `bead73ed…`）让 `ASSOCIATED`/`STA_DHCP`/`STA_ASSOCIATED`
+station data 统一经过 Ethernet/slirp，host reply 也回到 guest station。
+Device Service 同时将 SSID/password/auth 环境传给 classic 与 S3 WiFi
+模型。
+
+最终 QEMU `3e61aa64…` 上，stock Core2 UIFlow2 WiFi probe 五轮独立首启动
+均为 PASS：scan count 为 `3`、识别 `myssid`、连接成功、DHCP 得到
+`10.0.2.15`、完成 controlled HTTP 并输出
+`CORE2_WIFI_RESULT: PASSED`。`M5SW_CLASSIC_WIFI_TRACE` 记录双向
+`host-tx`/`host-rx` 和 `STA_ASSOCIATED`，证明数据经过控制器模型而不是
+host-side fake。evidence SHA256 为 `b2559537…`。同一 binary 的 Core2
+UIFlow2 设备组 `6/6 PASS`，每例 attempts 1 且无 retry，matrix summary
+SHA256 为 `3533de10…`。
+
+同一 legacy public firmware `4d2d648b…` 在 `shift=2`、诊断 `1 us`
+per-vCPU cap、normal WDT 下到 BOARD/APIKEY/boot start/boot done，并显示
+`320x240`、`75,559` nonblack、`512` colors 的 API Key 页面；随后仍
+`TG0WDT_SYS_RESET`。同一最终 binary 的 WDT-disabled 诊断控制无复位运行到
+guest virtual `457.794095092 s`，保留 `reconnect start/finish` 和同一
+API Key 页面，说明 WiFi/UI 路径本身持续可用；该控制不是产品修复。
+因此该里程碑关闭 classic WiFi station timebase 与双向 DHCP/数据面缺口，
+`RUNTIME-03` 的 normal-WDT/startup/application 验收仍 OPEN。全部为
+virtual-device validation；物理硬件、RF、电气和物理 cache/PSRAM timing
+均 `NOT RUN`。见
+[证据](evidence/2026-10-30-core2-classic-wifi-station-time/README.md)和
+[机器摘要](evidence/2026-10-30-core2-classic-wifi-station-time/summary.json)。
+
+## 2026-10-30：SVC-03 device-spec boundary
+
+继续 `SVC-03` 的无状态边界拆分。新增
+`platform/tools/device_service_specs.py`，移动 `DeviceSpec`、
+`load_device_specs`、catalog/matrix/profile 路径、QEMU backend 路径与
+ROM override、Core2 radio 后端选择和 network/runtime profile constants；
+`device_service.py` 继续 same-object re-export，调用方、HTTP payload、
+session/evidence 字段和 QEMU 行为不变。
+
+新增 `test_device_service_specs.py` 锁定 14 个 catalog entry、Core2/Tab5/
+CardputerZero 边界、绝对/相对 backend path、Core2 radio executable
+fail-closed 和 public symbol identity。定向 `5/5 PASS`。该步骤只移动代码
+边界；QEMU、firmware、runtime、物理硬件、RF 和电气验证均 `NOT RUN/不变`。
+见[证据](evidence/2026-10-30-svc03-device-specs/README.md)和
+[机器摘要](evidence/2026-10-30-svc03-device-specs/summary.json)。
+
+## 2026-10-30：Core2 legacy WDT level delivery
+
+`0095-esp32-legacy-wdt-level-delivery.patch`（SHA256 `df008a1f…`）修正
+`0035` 对 classic ESP32 TIMG WDT level 的错误门控。公开 ESP-IDF 3.3.5
+（`03810c4a…`）的 task watchdog 设置 `WDTCONFIG0.LEVEL_INT_EN` 并通过
+`esp_intr_alloc(ETS_TG0_WDT_LEVEL_INTR_SOURCE)` 注册 ISR，但不写
+`INT_ENA.WDT`。`0095` 保留 `INT_ST = INT_RAW & INT_ENA` 和非 WDT source
+的 mask，仅让 WDT level 在 `LEVEL_INT_EN=1` 时跟随 raw status，WDT edge
+路径不变。
+
+最终 QEMU `001a9385…`、public firmware `4d2d648b…`、`runtime=qemu-wifi`、
+matching `deviceCfg` overlay、`icount shift=2`、默认 `10 us` per-vCPU
+budget 和 normal WDT 下完成三次独立 Device Service 运行，`3/3 PASS`。
+三次保留 trace 尾部分别覆盖 guest virtual `315.55-335.55 s`、
+`310.55-330.55 s`、`320.55-340.55 s`；每个相邻 stage-0 事件间隔
+`5.001124 s`。trace 中 `int_ena=00000002`、`int_raw=00000004`、
+`int_st=00000000` 时均出现 WDT level raise，随后 guest 写 `WDTFEED`
+并以 `INT_CLR=00000004` 清除；原 `15.55 s` stage-1 reset 未再出现。
+三次都完成 BOARD/APIKEY/boot-start/boot-done，保持 `320x240`、
+`75,559` nonblack、`512` colors 的 API Key startup UI；其中两次完成
+reconnect，第三次完成三轮 reconnect。同一最终 QEMU 的 Core2 UIFlow2
+设备组 `6/6 PASS`，每例 attempts 1 且无 retry，summary SHA256
+`6eaa6069…`。另一 normal-WDT session 在 boot-done 后捕获真实
+`Wi-Fi Connect` / `Connecting to myssid` 页面（`75,373` nonblack、
+`306` colors、PNG SHA256 `cf7ad5ab…`），但 Ctrl-C 输入没有产生 REPL
+prompt。全部为 virtual-device validation；setup/REPL 独立交互、完整
+factory application、物理硬件、RF、电气和物理 cache/PSRAM timing 仍分别
+登记。`RUNTIME-03` 的 virtual-device stock startup 验收据此关闭；
+setup/REPL 与任意 legacy application 转 `API-01`。见
+[证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-wdt-level-delivery/summary.json)。

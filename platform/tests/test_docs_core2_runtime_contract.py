@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 import json
 import sys
@@ -428,7 +427,12 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         mask = evidence["wdt_int_ena_semantics"]
         self.assertEqual(mask["observed_register_state"]["INT_ENA"], "0x00000000")
         self.assertEqual(mask["observed_register_state"]["INT_RAW"], "0x00000004")
-        self.assertIn("not the root cause", mask["classification"])
+        self.assertEqual(
+            mask["superseding_patch"],
+            "patches/qemu-m5stack-peripherals/"
+            "0095-esp32-legacy-wdt-level-delivery.patch",
+        )
+        self.assertIn("superseded by 0095", mask["classification"])
         crosscore = evidence["crosscore_stall_diagnostic"]
         self.assertEqual(crosscore["cpu0_wait_address"], "0x3ffc7ec8")
         self.assertIn("spi_flash_op_block_func", crosscore["symbol_hint"])
@@ -452,11 +456,25 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             "+            if (s->int_ena & mask) {",
             patch,
         )
+        legacy_level = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0095-esp32-legacy-wdt-level-delivery.patch"
+        ).read_text()
+        self.assertIn(
+            "if (it == TIMG_WDT_INT && s->wdt.level_int_en)",
+            legacy_level,
+        )
+        self.assertIn("esp32_timg_int_update(s);", legacy_level)
         patches_readme = (
             ROOT / "patches/qemu-m5stack-peripherals/README.md"
         ).read_text()
         self.assertIn("0035-esp32-timg-wdt-int-ena.patch", patches_readme)
-        self.assertIn("INT_RAW & INT_ENA", patches_readme)
+        self.assertIn(
+            "0095-esp32-legacy-wdt-level-delivery.patch",
+            patches_readme,
+        )
+        self.assertIn("supersedes the WDT-level part", patches_readme)
 
         ssi_evidence = json.loads(
             (
@@ -2435,6 +2453,12 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         service = (
             ROOT / "platform/tools/device_service.py"
         ).read_text()
+        runtime = (
+            ROOT / "platform/tools/device_service_runtime.py"
+        ).read_text()
+        specs = (
+            ROOT / "platform/tools/device_service_specs.py"
+        ).read_text()
         himem_readme = (
             ROOT / "tests/firmware/core2_psram_himem/README.md"
         ).read_text()
@@ -2443,8 +2467,13 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         code_map = (DOCS / "code-map.md").read_text()
         core2_doc = (DOCS / "core2-native-hci-backend.md").read_text()
         api = (DOCS / "device-service-api.md").read_text()
-        self.assertIn('SERVICE_MEMORY_OVERRIDES = {"core2": "8"}', service)
-        self.assertIn("effective = 8", service)
+        self.assertIn(
+            'SERVICE_MEMORY_OVERRIDES = {"core2": "8"}',
+            specs,
+        )
+        self.assertIn("from device_service_specs import", service)
+        self.assertIn("from device_service_runtime import", service)
+        self.assertIn("effective = 8", runtime)
         self.assertIn("same virtual window", himem_readme.lower())
         for text in (status, backlog, code_map, core2_doc, api):
             self.assertIn("8 MiB", text)

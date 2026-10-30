@@ -14,7 +14,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PATCH = ROOT / "patches/qemu-m5stack-peripherals/0091-board-power-lifecycle.patch"
+PATCH = ROOT / "patches/qemu-m5stack-peripherals/0102-board-power-lifecycle.patch"
 
 
 def new_side(path):

@@ -13,7 +13,7 @@ import unittest
 import test_unit_flashlight_cold_pad_patch as cold
 
 BRIDGE = "hw/m5stopwatch/esp32s3_soft_i2c.c"
-PATCH = "patches/qemu-m5stack-peripherals/0097-s3-soft-i2c-reset-handoff.patch"
+PATCH = "patches/qemu-m5stack-peripherals/0108-s3-soft-i2c-reset-handoff.patch"
 FIXTURE = Path(__file__).with_name("fixtures") / "soft_i2c_reset_harness.c"
 
 

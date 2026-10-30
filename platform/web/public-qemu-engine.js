@@ -9,6 +9,7 @@ let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
 let previousOutputs;
 let encoderInputs = Promise.resolve();
 let resetEpoch = 0;
+let panelPath;
 let workersCreated = 0;
 let relocatedGlueSha256;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
@@ -205,6 +206,18 @@ async function request(op, value) {
     if (identity === previousOutputs) return {unchanged:true};
     previousOutputs = identity;
     emit('device-state', state); return {observed:true};
+  }
+  if (op === 'display') {
+    if (!panelPath) {
+      const children = await qmp('qom-list', {path:'/machine/unattached'});
+      const panel = children.find(row => row.type === 'child<m5.spi-panel>');
+      if (!panel) throw new Error('QEMU display panel is unavailable');
+      panelPath = `/machine/unattached/${panel.name}`;
+    }
+    const orientation = await qmp('qom-get', {path:panelPath, property:'logical-orientation'});
+    if (!['landscape','portrait','unknown'].includes(orientation))
+      throw new Error('QEMU display panel returned an invalid orientation');
+    return {orientation, deviceRotationDeg:orientation === 'portrait' ? -90 : 0};
   }
   if (op === 'pause') return qmp('stop');
   if (op === 'resume') return qmp('cont');

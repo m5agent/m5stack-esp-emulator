@@ -308,6 +308,24 @@ export class ModelDeviceShell {
     this.viewer.resumeRendering();
   }
 
+  focusInput() {
+    return this.viewer.focusInput();
+  }
+
+  setDeviceRotation(degrees = 0) {
+    const value = Number(degrees);
+    if (!Number.isFinite(value)) throw new TypeError('Device presentation rotation must be finite');
+    const normalized = ((value % 360) + 360) % 360;
+    if (this.presentationRotationDeg === normalized) return false;
+    this.presentationRotationDeg = normalized;
+    for (const device of this.viewer.devices) {
+      if (device.root) device.root.rotation.z = THREE.MathUtils.degToRad(normalized);
+    }
+    this.viewer.requestRender();
+    this.fitAssembly({padding:1.15,duration:0});
+    return true;
+  }
+
   showOverlay(title, detail = '') {
     this.overlayTitle.textContent = title;
     this.overlayBody.textContent = detail;

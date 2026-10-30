@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Fri, 30 Oct 2026 08:15:00 +0800
+Subject: [PATCH] esp32: deliver legacy MWDT level without INT_ENA
+
+The ESP32 WDT level output is enabled by WDTCONFIG0.LEVEL_INT_EN.
+Legacy ESP-IDF registers the TG0 task-watchdog interrupt through
+esp_intr_alloc() and configures that level bit, but does not program
+INT_ENA.WDT.  Requiring the masked status therefore leaves the task
+watchdog ISR unreachable: stage 0 sets INT_RAW.WDT, stage 1 later
+requests a system reset, and the guest never gets to feed the watchdog.
+
+Preserve INT_ST as INT_RAW & INT_ENA for register compatibility, but let
+the WDT level output follow INT_RAW while LEVEL_INT_EN is set.  Other
+timer-group sources retain their existing INT_ENA mask behavior, and the
+WDT edge path is unchanged.
+---
+diff --git a/hw/timer/esp32_timg.c b/hw/timer/esp32_timg.c
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -507,7 +507,20 @@
+ 
+ static void esp32_timg_int_update_inttype(Esp32TimgState *s, uint32_t int_st, Esp32TimgInterruptType it)
+ {
+-    if (int_st & (1 << it)) {
++    bool pending = int_st & (1 << it);
++
++    /*
++     * The ESP32 WDT level output is gated by WDTCONFIG0.LEVEL_INT_EN.
++     * Legacy ESP-IDF registers the TG0 WDT interrupt without programming
++     * INT_ENA.WDT, so requiring the masked status here suppresses its task
++     * watchdog forever.  Keep INT_ST as INT_RAW & INT_ENA while preserving
++     * the independently enabled WDT level output.
++     */
++    if (it == TIMG_WDT_INT && s->wdt.level_int_en) {
++        pending = s->int_raw & (1 << it);
++    }
++
++    if (pending) {
+         qemu_irq_raise(get_level_irq(s, it));
+     } else {
+         qemu_irq_lower(get_level_irq(s, it));
+@@ -756,11 +769,9 @@ static void esp32_timg_wdt_cb(void *opaque)
+         uint32_t mask = 1 << TIMG_WDT_INT;
+         if (ws->level_int_en) {
+             s->int_raw |= mask;
+-            if (s->int_ena & mask) {
+-                qemu_irq_raise(get_level_irq(s, TIMG_WDT_INT));
+-            }
++            esp32_timg_int_update(s);
+             xtensa_irq_diag_record(
+-                0, (s->int_ena & mask) ? "wdt-raise" : "wdt-masked",
++                0, (s->int_ena & mask) ? "wdt-raise" : "wdt-level",
+                 TIMG_WDT_INT, s->int_ena, s->int_raw, s->id
+             );
+             if (s->int_ena & mask) {
+@@ -771,9 +782,10 @@ static void esp32_timg_wdt_cb(void *opaque)
+                     ws->level_int_en, ws->edge_int_en
+                 );
+             } else {
+-                esp32_timg_trace_wdt_int(s, "masked");
++                xtensa_irq_diag_mark_wdt();
++                esp32_timg_trace_wdt_int(s, "level-raised");
+                 esp32_timg_handoff_trace_always(
+-                    s, "wdt-int-masked", s->int_ena, s->int_raw,
++                    s, "wdt-int-level-raised", s->int_ena, s->int_raw,
+                     ws->level_int_en, ws->edge_int_en
+                 );
+             }
+-- 
+2.39.5

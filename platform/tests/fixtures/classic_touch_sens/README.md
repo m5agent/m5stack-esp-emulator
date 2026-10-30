@@ -1,7 +1,7 @@
 # Classic ESP32 touch SENS contract fixture
 
 `esp32s3_sens.c` is the complete preimage of
-`0092-classic-touch-measurement.patch`, taken from the QEMU model immediately
+`0103-classic-touch-measurement.patch`, taken from the QEMU model immediately
 before that patch. Its GPL-2.0-or-later notice is retained. The fixture is source
 code for a deterministic patch regression; it contains no firmware, ROM, local
 execution evidence or device identifiers.

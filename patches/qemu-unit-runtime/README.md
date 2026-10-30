@@ -48,7 +48,7 @@ No firmware, ROM, executable or credential is added by these patches.
    `0050-esp32-spi-panel-dma-transaction.patch`, then the source-compatible
    runtime layers through `0070-esp32-uart-tx-virtual-clock.patch`, then
    `0087-unit-hard-reset-output-boundary.patch`. The exact executable order is
-   `scripts/bootstrap-unit-runtime.py::PATCHES`. This prelude's `0003`–`0006`
+   `scripts/bootstrap-unit-runtime.py::PATCHES`. This prelude's `0009`–`0012`
    forward-port the `0065/0066/0069/0070` behavior onto the Unit source stack
    without changing the preserved Core2 diagnostic patches.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
@@ -58,7 +58,7 @@ No firmware, ROM, executable or credential is added by these patches.
 all three must be applied before configuring/building. Do not apply the older
 historical board/peripheral snapshots on top of this prelude again.
 
-`0003`–`0006` are bootstrap-local forward ports of `0065`, `0066`, `0069` and
+`0009`–`0012` are bootstrap-local forward ports of `0065`, `0066`, `0069` and
 `0070`. The historical peripheral patches remain unchanged for retained Core2
 diagnostic stacks; the Unit bootstrap uses only these narrow context-compatible
 forms, so a rebuilt runtime does not depend on historical patches that are not
@@ -237,15 +237,15 @@ units. The original historical patches have not been rewritten.
 ## Local bootstrap
 
 The current product recipe is the `PATCHES` tuple in
-`scripts/bootstrap-unit-runtime.py`. Its 2026-10-29 integration retains the
-previous 37 logical layers and adds the five expanded-board layers
-`0085`–`0089`, for 42 applied patches. Historical `0065`, `0066`, `0069` and
+`scripts/bootstrap-unit-runtime.py`. Its 2026-10-30 integration retains the
+current Core2 runtime updates and adds the expanded Atom, StickC, display,
+StackChan and power-lifecycle layers. Historical `0065`, `0066`, `0069` and
 `0070` were based on a different diagnostic/Unit context and did not replay on
-the reconstructed source. Native `0003`–`0006` preserve their functional C
-changes while re-anchoring those contexts. Native `0007` applies the `0088`
-Atom board and RMT improvements after the existing `0066` implementation;
+the reconstructed source. Native `0009`–`0012` preserve their functional C
+changes while re-anchoring those contexts. Native `0013` applies the `0099`
+Atom board and RMT improvements after the existing `0010` implementation;
 it does not create the same controller, declaration, SoC call or Meson entry
-twice. Its final classic RMT source matches portable `0088` byte for byte.
+twice. Native `0014` applies the `0085` Core2 ATECC608 context change.
 
 The already-excluded historical `0071`–`0084` files are not silently added by
 this integration. Their presence in the patch directory does not make them

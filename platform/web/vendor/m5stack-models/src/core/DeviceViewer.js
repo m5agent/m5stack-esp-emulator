@@ -327,6 +327,12 @@ export class DeviceViewer extends EventEmitter {
     return this.#paused;
   }
 
+  focusInput() {
+    if (this.#disposed) return false;
+    this.renderer.domElement.focus({preventScroll: true});
+    return document.activeElement === this.renderer.domElement;
+  }
+
   #loop = (now) => {
     this.#raf = 0;
     if (this.#paused || this.#disposed) return;

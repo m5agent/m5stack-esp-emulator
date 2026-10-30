@@ -27,7 +27,6 @@ import threading
 import time
 import uuid
 import zipfile
-from dataclasses import dataclass
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -35,14 +34,12 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
-MATRIX = ROOT / "tests/uiflow2/device_matrix.json"
-PROFILES = ROOT / "platform/qemu/profiles.json"
-DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
 TEST_TOOLS = ROOT / "tests/uiflow2"
 if str(TEST_TOOLS) not in sys.path:
     sys.path.insert(0, str(TEST_TOOLS))
 
 from ble_runtime_limits import (  # noqa: E402
+    BLE_UNIFIED_WRITE_DELAY_SECONDS,
     MAX_BLE_LINGER_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
     MAX_BLE_RECONNECT_DELAY_SECONDS,
@@ -50,11 +47,54 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from device_service_errors import ServiceError  # noqa: E402
+from device_service_network import (  # noqa: E402
+    parse_dns_cname_records,
+    parse_network_policy,
+)
 from device_service_parsing import (  # noqa: E402
     _is_sha256,
     parse_capture_pcap,
     parse_int,
-    parse_size,
+    parse_size as parse_size,
+)
+from device_service_runtime import (  # noqa: E402
+    PRIVATE_RUNTIME_ENV as PRIVATE_RUNTIME_ENV,
+    qemu_runtime_memory,
+    redacted_runtime_env,
+    runtime_psram_mismatch,
+)
+from device_service_specs import (  # noqa: E402, F401
+    ATOMS3R_UNIFIED_PROFILE,
+    CARDPUTER_ADV_UNIFIED_PROFILE,
+    CORE2_BLE_PROFILE,
+    CORE2_HCI_GATT_PROFILE,
+    CORE2_NATIVE_HCI_PROFILE,
+    CORE2_NATIVE_VHCI_PROFILE,
+    CORE2_UNIFIED_PROFILE,
+    CORE2_WIFI_PROFILE,
+    CORES3_UNIFIED_PROFILE,
+    DEVICE_CATALOG,
+    EXCLUDED_DEVICES,
+    MATRIX,
+    NANOC6_HCI_BLE_PROFILE,
+    NESSO_UNIFIED_PROFILE,
+    NETWORK_PROFILES,
+    NETWORK_STATUSES,
+    PAPERCOLOR_UNIFIED_PROFILE,
+    PAPERMONO_UNIFIED_PROFILE,
+    PROFILES,
+    SERVICE_MEMORY_OVERRIDES,
+    STACKCHAN_UNIFIED_PROFILE,
+    STAMPLC_UNIFIED_PROFILE,
+    STICKS3_UNIFIED_PROFILE,
+    STICKS3_WIFI_PROFILE,
+    STOPWATCH_UNIFIED_PROFILE,
+    UNIFIED_PROFILES,
+    DeviceSpec,
+    backend_qemu_path,
+    backend_rom_dir,
+    core2_radio_qemu_path,
+    load_device_specs,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from evidence_store import (  # noqa: E402
@@ -96,6 +136,10 @@ from firmware_manifest import (  # noqa: E402
     validate_capabilities,
     validate_manifest_structure,
 )
+from legacy_device_config import (  # noqa: E402
+    LegacyDeviceConfigError,
+    apply_legacy_wifi_config,
+)
 from network_egress import (  # noqa: E402
     EgressEndpoint,
     endpoint_contains_address,
@@ -112,10 +156,6 @@ from network_policy import (  # noqa: E402
     build_sandbox_command,
     namespace_capability,
     qemu_user_netdev,
-)
-from network_sandbox import (  # noqa: E402
-    SandboxError,
-    validate_cname_record_bindings,
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
@@ -173,7 +213,6 @@ from xtensa_elf_symbols import (  # noqa: E402
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
 DEFAULT_MAX_PER_DEVICE = 8
-SERVICE_MEMORY_OVERRIDES = {"core2": "8"}
 TAB5_I2C_DEVICES = (
     "1:0x32,fill=0",
     "1:0x41,fill=0,reg=0xFE=0x54,reg=0xFF=0x49,"
@@ -202,9 +241,6 @@ audioprev audiostop audioplay audiomute volumeup volumedown mediaselect mail
 calculator computer ac_home ac_back ac_forward ac_refresh ac_bookmarks lang1
 lang2 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
 """.split())
-EXCLUDED_DEVICES = {
-    "cardputer-zero": "CardputerZero uses a separate Linux backend",
-}
 MAX_ARTIFACT_BYTES = 96 * 1024 * 1024
 MAX_ARTIFACT_CHUNK_BYTES = 8 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
@@ -241,11 +277,6 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_SPI_XFER_TRACE",
     "M5SW_LCD_TRACE",
 }
-PRIVATE_RUNTIME_ENV = frozenset({
-    "M5SW_ESPNOW_PEER_LMK",
-    "M5SW_ESPNOW_PEER_PUBLIC_MAC",
-    "M5SW_ESPNOW_PEER_PMK",
-})
 BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
@@ -294,55 +325,6 @@ DEFAULT_NETWORK_EMULATOR = (
     / ".work/esp-emu-versions/0.50.0"
     / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
 )
-NETWORK_PROFILES = {
-    "uiflow2-sticks3",
-    "esp-idf-http",
-    "esp-idf-smoke",
-    "idf-dns-udp",
-    "esp-idf-wrong-password",
-    "esp-idf-coex",
-    "generic-observe",
-}
-NETWORK_STATUSES = {
-    "validated",
-    "unverified",
-    "board-init-blocked",
-    "not-supported",
-}
-CORE2_WIFI_PROFILE = "core2-openmac"
-CORE2_BLE_PROFILE = "core2-ble-advertise"
-CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
-CORE2_UNIFIED_PROFILE = "core2-unified"
-CORE2_NATIVE_VHCI_PROFILE = "core2-native-vhci"
-CORE2_NATIVE_HCI_PROFILE = "core2-native-hci"
-NANOC6_HCI_BLE_PROFILE = "nanoc6-hci-ble"
-NESSO_UNIFIED_PROFILE = "nesso-unified"
-STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
-STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
-CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
-CARDPUTER_ADV_UNIFIED_PROFILE = "uiflow2-cardputer-adv-unified"
-STOPWATCH_UNIFIED_PROFILE = "uiflow2-stopwatch-unified"
-ATOMS3R_UNIFIED_PROFILE = "uiflow2-atoms3r-unified"
-PAPERCOLOR_UNIFIED_PROFILE = "uiflow2-papercolor-unified"
-PAPERMONO_UNIFIED_PROFILE = "uiflow2-papermono-unified"
-STACKCHAN_UNIFIED_PROFILE = "uiflow2-stackchan-unified"
-STAMPLC_UNIFIED_PROFILE = "uiflow2-stamplc-unified"
-UNIFIED_PROFILES = {
-    NANOC6_HCI_BLE_PROFILE,
-    NESSO_UNIFIED_PROFILE,
-    STICKS3_UNIFIED_PROFILE,
-    CORES3_UNIFIED_PROFILE,
-    CARDPUTER_ADV_UNIFIED_PROFILE,
-    STOPWATCH_UNIFIED_PROFILE,
-    ATOMS3R_UNIFIED_PROFILE,
-    PAPERCOLOR_UNIFIED_PROFILE,
-    PAPERMONO_UNIFIED_PROFILE,
-    STACKCHAN_UNIFIED_PROFILE,
-    STAMPLC_UNIFIED_PROFILE,
-    CORE2_UNIFIED_PROFILE,
-    CORE2_NATIVE_VHCI_PROFILE,
-    CORE2_NATIVE_HCI_PROFILE,
-}
 UNIFIED_HTTP_PORTS = {
     STICKS3_WIFI_PROFILE: 18080,
     NANOC6_HCI_BLE_PROFILE: 18090,
@@ -379,78 +361,6 @@ def controlled_http_requests_match(requests: list[dict]) -> bool:
         and item.get("host") == "qemu.test"
         for item in requests
     )
-
-
-def qemu_runtime_memory(
-    memory: str | None,
-    profile: str | None,
-    device_id: str | None = None,
-) -> dict[str, Any]:
-    """Describe the QEMU PSRAM selection without claiming physical timing."""
-    requested: int | None
-    try:
-        requested = int(memory) if memory is not None else None
-    except (TypeError, ValueError):
-        requested = None
-    native_controller = profile in {
-        CORE2_NATIVE_VHCI_PROFILE,
-        CORE2_NATIVE_HCI_PROFILE,
-    }
-    cli_requested = 0 if native_controller else requested
-    effective = cli_requested
-    effective_source = "qemu-cli-request"
-    if native_controller and device_id == "core2":
-        # The m5core2 machine resolves `-m 0` to its 8 MiB board default.
-        # QOM evidence verifies memory=8 MiB and has_psram=true.
-        effective = 8
-        effective_source = "validated-m5core2-qom"
-    if native_controller:
-        policy = "native-controller-machine-default-psram"
-    elif effective == 0:
-        policy = "qemu-no-psram"
-    elif effective is not None:
-        policy = "qemu-emulated-psram"
-    else:
-        policy = "not-configured"
-    return {
-        "requested_psram_mib": requested,
-        "cli_requested_psram_mib": cli_requested,
-        "effective_psram_mib": effective,
-        "effective_source": effective_source,
-        "policy": policy,
-        "claim": "qemu-memory-configuration-only",
-        "physical_cache_psram_timing": "NOT RUN",
-    }
-
-
-def runtime_psram_mismatch(
-    memory: str | None,
-    profile: str | None,
-    required_bytes: object,
-    device_id: str | None = None,
-) -> dict[str, Any] | None:
-    """Return a structured preflight issue for an undersized QEMU PSRAM lane."""
-    if not isinstance(required_bytes, int) or required_bytes <= 0:
-        return None
-    runtime_memory = qemu_runtime_memory(memory, profile, device_id)
-    effective_mib = runtime_memory["effective_psram_mib"]
-    if not isinstance(effective_mib, int):
-        return None
-    available_bytes = effective_mib << 20
-    if required_bytes <= available_bytes:
-        return None
-    return {
-        "code": "runtime_psram_mismatch",
-        "message": (
-            f"firmware declares {required_bytes} bytes of PSRAM; "
-            f"runtime profile provides {available_bytes}"
-        ),
-        "requirement": required_bytes,
-        "available": available_bytes,
-        "path": "target.psram_size",
-        "runtime_profile": profile,
-        "memory_policy": runtime_memory["policy"],
-    }
 
 
 CORE2_HCI_GATT_MARKERS = (
@@ -681,13 +591,6 @@ def redacted_network_config(config: dict | None) -> dict:
     return safe
 
 
-def redacted_runtime_env(runtime_env: dict[str, str] | None) -> dict[str, str]:
-    return {
-        key: "<redacted>" if key in PRIVATE_RUNTIME_ENV else value
-        for key, value in (runtime_env or {}).items()
-    }
-
-
 def qemu_station_mac(session_id: str) -> str:
     digest = hashlib.sha256(
         f"m5stack-qemu-wifi:{session_id}".encode()
@@ -717,75 +620,18 @@ def set_qemu_efuse_package(efuse: bytearray, backend: str, package: int) -> None
     if type(package) is not int or not 0 <= package <= 7:
         raise ValueError("QEMU eFuse package must be an integer from 0 to 7")
     if backend == "qemu-esp32s3":
-        offset, shift = 36, 21  # ESP32-S3 BLOCK1 PKG_VERSION, bits 119:117.
+        offset, shift = 36, 21
     elif backend == "qemu-esp32lx6":
-        offset, shift = 12, 9  # ESP32 BLOCK0 word3 package, bits 11:9.
+        offset, shift = 12, 9
     else:
         raise ValueError(f"No package eFuse encoding for backend {backend}")
     if len(efuse) < offset + 4:
         raise ValueError("QEMU eFuse fixture is too short for its package field")
-    word = int.from_bytes(efuse[offset:offset + 4], "little")
+    word = int.from_bytes(efuse[offset : offset + 4], "little")
     mask = 7 << shift
-    efuse[offset:offset + 4] = ((word & ~mask) | (package << shift)).to_bytes(4, "little")
-
-
-def parse_network_policy(
-    value: Any,
-    *,
-    implicit_endpoints: tuple[EgressEndpoint, ...] = (),
-) -> NetworkPolicy:
-    try:
-        policy = NetworkPolicy.from_mapping(value)
-        if policy.egress == "allowlist" and implicit_endpoints:
-            policy = policy.with_allowed_endpoints(implicit_endpoints)
-        if policy.dns == "controlled" and not policy.allowed_endpoints:
-            raise NetworkPolicyError(
-                "dns=controlled requires at least one allowed endpoint"
-            )
-        return policy
-    except NetworkPolicyError as error:
-        raise ServiceError(
-            "invalid_network_policy",
-            str(error),
-            400,
-        ) from error
-
-
-def parse_dns_cname_records(
-    value: Any,
-    policy: NetworkPolicy,
-) -> dict[str, str]:
-    if value is None:
-        return {}
-    if not isinstance(value, dict):
-        raise ServiceError(
-            "invalid_network",
-            "network.cname_records must be an object",
-            400,
-        )
-    if value and (
-        policy.egress != "allowlist"
-        or policy.dns != "controlled"
-    ):
-        raise ServiceError(
-            "invalid_network",
-            "network.cname_records requires egress=allowlist and "
-            "dns=controlled",
-            400,
-        )
-    try:
-        return validate_cname_record_bindings(
-            value,
-            policy.allowed_hosts,
-            policy.allowed_hosts,
-            policy.allowed_domains,
-        )
-    except SandboxError as error:
-        raise ServiceError(
-            "invalid_network",
-            str(error),
-            400,
-        ) from error
+    efuse[offset : offset + 4] = (
+        (word & ~mask) | (package << shift)
+    ).to_bytes(4, "little")
 
 
 def require_allowlist_http_fixture(
@@ -1121,6 +967,25 @@ def parse_qemu_wifi_security(value: dict) -> dict:
     }
 
 
+def apply_qemu_wifi_environment(
+    env: dict[str, str],
+    nic: str | None,
+    network_config: dict,
+) -> None:
+    if nic not in {"misc.esp32_wifi", "misc.esp32s3.wifi"}:
+        return
+    auth = str(network_config.get("wifi_auth", "open"))
+    env["M5SW_WIFI_SSID"] = str(
+        network_config.get("wifi_ssid", "myssid")
+    )
+    env["M5SW_WIFI_PASSWORD"] = str(
+        network_config.get("wifi_password", "")
+    )
+    env["M5SW_WIFI_AUTH"] = auth
+    if nic == "misc.esp32s3.wifi" and auth == "wpa2-psk":
+        env["M5SW_S3_WIFI_TRACE"] = "1"
+
+
 def parse_network_execution(
     spec: DeviceSpec,
     value: Any,
@@ -1404,27 +1269,6 @@ def parse_network_execution(
         "i2c_devices": i2c_devices,
         "capture_pcap": False,
     }
-
-
-def core2_radio_qemu_path() -> Path:
-    raw_path = os.environ.get("M5_CORE2_RADIO_QEMU") or os.environ.get(
-        "M5_CORE2_WIFI_QEMU"
-    )
-    if not raw_path:
-        raise ServiceError(
-            "qemu_wifi_backend_unavailable",
-            "M5_CORE2_RADIO_QEMU must point to a QEMU build with "
-            "classic ESP32 WiFi/BT support",
-            503,
-        )
-    path = Path(raw_path)
-    if not path.is_file() or not os.access(path, os.X_OK):
-        raise ServiceError(
-            "qemu_wifi_backend_unavailable",
-            "Core2 radio QEMU does not point to an executable file",
-            503,
-        )
-    return path
 
 
 def native_vhci_gdb_path() -> Path:
@@ -1900,281 +1744,6 @@ class SessionCancelled(ServiceError):
         super().__init__("session_stopping", "session stop was requested", 409)
 
 
-@dataclass(frozen=True)
-class DeviceSpec:
-    id: str
-    name: str
-    group: str
-    soc: str
-    sku: str
-    device_codes: list[str]
-    backend: str
-    machine: str
-    flash_size: int
-    display: dict | None
-    peripherals: list[str]
-    reference_path: Path | None
-    qemu: Path
-    rom_dir: Path
-    efuse_driver: str | None
-    memory: str | None
-    env: dict[str, str]
-    mode: str
-    expected_size: tuple[int, int] | None
-    supported: bool
-    flash_emulator: Path | None
-    service_kind: str
-    emulator: Path | None
-    elf: Path | None
-    rom: Path | None
-    efuse: Path | None
-    c6_firmware: Path | None
-    peripheral_status: str
-    network_chip: str | None
-    network_profiles: list[str]
-    network_console: str
-    network_status: str
-    warnings: list[str]
-    state_probes: dict[str, dict[str, Any]]
-    reason: str | None
-
-    @property
-    def has_display(self) -> bool:
-        display = self.display or {}
-        return bool(display.get("width") and display.get("height"))
-
-    @property
-    def has_sd_card(self) -> bool:
-        return "sd" in self.peripherals
-
-    @property
-    def reference_available(self) -> bool:
-        return bool(self.reference_path and self.reference_path.is_file())
-
-    @property
-    def backend_ready(self) -> bool:
-        if self.service_kind == "tab5":
-            return all(
-                path is not None and path.is_file()
-                for path in (
-                    self.emulator,
-                    self.rom,
-                    self.efuse,
-                    self.c6_firmware,
-                    self.reference_path,
-                )
-            )
-        return (
-            self.qemu.is_file()
-            and self.rom_dir.is_dir()
-            and (self.flash_emulator is None or self.flash_emulator.is_file())
-        )
-
-    @property
-    def missing_backend_files(self) -> list[Path]:
-        if self.service_kind == "tab5":
-            return [
-                path
-                for path in (
-                    self.emulator,
-                    self.rom,
-                    self.efuse,
-                    self.c6_firmware,
-                    self.reference_path,
-                )
-                if path is not None and not path.is_file()
-            ]
-        missing = []
-        if not self.qemu.is_file():
-            missing.append(self.qemu)
-        if not self.rom_dir.is_dir():
-            missing.append(self.rom_dir)
-        if self.flash_emulator is not None and not self.flash_emulator.is_file():
-            missing.append(self.flash_emulator)
-        return missing
-
-
-def load_device_specs() -> dict[str, DeviceSpec]:
-    matrix = json.loads(MATRIX.read_text())
-    profiles = json.loads(PROFILES.read_text())
-    catalog_source = json.loads(DEVICE_CATALOG.read_text())
-    profiles_by_id = {row["id"]: row for row in profiles["devices"]}
-    source_by_id = {row["id"]: row for row in catalog_source["devices"]}
-    specs = {}
-    for row in matrix["devices"]:
-        device_id = row["id"]
-        backend = matrix["backends"].get(row["backend"], {})
-        profile = profiles_by_id.get(device_id, {})
-        source = source_by_id.get(device_id, {})
-        uiflow_source = source.get("uiflow2") or {}
-        excluded_reason = EXCLUDED_DEVICES.get(device_id)
-        reference = ROOT / row["base"] if row.get("base") else None
-        if device_id == "tab5":
-            supported = True
-            service_kind = "tab5"
-            qemu = ROOT / "__missing_qemu__"
-            rom_dir = ROOT / "__missing_rom__"
-            emulator = ROOT / row["emulator"]
-            elf = ROOT / row["elf"]
-            rom = ROOT / row["rom"]
-            efuse = ROOT / row["efuse"]
-            c6_firmware = ROOT / row["c6_firmware"]
-            flash_emulator = emulator
-            network_chip = None
-            network_profiles: list[str] = []
-            network_console = "auto"
-            network_status = "not-supported"
-            reason = None
-        else:
-            supported = (
-                excluded_reason is None
-                and bool(backend)
-                and row["backend"].startswith("qemu-esp32")
-                and row["mode"] in {"ui", "console"}
-            )
-            service_kind = "qemu"
-            qemu = (
-                backend_qemu_path(row["backend"], backend["qemu"])
-                if backend.get("qemu")
-                else ROOT / "__missing_qemu__"
-            )
-            rom_dir = (
-                backend_rom_dir(row["backend"], backend["rom_dir"])
-                if backend.get("rom_dir")
-                else ROOT / "__missing_rom__"
-            )
-            emulator = None
-            elf = None
-            rom = None
-            efuse = None
-            c6_firmware = None
-            flash_emulator = None
-            if backend.get("esp_emu_chip"):
-                configured_emulator = os.environ.get("M5_SERVICE_ESP_EMU", "").strip()
-                flash_emulator = Path(configured_emulator) if configured_emulator else ROOT / ".work/bin/esp-emu"
-                if not flash_emulator.is_absolute():
-                    flash_emulator = ROOT / flash_emulator
-            network_chip = backend.get("esp_emu_chip")
-            network_console = row.get("network_console", "auto")
-            network_status = (
-                row.get("network_status", "unverified")
-                if network_chip
-                else "not-supported"
-            )
-            if network_status not in NETWORK_STATUSES:
-                raise ServiceError(
-                    "invalid_network_status",
-                    f"{device_id} has invalid network_status {network_status!r}",
-                    500,
-                )
-            network_profiles = (
-                sorted(NETWORK_PROFILES - {"uiflow2-sticks3"})
-                if network_chip
-                else []
-            )
-            if device_id == "sticks3" and network_chip:
-                network_profiles.insert(0, STICKS3_WIFI_PROFILE)
-                network_profiles.insert(0, "uiflow2-sticks3")
-                network_profiles.insert(0, STICKS3_UNIFIED_PROFILE)
-            if device_id == "cores3" and network_chip:
-                network_profiles.insert(0, CORES3_UNIFIED_PROFILE)
-            if device_id == "cardputer-adv" and network_chip:
-                network_profiles.insert(0, CARDPUTER_ADV_UNIFIED_PROFILE)
-            if device_id == "stopwatch" and network_chip:
-                network_profiles.insert(0, STOPWATCH_UNIFIED_PROFILE)
-            if device_id == "atoms3r" and network_chip:
-                network_profiles.insert(0, ATOMS3R_UNIFIED_PROFILE)
-            if device_id == "papercolor" and network_chip:
-                network_profiles.insert(0, PAPERCOLOR_UNIFIED_PROFILE)
-            if device_id == "papermono" and network_chip:
-                network_profiles.insert(0, PAPERMONO_UNIFIED_PROFILE)
-            if device_id == "stackchan" and network_chip:
-                network_profiles.insert(0, STACKCHAN_UNIFIED_PROFILE)
-            if device_id == "stamplc" and network_chip:
-                network_profiles.insert(0, STAMPLC_UNIFIED_PROFILE)
-            if device_id == "nanoc6" and network_chip:
-                network_profiles.insert(0, NANOC6_HCI_BLE_PROFILE)
-            if device_id == "nesso-n1" and network_chip:
-                network_profiles.insert(0, NESSO_UNIFIED_PROFILE)
-            if (
-                device_id == "core2"
-                and (
-                    os.environ.get("M5_CORE2_RADIO_QEMU")
-                    or os.environ.get("M5_CORE2_WIFI_QEMU")
-                )
-            ):
-                core2_radio_qemu_path()
-                network_profiles = [
-                    CORE2_NATIVE_HCI_PROFILE,
-                    CORE2_NATIVE_VHCI_PROFILE,
-                    CORE2_UNIFIED_PROFILE,
-                    CORE2_WIFI_PROFILE,
-                    CORE2_BLE_PROFILE,
-                    CORE2_HCI_GATT_PROFILE,
-                ]
-                network_status = "validated"
-            reason = excluded_reason
-            if not backend and reason is None:
-                reason = (
-                    f"backend {row['backend']} is not registered for service execution"
-                )
-            if not supported and reason is None:
-                reason = f"backend mode {row.get('mode')} is not enabled for this service"
-        specs[device_id] = DeviceSpec(
-            id=device_id,
-            name=profile.get("name", device_id),
-            group=profile.get("group", ""),
-            soc=profile.get("soc", ""),
-            sku=source.get("sku", ""),
-            device_codes=(
-                [source["uiflow2"]["firmware"]["firmware_id"]]
-                if (uiflow_source.get("firmware") or {}).get("firmware_id")
-                else []
-            ),
-            backend=row["backend"],
-            machine=row.get("machine", ""),
-            flash_size=(
-                16 << 20
-                if device_id == "tab5"
-                else int(row.get("flash_size", "0"), 0)
-            ),
-            display=profile.get("display"),
-            peripherals=list(profile.get("peripherals", [])),
-            reference_path=reference,
-            qemu=qemu,
-            rom_dir=rom_dir,
-            efuse_driver=row.get("efuse_driver", backend.get("efuse_driver")),
-            memory=SERVICE_MEMORY_OVERRIDES.get(device_id, row.get("memory")),
-            env=row.get("env", {}),
-            mode=row["mode"],
-            expected_size=parse_size(row.get("expected_size")),
-            supported=supported,
-            flash_emulator=flash_emulator,
-            service_kind=service_kind,
-            emulator=emulator,
-            elf=elf,
-            rom=rom,
-            efuse=efuse,
-            c6_firmware=c6_firmware,
-            peripheral_status=profile.get(
-                "peripheral_status",
-                "simulated" if supported else "not-applicable",
-            ),
-            network_chip=network_chip,
-            network_profiles=network_profiles,
-            network_console=network_console,
-            network_status=network_status,
-            warnings=list(profile.get("blockers", [])),
-            state_probes=(
-                profile.get("runtime_state", {})
-                if isinstance(profile.get("runtime_state", {}), dict)
-                else {}
-            ),
-            reason=reason,
-        )
-    return specs
-
-
 class ArtifactStore:
     """Content-addressed binary artifacts used by firmware manifests."""
 
@@ -2605,28 +2174,6 @@ class ArtifactStore:
             self._data(artifact_id).unlink(missing_ok=True)
             self._meta(artifact_id).unlink(missing_ok=True)
         return {"artifact_id": artifact_id, "deleted": True, "record": record}
-
-
-def backend_qemu_path(backend_id: str, configured: str) -> Path:
-    override_name = {
-        "qemu-esp32s3": "M5_QEMU_XTENSA",
-        "qemu-esp32lx6": "M5_QEMU_XTENSA",
-        "qemu-esp32c6": "M5_QEMU_RISCV32",
-    }.get(backend_id)
-    raw = os.environ.get(override_name, "").strip() if override_name else ""
-    path = Path(raw) if raw else ROOT / configured
-    return path if path.is_absolute() else ROOT / path
-
-
-def backend_rom_dir(backend_id: str, configured: str) -> Path:
-    override_name = {
-        "qemu-esp32s3": "M5_QEMU_XTENSA_ROM_DIR",
-        "qemu-esp32lx6": "M5_QEMU_XTENSA_ROM_DIR",
-        "qemu-esp32c6": "M5_QEMU_RISCV32_ROM_DIR",
-    }.get(backend_id)
-    raw = os.environ.get(override_name, "").strip() if override_name else ""
-    path = Path(raw) if raw else ROOT / configured
-    return path if path.is_absolute() else ROOT / path
 
 
 class FirmwareStore:
@@ -3153,8 +2700,13 @@ def default_session_ready_timeout(
 ) -> float:
     profile = (network_config or {}).get("profile")
     if profile in {
-        CORE2_HCI_GATT_PROFILE,
+        CORE2_UNIFIED_PROFILE,
         CORE2_NATIVE_VHCI_PROFILE,
+        CORE2_NATIVE_HCI_PROFILE,
+    }:
+        return 180.0
+    if profile in {
+        CORE2_HCI_GATT_PROFILE,
         NANOC6_HCI_BLE_PROFILE,
         NESSO_UNIFIED_PROFILE,
         *UNIFIED_PROFILES,
@@ -5248,6 +4800,7 @@ class DeviceSession:
                     self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
                 self._check_cancelled()
+            self._apply_legacy_wifi_config()
             self._apply_nvs_fixture()
             self._check_cancelled()
             try:
@@ -5319,6 +4872,39 @@ class DeviceSession:
                         )
         if last_error is not None:
             raise last_error
+
+    def _apply_legacy_wifi_config(self) -> None:
+        if (
+            self.runtime != QEMU_WIFI_RUNTIME
+            or self.spec.id != "core2"
+            or self.virtual_flash is None
+        ):
+            return
+        try:
+            info = apply_legacy_wifi_config(
+                self.virtual_flash,
+                flash_size=self.spec.flash_size,
+                ssid=str(self.network_config.get("wifi_ssid", "myssid")),
+                password=str(self.network_config.get("wifi_password", "")),
+            )
+        except LegacyDeviceConfigError as error:
+            raise ServiceError(
+                "legacy_wifi_config_invalid",
+                str(error),
+                409,
+            ) from error
+        if info is None:
+            return
+        effective_sha256 = hashlib.sha256(
+            self.virtual_flash.read_bytes()
+        ).hexdigest()
+        self.flash_info = {
+            **(self.flash_info or {}),
+            "base_flash_sha256": self.firmware_sha,
+            "effective_flash_sha256": effective_sha256,
+            "legacy_wifi_config": info,
+        }
+        self._record_event("legacy_wifi_config_applied", **info)
 
     def _wait_hci_probe_result(self, timeout: float) -> None:
         # Reconnect workloads can legitimately exceed the legacy 30-second
@@ -5423,7 +5009,11 @@ class DeviceSession:
                 else "25"
             ),
             "--write-delay",
-            "2" if extended_exchange else "1",
+            (
+                str(int(BLE_UNIFIED_WRITE_DELAY_SECONDS))
+                if extended_exchange
+                else "1"
+            ),
             "--linger",
             str(
                 self.network_config.get(
@@ -5824,7 +5414,7 @@ class DeviceSession:
         setup: tuple[tuple[str, str, Any], ...],
         pause: bool = True,
     ) -> None:
-        deadline = time.time() + 20
+        deadline = time.time() + max(0.1, self.ready_timeout)
         while time.time() < deadline:
             self._check_cancelled()
             serial = (
@@ -5972,11 +5562,11 @@ class DeviceSession:
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
         efuse_data = bytearray(4096)
-        # The device matrix declares the exact package of this board. Classic
-        # ESP32 and ESP32-S3 store this field in different eFuse blocks.
+        # Classic ESP32 and ESP32-S3 store PKG_VERSION in different eFuse blocks.
         if "efuse_pkg_version" in self.service.raw_device(self.spec.id):
             set_qemu_efuse_package(
-                efuse_data, self.spec.backend,
+                efuse_data,
+                self.spec.backend,
                 self.service.raw_device(self.spec.id)["efuse_pkg_version"],
             )
         espnow_peer_lane = (
@@ -6116,7 +5706,6 @@ class DeviceSession:
             ]
         if self.spec.backend == "qemu-esp32lx6":
             # Classic LX6 boards share the dual-core CPU/controller clock.
-            # Use the same deterministic clock as the existing Core2 path.
             command.extend(core2_accel_args())
         if self.storage_config:
             if not self.sd_card_image.is_file():
@@ -6279,18 +5868,11 @@ class DeviceSession:
                 "schema_version": 1, "attachments": self.units,
             })
             env["M5_UNIT_CONFIG"] = str(self.unit_config_path)
-        if nic == "misc.esp32s3.wifi":
-            env["M5SW_WIFI_SSID"] = str(
-                self.network_config.get("wifi_ssid", "myssid")
-            )
-            env["M5SW_WIFI_PASSWORD"] = str(
-                self.network_config.get("wifi_password", "")
-            )
-            env["M5SW_WIFI_AUTH"] = str(
-                self.network_config.get("wifi_auth", "open")
-            )
-            if self.network_config.get("wifi_auth") == "wpa2-psk":
-                env["M5SW_S3_WIFI_TRACE"] = "1"
+        apply_qemu_wifi_environment(
+            env,
+            nic,
+            self.network_config,
+        )
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)

@@ -1645,6 +1645,16 @@ the fixed test AP `myssid` and QEMU user networking. Core2 radio QEMU uses
 deterministic `tcg,thread=single,tb-size=128` plus `icount` scheduling; `attempts` remains
 a diagnostic retry setting, but retries are not used as evidence that a failed
 first attempt was repaired.
+For a Core2 `qemu-wifi` session, the service also recognizes the classic
+UIFlow `deviceCfg` document in the firmware's `config` partition. When the
+partition label/type, JSON schema, length prefix and checksum all match, the
+request's `wifi_ssid` and `wifi_password` are applied only to the
+session-isolated Flash copy before QEMU starts. The session records the base
+and effective Flash SHA, `legacy_wifi_config_applied`, the partition
+offset/size and hashed SSID; it does not expose the raw password. Firmware
+without that exact schema remains byte-for-byte unchanged. This fixture makes
+the guest's normal legacy `wifiCfg.auto_connect` path reachable; it does not
+bypass guest WiFi code or broaden the RF/protocol claim.
 The input must already be a complete, flash-sized merged image. The service
 validates its SHA256, bootloader, partition table, app partitions and ESP32 chip
 ID, then mounts that exact copy as the QEMU MTD drive without invoking esptool.
@@ -1759,7 +1769,7 @@ UART1 instance:
 {
   "device_id": "core2",
   "runtime": "qemu-unified",
-  "ready_timeout_seconds": 90,
+  "ready_timeout_seconds": 180,
   "network": {
     "profile": "core2-unified",
     "attempts": 3
@@ -1786,7 +1796,7 @@ The preferred stock-firmware path is `core2-native-hci`:
 {
   "device_id": "core2",
   "runtime": "qemu-unified",
-  "ready_timeout_seconds": 120,
+  "ready_timeout_seconds": 180,
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",

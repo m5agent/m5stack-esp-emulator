@@ -18,7 +18,7 @@ import test_unit_flashlight_cold_pad_patch as cold
 ROOT = Path(__file__).resolve().parents[2]
 SEEDS = Path(__file__).with_name("fixtures") / "uart_rxfifo_reset_upstream"
 FIXTURE = Path(__file__).with_name("fixtures") / "uart_rxfifo_reset_harness.c"
-PATCH = "patches/qemu-m5stack-peripherals/0098-uart-rxfifo-reset.patch"
+PATCH = "patches/qemu-m5stack-peripherals/0109-uart-rxfifo-reset.patch"
 PIN = "40edccac415693c5130f91c01d84176ae6008566"
 PARENT = "hw/char/esp32_uart.c"
 S3 = "hw/char/esp32s3_uart.c"

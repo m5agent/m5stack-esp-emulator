@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-10-30`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
@@ -50,13 +50,14 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 
 `0088` 的同 binary A/B 进一步证明单线程 RR 的 100 ms quantum 会把跨核 spin 放大：5 秒 WDT-off 的 CAS/contended/episode time 从 `1,070,625/984,964/2.240 s` 降到 `91,465/2,702/1.018 s`，SSI 工作近似不变；但 normal-WDT 仍在 `17.248 s` TG0 stage-1 reset。exact legacy ELF/MAP 与启动生命周期仍未闭环，`RUNTIME-03` 保持 `OPEN`，见[episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和[scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
 三次同 SHA、同 QEMU 的 `17.2 s` normal-WDT bounded-stack freeze 均把 CPU0 稳定定位到 `spi_flash_op_block_func` 等待循环，CPU1 则在 IPC、队列和调度路径间变化；BIN 控制流与 public IDF source shape 匹配，但没有 exact legacy ELF/MAP。`0089` 修复 PC trace 的 `Bad icount read`；两次 normal-WDT 运行在 reset 前记录 `12.6k` 次正常 handoff，CPU0 wait 约 `57%` 预算、单次最大 `<6.8 ms`。issuer 关联又证明“零 Flash 命令”的 handoff 仍有约 `0.89 ms` 成本，而 initiator IPC 往返 source shape 独占约 `0.616 ms`；`100 us` RR 和临时 immediate-yield 均无改善。`0090` 将 deterministic `-icount` 的双 vCPU budget 默认限制为 `10 us`，同 trace A/B 显著降低 CPU1 initiator 的 `can_start→IPC return` 和 peer block wait，Core2 UIFlow2 设备组回归保持 PASS。但最终 normal-WDT 仍在 `17.2429 s` reset，未到 `BOARD NAME`/`APIKEY`/REPL，302-byte 黑帧不变；这证明跨核调度延迟是可修的放大器而非完整启动根因，`RUNTIME-03` 仍 `OPEN`，见[per-vCPU budget 证据](evidence/2026-10-29-core2-icount-percpu-budget/README.md)。
+最后的 normal-WDT 阻断由 `0095-esp32-legacy-wdt-level-delivery.patch` 关闭：legacy ESP-IDF 3.3.5 的 task watchdog 设置 `WDTCONFIG0.LEVEL_INT_EN` 并通过 `esp_intr_alloc` 注册 TG0 WDT interrupt，但不写 `INT_ENA.WDT`；历史 `0035` 把 WDT level 错按普通 masked-status 门控，导致 stage-0 ISR 不可达。`0095` 保留 `INT_ST` 和非 WDT source 的 mask 语义，只让 WDT level 在 `LEVEL_INT_EN=1` 时跟随 `INT_RAW.WDT`。同一 public SHA、`runtime=qemu-wifi`、真实 session Flash/WiFi 路径、默认 `10 us` per-vCPU budget 和 normal WDT 的三次 Device Service 运行均越过原 `15.55 s` reset，完成 BOARD/APIKEY/boot-start/boot-done、至少一轮 reconnect 生命周期，并稳定运行到 guest virtual `300 s` 以上；原厂 API Key startup UI 保持非空，Core2 UIFlow2 设备组通过。另一次同路径运行进入真实 `Wi-Fi Connect` / `Connecting to myssid` 页面；Ctrl-C 没有产生 REPL prompt。见[WDT level delivery 证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)。
 
 ## 本轮目标盘点
 
 | 目标 | 已经落地 | 当前缺口 | 结论 |
 | --- | --- | --- | --- |
 | 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU 和 claim response-loss idempotency | `NET-04` 的物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
-| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发和 legacy dual-SPI panel routing | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy startup UI 与 normal-WDT 仍未完成，probe 非空帧不等于原厂应用帧 | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
+| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发、legacy dual-SPI panel routing 和 normal-WDT startup | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；setup/REPL 与完整 factory application 转入 `API-01`，probe 非空帧不等于任意应用 | 功能级路径和 legacy startup 已可用，物理/controller 等价性仍 `OPEN` |
 | FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学、aggregate/image/eFuse understatement/key mismatch/secure-version rollback fail closed，以及 Device Service `1.51.0` operator runtime ACL | guest filesystem ACL、完整许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入、静态审查和 service runtime policy 可用；guest 运行态安全、trust root 和通用兼容性仍为 `PILOT` |
 
 这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
@@ -71,8 +72,8 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
 同一固件随后由 TG0 stage-1 触发 watchdog system reset，仍没有非空应用帧，
-因此 `RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C
-routing 解释首个失败点。
+这是 `0095` 之前的阶段。当前 `RUNTIME-03` stock startup 已关闭，PMIC
+寄存器或 I2C routing 也不再解释首个失败点。
 
 TIMG watchdog trace 已证明默认单会话能够持续喂狗，而并发 lease 或显式
 accelerator 对照会在不同 CPU/PC 触发 interrupt-WDT；这些结果已排除了把问题
@@ -98,10 +99,7 @@ TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
 
 继续对照后又确认两个独立模型事实：
 
-- TIMG 旧模型在 `INT_ENA.WDT=0` 时仍抬高 WDT level IRQ，与
-  `INT_RAW & INT_ENA` 的 masked-status 语义不符；`0035` 只修正该寄存器
-  语义。修复后同一 legacy 固件仍进入 `TG0WDT_SYS_RESET` 和 reset PC
-  `0`，所以它不能关闭 `RUNTIME-03`；
+- TIMG 的 WDT level 输出与普通 `INT_ST` 不同：legacy ESP-IDF 3.3.5 task watchdog 只设置 `WDTCONFIG0.LEVEL_INT_EN`，不写 `INT_ENA.WDT`。`0035` 按 masked status 门控 level 的历史假设因此错误；`0095` 保留 `INT_ST = INT_RAW & INT_ENA`，只修正 WDT level delivery。最终三次 normal-WDT service 运行均越过原 stage-1 reset 并稳定到 guest virtual `300 s` 以上；
 - legacy 启动期的 QIO Flash 扫描是明显的逐字节 SSI 成本热点。临时
   `blk_pread` 诊断路径在抽样 cache line 上与后续 SSI 数据流逐字节一致，
   但该路径绕过 SSI 数据阶段；先前一次到达 `Performing initial setup`、
@@ -178,17 +176,17 @@ TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   首 reset。因此后续问题已经从“未知 late object”收敛到 display
   flush -> SPI interrupt -> completion 链。
 
-当前工作假设是 legacy 应用先经历约 44 秒的大量 Flash/cache handoff，随后
-进入 LVGL 双缓冲 flush completion wait；TG1 feed 并非当前配置下的停摆点。
-高频采样下
-的固定 UART/VM PC 簇不再成立；“单次 cache restore 未返回”被
-`0039/0040` 否定；历史 `800 ms` TG1 gap 在三次当前配置中为
-`NOT_REPRODUCED`，不能继续作为首要根因。下一步是确认 SPI interrupt
-在 guest intmatrix/ISR 中的实际投递和 queue/status 更新，直到
-`0x40174884` 完成 callback 与 `lv_disp_flush_ready()` 可观测。
-v1.15.4 ELF/MAP 仍可并行取得，但不再是理解该 loop 的必要条件。
-精确批次、通过率、
-artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
+2026-10-30 的 deterministic `-icount` timing sweep 把当前首失败点继续向后推进：
+`shift=2` + `1 us` fairness cap 在 normal WDT 下于 `4.66 s` 输出
+BOARD/APIKEY、在 `8.50 s` 执行完 matching 原厂 `/flash/boot.py`；但
+`shift=3`/`shift=2` 的 `1 us` 控制都没有产生启动 UI。WDT-off 15/20 秒两份结果都停在双核 Waiti，
+最后一次 Flash/cache 同步在 `9.36 s`，而 FRC timer 仍继续回调，因此“无终点 Flash scan”和“全部 timer 停止”都不再支持。
+显式 UART 诊断在 guest virtual `9.27 s` 捕获到
+`wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`；
+当前下一阻断是 boot.py 之后的 WiFi 配置/UI 线程等待，随后才是 display
+flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复。
+`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset。Core2 `qemu-wifi` 随后增加严格的 legacy `deviceCfg` overlay，只更新 session Flash 副本并记录 hashed SSID/base/effective SHA。`0092` 再把 per-CPU instruction-cache-ready 状态送入 INTMATRIX，在 cache disabled 窗口暂存并恢复后重放 WiFi MAC level；同一原厂固件在默认 budget/normal WDT 下不再出现 cache-disabled panic，boot markers 后渲染 API Key 页面，但随后仍进入 TG0 WDT reset。`0093/0094` 又把 classic WiFi beacon/inject/timestamp 固定到 virtual time，并让 station DHCP 与双向 host 数据走正常 slirp 路径；stock Core2 WiFi scan→association→DHCP→HTTP 多轮首启动均 PASS、获得 `10.0.2.15`，Device Service 也开始把 SSID/password/auth 同时传给 classic 与 S3 NIC。legacy normal-WDT 仍复位，剩余 blocker 是 normal-WDT 生命周期、setup/REPL 和完整应用帧；`RUNTIME-03` 仍 `OPEN`，见[legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)、[WiFi IRQ cache gate 证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)和[classic WiFi station 证据](evidence/2026-10-30-core2-classic-wifi-station-time/README.md)。
+精确批次、通过率、artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
@@ -347,13 +345,13 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、exact-time state sweep、LVGL wait、UART virtual-clock、pre-boot phase、SSI transaction profile、command correlation 和 command issuer PC 已验证；`0065` 五轮关闭调度诱导双 PC deadlock，`0066` 越过 Neopixel RMT 初始化错误，`0071/0072` 确认 `0xBB/64 → 0x05/1` 循环且 `82.4%` gap 位于下一次 status read 前，`0073` 将主要 issuer 绑定到 ROM `0x4006222c` 与应用 segment 5 `0x40093b57` | 保持 `0065/0066/0071-0073` 回归，在 transaction-bound gap 内结合 matching symbols、IRQ delivery、cache/MMU 和 PC 路径解释 pre-BOARD/APIKEY 工作预算；随后证明 setup/REPL、startup UI、display completion 和非空帧 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、立即切核或 accelerator 都不能继承为 legacy PASS |
+| `RUNTIME-03` Core2 legacy startup（已完成 virtual-device） | shared I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、classic WiFi、normal-WDT startup、API Key startup UI 与真实 Wi-Fi Connect 页面已验证；`0095` 三次稳定到 guest virtual 300 秒以上 | 保持 `0095/0065/0066` 与 Core2 设备组回归；setup/REPL 和完整 factory application 转 `API-01` 继续覆盖 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、startup UI 或 Wi-Fi Connect 页面都不能继承为任意 legacy 应用 PASS |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、lease-bound central evidence store、fencing、local QEMU | 物理跨主机 executor/reattach、queue/session/evidence 的跨主机复制、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；单 control-plane evidence store 不等于对象存储复制；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop | 大于当前容量、持续吞吐、其他更复杂 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
 | `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析；Device Service API `1.51.0` 的外部 runtime ACL/执行策略 | Guest filesystem 自身 ACL、完整许可/法律审批、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、service runtime ACL、签名数学和包内摘要自洽分别成立，均不等于 guest 文件权限、设备 trust root 或生产沙箱 |
 | `RUNTIME-02` 模型缺口 | C6 Zigbee 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP、`RUNTIME-04` ATECC608 初始化和 `RUNTIME-05` WPA2 已关闭 | commissioning/join | 观察到帧或读取地址不等于完整生命周期 |
-| `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery；`SVC-03` 已拆出 `ServiceError` 与首批无状态 parser 并保持 re-export | namespace-managed/Tab5/cross-host companion、warm pool、其余请求解析/runtime/evidence/session 拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
+| `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery；`SVC-03` 已拆出 `ServiceError`、首批 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing 和设备规格/profile 加载，并保持 re-export | namespace-managed/Tab5/cross-host companion、warm pool、其余请求解析/runtime/evidence/session 拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
 | `HW-01` 真机同路径 | 测试入口和分层规则已定义 | 代表设备同固件 SHA、同输入、同关键路径的 hardware validation | 仓库当前没有可引用的真机安全/RF/电气结论 |
 | `TAB5-01` / `UI-01` / `CZ-01` | Tab5 与 Linux ARM64 有可用子集；StopWatch 为参考外壳 | P4 backend 决策、逐设备视觉回归、CardputerZero 收尾 | `partial` 是可运行子集，不是完整设备或全固件兼容 |
 
@@ -365,9 +363,10 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 线上公众 C/QEMU / CoreS3 | 正式 GitHub Pages 仍为既有版本 | 固定示例的 LCD/触摸/PIR/暂停/分享重开和正式 HTTPS 独立 21 项验收保留。该线上版本的虚拟时间和 WDT 为墙钟 1/8；本轮性能、多板型和正常时钟候选尚未部署。UART 只输出，无 Flash 持久化。[既有部署证据](evidence/2026-10-29-github-pages-production/README.md) / [部署](pages-deployment.md) |
 | 既有 43 层 C/QEMU 性能 / CoreS3 正常时钟候选 | 旧运行时的限定基准与功能结果 | WASM `9c94a940…cba1` 的共享帧/host poll 修复在同一旧 stock/div8 fixture `78961297…bd3f` 上将 CPU `132.05%→49.95%`、暂停 `105.60%→4.78%`（100% 为一核），触摸到计数像素中位数仍 `966.82 ms`。独立 Flash `e9500994…9554` 才选择 div1 与显式 SDK Python 候选，实际 LVGL 动画/触摸/PIR/帧及清理通过；持续动画实际像素变化约 `8.90/s`，时间接近墙钟，但 CPU `161.97%`、触摸约 `1247 ms`。这是不同负载，不构成同固件提速比较；C Timer 第一层 coalescing、延迟/开销、长期稳定性和 stock frozen SDK 调度仍开放。旧示例/分享保持 div8，不授予任意固件/Unit或硬件 PASS。[性能与板型](evidence/2026-10-29-wasm-performance-devices/README.md) / [LVGL 候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) |
 | 本地 C/QEMU / 10 款 Xtensa 板型 | 10 板、11 个固定示例的最终公开导出门禁通过 | 新增 StopWatch、Cardputer-ADV、StamPLC、StackChan、PaperColor、PaperMono；连同 AtomS3R、StickS3、Core2 与 CoreS3 两例，在完整重建的 46 层 WASM `9d2db548…ac93` 逐例完成真实网页、本地组合、串口、帧、输入、暂停恢复及移除 iframe 前的实际六 Worker 关闭。原直接 UART/MEMFS/QMP 移至独立 engine Worker；修正键盘 qcode、WASM systimer deadline 与 TCA CFG0 W1C。PaperMono 仅固定示例使用官方 raw-point workaround，stock 逻辑校准和 StopWatch 触摸偏差仍开放。313 项实际检查通过；任意应用、其它外设、原生与硬件及本轮正式部署不继承。[本轮证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) |
+| Cardputer-ADV 用户固件兼容 | 试用固件显示、时钟和输入限定通过 | `Piano Tiles ADV 2.0` 在最终 browser QEMU 中去掉 ADC 循环错误和黑边，135×240 竖屏自动旋转；该 6 月固件因上游 M5GFX `5f8a783f` 之前的探测覆盖缺陷仍报 board 14，受控旧矩阵兼容路径可在其实际执行旧扫描时送入 Enter。5 秒墙钟/虚拟时间比 `0.999856`。兼容路径不是 ADV 原生旧键盘接线，物理显示、电气和真机仍 `NOT RUN`。[证据](evidence/2026-10-29-cardputer-adv-user-firmware/README.md) |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
-| Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 已限定通过。`m5ble.Server.get_client` 的 stock `set` indexing 错误已有 hash-pinned 候选修复并通过两个独立 session；原厂冻结固件失败继续保留，新固件需重新校验。`0085` 的 ATECC608 wake/Read/Info/CRC 在锁定测试 config 上通过三次公开固件非空帧；ECDSA、生产 trust root、电气和真机不继承 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；WDT-off Serial 到达 `APIKEY`，normal-WDT 在 BOARD/APIKEY 前 reset。`0075` 已排除 Flash WIP 和 `s32c1i` old-value 错误；`0086` 实测 `xTaskQueueMutex`/queue mux 的长时间等待，并证明 failed-CAS yield 只把等待从 scheduler mutex 重分配到 queue mux。pre-boot budget、exact ELF 映射、host-vCPU 调度延迟、WDT deadline、display completion、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 在增加 guest TX settle 后由当前 firmware/ELF/QEMU 三条独立 service lease 保持通过。`m5ble.Server.get_client` 的 stock `set` indexing 错误已有 hash-pinned 候选修复并通过两个独立 session；原厂冻结固件失败继续保留，新固件需重新校验。`0085` 的 ATECC608 wake/Read/Info/CRC 在锁定测试 config 上通过三次公开固件非空帧；ECDSA、生产 trust root、电气和真机不继承 |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT level、SSI、DPORT handoff、classic RMT 与 WiFi station data plane 子问题已修复；`0093/0094` 后 stock Core2 WiFi scan/association/DHCP/HTTP 多轮首启动均 PASS，`0095` 后同一 public legacy SHA 在 normal WDT 下三次稳定运行到 guest virtual `300 s` 以上并保持 API Key startup UI。setup/REPL 独立交互、完整 factory application、exact ELF 映射、PSRAM/cache 与长期应用覆盖仍未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | Device Service `1.51.0` operator runtime ACL 可用；guest filesystem 自身 ACL、live trust root、生产 key 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
@@ -403,12 +402,13 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
    电气或真机安全 PASS。
 2. **Core2 启动兼容性**：`0065` 已关闭旧固定双 PC 的 high-priority
    DPORT handoff 调度死锁；`0066` 已补 classic RMT 并关闭 Neopixel
-   translator 初始化错误。最终 WDT-off 控制到达 `APIKEY`，但 68 秒帧仍为
-   302-byte、0 个非黑像素；normal-WDT 仍在 `17.249530334 s` 由 TG0
-   stage-1 触发 `TG0WDT_SYS_RESET`，display completion、setup/REPL 与非空
-   应用帧继续 `OPEN`。不能把
-   I2C ACK、RMT 初始化、probe/UIFlow2 PASS、关闭 WDT、accelerator 或 host
-   假值当作 legacy 启动 PASS。
+   translator 初始化错误；`0095` 已修复 legacy task-WDT level delivery。
+   同一 firmware/QEMU 的三次 normal-WDT Device Service 运行均越过原
+   `15.55 s` TG0 stage-1 reset，完成 boot markers/reconnect，并保持
+   非空 API Key startup UI 到 guest virtual `300 s` 以上。setup/REPL 与
+   完整 factory application 转入 `API-01`；仍不能把 I2C ACK、RMT
+   初始化、probe/UIFlow2 PASS、关闭 WDT、accelerator 或 host 假值当作
+   任意 legacy application PASS。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

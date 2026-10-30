@@ -20,10 +20,10 @@ export class PublicQemuRuntime {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
     Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,allowCandidateProfiles});
     this.fetchImpl=(...args)=>fetchImpl(...args);
-    this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;
+    this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
-    runtime:this.receipt||null,sessionId:this.sessionId,persistentStorage:false,cleanup:this.cleanupResult||null,
+    runtime:this.receipt||null,display:this.display,sessionId:this.sessionId,persistentStorage:false,cleanup:this.cleanupResult||null,
     resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
   state(status) { this.status=status;this.onState(this.observe()); }
   ask(op,value={},transfer=[]) {
@@ -84,6 +84,7 @@ export class PublicQemuRuntime {
     await this.stop();
     const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
+    this.display=null;this.displayPollAt=0;
     this.receipt=null;this.profile=null;this.stoppedAt=null;
     this.sessionId=crypto.randomUUID();this.startedAt=new Date().toISOString();
     const bootAbort=this.abort=new AbortController();
@@ -149,6 +150,7 @@ export class PublicQemuRuntime {
       const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
+      this.display=this.profile.display === null ? null : await this.ask('display');
       this.state(!this.guestReady()?'booting':'running');
       this.poll(generation);return this.observe();
     }catch(error){if(generation===this.generation){await this.stop();if(error.name!=='AbortError'){this.state('error');this.onError(error);}}throw error;}
@@ -176,6 +178,13 @@ export class PublicQemuRuntime {
       if(this.status==='running'&&this.guestReady()){
         if(this.profile.display!==null)await this.ask('frame');
         if(this.profile.outputs&&!this.stopping&&!this.exit)await this.ask('outputs');
+        if(this.profile.display!==null&&performance.now()>=this.displayPollAt) {
+          this.displayPollAt=performance.now()+250;
+          const display=await this.ask('display');
+          if(display.orientation!==this.display?.orientation||display.deviceRotationDeg!==this.display?.deviceRotationDeg) {
+            this.display=display;this.onState(this.observe());
+          }
+        }
       }
     }
     catch(error){if(generation===this.generation&&!this.stopping&&!this.exit){this.state('error');this.onError(error);await this.stop();}return;}
@@ -193,7 +202,7 @@ export class PublicQemuRuntime {
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};
   }
   evidence(){return {schema_version:1,kind:'browser-local-qemu-evidence',session_id:this.sessionId,started_at:this.startedAt,
-    stopped_at:this.stoppedAt||null,receipt:this.receipt,serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,
+    stopped_at:this.stoppedAt||null,receipt:this.receipt,serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,display:this.display,
     last_frame:this.lastFrame?{width:this.lastFrame.width,height:this.lastFrame.height,sequence:this.lastFrame.sequence,
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,

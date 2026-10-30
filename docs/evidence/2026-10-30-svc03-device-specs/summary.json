@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "svc03-device-spec-boundary",
+  "validation": "platform-contract validation",
+  "status": "PASS",
+  "module": "platform/tools/device_service_specs.py",
+  "moved_symbols": [
+    "DeviceSpec",
+    "load_device_specs",
+    "backend_qemu_path",
+    "backend_rom_dir",
+    "core2_radio_qemu_path",
+    "device profile constants"
+  ],
+  "public_identity": "re-exported through device_service.py",
+  "checks": {
+    "device_spec_tests": "5/5 PASS",
+    "catalog_entries": 14,
+    "service_tests": "125/125 PASS",
+    "qemu_profile_tests": "20/20 PASS",
+    "platform_full_suite": "1604 run, 1603 PASS + 1 skip",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "diff_check": "PASS"
+  },
+  "boundaries": [
+    "No HTTP or runtime behavior change.",
+    "No session, evidence, QEMU or hardware claim."
+  ]
+}

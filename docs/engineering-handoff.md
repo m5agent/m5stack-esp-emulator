@@ -21,7 +21,7 @@
 | 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
 | --- | --- | --- | --- |
 | 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、claim/evidence response-loss idempotency、lease-bound central evidence store、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机、同 Docker daemon 或单个 control-plane evidence store 的结果不能写成物理多机/对象存储复制 PASS |
-| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、post-reset stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT、双 vCPU icount fairness cap、当前服务容量内并发和 contended-CAS RR 归因 | `RUNTIME-03` legacy UIFlow normal-WDT reset、`APIKEY` 后黑帧与 LVGL completion；`0088` 证明 100 ms RR 会放大跨核 spin，`0090` 默认 `10 us` cap 将 IPC return/peer wait 降到约 `56.2/184.7 us`，但仍不阻止 TG0 stage-1 reset；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和更复杂 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从 RMT 初始化、调度归因或虚拟容量外推物理等价 |
+| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、post-reset stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT、classic WiFi、legacy WDT level delivery、当前服务容量内并发和 contended-CAS RR 归因 | `RUNTIME-03` stock startup 已完成（virtual-device）；setup/REPL 与任意 legacy application 转入 `API-01`；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和更复杂 teardown | 功能级 `PILOT`；legacy stock startup `PASS`；更广应用与物理等价仍不能继承 |
 | ESP-NOW | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/new-LMK rekey 和 `0084` loss/retry/channel/rate/60 秒 soak 已通过 | bit-exact controller/baseband、RF/antenna、实测 channel/rate 和电气时序 | `FIXED`（virtual-device validation）；link metadata、loss proxy 与长稳 PASS 不能写成物理 controller/RF 结论 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed；Device Service `1.51.0` 外部 runtime ACL/执行策略 | `FW-01/02/03` 的 guest filesystem ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像、service ACL 与包内自报安全证据不能写成设备文件权限或 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
@@ -59,23 +59,25 @@
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
   物理 PSRAM/cache timing 尚未覆盖；
-- C6 Zigbee/802.15.4 和 Core2 legacy UIFlow normal-WDT/`APIKEY` 后黑帧仍是
-  明确的 `runtime_model_gap`。Core2 for AWS ATECC608 初始化/identity 已由
+- C6 Zigbee/802.15.4 仍是明确的 `runtime_model_gap`。Core2 for AWS
+  ATECC608 初始化/identity 已由
   `0085` 以确定性测试 config 和 classic DMA link/DC 修复关闭，三个公开固件
   session 均产生非空帧；ECDSA、生产 trust root、电气和真机不继承。
   Core2 shared I2C、
-  `CCOMPARE == CCOUNT` equal-deadline timer、TIMG WDT mask、pending SPI
+  `CCOMPARE == CCOUNT` equal-deadline timer、TIMG WDT level、pending SPI
   remap、high-priority DPORT IRQ 协作和 classic RMT 已作为独立模型缺口修复
   或验证。
   `0065` 证明旧固定双 PC deadlock 来自大 TCG slice 让 sender 抢在 peer
   handler 观察共享 flag 前开始下一轮；handler `memw` 后与 sender `retw`
   路径协作让出后，五轮首启动不再固定旧双 PC。`0066` 补 classic RMT
   `mem_size`、RMTMEM、threshold、`TX_END` 和 INTMATRIX，Neopixel translator
-  错误消失，legacy Serial 到达 `APIKEY`。normal-WDT 仍在
-  `17.249530334 s` 以 `TG0WDT_SYS_RESET` 重启，WDT-off 68 秒仍为 302-byte
-  黑帧。当前未闭合物是 `APIKEY` 后 display completion、setup/REPL、
-  watchdog 和非空应用帧，而不是 RMT 初始化或通用 SPI IRQ level。运行比例
-  和 evidence 只查验证台账；
+  错误消失，legacy Serial 到达 `APIKEY`。`0095` 进一步修复 legacy task-WDT
+  level delivery；同一 public firmware 的三次 normal-WDT Device Service
+  运行均越过原 `15.55 s` reset，保持 API Key startup UI 到 guest virtual
+  300 秒以上，另一次运行显示真实 Wi-Fi Connect/Connecting to myssid 页面。
+  setup/REPL 独立交互和完整 factory application 转入 `API-01` 的后续
+  覆盖；`RUNTIME-03` 的 normal-WDT stage-1 reset、RMT 初始化和通用 SPI
+  IRQ level 已关闭。运行比例和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/服务运行分层，但 guest filesystem ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -97,7 +99,7 @@
 
 最近这一轮只改变调查边界，不改变产品结论：
 
-- shared I2C、equal-deadline timer、TIMG WDT mask、stateful SSI、pending
+- shared I2C、equal-deadline timer、TIMG WDT level、stateful SSI、pending
   SPI remap、high-priority DPORT IRQ 协作和 classic RMT 已是可重放的修复
   或验证控制；它们仍没有让 legacy 固件完成正常启动；
 - state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 已逐项
@@ -264,7 +266,7 @@ API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 保持 `0065` DPORT IRQ 协作、`0066` classic RMT、`0088` contended-RR A/B 与 `0090` 双 vCPU budget cap 回归；从最终 `APIKEY` 状态定位下一个未完成路径。同版本 ELF/MAP 可并行取得 | normal-WDT reset、LVGL completion、`lv_disp_flush_ready`、setup/REPL 和同 SHA 非空应用帧仍 OPEN；`0088/0090` 只证明调度放大器及其可降低部分，RMT 初始化、调度 A/B 或独立 SPI PASS 不外推 |
+| `RUNTIME-03` | 已完成（virtual-device stock startup）：三次 normal-WDT startup、API Key/Wi-Fi Connect UI 和 Core2 设备组均有同 artifact 证据；保持 `0095/0065/0066` 回归 | setup/REPL 与任意 application 已转入 `API-01`；startup PASS 不授予任意应用或物理边界 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、queue/session/evidence 的跨主机复制、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | claim/evidence response-loss idempotency、lease-bound central evidence、409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；同 control-plane state-dir、跨容器和同机 subnet/NAT 仍不能替代物理主机/对象存储 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop/post-reset 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | Guest filesystem ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性、service runtime ACL 或声明扫描都不是 guest 文件权限 PASS |

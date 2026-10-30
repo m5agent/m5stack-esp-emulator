@@ -1130,8 +1130,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
 
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
+            "core2-unified",
             "core2-native-vhci",
             "core2-native-hci",
+        ):
+            with self.subTest(profile=profile):
+                self.assertEqual(
+                    default_session_ready_timeout(
+                        {"profile": profile}
+                    ),
+                    180.0,
+                )
+        for profile in (
             "core2-hci-gatt",
             "nanoc6-hci-ble",
             "nesso-unified",
@@ -1174,6 +1184,32 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ),
             requested,
         )
+
+    def test_profile_qom_injection_uses_session_ready_timeout(self):
+        session = self._stopped_session(session_id=uuid.uuid4().hex)
+        session.ready_timeout = 3.0
+        session.serial0.write_text("")
+        session._stop_event = mock.Mock()
+        session._proc = mock.Mock()
+        session._proc.poll.return_value = None
+
+        with mock.patch.object(
+            session,
+            "_check_cancelled",
+        ), mock.patch.object(
+            device_service_module.time,
+            "time",
+            side_effect=range(30),
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                session._apply_profile_qom(
+                    "PROFILE_READY",
+                    "test-profile",
+                    (),
+                )
+
+        self.assertEqual(caught.exception.code, "qom_timeout")
+        self.assertEqual(session._stop_event.wait.call_count, 2)
 
     def test_catalog_exposes_sku_and_coverage(self):
         row = self.service.get_device("cores3")
@@ -2112,6 +2148,45 @@ class DeviceServiceUnitTests(unittest.TestCase):
             unsupported_device.exception.code,
             "qemu_unified_not_supported",
         )
+
+    def test_qemu_wifi_environment_covers_classic_and_s3_models(self):
+        classic = {}
+        device_service_module.apply_qemu_wifi_environment(
+            classic,
+            "misc.esp32_wifi",
+            {
+                "wifi_ssid": "legacy-test",
+                "wifi_password": "",
+                "wifi_auth": "open",
+            },
+        )
+        self.assertEqual(classic["M5SW_WIFI_SSID"], "legacy-test")
+        self.assertEqual(classic["M5SW_WIFI_PASSWORD"], "")
+        self.assertEqual(classic["M5SW_WIFI_AUTH"], "open")
+        self.assertNotIn("M5SW_S3_WIFI_TRACE", classic)
+
+        s3 = {}
+        device_service_module.apply_qemu_wifi_environment(
+            s3,
+            "misc.esp32s3.wifi",
+            {
+                "wifi_ssid": "s3-test",
+                "wifi_password": "test-password",
+                "wifi_auth": "wpa2-psk",
+            },
+        )
+        self.assertEqual(s3["M5SW_WIFI_SSID"], "s3-test")
+        self.assertEqual(s3["M5SW_WIFI_PASSWORD"], "test-password")
+        self.assertEqual(s3["M5SW_WIFI_AUTH"], "wpa2-psk")
+        self.assertEqual(s3["M5SW_S3_WIFI_TRACE"], "1")
+
+        ignored = {}
+        device_service_module.apply_qemu_wifi_environment(
+            ignored,
+            "misc.esp32c6.wifi",
+            {"wifi_ssid": "c6-test"},
+        )
+        self.assertEqual(ignored, {})
 
     def test_qemu_wifi_supports_generic_s3_observe_profile(self):
         parsed = device_service_module.parse_qemu_wifi_execution(
@@ -4077,6 +4152,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
             command.index("--notification-timeout") + 1
         )
         self.assertEqual(command[notification_timeout_index], "30")
+        write_delay_index = command.index("--write-delay") + 1
+        self.assertEqual(
+            command[write_delay_index],
+            str(
+                int(
+                    device_service_module
+                    .BLE_UNIFIED_WRITE_DELAY_SECONDS
+                )
+            ),
+        )
         scan_timeout_index = command.index("--timeout") + 1
         self.assertEqual(command[scan_timeout_index], "113")
         trigger_index = command.index("--post-pass-trigger") + 1

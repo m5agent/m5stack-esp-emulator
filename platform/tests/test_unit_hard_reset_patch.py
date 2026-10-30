@@ -48,10 +48,10 @@ class UnitHardResetContractTests(unittest.TestCase):
     def test_unit_bootstrap_uses_forward_ports_without_rewriting_core2_history(self):
         bootstrap = (ROOT / "scripts/bootstrap-unit-runtime.py").read_text()
         for name in (
-            "0003-xtensa-high-priority-irq-cooperative-yield.patch",
-            "0004-esp32-classic-rmt-legacy.patch",
-            "0005-esp32-timg-wdt-feed-unprotected.patch",
-            "0006-esp32-uart-tx-virtual-clock.patch",
+            "0009-native-high-priority-irq-context.patch",
+            "0010-native-classic-rmt-context.patch",
+            "0011-native-wdt-feed-context.patch",
+            "0012-native-uart-trace-context.patch",
         ):
             self.assertIn("patches/qemu-unit-runtime/" + name, bootstrap)
         for name in (

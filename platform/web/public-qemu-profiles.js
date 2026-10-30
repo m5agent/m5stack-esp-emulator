@@ -4,6 +4,13 @@ import {assetUrl, siteRoot} from './public-config.js';
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
 const MIB = 1024 * 1024;
 const identity = /^[a-f0-9]{64}$/;
+const S3_ADC_CALIBRATION_FIELDS = Object.freeze([
+  [2, 128, 2, 1], [2, 149, 8, 0], [2, 157, 6, 0], [2, 163, 6, 0],
+  [2, 169, 6, 0], [2, 175, 8, 0], [2, 183, 6, 0], [2, 189, 6, 0],
+  [2, 195, 6, 0], [2, 201, 8, 79], [2, 209, 8, 96], [2, 217, 8, 66],
+  [2, 225, 8, 223], [2, 233, 8, 40], [2, 241, 7, 10], [2, 248, 7, 20],
+  [1, 186, 6, 15],
+].map(row => Object.freeze(row)));
 function check(ok, message) { if (!ok) throw new Error(message); }
 
 /** Validate the narrow browser bridge contract, including iframe messages. */
@@ -220,7 +227,22 @@ export function buildQemuEfuse(profile) {
   if (!profile.efuse) return null;
   const bytes = new Uint8Array(profile.efuse.bytes);
   const offset = profile.chip === 'esp32' ? 12 : 36, shift = profile.chip === 'esp32' ? 9 : 21;
-  new DataView(bytes.buffer).setUint32(offset, profile.efuse.packageVersion << shift, true); return bytes;
+  new DataView(bytes.buffer).setUint32(offset, profile.efuse.packageVersion << shift, true);
+  if (profile.chip === 'esp32s3') {
+    // Synthetic calibration populated on production S3 silicon. It keeps
+    // ESP-IDF's curve-fitting ADC path usable in QEMU without fabricating a
+    // physical measurement or changing identity/security eFuse fields.
+    const blockOffsets = [0, 24, 48];
+    for (const [block, bitStart, bitCount, value] of S3_ADC_CALIBRATION_FIELDS) {
+      for (let bit = 0; bit < bitCount; bit++) {
+        const at = blockOffsets[block] * 8 + bitStart + bit;
+        const mask = 1 << (at & 7);
+        if ((value >> bit) & 1) bytes[at >> 3] |= mask;
+        else bytes[at >> 3] &= ~mask;
+      }
+    }
+  }
+  return bytes;
 }
 
 /** Coordinates are already in the QEMU physical frame; do not rotate twice. */
