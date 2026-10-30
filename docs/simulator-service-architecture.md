@@ -435,7 +435,13 @@ transport should use HTTPS or a trusted private network.
   namespace-managed/Tab5/cross-host
   companion recovery, a continuous external evidence stream, cross-host
   re-attach, replicated cross-host queue/evidence storage and production
-  capacity scheduling remain open.
+  capacity scheduling remain open;
+- Core2 remains capped at eight sessions per device. Two independent
+  zero-stagger nine-instance runs passed `18/18`, but an independent third run
+  failed `8/9` with a NimBLE ACK panic at `ble_hs_hci_process_ack`; the
+  capacity boundary is therefore explicit and the runner rejects concurrency
+  9. See
+  [`core2-concurrent-capacity-boundary`](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md).
 
 ### Phase S2: warm/cold pool
 

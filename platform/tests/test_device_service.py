@@ -4147,11 +4147,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(command[command.index("--role") + 1], "central")
         self.assertIn("--post-pass-trigger", command)
         gatt_timeout_index = command.index("--gatt-request-timeout") + 1
-        self.assertEqual(command[gatt_timeout_index], "30")
+        self.assertEqual(command[gatt_timeout_index], "45")
         notification_timeout_index = (
             command.index("--notification-timeout") + 1
         )
-        self.assertEqual(command[notification_timeout_index], "30")
+        self.assertEqual(command[notification_timeout_index], "45")
         write_delay_index = command.index("--write-delay") + 1
         self.assertEqual(
             command[write_delay_index],

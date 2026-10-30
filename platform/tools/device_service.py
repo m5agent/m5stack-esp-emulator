@@ -4999,9 +4999,9 @@ class DeviceSession:
             "--expect-notification-prefix",
             "ACK:",
             "--gatt-request-timeout",
-            "30" if extended_exchange else "10",
+            "45" if extended_exchange else "10",
             "--notification-timeout",
-            "30" if extended_exchange else "10",
+            "45" if extended_exchange else "10",
             "--timeout",
             (
                 str(int(ble_peer_scan_timeout_seconds(self.ready_timeout)))
