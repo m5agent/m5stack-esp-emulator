@@ -105,5 +105,8 @@ M5SW_CLASSIC_WIFI_TRACE=1 PYTHONPATH=.work/py python3 \
   controlled HTTP data path for the tested firmware.
 - It does not prove RF, antenna, electrical, physical cache/PSRAM timing,
   WPA3, roaming or coexistence behavior.
-- Normal-WDT legacy startup, setup/REPL completion and a stable factory
-  application remain `OPEN`; `RUNTIME-03` is not closed.
+- At this milestone, normal-WDT legacy startup still reset. The later
+  [WDT level-delivery record](../2026-10-30-core2-legacy-wdt-level-delivery/README.md)
+  fixes that reset and keeps the startup UI running beyond 300 seconds virtual
+  time. Setup/REPL completion and a complete factory application remain
+  separate checks.

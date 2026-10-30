@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "core2-legacy-wdt-level-delivery",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "runtime03_startup_wdt": "FIXED",
+  "remaining": [
+    "setup/REPL interaction",
+    "complete factory application",
+    "physical WDT and reset timing",
+    "physical hardware, RF and electrical validation"
+  ],
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0095-esp32-legacy-wdt-level-delivery.patch",
+    "sha256": "df008a1f34324c1b4b0d7bc4640f03bb5f9b42b109cfedadfee0b31631411894"
+  },
+  "firmware_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+  "effective_flash_sha256": "b30f3014b75f762f50be3284010502e047b3bd0494b0f0b72a673c2756baffd7",
+  "qemu_sha256": "001a938503e7b1d813f388022d849c24bab4f5298602211f70042a5184fcb62d",
+  "runtime": {
+    "name": "qemu-wifi",
+    "profile": "core2-openmac",
+    "accelerator": "tcg,thread=single,tb-size=128",
+    "icount_shift": 2,
+    "per_vcpu_budget_ns": 10000,
+    "watchdog": "normal"
+  },
+  "attempts": 3,
+  "attempts_passed": 3,
+  "runs": [
+    {
+      "observed_virtual_time_ns_min": 315549852894,
+      "observed_virtual_time_ns_max": 337294616715,
+      "serial_sha256": "7e7f425d4c7aea4b15fdd5146d264fe111aa4671fd63bcecf3e45e3bf9824dbd",
+      "frame_sha256": "b9cef48df6dfde9bbf0ee68e14bb017e486dd092f8c9a0551ce4be1bb0bf69ae",
+      "reconnect_finish_count": 1
+    },
+    {
+      "observed_virtual_time_ns_min": 310549853116,
+      "observed_virtual_time_ns_max": 333270616738,
+      "serial_sha256": "eca858f08edcc6cd015d5b01b720375be724220f9c936b237d456caa744b3929",
+      "frame_sha256": "b9cef48df6dfde9bbf0ee68e14bb017e486dd092f8c9a0551ce4be1bb0bf69ae",
+      "reconnect_finish_count": 0
+    },
+    {
+      "observed_virtual_time_ns_min": 320549854713,
+      "observed_virtual_time_ns_max": 344940616714,
+      "serial_sha256": "73cb13dd239245c86d8e0a5a657845e2d2b2bd5f94d38e14e2771a8c4bae5f2e",
+      "frame_sha256": "a8f77474b218113073732d6b6f5e8f3c18b1fac23593054bf209d0d6f6864bf7",
+      "reconnect_finish_count": 3
+    }
+  ],
+  "wdt_trace": {
+    "stage_zero_interval_ns": 5001124000,
+    "int_ena": 2,
+    "int_raw": 4,
+    "int_st": 0,
+    "level_event": "TG0 wdt-int level-raised",
+    "guest_feed": true,
+    "int_clr": 4,
+    "stage_one_reset": false
+  },
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 75559,
+    "unique_colors": 512
+  },
+  "wifi_config_ui": {
+    "normal_wdt": true,
+    "interrupt_input": "ctrl-c after boot-done marker",
+    "repl_prompt": false,
+    "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 75373,
+      "unique_colors": 306,
+      "bytes": 11614,
+      "sha256": "cf7ad5ab8ff981a0fa405e224097f3c9c971f3872bf30f143b3bd8c2dea7d44f"
+    }
+  },
+  "core2_uiflow2_device_group": {
+    "status": "PASS",
+    "cases": 6,
+    "cases_passed": 6,
+    "attempts_per_case": 1,
+    "retry_used": false,
+    "summary_sha256": "6eaa60697c000f4013232668f55d3c879b43451d22df1e62d1938703ae3a3216"
+  },
+  "source_cross_check": {
+    "esp_idf_3_3_5": "03810c4a065a1ecdd24a803b2c9dc4e834c7dab5",
+    "legacy_task_wdt": {
+      "level_int_en": true,
+      "int_ena_wdt_write": false
+    },
+    "esp_idf_5_5_4": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "modern_wdt_hal": {
+      "level_int_en": true,
+      "int_ena_wdt_write": true
+    }
+  }
+}

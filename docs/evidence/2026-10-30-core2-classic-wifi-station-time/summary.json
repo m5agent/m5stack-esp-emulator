@@ -54,7 +54,12 @@
   },
   "boundaries": [
     "The five-attempt PASS is virtual-device validation only.",
-    "Normal-WDT legacy Core2 still resets and RUNTIME-03 remains OPEN.",
+    "Normal-WDT legacy Core2 still reset at this milestone; the follow-up 0095 evidence closes that startup reset.",
     "RF, electrical, physical cache/PSRAM timing and hardware validation are NOT RUN."
-  ]
+  ],
+  "follow_up": {
+    "patch": "patches/qemu-m5stack-peripherals/0095-esp32-legacy-wdt-level-delivery.patch",
+    "normal_wdt_startup": "PASS in three independent runs",
+    "evidence": "docs/evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md"
+  }
 }

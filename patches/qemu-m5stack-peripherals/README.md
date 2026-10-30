@@ -676,6 +676,16 @@ handshake and host-to-station delivery. It removes the synthetic DHCP branch
 that consumed guest frames without forwarding them and the separate
 STA-associated delivery stub.
 
+`0095-esp32-legacy-wdt-level-delivery.patch` corrects the WDT level-delivery
+semantics introduced by `0035`. The classic ESP32 WDT level output is enabled
+by `WDTCONFIG0.LEVEL_INT_EN`; legacy ESP-IDF 3.3 registers the TG0 task-watchdog
+interrupt without programming `INT_ENA.WDT`. `0035` therefore left the stage-0
+ISR unreachable when `INT_ENA=2` and `INT_RAW=4`. `0095` preserves masked
+`INT_ST` and all non-WDT source masking, but drives only the WDT level output
+from `INT_RAW.WDT` while `LEVEL_INT_EN` is set. The same public firmware now
+clears the WDT status from its task-watchdog ISR and feeds the watchdog instead
+of reaching the stage-1 system reset.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
@@ -748,13 +758,12 @@ other deltas. A business-only control with tracing disabled passed the
 corrected `core2_flash_ipc` first-boot probe repeatedly; this does not close
 the separate legacy-UIFlow TG0/TG1 watchdog and black-frame failure.
 
-`0035-esp32-timg-wdt-int-ena.patch` corrects TIMG WDT level-interrupt masking.
-The model previously raised the WDT line whenever `INT_RAW.WDT` became set,
-even when `INT_ENA.WDT` was clear. The patch preserves raw status and the stage
-timer but drives the level only from `INT_RAW & INT_ENA`. The trace observed
-`INT_ENA=0`, `INT_RAW=4`, masked status `0`; two Device Service controls still
-reached `TG0WDT_SYS_RESET` after the fix. This patch is a model-semantics fix,
-not closure of the legacy UIFlow QIO/cross-core/flash-cache path.
+`0035-esp32-timg-wdt-int-ena.patch` is a retained historical attempt to drive
+the TIMG WDT level only from `INT_RAW & INT_ENA`. That assumption is wrong for
+legacy ESP-IDF task watchdog setup: the trace had `INT_ENA=0`, `INT_RAW=4` and
+masked status `0`, then the guest continued to `TG0WDT_SYS_RESET`. `0095`
+supersedes the WDT-level part of this patch while leaving its non-WDT mask
+semantics and the ordered history intact.
 
 `0036-ssi-transfer-buf.patch` adds an optional byte-buffer transfer callback to
 the generic SSI bus. Devices without the callback retain the original

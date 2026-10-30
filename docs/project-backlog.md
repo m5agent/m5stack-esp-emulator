@@ -52,7 +52,7 @@ eFuse 或生产 key。
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff 和 classic RMT 已修复/验证；legacy Serial 已到 `APIKEY`，但 normal WDT 仍 reset，WDT-off 仍是黑帧 | probe/UIFlow2 PASS、RMT 初始化、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT 和 normal-WDT startup 已修复/验证；原厂 API Key startup UI 可稳定运行并进入真实 Wi-Fi Connect 页面 | startup PASS 不授予 setup/REPL、完整 factory application、任意用户程序或物理边界；probe/UIFlow2 PASS、临时 bulk read、关闭 WDT 或 accelerator 仍不能替代这些路径 |
 | P0 | 网络产品化 | 物理跨主机 worker、主文件系统/队列/证据跨主机复制、任意 NAT 和外部 side-effect fence | 单机 namespace/container 和单个 control-plane evidence store 不能替代物理多机或对象存储 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、active-stop/post-reset 之外 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | guest filesystem ACL、完整许可、真机安全配置和更多真实业务；service runtime ACL 已完成 | 静态声明、镜像摘要自洽、service ACL 不等于设备文件权限/trust |
@@ -290,11 +290,12 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 主线其余 P0 继续按以下顺序推进，已有修复和诊断不扩大为 legacy 应用启动：
 
-1. `RUNTIME-03`：pending SPI remap、high-priority DPORT handoff 和 classic
-   RMT 已验证。`0065` 以 `5/5` 首启动关闭调度诱导 deadlock；`0066` 让
-   WDT-off legacy Serial 从 Neopixel `OSError` 前进到 `APIKEY`，但 normal
-   WDT 在 BOARD/APIKEY 之前 reset。下一步先解释 pre-boot guest/controller
-   工作预算和 watchdog deadline，不能把 accelerator override 作为修复。
+1. `RUNTIME-03`：pending SPI remap、high-priority DPORT handoff、classic
+   RMT、classic WiFi 和 legacy WDT level delivery 已验证。`0095` 让同一
+   public firmware 在三次 normal-WDT Device Service 运行中稳定到 guest
+   virtual `300 s` 以上并保持 API Key startup UI。下一步补 setup/REPL
+   独立交互和完整 factory application，不能把 accelerator override 或
+   WDT-disable 作为修复。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -318,7 +319,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递，stock Core2 WiFi 多轮首启动均 PASS，但 legacy normal WDT 仍 reset | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0093/0094 classic WiFi data plane 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中（startup WDT fixed） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 | startup WDT 门禁已由 `0095` 三次满足；继续补 setup/REPL 独立交互和完整 factory application。DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0092 cache gate、0093/0094 classic WiFi data plane、0095 WDT level 和 Core2 设备组保持可重放 |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -338,9 +339,9 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 ## P0：Core2 legacy UIFlow 运行时
 
-### RUNTIME-03
+### RUNTIME-03：normal-WDT startup 已修复，setup/REPL 与应用生命周期待验收
 
-已满足的前置基线：shared I2C、equal-deadline timer、WDT mask、stateful
+已满足的前置基线：shared I2C、equal-deadline timer、WDT level、stateful
 SSI、handoff timeline/state sweep/setter trace、三次 WDT liveness、
 pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 
@@ -357,8 +358,10 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 - 通用 LittleFS 会被 legacy guest 拒绝并重新格式化。使用 UIFlow
   checkout 自带 LittleFS2 packer 后，`qemu-wifi` 120 秒已执行注入的
   `/flash/boot.py` 并输出 `CORE2_LEGACY_VFS_BOOT`，但 setup/main 仍未出现；
-- normal-WDT 在同一 public legacy SHA 上仍触发 TG0/TG1 system reset，
-  没有完成原厂 startup UI；
+- normal-WDT 已由 `0095` 解除：同一 public legacy SHA 的三次独立
+  Device Service 运行均越过原 stage-1 reset，完成 boot markers 和至少一次
+  reconnect lifecycle，稳定到 guest virtual `300 s` 以上并保持原厂 API Key
+  startup UI；后续仍需单独验收 setup/REPL 和完整 factory application；
 - 关闭 WDT 只作为诊断 control 后，120 秒仍为 302-byte 黑帧；该轮 CPU0
   `0x40249c5d`、CPU1 `0x400e1ffd`，旧 CPU1 `0x40100049` LVGL wait
   未复现，后续必须在 matching VFS + WiFi lane 上重新定位；
@@ -396,8 +399,9 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    和 transition 分布；`0073` 已绑定主要 issuer PC，`0075` 已排除
    RDSR busy 位并定位到 scheduler/list 跨核锁竞争；`0086/0088` 已证明
    单线程 RR 的 100 ms quantum 会放大 spin，但缩短 contended quantum
-   仍不能解除 normal-WDT reset。下一步结合 matching symbols、tick/IRQ
-   rate 与最长锁持有区间解释 `0x05` 前的 transaction-bound gap；
+   不能单独解除 normal-WDT reset，最终由 `0095` 的 WDT level delivery
+   修复越过。下一步用相同 lane 进入 setup/REPL，并结合 matching symbols
+   与 tick/IRQ rate 解释剩余 application lifecycle；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
    callback 回归；`0093/0094` 已让 classic station DHCP、双向 host 数据和
    Service SSID/auth 走正常路径，stock Core2 WiFi 五轮首启动 PASS，且
@@ -405,8 +409,8 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    boot done 后仍无新的 TG0 feed，再决定源码启动修复与 display
    completion/`lv_disp_flush_ready` 的顺序；保留 `0036` stateful SSI
    数据面，不使用 `blk_pread` bypass；
-4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase
-   放回同一条启动时间线，解释 reset 与 late state 的关系；
+4. 保留 `0095` 的三次 normal-WDT 中断链证据；不再把 TG0 stage-1 reset
+   当作当前 blocker，后续时间线用于 setup/REPL 和 application phase；
 5. 保持同一 public SHA 的 AXP2101/AXP192 A/B 对照，并重跑
    `Core2FactoryTest` 与 Core2 UIFlow2 设备组，防止 shared bus 回归；
 6. 保持 `0065` 的 IRQ enter/return/reset active-state 与 `memw`/`retw`
@@ -419,11 +423,12 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 - 同一 UIFlow 固件 SHA 在正常 WDT、`0036` stateful SSI/m25p80 数据面下
   出现非空应用帧并稳定运行；不得依赖 `M5SW_DISABLE_WDT`、bulk-read
   bypass、accelerator override 或 retry；
-- legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
-  UIFlow2 外设组回归保持 PASS；`0065`/`0066` 契约继续可重放；
+- normal-WDT 的 `INT_ENA=2/int_raw=4/level raise/WDTFEED/INT_CLR`
+  中断链在三次独立运行中可重放且不进入 TG0 stage-1；shared bus、TIMG
+  trace 和 Core2 UIFlow2 外设组回归保持 PASS；`0065`/`0066` 契约继续可重放；
 - BIN-bound trace 能解释 display flush callback、SPI completion 和
-  LVGL `flushing` 清零关系；normal-WDT TG0 stage-1 reset 与 late phase
-  分开记录；matching ELF/MAP 若取得则只能提高符号置信度，不能替代运行证据。
+  LVGL `flushing` 清零关系；setup/REPL 与 application lifecycle 分开记录；
+  matching ELF/MAP 若取得则只能提高符号置信度，不能替代运行证据。
 
 ## P0：网络与 worker
 

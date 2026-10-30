@@ -73,10 +73,14 @@
     "diff_check": "PASS"
   },
   "remaining": [
-    "normal-WDT stable startup",
     "setup/REPL and user application",
     "WiFi connection and DHCP completion",
     "physical cache and PSRAM timing",
     "physical hardware, RF and electrical validation"
-  ]
+  ],
+  "follow_up": {
+    "patch": "patches/qemu-m5stack-peripherals/0095-esp32-legacy-wdt-level-delivery.patch",
+    "normal_wdt_startup": "PASS in three independent runs",
+    "evidence": "docs/evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md"
+  }
 }
