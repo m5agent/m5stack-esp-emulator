@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "core2-current-toolhash-rebind",
+  "date": "2026-10-30",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "source_main_commit": "3fc436e4aa99176ef3a4f7a2d35d25c973659219",
+  "inputs": {
+    "firmware_sha256": "ae094f4824d15499a5770018393660d1051866743dec52265552b6fc23eb2a23",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "54e7a7f7cd0ff6f5a1d6343c06563388f49c2b0abbca4cafb850876e57ed1254"
+  },
+  "tool_hashes": {
+    "runner": "a9d1f678f2509e794bb4d98e4e4bd5540531df512adec8479543ca73be1da013",
+    "previous_device_service": "5b4ed0f576dae7a23151049f753acdfd6bf1ddce2d44e3c3389413b2b6349acb",
+    "current_device_service": "a96b15061d104aa79e7af74b513e5881481acf62a847d5ba1e27c5997aa1bbbb",
+    "qemu_accel": "6ae04d310fd68c99e6200813689af4fbcb75d0a890c8e5882027a16ea35d1dc9",
+    "ble_runtime_limits": "30148f7f3df98fd930a8ee35ed61ec0f6fe6baed3b7a026cea757e34072ea385",
+    "ble_probe": "09b0b354a6010cdb639e65609f7aed42664990451509da34f1550017ddfc8ffd",
+    "network_policy": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+    "unified_http_guestfwd": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+  },
+  "input_hash_bound_at": "before_first_lease",
+  "input_assets_unchanged_during_run": true,
+  "input_asset_drift": {},
+  "parameters": {
+    "batches": 2,
+    "attempts_per_batch": 2,
+    "concurrency": 2,
+    "stagger_seconds": 0,
+    "hold_seconds": 60,
+    "require_psram": true,
+    "profile": "core2-native-hci",
+    "runtime": "qemu-unified",
+    "accelerator": "tcg,thread=single,tb-size=128",
+    "icount": "shift=5,align=off,sleep=off"
+  },
+  "raw_evidence": {
+    "batch_a": {
+      "sha256": "c0e4ad6d7fe3c4d07c922c0cb7df2072baaf058fa774f00dd72f4e213bed935a",
+      "attempts_passed": 2,
+      "attempts_failed": 0
+    },
+    "batch_b": {
+      "sha256": "4409b748203c6ab4ddcc1c2b70c639fce7c8f7c85047f6ad58a8bbf0b8813dce",
+      "attempts_passed": 2,
+      "attempts_failed": 0
+    }
+  },
+  "aggregate": {
+    "leases": 4,
+    "passes": 4,
+    "failures": 0,
+    "maximum_concurrent_sessions": 2,
+    "psram_sweeps_per_lease": 3,
+    "http_rechecks_per_lease": 2,
+    "public_rechecks_per_lease": 2,
+    "hli_posts_per_lease": 45,
+    "hli_consumed_per_lease": 45,
+    "hli_errors": 0,
+    "hli_prealloc_failures": 0,
+    "panic_count": 0,
+    "gatt_timeout_count": 0,
+    "dropped_packets": 0,
+    "cleanup_errors": 0,
+    "qom_nodes": 32,
+    "qom_memory_bytes": 8388608
+  },
+  "not_claimed": [
+    "eight-instance current tool-hash cold-start rebind",
+    "nine-instance capacity",
+    "sustained throughput",
+    "bit-exact Espressif BT controller or baseband",
+    "physical RF validation",
+    "physical PSRAM capacity or cache timing",
+    "hardware validation"
+  ]
+}
