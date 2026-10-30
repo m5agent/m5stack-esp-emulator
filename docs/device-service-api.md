@@ -2835,8 +2835,12 @@ restart.
   lease. An eight-instance control under the old floor failed `4/8` only
   because four leases completed 11 contiguous sweeps while all other checks
   passed. After calibrating to `hold/12`, two independent `8×120s` batches
-  pass `8/8` each (`16/16`) at the service per-device cap of 8. More than
-  eight instances remain open. Three independent
+  pass `8/8` each (`16/16`) at the service per-device cap of 8. The current
+  runtime instead uses a `hold/40` floor with at least three PSRAM sweeps and
+  bounded HTTP/public recheck recovery; two independent `2x60s` controls pass
+  `4/4`. Two independent nine-instance runs passed `9/9`, but a third failed
+  `8/9` after a `ble_hs_hci_process_ack` panic at `0x402630cc`, so the default
+  cap remains 8 and runner concurrency 9 is rejected. Three independent
   leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
@@ -2929,9 +2933,12 @@ restart.
   four-instance gates then pass `8/8`. Two five-instance 30-second-stagger
   gates pass `10/10`, and two fixed-`shift=5` zero-stagger gates pass `10/10`;
   the earlier adaptive-time `5/5 PASS`/`3/5 FAIL` evidence remains retained.
-  Two fixed-icount zero-stagger six-instance gates pass `12/12`; after
-  `hold/12` calibration, two eight-instance gates pass `16/16`. More than
-  eight instances remain open. Long-run throughput, additional teardown modes,
+  Two fixed-icount zero-stagger six-instance gates pass `12/12`; after the
+  historical `hold/12` calibration, two eight-instance gates pass `16/16`.
+  Current tool-hash `2x60s` controls pass `4/4`. Nine-instance capacity is
+  rejected because one of three independent attempts reproduced the NimBLE
+  ACK panic at `0x402630cc`; a fresh eight-instance cold-start rebind under
+  host overload remains open. Long-run throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering

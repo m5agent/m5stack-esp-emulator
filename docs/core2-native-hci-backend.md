@@ -51,6 +51,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` six-instance simultaneous cold start | `12/12 PASS with fixed icount` | `evidence-2026-10-25-core2-concurrent-6x120-fixed-icount-pass-a.json`、`evidence-2026-10-25-core2-concurrent-6x120-fixed-icount-pass-b.json` | 两批独立零错峰 `6×120s` 均 `6/6 PASS`，合计 `12/12`，最大真实并发 6。每个 lease 完成 WiFi DHCP/HTTP、公网 DNS/HTTP、NUS GATT、frame、31 节点 QOM、pcap、evidence 和 12–13 次 1 MiB PSRAM 全缓冲校验；HLI `45/45`、36 events/9 ACLs、reset/panic/dropped/queue depth 均为 0。batch B 的 attempt 6 记录一次可恢复 `hli-prealloc-failures=1`，随后仍完成全部 36/9 fast-path packet 和 45/45 HLI 投递，该 transient 保留为诊断 |
 | `CORE2-02` eight-instance simultaneous cold start | `16/16 PASS after calibration` | `evidence-2026-10-25-core2-concurrent-8x120-threshold-fail.json`、`evidence-2026-10-25-core2-concurrent-8x120-fixed-icount-pass-a.json`、`evidence-2026-10-25-core2-concurrent-8x120-fixed-icount-pass-b.json` | 旧 `hold/10` 下限下首批 `4/8 FAIL`，但 HCI/网络/GATT/frame/QOM/pcap 全部 PASS、panic 为 0；失败 lease 均完成 11 次连续 sweep。该 evidence 保留为阈值校准控制。按最高服务并发 8 校准为 `hold/12` 后，两批独立 `8×120s` 均 `8/8 PASS`，合计 `16/16`，达到当前服务单设备容量。每 lease 完成 11–12 次 PSRAM 全缓冲校验；两批各保留一次可恢复 prealloc transient |
 | `CORE2-02` eight-instance tool-hash rebind | `16/16 PASS` | `evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-a.json`、`evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-b.json` | HTTP Host/DNS exact-answer hardening 更新 `device_service.py` 与 `network_policy.py` 后，用当前工具 hash 重跑两批独立零错峰 `8×120s`。每批 `8/8 PASS`，最大真实并发 8；每 lease 完成 frame/31 节点 QOM、WiFi DHCP/HTTP、公网 DNS/HTTP、外部 NUS GATT、pcap、11–12 次 1 MiB PSRAM 全缓冲读回、bounded TCG、evidence 和 cleanup，HLI errors/reset/panic/dropped 为 0。manifest-identity rebind 的旧 A/B 证据保留。该重绑维持当前服务容量门禁，不证明大于八实例、持续吞吐、物理 PSRAM/cache、bit-exact controller/RF 或真机 |
+| `CORE2-02` nine-instance capacity boundary | `REJECTED / default 8` | [concurrent capacity boundary](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md) | 两次独立零错峰 `9x120s` 均为 `9/9 PASS`，但第三次独立批次为 `8/9`：attempt 8 在已有 9 个真实 session 时触发 `ble_hs_hci_process_ack` `LoadProhibited`（`0x402630cc`）。因此 `DEFAULT_MAX_PER_DEVICE`/runner concurrency 保持 8，并增加九实例 fail-closed 契约。后续 `0x40092e43` 是复位后的次生 I2S/memset panic。该失败不证明八实例回归，也不能把两次九实例通过写成容量准入 |
+| `CORE2-02` current network recheck recovery | `4/4 PASS` | [concurrent capacity boundary](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md) | 当前固件/ELF/QEMU/工具 hash 下两批独立零错峰 `2x60s` 均 `2/2 PASS`。controlled/public HTTP 重检最多 3 次、间隔 1 秒，socket timeout 为 20/25 秒；最终累计成功次数仍受 gate 约束。每 lease 完成 3 次 1 MiB PSRAM sweep、2 次 HTTP/公网 recheck、WiFi、NUS GATT、frame/32 节点 QOM、pcap、evidence 和 cleanup，HLI `45/45`，errors/prealloc/panic/GATT timeout 为 0。当前 120 秒持续压力 floor 为 `hold/40` 且最低 3 sweep，PSRAM 与可恢复网络错误分字段记录 |
 | `CORE2-02` five-instance ACK observability | `HISTORICAL FAIL / RETAINED` | `evidence-2026-10-25-core2-concurrent-5x20-ack-observability.json`、`evidence-2026-10-25-core2-ack-observability-default-1x.json`、`evidence-2026-10-25-core2-ack-observability-summary.json`、trace/serial/peer logs；`0010-esp32-native-hci-ack-observability.patch` | 旧 `shift=auto` 诊断批次保留了 `3/5 PASS` 的零错峰失败。第一条 Reset response 已从 Bumble 返回，但 response→HLI 时间戳差为 `4.506306s`（host trace time，不是 guest 虚拟时钟）；guest 连续重发三次 Reset，恢复后旧 Reset Complete 与新 `0x1001` response 交错，`ble_hs_hci_process_ack` 以 error 12 调度 reset，后续 `0x402630cc` panic 是次生结果。第一条事件进入 ACK 检查时 `ack=NULL`、semaphore count `0`，排除了初始 stale ACK pointer/semaphore-state 假设。`0010` 只增加 opt-in 观测，不改变默认运行路径；历史失败不会删除 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
@@ -641,11 +643,13 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
   `qemu_accel.py` 默认固定 `shift=5`，统一 probe 把 BLE server 放到 WiFi
   和长 PSRAM 压力前；两批独立零错峰 `5×120s` 随后均为 `5/5 PASS`
   （合计 `10/10`），输入资产和工具哈希一致；随后两批六实例又均
-  `6/6 PASS`（合计 `12/12`）。八实例先用旧 threshold 得到 `4/8`
-  纯吞吐校准失败，改用 `hold/12` 后两批均 `8/8 PASS`（合计 `16/16`）。
-  之后仍需大于八实例、持续
-  吞吐、其他 teardown、物理 `8 MiB` 与 cache/PSRAM 等价性；固定虚拟时钟
-  不代表实时速度或真机时序。
+  `6/6 PASS`（合计 `12/12`）。八实例历史门槛先用 `hold/12` 得到两批
+  `16/16`。最新 QEMU/runtime 的九实例探索中，两批 `9/9 PASS` 后又有
+  第三批 `8/9`，并在 `ble_hs_hci_process_ack` 复现 ACK panic，因此九实例
+  被显式拒绝，默认仍为 8。当前工具 hash 下的两批 `2x60s` 为 `4/4 PASS`，
+  并使用 `hold/40`、三次 PSRAM 数据面进度和有限网络重试。之后仍需当前
+  宿主条件下的八实例 cold-start rebind、持续吞吐、其他 teardown、物理
+  `8 MiB` 与 cache/PSRAM 等价性；固定虚拟时钟不代表实时速度或真机时序。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

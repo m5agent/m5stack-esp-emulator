@@ -298,7 +298,9 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 
 1. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
-2. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
+2. `CORE2-02`：先完成当前高负载宿主条件下的八实例 cold-start 重绑；
+   九实例需先修复 `ble_hs_hci_process_ack` 竞态，再补持续吞吐、其他
+   teardown 和物理/controller 等价性。
 3. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
 4. `RUNTIME-02`、`HW-01`：补 C6 Zigbee 生命周期和代表设备真机同路径。
 5. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
@@ -321,7 +323,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `RUNTIME-03` | 已完成（virtual-device stock startup） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 | DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0092 cache gate、0093/0094 classic WiFi data plane、0095 WDT level 和 Core2 设备组保持可重放；setup/REPL 与任意 legacy application 转 `API-01` |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
-| `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
+| `CORE2-02` | 进行中 | post-reset teardown 已完成；当前工具 hash 的两批 `2x60s` 回归已通过。继续在没有宿主过载的条件下重绑八实例 cold-start；九实例两次通过、一次在 `ble_hs_hci_process_ack` panic，先修复该竞态后才可重开。随后补持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；九实例不得通过放宽 timeout/floor 或忽略单次 guest panic 准入；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | operator-owned runtime ACL/执行策略已完成；继续 guest filesystem 权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性、service ACL 与 guest runtime 分开；unknown 不写成 PASS |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
@@ -472,8 +474,9 @@ store；丢失上传 response 后同 bytes 重试返回原 evidence ID，不同 
 ### CORE2-02
 
 已满足的前置基线：`core2-native-hci`、WiFi/公网/GATT、QOM 8 MiB PSRAM、
-upper-bank MMU、重连、长稳、active-stop、post-reset stop 和当前服务容量门禁已有虚拟设备
-evidence。精确结果只在验证台账维护。
+upper-bank MMU、重连、长稳、active-stop、post-reset stop；当前工具的
+两批 `2x60s` 已通过。九实例两次通过、一次在 ACK 路径 panic，已明确拒绝。
+精确结果只在验证台账维护。
 
 开放范围：
 

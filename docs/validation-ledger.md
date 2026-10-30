@@ -19,6 +19,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
 | `UI-02` / Cardputer-ADV 与 StackChan 输入 | 基线 main `e3f149c1`；67-patch 全新 WASM `a7fe7180…`。ADV 原 IRQ reader 的 56 物理键、PC 双 Shift/grave/Fn-Up、四旋转/四角/局部绘图及纹理读回通过。StackChan 原默认同步工作饥饿有计时负控，真实 UART 后台线程版 V4 默认镜像 `407f6260…` 的实际 105/302/803ms 点按与 Touch 坐标、同时实际位移、帧及正常 Stop 六 Worker 清场通过；187ms 最大观察轮询间隔不授任意短按保证。Arduino 对照独立记录；原用户镜像、硬件和本轮完整 native 矩阵未运行 | [范围、失败、复现](evidence/2026-10-30-cardputer-stackchan-input/README.md) |
+| `CORE2-02` 九实例容量边界与网络重检恢复 | 三次独立零错峰 `9x120s` 中，两次 `9/9 PASS`，第三次 `8/9`；失败 attempt 8 在已有真实并发 9 时触发 `ble_hs_hci_process_ack` `LoadProhibited`（`0x402630cc`），随后 `0x40092e43` 为复位次生 panic。九实例因此不进入默认容量，Device Service/runner 保持 `max-per-device=8`，并新增 concurrency 9 fail-closed 契约。当前固件/ELF/QEMU/工具 hash 下，两批独立零错峰 `2x60s` 均 `2/2 PASS`，合计 `4/4`；每 lease 完成三次 1 MiB PSRAM 连续读回、两次 controlled HTTP 和公网 recheck、WiFi/DHCP、NUS GATT、frame/32 节点 QOM、pcap、evidence 和 cleanup，HLI `45/45`，errors/prealloc/panic/GATT timeout 为 0。guest 网络 recheck 现最多三次、间隔 1 秒；PSRAM error 与可恢复 network error 分字段记录。当前 120 秒持续压力 floor 经最新 runtime 校准为 `hold/40` 且最低三次 sweep。当前高负载宿主下的八实例 cold-start tool-hash 重绑仍未 PASS，不能用旧 A/B 或宿主 BLE 初始化超时替代。全部为 virtual-device validation | [容量边界](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md)、[机器摘要](evidence/2026-10-30-core2-concurrent-capacity-boundary/summary.json)、[runner](../tests/uiflow2/core2_native_hci/run_service_5x.py)、[guest probe](../tests/uiflow2/unified_core2/main.py)、[容量契约](../platform/tests/test_core2_concurrent_capacity_boundary.py) |
 
 ## 2026-10-29
 

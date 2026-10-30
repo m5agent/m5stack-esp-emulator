@@ -38,6 +38,8 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` five-instance simultaneous cold start | `10/10 PASS with fixed icount` | the historical `shift=auto` implementation produced one `5/5 PASS` batch and an independent `3/5 FAIL` batch. Trace showed transient CPU0 interrupt masking during PSRAM initialization plus host-contention-scaled virtual time delaying HLI delivery beyond the NimBLE ACK budget. The current default fixes `icount shift=5`, and the test firmware starts BLE before WiFi and the long PSRAM workload. Two new independent zero-stagger `5×120s` batches then pass `5/5` each (`10/10`), maximum concurrency 5, with 14-15 full 1 MiB PSRAM sweeps, WiFi/public HTTP, external NUS GATT, frame/31-node QOM/pcap/evidence and zero HLI/reset/panic/dropped counters |
 | `CORE2-02` six-instance simultaneous cold start | `12/12 PASS with fixed icount` | two independent zero-stagger `6×120s` batches pass `6/6` each at maximum concurrency 6. Every lease completes WiFi/public HTTP, external NUS GATT, frame/31-node QOM/pcap/evidence and 12-13 full 1 MiB PSRAM sweeps; HLI is 45/45 and reset/panic/dropped counters are zero. Batch B retains one recoverable `hli-prealloc-failures=1` observation before completing all 36 events/9 ACLs on the fast path |
 | `CORE2-02` eight-instance simultaneous cold start | `16/16 PASS after throughput calibration` | one eight-instance control using the old 12-sweep floor failed `4/8` even though all eight guests passed WiFi/public HTTP, NUS GATT, frame/QOM/pcap/evidence with zero HLI/reset/panic; each failed lease completed 11 contiguous sweeps. The sustained floor was calibrated to `hold/12` and the failure retained. Two independent reruns then pass `8/8` each (`16/16`) at the service per-device cap of 8; each lease completes 11-12 PSRAM sweeps and both batches retain one recoverable prealloc transient |
+| `CORE2-02` nine-instance boundary | `REJECTED / default 8` | two independent zero-stagger `9x120s` batches pass `9/9`; a third independent batch fails `8/9`. The failed guest panics at `ble_hs_hci_process_ack` PC `0x402630cc` after the actual 9-session concurrency was observed. One reproducible guest panic is enough to keep the default per-device cap at 8 and reject concurrency 9 in the runner contract |
+| `CORE2-02` current network recheck recovery | `4/4 PASS` | two independent zero-stagger `2x60s` batches pass `2/2` each under the current firmware/ELF/QEMU/tool hashes. Each lease completes three 1 MiB PSRAM sweeps, two controlled HTTP and two public rechecks, WiFi/DHCP, external NUS GATT, frame/32-node QOM, pcap, evidence and cleanup, with HLI `45/45`, errors/prealloc-failures/panic/GATT timeout all zero |
 | `CORE2-02` ACK-state observability | `HISTORICAL FAIL / RETAINED` | `0010` records `ble_hs_hci_rx_evt`, its semaphore-count branch and `ble_hs_hci_ctx->hci_ack`. In the former `3 PASS / 2 FAIL` zero-stagger batch, the first Reset Complete returned from Bumble but its response→HLI timestamp delta was `4.506306s` of host trace time, not guest virtual time. At the first ACK check `ack=NULL` and the semaphore count was `0`; delayed Reset Complete packets later crossed a new `0x1001` command, producing process-ack error 12 and the secondary `0x402630cc` panic. `0010` remains default-off observability, and the historical evidence remains committed |
 
 Build the patched QEMU, then run:
@@ -291,10 +293,11 @@ The no-stagger path was diagnosed and closed for two concurrent instances:
    bounded to `120s`; GATT request and notification timeouts remain separate.
 9. The next three-instance run completed guest/network/GATT/PSRAM work, but
    two leases produced 29 sweeps against an over-tight 30-sweep floor. The
-   historical calibration used `hold/5`; with the current fixed `shift=5`
-   clock one full sweep under five-to-eight-way host contention takes about
-   ten to twelve seconds, so the current floor is `hold/12` while still requiring
-   contiguous sweeps, heartbeats, HTTP and public-network rechecks.
+   historical calibration used `hold/5`; after later QEMU/runtime changes,
+   the current `9x120s`/tool-hash lane observed about one complete sweep per
+   40-50 seconds under host contention. The current floor is `hold/40` with a
+   three-sweep minimum, while still requiring contiguous sweeps, heartbeats,
+   HTTP and public-network rechecks.
 10. Two independent three-instance `3x120s` runs then passed `3/3` each
     (`6/6` total).
 11. One four-instance `4x120s` run then reached real concurrency 4 but failed
@@ -350,11 +353,15 @@ five-instance, 120-second, bound stock-firmware workload. A further two
 independent zero-stagger `6×120s` batches pass `6/6` each (`12/12`) at real
 concurrency 6. An eight-instance control first exposed only a throughput-floor
 mismatch: four leases completed 11 contiguous PSRAM sweeps while all other
-checks passed and no guest panicked. After calibrating the sustained floor to
-`hold/12`, two independent `8×120s` batches pass `8/8` each (`16/16`) at the
-service per-device cap of 8. More than eight instances, sustained throughput,
-teardown modes beyond active-stop, physical controller timing and RF remain
-separate boundaries.
+checks passed and no guest panicked. The historical `hold/12` calibration
+produced two independent `8×120s` passes (`16/16`). The current tool hash uses
+`hold/40`, three repeated PSRAM sweeps and bounded three-attempt HTTP/public
+recheck recovery; two independent `2x60s` controls pass `4/4`. Nine-instance
+capacity is not admitted: a third independent zero-stagger `9x120s` attempt
+reproduced the NimBLE ACK panic at `0x402630cc`. A fresh eight-instance
+cold-start rebind under the current heavily loaded workstation remains open;
+more than eight instances, sustained throughput, teardown modes beyond
+active-stop, physical controller timing and RF remain separate boundaries.
 The first `2026-10-26` A/B runs rebind the `16/16` gate after manifest
 identity and unknown-required-capability semantics changed. After network
 Host/DNS hardening changed `device_service.py` and `network_policy.py`, a

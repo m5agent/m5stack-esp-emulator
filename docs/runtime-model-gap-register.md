@@ -128,6 +128,26 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### CORE2-02：九实例 native-HCI ACK delivery 未稳定
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / capacity rejected` |
+| 影响 | Core2 `qemu-unified/core2-native-hci` 的零错峰九实例准入 |
+| QEMU 现象 | 两次独立 `9x120s` 均为 `9/9 PASS`，第三次独立批次为 `8/9`；attempt 8 在 `ble_hs_hci_process_ack` PC `0x402630cc` 触发 `LoadProhibited`，随后复位中的 I2S/memset panic 是次生故障 |
+| 当前策略 | 默认 `max-per-device=8` 保持不变；runner 对 concurrency 9 fail closed。当前 tool hash 下两批 `2x60s` 为 `4/4 PASS`，网络重检支持最多三次有限重试，PSRAM 与 network error 分字段记录 |
+| 当前阻断 | 需要在真实 HLI delivery/order 或 guest preallocation 路径修复 ACK 竞态；不得用更长 GATT timeout、降低 PSRAM sweep 数或忽略一次 guest panic 把九实例写成 PASS |
+| 证据 | [容量边界](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md)、[机器摘要](evidence/2026-10-30-core2-concurrent-capacity-boundary/summary.json) |
+
+关闭条件：
+
+1. 至少两批独立零错峰九实例运行均 `9/9 PASS`，无 panic、GATT timeout 和
+   HLI error；
+2. 失败 control 保留，证明修复前后的同一 `0x402630cc` panic 路径；
+3. 结果绑定 firmware/ELF/QEMU/runner/service 哈希，并分别记录 PSRAM、
+   WiFi、公网、GATT、frame/QOM、pcap 和 cleanup；
+4. 虚拟容量结论不外推为物理 controller、RF、cache/PSRAM 或真机。
+
 ### RUNTIME-02：C6 Zigbee/802.15.4 运行时未建模
 
 | 字段 | 当前值 |

@@ -5,7 +5,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-from device_service import DEFAULT_MAX_PER_DEVICE
+from device_service import DEFAULT_MAX_PER_DEVICE, DEFAULT_MAX_SESSIONS
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
@@ -33,6 +33,8 @@ class Core2ConcurrencyContractTests(unittest.TestCase):
             self.runner.MAX_CONCURRENCY,
             DEFAULT_MAX_PER_DEVICE,
         )
+        self.assertEqual(DEFAULT_MAX_SESSIONS, 12)
+        self.assertEqual(DEFAULT_MAX_PER_DEVICE, 8)
 
     def test_concurrency_accepts_five_and_service_limit(self) -> None:
         for value in (1, 5, DEFAULT_MAX_PER_DEVICE):
@@ -45,6 +47,10 @@ class Core2ConcurrencyContractTests(unittest.TestCase):
         for value in (0, -1, DEFAULT_MAX_PER_DEVICE + 1):
             with self.assertRaises(ValueError):
                 self.runner.validate_concurrency(value)
+
+    def test_nine_instance_zero_stagger_is_not_admitted(self) -> None:
+        with self.assertRaises(ValueError):
+            self.runner.validate_concurrency(9)
 
 
 if __name__ == "__main__":

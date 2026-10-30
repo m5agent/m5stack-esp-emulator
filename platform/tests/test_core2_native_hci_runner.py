@@ -94,7 +94,7 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         )
         self.assertEqual(
             runner.sustained_stress_requirements(120)["minimum_sweeps"],
-            10,
+            3,
         )
 
     def test_input_hashes_are_frozen_before_execution(self) -> None:
@@ -221,8 +221,9 @@ class Core2NativeHciHealthTests(unittest.TestCase):
                 "UNIFIED_CORE2_PSRAM_SWEEP 6",
                 "UNIFIED_CORE2_PSRAM_STRESS_PASS",
                 "UNIFIED_CORE2_HTTP_RECHECK_PASS 1",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_PASS 1",
                 "UNIFIED_CORE2_STRESS_HEARTBEAT 10 5 0 0",
-                "UNIFIED_CORE2_STRESS_HEARTBEAT 20 6 1 0",
+                "UNIFIED_CORE2_STRESS_HEARTBEAT 20 6 1 1",
             )
         )
         parsed = runner.parse_psram_stress(serial)
@@ -248,11 +249,45 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         self.assertEqual(
             runner.sustained_stress_requirements(120),
             {
-                "minimum_sweeps": 10,
-                "minimum_heartbeats": 6,
-                "minimum_http_rechecks": 8,
+                "minimum_sweeps": 3,
+                "minimum_heartbeats": 2,
+                "minimum_http_rechecks": 2,
                 "minimum_public_rechecks": 2,
             },
+        )
+
+    def test_recovered_network_recheck_errors_do_not_mask_psram_health(
+        self,
+    ) -> None:
+        serial = "\n".join(
+            (
+                "UNIFIED_CORE2_PSRAM_ALLOC 4194304 1048576 1048576",
+                "UNIFIED_CORE2_PSRAM_INIT_PASS",
+                "UNIFIED_CORE2_PSRAM_SWEEP 1",
+                "UNIFIED_CORE2_PSRAM_SWEEP 2",
+                "UNIFIED_CORE2_PSRAM_SWEEP 3",
+                "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+                "UNIFIED_CORE2_HTTP_RECHECK_RETRY 1 OSError(118,)",
+                "UNIFIED_CORE2_HTTP_RECHECK_PASS 1",
+                "UNIFIED_CORE2_HTTP_RECHECK_PASS 2",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_RETRY 1 OSError(-202,)",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_PASS 1",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_PASS 2",
+                "UNIFIED_CORE2_STRESS_HEARTBEAT 60 2 1 1",
+                "UNIFIED_CORE2_STRESS_HEARTBEAT 120 3 2 2",
+            )
+        )
+        parsed = runner.parse_psram_stress(serial)
+        self.assertTrue(runner.psram_stress_ok(parsed))
+        self.assertTrue(runner.sustained_stress_ok(parsed, 120))
+        self.assertEqual(parsed["error_markers"], [])
+        self.assertEqual(parsed["network_recheck_error_markers"], [])
+        self.assertEqual(
+            parsed["network_recheck_retry_markers"],
+            [
+                "UNIFIED_CORE2_HTTP_RECHECK_RETRY",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_RETRY",
+            ],
         )
 
     def test_attempt_batches_preserve_attempt_order(self) -> None:

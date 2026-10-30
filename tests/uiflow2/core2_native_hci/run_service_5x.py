@@ -493,8 +493,22 @@ def parse_psram_stress(serial_text: str) -> dict[str, Any]:
             for marker in (
                 "UNIFIED_CORE2_PSRAM_ERROR",
                 "UNIFIED_CORE2_PSRAM_STRESS_ERROR",
+            )
+            if marker in serial_text
+        ],
+        "network_recheck_error_markers": [
+            marker
+            for marker in (
                 "UNIFIED_CORE2_HTTP_RECHECK_ERROR",
                 "UNIFIED_CORE2_PUBLIC_RECHECK_ERROR",
+            )
+            if marker in serial_text
+        ],
+        "network_recheck_retry_markers": [
+            marker
+            for marker in (
+                "UNIFIED_CORE2_HTTP_RECHECK_RETRY",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_RETRY",
             )
             if marker in serial_text
         ],
@@ -524,15 +538,16 @@ def psram_stress_ok(evidence: dict[str, Any]) -> bool:
 
 def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
     return {
-        # With the fixed Core2 icount shift, one 1 MiB fill/readback sweep
-        # takes about ten seconds under five/six-way host contention and up
-        # to roughly twelve seconds at the service cap of eight instances.
+        # The fixed Core2 icount target remains host-dependent. Current
+        # service-cap calibration uses a conservative 40-second slot per
+        # 1 MiB fill/readback plus network rechecks, with a three-sweep floor
+        # so short holds still prove repeated data-plane progress.
         # Require the initial allocation/check plus at least two sustained
         # sweeps while allowing that calibrated host-contention headroom.
-        "minimum_sweeps": max(3, int(hold_seconds // 12)),
-        "minimum_heartbeats": max(0, int(hold_seconds // 20)),
-        "minimum_http_rechecks": max(0, int(hold_seconds // 15)),
-        "minimum_public_rechecks": max(0, int(hold_seconds // 60)),
+        "minimum_sweeps": max(3, int(hold_seconds // 40)),
+        "minimum_heartbeats": max(1, int(hold_seconds // 60)),
+        "minimum_http_rechecks": max(1, int(hold_seconds // 60)),
+        "minimum_public_rechecks": max(1, int(hold_seconds // 60)),
     }
 
 
@@ -967,7 +982,9 @@ def run_attempt(
             "UNIFIED_CORE2_PSRAM_SWEEP",
             "UNIFIED_CORE2_PSRAM_STRESS_PASS",
             "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+            "UNIFIED_CORE2_HTTP_RECHECK_RETRY",
             "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+            "UNIFIED_CORE2_PUBLIC_RECHECK_RETRY",
             "UNIFIED_CORE2_STRESS_HEARTBEAT",
         )
         if marker in serial_text

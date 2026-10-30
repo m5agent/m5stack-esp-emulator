@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "core2-concurrent-capacity-boundary",
+  "date": "2026-10-30",
+  "validation": "virtual-device validation",
+  "status": "BOUNDARY_CONFIRMED",
+  "capacity": {
+    "default_max_sessions": 12,
+    "default_max_per_device": 8,
+    "nine_instance_admitted": false,
+    "nine_instance_attempts": 3,
+    "nine_instance_passes": 2,
+    "nine_instance_failures": 1
+  },
+  "inputs": {
+    "nine_instance_firmware_sha256": "b228ae0f224098e5a256ab87cbfdad5e3671eeea51766f4727cf7ef2070d5093",
+    "current_two_instance_firmware_sha256": "ae094f4824d15499a5770018393660d1051866743dec52265552b6fc23eb2a23",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "54e7a7f7cd0ff6f5a1d6343c06563388f49c2b0abbca4cafb850876e57ed1254"
+  },
+  "raw_evidence": {
+    "nine_pass_a": {
+      "sha256": "67f755e6d7aebe0174f453b3fc991fb046f88e707e2ac4162ce846dc4755dd25",
+      "status": "PASS",
+      "attempts": 9,
+      "attempts_passed": 9,
+      "maximum_concurrent_sessions": 9,
+      "stagger_seconds": 0,
+      "hold_seconds": 120,
+      "runner_sha256": "ac6a81546e060eb9b8a717873bfaae65fd0f750b892b582d083814eff865e642"
+    },
+    "nine_pass_b": {
+      "sha256": "70926d8cd1f8fdc1ae5241f9b8c9fc62abeb11e1da826a06add1e760ba2581f2",
+      "status": "PASS",
+      "attempts": 9,
+      "attempts_passed": 9,
+      "maximum_concurrent_sessions": 9,
+      "stagger_seconds": 0,
+      "hold_seconds": 120,
+      "runner_sha256": "ac6a81546e060eb9b8a717873bfaae65fd0f750b892b582d083814eff865e642"
+    },
+    "nine_failure": {
+      "sha256": "24c4d62aac73ff5a048f4104de514a6e9714be8aa1f6063745753e5adedf71b1",
+      "status": "FAIL",
+      "attempts": 9,
+      "attempts_passed": 8,
+      "attempts_failed": 1,
+      "maximum_concurrent_sessions": 9,
+      "stagger_seconds": 0,
+      "hold_seconds": 120,
+      "runner_sha256": "6568cdf7fdbd56dda7cdb6750ae6bc16047813b5fff36efa3812f0154b5b2d7d",
+      "failed_attempt": "attempt-8",
+      "failure_phase": "wait_ready",
+      "failure_class": "panic_load_prohibited",
+      "first_panic": {
+        "kind": "LoadProhibited",
+        "pc": "0x402630cc",
+        "exccaue": "0x0000001c",
+        "symbol": "ble_hs_hci_process_ack"
+      },
+      "secondary_panic": {
+        "kind": "StoreProhibited",
+        "pc": "0x40092e43",
+        "exccaue": "0x0000001d"
+      },
+      "peer_gatt_timeout": false
+    },
+    "current_two_pass_a": {
+      "sha256": "dfd80cead1f73cdd94f8ccee8f79322e3c55105945637e08c01bece47b2ba146",
+      "status": "PASS",
+      "attempts": 2,
+      "attempts_passed": 2,
+      "maximum_concurrent_sessions": 2,
+      "stagger_seconds": 0,
+      "hold_seconds": 60
+    },
+    "current_two_pass_b": {
+      "sha256": "1a65e9612473ffa79c7df4c76fa5900168271293721c77cd1387aac269d0e382",
+      "status": "PASS",
+      "attempts": 2,
+      "attempts_passed": 2,
+      "maximum_concurrent_sessions": 2,
+      "stagger_seconds": 0,
+      "hold_seconds": 60
+    }
+  },
+  "current_tool_hashes": {
+    "runner": "a9d1f678f2509e794bb4d98e4e4bd5540531df512adec8479543ca73be1da013",
+    "device_service": "5b4ed0f576dae7a23151049f753acdfd6bf1ddce2d44e3c3389413b2b6349acb",
+    "qemu_accel": "6ae04d310fd68c99e6200813689af4fbcb75d0a890c8e5882027a16ea35d1dc9",
+    "ble_runtime_limits": "30148f7f3df98fd930a8ee35ed61ec0f6fe6baed3b7a026cea757e34072ea385",
+    "ble_probe": "09b0b354a6010cdb639e65609f7aed42664990451509da34f1550017ddfc8ffd",
+    "network_policy": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+    "unified_http_guestfwd": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+  },
+  "current_two_instance": {
+    "runs": 4,
+    "passes": 4,
+    "failures": 0,
+    "psram_sweeps_per_run": 3,
+    "http_rechecks_per_run": 2,
+    "public_rechecks_per_run": 2,
+    "psram_error_markers": 0,
+    "network_recheck_error_markers": 0,
+    "panic_count": 0,
+    "gatt_timeout_count": 0,
+    "hli_posts": 45,
+    "hli_consumed": 45,
+    "hli_errors": 0,
+    "hli_prealloc_failures": 0,
+    "qom_memory_bytes": 8388608,
+    "cleanup_errors": 0
+  },
+  "runtime_changes": {
+    "extended_gatt_request_timeout_seconds": 45,
+    "extended_notification_timeout_seconds": 45,
+    "controlled_http_socket_timeout_seconds": 20,
+    "public_http_socket_timeout_seconds": 25,
+    "network_recheck_attempts": 3,
+    "network_retry_delay_ms": 1000,
+    "sustained_floor_120s": {
+      "minimum_sweeps": 3,
+      "minimum_heartbeats": 2,
+      "minimum_http_rechecks": 2,
+      "minimum_public_rechecks": 2
+    }
+  },
+  "not_claimed": [
+    "nine-instance capacity",
+    "fresh eight-instance cold-start rebind under the current host-load condition",
+    "physical PSRAM capacity or timing",
+    "bit-exact Espressif BT controller or baseband",
+    "physical RF or hardware validation"
+  ]
+}
