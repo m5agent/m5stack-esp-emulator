@@ -72,7 +72,7 @@
 | `RUNTIME-06` | 进行中 | controller loopback、plaintext、CCMP、单 peer 64-frame replay window、native 与 wrapper lifecycle 已有证据；guest key-state 写入 bridge、key rotation、multi-peer replay、跨设备 fabric 与 RF/timing 仍 OPEN |
 | `SVC-01` | 进行中 | 跨主机/namespace-managed/Tab5 companion 与跨主机幂等 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
-| `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略与私有 env 脱敏边界已拆出；继续拆分 `device_service.py` 编排热区 |
+| `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME、设备规格/profile 和 storage/NVS execution parsing 边界已拆出；继续拆分 `device_service.py` 编排热区 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 真机验证 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归 |
