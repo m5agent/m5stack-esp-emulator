@@ -15,7 +15,14 @@ class DocsIndexContractTests(DocsContractBase):
     def test_required_contract_documents_exist(self) -> None:
         for relative in (
             "README.md",
+            "README.en.md",
             "AGENTS.md",
+            "devices/AGENTS.md",
+            "platform/tools/AGENTS.md",
+            "platform/web/AGENTS.md",
+            "tests/AGENTS.md",
+            "patches/AGENTS.md",
+            "docs/AGENTS.md",
             "docs/README.md",
             "docs/engineering-handoff.md",
             "docs/workstreams.md",
@@ -665,7 +672,13 @@ class DocsIndexContractTests(DocsContractBase):
     def test_relative_markdown_links_exist(self) -> None:
         paths = [
             ROOT / "README.md",
+            ROOT / "README.en.md",
             ROOT / "AGENTS.md",
+            ROOT / "devices" / "AGENTS.md",
+            ROOT / "platform" / "tools" / "AGENTS.md",
+            ROOT / "platform" / "web" / "AGENTS.md",
+            ROOT / "tests" / "AGENTS.md",
+            ROOT / "patches" / "AGENTS.md",
             ROOT / "platform" / "README.md",
             ROOT / "devices" / "README.md",
             *sorted((ROOT / "devices").rglob("README.md")),

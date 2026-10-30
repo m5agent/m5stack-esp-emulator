@@ -1,60 +1,72 @@
-# 设备档案矩阵
+# 设备档案与运行时登记
 
-一页理解代码阅读顺序、成熟度和下一步，见
-[`docs/engineering-handoff.md`](../docs/engineering-handoff.md)。
+本目录保存设备的硬件档案、固件来源和运行时登记。当前型号、后端及未完成项
+统一查看[自动项目快照](../docs/project-snapshot.md)和
+[项目当前状态](../docs/project-status.md)；逐次验证见[证据台账](../docs/validation-ledger.md)。
 
-项目级能力和最新验证快照见
-[`docs/project-status.md`](../docs/project-status.md)；本页只描述设备登记与
-运行时分类。
+## 登记来源
 
-| 分组 | 型号 | SoC | 显示 | UIFlow2 | m5ui | 运行时 |
-| --- | --- | --- | --- | --- | --- | --- |
-| ESP32-S3 | StickS3 | ESP32-S3 | 135×240 | 支持 | 否 | reference-ready |
-| ESP32-S3 | CoreS3 | ESP32-S3 | 320×240 触摸 | 支持 | 是 | reference-ready |
-| ESP32-S3 | StopWatch | ESP32-S3R8 | 466×466 圆屏触摸 | 支持 | 是 | reference-ready |
-| ESP32-S3 | Cardputer-ADV | ESP32-S3FN8 | 240×135 + 56 键 | 支持 | 否 | reference-ready |
-| ESP32-S3 | PaperMono | ESP32-S3R8 | 480×800 单色 EPD 触摸 | 支持 | 否 | reference-ready |
-| ESP32-S3 | PaperColor | ESP32-S3R8 | 400×600 彩色 EPD | 支持 | 否 | reference-ready |
-| ESP32-S3 | StackChan | ESP32-S3 | 320×240 触摸 + 舵机 | 支持 | 是 | reference-ready |
-| ESP32-S3 | AtomS3R | ESP32-S3 | 128×128 | 支持 | 否 | reference-ready |
-| ESP32-S3 | StamPLC | ESP32-S3FN8 | 135×240 | 支持 | 否 | reference-ready |
-| ESP32-C6 | NanoC6 | ESP32-C6FH4 | 无屏 | 支持 | 否 | headless-ready |
-| ESP32-C6 | Arduino Nesso N1 | ESP32-C6 | 135×240 触摸 | 支持 | 否 | reference-ready |
-| ESP32-P4 | Tab5 | ESP32-P4 + C6 | 1280×720 触摸 | 支持 | 是 | reference-ready（外设 partial） |
-| ESP32 LX6 | Core2 | ESP32-D0WDQ6-V3 | 320×240 触摸 | 支持 | 是 | reference-ready |
-| Linux ARM64 | CardputerZero | RP3A0 / BCM2837 | 320×170 + 46 键 | 不支持 | 否 | backend-required |
+| 文件 | 职责 |
+| --- | --- |
+| [`catalog.source.json`](catalog.source.json) | 可编辑的设备源清单：型号/修订、SoC、内存、接线、固件来源、状态与 blocker |
+| [`catalog.json`](catalog.json) | 供页面使用的生成目录 |
+| [`platform/qemu/profiles.json`](../platform/qemu/profiles.json) | 原生后端、machine/profile 与运行时要求 |
+| [`platform/peripherals/catalog.json`](../platform/peripherals/catalog.json) | 外设组件、数据面、设备本地覆盖与完成度契约 |
+| [`platform/web/qemu-browser-profiles.json`](../platform/web/qemu-browser-profiles.json) | 浏览器执行的逐设备准入和固件配置 |
 
-`catalog.source.json` 是设备档案的权威源；运行 `python3 platform/tools/generate_catalog.py` 重新生成目录和每个设备的 JSON/README。
+原生后端登记、浏览器准入和三维外壳是不同范围。浏览器运行还需匹配构建中的
+machine/profile、固件与该设备的执行证据；只有外壳的型号可以浏览模型，
+不能因此获得固件兼容性。Tab5 的 P4 路径与 CardputerZero 的 Linux 后端
+分别验收，不继承其它 ESP32 型号的结果。
 
-> `reference-ready` 当前表示显示和输入重绘闭环；`headless-ready` 表示无屏
-> 设备的固件、串口、板级外设和自动化数据面闭环。IMU、摄像头、音频等外设 API
-> 的完整度以 [`docs/uiflow2-peripheral-test-matrix.md`](../docs/uiflow2-peripheral-test-matrix.md)
-> 为准。
->
-> `backend-required` 是固件族分类，表示设备使用独立架构后端，不表示后端还没有
-> 实现。CardputerZero 的实际完成度仍是 `PARTIAL`，具体边界见
-> [`docs/project-status.md`](../docs/project-status.md)。
+## 目录导航
 
-## 统一虚拟主机回归
+| 目录 | 档案分组 |
+| --- | --- |
+| [`esp32-s3/`](esp32-s3/) | ESP32-S3 主控 |
+| [`esp32-c6/`](esp32-c6/) | ESP32-C6 主控 |
+| [`esp32-lx6/`](esp32-lx6/) | 经典 ESP32 / LX6 主控 |
+| [`esp32-p4/`](esp32-p4/) | ESP32-P4 主控 |
+| [`linux-arm64/`](linux-arm64/) | 独立 Linux ARM64 设备 |
 
-运行全部 ESP32 虚拟主机：
+每个设备子目录的 `device.json`、`firmware.json` 和 `README.md` 来自源清单。
+`index.html` 指向该设备入口；设备专用补充说明放在 `README.extra.md`，生成时
+会合并到设备 README。此根索引为维护导航，不由目录生成器重写。
 
-```bash
-python3 tests/uiflow2/run_device_matrix.py \
-  --out-dir /tmp/m5-uiflow2-device-matrix
+`reference-ready`、`headless-ready` 等标签说明已登记的参考路径，
+`backend-required` 表示使用独立固件族/后端，不能解读为后端尚未实现。
+这些标签不表示所有外设、SDK 或上传固件均兼容；组件的 `partial`/`planned`
+与具体 blocker 仍以外设契约和当前状态为准。
+
+## 维护与准入
+
+修改 `catalog.source.json` 后，从仓库根目录生成设备档案并校验跨目录契约：
+
+```sh
+python3 platform/tools/generate_catalog.py
+python3 platform/tools/qemu_profiles.py --check
+python3 platform/tools/peripheral_catalog.py --check
+python3 platform/tools/runtime_coverage.py --check
 ```
 
-单独运行一个型号：
+生成器更新 `catalog.json` 以及各设备的 JSON、README 和入口页；profile 与外设
+登记仍需按各自契约同步维护。不要直接修改生成文件来隐藏源清单的缺失。
+新增设备的官方硬件依据、控制器/总线接入、设备本地探针和覆盖登记步骤见
+[设备维护指南](AGENTS.md)与[外设契约](../platform/peripherals/README.md)。
 
-```bash
-python3 tests/uiflow2/run_device_matrix.py --device nesso-n1
-```
+兼容 UIFlow2、Arduino、ESP-IDF 或其它固件，需要逐一确认芯片、board profile、
+Flash/PSRAM、分区/镜像布局、eFuse/安全配置和控制器覆盖。某个参考固件通过，
+不授予同型号全部 SDK 或其它镜像相同结论。
 
-矩阵会为每个有屏设备检查目标分辨率首帧、输入后的画面变化，并输出规范
-`before.png`/`after.png`。ESP32-S3/C6/P4 先通过 `esp-emu` + `esptool`
-执行 `write-flash`，Core2 通过 QEMU ESP32 ROM + `esptool --no-stub`
-写入，写完均逐字节校验完整虚拟 flash。NanoC6 无显示屏，检查
-USB-Serial-JTAG、RGB、IR、WiFi 和 BLE 标记，并以 `headless-ready` 表示；
-该 ESP32 矩阵中的其余有屏设备均已进入 `reference-ready`。Tab5 的运行时已
-进入 `reference-ready`，但外设整体仍是 `partial`；CardputerZero 仍按独立
-Linux 后端单独验收。
+## 验证入口
+
+[测试总索引](../tests/README.md)区分平台契约、设备/外设回归、网络和独立后端。
+显示/输入回归由 [`device_matrix.json`](../tests/uiflow2/device_matrix.json)与
+[`run_device_matrix.py`](../tests/uiflow2/run_device_matrix.py)选择具体 backend、
+镜像组合、虚拟烧录传输及断言；外设数据面另按设备本地 case 验证。
+
+直接 runner 用于仓库回归开发和复现。一般固件功能测试使用可观察的独立
+Device Service session；浏览器 WASM 使用其独立静态站验证路径，见
+[功能测试流程](../docs/device-functional-test-workflow.md)。
+所有仿真结果属于虚拟设备验证，物理 RF、功耗、声学、光学、机械和电气行为
+仍需同路径硬件证据。

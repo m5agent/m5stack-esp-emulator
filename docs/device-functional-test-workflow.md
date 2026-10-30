@@ -1,30 +1,34 @@
 # Virtual-device functional-test workflow
 
-Status: implemented routing rule, reviewed `2026-10-25`.
+Status: implemented routing rule.
 
-Last reviewed: `2026-10-28`. Current capability and open tasks live in the
+Last reviewed: `2026-10-30`. Current capability and open tasks live in the
 [project status](project-status.md) and [project backlog](project-backlog.md).
 
-This document separates two workflows that previously shared the same Agent
-context:
+Choose the execution path from the user intent:
 
 | User intent | Entry point | Persistent result |
 | --- | --- | --- |
 | Test firmware functions or a UIFlow2 image | Dedicated agent Device Service, separate port/state/token | Live/history session with frame, serial, state and evidence |
 | Explicitly test browser-WASM execution | Exported static site / authorized Pages URL | Browser-local session, source/runtime/firmware SHA, serial/frame/input and cleanup evidence |
-| Review, approve, reject or publish an M5Burner pending version | Firmware review control plane on `8790` | Review job and linked Device Service history |
+| Review, approve, reject or publish an M5Burner pending version | Configured firmware review control plane | Review job and linked Device Service history |
 
 A functional test is not a firmware review request. The review control plane
 may call the Device Service when a review needs execution, but it is not the
 general virtual-device entry point.
 
-The user's service on `8787` is reserved: do not use, stop or restart it for
-agent tests. Browser-WASM acceptance has no remote lease or `/api/v1` session;
+Use an agent-owned port, state directory and control token; preserve services
+and sessions owned by others. Follow the reserved-port rules in
+[AGENTS.md](../AGENTS.md). Browser-WASM acceptance has no remote lease or `/api/v1` session;
 it executes the guest entirely in the browser. Follow the same-guest evidence
 rules, preserve the exact exported artifact and keep browser results distinct
 from native/service and physical hardware results. See [Pages deployment](pages-deployment.md).
 
 ## Required device-service flow
+
+Before intake, verify the selected chip/board profile, controller coverage,
+Flash/PSRAM/eFuse and image layout. Acceptance of an upload does not establish
+that the image can execute on that device.
 
 1. Upload the exact source artifact with `POST /api/v1/artifacts`.
 2. Compose the matching merged or segmented image with
@@ -40,6 +44,22 @@ from native/service and physical hardware results. See [Pages deployment](pages-
    released unless `retain_flash=1` is requested.
 7. Re-read `GET /api/v1/sessions` or the Live sessions page and confirm the
    stopped session, last frame and lifecycle events are retained.
+
+## Required browser-WASM flow
+
+1. Use the exact exported artifact on an isolated static origin or an authorized
+   Pages URL; record its manifest plus runtime/source/firmware hashes.
+2. Start one browser-local instance and wait for the actual guest ready marker.
+3. Exercise the real DOM input path, then read that guest's serial,
+   framebuffer/model texture and relevant controller state.
+4. Download its local run record before stopping. Record normal Stop, guest
+   exit, nested pthread and engine Worker targets independently, before closing
+   the browser context. A closing notification or forced context teardown alone
+   does not establish clean shutdown; preserve failures as `PARTIAL`/`FAIL`.
+5. Keep browser-local evidence separate from Device Service lease/history/ZIP
+   results and from physical hardware. Do not call `/api/v1` to fill a missing
+   browser observation. Publication acceptance is defined in the
+   [Pages guide](pages-deployment.md), not by a build or screenshot alone.
 
 ## Persistence behavior
 

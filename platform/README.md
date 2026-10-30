@@ -1,6 +1,6 @@
 # Platform
 
-Last reviewed: `2026-10-28`
+Last reviewed: `2026-10-30`
 
 一页理解代码阅读顺序、成熟度和下一步，见
 [`docs/engineering-handoff.md`](../docs/engineering-handoff.md)。
@@ -17,7 +17,7 @@ Last reviewed: `2026-10-28`
 platform/
 ├── qemu/                 # QEMU machine/profile 注册表
 ├── peripherals/          # 外设契约、runtime coverage 和模板
-├── runtime/wasm/         # esp-emu WASM 运行时
+├── runtime/              # 运行时资产说明；WASM/Worker 由构建与导出流程准备
 ├── schema/               # device.json schema
 ├── tests/                # API、catalog、manifest、network、文档契约测试
 ├── tools/                # Device Service、固件、网络、生成器和证据工具
@@ -30,12 +30,16 @@ platform/
 | --- | --- | --- |
 | `qemu-esp32s3` | 当前 ESP32-S3 设备集合（数量见自动快照） | 产品主路径：板级外设、WiFi MAC/DMA、UART HCI BLE |
 | `qemu-esp32c6` | NanoC6、Nesso N1 | 产品主路径：C6 板级模型、WiFi MAC/DMA、UART HCI BLE |
-| `qemu-esp32lx6` | Core2 | 产品主路径：LX6 板级、OpenMAC WiFi、HCI-offload 与 no-GDB `core2-native-hci` |
+| `qemu-esp32lx6` | Core2 与已登记的经典 Atom/Stick 型号 | 板级路径按设备 profile；Core2 使用 OpenMAC WiFi、HCI-offload 与 no-GDB `core2-native-hci` |
 | `esp-emu 0.50.0` | Tab5 | P4 专用例外：烧录、启动、framebuffer、touch mailbox、RS-485、静态 I2C |
 | Linux ARM64 QEMU | CardputerZero | 独立 Linux 后端，不是 ESP32/UIFlow2 路径 |
 | `esp-emu runtime=network` | 诊断/Provisioning | 网络和 SoftAP 排障 lane，不提供整机板级 PASS |
-| `qemu-wasm` / C/QEMU | CoreS3 离线 LVGL / 触摸 / Port A PIR | 公众默认浏览器配置，双 CPU/板级控制器与 vm-div8；见[Pages 范围与证据](../docs/evidence/2026-10-28-qemu-wasm-pages/README.md) |
+| `qemu-wasm` / C/QEMU | registry 已准入的 Xtensa 板型固定示例及显式兼容镜像 | 浏览器本地 CPU/控制器执行；CoreS3 保留 div8 基线及正常时钟 SDK 候选，其它板按各自 profile；见[Pages 范围与部署](../docs/pages-deployment.md) |
 | `browser-wasm` / esp32sim | PaperS3、StopWatch 官方演示子集 | 独立 Rust 研究原型，默认 Pages 不部署；历史结果见[公众入口证据](../docs/evidence/2026-10-28-public-simulator/README.md) |
+
+浏览器模式不创建远程 `/api/v1` lease；原生设备注册、视觉模型与浏览器准入
+分别维护。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 不继承 Xtensa
+浏览器结论，已编译 machine 也不等于全部外设或任意固件可用。
 
 QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外设、WiFi、
 受控 HTTP、BLE peer 和 evidence。它们仍是功能级虚拟设备，不是完整 PHY/RF、
@@ -101,35 +105,13 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - bit-exact Espressif BT controller/baseband、大于当前服务容量、active-stop
   之外的 teardown 和真机仍未完成。bounded-TCG host-memory 结论只覆盖已测试
   的长稳 workload。
-- Core2 legacy UIFlow 的 shared I2C、equal-deadline timer、TIMG WDT-mask、
-  high-priority DPORT IRQ 协作和 classic RMT 已分别修复或验证；同一固件
-  已到达 `APIKEY`，但 normal-WDT 仍由 TG0 stage-1 触发 system reset，
-  reset PC `0`。
-  `0036` 已在 SSI/m25p80 数据面内实现保留命令/地址/dummy/CS 状态的批量
-  read，字节等价、Core2 UIFlow2 设备组和共享控制器完整矩阵通过；它仍未
-  关闭 legacy。`0037` 已统一 virtual time/CPU/PC handoff trace；早期
-  normal-WDT 配置曾在最后 feed 后出现 `800 ms` timeout，WDT-disabled
-  `sample=1024` 与 trace-off Serial 相同。后续 BIN/ELF 字节审计拒绝了
-  local UIFlow2 v2.5.3 ELF 对 public legacy v1.15.4 BIN 的 UART/VM 符号
-  映射；最后 CPU0 地址簇来自 public BIN，控制流看似 cross-core
-  Flash/cache-disable handoff，但精确函数仍缺 matching ELF/MAP。
-  `0038` 的 exact-time `SIGSTOP` 对照进一步显示 14.800 s 早窗口无固定 PC，
-  15.301 s 晚窗口稳定落在 CPU0 `0x40087980` / CPU1 `0x40084484`；
-  源码形态匹配旧 IDF Flash block/cache handshake。`0039` state sweep
-  证明 CPU1 在 CPU0 等待期间继续执行，cache/SSI/cross-core counters
-  持续增长；`0040` setter trace 在首次 reset 前记录约 4,376 次完成的
-  complete/can-start handoff。三次 WDT liveness 对照显示 TG1 到 TG0
-  stage-1 reset 前仍持续 feed，最后间隔仅 1.779-4.271 ms，历史 800 ms
-  gap 未复现。永久跨核 deadlock、UART 和“TG1 feed 停止”解释均撤回，
-  WDT-off 45/120 秒对照又显示 Flash 工作约 44 秒结束后，CPU0 进入 waiti
-  idle，CPU1 在 `0x40100049` 的 LVGL `lv_refr_vdb_flush` 双缓冲 wait 中
-  持续自旋。`0041` 提供默认关闭的寄存器、对象指针和有界 stack dump；
-  late-loop 语义已绑定。`0064` 修复 pending SPI source remap；`0065` 证明
-  旧固定双 PC 是 TCG slice 下的 DPORT start/end ordering artifact，并在
-  level-4/5 `memw`/`retw` 协议点协作让出；`0066` 补 classic RMT 并让 Serial
-  到达 `APIKEY`。最终 normal-WDT 控制仍在 `17.249530334 s`
-  `TG0WDT_SYS_RESET`，WDT-off 68 秒仍是 302-byte 黑帧，display completion、
-  setup/REPL 和非空应用帧仍未闭环。
+- Core2 legacy UIFlow 的 shared I2C、equal-deadline timer、stateful SSI、
+  DPORT handoff、classic RMT 和 `0095` WDT level delivery 已修复；原厂
+  normal-WDT startup 可保持 API Key UI，并进入 Wi-Fi Connect 页面。
+  `RUNTIME-03` 仅关闭该固定固件的启动范围，setup/REPL、完整 factory
+  application 和任意用户程序仍由 `API-01` 单独覆盖。三次 WDT liveness、
+  WDT-off late-state、`0x40100049` LVGL wait 等属于修复前的诊断历史，
+  不再是当前 stock startup 阻断；详见[模型缺口登记](../docs/runtime-model-gap-register.md)。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

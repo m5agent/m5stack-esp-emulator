@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "kind": "readme-documentation-image-capture-summary",
+  "date": "2026-10-30",
+  "status": "PASS_ILLUSTRATION_SCOPE_ONLY",
+  "source_commit": "674665ea008e65f26aae105ac927e4b1e2909746",
+  "site_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "runtime_manifest_sha256": "eeb6f5cedab9dfc4cb69e9467c832e0bb5e478c87c715855d40fb365194c4e44",
+  "assets": {
+    "browser-workbench.png": {
+      "bytes": 186680,
+      "sha256": "122ba6d8f5d9c464173933a61e94393bd1b3af9260fdfdfaf18826c0348e0e53",
+      "width": 1440,
+      "height": 1040,
+      "visual_review": "Viewed: actual guest display/UI is legible"
+    },
+    "device-models.png": {
+      "bytes": 91619,
+      "sha256": "f3f18cbecd5de5a4968a58f49b115979ae96e25dd1a5299ce07d8c6e796c8057",
+      "width": 1440,
+      "height": 600,
+      "visual_review": "Viewed: four complete models with labels; Atom Lite top and USB/Grove side visible; black screens retained"
+    }
+  },
+  "total_image_bytes": 278299,
+  "hero": {
+    "started_at": "2026-10-30T03:55:54.305Z",
+    "finished_at": "2026-10-30T03:56:53.907Z",
+    "device": "cores3",
+    "profile": "cores3-wasm-wallclock-sdk-candidate",
+    "clock_divisor": 1,
+    "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+    "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+    "scheduler_candidate": "sdk-python-single-schedule-v1",
+    "ready_event": {
+      "button_center": [
+        160,
+        184
+      ],
+      "seq": 4,
+      "height": 240,
+      "width": 320,
+      "white_gpio": 1,
+      "fixture": "cores3-wasm-lvgl-wallclock-v1",
+      "kind": "ready",
+      "yellow_gpio": 2
+    },
+    "native_frame": {
+      "width": 320,
+      "height": 240,
+      "bytes": 153600,
+      "sha256": "2aadf4180b21eeb01dbf59ecb2179af97b12a312aadc0790baaf9cd4c864cbcc"
+    },
+    "serial": {
+      "bytes": 958,
+      "sha256": "0df704bfc6078d7fae9eb9b41964be6cd0bd4d58289d144c72ed19663d1a47d0"
+    },
+    "texture_observation_count": 36,
+    "all_texture_observations_match": true,
+    "input_commands_sent": 0,
+    "raw_report": {
+      "bytes": 3728763,
+      "sha256": "95493c8386d3406cfc088d289d427200a22dbd0ed8bbcf506f704ef62352efb1"
+    },
+    "capture_source_sha256": "64a751e4040e6caf6ccda1cdf381f4be8c6275baa393e96d1cd9ec3780e9c7ed",
+    "normal_stop": {
+      "exit_code": 0,
+      "graceful_exit": true,
+      "nested_workers_created": 5,
+      "nested_workers_remaining": 0,
+      "engine_fallback_terminations": 0,
+      "cdp_targets_observed": 6,
+      "cdp_targets_remaining_before_context_close": 0
+    }
+  },
+  "gallery": {
+    "started_at": "2026-10-30T03:59:11.938Z",
+    "finished_at": "2026-10-30T03:59:13.960Z",
+    "guest_execution": "NOT RUN",
+    "models": [
+      {
+        "device_id": "atom-lite",
+        "view_quaternion": [
+          -0.31153348061684494,
+          -0.2933806116610419,
+          -0.07497500704958962,
+          0.9006960949588163
+        ],
+        "frame_sequence": 0,
+        "display_black": true,
+        "printed_artwork": [
+          {
+            "status": "ready"
+          },
+          {
+            "status": "ready"
+          }
+        ]
+      },
+      {
+        "device_id": "atoms3",
+        "view_quaternion": [
+          0.18336363421919394,
+          -0.30790594160786283,
+          0.11006420038280817,
+          0.9270693504601466
+        ],
+        "frame_sequence": 0,
+        "display_black": true,
+        "printed_artwork": [
+          {
+            "status": "ready"
+          },
+          {
+            "status": "ready"
+          },
+          {
+            "status": "ready"
+          }
+        ]
+      },
+      {
+        "device_id": "stickc-plus2",
+        "view_quaternion": [
+          0.18336363421919394,
+          -0.30790594160786283,
+          0.11006420038280817,
+          0.9270693504601466
+        ],
+        "frame_sequence": 0,
+        "display_black": true,
+        "printed_artwork": [
+          {
+            "status": "ready"
+          }
+        ]
+      },
+      {
+        "device_id": "sticks3",
+        "view_quaternion": [
+          0.18336363421919394,
+          -0.30790594160786283,
+          0.11006420038280817,
+          0.9270693504601466
+        ],
+        "frame_sequence": 0,
+        "display_black": true,
+        "printed_artwork": [
+          {
+            "status": "ready"
+          },
+          {
+            "status": "ready"
+          },
+          {
+            "status": "ready"
+          }
+        ]
+      }
+    ],
+    "raw_report": {
+      "bytes": 19588,
+      "sha256": "a768eb0d885e114aa6a9283fba8db030c48a59bb6944fa3284197ada2f62085a"
+    },
+    "capture_source_sha256": "9c67fc34f52c8769f4476cc1faccaba62d7ac08aa86a4a869a6216a6c8d4ad65",
+    "framing": "Existing viewer/camera pose and fit only; no geometry or simulated output changes"
+  },
+  "protected_service_requests": 0,
+  "page_errors": [],
+  "input_validation": "NOT RUN in final capture; no touch/PIR PASS is claimed",
+  "hardware_validation": "NOT RUN",
+  "full_device_regression": "NOT RUN",
+  "prior_capture_attempts": [
+    {
+      "attempt": "v1",
+      "status": "FAIL",
+      "report_bytes": 26207,
+      "report_sha256": "9b14248a605046b04d37ea90749d8968c5d2a386b485a0445b35d98ed4b75492",
+      "source_sha256": "acd398d7ef8d8518b3951092b0edf58b11ce08f386a0198c5f8925d742941427",
+      "scope": "Ready and frame seen; touch_clicked wait timed out in preliminary raw-screen capture workflow; no driver/controller conclusion or input PASS assigned"
+    },
+    {
+      "attempt": "v2",
+      "status": "FAIL",
+      "report_bytes": 26273,
+      "report_sha256": "61aea4d03a7945566f0e8f29713b578a8372efba80ec5e3af0f29e5a725c171f",
+      "source_sha256": "b82961974064fc63d93769d47b61a0bc1ff011aa974de51905021b4e613b65ee",
+      "scope": "Ready and frame seen; touch_clicked wait timed out in preliminary raw-screen capture workflow; no driver/controller conclusion or input PASS assigned"
+    }
+  ],
+  "reproduction_script": "scripts/docs/capture_readme_images.mjs",
+  "raw_storage": "Local ignored capture directories; original reports, serial, frames and old capture sources are not bundled"
+}

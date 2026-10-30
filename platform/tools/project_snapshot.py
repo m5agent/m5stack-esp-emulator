@@ -19,6 +19,7 @@ UNIT_CATALOG = ROOT / "platform/units/catalog.json"
 UNIT_PROFILES = ROOT / "platform/units/runtime-profiles.json"
 UNIT_HOSTS = ROOT / "platform/units/host-ports.json"
 VISUAL_VENDOR = ROOT / "platform/web/vendor/m5stack-models/vendor-manifest.json"
+BROWSER_PROFILES = ROOT / "platform/web/qemu-browser-profiles.json"
 BACKLOG = ROOT / "docs/project-backlog.md"
 RUNTIME_GAPS = ROOT / "docs/runtime-model-gap-register.md"
 DOC_INDEX = ROOT / "docs/README.md"
@@ -277,7 +278,11 @@ def summarize_document_coverage(
     older_delegated = []
     for path in paths:
         relative = path.relative_to(ROOT).as_posix()
-        if relative in {"README.md", "AGENTS.md", "THIRD_PARTY_NOTICES.md"}:
+        if relative in {"README.md", "README.en.md", "THIRD_PARTY_NOTICES.md"} or (
+            path.name == "AGENTS.md"
+            and not relative.startswith("docs/")
+            and "/vendor/" not in relative
+        ):
             category = "governance"
         elif relative == "docs/README.md":
             category = "navigation"
@@ -345,6 +350,27 @@ def peripheral_state(entry: dict) -> str:
         if component.get("status")
     ]
     return "partial" if any(status != "simulated" for status in statuses) else "simulated"
+
+
+def summarize_browser_profiles() -> dict:
+    """Summarize source declarations without inspecting a host or WASM build.
+
+    Registry validation remains in the existing browser profile contracts.
+    This inventory does not turn a candidate, compiled machine or native
+    device registration into a public browser execution result.
+    """
+    registry = load_json(BROWSER_PROFILES)
+    by_admission: dict[str, list[str]] = {}
+    for profile in registry["profiles"]:
+        by_admission.setdefault(profile["admission"], []).append(profile["deviceId"])
+    return {
+        "source": BROWSER_PROFILES.relative_to(ROOT).as_posix(),
+        "registered": len(registry["profiles"]),
+        "by_admission": {
+            admission: sorted(identifiers)
+            for admission, identifiers in sorted(by_admission.items())
+        },
+    }
 
 
 def summarize_units(device_ids: set[str]) -> dict:
@@ -523,6 +549,7 @@ def collect() -> dict:
         "service_devices": service_count,
         "peripheral_status": dict(sorted(peripheral_counts.items())),
         "devices": devices,
+        "browser_profiles": summarize_browser_profiles(),
         "external_units": summarize_units(set(source_by_id)),
         "firmware_review": firmware,
         "runtime_gaps": parse_runtime_gaps(),
@@ -565,8 +592,9 @@ def render_markdown(snapshot: dict) -> str:
         "",
         (
             f"- 设备登记：`{snapshot['devices_total']}` 台；"
-            f"Device Service 可创建：`{snapshot['service_devices']}` 台。"
+            f"Device Service 可创建：`{snapshot['service_devices']}` 台（后端类型登记）。"
         ),
+        "- Device Service 可创建计数只表示源码后端登记，不查询当前主机的 `backend_ready`/`creatable`；实际可创建性以设备 API 返回为准。",
         "- 设备分组："
         + "，".join(
             f"`{group}` {count}"
@@ -595,6 +623,28 @@ def render_markdown(snapshot: dict) -> str:
             f"`{device['validation_date']}` / `{device['validation_status']}` | "
             f"{blocker} |"
         )
+
+    browser = snapshot["browser_profiles"]
+    lines += [
+        "",
+        "## 浏览器执行配置",
+        "",
+        f"- 数据源：[`qemu-browser-profiles.json`](../{browser['source']})。",
+        f"- 源码配置登记：共 `{browser['registered']}` 款；以下按 `admission` 分类，不是部署或运行结果。",
+        "",
+        "| 登记类别 | 数量 | 设备 ID |",
+        "| --- | ---: | --- |",
+    ]
+    for admission, identifiers in browser["by_admission"].items():
+        lines.append(
+            f"| `{admission}` | `{len(identifiers)}` | "
+            + "，".join(f"`{device_id}`" for device_id in identifiers)
+            + " |"
+        )
+    lines += [
+        "",
+        "源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。",
+    ]
 
     units = snapshot["external_units"]
     visual = units["visual_source"]

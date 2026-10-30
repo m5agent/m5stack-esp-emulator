@@ -77,8 +77,9 @@ CoreS3 fixture、主 CPU jump 栈恢复、离线 profile、资源生命周期与
 GitHub Pages 均有独立证据；本轮共享帧/host poll 修复和显式正常时钟 SDK
 候选的限定结果见[性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md)
 及[LVGL 候选证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
-线上仍为[既有版本](evidence/2026-10-29-github-pages-production/README.md)；
-剩余浏览器范围统一维护在 `UI-02`，不从原生设备矩阵或编译板型表继承准入。
+原仓库正式站点与 fork 预览的验证版本分别记录在[Pages 指南](pages-deployment.md)；
+部署不会自动跟随 main。剩余浏览器范围统一维护在 `UI-02`，不从原生设备矩阵或
+编译板型表继承准入。
 
 Cardputer 原 IRQ/四旋转与 StackChan 默认 UART/触摸并行的限定前置见
 [本轮输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)；继续扩展

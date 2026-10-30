@@ -1,5 +1,8 @@
 # GitHub Pages 虚拟设备部署
 
+最近核对：`2026-10-30`。本页说明部署流程；当前能力以
+[项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
+
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
@@ -7,16 +10,19 @@ LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机
 并与本次 runtime 的 `compiled_profiles` 取交集。已编入二进制的 machine、
 候选预览或原生验证均不能自动获得公开准入。已有运行登记但未获浏览器准入的
 设备可连接独立 HTTPS Device Service；仅有视觉模型的主机可浏览外观和交互，
-尚无固件执行通路。当前模型目录包含 38 款主机与 184 款 Unit，新增 Atom/Stick
-等型号不会因此自动具备固件兼容性。本轮代码需要重新构建发布；旧站点证据见文末。
+尚无固件执行通路。视觉目录、运行登记和浏览器准入是三个不同集合，数量见
+[自动项目快照](project-snapshot.md)，具体输入和示例见 profile registry。
 
-当前默认准入 15 款浏览器设备；本轮新增 AtomS3、AtomS3 Lite、StickC、
-StickC Plus SE 和 StickC Plus2，各自准确官方固件的输入与显示/LED 有
-[独立浏览器证据](evidence/2026-10-29-expanded-hosts/README.md)。Lite 无屏，
-使用同 Worker 的 GPIO35 RMT RGB/帧计数及 GPIO41 状态只读回显到模型，
-不申请 framebuffer，不用宿主输入猜测 LED。经典 ESP32 三款采用明确的
-固定 icount；本机整段验收约数分钟，启动仍明显慢于 S3，不能宣称实时性能通过。
-Dial 及经典 Atom 等未通过的候选不会随 machine 编译结果进入默认网页入口。
+当前公开配置包含 CoreS3/Core2、StopWatch、Cardputer-ADV、StamPLC、
+StackChan、PaperColor/PaperMono，以及已准入的 Atom/Stick 型号。
+AtomS3/Lite、StickC/Plus SE/Plus2 的固定示例有
+[独立浏览器证据](evidence/2026-10-29-expanded-hosts/README.md)；经典 Atom
+三板及原 StickC Plus 的限定默认入口结果见
+[后续验证](evidence/2026-10-29-motion-command-followup/README.md)。
+Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口。
+无屏设备使用同 guest 的 LED/按键控制器读回驱动模型，不申请 framebuffer，
+也不用宿主输入猜测 LED。经典 ESP32 使用固定 icount；启动可能需要数分钟，
+已有通过不代表实时性能或稳定启动保证。
 
 ## 仓库管理员部署
 
@@ -58,14 +64,16 @@ Core2 另按仓库已有的稳定路径使用
 
 ## 访问者流程与浏览器要求
 
-默认打开网页即可使用，不要求登录。此 PR 不包含账号、OAuth、后端数据库或
+默认打开网页即可使用，不要求登录。静态入口不包含账号、OAuth、后端数据库或
 共享会话。若产品需要账号鉴权，应另接真实身份服务；静态 Pages 无法安全保存
 服务端密钥。
 
 推荐桌面 Chromium，使用 HTTPS、允许本站 Service Worker 和共享内存。
 浏览器至少需要约 256 MiB 共享 WASM 初始内存，允许增长；最大配置为 2 GiB。
-关闭标签页、停止或刷新会释放该实例。低内存设备、其它浏览器和后台标签页
-调度没有相同的验收结论。
+停止会请求客体退出并回收 Worker；页面刷新或关闭后的浏览器资源生命周期
+不能替代正常 Stop 验收。已有 StackChan 运行仍观察到 engine target 延迟
+消失，清理保持 `PARTIAL`，见[输入与清理证据](evidence/2026-10-30-cardputer-stackchan-input/README.md)。
+低内存设备、其它浏览器和后台标签页调度没有相同的验收结论。
 
 参考固件由浏览器直接从固定官方 CDN 下载，校验 SHA256 后，用源码构建的
 LittleFS WASM 在本地组合固定源码，重新挂载逐文件读回并核对完整 Flash。
@@ -97,7 +105,7 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
 dispose。engine 依次回复私有端口确认、关闭端口、发送 owner closing 通知并
 调用 `self.close()`；owner 收到该通知后显式 finalize 自己的 Worker handle，
-避免 macOS Chrome 把 engine target 保留到 iframe 移除。真实客体验收通过
+用于避免 engine target 被保留到 iframe 移除。该通知本身不是回收证明；真实客体验收通过
 Chrome CDP `Target.getTargets` 分两阶段核对：iframe 保留时五个嵌套 pthread
 target 必须消失；正常移除 iframe 后 engine 与全部 Worker target 也必须消失。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
@@ -168,9 +176,9 @@ Service Worker 首控流程。聚合器为每个公开板型启动独立 guest�
 ### 逐板 fixture 与输入门禁
 
 StopWatch、StamPLC、StackChan、PaperColor、PaperMono 和 Cardputer-ADV
-六个新增板型已通过逐板及最终公开导出门禁。准入限于固定基底、boot、main、
+这些板型的固定示例已有逐板及公开导出门禁记录。准入限于固定基底、boot、main、
 生成配置和完整 Flash SHA，精确身份见 profile registry 与本次组合收据。
-本轮新版本尚未部署到正式站点。
+本地验收、原仓库正式站点和 fork 预览各自绑定独立 manifest，不能互相升级结果。
 
 | 板型 | 源码入口 | 同 guest 验收路径 |
 | --- | --- | --- |
@@ -179,10 +187,11 @@ StopWatch、StamPLC、StackChan、PaperColor、PaperMono 和 Cardputer-ADV
 | AtomS3R、StickS3 | `tests/browser-qemu/board_display/main.py` + `boot.py` | 各板原 `M5.BtnA`、完整 8×8 红到绿标记及按下/松开 |
 | StopWatch | `tests/browser-qemu/board_display/stopwatch_main.py` | 原 `M5.Touch`、圆屏内 `(120,88,8,8)` 标记；分别核对 SDK 468×468 与 QEMU 可见 466×466 |
 | StamPLC | `tests/browser-qemu/board_display/main.py` | rotation 1、240×135 和原 `M5.BtnA` |
-| StackChan | `tests/browser-qemu/board_display/main.py` | rotation 1、320×240 和屏幕 `M5.Touch`；不继承 Si12T 机身触摸结论 |
+| StackChan | `tests/browser-qemu/board_display/main_stackchan.py` | rotation 1、320×240；前台原 `M5.Touch` 与独立 UART 舵机线程，不继承 Si12T 顶部电极结论 |
 | PaperColor | `tests/browser-qemu/board_display/papercolor_main.py` | 400×600、Spectra 6 原 EPD QUALITY 驱动与前面板 `M5.BtnA` |
 | PaperMono | `tests/browser-qemu/board_display/papermono_main.py` | 480×800、SSD1677 四灰原驱动；官方 `getTouchPointRaw(0)` hitbox workaround |
 | Cardputer-ADV | `tests/browser-qemu/board_display/cardputer_adv_main.py` | 原 `hardware.KeyboardI2C`、I2C/TCA8418 FIFO 解码与 11 键按下/松开 |
+| AtomS3/Lite、StickC 系列、经典 Atom | `tests/browser-qemu/board_display/` 下 registry 指定的 main/boot | 分别验证准确示例的显示或 RGB 控制器、原按键驱动；Matrix 仅同色灯阵，不外推逐灯空间顺序或 IMU |
 
 StopWatch 的官方 panel offset 与 QEMU 可见窗口原点均为 6，圆形玻璃还有裁切。
 验收保留逻辑/物理尺寸、完整标记和原驱动坐标；计数变化不能关闭触摸校准缺口，
@@ -199,7 +208,11 @@ PaperMono 仅将官方 raw tuple `(x,y,size,id)` 用于 hitbox，继续输出原
 Cardputer-ADV 通过原驱动轮询 IRQ handler 读取 FIFO；11 键为
 `a/z/q/b/n/m/1/0/Enter/Space/Backspace`。每键要求串口 keycode 与计数、
 计数区画面变化和独立按下/松开像素标记一致；松开不得再次增加计数。
-这不证明 GPIO interrupt delivery、Fn 或同时 modifier 组合。
+该 UIFlow2 示例本身不证明 GPIO interrupt delivery、Fn 或同时 modifier 组合。
+另一个固定 Arduino 原 BSP/image 已验证 GPIO11 IRQ reader、56 个物理键、
+双 Shift/grave/Fn-Up 和四旋转/局部更新，见
+[Cardputer 输入证据](evidence/2026-10-30-cardputer-stackchan-input/README.md)。
+两条固件路径的身份和限制分别保留，不能相互替代。
 
 两款 EPD 使用原 `startWrite()/endWrite()` 外层事务提交 QUALITY 刷新。
 `browser_epd_quality_oracles.json` 将 guest SHA、官方驱动和编入 WASM 的
@@ -210,7 +223,7 @@ PaperMono 的 Bayer 四灰和 PaperColor 的 QUALITY pair quantizer 都要按
 源码推导检查，实际 controller frame、输入、刷新和退出仍由浏览器 guest 验收。
 刷新用 guest 虚拟时间记录，不作为物理波形或墙钟性能。
 
-## 已验证的部署参考
+## 部署记录与适用范围
 
 正式站点已部署到
 <https://m5agent.github.io/m5stack-esp-emulator/>。原仓库
@@ -221,15 +234,17 @@ GitHub Pages 部署；部署后从正式 HTTPS 地址独立复验 21 项检查�
 `firmware_bundled=false`。运行时、固件 SHA、公开报告 SHA 和边界见
 [正式部署证据](evidence/2026-10-29-github-pages-production/README.md)。
 
-测试 fork 的 [Pages 站点](https://yuyun2000.github.io/m5stack-esp-emulator/) 已由
-[Linux Actions](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40689514606)
-从固定源码构建、完成真实 guest 验收并部署；公开 HTTPS 地址另跑同一验收器通过。
-确切运行时/固件 SHA、检查与限制见[部署证据](evidence/2026-10-28-qemu-wasm-pages/README.md)。
-该 fork 结果保留为部署前对照，不替代上面的正式站点证据。
+这些是原仓库该次正式发布的历史证据，不代表当前 main 已在该站点部署。
+后续新增板型的历史全量准入见
+[剩余 Xtensa 证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md)，新增 Atom/Stick
+及运动行为另见各次 evidence；每次重建仍需重新执行当前全设备发布门禁。
 
-本轮本地最终导出已通过 **10 板、11 例、313 项**真实浏览器检查，包括新增
-StopWatch、Cardputer-ADV、StamPLC、StackChan、PaperColor、PaperMono。
-完整 Flash/runtime/报告哈希、输入和清理见
-[剩余 Xtensa 准入证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md)。
-本轮新版本尚未部署；管理员合并后按上述手动 workflow 重建与发布，正式 HTTPS
-需单独复验。旧正式站点记录不升级为这批新板型的部署结果。
+fork 的[体验站点](https://yuyun2000.github.io/m5stack-esp-emulator/)在
+2026-10-30 更新到 manifest `a9631395…`，包含新 67-patch WASM 和默认
+StackChan 后台 UART 示例。该包的 Cardputer/StackChan 在本地相同导出中验收，
+部署后公网首页、生产 Web、完整 WASM 与对应源码包做了独立字节/SHA 核验。
+准确身份、后续 main 静态资源等价证明和限制见
+[输入修复及部署记录](evidence/2026-10-30-cardputer-stackchan-input/README.md)。
+这次 fork 预览没有执行标准 all-admitted 发布门禁，也未作部署后公网 guest
+复测；公网文件一致不能写成全设备或公网 guest 功能 PASS。原仓库正式发布
+仍由管理员按前述工作流执行，并单独记录正式 HTTPS 验收。

@@ -1,6 +1,6 @@
 # 工程交接总览
 
-最近核对：`2026-10-29`
+最近核对：`2026-10-30`
 
 本页用于让新接手的人快速理解“项目现在是什么、代码在哪里、哪些已经能跑、
 接下来做什么”。它是导航摘要，不维护动态数量，也不替代以下权威入口：
@@ -34,10 +34,10 @@
 
 ## 结论
 
-当前用户优先级是 `API-01`：按[双主机验证计划](plans/2026-10-27-uiflow2-complete-api-sweep.md)
-逐项核对 UIFlow2 API、Unit 联测和 Device Service；原厂失败、候选修正及模型
-阻塞分别保留，不把清单或局部通过视为全量完成。具体补丁、分母和复现入口见
-[本轮审计证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)。
+当前优先级与执行顺序只查[项目 Backlog](project-backlog.md)，并按最新用户任务调整。
+`API-01` 的[验证计划](plans/2026-10-27-uiflow2-complete-api-sweep.md)覆盖 UIFlow2 API、
+Unit 和 Device Service；原厂失败、候选修正与模型阻塞分开记录，局部通过不等于
+全量完成。浏览器/原生/仅视觉模式的当前范围见[Pages 指南](pages-deployment.md)。
 
 项目已经不是单固件 PoC。当前主线具备以下可执行能力：
 
@@ -97,20 +97,19 @@
 | 固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF、ZIP/资源/build 选择策略、capability、文件系统、SD/NVS fixture、静态审查、Secure Boot v2 镜像分析和 Device Service runtime ACL | guest filesystem ACL、完整许可、live eFuse/trust root、生产 key、真实云端业务 | `firmware_*.py`、`user_firmware_matrix.py`、`runtime_acl.py` |
 | 设备差异 | ESP32 设备矩阵可由 Device Service 创建；Tab5 与 CardputerZero 是独立后端 | Tab5 外设、CardputerZero 长期回归、逐设备视觉保真 | `devices/`、`platform/peripherals/` |
 
-最近这一轮只改变调查边界，不改变产品结论：
+Core2 的历史排障与当前结论应分开阅读：
 
 - shared I2C、equal-deadline timer、TIMG WDT level、stateful SSI、pending
   SPI remap、high-priority DPORT IRQ 协作和 classic RMT 已是可重放的修复
-  或验证控制；它们仍没有让 legacy 固件完成正常启动；
+  或验证控制；后续 `0095` 已关闭固定原厂固件的 normal-WDT startup；
 - state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 已逐项
   排除当前配置下的 UART storm、永久 handoff deadlock、TG1 feed 停止和
   “Flash 扫描永不结束”；late state 的 CPU1 `0x40100049` 已由 BIN-bound
   反汇编绑定到 LVGL `lv_refr_vdb_flush`；
 - `0065` 关闭 scheduler-induced DPORT handoff deadlock，`0066` 让 legacy
-  Serial 越过 Neopixel RMT 初始化并到达 `APIKEY`；当前最窄的下一步是定位
-  `APIKEY` 后首个未完成 guest/controller 路径，并让 display completion、
-  `lv_disp_flush_ready`、setup/REPL 和非空帧可观测；matching ELF/MAP 可
-  并行提高符号置信度；
+  Serial 越过 Neopixel RMT 初始化并到达 `APIKEY`；原厂 API Key/Wi-Fi Connect UI
+  已有后续 normal-WDT 证据。display completion、`lv_disp_flush_ready` 与
+  setup/REPL 必须按具体应用另验；matching ELF/MAP 可提高符号置信度；
 - 当前事实只在[项目当前状态](project-status.md)，详细证据只在
   [验证证据台账](validation-ledger.md)；本页不再复制逐次运行时间线。
 
@@ -128,8 +127,9 @@
 - 固件：Manifest/WebBurner 的 ZIP/资源/build 选择 fail-closed 规则、
   capability/security、文件系统、SD/NVS fixture 和 SHA-bound review
   expectation 已可执行；
-- 运行与分发：Device Service、Live sessions、WebBurner、macOS arm64 runtime
-  bundle 和 generic ESP32-S3 observe 路径可用。
+- 运行与分发：Device Service、Live sessions、WebBurner、浏览器 C/QEMU 和
+  generic ESP32-S3 observe 路径可用；历史 macOS arm64 runtime bundle 只对应
+  其固定 source commit，不自动匹配当前 main，见[部署说明](deployment.md)。
 
 本页不复制运行流水；当前结论只来自状态页，开放项只来自 Backlog。
 
@@ -274,14 +274,14 @@ API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
 | `RUNTIME-04` | 已关闭 Core2 for AWS ATECC608 初始化/identity；ECDSA、生产 slot/trust root、电气和真机独立 | 三个公开固件 session 通过非空帧，但测试 fixture 不代表生产安全元件 |
-| `RUNTIME-06` | ESP-NOW loss/retry and long-run stability | controller loopback/plaintext/CCMP/replay/lifecycle、stock key-state、shared-LMK fabric、peer-MAC→pairwise-LMK、cross-wire、PN exhaustion 和 new/same-LMK rekey 已验证；loss/retry、channel/rate、RF 或 long-run timing 仍未覆盖 |
+| `RUNTIME-06` | 已关闭 virtual-controller 功能范围；保持 loss/retry/channel/rate 与既有 soak 回归 | bit-exact controller/baseband、物理 RF/antenna、实测 channel/rate 和电气时序仍独立，不从虚拟链路继承 |
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 session/evidence 存储和连续 evidence 流 | durable claim response-loss replay、trusted-host 和单机 restart PASS 不能继承为跨主机 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |
 | `SVC-03` | 拆分 service 的存储、runtime、evidence 和 session 状态机 | 维护边界仍集中在少数大文件 |
 | `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
-| `UI-02` | 公众工作台、Pages 分享入口与 browser backend 调研 | 见[公众入口计划](plans/2026-10-28-public-simulator.md)；限定browser/原生fixture与模型验收见证据；创建响应丢失后的恢复与安全停止已有限定真实证据；正式 GitHub Pages 已部署并从公开 HTTPS 地址完成 21 项真实 CoreS3 验收，更多原生固件仍单列扩展 |
+| `UI-02` | 扩展已准入板型的固件/Unit、输入延迟、长期稳定性与资源回收；C6/P4/Linux 浏览器路径分别立证 | 当前工作台、C/QEMU 浏览器执行与分享入口已有固定示例结果；registry、原生设备和视觉目录不互授准入，正式站点与 fork 预览按[Pages 指南](pages-deployment.md)分别取证 |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、
