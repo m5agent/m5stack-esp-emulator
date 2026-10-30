@@ -268,7 +268,7 @@ API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
 | --- | --- | --- |
 | `RUNTIME-03` | 已完成（virtual-device stock startup）：三次 normal-WDT startup、API Key/Wi-Fi Connect UI 和 Core2 设备组均有同 artifact 证据；保持 `0095/0065/0066` 回归 | setup/REPL 与任意 application 已转入 `API-01`；startup PASS 不授予任意应用或物理边界 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、queue/session/evidence 的跨主机复制、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | claim/evidence response-loss idempotency、lease-bound central evidence、409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；同 control-plane state-dir、跨容器和同机 subnet/NAT 仍不能替代物理主机/对象存储 |
-| `CORE2-02` | 先在非过载宿主重绑八实例 cold-start；九实例必须先修复 `ble_hs_hci_process_ack` 竞态。再补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop/post-reset 之外 teardown | 九实例两次 `9/9`、一次 `8/9` 不能准入；当前两批 `2x60s` 只证明本轮重检策略，不能外推到八实例、更大规模或物理 controller |
+| `CORE2-02` | 当前 main 工具 hash 的双实例回归已完成；先在非过载宿主重绑八实例 cold-start；九实例必须先修复 `ble_hs_hci_process_ack` 竞态。再补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop/post-reset 之外 teardown | 双实例回归只证明当前工具重检策略，不能外推到八实例、更大规模或物理 controller；九实例失败轮次与符号只查验证台账 |
 | `FW-01` | Guest filesystem ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性、service runtime ACL 或声明扫描都不是 guest 文件权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
