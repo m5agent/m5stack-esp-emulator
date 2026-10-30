@@ -69,7 +69,7 @@
 | `RUNTIME-02` | 进行中（backend blocked） | C6 Zigbee/802.15.4 commissioning |
 | `RUNTIME-03` | 已完成（virtual-device stock startup） | high-priority DPORT handoff、classic RMT、classic WiFi 与 legacy WDT level delivery 已验证；同一固件三次 normal-WDT 稳定到 guest virtual 300 秒以上并保持 API Key/Wi-Fi Connect UI。setup/REPL 与任意 legacy application 在 `API-01` 继续 |
 | `RUNTIME-04` | 已关闭（virtual-device） | Core2 for AWS ATECC608 wake/Read/Info/CRC、确定性 config 与应用帧 |
-| `RUNTIME-06` | 进行中 | controller loopback、plaintext、CCMP、单 peer 64-frame replay window、native 与 wrapper lifecycle 已有证据；guest key-state 写入 bridge、key rotation、multi-peer replay、跨设备 fabric 与 RF/timing 仍 OPEN |
+| `RUNTIME-06` | 已完成（virtual-device） | controller loopback、plaintext、CCMP、replay/reorder、guest key-state/rotation、多 peer fabric、per-peer routing、PN exhaustion、loss/retry、channel/rate 和 60 秒 soak 均已完成；bit-exact controller、物理 RF/电气和真机仍为独立边界 |
 | `SVC-01` | 进行中 | 跨主机/namespace-managed/Tab5 companion 与跨主机幂等 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
 | `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME、设备规格/profile、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 边界已拆出；继续拆分 `device_service.py` 编排热区 |

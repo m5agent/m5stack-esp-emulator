@@ -66,10 +66,10 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 完成某条路径”只证明该固件、设备、profile、输入和观察窗口，不等于物理 RF、
 电气测量、生产密钥或任意固件兼容。
 
-> 以下 Core2 段落不是逐日进度流水，而是当前 `RUNTIME-03` 的阻断摘要。
-> `0031-0041` 中被否定的旧假设仍保留，是为了让后续维护者不要把 UART
-> storm、永久 handoff deadlock、TG1 feed 停止或“Flash 扫描永不结束”重新
-> 当作当前根因。精确运行序列只在验证台账和 evidence 中维护。
+> 以下 Core2 段落保留 `RUNTIME-03` 关闭前的历史首失败点；`0095` 之后的
+> 当前状态只看本页表格、Backlog 和运行时缺口登记。
+> `0031-0041` 中被否定的旧假设仍保留，防止 UART storm、永久 handoff
+> deadlock、TG1 feed 停止或“Flash 扫描永不结束”回流为当前根因。
 
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
@@ -90,10 +90,9 @@ Core2 上延迟约 26.8 秒，足以触发 interrupt-WDT。`0034` 只把相等�
 mismatch”来自探针把 4096-byte 局部数组放进 4096-byte 任务栈，已经作为
 harness 缺陷撤销。
 
-这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化阶段由 TG0
-stage-1 触发 system reset，reset CPU PC `0` 并保持黑帧。因此
-`RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy 应用初始化、
-TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
+在这个历史阶段，legacy UIFlow 仍由 TG0 stage-1 reset、PC `0` 和黑帧
+阻断；timer-deadline 子问题当时已 `FIXED`，但 normal-WDT startup 尚未
+闭环。后续 `0095` 已关闭 stock startup，setup/REPL 与任意应用转 `API-01`。
 
 后续 high-priority IRQ 诊断确认，早期固定 CPU0 `0x400843…` / CPU1 `0x400864…` 双等待是单线程 TCG slice 造成的调度 artifact：发送端会在 peer handler 观察共享 start/end flags 前开始下一轮。旧 setter trace 在 reset 前记录约 `4,376` 次 completed handoff；`0065` 进一步在 handler `memw` 发布 start 后和 sender `retw` 返回 end 路径时协作让出，五轮首启动均在约 `5 s` 越过旧固定双 PC。
 
@@ -212,7 +211,8 @@ CoreS3 的逐型号功能证据现已通过同 guest/controller、真实浏览�
 自动停止现为 FAIL，显式 custom wrapper 结果另列，不能继承该历史汇总。
 
 共享控制器已在冻结 Xtensa `a8fe15db…` / RISC-V `ff6c2ef7…` 的独立完整轮次
-通过；初轮失败与 VFS 定向复跑保留为历史。这不关闭 Core2 legacy WDT/黑帧。
+通过；初轮失败与 VFS 定向复跑保留为历史。该轮不关闭 Core2 legacy 启动，
+后续 `0095` 才关闭 normal-WDT stock startup；setup/REPL 和任意应用仍另验。
 服务启动的 QMP 建连竞态和握手异常 socket 清理已修复；真实冷写入会话自然从
 flashing 到 running，并在不刷新页面的情况下恢复 Unit 控件和读回。
 
@@ -392,7 +392,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI、pending SPI/INTMATRIX remap fixes | legacy UIFlow 在 display completion 前的 reset/stop、`lv_disp_flush_ready` 与缓存 wait 未闭环、黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI、pending SPI/INTMATRIX remap fixes | legacy normal-WDT stock startup 已在 virtual-device scope 关闭；setup/REPL、任意 factory application、其它应用路径的 display completion、物理 PSRAM/cache、bit-exact controller 和真机仍独立 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 

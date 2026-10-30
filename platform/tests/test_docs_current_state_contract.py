@@ -336,12 +336,30 @@ class DocsCurrentStateContractTests(DocsContractBase):
             task["id"]: task
             for task in project_snapshot.parse_backlog_tasks()
         }
+        workstream_statuses = {
+            match.group(1): match.group(2)
+            for match in re.finditer(
+                r"^\| `([A-Z][A-Z0-9-]+)` \| ([^|]+?) \|",
+                workstreams,
+                re.MULTILINE,
+            )
+        }
+        for task_id, task in task_rows.items():
+            self.assertEqual(
+                workstream_statuses.get(task_id),
+                task["status"],
+                f"{task_id} status drifted between Backlog and workstreams",
+            )
         for task in task_rows.values():
             self.assertNotIn("已 PASS", task["next"])
             self.assertIsNone(
                 re.search(r"\b\d+/\d+\s+PASS\b", task["next"]),
                 f"{task['id']} task board must keep evidence history out of Backlog",
             )
+        self.assertIn(
+            "日期：`2026-10-30`",
+            (DOCS / "runtime-model-gap-register.md").read_text(),
+        )
         self.assertIsNone(
             re.search(r"\b\d+/\d+\s+PASS\b", workstreams),
             "workstreams.md must route to status/ledger instead of copying counts",

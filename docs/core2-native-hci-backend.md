@@ -1,9 +1,10 @@
 # Core2 native HCI backend design
 
-日期：`2026-10-26`
+日期：`2026-10-30`
 
-本文定义 `CORE2-01` 的目标结构、当前 GDB 诊断桥的失效边界，以及可执行的
-QEMU 内部实现路线。当前能力结论仍以
+本文保留历史设计标识 `CORE2-01`，定义目标结构、GDB 诊断桥的失效边界和
+QEMU 内部实现路线；Backlog 中后续执行、容量与物理等价任务统一使用
+`CORE2-02`。当前能力结论仍以
 [项目当前状态](project-status.md) 为准，未完成项只在
 [项目 Backlog](project-backlog.md) 跟踪。
 
