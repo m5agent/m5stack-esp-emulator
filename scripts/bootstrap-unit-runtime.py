@@ -67,6 +67,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0092-esp32-wifi-irq-cache-gate.patch",
     "patches/qemu-m5stack-peripherals/0093-esp32-classic-wifi-virtual-time.patch",
     "patches/qemu-m5stack-peripherals/0094-esp32-classic-wifi-station-data.patch",
+    "patches/qemu-m5stack-peripherals/0095-esp32-legacy-wdt-level-delivery.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

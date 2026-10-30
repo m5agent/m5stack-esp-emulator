@@ -67,7 +67,10 @@ The same original firmware and config overlay ran through
 
 The rendered screen is the original UIFlow API-key/setup page. The firmware
 then entered `TG0WDT_SYS_RESET`; the IRQ cache panic is gone, but normal-WDT
-startup is not yet stable.
+startup was not yet stable in this milestone. The later
+[WDT level-delivery record](../2026-10-30-core2-legacy-wdt-level-delivery/README.md)
+removes that reset and keeps the startup UI running beyond 300 seconds virtual
+time.
 
 ### Regression
 
@@ -94,7 +97,8 @@ Platform verification:
 
 ## Boundary
 
-This is virtual-device validation only. It closes the WiFi-IRQ/cache-handoff
-interaction, not the remaining normal-WDT startup reset. Stable factory UI,
-setup/REPL, user application execution, physical cache/PSRAM timing, RF and
-electrical behavior remain outside this result.
+This is virtual-device validation only. It closes the
+WiFi-IRQ/cache-handoff interaction. The normal-WDT reset observed at this
+milestone was later fixed by `0095`; setup/REPL, complete factory application,
+physical cache/PSRAM timing, RF and electrical behavior remain outside this
+result.

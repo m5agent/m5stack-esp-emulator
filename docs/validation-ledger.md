@@ -2099,3 +2099,34 @@ fail-closed 和 public symbol identity。定向 `5/5 PASS`。该步骤只移动�
 边界；QEMU、firmware、runtime、物理硬件、RF 和电气验证均 `NOT RUN/不变`。
 见[证据](evidence/2026-10-30-svc03-device-specs/README.md)和
 [机器摘要](evidence/2026-10-30-svc03-device-specs/summary.json)。
+
+## 2026-10-30：Core2 legacy WDT level delivery
+
+`0095-esp32-legacy-wdt-level-delivery.patch`（SHA256 `df008a1f…`）修正
+`0035` 对 classic ESP32 TIMG WDT level 的错误门控。公开 ESP-IDF 3.3.5
+（`03810c4a…`）的 task watchdog 设置 `WDTCONFIG0.LEVEL_INT_EN` 并通过
+`esp_intr_alloc(ETS_TG0_WDT_LEVEL_INTR_SOURCE)` 注册 ISR，但不写
+`INT_ENA.WDT`。`0095` 保留 `INT_ST = INT_RAW & INT_ENA` 和非 WDT source
+的 mask，仅让 WDT level 在 `LEVEL_INT_EN=1` 时跟随 raw status，WDT edge
+路径不变。
+
+最终 QEMU `001a9385…`、public firmware `4d2d648b…`、`runtime=qemu-wifi`、
+matching `deviceCfg` overlay、`icount shift=2`、默认 `10 us` per-vCPU
+budget 和 normal WDT 下完成三次独立 Device Service 运行，`3/3 PASS`。
+三次保留 trace 尾部分别覆盖 guest virtual `315.55-335.55 s`、
+`310.55-330.55 s`、`320.55-340.55 s`；每个相邻 stage-0 事件间隔
+`5.001124 s`。trace 中 `int_ena=00000002`、`int_raw=00000004`、
+`int_st=00000000` 时均出现 WDT level raise，随后 guest 写 `WDTFEED`
+并以 `INT_CLR=00000004` 清除；原 `15.55 s` stage-1 reset 未再出现。
+三次都完成 BOARD/APIKEY/boot-start/boot-done，保持 `320x240`、
+`75,559` nonblack、`512` colors 的 API Key startup UI；其中两次完成
+reconnect，第三次完成三轮 reconnect。同一最终 QEMU 的 Core2 UIFlow2
+设备组 `6/6 PASS`，每例 attempts 1 且无 retry，summary SHA256
+`6eaa6069…`。另一 normal-WDT session 在 boot-done 后捕获真实
+`Wi-Fi Connect` / `Connecting to myssid` 页面（`75,373` nonblack、
+`306` colors、PNG SHA256 `cf7ad5ab…`），但 Ctrl-C 输入没有产生 REPL
+prompt。全部为 virtual-device validation；setup/REPL 独立交互、完整
+factory application、物理硬件、RF、电气和物理 cache/PSRAM timing 仍分别
+登记。见
+[证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-wdt-level-delivery/summary.json)。

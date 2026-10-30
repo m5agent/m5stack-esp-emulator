@@ -153,19 +153,19 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
-### RUNTIME-03：scheduler/DPORT 与经典 RMT 初始化已修复，legacy WDT/LVGL/应用帧未闭环
+### RUNTIME-03：scheduler/DPORT、classic RMT、legacy WDT 与 startup 已修复，setup/应用 lifecycle 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN` |
-| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；TIMG WDT level IRQ 的 `INT_ENA` mask `FIXED`；stateful SSI 批量数据面 `VALIDATED`；统一 handoff timeline `VALIDATED`；`0064` 修复 pending SPI/INTMATRIX remap；`0065` 关闭单线程 TCG slice 导致的 high-priority DPORT handoff deadlock，五轮首启动 `5/5 PASS`；`0066` 补经典 ESP32 RMT，移除 Neopixel translator 初始化失败并让 legacy Serial 到达 `APIKEY`；VFS/WiFi fixture 校正后 `qemu-wifi` 120 秒已执行注入的 `/flash/boot.py`；`0068` 修复 legacy HSPI/SPI2 panel routing；`0069` 修复 protected WDTFEED 语义；`0075` 排除 RDSR WIP/busy 错误并把 pre-BOARD 成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read` 并测得长持有区间；`0088` 证明 100 ms RR 放大 contended CAS，并在 opt-in `1 ms` quantum 下大幅减少 spin，但 WDT reset 不变；2026-10-30 的 legacy `deviceCfg` overlay 已验证只改 session copy 并能进入真实 WiFi 配置/UI 路径，但默认 WDT 下仍出现 cache-disabled panic；原厂 startup UI 的稳定启动、normal-WDT reset 和完整应用帧仍 `OPEN` |
+| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；TIMG WDT level IRQ 语义由 `0095` 修正为 `LEVEL_INT_EN` 独立门控，legacy task watchdog ISR 可投递；stateful SSI 批量数据面 `VALIDATED`；统一 handoff timeline `VALIDATED`；`0064` 修复 pending SPI/INTMATRIX remap；`0065` 关闭单线程 TCG slice 导致的 high-priority DPORT handoff deadlock，五轮首启动 `5/5 PASS`；`0066` 补经典 ESP32 RMT，移除 Neopixel translator 初始化失败并让 legacy Serial 到达 `APIKEY`；VFS/WiFi fixture 校正后 `qemu-wifi` 120 秒已执行注入的 `/flash/boot.py`；`0068` 修复 legacy HSPI/SPI2 panel routing；`0069` 修复 protected WDTFEED 语义；`0075` 排除 RDSR WIP/busy 错误并把 pre-BOARD 成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read` 并测得长持有区间；`0088` 证明 100 ms RR 放大 contended CAS；`0092` 修复 cache-disabled 窗口的 WiFi level IRQ；`0093/0094` 修复 classic WiFi virtual time 与 station 数据面；`0095` 用同一 public firmware 三次独立 normal-WDT Device Service 运行稳定越过原 stage-1 reset，并保持原厂 API Key startup UI 运行到 guest virtual 300 秒以上；setup/REPL 的独立交互与完整 factory application 流程仍未单独验收 |
 | 影响 | Core2 官方 legacy UIFlow、FactoryTest，以及 long-synchronous flash/partition-read workload |
 | I2C 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
 | I2C 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
 | Timer 根因 | 最小探针在 `CORE2_FLASH_IPC_READ_START` 后捕获到 timer ISR 写入 `CCOMPARE == CCOUNT`。旧 QEMU 用无符号减法把它解释成 `2^32` ticks；Core2 下一次 timer 中断因此被推迟约 26.8 秒，超过 interrupt-WDT 窗口，随后两个 CPU 都停在 idle |
 | Timer 修复 | `0034-xtensa-ccompare-equal-deadline.patch` 只把相等期限安排到下一 CPU cycle；其他 delta 仍保留原 32 位回绕语义，不增加 catch-up、trace 或 timeout 放宽 |
-| WDT mask 根因 | `0032` trace 捕获到 `INT_ENA=0x00000000`、`INT_RAW=0x00000004`、masked status `0x00000000` 时，旧模型仍抬高 WDT level IRQ。WDT raw status 本身不是 interrupt request，level line 只应由 `INT_RAW & INT_ENA` 驱动 |
-| WDT mask 修复 | `0035-esp32-timg-wdt-int-ena.patch` 只在 `INT_ENA.WDT` 置位时抬高 level IRQ，保留 raw status 和 WDT stage timer 行为；同一 legacy SHA 修复后仍出现 `TG0WDT_SYS_RESET` 和 reset PC `0`，因此它不是 `RUNTIME-03` 根因修复 |
+| WDT level 根因 | `0032` trace 捕获到 `INT_ENA=0x00000002`、`INT_RAW=0x00000004`、masked status `0` 时未投递 WDT level。Legacy ESP-IDF 3.3.5 通过 `esp_intr_alloc(ETS_TG0_WDT_LEVEL_INTR_SOURCE)` 注册 task watchdog，并设置 `WDTCONFIG0.LEVEL_INT_EN`，但不写 `INT_ENA.WDT`；`0035` 把 WDT line 错按普通 `INT_RAW & INT_ENA` 语义门控，导致 stage-0 ISR 不可达，随后 stage-1 系统复位 |
+| WDT level 修复 | `0095-esp32-legacy-wdt-level-delivery.patch` 保留 `INT_ST = INT_RAW & INT_ENA` 和所有非 WDT source 的 mask 行为，仅让 WDT level output 在 `LEVEL_INT_EN=1` 时跟随 `INT_RAW.WDT`，WDT edge 路径不变。三次同一 firmware/QEMU 的 normal-WDT Device Service 均观察到 `int_ena=2/int_raw=4/int_st=0`、level raise、`WDTFEED` 和 `INT_CLR=4` 的连续中断链，原 `15.55 s` stage-1 reset 未再出现 |
 | QIO 修复/诊断 | `0036-ssi-transfer-buf.patch` 增加通用 byte-buffer SSI 接口和 m25p80 `STATE_READ` 快速路径，保留 command/address/dummy/CS/wrap 状态；前 512 个 64-byte 批次与原逐字节路径完全一致，Core2 UIFlow2 外设组 `6/6 PASS`。临时 `blk_pread` 与 SSI 字节一致，但绕过状态机；旧 REPL 观察在当前重建 120 秒窗口中未复现 |
 | cross-core 诊断 | 关闭 WDT reset 后，直接 state trace 观察到 flash-op `can_start`/`complete` 和 cross-core reason 反复在 0/1 间变化；CPU0 会多次位于 `spi_flash_op_block_func` 等待路径，CPU1 位于 cache/DPORT 或任务切换路径。该阶段排除了永久 handshake deadlock，并曾把累计同步 handoff 吞吐列为候选；后续 WDT-off 45/120 秒 late-state 证明 Flash/SSI 活动有终点，候选已退役 |
 | handoff timeline | `0037-esp32-handoff-trace.patch` 用默认关闭的 `M5SW_ESP32_HANDOFF_TRACE` 把 virtual time、CPU、guest PC、cross-core、DPORT cache、SSI transaction、UART IRQ 与 TIMG WDT 写入统一格式。早期 normal-WDT 配置曾在 TG1 最后一次 feed 后 `800,000,000 ns` 进入 stage-0 timeout；该结果保留为历史 trace 配置证据，不作为当前固定路径 |
@@ -205,13 +205,15 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | host flush control | 当 `changed_pages == 0` 时跳过 `memory_region_flush_rom_device()` 的探索性修改仍进入 `TG0WDT_SYS_RESET`，reset PC `0` 和黑帧 SHA 不变。该修改未保留为补丁；host-side 整块 flush 不是已测得的根因 |
 | 修复后 | `0x34`、`0x51`、INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失；最小 probe 在 trace 开/关和 `shift=5`/`auto` 对照中通过首启动门禁，进入 `CORE2_FLASH_IPC_PASS` |
 | 当前阻断 | `0068` 已让 legacy `m5stack`/`lcd` probe 产生 1422 nonblack pixels，但原厂 startup UI 仍没有完成画面；normal-WDT 仍出现 TG0 system reset。剩余问题已从 display controller routing 转为 startup UI 生命周期与 WDT 关系 |
-| 当前判断 | `0065` 证明旧固定双 PC deadlock 是 scheduler artifact，`0066` 证明 Neopixel 初始化失败是缺失 classic RMT，VFS/WiFi fixture 校正排除了输入污染，`0068` 证明 legacy HSPI panel 数据面可工作，`0069` 排除了 protected feed 被模型丢弃，`0070` 证明 normal-WDT 的 first failure 早于 BOARD/APIKEY，而 WDT-off 在同一时间点仍有真实 SSI/cache 进度。`0071/0072` 确认 `0xBB→0x05→0xBB` 主循环；`0073` 将高频 issuer 绑定到 ROM read-command 区间和应用 segment 5；`0075` 证明 status bit0 与 old-owner 正常；`0086` 匹配到 `xTaskQueueMutex`/queue mux；`0088` 证明 100 ms RR 会放大跨核 spin；`0089` 修复 PC trace 的 `Bad icount read`；`0090` 把默认 per-vCPU cap 降到 `10 us`；`0092` 关闭 WiFi IRQ/cache-handoff panic；`0093/0094` 关闭 classic WiFi station timebase 和双向 DHCP/host 数据面，stock Core2 WiFi 五轮 PASS 并完成 `10.0.2.15` HTTP。legacy `shift=2` + `1 us` 可在 normal WDT 下越过 BOARD/APIKEY 并执行完 boot.py，显示 API Key 页面，但 TG0 仍在 boot done 后没有获得新的 feed 并触发 stage-1 reset。因此当前优先问题已收窄为 normal-WDT 生命周期与启动线程何时接管 TG0，而不是 WiFi 数据面或继续压 RR 参数；factory UI、REPL、稳定应用帧和物理边界仍 `OPEN` |
+| 当前判断 | `0065` 证明旧固定双 PC deadlock 是 scheduler artifact，`0066` 证明 Neopixel 初始化失败是缺失 classic RMT，VFS/WiFi fixture 校正排除了输入污染，`0068` 证明 legacy HSPI panel 数据面可工作，`0069` 排除了 protected feed 被模型丢弃，`0070` 证明 normal-WDT 的 first failure 早于 BOARD/APIKEY，而 WDT-off 在同一时间点仍有真实 SSI/cache 进度。`0071/0072` 确认 `0xBB→0x05→0xBB` 主循环；`0073` 将高频 issuer 绑定到 ROM read-command 区间和应用 segment 5；`0075` 证明 status bit0 与 old-owner 正常；`0086` 匹配到 `xTaskQueueMutex`/queue mux；`0088` 证明 100 ms RR 会放大跨核 spin；`0089` 修复 PC trace 的 `Bad icount read`；`0090` 把默认 per-vCPU cap 降到 `10 us`；`0092` 关闭 WiFi IRQ/cache-handoff panic；`0093/0094` 关闭 classic WiFi station timebase 和双向 DHCP/host 数据面；`0095` 修复 legacy task-WDT level delivery。最终三次 normal-WDT service 运行均越过原 `15.55 s` reset，到 guest virtual `300 s` 以上，保留 boot markers、reconnect 生命周期和原厂 API Key startup UI。剩余检查是 setup/REPL 独立交互和更完整 factory application，而不再有 normal-WDT stage-1 reset |
 | 证据 | [`per-vCPU budget`](evidence/2026-10-29-core2-icount-percpu-budget/README.md)、[`budget summary`](evidence/2026-10-29-core2-icount-percpu-budget/summary.json)、[`0090 patch`](../patches/qemu-m5stack-peripherals/0090-icount-percpu-fairness-cap.patch)、[`handoff issuer/phases`](evidence/2026-10-29-core2-handoff-issuer-phases/README.md)、[`issuer summary`](evidence/2026-10-29-core2-handoff-issuer-phases/summary.json)、[`flash handoff episode budget`](evidence/2026-10-29-core2-handoff-episode-budget/README.md)、[`budget summary`](evidence/2026-10-29-core2-handoff-episode-budget/summary.json)、[`0089 patch`](../patches/qemu-m5stack-peripherals/0089-xtensa-handoff-pc-trace-io-boundary.patch)、[`IPC/flash handoff attribution`](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)、[`handoff summary`](evidence/2026-10-29-core2-ipc-handoff-attribution/summary.json)、[`contended-CAS scheduler`](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)、[`scheduler summary`](evidence/2026-10-29-core2-contended-cas-scheduler/summary.json)、[`0088 patch`](../patches/qemu-m5stack-peripherals/0088-xtensa-contended-cas-fair-yield.patch)、[`0088 contract`](../platform/tests/test_core2_legacy_status_cas.py)、[`CAS hold episodes`](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)、[`episode summary`](evidence/2026-10-29-core2-legacy-cas-episodes/summary.json)、[`0086 patch`](../patches/qemu-m5stack-peripherals/0086-esp32-legacy-cas-episode-profile.patch)、[`status/CAS correlation`](evidence/2026-10-29-core2-legacy-status-cas/README.md)、[`status/CAS summary`](evidence/2026-10-29-core2-legacy-status-cas/summary.json)、[`0075 patch`](../patches/qemu-m5stack-peripherals/0075-esp32-legacy-status-cas-correlation.patch)、[`Core2 M5UI DMA dedup`](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)、[`M5UI DMA summary`](evidence/2026-10-29-core2-m5ui-dma-dedup/summary.json)、[`0074 patch`](../patches/qemu-m5stack-peripherals/0074-esp32-spi-panel-dma-dedup.patch)、[`SSI command issuer PC`](evidence/2026-10-29-core2-ssi-command-pc/README.md)、[`issuer PC summary`](evidence/2026-10-29-core2-ssi-command-pc/summary.json)、[`0073 patch`](../patches/qemu-m5stack-peripherals/0073-esp32-ssi-command-pc.patch)、[`SSI command correlation`](evidence/2026-10-29-core2-ssi-command-correlation/README.md)、[`SSI transaction profile`](evidence/2026-10-29-core2-ssi-transaction-profile/README.md)、[`0071 patch`](../patches/qemu-m5stack-peripherals/0071-esp32-ssi-transaction-profile.patch)、[`classic WiFi station`](evidence/2026-10-30-core2-classic-wifi-station-time/README.md)、[`dual-SPI panel routing`](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)、[`0068 patch`](../patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch)、[`VFS/WiFi fixture 校正`](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、[`0066 RMT patch`](../patches/qemu-m5stack-peripherals/0066-esp32-classic-rmt-legacy.patch)、[`0065 cooperative patch`](../patches/qemu-m5stack-peripherals/0065-xtensa-high-priority-irq-cooperative-yield.patch)、[`state sweep runner`](../tests/firmware/core2_handoff_trace/run_pause_sweep.py)、[`0037 handoff trace patch`](../patches/qemu-m5stack-peripherals/0037-esp32-handoff-trace.patch) |
 
 关闭条件：
 
 1. 保持 `0034` 的最小 probe 门禁可重放，业务补丁不得夹带 IRQ ring/trace；
-2. 保持 `0035` 的 `INT_RAW & INT_ENA` level 语义，并证明 raw status 仍可读；
+2. 保持 `0095` 的 WDT 专用 level 语义：`INT_ST` 仍为
+   `INT_RAW & INT_ENA`，其他 TIMG source 仍受 `INT_ENA` 门控，WDT level
+   由 `LEVEL_INT_EN` 和 `INT_RAW.WDT` 驱动；
 3. 保持 `0036` 的 stateful SSI byte-buffer 数据面与 byte equivalence，
    禁止重新引入直接 `blk_pread` bypass；
 4. 对同一 legacy firmware SHA 记录 TG0/TG1 watchdog feed/clear、stage0/
@@ -253,13 +255,14 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 15. 在同一 final runtime 上给出 `APIKEY` 之后的首个未完成 guest/controller
    路径，并在 normal-WDT 下完成 setup/REPL、非空应用帧和稳定运行。
 
-当前调查边界：shared bus、equal-deadline timer、WDT mask、stateful SSI、
+当前调查边界：shared bus、equal-deadline timer、WDT level、stateful SSI、
 统一 timeline、pending SPI remap、high-priority IRQ 协作和 classic RMT
 都已形成可重放控制。`0065` 关闭调度诱导 DPORT deadlock，`0066` 关闭
-Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` 后仍是
-302-byte 黑帧。normal-WDT 的 TG0 stage-1 reset、display completion、
-setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
-不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
+Neopixel RMT translator 初始化失败，`0095` 关闭 normal-WDT TG0 stage-1
+reset；最终运行保持原厂 API Key startup UI，并有一次真实 Wi-Fi Connect
+页面。setup/REPL 独立交互、完整 factory application 与 display completion
+仍需新证据。matching ELF/MAP 缺失时不得从不同版本固件借用符号；
+`Core2FactoryTest` 修复后仍未重跑。
 
 ### RUNTIME-06：ESP-NOW virtual-controller 功能边界已闭环
 
