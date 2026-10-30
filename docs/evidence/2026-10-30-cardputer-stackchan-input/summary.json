@@ -69,6 +69,13 @@
       "seconds": 240.668,
       "log_sha256": "f75d9df7b9cde51c2a4700d2745cc042bf8a5dba31717b43d556748bc48ff75a",
       "scope": "Not assigned to newly merged parser source; affected parser and final snapshot checks run separately"
+    },
+    "latest_parser_and_snapshot_checks": {
+      "status": "PASS",
+      "source_commit": "2f79892c79c28085ef6e2fbaf3c38012de13b3c6",
+      "tests": 19,
+      "seconds": 13.604,
+      "log_sha256": "c21e79b98dcc6c4cf8a09962c2c31046be770f03e7f784eabfae38d0e5191af3"
     }
   },
   "summaries": {
@@ -99,6 +106,10 @@
     "runtime-build.summary.json": {
       "bytes": 3114,
       "sha256": "2165890e163172813899e14b670962c068ca1a93c2cc85f7284f580d61a16098"
+    },
+    "source-integration-equivalence.summary.json": {
+      "bytes": 2188,
+      "sha256": "6bc9ee3a1d0a8bfa43c4857f53eda8ad3137538ef0b6121493b56b9ee9154acd"
     },
     "stackchan-arduino.summary.json": {
       "bytes": 9018,
@@ -138,6 +149,8 @@
     "capacity_main": "ccbfa71c60f62df2682fd6c449ce8abdaedfd871",
     "initial_integration_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
     "latest_integrated_main": "9c1652dfd9a57307fb1834f4d135b818126b749f",
-    "latest_main_scope": "Device Service parser extraction and documentation only; browser assets unchanged"
+    "latest_main_scope": "Device Service parser extraction and documentation only; browser assets unchanged",
+    "latest_integration_commit": "2f79892c79c28085ef6e2fbaf3c38012de13b3c6",
+    "fresh_export_equivalence": "source-integration-equivalence.summary.json"
   }
 }

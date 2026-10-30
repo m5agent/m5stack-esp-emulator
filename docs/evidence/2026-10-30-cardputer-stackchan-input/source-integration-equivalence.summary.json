@@ -1,0 +1,37 @@
+{
+  "kind": "post-pr-main-integration-static-byte-equivalence",
+  "status": "PASS",
+  "verified_at": "2026-10-30T03:17:19.211974+00:00",
+  "integrated_source_commit": "2f79892c79c28085ef6e2fbaf3c38012de13b3c6",
+  "included_main_commit": "9c1652dfd9a57307fb1834f4d135b818126b749f",
+  "deployed_source_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+  "prior_python_validation_source_commit": "90ca83d6252b2fbbf0267af702af34b8249d77a4",
+  "deployed_payload_commit": "8108c7aeebc907fc417834c3d09ed5c2d05c10bf",
+  "fresh_export_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "deployed_v5_manifest_sha256": "a9631395d75c9fea5961ee6d6647acfa4e6db93d9c16c1ce2e932662ce792144",
+  "declared_assets": 2115,
+  "actual_files_including_manifest": 2116,
+  "direct_byte_equal_files": 2116,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "all2115_asset_records_identical": true,
+  "manifest_bytes_identical": true,
+  "production_web_runtime_fixtures_metadata_identical": true,
+  "fresh_export_asset_bytes": 261282427,
+  "browser_guest_retest": "NOT RUN; no browser artifact changed; original V5 receipts keep original runtime/image/manifest/source identity.",
+  "redeployment": "NOT RUN; deployed603/payload8108 artifact already exactly identical.",
+  "all_admitted_browser_gate": "NOT RUN",
+  "python_test_boundary": "90ca83 validation does not grant new service parser Python PASS; post-merge service checks are separately tracked.",
+  "physical_hardware": "NOT RUN",
+  "executed_web_provenance": {
+    "paths": 21,
+    "sha256": "659957f5554f1cf6bf3f691966c29348d33439d26b179b90468a34c73049458d",
+    "identical_to_v5_provenance_bytes": true
+  },
+  "reproduction": {
+    "export": "python3 platform/tools/build_public_site.py --output .work/<fresh> --base-path /m5stack-esp-emulator/ --qemu-runtime .work/2026-10-30-input-runtime-v3 --littlefs-runtime .work/browser-littlefs-wallclock-v1",
+    "comparison_script_sha256": "6a427fafd9d659c6f5849b61761b9cdabc9ad6320d2c6e0c83f52fb2f1be0af2",
+    "method": "Fresh strict runtime-reader export, safe path/file closed sets, all asset record equality and direct read_bytes equality for all2116files."
+  }
+}
