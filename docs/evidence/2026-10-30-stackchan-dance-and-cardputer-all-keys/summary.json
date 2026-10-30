@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "stackchan-dance-and-cardputer-all-keys",
+  "date": "2026-10-30",
+  "hardware_validation": "NOT RUN",
+  "stackchan": {
+    "status": "PASS",
+    "validation": "virtual-device",
+    "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+    "source_sha256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+    "wasm_sha256": "5d6c36bdafc1129c2652b5ba9422f3deb5ab170475748cea96fdc4cf9520a993",
+    "site_manifest_sha256": "c27de9d6cc7230829d368b82fbf23a9f0cc39146dc716cab1e1eefd05f17b985",
+    "profile": "stackchan-wasm-dance-div6",
+    "clock_divisor": 6,
+    "packets": 30,
+    "rejected_packets": 0,
+    "present_position": {
+      "yaw": [307, 613],
+      "pitch": [677, 850]
+    },
+    "samples": 23,
+    "frames": 1056,
+    "cleanup": "PASS: engine and five nested pthread targets closed"
+  },
+  "cardputer_adv": {
+    "status": "PASS",
+    "validation": "virtual-device",
+    "firmware_sha256": "4faaccde28367c257f7f140c139c434cf223be47de41ad853a168d9c25c2bd7b",
+    "wasm_sha256": "5d6c36bdafc1129c2652b5ba9422f3deb5ab170475748cea96fdc4cf9520a993",
+    "site_manifest_sha256": "c27de9d6cc7230829d368b82fbf23a9f0cc39146dc716cab1e1eefd05f17b985",
+    "physical_keys": 56,
+    "direct_pc_codes": 55,
+    "checks": 36,
+    "reader": "official M5Cardputer TCA8418 GPIO11 IRQ update",
+    "cleanup": "PASS: engine and five nested pthread targets closed"
+  },
+  "not_claimed": [
+    "physical hardware",
+    "mechanical servo travel",
+    "electrical or RF behavior",
+    "real-time equivalence of the StackChan div6 compatibility profile",
+    "other firmware SHAs or board profiles"
+  ]
+}
