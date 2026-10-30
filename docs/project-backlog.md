@@ -326,7 +326,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
-| `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载和 storage/NVS execution parsing 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
+| `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS 和 esp-emu network execution parsing 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
@@ -706,9 +706,10 @@ HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何�
    `device_service_network.py`，并把设备 catalog/matrix/profile 解析、
    backend 路径和 runtime profile 选择移到 `device_service_specs.py`；
    storage/NVS execution request parser 已移到
-   `device_service_execution_parsing.py`。三个边界均由原模块 same-object
-   re-export。继续移动其余无状态请求解析和运行参数构造，保持原模块
-   re-export；
+   `device_service_execution_parsing.py`，esp-emu network execution request
+   parser 已移到 `device_service_network_execution.py`。四个边界均由原模块
+   same-object re-export。继续移动其余无状态请求解析和运行参数构造，
+   保持原模块 re-export；
 3. 拆 content-addressed firmware/artifact store；
 4. 拆 QEMU、Tab5、network runtime adapters；
 5. 拆 evidence collector 和 lifecycle/history repository；
