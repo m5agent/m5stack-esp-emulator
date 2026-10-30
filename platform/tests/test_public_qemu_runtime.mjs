@@ -26,6 +26,9 @@ const mockDocument={
     const port=ports[0];frame.channel=port;frame.calls=[];
     port.onmessage=({data})=>{
       frame.calls.push(data);
+      if(data.op==='display'&&frame.profile?.deviceId!=='cardputer-adv'){
+        port.postMessage({id:data.id,error:'This device has no dynamic SPI orientation contract'});return;
+      }
       if(config.ignore?.includes(data.op))return;
       if(data.op==='start'&&config.rejectStart){port.postMessage({id:data.id,error:'contract start rejection'});return;}
       if(data.op==='dispose'&&config.rejectDispose){
@@ -61,7 +64,8 @@ function create(overrides={}){
 try {
   const normal=create();await normal.runtime.start({device:'cores3',firmware:firmware()});await until(()=>normal.runtime.lastFrame);
   assert.equal(normal.runtime.observe().status,'running');assert.equal(normal.runtime.observe().persistentStorage,false);
-  assert.deepEqual(normal.runtime.display,{orientation:'landscape',deviceRotationDeg:0});
+  assert.equal(normal.runtime.display,null);
+  assert.equal(frames.at(-1).calls.some(row=>row.op==='display'),false);
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
   assert.equal(normal.runtime.receipt.firmwareVariant,null,'an unknown complete Flash hash stays on the baseline clock profile');
   const startMessage=frames.at(-1).calls.find(row=>row.op==='start');
@@ -78,6 +82,15 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  for(const device of ['papercolor','papermono','cardputer-adv']){
+    const profile=getQemuBrowserProfile(device,profiles),panel=create();
+    await panel.runtime.start({device,firmware:firmware(profile)});await until(()=>panel.runtime.lastFrame);
+    assert.equal(frames.at(-1).calls.some(row=>row.op==='display'),device==='cardputer-adv',
+      'SPI orientation discovery must not block e-paper startup or polling');
+    assert.equal(panel.runtime.display?.orientation??null,device==='cardputer-adv'?'landscape':null);
+    assert.deepEqual(panel.errors,[]);await panel.runtime.stop();
+  }
 
   // Reset is an in-place QMP input: no new container, firmware download or Flash.
   options={};const resetting=create();await resetting.runtime.start({device:'cores3',firmware:firmware()});

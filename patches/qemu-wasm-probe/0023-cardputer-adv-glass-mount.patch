@@ -1,0 +1,20 @@
+From: M5Stack Agent <agent@m5stack.local>
+Subject: [PATCH] Align Cardputer ADV glass with SDK landscape rotation one
+
+M5GFX uses native 135x240 ST7789 memory and rotation1 as the board-facing
+landscape default. The current glass extraction rotates the source in the
+wrong direction, putting logical top-left at physical bottom-right. Rotate
+the glass mount in the other direction; retain native memory, MADCTL and
+offsets. Four-rotation full-pixel replay retains the old failure.
+
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -141,7 +141,7 @@
+     qdev_prop_set_uint32(panel, "offset-x", 52);
+     qdev_prop_set_uint32(panel, "offset-y", 40);
+     qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+-    qdev_prop_set_uint32(panel, "glass-rotation", 1);
++    qdev_prop_set_uint32(panel, "glass-rotation", 3);
+     qdev_prop_set_bit(panel, "apply-madctl", true);
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);

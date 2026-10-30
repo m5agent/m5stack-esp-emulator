@@ -129,6 +129,11 @@ await tick();batch=commands();respond(batch[0],0);await release;
 assert.match(one.messages.find(row=>row.id===143).error,/readback mismatch/);
 vm.runInContext('boardProfile=originalEncoderProfile',context);
 
+await one.onmessage({data:{id:130,op:'display'}});
+assert.equal(one.messages.at(-1).value,null);
+assert.equal(commands().length,0,'non-Cardputer panels require no SPI QOM orientation');
+context.cardDisplayProfile=getQemuBrowserProfile('cardputer-adv',registry);
+vm.runInContext('boardProfile=cardDisplayProfile',context);
 const display=one.onmessage({data:{id:13,op:'display'}});
 const panelList=commands();assert.equal(panelList.length,1);assert.equal(panelList[0].execute,'qom-list');
 assert.equal(panelList[0].arguments.path,'/machine/unattached');
@@ -140,6 +145,7 @@ assert.equal(panelOrientation[0].arguments.property,'logical-orientation');
 respond(panelOrientation[0],'portrait');await display;
 assert.equal(one.messages.at(-1).value.orientation,'portrait');
 assert.equal(one.messages.at(-1).value.deviceRotationDeg,-90);
+vm.runInContext('boardProfile=originalEncoderProfile',context);
 // A synthetic host-side ABI buffer exercises the imported real shared-frame
 // reader through the instance port. It is not firmware/display validation.
 vm.runInContext(`

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "observed-cardputer-adv-arduino-contract",
+  "validation": "BUILD_ONLY; functional guest evidence is separately bound",
+  "device_id": "cardputer-adv",
+  "bsp": {
+    "repository": "https://github.com/m5stack/M5Cardputer",
+    "commit": "bf64d3178ab43928fa02365fbe3937cec99716ad",
+    "version": "1.1.1"
+  },
+  "framework": "platformio/framework-arduinoespressif32@3.20017.241212+sha.dcc1105b",
+  "platform": "espressif32@6.10.0",
+  "board": "m5stack-stamps3",
+  "source_files": {
+    "src/main.cpp": "7b15bf029e7473ad9e085f35ae93c9e2183c780bc5fab3844b09f2ea8e6188f0",
+    "platformio.ini": "e13d6fb9d343041e4311a83b2a91fc14262a0fb2e9d71947755ed4e82b7ed259"
+  },
+  "portable_config_boundary": "Only ignored machine-specific PlatformIO core/cache directory lines removed; the same exact BSP checkout is represented as a pinned lib_deps URL instead of an ignored lib/ symlink. Source bytes and compiler flags are unchanged.",
+  "libraries": {
+    "M5Unified": {
+      "source_tree_sha256": "48cc16b535eaba06ae327c821423bdf66c3a4dc7e5a1a27c9d8ce296692e4775",
+      "source_files": 92
+    },
+    "M5GFX": {
+      "source_tree_sha256": "11cb0d5ed88e535ba5cc207b226c70cbdfc68dcd5fff2ea83a71fb5f24199412",
+      "source_files": 255
+    },
+    "IRremote": {
+      "source_tree_sha256": "5a7ad4f383a229f7e385cc7ad4011c70a7ace0bee6ab15ae41273fb45b708911",
+      "source_files": 71
+    }
+  },
+  "compiled_artifacts": {
+    "merged.bin": {
+      "sha256": "62e4cf26c1213ea5dc80155e999b9bf33832ddf07fee8de18114cd71f7706fe3",
+      "bytes": 8388608
+    },
+    "firmware.elf": {
+      "sha256": "423fdb8bdd81c5577f4bddf893025399b36a884f1ffbc6d708eb06f4af5b78f8",
+      "bytes": 15480656
+    },
+    "bootloader.bin": {
+      "sha256": "1776e4dd896a69d0a5c2e79957b0e2a88aa4129b1381d6478683515a1f6af343",
+      "bytes": 15104
+    },
+    "partitions.bin": {
+      "sha256": "1d9cca96de0fe07ad7fc0648b9878ddecd9ce565e38b589ad20fea698ed4c80c",
+      "bytes": 3072
+    },
+    "application.bin": {
+      "sha256": "67312691b8cdf25e85f74a6594ecab0103850dac89e385ba82193a8b8a9e8db5",
+      "bytes": 497600
+    },
+    "boot_app0.bin": {
+      "offset": 57344,
+      "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0",
+      "bytes": 8192
+    }
+  },
+  "scope": "Real M5Cardputer.begin/update with native TCA8418 GPIO11 interrupt reader, no manual polling/ISR flag changes; original Display API rotations0..3 and partial updates.",
+  "prior_compiled_image": {
+    "sha256": "1b106365b9a093b755168c13b5af63f9d0a35af4352aa5fdf59d1faec183616d",
+    "source_sha256": "3416ec6f6ed492c8f92c2482987d6238e162b226fa6c6eac488f0e7a8e9811e8",
+    "boundary": "First guest keyboard/IRQ checks passed; four-corner assertions had signed-int color fixture error and automated phase observation crossed rotations. Real rotation1 inverted text separately retained. No PASS inherited to corrected image."
+  },
+  "phase_control": "Real native keyboard Enter edges advance full/partial/next rotation; guest waits between stages, avoiding asynchronous serial/frame relabeling.",
+  "color_input": "Explicit uint32_t RGB888 values; original M5GFX default color depth and COLMOD remain unchanged."
+}

@@ -1,0 +1,2070 @@
+{
+  "schema_version": 1,
+  "kind": "cardputer-adv-original-arduino-keyboard-display-guest",
+  "status": "PASS",
+  "hardware_validation": "NOT RUN",
+  "started_at": "2026-10-30T02:46:34.568Z",
+  "finished_at": "2026-10-30T02:47:40.184Z",
+  "raw_report": {
+    "bytes": 7357484,
+    "sha256": "2b659d56e29a6380d52b861d8f4bfbade9351d61734abe12f7dd2e58eb5d7260"
+  },
+  "raw_evidence_storage": "Local ignored execution directory only; no firmware, ROM, frame series or full serial in source Git.",
+  "runtime": {
+    "engine": "qemu-wasm",
+    "deviceId": "cardputer-adv",
+    "board": "m5cardputeradv",
+    "profile": "cardputer-adv-wasm-wallclock",
+    "clockDivisor": 1,
+    "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+    "wasmSha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+    "firmwareSha256": "62e4cf26c1213ea5dc80155e999b9bf33832ddf07fee8de18114cd71f7706fe3",
+    "frameTransport": "shared-rgb565-v1",
+    "controller": "same-origin-iframe-message-channel",
+    "persistentFlash": false
+  },
+  "artifact_provenance": {
+    "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+    "runtime_manifest_sha256": "eeb6f5cedab9dfc4cb69e9467c832e0bb5e478c87c715855d40fb365194c4e44",
+    "runtime_lock_sha256": "36b0ae4381e53e02517ec35ddc49085b0bb489acc3b80f3383f1e20e611ccc58",
+    "test_script": {
+      "path": "platform/tests/test_public_qemu_cardputer_input_display.mjs",
+      "sha256": "f8b4bcbfae6c848e480d7672790628b16a06d48b1be6ac4f71f2d3c5e22a731a"
+    },
+    "web": {
+      "platform/web/public.js": {
+        "source_sha256": "b38be50ba3167c2a25f10c7a07ec392e73f9c8b805724b494ddbe33db49c502a",
+        "exported_sha256": "b38be50ba3167c2a25f10c7a07ec392e73f9c8b805724b494ddbe33db49c502a"
+      },
+      "platform/web/public-qemu-runtime.js": {
+        "source_sha256": "544e707f7a570b3c9d77d99a0f959f0e6ffc78e3302d261ae8f356ea389b0b5d",
+        "exported_sha256": "544e707f7a570b3c9d77d99a0f959f0e6ffc78e3302d261ae8f356ea389b0b5d"
+      },
+      "platform/web/public-qemu-engine.js": {
+        "source_sha256": "4fe273f1aa8abce2024abfdf7e8321335e71946fe6f1a41e8b4fbae104b2778e",
+        "exported_sha256": "4fe273f1aa8abce2024abfdf7e8321335e71946fe6f1a41e8b4fbae104b2778e"
+      },
+      "platform/web/model-shell.js": {
+        "source_sha256": "099307bad41dafb60066c5f047482e70057d13d8b6f85d3c88dd93e4d6a561ae",
+        "exported_sha256": "099307bad41dafb60066c5f047482e70057d13d8b6f85d3c88dd93e4d6a561ae"
+      }
+    },
+    "reproduction": "M5_PUBLIC_SITE=<explicit-67-export> M5_CARDPUTER_IMAGE=<actual-merged-v2.bin> M5_CARDPUTER_IMAGE_SHA256=62e4cf26c1213ea5dc80155e999b9bf33832ddf07fee8de18114cd71f7706fe3 M5_CARDPUTER_WASM_SHA256=a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e M5_CARDPUTER_OUT=.work/<fresh-run-directory> node platform/tests/test_public_qemu_cardputer_input_display.mjs"
+  },
+  "official_sdk": {
+    "repository": "https://github.com/m5stack/M5Cardputer",
+    "commit": "bf64d3178ab43928fa02365fbe3937cec99716ad",
+    "version": "1.1.1",
+    "M5Unified": "0.2.28",
+    "M5GFX": "0.2.35",
+    "native_reader": "TCA8418/real GPIO11 CHANGE interrupt plus original M5Cardputer.update; no manual FIFO polling or flag writes"
+  },
+  "firmware_build_lock": {
+    "bytes": 3208,
+    "sha256": "397f9c6dd894ad53e4d288e472dfed2485902ba9ca0f3c7722c3559eae18e287"
+  },
+  "board_selection": {
+    "nonce": "cardputer-input-orientation-20261030-v1",
+    "kind": "board",
+    "board": 24,
+    "keyboard_path": "official-M5Cardputer-IRQ-update"
+  },
+  "input_path": "Actual DOM physical-key picks and focused PC KeyboardEvents -> model input -> QMP key input -> TCA8418 FIFO/GPIO11 CHANGE interrupt -> unmodified official M5Cardputer.update -> guest serial state; no UART keyboard substitution, host FIFO polling, manual _irq_handler call or ISR flag write.",
+  "display_path": "Unmodified M5GFX Display API -> SPI/MADCTL/CASET/RASET/RAMWR -> real QEMU m5.spi-panel native framebuffer -> shared RGB565 -> model texture and planar presentation; stable stages advanced only by native Enter key edges.",
+  "display_probe_boundary": "Explicit uint32_t RGB888 color input resolves SDK signed-int overload error; original color depth is recorded, not forced. No RGB666/COLMOD66 claim.",
+  "checks": [
+    {
+      "name": "exact-image-and-WASM",
+      "ok": true
+    },
+    {
+      "name": "rotation-0-driver-size",
+      "ok": true
+    },
+    {
+      "name": "rotation-0-partial-orientation-stable",
+      "ok": true
+    },
+    {
+      "name": "rotation-0-physical-four-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-0-partial-64-pixels",
+      "ok": true
+    },
+    {
+      "name": "rotation-0-planar-presentation-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-1-driver-size",
+      "ok": true
+    },
+    {
+      "name": "rotation-1-partial-orientation-stable",
+      "ok": true
+    },
+    {
+      "name": "rotation-1-physical-four-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-1-partial-64-pixels",
+      "ok": true
+    },
+    {
+      "name": "rotation-1-planar-presentation-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-2-driver-size",
+      "ok": true
+    },
+    {
+      "name": "rotation-2-partial-orientation-stable",
+      "ok": true
+    },
+    {
+      "name": "rotation-2-physical-four-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-2-partial-64-pixels",
+      "ok": true
+    },
+    {
+      "name": "rotation-2-planar-presentation-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-3-driver-size",
+      "ok": true
+    },
+    {
+      "name": "rotation-3-partial-orientation-stable",
+      "ok": true
+    },
+    {
+      "name": "rotation-3-physical-four-corners",
+      "ok": true
+    },
+    {
+      "name": "rotation-3-partial-64-pixels",
+      "ok": true
+    },
+    {
+      "name": "rotation-3-planar-presentation-corners",
+      "ok": true
+    },
+    {
+      "name": "official-native-ADV-reader-selected",
+      "ok": true
+    },
+    {
+      "name": "all-frames-bind-native-texture",
+      "ok": true
+    },
+    {
+      "name": "56-physical-keys-original-IRQ-state-and-release",
+      "ok": true
+    },
+    {
+      "name": "original-modifier-and-special-key-flags",
+      "ok": true
+    },
+    {
+      "name": "ShiftLeft-uppercase-through-original-reader",
+      "ok": true
+    },
+    {
+      "name": "ShiftRight-uppercase-through-original-reader",
+      "ok": true
+    },
+    {
+      "name": "overlapping-PC-Shift-holds-preserve-native-switch",
+      "ok": true
+    },
+    {
+      "name": "PC-Backquote-is-physical-grave",
+      "ok": true
+    },
+    {
+      "name": "physical-Fn-Up-original-reader",
+      "ok": true
+    },
+    {
+      "name": "same-guest-remains-alive-and-error-free",
+      "ok": true
+    },
+    {
+      "name": "normal-Stop-Worker-zero-before-context-close",
+      "ok": true
+    },
+    {
+      "name": "no-protected-services-used",
+      "ok": true
+    }
+  ],
+  "rotations": [
+    {
+      "rotation": 0,
+      "full_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-full",
+        "seq": 1,
+        "guest_ms": 4456,
+        "rotation": 0,
+        "width": 135,
+        "height": 240,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "partial_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-partial",
+        "seq": 4,
+        "guest_ms": 5540,
+        "rotation": 0,
+        "width": 135,
+        "height": 240,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "full": {
+        "freshDisplay": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "display": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "presentation": 270,
+        "sequence": 14,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          2016,
+          65504,
+          63488,
+          31
+        ],
+        "planar": [
+          135,
+          240
+        ],
+        "planar_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            0
+          ]
+        ],
+        "native_sha256": "4e0dc1a3b705b67d05e4b565fd2f0c1ebaf72868131b74c8621f10b99fbf6674"
+      },
+      "partial": {
+        "freshDisplay": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "display": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "presentation": 270,
+        "sequence": 15,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          2016,
+          65504,
+          63488,
+          31
+        ],
+        "planar": [
+          135,
+          240
+        ],
+        "planar_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            0
+          ]
+        ],
+        "native_sha256": "fc2d5ff21e139821ea043ae9e4394a218c40e9f8f05d7edfc3038bfe093845db"
+      },
+      "partial_update_pixels_checked": 64
+    },
+    {
+      "rotation": 1,
+      "full_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-full",
+        "seq": 7,
+        "guest_ms": 6647,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "partial_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-partial",
+        "seq": 10,
+        "guest_ms": 7504,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "full": {
+        "freshDisplay": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "display": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "presentation": 0,
+        "sequence": 19,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          63488,
+          2016,
+          31,
+          65504
+        ],
+        "planar": [
+          135,
+          240
+        ],
+        "planar_corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "native_sha256": "f1113d06523502f7b560f4bf8f360ef2db331e760fc6da5472ac09693f3d80ce"
+      },
+      "partial": {
+        "freshDisplay": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "display": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "presentation": 0,
+        "sequence": 20,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          63488,
+          2016,
+          31,
+          65504
+        ],
+        "planar": [
+          240,
+          135
+        ],
+        "planar_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            0
+          ]
+        ],
+        "native_sha256": "4d42549a59c74238bded2836c7ca4f8b5f441cd37c400b6b600dd49ed22df989"
+      },
+      "partial_update_pixels_checked": 64
+    },
+    {
+      "rotation": 2,
+      "full_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-full",
+        "seq": 13,
+        "guest_ms": 9154,
+        "rotation": 2,
+        "width": 135,
+        "height": 240,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "partial_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-partial",
+        "seq": 16,
+        "guest_ms": 10629,
+        "rotation": 2,
+        "width": 135,
+        "height": 240,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "full": {
+        "freshDisplay": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "display": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "presentation": 270,
+        "sequence": 25,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          31,
+          63488,
+          65504,
+          2016
+        ],
+        "planar": [
+          135,
+          240
+        ],
+        "planar_corners": [
+          [
+            255,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "native_sha256": "8acffb490a4d9072fa270ade9973902e42f4aaae9ec2ebdfdce4c8de5467fd30"
+      },
+      "partial": {
+        "freshDisplay": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "display": {
+          "orientation": "portrait",
+          "deviceRotationDeg": -90
+        },
+        "presentation": 270,
+        "sequence": 26,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          31,
+          63488,
+          65504,
+          2016
+        ],
+        "planar": [
+          135,
+          240
+        ],
+        "planar_corners": [
+          [
+            255,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "native_sha256": "ebd0b1d57bf047f35168778a0af363650981beb4f187aeedb4261f7f71eb74b7"
+      },
+      "partial_update_pixels_checked": 64
+    },
+    {
+      "rotation": 3,
+      "full_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-full",
+        "seq": 19,
+        "guest_ms": 11701,
+        "rotation": 3,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "partial_event": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "rotation-partial",
+        "seq": 22,
+        "guest_ms": 13120,
+        "rotation": 3,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            13
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 1,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      },
+      "full": {
+        "freshDisplay": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "display": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "presentation": 0,
+        "sequence": 31,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          65504,
+          31,
+          2016,
+          63488
+        ],
+        "planar": [
+          240,
+          135
+        ],
+        "planar_corners": [
+          [
+            255,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "native_sha256": "95b944401e84e5320b6755f20e56814c36267cbbad42093a3c2c2e6afec3f1e5"
+      },
+      "partial": {
+        "freshDisplay": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "display": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "presentation": 0,
+        "sequence": 32,
+        "width": 240,
+        "height": 135,
+        "native_corners": [
+          65504,
+          31,
+          2016,
+          63488
+        ],
+        "planar": [
+          240,
+          135
+        ],
+        "planar_corners": [
+          [
+            255,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "native_sha256": "3efb38f86c2f83a35f7f9d24577274cabf82b5749e466d5f64e21a015a888215"
+      },
+      "partial_update_pixels_checked": 64
+    }
+  ],
+  "physical_keys": [
+    {
+      "row": 0,
+      "col": 0,
+      "id": "key-Escape",
+      "down_positions": [
+        [
+          0,
+          0
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        96
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "id": "key-Digit1",
+      "down_positions": [
+        [
+          0,
+          1
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        49
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "id": "key-Digit2",
+      "down_positions": [
+        [
+          0,
+          2
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        50
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "id": "key-Digit3",
+      "down_positions": [
+        [
+          0,
+          3
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        51
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "id": "key-Digit4",
+      "down_positions": [
+        [
+          0,
+          4
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        52
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "id": "key-Digit5",
+      "down_positions": [
+        [
+          0,
+          5
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        53
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "id": "key-Digit6",
+      "down_positions": [
+        [
+          0,
+          6
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        54
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "id": "key-Digit7",
+      "down_positions": [
+        [
+          0,
+          7
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        55
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "id": "key-Digit8",
+      "down_positions": [
+        [
+          0,
+          8
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        56
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 9,
+      "id": "key-Digit9",
+      "down_positions": [
+        [
+          0,
+          9
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        57
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 10,
+      "id": "key-Digit0",
+      "down_positions": [
+        [
+          0,
+          10
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        48
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 11,
+      "id": "key-Minus",
+      "down_positions": [
+        [
+          0,
+          11
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        45
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 12,
+      "id": "key-Equal",
+      "down_positions": [
+        [
+          0,
+          12
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        61
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 0,
+      "col": 13,
+      "id": "key-Backspace",
+      "down_positions": [
+        [
+          0,
+          13
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "backspace": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "id": "key-Tab",
+      "down_positions": [
+        [
+          1,
+          0
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "id": "key-KeyQ",
+      "down_positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        113
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "id": "key-KeyW",
+      "down_positions": [
+        [
+          1,
+          2
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        119
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "id": "key-KeyE",
+      "down_positions": [
+        [
+          1,
+          3
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        101
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "id": "key-KeyR",
+      "down_positions": [
+        [
+          1,
+          4
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        114
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "id": "key-KeyT",
+      "down_positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        116
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 6,
+      "id": "key-KeyY",
+      "down_positions": [
+        [
+          1,
+          6
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        121
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "id": "key-KeyU",
+      "down_positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        117
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 8,
+      "id": "key-KeyI",
+      "down_positions": [
+        [
+          1,
+          8
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        105
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 9,
+      "id": "key-KeyO",
+      "down_positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        111
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 10,
+      "id": "key-KeyP",
+      "down_positions": [
+        [
+          1,
+          10
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        112
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 11,
+      "id": "key-BracketLeft",
+      "down_positions": [
+        [
+          1,
+          11
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        91
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 12,
+      "id": "key-BracketRight",
+      "down_positions": [
+        [
+          1,
+          12
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        93
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 1,
+      "col": 13,
+      "id": "key-Backslash",
+      "down_positions": [
+        [
+          1,
+          13
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        92
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "id": "key-Fn",
+      "down_positions": [
+        [
+          2,
+          0
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "fn": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "id": "key-CapsLock",
+      "down_positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "shift": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "id": "key-KeyA",
+      "down_positions": [
+        [
+          2,
+          2
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        97
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "id": "key-KeyS",
+      "down_positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        115
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "id": "key-KeyD",
+      "down_positions": [
+        [
+          2,
+          4
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        100
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "id": "key-KeyF",
+      "down_positions": [
+        [
+          2,
+          5
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        102
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "id": "key-KeyG",
+      "down_positions": [
+        [
+          2,
+          6
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        103
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "id": "key-KeyH",
+      "down_positions": [
+        [
+          2,
+          7
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        104
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 8,
+      "id": "key-KeyJ",
+      "down_positions": [
+        [
+          2,
+          8
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        106
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 9,
+      "id": "key-KeyK",
+      "down_positions": [
+        [
+          2,
+          9
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        107
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 10,
+      "id": "key-KeyL",
+      "down_positions": [
+        [
+          2,
+          10
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        108
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 11,
+      "id": "key-Semicolon",
+      "down_positions": [
+        [
+          2,
+          11
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        59
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 12,
+      "id": "key-Quote",
+      "down_positions": [
+        [
+          2,
+          12
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        39
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 2,
+      "col": 13,
+      "id": "key-Enter",
+      "down_positions": [
+        [
+          2,
+          13
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "enter": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "id": "key-ControlLeft",
+      "down_positions": [
+        [
+          3,
+          0
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "ctrl": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "id": "key-AltLeft",
+      "down_positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "opt": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "id": "key-AltRight",
+      "down_positions": [
+        [
+          3,
+          2
+        ]
+      ],
+      "up_positions": [],
+      "word": [],
+      "down_flags": {
+        "alt": 1
+      },
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "id": "key-KeyZ",
+      "down_positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        122
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "id": "key-KeyX",
+      "down_positions": [
+        [
+          3,
+          4
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        120
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "id": "key-KeyC",
+      "down_positions": [
+        [
+          3,
+          5
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        99
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "id": "key-KeyV",
+      "down_positions": [
+        [
+          3,
+          6
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        118
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "id": "key-KeyB",
+      "down_positions": [
+        [
+          3,
+          7
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        98
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "id": "key-KeyN",
+      "down_positions": [
+        [
+          3,
+          8
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        110
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 9,
+      "id": "key-KeyM",
+      "down_positions": [
+        [
+          3,
+          9
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        109
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 10,
+      "id": "key-Comma",
+      "down_positions": [
+        [
+          3,
+          10
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        44
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 11,
+      "id": "key-Period",
+      "down_positions": [
+        [
+          3,
+          11
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        46
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 12,
+      "id": "key-Slash",
+      "down_positions": [
+        [
+          3,
+          12
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        47
+      ],
+      "down_flags": {},
+      "released_flags": true
+    },
+    {
+      "row": 3,
+      "col": 13,
+      "id": "key-Space",
+      "down_positions": [
+        [
+          3,
+          13
+        ]
+      ],
+      "up_positions": [],
+      "word": [
+        32
+      ],
+      "down_flags": {},
+      "released_flags": true
+    }
+  ],
+  "modifier_and_character_results": [
+    {
+      "name": "original-modifier-and-special-key-flags",
+      "ok": true
+    },
+    {
+      "name": "ShiftLeft-uppercase-through-original-reader",
+      "ok": true,
+      "detail": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "keys",
+        "seq": 141,
+        "guest_ms": 47572,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "fn": 0,
+        "shift": 1,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": [
+          65
+        ]
+      }
+    },
+    {
+      "name": "ShiftRight-uppercase-through-original-reader",
+      "ok": true,
+      "detail": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "keys",
+        "seq": 145,
+        "guest_ms": 48309,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "fn": 0,
+        "shift": 1,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": [
+          65
+        ]
+      }
+    },
+    {
+      "name": "overlapping-PC-Shift-holds-preserve-native-switch",
+      "ok": true,
+      "detail": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "keys",
+        "seq": 149,
+        "guest_ms": 49037,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "fn": 0,
+        "shift": 1,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": [
+          65
+        ]
+      }
+    },
+    {
+      "name": "PC-Backquote-is-physical-grave",
+      "ok": true,
+      "detail": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "keys",
+        "seq": 152,
+        "guest_ms": 49692,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            0,
+            0
+          ]
+        ],
+        "fn": 0,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 0,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": [
+          96
+        ]
+      }
+    },
+    {
+      "name": "physical-Fn-Up-original-reader",
+      "ok": 1,
+      "detail": {
+        "nonce": "cardputer-input-orientation-20261030-v1",
+        "kind": "keys",
+        "seq": 155,
+        "guest_ms": 50446,
+        "rotation": 1,
+        "width": 240,
+        "height": 135,
+        "color_depth": 16,
+        "irq_level": 1,
+        "positions": [
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            11
+          ]
+        ],
+        "fn": 1,
+        "shift": 0,
+        "ctrl": 0,
+        "opt": 0,
+        "alt": 0,
+        "enter": 0,
+        "backspace": 0,
+        "up": 1,
+        "down": 0,
+        "left": 0,
+        "right": 0,
+        "word": []
+      }
+    }
+  ],
+  "source_fixes": {
+    "0022": {
+      "path": "patches/qemu-wasm-probe/0022-panel-madctl-orientation.patch",
+      "sha256": "2c612e6e898d7092dd5fcc6ba39763b579af9076657cc259dd9d0c0b6c1b0381",
+      "host": "Actual getter replay: prior portrait→8x8 window returnedunknown; four rotations×five windows stable after fix."
+    },
+    "0023": {
+      "path": "patches/qemu-wasm-probe/0023-cardputer-adv-glass-mount.patch",
+      "sha256": "9f5fb8bcec6179fff6525404fb08b651c53eeff6bd6ad4f2c9a2cc83b4114bd7",
+      "host": "Actual put_pixel/pixel_rgb plus independently fixed M5GFX address windows: oldglass1 fails, glass3 passes32400pixels×4rotations."
+    }
+  },
+  "prior_failures_retained": {
+    "preliminary_summary": {
+      "bytes": 14426,
+      "sha256": "6e35cc4067ad948b4d269a183600e7df3a9f8e567ffa6db9d3f88af86ed6e749"
+    },
+    "observer_error_before_guest": {
+      "status": "FAIL_BEFORE_GUEST",
+      "report": {
+        "bytes": 10184,
+        "sha256": "56edc4e431b98dbaa8445380ba19d8309aaeae4a0bce944c9b9a104960f5c242"
+      },
+      "harness_sha256": "9721e664f92caca86854ba97a1ae3ed9c3c794e4fa2082af760a2c4480f0bd58",
+      "cause": "Observer imported model-shell without production query string, patching a different ESM instance; actual Cardputer model was loaded but observer global remained absent."
+    },
+    "runtime66_guest": {
+      "status": "FAIL",
+      "report": {
+        "bytes": 444885,
+        "sha256": "7be521230181eb98e6706b4d06560a955112bef35c44d6bcf576d5e19c657464"
+      },
+      "harness_sha256": "dff724563431f296055e757d068a252ee227e1f039803ab1c158e00dc71b61d0",
+      "display": {
+        "logical_sizes": "PASS for four rotations",
+        "native_to_model_pixels": "PASS",
+        "physical_default_rotation1": "FAIL: actual screenshot text is inverted while enclosure/keyboard are upright",
+        "screenshot": {
+          "bytes": 284273,
+          "sha256": "62391d7a98153f197814bf4bc4b08c331bd36526a38d9e5a908891842e9bc498"
+        },
+        "four_corner_assertions": "FAIL_WITH_FIXTURE_COLOR_ERROR: signed int32 RGB888 literals selected RGB565 overload; actual converter host proof retained separately",
+        "one_rotation2_orientation_sample": "Observer phase/cache boundary; autonomous guest advanced before delayed serial marker. New probe is held between stages by actual keyboard edges; not assigned a new controller failure."
+      }
+    },
+    "runtime66_wasm_sha256": "97ef407e7ff56890dbfbd0051643a8a9895f07f210fd8ae7cdf3c255e75ae213",
+    "runtime66_firmware_sha256": "1b106365b9a093b755168c13b5af63f9d0a35af4352aa5fdf59d1faec183616d",
+    "interpretation": "The old probe keyboard passes and inverted default text are retained separately. Its signed-int color fixture and autonomous phase observation failures are not reclassified as controller color bugs, and no old PASS is inherited by this corrected image."
+  },
+  "cleanup": {
+    "normal_stop": true,
+    "exit_code": 0,
+    "nested_workers_created": 5,
+    "nested_workers_remaining": 0,
+    "engine_owner_live": false,
+    "engine_fallback_terminations": 0,
+    "cdp_observed": 6,
+    "cdp_remaining": 0,
+    "verified_before_context_close": true,
+    "iframe_removed": true
+  },
+  "screenshot_visual_review": {
+    "scope": "Current guest screenshot artifacts retained and hashed; earlier explicitly viewed V2 screenshots remain in the prior run, not relabelled as current.",
+    "rotation-2.png": {
+      "bytes": 229499,
+      "sha256": "f2a5de1198f907ddf023a8be2d947f4ff1550d0d7bf58dbb7d5faedc33f21ae6"
+    },
+    "rotation-3.png": {
+      "bytes": 287249,
+      "sha256": "0653ff24c371a3471c7a5274bcfb7d686eb46d0f19c4912c358cccc60d3f1afa"
+    },
+    "rotation-1.png": {
+      "bytes": 287463,
+      "sha256": "6ff5ab386e0a4c6193601d671724014b9ebe955dd17ae6cfd8361e1ed7f64033"
+    },
+    "rotation-0.png": {
+      "bytes": 229491,
+      "sha256": "6c7d48e5aa321541750ca801b0725ac55771e686b98bf1a27e3bcfaa7d9034ed"
+    },
+    "keyboard-landscape.png": {
+      "bytes": 287326,
+      "sha256": "6bc699e2310a60ca8d85bd4b4e16a6e3804e7d6de1fdc4a59103b0d432cac6c7"
+    }
+  },
+  "protected_service_requests": 0,
+  "page_errors": [],
+  "guest_errors": [],
+  "limits": [
+    "Virtual-device PASS only; no physical hardware result.",
+    "This exact original Arduino BSP/image on board24 native IRQ reader; no inheritance to arbitrary firmware, legacy board14 GPIO reader, or UIFlow KeyboardI2C workaround fixture.",
+    "Rotations2/3 intentionally invert content according to official SDK rotation. Only the portrait presentation transform follows orientation, not arbitrary auto-uprighting.",
+    "No stable-startup/long-soak, RGB666/COLMOD66, physical panel timing, or electrical/mechanical equivalence claim."
+  ]
+}

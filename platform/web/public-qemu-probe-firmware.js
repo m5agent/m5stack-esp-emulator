@@ -7,7 +7,7 @@ const SOURCES = Object.freeze({
   "atom_lite_main.py": {"bytes": 1085, "sha256": "b31b9e62e2500269ff878d31114c1d048d0a258bdaae120632c9e3c7796a6fa9"},
   "atom_matrix_main.py": {"bytes": 1088, "sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"},
 
-  "main_stackchan.py": {"bytes": 5101, "sha256": "7ad884363bcd574c2ea05820b8225e2a0329bf089aed804b86897f8d1c50753d"},
+  "main_stackchan.py": {"bytes": 8630, "sha256": "e568bd00995466a0cf7b8fadbaa3b7837ee7b46aeac782e68fc78ed488a9a3b8"},
   "boot.py": {
     "bytes": 214,
     "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"

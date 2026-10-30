@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-29`
+日期：`2026-10-30`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-10-30
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UI-02` / Cardputer-ADV 与 StackChan 输入 | 基线 main `e3f149c1`；67-patch 全新 WASM `a7fe7180…`。ADV 原 IRQ reader 的 56 物理键、PC 双 Shift/grave/Fn-Up、四旋转/四角/局部绘图及纹理读回通过。StackChan 原默认同步工作饥饿有计时负控，真实 UART 后台线程版 V4 默认镜像 `407f6260…` 的实际 105/302/803ms 点按与 Touch 坐标、同时实际位移、帧及正常 Stop 六 Worker 清场通过；187ms 最大观察轮询间隔不授任意短按保证。Arduino 对照独立记录；原用户镜像、硬件和本轮完整 native 矩阵未运行 | [范围、失败、复现](evidence/2026-10-30-cardputer-stackchan-input/README.md) |
 
 ## 2026-10-29
 

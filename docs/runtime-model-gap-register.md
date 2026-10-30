@@ -321,6 +321,11 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
   `KEY_IEN` 门控、其它中断源、自动 GPIO IRQ 交付和一般 modifier/chord
   应用仍需各自执行证据，不能从该固定轮询路径继承。
 
+2026-10-30 的独立 Arduino 原 BSP/image 已补普通 GPIO11 IRQ reader、56 个
+物理键、双 Shift/grave/Fn-Up，以及四旋转和局部刷新证据。`0022/0023` 关闭
+该路径的窗口方向误判和 ADV 玻璃倒置；CFG1 脉冲、其它中断源、更多应用及
+旧 Piano Tiles 当前复测仍不继承。见[输入修复证据](evidence/2026-10-30-cardputer-stackchan-input/README.md)。
+
 固定源码、官方 API/数据手册来源和范围见
 [逐板浏览器 fixture](../tests/browser-qemu/board_display/README.md) 与
 [QEMU WASM 补丁](../patches/qemu-wasm-probe/README.md)。
@@ -336,6 +341,11 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
 同一固件的目标变化、实际反馈变化和模型角度变化应分别记录。扭矩未使能、
 供电关闭和 UART 接线错误属于可观测的运行条件，不能由网页自动使能来掩盖。
 用户保存的 SDK 零位与外壳机械零位不同；NVS 校准不能直接重写 host 外壳零位。
+
+2026-10-30 已确认原默认参考的同步 UART/整条绘图阻塞前台 Touch 轮询；
+原 API 后台 UART 线程与微小重画后，运动中实际约 105/302/803ms 点按通过。
+最大观察轮询间隔仍有 187ms，短脉冲可靠性、任意用户固件及长期负载继续
+独立验证，不能把应用不调用 update 的漏采样描述为屏幕与舵机硬件互斥。
 本轮控制器命令边沿修复与可重建诊断见
 [Arduino 行为说明](stackchan-arduino-browser.md)及
 [运动合约探针](../tests/firmware/stackchan_motion_contract/README.md)。

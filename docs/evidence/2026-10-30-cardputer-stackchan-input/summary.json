@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "cardputer-stackchan-browser-input-followup",
+  "date": "2026-10-30",
+  "status": "PARTIAL",
+  "base_commit": "e3f149c1",
+  "browser_functional": "PASS for the exact Cardputer image and StackChan reference/Arduino input cases",
+  "worker_cleanup": "PARTIAL: first Arduino Stop 6/1; later case 12/0; initial failure retained",
+  "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+  "site_manifest_sha256": "16ab2bb4975f72025519dd1b0bd9c554e01880405f9e1e342ad06b9a6e659f40",
+  "checks": {
+    "platform_unittest_initial": {
+      "status": "FAIL_DOCUMENTATION_ONLY",
+      "tests": 1660,
+      "failures": 3,
+      "skipped": 10,
+      "cause": "Generated snapshot test count/content and new-plan documentation index were stale",
+      "log_sha256": "d888eb2856af741c26b7072978359fee6e308770ca6f7020dce71e9e446cd820"
+    },
+    "node_contracts": {
+      "status": "PASS",
+      "log_sha256": "7b27132a93486e98ce70fc95471ccc961c8ef6bb4a1256847cacb11bc26ad188"
+    },
+    "targeted_ADV_model": {
+      "status": "PASS",
+      "scope": "Browser shell only, no guest",
+      "log_sha256": "144725e287eb66308a9691e7fa7c3dbbb89c4cabe113b5a8c51d36807b26801f"
+    },
+    "broad_model_sweep": {
+      "status": "NOT COMPLETED",
+      "reason": "Stopped the agent-owned broad sweep after selecting the affected ADV model case; no full-model PASS assigned"
+    }
+  },
+  "summaries": {
+    "cardputer.summary.json": {
+      "bytes": 43002,
+      "sha256": "f6b4a7419e8177b3ea713a37c3e5ffb3ea085e8d4aa3bbf00f05c77c8f6b39cc"
+    },
+    "export-v4.summary.json": {
+      "bytes": 1580,
+      "sha256": "bd3d2096c1109461b6d7b2f7506e5f6ad5b9068f16cdbd86c5ed048dd414ca0a"
+    },
+    "runtime-build.summary.json": {
+      "bytes": 3114,
+      "sha256": "2165890e163172813899e14b670962c068ca1a93c2cc85f7284f580d61a16098"
+    },
+    "stackchan-arduino.summary.json": {
+      "bytes": 9018,
+      "sha256": "ec0643aa6a165a562a119e6e5522980b806c23fcf520383d9334b81c9018d9e1"
+    },
+    "stackchan-diagnostics.summary.json": {
+      "bytes": 51336,
+      "sha256": "88e67636590ae9308d226063304f52c0d482196e864d9643e5d565b30f81da79"
+    },
+    "stackchan-reference.summary.json": {
+      "bytes": 9049,
+      "sha256": "6ab78c078457326da815ff3dbc0f93843e73c38b353b47cab1252cf48b13d65b"
+    }
+  },
+  "hardware_validation": "NOT RUN",
+  "original_user_images": "NOT RUN: images unavailable",
+  "native_full_matrix": "NOT RUN this round; earlier native results retain their own identity",
+  "all_admitted_browser_publication_gate": "NOT RUN",
+  "deployment": "NOT RUN for this candidate; fork preview planned"
+}

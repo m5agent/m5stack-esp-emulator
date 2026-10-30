@@ -52,6 +52,17 @@ const QCODE = {
   Comma: 'comma', Period: 'dot', Slash: 'slash', Delete: 'delete',
 };
 
+// The model's component IDs name physical key positions. PC keys with a
+// different name still need a focused route to those same switches.
+const CARDPUTER_PC_KEYMAP = {
+  ShiftLeft: 'key-CapsLock', ShiftRight: 'key-CapsLock',
+  AltLeft: 'key-AltRight', AltRight: 'key-AltRight',
+  Backquote: 'key-Escape',
+};
+const CARDPUTER_PC_QCODE = {
+  'key:Backquote': 'grave_accent',
+};
+
 export function keyboardQcode(id) {
   const code = id.startsWith('key-') ? id.slice(4) : id;
   if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
@@ -73,7 +84,9 @@ function node(tag, className, text) {
 
 export class ModelDeviceShell {
   static async create(host, device, options = {}) {
-    const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions });
+    const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions,
+      ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, ...options.modelOptions?.keymap}} : {}),
+    });
     try {
       return new ModelDeviceShell(host, device, model, options);
     } catch (error) {
@@ -273,9 +286,10 @@ export class ModelDeviceShell {
         // Route these physical positions to their actual SDK keys. COMPOSE
         // carries physical Fn through QAPI to this board's TCA8418 only.
         id=({'key-Fn':'compose','key-CapsLock':'shift','key-AltLeft':'meta_l','key-AltRight':'alt'})[event.id]||id;
+        id=CARDPUTER_PC_QCODE[event.source]||id;
         // The top-left model key is physically grave/Fn-Escape. Keep a PC
         // Escape key logical, while a model press follows the real matrix.
-        if(event.id==='key-Escape'&&!event.source?.startsWith('key:'))id='grave_accent';
+        if(event.id==='key-Escape'&&event.source!=='key:Escape')id='grave_accent';
         // Model buttons aggregate simultaneous pointer/keyboard holds. The
         // final release may come from another source; retain the first code.
         this.keyEdgeQcodes??=new Map();

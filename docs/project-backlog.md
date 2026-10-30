@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-29`
+日期：`2026-10-30`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -79,6 +79,10 @@ GitHub Pages 均有独立证据；本轮共享帧/host poll 修复和显式正�
 及[LVGL 候选证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
 线上仍为[既有版本](evidence/2026-10-29-github-pages-production/README.md)；
 剩余浏览器范围统一维护在 `UI-02`，不从原生设备矩阵或编译板型表继承准入。
+
+Cardputer 原 IRQ/四旋转与 StackChan 默认 UART/触摸并行的限定前置见
+[本轮输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)；继续扩展
+更多固件、短按负载与长期稳定性，未取得的用户镜像和自然 PWR 回收仍独立开放。
 
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
@@ -731,7 +735,8 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 固定示例证据，见[后续验证](evidence/2026-10-29-motion-command-followup/README.md)。
 StackChan 正常长按已到 guest SHUTDOWN/exit0，但最终自然关机仍有一个 engine
 CDP target 残留；需补 owner 最终回收兜底，并在关闭浏览器上下文前独立验证
-全部 Worker 归零。一次原样 Dance 启动出现 PSRAM/OOB，后续通过不能关闭
+全部 Worker 归零。本轮 Arduino 屏幕/舵机并行的普通 Stop 也有预算内 engine
+target 未消失，后续 case 累计归零不能关闭首次失败。一次原样 Dance 启动出现 PSRAM/OOB，后续通过不能关闭
 该偶发问题。原 StickC Plus 默认入口的首次超时虽有同镜像后续通过，
 仍需定位启动时序并验证稳定性。还需用实际短间隔命令验证中途改目标，不能用超过原动作时长的
 两次目标变化替代。

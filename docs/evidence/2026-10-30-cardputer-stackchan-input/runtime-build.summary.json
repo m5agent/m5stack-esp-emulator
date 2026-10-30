@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "input-runtime-build-and-static-source-closeout",
+  "date": "2026-10-30",
+  "status": "PASS_BUILD_AND_STATIC_ONLY",
+  "guest_acceptance": "NOT RUN by runtime agent; delegated same-guest results must remain independently bound",
+  "hardware_validation": "NOT RUN",
+  "runtime": {
+    "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+    "wasm_bytes": 24032297,
+    "manifest_sha256": "eeb6f5cedab9dfc4cb69e9467c832e0bb5e478c87c715855d40fb365194c4e44",
+    "source_archive_sha256": "51c8cc85fffeec45a6bb2c902e6575f96c8676b3ef1897a4a2fddb172ab59add",
+    "source_archive_bytes": 35228208,
+    "source_lock_sha256": "36b0ae4381e53e02517ec35ddc49085b0bb489acc3b80f3383f1e20e611ccc58",
+    "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "patches": 67,
+    "native_patch_prefix": 47,
+    "patched_source_files": 158,
+    "all_objects_rebuilt": true,
+    "ninja_completed_tasks": 1446,
+    "emscripten": "3.1.50"
+  },
+  "candidate": {
+    "manifest_sha256": "469654da4136bf444d5943cfd6f5141c752a5f0eb334127f953a944e2730aafa",
+    "assets": 2115,
+    "public_profiles": 19,
+    "candidate_profiles": [],
+    "bytes": 261280054,
+    "service_url": "",
+    "firmware_bundled": false,
+    "rom_bundled": false,
+    "deployed": false
+  },
+  "checks": {
+    "source_reverse_forward_all67": "PASS",
+    "all158_actual_compiled_and_archived_source_hashes": "PASS",
+    "all67_plus2_patch_hashes_and_archives": "PASS",
+    "full_runtime_asset_reader": "PASS",
+    "all2115_exported_assets_closed_set_sha_bytes": "PASS",
+    "current_production_web_source_match": "PASS",
+    "bootstrap_distribution_unit_tests": {
+      "status": "PASS",
+      "tests": 11,
+      "log_sha256": "31d705ec6de319c3b5a04b80dea4ed0b175d96eb7c5472763949940a95bd287c"
+    },
+    "static_review": {
+      "status": "PASS",
+      "checks": 27,
+      "summary_sha256": "9433e45208a40f062d421b27cf5623a9c092124e615963309410a1ec8cba92a1"
+    },
+    "littlefs_current_recipe_and13_assets": "PASS"
+  },
+  "history_preserved": {
+    "runtime66_wasm_sha256": "97ef407e7ff56890dbfbd0051643a8a9895f07f210fd8ae7cdf3c255e75ae213",
+    "candidate_v1_manifest_sha256": "ebc70e05b4775da8820db58408c933f0fc2bbed74432a376274d2af16ad46cfb",
+    "candidate66_not_overwritten": true,
+    "frozen66_lock_sha256": "216f686a57eafd892b283802adcd09c86dea7d033dd57ecd83b7ae2bcee98cc7",
+    "frozen66_source_and_runtime_gate": "PASS for controlled historical diagnostic only"
+  },
+  "deployed_baseline": {
+    "wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+    "patches": 62,
+    "full_public_WASM_bytes_verified": true,
+    "predates_PR39_changes": true
+  },
+  "piano_tiles_known_firmware": {
+    "sha256": "470aabe22c27a764ac0226058a94e856fcb14d767abfb66c41582fa2ac872f0a",
+    "cache_lookup": "NOT FOUND in bounded known cache/named Downloads search",
+    "current_regression": "NOT RUN"
+  },
+  "scope": "Build/static checks never grant browser, uploaded-firmware or physical PASS. No native runtime or broader device regression is assigned this result."
+}

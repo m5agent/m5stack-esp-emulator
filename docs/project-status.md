@@ -10,7 +10,7 @@
 
 [Arduino 与 NVS 补充复测](evidence/2026-10-29-stackchan-arduino-nvs/README.md)已修复旧 S3 Flash 读取错位，新 native/WASM 同固件各 8 项 NVS/复位检查通过；Arduino 原样 torque=0 与显式开启的 29 项对照、默认示例 9 项及最终 Arduino 复位/关机/松开提示 10 项检查通过。Plus2 USB 睡眠和电池 HOLD 关断仅授予同 native 13 项结果；本轮 fork 发布状态以该 evidence 的部署条目为准。
 
-最新[追加验证](evidence/2026-10-29-motion-command-followup/README.md)完成独立新
+此前[追加验证](evidence/2026-10-29-motion-command-followup/README.md)完成独立新
 native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严格测试。
 自然关机的固件行为通过，但 engine Worker 的 CDP target 未完全消失，资源
 回收仍为 PARTIAL。保留早先一次原样 Dance 的 PSRAM/OOB 启动失败，不将
@@ -19,6 +19,18 @@ native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严
 公网关键文件与完整 WASM/源码包已核对一致；部署不关闭以上功能限制。
 三款经典 Atom 默认入口首轮通过，原 Plus 首轮超时后仅一次独立复核在
 189 秒通过；其首次超时原因和启动稳定性继续开放。
+
+本轮[Cardputer / StackChan 输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)
+使用全新 67-patch WASM `a7fe7180…`：ADV 原始 Arduino IRQ reader 的 56 个
+物理键、双 Shift/Fn 及四旋转/局部绘图通过，修复玻璃倒置、窗口误判和 PC 映射。
+StackChan 原默认示例前台同步 UART 与整条重画使轮询间隔超过一秒；改为
+真实 UART 后台线程及逐字符更新后，同一默认 guest 的实际约 105/302/803ms
+DOM 点按与舵机实际位移、Touch 坐标及正常 Stop 清场通过。最大观察轮询间隔
+仍为 187ms，不保证任意短脉冲或任意固件；原用户镜像、物理硬件和本轮完整
+native 矩阵未运行，既有自然 PWR 回收边界仍开放。发布身份在该 evidence 独立记录。
+独立 Arduino 屏幕/运动并行与故意阻塞负控的功能通过；首例普通 Stop 在等待
+预算结束仍留一个 engine target，第二例结束前累计全部归零。首例清理失败
+继续保留，资源回收整体仍为 PARTIAL。
 
 ## 一页结论
 

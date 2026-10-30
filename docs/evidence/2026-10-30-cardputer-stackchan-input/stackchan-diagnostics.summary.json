@@ -1,0 +1,1345 @@
+{
+  "schema_version": 1,
+  "kind": "stackchan-historical-input-diagnostics",
+  "date": "2026-10-30",
+  "status": "FAILED_BASELINES_AND_BOUNDED_CAUSAL_DIAGNOSTICS_RETAINED",
+  "scope": "Historical browser-WASM observations only. These runs do not validate the final threaded default, native runtime, physical hardware or the unavailable uploaded user application.",
+  "validation": {
+    "browser": "actual isolated static exports and same-guest serial/frame/controller observations",
+    "native_full_matrix": "NOT RUN",
+    "hardware": "NOT RUN",
+    "uploaded_user_firmware": "NOT RUN"
+  },
+  "evidence_integrity": {
+    "raw_and_original_concise_identities_and_check_outcomes_match": true,
+    "frozen_harness_bytes_match_recorded_hashes": true,
+    "export_manifest_and_actual_wasm_bytes_rehashed": true,
+    "per_case_receipt_firmware_runtime_board_profile_checked": true,
+    "all_input_acknowledgements_and_actual_hold_lengths_checked": true,
+    "qom_sample_counts_and_position_ranges_recomputed_from_raw": true,
+    "touch_down_before_release_recomputed_from_raw": true,
+    "serial_file_bytes_match_raw_record": true,
+    "original_and_three_actual_derivative_images_outside_vfs_rehashed_and_match": true,
+    "raw_evidence_bundled": false,
+    "selected_firmware_files_rehashed": [
+      "firmware-1",
+      "firmware-2",
+      "firmware-3",
+      "firmware-4",
+      "firmware-5",
+      "firmware-6",
+      "firmware-7",
+      "firmware-8"
+    ],
+    "original_reference_firmware_file_rehash": "PASS; full 16 MiB image matches its browser receipt and original profile hash."
+  },
+  "interpretation": [
+    "Baseline reference: DOM requests near 100/300/800ms and raw 300ms were accepted, with actual SCS present positions changing, but its original M5.Touch API reported no paired screen events. The raw-input failure weakens a moving-geometry-only explanation.",
+    "Constructor A/B: screen press/release works before and after the original StackChan(i2c=1,uart=1) constructor in a main-only derivative of the same reference base. No new I2C object or pin/frequency replacement was introduced by the diagnostic before construction. This weakens a permanently disabled FT path or constructor-caused persistent bus break; it does not exclude all I2C races.",
+    "The stock MicroPython wrapper does not expose M5.Touch.isEnabled. Its absence is not evidence that touch is disabled. After construction, independent guest I2C FT reads observed both count=1 and count=0.",
+    "Timing-only derivative keeps the original UART, Si12T, drawing and sleep workload. The telemetry strip dominates foreground work; roughly 1.64-1.75 seconds between input polling passes can entirely cover an 800ms contact. The measurements include instrumentation overhead and are not the exact original image.",
+    "Baseline Arduino instrumentation also caused long foreground redraw and synchronous angle-read work. Paired screen releases arrived roughly 4.4-4.8 seconds late; these failures are retained as observation-gate failures rather than proof of permanently swallowed releases.",
+    "Minimal foreground optimization is insufficient: its true 103.27ms DOM hold is still missed. DOM 300/800ms touch and motion overlap pass. Raw 300ms touch/coordinates pass but only one QOM sample is inside the hold, so motion-overlap remains an evidence gap.",
+    "Intentional blocked controls omit M5.update while the independent original BSP Motion task runs. A short application-level miss inside that interval is an expected negative control, not evidence of electrical exclusion between servo and touch."
+  ],
+  "source_and_composition": {
+    "original_reference_main": {
+      "bytes": 5101,
+      "sha256": "7ad884363bcd574c2ea05820b8225e2a0329bf089aed804b86897f8d1c50753d"
+    },
+    "constructor_ab": {
+      "base_sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7",
+      "firmware_sha256": "8d28b838c89057beecd275f7ee02e08da73ba9afaa6c854e2cb96b0170e2d792",
+      "source_sha256": "4a595e5380b80f988ceb050c2bb5a79e4530e4370d47018fe6410f76379da1d7",
+      "outside_vfs_sha256": "b598600c317a6338efbd5add46a33bf5237cc46850b82ce96c1f9a5bdaad6f88",
+      "outside_vfs_unchanged": true
+    },
+    "timing_derivative": {
+      "base_sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7",
+      "firmware_sha256": "678d4a73f7563a4b5cdff4f2bed6e52f2cd7cb22791335997ca2d38566dbc57e",
+      "source_sha256": "0b20d57f6d1d83471946a63d28ef81215fceb695a7fb06439ff04cba4c98aa3e",
+      "outside_vfs_sha256": "b598600c317a6338efbd5add46a33bf5237cc46850b82ce96c1f9a5bdaad6f88",
+      "outside_vfs_unchanged": true
+    },
+    "minimal_v3": {
+      "main_bytes": 7032,
+      "main_sha256": "16d3dc16ddccb71649978dab172a8d2bbc7b5517dc1ac6478e011ae12bd9fb58",
+      "firmware_sha256": "27f479ba91bfa570a3bebddff870152c34f78aea937eb342096a1cad14100fdc",
+      "fresh_official_base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "fresh_official_base_composition": true
+    }
+  },
+  "timing_observation": {
+    "heartbeat_records": 4,
+    "units": "guest microseconds",
+    "telemetry_fill_rect_pixels": 7296,
+    "last_observed_ranges_us": {
+      "write2": [
+        75587,
+        96467
+      ],
+      "loop_gap": [
+        1635894,
+        1744404
+      ],
+      "touch_api": [
+        345,
+        580
+      ],
+      "json": [
+        3500,
+        3969
+      ],
+      "loop_work": [
+        1609509,
+        1718444
+      ],
+      "serial": [
+        6440,
+        14654
+      ],
+      "servo_draw": [
+        1156670,
+        1228055
+      ],
+      "update": [
+        9290,
+        17350
+      ],
+      "count_draw": [
+        0,
+        0
+      ],
+      "si12t": [
+        6205,
+        33045
+      ],
+      "read2": [
+        69036,
+        77011
+      ],
+      "read1": [
+        69631,
+        80206
+      ],
+      "write1": [
+        73612,
+        97881
+      ]
+    },
+    "cumulative_maxima_us": {
+      "write2": 101542,
+      "loop_gap": 1752301,
+      "touch_api": 580,
+      "json": 21925,
+      "loop_work": 1725946,
+      "serial": 25115,
+      "servo_draw": 1333125,
+      "update": 27659,
+      "count_draw": 0,
+      "si12t": 33045,
+      "read2": 86406,
+      "read1": 87711,
+      "write1": 97881
+    },
+    "uart_timeout_limit_us": 250000,
+    "observed_uart_api_maximum_below_timeout_limit": true,
+    "boundary": "API timings show no observed 250ms timeout. This does not prove a physical timing limit or matching-ELF function equivalence."
+  },
+  "baseline_arduino_late_releases": [
+    {
+      "pulse": "moving-100",
+      "release_observed_after_input_up_ms": 4680.815
+    },
+    {
+      "pulse": "moving-300",
+      "release_observed_after_input_up_ms": 4846.64
+    },
+    {
+      "pulse": "moving-800",
+      "release_observed_after_input_up_ms": 4433.57
+    }
+  ],
+  "runs": [
+    {
+      "run": "baseline-v1",
+      "recorded_status": "FAIL",
+      "started_at": "2026-10-30T01:56:03.869Z",
+      "finished_at": "2026-10-30T01:59:20.100Z",
+      "wasm_sha256": "97ef407e7ff56890dbfbd0051643a8a9895f07f210fd8ae7cdf3c255e75ae213",
+      "site_manifest_sha256": "ebc70e05b4775da8820db58408c933f0fc2bbed74432a376274d2af16ad46cfb",
+      "runtime_manifest_sha256": "94bb5c7aecfa080f902233e30c6c3f9fba2a1f0d3a7003b3d66867bb01c8c073",
+      "runtime_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "runtime_lock_sha256": "216f686a57eafd892b283802adcd09c86dea7d033dd57ecd83b7ae2bcee98cc7",
+      "frozen_harness_sha256": "255fb8574668860fcad263d1c0702e5e7f782953d566b9a0343462b8a8e32407",
+      "profile": "stackchan-wasm-wallclock",
+      "board": "m5stackchan",
+      "clock_divisor": 1,
+      "blocked_service_requests": 0,
+      "page_errors": 0,
+      "forced_cleanup": false,
+      "cases": [
+        {
+          "case": "reference",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7",
+          "serial_sha256": "fe104bb3629ae66bc203a24104af6010850a05d9e7e99884ec40c7f081b8f1a7",
+          "serial_bytes": 4479,
+          "pulses": [
+            {
+              "label": "reference-moving-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 102.8050000667572,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 3,
+              "actual_present_position_ranges_during_hold": [
+                13,
+                6
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-moving-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 301.8949999809265,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 9,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                76
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-moving-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 803.3550000190735,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 20,
+              "actual_present_position_ranges_during_hold": [
+                114,
+                158
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-raw-moving-300",
+              "source": "raw-frame-diagnostic",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 326.1600000858307,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 10,
+              "actual_present_position_ranges_during_hold": [
+                122,
+                0
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            }
+          ],
+          "failed_checks": [
+            "reference-moving-100: Touch-API-expectation",
+            "reference-moving-300: Touch-API-expectation",
+            "reference-moving-800: Touch-API-expectation",
+            "reference-raw-moving-300: Touch-API-expectation"
+          ],
+          "framebuffer_to_model": {
+            "frames": 461,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 405
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 6,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        },
+        {
+          "case": "screen_polling",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "74bad0f30739d96e8f0c1f5fe0840b5fd9ffe2fc9121b77cb608ccf4bf64fb44",
+          "serial_sha256": "1fe397ebfc6f07bb1dc1d791311de9adc92afc605a48445be96bd15883953f80",
+          "serial_bytes": 27128,
+          "pulses": [
+            {
+              "label": "idle-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 103.06500005722046,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "idle-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.8149998188019,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 2,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "idle-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 801.6849999427795,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 2,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "moving-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 101.5699999332428,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                143,
+                158
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": [
+                143,
+                158
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 3,
+              "actual_present_position_ranges_during_hold": [
+                1,
+                3
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "moving-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 319.5199999809265,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 8,
+              "actual_present_position_ranges_during_hold": [
+                27,
+                5
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "moving-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 802.3250000476837,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 23,
+              "actual_present_position_ranges_during_hold": [
+                119,
+                24
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "raw-moving-300",
+              "source": "raw-frame-diagnostic",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 341.97000002861023,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": [
+                160,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 9,
+              "actual_present_position_ranges_during_hold": [
+                29,
+                5
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": true
+            }
+          ],
+          "failed_checks": [
+            "moving-100: Touch-API-expectation",
+            "moving-100: independent-FT-I2C-readback",
+            "moving-300: Touch-API-expectation",
+            "moving-800: Touch-API-expectation",
+            "raw-moving-300: Touch-API-expectation"
+          ],
+          "framebuffer_to_model": {
+            "frames": 754,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 490
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 12,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        },
+        {
+          "case": "screen_blocked_control",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "c284bad0e3c94e23a7b82ae9f477672e209cfd43629da625e16436db5a81af1d",
+          "serial_sha256": "fcb54b6a9d8bd5a7280a51c1f853a71d1ceeeddd3a50f283505c0bb43123ee67",
+          "serial_bytes": 35580,
+          "pulses": [
+            {
+              "label": "idle-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 301.97000002861023,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 1,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "blocked-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.7649998664856,
+              "touch_api_detected": false,
+              "expected_touch_api": false,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                163,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 7,
+              "actual_present_position_ranges_during_hold": [
+                10,
+                2
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "recovered-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.875,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 7,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": false
+            }
+          ],
+          "failed_checks": [
+            "recovered-300: Touch-API-expectation",
+            "recovered-300: independent-FT-I2C-readback"
+          ],
+          "framebuffer_to_model": {
+            "frames": 275,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 206
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 18,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        }
+      ]
+    },
+    {
+      "run": "constructor-ab",
+      "recorded_status": "PASS",
+      "started_at": "2026-10-30T02:11:13.845Z",
+      "finished_at": "2026-10-30T02:12:30.255Z",
+      "wasm_sha256": "97ef407e7ff56890dbfbd0051643a8a9895f07f210fd8ae7cdf3c255e75ae213",
+      "site_manifest_sha256": "ebc70e05b4775da8820db58408c933f0fc2bbed74432a376274d2af16ad46cfb",
+      "runtime_manifest_sha256": "94bb5c7aecfa080f902233e30c6c3f9fba2a1f0d3a7003b3d66867bb01c8c073",
+      "runtime_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "runtime_lock_sha256": "216f686a57eafd892b283802adcd09c86dea7d033dd57ecd83b7ae2bcee98cc7",
+      "frozen_harness_sha256": "29f5a6c4c2f517b5725e413ddf8dda004abb755dd410e6decbacff4e275d3f99",
+      "profile": "stackchan-wasm-wallclock",
+      "board": "m5stackchan",
+      "clock_divisor": 1,
+      "blocked_service_requests": 0,
+      "page_errors": 0,
+      "forced_cleanup": false,
+      "cases": [
+        {
+          "case": "screen_polling",
+          "recorded_status": "PASS",
+          "firmware_sha256": "8d28b838c89057beecd275f7ee02e08da73ba9afaa6c854e2cb96b0170e2d792",
+          "serial_sha256": "374a6051373bf503b539c674bf4e1c7901da3706066f316bb0476cb61f2fda6a",
+          "serial_bytes": 9352,
+          "pulses": [
+            {
+              "label": "before_constructor-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 803.2949998378754,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "after_constructor-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 802.5549998283386,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            }
+          ],
+          "failed_checks": [],
+          "framebuffer_to_model": {
+            "frames": 28,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 4
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 6,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        }
+      ]
+    },
+    {
+      "run": "same-workload-timing",
+      "recorded_status": "FAIL",
+      "started_at": "2026-10-30T02:20:19.016Z",
+      "finished_at": "2026-10-30T02:21:45.367Z",
+      "wasm_sha256": "97ef407e7ff56890dbfbd0051643a8a9895f07f210fd8ae7cdf3c255e75ae213",
+      "site_manifest_sha256": "ebc70e05b4775da8820db58408c933f0fc2bbed74432a376274d2af16ad46cfb",
+      "runtime_manifest_sha256": "94bb5c7aecfa080f902233e30c6c3f9fba2a1f0d3a7003b3d66867bb01c8c073",
+      "runtime_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "runtime_lock_sha256": "216f686a57eafd892b283802adcd09c86dea7d033dd57ecd83b7ae2bcee98cc7",
+      "frozen_harness_sha256": "637ff3a36f30dec59cbedfc655e136b913d2aaa2bff5cd9093d606f1053b123f",
+      "profile": "stackchan-wasm-wallclock",
+      "board": "m5stackchan",
+      "clock_divisor": 1,
+      "blocked_service_requests": 0,
+      "page_errors": 0,
+      "forced_cleanup": false,
+      "cases": [
+        {
+          "case": "screen_polling",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "678d4a73f7563a4b5cdff4f2bed6e52f2cd7cb22791335997ca2d38566dbc57e",
+          "serial_sha256": "0db834872c58622dcc76702b66ffcd2fd47d812acee438873ee7acbd10117a91",
+          "serial_bytes": 5294,
+          "pulses": [
+            {
+              "label": "timed-reference-moving-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 803.2750000953674,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                134
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 7,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                59
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            }
+          ],
+          "failed_checks": [
+            "timed-reference-moving-800: Touch-API-expectation"
+          ],
+          "framebuffer_to_model": {
+            "frames": 423,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 381
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 6,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        }
+      ]
+    },
+    {
+      "run": "minimal-foreground-v3",
+      "recorded_status": "FAIL",
+      "started_at": "2026-10-30T02:27:30.246Z",
+      "finished_at": "2026-10-30T02:30:26.806Z",
+      "wasm_sha256": "a7fe7180bd5fde8d1a348084cfe2053edb64de673cb9b327b2c2018bb699230e",
+      "site_manifest_sha256": "036dc12d4396a7b691bd57a0bae6f7d521cb5d080e49218bf11f7adc2a216bbf",
+      "runtime_manifest_sha256": "eeb6f5cedab9dfc4cb69e9467c832e0bb5e478c87c715855d40fb365194c4e44",
+      "runtime_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "runtime_lock_sha256": "36b0ae4381e53e02517ec35ddc49085b0bb489acc3b80f3383f1e20e611ccc58",
+      "frozen_harness_sha256": "193e6c8be789b14bb74217cf18bc98fbbb183a44edbe385f4354b1b96be6fb30",
+      "profile": "stackchan-wasm-wallclock",
+      "board": "m5stackchan",
+      "clock_divisor": 1,
+      "blocked_service_requests": 0,
+      "page_errors": 0,
+      "forced_cleanup": false,
+      "cases": [
+        {
+          "case": "reference",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "27f479ba91bfa570a3bebddff870152c34f78aea937eb342096a1cad14100fdc",
+          "serial_sha256": "52bbbaf1572bca2b5bf3c3957cb7c1e9629832971d9a521225f3fa6cbf4afaf7",
+          "serial_bytes": 3922,
+          "pulses": [
+            {
+              "label": "reference-moving-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 103.26500010490417,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 4,
+              "actual_present_position_ranges_during_hold": [
+                20,
+                4
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-moving-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.625,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 9,
+              "actual_present_position_ranges_during_hold": [
+                56,
+                68
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-moving-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 802.7549998760223,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 8,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                80
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": null
+            },
+            {
+              "label": "reference-raw-moving-300",
+              "source": "raw-frame-diagnostic",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 322.5350000858307,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                160,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 1,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": null
+            }
+          ],
+          "failed_checks": [
+            "reference-moving-100: Touch-API-expectation",
+            "reference-raw-moving-300: actual-position-changed-during-hold"
+          ],
+          "framebuffer_to_model": {
+            "frames": 102,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 91
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 6,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": {
+            "max_observed_gap_ms": 299,
+            "heartbeat_records": 4
+          }
+        },
+        {
+          "case": "screen_polling",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "11df482c44395bb25fe892e31f88b9e4a22438fed0201ca9d88d894a6988760e",
+          "serial_sha256": "a9505b0eb7013dedd15b869b6d7cc23dcf9f0ca7373f8140b02cbee17cf236cc",
+          "serial_bytes": 36002,
+          "pulses": [
+            {
+              "label": "idle-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 103.71000003814697,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "idle-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.53000020980835,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "idle-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 802.6950001716614,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "moving-100",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 100,
+              "hold_observed_ms": 102.78500008583069,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 2,
+              "actual_present_position_ranges_during_hold": [
+                2,
+                1
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "moving-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.97499990463257,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 8,
+              "actual_present_position_ranges_during_hold": [
+                18,
+                3
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "moving-800",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 800,
+              "hold_observed_ms": 802.960000038147,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 16,
+              "actual_present_position_ranges_during_hold": [
+                4,
+                0
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "raw-moving-300",
+              "source": "raw-frame-diagnostic",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 325.335000038147,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                160,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 10,
+              "actual_present_position_ranges_during_hold": [
+                56,
+                11
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            }
+          ],
+          "failed_checks": [
+            "idle-800: independent-FT-I2C-readback",
+            "moving-100: Touch-API-expectation",
+            "moving-100: independent-FT-I2C-readback",
+            "moving-300: independent-FT-I2C-readback",
+            "raw-moving-300: Touch-API-expectation",
+            "raw-moving-300: independent-FT-I2C-readback"
+          ],
+          "framebuffer_to_model": {
+            "frames": 177,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 140
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 12,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        },
+        {
+          "case": "screen_blocked_control",
+          "recorded_status": "FAIL",
+          "firmware_sha256": "34ddabb9c2174625076a162730b285a653de9d16bc8743d0bcf06b13a130eb58",
+          "serial_sha256": "e333b3da55b28483d8dfef177f2701d3e45e7a713468f996c36137b5aa105c5b",
+          "serial_bytes": 45947,
+          "pulses": [
+            {
+              "label": "idle-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.960000038147,
+              "touch_api_detected": true,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": true,
+              "touch_down_xy": [
+                159,
+                148
+              ],
+              "touch_coordinates_match_input": true,
+              "qom_samples_during_hold": 0,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": true
+            },
+            {
+              "label": "blocked-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.59500002861023,
+              "touch_api_detected": false,
+              "expected_touch_api": false,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 9,
+              "actual_present_position_ranges_during_hold": [
+                28,
+                9
+              ],
+              "motion_overlap_gate_met": true,
+              "independent_ft_down_up_readback_in_gate": false
+            },
+            {
+              "label": "recovered-300",
+              "source": "actual-DOM-panel",
+              "hold_requested_ms": 300,
+              "hold_observed_ms": 302.1800000667572,
+              "touch_api_detected": false,
+              "expected_touch_api": true,
+              "controller_input_down_up_acknowledged": true,
+              "controller_input_xy": [
+                159,
+                148
+              ],
+              "ordered_touch_down_up_in_original_observation_gate": false,
+              "touch_down_xy": null,
+              "touch_coordinates_match_input": null,
+              "qom_samples_during_hold": 5,
+              "actual_present_position_ranges_during_hold": [
+                0,
+                0
+              ],
+              "motion_overlap_gate_met": false,
+              "independent_ft_down_up_readback_in_gate": false
+            }
+          ],
+          "failed_checks": [
+            "recovered-300: Touch-API-expectation",
+            "recovered-300: independent-FT-I2C-readback"
+          ],
+          "framebuffer_to_model": {
+            "frames": 104,
+            "all_pixel_readbacks_match": true,
+            "unique_native_frame_hashes": 69
+          },
+          "normal_stop": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "explicit_worker_disposal": true,
+            "iframe_removed": true,
+            "observed_cumulative_cdp_workers": 18,
+            "live_before_context_close": 0
+          },
+          "reference_input_polling": null
+        }
+      ]
+    }
+  ],
+  "artifacts": {
+    "firmware-1": {
+      "bytes": 16777216,
+      "sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7"
+    },
+    "firmware-2": {
+      "bytes": 16777216,
+      "sha256": "8d28b838c89057beecd275f7ee02e08da73ba9afaa6c854e2cb96b0170e2d792"
+    },
+    "firmware-3": {
+      "bytes": 16777216,
+      "sha256": "678d4a73f7563a4b5cdff4f2bed6e52f2cd7cb22791335997ca2d38566dbc57e"
+    },
+    "firmware-4": {
+      "bytes": 16777216,
+      "sha256": "27f479ba91bfa570a3bebddff870152c34f78aea937eb342096a1cad14100fdc"
+    },
+    "firmware-5": {
+      "bytes": 16777216,
+      "sha256": "74bad0f30739d96e8f0c1f5fe0840b5fd9ffe2fc9121b77cb608ccf4bf64fb44"
+    },
+    "firmware-6": {
+      "bytes": 16777216,
+      "sha256": "c284bad0e3c94e23a7b82ae9f477672e209cfd43629da625e16436db5a81af1d"
+    },
+    "firmware-7": {
+      "bytes": 16777216,
+      "sha256": "11df482c44395bb25fe892e31f88b9e4a22438fed0201ca9d88d894a6988760e"
+    },
+    "firmware-8": {
+      "bytes": 16777216,
+      "sha256": "34ddabb9c2174625076a162730b285a653de9d16bc8743d0bcf06b13a130eb58"
+    },
+    "baseline-v1-raw-report": {
+      "bytes": 4261141,
+      "sha256": "3be3931ef69b461f435cfa73d7d61ae83c70f909fbe6fd009ba2283b824eab82"
+    },
+    "baseline-v1-original-concise": {
+      "bytes": 39747,
+      "sha256": "34b5d09b610cb9ceaeb57f4f097b04a9a0e0adb4fe3c4b34de44c91645ae0b55"
+    },
+    "baseline-v1-frozen-harness": {
+      "bytes": 20574,
+      "sha256": "255fb8574668860fcad263d1c0702e5e7f782953d566b9a0343462b8a8e32407"
+    },
+    "constructor-ab-raw-report": {
+      "bytes": 167854,
+      "sha256": "0888fd06ea04ff21e5e3a1358203f58da19dcee3d38905c115f8c20e80aeabfe"
+    },
+    "constructor-ab-original-concise": {
+      "bytes": 7727,
+      "sha256": "8c8af0847d9002ed431b048ca39172aa296e2b83c7f3e012d0bb4abc4fe2536a"
+    },
+    "constructor-ab-frozen-harness": {
+      "bytes": 21301,
+      "sha256": "29f5a6c4c2f517b5725e413ddf8dda004abb755dd410e6decbacff4e275d3f99"
+    },
+    "same-workload-timing-raw-report": {
+      "bytes": 642827,
+      "sha256": "be801e15db02ad73b87ae318c93e7992bee1188779e3eb7743efc3a3501b4a58"
+    },
+    "same-workload-timing-original-concise": {
+      "bytes": 4512,
+      "sha256": "a75a215a1257814aaf3c95b0e8530396cee67ce9950875edba72ac54797a4f10"
+    },
+    "same-workload-timing-frozen-harness": {
+      "bytes": 21086,
+      "sha256": "637ff3a36f30dec59cbedfc655e136b913d2aaa2bff5cd9093d606f1053b123f"
+    },
+    "minimal-foreground-v3-raw-report": {
+      "bytes": 3043156,
+      "sha256": "a6dc8f56e2aa41cc1e0c5349debd7bfcc4e5f3545833aea797d1a8e7e318fb79"
+    },
+    "minimal-foreground-v3-original-concise": {
+      "bytes": 50845,
+      "sha256": "2913800952dc29286458654e636bb575912b4b7007af4cf6b85d5f8dfe1a3a97"
+    },
+    "minimal-foreground-v3-frozen-harness": {
+      "bytes": 20977,
+      "sha256": "193e6c8be789b14bb74217cf18bc98fbbb183a44edbe385f4354b1b96be6fb30"
+    },
+    "constructor-ab-composition": {
+      "bytes": 688,
+      "sha256": "5c54048f50d6bdde64c056c4cbbc33cefacb004e902beb7c42247879c956b3bf"
+    },
+    "timing-composition": {
+      "bytes": 674,
+      "sha256": "9a669e13ef005069b059aeb7d67d993980e56517ff41edd73f3b9b8b85a898c3"
+    },
+    "timing-original-cost-summary": {
+      "bytes": 2229,
+      "sha256": "00af186010c5272b69d2f72562c11866f1ee2f4f250605f79c7585081a7f56b0"
+    },
+    "timing-instrumented-main": {
+      "bytes": 6592,
+      "sha256": "0b20d57f6d1d83471946a63d28ef81215fceb695a7fb06439ff04cba4c98aa3e"
+    },
+    "constructor-ab-instrumented-main": {
+      "bytes": 3180,
+      "sha256": "4a595e5380b80f988ceb050c2bb5a79e4530e4370d47018fe6410f76379da1d7"
+    },
+    "minimal-v3-packaging-freeze": {
+      "bytes": 1580,
+      "sha256": "574e68f477333e459fa369058ea386e1b5df5516fa020a43c54c2f1b0b7640e4"
+    }
+  }
+}

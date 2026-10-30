@@ -52,14 +52,14 @@ class RuntimeDistributionTests(unittest.TestCase):
     def test_fixed_patch_order_and_runtime_source_boundary(self):
         native_count = self.lock["native_patch_count"]
         self.assertEqual(native_count, 47)
-        self.assertEqual(len(self.lock["patches"]), native_count + 18)
+        self.assertEqual(len(self.lock["patches"]), native_count + 20)
         self.assertEqual(len(self.lock["patched_files"]), 158)
         for name in ["m5atoms3.c", "m5atoms3lite.c", "m5stickc.c", "m5stickcplus2.c", "m5dial.c", "m5atomclassic.c", "m5_rmt_classic.c"]:
             self.assertIn("hw/m5stopwatch/" + name, self.lock["patched_files"])
         self.assertTrue(self.lock["patches"][30]["path"].endswith("0064-esp32-intmatrix-pending-irq-remap.patch"))
         self.assertEqual([Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:native_count]], ["0096", "0097", "0098", "0099", "0100", "0014", "0101", "0102", "0103", "0087", "0104", "0105", "0106", "0107", "0108", "0109"])
         suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][native_count:]]
-        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021"])
+        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023"])
         self.assertFalse(self.lock["required_rom"]["bundled"])
         self.assertIsNone(self.lock["required_rom"]["path"])
 

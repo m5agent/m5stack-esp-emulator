@@ -32,6 +32,14 @@ changing the console setup requires a new composition and browser run.
 | PaperMono | `papermono_main.py` | 480x800; SSD1677 four-gray EPD and `M5.Touch.getTouchPointRaw(0)` hitbox workaround |
 | Cardputer-ADV | `cardputer_adv_main.py` | 240x135 at guest rotation 1; original `hardware.KeyboardI2C` over guest I2C/TCA8418 FIFO |
 
+The StackChan default keeps screen input independent of its UART motion work.
+An actual MicroPython `_thread` owns the original SCS UART API; the foreground
+owns `M5.update()`, display, Si12T and power I2C. A bounded eight-event queue
+holds no lock during IO, printing or sleep. Display updates change at most one
+character per pass. This avoids the old synchronous telemetry strip starving
+input polling; it does not fix applications that never call their input update
+API, or guarantee that every short pulse is sampled under arbitrary load.
+
 The EPD fixtures use the exposed `isEPD()`, `setEpdMode(EPDMode.EPD_QUALITY)`
 and `getEpdMode()` APIs. One `startWrite()`/`endWrite()` transaction encloses
 each complete page; the original EPD driver displays at the outermost
