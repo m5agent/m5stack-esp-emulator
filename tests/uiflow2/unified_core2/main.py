@@ -20,6 +20,8 @@ PSRAM_SWEEP_INTERVAL_MS = 2000
 HTTP_RECHECK_INTERVAL_MS = 10000
 PUBLIC_RECHECK_INTERVAL_MS = 30000
 STRESS_HEARTBEAT_INTERVAL_MS = 10000
+NETWORK_RECHECK_ATTEMPTS = 3
+NETWORK_RETRY_DELAY_MS = 1000
 PSRAM_PATTERN = bytes([(index * 37 + 11) & 0xFF for index in range(PSRAM_CHUNK_BYTES)])
 
 state = {
@@ -88,7 +90,7 @@ def draw():
 
 def probe_http():
     client = socket.socket()
-    client.settimeout(10)
+    client.settimeout(20)
     try:
         client.connect((HTTP_HOST, HTTP_PORT))
         client.send(b"GET /unified HTTP/1.0\r\nHost: qemu.test\r\n\r\n")
@@ -118,7 +120,7 @@ def probe_public():
     address = addresses[0][4][0]
     emit("UNIFIED_CORE2_PUBLIC_DNS", address)
     client = socket.socket()
-    client.settimeout(15)
+    client.settimeout(25)
     try:
         client.connect((address, 80))
         client.send(
@@ -140,6 +142,19 @@ def probe_public():
         emit("UNIFIED_CORE2_PUBLIC_HTTP_PASS")
     finally:
         client.close()
+
+
+def run_network_recheck(probe, retry_marker):
+    last_error = None
+    for attempt in range(NETWORK_RECHECK_ATTEMPTS):
+        try:
+            probe()
+            return
+        except Exception as error:
+            last_error = error
+            emit(retry_marker, attempt + 1, repr(error))
+            time.sleep_ms(NETWORK_RETRY_DELAY_MS)
+    raise last_error
 
 
 def psram_heap_snapshot():
@@ -245,7 +260,10 @@ def poll_network_rechecks():
         and time.ticks_diff(now, next_http_recheck) >= 0
     ):
         try:
-            probe_http()
+            run_network_recheck(
+                probe_http,
+                "UNIFIED_CORE2_HTTP_RECHECK_RETRY",
+            )
             http_rechecks += 1
             emit("UNIFIED_CORE2_HTTP_RECHECK_PASS", http_rechecks)
         except Exception as error:
@@ -258,7 +276,10 @@ def poll_network_rechecks():
         and time.ticks_diff(now, next_public_recheck) >= 0
     ):
         try:
-            probe_public()
+            run_network_recheck(
+                probe_public,
+                "UNIFIED_CORE2_PUBLIC_RECHECK_RETRY",
+            )
             public_rechecks += 1
             emit(
                 "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
