@@ -188,7 +188,7 @@ try{
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
     &&stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===1
-    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===0
+    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===1
     &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');

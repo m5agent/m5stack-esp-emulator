@@ -71,13 +71,13 @@ assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
 assert.equal(active.ownership().engineSelfCloseNotifications,1);
-assert.equal(active.ownership().engineNormalTerminations,0,'a cooperative notification is not an owner terminate call');
+assert.equal(active.ownership().engineNormalTerminations,1,'the owner finalizes the handle after the cooperative notification');
 assert.equal(active.ownership().engineFallbackTerminations,0);
-assert.equal(engine.terminations,0,'cooperative self.close must not race an immediate owner terminate');
+assert.equal(engine.terminations,1,'post-notification finalization removes the Worker handle exactly once');
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineSelfCloseNotifications,1,'duplicate notifications cannot invent another close');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
-assert.equal(engine.terminations,0,'normal pagehide must let the announced self.close finish');
+assert.equal(engine.terminations,1,'pagehide cannot double-finalize an acknowledged close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(active.ownership().engineOwnerLive,false);
 
@@ -91,9 +91,9 @@ closeFailureWorker.emit('error',{message:'synthetic error after close notificati
 closeFailureWorker.emit('error',{message:'duplicate error'});
 closeFailure.dispatch('pagehide',{});
 assert.equal(closeFailure.ownership().engineSelfCloseNotifications,1);
-assert.equal(closeFailure.ownership().engineNormalTerminations,0);
-assert.equal(closeFailure.ownership().engineFallbackTerminations,1);
-assert.equal(closeFailureWorker.terminations,1,'an explicit error still forces teardown exactly once');
+assert.equal(closeFailure.ownership().engineNormalTerminations,1);
+assert.equal(closeFailure.ownership().engineFallbackTerminations,0);
+assert.equal(closeFailureWorker.terminations,1,'post-notification finalization is not relabeled as fallback');
 
 for(const transferred of [false,true]){
   const abandoned=fixture(),port=abandoned.port();abandoned.connect(port);
@@ -146,4 +146,4 @@ assert.equal(transferredFailure.ownership().engineFallbackTerminations,1);
 assert.equal(failedEngine.terminations,1);assert.equal(transferredFailure.timers.size,0);
 transferredFailure.dispatch('pagehide',{});assert.equal(failedEngine.terminations,1);
 
-console.log('private QEMU iframe ownership/origin/one-port/transfer, cooperative self-close without owner terminate, startup/error/timeout/pagehide fallback contracts passed; no guest executed');
+console.log('private QEMU iframe ownership/origin/one-port/transfer, acknowledged cooperative finalization without fallback, startup/error/timeout/pagehide contracts passed; no guest executed');
