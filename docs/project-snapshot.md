@@ -69,15 +69,15 @@
 | `RUNTIME-05` | `FIXED` | S3 QEMU AP WPA2-PSK 数据面 |
 | `RUNTIME-04` | `FIXED` | Core2 for AWS ATECC608 |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
-| `RUNTIME-03` | `OPEN` | scheduler/DPORT、classic RMT、legacy WDT 与 startup 已修复，setup/应用 lifecycle 未闭环 |
+| `RUNTIME-03` | `FIXED` | scheduler/DPORT、classic RMT、legacy WDT 与 stock startup 已闭环 |
 | `RUNTIME-06` | `FIXED` | ESP-NOW virtual-controller 功能边界已闭环 |
 
 ## Backlog Task 板
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 |
-| `RUNTIME-03` | 进行中（startup WDT fixed） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域；继续补 legacy Core2 setup/REPL 与任意 factory application。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 |
+| `RUNTIME-03` | 已完成（virtual-device stock startup） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
@@ -110,7 +110,7 @@
 
 - `tests/`：`135` 个可执行 Python 测试文件，分布在 `62` 个目录；`226` 个 evidence JSON。
 - `patches/`：`15` 个补丁组，`182` 个 patch 文件。
-- 文档：`462` 个 Markdown 页面；除本生成页外共 `46478` 行。
+- 文档：`462` 个 Markdown 页面；除本生成页外共 `46475` 行。
 
 ## 文档与测试
 

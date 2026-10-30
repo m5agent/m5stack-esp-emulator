@@ -52,7 +52,7 @@ eFuse 或生产 key。
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT 和 normal-WDT startup 已修复/验证；原厂 API Key startup UI 可稳定运行并进入真实 Wi-Fi Connect 页面 | startup PASS 不授予 setup/REPL、完整 factory application、任意用户程序或物理边界；probe/UIFlow2 PASS、临时 bulk read、关闭 WDT 或 accelerator 仍不能替代这些路径 |
+| 已完成（virtual-device） | Core2 legacy UIFlow startup | 共享 I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT 和 normal-WDT startup 已修复/验证；原厂 API Key startup UI 可稳定运行并进入真实 Wi-Fi Connect 页面 | startup PASS 不授予 setup/REPL、完整 factory application、任意用户程序或物理边界；这些更广覆盖转入 `API-01` |
 | P0 | 网络产品化 | 物理跨主机 worker、主文件系统/队列/证据跨主机复制、任意 NAT 和外部 side-effect fence | 单机 namespace/container 和单个 control-plane evidence store 不能替代物理多机或对象存储 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、active-stop/post-reset 之外 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | guest filesystem ACL、完整许可、真机安全配置和更多真实业务；service runtime ACL 已完成 | 静态声明、镜像摘要自洽、service ACL 不等于设备文件权限/trust |
@@ -288,27 +288,22 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，精确批次与证据
 见验证台账；CoreS3 已通过的场景不替代其它主机验收或真机同路径验证。
 
-主线其余 P0 继续按以下顺序推进，已有修复和诊断不扩大为 legacy 应用启动：
+`RUNTIME-03` 的 stock startup 已在 virtual-device scope 关闭；
+setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 按以下
+顺序推进：
 
-1. `RUNTIME-03`：pending SPI remap、high-priority DPORT handoff、classic
-   RMT、classic WiFi 和 legacy WDT level delivery 已验证。`0095` 让同一
-   public firmware 在三次 normal-WDT Device Service 运行中稳定到 guest
-   virtual `300 s` 以上并保持 API Key startup UI。下一步补 setup/REPL
-   独立交互和完整 factory application，不能把 accelerator override 或
-   WDT-disable 作为修复。
-2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
+1. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
-3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
-4. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
-5. `RUNTIME-02/06`、`HW-01`：补 C6 Zigbee、ESP-NOW 加密/lifecycle
-   peer 和真机同路径。
-6. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
+2. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
+3. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
+4. `RUNTIME-02`、`HW-01`：补 C6 Zigbee 生命周期和代表设备真机同路径。
+5. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
 
 ## 依赖与并行原则
 
 | 类别 | Task | 开始条件 | 与其他工作的关系 |
 | --- | --- | --- | --- |
-| 立即可做 | `RUNTIME-03`、`FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `RUNTIME-03` 触碰 Core2 QEMU 时与 `CORE2-02` 串行；`SVC-03` 先做无语义移动并保持 API/evidence 契约 |
+| 立即可做 | `FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `SVC-03` 先做无语义移动并保持 API/evidence 契约 |
 | 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
 | 需要真机或外部控制面 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、串口、画面、网络和外设观测入口 | `FW-02` 还必须取得 live eFuse/生产 key 流程授权；静态镜像分析不能代填 |
 | 后端阻塞 | `RUNTIME-02` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
@@ -318,8 +313,8 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中（startup WDT fixed） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 | startup WDT 门禁已由 `0095` 三次满足；继续补 setup/REPL 独立交互和完整 factory application。DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0092 cache gate、0093/0094 classic WiFi data plane、0095 WDT level 和 Core2 设备组保持可重放 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域；继续补 legacy Core2 setup/REPL 与任意 factory application。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 在 native-HCI 上完成 session-readiness 与 peer write settle 后由多轮独立 service lease 复核，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
+| `RUNTIME-03` | 已完成（virtual-device stock startup） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 | DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0092 cache gate、0093/0094 classic WiFi data plane、0095 WDT level 和 Core2 设备组保持可重放；setup/REPL 与任意 legacy application 转 `API-01` |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -339,7 +334,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 ## P0：Core2 legacy UIFlow 运行时
 
-### RUNTIME-03：normal-WDT startup 已修复，setup/REPL 与应用生命周期待验收
+### RUNTIME-03：已完成（virtual-device stock startup）
 
 已满足的前置基线：shared I2C、equal-deadline timer、WDT level、stateful
 SSI、handoff timeline/state sweep/setter trace、三次 WDT liveness、
@@ -349,7 +344,7 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 [验证证据台账](validation-ledger.md)；缺口语义见
 [运行时模型缺口登记](runtime-model-gap-register.md)。
 
-当前阻断：
+历史阻断与关闭依据：
 
 - service-form functional lane 必须使用 `runtime=qemu-wifi`。早先默认
   `runtime=qemu` 的直接诊断没有 `misc.esp32_wifi`，guest 可能在
@@ -361,7 +356,7 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 - normal-WDT 已由 `0095` 解除：同一 public legacy SHA 的三次独立
   Device Service 运行均越过原 stage-1 reset，完成 boot markers 和至少一次
   reconnect lifecycle，稳定到 guest virtual `300 s` 以上并保持原厂 API Key
-  startup UI；后续仍需单独验收 setup/REPL 和完整 factory application；
+  startup UI；setup/REPL 和完整 factory application 转 `API-01`；
 - 关闭 WDT 只作为诊断 control 后，120 秒仍为 302-byte 黑帧；该轮 CPU0
   `0x40249c5d`、CPU1 `0x400e1ffd`，旧 CPU1 `0x40100049` LVGL wait
   未复现，后续必须在 matching VFS + WiFi lane 上重新定位；
@@ -388,7 +383,7 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
   BIN 指令/结构匹配，不声明 ELF 符号等价；
   `Core2FactoryTest` 在 I2C 修复后仍未重跑。
 
-开放范围：
+独立后续覆盖（不阻塞 `RUNTIME-03`，转入 `API-01`）：
 
 1. 取得 public `UIFlow_Core2 v1.15.4` 的 matching ELF/MAP。byte audit 已证明
    local UIFlow2 v2.5.3 ELF 不能用于符号命名；

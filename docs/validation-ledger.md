@@ -2127,6 +2127,7 @@ reconnect，第三次完成三轮 reconnect。同一最终 QEMU 的 Core2 UIFlow
 `306` colors、PNG SHA256 `cf7ad5ab…`），但 Ctrl-C 输入没有产生 REPL
 prompt。全部为 virtual-device validation；setup/REPL 独立交互、完整
 factory application、物理硬件、RF、电气和物理 cache/PSRAM timing 仍分别
-登记。见
+登记。`RUNTIME-03` 的 virtual-device stock startup 验收据此关闭；
+setup/REPL 与任意 legacy application 转 `API-01`。见
 [证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)和
 [机器摘要](evidence/2026-10-30-core2-legacy-wdt-level-delivery/summary.json)。
