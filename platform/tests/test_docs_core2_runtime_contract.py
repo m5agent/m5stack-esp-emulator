@@ -555,7 +555,6 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("0037", text, path.relative_to(ROOT))
             self.assertIn("0038", text, path.relative_to(ROOT))
         for path in (
-            ROOT / "README.md",
             DOCS / "qemu-device-adaptation-matrix.md",
             DOCS / "user-firmware-simulation-matrix.md",
             DOCS / "code-map.md",
@@ -2596,7 +2595,6 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             4_376,
         )
         for relative in (
-            "README.md",
             "docs/project-status.md",
             "docs/runtime-model-gap-register.md",
             "docs/workstreams.md",
@@ -2710,7 +2708,6 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         )
 
         for relative in (
-            "README.md",
             "docs/project-status.md",
             "docs/project-backlog.md",
             "docs/runtime-model-gap-register.md",

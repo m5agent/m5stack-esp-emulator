@@ -42,7 +42,9 @@ Core2 legacy 的最新 status/CAS 诊断见
 [RDSR 与锁竞争关联](evidence/2026-10-29-core2-legacy-status-cas/README.md)；
 `0088` 的跨核 CAS 调度 A/B 见
 [contended-CAS scheduler](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)；
-这些结果只更新 `RUNTIME-03` 的排查入口，不表示 legacy 启动已通过。
+这些是历史排查证据，不单独证明 legacy 启动通过。当前原厂 normal-WDT startup 的限定通过见
+[WDT level delivery 后续证据](evidence/2026-10-30-core2-legacy-wdt-level-delivery/README.md)，
+setup/REPL、任意应用与物理等价仍需分别验证。
 
 浏览器低帧率、正常时钟候选与逐设备准入按
 [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md)推进；
@@ -56,6 +58,14 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 24 款。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
+
+## 首页与维护入口
+
+面向使用者的首页为默认中文 [README](../README.md)，英文入口为 [README.en](../README.en.md)。
+维护者先读根 [AGENTS.md](../AGENTS.md)，再按职责查看
+[服务工具](../platform/tools/AGENTS.md)、[浏览器/模型](../platform/web/AGENTS.md)、
+[设备登记](../devices/AGENTS.md)、[运行时测试](../tests/AGENTS.md)、
+[补丁](../patches/AGENTS.md)和[文档维护](AGENTS.md)。指引保存稳定规则，当前能力仍查权威页。
 
 ## 按角色继续阅读
 
@@ -119,17 +129,21 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-29` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
+| [文档维护指引](AGENTS.md) | 维护契约 | `2026-10-30` | 首页双语对齐、权威/历史职责、插图来源、链接检查与生成快照顺序 |
+| [文档与首页整理计划](plans/2026-10-30-docs-readme-refresh.md) | 交付计划 | `2026-10-30` | 文档范围盘点、精简中文首页、英文入口、本轮截图和分层 AGENTS 的验收 |
+| [首页插图来源](images/README.md) | 插图来源 | `2026-10-30` | 本轮浏览器运行与仅模型画廊的不同来源、范围、复现及视觉检查 |
+| [文档整理验证](evidence/2026-10-30-docs-homepage-refresh/README.md) | 文档验证证据 | `2026-10-30` | 盘点修订、双语页面、插图、指引和离线检查；不增加硬件或完整设备 PASS |
+| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-30` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-29` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-29` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Cardputer-ADV 当前参考固件 BMI270 已闭环，Core2 legacy 的 setup/main、非空帧和正常 WDT 仍 OPEN |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-29` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Cardputer-ADV 当前参考 BMI270 已移出，`FW-03` 仍保留真实业务和更多固件族 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-27` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-29` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-30` | 唯一维护当前能力和限制，区分浏览器/原生/模型/物理边界；Core2 legacy stock startup 已有限定虚拟证据，更广 setup/REPL 与任意应用继续开放 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-30` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Cardputer-ADV 当前参考 BMI270 已移出，`FW-03` 仍保留真实业务和更多固件族 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-30` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-30` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
-| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-29` | C/QEMU 逐板准入、两种 CoreS3 示例、共享帧与每次构建的全公开板型门禁；固定源码构建、管理员部署步骤和许可边界 |
+| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-30` | C/QEMU 逐板准入、两种 CoreS3 示例、共享帧与每次构建的全公开板型门禁；固定源码构建、管理员部署步骤和许可边界 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
 | [运动、电源与复位修复](plans/2026-10-29-motion-power-device-adaptation.md) | 当前交付计划 | `2026-10-29` | Arduino/UIFlow 舵机输出、板级 PMIC 与保持供电、同实例复位、剩余 Atom/Stick 接入 |
 | [StackChan Arduino 浏览器兼容性](stackchan-arduino-browser.md) | 固件行为与实现边界 | `2026-10-29` | 固定 Dance 的扭矩策略、真实串口/位置诊断、S3 Flash QIOR 相位与同实例复位 |
@@ -223,7 +237,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-29` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0085` 关闭 Core2 for AWS ATECC608 初始化/identity；`0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080-0084` key/fabric/routing/PN/loss/rate 已完成 virtual acceptance；`RUNTIME-06` RF/bit-exact 和 legacy `RUNTIME-03` startup UI、normal-WDT、非空应用帧仍独立；`RUNTIME-05` WPA2-PSK 已关闭，WPA3/group multicast 未覆盖 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-30` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0085` 关闭 Core2 for AWS ATECC608 初始化/identity；`0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080-0084` key/fabric/routing/PN/loss/rate 已完成 virtual acceptance；`RUNTIME-06` RF/bit-exact 和 legacy `RUNTIME-03` startup UI、normal-WDT、非空应用帧仍独立；`RUNTIME-05` WPA2-PSK 已关闭，WPA3/group multicast 未覆盖 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU 与 `qemu-unified` companion partition fencing、namespace/container-local execution、同 guest 网络生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |
@@ -233,9 +247,9 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 timer/WDT-mask、stateful SSI、统一 timeline、WDT-disabled 对照、public BIN/local ELF 字节审计、exact-time SIGSTOP freeze 和三次 WDT liveness 对账。历史 `800 ms` 现象未在当前配置复现，TG1 在 TG0 stage-1 reset 前仍持续 feed |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
-| [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-26` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
+| [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-30` | 区分目录/浏览器导出/原生服务资产，解释匹配源码与主机架构、历史运行时包和隔离权限的边界 |
 | [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-26` | 目录、外设接口、设备状态、worker lifecycle 与页面消息 |
-| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-26` | 功能测试必须走 Device Service、保留 session evidence，并按 PID/QMP ownership 接管或明确失败 |
+| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-30` | 原生功能测试使用可观察 Device Service 会话；显式浏览器验证另保留同实例输入/帧与清理，不混用证据 |
 | [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-26` | 审查方法和证据分层、Secure Boot v2/包内 eFuse 摘要与 anti-rollback version 对照、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁；当前进度回权威状态页 |
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-26` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-26` | Tab5 缺失的 P4 控制器、DMA 和端点；仍以 2026-10-22 focused probe 为能力基线 |

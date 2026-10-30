@@ -203,6 +203,32 @@ class DocsCurrentStateContractTests(DocsContractBase):
         )
         self.assertIn(f"设备登记：`{device_count}` 台", snapshot)
         self.assertIn(f"Device Service 可创建：`{service_count}` 台", snapshot)
+        self.assertIn("不查询当前主机的 `backend_ready`/`creatable`", snapshot)
+        browser_registry = json.loads(
+            (ROOT / "platform/web/qemu-browser-profiles.json").read_text()
+        )
+        browser_section = snapshot.split("## 浏览器执行配置\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("源码配置登记", browser_section)
+        self.assertIn("不是部署或运行结果", browser_section)
+        self.assertIn("`compiled_profiles`", browser_section)
+        self.assertIn("`candidate` 不进入默认公开入口", browser_section)
+        admission_rows = {}
+        for line in browser_section.splitlines():
+            cells = [cell.strip() for cell in line.split("|")[1:-1]]
+            if len(cells) == 3 and cells[0].startswith("`"):
+                admission_rows[cells[0].strip("`")] = (
+                    int(cells[1].strip("`")),
+                    set(re.findall(r"`([^`]+)`", cells[2])),
+                )
+        for admission in {row["admission"] for row in browser_registry["profiles"]}:
+            identifiers = {
+                row["deviceId"] for row in browser_registry["profiles"]
+                if row["admission"] == admission
+            }
+            self.assertEqual(admission_rows[admission], (len(identifiers), identifiers))
+        for row in browser_registry["profiles"]:
+            if row["admission"] == "candidate":
+                self.assertNotIn(row["deviceId"], admission_rows["public"][1])
         self.assertIn("历史哈希绑定公开样本基线", snapshot)
         self.assertNotIn("公开样本快照覆盖", snapshot)
 

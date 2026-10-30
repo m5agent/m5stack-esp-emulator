@@ -397,7 +397,7 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
         self.assertIn("409\nnvs_not_supported", api)
         self.assertIn(
             "qemu-wifi/profile=generic-observe",
-            (ROOT / "README.md").read_text(),
+            (DOCS / "device-service-api.md").read_text(),
         )
         architecture = (DOCS / "simulator-service-architecture.md").read_text()
         self.assertNotIn(

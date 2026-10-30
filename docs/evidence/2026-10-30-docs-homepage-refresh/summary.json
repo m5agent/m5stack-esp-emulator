@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "kind": "docs-readme-guidance-refresh",
+  "date": "2026-10-30",
+  "status": "PASS_DOCUMENTATION_SCOPE",
+  "base_commit": "674665ea008e65f26aae105ac927e4b1e2909746",
+  "requirements": {
+    "documentation_scope": {
+      "status": "PASS",
+      "authorities": [
+        "docs/project-status.md",
+        "docs/project-backlog.md",
+        "docs/pages-deployment.md",
+        "docs/deployment.md",
+        "docs/engineering-handoff.md",
+        "docs/runtime-model-gap-register.md",
+        "docs/device-functional-test-workflow.md",
+        "platform/README.md",
+        "devices/README.md"
+      ],
+      "issues_corrected": [
+        "browser admission versus native/visual inventory",
+        "Core2 stock startup versus historical WDT failure",
+        "deployed version versus main and local guest evidence",
+        "normal Stop versus eventual/forced resource disposal",
+        "historical runtime package versus current source/host ABI"
+      ],
+      "generated_snapshot": "Adds browser source registrations without granting runtime or deployment PASS"
+    },
+    "homepages": {
+      "default_language": "zh-CN",
+      "chinese_lines_before": 369,
+      "chinese_lines_after": 105,
+      "english_lines": 120,
+      "commands_images_language_links_parity": "PASS",
+      "status": "PASS"
+    },
+    "images": {
+      "capture_summary": "docs/images/capture.summary.json",
+      "capture_summary_sha256": "2949a41ff48af1ef509648ea95170d082378b31c697c57ef2621e464deee3fca",
+      "total_image_bytes": 278299,
+      "scope": "CoreS3 ready/frame illustration plus model-only gallery; no new touch/PIR/performance/hardware PASS",
+      "status": "PASS_ILLUSTRATION_SCOPE_ONLY"
+    },
+    "agent_guidance": {
+      "root_lines_before": 297,
+      "root_lines_after": 149,
+      "local_paths": [
+        "platform/tools/AGENTS.md",
+        "platform/web/AGENTS.md",
+        "devices/AGENTS.md",
+        "tests/AGENTS.md",
+        "patches/AGENTS.md",
+        "docs/AGENTS.md"
+      ],
+      "scope": "Stable responsibility-specific rules; no per-release counts or second backlog",
+      "status": "PASS"
+    }
+  },
+  "checks": {
+    "markdown_render": {
+      "status": "PASS",
+      "raw_summary_sha256": "fa1656a4ab5b0929f18aa829bb80075650c8aae0d45d40a9bda0eff500ead1e7",
+      "data": {
+        "status": "PASS",
+        "renderer": "GitHub GFM API HTML, local neutral Markdown stylesheet",
+        "checks": [
+          {
+            "lang": "zh",
+            "width": 1280,
+            "title": "M5Stack 固件模拟平台",
+            "headings": [
+              "选择运行方式",
+              "在线体验",
+              "本地启动",
+              "能力边界",
+              "开发与贡献",
+              "许可与致谢"
+            ],
+            "images": [
+              {
+                "src": "docs/images/browser-workbench.png",
+                "natural": [
+                  1440,
+                  1040
+                ],
+                "shown": [
+                  948,
+                  685
+                ]
+              },
+              {
+                "src": "docs/images/device-models.png",
+                "natural": [
+                  1440,
+                  600
+                ],
+                "shown": [
+                  948,
+                  395
+                ]
+              }
+            ],
+            "documentWidth": 1280,
+            "viewport": 1280,
+            "languageLink": "README.en.md",
+            "languageSwitch": true
+          },
+          {
+            "lang": "en",
+            "width": 1280,
+            "title": "M5Stack Firmware Simulation Platform",
+            "headings": [
+              "Choose a runtime",
+              "Try it online",
+              "Run locally",
+              "Scope and limitations",
+              "Development and contributions",
+              "License and acknowledgements"
+            ],
+            "images": [
+              {
+                "src": "docs/images/browser-workbench.png",
+                "natural": [
+                  1440,
+                  1040
+                ],
+                "shown": [
+                  948,
+                  685
+                ]
+              },
+              {
+                "src": "docs/images/device-models.png",
+                "natural": [
+                  1440,
+                  600
+                ],
+                "shown": [
+                  948,
+                  395
+                ]
+              }
+            ],
+            "documentWidth": 1280,
+            "viewport": 1280,
+            "languageLink": "README.md",
+            "languageSwitch": true
+          },
+          {
+            "lang": "zh",
+            "width": 390,
+            "title": "M5Stack 固件模拟平台",
+            "headings": [
+              "选择运行方式",
+              "在线体验",
+              "本地启动",
+              "能力边界",
+              "开发与贡献",
+              "许可与致谢"
+            ],
+            "images": [
+              {
+                "src": "docs/images/browser-workbench.png",
+                "natural": [
+                  1440,
+                  1040
+                ],
+                "shown": [
+                  358,
+                  259
+                ]
+              },
+              {
+                "src": "docs/images/device-models.png",
+                "natural": [
+                  1440,
+                  600
+                ],
+                "shown": [
+                  358,
+                  149
+                ]
+              }
+            ],
+            "documentWidth": 390,
+            "viewport": 390,
+            "languageLink": "README.en.md",
+            "languageSwitch": true
+          },
+          {
+            "lang": "en",
+            "width": 390,
+            "title": "M5Stack Firmware Simulation Platform",
+            "headings": [
+              "Choose a runtime",
+              "Try it online",
+              "Run locally",
+              "Scope and limitations",
+              "Development and contributions",
+              "License and acknowledgements"
+            ],
+            "images": [
+              {
+                "src": "docs/images/browser-workbench.png",
+                "natural": [
+                  1440,
+                  1040
+                ],
+                "shown": [
+                  358,
+                  259
+                ]
+              },
+              {
+                "src": "docs/images/device-models.png",
+                "natural": [
+                  1440,
+                  600
+                ],
+                "shown": [
+                  358,
+                  149
+                ]
+              }
+            ],
+            "documentWidth": 390,
+            "viewport": 390,
+            "languageLink": "README.md",
+            "languageSwitch": true
+          }
+        ],
+        "guestExecution": "NOT RUN by renderer",
+        "protectedServicesUsed": false
+      }
+    },
+    "fresh_catalog": {
+      "status": "PASS",
+      "raw_summary_sha256": "583a1e8b1bbd8b10b8ff6bd5ec433acc78859ac498b767e54d55e45212ece84e",
+      "data": {
+        "kind": "fresh-source-catalog-startup-smoke",
+        "status": "PASS",
+        "source_commit": "674665ea008e65f26aae105ac927e4b1e2909746",
+        "python": "3.12",
+        "startup_code_matches_current": true,
+        "work_runtime_cache_present": false,
+        "requests": [
+          {
+            "endpoint": "/health",
+            "status": 200,
+            "bytes": 51,
+            "sha256": "1b9f01d4af77ef16bcdbea8f1cf39807ca7e42ef59eb684c782e732cc43c5534"
+          },
+          {
+            "endpoint": "/platform/web/",
+            "status": 200,
+            "bytes": 15137,
+            "sha256": "b547277b3546360a1d9e718defe5e7a3c7aab7346f5a18902d5ea9d52ea4a175"
+          },
+          {
+            "endpoint": "/api/v1/devices",
+            "status": 200,
+            "bytes": 34577,
+            "sha256": "30f9cd85f868176606f1ad82d4a6e8e9c596f2654f6dc4b346a0c42549e56590"
+          },
+          {
+            "endpoint": "/api/v1/openapi.yaml",
+            "status": 200,
+            "bytes": 180491,
+            "sha256": "fb160e3e765b882e377359f3b9c296aa3492d1b74f04f7eacd931febb2607990"
+          }
+        ],
+        "qemu_devices_backend_ready": false,
+        "qemu_devices_creatable": false,
+        "process_stopped": true,
+        "guest_execution": "NOT RUN",
+        "protected_services_used": false
+      }
+    },
+    "initial_platform_suite": {
+      "status": "FAIL",
+      "tests": 1680,
+      "skipped": 10,
+      "failures": 2,
+      "seconds": 234.01,
+      "log_sha256": "66a9b1458bfe1008b6cd15f03242f0460bfe33ff259998bb76b92bf30fd2fdfd",
+      "causes": [
+        "An old contract required a historical PC in the homepage rather than only detailed authority pages.",
+        "The coverage category moved registered docs/AGENTS.md out of the registered-topic partition."
+      ],
+      "resolution": "Detailed PC checks retained in topic/authority documents; registered docs governance stays in registered-topic coverage. No runtime gate weakened."
+    },
+    "targeted_corrections": {
+      "status": "PASS",
+      "tests": 2,
+      "seconds": 13.917,
+      "log_sha256": "a5d3c53729540730d900a2d29f909ad753f45b82f7d017123092e4fb298c6dc7"
+    },
+    "four_generated_validators": {
+      "status": "PASS",
+      "tools": [
+        "runtime_coverage",
+        "peripheral_catalog",
+        "qemu_profiles",
+        "project_snapshot"
+      ]
+    },
+    "final_platform_suite": {
+      "status": "PASS",
+      "tests": 1680,
+      "skipped": 10,
+      "seconds": 232.204,
+      "log_sha256": "b0eb770bbdfd0f14253a1bd7acca40e03be0b31be80c70dc973c8666991d7ed1"
+    },
+    "final_review": {
+      "status": "PASS",
+      "items": [
+        "Read both homepages and checked commands/images/language links",
+        "Viewed both curated PNG assets",
+        "Viewed desktop Chinese and narrow English GFM page renderings",
+        "Independent capability and AGENTS consistency review",
+        "Corrected source-profile regeneration wording and guest-versus-stock phrasing"
+      ]
+    }
+  },
+  "limits": [
+    "No native guest/full peripheral matrix or hardware execution was requested or assigned this result.",
+    "The screenshot-only CoreS3 run does not establish input acceptance or a full browser admission gate.",
+    "The unchanged startup/service code is smoke-tested separately from a firmware session."
+  ],
+  "reviewed_files": {
+    "AGENTS.md": {
+      "bytes": 8405,
+      "sha256": "92dab26186f55fc2f6a1ff02d57016ff552c48fe52b4768df7e3dd801f98ba46"
+    },
+    "README.md": {
+      "bytes": 6554,
+      "sha256": "23dbae87f2411fdcfe66b40c12537b3b35e5e662adc1cb1970a1f956332f7efd"
+    },
+    "README.en.md": {
+      "bytes": 7566,
+      "sha256": "7b826cb6095bb79d1eac668f605c686e024ec488b50ebd2fa3ea53fdd7e54537"
+    },
+    "devices/AGENTS.md": {
+      "bytes": 3003,
+      "sha256": "22593998e3263aed9f4e9d66c858ef7c8da8132309c26836dbcedd6e9d3cab50"
+    },
+    "devices/README.md": {
+      "bytes": 4046,
+      "sha256": "0635aece87811fbb7bb44b6bcef7824a6053fcb089d0f1f3a572dde061be5716"
+    },
+    "docs/AGENTS.md": {
+      "bytes": 3083,
+      "sha256": "5865df0028ba616a469fc7c8c633dd9b14e40fc9a59666360e337dd1e8ee8e51"
+    },
+    "docs/README.md": {
+      "bytes": 70138,
+      "sha256": "362dfa2b87514559856613b7ccf0be61c6ad13d3b487da720f4b72b821a46365"
+    },
+    "docs/code-map.md": {
+      "bytes": 106231,
+      "sha256": "32e52db7ce8c029092663457e5bb6daf7b1096e80c19bccb5525e98fb0922b9a"
+    },
+    "docs/deployment.md": {
+      "bytes": 9387,
+      "sha256": "28d456daf65ea49972415ad12b62f0af0eee8fba55955f17cdc8e76a78a6f1b5"
+    },
+    "docs/device-functional-test-workflow.md": {
+      "bytes": 5490,
+      "sha256": "cd8be63edebc83d90129cb209e39c8cb1ae814b944edaebf86dc4fd228cb4b83"
+    },
+    "docs/engineering-handoff.md": {
+      "bytes": 26963,
+      "sha256": "42c38fa5449dfc628973e8ad2b9b8153c08f831809b8879cd150d2c8d5f9d7c8"
+    },
+    "docs/pages-deployment.md": {
+      "bytes": 18685,
+      "sha256": "6e7e0de84085b9f2c8980b05653cb2a3ca20a96def2bb3dbc664f79a042366de"
+    },
+    "docs/project-backlog.md": {
+      "bytes": 60682,
+      "sha256": "5e76f216222602779c4f5436f7e79aabfc1605c0555de08124f895d7c541f375"
+    },
+    "docs/project-snapshot.md": {
+      "bytes": 38656,
+      "sha256": "7dd95348b65515420a88c520354851cac00c68f89129cc32cf815a9db1cf1f92"
+    },
+    "docs/project-status.md": {
+      "bytes": 73365,
+      "sha256": "1826f678bd8726c7c9ac4db8a6c0b6cd5878fc3af617cd555930c8818dc634d6"
+    },
+    "docs/runtime-model-gap-register.md": {
+      "bytes": 51798,
+      "sha256": "af60aab088f3f1faf12cd26211c2e1d9cfeceb5be26765ea732fc60036fd696c"
+    },
+    "docs/validation-ledger.md": {
+      "bytes": 337598,
+      "sha256": "b2511ca9b79c3dc36aba9e3852a6f22aa76722f3604c0ffc09438a0728dc06a9"
+    },
+    "docs/plans/2026-10-30-docs-readme-refresh.md": {
+      "bytes": 1884,
+      "sha256": "0a024826824391b9b805b7198360802c5d1de7c5090f0d2b1e066a7e8f6eb206"
+    },
+    "docs/evidence/2026-10-30-docs-homepage-refresh/README.md": {
+      "bytes": 2809,
+      "sha256": "f93d1b1db8350c10c15f1fd3ba1d05bbe9593906c3fea479ad43518758fe1d65"
+    },
+    "docs/images/README.md": {
+      "bytes": 2579,
+      "sha256": "082b7a4a16c55837bd4767360ed512b8163a53cab241d9d1190abb4b3526b001"
+    },
+    "docs/images/browser-workbench.png": {
+      "bytes": 186680,
+      "sha256": "122ba6d8f5d9c464173933a61e94393bd1b3af9260fdfdfaf18826c0348e0e53"
+    },
+    "docs/images/device-models.png": {
+      "bytes": 91619,
+      "sha256": "f3f18cbecd5de5a4968a58f49b115979ae96e25dd1a5299ce07d8c6e796c8057"
+    },
+    "docs/images/capture.summary.json": {
+      "bytes": 6213,
+      "sha256": "2949a41ff48af1ef509648ea95170d082378b31c697c57ef2621e464deee3fca"
+    },
+    "patches/AGENTS.md": {
+      "bytes": 2738,
+      "sha256": "bf8e437abe2f50e7878c4517ad8420ae3bb11dffcdea0d8ac480c57f1f08eb1b"
+    },
+    "platform/README.md": {
+      "bytes": 16965,
+      "sha256": "3e3066c48bb8f91a17755816eb8e7fdc7f20f4bf95cce500ea5e854e07648a1e"
+    },
+    "platform/tools/AGENTS.md": {
+      "bytes": 3577,
+      "sha256": "6492e7fc24c784fb340f8d756ee9fe39d59c53791fe1cf8351bab33c0f5de022"
+    },
+    "platform/tools/project_snapshot.py": {
+      "bytes": 35264,
+      "sha256": "bf464cd4f3471d516d16190b3368d8bb841bb443f15d4da87162b2923422dd94"
+    },
+    "platform/web/AGENTS.md": {
+      "bytes": 3408,
+      "sha256": "d71ddf3e4b5eb32ac96004eed96fded7dfaf32ab522f223d52d67fb2709b3392"
+    },
+    "platform/tests/test_docs_core2_runtime_contract.py": {
+      "bytes": 113054,
+      "sha256": "ea3c94b73ea4348c4f52c041c676ff4052f04e41f92e9701ece7e4c9007fe18a"
+    },
+    "platform/tests/test_docs_current_state_contract.py": {
+      "bytes": 23896,
+      "sha256": "dc76c5b341b678f0429bd599099e8744b70cfb271b43eb05dccc5f013f12cb46"
+    },
+    "platform/tests/test_docs_firmware_security_contract.py": {
+      "bytes": 34017,
+      "sha256": "31cfbf7d8a1987f4b02595310a72781ce47133f6b85ec88810e09214884c9e33"
+    },
+    "platform/tests/test_docs_index_contract.py": {
+      "bytes": 41729,
+      "sha256": "8e2b33ce7ad63ad7d0c9291566779871b2dd6b215a52a526d4886cab65083f15"
+    },
+    "scripts/docs/capture_readme_images.mjs": {
+      "bytes": 14333,
+      "sha256": "9c67fc34f52c8769f4476cc1faccaba62d7ac08aa86a4a869a6216a6c8d4ad65"
+    },
+    "tests/AGENTS.md": {
+      "bytes": 3712,
+      "sha256": "a59a0d9a980128505b85591be6737fbca9cf9c71659084ffc32327331e91df42"
+    }
+  }
+}
