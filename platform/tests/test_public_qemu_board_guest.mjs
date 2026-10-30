@@ -247,7 +247,7 @@ try {
       ({at_start: boardRun.renderPausedAtStart, at_ready: boardUiShell.viewer.renderingPaused}));
     check('model-rendering-paused-until-guest-ready', rendering.at_start === true && rendering.at_ready === false, rendering);
   } else if (publicUI) {
-    check('generic-shell-has-no-model-render-loop', boardRun.renderPausedAtStart !== true, report.public_shell);
+    check('generic-shell-has-no-model-render-loop', await page.evaluate(() => Boolean(globalThis.boardRun) && globalThis.boardRun.renderPausedAtStart !== true), report.public_shell);
   }
   if (diagnostic) {
     try { await page.waitForFunction(() => boardRun.frame, {}, {timeout:15000}); } catch { report.shared_first_frame_timeout = true; }
