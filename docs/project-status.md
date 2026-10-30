@@ -59,7 +59,7 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 | 目标 | 已经落地 | 当前缺口 | 结论 |
 | --- | --- | --- | --- |
 | 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU 和 claim response-loss idempotency | `NET-04` 的物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
-| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发、legacy dual-SPI panel routing 和 normal-WDT startup | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；setup/REPL 独立交互与完整 factory application 尚未单列验收，probe 非空帧不等于任意应用 | 功能级路径和 legacy startup 已可用，物理/controller 等价性仍 `OPEN` |
+| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发、legacy dual-SPI panel routing 和 normal-WDT startup | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；setup/REPL 与完整 factory application 转入 `API-01`，probe 非空帧不等于任意应用 | 功能级路径和 legacy startup 已可用，物理/controller 等价性仍 `OPEN` |
 | FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学、aggregate/image/eFuse understatement/key mismatch/secure-version rollback fail closed，以及 Device Service `1.51.0` operator runtime ACL | guest filesystem ACL、完整许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入、静态审查和 service runtime policy 可用；guest 运行态安全、trust root 和通用兼容性仍为 `PILOT` |
 
 这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
@@ -74,8 +74,8 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
 同一固件随后由 TG0 stage-1 触发 watchdog system reset，仍没有非空应用帧，
-因此 `RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C
-routing 解释首个失败点。
+这是 `0095` 之前的阶段。当前 `RUNTIME-03` stock startup 已关闭，PMIC
+寄存器或 I2C routing 也不再解释首个失败点。
 
 TIMG watchdog trace 已证明默认单会话能够持续喂狗，而并发 lease 或显式
 accelerator 对照会在不同 CPU/PC 触发 interrupt-WDT；这些结果已排除了把问题
@@ -347,7 +347,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、classic WiFi、normal-WDT startup、API Key startup UI 与真实 Wi-Fi Connect 页面已验证；`0095` 三次稳定到 guest virtual 300 秒以上 | 保持 `0095/0065/0066` 与 Core2 设备组回归，继续证明 setup/REPL 独立交互、display completion 和完整 factory application | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、startup UI 或 Wi-Fi Connect 页面都不能继承为任意 legacy 应用 PASS |
+| `RUNTIME-03` Core2 legacy startup（已完成 virtual-device） | shared I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、classic WiFi、normal-WDT startup、API Key startup UI 与真实 Wi-Fi Connect 页面已验证；`0095` 三次稳定到 guest virtual 300 秒以上 | 保持 `0095/0065/0066` 与 Core2 设备组回归；setup/REPL 和完整 factory application 转 `API-01` 继续覆盖 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、startup UI 或 Wi-Fi Connect 页面都不能继承为任意 legacy 应用 PASS |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、lease-bound central evidence store、fencing、local QEMU | 物理跨主机 executor/reattach、queue/session/evidence 的跨主机复制、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；单 control-plane evidence store 不等于对象存储复制；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop | 大于当前容量、持续吞吐、其他更复杂 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -406,8 +406,8 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
    translator 初始化错误；`0095` 已修复 legacy task-WDT level delivery。
    同一 firmware/QEMU 的三次 normal-WDT Device Service 运行均越过原
    `15.55 s` TG0 stage-1 reset，完成 boot markers/reconnect，并保持
-   非空 API Key startup UI 到 guest virtual `300 s` 以上。setup/REPL 独立
-   交互和完整 factory application 尚未单列验收；仍不能把 I2C ACK、RMT
+   非空 API Key startup UI 到 guest virtual `300 s` 以上。setup/REPL 与
+   完整 factory application 转入 `API-01`；仍不能把 I2C ACK、RMT
    初始化、probe/UIFlow2 PASS、关闭 WDT、accelerator 或 host 假值当作
    任意 legacy application PASS。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
