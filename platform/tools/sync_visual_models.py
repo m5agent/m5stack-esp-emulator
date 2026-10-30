@@ -32,20 +32,20 @@ RUNTIME_DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
 PINNED_COMMIT = '4879ab51eb8bb11ce024e670ae6880529e3d0f42'
 PUBLIC_REPOSITORY = "https://github.com/yuyun2000/m5stack-models"
 REVIEWED_LOCAL_RUNTIME_PATCHES = ({
-    "id": "device-viewer-pause-rendering-v1",
+    "id": "device-viewer-render-lifecycle-and-focus-v2",
     "source_commit": PINNED_COMMIT,
     "target": "src/core/DeviceViewer.js",
     "upstream_sha256": "ef10a9f80d618b6d70fb147c65735916ef68b0865ff307beccd501a9fc7be70d",
-    "effective_sha256": "2d6a70f3fe06a106eba19d78b4bcfb056e5244f4539cd4e3ceb6e57c92174657",
+    "effective_sha256": "df0d46fcfeffbca672949147d8e36cc391223d2010de81cb94c2374f9f44ea95",
     "patch": "patches/visual-models/0001-device-viewer-pause-rendering.patch",
-    "patch_sha256": "0a0f5c9f16f350370175740f1c662d1d6a52f1e0d2d5661a163f2ddb9382acb1",
+    "patch_sha256": "3f9402a2e0df8ad98cb757b971c6bd1309671d1e2a9998e787637bc8dc83096a",
     "adapted_from": {
         "repository": "https://github.com/m5agent/m5stack-esp-emulator",
-        "commit": "3de27e88edf4e8897f8408c5f6b82ef2b881d421",
+        "commit": "2f202e26acadf2f949845f8f8924716caba16c7b",
         "path": "platform/web/vendor/m5stack-models/src/core/DeviceViewer.js",
-        "sha256": "fc32ef6e6acb328403d08450b0d503fdcda09d9437b4c393457ab7797d11eda4",
+        "sha256": "5e1d2328941a26ed485645961d5f06f09ce51d32635e0c26217205535788e676",
     },
-    "scope": "Preserve mainline boot-time pause/resume/dispose rendering on the upstream hidden-viewport fit fix; no model, resource or firmware admission changes",
+    "scope": "Preserve mainline boot-time pause/resume/dispose rendering and focused device input on the upstream hidden-viewport fit fix; no model, resource or firmware admission changes",
 },)
 THREE_ADDON = "examples/jsm/utils/BufferGeometryUtils.js"
 THREE_DESTINATION = ROOT / "platform/web/vendor/three/addons/utils/BufferGeometryUtils.js"

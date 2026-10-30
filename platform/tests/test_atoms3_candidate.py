@@ -8,6 +8,7 @@ from unittest import mock
 
 import device_service
 from device_service import load_device_specs, set_qemu_efuse_package
+import device_service_specs
 import runtime_coverage
 
 
@@ -68,7 +69,7 @@ class AtomS3CandidateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "matrix.json"
             path.write_text(json.dumps(matrix))
-            with mock.patch.object(device_service, "MATRIX", path):
+            with mock.patch.object(device_service_specs, "MATRIX", path):
                 overridden = load_device_specs()
         self.assertEqual(overridden["core2"].efuse_driver, "nvram.esp32.efuse")
         self.assertEqual(overridden["atoms3"].efuse_driver, original["atoms3"].efuse_driver)

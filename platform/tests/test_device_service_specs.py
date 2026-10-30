@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import stat
@@ -37,7 +38,8 @@ class DeviceServiceSpecTests(unittest.TestCase):
 
     def test_catalog_loading_preserves_device_contracts(self):
         specs = device_service_specs.load_device_specs()
-        self.assertEqual(len(specs), 14)
+        matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
+        self.assertEqual(set(specs), {row["id"] for row in matrix["devices"]})
         self.assertEqual(specs["core2"].memory, "8")
         self.assertEqual(specs["core2"].flash_size, 16 << 20)
         self.assertEqual(specs["tab5"].service_kind, "tab5")

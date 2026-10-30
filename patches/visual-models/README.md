@@ -6,9 +6,9 @@ upstream preimage SHA256, patch SHA256 and effective output SHA256 in the
 synchronizer. Unexpected bytes, targets or file membership fail closed. The
 upstream and effective JavaScript/resource closures are both checked.
 
-`0001-device-viewer-pause-rendering.patch` rebases the emulator mainline rendering
-pause/resume/dispose change from commit
-`3de27e88edf4e8897f8408c5f6b82ef2b881d421` onto the model upstream
+`0001-device-viewer-pause-rendering.patch` rebases the emulator mainline
+rendering pause/resume/dispose and focused-input changes from commit
+`2f202e26acadf2f949845f8f8924716caba16c7b` onto the model upstream
 `4879ab51eb8bb11ce024e670ae6880529e3d0f42`. It preserves that upstream's hidden
 viewport fit fix. It adds no assets, model identities or runtime admission.
 
