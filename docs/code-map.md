@@ -89,6 +89,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_network_execution.py` | 无状态 esp-emu network execution 请求解析，保持 profile/port/ELF/I2C 契约 | `device_service.py` 兼容 re-export、network-execution tests |
+| `platform/tools/device_service_qemu_wifi.py` | QEMU WiFi open/WPA2 解析与 runtime-env projection | `device_service.py` 兼容 re-export、QEMU WiFi tests |
 | `platform/tools/device_service_execution_parsing.py` | 无状态 storage/NVS execution request 解析，保持 artifact、字段和 partition-label 契约 | `device_service.py` 兼容 re-export、execution parser tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |
@@ -363,7 +364,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
 | `platform/tools/device_service.py` | 三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
-| `platform/tools/device_service_errors.py`、`device_service_parsing.py`、`device_service_execution_parsing.py`、`device_service_network_execution.py`、`device_service_runtime.py`、`device_service_specs.py` | `ServiceError`、基础/execution/network parser、QEMU/runtime 内存策略、私有 env 脱敏和设备规格/profile 选择已独立；`device_service.py` 保留同名 re-export | 行为、错误码、返回结构和 public symbol identity 分别由对应边界测试锁定；后续只继续移动无状态边界，不改变 API payload |
+| `platform/tools/device_service_errors.py`、`device_service_parsing.py`、`device_service_execution_parsing.py`、`device_service_network_execution.py`、`device_service_qemu_wifi.py`、`device_service_runtime.py`、`device_service_specs.py` | `ServiceError`、基础/execution/network parser、QEMU WiFi security/env、QEMU/runtime 内存策略、私有 env 脱敏和设备规格/profile 选择已独立；`device_service.py` 保留同名 re-export | 行为、错误码、返回结构和 public symbol identity 分别由对应边界测试锁定；后续只继续移动无状态边界，不改变 API payload |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -371,6 +372,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 `device_service_network.py` 现在承接 network policy 与 CNAME 请求解析；
 `device_service_execution_parsing.py` 承接 storage/NVS execution 请求；
 `device_service_network_execution.py` 承接 esp-emu network execution 请求；
+`device_service_qemu_wifi.py` 承接 QEMU WiFi security 与 env projection；
 `device_service_specs.py` 承接 catalog/matrix/profile 和设备规格选择，
 `device_service.py` 只保留 same-object re-export。下一步仍按 `SVC-03`
 拆分其余请求解析与 runtime/store/evidence 边界。
