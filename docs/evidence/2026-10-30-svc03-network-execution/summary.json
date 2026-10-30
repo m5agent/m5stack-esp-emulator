@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "svc03-network-execution-parsing-boundary",
+  "validation": "platform-contract validation",
+  "status": "PASS",
+  "module": "platform/tools/device_service_network_execution.py",
+  "moved_symbols": [
+    "parse_network_execution"
+  ],
+  "public_identity": "re-exported through device_service.py",
+  "checks": {
+    "network_execution_parser_tests": "4/4 PASS",
+    "device_service_unit_tests": "126/126 PASS",
+    "full_suite": "1674 run, 1673 PASS + 1 skip",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "scoped_ruff_e9_f": "PASS",
+    "diff_check": "PASS"
+  },
+  "boundaries": [
+    "No HTTP, network runtime, session, evidence or QEMU behavior change.",
+    "No transport or hardware claim."
+  ]
+}
