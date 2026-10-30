@@ -151,6 +151,20 @@ for(const profile of registry.profiles) {
   for(const event of [{type:'reset',down:false},{type:'reset',down:true,path:'/machine/other'}])assert.throws(()=>qemuInputCommand(profile,event));
 }
 const stack=pick('stackchan');
+const stackDanceSHA='c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542';
+assert.equal(stack.clockDivisor,1);
+assert.equal(stack.firmwareProfiles.length,1);
+const stackDance=resolveQemuFirmwareProfile(stack,stackDanceSHA);
+assert.equal(stackDance.profile,'stackchan-wasm-dance-div6');
+assert.equal(stackDance.clockDivisor,6);
+assert.equal(stackDance.readyMarker,'StackChan auto-dance started');
+assert.equal(stackDance.readyFirmwareSHA256,stackDanceSHA);
+assert.equal(stackDance.firmwareVariant.sourceSHA256,'7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e');
+assert.equal(stack.clockDivisor,1,'StackChan variant resolution must not mutate the base profile');
+for(const mutate of [p=>p.firmwareProfiles[0].clockDivisor=5,p=>p.firmwareProfiles[0].firmwareSHA256='short',
+  p=>p.firmwareProfiles[0].sourceSHA256='short',p=>{p.clockDivisor=6;p.profile='stackchan-wasm-unbound-div6';}]){
+  const changed=structuredClone(stack);mutate(changed);assert.throws(()=>validateQemuBrowserProfiles({...registry,profiles:[changed]}));
+}
 for(const [zone,mask]of [[1,48],[2,12],[3,3]])for(const down of [true,false])
   assert.deepEqual(qemuInputCommand(stack,{type:'capacitive-touch',zone,down}),{bitInput:{path:'/machine/si12t',property:'touch-bits',mask,down}});
 for(const event of [{type:'capacitive-touch',zone:0,down:true},{type:'capacitive-touch',zone:1,down:1},

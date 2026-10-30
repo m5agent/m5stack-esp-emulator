@@ -964,6 +964,17 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+          "profile": "stackchan-wasm-dance-div6",
+          "clockDivisor": 6,
+          "readyMarker": "StackChan auto-dance started",
+          "fixture": "xtensa-board-display-v1",
+          "sourceSHA256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+          "schedulerCandidate": "arduino-stackchan-dance-render-throttled-v1"
+        }
+      ],
       "profile": "stackchan-wasm-wallclock",
       "clockDivisor": 1,
       "admission": "public",

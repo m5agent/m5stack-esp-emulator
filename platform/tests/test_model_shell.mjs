@@ -211,37 +211,49 @@ try {
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
       if (button) { button.press('integration-probe'); button.release('integration-probe'); }
       const physicalAliases=[];
-      if(device.id==='cardputer-adv')for(const id of ['key-Fn','key-CapsLock','key-AltLeft','key-AltRight','key-Escape']){
-        const component=shell.model.find(id,'button'),start=controls.length;
-        if(!component)throw new Error('Missing physical keyboard alias '+id);
-        component.press('integration-probe');component.release('integration-probe');
-        physicalAliases.push({id,events:controls.splice(start).map(event=>[event.key,event.down])});
-        if(id==='key-Escape'){
-          component.press('key:Escape');component.release('key:Escape');
-          physicalAliases.push({id:'pc-Escape',events:controls.splice(start).map(event=>[event.key,event.down])});
-          for(const sources of [['integration-probe','key:Escape'],['key:Escape','integration-probe']]){
-            component.press(sources[0]);component.press(sources[1]);
-            component.release(sources[0]);component.release(sources[1]);
-            physicalAliases.push({id:'mixed-Escape-'+sources[0],events:controls.splice(start).map(event=>[event.key,event.down])});
-          }
+      if(device.id==='cardputer-adv'){
+        const {CARDPUTER_ADV_KEYS}=await import('/platform/web/cardputer-adv-keymap.js');
+        for(const key of CARDPUTER_ADV_KEYS){
+          const component=shell.model.find(key.component,'button'),start=controls.length;
+          if(!component)throw new Error(`Missing physical keyboard key ${key.component} at ${key.row},${key.col}`);
+          if(component.meta.label!==key.label)throw new Error(`ADV ${key.component} must expose its real legend ${key.label}`);
+          component.press(`matrix-probe:${key.row},${key.col}`);
+          component.release(`matrix-probe:${key.row},${key.col}`);
+          physicalAliases.push({...key,events:controls.splice(start).map(event=>[event.key,event.down])});
+        }
+        const escape=shell.model.find('key-Escape','button'),start=controls.length;
+        for(const sources of [['integration-probe','key:Escape'],['key:Escape','integration-probe']]){
+          escape.press(sources[0]);escape.press(sources[1]);
+          escape.release(sources[0]);escape.release(sources[1]);
+          physicalAliases.push({id:'mixed-Escape-'+sources[0],events:controls.splice(start).map(event=>[event.key,event.down])});
         }
       }
       const pcAliases=[];
+      const chords=[];
       if(device.id==='cardputer-adv'){
+        const {CARDPUTER_PC_KEYMAP,cardputerAdvQcode}=await import('/platform/web/cardputer-adv-keymap.js');
         const canvas=shell.viewer.renderer.domElement;
         canvas.focus();
-        for(const code of ['ShiftLeft','ShiftRight','AltLeft','AltRight','Backquote']){
-          const start=controls.length;
-          canvas.dispatchEvent(new KeyboardEvent('keydown',{code,key:code,bubbles:true,shiftKey:code.startsWith('Shift'),altKey:code.startsWith('Alt')}));
-          canvas.dispatchEvent(new KeyboardEvent('keyup',{code,key:code,bubbles:true}));
-          pcAliases.push({code,component:shell.model.keymap[code],events:controls.splice(start).map(event=>[event.key,event.down])});
+        const send=(type,code,modifiers={})=>canvas.dispatchEvent(new KeyboardEvent(type,{code,key:code,bubbles:true,...modifiers}));
+        for(const code of Object.keys(CARDPUTER_PC_KEYMAP)){
+          const start=controls.length,component=CARDPUTER_PC_KEYMAP[code];
+          send('keydown',code,{shiftKey:code.startsWith('Shift'),controlKey:code.startsWith('Control'),metaKey:code.startsWith('Meta'),altKey:code.startsWith('Alt')});
+          send('keyup',code);
+          const expected=component?cardputerAdvQcode(component,`key:${code}`):null;
+          pcAliases.push({code,component,expected,events:controls.splice(start).map(event=>[event.key,event.down])});
         }
-        const start=controls.length;
-        for(const code of ['ShiftLeft','ShiftRight'])canvas.dispatchEvent(new KeyboardEvent('keydown',{code,bubbles:true,shiftKey:true}));
-        canvas.dispatchEvent(new KeyboardEvent('keyup',{code:'ShiftLeft',bubbles:true,shiftKey:true}));
-        if(controls.length!==start+1)throw new Error('Releasing one Shift alias released the still-held physical switch');
-        canvas.dispatchEvent(new KeyboardEvent('keyup',{code:'ShiftRight',bubbles:true}));
-        pcAliases.push({code:'two-shift-holds',events:controls.splice(start).map(event=>[event.key,event.down])});
+        const twoShiftStart=controls.length;
+        for(const code of ['ShiftLeft','ShiftRight'])send('keydown',code,{shiftKey:true});
+        send('keyup','ShiftLeft',{shiftKey:true});
+        if(controls.length!==twoShiftStart+1)throw new Error('Releasing one Shift alias released the still-held physical switch');
+        send('keyup','ShiftRight');
+        pcAliases.push({code:'two-shift-holds',expected:'shift',events:controls.splice(twoShiftStart).map(event=>[event.key,event.down])});
+        for(const [modifier,letter,flag] of [['ControlLeft','KeyA','controlKey'],['MetaLeft','KeyZ','metaKey'],['AltLeft','KeyQ','altKey']]){
+          const start=controls.length;
+          send('keydown',modifier,{[flag]:true});send('keydown',letter,{[flag]:true});
+          send('keyup',letter,{[flag]:true});send('keyup',modifier);
+          chords.push({modifier,letter,events:controls.splice(start).map(event=>[event.key,event.down])});
+        }
       }
       const before = raw.length;
       const presentationRotation = {
@@ -257,7 +269,7 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, physicalAliases, pcAliases, touches, resets, presentationRotation,
+        frame, controls, physicalAliases, pcAliases, chords, touches, resets, presentationRotation,
         ownership, outputs, artwork, outputEcho: raw.length - before,
       };
     }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
@@ -279,10 +291,26 @@ try {
       'cardputer-zero': 'f1', papermono: 'a', core2: 'a', papercolor: 'a',
       nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a', stickc:'a', 'stickc-plus-se':'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
-    if(device.id==='cardputer-adv')assert.deepEqual(result.physicalAliases.map(row=>row.events),
-      ['compose','shift','meta_l','alt','grave_accent','esc','grave_accent','esc'].map(code=>[[code,true],[code,false]]),'ADV physical matrix aliases and mixed-source Escape holds retain matching input edges');
-    if(device.id==='cardputer-adv')assert.deepEqual(result.pcAliases.map(row=>row.events),
-      ['shift','shift','alt','alt','grave_accent','shift'].map(code=>[[code,true],[code,false]]),'Focused PC aliases reach the original physical switch and preserve overlapping Shift holds');
+    if(device.id==='cardputer-adv'){
+      const matrix=result.physicalAliases.filter(row=>Number.isInteger(row.row));
+      assert.equal(matrix.length,56,'ADV model exposes all 56 physical keys');
+      for(const key of matrix)assert.deepEqual(key.events,[[key.qcode,true],[key.qcode,false]],
+        `ADV ${key.row},${key.col} ${key.physical} must emit ${key.qcode}`);
+      assert.deepEqual(result.physicalAliases.filter(row=>!Number.isInteger(row.row)).map(row=>row.events),
+        ['grave_accent','esc'].map(code=>[[code,true],[code,false]]),
+        'ADV mixed-source Escape holds keep the first logical code through the final release');
+      for(const row of result.pcAliases){
+        const expected=row.expected?[[row.expected,true],[row.expected,false]]:[];
+        assert.deepEqual(row.events,expected,`ADV PC ${row.code} must route to ${row.component||'no key'} as ${row.expected||'unmapped'}`);
+      }
+      for(const code of ['MetaLeft','MetaRight','ControlRight','ShiftRight','AltRight','Escape','Backquote','Delete','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','CapsLock'])
+        assert.ok(result.pcAliases.some(row=>row.code===code),`ADV PC alias ${code} is tested`);
+      assert.deepEqual(result.chords.map(row=>row.events),[
+        [['ctrl',true],['a',true],['a',false],['ctrl',false]],
+        [['meta_l',true],['z',true],['z',false],['meta_l',false]],
+        [['alt',true],['q',true],['q',false],['alt',false]],
+      ],'Focused modifier chords reach both physical switches');
+    }
     if (device.id === 'tab5') assert.equal(result.resets, 1);
     result.case = test.key; result.configuration = test.configuration; result.options = test.options;
     report.controllers.push(result);

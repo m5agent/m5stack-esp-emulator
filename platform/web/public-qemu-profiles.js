@@ -39,7 +39,14 @@ export function validateQemuProfile(profile) {
       && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
     if (profile.outputs !== undefined) validateQemuServoOutputProfile(profile);
   }
-  check([1, 8].includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
+  const clockDivisors = profile.firmwareVariant ? [1, 6, 8] : [1, 8];
+  check(clockDivisors.includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
+  if (profile.firmwareVariant) {
+    check(profile.firmwareVariant.profile === profile.profile
+      && profile.firmwareVariant.clockDivisor === profile.clockDivisor
+      && profile.readyFirmwareSHA256 === profile.firmwareVariant.firmwareSHA256,
+      'Invalid resolved QEMU firmware variant');
+  }
   if (profile.accelerator !== undefined) {
     check(profile.clockDivisor === 1 && profile.accelerator?.kind === 'tcg-icount'
       && profile.accelerator.thread === 'single' && profile.accelerator.tbSizeMb === 128
@@ -131,7 +138,7 @@ export function validateQemuProfile(profile) {
     for (const variant of profile.firmwareProfiles) {
       check(variant && Object.keys(variant).length === fields.length && fields.every(key => Object.hasOwn(variant, key))
         && identity.test(variant.firmwareSHA256) && !hashes.has(variant.firmwareSHA256) && identity.test(variant.sourceSHA256)
-        && /^[a-z0-9-]+$/.test(variant.profile) && [1, 8].includes(variant.clockDivisor)
+        && /^[a-z0-9-]+$/.test(variant.profile) && [1, 6, 8].includes(variant.clockDivisor)
         && typeof variant.readyMarker === 'string' && variant.readyMarker.length > 0 && variant.readyMarker.length <= 128 && !/[\x00-\x1f]/.test(variant.readyMarker)
         && /^[a-z0-9-]+$/.test(variant.fixture) && /^[a-z0-9-]+$/.test(variant.schedulerCandidate), 'Invalid or duplicate QEMU firmware execution variant');
       hashes.add(variant.firmwareSHA256);

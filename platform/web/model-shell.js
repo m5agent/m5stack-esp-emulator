@@ -4,6 +4,11 @@ import {UnitAnnotations} from './unit-annotations.js';
 import {layoutHubAttachments} from './unit-assembly-layout.js';
 import { loadModel, loadGroveModule } from './vendor/m5stack-models/src/loaders.js';
 import { MODEL_METADATA, MODEL_DEVICES, UNIT_MODELS } from './vendor/m5stack-models/runtime-index.js';
+import {
+  CARDPUTER_ADV_KEYS,
+  CARDPUTER_PC_KEYMAP,
+  cardputerAdvQcode,
+} from './cardputer-adv-keymap.js';
 
 export { MODEL_METADATA, MODEL_DEVICES, UNIT_MODELS };
 
@@ -52,17 +57,6 @@ const QCODE = {
   Comma: 'comma', Period: 'dot', Slash: 'slash', Delete: 'delete',
 };
 
-// The model's component IDs name physical key positions. PC keys with a
-// different name still need a focused route to those same switches.
-const CARDPUTER_PC_KEYMAP = {
-  ShiftLeft: 'key-CapsLock', ShiftRight: 'key-CapsLock',
-  AltLeft: 'key-AltRight', AltRight: 'key-AltRight',
-  Backquote: 'key-Escape',
-};
-const CARDPUTER_PC_QCODE = {
-  'key:Backquote': 'grave_accent',
-};
-
 export function keyboardQcode(id) {
   const code = id.startsWith('key-') ? id.slice(4) : id;
   if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
@@ -99,6 +93,12 @@ export class ModelDeviceShell {
     this.host = host;
     this.device = device;
     this.model = model;
+    if (device.id === 'cardputer-adv') {
+      for (const key of CARDPUTER_ADV_KEYS) {
+        const component = model.find(key.component, 'button');
+        if (component?.meta) component.meta.label = key.label;
+      }
+    }
     this.listeners = new Map();
     this.attachVersions = new Map();
     this.driveActivities = new Map();
@@ -144,6 +144,7 @@ export class ModelDeviceShell {
       if (['atoms3-lite','atom-lite','atom-matrix','atom-matrix-v11'].includes(device.id))
         this.applyVisualState(this.model.list('led').map(led=>({type:'led',target:led.id,known:false})));
       this.offInput = model.on('input', event => this.handleInput(event));
+      if (device.id === 'cardputer-adv') this.installCardputerKeyboardRouting();
       this.viewer.setView('front', { duration: 0 });
       this.viewer.fit({ padding: 1.15, duration: 0 });
       this.setViewMode(!live && device.shell?.reference_image ? 'photo' : 'shell');
@@ -282,14 +283,10 @@ export class ModelDeviceShell {
     if (['cardputer-adv', 'cardputer-zero'].includes(this.device.id) && event.id.startsWith('key-')) {
       id = keyboardQcode(event.id);
       if(this.device.id==='cardputer-adv'){
-        // The imported model names differ from the original ADV matrix.
-        // Route these physical positions to their actual SDK keys. COMPOSE
-        // carries physical Fn through QAPI to this board's TCA8418 only.
-        id=({'key-Fn':'compose','key-CapsLock':'shift','key-AltLeft':'meta_l','key-AltRight':'alt'})[event.id]||id;
-        id=CARDPUTER_PC_QCODE[event.source]||id;
-        // The top-left model key is physically grave/Fn-Escape. Keep a PC
-        // Escape key logical, while a model press follows the real matrix.
-        if(event.id==='key-Escape'&&event.source!=='key:Escape')id='grave_accent';
+        // The imported CAD names differ from the actual ADV matrix. The
+        // canonical table preserves the physical TCA8418 position while a PC
+        // alias keeps its logical QKeyCode.
+        id=cardputerAdvQcode(event.id,event.source);
         // Model buttons aggregate simultaneous pointer/keyboard holds. The
         // final release may come from another source; retain the first code.
         this.keyEdgeQcodes??=new Map();
@@ -300,6 +297,57 @@ export class ModelDeviceShell {
     if (!id) return;
     const gpio = /^G(\d+)$/.exec(component?.meta?.gpio || '');
     this.emit('control', { id, key: RUNTIME_KEYS[id] || id, gpio: gpio ? Number(gpio[1]) : null, down: event.action === 'down', source: event.source });
+  }
+
+  installCardputerKeyboardRouting() {
+    const canvas = this.viewer.renderer.domElement;
+    const down = new Map();
+    const editable = target => target instanceof HTMLElement && (
+      target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+    const releaseAll = () => {
+      for (const [code, component] of down)
+        component.release(`key:${code}`);
+      down.clear();
+    };
+    const handle = event => {
+      const source = `key:${event.code}`;
+      if (event.type === 'keyup' && down.has(event.code)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        down.get(event.code).release(source);
+        down.delete(event.code);
+        return;
+      }
+      if (event.type !== 'keydown' || this.disposed
+          || !Object.hasOwn(CARDPUTER_PC_KEYMAP, event.code)
+          || editable(event.target) || document.activeElement !== canvas)
+        return;
+      // DeviceViewer intentionally suppresses browser modifier chords. Once
+      // the Cardputer canvas owns focus, these keys belong to the device, so
+      // Ctrl/Meta/Alt combinations must reach the same physical matrix.
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const path = CARDPUTER_PC_KEYMAP[event.code];
+      if (!path || event.repeat || down.has(event.code)) return;
+      const component = this.model.find(path, 'button');
+      if (!component) throw new Error(`Cardputer-ADV key component is unavailable: ${path}`);
+      down.set(event.code, component);
+      component.press(source);
+    };
+    for (const path of new Set(Object.values(CARDPUTER_PC_KEYMAP).filter(Boolean)))
+      if (!this.model.find(path, 'button'))
+        throw new Error(`Cardputer-ADV key component is unavailable: ${path}`);
+    window.addEventListener('keydown', handle, true);
+    window.addEventListener('keyup', handle, true);
+    window.addEventListener('blur', releaseAll);
+    canvas.addEventListener('blur', releaseAll);
+    this.offCardputerKeyboard = () => {
+      releaseAll();
+      window.removeEventListener('keydown', handle, true);
+      window.removeEventListener('keyup', handle, true);
+      window.removeEventListener('blur', releaseAll);
+      canvas.removeEventListener('blur', releaseAll);
+    };
   }
 
   setViewMode(mode) {
@@ -626,6 +674,8 @@ export class ModelDeviceShell {
   dispose() {
     if (this.disposed) return;
     this.cancelCameraAnimation();
+    this.offCardputerKeyboard?.();
+    this.offCardputerKeyboard = null;
     // Viewer cancellation emits matching releases before removing subscriptions.
     this.unitAnnotations?.dispose();
     this.viewer.dispose();

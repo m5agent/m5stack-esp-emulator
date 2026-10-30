@@ -209,17 +209,21 @@ dispose 确认、端口关闭和 owner closing 通知；浏览器实际观察到
 | StackChan | `board_display/main.py` | rotation 1、320×240、屏幕触摸，不涵盖 Si12T 机身触摸 |
 | PaperColor | `board_display/papercolor_main.py` | 400×600、原 Spectra 6 QUALITY EPD、`M5.BtnA` |
 | PaperMono | `board_display/papermono_main.py` | 480×800、原 SSD1677 四灰 QUALITY EPD、官方 raw-point hitbox workaround |
-| Cardputer-ADV | `board_display/cardputer_adv_main.py` | 原 KeyboardI2C/TCA8418 FIFO；11 键 keycode、计数与按下/松开像素 |
+| Cardputer-ADV | `board_display/cardputer_adv_main.py`；`tests/firmware/cardputer_input_orientation/` | 原 KeyboardI2C/TCA8418 FIFO；56 物理键、55 直接 PC code、修饰键别名与 Fn 方向键和弦 |
 
 PaperMono 的固定示例保留原逻辑坐标输出，正点 raw `(240,650,1,0)` 与
 logical `(90,400)` 同场记录，负点 `(240,400)` 不得改变计数/计数区像素；
 release 明确使用缓存按下坐标。它没有修复 stock logical calibration。
 独立 SDK offset 候选只有 host C++ 证明，未构建/运行候选固件。
 StopWatch 不可从触摸 count 推定校准完成，也不可按假定比例换算原驱动坐标。
-Cardputer-ADV 的 `a/z/q/b/n/m/1/0/Enter/Space/Backspace` 逐键要求原 FIFO
-解码和真实帧变化；轮询 IRQ handler 不证明 GPIO interrupt delivery、Fn 或
-同时 modifier。EPD 门禁逐像素检查原驱动 QUALITY 抖色 palette、marker 与
+Cardputer-ADV 的 56 个模型键要求原 FIFO 位置、按下/松开和真实帧变化；
+PC 直接 code、左右 modifier、Esc/Delete 与四方向 Fn 和弦分别断言实际
+物理键位。轮询 IRQ handler 不证明 GPIO interrupt delivery；EPD 门禁逐像素检查原驱动 QUALITY 抖色 palette、marker 与
 count bit 的固定空间规则，直方图不能替代；计数字符 ROI 变化不证明精确字形。
+StackChan 用户跳舞 Flash 使用
+`platform/tests/test_stackchan_dance_user_firmware.mjs`，要求真实 UART1
+SCS present/goal 位移、QOM、3D 与 DOM 同源；该 SHA 的 div6 是渲染时序兼容
+profile，不是实时性能结论。
 完整固定源码与边界见
 [逐板说明](../tests/browser-qemu/board_display/README.md)。
 
