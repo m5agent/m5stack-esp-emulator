@@ -60,6 +60,15 @@
       "cardputer": "33/33 PASS including normal Stop 6/0",
       "stackchan_reference": "24/24 PASS including normal Stop 6/0",
       "arduino": "Retained V4 identity: functionality PASS; 55/56 with first Stop cleanup FAIL"
+    },
+    "platform_full_before_service_parser_merge": {
+      "status": "PASS",
+      "source_commit": "90ca83d6252b2fbbf0267af702af34b8249d77a4",
+      "tests": 1667,
+      "skipped": 10,
+      "seconds": 240.668,
+      "log_sha256": "f75d9df7b9cde51c2a4700d2745cc042bf8a5dba31717b43d556748bc48ff75a",
+      "scope": "Not assigned to newly merged parser source; affected parser and final snapshot checks run separately"
     }
   },
   "summaries": {
@@ -125,8 +134,10 @@
     "public_guest_execution": "NOT RUN; functional guest tests use local identical V5 export; standard all-admitted publication NOT RUN"
   },
   "source_sync": {
-    "latest_integrated_main": "ccbfa71c60f62df2682fd6c449ce8abdaedfd871",
-    "integration_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
-    "production_source_unchanged_after_integration": true
+    "initial_base": "e3f149c1",
+    "capacity_main": "ccbfa71c60f62df2682fd6c449ce8abdaedfd871",
+    "initial_integration_commit": "603adecbc13a41829774af708756d2cb7d2a4b01",
+    "latest_integrated_main": "9c1652dfd9a57307fb1834f4d135b818126b749f",
+    "latest_main_scope": "Device Service parser extraction and documentation only; browser assets unchanged"
   }
 }
