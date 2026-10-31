@@ -231,10 +231,19 @@ export class PublicQemuRuntime {
         // close observation proves its actual exit; this avoids pagehide racing
         // the ordinary acknowledgement/notification delivery.
         const deadline=performance.now()+2000;
+        let closeObserved=false;
         while((engineOwnership=this.readEngineOwnership()||engineOwnership)){
-          if(engineOwnership.engineCloseNotificationReceived||this.engineOwnerFailed(engineOwnership)||performance.now()>deadline)break;
+          if(engineOwnership.engineCloseNotificationReceived){
+            closeObserved=true;
+            break;
+          }
+          if(this.engineOwnerFailed(engineOwnership)||performance.now()>deadline)break;
           await new Promise(resolve=>setTimeout(resolve,10));
         }
+        // Keep the owner alive for one task after acknowledgement so its
+        // independently scheduled Worker handle termination can run before the
+        // iframe is removed.
+        if(closeObserved)await new Promise(resolve=>setTimeout(resolve,250));
       }
       // Preserve failed-dispose/fallback ownership too. This snapshot is taken
       // before DOM removal and never claims the Worker was observed closed.
