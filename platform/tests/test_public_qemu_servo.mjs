@@ -21,6 +21,13 @@ assert.deepEqual(qemuServoVisualCommands(profile, observed), [
   {type:'joint', target:'yaw', angleDeg:30, durationMs:0},
   {type:'joint', target:'pitch', angleDeg:20, durationMs:0},
 ]);
+assert.deepEqual(qemuServoVisualCommands(profile, observed, 640), [
+  {type:'joint', target:'yaw', angleDeg:30, durationMs:640},
+  {type:'joint', target:'pitch', angleDeg:20, durationMs:640},
+]);
+for (const duration of [-1, Infinity, '640']) {
+  assert.throws(() => qemuServoVisualCommands(profile, observed, duration), /transition duration/);
+}
 // Targets do not drive geometry: partial movement must show present, not goal.
 const otherTargets = structuredClone(observed);
 otherTargets.servos[0].goal_position = 1000;

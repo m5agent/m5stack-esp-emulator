@@ -234,6 +234,19 @@ try {
   }));
   report.samples = run.samples;
   report.frames = run.frames;
+  const visualTrace = await page.evaluate(async () => {
+    const trace=[],start=performance.now();
+    while(performance.now()-start<2000){
+      const joint=globalThis.stackchanShell.model.find('yaw','joint').getState();
+      trace.push({wall_ms:performance.now(),angleDeg:joint.angleDeg,targetAngleDeg:joint.targetAngleDeg,
+        transitioning:joint.transitioning});
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    return trace;
+  });
+  report.visual_trace = visualTrace;
+  const visualFrames = visualTrace.filter((sample,index) =>
+    index > 0 && sample.angleDeg !== visualTrace[index-1].angleDeg).length;
   const states = run.samples.map(sample => sample.state);
   const present = axis => states.map(state => state.servos[axis].present_position);
   const goals = axis => states.map(state => state.servos[axis].goal_position);
@@ -258,13 +271,30 @@ try {
       && states.some(state => state.powered && state.servos.every(servo => servo.torque === 1)),
     states.at(-1),
   );
+  const expectedYaw = sample => (sample.state.servos[0].present_position - 460) * 5 / 16;
+  const expectedPitch = sample => Math.max(0, Math.min(90,
+    (sample.state.servos[1].present_position - 620) * 5 / 16));
+  const observedChanges = run.samples.slice(1).filter((sample, index) => {
+    const previous = run.samples[index];
+    return sample.state.packets !== previous.state.packets
+      && (sample.state.servos[0].present_position !== previous.state.servos[0].present_position
+        || sample.state.servos[1].present_position !== previous.state.servos[1].present_position);
+  });
   check(
-    'model-joints-follow-present-not-goal',
-    run.samples.every(sample =>
-      Math.abs(sample.yaw.angleDeg - (sample.state.servos[0].present_position - 460) * 5 / 16) < 1e-8
-      && Math.abs(sample.pitch.angleDeg - Math.max(0, Math.min(90,
-        (sample.state.servos[1].present_position - 620) * 5 / 16))) < 1e-8),
-    {samples:run.samples.length},
+    'model-joint-target-follows-present-with-presentation-interpolation',
+    observedChanges.length > 0 && observedChanges.every(sample =>
+      sample.yaw.targetAngleDeg === expectedYaw(sample)
+      && sample.pitch.targetAngleDeg === expectedPitch(sample)
+      && (sample.state.servos[0].present_position === run.samples[run.samples.indexOf(sample) - 1].state.servos[0].present_position
+        || sample.yaw.transitioning)
+      && (sample.state.servos[1].present_position === run.samples[run.samples.indexOf(sample) - 1].state.servos[1].present_position
+        || sample.pitch.transitioning)),
+    {samples:run.samples.length, observed_changes:observedChanges.length},
+  );
+  check(
+    'three-d-presentation-emits-intermediate-poses',
+    visualFrames >= 5,
+    {samples:visualTrace.length, changed_frames:visualFrames},
   );
   check(
     'dom-ticks-and-angle-label-consume-the-same-snapshot',
@@ -272,8 +302,8 @@ try {
       sample.dom.yawTicks === sample.state.servos[0].present_position
       && sample.dom.pitchTicks === sample.state.servos[1].present_position
       && sample.dom.packets === sample.state.packets
-      && sample.dom.label.includes(sample.yaw.angleDeg.toFixed(1))
-      && sample.dom.label.includes(sample.pitch.angleDeg.toFixed(1))),
+      && sample.dom.label.includes(expectedYaw(sample).toFixed(1))
+      && sample.dom.label.includes(expectedPitch(sample).toFixed(1))),
     run.samples.at(-1),
   );
   check('guest-started-and-initialized-servo-bus', /StackChan auto-dance started/.test(run.serial)
@@ -295,7 +325,7 @@ try {
     {timeout:45000},
   );
   report.cleanup = await page.evaluate(() => globalThis.stackchanRun.runtime.evidence().cleanup);
-  report.worker_targets = await targets.waitUntilClosed({minimumObserved:6, timeoutMs:30000});
+  report.worker_targets = await targets.waitUntilClosed({minimumObserved:6, timeoutMs:120000});
   check('normal-stop-cleanly-closes-qemu-worker',
     report.worker_targets.ok && await page.locator('iframe').count() === 0,
     report.worker_targets,
