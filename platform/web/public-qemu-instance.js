@@ -15,7 +15,11 @@ function finalizeOwner() {
   // The owner must still finalize its Worker handle so Chrome removes the
   // DedicatedWorker target; this acknowledged path is not a fallback terminate.
   engineTerminationRequested=true;engineNormalTerminations++;
-  const worker=engine;engine=null;worker?.terminate();
+  const worker=engine;engine=null;
+  worker?.terminate();
+  // Do not join the worker from inside its own message callback. A fresh task
+  // lets Chrome finish dispatching self.close() before final handle cleanup.
+  if(worker)setTimeout(()=>worker.terminate(),0);
 }
 function terminateOwner() {
   if (!engine || engineTerminationRequested) return;
