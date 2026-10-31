@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "stackchan-servo-presentation-smoothing",
+  "date": "2026-10-31",
+  "validation": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "merge_commit": "68afbd7c13669c1fb652b976b68c48364c7f0d6c",
+    "pull_requests": [71, 72]
+  },
+  "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+  "wasm_sha256": "5d6c36bdafc1129c2652b5ba9422f3deb5ab170475748cea96fdc4cf9520a993",
+  "asset_sha256": {
+    "public.js": "e89d98c4c83df2eed442c36ffcbb5dceaf0398b0cea5b9751592a3acce29bb8d",
+    "public-qemu-servo.js": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+    "public-qemu-runtime.js": "e4e8801cebaceebb24c3e317b072d9a0764ac6fbb377cc62580a69d4c3034741",
+    "public-qemu-instance.js": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+  },
+  "browser_runs": [
+    {
+      "status": "PASS",
+      "checks": "12/12",
+      "raw_states": 23,
+      "frames": 615,
+      "scs_packets": 30,
+      "intermediate_visual_poses_2s": 15,
+      "max_visual_step_deg": 9.0253
+    },
+    {
+      "status": "PASS",
+      "checks": "12/12",
+      "raw_states": 23,
+      "frames": 546,
+      "scs_packets": 30,
+      "intermediate_visual_poses_2s": 14,
+      "max_visual_step_deg": 9.3412
+    }
+  ],
+  "pages": {
+    "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+    "manifest_sha256": "22b90111ae80080ea5b7e9e73ae140af758a4ef60cfb4bd3286c0b61d4be4ae8",
+    "release_tag": "pages-preview-20261031-stackchan-smoothing",
+    "release_asset_sha256": "1565afc97085cfa4f33760bf7655d9d19d43897f742f1615fca57dda62be2e5a",
+    "release_asset_bytes": 151913554,
+    "deployment_run": 41158906682,
+    "public_guest_checks": "30/30",
+    "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+  },
+  "limits": [
+    "presentation interpolation does not add guest samples",
+    "physical servo motion, speed, torque, mechanics and electrical behavior are NOT RUN",
+    "prepared-site deployment is not a regular source-build publication PASS"
+  ]
+}

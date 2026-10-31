@@ -142,7 +142,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-30` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-30` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-30` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-30` | 唯一维护当前能力和限制，区分浏览器/原生/模型/物理边界；Core2 legacy stock startup 已有限定虚拟证据，更广 setup/REPL 与任意应用继续开放 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-31` | 唯一维护当前能力和限制，区分浏览器/原生/模型/物理边界；StackChan 稀疏 QOM 展示平滑已上线，Core2 legacy stock startup 更广 setup/REPL 与任意应用继续开放 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-30` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Cardputer-ADV 当前参考 BMI270 已移出，`FW-03` 仍保留真实业务和更多固件族 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-30` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-30` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
@@ -159,6 +159,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Cardputer 与 StackChan 输入证据](evidence/2026-10-30-cardputer-stackchan-input/README.md) | 限定浏览器虚拟设备证据 | `2026-10-30` | 67-patch 新 WASM、ADV 原键盘与四旋转、StackChan 后台 UART 与真实短按、保留失败 |
 | [StackChan 跳舞与 ADV 全键证据](evidence/2026-10-30-stackchan-dance-and-cardputer-all-keys/README.md) | 精确镜像虚拟设备证据 | `2026-10-30` | 跳舞 BIN app-bound div6、真实 SCS 位移、56 物理键与 55 PC code；硬件 `NOT RUN` |
 | [StackChan 跳舞与 ADV 全键 Pages 部署](evidence/2026-10-30-pages-stackchan-cardputer-production/README.md) | 当前部署证据 | `2026-10-30` | prepared-site 更新正式 HTTPS；线上 manifest/WASM/profile/keymap/wrapper 回读一致，本机 StopWatch/Sticks3 与两个原镜像通过；hosted macOS CDP target 残留使 regular all-admitted 仍 `PARTIAL` |
+| [StackChan 舵机展示平滑与 Pages 更新](evidence/2026-10-31-stackchan-servo-smoothing/README.md) | 当前部署证据 | `2026-10-31` | 原始 SCS/QOM 不变，3D 关节按相邻样本插值；两次同固件 12/12、线上 CoreS3 guest 30/30、engine 与 pthread target 清理通过；source-build 工作流因 TLS 超时改走 prepared-site |
 | [新增主机模型接入](plans/2026-10-29-expanded-host-models.md) | 主机视觉接入计划 | `2026-10-29` | 21 款新增主机、完整 Atom/Stick 系列、型号配置、贴图、实际工作台入口与能力边界 |
 | [Atom / Stick 原厂固件运行接入](evidence/2026-10-29-expanded-hosts/README.md) / [Dial 旋钮诊断](evidence/2026-10-29-expanded-hosts/dial-rotary.md) | 当轮逐板限定验证 | `2026-10-29` | 原厂固件、原生与纯浏览器、GPIO/I2C/RMT、Flash 修复及未完成边界 |
 | [剩余 Xtensa 浏览器接入](plans/2026-10-29-wasm-remaining-xtensa.md) | 后续交付计划 | `2026-10-29` | 六板独立组合、矩阵键盘、EPD QUALITY 抖色与真实输入/帧/清理；新 runtime 逐板验收后才能准入 |
