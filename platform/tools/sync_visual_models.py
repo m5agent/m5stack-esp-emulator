@@ -29,7 +29,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[2]
 DESTINATION = ROOT / "platform/web/vendor/m5stack-models"
 RUNTIME_DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
-PINNED_COMMIT = '4879ab51eb8bb11ce024e670ae6880529e3d0f42'
+PINNED_COMMIT = '1373680d29667f99438a5412b87b955a3ba7702f'
 PUBLIC_REPOSITORY = "https://github.com/yuyun2000/m5stack-models"
 REVIEWED_LOCAL_RUNTIME_PATCHES = ({
     "id": "device-viewer-render-lifecycle-and-focus-v2",

@@ -11,15 +11,15 @@ import {printedArtwork,printedFilm} from '../../modeling/artwork.js';
 export class CoreS3 extends Device {
  static meta={id:'m5stack.cores3',name:'CoreS3',sku:'K128',vendor:'M5Stack',size:[54,54,15.5],keymap:{KeyP:'power'}};
  get meta(){return {...CoreS3.meta,size:this.options.dinBase?[54,69.284,31.5]:[54,54,15.5],configuration:this.options.dinBase?'CoreS3 + DinBase':'CoreS3 module'};}
- build({dinBase=false,touch=true}={}){
+ build({dinBase=false,touch=true,lcdCenterY=DIM.lcd.cy}={}){
   const parts=addCadParts(this,dinBase?dinData:coreData,{black:materials.plastic(0x303438,{roughness:.76,clearcoat:.015})});
   const front=dinBase?15.75:7.75;
-  const lcdBody=slab(this.body,44.6,34.3,1.5,1.1,[0,DIM.lcd.cy,front-1.8],materials.plastic(0x171c1d),[],.08);lcdBody.name='LCD module backing';
+  const lcdBody=slab(this.body,44.6,34.3,1.5,1.1,[0,lcdCenterY,front-1.8],materials.plastic(0x171c1d),[],.08);lcdBody.name='LCD module backing';
   // The official CAD is the enclosure; this acoustic housing sits behind its real grille holes.
   const speaker=new THREE.Group();speaker.position.set(25.25,5,front-7.95);speaker.quaternion.copy(FACE.right);speaker.name='Speaker acoustic housing';this.body.add(speaker);
   slab(speaker,26,5.8,1.2,.7,[0,0,-1.2],materials.plastic(0x121516,{roughness:1}),[],.06);
   slab(this.body,DIM.glass.w,DIM.glass.h,.08,DIM.glass.r,[0,0,front-.04],materials.glossy(0x090c0d,{roughness:.21,clearcoat:.3}),[],.025);
-  this.add(new Display({id:'lcd',label:'2.0-inch LCD · 320×240',width:320,height:240,size:[DIM.lcd.w,DIM.lcd.h],position:[0,DIM.lcd.cy,front+.06],touch,pixelEffect:true,glass:{size:[42.4,32.2],offset:.015,intensity:.15,roughness:.16},meta:{role:'external-framebuffer',physicalAreaSource:'derived from 2.0-inch specification; pending panel drawing'}}));
+  this.add(new Display({id:'lcd',label:'2.0-inch LCD · 320×240',width:320,height:240,size:[DIM.lcd.w,DIM.lcd.h],position:[0,lcdCenterY,front+.06],touch,pixelEffect:true,glass:{size:[42.4,32.2],offset:.015,intensity:.15,roughness:.16},meta:{role:'external-framebuffer',physicalAreaSource:'derived from 2.0-inch specification; pending panel drawing'}}));
   const c=DIM.camera;disc(this.body,c.radius+.35,[c.x,c.y,front+.07],materials.metal(0xa35c31,{roughness:.44}));disc(this.body,c.radius,[c.x,c.y,front+.09],materials.glossy(0x131b22,{roughness:.1}));disc(this.body,.7,[c.x,c.y,front+.105],materials.glossy(0x193042,{roughness:.08}));
   for(const x of [-20.8,20.8])disc(this.body,.4,[x,-20.8,front+.08],materials.cavity());
   slab(this.body,3.5,2.7,.12,.5,[8.8,-20.8,front+.045],materials.glossy(0x171529,{roughness:.16}),[],.025);

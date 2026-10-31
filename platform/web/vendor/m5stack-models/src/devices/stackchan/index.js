@@ -19,7 +19,7 @@ export class StackChan extends Device{
   const top=addTopBoard(this);
   // StackChan has its own exterior certification and side labels. The exposed
   // rear assembly is distinct from a standalone CoreS3 shield sticker.
-  const core=new CoreS3({artwork:false});this.body.add(core.root);core.root.position.fromArray(DIM.corePosition);
+  const core=new CoreS3({artwork:false,lcdCenterY:DIM.lcd.cy});this.body.add(core.root);core.root.position.fromArray(DIM.corePosition);
   // Reuse the exact visual module, preserving public lcd/button/port IDs at the top level.
   for(const c of core.components.values())this.add(c,core.body);
   core.components.clear();

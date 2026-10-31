@@ -334,7 +334,7 @@ class VisualSnapshotImportTests(unittest.TestCase):
 
     def test_expanded_host_models_and_runtime_inventory_are_separately_pinned(self):
         manifest = json.loads((sync.DESTINATION / "vendor-manifest.json").read_text())
-        self.assertEqual(manifest["source_commit"], "4879ab51eb8bb11ce024e670ae6880529e3d0f42")
+        self.assertEqual(manifest["source_commit"], "1373680d29667f99438a5412b87b955a3ba7702f")
         self.assertEqual(manifest["source_commit"], sync.PINNED_COMMIT)
         self.assertEqual(manifest["documentation_source_commit"],
                          "3681a6482aff96501d44659ba5a1603246f1fe1f")
