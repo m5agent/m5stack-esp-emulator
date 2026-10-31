@@ -2300,3 +2300,23 @@ StackChan 完整 Flash `c854d3ac…04542` 的 `11/11` 和 Cardputer-ADV
 全板型正式发布保持 `PARTIAL`，本轮应急部署不把它改写为 PASS。物理硬件、
 机械、电气、键盘、光学和 RF 均 `NOT RUN`。见
 [部署证据](evidence/2026-10-30-pages-stackchan-cardputer-production/README.md)。
+
+## 2026-10-31：StackChan 稀疏舵机状态展示平滑
+
+精确完整 Flash `c854d3ac…04542` 仍只产生 23 个原始状态样本和 30 个有效
+SCS 包。浏览器只对 3D 展示按相邻快照的时间间隔做最多 `1.2 s` 插值，原始
+QOM、角度标签、DOM ticks、串口和运行记录不增加或改写采样。
+
+合并提交 `68afbd7c` 后，Metal 硬件渲染下两次独立 browser-WASM 运行均为
+`12/12 PASS`；2 秒窗口分别输出 15 / 14 个中间姿态，最大单帧视觉步进
+`9.03° / 9.34°`，而不是先前直接样本跳变的最大约 `86.9°`。两次都在浏览器
+上下文关闭前观察到 engine 与五个 pthread target 实际消失。
+
+正式站点通过 prepared-site 发布 manifest `22b90111…4ae8`，部署运行
+`41158906682`。正式 HTTPS 地址在 macOS M4/ANGLE Metal 下完成真实 CoreS3
+guest `30/30`：COI/SharedArrayBuffer、LVGL 帧、触摸正反例、PIR、QMP
+pause/resume、四档布局、历史、分享重开及两代 12 Worker 清理均通过。
+regular source-build 工作流两次在构建机上游依赖 TLS 握手阶段失败，未进入
+浏览器验收，因此保持独立 `PARTIAL`，不把 prepared-site 部署改写为该工作流
+PASS。物理舵机、机械、电气、LCD 光学和 RF 均 `NOT RUN`。见
+[平滑与部署证据](evidence/2026-10-31-stackchan-servo-smoothing/README.md)。
