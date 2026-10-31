@@ -496,7 +496,18 @@ function clearBrowserOutputs(profile) {
 function applyBrowserDeviceState(value, run) {
   if (!active(run)) return;
   const servo=run.controller.profile.outputs?.kind==='stackchan-scs-qom-v1';
-  const commands=servo?qemuServoVisualCommands(run.controller.profile,value)
+  let transitionMs=0;
+  if(servo){
+    // QOM updates are discrete present-position samples. Smooth only the 3D
+    // exhibit between adjacent observations; labels and evidence stay raw.
+    const now=performance.now(), previous=run.servoPresentation;
+    if(previous&&value.packets>=previous.packets){
+      const observedGap=now-previous.observedAt;
+      if(observedGap>=40)transitionMs=Math.min(1200,Math.max(80,observedGap*.9));
+    }
+    run.servoPresentation={observedAt:now,packets:value.packets};
+  }
+  const commands=servo?qemuServoVisualCommands(run.controller.profile,value,transitionMs)
     :qemuOnboardVisualCommands(run.controller.profile,value);
   state.shell.applyVisualState(commands);
   state.shell.viewer?.requestRender();

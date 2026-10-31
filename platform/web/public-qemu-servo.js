@@ -53,16 +53,17 @@ export async function readQemuServoOutputs(profile, qmp) {
 }
 
 /** Present position is authoritative even after torque release or rail loss. */
-export function qemuServoVisualCommands(profile, state) {
+export function qemuServoVisualCommands(profile, state, durationMs = 0) {
   validateQemuServoState(profile, state);
+  check(Number.isFinite(durationMs) && durationMs >= 0, 'Servo visual transition duration must be finite and non-negative');
   const {yawZeroTicks, pitchZeroTicks, tickDegrees, yawDirection, pitchDirection} = profile.outputs.calibration;
   const yaw = (state.servos[0].present_position - yawZeroTicks) * tickDegrees * yawDirection;
   const pitch = (state.servos[1].present_position - pitchZeroTicks) * tickDegrees * pitchDirection;
   return [
-    {type:'joint', target:'yaw', angleDeg:yaw, durationMs:0},
+    {type:'joint', target:'yaw', angleDeg:yaw, durationMs},
     // The CAD joint has a documented 0..90 degree visual limit. Raw controller
     // positions remain available in evidence when they exceed that envelope.
-    {type:'joint', target:'pitch', angleDeg:Math.max(0, Math.min(90, pitch)), durationMs:0},
+    {type:'joint', target:'pitch', angleDeg:Math.max(0, Math.min(90, pitch)), durationMs},
   ];
 }
 
