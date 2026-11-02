@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "First six Units of the second research batch through isolated /api/v1 Device Service sessions; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu": {
+    "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+    "source_tree": ".work/native-lock-source/qemu",
+    "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0127 (0124 StickT2 and 0126 parallel layers reserved/not required)",
+    "patches": [
+      "0120-unit-i2c-dlight-command-mask.patch",
+      "0121-m5stick-board.patch",
+      "0122-atoms3r-m12-board.patch",
+      "0123-unit-i2c-batch3.patch",
+      "0125-unit-batch2.patch",
+      "0127-unit-dac-fast-mode-write.patch"
+    ]
+  },
+  "firmware_cache": {
+    "atoms3r": {
+      "path": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "stopwatch": {
+      "path": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d"
+    },
+    "sticks3": {
+      "path": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "joystick",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "JoystickUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "690c41387da5dfb8d38a87bf836057371ffb8f9b99380086b01fd95e76e93cc7",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "6ed3fecfa91c4ce6a1e4ebcc1f647393",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_axes_track_fixture": true,
+        "qom_fixture_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-joystick.json",
+      "report_sha256": "f207e737e92824b9e40a7f0e2c46973b2b192627a48d90bc86950c225d189204",
+      "evidence_zip_sha256": "1bb3a65d4354b9fc41b27b3b37d0ea14ede668a4fe053e2208a05d8959fe2920",
+      "frame_sha256": "46429304fba60089b8b7f521fdeaac02a76f5e4e55bd0f9619a7aeb6ac0882db",
+      "observations": {
+        "joystick": {
+          "fixtures": {
+            "x-raw": 37,
+            "y-raw": 201,
+            "button-raw": 1
+          },
+          "guest": [
+            "37",
+            "201",
+            "1"
+          ],
+          "qom": {
+            "x-raw": 37,
+            "y-raw": 201,
+            "button-raw": 1,
+            "transactions": 13,
+            "read-bytes": 18,
+            "written-bytes": 6
+          }
+        }
+      },
+      "boundaries": [
+        "The shared CONTROL_JOYSTICK model exposes button-raw as 0/1 (joystick-v11 semantics); the U024 raw button byte polarity/full 0..255 range remains unresolved and is not injectable.",
+        "0x52 conflicts with the registered joystick-v11; one Unit per bus.",
+        "Stick travel, potentiometer linearity and mechanical calibration are NOT RUN."
+      ]
+    },
+    {
+      "unit_id": "watering",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "WateringUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "e0943544ebfd6e99fdcd3ce4fb9e90775f90749122444e2e8034d65035fd93c9",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "08e51d926f4948328a4874a7ea4df128",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_tracks_adc_fixture": true,
+        "qom_analog_fixture_exact": true,
+        "adc_samples_observed": true,
+        "pump_on_observed": true,
+        "pump_off_and_retrigger_observed": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-watering.json",
+      "report_sha256": "c386932a463533da65341b6fa082f280437038196ce8721563b59bb546359496",
+      "evidence_zip_sha256": "a76d71b3a4253789fd86cd8c57606961668dfa41205bc9125794669e6e6b09c8",
+      "frame_sha256": "e09f7b6a83d783c5c9c983a152d4749dbda613b9d4df0dcf2dc97c0864b800a3",
+      "observations": {
+        "watering": {
+          "voltage_mv": 1600.0,
+          "expected_read_u16": 33832,
+          "guest_raw": 33832,
+          "voltage_readback_unsupported": true,
+          "voltage_boundary": "read_uv()/get_voltage() require the S3 ADC calibration fixture and are NOT RUN in this batch; read_u16() is the covered path.",
+          "qom": {
+            "analog-mv": 1600,
+            "adc-samples": 2317,
+            "pump-level": false,
+            "pump-transitions": 5,
+            "transactions": 0,
+            "written-bytes": 0
+          }
+        }
+      },
+      "boundaries": [
+        "Pump electrical behavior, head/flow and soil-moisture physics are NOT RUN; this evidence observes the PUMP_EN pad, not water movement.",
+        "read_uv()/get_voltage() require the S3 ADC calibration fixture and were NOT RUN; the covered ADC path is read_u16() against the analog-mv fixture.",
+        "ADC 11DB full-scale/calibration remains UNRESOLVED."
+      ]
+    },
+    {
+      "unit_id": "fader",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "FaderUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "0ecebf8281ad6aea0e839994c01f9abb0cf6b9f8afd3695ff8399f6ad16a33aa",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "f7ffa492405f4db3905ce5a45a158d57",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_tracks_adc_fixture": true,
+        "qom_analog_fixture_exact": true,
+        "adc_samples_observed": true,
+        "led_frames_observed": true,
+        "incomplete_frames_none": true,
+        "fourteen_led_strip": true,
+        "guest_buffer_matches_qom_frame": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-fader.json",
+      "report_sha256": "233cd3b6f8267d48fd0b6f1efc935aaa93834ea4cf6c768c11430d9be9fd2455",
+      "evidence_zip_sha256": "6c484e3a5514edab76d21e04e8745c82103c2901fa3ba8aac26cb233d09f9de5",
+      "frame_sha256": "3f7d68f47d2fcdb26a5ae08f84b4f4506fae83d9c9d7c0eab8a8da4886aa910e",
+      "observations": {
+        "fader": {
+          "voltage_mv": 2500.0,
+          "expected_read_u16": 52844,
+          "guest_raw": 52844,
+          "voltage_readback_unsupported": true,
+          "voltage_boundary": "read_uv()/get_voltage() require the S3 ADC calibration fixture and are NOT RUN in this batch; read_u16() is the covered path.",
+          "guest_frame": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "qom": {
+            "analog-mv": 2500,
+            "adc-samples": 2338,
+            "led-rgb": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "led-frames": 7,
+            "incomplete-frames": 0,
+            "transactions": 0,
+            "written-bytes": 0
+          }
+        }
+      },
+      "boundaries": [
+        "14-LED SK6812 optical output, palette perception, mechanical feel and potentiometer linearity are NOT RUN.",
+        "The frozen neopixel set_brightness() semantics are captured verbatim (the last update_brightness frame is all-zero at raw=52844 because of the driver's buffer scaling/wrap); a different driver SHA may emit different bytes.",
+        "RMT timing tolerance versus real SK6812 is NOT RUN."
+      ]
+    },
+    {
+      "unit_id": "dac",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "DACUnit(MCP4725)",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "9462ccf76e3765d49f45e9ea6d0a8b94f31490d62a16cfec8e8a8a7448dad7de",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "486539ed6b344322906f9d1cdc3ab27e",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_roundtrip": true,
+        "guest_voltage_follows_driver_vdd": true,
+        "guest_eeprom_write_observed": true,
+        "qom_raw_after_guest_write": true,
+        "qom_eeprom_value": true,
+        "qom_eeprom_writes": true,
+        "qom_voltage_matches_driver_default": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-dac.json",
+      "report_sha256": "3db8516b92c3b927d6764ff00a384493215e86518edf0f8ab657360c88283a14",
+      "evidence_zip_sha256": "9850a4aa77da889dce7e0a05e78e721643c5b6beaa7477f73f332ec12c7005fc",
+      "frame_sha256": "f3d52b1146fb929c6ef40519c68da0275bde7ecd46afb807b0e0317673ac592c",
+      "observations": {
+        "dac": {
+          "guest_raws": [
+            2048,
+            819,
+            1024
+          ],
+          "guest_eeprom": [
+            819
+          ],
+          "guest_voltage": 1.0,
+          "qom": {
+            "dac-raw": 1024,
+            "dac-voltage-v": 1.2503052503052503,
+            "eeprom-value": 819,
+            "eeprom-writes": 1
+          }
+        }
+      },
+      "boundaries": [
+        "EEPROM retention/endurance and the physical 0..3.3V analog output are NOT modeled; eeprom-value/eeprom-writes are model state, not non-volatile measurement.",
+        "dac-voltage-v uses the driver default vdd=5.0V; the output range/reference remains UNRESOLVED.",
+        "Guest evidence required the 0127 fix: the official driver writes its full 3-byte buffer even for a 2-byte fast-mode update, which the merged 0125 model initially NACKed."
+      ]
+    },
+    {
+      "unit_id": "bps",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "BPSUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "ad2ed9f7489995f41b33510d767c8c4b8822bac7dd058fd8aba8e3aab036e9e8",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "c322f5069da2495997e23d8750505198",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_temperature_tracks_fixture": true,
+        "guest_pressure_tracks_fixture": true,
+        "guest_altitude_matches_driver_formula": true,
+        "qom_fixture_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-bps.json",
+      "report_sha256": "5d81d86dbd6df59a389692a5ab1a48a229bbe824fdef6327cbe0066457409efb",
+      "evidence_zip_sha256": "31f3db730dfb2927f02ec81eeeda6d6c66295f6da760483c30c4253cdb8815b1",
+      "frame_sha256": "2c0c5efa55721fde8a4fb3a771bc9bffb3ba01519701d1cf2bde31194e9f4744",
+      "observations": {
+        "bps": {
+          "low_fixture": [
+            "25.0",
+            "1013.25",
+            "0.01"
+          ],
+          "high_fixture": [
+            "10.5",
+            "950.0",
+            "540.42"
+          ],
+          "expected_altitude": 540.42,
+          "qom": {
+            "temperature-c": 10.5,
+            "pressure-pa": 95000,
+            "transactions": 35,
+            "read-bytes": 67,
+            "written-bytes": 20
+          }
+        }
+      },
+      "boundaries": [
+        "QMP6988/U090-B variants and the driver's scan()[0] probe order are NOT modeled; the BMP280 path is the only covered variant.",
+        "The 24-byte calibration block is synthetic-but-valid, not a real device calibration; datasheet compensation was not independently reviewed.",
+        "Altitude uses the driver's fixed 101325 Pa sea-level assumption; it is not a measured height, and physical pressure accuracy is NOT RUN."
+      ]
+    },
+    {
+      "unit_id": "adc-v11",
+      "device_id": "stopwatch",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ADCV11Unit(ADS1110)",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "6818b2eef950a6ed7f9ab726540ecb21d8ee001d72dcc7fc1c8fbf08b2f76670",
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+      "session_id": "389e56c2584c49bf818088e7f136541a",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_voltage_tracks_fixture": true,
+        "guest_raw_matches_default_config": true,
+        "guest_config_writes_observed": true,
+        "guest_final_voltage_after_config": true,
+        "qom_fixture_exact": true,
+        "qom_config_word_after_writes": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2/report-adc-v11.json",
+      "report_sha256": "4afd1e5285d6d5024779dc6cf627d53ebb1a3cba335a3ae68736360c06c9bcfa",
+      "evidence_zip_sha256": "bda65b79759e115ce28f7c9fcecc18cf35426f030007d4ea72ebcd73ea8c20bc",
+      "frame_sha256": "33e79f5d3994bf73e967ab778456bed586c6daac7c718973c6e9f12b44a2bca4",
+      "observations": {
+        "adc_v11": {
+          "voltage_mv": 1000.0,
+          "initial_voltage": "1.0",
+          "initial_raw": 2623,
+          "expected_raw_default": 2623,
+          "gain_raw": "5246",
+          "rate_raw": "1311",
+          "final_voltage": "1.0",
+          "qom": {
+            "voltage-mv": 1000,
+            "adc-raw": 1311,
+            "config-word": 149,
+            "transactions": 21,
+            "read-bytes": 32
+          }
+        }
+      },
+      "boundaries": [
+        "The official page contradicts itself (ADS1100 vs ADS1110, 8/16/32/128 vs 15/30/60/240 SPS, internal 2.048V vs VDD reference); those remain UNRESOLVED.",
+        "ADS1100 compatibility is NOT verified; 0x48 conflicts with the planned ameter (ADS1115) Unit.",
+        "Physical voltage accuracy, PGA error and divider tolerance are NOT RUN; the fixture mapping follows the master driver formula."
+      ]
+    }
+  ]
+}

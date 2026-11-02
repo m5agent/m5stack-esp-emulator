@@ -5446,9 +5446,11 @@
       }
     },
     "joystick": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 maps the U024 'joystick' id onto the existing CONTROL_JOYSTICK 0x52 3-byte snapshot (x-raw/y-raw/button-raw) but no guest/Device Service evidence is recorded, so admission stays planned. The original U024 MCU/firmware identity and button polarity remain unresolved; 0x52 conflicts with the registered joystick-v11 (one Unit per bus); mechanical travel/potentiometer linearity are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen JoystickUnit on CoreS3 at 0x52: injected x-raw/y-raw/button-raw read back by get_x_raw()/get_y_raw()/get_button_status() and by QOM. Only this host/firmware combination is admitted; the shared CONTROL_JOYSTICK model exposes button-raw as 0/1, so the U024 raw-byte polarity/full 0..255 range remains unresolved; 0x52 conflicts with joystick-v11 (one per bus); mechanical travel/potentiometer linearity are NOT RUN.",
       "inputs": {
         "x-raw": {
           "property": "x-raw"
@@ -5485,12 +5487,37 @@
         "button-raw": {
           "property": "button-raw"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-joystick.json",
+        "report_sha256": "f207e737e92824b9e40a7f0e2c46973b2b192627a48d90bc86950c225d189204",
+        "evidence_sha256": "1bb3a65d4354b9fc41b27b3b37d0ea14ede668a4fe053e2208a05d8959fe2920",
+        "firmware_sha256": "690c41387da5dfb8d38a87bf836057371ffb8f9b99380086b01fd95e76e93cc7",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "83fbd0209a7d677d5b626dcb1ce9095a209fbf0acff52f7e6a97af721ec85f6a",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "watering": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling via the controller hook -> analog-mv/adc-samples; yellow PUMP_EN pad output listener -> pump-level/pump-transitions) but no guest/Device Service evidence is recorded, so admission stays planned. The initial PUMP_EN level is treated as low until the guest drives the pad; pump electrical/head/flow and soil-moisture physics are NOT RUN; ADC 11DB full-scale/calibration remains unresolved.",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen WateringUnit on AtomS3R: analog-mv fixture tracked by get_raw() through the SoC ADC controller, and on()/off()/set_pump() PUMP_EN writes observed via pump-level/pump-transitions with zero I2C transactions. Only this host/firmware combination is admitted; pump electrical/head/flow and soil-moisture physics are NOT RUN; read_uv()/get_voltage() need the S3 ADC calibration fixture (NOT RUN) and the 11DB full-scale is UNRESOLVED.",
       "inputs": {
         "analog-mv": {
           "property": "analog-mv"
@@ -5524,12 +5551,37 @@
         "pump-transitions": {
           "property": "pump-transitions"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-watering.json",
+        "report_sha256": "c386932a463533da65341b6fa082f280437038196ce8721563b59bb546359496",
+        "evidence_sha256": "a76d71b3a4253789fd86cd8c57606961668dfa41205bc9125794669e6e6b09c8",
+        "firmware_sha256": "e0943544ebfd6e99fdcd3ce4fb9e90775f90749122444e2e8034d65035fd93c9",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "116019e2aa2bbc4ae82376ea38311cd6c2fb4f3a29d636d6d0f5034d0d2f983a",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "fader": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling -> analog-mv/adc-samples; yellow RMT capture of 14 SK6812 LEDs -> led-rgb/led-frames/incomplete-frames) but no guest/Device Service evidence is recorded, so admission stays planned. The neopixel snapshot-vs-master set_brightness() divergence must be pinned to one driver SHA; RMT timing tolerance, palette mechanics, potentiometer linearity and LED optics are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen FaderUnit on AtomS3R: analog-mv fixture tracked by get_raw(), and update_color()/update_brightness() SK6812 frames captured as 14-led G,R,B bytes matching the guest buffer exactly with no incomplete frames. Only this host/firmware combination is admitted; the frozen neopixel set_brightness() semantics are captured verbatim (last brightness frame wraps/scales to zero for high raw), so a different driver SHA may differ; LED optics, palette perception, RMT timing tolerance and potentiometer mechanics are NOT RUN.",
       "inputs": {
         "analog-mv": {
           "property": "analog-mv"
@@ -5566,12 +5618,37 @@
         "incomplete-frames": {
           "property": "incomplete-frames"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-fader.json",
+        "report_sha256": "233cd3b6f8267d48fd0b6f1efc935aaa93834ea4cf6c768c11430d9be9fd2455",
+        "evidence_sha256": "6c484e3a5514edab76d21e04e8745c82103c2901fa3ba8aac26cb233d09f9de5",
+        "firmware_sha256": "0ecebf8281ad6aea0e839994c01f9abb0cf6b9f8afd3695ff8399f6ad16a33aa",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "26a8bd49eea342bb80e0875a761041abe54076fbe6a33fa479b3c911886de544",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "dac": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 adds a bare-command CONTROL_DAC at 0x60 (2-byte fast-mode writes, 3-byte [ready,val>>4,(val&0xf)<<4] reads, EEPROM commands counted) but no guest/Device Service evidence is recorded, so admission stays planned. EEPROM retention/endurance and the physical 0..3.3V output range are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and remains UNRESOLVED.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen DACUnit (MCP4725) on CoreS3 at 0x60: set_raw_value/set_voltage/get_raw_value/get_voltage/save_to_eeprom round-trips with QOM dac-raw/eeprom-value/eeprom-writes/dac-voltage-v. Guest evidence required the 0127 fix (the official driver writes a full 3-byte buffer even for a fast-mode update; merged 0125 initially NACKed it). Only this host/firmware combination is admitted; EEPROM retention/endurance and the physical 0..3.3V output are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and the output reference is UNRESOLVED.",
       "inputs": {
         "dac-raw": {
           "property": "dac-raw"
@@ -5605,12 +5682,37 @@
         "eeprom-writes": {
           "property": "eeprom-writes"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-dac.json",
+        "report_sha256": "3db8516b92c3b927d6764ff00a384493215e86518edf0f8ab657360c88283a14",
+        "evidence_sha256": "9850a4aa77da889dce7e0a05e78e721643c5b6beaa7477f73f332ec12c7005fc",
+        "firmware_sha256": "9462ccf76e3765d49f45e9ea6d0a8b94f31490d62a16cfec8e8a8a7448dad7de",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "84d2c3311c0b2b93746ab7c4acd927f91f08d51a95b918039cae284d847ec963",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "bps": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 adds a US_BMP280 register-file kind at 0x76 (chip id 0x58, reset/status/control/config, fixed synthetic 24-byte calibration, 0xF7 data inverse-compensated from temperature-c/pressure-pa) but no guest/Device Service evidence is recorded, so admission stays planned. The QMP6988 fallback (U090-B 0x56 / driver 0x70 vs env-iii 0x70) is NOT modeled and remains unresolved; sea-level altitude is a driver assumption, not a measurement; datasheet compensation was not independently reviewed.",
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen BPSUnit on StickS3 at 0x76: the model's inverse-compensated 0xF7 data registers make the guest's own compensation reproduce temperature-c/pressure-pa fixtures (25.0C/1013.25hPa then 10.5C/950hPa) and the driver altitude formula. Only this host/firmware combination is admitted; QMP6988/U090-B variants and the scan()[0] probe order are NOT modeled; the synthetic 24-byte calibration is not a real device calibration; altitude uses the driver's 101325 Pa sea-level assumption; physical pressure accuracy/datasheet compensation review are NOT RUN.",
       "inputs": {
         "temperature-c": {
           "property": "temperature-c"
@@ -5641,12 +5743,37 @@
         "pressure-pa": {
           "property": "pressure-pa"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-bps.json",
+        "report_sha256": "5d81d86dbd6df59a389692a5ab1a48a229bbe824fdef6327cbe0066457409efb",
+        "evidence_sha256": "31f3db730dfb2927f02ec81eeeda6d6c66295f6da760483c30c4253cdb8815b1",
+        "firmware_sha256": "ad2ed9f7489995f41b33510d767c8c4b8822bac7dd058fd8aba8e3aab036e9e8",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "152f5f20c30461100fd1b3741f6d66f88c7be55df0e58dc58bdc4d2037cc6c1b",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "adc-v11": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0125 adds a US_ADS1110 slave at 0x48 (single config byte, 2-byte big-endian signed reads, raw derived from voltage-mv with the master driver's mini-code/gain/divider formula) but no guest/Device Service evidence is recorded, so admission stays planned. The official page contradicts itself (ADS1100 vs ADS1110, SPS set, internal 2.048V vs VDD reference) and those stay unresolved; 0x48 conflicts with ameter (next batch); the snapshot get_voltage() bug requires anchoring the master-fixed driver.",
+      "status": "implemented",
+      "hosts": [
+        "stopwatch"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; ADS1100-vs-ADS1110, SPS set and internal-2.048V-vs-VDD reference contradictions remain UNRESOLVED; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
       "inputs": {
         "voltage-mv": {
           "property": "voltage-mv"
@@ -5677,6 +5804,29 @@
         "config-word": {
           "property": "config-word"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2/report-adc-v11.json",
+        "report_sha256": "4afd1e5285d6d5024779dc6cf627d53ebb1a3cba335a3ae68736360c06c9bcfa",
+        "evidence_sha256": "bda65b79759e115ce28f7c9fcecc18cf35426f030007d4ea72ebcd73ea8c20bc",
+        "firmware_sha256": "6818b2eef950a6ed7f9ab726540ecb21d8ee001d72dcc7fc1c8fbf08b2f76670",
+        "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+        "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "1ef3d3fd1a4c014a41ac80ca7a31c98ec0909362e88b6b67f513e3c13c2f75f4",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0127-unit-dac-fast-mode-write.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     }
   },

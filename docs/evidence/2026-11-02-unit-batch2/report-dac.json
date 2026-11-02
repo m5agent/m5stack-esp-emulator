@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:07:37.413325+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "dac",
+  "driver_class": "DACUnit(MCP4725)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_raw_roundtrip": true,
+    "guest_voltage_follows_driver_vdd": true,
+    "guest_eeprom_write_observed": true,
+    "qom_raw_after_guest_write": true,
+    "qom_eeprom_value": true,
+    "qom_eeprom_writes": true,
+    "qom_voltage_matches_driver_default": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "9462ccf76e3765d49f45e9ea6d0a8b94f31490d62a16cfec8e8a8a7448dad7de",
+  "firmware_id": "9462ccf76e3765d49f45e9ea6d0a8b94f31490d62a16cfec8e8a8a7448dad7de",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "df23fa16baea37135c8683f9a81a5364b270fc446a52c3fc97a581295db5e517",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "486539ed6b344322906f9d1cdc3ab27e",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "dac",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "dac": {
+      "guest_raws": [
+        2048,
+        819,
+        1024
+      ],
+      "guest_eeprom": [
+        819
+      ],
+      "guest_voltage": 1.0,
+      "qom": {
+        "dac-raw": 1024,
+        "dac-voltage-v": 1.2503052503052503,
+        "eeprom-value": 819,
+        "eeprom-writes": 1
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:07:39.921018+08:00",
+      "properties": {
+        "transactions": 11,
+        "read-bytes": 19,
+        "written-bytes": 12,
+        "input-events": 0,
+        "output-transitions": 0,
+        "dac-raw": 1024,
+        "dac-voltage-v": 1.2503052503052503,
+        "eeprom-value": 819,
+        "eeprom-writes": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:39.921018+08:00",
+      "properties": {
+        "transactions": 11,
+        "read-bytes": 19,
+        "written-bytes": 12,
+        "input-events": 0,
+        "output-transitions": 0,
+        "dac-raw": 1024,
+        "dac-voltage-v": 1.2503052503052503,
+        "eeprom-value": 819,
+        "eeprom-writes": 1
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "dac": "0\r\nE (1046) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_START dac\nE (1400) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_READY dac\nI2C_DAC_RAW 2048\nI2C_DAC_RAW 819\nI2C_DAC_VOLTAGE 1.0\nI2C_DAC_EEPROM 819\nI2C_DAC_RAW 1024\nI2C_DAC_END\n"
+  },
+  "frame": {
+    "sha256": "f3d52b1146fb929c6ef40519c68da0275bde7ecd46afb807b0e0317673ac592c",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "9850a4aa77da889dce7e0a05e78e721643c5b6beaa7477f73f332ec12c7005fc",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "EEPROM retention/endurance and the physical 0..3.3V analog output are NOT modeled; eeprom-value/eeprom-writes are model state, not non-volatile measurement.",
+    "dac-voltage-v uses the driver default vdd=5.0V; the output range/reference remains UNRESOLVED.",
+    "Guest evidence required the 0127 fix: the official driver writes its full 3-byte buffer even for a 2-byte fast-mode update, which the merged 0125 model initially NACKed."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

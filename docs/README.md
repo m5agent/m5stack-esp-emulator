@@ -106,6 +106,9 @@ Unit 第二批 12 款（`joystick`/`dac`/`watering`/`fader`/`bps`/`env`/`adc-v11
 [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md)；catalog 草稿见同目录 batch2 JSON，全部 planned。
 C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md)。
+Unit 第二批前 6 款（`joystick`/`watering`/`fader`/`dac`/`bps`/`adc-v11`）的
+GPIO/ADC/RMT 与 I2C 数据面证据见
+[Unit 第二批前 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2/README.md)。
 
 ## 首页与维护入口
 
@@ -190,6 +193,7 @@ C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 | [Unit 第一批 A 类虚拟设备证据](evidence/2026-11-02-unit-batch1/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ssr`(cores3)/`earth`(atoms3r)/`hall`(sticks3)/`reflective-ir`(stopwatch)/`vibrator`(cores3) 各一个可见会话，原固件冻结驱动经真实 GPIO/ADC/LEDC 控制器产生或观测数据；`earth` 的 read_uv/humidity 与 `vibrator` 的 Haptic one-shot completion 未观测，电气/光学/机械/磁场语义均未验 |
 | [Unit 第一批 B 类虚拟设备证据](evidence/2026-11-02-unit-bclass/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `dlight`(atoms3r)/`accel`(sticks3)/`4relay`(cores3)/`weight-i2c`(stopwatch) 各一个可见会话，原固件冻结 I2C 驱动经真实 SoC I2C 控制器读写；0119 的 BH1750 命令掩码 bug 由 0120 修复后全部通过；4relay 触点/负载、dlight 光学/MTreg、accel 物理量程/DEVID、weight 校准/0x60/0x26 冲突与真机均未验 |
 | [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ncir2`(atoms3r)/`extio2`(sticks3)/`hbridge`(cores3) 各一个可见会话，原固件冻结 I2C 驱动经真实 SoC I2C 控制器读写；ncir2 温度/编码上限饱和（+327.67°C）与 0x5A 冲突、extio2 ADC/舵机/RGB 单位 unresolved、hbridge 0x30 v1.1/电机电气与真机均未验 |
+| [Unit 第二批前 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `joystick`(cores3)/`watering`(atoms3r)/`fader`(atoms3r)/`dac`(cores3)/`bps`(sticks3)/`adc-v11`(stopwatch) 各一个可见会话，原固件冻结驱动经真实 ADC/RMT/GPIO 或 I2C 控制器读写；0125 的 MCP4725 3 字节 fast-mode bug 由 0127 修复后全部通过；joystick 原始字节/机械、watering 水泵/土壤物理、fader LED 光学、dac EEPROM/输出参考、bps QMP6988/物理气压、adc-v11 ADS1100 分歧与真机均未验 |
 | [M5Stick 主机接入](evidence/2026-11-02-m5stick-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5stick`：EasyLoader FactoryTest 4MB 镜像确定性 icount 启动到原生串口 `mpu9250 addr: FF`；SH1107 初始化命令流+4096 字节 GDDRAM；工厂固件 legacy I2C FIFO 未闭环，MPU9250/IP5306/GPIO35 模型由 generic MicroPython fixture 取证；AK8963/DMP、最终 UI 帧、buzzer/IR/LED 与物理行为未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomu` 的官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060/5 帧）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验；固件为固定 SHA 官方 GitHub release 资产 |
