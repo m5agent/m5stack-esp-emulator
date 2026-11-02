@@ -1,6 +1,6 @@
-From 999be4edfa5dbd75aeee512174162a1d4644c3e5 Mon Sep 17 00:00:00 2001
+From e5a4bb83d4a088742c68dd99cdb53fc2aa32ce81 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 03:24:56 +0800
+Date: Tue, 3 Nov 2026 03:38:43 +0800
 Subject: [PATCH] hw/m5stopwatch: fix Unit LCD read-after-command transaction
 
 The frozen reference-firmware LCDUnit init writes READ_ID/READ_BUFCOUNT as one
@@ -10,12 +10,18 @@ phase fell back to a zero-length response and the guest driver aborted with
 OSError("LCD Unit init failed"). Keep using the last-command log for the read
 phase; the LCD session then passes READ_ID and the subsequent framebuffer
 commands.
+
+Base in the reconciled canonical order is the 33-layer chain through 0152
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0148, 0149,
+0150, 0151 and 0152); this is the 34th layer after 0120 and it applies at the
+chain end.
 ---
  hw/m5stopwatch/m5_unit_i2c_controls.c | 22 +++++++++++++---------
  1 file changed, 13 insertions(+), 9 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index 0c6b81b..98a03af 100644
+index 13c9421..9af8b1a 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
 @@ -2266,15 +2266,19 @@ static int control_event(I2CSlave *dev, enum i2c_event event)

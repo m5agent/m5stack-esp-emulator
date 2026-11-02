@@ -36,7 +36,7 @@ class UnitBatch9aPatchTests(unittest.TestCase):
     def test_patch_base_is_the_28_layer_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0149-unit-batch9a.patch", readme)
-        self.assertIn("33 layers", readme)
+        self.assertIn("34 layers", readme)
         self.assertIn("0148", readme)
 
     def test_glass_internal_firmware_is_unresolved(self):
