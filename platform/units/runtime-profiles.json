@@ -10425,12 +10425,166 @@
       }
     },
     "mini-imu-pro": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers frozen generic BMI270 0x68 accel/gyro/temp + BMP280 0x76 pressure only. BMM150 aux/init blob/range/motion/magnetic/attitude physics NOT RUN; magnetic QOM fixtures are not asserted; 0x68/0x76 conflicts with mini-imu/env families.",
       "bindings_required": [],
-      "notes": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
+      "notes": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
+      "inputs": {
+        "acceleration-x": {
+          "property": "acceleration-x"
+        },
+        "acceleration-y": {
+          "property": "acceleration-y"
+        },
+        "acceleration-z": {
+          "property": "acceleration-z"
+        },
+        "gyroscope-x": {
+          "property": "gyroscope-x"
+        },
+        "gyroscope-y": {
+          "property": "gyroscope-y"
+        },
+        "gyroscope-z": {
+          "property": "gyroscope-z"
+        },
+        "magnetic-x": {
+          "property": "magnetic-x"
+        },
+        "magnetic-y": {
+          "property": "magnetic-y"
+        },
+        "magnetic-z": {
+          "property": "magnetic-z"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "acceleration-x": {
+          "property": "acceleration-x"
+        },
+        "acceleration-y": {
+          "property": "acceleration-y"
+        },
+        "acceleration-z": {
+          "property": "acceleration-z"
+        },
+        "gyroscope-x": {
+          "property": "gyroscope-x"
+        },
+        "gyroscope-y": {
+          "property": "gyroscope-y"
+        },
+        "gyroscope-z": {
+          "property": "gyroscope-z"
+        },
+        "magnetic-x": {
+          "property": "magnetic-x"
+        },
+        "magnetic-y": {
+          "property": "magnetic-y"
+        },
+        "magnetic-z": {
+          "property": "magnetic-z"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "whoami": {
+          "property": "whoami"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-mini-imu-pro.json",
+        "report_sha256": "91063186edfc19c7df70f332f4af7c311056e8e7ef30b837c6eb7c2ecc70aa4f",
+        "evidence_sha256": "8493becc96c89204f188bd60fe77e5f67930ec452dfd846859659d450b2e42b2",
+        "firmware_sha256": "0e4d6a47673c1c11976ec5b66d56b5cf8698f5885d86b22652aefedcea0f8489",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+        "firmware_flavor": "reference-firmware-raw-uart-i2c-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "132d54317a4da6cddd8a8d9ccd03a8900ebf3e12237523c20eaa1af6cb1433ef",
+        "patches": [
+          "0100-esp32-qio-flash-model-header.patch",
+          "0101-stackchan-scs-motion-observer.patch",
+          "0102-board-power-lifecycle.patch",
+          "0103-classic-touch-measurement.patch",
+          "0104-classic-gpio-rtc-sleep.patch",
+          "0105-stackchan-scs-uart-wiring.patch",
+          "0106-s3-qio-flash-model-header.patch",
+          "0107-stackchan-scs-command-edges.patch",
+          "0108-s3-soft-i2c-reset-handoff.patch",
+          "0109-uart-rxfifo-reset.patch",
+          "0110-atoms3u-board.patch",
+          "0111-atom-voices3r-board.patch",
+          "0112-atoms3r-cam-board.patch",
+          "0113-basic-v27-board.patch",
+          "0114-unit-gpio-batch1.patch",
+          "0115-atoms3r-cam-sccb.patch",
+          "0116-atomu-board.patch",
+          "0117-atomecho-board.patch",
+          "0118-camera-geometry-stream.patch",
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch",
+          "0161-unit-batch12c-chain-frames.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "pahub-v21": {
       "status": "implemented",
@@ -14004,15 +14158,23 @@
       }
     },
     "8servos2-chain": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers raw UART AA55 Chain frames (device type 0x000C): set/get modes, angles, ADC, RGB and current. No public Unit driver (driver-gap); cascade topology, servo PWM/mechanical, 9-24V power and INA199 electrical behavior NOT RUN; PORT.C substituted by cores3 PORT.A harness.",
       "bindings_required": [],
       "notes": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
         "channel-modes": {
           "property": "channel-modes"
+        },
+        "adc-values": {
+          "property": "adc-values"
+        },
+        "current-ma": {
+          "property": "current-ma"
         }
       },
       "state": {
@@ -14037,13 +14199,91 @@
         "frames-injected": {
           "property": "frames-injected"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-8servos2-chain.json",
+        "report_sha256": "71a66fc89ad82542637869b702a47882353887012ca0757e44d33f47cdbbab4b",
+        "evidence_sha256": "b743694c3f523ea2f7a87949a828048ac47fecbe0f1db06a478e6a8dd6f45848",
+        "firmware_sha256": "3b1fe77ec918115a9f5122a91f2afb3ee0ead207db03836113516539095eb751",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+        "firmware_flavor": "reference-firmware-raw-uart-i2c-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "039f3f75521b7cc0636b59f459398c3fbbfc00781ecd5b1b056e33728421477d",
+        "patches": [
+          "0100-esp32-qio-flash-model-header.patch",
+          "0101-stackchan-scs-motion-observer.patch",
+          "0102-board-power-lifecycle.patch",
+          "0103-classic-touch-measurement.patch",
+          "0104-classic-gpio-rtc-sleep.patch",
+          "0105-stackchan-scs-uart-wiring.patch",
+          "0106-s3-qio-flash-model-header.patch",
+          "0107-stackchan-scs-command-edges.patch",
+          "0108-s3-soft-i2c-reset-handoff.patch",
+          "0109-uart-rxfifo-reset.patch",
+          "0110-atoms3u-board.patch",
+          "0111-atom-voices3r-board.patch",
+          "0112-atoms3r-cam-board.patch",
+          "0113-basic-v27-board.patch",
+          "0114-unit-gpio-batch1.patch",
+          "0115-atoms3r-cam-sccb.patch",
+          "0116-atomu-board.patch",
+          "0117-atomecho-board.patch",
+          "0118-camera-geometry-stream.patch",
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch",
+          "0161-unit-batch12c-chain-frames.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "cat1-cn": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers ML307R-DL AT command/response bytes: AT/ATE0/CPIN?/CREG?/CSQ/CGSN/CGMM. No public Unit driver (driver-gap); cellular RF/SIM/PDP/network/TLS/HTTP/MQTT and identity authenticity NOT RUN; PORT.C substituted.",
       "bindings_required": [],
       "notes": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
@@ -14064,18 +14304,102 @@
         "frames-injected": {
           "property": "frames-injected"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-cat1-cn.json",
+        "report_sha256": "e38f8681584ca6eb28fd05fe170d46f27077c68bf72445433e3c2e8039a453d6",
+        "evidence_sha256": "cb4e55562b8b4a0d0dc0f2534d24004c5eb7fff4518f2d5d8323f1008c826bd5",
+        "firmware_sha256": "0162397ca202ad2cf94815f12f74f2898a744fa0ad30e03854c806f6ec11679a",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+        "firmware_flavor": "reference-firmware-raw-uart-i2c-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "5e55f32b0cd6bb3354bbeabc3224e93f60b3e46cabfa176000fea81a6e270f43",
+        "patches": [
+          "0100-esp32-qio-flash-model-header.patch",
+          "0101-stackchan-scs-motion-observer.patch",
+          "0102-board-power-lifecycle.patch",
+          "0103-classic-touch-measurement.patch",
+          "0104-classic-gpio-rtc-sleep.patch",
+          "0105-stackchan-scs-uart-wiring.patch",
+          "0106-s3-qio-flash-model-header.patch",
+          "0107-stackchan-scs-command-edges.patch",
+          "0108-s3-soft-i2c-reset-handoff.patch",
+          "0109-uart-rxfifo-reset.patch",
+          "0110-atoms3u-board.patch",
+          "0111-atom-voices3r-board.patch",
+          "0112-atoms3r-cam-board.patch",
+          "0113-basic-v27-board.patch",
+          "0114-unit-gpio-batch1.patch",
+          "0115-atoms3r-cam-sccb.patch",
+          "0116-atomu-board.patch",
+          "0117-atomecho-board.patch",
+          "0118-camera-geometry-stream.patch",
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch",
+          "0161-unit-batch12c-chain-frames.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "chainbus": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers raw UART AA55 ChainBus frames (device type 0x0006): device info, brightness, GPIO, ADC, work status and I2C-forward fail-closed status 0. No public Unit driver (driver-gap); topology/heartbeat/physical behavior NOT RUN; PORT.C substituted.",
       "bindings_required": [],
       "notes": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
         "chain-uid": {
           "property": "chain-uid"
+        },
+        "gpio-levels": {
+          "property": "gpio-levels"
+        },
+        "adc-values": {
+          "property": "adc-values"
         }
       },
       "state": {
@@ -14106,6 +14430,82 @@
         "frames-injected": {
           "property": "frames-injected"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-chainbus.json",
+        "report_sha256": "0926a0443a4a18c472a12015ccba6219b86690c433499702064f823dae0ff7a2",
+        "evidence_sha256": "093008de688a815855306c7e9b0e41d6c81b0b39baf61f5108c95d780a1e6586",
+        "firmware_sha256": "7303abc17b7fc07ed942d751cdc435a571a89f46a82aefcd442b83381bcf0c9f",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+        "firmware_flavor": "reference-firmware-raw-uart-i2c-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "57545f1bc0005256bdb0097760fbd695ace7bc4aaee3027479356866ee61da29",
+        "patches": [
+          "0100-esp32-qio-flash-model-header.patch",
+          "0101-stackchan-scs-motion-observer.patch",
+          "0102-board-power-lifecycle.patch",
+          "0103-classic-touch-measurement.patch",
+          "0104-classic-gpio-rtc-sleep.patch",
+          "0105-stackchan-scs-uart-wiring.patch",
+          "0106-s3-qio-flash-model-header.patch",
+          "0107-stackchan-scs-command-edges.patch",
+          "0108-s3-soft-i2c-reset-handoff.patch",
+          "0109-uart-rxfifo-reset.patch",
+          "0110-atoms3u-board.patch",
+          "0111-atom-voices3r-board.patch",
+          "0112-atoms3r-cam-board.patch",
+          "0113-basic-v27-board.patch",
+          "0114-unit-gpio-batch1.patch",
+          "0115-atoms3r-cam-sccb.patch",
+          "0116-atomu-board.patch",
+          "0117-atomecho-board.patch",
+          "0118-camera-geometry-stream.patch",
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch",
+          "0161-unit-batch12c-chain-frames.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     }
   },

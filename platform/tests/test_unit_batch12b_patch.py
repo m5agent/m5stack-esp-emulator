@@ -77,17 +77,23 @@ class UnitBatch12bPatchTests(unittest.TestCase):
         self.assertIn("0x000c", self.text)
         self.assertIn("0x0006", self.text)
 
-    def test_catalog_partial_but_profiles_planned(self):
+    def test_catalog_partial_and_profiles_evidence_state(self):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
-        for unit_id in UNITS:
+        # Chain/Cat1 UART responders were promoted by batch-12c guest evidence.
+        for unit_id in UART_UNITS:
+            unit, profile = self.units[unit_id], self.profiles[unit_id]
+            self.assertEqual(unit["model_status"], "partial", unit_id)
+            self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            self.assertIn("virtual_device_evidence", profile, unit_id)
+        for unit_id in SENSOR_UNITS + ROLLER_UNITS:
             unit, profile = self.units[unit_id], self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "partial", unit_id)
             self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
             self.assertTrue(unit["runtime"]["properties"], unit_id)
             self.assertIn("无 guest 证据", unit["blocker"], unit_id)
-            # No guest/Device Service evidence means the host-facing profile
-            # stays planned and host-less (never promoted to implemented).
             self.assertEqual(profile["status"], "planned", unit_id)
             self.assertEqual(profile["hosts"], [], unit_id)
             self.assertNotIn("virtual_device_evidence", profile, unit_id)

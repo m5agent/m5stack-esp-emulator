@@ -23856,9 +23856,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "acceleration-x": {
@@ -23927,14 +23927,15 @@
             "type": "integer"
           }
         },
-        "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
+        "blocker": "Guest evidence covers frozen generic BMI270 0x68 accel/gyro/temp + BMP280 0x76 pressure only. BMM150 aux/init blob/range/motion/magnetic/attitude physics NOT RUN; magnetic QOM fixtures are not asserted; 0x68/0x76 conflicts with mini-imu/env families."
       },
       "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
       "limitations": [
         "BMM150 0x10 is behind BMI270 aux, not a direct Grove address; QEMU needs aux window emulation.",
         "0x68/0x76 address conflicts; one Unit per bus only.",
         "Acceleration/gyroscope/magnetometer/attitude and magnetic interference are NOT RUN.",
-        "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
+        "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-mini-imu-pro.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
       ]
     },
     {
@@ -33340,6 +33341,38 @@
           },
           "minItems": 8,
           "maxItems": 8
+        },
+        "adc-values": {
+          "type": "array",
+          "label": "8 通道 ADC fixture",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "current-ma": {
+          "type": "number",
+          "label": "总电流 fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 5000
         }
       },
       "outputs": {
@@ -33515,13 +33548,14 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
+        "blocker": "Guest evidence covers raw UART AA55 Chain frames (device type 0x000C): set/get modes, angles, ADC, RGB and current. No public Unit driver (driver-gap); cascade topology, servo PWM/mechanical, 9-24V power and INA199 electrical behavior NOT RUN; PORT.C substituted by cores3 PORT.A harness."
       },
       "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
         "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-8servos2-chain.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -33704,13 +33738,14 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
+        "blocker": "Guest evidence covers ML307R-DL AT command/response bytes: AT/ATE0/CPIN?/CREG?/CSQ/CGSN/CGMM. No public Unit driver (driver-gap); cellular RF/SIM/PDP/network/TLS/HTTP/MQTT and identity authenticity NOT RUN; PORT.C substituted."
       },
       "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
         "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-cat1-cn.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -33823,6 +33858,40 @@
           "default": "0000000000000000",
           "default_source": "synthetic-test-fixture",
           "readOnly": false
+        },
+        "gpio-levels": {
+          "type": "array",
+          "label": "2 路 GPIO 输入 fixture",
+          "default": [
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "adc-values": {
+          "type": "array",
+          "label": "4 路 ADC fixture",
+          "default": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          },
+          "minItems": 4,
+          "maxItems": 4
         }
       },
       "outputs": {
@@ -33988,13 +34057,14 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
+        "blocker": "Guest evidence covers raw UART AA55 ChainBus frames (device type 0x0006): device info, brightness, GPIO, ADC, work status and I2C-forward fail-closed status 0. No public Unit driver (driver-gap); topology/heartbeat/physical behavior NOT RUN; PORT.C substituted."
       },
       "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
         "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-chainbus.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null

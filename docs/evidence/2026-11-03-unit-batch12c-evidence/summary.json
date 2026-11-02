@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-12c four Units (Chain x2, Cat1-CN, mini-imu-pro) on the canonical 39-layer chain + 0160 chain-frame fix; all four PASS; not hardware validation.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8823,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; 8787/8799/8801/8802/8803/8831 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 39 layers (0120-0159) + 0161-unit-batch12c-chain-frames"
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "8servos2-chain",
+      "status": "PASS",
+      "driver_class": "raw UART AA55 Chain driver-gap",
+      "firmware_sha256": "3b1fe77ec918115a9f5122a91f2afb3ee0ead207db03836113516539095eb751",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+      "session_id": "6d66b924b5a54b1cbe29e2ebd49fb755",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "device_type_0x000c": true,
+        "qom_modes": true,
+        "qom_angles": true,
+        "qom_adc": true,
+        "qom_rgb": true,
+        "qom_current": true,
+        "frames_ge_5": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-8servos2-chain.json",
+      "report_sha256": "71a66fc89ad82542637869b702a47882353887012ca0757e44d33f47cdbbab4b",
+      "evidence_zip_sha256": "b743694c3f523ea2f7a87949a828048ac47fecbe0f1db06a478e6a8dd6f45848",
+      "frame_sha256": "1b91cdae1ffe67743bd1d2b08c8c142207a0fa2a16f0e5f18ac97673afd14b6d",
+      "observations": {
+        "8servos2-chain": {
+          "responses": {
+            "set_mode_ch0_4": "aa5504000110011255aa",
+            "get_modes": "aa550b00011304020301050001022655aa",
+            "set_angle_ch0_90": "aa5504000160016255aa",
+            "get_angles": "aa550b0001635a00000000000000be55aa",
+            "get_adc8": "aa55130001516400650066006700680069006a006b008e55aa",
+            "set_rgb_ch0": "aa5504000174017655aa",
+            "get_rgb8": "aa551b000177112233000000000000000000000000000000000000000000de55aa",
+            "get_current": "aa55050001a37c002055aa"
+          },
+          "qom": {
+            "channel-modes": [
+              4,
+              2,
+              3,
+              1,
+              5,
+              0,
+              1,
+              2
+            ],
+            "servo-angles": [
+              90,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "adc-values": [
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107
+            ],
+            "rgb-leds": [
+              1122867,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "current-ma": 123.5,
+            "frames-sent": 8,
+            "frames-injected": 8
+          },
+          "boundary": "Raw UART AA55 Chain frame responder only; 8Servos2-Chain cascade/PWM/servo/9-24V/current electrical NOT RUN; no public Unit driver (driver-gap); PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "Raw UART AA55 Chain frame responder (device type 0x000C) only; no public Unit driver (driver-gap). Cascade topology, servo PWM/mechanical, 9-24V power, INA199 current electrical behavior NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "chainbus",
+      "status": "PASS",
+      "driver_class": "raw UART AA55 Chain driver-gap",
+      "firmware_sha256": "7303abc17b7fc07ed942d751cdc435a571a89f46a82aefcd442b83381bcf0c9f",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+      "session_id": "c4ab2ea380a1453cbdd9b21e270a1dd9",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "qom_uid": true,
+        "qom_gpio": true,
+        "qom_adc": true,
+        "i2c_forward_fail_closed": true,
+        "frames_ge_5": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-chainbus.json",
+      "report_sha256": "0926a0443a4a18c472a12015ccba6219b86690c433499702064f823dae0ff7a2",
+      "evidence_zip_sha256": "093008de688a815855306c7e9b0e41d6c81b0b39baf61f5108c95d780a1e6586",
+      "frame_sha256": "7c636ec7a6dbce4696f56bae25b3ebf2ce4b315078fc2566eb5ab8f0c7e01357",
+      "observations": {
+        "chainbus": {
+          "responses": {
+            "get_device_type": "aa55050001fb06000255aa",
+            "i2c_forward_fail_closed": "aa5504000111001255aa",
+            "set_brightness_55": "aa5504000122012455aa",
+            "get_brightness": "aa5504000123375b55aa",
+            "set_gpio1_high": "aa5504000131013355aa",
+            "get_gpio1": "aa550500013201013555aa",
+            "get_gpio_in1": "aa550500014101014455aa",
+            "get_adc1": "aa5506000161016f00d255aa",
+            "get_work_status": "aa550500017000007155aa"
+          },
+          "qom": {
+            "chain-uid": "0011223344556677",
+            "version": 1,
+            "link-devices": [
+              "0011223344556677"
+            ],
+            "heartbeat": 0,
+            "i2c-address": 0,
+            "gpio-levels": [
+              true,
+              false
+            ],
+            "adc-values": [
+              111,
+              222,
+              333,
+              444
+            ],
+            "frames-sent": 9,
+            "frames-injected": 9
+          },
+          "boundary": "Raw UART AA55 ChainBus responder only; downstream I2C forwarding fails closed (status 0), Chain topology/heartbeat/GPIO/ADC/NVIC/physical behavior NOT RUN; no public Unit driver (driver-gap); PORT.C substituted."
+        }
+      },
+      "boundaries": [
+        "Raw UART AA55 ChainBus responder (device type 0x0006) only; no public Unit driver (driver-gap). I2C forwarding fails closed with status 0 because no downstream device/register is modeled; topology/heartbeat/GPIO/ADC/NVIC/physical behavior NOT RUN; PORT.C substituted."
+      ]
+    },
+    {
+      "unit_id": "cat1-cn",
+      "status": "PASS",
+      "driver_class": "raw UART AT driver-gap",
+      "firmware_sha256": "0162397ca202ad2cf94815f12f74f2898a744fa0ad30e03854c806f6ec11679a",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+      "session_id": "8ffb5cc37526442b9fb238889eb5ba87",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "at_commands_sent": true,
+        "cpin_ready": true,
+        "creg_ok": true,
+        "csq_response": true,
+        "cgsn_response": true,
+        "qom_tx_at": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-cat1-cn.json",
+      "report_sha256": "e38f8681584ca6eb28fd05fe170d46f27077c68bf72445433e3c2e8039a453d6",
+      "evidence_zip_sha256": "cb4e55562b8b4a0d0dc0f2534d24004c5eb7fff4518f2d5d8323f1008c826bd5",
+      "frame_sha256": "d3aa9d7bb17b440d15e1eb26511f46ba05b715d8264fe5bda39ae21b0082fa77",
+      "observations": {
+        "cat1-cn": {
+          "responses": [
+            [
+              "AT",
+              "0d0a4f4b0d0a"
+            ],
+            [
+              "ATE0",
+              "0d0a4f4b0d0a"
+            ],
+            [
+              "AT+CPIN?",
+              "0d0a2b4350494e3a2052454144590d0a0d0a4f4b0d0a"
+            ],
+            [
+              "AT+CREG?",
+              "0d0a2b435245473a20302c310d0a0d0a4f4b0d0a"
+            ],
+            [
+              "AT+CSQ",
+              "0d0a2b4353513a2039392c39390d0a0d0a4f4b0d0a"
+            ],
+            [
+              "AT+CGSN",
+              "0d0a3836323030303030303030303030300d0a0d0a4f4b0d0a"
+            ],
+            [
+              "AT+CGMM",
+              "0d0a4d4c333037522d444c0d0a0d0a4f4b0d0a"
+            ]
+          ],
+          "qom": {
+            "responses-hex": "4f4b0d0a",
+            "tx-hex": "41540d0a415445300d0a41542b4350494e3f0d0a41542b435245473f0d0a41542b4353510d0a41542b4347534e0d0a41542b43474d4d0d0a",
+            "frames-sent": 7,
+            "frames-injected": 7
+          },
+          "boundary": "ML307R-DL AT byte responder only; cellular RF/SIM/PDP/network/TLS/HTTP/MQTT NOT RUN; no public Unit driver (driver-gap); PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "ML307R-DL AT command/response byte layer only; no public Unit driver (driver-gap). Cellular RF/SIM/PDP/network/TLS/HTTP/MQTT and identity-string authenticity NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "mini-imu-pro",
+      "status": "PASS",
+      "driver_class": "generic BMI270 + BMP280 driver",
+      "firmware_sha256": "0e4d6a47673c1c11976ec5b66d56b5cf8698f5885d86b22652aefedcea0f8489",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "feec1b119051b5d7f101ca124b686c4cba6d62daf572e90240516d9f34caed25",
+      "session_id": "b880356048254173870336d0724b3282",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_accel_fixture": true,
+        "guest_gyro_fixture": true,
+        "guest_temp_observation": true,
+        "guest_bmp280_pressure": true,
+        "qom_accel_fixture": true,
+        "qom_gyro_fixture": true,
+        "qom_temp_fixture": true,
+        "qom_pressure_fixture": true,
+        "qom_whoami": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12c-evidence/report-mini-imu-pro.json",
+      "report_sha256": "91063186edfc19c7df70f332f4af7c311056e8e7ef30b837c6eb7c2ecc70aa4f",
+      "evidence_zip_sha256": "8493becc96c89204f188bd60fe77e5f67930ec452dfd846859659d450b2e42b2",
+      "frame_sha256": "8c98a18cbf030035ca614931913b36d8739e8cb634804c2b07fb41f1d4c5d0b1",
+      "observations": {
+        "mini-imu-pro": {
+          "guest_accel": "0.125, -0.0625, 0.03125",
+          "guest_gyro": "100.09765, -50.048824, 25.024412",
+          "guest_temp": "25.0",
+          "bmp280_measure": [
+            "25.0",
+            "100499.97"
+          ],
+          "qom": {
+            "acceleration-x": 0.5,
+            "acceleration-y": -0.25,
+            "acceleration-z": 0.125,
+            "gyroscope-x": 100,
+            "gyroscope-y": -50,
+            "gyroscope-z": 25,
+            "temperature-c": 27,
+            "pressure-pa": 100500,
+            "whoami": 36,
+            "transactions": 3134
+          },
+          "boundary": "BMI270 0x68 fixture subset + BMP280 0x76 pressure only via frozen generic drivers; BMM150 aux/init blob/range/motion physics NOT RUN; magnetic QOM fixtures are not asserted; 0x68/0x76 conflicts with mini-imu/env families."
+        }
+      },
+      "boundaries": [
+        "Generic BMI270 0x68 accel/gyro/temp fixture subset + BMP280 0x76 pressure only via frozen drivers; BMM150 aux/init blob/range config/motion and magnetic/attitude physics NOT RUN; magnetic QOM fixtures not asserted; 0x68/0x76 conflicts with mini-imu/env families."
+      ]
+    }
+  ],
+  "optional_mini_bps": {
+    "status": "NOT TESTED / MODEL MISSING",
+    "reason": "mini-bps-v11 remains a planned catalog entry with no QEMU sensor model; a guest raw I2C scan cannot be admitted as a Unit session. QMP6988 0x56 vs 0x70 remains unresolved and requires a model/data-plane decision before evidence."
+  }
+}

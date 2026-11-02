@@ -96,14 +96,19 @@ class UnitBatch7bPatchTests(unittest.TestCase):
             self.assertIn("0150-unit-batch7-evidence-fixes.patch", evidence["patches"])
 
     def test_blocked_and_deferred_units_keep_planned_contracts(self):
-        for unit_id in ("mini-pdm", "mini-imu-pro"):
-            unit = self.units[unit_id]
-            profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned")
-            self.assertEqual(unit["runtime"]["status"], "planned")
-            self.assertEqual(profile["status"], "planned")
-            self.assertEqual(profile["hosts"], [])
-            self.assertTrue(profile["blocker"])
+        unit = self.units["mini-pdm"]
+        profile = self.profiles["mini-pdm"]
+        self.assertEqual(unit["model_status"], "planned")
+        self.assertEqual(unit["runtime"]["status"], "planned")
+        self.assertEqual(profile["status"], "planned")
+        self.assertEqual(profile["hosts"], [])
+        self.assertTrue(profile["blocker"])
+        # mini-imu-pro was promoted by batch-12c evidence.
+        imu, imu_profile = self.units["mini-imu-pro"], self.profiles["mini-imu-pro"]
+        self.assertEqual(imu["model_status"], "partial")
+        self.assertEqual(imu["runtime"]["status"], "implemented")
+        self.assertEqual(imu_profile["status"], "implemented")
+        self.assertEqual(imu_profile["hosts"], ["cores3"])
 
     def test_0149_evidence_fixes_pin_uart_responder_gaps(self):
         fix = (ROOT / "patches/qemu-m5stack-peripherals/0150-unit-batch7-evidence-fixes.patch").read_text(encoding="utf-8")
