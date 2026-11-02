@@ -15,12 +15,12 @@ EXPECTED = {
     "atoms3r", "nesso-n1", "stamplc",
     "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
     "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
-    "atom-matrix-v11",
+    "atom-matrix-v11", "atoms3u", "atom-echos3r",
 }
 CANDIDATES = {
     "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
     "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
-    "atom-matrix-v11",
+    "atom-matrix-v11", "atoms3u", "atom-echos3r",
 }
 
 

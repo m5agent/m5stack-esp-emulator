@@ -6,6 +6,15 @@ M5StopWatch-QEMU-derived tree; it is **not** applicable after
 `qemu-multi-board-uiflow2/0001`, and the two patches have different images of
 shared files such as `hw/gpio/esp32_gpio.c`.
 
+The reviewed native layer order for the current board set is
+`scripts/qemu-wasm-build/sources.lock.json`; it applies cleanly to the pinned
+`espressif/qemu` commit `40edccac415693c5130f91c01d84176ae6008566` and ends with
+`0109-uart-rxfifo-reset.patch`. `0110-atoms3u-board.patch` adds the AtomS3U K125
+machine and `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine
+on top of that sequence. The older `scripts/bootstrap-unit-runtime.py`
+list is a historical Unit-only receipt and does not contain the `0096`-`0109`
+board layers; do not read it as the current native order.
+
 For a working runtime, use the published macOS arm64 release bundle or the
 target-specific tree described below. Do not reconstruct a clean tree by
 applying both historical branches in sequence.

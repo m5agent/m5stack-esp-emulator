@@ -46,6 +46,14 @@
       "atom-matrix-v11": {
         "reason": "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked.",
         "review_by": "2026-12-31"
+      },
+      "atoms3u": {
+        "reason": "Device-local official UIFlow2 v2.5.4 console boot, M5.getBoard()=138, GPIO41 button reach and original RGB()/GPIO35 RMT frames passed. IR GPIO12, SPM1423 PDM microphone, Grove Unit data planes, USB CDC console and physical behavior remain open.",
+        "review_by": "2026-12-31"
+      },
+      "atom-echos3r": {
+        "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 145, 128x128 panel init and Speaker.begin/tone with non-silent I2S1 TX DMA PCM passed. NS4150B enable, Voice Base IR, microphone, Grove Units, USB CDC and physical behavior remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -3034,6 +3042,142 @@
         {
           "model": "ir-tx-rx",
           "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
+        }
+      ]
+    },
+    "atoms3u": {
+      "board_model": "m5atoms3u",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/AtomS3U"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 41,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "rgb-led",
+          "model": "rgb-led",
+          "gpio": 35,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 12,
+          "status": "planned"
+        },
+        {
+          "id": "microphone",
+          "model": "pdm-microphone",
+          "gpio": [
+            38,
+            39
+          ],
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "Console boot, GPIO41 button reach the guest and the WS2812 RMT path is verified device-locally; broader behavior and physical optics remain open."
+        },
+        {
+          "model": "rgb-led",
+          "reason": "Original RGB() GPIO35 RMT frames are verified device-locally; per-pixel optical output and physical brightness are NOT RUN."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "IR GPIO12 has no same-guest transmit/receive validation on this board."
+        },
+        {
+          "model": "pdm-microphone",
+          "reason": "SPM1423 PDM capture has no controller model; reads stay unavailable instead of synthetic PCM."
+        }
+      ]
+    },
+    "atom-echos3r": {
+      "board_model": "m5atomvoices3r",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/Atom_VoiceS3R"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 41,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "imu",
+          "model": "bmi270",
+          "i2c_address": 104,
+          "status": "partial"
+        },
+        {
+          "id": "magnetometer",
+          "model": "bmm150",
+          "i2c_address": 16,
+          "status": "partial"
+        },
+        {
+          "id": "audio-codec",
+          "model": "es8311",
+          "i2c_address": 24,
+          "status": "partial"
+        },
+        {
+          "id": "microphone",
+          "model": "es8311",
+          "i2c_address": 24,
+          "status": "planned"
+        },
+        {
+          "id": "speaker",
+          "model": "ns4150b",
+          "gpio": 18,
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 47,
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "GPIO41 button reaches the guest model; broader input and physical behavior remain open."
+        },
+        {
+          "model": "bmi270",
+          "reason": "IMU is wired in the shared AtomS3R init but has no device-local vector case for this base; do not inherit AtomS3R results."
+        },
+        {
+          "model": "bmm150",
+          "reason": "BMM150 has no device-local magnetometer case for the VoiceS3R base."
+        },
+        {
+          "model": "es8311",
+          "reason": "Official Speaker.begin/tone reached I2S1 TX DMA and non-silent PCM was captured; microphone capture and physical acoustics remain NOT RUN, and the NS4150B amplifier stage is not an acoustic model."
+        },
+        {
+          "model": "ns4150b",
+          "reason": "Amplifier enable GPIO18 is only a GPIO write in this board init; no analog gain or acoustic output model."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "Voice Base IR GPIO47 has no transmit/receive validation."
         }
       ]
     }

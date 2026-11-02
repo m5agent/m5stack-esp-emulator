@@ -909,6 +909,20 @@
       "matrix": [],
       "external": [],
       "models": []
+    },
+    "atoms3u": {
+      "status": "candidate",
+      "blocker": "Device-local official UIFlow2 v2.5.4 console boot, M5.getBoard()=138, GPIO41 button reach and original RGB()/GPIO35 RMT frames passed; see docs/evidence/2026-11-02-atoms3u-host/summary.json. IR GPIO12, SPM1423 PDM microphone and Grove Unit data planes are not modeled, and the matrix/external case group is not registered.",
+      "matrix": [],
+      "external": [],
+      "models": []
+    },
+    "atom-echos3r": {
+      "status": "candidate",
+      "blocker": "Device-local official firmware boot, board id 145, panel init and speaker PCM passed (docs/evidence/2026-11-02-atom-echos3r-host/summary.json). Microphone, IR, amplifier and Grove Unit data planes are not modeled; no simulated component is covered by this candidate group.",
+      "matrix": [],
+      "external": [],
+      "models": []
     }
   },
   "models": {

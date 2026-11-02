@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atoms3u",
+  "machine": "m5atoms3u",
+  "firmware": {
+    "name": "UIFlow2.0 AtomS3U",
+    "version": "v2.5.4",
+    "firmware_id": "2099000000000000005",
+    "bytes": 8384512,
+    "sha256": "7b8742931a2f88015a3419ba7aee22dfa56abd2c17c742426289a890f715ce1a"
+  },
+  "runtime": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_layers": "scripts/qemu-wasm-build/sources.lock.json through 0109 plus 0110-atoms3u-board",
+    "binary_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+  },
+  "case": {
+    "runner": "tests/uiflow2/run_device_matrix.py --device atoms3u --flash-transport direct",
+    "status": "PASS",
+    "test_image_sha256": "f25500c3b8c5cfa130084c669e7542653f4fe4e383dec384b2e849fd4090d0c3",
+    "serial_markers": ["ATOMS3U_BOOT_FLAG", "ATOMS3U_MAIN_START", "ATOMS3U_M5_BEGIN_OK", "ATOMS3U_BOARD 138", "ATOMS3U_RGB 0x204060"],
+    "board_id": 138
+  },
+  "qom_observations": {
+    "/machine/onboard_io": {"led-frames": 4, "led-rgb": 255, "pressed": "false->true->false", "input-events": 1},
+    "/machine/rmt0": {"tx-completions": 4, "tx-symbols": 96, "tx-errors": 0}
+  },
+  "not_run": [
+    "IR GPIO12 data plane",
+    "SPM1423 PDM microphone capture",
+    "Grove G2/G1 Unit data planes",
+    "USB Type-A/CDC console",
+    "arbitrary third-party firmware",
+    "physical optics, acoustics and electrical behavior"
+  ]
+}

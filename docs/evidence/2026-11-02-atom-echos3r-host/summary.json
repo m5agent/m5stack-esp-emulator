@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atom-echos3r",
+  "machine": "m5atomvoices3r",
+  "firmware": {
+    "name": "UIFlow2.0 Atom VoiceS3R",
+    "version": "v2.5.4",
+    "firmware_id": "1897200000000000775",
+    "bytes": 8384512,
+    "sha256": "9348083af8a30e23bd832822eb81c8af86de8ef0e3f683fbc6c801d78bd6cd7b"
+  },
+  "runtime": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_layers": "scripts/qemu-wasm-build/sources.lock.json through 0109 plus 0110 and 0111",
+    "binary_sha256": "492e7e809a7600b0dcdbeb46eb8893e2a0958da288366e70d9b12e0efd9f4ffd"
+  },
+  "case": {
+    "runner": "tests/uiflow2/run_device_matrix.py --device atom-echos3r --flash-transport direct",
+    "status": "PASS",
+    "test_image_sha256": "079a72e36eae2f2a33541d683d3a65a65c0dfb8c8de109e8926478871fa631bc",
+    "serial_markers": ["VOICES3R_BOOT_FLAG", "VOICES3R_MAIN_START", "VOICES3R_M5_BEGIN_OK", "VOICES3R_BOARD 145", "VOICES3R_SPEAKER_RUNNING 1", "VOICES3R_STATUS ok", "VOICES3R_AUDIO_WINDOW_DONE"],
+    "board_id": 145
+  },
+  "audio": {
+    "path": "official Speaker.begin()/tone(440,900) -> I2S1 TX DMA -> M5SW_I2S_PCM_FILE",
+    "pcm_bytes": 53248,
+    "pcm_nonzero_bytes": 52293,
+    "pcm_sha256": "7dccc5267cb862382178ef6526951e27350307ef605028ef3819a196ccd30c3b"
+  },
+  "not_run": [
+    "NS4150B amplifier enable GPIO18 and acoustic output",
+    "Voice Base IR GPIO47",
+    "MEMS microphone capture",
+    "Grove G2/G1 Unit data planes",
+    "USB Type-C/CDC console",
+    "arbitrary third-party firmware",
+    "physical acoustics, optics and electrical behavior"
+  ]
+}

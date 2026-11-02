@@ -39,7 +39,9 @@
 | Arduino Nesso N1 | ESP32-C6 | `qemu-esp32c6` | ST7789 135x240 / 触摸 | 是 |
 | Core2 | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | ILI9342 320x240 / 触摸 | 是 |
 | Tab5 | ESP32-P4NRW32 + C6 | `esp-emulator-native` | 1280x720 / 固件 touch mailbox | 是，外设 `partial` |
-| CardputerZero | RP3A0 / BCM2837 | `external-linux-arm64` | ST7789v3 320x170 / TCA8418 | 独立后端 |
+| AtomS3U | ESP32-S3FN8 | `qemu-esp32s3` | 无屏 / GPIO41 按键、GPIO35 WS2812、IR G12、PDM 麦克风 | 是，外设 `partial` |
+| Atom VoiceS3R | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、ES8311、NS4150B、IR G47 | 是，外设 `partial` |
+
 
 ## 运行时优先级
 

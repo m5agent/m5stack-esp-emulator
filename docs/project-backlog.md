@@ -729,7 +729,13 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 ### UI-01
 
 当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-24 款有运行登记，其余 14 款仅模型，不能提示连接服务即可运行固件。
+26 款有运行登记，其余 12 款仅模型，不能提示连接服务即可运行固件。
+2026-11-02 起 AtomS3U（`atoms3u` / `m5atoms3u`）是独立运行登记主机：
+官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过，
+IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
+Atom VoiceS3R（`atom-echos3r` / `m5atomvoices3r`）同期接入：原厂固件启动、
+128×128 面板、Speaker/I2S1 DMA 非静音 PCM 限定通过，功放使能 GPIO18、
+Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
 固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
 本轮 AtomS3/Lite、StickC/SE/Plus2 的原生显示或 LED、输入及选定外设已有
 [限定验证](evidence/2026-10-29-expanded-hosts/README.md)，浏览器逐板准入独立维护。
