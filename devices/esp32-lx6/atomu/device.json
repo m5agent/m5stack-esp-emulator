@@ -1,0 +1,75 @@
+{
+  "id": "atomu",
+  "name": "AtomU",
+  "sku": "K117",
+  "group": "esp32-lx6",
+  "category": "atom",
+  "hardware": {
+    "soc": "ESP32-PICO-D4",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 4194304,
+    "psram_bytes": 0,
+    "display": null,
+    "controls": [
+      {
+        "id": "button",
+        "type": "button",
+        "label": "USER",
+        "gpio": 39
+      }
+    ],
+    "sensors": [
+      "rgb-led",
+      "ir",
+      "microphone:spm1423"
+    ],
+    "led_matrix": {
+      "width": 1,
+      "height": 1,
+      "count": 1
+    },
+    "dimensions_mm": [
+      53.0,
+      20.0,
+      10.3
+    ],
+    "weight_g": 8.6
+  },
+  "shell": {
+    "preset": "atom",
+    "accent": "#3b82f6",
+    "screen_scale": 1.05,
+    "body_theme": "white"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": null,
+    "execution": "native-qemu",
+    "blockers": [
+      "Device-local console evidence covers ROM boot, board id 130, RMT SK6812 output, QMP key-driven button and Grove I2C scan only. SPM1423 PDM microphone capture, IR G12, Grove Unit protocols and physical behavior remain unvalidated."
+    ],
+    "validation": {
+      "date": "2026-11-02",
+      "status": "native-boot-board-rgb-button-grove-pass",
+      "detail": "官方 UIFlow2 v2.5.4 AtomU 4MB 镜像在同一 m5atomu guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=130、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读，以及 G26/G32 上 guest I2C 控制器扫描。无屏/无 PSRAM；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
+      "evidence": "docs/evidence/2026-11-02-atomu-host/summary.json",
+      "category": "virtual-device"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.4",
+      "source": "official-github-release",
+      "download_url": "https://github.com/m5stack/uiflow-micropython/releases/download/2.5.4/uiflow-e437118-esp32-4mb-atomu-v2.5.4-20261030.bin",
+      "sha256": "affa252d21f223bbe21cf1767604d345df97b2cb8dd62bc76993588d9bd9eda7"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/atomu",
+  "status_label": "candidate"
+}

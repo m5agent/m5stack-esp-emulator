@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-26",
+  "checked_at": "2026-11-02",
   "scope": "Official host connector wiring; this file does not assert runtime GPIO/I2C/UART controller support.",
   "wire_convention": {
     "yellow": "Named Yellow column in official PinMap; numeric connector pin numbering is deliberately not inferred.",
@@ -727,6 +727,38 @@
           ]
         }
       ]
+    },
+    {
+      "device_id": "atomu",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "PORT.CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 26,
+            "white": 32
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/AtomU",
+              "checked_at": "2026-11-02",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White) PORT.CUSTOM GND 5V G26 G32"
+            }
+          ],
+          "limitations": [
+            "Runtime controller routing and per-Unit protocols are not implied by this wiring entry."
+          ]
+        }
+      ],
+      "unconfirmed": []
     }
   ]
 }

@@ -199,6 +199,46 @@ def build_console_image(device: dict, device_out: Path,
     return image
 
 
+def _check_console_qom(device: dict, qmp, deadline: float
+                       ) -> tuple[bool, dict, str]:
+    """Read QOM values from a live console QEMU after the serial markers.
+
+    Console cases have no display-frame contract, so a controller-level value
+    (for example the decoded RMT RGB chain) is read through QMP with the same
+    guest session that produced the serial markers.  ``min`` is used for
+    monotonic counters, ``expect`` for exact integers.
+    """
+    expectations = device.get("qom_expect") or []
+    if not expectations:
+        return True, {}, ""
+    if qmp is None:
+        return False, {}, "QOM expectations require an injected-input QMP console"
+    remaining = [dict(spec) for spec in expectations]
+    observed: dict[str, object] = {}
+    while True:
+        for spec in list(remaining):
+            reply = qmp.cmd("qom-get", path=spec["path"],
+                            property=spec["property"])
+            value = reply.get("return")
+            try:
+                numeric = int(value)
+            except (TypeError, ValueError):
+                numeric = None
+            if "min" in spec:
+                matched = numeric is not None and numeric >= int(spec["min"])
+            else:
+                matched = numeric is not None and numeric == int(spec["expect"])
+            if matched:
+                observed[f"{spec['path']}.{spec['property']}"] = value
+                remaining.remove(spec)
+        if not remaining:
+            return True, observed, ""
+        if time.time() >= deadline:
+            pending = json.dumps(remaining, ensure_ascii=False)
+            return False, observed, pending
+        time.sleep(0.1)
+
+
 def run_console(
     device: dict,
     backend: dict,
@@ -291,6 +331,8 @@ def run_console(
     expected = device["serial_expect"]
     matched = False
     qmp = None
+    qom_detail = None
+    qom_error = None
     injected = not inputs
     try:
         while time.time() < deadline:
@@ -322,6 +364,13 @@ def run_console(
                     continue
             if all(marker in text for marker in expected):
                 matched = True
+                if device.get("qom_expect"):
+                    qom_ok, qom_observed, pending = _check_console_qom(
+                        device, qmp, deadline
+                    )
+                    qom_detail = qom_observed
+                    if not qom_ok:
+                        qom_error = pending
                 break
             if proc.poll() is not None:
                 break
@@ -341,6 +390,8 @@ def run_console(
             proc.kill()
     text = serial.read_text(errors="replace") if serial.exists() else ""
     missing = [marker for marker in expected if marker not in text]
+    if matched and qom_error is not None:
+        missing.append("QOM validation: " + qom_error)
     pcm_detail = None
     if matched and pcm and pcm_capture:
         pcm_command = [
@@ -391,6 +442,7 @@ def run_console(
                 "flash": flash_info,
                 "rmt_nec": validation.stdout.strip(),
                 **({"pcm": pcm_detail} if pcm_detail else {}),
+                **({"qom": qom_detail} if qom_detail else {}),
             }
         missing.append("RMT validation: " + validation.stdout.strip())
     elif matched and not missing:
@@ -401,6 +453,7 @@ def run_console(
             "output": str(device_out),
             "flash": flash_info,
             **({"pcm": pcm_detail} if pcm_detail else {}),
+            **({"qom": qom_detail} if qom_detail else {}),
         }
     return {
         "status": "FAIL",

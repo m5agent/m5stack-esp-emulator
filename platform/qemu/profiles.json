@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-26",
+  "generated_at": "2026-11-02",
   "note": "QEMU/board adaptation registry. Shell/UI profiles already exist for all devices; this file tracks the virtual-host runtime work.",
   "validation_matrix": {
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "26 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "27 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1760,6 +1760,55 @@
         "status": "native-rgb-button-pass-imu-axis-partial",
         "detail": "固定官方 v2.5.3 在 dc98b0fd 已独立通过启动、25 灯同色 RMT 输出、两次 USER 按键和无 LCD 契约；六轴控制器注入可读回，但原 Imu API 的 X/Z 方向未满足板级轴向检查，不升级为完整 IMU 通过。 新 WASM 3d91c7b1 的独立浏览器上传示例已通过相同固件、真实模型输入、控制器输出或帧像素及完整 Worker 清理；默认参考入口另行取证。",
         "evidence": "docs/evidence/2026-10-29-motion-command-followup/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "atomu",
+      "name": "AtomU",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atomu",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx",
+        "spm1423"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 AtomU 4MB boot, M5.begin() and M5.getBoard()=130 in one m5atomu guest",
+        "Single SK6812 on GPIO27 driven through the ESP32 classic RMT path; QOM decodes the final wire frame as 0x204060 across 5 completed frames",
+        "QMP key:a drives GPIO39 through the board input handler and the guest reports press/release and repaints the LED",
+        "Guest I2C controller scans the Grove G26/G32 bus (only the QEMU machine's built-in tmp105 0x48 is present)"
+      ],
+      "blockers": [
+        "Device-local console evidence covers boot, board id 130, RMT SK6812 output, QMP key-driven button and Grove I2C scan only. PDM microphone capture, IR and Grove Unit protocols remain open; hardware behavior is NOT RUN."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-board-rgb-button-grove-pass",
+        "detail": "官方 UIFlow2 v2.5.4 AtomU 4MB 镜像在同一 m5atomu guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=130、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读，以及 G26/G32 上 guest I2C 控制器扫描。无屏/无 PSRAM；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
+        "evidence": "docs/evidence/2026-11-02-atomu-host/summary.json",
         "category": "virtual-device"
       }
     }

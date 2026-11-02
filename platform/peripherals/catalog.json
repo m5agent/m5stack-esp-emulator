@@ -62,6 +62,10 @@
       "basic-v27": {
         "reason": "Device-local official UIFlow2 console path, display init, A/B/C button injection, IP5306 register data plane and digital speaker PCM pass; IP5306 electrical/battery modeling, power key, microSD, backlight PWM and physical behavior remain open.",
         "review_by": "2026-12-31"
+      },
+      "atomu": {
+        "reason": "Device-local console evidence covers UIFlow2 boot, board id 130, SK6812 RMT output, QMP key-driven GPIO39 input and the Grove I2C controller scan. PDM microphone capture, IR, Grove Unit protocols and physical behavior remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -3355,6 +3359,60 @@
         {
           "model": "sd-card-spi",
           "reason": "The microSD slot (SPI CLK18/MOSI23/MISO19/CS4) is declared from the official PinMap but has no device-local block backend or case."
+        }
+      ]
+    },
+    "atomu": {
+      "board_model": "m5atomu",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/AtomU"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 39,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "rgb-led",
+          "model": "rgb-led",
+          "gpio": 27,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "microphone",
+          "model": "spm1423",
+          "pins": "pdm-clk=5,pdm-data=19",
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 12,
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "QMP-injected key events drive GPIO39 through the board input handler and the guest reports press/release, but physical button feel, debounce and wider input paths remain open."
+        },
+        {
+          "model": "rgb-led",
+          "reason": "The guest RMT path decodes the single SK6812 frame (QOM 0x204060, 5 frames); optical output, color calibration, power and other LED effects are not modelled."
+        },
+        {
+          "model": "spm1423",
+          "reason": "The SoC-level ESP32 I2S0 PDM RX model exists, but this board's probe does not inject PCM or exercise the microphone; no capture evidence yet."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "G12 IR transmitter is wired only in the hardware inventory; no board-level IR model/route or TX probe is registered."
         }
       ]
     }
