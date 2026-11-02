@@ -24044,10 +24044,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0146 复用 CONTROL_PAHUB（0x70，PCA9548A 1-byte mask-only）新增 `pahub-v21`：DIP 地址 0x70-0x77 由 dip-address fixture 建模（默认 0x70），读回 channel-mask/channel-writes；下游 bus 转发/嵌套 hub 仍未建模。未采集 guest/Device Service 证据 → planned。**0x70-0x77 与 pahub/pahub-v20/env-iii 冲突；A0-A2 DIP 电气、PCA9548A 8 vs 6 通道曝光、电气 NOT RUN**",
+        "status": "implemented",
+        "blocker": "Guest PAHUBUnit on cores3 at 0x70 read/select/release produced masks 0/8/40/32; QOM channel-mask=0x20, channel-writes>=3, dip-address=0x70 and i2c-address=0x70. Downstream bus forwarding/nested hubs are NOT modeled; A0-A2 DIP electrical behavior, 8-vs-6 channel exposure and 0x70-0x77 conflicts with pahub/pahub-v20/env-iii remain explicit.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "channel-mask": {
@@ -24078,7 +24078,7 @@
         },
         "required_data_plane": "SoC I2C transactions to the reused PCA9548A mask-only slave model at 0x70-0x77"
       },
-      "blocker": "0146 复用 CONTROL_PAHUB（0x70，PCA9548A 1-byte mask-only）新增 `pahub-v21`：DIP 地址 0x70-0x77 由 dip-address fixture 建模（默认 0x70），读回 channel-mask/channel-writes；下游 bus 转发/嵌套 hub 仍未建模。未采集 guest/Device Service 证据 → planned。**0x70-0x77 与 pahub/pahub-v20/env-iii 冲突；A0-A2 DIP 电气、PCA9548A 8 vs 6 通道曝光、电气 NOT RUN**",
+      "blocker": "Guest PAHUBUnit on cores3 at 0x70 read/select/release produced masks 0/8/40/32; QOM channel-mask=0x20, channel-writes>=3, dip-address=0x70 and i2c-address=0x70. Downstream bus forwarding/nested hubs are NOT modeled; A0-A2 DIP electrical behavior, 8-vs-6 channel exposure and 0x70-0x77 conflicts with pahub/pahub-v20/env-iii remain explicit.",
       "limitations": [
         "0x70-0x77 conflicts with pahub-v20/pahub/env-iii; one mux per bus unless nested.",
         "Only the 1-byte select/release mask is modeled; downstream bus forwarding and nested hubs are NOT modeled.",
@@ -24330,10 +24330,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0146 新增 CONTROL_UNIT_LCD（I2C slave，驱动默认 0x3D；页面 0x3E 与驱动 0x3D 冲突 unresolved）：ST7789V2 I2C 命令表最小实现（READ_ID 0x04 → 0x77/0x89/版本、READ_BUFCOUNT 0x09、FILLRECT 0x68-0x6C、CASET 0x2A/RASET 0x2B、WRITE_RAW 0x41-0x44、WRITE_RLE 0x49-0x4D、DRAWPIXEL、SET_COLOR、BRIGHTNESS/ROTATE/POWER/SLEEP、CHANGE_ADDR 0xA0）+ 135x240 RGB565 framebuffer/bufcount 计数。未采集 guest/Device Service 证据 → planned。**0x3D/0x3E 与 OLED/MiniOLED/Glass2 冲突；显示组合（M5Unified external display 上屏）、ST7789V2 光学/背光/RGB666 物理色、ESP32-PICO 内部固件 NOT RUN**",
+        "status": "implemented",
+        "blocker": "Guest LCDUnit on cores3 initialised through the frozen composition driver with explicit address 0x3D (frozen reference driver default differs from the public-driver/model address; explicit address used and recorded), then fillScreen/fillRect produced QOM commands/pixels/framebuffer traffic. 0152 fixes the READ_ID/READ_BUFCOUNT read-after-command transaction (the 0146 model cleared the command buffer on write FINISH, so the frozen driver aborted with OSError). ST7789V2 optics/backlight/RGB666 and the internal ESP32-PICO firmware, plus the page 0x3E-vs-driver 0x3D ambiguity, are NOT RUN.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "read-id-hex": {
@@ -24399,7 +24399,7 @@
         },
         "required_data_plane": "SoC I2C transactions to a device-local ST7789V2 command/framebuffer slave model"
       },
-      "blocker": "0146 新增 CONTROL_UNIT_LCD（I2C slave，驱动默认 0x3D；页面 0x3E 与驱动 0x3D 冲突 unresolved）：ST7789V2 I2C 命令表最小实现（READ_ID 0x04 → 0x77/0x89/版本、READ_BUFCOUNT 0x09、FILLRECT 0x68-0x6C、CASET 0x2A/RASET 0x2B、WRITE_RAW 0x41-0x44、WRITE_RLE 0x49-0x4D、DRAWPIXEL、SET_COLOR、BRIGHTNESS/ROTATE/POWER/SLEEP、CHANGE_ADDR 0xA0）+ 135x240 RGB565 framebuffer/bufcount 计数。未采集 guest/Device Service 证据 → planned。**0x3D/0x3E 与 OLED/MiniOLED/Glass2 冲突；显示组合（M5Unified external display 上屏）、ST7789V2 光学/背光/RGB666 物理色、ESP32-PICO 内部固件 NOT RUN**",
+      "blocker": "Guest LCDUnit on cores3 initialised through the frozen composition driver with explicit address 0x3D (frozen reference driver default differs from the public-driver/model address; explicit address used and recorded), then fillScreen/fillRect produced QOM commands/pixels/framebuffer traffic. 0152 fixes the READ_ID/READ_BUFCOUNT read-after-command transaction (the 0146 model cleared the command buffer on write FINISH, so the frozen driver aborted with OSError). ST7789V2 optics/backlight/RGB666 and the internal ESP32-PICO firmware, plus the page 0x3E-vs-driver 0x3D ambiguity, are NOT RUN.",
       "limitations": [
         "Page 0x3E vs driver 0x3D conflict unresolved; address must be pinned by evidence.",
         "0x3C/0x3D/0x3E shared with OLED/MiniOLED/Glass2; one display per bus.",
@@ -24551,10 +24551,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-v11`（AT6668，U032-V11）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+        "status": "implemented",
+        "blocker": "Guest GPSUnit on cores3 decoded the injected NMEA fixture exactly: 2242.10772N/11348.64472E, time 10:44:23 (UTC+8), date 01/11/22, 14 satellites, altitude 52.1, course 90.5, 18.52 kph; QOM nmea-lines fixture and injected-lines observed. The frozen unit/gps.py hard-codes 9600 while the product page says 115200; the guest cannot expose the configured baud, so the 9600 fixture is recorded and the page value remains UNRESOLVED/NOT validated. GNSS RF/antenna/accuracy/cold-start are NOT RUN.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "nmea-lines": {
@@ -24580,7 +24580,7 @@
         },
         "required_data_plane": "SoC UART RX/TX path to the observed NMEA responder model (no RF/antenna model)"
       },
-      "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-v11`（AT6668，U032-V11）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+      "blocker": "Guest GPSUnit on cores3 decoded the injected NMEA fixture exactly: 2242.10772N/11348.64472E, time 10:44:23 (UTC+8), date 01/11/22, 14 satellites, altitude 52.1, course 90.5, 18.52 kph; QOM nmea-lines fixture and injected-lines observed. The frozen unit/gps.py hard-codes 9600 while the product page says 115200; the guest cannot expose the configured baud, so the 9600 fixture is recorded and the page value remains UNRESOLVED/NOT validated. GNSS RF/antenna/accuracy/cold-start are NOT RUN.",
       "limitations": [
         "Page 115200 8N1 vs frozen unit/gps.py ini(9600) conflict unresolved; evidence must pick one.",
         "PORT.C UART shared with all UART Units; one per port.",
@@ -24722,10 +24722,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-sma`（AT6668，U190）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+        "status": "implemented",
+        "blocker": "Guest GPSUnit on cores3 (shared AT6668 NMEA path) decoded the injected NMEA fixture exactly (lat/lon/time/date/satellites/altitude/course/speed) and QOM injected-lines observed. The 9600-driver vs 115200-page baud conflict remains UNRESOLVED and the external active SMA antenna/RF/accuracy are NOT RUN; results are not transferred between GPS v1.1 and GPS SMA.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "nmea-lines": {
@@ -24751,7 +24751,7 @@
         },
         "required_data_plane": "SoC UART RX/TX path to the observed NMEA responder model (no RF/antenna model)"
       },
-      "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-sma`（AT6668，U190）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+      "blocker": "Guest GPSUnit on cores3 (shared AT6668 NMEA path) decoded the injected NMEA fixture exactly (lat/lon/time/date/satellites/altitude/course/speed) and QOM injected-lines observed. The 9600-driver vs 115200-page baud conflict remains UNRESOLVED and the external active SMA antenna/RF/accuracy are NOT RUN; results are not transferred between GPS v1.1 and GPS SMA.",
       "limitations": [
         "Page 115200 8N1 vs frozen unit/gps.py init(9600) conflict unresolved.",
         "PORT.C UART shared with all UART Units; one per port.",
@@ -24941,7 +24941,7 @@
       "model_status": "planned",
       "runtime": {
         "status": "planned",
-        "blocker": "0146 **未实现（blocked/DEFER，不伪造帧）**：Mini CAN 走 C m5can/ESP32-S3 TWAI，CAN 帧不经 UART；本 QEMU Unit 运行时尚未建模 CAN Unit attachment / CAN 帧注入（与 batch7 `can` 同一 gap），PORT.C 当前按 UART 类型接入。catalog/profile 仅登记 planned/blocked 与 intended fixture 契约。**TJA1051 非隔离电气、120Ω 终端、差分电平、总线仲裁/错误帧、真实负载与 CAN attachment NOT RUN**",
+        "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "rx-frames": {
@@ -24972,7 +24972,7 @@
         },
         "required_data_plane": "None yet: CAN Unit attachment/TWAI frame injection is unresolved; no UART responder is used"
       },
-      "blocker": "0146 **未实现（blocked/DEFER，不伪造帧）**：Mini CAN 走 C m5can/ESP32-S3 TWAI，CAN 帧不经 UART；本 QEMU Unit 运行时尚未建模 CAN Unit attachment / CAN 帧注入（与 batch7 `can` 同一 gap），PORT.C 当前按 UART 类型接入。catalog/profile 仅登记 planned/blocked 与 intended fixture 契约。**TJA1051 非隔离电气、120Ω 终端、差分电平、总线仲裁/错误帧、真实负载与 CAN attachment NOT RUN**",
+      "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN.",
       "limitations": [
         "unit/can.py is a thin wrapper over the C m5can module; no Python register map.",
         "CAN attachment/QOM frame fixture is unresolved; do not map it to a UART responder.",
@@ -25175,9 +25175,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "contrast": {
@@ -25242,9 +25242,9 @@
           }
         },
         "required_data_plane": "SoC I2C transactions to a device-local SH1107 command/data slave at 0x3D",
-        "blocker": "0148 新增共享 OLED 显示命令 slave（SH1107）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SH1107 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+        "blocker": "Guest OLEDUnit (SH1107 128x64) initialised through M5.addDisplay with explicit address 0x3D (the frozen reference-firmware driver defaults to 0x3C while the batch8 model follows the public-driver default 0x3D; explicit address recorded), then fillScreen/fillRect produced QOM commands/data-bytes/pixels/framebuffer traffic on the SH1107 command slave. Panel optics/luminance/lifetime and the 0x3C-vs-0x3D page/driver/three-display conflicts are NOT RUN."
       },
-      "blocker": "0148 新增共享 OLED 显示命令 slave（SH1107）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SH1107 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "blocker": "Guest OLEDUnit (SH1107 128x64) initialised through M5.addDisplay with explicit address 0x3D (the frozen reference-firmware driver defaults to 0x3C while the batch8 model follows the public-driver default 0x3D; explicit address recorded), then fillScreen/fillRect produced QOM commands/data-bytes/pixels/framebuffer traffic on the SH1107 command slave. Panel optics/luminance/lifetime and the 0x3C-vs-0x3D page/driver/three-display conflicts are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -25444,9 +25444,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "contrast": {
@@ -25511,9 +25511,9 @@
           }
         },
         "required_data_plane": "SoC I2C transactions to a device-local SSD1315 command/data slave at 0x3D",
-        "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1315 72x40）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1315 72x40 command/data stream recorder with column/page addressing and 360-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+        "blocker": "Guest MiniOLEDUnit (SSD1315 72x40) initialised through M5.addDisplay with explicit address 0x3D (frozen driver default 0x3C vs model 0x3D; explicit address recorded) and produced QOM commands/data-bytes/pixels/framebuffer traffic. Small-panel optics and the 0x3C/0x3D conflicts are NOT RUN."
       },
-      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1315 72x40）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1315 72x40 command/data stream recorder with column/page addressing and 360-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "blocker": "Guest MiniOLEDUnit (SSD1315 72x40) initialised through M5.addDisplay with explicit address 0x3D (frozen driver default 0x3C vs model 0x3D; explicit address recorded) and produced QOM commands/data-bytes/pixels/framebuffer traffic. Small-panel optics and the 0x3C/0x3D conflicts are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -25715,9 +25715,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "contrast": {
@@ -25782,9 +25782,9 @@
           }
         },
         "required_data_plane": "SoC I2C transactions to a device-local SSD1309 command/data slave at 0x3C",
-        "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1309 128x64，驱动 0x3C）。 I2C display command slave at the frozen driver address 0x3C (page 0x3C vs driver 0x3C: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1309 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+        "blocker": "Guest Glass2Unit (SSD1309 128x64) initialised through M5.addDisplay at its default 0x3C and produced QOM commands/data-bytes/pixels/framebuffer traffic. Transparent-panel optics/transmittance and the page description (default 0x3C/solderable 0x3D) vs comparison-table (fixed 0x3D) contradiction are NOT RUN."
       },
-      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1309 128x64，驱动 0x3C）。 I2C display command slave at the frozen driver address 0x3C (page 0x3C vs driver 0x3C: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1309 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "blocker": "Guest Glass2Unit (SSD1309 128x64) initialised through M5.addDisplay at its default 0x3C and produced QOM commands/data-bytes/pixels/framebuffer traffic. Transparent-panel optics/transmittance and the page description (default 0x3C/solderable 0x3D) vs comparison-table (fixed 0x3D) contradiction are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -25919,9 +25919,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -25946,9 +25946,9 @@
           }
         },
         "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
-        "blocker": "0148 新增 UART id 'nbiot-cn'（SIM7020C，115200）：沿用 idle-gap fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突**"
+        "blocker": "Guest NBIOTUnit (SIM7020) constructor completed on cores3; QOM tx-hex captured AT/AT+CRESET/AT+CFUN=1/AT+CGSN bytes and frames-sent advanced, so only the AT byte layer is asserted. SIM7020C AT firmware/URC/attach ordering remains unresolved; NB-IoT RF/basestation/SIM/operator/TLS/MQTT and AT semantics are NOT RUN."
       },
-      "blocker": "0148 新增 UART id 'nbiot-cn'（SIM7020C，115200）：沿用 idle-gap fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突**",
+      "blocker": "Guest NBIOTUnit (SIM7020) constructor completed on cores3; QOM tx-hex captured AT/AT+CRESET/AT+CFUN=1/AT+CGSN bytes and frames-sent advanced, so only the AT byte layer is asserted. SIM7020C AT firmware/URC/attach ordering remains unresolved; NB-IoT RF/basestation/SIM/operator/TLS/MQTT and AT semantics are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -26090,9 +26090,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -26122,9 +26122,9 @@
           }
         },
         "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
-        "blocker": "0148 新增 UART id 'lora-e220-920'（E220-900T22S JP/LLCC68，驱动 9600）：复用 0xC0/C1 配置帧回显与 idle fixture responder，QOM tx-hex/config-hex/frames-*。未采集 guest 证据 → planned。**页面未写波特率（驱动 9600）；920 寄存器位与 433 不同，不得转授 433 证据；RF/天线/Telec NOT RUN；PORT.C 冲突**"
+        "blocker": "Guest LoRaE220JPUnit setup() completed with the same-length 0xC0 echo and send() wrote the target header; QOM tx-hex contains the 0xC0 config frame and the 432107 send header, and config-hex mirrors the 8-byte configuration. The 920MHz register bits/RF/antenna/range/Telec certification are NOT RUN and the batch5 433 evidence is not transferable; the page states no baud (frozen driver 9600)."
       },
-      "blocker": "0148 新增 UART id 'lora-e220-920'（E220-900T22S JP/LLCC68，驱动 9600）：复用 0xC0/C1 配置帧回显与 idle fixture responder，QOM tx-hex/config-hex/frames-*。未采集 guest 证据 → planned。**页面未写波特率（驱动 9600）；920 寄存器位与 433 不同，不得转授 433 证据；RF/天线/Telec NOT RUN；PORT.C 冲突**",
+      "blocker": "Guest LoRaE220JPUnit setup() completed with the same-length 0xC0 echo and send() wrote the target header; QOM tx-hex contains the 0xC0 config frame and the 432107 send header, and config-hex mirrors the 8-byte configuration. The 920MHz register bits/RF/antenna/range/Telec certification are NOT RUN and the batch5 433 evidence is not transferable; the page states no baud (frozen driver 9600).",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -26285,9 +26285,9 @@
           }
         },
         "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
-        "blocker": "0148 新增 UART id 'lorawan-us915'（STM32WLE5/RAK3172 vs ASR650x 驱动错配）：最小 AT fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**驱动/产品错配 unresolved；US915 RF/OTAA/ABP/Join/FCC NOT RUN；PORT.C 冲突**"
+        "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN."
       },
-      "blocker": "0148 新增 UART id 'lorawan-us915'（STM32WLE5/RAK3172 vs ASR650x 驱动错配）：最小 AT fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**驱动/产品错配 unresolved；US915 RF/OTAA/ABP/Join/FCC NOT RUN；PORT.C 冲突**",
+      "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
@@ -26422,9 +26422,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "analog-mv": {
@@ -26449,9 +26449,9 @@
           }
         },
         "required_data_plane": "SoC SAR-ADC sample of the white analog pin plus a GPIO digital input observation of the yellow comparator pin",
-        "blocker": "U096 MIC has NO official Unit driver in public UIFlow2 (explicit driver-gap): guest code uses machine.ADC on the white analog output and machine.Pin on the yellow LM393 comparator output. The model provides an ADC input fixture on the white pin and a GPIO digital input fixture on the yellow pin; acoustic response, the 10K threshold potentiometer, sensitivity/SNR/frequency response and the microphone physics are NOT RUN."
+        "blocker": "Guest machine.ADC/machine.Pin path on cores3 (no public Unit MIC driver: explicit driver gap) read adc raw 33832 at the 1600mV analog-mv fixture and comparator level 1; QOM analog-mv=1600, digital-level=true and adc-samples advanced. read_uv() is unavailable because the QEMU S3 ADC calibration eFuse is not burnt (recorded boundary). Acoustic response/threshold potentiometer/sensitivity/SNR/frequency response are NOT RUN."
       },
-      "blocker": "U096 MIC has NO official Unit driver in public UIFlow2 (explicit driver-gap): guest code uses machine.ADC on the white analog output and machine.Pin on the yellow LM393 comparator output. The model provides an ADC input fixture on the white pin and a GPIO digital input fixture on the yellow pin; acoustic response, the 10K threshold potentiometer, sensitivity/SNR/frequency response and the microphone physics are NOT RUN.",
+      "blocker": "Guest machine.ADC/machine.Pin path on cores3 (no public Unit MIC driver: explicit driver gap) read adc raw 33832 at the 1600mV analog-mv fixture and comparator level 1; QOM analog-mv=1600, digital-level=true and adc-samples advanced. read_uv() is unavailable because the QEMU S3 ADC calibration eFuse is not burnt (recorded boundary). Acoustic response/threshold potentiometer/sensitivity/SNR/frequency response are NOT RUN.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",

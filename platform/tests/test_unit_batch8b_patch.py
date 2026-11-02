@@ -1,6 +1,7 @@
 """Static contracts for the 0148 Unit batch-8 remaining-seven data planes."""
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -37,13 +38,13 @@ class UnitBatch8bPatchTests(unittest.TestCase):
             entry = json.dumps(self.units[unit_id], ensure_ascii=False)
             for token in ("0x3C", "0x3D", "UNRESOLVED", "NOT RUN"):
                 self.assertIn(token, entry, (unit_id, token))
-            self.assertEqual(self.profiles[unit_id]["status"], "planned")
+            self.assertEqual(self.profiles[unit_id]["status"], "implemented")
             self.assertIn(addr.lower(), entry.lower())
         self.assertIn("display-controller", json.dumps(self.units["oled"]))
 
     def test_mic_is_driver_gap(self):
         entry = json.dumps(self.units["mic"], ensure_ascii=False)
-        for token in ("U096", "NO official Unit driver", "machine.ADC", "comparator-level", "NOT RUN"):
+        for token in ("U096", "no public Unit MIC driver", "machine.ADC", "comparator-level", "NOT RUN"):
             self.assertIn(token, entry, token)
 
     def test_uart_units_only_claim_byte_layer(self):
@@ -57,14 +58,29 @@ class UnitBatch8bPatchTests(unittest.TestCase):
         self.assertIn("920MHz", lora920)
         self.assertIn("NOT transferable", lora920)
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_evidence_status_matches_validation(self):
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            if unit_id == "lorawan-us915":
+                # BLOCKED by the frozen ASR650x driver not reaching the Unit UART.
+                self.assertEqual(entry["model_status"], "planned", unit_id)
+                self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+                self.assertEqual(profile["status"], "planned", unit_id)
+                self.assertEqual(profile["hosts"], [], unit_id)
+                self.assertIn("BLOCKED", entry["blocker"])
+            else:
+                self.assertEqual(entry["model_status"], "partial", unit_id)
+                self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+                self.assertEqual(profile["status"], "implemented", unit_id)
+                self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+                evidence = profile["virtual_device_evidence"]
+                report = ROOT / evidence["report"]
+                self.assertTrue(report.is_file(), unit_id)
+                self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
+                                 evidence["report_sha256"], unit_id)
+                self.assertIn("0153-unit-batch8-evidence-lcd-read.patch",
+                              evidence["patches"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
     def test_patch_has_no_guest_claim(self):

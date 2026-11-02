@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T03:25:04.269383+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "mini-can",
+  "driver_class": "CANUnit (m5can/TWAI)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "firmware_sha256": "60b00b833bc1083bb7803a962ca602aface822dc8e57b71457bca0ae9339e8c7",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "89f40309a583e3e9d4e1d1cfa8faede0652769aa4eb4f3495dba603cde450a1d",
+    "main.py": "b42a9f11fd555998676d96594355bd2c601b7270ba6f88adc8e7f3bf79f11183"
+  },
+  "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 32 layers through 0151",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {},
+  "serial_markers": {
+    "mini-can": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\n"
+  },
+  "observations": {},
+  "checks": {
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "status": "BLOCKED",
+  "error": "QEMU Unit model/state contract is incomplete",
+  "evidence": {
+    "sha256": "215e4b948e0589a05101d79f3b405b59a255f0e50c2b3efbcacda189b081927a",
+    "bytes": 14175
+  },
+  "stop": {
+    "stop_state": "failed",
+    "history_state": "failed",
+    "history_retained": true
+  },
+  "expected_blocked": true,
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed.",
+  "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN."
+}
