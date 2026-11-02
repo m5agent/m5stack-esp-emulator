@@ -1,6 +1,6 @@
-From f138d096114edb4cde0a9d526c91777d4e3dd758 Mon Sep 17 00:00:00 2001
-From: m5agent <agent@example.invalid>
-Date: Mon, 2 Nov 2026 20:56:43 +0800
+From f34d1774fd58e2f3951de28182af0e9048686875 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:32:32 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-3 A+B data planes
 
 Map the eight A+B Units of the 2026-11-02 third Unit research batch onto
@@ -39,27 +39,28 @@ the same and adding explicit register/GPIO models otherwise:
 All addresses/register layouts follow the merged batch-3 research doc and the
 official driver sources. No guest PASS or profile upgrade is registered here;
 catalog stays planned and the host evidence task follows separately.
+
+(Rebased by patch-chain reconciliation: base is the batch-4 chain state canonical 75f1d24 + 0120-0129 + 0131 + 0134 + 0136. The canonical order applies this layer before 0133/0135/0132.)
 ---
- hw/m5stopwatch/m5_unit_gpio.c         |  32 ++-
- hw/m5stopwatch/m5_unit_i2c_controls.c | 278 +++++++++++++++++++++++++-
- hw/m5stopwatch/m5_unit_i2c_sensors.c  |  77 ++++++-
- 3 files changed, 375 insertions(+), 12 deletions(-)
+ hw/m5stopwatch/m5_unit_gpio.c         |  31 ++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 279 +++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  |  78 ++++++-
+ 3 files changed, 374 insertions(+), 14 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
-index 7c84aa2..b757fe7 100644
+index 5e6560f..0b86a06 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -611,7 +611,8 @@ bool m5_unit_gpio_supported(const char *id)
- {
-     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+@@ -655,7 +655,7 @@ bool m5_unit_gpio_supported(const char *id)
          "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
--        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader"};
-+        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
-+        "tube-pressure", "laser-rx"};
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+-        "weight", "gps", "uhf-rfid"};
++        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx"};
      for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -695,12 +696,27 @@ static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **
+@@ -739,12 +739,27 @@ static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **
      } else if (!strcmp(name, "magnetic-detected")) {
          esp32_gpio_set_input(g->unit->white, !value);
      } else if (!strcmp(name, "digital-level")) {
@@ -88,7 +89,7 @@ index 7c84aa2..b757fe7 100644
  static void num_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
  {
      GPIOUnit *g = op;
-@@ -793,7 +809,8 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+@@ -846,7 +861,8 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
                                      !strcmp(g->unit->unit_id, "earth") ||
                                      !strcmp(g->unit->unit_id, "reflective-ir") ||
                                      !strcmp(g->unit->unit_id, "watering") ||
@@ -98,7 +99,7 @@ index 7c84aa2..b757fe7 100644
              g->adc_samples++;
              return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
          }
-@@ -1002,6 +1019,15 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+@@ -1354,6 +1370,15 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
          object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
                              &g->incomplete_frames);
@@ -115,21 +116,22 @@ index 7c84aa2..b757fe7 100644
                 !strcmp(id, "earth") || !strcmp(id, "reflective-ir")) {
          object_property_add(o, !strcmp(id, "angle") ? "voltage-mv" : "analog-mv", "number", num_get, num_set, NULL, g);
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index fad82b3..97b5f88 100644
+index 622d8d9..e344ca3 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
-@@ -39,6 +39,7 @@ typedef enum {
+@@ -39,7 +39,7 @@ typedef enum {
      CONTROL_RELAY4, CONTROL_WEIGHT,
      CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
-     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR,
-+    CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+-    CONTROL_BLDC, CONTROL_DDS,
++    CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
  } ControlKind;
  
  typedef struct M5UnitControl {
-@@ -126,6 +127,24 @@ typedef struct M5UnitControl {
-     uint64_t acssr_transitions;
-     int64_t acssr_led_rgb;
-     int64_t acssr_fw;
+@@ -158,6 +158,24 @@ typedef struct M5UnitControl {
+     int64_t dds_freq_reg, dds_phase_reg, dds_fw;
+     double dds_freq_hz, dds_phase_deg;
+     uint8_t dds_buf[8];
 +    /* U011 EXT.IO (0x27, PCA9554): input pin fixtures, output latch, polarity
 +     * inversion and configuration registers. INT/A0-A2 pads are not modeled. */
 +    bool pca_inputs[8];
@@ -151,9 +153,9 @@ index fad82b3..97b5f88 100644
  } M5UnitControl;
  OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
  
-@@ -1186,6 +1205,133 @@ static uint8_t dac_read_byte(M5UnitControl *s, unsigned pos)
- 
- static void put_le32(uint8_t *p, uint32_t value);
+@@ -1412,6 +1430,133 @@ static void bldc_freq_get(Object *obj, Visitor *v, const char *name,
+     visit_type_number(v, name, &value, errp);
+ }
  
 +
 +static void put_be32(uint8_t *p, uint32_t value)
@@ -285,10 +287,10 @@ index fad82b3..97b5f88 100644
  static void snapshot_registers(M5UnitControl *s)
  {
      memcpy(s->read_snapshot, s->regs, 256);
-@@ -1285,6 +1431,35 @@ static void snapshot_registers(M5UnitControl *s)
-         s->read_snapshot[0x00] = s->acssr_relay_raw;
-         s->read_snapshot[0xfe] = s->acssr_fw;
-         s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
+@@ -1540,6 +1685,35 @@ static void snapshot_registers(M5UnitControl *s)
+         bldc_snapshot(s);
+     } else if (s->kind == CONTROL_DDS) {
+         dds_snapshot(s);
 +    } else if (s->kind == CONTROL_PCA9554) {
 +        uint8_t inputs = 0;
 +        for (unsigned i = 0; i < 8; i++) { if (s->pca_inputs[i]) { inputs |= 1u << i; } }
@@ -321,7 +323,7 @@ index fad82b3..97b5f88 100644
      }
  }
  
-@@ -1434,6 +1609,64 @@ static int control_send(I2CSlave *dev, uint8_t value)
+@@ -1834,6 +2008,64 @@ static int control_send(I2CSlave *dev, uint8_t value)
              return 1;
          }
          s->pointer++;
@@ -386,16 +388,16 @@ index fad82b3..97b5f88 100644
      } else if (s->kind == CONTROL_RFID2) {
          rfid_write(s, reg, value);
          if (reg != 9) { s->pointer++; }
-@@ -1719,7 +1952,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+@@ -2119,7 +2351,7 @@ bool m5_unit_controls_supported(const char *unit_id)
          "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
          "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
          "ncir2", "extio2", "hbridge", "dac", "joystick",
--        "extencoder", "acssr",
-+        "extencoder", "acssr", "rfid", "extio", "dac2", "scales",
+-        "extencoder", "acssr", "pbhub", "bldc-driver", "dds",
++        "extencoder", "acssr", "pbhub", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales",
      };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
      return false;
-@@ -1728,7 +1961,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+@@ -2128,7 +2360,7 @@ bool m5_unit_controls_supported(const char *unit_id)
  void m5_unit_controls_realize(M5Unit *unit, Error **errp)
  {
      M5UnitControl *s;
@@ -404,7 +406,7 @@ index fad82b3..97b5f88 100644
      if (!unit->bus) { error_setg(errp, "control Unit requires a routed I2C bus"); return; }
      if (!m5_unit_controls_supported(unit->unit_id)) { error_setg(errp, "unsupported control Unit"); return; }
      s = M5_UNIT_CONTROL(qdev_new(TYPE_M5_UNIT_CONTROL));
-@@ -1861,7 +2094,46 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+@@ -2313,7 +2545,46 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
          add_array(s, "key-ids", false);
          add_int(s, "queued-keys", false); add_int(s, "modifier-mode", false);
          add_int(s, "key-overflows", false); add_int(s, "led-rgb", false);
@@ -453,18 +455,19 @@ index fad82b3..97b5f88 100644
          static const uint8_t uid[] = {4, 1, 2, 3}; memcpy(s->uid, uid, 4);
          /* Deterministic blank synthetic card, transport keys only. No real
 diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-index a17d0c4..7b85241 100644
+index 6257761..54cec48 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -23,6 +23,7 @@ typedef enum {
+@@ -23,7 +23,7 @@ typedef enum {
      US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
      US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
      US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
-+    US_ADS1115_VMETER, US_ADS1100,
+-    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE,
++    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100,
  } UnitSensorKind;
  
  typedef struct M5UnitSensor {
-@@ -232,6 +233,38 @@ static void ads_config_get(Object *obj, Visitor *v, const char *name,
+@@ -265,6 +265,38 @@ static void ads_config_get(Object *obj, Visitor *v, const char *name,
      visit_type_int64(v, name, &value, errp);
  }
  
@@ -503,7 +506,7 @@ index a17d0c4..7b85241 100644
  typedef struct SensorInteger {
      M5UnitSensor *sensor;
      int64_t *value, lo, hi;
-@@ -329,7 +362,8 @@ static int16_t ameter_raw(M5UnitSensor *s)
+@@ -508,7 +540,8 @@ static int16_t ameter_raw(M5UnitSensor *s)
      long raw;
  
      if (gain > 5) { gain = 5; }
@@ -513,7 +516,7 @@ index a17d0c4..7b85241 100644
      raw = lround(-s->values[0] / resolution);
      if (raw < -32768) { raw = -32768; }
      if (raw > 32767) { raw = 32767; }
-@@ -788,7 +822,7 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+@@ -1017,7 +1050,7 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
      unsigned pos = s->write_pos++;
      s->written_bytes++; s->unit->written_bytes++;
      sensor_update(s);
@@ -522,7 +525,7 @@ index a17d0c4..7b85241 100644
          if (pos != 0) { return 1; }
          s->command = data;
          return 0;
-@@ -799,8 +833,8 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+@@ -1028,8 +1061,8 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
          s->pointer = data;
          return 0;
      }
@@ -533,7 +536,7 @@ index a17d0c4..7b85241 100644
          if (pos == 0) { s->pointer = data; return 0; }
          if (s->pointer != 0x01 || pos > 2) { return 1; }
          if (pos == 1) { s->command = data << 8; }
-@@ -1041,12 +1075,18 @@ static uint8_t sensor_recv(I2CSlave *dev)
+@@ -1400,12 +1433,18 @@ static uint8_t sensor_recv(I2CSlave *dev)
          int16_t raw = ads1110_raw(s);
          return pos == 0 ? (uint8_t)(raw >> 8) : (uint8_t)(raw & 0xff);
      }
@@ -553,18 +556,18 @@ index a17d0c4..7b85241 100644
          uint16_t config = (uint16_t)s->command | 0x8000;
          if (s->pointer == 0x00) {
              int16_t raw = ameter_raw(s);
-@@ -1155,7 +1195,7 @@ bool m5_unit_sensor_supported(const char *id)
- {
+@@ -1516,7 +1555,7 @@ bool m5_unit_sensor_supported(const char *id)
      static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
          "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
--        "env", "ameter", "ain4-20ma", "gesture" };
-+        "env", "ameter", "ain4-20ma", "gesture", "vmeter", "adc" };
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+-        "ac-measure" };
++        "ac-measure", "vmeter", "adc" };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -1290,6 +1330,31 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
-         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
-         add_u64(s, "init-writes", &s->paj_init_writes);
+@@ -1712,6 +1751,31 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_i64(s, "chip-id", &s->scd40_chip_id);
+         add_u64(s, "measurement-reads", &s->scd40_reads);
          add_i2c_address(s);
 +    } else if (!strcmp(u->unit_id, "vmeter")) {
 +        /* U087 VMeter: ADS1115 0x49 + factory-calibration EEPROM 0x53 with

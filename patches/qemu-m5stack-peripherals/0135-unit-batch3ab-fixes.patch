@@ -1,6 +1,6 @@
-From 8c0248571ba7cac5d66d09a6e068bd81a1edc448 Mon Sep 17 00:00:00 2001
-From: m5agent <agent@example.invalid>
-Date: Mon, 2 Nov 2026 21:47:51 +0800
+From 3595ae137dec732fdfbe1eaa7725a7abb38f52ef Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:32:47 +0800
 Subject: [PATCH] hw/m5stopwatch: fix batch-3 A+B EXT.IO readback and Scales
  RGB writes
 
@@ -18,15 +18,17 @@ Guest evidence found two real 0130 model bugs:
 
 No other semantics changed; catalogue stays planned until guest evidence
 passes.
+
+(Rebased by patch-chain reconciliation: base is the canonical order batch-4 chain + 0130 + 0133; applied before 0132.)
 ---
  hw/m5stopwatch/m5_unit_i2c_controls.c | 22 +++++++++++++++++-----
  1 file changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index 97b5f88..96ff3ca 100644
+index e344ca3..0ba7301 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
-@@ -1434,8 +1434,13 @@ static void snapshot_registers(M5UnitControl *s)
+@@ -1688,8 +1688,13 @@ static void snapshot_registers(M5UnitControl *s)
      } else if (s->kind == CONTROL_PCA9554) {
          uint8_t inputs = 0;
          for (unsigned i = 0; i < 8; i++) { if (s->pca_inputs[i]) { inputs |= 1u << i; } }
@@ -42,7 +44,7 @@ index 97b5f88..96ff3ca 100644
          s->read_snapshot[0x01] = s->pca_output;
          s->read_snapshot[0x02] = s->pca_polarity;
          s->read_snapshot[0x03] = s->pca_config;
-@@ -1654,9 +1659,16 @@ static int control_send(I2CSlave *dev, uint8_t value)
+@@ -2053,9 +2058,16 @@ static int control_send(I2CSlave *dev, uint8_t value)
              if (offset > 1) { return 1; }
              if (offset == 1) { s->scales_cal_writes++; }
          } else if (base >= 0x50 && base <= 0x52) {
