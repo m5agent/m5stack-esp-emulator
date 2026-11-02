@@ -1,0 +1,89 @@
+From 9c1f2e3a4b5d6f708192a3b4c5d6e7f8091a2b3c Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 02:55:00 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-9 remaining UART byte planes
+
+Register the four batch-9 Units that have an executable UART path as
+byte-layer fixture responders, on the reconciled canonical chain. Base is the
+30-layer chain through 0149 (canonical 75f1d24 plus 0120-0149); this is the
+31st layer after 0120 and it applies at the chain end. The batch-7 evidence fix
+is 0150 and remains a separate parallel layer pending reconciliation; this
+patch does not touch its catm/lorawan-cn470 code paths.
+
+- lorawan-as923 (U184-AS923) and lorawan-eu868 (U184-EU868): reuse the existing
+  UART TX-capture + idle fixture responder for the AT byte layer. The frozen
+  unit/lorawan.py still wraps the ASR650x LoRaWAN_470 class while the products
+  are STM32WLE5/RAK3172; there is no AS923 subclass and the EU868 wrapper does
+  not use LoRaWAN_868. Only TX/RX hex, frames-sent and frames-injected are
+  exposed. OTAA/ABP/Join, band masks and RF/antenna/regulatory behavior are NOT
+  modeled.
+- audioplayer (U197): UART 9600 byte capture and deterministic idle fixture
+  responses only. There is no public Unit AudioPlayer driver and the N9301
+  command/status table is not readable, so no command decode/audio claim.
+- fingerprint2 (U203): UART 115200 byte capture and idle fixture responses
+  only. A-K323CP has no public Unit driver/frame table and is a different chip
+  from batch-6 finger (FPC1020A), so no frame/version/biometric claim.
+
+Offline QOM smoke (S3 m5cores3, no guest firmware) attaches all four Unit ids,
+lists responses-hex/tx-hex/frames-sent/frames-injected, sets responses-hex and
+verifies the fixture round-trip property storage. The smoke is not a functional
+PASS and no guest/Device Service evidence is recorded; all four catalog/profile
+entries stay planned. The five remaining batch-9 Units (cardkb2, 8servos2-i2c,
+bmm350, ina226-10a, rollercan) are registered as planned contracts only, with no
+QEMU model and no guessed registers.
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -699,7 +699,8 @@
+         "ultrasonic-io", "rs485-iso", "laser-tx", "rf433t", "rf433r", "neco", "midi",
+         "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+         "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
+-        "catm", "catm-gnss", "lorawan-cn470", "can", "mini-can",
++        "catm", "catm-gnss", "lorawan-cn470", "lorawan-as923", "lorawan-eu868",
++        "audioplayer", "fingerprint2", "can", "mini-can",
+         "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
+         "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+@@ -1025,6 +1026,10 @@
+                  !strcmp(g->unit->unit_id, "uwb") || !strcmp(g->unit->unit_id, "dmx") ||
+                  !strcmp(g->unit->unit_id, "finger") || !strcmp(g->unit->unit_id, "catm") ||
+                  !strcmp(g->unit->unit_id, "catm-gnss") || !strcmp(g->unit->unit_id, "lorawan-cn470") ||
++                 !strcmp(g->unit->unit_id, "lorawan-as923") ||
++                 !strcmp(g->unit->unit_id, "lorawan-eu868") ||
++                 !strcmp(g->unit->unit_id, "audioplayer") ||
++                 !strcmp(g->unit->unit_id, "fingerprint2") ||
+                  !strcmp(g->unit->unit_id, "nbiot-cn") ||
+                  !strcmp(g->unit->unit_id, "lora-e220-920") ||
+                  !strcmp(g->unit->unit_id, "lorawan-us915")) &&
+@@ -1049,7 +1054,11 @@
+                            !strcmp(g->unit->unit_id, "dmx") ||
+                            !strcmp(g->unit->unit_id, "finger") ||
+                            !strcmp(g->unit->unit_id, "nbiot-cn") ||
+-                           !strcmp(g->unit->unit_id, "lorawan-us915")) {
++                           !strcmp(g->unit->unit_id, "lorawan-us915") ||
++                           !strcmp(g->unit->unit_id, "lorawan-as923") ||
++                           !strcmp(g->unit->unit_id, "lorawan-eu868") ||
++                           !strcmp(g->unit->unit_id, "audioplayer") ||
++                           !strcmp(g->unit->unit_id, "fingerprint2")) {
+                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
+                     at_arm_idle(g);
+                 }
+@@ -1763,6 +1772,8 @@
+                 !strcmp(unit->unit_id, "uwb") || !strcmp(unit->unit_id, "dmx") ||
+                 !strcmp(unit->unit_id, "finger") || !strcmp(unit->unit_id, "catm") ||
+                 !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
++                !strcmp(unit->unit_id, "lorawan-as923") || !strcmp(unit->unit_id, "lorawan-eu868") ||
++                !strcmp(unit->unit_id, "audioplayer") || !strcmp(unit->unit_id, "fingerprint2") ||
+                 !strcmp(unit->unit_id, "nbiot-cn") ||
+                 !strcmp(unit->unit_id, "lora-e220-920") ||
+                 !strcmp(unit->unit_id, "lorawan-us915") ||
+@@ -1960,7 +1971,9 @@
+                !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
+                !strcmp(id, "dmx") || !strcmp(id, "finger") ||
+                !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
+-               !strcmp(id, "lorawan-cn470") || !strcmp(id, "nbiot-cn") ||
++               !strcmp(id, "lorawan-cn470") || !strcmp(id, "lorawan-as923") ||
++               !strcmp(id, "lorawan-eu868") || !strcmp(id, "audioplayer") ||
++               !strcmp(id, "fingerprint2") || !strcmp(id, "nbiot-cn") ||
+                !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
+         g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
+         object_property_add(o, "responses-hex", "str", at_responses_get,

@@ -74,7 +74,7 @@ class UnitBatch8aPatchTests(unittest.TestCase):
         self.assertEqual(profile["hosts"], [])
 
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
-        self.assertEqual(len(self.catalog["units"]), 133)
+        self.assertEqual(len(self.catalog["units"]), 142)
 
     def test_planned_contracts_keep_blockers_and_empty_hosts(self):
         for unit_id in UNITS:

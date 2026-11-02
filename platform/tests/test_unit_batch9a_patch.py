@@ -57,12 +57,12 @@ class UnitBatch9aPatchTests(unittest.TestCase):
             self.assertIn(token, unit, token)
 
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
-        self.assertEqual(len(self.catalog["units"]), 133)
-        self.assertEqual(len(self.profiles), 133)
+        self.assertEqual(len(self.catalog["units"]), 142)
+        self.assertEqual(len(self.profiles), 142)
         mappings = (ROOT / "platform/web/unit-visual-mappings.js").read_text(encoding="utf-8")
         for unit_id in UNITS:
             self.assertIn(f"'{unit_id}'", mappings)
-        self.assertIn("all-133-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text(encoding="utf-8"))
+        self.assertIn("all-142-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text(encoding="utf-8"))
 
     def test_planned_contracts_keep_blockers_and_empty_hosts(self):
         for unit_id in UNITS:

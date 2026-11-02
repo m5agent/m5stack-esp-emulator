@@ -10804,6 +10804,381 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "lorawan-as923": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0151 复用 UART fixture responder 登记 lorawan-as923，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x LoRaWAN_470 wrapper 错配 unresolved，驱动无 AS923 子类**；OTAA/ABP/Join、AS923 923-925MHz RF/天线/占空比/认证 NOT RUN；PORT.C 与所有 UART Unit 冲突。",
+      "bindings_required": [],
+      "notes": "0151 只登记 AS923 SKU 的 UART 字节层模型；LoRaWAN_Asr650x wrapper/AS923 band mask 与 STM32WLE5 产品差异 unresolved，RF/Join NOT RUN。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "join-status": {
+          "property": "join-status"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      }
+    },
+    "lorawan-eu868": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0151 复用 UART fixture responder 登记 lorawan-eu868，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x wrapper 错配 unresolved；驱动有 LoRaWAN_868 但 unit/lorawan.py 仍用 470**；OTAA/ABP/Join、EU868 863-870MHz RF/天线/占空比/认证 NOT RUN；PORT.C 冲突。",
+      "bindings_required": [],
+      "notes": "0151 只登记 EU868 SKU 的 UART 字节层模型；LoRaWAN_868 类存在但包装未使用、STM32WLE5 差异 unresolved，RF/Join NOT RUN。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "join-status": {
+          "property": "join-status"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      }
+    },
+    "audioplayer": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U197，9600 8N1）；**无官方 Unit AudioPlayer 驱动、N9301 命令/状态表不可读 → 只做字节层观测，不解析命令**；无 guest/Device Service 证据 → planned；MP3/WAV 解码、microSD/FAT、3.5mm 音频、扬声器 NOT RUN；PORT.C 冲突。",
+      "bindings_required": [],
+      "notes": "0151 只登记 9600 UART 字节层模型；N9301 命令表/MP3 解码/音频输出/存储 NOT RUN，无 guest 证据。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      }
+    },
+    "fingerprint2": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U203，115200 8N1）；**A-K323CP 无官方 Unit 驱动/帧格式，且与 batch6 finger U008 FPC1020A 不同芯片 → 不复用其帧/版本门**；无 guest 证据 → planned；指纹采集/匹配/100 用户/RGB 环/生物安全 NOT RUN；PORT.C 冲突。",
+      "bindings_required": [],
+      "notes": "0151 只登记 115200 UART 字节层模型；A-K323CP 帧格式/指纹匹配/用户存储 NOT RUN，无 guest 证据。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "rx-hex": {
+          "property": "rx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "user-count": {
+          "property": "user-count"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      }
+    },
+    "cardkb2": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；官方 UIFlow2 driver coming soon，**数字 I2C 地址/UART 帧格式未知**；Grove 引脚为 PORT.CUSTOM G26/G25，不在 cores3 host-port 准入；四模式/BLE HID/ESP-NOW/键盘机械 NOT RUN。",
+      "bindings_required": [],
+      "notes": "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。",
+      "inputs": {
+        "keys": {
+          "property": "keys"
+        },
+        "mode": {
+          "property": "mode"
+        }
+      },
+      "state": {
+        "last-key": {
+          "property": "last-key"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "mode": {
+          "property": "mode"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      }
+    },
+    "8servos2-i2c": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；I2C 地址由旋钮映射 0x25-0x34（页面明确），但**内部固件通道模式/角度/ADC/RGB/PWM 寄存器表不可读**；0x25 与 8servos U165 冲突、0x26 与 scales 系冲突；servo/ADC/RGB/PWM 电气、9-24V/3A、INA199 电流检测 NOT RUN。",
+      "bindings_required": [],
+      "notes": "仅 planned 契约；无模型/无 guest 证据，内部固件寄存器与 servo/ADC 电气 NOT RUN。",
+      "inputs": {
+        "channel-modes": {
+          "property": "channel-modes"
+        },
+        "servo-angles": {
+          "property": "servo-angles"
+        },
+        "adc-values": {
+          "property": "adc-values"
+        },
+        "rgb-leds": {
+          "property": "rgb-leds"
+        }
+      },
+      "state": {
+        "channel-modes": {
+          "property": "channel-modes"
+        },
+        "servo-angles": {
+          "property": "servo-angles"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      }
+    },
+    "bmm350": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x14，但**无官方 UIFlow2 driver、无寄存器表**，CHIP_ID/OTP/数据寄存器需 Bosch datasheet；磁场/heading/校准/温度稳定性 NOT RUN；0x14 需与板级 BMM150 0x10 区分。",
+      "bindings_required": [],
+      "notes": "仅 planned 契约；无模型/无 guest 证据，BMM350 寄存器/校准/磁场物理 NOT RUN。",
+      "inputs": {
+        "magnetic-x": {
+          "property": "magnetic-x"
+        },
+        "magnetic-y": {
+          "property": "magnetic-y"
+        },
+        "magnetic-z": {
+          "property": "magnetic-z"
+        }
+      },
+      "state": {
+        "magnetic-x": {
+          "property": "magnetic-x"
+        },
+        "magnetic-y": {
+          "property": "magnetic-y"
+        },
+        "magnetic-z": {
+          "property": "magnetic-z"
+        },
+        "heading-deg": {
+          "property": "heading-deg"
+        },
+        "whoami": {
+          "property": "whoami"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      }
+    },
+    "ina226-10a": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x41，但**无官方 UIFlow2 driver、无寄存器表**，标准 INA226 寄存器/校准需 TI datasheet SHA；0-30V/±10A/5mΩ/隔离/保险/精度 NOT RUN；0x41 与 ina226-1a 同地址。",
+      "bindings_required": [],
+      "notes": "仅 planned 契约；无模型/无 guest 证据，INA226 寄存器/隔离/电气精度 NOT RUN。",
+      "inputs": {
+        "bus-voltage-v": {
+          "property": "bus-voltage-v"
+        },
+        "current-a": {
+          "property": "current-a"
+        }
+      },
+      "state": {
+        "bus-voltage-v": {
+          "property": "bus-voltage-v"
+        },
+        "current-a": {
+          "property": "current-a"
+        },
+        "power-w": {
+          "property": "power-w"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      }
+    },
+    "rollercan": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x64 + 2×CAN，但**内部固件/通信协议为外部文档、无寄存器/帧表**；电机/FOC/编码器/OLED/RGB/滑环/6-16V/负载/热 NOT RUN；I2C 0x64 需检查与其它 0x64 设备冲突。",
+      "bindings_required": [],
+      "notes": "仅 planned 契约；无模型/无 guest 证据，电机/FOC/编码器/内部协议 NOT RUN。",
+      "inputs": {
+        "mode": {
+          "property": "mode"
+        },
+        "target-speed-rpm": {
+          "property": "target-speed-rpm"
+        },
+        "target-position-deg": {
+          "property": "target-position-deg"
+        }
+      },
+      "state": {
+        "mode": {
+          "property": "mode"
+        },
+        "actual-speed-rpm": {
+          "property": "actual-speed-rpm"
+        },
+        "actual-position-deg": {
+          "property": "actual-position-deg"
+        },
+        "encoder-pos": {
+          "property": "encoder-pos"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "fault": {
+          "property": "fault"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      }
     }
   },
   "evidence_policy": {

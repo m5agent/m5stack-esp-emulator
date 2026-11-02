@@ -76,7 +76,7 @@ class UnitBatch7bPatchTests(unittest.TestCase):
         self.assertIn("US_BMI270", self.text)
 
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
-        self.assertEqual(len(self.catalog["units"]), 133)
+        self.assertEqual(len(self.catalog["units"]), 142)
 
     def test_guest_evidence_upgrades_four_units_and_keeps_partial(self):
         for unit_id in IMPLEMENTED:
