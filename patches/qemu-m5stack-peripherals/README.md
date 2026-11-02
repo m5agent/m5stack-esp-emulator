@@ -11,13 +11,19 @@ The reviewed native layer order for the current board set is
 `espressif/qemu` commit `40edccac415693c5130f91c01d84176ae6008566` and ends with
 `0109-uart-rxfifo-reset.patch`. `0110-atoms3u-board.patch` adds the AtomS3U K125
 machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine and
-`0112-atoms3r-cam-board.patch` the AtomS3R-CAM C126-CAM machine and
-`0113-basic-v27-board.patch` the Basic v2.7 K001-V27 machine on top of that
-sequence. `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240,
-A/B/C GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register
-model at 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306`
-I2C slave; the IP5306 is register-only, READ4 returns the explicit 0xff
-no-cell code and battery-mv is a host QOM fixture. The older
+`0112-atoms3r-cam-board.patch` the AtomS3R-CAM C126-CAM machine,
+`0113-basic-v27-board.patch` the Basic v2.7 K001-V27 machine and
+`0114-unit-gpio-batch1.patch` the first A-class external Unit data planes
+(`ssr`, `earth`, `hall`, `reflective-ir`, `vibrator`) on top of that sequence.
+`0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
+GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
+0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
+IP5306 is register-only, READ4 returns the explicit 0xff no-cell code and
+battery-mv is a host QOM fixture. `0114` registers the five gpio/gpio-adc/
+gpio-pwm Unit ids on the existing controller paths. Both `0113` and `0114` are
+native-only layers: they are intentionally not listed in
+`scripts/qemu-wasm-build/sources.lock.json` and are not part of the WASM
+browser build until a separate reviewed registration. The older
 `scripts/bootstrap-unit-runtime.py`
 list is a historical Unit-only receipt and does not contain the `0096`-`0109`
 board layers; do not read it as the current native order.

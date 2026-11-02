@@ -162,6 +162,12 @@ export function visualCommands(unit, port, {bindings, running = true} = {}) {
     const duty = unit.properties?.['duty-pct'];
     return [{type: 'drive-activity', target: path(port, 'rotor'), active: running && observed(unit) && Number.isFinite(duty) && duty > 0 && duty <= 100}];
   }
+  if (unit?.unit_id === 'vibrator') {
+    // U059's frozen rotor joint is explicitly external eccentric/shaft motion
+    // only; observed LEDC duty drives the graphical cadence, not vibration force.
+    const duty = unit.properties?.['duty-pct'];
+    return [{type: 'drive-activity', target: path(port, 'rotor'), active: running && observed(unit) && Number.isFinite(duty) && duty > 0 && duty <= 100}];
+  }
   const leds = arrayLedFeedback(unit, bindings);
   const ledCommands = leds ? leds.targets.map((target, index) => leds.known
     ? ledCommand(port, target, leds.colors[index]) : {type: 'led', target: path(port, target), known: false}) : [];
@@ -210,6 +216,11 @@ const AUDIT = {
   scroll: {input: ['pressed'], readback: ['pressed', 'led-rgb'], binding: {'source-count': 'EC10E pulse specification alone does not establish decoded count/revolution and physical direction. Logical counter writes/reset never imply shaft motion.'}},
   thermal: {}, tvoc: {}, ir: {}, hub: {}, rfid2: {}, rs485: {}, buzzer: {},
   fan: {activity: ['duty-pct'], note: 'Positive observed PWM enables a fixed graphical activity cadence; zero, unavailable or terminal state stops it. Shaft speed and electromechanical response remain unmodeled.'},
+  vibrator: {activity: ['duty-pct'], note: 'U059 positive observed LEDC duty enables the frozen rotor joint activity cadence; zero, unavailable or terminal state stops it. Vibration force, frequency optimum and eccentric mechanics remain unmodeled.'},
+  ssr: {note: 'U122 has no frozen visual indicator component; output-level stays panel-only and is not a contact, load or isolation measurement.'},
+  earth: {note: 'U019 analog/digital probe channels are panel-only; the mechanical trim joint has no electrical binding and is never driven from controller state.'},
+  hall: {note: 'U084 low-active magnetic output is panel-only; the frozen asset has no status LED component and the A3144E/74HC08D spatial logic is not visualizable.'},
+  'reflective-ir': {note: 'U175 analog/digital reflectance channels are panel-only; the sensitivity trim has no confirmed electrical mapping.'},
   limit: {input: ['pressed'], readback: ['pressed']},
   cardkb: {input: ['keys'], readback: ['keys', 'led-rgb'], extra: {keys: '50 bool matrix in fixtures/cardkb-keymap.json order; requires current controller baseline.', 'led-rgb': 'Packed RGB emitted by the controller modifier-state machine.'}},
   key: {input: ['pressed'], readback: ['pressed', 'led-rgb']},
