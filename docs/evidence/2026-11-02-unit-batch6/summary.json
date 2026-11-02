@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "Batch-6 first-half six Units through isolated /api/v1 Device Service sessions on one QEMU build (canonical chain through 0141 + evidence fix 0144); not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 22 layers (0120-0141, incl. 0140 batch6 A) + 0144-unit-batch6-evidence-fixes",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0130-unit-batch3ab.patch",
+        "0131-unit-batch3c.patch",
+        "0132-unit-batch3c-fixes.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0134-unit-batch4ab.patch",
+        "0135-unit-batch3ab-fixes.patch",
+        "0136-unit-batch4c.patch",
+        "0137-unit-batch5a.patch",
+        "0138-unit-batch4-evidence-fixes.patch",
+        "0139-unit-batch5b.patch",
+        "0140-unit-batch6a.patch",
+        "0141-unit-batch5-evidence-fixes.patch",
+        "0144-unit-batch6-evidence-fixes.patch"
+      ]
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "mini-scales",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "MiniScaleUnit (0x26)",
+      "firmware_sha256": "847d87741d6ac3575b8137ef42e3c64bda80d158b98f0b60e0675146251fbf34",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "9922eb165b11490a85cb08e73f8e0839",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_adc_value": true,
+        "guest_weight_value": true,
+        "guest_button_pressed": true,
+        "guest_tare_zero": true,
+        "guest_filter_readback": true,
+        "guest_led_write_executed": true,
+        "qom_fixtures_exact": true,
+        "qom_calibration_gap": true,
+        "qom_write_counters": true,
+        "qom_filters": true,
+        "qom_identity": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-mini-scales.json",
+      "report_sha256": "7fbe80c4fd25d1a94742962216d1cd025a9f9674e8170d9af29de3de7b1390d4",
+      "evidence_zip_sha256": "867374bace52eb8981173186bef4e5b7013ff8bd80a5d744ebd310cc4104b7d9",
+      "frame_sha256": "a15217228aeb13e577bc4d269a94c6ec64fa2476b48444c8d1c1df7856ba8b00",
+      "observations": {
+        "mini_scales": {
+          "guest_values": [
+            "123456",
+            "123.5",
+            "1"
+          ],
+          "guest_tare": "0.0",
+          "guest_filters": [
+            "1",
+            "7",
+            "42"
+          ],
+          "qom": {
+            "adc-raw": 123456,
+            "weight-g": 123.5,
+            "button": 0,
+            "calibration-gap": 10,
+            "reset-writes": 1,
+            "calibration-writes": 1,
+            "lpf": 1,
+            "avg-level": 7,
+            "ema-alpha": 42,
+            "i2c-address": 38
+          },
+          "boundary": "HX711/5kg load-cell mechanics, tare drift, linearity, temperature drift and firmware v3/v4 differences are NOT RUN; page FAQ says I2C OR UART but the frozen driver is I2C-only, and 0x26 is a four-way product conflict. The 0140 model has no QOM led-rgb output, so the guest set_led write is exercised but not asserted."
+        }
+      },
+      "boundaries": [
+        "HX711/5kg load-cell mechanics, tare drift, linearity and temperature drift are NOT RUN.",
+        "The page FAQ says MiniScales uses I2C OR UART, while the frozen driver is I2C-only; 0x26 conflicts with 4relay/weight-i2c/scales (four-way product conflict).",
+        "The 0140 model exposes no QOM led-rgb output, so the guest set_led write is exercised but not asserted; firmware v3/v4 absolute-ADC-limit difference stays unresolved."
+      ],
+      "decoded_assertion": null
+    },
+    {
+      "unit_id": "rgb-led-strip-50cm",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "RGBUnit(SK6812, 30 LEDs)",
+      "firmware_sha256": "668d64959acee28f970546492dcb60a0afbec74c0f60ef6d2213170c8f1a2512",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "0ec6ec13c32642bfbd836c78431d464a",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_fill_frame_written": true,
+        "guest_indexed_frame_written": true,
+        "qom_30_leds_match": true,
+        "qom_frames_counted": true,
+        "no_incomplete_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-rgb-led-strip-50cm.json",
+      "report_sha256": "4b8b7824eb711b9ce5bc5624bd6c6017eb198e584969eb5d043a3e9b18a469bd",
+      "evidence_zip_sha256": "93b1f8304d649f4c6872ec55be8cd34cd23854a8005943681299c0780a277fbb",
+      "frame_sha256": "7e417a6469bbb3100effe831fccedd82905bef5c99b5da599c9681f1d0cd82cc",
+      "observations": {
+        "rgb_led_strip_50cm": {
+          "qom": {
+            "led-rgb": [
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              4478310,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867
+            ],
+            "led-frames": 2,
+            "incomplete-frames": 0,
+            "output-transitions": 2
+          },
+          "expected_led_rgb": [
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            4478310,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867,
+            1122867
+          ],
+          "boundary": "SK6812 LED optics/color/power/IP65 and 800kHz timing tolerance are NOT RUN; the page gives strip-side VCC/GND/DATA line colors while the Grove adapter mapping is unresolved. A093 30-LED results do not transfer to A093-B/C/D variants or to A035/A045-B."
+        }
+      },
+      "boundaries": [
+        "SK6812 LED optics/color/power/IP65 and 800kHz timing tolerance are NOT RUN.",
+        "The page gives strip-side VCC/GND/DATA line colors; the Grove adapter data-line mapping stays unresolved and is recorded as a limitation.",
+        "A093 30-LED results do not transfer to A093-B/C/D (60/120/300) variants or to A035/A045-B."
+      ],
+      "decoded_assertion": null
+    },
+    {
+      "unit_id": "op180",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "OPUnit(Button, active-low)",
+      "firmware_sha256": "38ec15731d9c649e005243e071a1e22fc3cb2f16b072f45733f92d2c613dfa75",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "ce6c2bfe4d8344ab899e7f397f34f29f",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_level_changes": true,
+        "qom_level_and_blocked": true,
+        "input_events_counted": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-op180.json",
+      "report_sha256": "97780318c3951b3a31eb6d414629845b9bfe6b197fa44ff34c83dea97946d118",
+      "evidence_zip_sha256": "ae4685db30f17470ab9fa7ac13abfdcbfc293769931e1c630e257454a33775be",
+      "frame_sha256": "ccda52a1cc275497c5ed67f1bfcb957b2c443839d3f2b0786e30ccef0bbfec20",
+      "observations": {
+        "op180": {
+          "guest_levels": [
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "qom": {
+            "digital-level": true,
+            "blocked": false,
+            "input-events": 3,
+            "transactions": null
+          },
+          "boundary": "180-degree IR through-beam optics, occlusion geometry, response speed and mechanical mounting are NOT RUN; active-low polarity comes from the frozen OPUnit default. OP90 batch5 results are NOT transferred to OP180 even though both share unit/op.py. Official PORT.B is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "180-degree IR through-beam optics, occlusion geometry, response speed and mechanical mounting are NOT RUN.",
+        "Active-low polarity comes from the frozen OPUnit default; OP90 batch5 results are NOT transferred to OP180 even though both share unit/op.py.",
+        "Official PORT.B is not runtime-admitted; cores3 PORT.A harness wiring is recorded in the report."
+      ],
+      "decoded_assertion": null
+    },
+    {
+      "unit_id": "synth",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "SynthUnit (SAM2695 MIDI TX-only)",
+      "firmware_sha256": "acc679dd0ce91d1cdcc7832a44913454726da2dbffb379f25ec285b95504203e",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "72f5c9bca556420abfe5d4d94b5d27d1",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_midi_sent": true,
+        "qom_tx_hex_exact": true,
+        "written_bytes_match": true,
+        "no_rx_injection_modeled": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-synth.json",
+      "report_sha256": "e6b0173ecc7151c85fac6ec729cb52784b361f769710c8c4fd7c5f2b4c74e06d",
+      "evidence_zip_sha256": "9972f5eef25b14e8a17349a1e198871e32175751f4a53f740ba2342f4b7dab26",
+      "frame_sha256": "dc04e00fd04a537d91cd144c8e73df24b8f7d98aec74669a9be364e8ae6a2ae5",
+      "observations": {
+        "synth": {
+          "expected_tx_hex": "903c64803c00b00000c028f07f7f0401007ff7",
+          "qom": {
+            "tx-hex": "903c64803c00b00000c028f07f7f0401007ff7",
+            "written-bytes": 19,
+            "transactions": 0
+          },
+          "boundary": "SAM2695 synthesis/audio, GM instruments, NS4150B amplifier and speaker are NOT RUN; the Unit is TX-only (white=NC) so no RX injection exists and none is claimed. 31250 baud comes from the driver, not the product page. Official PORT.C is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "SAM2695 synthesis/audio, GM instruments, NS4150B amplifier and speaker are NOT RUN.",
+        "The Unit is TX-only (white=NC); no RX injection exists and none is claimed.",
+        "31250 baud comes from the driver, not the product page; official PORT.C is substituted by cores3 PORT.A harness."
+      ],
+      "decoded_assertion": null
+    },
+    {
+      "unit_id": "mini-imu",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "IMUUnit (MPU6886, 0x68)",
+      "firmware_sha256": "855ac2a9df51841e6a1a78d405d27bf776c2a95f2ee23c8e4fb5a1ca22943f38",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "9a9b391bae5c46ce88df0871bfdbb509",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_whoami": true,
+        "guest_accel_g": true,
+        "guest_gyro_dps": true,
+        "guest_temperature": true,
+        "guest_default_range": true,
+        "guest_range_switch": true,
+        "guest_accel_after_range": true,
+        "qom_range_fixtures": true,
+        "qom_identity": true,
+        "qom_sensor_fixtures": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-mini-imu.json",
+      "report_sha256": "c8e79a4bec0a6796b3dc9b55e4d1ef89a5073da2b7e24e59cb2bccc11fc8fd28",
+      "evidence_zip_sha256": "15b93847f1f0298de385558f1249bbc5a76c32688164f85f366e8976ec177030",
+      "frame_sha256": "50ed2aeb3cb3ecc38af68a7304cac2b2b1d12cd212a2feb37db2cc1ac9b266a5",
+      "observations": {
+        "mini_imu": {
+          "guest_whoami": "25",
+          "guest_accel_g": [
+            "1.5",
+            "-0.5",
+            "1.0"
+          ],
+          "guest_gyro_dps": [
+            "12.503817",
+            "-25.0",
+            "50.0"
+          ],
+          "guest_temperature_c": "31.25153",
+          "guest_range0": [
+            "16384",
+            "131"
+          ],
+          "guest_range1": [
+            "4096",
+            "32.8"
+          ],
+          "guest_accel_after_range": [
+            "1.5",
+            "-0.5",
+            "1.0"
+          ],
+          "qom": {
+            "accel-x-g": 1.5,
+            "accel-y-g": -0.5,
+            "accel-z-g": 1,
+            "gyro-x-dps": 12.5,
+            "gyro-y-dps": -25,
+            "gyro-z-dps": 50,
+            "temperature-c": 31.25,
+            "accel-range": 8,
+            "gyro-range": 1000,
+            "whoami": 25,
+            "i2c-address": 104
+          },
+          "boundary": "Real motion/vibration/temperature and MPU6886 DMP/FIFO calibration are NOT RUN. The 0144 fix keeps the QOM accel-range/gyro-range view in sync with guest ACCEL_CONFIG/GYRO_CONFIG writes; guest init selects 2g/250dps and the probe then switches to 8g/1000dps. 0x68 is shared with Mini IMU-Pro (U171)."
+        }
+      },
+      "boundaries": [
+        "Real motion/vibration/temperature and MPU6886 DMP/FIFO calibration are NOT RUN.",
+        "0x68 is shared with Mini IMU-Pro (U171); guest ACCEL_CONFIG/GYRO_CONFIG writes are the range source of truth after the 0144 QOM sync.",
+        "The driver returns g/deg/s only after the probe switches units explicitly; the default MPU6886 path returns m/s^2/rad/s."
+      ],
+      "decoded_assertion": null
+    },
+    {
+      "unit_id": "env-pro",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ENVPROUnit (BME688, 0x77; raw fields only)",
+      "firmware_sha256": "be5bb9cf05e40c089dc2fa6824496edf05a4d5e8f1612213c74d3f92f619a978",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+      "session_id": "b021a2c3513042479b38bd17146ce503",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_chip_variant": true,
+        "guest_raw_field_bytes_exact": true,
+        "guest_status_ready": true,
+        "qom_fixtures_exact": true,
+        "qom_identity": true,
+        "i2c_address_0x77": true,
+        "guest_decoded_not_asserted": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch6/report-env-pro.json",
+      "report_sha256": "17e43d4c452a1430ba9ebee097ada7dd3143dd82457d2d3def0676e57b249d19",
+      "evidence_zip_sha256": "b753041a634868b0575a3e2ac82dc72367a0f83ad163b0b8f5c85a1920c37d29",
+      "frame_sha256": "919a9aa244ab55104f78ac6abfeb20bc129489e49aa22cec3bc862baa9012cf4",
+      "observations": {
+        "env_pro": {
+          "guest_id": [
+            "97",
+            "1"
+          ],
+          "guest_raw_field_hex": "8001188940000478747a",
+          "guest_status": "128",
+          "guest_decoded_observation": "0.0 0.0 0.0 102400.0",
+          "expected_raw_field_hex": "8001188940000478747a",
+          "qom": {
+            "temperature-c": 31.5,
+            "humidity-pct": 45.5,
+            "pressure-pa": 100500,
+            "gas-resistance-ohm": 500000,
+            "data-ready": true,
+            "chip-id": 97,
+            "variant": 1,
+            "i2c-address": 119
+          },
+          "decoded_assertion": "NOT ASSERTED: the 0140 model does not implement the BME68x compensation inverse, so guest T/RH/P are observation-only. Raw field bytes are the assertable data plane.",
+          "boundary": "BME688 gas/IAQ/heater profile/10.8s scan, real T/RH/P physics and calibration coefficients are NOT RUN; 0x77 is free but the 0x76 alternate conflicts with env/bps/env-ii/env-iv."
+        }
+      },
+      "boundaries": [
+        "Guest-decoded temperature/humidity/pressure are NOT ASSERTED: the 0140 model does not implement the BME68x compensation inverse. Only chip/variant identity, raw field bytes and QOM fixtures are asserted.",
+        "BME688 gas/IAQ/heater profile, 10.8s scan, calibration coefficients and real T/RH/P physics are NOT RUN.",
+        "0x77 is free but the 0x76 alternate conflicts with env/bps/env-ii/env-iv; the frozen driver uses 8-bit register addresses."
+      ],
+      "decoded_assertion": "NOT ASSERTED: guest temperature/humidity/pressure/gas decode requires the BME68x compensation inverse, which the 0140 model does not implement. The PASS covers identity, raw field bytes and QOM fixtures only; decoded values are recorded as observation."
+    }
+  ]
+}

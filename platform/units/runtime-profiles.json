@@ -8713,9 +8713,11 @@
       }
     },
     "mini-scales": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 CONTROL_MINISCALE（0x26）：u32 LE ADC、float LE weight、signed button（0=按下）、RGB、校准 gap float、reset/去皮、LPF/avg/EMA 寄存器。未采集 guest/Device Service 证据 → planned。**HX711/5kg 载荷/温漂/线性度 NOT RUN；v3/v4 固件差异需钉版本；页面“I2C OR UART”与驱动仅 I2C 冲突 unresolved；0x26 与 4relay/weight-i2c/scales 四方冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen MiniScaleUnit on cores3 at 0x26: guest ADC=123456/weight=123.5/button pressed, tare→0.0, calibration gap 10.0, reset/LPF/avg/EMA writes and readback all observed in QOM. 0144 fixes the 0140 pointer-phase bug (readfrom_mem was NACKed) and adds the button-pressed alias. HX711/5kg mechanics/tare drift/linearity NOT RUN; page FAQ says I2C OR UART but the frozen driver is I2C-only; 0x26 is a four-way conflict; the model has no QOM led-rgb so set_led is executed but not asserted; firmware v3/v4 differences unresolved.",
       "inputs": {
         "adc-raw": {
           "property": "adc-raw"
@@ -8759,12 +8761,52 @@
           "property": "i2c-address"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-mini-scales.json",
+        "report_sha256": "7fbe80c4fd25d1a94742962216d1cd025a9f9674e8170d9af29de3de7b1390d4",
+        "evidence_sha256": "867374bace52eb8981173186bef4e5b7013ff8bd80a5d744ebd310cc4104b7d9",
+        "firmware_sha256": "847d87741d6ac3575b8137ef42e3c64bda80d158b98f0b60e0675146251fbf34",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "b4d0548dbf741d5350ccafe1077aa014a3b75f4c119865fc70ba9af689e5adc9",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "rgb-led-strip-50cm": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 GPIO id 'rgb-led-strip-50cm'：黄线 RMT 捕获 30×SK6812 帧。未采集 guest/Device Service 证据 → planned。**页面只给灯带侧 VCC/GND/DATA 线色，Grove 适配器数据线映射 unresolved；A093 vs A093-B/C/D 变体不建模；LED 光学/IP65/功率/时序容差 NOT RUN；PORT.B 主机限制**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen RGBUnit/SK6812 RMT path on cores3 PORT.A harness wiring (official PORT.B not runtime-admitted): fill_color(0x112233)+set_color(5,0x445566) produce a 30-LED QOM frame (29×0x112233 + index5=0x445566), led-frames>=2 and no incomplete frames. LED optics/color/power/IP65/800kHz timing tolerance NOT RUN; strip-side VCC/GND/DATA vs Grove adapter mapping unresolved; A093 30-LED results do not transfer to A093-B/C/D or A035/A045-B.",
       "inputs": {},
       "state": {
         "led-rgb": {
@@ -8780,12 +8822,52 @@
           "property": "output-transitions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-rgb-led-strip-50cm.json",
+        "report_sha256": "4b8b7824eb711b9ce5bc5624bd6c6017eb198e584969eb5d043a3e9b18a469bd",
+        "evidence_sha256": "93b1f8304d649f4c6872ec55be8cd34cd23854a8005943681299c0780a277fbb",
+        "firmware_sha256": "668d64959acee28f970546492dcb60a0afbec74c0f60ef6d2213170c8f1a2512",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "bc3d48640653683c640897f68a53b136c8b40fc194e0751bd3234cf03c2f3374",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "op180": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 GPIO id 'op180'（与 op90 共用 GPIO 事务模型，不转授结果）：白线数字输入 + active-low blocked fixture；黄线 NC。未采集 guest/Device Service 证据 → planned。**180° 光学/对射几何/响应/机械安装 NOT RUN；极性来自共享驱动默认；PORT.B 主机限制；OP90 与 OP180 是不同产品，结果不可互相转授**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen OPUnit white-line digital input on cores3 PORT.A harness wiring (official PORT.B not runtime-admitted): injected digital-level true→false→true is read by the guest Pin as 1/0/1 and QOM digital-level/blocked/input-events are consistent. 180-degree through-beam optics/occlusion geometry/response speed/mechanical mounting NOT RUN; OP90 batch5 results are not transferred even though both share unit/op.py.",
       "inputs": {
         "digital-level": {
           "property": "digital-level"
@@ -8802,12 +8884,52 @@
           "property": "input-events"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-op180.json",
+        "report_sha256": "97780318c3951b3a31eb6d414629845b9bfe6b197fa44ff34c83dea97946d118",
+        "evidence_sha256": "ae4685db30f17470ab9fa7ac13abfdcbfc293769931e1c630e257454a33775be",
+        "firmware_sha256": "38ec15731d9c649e005243e071a1e22fc3cb2f16b072f45733f92d2c613dfa75",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "31d371dc31ddf6f52b283ff153c0c34898373d2e87302a18e295ea03089258d2",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "synth": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 GPIO id 'synth'：仅 TX 捕获 31250 MIDI 字节流（white=NC，不建模 RX/注入）。未采集 guest/Device Service 证据 → planned。**SAM2695 音频/音色/复调/NS4150B 功放/扬声器 NOT RUN；TX-only 不得注入 RX；31250 来自驱动（页面未写）；PORT.C 冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen SynthUnit TX-only MIDI path on cores3 PORT.A harness wiring (official PORT.C not runtime-admitted): note on/off + instrument + master volume produce exactly 903c64803c00b00000c028f07f7f0401007ff7 in QOM tx-hex with written-bytes=19. SAM2695 synthesis/audio/instruments, NS4150B amplifier and speaker NOT RUN; white=NC means there is no RX injection and none is claimed; 31250 baud comes from the driver, not the product page.",
       "inputs": {},
       "state": {
         "tx-hex": {
@@ -8820,12 +8942,52 @@
           "property": "transactions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-synth.json",
+        "report_sha256": "e6b0173ecc7151c85fac6ec729cb52784b361f769710c8c4fd7c5f2b4c74e06d",
+        "evidence_sha256": "9972f5eef25b14e8a17349a1e198871e32175751f4a53f740ba2342f4b7dab26",
+        "firmware_sha256": "acc679dd0ce91d1cdcc7832a44913454726da2dbffb379f25ec285b95504203e",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "c18f9c9cd6530ee1e55dd56f97050eec33f5f21ce06cb1421baf0feb928f9af1",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "mini-imu": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 US_MPU6886（0x68）：WHO_AM_I=0x19、accel/gyro/temp 数据寄存器由 fixture 按驱动比例因子反算、量程配置 0x1B/0x1C、地址迁移。未采集 guest/Device Service 证据 → planned。**真实运动/振动/温度/校准 NOT RUN；DMP/FIFO 不建模；0x68 无已登记冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen IMUUnit/MPU6886 on cores3 at 0x68: guest whoami=0x19, accel=(1.5,-0.5,1.0) g, gyro=(12.5,-25,50) deg/s, temperature=31.25°C; guest init selects 2g/250dps and the probe switches to 8g/1000dps, with QOM accel-range/gyro-range synced by 0144. Real motion/vibration/temperature and DMP/FIFO calibration NOT RUN; 0x68 is shared with Mini IMU-Pro (U171).",
       "inputs": {
         "accel-x-g": {
           "property": "accel-x-g"
@@ -8890,12 +9052,52 @@
           "property": "i2c-address"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-mini-imu.json",
+        "report_sha256": "c8e79a4bec0a6796b3dc9b55e4d1ef89a5073da2b7e24e59cb2bccc11fc8fd28",
+        "evidence_sha256": "15b93847f1f0298de385558f1249bbc5a76c32688164f85f366e8976ec177030",
+        "firmware_sha256": "855ac2a9df51841e6a1a78d405d27bf776c2a95f2ee23c8e4fb5a1ca22943f38",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "d372852bd4a177e9c218e96ef20b21d1068ec0411099fe050e8bfa56a3747255",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "env-pro": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0140 新增 US_BME68X（0x77）：CHIP_ID 0x61、variant、软复位、CTRL/STATUS/校准寄存器存储、合成 17B field data。未采集 guest/Device Service 证据 → planned。**BME688 气体/IAQ/加热器/10.8s 扫描 NOT RUN；BME68x 补偿逆运算未建模 → guest 温/湿/压解码不可断言，field bytes 为合成；仅实现默认 0x77，备选 0x76 与 bps/env/env-iv 冲突；0x77 无已登记冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen ENVPROUnit/BME688 on cores3 at 0x77: chip-id=0x61, variant=1, status=0x80 and the synthetic raw field block 8001188940000478747a match the QOM fixtures (T=31.5°C, RH=45.5%, P=100500 Pa, gas=500000Ω). Guest-decoded temperature/humidity/pressure are NOT ASSERTED because the BME68x compensation inverse is not modeled; only identity, raw field bytes and QOM fixtures are in the PASS. Gas/IAQ/heater/10.8s scan/calibration/physical T/RH/P NOT RUN; 0x77 is free but 0x76 conflicts with env/bps/env-ii/env-iv.",
       "inputs": {
         "temperature-c": {
           "property": "temperature-c"
@@ -8939,7 +9141,45 @@
           "property": "i2c-address"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch6/report-env-pro.json",
+        "report_sha256": "17e43d4c452a1430ba9ebee097ada7dd3143dd82457d2d3def0676e57b249d19",
+        "evidence_sha256": "b753041a634868b0575a3e2ac82dc72367a0f83ad163b0b8f5c85a1920c37d29",
+        "firmware_sha256": "be5bb9cf05e40c089dc2fa6824496edf05a4d5e8f1612213c74d3f92f619a978",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "3e96dce6b2fc432b7e5c06179092a612609bdf90108d76fcea45751eaa923022",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0144-unit-batch6-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "unit-id": {
       "status": "planned",

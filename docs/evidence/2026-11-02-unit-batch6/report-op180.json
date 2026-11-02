@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T00:21:23.605356+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "op180",
+  "driver_class": "OPUnit(Button, active-low)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_level_changes": true,
+    "qom_level_and_blocked": true,
+    "input_events_counted": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "38ec15731d9c649e005243e071a1e22fc3cb2f16b072f45733f92d2c613dfa75",
+  "firmware_id": "38ec15731d9c649e005243e071a1e22fc3cb2f16b072f45733f92d2c613dfa75",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 22 layers (0120-0141, incl. 0140 batch6 A) + 0144-unit-batch6-evidence-fixes",
+  "official_port": "PORT.B",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.B and is not the admitted runtime host port on cores3",
+  "initial_inputs": {
+    "digital-level": true
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "00ce60371dc6e93fe25b92706555885c82e6c753f7736257f7be120b5d2ee77d",
+    "main.py": "386971e8943fe779040c581d2cc924ebe9eada8a0b3ba4d9d275f624eb28ec24"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "ce6c2bfe4d8344ab899e7f397f34f29f",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "op180",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "op180": {
+      "guest_levels": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "qom": {
+        "digital-level": true,
+        "blocked": false,
+        "input-events": 3,
+        "transactions": null
+      },
+      "boundary": "180-degree IR through-beam optics, occlusion geometry, response speed and mechanical mounting are NOT RUN; active-low polarity comes from the frozen OPUnit default. OP90 batch5 results are NOT transferred to OP180 even though both share unit/op.py. Official PORT.B is substituted by cores3 PORT.A harness."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T00:21:28.879907+08:00",
+      "properties": {
+        "digital-level": true,
+        "blocked": false,
+        "input-events": 3
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH6_PROBE_READY",
+    "op180": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (937) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6_PROBE_START op180\nBATCH6_PROBE_READY op180\nGPIO_OP180 1\nGPIO_OP180 0\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180 1\nGPIO_OP180_END\n"
+  },
+  "frame": {
+    "sha256": "ccda52a1cc275497c5ed67f1bfcb957b2c443839d3f2b0786e30ccef0bbfec20",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "ae4685db30f17470ab9fa7ac13abfdcbfc293769931e1c630e257454a33775be",
+    "bytes": 18552
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "180-degree IR through-beam optics, occlusion geometry, response speed and mechanical mounting are NOT RUN.",
+    "Active-low polarity comes from the frozen OPUnit default; OP90 batch5 results are NOT transferred to OP180 even though both share unit/op.py.",
+    "Official PORT.B is not runtime-admitted; cores3 PORT.A harness wiring is recorded in the report."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed."
+}
