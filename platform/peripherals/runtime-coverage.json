@@ -952,6 +952,13 @@
       "external": [],
       "models": []
     },
+    "atoms3r-m12": {
+      "status": "candidate",
+      "blocker": "Device-local official shared UIFlow2 image boot, board id 144, panel init, OV3660 16-bit SCCB PID 0x3660 and camera frames passed (docs/evidence/2026-11-02-atoms3r-m12-host/summary.json): QQVGA/VGA/HD frames and a five-frame stream match the reconstructed DVP waveform, and the community usb_webcam demo detects the sensor. The camera component stays partial because the demo MJPEG/UVC path and physical optics/electrical timing are not covered, and IR and Grove Units are not modeled, so the candidate group still covers no simulated component.",
+      "matrix": [],
+      "external": [],
+      "models": []
+    },
     "m5stick": {
       "status": "candidate",
       "blocker": "Device-local m5stick boots the official EasyLoader factory image to the native serial marker mpu9250 addr: FF in deterministic icount mode and the SH1107 model receives the full init/GDDRAM path; the factory firmware's legacy I2C FIFO path does not complete, so no factory-firmware button/IMU data plane and no final UI frame are claimed. MPU9250/IP5306/GPIO35 model data planes are exercised by the generic MicroPython fixture.",

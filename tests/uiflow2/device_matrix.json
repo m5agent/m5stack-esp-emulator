@@ -433,6 +433,49 @@
       "timeout": 90
     },
     {
+      "id": "atoms3r-m12",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atoms3rm12",
+      "base": "platform/.cache/firmware/atoms3r-m12/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atoms3r_m12_console_test",
+      "vfs_offset": "0x651000",
+      "vfs_size": "0x1ae000",
+      "flash_size": "0x800000",
+      "memory": "8",
+      "efuse_pkg_version": 0,
+      "serial_index": 0,
+      "qom_set_on_marker": [
+        {
+          "marker": "M12_BASE_DONE",
+          "set": [
+            ["/machine/m5-lcd-cam", "auto-increment", true]
+          ]
+        }
+      ],
+      "serial_expect": [
+        "M12_BOOT_FLAG",
+        "M12_MAIN_START",
+        "M12_M5_BEGIN_OK",
+        "M12_BOARD 144",
+        "M12_I2C_SCAN ['0x8', '0x10', '0x3c', '0x68']",
+        "M12_PID 3660",
+        "M12_INIT True",
+        "M12_CAPTURE_BYTES 153600",
+        "M12_FRAME_SHA256 09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696",
+        "M12_GEOM QQVGA 1 160 120 38400 94203cc2fa9273a07b6052e820462e15ace7421cf08ea409da536f53bae69034",
+        "M12_GEOM VGA 10 640 480 614400 94a147ff55c5c3189eb6a9871dded374483ed7d33f1d0767889879986fa6e412",
+        "M12_GEOM HD 13 1280 720 1843200 990f35de36a528f307231c220509df15f16b874c74e29105b2e3010725d5fec3",
+        "M12_GEOMETRY_DONE 3 3",
+        "M12_STREAM_CAPTURED 5",
+        "M12_STREAM_BYTES_OK 5",
+        "M12_STREAM_DISTINCT 5",
+        "M12_STATUS ok"
+      ],
+      "timeout": 120
+    },
+    {
       "id": "basic-v27",
       "backend": "qemu-esp32lx6",
       "network_status": "unverified",

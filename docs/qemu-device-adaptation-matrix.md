@@ -46,6 +46,7 @@
 | AtomS3U | ESP32-S3FN8 | `qemu-esp32s3` | 无屏 / GPIO41 按键、GPIO35 WS2812、IR G12、PDM 麦克风 | 是，外设 `partial` |
 | Atom VoiceS3R | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、ES8311、NS4150B、IR G47 | 是，外设 `partial` |
 | AtomS3R-CAM | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、GC0308 相机、IR G47 | 是，外设 `partial` |
+| AtomS3R-M12 | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、OV3660 M12 相机（16-bit SCCB）、IR G47 | 是，外设 `partial` |
 
 
 ## 运行时优先级

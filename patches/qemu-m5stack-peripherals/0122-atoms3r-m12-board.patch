@@ -1,0 +1,448 @@
+From 6f742e2e7d077f7360306d30390b1388bf98d4fa Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 18:29:54 +0800
+Subject: [PATCH] hw/m5stopwatch: add AtomS3R-M12 board with OV3660 camera
+ model
+
+AtomS3R-M12 (C126-M12) is the M12-lens variant of the AtomS3R camera
+controller: ESP32-S3-PICO-1-N8R8, GC9107 128x128 panel, BMI270 + BMM150,
+and an OV3660 sensor on the same DVP/SCCB pin group as AtomS3R-CAM
+(vsync G10, href G14, xclk G21, pclk G40, D0..D7, SCCB SDA G12 / SCL G9,
+power G18).
+
+The new m5atoms3rm12 machine reuses the AtomS3R-CAM controller, panel,
+PSRAM, LCD_CAM and dedicated SCCB bridge, but populates only the M12
+hardware inventory (BMM150 0x10, BMI270 0x68, OV3660 0x3c) and binds the
+LCD_CAM device to the OV3660 geometry.
+
+The OV3660 I2C slave model implements the 16-bit SCCB register space used
+by esp32-camera (SCCB_Read16/Write16): two address bytes, then the data
+byte; read transactions keep the pointer written by the preceding write.
+PID 0x3660 is served from read-only 0x300A/0x300B, a software reset in
+0x3008 bit 7 clears volatile state, and the DVP output width/height in
+registers 0x3808-0x380b are decoded and published to LCD_CAM, which
+latches them at CAM_START.
+
+Guest evidence: official UIFlow2 v2.5.4 AtomS3R-CAM image (whose M5Burner
+entry declares "UIFlow2 for AtomS3R-CAM and AtomS3R-M12") runs on this
+machine and its camera module detects OV3660 at 0x3c (PID 0x3660) and
+returns QQVGA/VGA/HD frames matching the host-reconstructed DVP waveform,
+plus five distinct streamed frames.  The M5Burner "AtomS3R-CAM M12 User
+Demo" (usb_webcam, IDF v5.1.4) also boots on this machine, its own
+esp32-camera detects/initializes the OV3660, and its internal I2C scan
+sees exactly 0x10/0x3c/0x68; its MJPEG/UVC frame path is not modeled
+(NO-SOI) and full demo behaviour remains NOT RUN.
+---
+ hw/m5stopwatch/m5atoms3rm12.c  | 122 +++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5sticks3.c     |   3 +
+ hw/m5stopwatch/m5stopwatch.h   |   7 ++
+ hw/m5stopwatch/m5sw_i2c_devs.c | 113 ++++++++++++++++++++++++++++++
+ hw/xtensa/esp32s3.c            |  34 +++++++++
+ hw/xtensa/meson.build          |   1 +
+ 6 files changed, 280 insertions(+)
+ create mode 100644 hw/m5stopwatch/m5atoms3rm12.c
+
+diff --git a/hw/m5stopwatch/m5atoms3rm12.c b/hw/m5stopwatch/m5atoms3rm12.c
+new file mode 100644
+index 0000000..681f09b
+--- /dev/null
++++ b/hw/m5stopwatch/m5atoms3rm12.c
+@@ -0,0 +1,122 @@
++/*
++ * M5Stack AtomS3R-M12 (C126-M12) board wiring.
++ *
++ * AtomS3R controller (ESP32-S3-PICO-1-N8R8, GC9107 128x128 panel,
++ * BMI270 at 0x68 with BMM150 behind the sensor hub) plus an OV3660 M12 camera on
++ * the LCD_CAM DVP port.  The M12 camera SCCB bus is bit-banged on SDA GPIO12 /
++ * SCL GPIO9, while the sensor/codec bus stays on the AtomS3R SYS pins.
++ * Camera control pins: VSYNC G10, HREF G14, XCLK G21, PCLK G40,
++ * Y2 G3, Y3 G42, Y4 G46, Y5 G48, Y6 G4, Y7 G17, Y8 G11, Y9 G13,
++ * POWER_N G18.  Grove port on GPIO2/GPIO1.
++ *
++ * The LCD_CAM/DVP model delivers frames through the same controller path as
++ * CoreS3; the board keeps its own machine identity and does not inherit
++ * AtomS3R conclusions.
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/AtomS3R-M12 PinMap (M12 camera
++ * module shares the AtomS3R-CAM DVP/SCCB/control pins), checked 2026-11-02.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5atoms3rm12_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    MemoryRegion *i2c0_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000, i2c0_mr, 1);
++
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    MemoryRegion *i2c1_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000, i2c1_mr, 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
++
++    /* AtomS3R-M12 hardware inventory: BMI270 at 0x68 and the BMM150 behind
++     * the sensor hub at 0x10 on the shared bus; the OV3660 M12 sensor answers
++     * on the dedicated bit-banged SCCB port at 0x3c.  The AtomS3R-CAM machine
++     * also lists LP5562/ES8311/PI4IOE models that are not part of this M12
++     * hardware and would otherwise occupy unrelated I2C addresses. */
++    static const struct { const char *model; uint8_t addr; } devs[] = {
++        { "bmm150", 0x10 },
++        { "bmi270", 0x68 },
++        { "ov3660", 0x3c },
++    };
++    DeviceState *ov3660 = NULL;
++    for (int i = 0; i < ARRAY_SIZE(devs); i++) {
++        DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(d, "model", devs[i].model);
++        qdev_prop_set_uint8(d, "address", devs[i].addr);
++        object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
++        qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
++        if (!strcmp(devs[i].model, "ov3660")) {
++            ov3660 = d;
++        }
++    }
++    m5stopwatch_soft_i2c_init(bus);
++    /* Camera SCCB is bit-banged on SDA GPIO12 / SCL GPIO9 and those pads are
++     * dedicated to the M12 sensor control port, so the bridge must not be closed
++     * by a hardware I2C controller transaction on the shared QEMU I2CBus. */
++    m5stopwatch_soft_i2c_init_dedicated_pins(bus, 12, 9);
++
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
++    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
++    memory_region_init_alias(spi2_alias, NULL, "m5atoms3rm12.spi2-alias",
++                             spi_mr, 0, memory_region_size(spi_mr));
++    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
++    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                                ETS_SPI3_INTR_SOURCE);
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 132);
++    qdev_prop_set_uint32(panel, "mem-height", 132);
++    qdev_prop_set_uint32(panel, "vis-width", 128);
++    qdev_prop_set_uint32(panel, "vis-height", 128);
++    qdev_prop_set_uint32(panel, "offset-x", 2);
++    qdev_prop_set_uint32(panel, "offset-y", 1);
++    qdev_prop_set_uint32(panel, "key-a-pin", 41);
++    qdev_prop_set_uint32(panel, "key-b-pin", 41);
++    qdev_prop_set_uint32(panel, "read-id", 0x00007683);
++    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_bit(panel, "infer-command", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
++    esp32s3_gpspi_set_dc_pin(spi, 42);
++
++    DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
++    /* Default DVP geometry until the OV3660 publishes the output window
++     * written by esp32-camera set_framesize() (0x3808-0x380b). */
++    m5_lcd_cam_attach(cam, gdma, 320, 240);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(cam), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(cam), 0), 1);
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(cam), 0,
++        qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++    /* Camera capture geometry follows the sensor's configured output size. */
++    m5sw_ov3660_bind_lcd_cam(ov3660, cam);
++}
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 0414dd4..b4cfe31 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -104,6 +104,9 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_ATOMS3R_CAM:
+         m5atoms3rcam_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_ATOMS3R_M12:
++        m5atoms3rm12_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3:
+         m5atoms3_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 897469a..0bd022c 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -80,6 +80,7 @@ typedef enum {
+     M5_BOARD_ATOMS3U,
+     M5_BOARD_ATOM_VOICES3R,
+     M5_BOARD_ATOMS3R_CAM,
++    M5_BOARD_ATOMS3R_M12,
+     M5_BOARD_STICKC_PLUS2,
+     M5_BOARD_STICKC,
+     M5_BOARD_STICKC_PLUS,
+@@ -122,6 +123,10 @@ void m5_lcd_cam_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+ void m5_lcd_cam_set_sensor_geometry(DeviceState *dev, uint32_t width,
+                                     uint32_t height);
+ void m5sw_gc0308_bind_lcd_cam(DeviceState *sensor, DeviceState *lcd_cam);
++/* OV3660 uses 16-bit SCCB register addresses (SCCB_Read16/Write16).  The
++ * model publishes the output width/height written by esp32-camera
++ * set_framesize() (0x3808-0x380b) to the bound LCD_CAM device. */
++void m5sw_ov3660_bind_lcd_cam(DeviceState *sensor, DeviceState *lcd_cam);
+ void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
+ void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                        struct ESPGdmaState *gdma);
+@@ -195,6 +200,8 @@ void m5atomvoices3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                struct ESPGdmaState *gdma);
+ void m5atoms3rcam_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                              struct ESPGdmaState *gdma);
++void m5atoms3rm12_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             struct ESPGdmaState *gdma);
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          struct ESPGdmaState *gdma);
+ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 9cebab5..2ea9254 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -48,6 +48,7 @@ enum {
+     M_ES8389,
+     M_IP2315,
+     M_GC0308,
++    M_OV3660,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -59,6 +60,12 @@ typedef struct M5swI2CDev {
+     uint8_t gc0308_bank1[256];
+     /* GC0308 DVP output geometry sink (the AtomS3R-CAM LCD_CAM device). */
+     DeviceState *gc0308_lcd_cam;
++    /* OV3660 (AtomS3R-M12) uses a 16-bit SCCB register address space. */
++    uint8_t *ov3660_regs;
++    uint16_t ov3660_ptr;
++    uint8_t ov3660_addr_bytes;
++    bool ov3660_ptr_valid;
++    DeviceState *ov3660_lcd_cam;
+     uint8_t ptr;
+     bool ptr_set;          /* first byte of a write = register address */
+     int64_t rtc_base_seconds; /* host epoch captured at device realize */
+@@ -272,6 +279,74 @@ void m5sw_gc0308_bind_lcd_cam(DeviceState *sensor, DeviceState *lcd_cam)
+     gc0308_notify_geometry(s);
+ }
+ 
++/*
++ * OV3660 SCCB model.  esp32-camera talks to this sensor with 16-bit register
++ * addresses (SCCB_Read16/Write16): a write transaction is address byte,
++ * register high, register low, data; a read transaction first writes the two
++ * register address bytes and then performs a separate read transaction.
++ * PID 0x3660 lives in read-only registers 0x300A/0x300B.  The DVP output
++ * geometry is published from the 0x3808-0x380b output-size registers which
++ * set_framesize() writes through write_addr_reg().
++ */
++#define OV3660_REG_SPACE 0x10000
++#define OV3660_PID_HIGH  0x36
++#define OV3660_PID_LOW   0x60
++
++static void ov3660_notify_geometry(M5swI2CDev *s);
++
++static uint8_t ov3660_read_reg(M5swI2CDev *s, uint16_t reg)
++{
++    if (reg == 0x300A) {
++        return OV3660_PID_HIGH;
++    }
++    if (reg == 0x300B) {
++        return OV3660_PID_LOW;
++    }
++    return s->ov3660_regs ? s->ov3660_regs[reg] : 0;
++}
++
++static void ov3660_write_reg(M5swI2CDev *s, uint16_t reg, uint8_t value)
++{
++    if (s->ov3660_regs == NULL) {
++        return;
++    }
++    if (reg == 0x3008 && (value & 0x80)) {
++        /* Software reset: volatile register state returns to defaults while
++         * the read-only PID stays 0x3660. */
++        memset(s->ov3660_regs, 0, OV3660_REG_SPACE);
++    }
++    s->ov3660_regs[reg] = value;
++    if (reg >= 0x3808 && reg <= 0x380B) {
++        ov3660_notify_geometry(s);
++    }
++}
++
++static void ov3660_notify_geometry(M5swI2CDev *s)
++{
++    uint32_t width, height;
++
++    if (s->ov3660_lcd_cam == NULL || s->ov3660_regs == NULL) {
++        return;
++    }
++    width = ((uint32_t)s->ov3660_regs[0x3808] << 8) | s->ov3660_regs[0x3809];
++    height = ((uint32_t)s->ov3660_regs[0x380A] << 8) | s->ov3660_regs[0x380B];
++    if (width < 8 || width > 4096 || height < 8 || height > 4096) {
++        return;
++    }
++    m5_lcd_cam_set_sensor_geometry(s->ov3660_lcd_cam, width, height);
++}
++
++void m5sw_ov3660_bind_lcd_cam(DeviceState *sensor, DeviceState *lcd_cam)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(sensor);
++
++    if (s == NULL || s->model != M_OV3660) {
++        return;
++    }
++    s->ov3660_lcd_cam = lcd_cam;
++    ov3660_notify_geometry(s);
++}
++
+ typedef struct M5swIP2315 {
+     DeviceState parent_obj;
+     bool charging;
+@@ -1522,6 +1597,9 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+         s->st25_mode = 0;
+         s->st25_read_space_b = false;
+         s->bq_ctrl_byte_index = 0;
++        if (s->model == M_OV3660) {
++            s->ov3660_addr_bytes = 0;
++        }
+     } else if (ev == I2C_START_RECV) {
+         s->read_start = s->ptr;
+         s->ina3221_read_index = 0;
+@@ -1545,6 +1623,14 @@ static uint8_t dev_recv(I2CSlave *i2c)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+     s->read_bytes++;
++    if (s->model == M_OV3660) {
++        uint8_t v = ov3660_read_reg(s, s->ov3660_ptr);
++        if (s->trace) {
++            qemu_log("[ov3660] rd16 %04x -> %02x\n", s->ov3660_ptr, v);
++        }
++        s->ov3660_ptr++;
++        return v;
++    }
+     if (s->model == M_INA3221) {
+         uint16_t value = ina3221_reg16(s, s->read_start);
+         uint8_t raw = s->ina3221_read_index & 1
+@@ -1574,6 +1660,24 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+     s->written_bytes++;
++    if (s->model == M_OV3660) {
++        if (s->ov3660_addr_bytes == 0) {
++            s->ov3660_ptr = (uint16_t)data << 8;
++            s->ov3660_addr_bytes = 1;
++            return 0;
++        }
++        if (s->ov3660_addr_bytes == 1) {
++            s->ov3660_ptr |= data;
++            s->ov3660_addr_bytes = 2;
++            s->ov3660_ptr_valid = true;
++            return 0;
++        }
++        if (s->trace) {
++            qemu_log("[ov3660] wr16 %04x <- %02x\n", s->ov3660_ptr, data);
++        }
++        ov3660_write_reg(s, s->ov3660_ptr, data);
++        return 0;
++    }
+     if (s->model == M_ST25R3916) {
+         if (s->trace) {
+             qemu_log("[st25r3916] tx mode=%u data=%02x\n",
+@@ -2457,6 +2561,11 @@ static void dev_realize(DeviceState *dev, Error **errp)
+     } else if (!strcmp(m, "gc0308")) {
+         s->model = M_GC0308;
+         s->regs[0x00] = 0x9B;
++    } else if (!strcmp(m, "ov3660")) {
++        s->model = M_OV3660;
++        s->ov3660_regs = g_malloc0(OV3660_REG_SPACE);
++        s->ov3660_addr_bytes = 0;
++        s->ov3660_ptr_valid = false;
+     } else if (!strcmp(m, "m5ioe1_v4")) {
+         s->model = M_IOE1;
+         s->regs[0x00] = 0x34;
+@@ -2525,6 +2634,10 @@ static void dev_unrealize(DeviceState *dev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(dev);
+ 
++    if (s->ov3660_regs) {
++        g_free(s->ov3660_regs);
++        s->ov3660_regs = NULL;
++    }
+     if (s->power_key_timer) {
+         timer_free(s->power_key_timer);
+         s->power_key_timer = NULL;
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 59d1dad..218cc79 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1553,6 +1553,40 @@ static void m5atoms3rcam_machine_type_init(void)
+ 
+ type_init(m5atoms3rcam_machine_type_init);
+ 
++/* C126-M12 AtomS3R-M12: AtomS3R controller plus an OV3660 M12 DVP camera. */
++static void m5atoms3rm12_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMS3R_M12;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atoms3rm12_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack AtomS3R-M12 C126-M12 (ESP32-S3-PICO-1-N8R8, GC9107, OV3660)";
++    mc->init = m5atoms3rm12_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    /* ESP32-S3-PICO-1-N8R8: 8 MiB in-package octal PSRAM; esp32-camera
++     * allocates its frame buffers with MALLOC_CAP_SPIRAM. */
++    mc->default_ram_size = 8 * MiB;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atoms3rm12_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3rm12"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atoms3rm12_machine_class_init,
++};
++
++static void m5atoms3rm12_machine_type_init(void)
++{
++    type_register_static(&m5atoms3rm12_info);
++}
++
++type_init(m5atoms3rm12_machine_type_init);
++
+ /* K130 M5Dial: original ESP32-S3FN8 with no PSRAM. */
+ static void m5dial_machine_init(MachineState *machine)
+ {
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index d1f3b9a..b16cbcd 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -56,6 +56,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5atoms3u.c',
+   '../m5stopwatch/m5atomvoices3r.c',
+   '../m5stopwatch/m5atoms3rcam.c',
++  '../m5stopwatch/m5atoms3rm12.c',
+   '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',

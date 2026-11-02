@@ -698,6 +698,37 @@
       ]
     },
     {
+      "device_id": "atoms3r-m12",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "PORT.CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/AtomS3R-M12",
+              "checked_at": "2026-11-02",
+              "locator": "PinMap > HY2.0-4P PORT.CUSTOM G2 G1"
+            }
+          ],
+          "limitations": [
+            "Runtime controller routing and per-Unit protocols are not implied by this wiring entry."
+          ]
+        }
+      ]
+    },
+    {
       "device_id": "basic-v27",
       "ports": [
         {

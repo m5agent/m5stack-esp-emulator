@@ -25,19 +25,8 @@ of `0112`.
 multi-frame boundaries left by `0115`. Its base is the `0116` layer; the patch
 was also verified with `git apply --check` on the parallel `0117` (Atom Echo)
 and `0119` (B-class Unit) layer states and on their combination.
-
-`0121-m5stick-board.patch` adds the classic-ESP32 `m5stick` board (K016;
-ESP32-WROOM32, 4 MB, no PSRAM): 64x128 SH1107 mono OLED on SPI (CS14/DC27/
-RST33/SCLK18/MOSI23) via a new mono mode of the generic SPI panel model,
-GPIO35 custom button, MPU9250 at 0x68 and the `0113` IP5306 model at 0x75 on
-the shared G21/G22 bus. It also fixes the classic SPI panel sink to preserve
-TX bytes for full-duplex DOUTDIN transactions and guards the classic I2C
-command engine against empty TX FIFOs. The official EasyLoader factory image
-boots to its native `mpu9250 addr: FF` probe; its legacy IDF I2C FIFO path
-does not complete on the current classic I2C model, so the patch claims no
-factory-firmware button/IMU data plane and no final OLED UI frame. Its base is
-the main-repository layer order used for this batch (native-lock `0109` +
-`0110`/`0111`/`0112` + `0113`/`0114`/`0115`/`0116`/`0117`/`0119`).
+`0122-atoms3r-m12-board.patch` adds the AtomS3R-M12 (C126-M12) machine and
+the OV3660 M12 camera model on the native sequence ending at `0120`.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
@@ -50,6 +39,8 @@ browser build until a separate reviewed registration. The older
 `scripts/bootstrap-unit-runtime.py`
 list is a historical Unit-only receipt and does not contain the `0096`-`0109`
 board layers; do not read it as the current native order.
+
+`0121-m5stick-board.patch` adds the classic-ESP32 `m5stick` board (K016;
 
 For a working runtime, use the published macOS arm64 release bundle or the
 target-specific tree described below. Do not reconstruct a clean tree by
@@ -1147,3 +1138,26 @@ reconstructed scene frame; see
 [evidence](../../docs/evidence/2026-11-02-atoms3r-cam-geometry/README.md).
 Dynamic framesize changes while streaming, sizes above VGA, physical optics
 and electrical DVP/SCCB timing stay outside this patch.
+
+`0122-atoms3r-m12-board.patch` adds the AtomS3R-M12 (C126-M12) host: the M12
+variant of the AtomS3R camera controller (ESP32-S3-PICO-1-N8R8, GC9107
+128x128, BMI270 + BMM150) with an OV3660 M12 sensor on the same DVP/SCCB pin
+group as AtomS3R-CAM. The new `m5atoms3rm12` machine reuses the AtomS3R-CAM
+controller, panel, PSRAM, LCD_CAM and dedicated SCCB bridge but registers only
+the M12 inventory (BMM150 0x10, BMI270 0x68, OV3660 0x3c). The OV3660 I2C slave
+model implements the 16-bit SCCB register space used by esp32-camera
+(SCCB_Read16/Write16: two address bytes then data; read transactions keep the
+pointer written by the preceding write), serves PID 0x3660 from read-only
+0x300A/0x300B, models the 0x3008 bit-7 software reset, and publishes the
+0x3808-0x380b output window to LCD_CAM, which latches it at `CAM_START`.
+Guest evidence: the shared official UIFlow2 v2.5.4 AtomS3R-CAM image (whose
+M5Burner entry declares "UIFlow2 for AtomS3R-CAM and AtomS3R-M12") detects
+OV3660 at 0x3c (PID 0x3660) and returns QQVGA/VGA/HD frames matching the
+reconstructed DVP waveform plus five distinct streamed frames, while the
+M5Burner "AtomS3R-CAM M12 User Demo" (usb_webcam, IDF v5.1.4) boots black-box
+and its own esp32-camera detects/initializes the sensor; the demo's MJPEG/UVC
+data path (NO-SOI), physical optics and electrical timing remain outside this
+patch. The patch base is the current native sequence 0109 + 0110/0111/0112 +
+0113..0120 (including the 0120 dlight/BH1750 command-mask fix) and `git apply --check` was verified on a pristine 0112 tree with
+that exact sequence applied; see
+[evidence](../../docs/evidence/2026-11-02-atoms3r-m12-host/README.md).

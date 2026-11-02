@@ -739,6 +739,13 @@ Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
 AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）已完成启动、板级识别 144、显示初始化与
 软件 SCCB/DVP 相机数据面：原厂 `camera.init()/capture()` 取得 320×240 RGB565 整帧
 （153,600 B，摘要与模型 DVP 波形一致）。剩余：非 QVGA framesize、多帧流、IR/Grove、物理光学。
+AtomS3R-M12（`atoms3r-m12` / `m5atoms3rm12`）接入 OV3660 M12 相机主机：复用 AtomS3R 控制器、
+GC9107 面板与 N8R8 PSRAM，新增 OV3660 16-bit SCCB 从设备模型；官方 M5Burner「UIFlow2.0
+AtomS3R-CAM」条目描述覆盖 AtomS3R-M12，共享镜像在同一 guest 内自动探测 0x3c/PID 0x3660，
+`camera.init()` True，QQVGA/QVGA/VGA/HD 帧摘要与模型 DVP 波形一致，5 帧流互异。
+M5Burner `AtomS3R-CAM M12 User Demo`（usb_webcam, IDF v5.1.4）黑盒启动并由其自带
+esp32-camera 识别/初始化 OV3660，但其 MJPEG/UVC 帧路径未建模（NO-SOI）且应用周期性软复位。
+剩余：MJPEG/UVC 数据面、动态改尺寸、IR/Grove/USB、物理光学与电气时序；无 M12 专属 UIFlow2 条目。
 Basic v2.7（`basic-v27` / `m5basic`）同期接入：classic ESP32 启动、320×240
 ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数字 PCM
 限定通过；IP5306 电芯/电气、microSD、电源键、背光 PWM、Grove Unit 与
