@@ -1,0 +1,691 @@
+From fa9595e5d2c8e1d049ac613511e63bf9b668987d Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 18:29:49 +0800
+Subject: [PATCH] hw/m5stopwatch: add M5Stick K016 board
+
+K016 is a classic ESP32-WROOM32 board with a 64x128 SH1107 monochrome
+OLED on SPI (CS G14, DC G27, SCLK G18, MOSI G23), one custom button on
+G35, blue LED G19, buzzer G26, IR G17, an MPU9250 nine-axis IMU (gray
+version) at 0x68 and an IP5306 at 0x75 on a shared G21/G22 I2C bus.
+
+- new machine m5stick and board glue, reusing the Basic v2.7 IP5306
+  register model from 0113;
+- new mono SH1107 mode for the generic SPI panel model: controller GDDRAM
+  (128 columns x 16 pages), page/column addressing, display/segment/COM
+  configuration commands, 64x128 console rendering and a raw GDDRAM QOM
+  dump for offline analysis;
+- new mpu9250 I2C model with WHO_AM_I 0x71, INT_STATUS data-ready and
+  accel/gyro/temperature registers backed by QOM fixtures (no AK8963
+  magnetometer model yet);
+- fix the classic SPI panel sink to keep a TX snapshot for full-duplex
+  DOUTDIN transactions (the RX copy used to overwrite the panel bytes);
+- guard the classic I2C command engine against empty TX FIFOs instead of
+  aborting the emulator on a malformed guest command list.
+
+Wiring evidence: docs.m5stack.com/en/core/M5Stick PinMap, checked
+2026-11-02.  The EasyLoader factory image boots the ROM/bootloader and app
+but its legacy IDF I2C driver never presents FIFO data to the controller
+model, so the MPU probe reports 0xFF and no factory-firmware button/IMU
+data plane is claimed.
+---
+ hw/i2c/esp32_i2c.c             |  30 ++++-
+ hw/m5stopwatch/m5_spi_panel.c  | 220 ++++++++++++++++++++++++++++++++-
+ hw/m5stopwatch/m5stick.c       |  82 ++++++++++++
+ hw/m5stopwatch/m5stopwatch.h   |   2 +
+ hw/m5stopwatch/m5sw_i2c_devs.c |  58 +++++++++
+ hw/ssi/esp32_spi.c             |  14 ++-
+ hw/xtensa/esp32.c              |  37 ++++++
+ hw/xtensa/meson.build          |   1 +
+ 8 files changed, 439 insertions(+), 5 deletions(-)
+ create mode 100644 hw/m5stopwatch/m5stick.c
+
+diff --git a/hw/i2c/esp32_i2c.c b/hw/i2c/esp32_i2c.c
+index 7a8bf4e..0ce5cf3 100644
+--- a/hw/i2c/esp32_i2c.c
++++ b/hw/i2c/esp32_i2c.c
+@@ -195,7 +195,24 @@ static void esp32_i2c_do_transaction(Esp32I2CState * s)
+                 break;
+             case I2C_OPCODE_WRITE: {
+                 size_t length = FIELD_EX32(cmd, I2C_CMD, BYTE_NUM);
++                if (!length) {
++                    break;
++                }
+                 if (!s->trans_ongoing) {
++                    if (fifo8_num_used(&s->tx_fifo) == 0) {
++                        /*
++                         * A malformed command list can ask the controller to
++                         * pop an address while the guest-visible TX FIFO is
++                         * empty.  Report the model gap and end this command
++                         * list instead of aborting the whole emulator.
++                         */
++                        error_report("esp32_i2c: no address byte in TX FIFO");
++                        s->int_raw_reg = FIELD_DP32(s->int_raw_reg,
++                                                    I2C_INT_RAW,
++                                                    TRANS_COMPLETE, 1);
++                        stop_or_end = true;
++                        break;
++                    }
+                     s->trans_ongoing = true;
+                     uint8_t data = fifo8_pop(&s->tx_fifo);
+                     uint8_t addr = data >> 1;
+@@ -214,7 +231,18 @@ static void esp32_i2c_do_transaction(Esp32I2CState * s)
+                     length -= 1;
+                 }
+                 for (size_t nbytes = 0; nbytes < length; ++nbytes) {
+-                    uint8_t data = fifo8_pop(&s->tx_fifo);
++                    uint8_t data;
++
++                    if (fifo8_num_used(&s->tx_fifo) == 0) {
++                        error_report("esp32_i2c: TX FIFO empty inside a "
++                                     "WRITE command");
++                        s->int_raw_reg = FIELD_DP32(s->int_raw_reg,
++                                                    I2C_INT_RAW,
++                                                    TRANS_COMPLETE, 1);
++                        stop_or_end = true;
++                        break;
++                    }
++                    data = fifo8_pop(&s->tx_fifo);
+                     i2c_send(s->bus, data);
+                 }
+                 break;
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index 1b05b49..0e7238c 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -66,8 +66,29 @@ struct M5SpiPanelState {
+     int mouse_x, mouse_y;
+     bool mouse_btn;
+     char *dump_path;
++    /* Monochrome SH1107 mode (M5Stick 64x128 OLED).  The controller exposes
++     * 128 columns x 16 pages of GDDRAM; the visible glass is a window of it. */
++    bool mono_sh1107;
++    uint8_t sh_mem[128 * 16];
++    uint8_t sh_page;
++    uint8_t sh_col;
++    uint8_t sh_arg_cmd;
++    uint8_t sh_args_left;
++    uint8_t sh_start_line;
++    uint8_t sh_disp_offset;
++    uint8_t sh_mux;
++    uint8_t sh_contrast;
++    bool sh_seg_remap;
++    bool sh_com_reverse;
++    bool sh_invert;
++    bool sh_dc_on;
++    int32_t sh_row_offset;
++    int32_t sh_col_offset;
++    uint32_t sh_data_writes;
++    char *sh_dump_path;
+ };
+ 
++
+ static bool m5_panel_is_dcs_command(uint8_t cmd)
+ {
+     switch (cmd) {
+@@ -169,12 +190,171 @@ static void m5_panel_put_pixel(M5SpiPanelState *s, uint16_t px)
+     }
+ }
+ 
++static void m5_sh1107_schedule_update(M5SpiPanelState *s)
++{
++    s->dirty = true;
++    if (s->immediate_update) {
++        qemu_bh_schedule(s->refresh_bh);
++        qemu_clock_notify(QEMU_CLOCK_VIRTUAL);
++    }
++}
++
++static void m5_sh1107_dump_gddram(M5SpiPanelState *s)
++{
++    FILE *f;
++
++    if (!s->sh_dump_path) {
++        return;
++    }
++    f = fopen(s->sh_dump_path, "wb");
++    if (!f) {
++        return;
++    }
++    fwrite(s->sh_mem, 1, sizeof(s->sh_mem), f);
++    fclose(f);
++}
++
++/*
++ * SH1107 command stream.  The stock 64x128 board libraries use page
++ * addressing: lower/upper column nibble commands, page address 0xB0-0xBF,
++ * display start line 0x40-0x7F (and the 0xDC two-byte form), plus the
++ * usual configuration commands.  Data bytes fill GDDRAM at the current
++ * page/column and wrap the column inside the controller.
++ */
++static void m5_sh1107_write(M5SpiPanelState *s, const uint8_t *buf,
++                            uint32_t len, bool command_phase)
++{
++    bool trace = getenv("M5SW_SH1107_TRACE") != NULL;
++
++    for (uint32_t i = 0; i < len; i++) {
++        uint8_t b = buf[i];
++
++        if (command_phase) {
++            if (trace) {
++                fprintf(stderr, "[sh1107] C %02x\n", b);
++            }
++            if (s->sh_arg_cmd || s->sh_args_left) {
++                uint8_t cmd = s->sh_arg_cmd;
++                switch (cmd) {
++                case 0x81: s->sh_contrast = b; break;
++                case 0xd3: s->sh_disp_offset = b; break;
++                case 0xa8: s->sh_mux = b; break;
++                case 0xdc: s->sh_start_line = b; break;
++                case 0xad: s->sh_dc_on = (b & 0x80) != 0; break;
++                case 0xda: break;
++                case 0xd5: case 0xd9: case 0xdb: break;
++                case 0x26: case 0x27: case 0x29: case 0x2a: break;
++                default: break;
++                }
++                if (cmd >= 0x26 && cmd <= 0x2a) {
++                    if (--s->sh_args_left == 0) {
++                        s->sh_arg_cmd = 0;
++                    }
++                } else {
++                    s->sh_arg_cmd = 0;
++                    s->sh_args_left = 0;
++                }
++                s->dirty = true;
++                continue;
++            }
++            if (b <= 0x0f) {
++                s->sh_col = (s->sh_col & 0xf0) | b;
++            } else if (b >= 0x10 && b <= 0x1f) {
++                s->sh_col = (s->sh_col & 0x0f) | ((b & 0x0f) << 4);
++            } else if ((b & 0xf0) == 0xb0) {
++                s->sh_page = b & 0x0f;
++            } else if ((b & 0xf0) == 0x40) {
++                s->sh_start_line = b & 0x3f;
++                s->dirty = true;
++            } else {
++                switch (b) {
++                case 0xae: s->disp_on = false; break;
++                case 0xaf: s->disp_on = true; break;
++                case 0xa0: s->sh_seg_remap = false; break;
++                case 0xa1: s->sh_seg_remap = true; break;
++                case 0xa6: s->sh_invert = false; break;
++                case 0xa7: s->sh_invert = true; break;
++                case 0xc0: s->sh_com_reverse = false; break;
++                case 0xc8: s->sh_com_reverse = true; break;
++                case 0x81: case 0xad: case 0xa8: case 0xd3:
++                case 0xd5: case 0xd9: case 0xdb: case 0xda: case 0xdc:
++                    s->sh_arg_cmd = b;
++                    s->sh_args_left = 1;
++                    break;
++                case 0x26: case 0x27: case 0x29: case 0x2a:
++                    s->sh_arg_cmd = b;
++                    s->sh_args_left = 6;
++                    break;
++                default:
++                    break;
++                }
++            }
++            s->dirty = true;
++        } else {
++            unsigned page = s->sh_page & 0x0f;
++            unsigned col = s->sh_col & 0x7f;
++
++            s->sh_mem[page * 128 + col] = b;
++            s->sh_col = (col + 1) & 0x7f;
++            s->dirty = true;
++            if (trace && s->sh_data_writes < 4096) {
++                fprintf(stderr, "[sh1107] D page=%u col=%u value=%02x\n",
++                        page, col, b);
++                s->sh_data_writes++;
++            }
++        }
++    }
++    if (s->dirty) {
++        m5_sh1107_schedule_update(s);
++        m5_sh1107_dump_gddram(s);
++    }
++}
++
++static uint32_t m5_sh1107_pixel(M5SpiPanelState *s, uint32_t x, uint32_t y)
++{
++    int32_t rx = (int32_t)x + s->sh_col_offset;
++    int32_t ry = (int32_t)y + s->sh_row_offset + s->sh_start_line;
++    bool on;
++
++    if (s->sh_seg_remap) {
++        rx = 127 - rx;
++    }
++    if (s->sh_com_reverse) {
++        ry = 127 - ry;
++    }
++    rx &= 0x7f;
++    ry &= 0x7f;
++    on = (s->sh_mem[(ry >> 3) * 128 + (uint32_t)rx] >> (ry & 7)) & 1;
++    if (s->sh_invert) {
++        on = !on;
++    }
++    return on ? 0x00ffffffu : 0x00000000u;
++}
++
++static void m5_sh1107_render(M5SpiPanelState *s, DisplaySurface *surf)
++{
++    uint32_t *dst = (uint32_t *)surface_data(surf);
++    int stride = surface_stride(surf) / 4;
++
++    for (uint32_t y = 0; y < s->vis_h; y++) {
++        uint32_t *d = dst + y * stride;
++        for (uint32_t x = 0; x < s->vis_w; x++) {
++            d[x] = m5_sh1107_pixel(s, x, y);
++        }
++    }
++    dpy_gfx_update(s->con, 0, 0, s->vis_w, s->vis_h);
++}
++
+ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase)
+ {
+     static unsigned stream_trace_count;
+     static unsigned stream_trace_group;
+     static unsigned dc_trace_count;
++    if (s->mono_sh1107) {
++        m5_sh1107_write(s, buf, len, command_phase);
++        return;
++    }
+     if (!command_phase && s->infer_command && len == 1
+         && s->infer_params_left == 0 && s->pending_pixel_bytes == 0
+         && m5_panel_is_dcs_command(buf[0])) {
+@@ -321,6 +501,10 @@ static void m5_panel_update(void *opaque)
+         return;
+     }
+     s->dirty = false;
++    if (s->mono_sh1107) {
++        m5_sh1107_render(s, surf);
++        return;
++    }
+     uint32_t *dst = (uint32_t *)surface_data(surf);
+     int stride = surface_stride(surf) / 4;
+     bool on = s->disp_on && !s->sleep;
+@@ -387,6 +571,10 @@ static const GraphicHwOps m5_panel_ops = {
+ static uint32_t m5_panel_pixel_rgb(M5SpiPanelState *s, uint32_t x, uint32_t y)
+ {
+     uint32_t mx = x + s->off_x;
++
++    if (s->mono_sh1107) {
++        return m5_sh1107_pixel(s, x, y);
++    }
+     uint32_t my = y + s->off_y;
+ 
+     switch (s->glass_rotation & 3) {
+@@ -446,7 +634,8 @@ static void m5_panel_refresh_tick(void *opaque)
+ {
+     M5SpiPanelState *s = opaque;
+     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+-    if (getenv("M5SW_PANEL_REFRESH_TRACE") && s->dirty) {
++    if (getenv("M5SW_PANEL_REFRESH_TRACE") && s->dirty &&
++        !s->mono_sh1107) {
+         fprintf(stderr, "[m5panel-refresh] dirty sample=%04x\n",
+                 s->mem[20 * s->mem_w + 20]);
+     }
+@@ -471,6 +660,19 @@ static void m5_panel_set_dump_path(Object *obj, const char *value, Error **errp)
+     s->dump_path = g_strdup(value);
+ }
+ 
++static char *m5_sh1107_get_gddram_path(Object *obj, Error **errp)
++{
++    return g_strdup(((M5SpiPanelState *)obj)->sh_dump_path);
++}
++
++static void m5_sh1107_set_gddram_path(Object *obj, const char *value,
++                                      Error **errp)
++{
++    M5SpiPanelState *s = (M5SpiPanelState *)obj;
++    g_free(s->sh_dump_path);
++    s->sh_dump_path = g_strdup(value);
++}
++
+ static bool m5_panel_get_refresh_now(Object *obj, Error **errp)
+ {
+     return false;
+@@ -483,6 +685,7 @@ static void m5_panel_set_refresh_now(Object *obj, bool value, Error **errp)
+         s->dirty = true;
+         m5_panel_update(s);
+         m5_panel_dump_ppm(s);
++        m5_sh1107_dump_gddram(s);
+     }
+ }
+ 
+@@ -674,7 +877,15 @@ static const QemuInputHandler m5_panel_input_handler = {
+ static void m5_panel_realize(DeviceState *dev, Error **errp)
+ {
+     M5SpiPanelState *s = M5_SPI_PANEL(dev);
+-    s->mem = g_new0(uint16_t, s->mem_w * s->mem_h);
++    if (s->mono_sh1107) {
++        memset(s->sh_mem, 0, sizeof(s->sh_mem));
++        s->sh_disp_offset = 0;
++        s->sh_contrast = 0x2f;
++        s->sh_dc_on = true;
++        s->sh_mux = 0x7f;
++    } else {
++        s->mem = g_new0(uint16_t, s->mem_w * s->mem_h);
++    }
+     s->con = graphic_console_init(dev, 0, &m5_panel_ops, s);
+     qemu_console_resize(s->con, s->vis_w, s->vis_h);
+     s->dirty = true;
+@@ -691,6 +902,8 @@ static void m5_panel_realize(DeviceState *dev, Error **errp)
+     qemu_input_handler_activate(hs);
+     object_property_add_str(OBJECT(s), "dump-path",
+                             m5_panel_get_dump_path, m5_panel_set_dump_path);
++    object_property_add_str(OBJECT(s), "gddram-path", m5_sh1107_get_gddram_path,
++                            m5_sh1107_set_gddram_path);
+     object_property_add_bool(OBJECT(s), "refresh-now",
+                              m5_panel_get_refresh_now, m5_panel_set_refresh_now);
+ }
+@@ -716,6 +929,9 @@ static Property m5_panel_props[] = {
+     DEFINE_PROP_BOOL("touch-buttons", M5SpiPanelState, touch_buttons, false),
+     DEFINE_PROP_BOOL("infer-command", M5SpiPanelState, infer_command, false),
+     DEFINE_PROP_BOOL("invert", M5SpiPanelState, physical_invert, true),
++    DEFINE_PROP_BOOL("mono-sh1107", M5SpiPanelState, mono_sh1107, false),
++    DEFINE_PROP_INT32("sh-row-offset", M5SpiPanelState, sh_row_offset, 0),
++    DEFINE_PROP_INT32("sh-col-offset", M5SpiPanelState, sh_col_offset, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/hw/m5stopwatch/m5stick.c b/hw/m5stopwatch/m5stick.c
+new file mode 100644
+index 0000000..29543da
+--- /dev/null
++++ b/hw/m5stopwatch/m5stick.c
+@@ -0,0 +1,82 @@
++/*
++ * M5Stick (K016) classic ESP32 board wiring.
++ *
++ * ESP32-WROOM32, 4 MB flash, no PSRAM.  1.3" 64x128 SH1107 OLED on SPI
++ * (CS G14, DC G27, RST G33, SCK/D0 G18, MOSI/D1 G23), one custom button on
++ * G35, blue LED G19, active buzzer G26 and IR transmitter G17.  The 9-axis
++ * MPU9250 (gray version only) and the IP5306 I2C power controller share the
++ * G21 (SDA) / G22 (SCL) bus at 0x68 and 0x75.  The Grove port is
++ * PORT.CUSTOM on G32/G33.
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/M5Stick PinMap and the
++ * 2026-11-02 classic-host feasibility study, checked 2026-11-02.
++ *
++ * The M5Stick has only one GPIO button; the power/reset button is wired to
++ * the IP5306 KEY input and has no ESP32 GPIO.  Black-version boards have no
++ * MPU9250; this model registers the gray-version composition and keeps the
++ * IMU status partial.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5stick_board_init(Esp32SocState *s)
++{
++    I2CBus *bus0 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++
++    /* One physical I2C bus on G21/G22 shared by the Grove port, the IP5306
++     * and the gray-version MPU9250.  Point both ESP32 controllers at it. */
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus0);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus0);
++
++    DeviceState *pmic = qdev_new(TYPE_M5_IP5306);
++    qdev_prop_set_uint8(pmic, "address", 0x75);
++    object_property_add_child(qdev_get_machine(), "ip5306", OBJECT(pmic));
++    qdev_realize_and_unref(pmic, (BusState *)bus0, &error_fatal);
++
++    DeviceState *imu = qdev_new(TYPE_M5SW_I2C_DEV);
++    qdev_prop_set_string(imu, "model", "mpu9250");
++    qdev_prop_set_uint8(imu, "address", 0x68);
++    object_property_add_child(qdev_get_machine(), "mpu9250", OBJECT(imu));
++    qdev_realize_and_unref(imu, (BusState *)bus0, &error_fatal);
++
++    m5stopwatch_soft_i2c_init_pins(bus0, 21, 22);
++
++    /* The single custom button is active-low with an external pull-up. */
++    esp32_gpio_set_input(35, 1);
++
++    /*
++     * SH1107 64x128 OLED on VSPI/SPI3 with CS G14 and DC G27.  The panel
++     * model keeps 128x16 pages of controller GDDRAM and exposes the 64x128
++     * glass; command/data is carried by the DC GPIO as on the real board.
++     * Both keyboard A and B drive the one physical button in this fixture.
++     */
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_bit(panel, "mono-sh1107", true);
++    qdev_prop_set_uint32(panel, "mem-width", 128);
++    qdev_prop_set_uint32(panel, "mem-height", 128);
++    qdev_prop_set_uint32(panel, "vis-width", 64);
++    qdev_prop_set_uint32(panel, "vis-height", 128);
++    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_uint32(panel, "offset-x", 0);
++    qdev_prop_set_uint32(panel, "offset-y", 0);
++    qdev_prop_set_uint32(panel, "read-id", 0);
++    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_uint32(panel, "key-a-pin", 35);
++    qdev_prop_set_uint32(panel, "key-b-pin", 35);
++    qdev_prop_set_bit(panel, "immediate-update", true);
++    qdev_prop_set_bit(panel, "invert", false);
++    object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 27);
++
++    /* Blue LED G19, buzzer G26 and IR G17 are plain guest GPIO outputs in
++     * this model; no optical, acoustic or IR data plane is claimed. */
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 26f5ac6..0a5593a 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -91,6 +91,7 @@ typedef enum {
+     M5_BOARD_BASIC_V27,
+     M5_BOARD_ATOMU,
+     M5_BOARD_ATOM_ECHO,
++    M5_BOARD_M5STICK,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -214,6 +215,7 @@ void m5atomclassic_board_init(struct Esp32SocState *s);
+ void m5atomu_board_init(struct Esp32SocState *s);
+ void m5atomecho_board_init(struct Esp32SocState *s);
+ void m5basic_board_init(struct Esp32SocState *s);
++void m5stick_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+ void m5_unit_runtime_init(bool s3);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index e0049fc..7da6799 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -25,6 +25,7 @@ enum {
+     M_BMI270,
+     M_BMM150,
+     M_MPU6886,
++    M_MPU9250,
+     M_RX8130,
+     M_PCF8563,
+     M_ES8311,
+@@ -1178,6 +1179,31 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
+         break;
++    case M_MPU9250:
++        if (r == 0x75) {
++            return 0x71;  /* WHO_AM_I */
++        }
++        if (r == 0x3A) {
++            /* INT_STATUS: raw data ready.  The AK8963 magnetometer is a
++             * separate slave behind the MPU9250 bypass and is not modelled,
++             * so no magnetometer-ready bit is set. */
++            return 0x01;
++        }
++        if (r >= 0x3B && r <= 0x40) {
++            int index = (r - 0x3B) / 2;
++            uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
++            return (r & 1) ? raw >> 8 : raw & 0xff;
++        }
++        if (r == 0x41 || r == 0x42) {
++            uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
++            return r == 0x41 ? raw >> 8 : raw & 0xff;
++        }
++        if (r >= 0x43 && r <= 0x48) {
++            int index = (r - 0x43) / 2;
++            uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
++            return (r & 1) ? raw >> 8 : raw & 0xff;
++        }
++        break;
+     case M_LM75:
+         if (r == 0x00 || r == 0x01) {
+             uint16_t raw = encode_be16(s->temperature_c, 1.0 / 256.0);
+@@ -1533,6 +1559,15 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+         qemu_log("[%s] wr %02x <- %02x\n", s->model_name, s->ptr, data);
+     }
+     uint8_t r = s->ptr;
++    if (s->model == M_MPU9250 && r == 0x6B && (data & 0x80)) {
++        /* PWR_MGMT_1 device reset: clear configuration registers. */
++        uint8_t who = s->regs[0x75];
++        memset(s->regs, 0, sizeof(s->regs));
++        s->regs[0x75] = who;
++        s->regs[0x6B] = 0x01;
++        s->ptr++;
++        return 0;
++    }
+     if (pmic_write_power_register(s, r, data)) {
+         s->ptr++;
+         return 0;
+@@ -2119,6 +2154,29 @@ static void dev_realize(DeviceState *dev, Error **errp)
+             object_property_add(OBJECT(s), gprops[i], "number",
+                                 prop_get_num, prop_set_num, NULL, &s->gyro[i]);
+         }
++    } else if (!strcmp(m, "mpu9250")) {
++        s->model = M_MPU9250;
++        s->regs[0x75] = 0x71;
++        s->regs[0x6B] = 0x01;
++        s->accel[2] = 1.0;
++        s->temperature_c = 25.0;
++        static const char *aprops9250[] = {
++            "accel-x", "accel-y", "accel-z"
++        };
++        static const char *gprops9250[] = {
++            "gyro-x", "gyro-y", "gyro-z"
++        };
++        for (int i = 0; i < 3; i++) {
++            object_property_add(OBJECT(s), aprops9250[i], "number",
++                                prop_get_num, prop_set_num, NULL,
++                                &s->accel[i]);
++            object_property_add(OBJECT(s), gprops9250[i], "number",
++                                prop_get_num, prop_set_num, NULL,
++                                &s->gyro[i]);
++        }
++        object_property_add(OBJECT(s), "temperature-c", "number",
++                            prop_get_num, prop_set_num, NULL,
++                            &s->temperature_c);
+     } else if (!strcmp(m, "lm75")) {
+         s->model = M_LM75;
+         s->temperature_c = 25.0;
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+index 42f1900..52af28d 100644
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -273,17 +273,27 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+         } else {
+             uint32_t capacity = ESP32_SPI_BUF_WORDS * sizeof(uint32_t);
+             uint32_t remaining = t->data_tx_bytes;
++            /*
++             * Full-duplex transactions (DOUTDIN) copy the received MISO
++             * bytes back into the same data buffer.  A panel on MOSI must
++             * see the original TX bytes, so keep a snapshot for the sink.
++             */
++            uint8_t tx_snapshot[ESP32_SPI_BUF_WORDS * sizeof(uint32_t)];
++            const uint8_t *tx = (const uint8_t *)t->data;
+ 
+             if (t->data == &s->data_reg[ESP32_SPI_BUF_WORDS / 2]) {
+                 capacity /= 2;
+             }
++            if (remaining && remaining <= sizeof(tx_snapshot)) {
++                memcpy(tx_snapshot, t->data, remaining);
++                tx = tx_snapshot;
++            }
+             esp32_spi_txrx_buffer(s, t->data, MIN(remaining, capacity),
+                                   MIN(t->data_rx_bytes, capacity));
+             while (remaining) {
+                 uint32_t length = MIN(remaining, capacity);
+ 
+-                m5_spi_panel_write((M5SpiPanelState *)s->m5_panel,
+-                                   (const uint8_t *)t->data,
++                m5_spi_panel_write((M5SpiPanelState *)s->m5_panel, tx,
+                                    length, command_phase);
+                 remaining -= length;
+                 if (remaining) {
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index b248637..8babdba 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1049,6 +1049,8 @@ static void esp32_machine_init(MachineState *machine)
+         m5atomclassic_board_init(ss);
+     } else if (m5_board == M5_BOARD_BASIC_V27) {
+         m5basic_board_init(ss);
++    } else if (m5_board == M5_BOARD_M5STICK) {
++        m5stick_board_init(ss);
+     } else if (m5_board == M5_BOARD_ATOMU) {
+         m5atomu_board_init(ss);
+     } else if (m5_board == M5_BOARD_ATOM_ECHO) {
+@@ -1541,3 +1543,38 @@ static void m5atomecho_machine_type_init(void)
+ }
+ 
+ type_init(m5atomecho_machine_type_init);
++
++
++/* M5Stick (K016): ESP32-WROOM32, 4 MB flash, SH1107 64x128 OLED on SPI,
++ * one GPIO button, MPU9250/IP5306 on the shared I2C bus, no PSRAM. */
++static void m5stick_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_M5STICK;
++    esp32_machine_init(machine);
++}
++
++static void m5stick_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5Stick K016 (ESP32-WROOM32, SH1107 64x128, MPU9250, IP5306)";
++    mc->init = m5stick_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stick_info = {
++    .name = MACHINE_TYPE_NAME("m5stick"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stick_machine_class_init,
++};
++
++static void m5stick_machine_type_init(void)
++{
++    type_register_static(&m5stick_info);
++}
++
++type_init(m5stick_machine_type_init);
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index d1f3b9a..e5f2698 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -37,6 +37,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32', if_true: files(
+   '../m5stopwatch/m5atomclassic.c',
+   '../m5stopwatch/m5basic.c',
+   '../m5stopwatch/m5_ip5306.c',
++  '../m5stopwatch/m5stick.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+-- 
+2.55.0
+

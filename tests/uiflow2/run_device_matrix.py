@@ -530,6 +530,103 @@ def run_console(
     }
 
 
+def run_firmware(
+    device: dict,
+    backend: dict,
+    out_dir: Path,
+    env: dict[str, str],
+    flash_transport: str,
+) -> dict:
+    """Run a prebuilt external firmware image and collect serial evidence.
+
+    This lane is for factory/vendor images that have no injectable MicroPython
+    filesystem.  The case PASSes only when the declared serial markers appear;
+    it does not claim more than the markers say.  Deterministic icount mode is
+    used when the case sets "deterministic", because some legacy Arduino-era
+    images depend on interrupt/timer timing that is otherwise host-speed
+    dependent.
+    """
+    device_out = out_dir / device["id"]
+    device_out.mkdir(parents=True, exist_ok=True)
+    image = ROOT / device["base"]
+    if not image.is_file():
+        return {
+            "status": "FAIL",
+            "exit_code": 1,
+            "output": str(device_out),
+            "flash": {"transport": "host-image", "verified": False},
+            "reason": (
+                f"missing firmware image {image}; run the pinned extraction "
+                "tool documented in the device evidence README"
+            ),
+        }
+    case_env = env.copy()
+    case_env.update(device.get("env", {}))
+    serial = device_out / "serial.log"
+    command = [
+        str(ROOT / backend["qemu"]),
+        "-M", device["machine"],
+        "-drive", f"file={image},if=mtd,format=raw",
+        "-L", str(ROOT / backend["rom_dir"]),
+        "-display", "none",
+    ]
+    if device.get("deterministic"):
+        command[1:1] = [
+            "-accel", "tcg,thread=single",
+            "-icount", device.get("icount", "shift=2,align=off,sleep=off"),
+        ]
+    console_serial = int(device.get("serial_index", 0))
+    for index in range(3):
+        command.extend([
+            "-serial",
+            f"file:{serial}" if index == console_serial else "null",
+        ])
+    deadline = time.time() + device.get("timeout", 120)
+    proc = subprocess.Popen(
+        command, cwd=ROOT, env=case_env,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    expected = device.get("serial_expect", [])
+    if isinstance(expected, str):
+        expected = [expected]
+    matched = False
+    try:
+        while time.time() < deadline:
+            text = serial.read_text(errors="replace") if serial.exists() else ""
+            if expected and all(marker in text for marker in expected):
+                matched = True
+                break
+            if proc.poll() is not None:
+                break
+            time.sleep(0.1)
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+    text = serial.read_text(errors="replace") if serial.exists() else ""
+    missing = [marker for marker in expected if marker not in text]
+    if matched and not missing:
+        return {
+            "status": "PASS",
+            "exit_code": 0,
+            "command": command,
+            "output": str(device_out),
+            "flash": {"transport": "host-image", "verified": True},
+            "serial_markers": expected,
+            "note": device.get("expected_blocked", ""),
+        }
+    return {
+        "status": "FAIL",
+        "exit_code": 1,
+        "command": command,
+        "output": str(device_out),
+        "flash": {"transport": "host-image", "verified": True},
+        "reason": f"missing serial markers: {', '.join(missing)}",
+    }
+
+
 def run_blocked_smoke(device: dict, out_dir: Path,
                       env: dict[str, str]) -> dict:
     device_out = out_dir / device["id"]
@@ -687,6 +784,14 @@ def main() -> None:
                     break
         elif device["mode"] == "console":
             result = run_console(
+                device,
+                backends[device["backend"]],
+                args.out_dir,
+                env,
+                args.flash_transport,
+            )
+        elif device["mode"] == "firmware":
+            result = run_firmware(
                 device,
                 backends[device["backend"]],
                 args.out_dir,

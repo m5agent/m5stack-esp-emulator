@@ -1,0 +1,91 @@
+{
+  "id": "m5stick",
+  "name": "M5Stick",
+  "sku": "K016",
+  "group": "esp32-lx6",
+  "category": "stick",
+  "hardware": {
+    "soc": "ESP32-WROOM32",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 4194304,
+    "psram_bytes": 0,
+    "display": {
+      "type": "oled",
+      "width": 64,
+      "height": 128,
+      "shape": "rect",
+      "driver": "SH1107",
+      "touch": false,
+      "diagonal_in": 1.3
+    },
+    "controls": [
+      {
+        "id": "a",
+        "type": "button",
+        "label": "A",
+        "gpio": 35
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      }
+    ],
+    "sensors": [
+      "imu:mpu9250",
+      "ir",
+      "buzzer",
+      "led-output:gpio19",
+      "battery:ip5306",
+      "charger:ip5306"
+    ],
+    "dimensions_mm": [
+      48.2,
+      25.5,
+      13.7
+    ],
+    "weight_g": 14.0,
+    "pmic": "IP5306"
+  },
+  "shell": {
+    "preset": "stick",
+    "accent": "#6b7280",
+    "screen_scale": 1.05,
+    "body_theme": "graphite"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-sh1107",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-02",
+      "status": "native-factory-boot-oled-probe-blocked",
+      "detail": "官方 EasyLoader FactoryTest 镜像（安装包 SHA-256 99c640b0…；规范化 4 MB 镜像 SHA-256 84228dfb…）在独立 m5stick machine 内完成 ROM/二级 bootloader 加载并在 icount 确定性模式下输出原生串口 `mpu9250 addr: FF`；SH1107 收到完整 64x128 初始化命令流与 4,096 字节 GDDRAM 写周期（含 1,024 字节非零内容），但工厂固件随后停滞，未到达 UI 绘制/按键阶段。MPU9250 0x68 与 IP5306 0x75 模型在同一 machine 上由 generic classic-ESP32 MicroPython fixture 通过真实 guest I2C 控制器读取（WHO_AM_I 0x71、QOM accel fixture 8192、GPIO35 按键注入与 IP5306 0xbe/0xff），该 fixture 不是本板官方固件。",
+      "evidence": "docs/evidence/2026-11-02-m5stick-host/summary.json",
+      "category": "virtual-device"
+    },
+    "blockers": [
+      "工厂固件的 I2C 传输未在 classic I2C 控制器模型上完成（legacy ESP-IDF FIFO 数据写入路径未到达模型），因此原厂 MPU9250 探测输出 0xFF，工厂固件的按键/九轴数据面未通过；MPU9250 模型数据面只由 generic MicroPython fixture 取证。AK8963 磁力计、DMP、SH1107 最终 UI 帧、黑/灰修订区分、蜂鸣器/IR/LED、Grove Unit 与物理声学/光学/电气行为未验证。"
+    ]
+  },
+  "uiflow2": {
+    "supported": false,
+    "m5ui": false,
+    "factory_test": {
+      "installer_url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/EasyLoader/Windows/CORE/EasyLoader_M5Stick_FactoryTest.exe",
+      "installer_bytes": 9463808,
+      "installer_sha256": "99c640b0ed51bd9670f544164f5542cb9c0303f1b6f84a4ee91e33e6c82e69f4",
+      "bootloader_installer_offset": "0x527b41",
+      "flash_extract_offset": "0x1000",
+      "flash_extract_bytes": "0x571e0",
+      "image_flash_bytes": "0x400000",
+      "image_sha256": "84228dfb6f0dd9b84b63c33f93a53545d8d43658893f432e3eaf4313923bffca"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/m5stick",
+  "status_label": "candidate"
+}

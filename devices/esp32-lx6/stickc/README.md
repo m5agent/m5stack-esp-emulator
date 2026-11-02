@@ -1,6 +1,6 @@
 # StickC
 
-- SKU：`K016`
+- SKU：`K016-C`
 - 分组：`ESP32 LX6`
 - 外壳：`竖条棒状`
 - 运行时：`candidate`

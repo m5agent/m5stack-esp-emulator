@@ -791,6 +791,37 @@
         }
       ],
       "unconfirmed": []
+    },
+    {
+      "device_id": "m5stick",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "PORT.CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 32,
+            "white": 33
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/M5Stick",
+              "checked_at": "2026-11-02",
+              "locator": "PinMap > HY2.0-4P PORT.CUSTOM GND / 5V / G32 / G33"
+            }
+          ],
+          "limitations": [
+            "Runtime controller routing and per-Unit protocols are not implied by this wiring entry."
+          ]
+        }
+      ]
     }
   ]
 }

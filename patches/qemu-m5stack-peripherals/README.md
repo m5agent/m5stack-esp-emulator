@@ -25,6 +25,19 @@ of `0112`.
 multi-frame boundaries left by `0115`. Its base is the `0116` layer; the patch
 was also verified with `git apply --check` on the parallel `0117` (Atom Echo)
 and `0119` (B-class Unit) layer states and on their combination.
+
+`0121-m5stick-board.patch` adds the classic-ESP32 `m5stick` board (K016;
+ESP32-WROOM32, 4 MB, no PSRAM): 64x128 SH1107 mono OLED on SPI (CS14/DC27/
+RST33/SCLK18/MOSI23) via a new mono mode of the generic SPI panel model,
+GPIO35 custom button, MPU9250 at 0x68 and the `0113` IP5306 model at 0x75 on
+the shared G21/G22 bus. It also fixes the classic SPI panel sink to preserve
+TX bytes for full-duplex DOUTDIN transactions and guards the classic I2C
+command engine against empty TX FIFOs. The official EasyLoader factory image
+boots to its native `mpu9250 addr: FF` probe; its legacy IDF I2C FIFO path
+does not complete on the current classic I2C model, so the patch claims no
+factory-firmware button/IMU data plane and no final OLED UI frame. Its base is
+the main-repository layer order used for this batch (native-lock `0109` +
+`0110`/`0111`/`0112` + `0113`/`0114`/`0115`/`0116`/`0117`/`0119`).
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the

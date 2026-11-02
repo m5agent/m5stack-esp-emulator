@@ -508,6 +508,24 @@
       ]
     },
     {
+      "id": "m5stick",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "firmware",
+      "machine": "m5stick",
+      "base": "platform/.cache/firmware/m5stick/factory-test-4m.bin",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "serial_index": 0,
+      "deterministic": true,
+      "icount": "shift=2,align=off,sleep=off",
+      "serial_expect": [
+        "mpu9250 addr:"
+      ],
+      "expected_blocked": "Factory firmware boots to its MPU probe and reports 0xFF; the SH1107 init/GDDRAM path is covered separately and no factory-firmware button/IMU data plane is claimed.",
+      "timeout": 150
+    },
+    {
       "id": "stickc",
       "backend": "qemu-esp32lx6",
       "network_status": "unverified",
