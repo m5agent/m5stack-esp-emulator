@@ -1,11 +1,11 @@
-From 7d3e1f90b4c2a8e5d6f708192a3b4c5d6e7f8091 Mon Sep 17 00:00:00 2001
+From 07a0f966c359fefa21b50b1a4b0c6b77fbfd3636 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Mon, 2 Nov 2026 23:55:00 +0800
-Subject: [PATCH] hw/m5stopwatch: fix batch-5 Unit model bugs found by guest evidence
+Date: Tue, 3 Nov 2026 00:00:03 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-5 Unit model bugs found by guest
+ evidence
 
 Fix four real batch-5 model bugs found by the guest evidence collection.
-Base: canonical 75f1d24 + canonical chain through 0139 (incl. 0137 batch5 A
-and 0139 batch5 B).
+Base in the reconciled canonical order is the 21-layer chain through 0140 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132, 0137, 0138, 0139 and 0140); this is the 22nd layer after 0120 and it applies at the chain end.
 
 - op90 (U057): the 0137 model exposed only the derived active-low 'blocked'
   view plus a read-only 'input-level', so the catalog/profile 'digital-level'
@@ -27,9 +27,16 @@ and 0139 batch5 B).
 
 No guest PASS is claimed here; the evidence reports record the guest results
 for the exact runtime binary built from this tree.
+---
+ hw/m5stopwatch/m5_unit_gpio.c        | 21 +++++++++++++++++++++
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 28 ++++++++++++++++++++++++----
+ 2 files changed, 45 insertions(+), 4 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 081ec4c..cfb2d4c 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -1369,6 +1369,26 @@
+@@ -1371,6 +1371,26 @@ static void op90_blocked_set(Object *o, Visitor *v, const char *name, void *op,
      g->unit->input_events++;
  }
  
@@ -56,17 +63,19 @@ for the exact runtime binary built from this tree.
  static void at_inject_next(GPIOUnit *g)
  {
      if (!g->at_responses || !*g->at_responses) { return; }
-@@ -1618,6 +1638,7 @@
-         /* U057: white Digital Output on PORT.B, yellow NC. */
+@@ -1624,6 +1644,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+          * between products). */
          esp32_gpio_set_input(unit->white, 1);
          object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
 +        object_property_add(o, "digital-level", "bool", op90_level_get, op90_level_set, NULL, g);
          object_property_add(o, "blocked", "bool", op90_blocked_get, op90_blocked_set, NULL, g);
      } else if (!strcmp(id, "rgb-led-10cm")) {
          /* A035 10cm strip: 15 SK6812 LEDs on the yellow data line, white NC.
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index ea953ad..7985c45 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -880,6 +880,17 @@
+@@ -891,6 +891,17 @@ static uint8_t accel_register_read(M5UnitSensor *s, uint8_t reg)
  static void sensor_update(M5UnitSensor *s)
  {
      int64_t now = now_ns();
@@ -84,7 +93,7 @@ for the exact runtime binary built from this tree.
      if (s->kind == US_ACMEASURE) {
          /* The 0136 model stored the six AC fixtures in values[] but never
           * copied them into the ASCII/byte-view fields, so every guest read
-@@ -1216,8 +1227,11 @@
+@@ -1227,8 +1238,11 @@ static void sths34pf80_refresh(M5UnitSensor *s)
      le16(s->regs[0] + 0x3a, s->tmos_presence ? 1 : 0);
      le16(s->regs[0] + 0x3c, s->tmos_motion ? 1 : 0);
      le16(s->regs[0] + 0x3e, s->tmos_shock ? 1 : 0);
@@ -98,8 +107,8 @@ for the exact runtime binary built from this tree.
      s->regs[0][0x25] = s->regs[0][0x23];
  }
  
-@@ -1686,14 +1700,20 @@
-         return 0xff;
+@@ -1798,14 +1812,20 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         return reg <= 0xff ? s->regs[0][reg] : 0xff;
      }
      if (s->kind == US_RTC8563) {
 -        if (pos == 0) { rtc8563_refresh(s); }
@@ -121,3 +130,6 @@ for the exact runtime binary built from this tree.
      }
      if (s->kind == US_ACMEASURE) {
          uint8_t reg = (uint8_t)s->pointer;
+-- 
+2.55.0
+

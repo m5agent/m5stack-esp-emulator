@@ -1,6 +1,6 @@
-From f1778081a8ae82c2c234f7f80a3097b59293c899 Mon Sep 17 00:00:00 2001
+From 6123981e6e67ddb99e62f1064a4c3de46c904cb2 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Mon, 2 Nov 2026 23:32:08 +0800
+Date: Tue, 3 Nov 2026 00:00:03 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-6 first six data planes
 
 Add the first six batch-6 Units on top of the 20-layer canonical tree. No
@@ -31,6 +31,8 @@ machines are deliberately minimal with explicit catalog blockers.
 Offline QOM smoke (S3 board, no guest firmware) validates property
 registration, fixtures, range/read-only rejection and the 30-LED shape; it is
 not a functional PASS.
+
+Base in the reconciled canonical order is the 20-layer chain through 0139 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132, 0137, 0138 and 0139); this is the 21st layer after 0120 and it applies at the chain end.
 ---
  hw/m5stopwatch/m5_unit_gpio.c         |  26 ++++-
  hw/m5stopwatch/m5_unit_i2c_controls.c |  89 +++++++++++++++-
