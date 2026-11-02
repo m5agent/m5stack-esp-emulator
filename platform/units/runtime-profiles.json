@@ -4645,6 +4645,31 @@
           "archive_url": "https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md"
         }
       }
+    },
+    "ssr": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. SSR zero-cross switching, overcurrent protection, load isolation and contact behavior are not modeled."
+    },
+    "vibrator": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Motor vibration strength, frequency optimality and electrical behavior are not modeled."
+    },
+    "earth": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Soil physics, probe chemistry and digital-output polarity-to-moisture semantics are unresolved."
+    },
+    "hall": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. The three A3144E switches and 74HC08D spatial logic are modeled only as one synthetic line level."
+    },
+    "reflective-ir": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Comparator polarity-to-detection semantics, threshold circuit and optical response are unresolved."
     }
   },
   "evidence_policy": {

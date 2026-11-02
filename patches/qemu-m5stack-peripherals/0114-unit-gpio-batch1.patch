@@ -1,0 +1,128 @@
+From c0f1fa75f288646f876056e9ea87a0a001f54921 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 16:21:57 +0800
+Subject: [PATCH] hw/m5stopwatch: add first A-class external Unit models
+
+Register ssr, earth, hall, reflective-ir and vibrator as controller-backed
+Unit attachments, reusing existing data planes instead of adding host-side
+values:
+
+- ssr (U122): UNIT_RELAY pad observation on the yellow DIN line.
+- earth (U019) and reflective-ir (U175): angle/light GPIO-ADC branch (white
+  analog injection through the m5_unit_adc_sample hook, yellow comparator
+  digital level).
+- hall (U084): low-level-active white-wire GPIO input per the official
+  A3144E/74HC08D spec; no PIR-style retrigger hold.
+- vibrator (U059): fan/buzzer LEDC PWM observation on the yellow line.
+
+Protocol sources: docs/unit-research/2026-11-02-batch1-protocols.md
+(official UIFlow2 drivers and product PinMaps). This patch does not claim a
+guest or Device Service run; catalog admission stays planned and electrical
+behavior remains out of scope.
+---
+ hw/m5stopwatch/m5_unit_gpio.c    | 27 +++++++++++++++++++++------
+ hw/m5stopwatch/m5_unit_runtime.c |  3 +++
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 43db6cb..444795f 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -606,7 +606,8 @@ static AW3641State *aw3641_new(M5Unit *unit, Error **errp)
+ bool m5_unit_gpio_supported(const char *id)
+ {
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+-        "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight"};
++        "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
++        "earth", "hall", "reflective-ir", "vibrator"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -620,6 +621,8 @@ static void bool_get(Object *o, Visitor *v, const char *name, void *op, Error **
+     if (!strcmp(name, "red-pressed")) { value = g->red; }
+     else if (!strcmp(name, "blue-pressed") || !strcmp(name, "pressed")) { value = g->blue; }
+     else if (!strcmp(name, "motion")) { value = g->motion; }
++    /* U084 spec: low-level active. The guest reads the raw white level. */
++    else if (!strcmp(name, "magnetic-detected")) { value = !esp32_gpio_get_line(g->unit->white); }
+     else if (!strcmp(name, "digital-level")) { value = g->digital; }
+     else { value = esp32_gpio_get_line(g->unit->white); }
+     visit_type_bool(v, name, &value, errp);
+@@ -650,6 +653,8 @@ static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **
+             g->hold_until = now + 2000000000LL;
+             timer_mod_ns(g->hold_timer, g->hold_until);
+         } else if (now >= g->hold_until) { esp32_gpio_set_input(g->unit->white, 0); }
++    } else if (!strcmp(name, "magnetic-detected")) {
++        esp32_gpio_set_input(g->unit->white, !value);
+     } else if (!strcmp(name, "digital-level")) {
+         g->digital = value; esp32_gpio_set_input(g->unit->yellow, value);
+     } else {
+@@ -745,7 +750,9 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+     static const double ideal_fullscale_mv[] = {950, 1250, 1750, 3100};
+     for (GPIOUnit *g = gpio_units; g; g = g->next) {
+         if (g->unit->white == pin && (!strcmp(g->unit->unit_id, "angle") ||
+-                                    !strcmp(g->unit->unit_id, "light"))) {
++                                    !strcmp(g->unit->unit_id, "light") ||
++                                    !strcmp(g->unit->unit_id, "earth") ||
++                                    !strcmp(g->unit->unit_id, "reflective-ir"))) {
+             g->adc_samples++;
+             return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
+         }
+@@ -764,7 +771,8 @@ void m5_unit_pwm_observe(bool s3, unsigned channel, uint32_t timer,
+     if (!(conf & BIT(2)) || (timer & (BIT(22) | BIT(23)))) { percent = 0; }
+     for (GPIOUnit *g = gpio_units; g; g = g->next) {
+         if (g->s3 == s3 &&
+-            (!strcmp(g->unit->unit_id, "fan") || !strcmp(g->unit->unit_id, "buzzer")) &&
++            (!strcmp(g->unit->unit_id, "fan") || !strcmp(g->unit->unit_id, "buzzer") ||
++             !strcmp(g->unit->unit_id, "vibrator")) &&
+             esp32_gpio_matrix_out_signal(g->unit->yellow, s3) == signal) {
+             if (g->frequency != frequency || g->duty != percent) { g->unit->output_transitions++; }
+             g->frequency = frequency; g->duty = percent; g->pwm_signal = signal;
+@@ -920,6 +928,12 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         esp32_gpio_set_input(unit->white, 0);
+         object_property_add(o, "motion", "bool", bool_get, bool_set, NULL, g);
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
++    } else if (!strcmp(id, "hall")) {
++        /* U084: A3144E x3 + 74HC08D, official low-level-active output on white.
++         * No retrigger hold: the guest reads the instantaneous line level. */
++        esp32_gpio_set_input(unit->white, 1);
++        object_property_add(o, "magnetic-detected", "bool", bool_get, bool_set, NULL, g);
++        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+     } else if (!strcmp(id, "dual-button") || !strcmp(id, "limit") || !strcmp(id, "key")) {
+         esp32_gpio_set_input(unit->white, 1);
+         if (!strcmp(id, "dual-button")) {
+@@ -928,14 +942,15 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+             object_property_add(o, "blue-pressed", "bool", bool_get, bool_set, NULL, g);
+         } else { object_property_add(o, "pressed", "bool", bool_get, bool_set, NULL, g); }
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+-    } else if (!strcmp(id, "angle") || !strcmp(id, "light")) {
++    } else if (!strcmp(id, "angle") || !strcmp(id, "light") ||
++               !strcmp(id, "earth") || !strcmp(id, "reflective-ir")) {
+         object_property_add(o, !strcmp(id, "angle") ? "voltage-mv" : "analog-mv", "number", num_get, num_set, NULL, g);
+         object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL, &g->adc_samples);
+-        if (!strcmp(id, "light")) {
++        if (!strcmp(id, "light") || !strcmp(id, "earth") || !strcmp(id, "reflective-ir")) {
+             esp32_gpio_set_input(unit->yellow, 0);
+             object_property_add(o, "digital-level", "bool", bool_get, bool_set, NULL, g);
+         }
+-    } else if (!strcmp(id, "fan") || !strcmp(id, "buzzer")) {
++    } else if (!strcmp(id, "fan") || !strcmp(id, "buzzer") || !strcmp(id, "vibrator")) {
+         object_property_add(o, "frequency-hz", "number", num_get, NULL, NULL, g);
+         object_property_add(o, "duty-pct", "number", num_get, NULL, NULL, g);
+     } else if (!strcmp(id, "ir")) {
+diff --git a/hw/m5stopwatch/m5_unit_runtime.c b/hw/m5stopwatch/m5_unit_runtime.c
+index bda47d1..fb6805a 100644
+--- a/hw/m5stopwatch/m5_unit_runtime.c
++++ b/hw/m5stopwatch/m5_unit_runtime.c
+@@ -464,6 +464,9 @@ void m5_unit_runtime_init(bool s3)
+         }
+         if (!strcmp(unit_id, "button")) { u->kind = UNIT_BUTTON; }
+         else if (!strcmp(unit_id, "relay")) { u->kind = UNIT_RELAY; }
++        /* U122 SSR: single active-high DIN on yellow, same pad data plane as
++         * the Relay Unit. Contact/zero-cross behavior stays out of scope. */
++        else if (!strcmp(unit_id, "ssr")) { u->kind = UNIT_RELAY; }
+         else if (!strcmp(unit_id, "2relay")) { u->kind = UNIT_RELAY2; }
+         else if (!strcmp(unit_id, "env-iii")) { u->kind = UNIT_ENV_III; }
+         else if (m5_unit_gpio_supported(unit_id)) { u->kind = UNIT_GPIO; }
+-- 
+2.55.0
+

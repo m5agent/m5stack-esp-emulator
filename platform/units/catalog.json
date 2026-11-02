@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-27",
+  "checked_at": "2026-11-02",
   "scope": "External visual Unit products; official protocol contracts and runtime status are independent.",
   "units": [
     {
@@ -5131,6 +5131,683 @@
       "input_semantics": "The model starts with a deterministic synthetic NTAG fixture.",
       "output_semantics": "Guest-visible ST25R3916 operations; no RF field is modeled.",
       "limitations": ["No RF, antenna, range, electrical or secure-card validation."]
+    },
+    {
+      "id": "ssr",
+      "name": "SSR",
+      "sku": "U122",
+      "visual_asset": {
+        "entry": "src/units/ssr/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/ssr",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "MOC3043M",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BT136S",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "DIN",
+            "direction": "host-to-unit",
+            "active_level": 1
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "GPIO high energizes the solid-state relay and GPIO low releases it; DIN is the yellow wire, white is NC. There is no address or register map, and the guest can only drive the pad, never read relay state. The official driver uses active-high on()/off()/set_state().",
+        "registers": [],
+        "gaps": [
+          "Zero-cross switching, overcurrent protection, AC-only load behavior and electrical isolation are not modeled.",
+          "The product page states the SSR is suitable for AC loads; that must not become a virtual rejection of DC test loads."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "output-level": {
+          "type": "boolean",
+          "label": "继电器驱动电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/ssr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors (yellow=DIN, white=NC)",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ssr.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "4300fa901b16bd923c5a690dacb86cf09037a6e8a8ff5ebe78a13178799c9181",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/ssr/C23427_BT136S.PDF",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/ssr/C41809_MOC3043SR2M_2015-01-24.PDF",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "unsupported",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "output-level": {
+            "property": "output-level",
+            "access": "read-only",
+            "type": "boolean"
+          }
+        },
+        "required_data_plane": "GPIO matrix/pad output observation through the existing UNIT_RELAY data plane (registered by patch 0114)"
+      },
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. SSR zero-cross/overcurrent switching, load isolation and contact behavior remain out of scope.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+      ]
+    },
+    {
+      "id": "vibrator",
+      "name": "Vibrator",
+      "sku": "U059",
+      "visual_asset": {
+        "entry": "src/units/vibrator/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/vibrator",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "N20 DC motor with metal eccentric wheel",
+          "status": "officially-documented"
+        },
+        {
+          "part": "N-channel MOSFET low-side driver",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-pwm",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "DIN",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "PWM on the yellow wire sets vibration intensity. The driver builds machine.PWM at 100 Hz by default and exposes one-shot once(freq,duty,duration), set_freq(), set_duty() and turn_off(). The product page recommends 10 kHz PWM but the driver enforces no frequency floor.",
+        "registers": [],
+        "gaps": [
+          "Product page recommends 10 kHz while the driver defaults to 100 Hz; neither is a measured optimum.",
+          "Motor speed, vibration amplitude, eccentric-wheel mechanics and MOSFET electrical behavior are not modeled."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "frequency-hz": {
+          "type": "number",
+          "label": "PWM频率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "Hz",
+          "minimum": 0,
+          "readOnly": true
+        },
+        "duty-pct": {
+          "type": "number",
+          "label": "占空比",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "%",
+          "minimum": 0,
+          "maximum": 100,
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/vibrator",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and motor/driver identity",
+            "PinMap wire colors (yellow=DIN, white=NC)",
+            "recommended PWM frequency and GPIO/PWM control declaration"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/vibrator.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "guest driver binds Haptic to the yellow wire (port[1])"
+          ],
+          "sha256": "7a4b1f1e14be1b1db338aefb874ea4999791581622c28c51025a6f5bef71d4a2",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/haptic.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "PWM construction, duty percentage encoding and one-shot behaviour"
+          ],
+          "sha256": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "unsupported",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "frequency-hz": {
+            "property": "frequency-hz",
+            "access": "read-only",
+            "type": "number"
+          },
+          "duty-pct": {
+            "property": "duty-pct",
+            "access": "read-only",
+            "type": "number"
+          }
+        },
+        "required_data_plane": "SoC LEDC PWM configuration observed through the GPIO matrix using the fan/buzzer branch (registered by patch 0114)"
+      },
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Motor vibration strength, PWM frequency optimality and electrical behavior remain out of scope.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+      ]
+    },
+    {
+      "id": "earth",
+      "name": "Earth",
+      "sku": "U019",
+      "visual_asset": {
+        "entry": "src/units/earth/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/earth",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "10k ohm adjustable threshold resistor",
+          "status": "officially-documented"
+        },
+        {
+          "part": "soil moisture probe (non-waterproof, product-declared)",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "digital output",
+            "direction": "unit-to-host"
+          },
+          "white": {
+            "signal": "analog output",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "White wire is the analog probe voltage sampled by the host ADC with 11 dB attenuation; yellow wire is the comparator digital output. The driver's humidity() is a host-side linear map over the driver constants 2900/1630 and is not a calibrated moisture value. There is no I2C address or register.",
+        "registers": [],
+        "gaps": [
+          "Digital output polarity versus wet/dry is not stated by the driver or product page.",
+          "The driver defaults 2900/1630 are host constants, not calibration data; probe corrosion and polarization are not modeled."
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "模拟输出电压",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300,
+          "readOnly": false
+        },
+        "digital-level": {
+          "type": "boolean",
+          "label": "比较器电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/earth",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and interface identity",
+            "PinMap wire colors (yellow=digital output, white=analog output)",
+            "analog and digital output declaration"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/earth.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ADC pin is port[0] (white) and digital pin is port[1] (yellow)",
+            "host-side humidity linear map and calibration constants"
+          ],
+          "sha256": "d7938ae04194bb4588a8c24c17099a15f909f56f977067d812b312277e3de382",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/728/U019_UNIT_EARTH_SCHE.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "unsupported",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "digital-level": {
+            "property": "digital-level",
+            "access": "read-write",
+            "type": "boolean"
+          }
+        },
+        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by patch 0114)"
+      },
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Soil physics, probe chemistry and digital-output polarity-to-moisture semantics remain unresolved/out of scope.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+      ]
+    },
+    {
+      "id": "hall",
+      "name": "Hall",
+      "sku": "U084",
+      "visual_asset": {
+        "entry": "src/units/hall/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/hall",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "A3144E x3",
+          "status": "officially-documented"
+        },
+        {
+          "part": "74HC08D",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "NC",
+            "direction": "none"
+          },
+          "white": {
+            "signal": "digital output",
+            "direction": "unit-to-host",
+            "active_level": 0
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Three A3144E Hall switches feed a 74HC08D logic gate; the product specification is low-level active, so a magnet near the sensing face pulls the white wire low and lights the indicator. The driver subclasses PIRUnit: it reads the raw white line, uses IRQ_ACTIVE=0 / IRQ_NEGATIVE=1 and registers both-edge interrupts.",
+        "registers": [],
+        "gaps": [
+          "The three-sensor plus 74HC08D spatial/logic combination is modeled only as one synthetic line level.",
+          "Indicator LED, magnetic field strength and pole orientation are not modeled."
+        ]
+      },
+      "inputs": {
+        "magnetic-detected": {
+          "type": "boolean",
+          "label": "检测到磁场",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/hall",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and chip identity (A3144E x3, 74HC08D)",
+            "PinMap wire colors (yellow=NC, white=digital output)",
+            "low-level active output declaration"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/hall_effect.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "driver subclasses PIRUnit and declares IRQ_ACTIVE=0 / IRQ_NEGATIVE=1"
+          ],
+          "sha256": "1015507e975a48a4be9b5d3c871fb01630f7eec7c17dac9b4d4e11edb255132c",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "base-class pin (port[0]), input mode and both-edge IRQ path"
+          ],
+          "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/3141Thru3144E_HALL.PDF",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "unsupported",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "magnetic-detected": {
+            "property": "magnetic-detected",
+            "access": "read-write",
+            "type": "boolean"
+          }
+        },
+        "required_data_plane": "GPIO digital input on the white wire with low-level-active semantics (registered by patch 0114; no retrigger hold)"
+      },
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. The A3144E x3 + 74HC08D spatial logic and field strength are modeled only as one synthetic line level.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+      ]
+    },
+    {
+      "id": "reflective-ir",
+      "name": "Reflective IR",
+      "sku": "U175",
+      "visual_asset": {
+        "entry": "src/units/reflective-ir/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Reflective%20IR",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "LM393",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "digital output",
+            "direction": "unit-to-host"
+          },
+          "white": {
+            "signal": "analog output",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "White wire is the analog reflected-light signal sampled by the host ADC; yellow wire is the LM393 comparator digital output. The driver exposes raw analog and digital readings plus both-edge IRQ callbacks whose trigger index is the raw pin level (EVENT_DETECTED=0, EVENT_NOT_DETECTED=1). Detection polarity is not declared by driver or product page.",
+        "registers": [],
+        "gaps": [
+          "Comparator output polarity versus object-detected is not stated by the driver or product page.",
+          "The factory 1.65 V threshold and potentiometer adjustment are product-page text only; the schematic is not reviewed. IR emitter/receiver part numbers are not published on the product page."
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "模拟输出电压",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300,
+          "readOnly": false
+        },
+        "digital-level": {
+          "type": "boolean",
+          "label": "比较器电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Reflective%20IR",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and interface identity",
+            "PinMap wire colors (yellow=digital output, white=analog output)",
+            "LM393 comparator and factory threshold description"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/reflective_ir.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ADC pin is port[0] (white) and digital pin is port[1] (yellow)",
+            "event constants and both-edge IRQ callback semantics"
+          ],
+          "sha256": "dd0e19937f5badab9e991f95376c070b25c2d35f2cd01354d66867048cb86aa6",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/628/SCH_UNIT_Reflective_IR_V1.0.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "unsupported",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "digital-level": {
+            "property": "digital-level",
+            "access": "read-write",
+            "type": "boolean"
+          }
+        },
+        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by patch 0114)"
+      },
+      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Comparator polarity-to-detection semantics, threshold circuit and optical response remain unresolved.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+      ]
     }
   ],
   "model_status_values": [
