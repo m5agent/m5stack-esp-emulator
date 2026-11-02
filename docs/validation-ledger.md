@@ -2320,3 +2320,20 @@ regular source-build 工作流两次在构建机上游依赖 TLS 握手阶段失
 浏览器验收，因此保持独立 `PARTIAL`，不把 prepared-site 部署改写为该工作流
 PASS。物理舵机、机械、电气、LCD 光学和 RF 均 `NOT RUN`。见
 [平滑与部署证据](evidence/2026-10-31-stackchan-servo-smoothing/README.md)。
+
+## 2026-11-02：issue #75 CardputerZero RJ45 共面内壁
+
+模型源固定 `1373680d29667f99438a5412b87b955a3ba7702f`；原金属与塑料层
+复用同一 keyed hole，深度重叠区的 12 个侧壁共面。独立补丁
+`patches/visual-models/0002-cardputer-zero-rj45-clearance.patch`
+将金属开孔在每个阶梯边界外扩 0.2 mm；塑料轮廓、接点、材质和端口契约保留。
+由 `sync_visual_models.py` 生成模型和 upstream/patch/effective 三层哈希收据。
+
+`npm run --prefix platform/tests test:rj45` 从补丁反向恢复原始模型：
+12 壁 × 3 深度的 36 次 raycast 在旧版均共面，新版均相隔 0.2 mm；
+旧/新各三角度 WebGL 近景已渲染并人工检查，新版内壁无旧版交错条纹。
+`node platform/tests/test_model_shell.mjs --case controller:cardputer-zero
+--case preview:cardputer-zero` 的两条实际集成路径均通过，13 张贴图加载正常。
+同步工具 16 项契约检查通过；完整检查见本次工作归档。原始截图和报告保留在
+本机 ignored evidence。本结果仅为 browser visual geometry，固件、Linux 后端、
+Ethernet 协议和物理尺寸均 `NOT RUN`，不继承为硬件 PASS。

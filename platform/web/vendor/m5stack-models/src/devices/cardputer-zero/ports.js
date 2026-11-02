@@ -20,13 +20,15 @@ function hdmi(host){
  for(let i=0;i<19;i++)mesh(g,new THREE.BoxGeometry(.22,.09,2.2),materials.metal(0xb9ae82,{roughness:.45}),[(i-9)*.48,i%2?.42:-.42,-3.5],'HDMI contact pad');
  return g;
 }
-function rj45Hole(){
- const p=new THREE.Path();p.moveTo(-6.6,4.5);p.lineTo(6.6,4.5);p.lineTo(6.6,-1.8);p.lineTo(5.6,-1.8);p.lineTo(5.6,-3.8);p.lineTo(3.8,-3.8);p.lineTo(3.8,-5.3);p.lineTo(-3.8,-5.3);p.lineTo(-3.8,-3.8);p.lineTo(-5.6,-3.8);p.lineTo(-5.6,-1.8);p.lineTo(-6.6,-1.8);p.closePath();return p;
+function rj45Hole(clearance=0){
+ // The metal opening clears the plastic liner by 0.2 mm at every keyed wall.
+ const points=[[-6.6,4.5],[6.6,4.5],[6.6,-1.8],[5.6,-1.8],[5.6,-3.8],[3.8,-3.8],[3.8,-5.3],[-3.8,-5.3],[-3.8,-3.8],[-5.6,-3.8],[-5.6,-1.8],[-6.6,-1.8]];
+ const p=new THREE.Path();points.forEach(([x,y],i)=>{x+=Math.sign(x)*clearance;y+=Math.sign(y)*clearance;i?p.lineTo(x,y):p.moveTo(x,y);});p.closePath();return p;
 }
 function ethernet(host){
  const g=portGroup(host,{id:'ethernet',label:'10/100 Ethernet RJ45',connector:'ethernet-rj45',position:DIM.ports.ethernet,face:'left',w:16.2,h:13.4});
- for(const [w,h,depth,z,material,name]of [[16.2,13.4,11.8,-11.76,materials.metal(0x8b9691,{roughness:.44}),'RJ45 metal shield'],[15.7,12.9,11.2,-11.5,materials.plastic(0x111a16,{roughness:.87}),'RJ45 keyed plastic frame']]){
-  const shape=geometry.roundedRect(w,h,.35);shape.holes.push(rj45Hole());mesh(g,new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false}),material,[0,0,z],name);
+ for(const [w,h,depth,z,clearance,material,name]of [[16.2,13.4,11.8,-11.76,.2,materials.metal(0x8b9691,{roughness:.44}),'RJ45 metal shield'],[15.7,12.9,11.2,-11.5,0,materials.plastic(0x111a16,{roughness:.87}),'RJ45 keyed plastic frame']]){
+  const shape=geometry.roundedRect(w,h,.35);shape.holes.push(rj45Hole(clearance));mesh(g,new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false}),material,[0,0,z],name);
  }
  mesh(g,new THREE.BoxGeometry(13.2,10.5,.4),materials.plastic(0x0b130f,{roughness:.96}),[0,0,-12],'RJ45 deep backstop');
  for(let i=0;i<8;i++){

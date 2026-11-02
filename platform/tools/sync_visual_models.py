@@ -46,7 +46,16 @@ REVIEWED_LOCAL_RUNTIME_PATCHES = ({
         "sha256": "5e1d2328941a26ed485645961d5f06f09ce51d32635e0c26217205535788e676",
     },
     "scope": "Preserve mainline boot-time pause/resume/dispose rendering and focused device input on the upstream hidden-viewport fit fix; no model, resource or firmware admission changes",
-},)
+}, {'id': 'cardputer-zero-rj45-liner-clearance',
+ 'adapted_from': {'issue': 'https://github.com/m5agent/m5stack-esp-emulator/issues/75', 'kind': 'local geometry correction'},
+ 'source_commit': '1373680d29667f99438a5412b87b955a3ba7702f',
+ 'target': 'src/devices/cardputer-zero/ports.js',
+ 'upstream_sha256': 'aec19fdc527e90daf68844af0adbdfbf468edf1230f5df6d4d8e5c7b0f9cbccb',
+ 'effective_sha256': 'fbf7b53bbd0c878d447f8431700deede21bd8b11392eff4f9026546cf91dbbc1',
+ 'patch': 'patches/visual-models/0002-cardputer-zero-rj45-clearance.patch',
+ 'patch_sha256': '599d08a53a410cfe7ede68eb8b254158f296c5968d53e885c3b6c8945e5f9137',
+ 'scope': 'Issue #75: separate metal and plastic RJ45 keyed cavity walls by '
+          '0.2 mm; visual geometry only'},)
 THREE_ADDON = "examples/jsm/utils/BufferGeometryUtils.js"
 THREE_DESTINATION = ROOT / "platform/web/vendor/three/addons/utils/BufferGeometryUtils.js"
 THREE_ADDONS = {

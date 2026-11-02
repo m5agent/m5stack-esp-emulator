@@ -36,7 +36,8 @@ class VisualSnapshotImportTests(unittest.TestCase):
     def test_local_runtime_layer_preserves_exact_upstream_and_effective_identities(self):
         row, upstream, _ = self.upstream_viewer()
         files = {row["target"]: upstream}
-        receipts = sync.apply_local_runtime_patches(files, sync.PINNED_COMMIT)
+        with mock.patch.object(sync, "REVIEWED_LOCAL_RUNTIME_PATCHES", (row,)):
+            receipts = sync.apply_local_runtime_patches(files, sync.PINNED_COMMIT)
         self.assertEqual(files[row["target"]], (sync.DESTINATION / row["target"]).read_bytes())
         self.assertEqual(receipts[0]["upstream"]["sha256"], row["upstream_sha256"])
         self.assertEqual(receipts[0]["effective"]["sha256"], row["effective_sha256"])
@@ -300,7 +301,7 @@ class VisualSnapshotImportTests(unittest.TestCase):
         self.assertIn("historical preparation baseline", manifest["source_manifest_scope"])
         self.assertIn("effective vendored bytes", manifest["file_hash_scope"])
         self.assertEqual(manifest["upstream_resource_closure"], manifest["resource_closure"])
-        self.assertEqual(len(manifest["local_runtime_patches"]), 1)
+        self.assertEqual(len(manifest["local_runtime_patches"]), len(sync.REVIEWED_LOCAL_RUNTIME_PATCHES))
         for layer in manifest["local_runtime_patches"]:
             target = layer["target"]
             self.assertEqual(layer["effective"], manifest["files"][target])

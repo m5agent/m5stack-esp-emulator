@@ -17,3 +17,8 @@ The vendored `source-manifest.json` remains the unchanged upstream preparation
 receipt, including its historical baseline; it does not claim to describe the
 patched runtime. Do not edit vendored runtime files directly: review and pin a
 new patch and its preimage/result before regenerating the snapshot.
+
+`0002-cardputer-zero-rj45-clearance.patch` fixes issue #75 on pinned upstream
+`1373680d29667f99438a5412b87b955a3ba7702f`: the metal opening clears the plastic
+liner by 0.2 mm at each keyed cavity wall. No depth-bias or material workaround;
+no firmware, Ethernet or physical-dimension validation is implied.
