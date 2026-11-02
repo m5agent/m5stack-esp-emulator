@@ -17487,6 +17487,1301 @@
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim."
       ]
+    },
+    {
+      "id": "pahub-v20",
+      "name": "Unit PaHub v2.0",
+      "sku": "U040-B",
+      "visual_asset": {
+        "entry": "src/units/pahub-v20/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/pahub2",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "PCA9548AP",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          112
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "PCA9548A I2C mux at 0x70. The official driver writes/reads one direct channel bitmask byte (read-modify-write select/release); channel selects are 0..5. The model implements the mask-only data plane and does NOT forward downstream transactions.",
+        "registers": [
+          {
+            "register": "mask",
+            "length": 1,
+            "encoding": "direct 1-byte channel bitmask (read-modify-write, no register pointer)"
+          }
+        ],
+        "gaps": [
+          "Multi-bus/nested hub composition is NOT modeled: the current attachment framework supports one bus per attachment.",
+          "PCA9548A is an 8-channel part while the unit driver exposes only 6 channels (unresolved).",
+          "A0-A2 address straps, hot-plug, polling timing and bus electrical behavior are NOT modeled.",
+          "0x70 conflicts with env-iii (one Unit per bus)."
+        ]
+      },
+      "inputs": {
+        "channel-mask": {
+          "type": "integer",
+          "label": "通道位掩码",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "channel-writes": {
+          "type": "integer",
+          "label": "通道写次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 112,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "outputs": {
+        "channel-mask": {
+          "property": "channel-mask",
+          "access": "read-only",
+          "type": "integer"
+        },
+        "channel-writes": {
+          "property": "channel-writes",
+          "access": "read-only",
+          "type": "integer"
+        },
+        "i2c-address": {
+          "property": "i2c-address",
+          "access": "read-only",
+          "type": "integer"
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/pahub2",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U040-B",
+            "PCA9548AP I2C mux, 0x70 (0x70-0x77 via A0-A2)",
+            "6-channel expansion",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pahub.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x70 address",
+            "6 channel constants",
+            "direct mask read-modify-write select/release"
+          ],
+          "sha256": "d5c9c5127efcdcb1447f9bf91411316e50a5f48c6f18b5521b5a1f75c42022fe",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "channel-mask": {
+            "property": "channel-mask",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "channel-writes": {
+            "property": "channel-writes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local PCA9548A mask slave at 0x70"
+      },
+      "blocker": "0139 新增 CONTROL_PAHUB（0x70）：按驱动实现直接 1 字节通道 mask 读写（read-modify-write select/release，无寄存器指针）。未采集 guest/Device Service 证据 → planned。**多总线/嵌套 hub 组合 NOT modeled（attachment 框架单 bus 缺口）；PCA9548A 8 通道 vs 驱动 6 通道 unresolved；A0-A2 改址/热插拔/轮询时序/总线电气 NOT RUN；0x70 与 env-iii 冲突**",
+      "input_semantics": "Guest mask writes are observed as controller transactions; downstream devices are not forwarded.",
+      "output_semantics": "Observed channel-mask read/write cycles only; no downstream bus behavior.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "rtc",
+      "name": "Unit RTC",
+      "sku": "U126",
+      "visual_asset": {
+        "entry": "src/units/rtc/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/UNIT%20RTC",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "HYM8563 (PCF8563 compatible)",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          81
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "HYM8563/PCF8563 BCD calendar at 0x51: CS1 0x00 (STOP bit), CS2 0x01 (alarm/timer flags), 0x02..0x08 seconds..year BCD, 0x09..0x0C alarm, 0x0E/0x0F timer. The model advances seconds from the QEMU virtual clock while running and exposes a unix-time fixture.",
+        "registers": [
+          {
+            "register": "0x00/0x01",
+            "length": 1,
+            "encoding": "control/status (STOP, alarm/timer flags)"
+          },
+          {
+            "register": "0x02..0x08",
+            "length": 7,
+            "encoding": "seconds..year BCD (month bit7 = century)"
+          },
+          {
+            "register": "0x09..0x0C",
+            "length": 4,
+            "encoding": "alarm min/hour/day/weekday (0x80=disabled)"
+          },
+          {
+            "register": "0x0E/0x0F",
+            "length": 1,
+            "encoding": "timer control/count"
+          }
+        ],
+        "gaps": [
+          "Crystal accuracy, battery backup, power-loss retention and timezone semantics are NOT RUN.",
+          "Alarm/timer IRQ delivery and the internet-time helper (network dependency) are NOT modeled.",
+          "Century/leap-year edge cases and STOP/resume semantics are unresolved.",
+          "0x51 conflicts with the registered ameter calibration EEPROM."
+        ]
+      },
+      "inputs": {
+        "unix-time": {
+          "type": "integer",
+          "label": "Unix 时间 fixture",
+          "default": 1767225600,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 4102444800
+        },
+        "running": {
+          "type": "boolean",
+          "label": "时钟运行 (STOP=0)",
+          "default": true,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 81,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/UNIT%20RTC",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U126",
+            "HYM8563 (PCF8563-compatible)",
+            "I2C 0x51",
+            "PORT.A SDA/SCL",
+            "button-cell backup"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rtc8563.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "RTC8563Unit API",
+            "datetime/alarm/timer wrappers"
+          ],
+          "sha256": "6a59b47c8d0d6ebeadae2ad2c20ed86e583c57fa69cf9edb6ced4a6b906e1964",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/pcf8563.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register map 0x00-0x0F",
+            "BCD encode/decode",
+            "datetime/alarm APIs"
+          ],
+          "sha256": "e56cbf1be0c6aa66b2a72ba7d3ac88198e6d81f3f6c3d17ac2e7e13546db1767",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "unix-time": {
+            "property": "unix-time",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "running": {
+            "property": "running",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local HYM8563/PCF8563 BCD calendar slave at 0x51"
+      },
+      "blocker": "0139 新增 US_RTC8563（0x51）：CS1 STOP 位、0x02..0x08 BCD 日历由 QEMU 虚拟时钟推进（running 时），unix-time fixture 读写，0x09..0x0F 告警/定时器寄存器存储。未采集 guest/Device Service 证据 → planned。**晶振精度/电池备份/掉电保持/时区 NOT RUN；alarm/timer IRQ 与 internet-time（网络依赖）不建模；世纪/闰年边界与 STOP/resume 语义 unresolved；0x51 与 ameter 校准 EEPROM 冲突**",
+      "input_semantics": "Synthetic Unix-time fixture and QEMU virtual-clock second progression drive the BCD calendar registers.",
+      "output_semantics": "Observed guest BCD register reads/writes; no crystal/backup/alarm behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "tmos-pir",
+      "name": "Unit TMOS PIR",
+      "sku": "U185",
+      "visual_asset": {
+        "entry": "src/units/tmos-pir/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_TMOS_PIR",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STHS34PF80",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          90
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "STHS34PF80 at 0x5A: WHOAMI 0x0F=0xD3, LPF/AVG/CTRL0 registers, STATUS/FUNC_STATUS 0x23/0x25, data registers TOBJECT 0x26/0x27, TAMBIENT 0x28/0x29, TOBJ_COMP 0x38/0x39, TPRESENCE 0x3A/0x3B, TMOTION 0x3C/0x3D, TAMB_SHOCK 0x3E/0x3F, embedded page via 0x08/0x09/0x11.",
+        "registers": [
+          {
+            "register": "0x0F",
+            "length": 1,
+            "encoding": "WHOAMI = 0xD3"
+          },
+          {
+            "register": "0x23/0x25",
+            "length": 1,
+            "encoding": "status flags"
+          },
+          {
+            "register": "0x26/0x27",
+            "length": 2,
+            "encoding": "TOBJECT raw int16le"
+          },
+          {
+            "register": "0x28/0x29",
+            "length": 2,
+            "encoding": "TAMBIENT raw int16le"
+          },
+          {
+            "register": "0x3A/0x3C/0x3E",
+            "length": 2,
+            "encoding": "presence/motion/shock raw"
+          },
+          {
+            "register": "0x08/0x09/0x11",
+            "length": 1,
+            "encoding": "embedded page address/data/page-rw"
+          }
+        ],
+        "gaps": [
+          "IR optics/5-20um/FOV/range/+-0.3C thermal physics are NOT RUN.",
+          "Gain saturation, power-down/reset semantics and embedded-page algorithm thresholds/hysteresis timing are unresolved.",
+          "Raw-value scaling (round(C*100) in the model) is a synthetic convention, not a datasheet calibration.",
+          "0x5A conflicts with ncir/ncir2."
+        ]
+      },
+      "inputs": {
+        "tobject-c": {
+          "type": "number",
+          "label": "目标温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 200
+        },
+        "tambient-c": {
+          "type": "number",
+          "label": "环境温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 125
+        },
+        "presence": {
+          "type": "boolean",
+          "label": "存在检测",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "motion": {
+          "type": "boolean",
+          "label": "运动检测",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "shock": {
+          "type": "boolean",
+          "label": "温度冲击",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "gain-mode": {
+          "type": "integer",
+          "label": "增益模式",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "odr": {
+          "type": "integer",
+          "label": "ODR 配置",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 15
+        }
+      },
+      "outputs": {
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 90,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_TMOS_PIR",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U185",
+            "STHS34PF80",
+            "I2C 0x5A",
+            "80 deg FOV, 2m, 0.25-30Hz, 5-20um, +-0.3C",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tmos.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "TMOSUnit alias to STHS34PF80"
+          ],
+          "sha256": "9a859456fb49d62dbb1baa644bf8ed2ff05cb868f4a97c94c82fc9740b7ccef6",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sths34pf80.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "WHOAMI 0xD3",
+            "register map/data registers",
+            "embedded page mechanism",
+            "presence/motion/shock APIs"
+          ],
+          "sha256": "7b2a5b2603263cc69cb8240bf567d0c76c22a4b8cbfe22f6632e6a294a0b8f4a",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "tobject-c": {
+            "property": "tobject-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "tambient-c": {
+            "property": "tambient-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "presence": {
+            "property": "presence",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "motion": {
+            "property": "motion",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "shock": {
+            "property": "shock",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "gain-mode": {
+            "property": "gain-mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "odr": {
+            "property": "odr",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local STHS34PF80 register/page slave at 0x5A"
+      },
+      "blocker": "0139 新增 US_STHS34PF80（0x5A）：WHOAMI=0xD3、控制/状态寄存器、TOBJECT/TAMBIENT/PRESENCE/MOTION/SHOCK 数据寄存器由 fixture 反算（合成 raw=round(C*100)）、embedded page 机制。未采集 guest/Device Service 证据 → planned。**IR 光学/5-20um/FOV/距离/热模型 NOT RUN；gain 饱和/power-down 复位/页内阈值迟滞与中断时序 unresolved；raw 缩放是合成约定非 datasheet 标定；0x5A 与 ncir/ncir2 冲突**",
+      "input_semantics": "Synthetic target/ambient temperature and presence/motion/shock fixtures exposed through the register file.",
+      "output_semantics": "Observed guest register/page reads/writes; no IR optics or thermal behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "neohex",
+      "name": "Unit NeoHEX",
+      "sku": "A045-B",
+      "visual_asset": {
+        "entry": "src/units/neohex/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_NeoHEX",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "WS2812C-2020-V1",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-rmt",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "LED Signal",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "37x WS2812C-2020 on a single data line (PORT.B); the model captures RMT frames into 37 per-LED RGB values. The public UIFlow2 tree has no unit/neohex.py, so this is an explicit driver-gap model anchored on the generic neopixel path plus the official page.",
+        "registers": [
+          {
+            "kind": "rmt",
+            "encoding": "WS2812 single-wire, 24-bit per LED"
+          }
+        ],
+        "gaps": [
+          "No official UIFlow2 unit driver: WS2812 vs SK6812 byte order/timing is unresolved.",
+          "LED optics/power and the 1024-frame cascade limit are NOT modeled.",
+          "A045 vs A045-B differences are not cross-checked.",
+          "PORT.B host availability is a blocker."
+        ]
+      },
+      "inputs": {
+        "led-rgb": {
+          "type": "array",
+          "label": "37 灯 RGB 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "outputs": {
+        "led-rgb": {
+          "property": "led-rgb",
+          "access": "read-only",
+          "type": "array"
+        },
+        "led-frames": {
+          "type": "integer",
+          "label": "RMT 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "incomplete-frames": {
+          "type": "integer",
+          "label": "不完整帧",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "output-transitions": {
+          "type": "integer",
+          "label": "输出跳变",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_NeoHEX",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU A045-B",
+            "37x WS2812C-2020-V1",
+            "single-wire data, cascade support",
+            "PORT.B yellow=LED Signal white=NC"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/__init__.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "generic NeoPixel bitstream driver (only public reference)"
+          ],
+          "sha256": "f1995e9fa025330b468836f4c76723924e4254c873f75970d4a343f8e727c1d8",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "array"
+          },
+          "led-frames": {
+            "property": "led-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "incomplete-frames": {
+            "property": "incomplete-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC RMT capture of 37 WS2812 frames on the yellow data line"
+      },
+      "blocker": "0139 新增 GPIO id 'neohex'：黄线 RMT 捕获 37 灯 WS2812 帧。未采集 guest/Device Service 证据 → planned。**public UIFlow2 源无 unit/neohex.py（driver-gap，仅 neopixel 通用驱动 + 页面锚定）；WS2812 vs SK6812 字节序/时序 unresolved；LED 光学/功率/1024 帧级联上限 NOT RUN；PORT.B 主机限制写死**",
+      "input_semantics": "Guest RMT frames are captured by the controller model; no host-side fixture.",
+      "output_semantics": "Observed LED frames; no optical output.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "lora-e220-433",
+      "name": "Unit LoRaE220-433",
+      "sku": "U170-433",
+      "visual_asset": {
+        "entry": "src/units/lora-e220-433/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_LoRaE220-433",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "LLCC68 / E220-400T22S",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "UART E220 module on PORT.C: 0xC0 11-byte write-config frame and 0xC1 read-config request; P2P frames carry target address(2B BE) + channel + payload. The model mirrors the 8-byte config in the 0xC0/0xC1 exchange and uses idle-time fixture responses for other frames.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0], 9600 8N1 per driver)"
+          },
+          {
+            "kind": "config",
+            "encoding": "0xC0 write-config 11B; 0xC1 read-config 3B -> 11B response"
+          }
+        ],
+        "gaps": [
+          "RF 433MHz/antenna/range/air-rate/power/sensitivity are NOT RUN.",
+          "DIP M0/M1 operating modes (config/transparent/WOR) are not modeled.",
+          "The product page says UART 115200 while the driver uses 9600: UNRESOLVED conflict.",
+          "0xC0/0xC1 firmware differences, RSSI-byte option and crypt-key semantics are unresolved.",
+          "PORT.C conflicts with midi/gps/uhf-rfid/rs485-iso."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "非配置帧响应 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest 命令帧字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "config-hex": {
+          "type": "string",
+          "label": "0xC0/0xC1 配置镜像",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 32
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_LoRaE220-433",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U170-433",
+            "LLCC68/E220-400T22S, 433MHz, 22dBm",
+            "UART, DIP M0/M1 modes",
+            "PORT.C yellow=UART_RX white=UART_TX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lora_e220_433.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "9600 8N1 UART",
+            "0xC0/0xC1 config frames",
+            "P2P send/receive"
+          ],
+          "sha256": "d07379f88f5737d41a91e90ee46fac817cc94901b0fab64611953c6f3faf2818",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "config-hex": {
+            "property": "config-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest command frames captured, 0xC0/0xC1 mirrored and fixture responses injected when routed"
+      },
+      "blocker": "0139 新增 GPIO id 'lora-e220-433'：UART 捕获 + 0xC0 写配置回显（存 8B 配置镜像）/0xC1 读配置回 11B（header+config），其余帧按 idle-time fixture 响应注入。未采集 guest/Device Service 证据 → planned。**RF/433MHz/天线/空速/功率 NOT RUN；DIP M0/M1 模式不建模；页面 115200 vs 驱动 9600 冲突 unresolved；0xC0/0xC1 固件差异/RSSI/加密语义 unresolved；PORT.C 端口冲突**",
+      "input_semantics": "Synthetic config mirror and response fixtures injected through the guest UART RX path.",
+      "output_semantics": "Observed guest UART frames and config mirror; no RF behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "zigbee",
+      "name": "Unit ZigBee",
+      "sku": "U110",
+      "visual_asset": {
+        "entry": "src/units/zigbee/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/zigbee",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "CC2630F128 / DRF1609H",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "DRF1609H Zigbee module on PORT.C UART 38400: command frames [cmd,len,data...,checksum] (checksum=sum&0xFF), responses start 0xFA, connect 0xFC/restart and 0xED P2P transmission. The model captures guest frames and injects deterministic ;-separated fixture responses after an idle gap; frame parsing is deliberately minimal.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, 38400, tx=port[1], rx=port[0])"
+          },
+          {
+            "kind": "frame",
+            "encoding": "[cmd,len,data...,checksum]; response header 0xFA, P2P 0xED"
+          }
+        ],
+        "gaps": [
+          "Zigbee mesh/routing/2.4GHz RF/encryption/antenna behavior is NOT RUN.",
+          "DRF1609H firmware version and parameter-frame layouts are not fully cross-checked.",
+          "The minimal responder does not validate/emit every 0xFA response variant.",
+          "PORT.C conflicts with midi/gps/uhf-rfid/rs485-iso."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "响应帧 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest 命令帧字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/zigbee",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U110",
+            "CC2630F128, DRF1609H, UART 38400 8N1",
+            "2.4GHz Mesh",
+            "PORT.C yellow=UART_RX white=UART_TX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/zigbee.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "UART 38400",
+            "frame/command wrappers"
+          ],
+          "sha256": "561e7965a137e5d2e6e55b5ae4afd9dac956cf2ca037546c8413bf5d4df8c396",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/drf1609h.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "[cmd,len,data,checksum] frames",
+            "0xFA responses",
+            "0xFC/0xED commands"
+          ],
+          "sha256": "a6654fc8e438d1959d2450bc4e9e5c908c90d74ca8416a1737970e3a09169cb3",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes: guest frames captured and fixture responses injected after an idle gap when routed"
+      },
+      "blocker": "0139 新增 GPIO id 'zigbee'：UART 捕获 guest 帧，idle-gap 后经 guest RX 注入 ';' 分隔 fixture 响应；解析保持最小（不做完整 0xFA 语义）。未采集 guest/Device Service 证据 → planned。**Zigbee Mesh/路由/2.4GHz RF/加密/天线/1000 节点 NOT RUN；DRF1609H 固件与参数帧布局未完全核对；最小 responder 不覆盖全部 0xFA 变体；PORT.C 端口冲突**",
+      "input_semantics": "Synthetic response fixtures injected through the guest UART RX path.",
+      "output_semantics": "Observed guest UART frames; no mesh/RF behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "nbiot2",
+      "name": "Unit NBIoT2",
+      "sku": "U111-B",
+      "visual_asset": {
+        "entry": "src/units/nbiot2/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_NBIoT2",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SIM7028",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SIM7028 NB-IoT modem on PORT.C UART 115200: the driver sends AT lines (AT/ATE0/CPIN/CREG/CGSN/CICCID/CMQTT*/HTTP*) and expects OK/ERROR/+CMD responses. The model captures guest AT bytes and injects deterministic ;-separated fixture responses after an idle gap; AT/MQTT/HTTP sequences are not decoded.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0], 115200 8N1)"
+          },
+          {
+            "kind": "at",
+            "encoding": "text AT lines with OK/ERROR/+CMD responses (fixture-driven)"
+          }
+        ],
+        "gaps": [
+          "NB-IoT cellular network/SIM/operator authentication/TLS/DTLS/CoAP/SSL are NOT RUN.",
+          "SIM7028 AT firmware version, multiline AT/URC timing and error-code sets are not pinned.",
+          "The responder does not synthesize AT semantics; only fixture bytes are injected.",
+          "PORT.C conflicts with midi/gps/uhf-rfid/rs485-iso."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest AT 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_NBIoT2",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U111-B",
+            "SIM7028 NB-IoT, UART 115200, AT commands",
+            "PORT.C yellow=UART_RX white=UART_TX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/nbiot2.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "UART 115200",
+            "SIM7028 wrapper"
+          ],
+          "sha256": "c14696f3787731c2b4af4b94b4cb12a55587deec7bfeb992aa3d95d943103fc1",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/common.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "execute_at_command and basic AT commands"
+          ],
+          "sha256": "d126ef03361769ea50c40b76ca9303a2f7fceca551dff489a73f497275845b52",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/sim7028.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "IMEI/CCID/MQTT/HTTP AT sequences"
+          ],
+          "sha256": "5095e2b29b6c73f789041b31c2789c25005c3168978b62f798a06419e61ea995",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes: guest AT lines captured and fixture responses injected after an idle gap when routed"
+      },
+      "blocker": "0139 新增 GPIO id 'nbiot2'：UART 捕获 guest AT 字节，idle-gap 后经 guest RX 注入 ';' 分隔 fixture 响应。未采集 guest/Device Service 证据 → planned。**NB-IoT 蜂窝/网络/SIM/运营商认证/TLS/DTLS/CoAP/SSL NOT RUN；SIM7028 固件版本/多行 AT/URC 时序/错误码未钉；responder 不合成 AT 语义，只注入 fixture；PORT.C 端口冲突**",
+      "input_semantics": "Synthetic AT response fixtures injected through the guest UART RX path.",
+      "output_semantics": "Observed guest AT bytes; no cellular/network behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
     }
   ],
   "model_status_values": [
