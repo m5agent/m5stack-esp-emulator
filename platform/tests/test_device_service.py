@@ -43,7 +43,7 @@ from device_service import (
 )
 from nvs_image import PAGE_SIZE, build_string_nvs_image
 from network_egress import EgressEndpoint
-from serve import Handler, _wait_for_session
+from serve import Handler, _wait_for_session, service_origin_from_host
 from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
 
@@ -247,6 +247,29 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def tearDown(self):
         self.service.close_all()
         self.tmp.cleanup()
+
+    def test_same_origin_service_configuration_uses_validated_host(self):
+        self.assertEqual(
+            service_origin_from_host("127.0.0.1:8787", secure=False),
+            "http://127.0.0.1:8787",
+        )
+        self.assertEqual(
+            service_origin_from_host("[::1]:8787", secure=True),
+            "https://[::1]:8787",
+        )
+        for host in (
+            None,
+            "",
+            " user@example.test",
+            "example.test/path",
+            "example.test?query=1",
+            "example.test#fragment",
+            "example.test:invalid",
+        ):
+            with self.subTest(host=host):
+                self.assertIsNone(
+                    service_origin_from_host(host, secure=False)
+                )
 
     def test_live_mode_initializes_reference_once_and_preserves_create_idempotency(self):
         source_sha = "a" * 64
@@ -6187,6 +6210,12 @@ class DeviceServiceHttpTests(unittest.TestCase):
         request = Request(self.base + path, method=method, data=data, headers=headers or {})
         with urlopen(request, timeout=5) as response:
             return response.status, json.load(response)
+
+    def test_site_config_exposes_only_the_serving_device_service_origin(self):
+        status, config = self.request("/platform/web/site-config.json")
+        self.assertEqual(status, 200)
+        self.assertEqual(config["service_url"], self.base)
+        self.assertEqual(config["schema_version"], 1)
 
     def test_v1_catalog_and_capacity(self):
         status, payload = self.request("/api/v1/devices")

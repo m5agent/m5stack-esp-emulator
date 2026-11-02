@@ -61,6 +61,35 @@ ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
 
 
+def service_origin_from_host(host: str | None, *, secure: bool) -> str | None:
+    """Return a safe same-origin service URL from an HTTP Host header."""
+    if not isinstance(host, str):
+        return None
+    value = host.strip()
+    if (
+        not value
+        or value != value.strip()
+        or any(ord(char) <= 32 or char in "/\\?#" for char in value)
+    ):
+        return None
+    parsed = urlparse(f"//{value}")
+    try:
+        parsed.port
+    except ValueError:
+        return None
+    if (
+        not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or parsed.path
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+    ):
+        return None
+    return f"{'https' if secure else 'http'}://{parsed.netloc}"
+
+
 class ServiceHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
@@ -260,6 +289,22 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path in {"/health", "/api/health"}:
             self._json({"ok": True, "service": "m5stack-device-simulator"})
+            return
+        if path == "/platform/web/site-config.json":
+            try:
+                config = json.loads(
+                    (ROOT / "platform/web/site-config.json").read_text()
+                )
+            except (OSError, ValueError, UnicodeError):
+                self._json({"error": "site configuration unavailable"}, 500)
+                return
+            origin = service_origin_from_host(
+                self.headers.get("Host"),
+                secure=isinstance(self.connection, ssl.SSLSocket),
+            )
+            if origin is not None:
+                config["service_url"] = origin
+            self._json(config)
             return
         if path == "/api/devices":
             self._send_file(DEVICES / "catalog.json")
