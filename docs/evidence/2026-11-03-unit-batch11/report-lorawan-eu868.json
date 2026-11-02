@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "lorawan-eu868",
+  "driver_class": "LoRaWANUnit (ASR650x wrapper)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "driver_ready": true,
+    "live_controller_state": true,
+    "guest_mode_sent": true,
+    "guest_send_called": true,
+    "qom_workmode2": true,
+    "qom_workmode1": true,
+    "qom_dtrx": true,
+    "qom_frames": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "037b5236ab1380571dd95e94fbd85d9d0984ac8fa3775f6f9ec02ae0711c668d",
+  "firmware_id": null,
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 35 layers (0120-0154) + 0155 if any batch11 evidence fix",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; official product PinMap is PORT.C",
+  "initial_inputs": {
+    "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a"
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "cdc123d40fb2252cba48a0e846e7ef11f894af1376e60a6e55e32ced07f9c84a",
+    "main.py": "275039b6da947d9fc4f8f3a6fa26cc209270c155d937078dce8a08bca891e97c"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "09615010e48a4d1b9e9ef50d4bfa20fa",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "lorawan-eu868",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "lorawan-eu868": {
+      "qom": {
+        "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a",
+        "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+        "frames-sent": 3,
+        "frames-injected": 3,
+        "join-status": null
+      },
+      "boundary": "Official LoRaWANUnit/ASR650x wrapper byte layer only; product STM32WLE5/RAK3172 mismatch unresolved; OTAA/ABP/Join/RF/regulatory NOT RUN; guest pre-init workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T04:23:48.591552+08:00",
+      "properties": {
+        "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+        "frames-sent": 3,
+        "frames-injected": 3,
+        "transactions": 0,
+        "read-bytes": 22,
+        "written-bytes": 54,
+        "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a"
+      }
+    }
+  ],
+  "serial_markers": {
+    "lorawan-eu868": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (878) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH11_PROBE_START lorawan-eu868\nBATCH11_PROBE_READY lorawan-eu868\nLORAWAN_MODE_SENT\nLORAWAN_SENT\nLORAWAN_END\n"
+  },
+  "frame": {
+    "sha256": "6f1adcf04828c57dfc5cdc24ae732181236369f6ff719066cbe393b35ef81c81",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "aa8e884f3cdf4b8a029048460d7e4af5984798d224c80f8c565cfbf6606e6f5e",
+    "bytes": 19651
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "UART byte layer only via official LoRaWANUnit/ASR650x wrapper; OTAA/ABP/Join/RF/regulatory semantics NOT RUN.",
+    "Driver has LoRaWAN_868 but frozen unit/lorawan.py still uses 470; product STM32WLE5 mismatch unresolved.",
+    "Guest pre-init UART workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+  ],
+  "raw_evidence_note": "Raw execution artifacts stay in local ignored .work; only concise reports, hashes and reproduction commands are committed."
+}

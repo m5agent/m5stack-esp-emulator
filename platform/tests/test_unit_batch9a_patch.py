@@ -64,17 +64,26 @@ class UnitBatch9aPatchTests(unittest.TestCase):
             self.assertIn(f"'{unit_id}'", mappings)
         self.assertIn("all-160-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text(encoding="utf-8"))
 
-    def test_planned_contracts_keep_blockers_and_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_glass_stays_blocked_planned(self):
+        unit = self.units["glass"]
+        profile = self.profiles["glass"]
+        self.assertEqual(unit["model_status"], "planned")
+        self.assertEqual(unit["runtime"]["status"], "planned")
+        self.assertEqual(unit["blocker"], unit["runtime"]["blocker"])
+        self.assertIn("BLOCKED", unit["blocker"])
+        self.assertEqual(profile["status"], "planned")
+        self.assertEqual(profile["hosts"], [])
+        self.assertTrue(profile["blocker"])
+
+    def test_rf433_pair_is_evidence_backed(self):
+        for unit_id in ("rf433t", "rf433r"):
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned")
-            self.assertEqual(unit["runtime"]["status"], "planned")
-            self.assertEqual(unit["blocker"], unit["runtime"]["blocker"])
-            self.assertTrue(unit["blocker"])
-            self.assertEqual(profile["status"], "planned")
-            self.assertEqual(profile["hosts"], [])
-            self.assertTrue(profile["blocker"])
+            self.assertEqual(unit["model_status"], "partial")
+            self.assertEqual(unit["runtime"]["status"], "implemented")
+            self.assertEqual(profile["status"], "implemented")
+            self.assertEqual(profile["hosts"], ["cores3"])
+            self.assertIn("virtual_device_evidence", profile)
 
 
 if __name__ == "__main__":

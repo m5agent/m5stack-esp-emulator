@@ -50,8 +50,8 @@ class UnitBatch9bPatchTests(unittest.TestCase):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
 
-    def test_all_nine_stay_planned_with_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_five_planned_only_units_stay_planned(self):
+        for unit_id in PLANNED_ONLY:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "planned", unit_id)
@@ -72,13 +72,15 @@ class UnitBatch9bPatchTests(unittest.TestCase):
             self.assertFalse(unit["inputs"]["responses-hex"]["readOnly"])
             self.assertIn("responses-hex", unit["inputs"])
             self.assertIn("responses-hex", profile["inputs"])
-            self.assertNotIn("virtual_device_evidence", profile)
-            self.assertFalse((ROOT / "docs/evidence").exists() and any(
-                unit_id in path.name for path in (ROOT / "docs/evidence").rglob("*")), unit_id)
-            blocker = unit["blocker"]
-            self.assertIn("planned", blocker)
-            self.assertTrue(any(token in blocker for token in
-                                ("NOT RUN", "unresolved", "不可读", "错配")))
+            # Batch11 recorded guest byte-layer evidence for these four UART
+            # Units, so they are now implemented with a partial model.
+            self.assertEqual(unit["model_status"], "partial")
+            self.assertEqual(unit["runtime"]["status"], "implemented")
+            self.assertEqual(profile["status"], "implemented")
+            self.assertEqual(profile["hosts"], ["cores3"])
+            self.assertIn("virtual_device_evidence", profile)
+            report = ROOT / profile["virtual_device_evidence"]["report"]
+            self.assertTrue(report.is_file(), unit_id)
 
     def test_planned_only_contracts_have_no_model_properties(self):
         for unit_id in PLANNED_ONLY:
