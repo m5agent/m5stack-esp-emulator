@@ -9182,9 +9182,11 @@
       }
     },
     "unit-id": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest IDUnit on cores3 completed the ATECC608A wake-to-address-0 path: the frozen driver's 0x00 wake token written to I2C address 0x00 is ACKed as the broadcast wake (28 wakes observed), command frames survive the inter-command wake and are reset only by the next 0x03 command word. INFO revision=0x260, READ serial fixture=101112131415161718, SHA-256 digest fixture and GEN_KEY public-key fixture all equal the QOM fixtures; randint returns a deterministic value inside the requested range. 0156 also fixes the response CRC to the frozen driver's exact _at_crc algorithm, READ/SHA/NONCE/GEN_KEY response modes, and exposes serial/wake/idle/read QOM fixtures. All values are fixed non-secret test vectors; real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking/permissions, the 10Kb EEPROM and production key material are NOT RUN/absent.",
       "inputs": {
         "revision": {
           "property": "revision"
@@ -9202,9 +9204,82 @@
         },
         "i2c-address": {
           "property": "i2c-address"
+        },
+        "serial-hex": {
+          "property": "serial-hex"
+        },
+        "wake-count": {
+          "property": "wake-count"
+        },
+        "idle-count": {
+          "property": "idle-count"
+        },
+        "sleep-count": {
+          "property": "sleep-count"
+        },
+        "read-commands": {
+          "property": "read-commands"
+        },
+        "last-command-hex": {
+          "property": "last-command-hex"
+        },
+        "tx-bytes": {
+          "property": "tx-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-id-unblock/report-unit-id.json",
+        "report_sha256": "3c213176ce45480b914eb1088b996eaa0bd5a67f455da3e553a9d3fc4490adbe",
+        "evidence_sha256": "d3019a3b7ba85953e5736d85871d2416e306d192196164ce6dcae2224102f733",
+        "firmware_sha256": "ce831fbd7f0a0b90e2ddea7684701b578ff35268e9a2448ccb1dcf147d4f7f76",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "aec121a00bdc622acbdd64a8064f017e95860b4598673b7268dce421f9fe3b63",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "0acbff7301f38761e05e73509b2fefd3e780d17690e7e2cc8b9f0456e0733b8c",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "thermal2": {
       "status": "implemented",

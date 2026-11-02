@@ -105,7 +105,7 @@ INITIAL = {
     "dmx": {},
     "finger": {"responses-hex": finger_fixture()},
 }
-EXPECTED_BLOCKED = {"unit-id"}
+EXPECTED_BLOCKED = set()
 
 
 def port_for(client: Client, device_id: str, unit_id: str) -> dict:
@@ -125,15 +125,31 @@ def port_for(client: Client, device_id: str, unit_id: str) -> dict:
 def case_checks(case, serial, final):
     checks, observations = {}, {}
     if case == "unit-id":
-        errors = re.findall(r"ID_(?:REVISION|SERIAL|RANDOM)_ERROR", serial)
-        observations["wake_errors"] = errors
-        observations["blocker"] = (
-            "ATECC608B wake writes to I2C address 0x00 before any command; a Unit "
-            "slave model bound to 0x35 cannot receive that wake write, so "
-            "revision/serial/random cannot be exercised in this harness. No "
-            "revision/serial value is asserted or faked.")
-        checks["guest_driver_registered"] = "ID_INIT_ERROR" not in serial
-        checks["wake_failure_observed"] = bool(errors)
+        errors = re.findall(r"ID_(?:REVISION|SERIAL|RANDOM|SHA|PUBLIC)_ERROR", serial)
+        observations["errors"] = errors
+        observations["revision"] = last_match(r"ID_REVISION (\S+)", serial)
+        observations["serial"] = last_match(r"ID_SERIAL (\S+)", serial)
+        observations["random"] = last_match(r"ID_RANDOM (\d+)", serial)
+        observations["sha"] = last_match(r"ID_SHA (\S+)", serial)
+        observations["public"] = last_match(r"ID_PUBLIC (\S+)", serial)
+        public = "".join("%02x" % (0x30 + i) for i in range(64))
+        checks["guest_driver_registered"] = "ID_INIT_ERROR" not in serial and "ID_END" in serial
+        checks["no_command_errors"] = not errors
+        checks["guest_revision_fixture"] = observations["revision"] == "0x260"
+        checks["guest_serial_fixture"] = observations["serial"] == "101112131415161718"
+        checks["guest_random_in_range"] = bool(
+            observations["random"] is not None and 0 <= int(observations["random"]) <= 100)
+        checks["guest_sha_fixture"] = observations["sha"] == (
+            "aabbccdd0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c")
+        checks["guest_public_fixture"] = observations["public"] == public
+        checks["qom_revision"] = final.get("revision") == 0x260
+        checks["qom_serial_hex"] = final.get("serial-hex") == "101112131415161718"
+        checks["qom_wake_count"] = int(final.get("wake-count", 0)) >= 1
+        checks["qom_read_commands"] = int(final.get("read-commands", 0)) >= 1
+        observations["crypto_boundary"] = (
+            "All returned values are fixed deterministic non-secret test vectors. "
+            "Real ECDSA/AES-GCM/Trust&GO chains, key-slot locking, the 10Kb EEPROM "
+            "and production key material are NOT present or modeled.")
         return checks, observations
     if case == "thermal2":
         observations["guest_measure"] = last_match(r"T2_MEASURE (-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)", serial)

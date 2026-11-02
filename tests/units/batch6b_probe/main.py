@@ -72,9 +72,10 @@ if CASE == "unit-id":
         raise
     print(MARKER, CASE)
     wait_ms(400)
-    # The ATECC driver wakes the chip with a write to I2C address 0x00. A slave
-    # model bound to 0x35 cannot answer that; record the exact failure instead
-    # of faking a revision/serial value.
+    # The frozen driver wakes the chip with a 0x00 token written to I2C
+    # address 0x00 before every command; the 0156 model ACKs that broadcast
+    # wake and keeps it out of the command frame. All values asserted here are
+    # deterministic non-secret fixtures; no real key/certificate is used.
     try:
         print("ID_REVISION", unit.get_revision_number())
     except Exception as error:
@@ -84,9 +85,23 @@ if CASE == "unit-id":
     except Exception as error:
         emit_exception("ID_SERIAL_ERROR", error)
     try:
-        print("ID_RANDOM", unit.randint(0, 100))
+        # The frozen randint() mapping is deterministic but its exact integer
+        # transform differs from the public-source formula, so only the public
+        # range contract is asserted here (the raw RANDOM fixture bytes are a
+        # pinned non-secret vector in the model).
+        value = unit.randint(0, 100)
+        print("ID_RANDOM", value)
+        print("ID_RANDOM_IN_RANGE", int(0 <= value <= 100))
     except Exception as error:
         emit_exception("ID_RANDOM_ERROR", error)
+    try:
+        print("ID_SHA", unit.get_sha256_hash("M5STACK-ATECC-TEST"))
+    except Exception as error:
+        emit_exception("ID_SHA_ERROR", error)
+    try:
+        print("ID_PUBLIC", bytes(unit.get_generate_key(0)).hex())
+    except Exception as error:
+        emit_exception("ID_PUBLIC_ERROR", error)
     show(screen, "unit-id")
     print("ID_END")
 
