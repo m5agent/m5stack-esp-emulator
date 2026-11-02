@@ -9372,6 +9372,197 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "mini-tof-90": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0143 复用 US_TOF（VL53L0X 0x29）实现 mini-tof-90；90° 仅为激光模块安装方向，寄存器/命令路径与 tof U010 相同。未采集 guest/Device Service 证据 → planned。**0x29 与 tof/tof4m/color 冲突，一总线一 Unit；激光光学/测距精度/940nm/25° FoV NOT RUN；VL53L0X 与 tof4m 的 VL53L1X 初始化不可混用**",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "hbridge-v11": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0143 复用 CONTROL_HBRIDGE（0x20）实现 hbridge-v11；v1.1 仅新增 0x30 float32 VIN 电流（vin-current-a fixture），direction/PWM/频率/ADC/身份寄存器与 U160 相同。未采集 guest/Device Service 证据 → planned。**电机/RZ7899/INA199/过流保护/真实负载电流 NOT RUN；0x20 与 hbridge U160 同地址；0x30 float 字节序与 v1.0 行为需 guest 证据**",
+      "inputs": {
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "vin-current-a": {
+          "property": "vin-current-a"
+        }
+      },
+      "state": {
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "vin-current-a": {
+          "property": "vin-current-a"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "pwm-duty-pct": {
+          "property": "pwm-duty-pct"
+        },
+        "pwm-frequency-hz": {
+          "property": "pwm-frequency-hz"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "cardkb-original": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0143 复用 CONTROL_CARDKB（0x5F 单字节键值）实现 cardkb-original；original U035 与 v1.1 U035-B 的 MCU 版本（MEGA8A vs MEGA328P）差异写入 blocker，冻结驱动协议不变。未采集 guest/Device Service 证据 → planned。**0x5F 与 cardkb U035-B 同地址；original/v1.1 键值表与组合键差异 unresolved；键盘矩阵/RGB LED/机械手感 NOT RUN**",
+      "inputs": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        }
+      },
+      "state": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        },
+        "key-ids": {
+          "property": "key-ids"
+        },
+        "queued-keys": {
+          "property": "queued-keys"
+        },
+        "modifier-mode": {
+          "property": "modifier-mode"
+        },
+        "key-overflows": {
+          "property": "key-overflows"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "env-ii": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0143 新增 US_SHT30（0x44：2 字节命令、0x2C10 测量 6B CRC8、0xF32D 状态、复位/heater 命令）+ 复用 BMP280 0x76，双从机 attach 与 ENV-I/IV 相同。未采集 guest/Device Service 证据 → planned。**0x44 与 env/env-iv/paper/hat SHT30 冲突；0x76 与 bps/env/env-iv 冲突；温湿度/气压精度、自热、SHT30 heater/时钟拉伸 NOT RUN**",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "mini-bps-v11": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0143 **DEFER 未实现**：产品页与官方 I2C 索引写 QMP6988 @0x56，冻结驱动默认 @0x70（env-iii 也用 0x70），地址无法从现有证据确证 → 不猜地址、不落 QEMU 模型，catalog/profile 仅登记 planned 并保留 address-unresolved。**0x56 vs 0x70 unresolved；0x76 BMP280 fallback 与 env/bps 冲突；QMP6988 芯片/气压物理/高度基准 NOT RUN**",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
