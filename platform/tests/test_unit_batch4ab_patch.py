@@ -93,7 +93,7 @@ class UnitBatch4abPatchTests(unittest.TestCase):
             for field in entry["outputs"]:
                 self.assertIn(field, profile["state"], f"{unit_id}.{field}")
 
-    def test_0137_evidence_fixes_pin_ac_and_weight_bugs(self):
+    def test_0138_evidence_fixes_pin_ac_and_weight_bugs(self):
         fix = (ROOT / "patches/qemu-m5stack-peripherals/0138-unit-batch4-evidence-fixes.patch")
         self.assertTrue(fix.is_file())
         text = fix.read_text(encoding="utf-8")

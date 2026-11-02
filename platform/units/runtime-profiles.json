@@ -7452,7 +7452,7 @@
       "hosts": [
         "cores3"
       ],
-      "blocker": "Guest/Device Service evidence covers the frozen WeightUnit HX711 bit-pulse path on cores3: QOM adc-raw=123456 is read as guest get_raw_weight=8635520 after the driver's (raw<<1)^0x800000 transform, with conversions>=1 and ready-level restored. HX711 electrical/10SPS/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ I2C wording conflicts with the GPIO bit-pulse PinMap/driver and weight-i2c (U180 @0x26) is a different protocol. Evidence fix 0137 adds a deferred externally-driven input update because a pad observer cannot call esp32_gpio_set_input(); no pad/IRQ notification is generated for DAT. Official PORT.B wiring is substituted by cores3 PORT.A harness pins.",
+      "blocker": "Guest/Device Service evidence covers the frozen WeightUnit HX711 bit-pulse path on cores3: QOM adc-raw=123456 is read as guest get_raw_weight=8635520 after the driver's (raw<<1)^0x800000 transform, with conversions>=1 and ready-level restored. HX711 electrical/10SPS/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ I2C wording conflicts with the GPIO bit-pulse PinMap/driver and weight-i2c (U180 @0x26) is a different protocol. Evidence fix 0138 adds a deferred externally-driven input update because a pad observer cannot call esp32_gpio_set_input(); no pad/IRQ notification is generated for DAT. Official PORT.B wiring is substituted by cores3 PORT.A harness pins.",
       "inputs": {
         "adc-raw": {
           "property": "adc-raw"
@@ -7481,7 +7481,7 @@
       "model_completeness": "partial",
       "virtual_device_evidence": {
         "report": "docs/evidence/2026-11-02-unit-batch4/report-weight.json",
-        "report_sha256": "7aef1f0b6be068180035a75425c5533630a6ecfabe825d763adff4c0cac4067e",
+        "report_sha256": "a0e8af48ce7dc143f0a79677a458538a64b721485d5f7cab73f1df757f40b516",
         "evidence_sha256": "9bbc76e759b9e5f0e8277acf963958db8a0ea1adb9e6584a8cdfca6414cf21fc",
         "firmware_sha256": "33898a929c802ef281376ffa1e450f9210c8dcb0a4efb62d5da760fdc4347e73",
         "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
@@ -7603,7 +7603,7 @@
       "hosts": [
         "cores3"
       ],
-      "blocker": "Guest/Device Service evidence covers the frozen AC_MEASUREUnit I2C register data plane on cores3: ASCII views 230.0/1.00/230/230/1.00/0.00 and byte views 23000/1000/23000/23000/100/0 match the fixtures, coefficient writes 12/34 and save-coeff-writes>=1 are observed. AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load: AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN; HLW8032/isolation/calibration semantics and the page STM32G030 vs I2C-index STM32F030 conflict remain unresolved. Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset.",
+      "blocker": "Guest/Device Service evidence covers the frozen AC_MEASUREUnit I2C register data plane on cores3: ASCII views 230.0/1.00/230/230/1.00/0.00 and byte views 23000/1000/23000/23000/100/0 match the fixtures, coefficient writes 12/34 and save-coeff-writes>=1 are observed. AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load: AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN; HLW8032/isolation/calibration semantics and the page STM32G030 vs I2C-index STM32F030 conflict remain unresolved. Evidence fix 0138 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset.",
       "inputs": {
         "voltage-v": {
           "property": "voltage-v"
@@ -7668,7 +7668,7 @@
       "model_completeness": "partial",
       "virtual_device_evidence": {
         "report": "docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json",
-        "report_sha256": "69591422dd4d1bb4b2f19acc2c44c34a0f66d5898678ad93f6f63ba7600d6274",
+        "report_sha256": "e8ee45ab9d0410441f68362aa44ccfcd38bfd71cbc2cd9705019985bd00c6414",
         "evidence_sha256": "2710daadbeb9474755576df02d3344c78ce905ed60f89962c7a16aeffd7e507c",
         "firmware_sha256": "63bea16399d07f844659f1efb304f59bd8a0f135dc6dc9666df9df526b77732e",
         "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",

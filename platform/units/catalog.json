@@ -15181,7 +15181,7 @@
           }
         },
         "required_data_plane": "SoC GPIO: pad-observer on the yellow CLK counts guest clock pulses and drives the white DAT bits of the HX711 24-bit conversion",
-        "blocker": "Guest/Device Service evidence covers the frozen WeightUnit HX711 bit-pulse path on cores3: QOM adc-raw=123456 is read as guest get_raw_weight=8635520 after the driver's (raw<<1)^0x800000 transform, with conversions>=1 and ready-level restored. HX711 electrical/10SPS/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ I2C wording conflicts with the GPIO bit-pulse PinMap/driver and weight-i2c (U180 @0x26) is a different protocol. Evidence fix 0137 adds a deferred externally-driven input update because a pad observer cannot call esp32_gpio_set_input(); no pad/IRQ notification is generated for DAT. Official PORT.B wiring is substituted by cores3 PORT.A harness pins."
+        "blocker": "Guest/Device Service evidence covers the frozen WeightUnit HX711 bit-pulse path on cores3: QOM adc-raw=123456 is read as guest get_raw_weight=8635520 after the driver's (raw<<1)^0x800000 transform, with conversions>=1 and ready-level restored. HX711 electrical/10SPS/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ I2C wording conflicts with the GPIO bit-pulse PinMap/driver and weight-i2c (U180 @0x26) is a different protocol. Evidence fix 0138 adds a deferred externally-driven input update because a pad observer cannot call esp32_gpio_set_input(); no pad/IRQ notification is generated for DAT. Official PORT.B wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0136 新增 GPIO id 'weight'：黄线 pad observer 统计 guest CLK 下降沿，白线按 24-bit MSB-first 输出 fixture 位；24 个数据脉冲后按 channel（1/3/2）消费 gain 脉冲，转换完成后 DAT 拉高并按合成 100ms 就绪延迟重新拉低。未采集 guest/Device Service 证据 → planned。**HX711 电气/10SPS 时序/称重力学/载荷/温漂/量程 NOT RUN；驱动把 raw 左移一位后再 XOR 0x800000（guest get_raw_weight = (raw<<1)^0x800000），QOM adc-raw 是 DAT 位承载的 24-bit 原始码；页面 FAQ 写 I2C 与 PinMap/驱动 GPIO 位脉冲冲突 unresolved；与已登记 weight-i2c（U180，I2C 0x26）是不同协议，不得混用。**",
       "input_semantics": "Synthetic 24-bit ADC/weight fixtures shifted out on the HX711 data line; the ready line follows conversion state.",
@@ -15190,7 +15190,7 @@
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
-        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-weight.json for cores3 PORT.A harness wiring (official PORT.B substituted); HX711 bit-pulse raw path covered after 0137 deferred-input fix, electrical/weighing NOT RUN."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-weight.json for cores3 PORT.A harness wiring (official PORT.B substituted); HX711 bit-pulse raw path covered after 0138 deferred-input fix, electrical/weighing NOT RUN."
       ]
     },
     {
@@ -15850,7 +15850,7 @@
           }
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local AC-measurement register slave at 0x42",
-        "blocker": "Guest/Device Service evidence covers the frozen AC_MEASUREUnit I2C register data plane on cores3: ASCII views 230.0/1.00/230/230/1.00/0.00 and byte views 23000/1000/23000/23000/100/0 match the fixtures, coefficient writes 12/34 and save-coeff-writes>=1 are observed. AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load: AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN; HLW8032/isolation/calibration semantics and the page STM32G030 vs I2C-index STM32F030 conflict remain unresolved. Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset."
+        "blocker": "Guest/Device Service evidence covers the frozen AC_MEASUREUnit I2C register data plane on cores3: ASCII views 230.0/1.00/230/230/1.00/0.00 and byte views 23000/1000/23000/23000/100/0 match the fixtures, coefficient writes 12/34 and save-coeff-writes>=1 are observed. AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load: AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN; HLW8032/isolation/calibration semantics and the page STM32G030 vs I2C-index STM32F030 conflict remain unresolved. Evidence fix 0138 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset."
       },
       "blocker": "0136 新增 US_ACMEASURE（0x42）：由同一组 fixture 派生 ASCII 字符串视图（7/7/7/7/4/11B，宽度是模型侧确定性约定）与小端 byte 视图（0x60..0xB3），并实现系数 0xC0/0xD0、保存 0xE0、data-ready 0xFC、bootloader 0xFD（只记录不跳转）、fw 0xFE、address 0xFF。未采集 guest/Device Service 证据 → planned。**安全边界：AC 100-240V@10A 是测量输入，绝不是可切换负载；模型只模拟寄存器读数，绝不宣称市电通断/隔离耐压/过流/计量精度；市电/HLW8032/隔离/校准语义 NOT RUN；页面 STM32G030 vs 官方 I2C 总表 STM32F030 冲突 unresolved；0x42 无已登记冲突。**",
       "input_semantics": "Synthetic voltage/current/power/energy/readiness fixtures exposed as matching ASCII and little-endian byte register views.",
@@ -15859,7 +15859,7 @@
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
-        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json for cores3; I2C ASCII/byte views covered after 0137, AC 100-240V@10A is a measurement input, never a switchable load; mains/isolation/accuracy NOT RUN."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json for cores3; I2C ASCII/byte views covered after 0138, AC 100-240V@10A is a measurement input, never a switchable load; mains/isolation/accuracy NOT RUN."
       ]
     },
     {

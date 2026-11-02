@@ -161,7 +161,7 @@
     "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. This evidence only covers I2C register readings; AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN and must never be implied.",
     "AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page-documented protocol.",
     "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved. 0x42 has no registered address conflict.",
-    "Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset; without it every guest read returned the zero view.",
+    "Evidence fix 0138 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset; without it every guest read returned the zero view.",
     "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. The model only simulates I2C register readings and must never be described as mains on/off, isolation withstand, overcurrent protection or metering accuracy. AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page protocol.",
     "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved."
   ],

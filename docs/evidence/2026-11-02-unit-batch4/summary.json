@@ -2,7 +2,7 @@
   "schema_version": 1,
   "date": "2026-11-02",
   "validation": "virtual-device validation",
-  "scope": "All twelve Units of the fourth research batch through isolated /api/v1 Device Service sessions on one QEMU build (canonical + 0120..0129 + 0131 + 0134 + 0136 + evidence fix 0137); not hardware.",
+  "scope": "All twelve Units of the fourth research batch through isolated /api/v1 Device Service sessions on one QEMU build (canonical + 0120..0129 + 0131 + 0134 + 0136 + evidence fix 0138); not hardware.",
   "device_service": {
     "api": "/api/v1",
     "port": 8799,
@@ -13,8 +13,9 @@
   "qemu_builds": {
     "A+B+C": {
       "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "evidence_fix_sha256": "dc20597878d4de29db94a8679fc6a3958c72bbd06859d8061786655d7099bf7c",
       "tree": ".work/native-lock-source/qemu",
-      "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136 + 0137",
+      "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136 + 0138",
       "patches": [
         "0120-unit-i2c-dlight-command-mask.patch",
         "0121-m5stick-board.patch",
@@ -452,7 +453,7 @@
         "stopped_with_history": true
       },
       "report": "docs/evidence/2026-11-02-unit-batch4/report-weight.json",
-      "report_sha256": "7aef1f0b6be068180035a75425c5533630a6ecfabe825d763adff4c0cac4067e",
+      "report_sha256": "a0e8af48ce7dc143f0a79677a458538a64b721485d5f7cab73f1df757f40b516",
       "evidence_zip_sha256": "9bbc76e759b9e5f0e8277acf963958db8a0ea1adb9e6584a8cdfca6414cf21fc",
       "frame_sha256": "6f4048d06790c82ba4a4f708a4c778a8d2b3adf7c06781bc76867eb6d99bffb7",
       "observations": {
@@ -476,7 +477,7 @@
       },
       "boundaries": [
         "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
-        "Evidence fix 0137 adds a deferred externally-driven input update because a pad-observer callback cannot call esp32_gpio_set_input(); no pad notification/IRQ is generated for the DAT transitions.",
+        "Evidence fix 0138 adds a deferred externally-driven input update because a pad-observer callback cannot call esp32_gpio_set_input(); no pad notification/IRQ is generated for the DAT transitions.",
         "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver; QOM adc-raw is the 24-bit DAT pattern before that driver transform.",
         "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
         "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver (count is left-shifted after each of the 24 bits); the QOM adc-raw is the 24-bit DAT pattern before that driver transform."
@@ -586,7 +587,7 @@
         "stopped_with_history": true
       },
       "report": "docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json",
-      "report_sha256": "69591422dd4d1bb4b2f19acc2c44c34a0f66d5898678ad93f6f63ba7600d6274",
+      "report_sha256": "e8ee45ab9d0410441f68362aa44ccfcd38bfd71cbc2cd9705019985bd00c6414",
       "evidence_zip_sha256": "2710daadbeb9474755576df02d3344c78ce905ed60f89962c7a16aeffd7e507c",
       "frame_sha256": "ba4fdaeb06cfc59dfe5c164b5511cf76a4363df2c8cc0f72588b1dd45ce10744",
       "observations": {
@@ -643,7 +644,7 @@
         "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. This evidence only covers I2C register readings; AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN and must never be implied.",
         "AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page-documented protocol.",
         "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved. 0x42 has no registered address conflict.",
-        "Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset; without it every guest read returned the zero view.",
+        "Evidence fix 0138 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset; without it every guest read returned the zero view.",
         "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. The model only simulates I2C register readings and must never be described as mains on/off, isolation withstand, overcurrent protection or metering accuracy. AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page protocol.",
         "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved."
       ]

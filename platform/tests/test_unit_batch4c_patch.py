@@ -90,7 +90,7 @@ class UnitBatch4cPatchTests(unittest.TestCase):
             for field in entry["outputs"]:
                 self.assertIn(field, profile["state"], f"{unit_id}.{field}")
 
-    def test_0137_evidence_fixes_pin_ac_and_weight_bugs(self):
+    def test_0138_evidence_fixes_pin_ac_and_weight_bugs(self):
         fix = (ROOT / "patches/qemu-m5stack-peripherals/0138-unit-batch4-evidence-fixes.patch")
         self.assertTrue(fix.is_file())
         text = fix.read_text(encoding="utf-8")
@@ -104,11 +104,11 @@ class UnitBatch4cPatchTests(unittest.TestCase):
 
     def test_evidence_fix_and_measurement_boundaries_are_visible(self):
         weight = json.dumps(self.units["weight"], ensure_ascii=False)
-        self.assertIn("0137", weight)
+        self.assertIn("0138", weight)
         self.assertIn("deferred", weight)
         ac = json.dumps(self.units["ac-measure"], ensure_ascii=False)
         self.assertIn("MEASUREMENT INPUT", ac)
-        self.assertIn("0137", ac)
+        self.assertIn("0138", ac)
         self.assertIn("ASCII", ac)
 
     def test_patch_has_no_guest_claim(self):
