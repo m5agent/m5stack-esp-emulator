@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T23:44:16.457645+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "B",
+  "device_id": "cores3",
+  "unit_id": "lora-e220-433",
+  "driver_class": "LoRaE220433Unit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_setup_ok": true,
+    "guest_config_address_channel": true,
+    "qom_config_write_frame": true,
+    "qom_send_frame": true,
+    "qom_config_mirror": true,
+    "frames_counted": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "0f9dcda956c2bbe6f6caf41a5b24313bee53ce0793a4520999e34431a8d377cd",
+  "firmware_id": "0f9dcda956c2bbe6f6caf41a5b24313bee53ce0793a4520999e34431a8d377cd",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "0962a76a864ab12d20dcfa84b6b6b5a0c59ff4d75b9089098f67c5b59145a4b9",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 20 layers (0120-0139, incl. 0137 batch5 A and 0139 batch5 B) + 0141-unit-batch5-evidence-fixes",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "initial_inputs": {
+    "responses-hex": "48454c4c4f"
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "8e6b644910f53bd9e3bb4b93661ffbd810c73473669d1c5f31e202ee4c971d71",
+    "main.py": "edd00dddf1bb640423dc09a87862cbaa6b763b77fef3d52e55f6da8f2ccaf808"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "4797fb6692fe4aa79156953ed2fd3602",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "lora-e220-433",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "lora_e220_433": {
+      "guest_setup": "1",
+      "guest_config": "4660, 3, 0, 2, 0, 1, 0, 5, 1, 1, 0, 3",
+      "guest_available": "5",
+      "qom": {
+        "responses-hex": "48454c4c4f",
+        "tx-hex": "c000081234622005c3abcdc1000843210748454c4c4f",
+        "config-hex": "1234622005c3abcd",
+        "frames-sent": 3,
+        "frames-injected": 3
+      },
+      "boundary": "RF 433MHz/antenna/range/air-rate/power, DIP M0/M1 modes and LoRa physics are NOT RUN; only UART configuration frames and the fixture response bytes are asserted. Page 115200 vs driver 9600 baud stays unresolved. Official PORT.C is substituted by cores3 PORT.A harness wiring."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T23:44:19.927332+08:00",
+      "properties": {
+        "responses-hex": "48454c4c4f",
+        "tx-hex": "c000081234622005c3abcdc1000843210748454c4c4f",
+        "config-hex": "1234622005c3abcd",
+        "frames-sent": 3,
+        "frames-injected": 3
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH5_PROBE_READY",
+    "lora-e220-433": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (921) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH5_PROBE_START lora-e220-433\nBATCH5_PROBE_READY lora-e220-433\nUART_LORA_SETUP 1\nUART_LORA_CONFIG (4660, 3, 0, 2, 0, 1, 0, 5, 1, 1, 0, 3)\nUART_LORA_SENT\nUART_LORA_AVAILABLE 5\nUART_LORA_END\n"
+  },
+  "frame": {
+    "sha256": "b2f102d61dafa086962d85f7faa3caa32e7fd1e26c608c69ec3c3196e645fd53",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "a6f8172ac43dfb9393a7c16bf3f452b795fed53cc0f6071f2ac3be32ceb39695",
+    "bytes": 19468
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "RF 433MHz/antenna/range/air-rate/power, DIP M0/M1 modes and LoRa physics are NOT RUN; only UART configuration frames and fixture response bytes are asserted.",
+    "Page 115200 vs driver 9600 baud stays unresolved.",
+    "PORT.C is not runtime-admitted; the report records cores3 PORT.A harness wiring."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed."
+}

@@ -1,0 +1,123 @@
+From 7d3e1f90b4c2a8e5d6f708192a3b4c5d6e7f8091 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 23:55:00 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-5 Unit model bugs found by guest evidence
+
+Fix four real batch-5 model bugs found by the guest evidence collection.
+Base: canonical 75f1d24 + canonical chain through 0139 (incl. 0137 batch5 A
+and 0139 batch5 B).
+
+- op90 (U057): the 0137 model exposed only the derived active-low 'blocked'
+  view plus a read-only 'input-level', so the catalog/profile 'digital-level'
+  input had no writable QOM property and the session state was unavailable.
+  Add a writable 'digital-level' property that drives the white line.
+- rtc (U126): sensor_recv() refreshed the BCD registers from the virtual
+  clock on every read, overwriting guest-written registers even when the
+  clock STOP bit/running fixture was false. Refresh only while running.
+- tmos-pir (U185): add_number() fixtures were stored in values[] while the
+  register refresh used separate tmos_* fields, so host fixtures were not
+  visible to the guest; sync values[0]/[1]. Also the FUNC_STATUS byte had
+  presence and ambient-shock bits swapped relative to the driver's
+  refresh_state() extraction (bit0 shock / bit1 motion / bit2 presence), and
+  main data registers were read from the embedded page instead of page 0.
+  In the same path, sync the fixture fields and keep page-0 data reads.
+- kmeter-iso-v11 (U133-V11): the same add_number()/kmeter_* field split made
+  host thermocouple/internal temperature fixtures invisible to the guest;
+  sync values[0]/[1] into kmeter_tc_c/kmeter_internal_c in sensor_update().
+
+No guest PASS is claimed here; the evidence reports record the guest results
+for the exact runtime binary built from this tree.
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -1369,6 +1369,26 @@
+     g->unit->input_events++;
+ }
+ 
++/* The frozen unit/op.py reads Pin(port[0], IN, PULL_UP); the catalog input is
++ * the white-line digital level. The 0137 model only exposed the derived
++ * active-low 'blocked' view, so the runtime profile could not map its
++ * 'digital-level' input/state to a writable QOM property. */
++static void op90_level_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = esp32_gpio_get_line(g->unit->white) != 0;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void op90_level_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    esp32_gpio_set_input(g->unit->white, value ? 1 : 0);
++    g->unit->input_events++;
++}
++
+ static void at_inject_next(GPIOUnit *g)
+ {
+     if (!g->at_responses || !*g->at_responses) { return; }
+@@ -1618,6 +1638,7 @@
+         /* U057: white Digital Output on PORT.B, yellow NC. */
+         esp32_gpio_set_input(unit->white, 1);
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
++        object_property_add(o, "digital-level", "bool", op90_level_get, op90_level_set, NULL, g);
+         object_property_add(o, "blocked", "bool", op90_blocked_get, op90_blocked_set, NULL, g);
+     } else if (!strcmp(id, "rgb-led-10cm")) {
+         /* A035 10cm strip: 15 SK6812 LEDs on the yellow data line, white NC.
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -880,6 +880,17 @@
+ static void sensor_update(M5UnitSensor *s)
+ {
+     int64_t now = now_ns();
++    if (s->kind == US_KMETER) {
++        /* add_number() stores fixtures in values[]; the KMeter receive path
++         * uses the dedicated kmeter_* view fields. Keep them in sync so host
++         * unit-input fixtures are visible to the guest. */
++        s->kmeter_tc_c = s->values[0];
++        s->kmeter_internal_c = s->values[1];
++    }
++    if (s->kind == US_STHS34PF80) {
++        s->tmos_tobject_c = s->values[0];
++        s->tmos_tambient_c = s->values[1];
++    }
+     if (s->kind == US_ACMEASURE) {
+         /* The 0136 model stored the six AC fixtures in values[] but never
+          * copied them into the ASCII/byte-view fields, so every guest read
+@@ -1216,8 +1227,11 @@
+     le16(s->regs[0] + 0x3a, s->tmos_presence ? 1 : 0);
+     le16(s->regs[0] + 0x3c, s->tmos_motion ? 1 : 0);
+     le16(s->regs[0] + 0x3e, s->tmos_shock ? 1 : 0);
+-    s->regs[0][0x23] = (s->tmos_presence ? 0x01 : 0) | (s->tmos_motion ? 0x02 : 0) |
+-                       (s->tmos_shock ? 0x04 : 0);
++    /* STHS34PF80 FUNC_STATUS bit0 = ambient-shock, bit1 = motion, bit2 =
++     * presence, matching driver refresh_state()'s flag extraction. The 0139
++     * model had the presence and shock bits swapped. */
++    s->regs[0][0x23] = (s->tmos_shock ? 0x01 : 0) | (s->tmos_motion ? 0x02 : 0) |
++                       (s->tmos_presence ? 0x04 : 0);
+     s->regs[0][0x25] = s->regs[0][0x23];
+ }
+ 
+@@ -1686,14 +1700,20 @@
+         return 0xff;
+     }
+     if (s->kind == US_RTC8563) {
+-        if (pos == 0) { rtc8563_refresh(s); }
++        /* While running, the BCD registers mirror the QEMU virtual clock; when
++         * stopped they are the guest-written alarm/config or date registers and
++         * must not be overwritten by the synthetic base time on every read. */
++        if (pos == 0 && s->rtc_running) { rtc8563_refresh(s); }
+         uint16_t reg = s->pointer + pos;
+         return reg <= 0x0f ? s->regs[0][reg] : 0xff;
+     }
+     if (s->kind == US_STHS34PF80) {
+         if (pos == 0) { sths34pf80_refresh(s); }
+         uint16_t reg = s->pointer + pos;
+-        return reg <= 0xff ? s->regs[s->page & 0x07][reg] : 0xff;
++        if (reg > 0xff) { return 0xff; }
++        /* Main data/status registers live in page 0; 0x09 is the embedded
++         * function page data window selected by the 0x08 page register. */
++        return reg == 0x09 ? s->regs[s->page & 0x07][0x09] : s->regs[0][reg];
+     }
+     if (s->kind == US_ACMEASURE) {
+         uint8_t reg = (uint8_t)s->pointer;
