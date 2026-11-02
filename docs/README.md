@@ -55,7 +55,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（129 implemented/partial + 31 planned）+ 25 c 类边界。
+同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（133 implemented/partial + 27 planned）+ 25 c 类边界。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
@@ -131,14 +131,17 @@ Batch-10 a/b 类 18 款已登记落地（catalog/profile 142→160，全部 plan
 [Batch-10 a/b 登记与最小模型状态](unit-research/2026-11-03-batch10-impl-status.md)：dcssr/puzzle/dof6/dof9/dof10/asr 建最小模型（0152），ina226-1a 与 b 类 11 款仅登记 planned 契约；无 guest 证据，离线 QOM smoke 6/6 不是 functional PASS。
 Batch-10 a 类 6 款虚拟设备证据见
 [Unit 第十批 a 类虚拟设备证据](evidence/2026-11-03-unit-batch10/README.md)：dcssr（官方 DCSSRUnit）、puzzle（generic SK6812 64 灯 driver-gap）、dof6/dof9/dof10（仅 BMI270 子集，BMM350/SPA06 BLOCKED）、asr（raw UART AA55 字节层）各一个 cores3 可见会话全部 PASS；0154 修复 BMI270 init 状态与 0x22 温度别名；物理/光学/SSR/运动/磁力/气压/语音语义 NOT RUN。
-Unit 第十一批 7 款已有模型 planned 款的 guest 证据见
-[Unit 第十一批虚拟设备证据](evidence/2026-11-03-unit-batch11/README.md)：lorawan-as923/eu868（官方驱动字节层）、rf433t/r（machine.Pin bitbang/采样）、audioplayer/fingerprint2（raw UART 字节层）6 款 PASS；
-glass 因参考 GlassUnit/M5.addDisplay 未产生模型可见 I2C 事务如实 **BLOCKED**（commands=0/data-bytes=0）；本批未需 0155 模型修复。
+CAN / LoRaWAN lane 解锁与三款虚拟设备证据见
+[Unit CAN/LoRaWAN 虚拟设备证据](evidence/2026-11-03-unit-can-lorawan/README.md)：`can`/`mini-can` 在 cores3 real TWAI + `m5-canbus` CanBusClient lane 上各一个可见会话 PASS（guest 发帧 `123#0102030405060708` 被观测、host `456#deadbeef` 经 QOM `inject-hex` 注入并由 guest TWAI 收到；冻结 release `unit/can.py` wrapper 不可用的问题如实记录并用同一官方 `m5can` C 模块取证），`lorawan-us915` 以已文档化 guest-side UART bootstrap 取得冻结 ASR650x 驱动的 AT 字节层 PASS（`AT+CWORKMODE`/`AT+DTRX`，`tx-hex`/frames 计数）；本次 lane 解锁只需 Unit runtime 契约 + probe，**无新增 QEMU 源码补丁**（canonical 35 层链不变）；CAN 电气/仲裁/隔离与 US915 AT 解码/Join/RF/FCC 全部 NOT RUN。
 视觉主机与 Unit 接入战役已收口，最终汇总见
 [视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md)：
 9 个独立视觉 host 完成同 guest 原厂固件路径接入，5 项 boundary-only/composition-only；
+Unit catalog 160 条（133 implemented/partial + 27 planned）+ 25 款 c 类边界，184/184 覆盖。
+Unit 第十一批 7 款已有模型 planned 款的 guest 证据见
+[Unit 第十一批虚拟设备证据](evidence/2026-11-03-unit-batch11/README.md)：lorawan-as923/eu868（官方驱动字节层）、rf433t/r（machine.Pin bitbang/采样）、audioplayer/fingerprint2（raw UART 字节层）6 款 PASS；
+同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（129 implemented/partial + 31 planned）+ 25 c 类边界。
+glass 因参考 GlassUnit/M5.addDisplay 未产生模型可见 I2C 事务如实 **BLOCKED**（commands=0/data-bytes=0）；本批未需 0155 模型修复。
 Unit catalog 160 条（129 implemented/partial + 31 planned）+ 25 款 c 类边界，184/184 覆盖。
-
 Unit 第十一批为 **driver-gap 17 款官方协议网络研究**：用官方协议文档/上游 UIFlow2 master 驱动/厂商 datasheet 纠正此前“无公开协议”结论，17 款全部升级为 a/b（a 15 款：8servos2-i2c、8servos2-chain、bmm350、ina226-10a、ina226-1a、roller485、roller485-lite、rollercan、rollercan-lite、byteswitch、bytebutton、step16、timerpwr、mq、chainbus；b 2 款：cardkb2、cat1-cn；c 0 款），逐款给出寄存器/帧表、驱动 file:line、QEMU 数据面建议、fixture/可断言量与 unresolved，并给出推荐实现顺序（前 5：byteswitch+bytebutton、step16、timerpwr、mq、8servos2-i2c），见
 [Unit 第十一批 driver-gap 协议研究](unit-research/2026-11-03-batch11-driver-gap-protocols.md)；协议字段草稿见同目录 batch11 JSON（全部 planned，未改 catalog/model/test）。
 
@@ -282,6 +285,7 @@ PORT.B/C 未准入使用 cores3 PORT.A harness 替换并记录；光学/电机/�
 | [Unit 第十一批虚拟设备证据](evidence/2026-11-03-unit-batch11/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | lorawan-as923/eu868（官方 LoRaWANUnit/ASR650x 字节层，CW2/CW1/DTRX）、rf433t（Pin bitbang 10101010 → bitstream/edge/bit）、rf433r（Pin 采样高低 + QOM samples）、audioplayer（raw UART 9600 7e03010203 + fixture）、fingerprint2（raw UART 115200 13B + fixture）6 款 PASS；glass BLOCKED：official GlassUnit/M5.addDisplay 返回 Display 但无模型可见 I2C commands/data（QOM commands=0/data-bytes=0），不伪造；canonical 35 层，runtime `9232cb1e…`，无 0155 模型修复；PORT.B/C 用 cores3 PORT.A harness；RF/音频/指纹/光学语义 NOT RUN |
 | [Unit 第十一批 driver-gap 协议研究](unit-research/2026-11-03-batch11-driver-gap-protocols.md) | Unit 研究 | `2026-11-03` | driver-gap 17 款网络检索（2026-11-03 抓取）：官方 docs protocol 页 U222/I2C+U223/UART、11 份官方协议 PDF/MD（Roller485/485-lite I2C+RS485、RollerCAN/CAN-lite I2C+CAN、ByteSwitch、ByteButton、Step16、TimerPWR、MQ、ChainBus、CardKB2 User Manual）、OneMO ML307R AT 手册 V1.8.1、TI INA226 SBOS547C Table 7-1、Bosch BMM350 Table 8、上游 UIFlow2 master f20d5a0 的 15 款驱动 file:line；分类 a 15/b 2（cardkb2 的 v2 report/BLE/ESP-NOW 缺口、cat1-cn 的 RF/SIM/网络缺口）/c 0；含推荐实现顺序与地址冲突（0x64×4、0x41×2）；只写 docs，未改 catalog/model/test，全部仍 planned，无 QEMU/guest 证据 |
 | [视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md) | 战役汇总 | `2026-11-03` | 9 个独立视觉 host 完成同 guest 原厂固件路径接入，5 项 boundary-only/composition-only；Unit 160 登记（129 implemented/partial + 31 planned）+ 25 c 类边界，184/184 覆盖；10 个研究批与实现/证据 PR #80–#146；列出真实模型 bug、DEFER/BLOCKED/planned-only 与 virtual-device/硬件边界 |
+| [Unit CAN/LoRaWAN 虚拟设备证据](evidence/2026-11-03-unit-can-lorawan/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | `can`/`mini-can` 各一个 cores3 可见会话 PASS：guest TWAI 帧 `123#0102030405060708` 被 m5-canbus CanBusClient 观测（frames-observed=1），host fixture `456#deadbeef` 经 QOM inject-hex 注入并被 guest 收到（injected-frames=1，state RUNNING）；`lorawan-us915` 仅 UART AT 字节层 PASS（AT+CWORKMODE/AT+DTRX，frames-sent/injected=3）；Unit runtime 契约 + probe 解锁，无新增 QEMU 补丁（canonical 35 层至 0154）；CAN 电气/仲裁/隔离、US915 AT 解码/Join/RF/FCC NOT RUN；PORT.C 使用 cores3 PORT.A harness |
 | [Unit 第七批剩余 7 款实现状态](unit-research/2026-11-03-batch7-impl-status.md) | Unit 实现状态 | `2026-11-03` | 0145 在 canonical 链 0144 后实现 batch7 剩余 7 款：hex 复用 37-LED RMT（driver-gap/SK6812 unresolved）、catm/catm-gnss/lorawan-cn470 UART fixture responder（不做 AT 解码；LoRaWAN STM32WLE5 vs ASR650x 错配）、can/mini-can 绑定 cores3 m5-canbus 的 CanBusClient+inject-hex（方向/过滤/位定时/电气 NOT modeled）、mini-imu-pro BMI270 0x68+BMP280 0x76 最小复合模型（init blob 接受但不执行、aux 简化）；mini-pdm DEFER 无 Unit 模型；catalog/profile 111→118，7 条全部 planned、离线 QOM smoke 7/7 attach；不含 guest/runtime 声明 |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick 条件接入（EasyLoader 工厂镜像提取；原 `d960e57e…` 提取长度已修正）、StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |

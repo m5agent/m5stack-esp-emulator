@@ -3,7 +3,7 @@
 These checks never launch QEMU or firmware. They pin the patch content, the
 planned catalog/profile inventory and the visual-mapping registration that the
 offline QOM smoke depends on, and they keep the driver-gap/DEFER, UART fixture
-boundary, CAN attachment limitation and BMI270 aux boundary visible.
+boundary, CAN lane evidence and BMI270 aux boundary visible.
 """
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0145-unit-batch7b.patch"
-IMPLEMENTED = ("hex", "catm", "catm-gnss", "lorawan-cn470")
-UNITS = IMPLEMENTED + ("can", "mini-pdm", "mini-imu-pro")
+IMPLEMENTED = ("hex", "catm", "catm-gnss", "lorawan-cn470", "can")
+UNITS = IMPLEMENTED + ("mini-pdm", "mini-imu-pro")
 
 
 class UnitBatch7bPatchTests(unittest.TestCase):
@@ -96,7 +96,7 @@ class UnitBatch7bPatchTests(unittest.TestCase):
             self.assertIn("0150-unit-batch7-evidence-fixes.patch", evidence["patches"])
 
     def test_blocked_and_deferred_units_keep_planned_contracts(self):
-        for unit_id in ("can", "mini-pdm", "mini-imu-pro"):
+        for unit_id in ("mini-pdm", "mini-imu-pro"):
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "planned")

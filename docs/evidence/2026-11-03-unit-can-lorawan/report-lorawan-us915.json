@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T04:35:08.408117+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "lorawan-us915",
+  "driver_class": "LoRaWANUnit (ASR650x driver / STM32WLE5 product)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "firmware_sha256": "da6c19d4b21f605d5b94f36fb52aa1e9838a9ad237b76b3a674bcf992f18cb34",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "346c808e1aff5ace23cca3b78e4e0839bf07c147755af84cbfc525b42dbcc57e",
+    "main.py": "b148bf1b7065d992c725ad73be05bcb4a7489e69c31968956f3f84d84d145778"
+  },
+  "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+  "qemu_source_state": "canonical 75f1d24 + canonical 35-layer chain through 0154",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {
+    "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a;4f4b0d0a"
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T04:35:11.880118+08:00",
+      "properties": {
+        "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a;4f4b0d0a",
+        "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+        "frames-sent": 3,
+        "frames-injected": 3
+      }
+    }
+  ],
+  "serial_markers": {
+    "lorawan-us915": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (894) i2c.master: this port has not been initialized, please initialize it first\r\nCANLORA_PROBE_START lorawan-us915\nLW915_READY\nCANLORA_PROBE_READY lorawan-us915\nLW915_WORKMODE_SENT\nLW915_SENT\nLW915_END\n"
+  },
+  "checks": {
+    "official_driver_started": true,
+    "live_controller_state": true,
+    "official_driver_ready": true,
+    "no_init_error": true,
+    "qom_tx_bytes": true,
+    "qom_workmode_bytes": true,
+    "qom_dtrx_bytes": true,
+    "frames_counted": true,
+    "responses_fixture_applied": true,
+    "guest_workmode_sent": true,
+    "guest_send_frame": true,
+    "driver_product_mismatch_recorded": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "observations": {
+    "lorawan-us915": {
+      "guest_ready": true,
+      "tx_hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+      "frames_sent": 3,
+      "frames_injected": 3,
+      "responses_hex": "4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a;4f4b0d0a",
+      "boundary": "UART byte layer only: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172; US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN. Official PORT.C is substituted by the cores3 PORT.A harness."
+    }
+  },
+  "evidence": {
+    "sha256": "79a1295c6fa4df209ac0727632b0b969666799e73dba3c8952a8b8c64848ad68",
+    "bytes": 19153
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "frame": {
+    "sha256": "f5b3c1574d1a860219881dea95a501ca45b5b94d696cc01053dc64e2b2be2d5d",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "session_id": "132ad68587134e5ea6382509d2396fbe",
+  "session_id_sha256": "2b3805d29d23e1fdf23e9aa250d07e8aadb1d0580dbd7f614ba045156bbc5dd8",
+  "raw_evidence_note": "Raw execution artifacts (evidence ZIP, frame, serial log, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed."
+}

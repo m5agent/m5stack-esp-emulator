@@ -23392,7 +23392,7 @@
         }
       ],
       "interface": {
-        "bus": "uart",
+        "bus": "can",
         "connector": "HY2.0-4P",
         "address_7bit": [],
         "baudrate": null,
@@ -23537,9 +23537,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "inject-hex": {
@@ -23563,9 +23563,10 @@
             "type": "string"
           }
         },
-        "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。"
+        "blocker": "Guest CAN lane PASS: the guest wrote one standard frame 123#0102030405060708 that the cores3 m5-canbus CanBusClient observed (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through the Unit QOM inject-hex was received by the guest TWAI controller (injected-frames=1, guest recv 456#deadbeef, state RUNNING). The frozen UIFlow2 release image's Python `unit/can.py` wrapper is unusable on this build (TypeError/ESP_ERR_INVALID_ARG), so the probe drives the same official `m5can` C module the wrapper subclasses; the wrapper limitation is recorded, not hidden. CAN electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration are NOT modeled and NOT RUN, and physical CAN bus behavior is NOT RUN; PORT.C is substituted by the cores3 PORT.A harness.",
+        "required_data_plane": "cores3 TWAI (SJA1000) via m5-canbus CanBusClient: guest TWAI frames are observed on the same board CAN bus (frames-observed/last-frame-hex); a QOM inject-hex write sends one host fixture frame onto that bus (injected-frames) so the guest TWAI RX path is exercised. Frame direction/filtering/bit timing, external transceiver, isolation, termination and bus arbitration are NOT modeled."
       },
-      "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。",
+      "blocker": "Guest CAN lane PASS: the guest wrote one standard frame 123#0102030405060708 that the cores3 m5-canbus CanBusClient observed (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through the Unit QOM inject-hex was received by the guest TWAI controller (injected-frames=1, guest recv 456#deadbeef, state RUNNING). The frozen UIFlow2 release image's Python `unit/can.py` wrapper is unusable on this build (TypeError/ESP_ERR_INVALID_ARG), so the probe drives the same official `m5can` C module the wrapper subclasses; the wrapper limitation is recorded, not hidden. CAN electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration are NOT modeled and NOT RUN, and physical CAN bus behavior is NOT RUN; PORT.C is substituted by the cores3 PORT.A harness.",
       "limitations": [
         "unit/can.py is a thin wrapper over the C m5can module; no Python driver register map.",
         "CAN uses PORT.C CAN_TX/CAN_RX pins, not UART; current host-port/attachment model needs a CAN lane.",
@@ -24879,68 +24880,37 @@
         ]
       },
       "inputs": {
-        "rx-frames": {
-          "type": "array",
-          "label": "host 注入 CAN 帧 fixture（id:data hex）",
-          "default": [
-            "123#deadbeef"
-          ],
+        "inject-hex": {
+          "type": "string",
+          "label": "host 注入 CAN 帧 fixture（<id>#<data-hex>）",
+          "default": "",
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "maxItems": 32
+          "maxLength": 64
         }
       },
       "outputs": {
-        "tx-frames": {
-          "type": "array",
-          "label": "guest 发送 CAN 帧",
-          "default": [],
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "maxItems": 64
-        },
-        "rx-frames": {
-          "type": "array",
-          "label": "guest 接收 CAN 帧",
-          "default": [],
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "maxItems": 64
-        },
-        "frames-sent": {
+        "frames-observed": {
           "type": "integer",
-          "label": "发送帧数",
+          "label": "guest TWAI 帧观测数",
           "default": 0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0
-        },
-        "frames-received": {
-          "type": "integer",
-          "label": "接收帧数",
-          "default": 0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0
-        },
-        "can-state": {
-          "type": "string",
-          "label": "CAN 状态",
-          "default": "STOPPED",
           "default_source": "synthetic-test-fixture",
           "readOnly": true
+        },
+        "injected-frames": {
+          "type": "integer",
+          "label": "host 注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "last-frame-hex": {
+          "type": "string",
+          "label": "最近观测帧（<id>#<data-hex>）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 64
         }
       },
       "evidence": [
@@ -24973,41 +24943,36 @@
         }
       ],
       "research_status": "partial-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN.",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
-          "rx-frames": {
-            "property": "rx-frames",
+          "inject-hex": {
+            "property": "inject-hex",
             "access": "read-write",
-            "type": "array"
+            "type": "string"
           },
-          "tx-frames": {
-            "property": "tx-frames",
-            "access": "read-only",
-            "type": "array"
-          },
-          "frames-sent": {
-            "property": "frames-sent",
+          "frames-observed": {
+            "property": "frames-observed",
             "access": "read-only",
             "type": "integer"
           },
-          "frames-received": {
-            "property": "frames-received",
+          "injected-frames": {
+            "property": "injected-frames",
             "access": "read-only",
             "type": "integer"
           },
-          "can-state": {
-            "property": "can-state",
+          "last-frame-hex": {
+            "property": "last-frame-hex",
             "access": "read-only",
-            "type": "integer"
+            "type": "string"
           }
         },
-        "required_data_plane": "None yet: CAN Unit attachment/TWAI frame injection is unresolved; no UART responder is used"
+        "required_data_plane": "cores3 TWAI (SJA1000) via m5-canbus CanBusClient: guest TWAI frames are observed on the same board CAN bus (frames-observed/last-frame-hex); a QOM inject-hex write sends one host fixture frame onto that bus (injected-frames) so the guest TWAI RX path is exercised. Frame direction/filtering/bit timing, external transceiver, isolation, termination and bus arbitration are NOT modeled.",
+        "blocker": "Guest CAN lane PASS on the shared m5can/TWAI model: the guest wrote one standard frame 123#0102030405060708 observed on the cores3 m5-canbus (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through QOM inject-hex was received by the guest TWAI (injected-frames=1, guest recv 456#deadbeef, state RUNNING). Same frozen `unit/can.py` wrapper release limitation as Unit CAN (official `m5can` C module used by the probe). The TJA1051T/3 non-isolated transceiver, on-board 120ohm termination, isolation, bit timing and real bus arbitration are NOT modeled and NOT RUN; PORT.C is substituted by the cores3 PORT.A harness in this evidence."
       },
-      "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN.",
+      "blocker": "Guest CAN lane PASS on the shared m5can/TWAI model: the guest wrote one standard frame 123#0102030405060708 observed on the cores3 m5-canbus (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through QOM inject-hex was received by the guest TWAI (injected-frames=1, guest recv 456#deadbeef, state RUNNING). Same frozen `unit/can.py` wrapper release limitation as Unit CAN (official `m5can` C module used by the probe). The TJA1051T/3 non-isolated transceiver, on-board 120ohm termination, isolation, bit timing and real bus arbitration are NOT modeled and NOT RUN; PORT.C is substituted by the cores3 PORT.A harness in this evidence.",
       "limitations": [
         "unit/can.py is a thin wrapper over the C m5can module; no Python register map.",
         "CAN attachment/QOM frame fixture is unresolved; do not map it to a UART responder.",
@@ -26293,9 +26258,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -26320,9 +26285,9 @@
           }
         },
         "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
-        "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN."
+        "blocker": "Guest UART byte layer PASS: after the documented guest-side UART bootstrap (the frozen ASR650x wrapper creates machine.UART(1, tx, rx) without a baud argument and only configures it afterwards; the same workaround is already recorded in the batch-7 lorawan-cn470 evidence), the frozen LoRaWANUnit wrote AT+CWORKMODE=2, AT+CWORKMODE=1 and AT+DTRX=5,48454C4C46 into the Unit UART lane (tx-hex, frames-sent=3) and the fixture responder injected 3 responses (frames-injected=3, responses-hex round-trip). The frozen unit/lorawan.py still inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172, so no AT decode/join is claimed: US915 OTAA/ABP/Join, duty-cycle, FCC, RF and antenna are NOT RUN; only the UART byte layer is asserted, and PORT.C is substituted by the cores3 PORT.A harness."
       },
-      "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN.",
+      "blocker": "Guest UART byte layer PASS: after the documented guest-side UART bootstrap (the frozen ASR650x wrapper creates machine.UART(1, tx, rx) without a baud argument and only configures it afterwards; the same workaround is already recorded in the batch-7 lorawan-cn470 evidence), the frozen LoRaWANUnit wrote AT+CWORKMODE=2, AT+CWORKMODE=1 and AT+DTRX=5,48454C4C46 into the Unit UART lane (tx-hex, frames-sent=3) and the fixture responder injected 3 responses (frames-injected=3, responses-hex round-trip). The frozen unit/lorawan.py still inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172, so no AT decode/join is claimed: US915 OTAA/ABP/Join, duty-cycle, FCC, RF and antenna are NOT RUN; only the UART byte layer is asserted, and PORT.C is substituted by the cores3 PORT.A harness.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",

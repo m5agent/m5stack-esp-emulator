@@ -35,13 +35,15 @@ class UnitBatch8aPatchTests(unittest.TestCase):
                       "gpio_gps_unit", "gps_baud", "pahub_dip", "dip-address"):
             self.assertIn(token, self.text)
 
-    def test_blocked_mini_can_is_not_registered(self):
+    def test_mini_can_is_not_re_registered_by_this_patch(self):
         # The 0145 layer already registers the batch-7 can/mini-can binding, so a
         # plain assertNotIn would trip on context lines; this batch-8 layer must not
-        # ADD another registration path for mini-can.
+        # ADD another registration path for mini-can. The lane was later unlocked
+        # by the CAN/LoRaWAN evidence batch (runtime contract + profile, no QEMU
+        # patch), so the unit is now `partial`/`implemented`.
         added = [line for line in self.text.splitlines() if line.startswith('+')]
         self.assertFalse(any('"mini-can"' in line for line in added))
-        self.assertEqual(self.units["mini-can"]["model_status"], "planned")
+        self.assertEqual(self.units["mini-can"]["model_status"], "partial")
 
     def test_patch_base_is_the_25_layer_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
@@ -66,13 +68,20 @@ class UnitBatch8aPatchTests(unittest.TestCase):
         for token in ("ST7789V2", "0x3D", "0x3E", "READ_ID", "framebuffer", "NOT RUN"):
             self.assertIn(token, unit, token)
 
-    def test_mini_can_is_blocked_not_fabricated(self):
+    def test_mini_can_lane_is_implemented_with_boundaries(self):
         unit = json.dumps(self.units["mini-can"], ensure_ascii=False)
-        for token in ("BLOCKED", "TWAI", "attachment", "NOT RUN"):
+        for token in ("TWAI", "inject-hex", "frames-observed", "NOT RUN"):
             self.assertIn(token, unit, token)
         profile = self.profiles["mini-can"]
-        self.assertEqual(profile["status"], "planned")
-        self.assertEqual(profile["hosts"], [])
+        self.assertEqual(profile["status"], "implemented")
+        self.assertEqual(profile["hosts"], ["cores3"])
+        evidence = profile["virtual_device_evidence"]
+        report = ROOT / evidence["report"]
+        self.assertTrue(report.is_file())
+        self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
+                         evidence["report_sha256"])
+        self.assertIn("0154-unit-batch10-evidence-fixes.patch", evidence["patches"])
+        self.assertNotIn("BLOCKED", unit.split("inject-hex")[0].split("blocker")[-1])
 
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
         self.assertEqual(len(self.catalog["units"]), 160)
@@ -94,14 +103,15 @@ class UnitBatch8aPatchTests(unittest.TestCase):
             self.assertIn("0153-unit-batch8-evidence-lcd-read.patch",
                           evidence["patches"], unit_id)
             self.assertTrue(profile["blocker"])
-        # Mini CAN stays BLOCKED: the Unit runtime has no CAN attachment lane.
+        # Mini CAN now shares the unlocked CAN lane: implemented with the same
+        # QOM-contract evidence and the TJA1051 electrical boundary recorded.
         unit = self.units["mini-can"]
         profile = self.profiles["mini-can"]
-        self.assertEqual(unit["model_status"], "planned")
-        self.assertEqual(unit["runtime"]["status"], "planned")
-        self.assertEqual(profile["status"], "planned")
-        self.assertEqual(profile["hosts"], [])
-        self.assertIn("BLOCKED", unit["blocker"])
+        self.assertEqual(unit["model_status"], "partial")
+        self.assertEqual(unit["runtime"]["status"], "implemented")
+        self.assertEqual(profile["status"], "implemented")
+        self.assertEqual(profile["hosts"], ["cores3"])
+        self.assertTrue(profile["virtual_device_evidence"]["report"].endswith("report-mini-can.json"))
 
 
 if __name__ == "__main__":

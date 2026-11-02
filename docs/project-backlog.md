@@ -28,7 +28,7 @@
 - 视觉主机：9 个独立 host 完成原厂固件路径接入；5 项 boundary-only/
   composition-only 决策收口，不再作为待接入队列（M5Stick 工厂固件路径
   仍是 blocked/partial，按 evidence 限定引用）。
-- Unit：catalog 160 条（129 implemented/partial + 31 planned），184 个
+- Unit：catalog 160 条（133 implemented/partial + 27 planned），184 个
   unit 产品全部有登记或 c 类边界结论；10 个研究批与实现/证据 PR 收口。
   剩余 DEFER/BLOCKED/planned-only 项见下方 `UNIT-DEFER-01`。
 
@@ -70,7 +70,7 @@ eFuse 或生产 key。
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
-| 已完成（virtual-device） | 视觉主机与 Unit 接入战役 | 9 个独立视觉 host 接入、5 项边界决策；Unit 160 登记（129 implemented/partial + 31 planned）+ 25 c 类边界，184/184 覆盖 | 剩余 31 planned 见 `UNIT-DEFER-01`；visual/Unit 结果不授予硬件、RF、光学或电气 PASS |
+| 已完成（virtual-device） | 视觉主机与 Unit 接入战役 | 9 个独立视觉 host 接入、5 项边界决策；Unit 160 登记（133 implemented/partial + 27 planned）+ 25 c 类边界，184/184 覆盖 | 剩余 27 planned 见 `UNIT-DEFER-01`；visual/Unit 结果不授予硬件、RF、光学或电气 PASS |
 | P2 | CardputerZero | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 ## 当前执行顺序

@@ -10349,12 +10349,80 @@
       }
     },
     "can": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest CAN lane PASS: the guest wrote one standard frame 123#0102030405060708 that the cores3 m5-canbus CanBusClient observed (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through the Unit QOM inject-hex was received by the guest TWAI controller (injected-frames=1, guest recv 456#deadbeef, state RUNNING). The frozen UIFlow2 release image's Python `unit/can.py` wrapper is unusable on this build (TypeError/ESP_ERR_INVALID_ARG), so the probe drives the same official `m5can` C module the wrapper subclasses; the wrapper limitation is recorded, not hidden. CAN electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration are NOT modeled and NOT RUN, and physical CAN bus behavior is NOT RUN; PORT.C is substituted by the cores3 PORT.A harness.",
       "bindings_required": [],
-      "notes": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。"
+      "notes": "Guest CAN lane PASS: the guest wrote one standard frame 123#0102030405060708 that the cores3 m5-canbus CanBusClient observed (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through the Unit QOM inject-hex was received by the guest TWAI controller (injected-frames=1, guest recv 456#deadbeef, state RUNNING). The frozen UIFlow2 release image's Python `unit/can.py` wrapper is unusable on this build (TypeError/ESP_ERR_INVALID_ARG), so the probe drives the same official `m5can` C module the wrapper subclasses; the wrapper limitation is recorded, not hidden. CAN electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration are NOT modeled and NOT RUN, and physical CAN bus behavior is NOT RUN; PORT.C is substituted by the cores3 PORT.A harness.",
+      "inputs": {
+        "inject-hex": {
+          "property": "inject-hex"
+        }
+      },
+      "state": {
+        "frames-observed": {
+          "property": "frames-observed"
+        },
+        "injected-frames": {
+          "property": "injected-frames"
+        },
+        "last-frame-hex": {
+          "property": "last-frame-hex"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-can.json",
+        "report_sha256": "ac0ef5547a4aa43a31c33852151ece0585d81db0cc3769a32d84794cdeda91f6",
+        "evidence_sha256": "8d96259e396ccb2cd2f419e8fa1725b6ea8d5e0e9c419717fb4243f9817d3233",
+        "firmware_sha256": "a0fab9334961b0c7ab817840fc6c417ec119176a527af38cc021ed8d21cfeaac",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "3a0060682e859a6adc36dd4307dd891088d78a1583a3d4292345b4744adb483d",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch"
+        ]
+      }
     },
     "mini-imu-pro": {
       "status": "planned",
@@ -10694,32 +10762,79 @@
       }
     },
     "mini-can": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest CAN lane PASS on the shared m5can/TWAI model: the guest wrote one standard frame 123#0102030405060708 observed on the cores3 m5-canbus (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through QOM inject-hex was received by the guest TWAI (injected-frames=1, guest recv 456#deadbeef, state RUNNING). Same frozen `unit/can.py` wrapper release limitation as Unit CAN (official `m5can` C module used by the probe). The TJA1051T/3 non-isolated transceiver, on-board 120ohm termination, isolation, bit timing and real bus arbitration are NOT modeled and NOT RUN; PORT.C is substituted by the cores3 PORT.A harness in this evidence.",
       "inputs": {
-        "rx-frames": {
-          "property": "rx-frames"
+        "inject-hex": {
+          "property": "inject-hex"
         }
       },
       "state": {
-        "rx-frames": {
-          "property": "rx-frames"
+        "frames-observed": {
+          "property": "frames-observed"
         },
-        "tx-frames": {
-          "property": "tx-frames"
+        "injected-frames": {
+          "property": "injected-frames"
         },
-        "frames-sent": {
-          "property": "frames-sent"
-        },
-        "frames-received": {
-          "property": "frames-received"
-        },
-        "can-state": {
-          "property": "can-state"
+        "last-frame-hex": {
+          "property": "last-frame-hex"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-mini-can.json",
+        "report_sha256": "911ae897bf6d46a8a9263f843713e4aa872550c8b3b52af02840b70275c03c7c",
+        "evidence_sha256": "a33ee1a008453075c3fdcdd4b139f5705254acc1f64b78741f31abbc4f502ff5",
+        "firmware_sha256": "1afe4077b170f5739b1d300d22d15caf26ebec12d54ceceaa949a5345ff73a46",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "31c55819406bc0b8b773db7f7d407d37e9efbdfb208377aca84b85ea33739061",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch"
+        ]
+      },
+      "notes": "Guest CAN lane PASS on the shared m5can/TWAI model: the guest wrote one standard frame 123#0102030405060708 observed on the cores3 m5-canbus (frames-observed=1, last-frame-hex=123#0102030405060708), and the host fixture frame 456#deadbeef injected through QOM inject-hex was received by the guest TWAI (injected-frames=1, guest recv 456#deadbeef, state RUNNING). Same frozen `unit/can.py` wrapper release limitation as Unit CAN (official `m5can` C module used by the probe). The TJA1051T/3 non-isolated transceiver, on-board 120ohm termination, isolation, bit timing and real bus arbitration are NOT modeled and NOT RUN; PORT.C is substituted by the cores3 PORT.A harness in this evidence."
     },
     "oled": {
       "status": "implemented",
@@ -11204,9 +11319,11 @@
       }
     },
     "lorawan-us915": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest UART byte layer PASS: after the documented guest-side UART bootstrap (the frozen ASR650x wrapper creates machine.UART(1, tx, rx) without a baud argument and only configures it afterwards; the same workaround is already recorded in the batch-7 lorawan-cn470 evidence), the frozen LoRaWANUnit wrote AT+CWORKMODE=2, AT+CWORKMODE=1 and AT+DTRX=5,48454C4C46 into the Unit UART lane (tx-hex, frames-sent=3) and the fixture responder injected 3 responses (frames-injected=3, responses-hex round-trip). The frozen unit/lorawan.py still inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172, so no AT decode/join is claimed: US915 OTAA/ABP/Join, duty-cycle, FCC, RF and antenna are NOT RUN; only the UART byte layer is asserted, and PORT.C is substituted by the cores3 PORT.A harness.",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
@@ -11226,7 +11343,58 @@
           "property": "frames-injected"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-lorawan-us915.json",
+        "report_sha256": "6092abefc2e96250d9dea52fd69804611c47a797723e07447859147509349b8f",
+        "evidence_sha256": "79a1295c6fa4df209ac0727632b0b969666799e73dba3c8952a8b8c64848ad68",
+        "firmware_sha256": "da6c19d4b21f605d5b94f36fb52aa1e9838a9ad237b76b3a674bcf992f18cb34",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "2b3805d29d23e1fdf23e9aa250d07e8aadb1d0580dbd7f614ba045156bbc5dd8",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch"
+        ]
+      },
+      "notes": "Guest UART byte layer PASS: after the documented guest-side UART bootstrap (the frozen ASR650x wrapper creates machine.UART(1, tx, rx) without a baud argument and only configures it afterwards; the same workaround is already recorded in the batch-7 lorawan-cn470 evidence), the frozen LoRaWANUnit wrote AT+CWORKMODE=2, AT+CWORKMODE=1 and AT+DTRX=5,48454C4C46 into the Unit UART lane (tx-hex, frames-sent=3) and the fixture responder injected 3 responses (frames-injected=3, responses-hex round-trip). The frozen unit/lorawan.py still inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172, so no AT decode/join is claimed: US915 OTAA/ABP/Join, duty-cycle, FCC, RF and antenna are NOT RUN; only the UART byte layer is asserted, and PORT.C is substituted by the cores3 PORT.A harness."
     },
     "mic": {
       "status": "implemented",
