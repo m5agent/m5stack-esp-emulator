@@ -736,9 +736,9 @@ IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
 Atom VoiceS3R（`atom-echos3r` / `m5atomvoices3r`）同期接入：原厂固件启动、
 128×128 面板、Speaker/I2S1 DMA 非静音 PCM 限定通过，功放使能 GPIO18、
 Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
-AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）同期完成启动、板级识别 144、
-显示初始化与 GC0308 身份读取；原厂 camera.init/capture 仍返回
-ESP_ERR_NOT_SUPPORTED，相机帧与 IR/Grove 仍未覆盖。
+AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）已完成启动、板级识别 144、显示初始化与
+软件 SCCB/DVP 相机数据面：原厂 `camera.init()/capture()` 取得 320×240 RGB565 整帧
+（153,600 B，摘要与模型 DVP 波形一致）。剩余：非 QVGA framesize、多帧流、IR/Grove、物理光学。
 Basic v2.7（`basic-v27` / `m5basic`）同期接入：classic ESP32 启动、320×240
 ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数字 PCM
 限定通过；IP5306 电芯/电气、microSD、电源键、背光 PWM、Grove Unit 与

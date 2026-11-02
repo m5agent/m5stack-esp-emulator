@@ -68,6 +68,8 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 `m5atoms3rcam` 的启动、板级识别 144、显示初始化和 GC0308 身份读取；
 原厂 camera.init/capture 仍为 ESP_ERR_NOT_SUPPORTED，没有相机帧数据面。
 
+[AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md)记录软件 SCCB 根因（硬件 I2C hand-off 误关相机桥）与修复，官方 `camera.init()/capture()` 取得 320×240 RGB565 整帧；仅默认 QVGA 单帧、物理光学 NOT RUN。
+
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
@@ -152,9 +154,10 @@ Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项�
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick/StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
+| [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |
 | [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的官方驱动 file:line 证据、总线/寄存器/命令表、QEMU 复用建议与 11 条 unresolved；planned，不含 runtime 声明 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
-| [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；原厂 camera.init/capture 仍 NOT_SUPPORTED，相机帧未闭环 |
+| [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；相机帧随后由同页的 SCCB 闭环证据补齐 |
 | [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md) | 计划 | `2026-11-02` | 剩余仅视觉主机的逐型号固件可用性/所需模型/决策，以及 150 款未登记 Unit 的方法与批次框架；不构成能力声明 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |
 | [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3u` 板级的官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过；IR、SPM1423 PDM 麦克风、Grove Unit、USB CDC 与物理行为未验 |

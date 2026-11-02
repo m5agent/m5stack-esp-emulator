@@ -926,7 +926,7 @@
     },
     "atoms3r-cam": {
       "status": "candidate",
-      "blocker": "Device-local official firmware boot, board id 144, panel init and GC0308 identity at 0x21 passed (docs/evidence/2026-11-02-atoms3r-cam-host/summary.json). The camera capture/DSMA path is not closed; IR and Grove Units are not modeled.",
+      "blocker": "Device-local official firmware boot, board id 144, panel init, software SCCB probe and one 320x240 RGB565 frame passed (docs/evidence/2026-11-02-atoms3r-cam-sccb/summary.json). Only the default QVGA geometry and a single capture are covered; IR and Grove Units are not modeled, so the candidate group still covers no simulated component.",
       "matrix": [],
       "external": [],
       "models": []

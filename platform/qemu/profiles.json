@@ -1350,16 +1350,17 @@
       },
       "board_work": [
         "Official UIFlow2 v2.5.4 boot, board id 144, 128x128 GC9107 init",
-        "Guest I2C scan reaches GC0308 0x21 with PID 0x9b; camera.init/capture still ESP_ERR_NOT_SUPPORTED"
+        "Software SCCB camera path: camera.init() True and capture() 153600-byte QVGA RGB565 frame (fnv1a 42521dc5)",
+        "Dedicated-pin SCCB bridge, N8R8 8 MiB PSRAM model and QVGA DVP geometry; non-QVGA/multi-frame still open"
       ],
       "blockers": [
-        "The official esp32-camera probe returns ESP_ERR_NOT_SUPPORTED even though the shared I2C bus scans 0x21 and reads PID 0x9b, so the missing piece is the driver's SCCB/init path in the model. IR, Grove Units, USB CDC and physical optics/electrics remain open."
+        "Camera SCCB/DVP virtual-device path passed for the default QVGA frame only. Non-QVGA framesize geometry does not follow GC0308 window/subsample registers, multi-frame streaming is not tested, and IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open."
       ],
       "validation": {
         "date": "2026-11-02",
-        "status": "native-boot-display-camera-blocked",
-        "detail": "官方 UIFlow2 v2.5.4 AtomS3R-CAM 在同一 QEMU guest 内完成启动、M5.getBoard()=144、128x128 面板初始化；guest 扫描到 0x21 并读到 PID 0x9b，但 camera.init/capture 仍为 ESP_ERR_NOT_SUPPORTED。",
-        "evidence": "docs/evidence/2026-11-02-atoms3r-cam-host/summary.json",
+        "status": "native-boot-display-camera-frame-pass",
+        "detail": "官方 UIFlow2 v2.5.4 AtomS3R-CAM 在同一 QEMU guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=144、128×128 GC9107 面板初始化；原厂 camera.init() 返回 True，camera.capture() 返回 320×240 RGB565 整帧 153,600 bytes，帧摘要 fnv1a 42521dc5 / sum 24725536，宿主按 LCD_CAM 确定性 DVP 波形重建逐字节一致（sha256 09c8ded0…）。修复为软件 SCCB 桥 dedicated-pin 变体 + N8R8 8 MiB PSRAM 建模 + QVGA 几何。非 QVGA framesize、多帧流、IR/Grove/USB CDC 与物理光学/电气行为未验证。",
+        "evidence": "docs/evidence/2026-11-02-atoms3r-cam-sccb/summary.json",
         "category": "virtual-device"
       }
     },

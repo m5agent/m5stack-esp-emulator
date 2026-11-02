@@ -56,7 +56,7 @@
         "review_by": "2026-12-31"
       },
       "atoms3r-cam": {
-        "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 144, 128x128 panel init and GC0308 identity at 0x21 (PID 0x9b) passed. The official camera.init/capture path returns ESP_ERR_NOT_SUPPORTED and no frame data plane is claimed; IR, Grove and USB CDC remain open.",
+        "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 144, 128x128 panel init, and a full 320x240 camera frame whose digest matches the modelled LCD_CAM DVP path passed. Non-QVGA geometry, multi-frame streaming, IR, Grove Units, USB CDC and physical optics/electrics remain open.",
         "review_by": "2026-12-31"
       },
       "basic-v27": {
@@ -3249,7 +3249,7 @@
           "id": "camera",
           "model": "gc0308",
           "i2c_address": 33,
-          "status": "planned"
+          "status": "partial"
         },
         {
           "id": "ir",
@@ -3272,12 +3272,12 @@
           "reason": "BMM150 has no device-local magnetometer case for this board."
         },
         {
-          "model": "gc0308",
-          "reason": "Guest I2C scan reaches 0x21 and reads PID 0x9b, but the official esp32-camera probe still returns ESP_ERR_NOT_SUPPORTED, so no camera frame data plane is claimed."
-        },
-        {
           "model": "ir-tx-rx",
           "reason": "IR GPIO47 has no transmit/receive validation."
+        },
+        {
+          "model": "gc0308",
+          "reason": "Virtual-device camera path passed: official camera.init()/capture() produced a 320x240 RGB565 frame whose digest matches the deterministic LCD_CAM DVP waveform. Only the default QVGA geometry, a single capture, and not the GC0308 window/subsample registers are covered; physical optics and electrical timing are NOT RUN."
         }
       ]
     },
