@@ -41,7 +41,7 @@ class UnitBatch7aPatchTests(unittest.TestCase):
     def test_patch_base_is_the_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0143-unit-batch7a.patch", readme)
-        self.assertIn("28 layers", readme)
+        self.assertIn("29 layers", readme)
         for token in ("0140", "0141", "0142", "0144"):
             self.assertIn(token, readme)
 
@@ -74,7 +74,7 @@ class UnitBatch7aPatchTests(unittest.TestCase):
         self.assertEqual(profile["hosts"], [])
 
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
-        self.assertEqual(len(self.catalog["units"]), 130)
+        self.assertEqual(len(self.catalog["units"]), 133)
 
     def test_planned_contracts_keep_blockers_and_empty_hosts(self):
         for unit_id in UNITS:

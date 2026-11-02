@@ -436,3 +436,38 @@ blocker/limitations`。`runtime.status` 全部 `planned`，`model_status` 全部
 以上为研究结论，不构成实现/证据承诺；本批 driver-gap 较多，下一批实现前
 必须先取得各产品“Internal Firmware / Protocol”文档或 datasheet，并重新
 核对驱动树 HEAD 与地址/端口。
+
+## 9. 首批 3 款实现状态（补丁 0149）
+
+日期：`2026-11-02`。实现任务 `task-55`，分支 `m5agent/units19`（base `origin/main ed92aa6e`，
+catalog 123 款）。
+
+**补丁与 base**
+
+- 补丁：`patches/qemu-m5stack-peripherals/0149-unit-batch9a.patch`（sha256 `84aad9a7…`，
+  在 canonical 链上 `git apply --check` 通过）。
+- canonical 链：`75f1d24` → `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132`
+  → `0137` → `0138` → `0139` → `0140` → `0141` → `0142` → `0143` → `0144` → `0145` → `0146`
+  → `0147`；本补丁是 `0120` 之后的第 29 层。`0148` 由并行 batch-8 剩余实现任务占用，不属于本链；
+  `0150` 为下一个可用号。
+
+**3 款实现与边界**
+
+| Unit | SKU | 状态 | QEMU 模型 | unresolved / NOT RUN |
+| --- | --- | --- | --- | --- |
+| `glass` | U158 | planned（新命令/framebuffer slave + 静态 fixture） | 新增 `CONTROL_UNIT_GLASS`（I2C 0x3D）：SSD1309 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast、1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture | **页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved（不宣称）；0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度/按键/蜂鸣器物理 NOT RUN** |
+| `rf433t` | U114 | planned（GPIO 输出观测，driver-gap） | PORT.B 黄=RF_TX：output-level / edge-count / bit-count / bitstream 观测 | **无官方 UIFlow2 Unit 驱动/ASK 编码表；RF 433.92MHz/ASK 调制/PCB 天线/10dBm/10m 距离与 SYN115 功率电阻 NOT RUN；PORT.B 冲突** |
+| `rf433r` | U113 | planned（GPIO 输入 fixture，driver-gap） | PORT.B 白=RF_RX：input-level / sample-rate（300-10000Hz）/ samples | **无官方 UIFlow2 Unit 驱动/解码表；RF 433.92MHz/ASK 解调/PCB 天线/-109dBm 灵敏度/10m 距离 NOT RUN；PORT.B 冲突** |
+
+**离线 QOM smoke**（S3 `m5atoms3r`，无 guest 固件）：`glass`/`rf433t`/`rf433r` 各 1 个 attachment，
+QMP `qom-list`/`qom-set`/`qom-get` **15/15 PASS**——glass 地址 0x3D、GDDRAM 摘要 8-hex 默认、
+button-states/buzzer-hex fixture 读写；rf433t 电平/边沿/bit 计数与 bitstream 属性默认；rf433r
+input-level/sample-rate 写入与 samples 计数。smoke 不覆盖 I2C 命令字节语义、按键/蜂鸣器内部固件
+行为或 RF 物理；这些仍需 guest/硬件证据。
+
+**计数**：catalog 123 → **126**，runtime-profiles 123 → 126；visual mapping audit 3 条 +
+`all-126-products` 标记；计数测试（test_unit_runtime / test_serve_api units / visual mapping /
+batch3 A+B、batch7 A/B、batch8 A static marker）与 snapshot 已同步。
+
+**共同边界**：3 款都是控制器可见的事务/寄存器/GPIO 观测模型；没有 guest 与 Device Service
+证据前不得升级为 `implemented`/`simulated`/`validated`。
