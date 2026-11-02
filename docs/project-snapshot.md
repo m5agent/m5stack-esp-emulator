@@ -63,11 +63,11 @@
 
 ## 外接 Unit 库存与准入
 
-- Unit 登记：`106` 款；主机接线登记：`23` 款。
-- Runtime profile 状态：`implemented` 100，`planned` 6。
+- Unit 登记：`111` 款；主机接线登记：`23` 款。
+- Runtime profile 状态：`implemented` 100，`planned` 11。
 - 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `1373680d29667f99438a5412b87b955a3ba7702f`；包含 `38` 款主机、`184` 款 Unit。视觉库存不构成控制器或电气验证。
 - 仅视觉主机：`atoms3r-ai-chatbot`，`atoms3r-cam-ai-chatbot`，`atoms3r-ext`，`atoms3r-m12-volcengine-kit`，`stickv`；这些型号没有设备运行登记，不能创建 Device Service 会话。
-- 仅视觉、尚无内部协议契约：`8servos2-chain`，`8servos2-i2c`，`asr`，`audioplayer`，`bmm350`，`bytebutton`，`byteswitch`，`c6l`，`cams3-5mp`，`can`，`cardkb-original`，`cardkb2`，`cat1-cn`，`catm`，`catm-gnss`，`chainbus`，`dcssr`，`dof10`，`dof6`，`dof9`，`env-ii`，`esp32cam`，`fingerprint2`，`gateway-h2`，`glass`，`glass2`，`gps-sma`，`gps-v11`，`grove-to-grove`，`hbridge-v11`，`hex`，`ina226-10a`，`ina226-1a`，`lcd`，`lora-e220-920`，`lorawan-as923`，`lorawan-cn470`，`lorawan-eu868`，`lorawan-us915`，`m5-bit`，`m5camera`，`m5camera-x`，`mic`，`mini-bps-v11`，`mini-can`，`mini-imu-pro`，`mini-oled`，`mini-pdm`，`mini-proto`，`mini-tof-90`，`mq`，`nbiot-cn`，`oled`，`pahub-v21`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`puzzle`，`rca`，`rf433r`，`rf433t`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`step16`，`timercamera`，`timercamera-f`，`timercamera-x`，`timerpwr`，`typec-to-grove`，`unit-396`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`；这些型号不计 runtime 准入，也不能创建功能附件。
+- 仅视觉、尚无内部协议契约：`8servos2-chain`，`8servos2-i2c`，`asr`，`audioplayer`，`bmm350`，`bytebutton`，`byteswitch`，`c6l`，`cams3-5mp`，`can`，`cardkb2`，`cat1-cn`，`catm`，`catm-gnss`，`chainbus`，`dcssr`，`dof10`，`dof6`，`dof9`，`esp32cam`，`fingerprint2`，`gateway-h2`，`glass`，`glass2`，`gps-sma`，`gps-v11`，`grove-to-grove`，`hex`，`ina226-10a`，`ina226-1a`，`lcd`，`lora-e220-920`，`lorawan-as923`，`lorawan-cn470`，`lorawan-eu868`，`lorawan-us915`，`m5-bit`，`m5camera`，`m5camera-x`，`mic`，`mini-can`，`mini-imu-pro`，`mini-oled`，`mini-pdm`，`mini-proto`，`mq`，`nbiot-cn`，`oled`，`pahub-v21`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`puzzle`，`rca`，`rf433r`，`rf433t`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`step16`，`timercamera`，`timercamera-f`，`timercamera-x`，`timerpwr`，`typec-to-grove`，`unit-396`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
 
 准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
@@ -149,12 +149,12 @@
 | `worker_agent.py` | 1501 |
 
 - `tests/`：`145` 个可执行 Python 测试文件，分布在 `62` 个目录；`228` 个 evidence JSON。
-- `patches/`：`16` 个补丁组，`243` 个 patch 文件。
-- 文档：`563` 个 Markdown 页面；除本生成页外共 `60628` 行。
+- `patches/`：`16` 个补丁组，`244` 个 patch 文件。
+- 文档：`563` 个 Markdown 页面；除本生成页外共 `60668` 行。
 
 ## 文档与测试
 
-- 平台测试：`1822` 项。
+- 平台测试：`1832` 项。
 - Docs 新鲜度登记：`185` 行；其中非历史页 `169` 行，历史固定页 `16` 行。
 - 文档职责分布：待办 `3`，契约 `9`，证据/差异 `72`，历史固定 `16`，实现/设计 `11`，参考 `70`，工作流/导航 `4`。
 - 全量文档盘点：`563` 个 Markdown 页面；职责分布：权威/专题页 `185`，设备档案 `37`，示例 `1`，治理/入口 `9`，文档导航 `1`，其他 `9`，补丁说明 `19`，平台说明 `12`，仓内历史记录 `5`，测试/用例说明 `177`，未登记 docs 页面 `4`，第三方来源说明 `104`。

@@ -21318,6 +21318,1044 @@
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim."
       ]
+    },
+    {
+      "id": "mini-tof-90",
+      "name": "Unit Mini ToF-90°",
+      "sku": "U196",
+      "visual_asset": {
+        "entry": "src/units/mini-tof-90/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Mini_ToF-90",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "VL53L0X",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          41
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "VL53L0X ToF ranging at 0x29, 3-200 cm, 25° FoV, 940nm VCSEL, 8-23 ms; the 90° is the laser module mounting orientation only. unit/tof.py aliases driver.vl53l0x.VL53L0X; range status/data registers and clear-interrupt flow are identical to Unit ToF U010.",
+        "registers": [
+          {
+            "register": "SYSRANGE_START 0x00",
+            "length": 1,
+            "encoding": "start/stop range; continuous vs single"
+          },
+          {
+            "register": "SYSTEM_SEQUENCE_CONFIG 0x01",
+            "length": 1,
+            "encoding": "ranging sequence enables"
+          },
+          {
+            "register": "SYSTEM_INTERRUPT_CLEAR 0x0B",
+            "length": 1,
+            "encoding": "write 0x01 clears interrupt"
+          },
+          {
+            "register": "RESULT_INTERRUPT_STATUS 0x13",
+            "length": 1,
+            "encoding": "new sample ready bit"
+          },
+          {
+            "register": "RESULT_RANGE_STATUS 0x14",
+            "length": 12,
+            "encoding": "range status + 16-bit distance /4"
+          },
+          {
+            "register": "I2C_SLAVE_DEVICE_ADDRESS 0x8A",
+            "length": 1,
+            "encoding": "address change command"
+          },
+          {
+            "register": "MSRC_CONFIG 0x60",
+            "length": 1,
+            "encoding": "signal rate limit settings"
+          }
+        ],
+        "gaps": [
+          "0x29 conflicts with tof U010, tof4m U172 and color U009 (one Unit per bus).",
+          "Laser optics, ranging accuracy, 940 nm VCSEL safety and the 90-degree mounting are NOT RUN.",
+          "VL53L0X init blobs differ from the tof4m VL53L1X model and are not interchangeable."
+        ]
+      },
+      "inputs": {
+        "distance-mm": {
+          "type": "number",
+          "label": "距离",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mm",
+          "minimum": 30,
+          "maximum": 2000
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Mini_ToF-90",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U196",
+            "VL53L0X, 3-200 cm, 25° FoV, 940 nm VCSEL",
+            "I2C 0x29",
+            "90° is the laser module mounting orientation only",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "unit/tof.py aliases driver.vl53l0x.VL53L0X",
+            "SYSRANGE_START 0x00 / SYSTEM_INTERRUPT_CLEAR 0x0B / RESULT_INTERRUPT_STATUS 0x13 / RESULT_RANGE_STATUS 0x14 / I2C_SLAVE_DEVICE_ADDRESS 0x8A"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0143 复用 US_TOF（VL53L0X 0x29）实现 mini-tof-90；90° 仅为激光模块安装方向，寄存器/命令路径与 tof U010 相同。未采集 guest/Device Service 证据 → planned。**0x29 与 tof/tof4m/color 冲突，一总线一 Unit；激光光学/测距精度/940nm/25° FoV NOT RUN；VL53L0X 与 tof4m 的 VL53L1X 初始化不可混用**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "distance-mm": {
+            "property": "distance-mm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to the existing VL53L0X register-file slave model at 0x29"
+      },
+      "blocker": "0143 复用 US_TOF（VL53L0X 0x29）实现 mini-tof-90；90° 仅为激光模块安装方向，寄存器/命令路径与 tof U010 相同。未采集 guest/Device Service 证据 → planned。**0x29 与 tof/tof4m/color 冲突，一总线一 Unit；激光光学/测距精度/940nm/25° FoV NOT RUN；VL53L0X 与 tof4m 的 VL53L1X 初始化不可混用**",
+      "input_semantics": "Synthetic distance fixture encoded into the VL53L0X register file; guest range reads are not modelled from host Python values.",
+      "output_semantics": "Observed guest VL53L0X transactions and register reads; optics and ranging physics are not modelled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "0x29 conflicts with tof/tof4m/color; only one Unit per I2C bus is admitted.",
+        "Laser optics, 940 nm VCSEL safety, 25° FoV and real ranging accuracy are NOT RUN.",
+        "The 90-degree module orientation is mechanical only; no optical behavior is modelled."
+      ]
+    },
+    {
+      "id": "hbridge-v11",
+      "name": "Unit HBridge v1.1",
+      "sku": "U160-V11",
+      "visual_asset": {
+        "entry": "src/units/hbridge-v11/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/HBridge%20v1.1%20Unit",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "RZ7899",
+          "status": "officially-documented"
+        },
+        {
+          "part": "INA199A1DCKR",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          32
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "STM32F030 I2C motor driver at 0x20 (0x20-0x2F strap). Registers: 0x00 direction, 0x01 PWM8, 0x02 PWM16 LE, 0x04 PWM freq LE, 0x10 ADC8, 0x20 ADC16 LE, 0x30 VIN current float32 LE (v1.1), 0xFE fw, 0xFF address.",
+        "registers": [
+          {
+            "register": "direction 0x00",
+            "length": 1,
+            "encoding": "0 stop, 1 forward, 2 reverse"
+          },
+          {
+            "register": "pwm8 0x01",
+            "length": 1,
+            "encoding": "duty 0..255"
+          },
+          {
+            "register": "pwm16 0x02",
+            "length": 2,
+            "encoding": "duty 0..65535 LE"
+          },
+          {
+            "register": "pwm frequency 0x04",
+            "length": 2,
+            "encoding": "Hz, 100..10000 LE"
+          },
+          {
+            "register": "adc8 0x10",
+            "length": 1,
+            "encoding": "0..255, 3.3V/255 scaling"
+          },
+          {
+            "register": "adc16 0x20",
+            "length": 2,
+            "encoding": "0..4095 LE"
+          },
+          {
+            "register": "vin current 0x30",
+            "length": 4,
+            "encoding": "float32 LE (v1.1 current detection)"
+          },
+          {
+            "register": "firmware/address 0xFE/0xFF",
+            "length": 1,
+            "encoding": "read-only identity"
+          }
+        ],
+        "gaps": [
+          "0x20 conflicts with hbridge U160 (one Unit per bus).",
+          "Motor torque/current, direction/brake timing, RZ7899 dead time and INA199 over-current protection are NOT RUN.",
+          "0x30 float32 byte order and the v1.0 vs v1.1 current behavior need guest evidence."
+        ]
+      },
+      "inputs": {
+        "adc-mv": {
+          "type": "number",
+          "label": "ADC 电压",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300
+        },
+        "vin-current-a": {
+          "type": "number",
+          "label": "VIN 电流",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "A",
+          "minimum": -1000,
+          "maximum": 1000
+        }
+      },
+      "outputs": {
+        "direction": {
+          "type": "integer",
+          "label": "方向",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 2
+        },
+        "pwm-duty-pct": {
+          "type": "number",
+          "label": "PWM 占空比",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 100
+        },
+        "pwm-frequency-hz": {
+          "type": "integer",
+          "label": "PWM 频率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 100,
+          "maximum": 10000
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/HBridge%20v1.1%20Unit",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U160-V11",
+            "STM32F030F4P6 + RZ7899 + INA199A1DCKR current sense",
+            "I2C 0x20 (0x20-0x2F strap)",
+            "Registers 0x00 direction / 0x01 PWM8 / 0x02 PWM16 / 0x04 freq / 0x10 ADC8 / 0x20 ADC16 / 0x30 float VIN current / 0xFE fw / 0xFF address",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/hbridge.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "HBRIDGE_ADDR 0x20",
+            "set_direction / set_8bit_pwm / set_16bit_pwm / set_pwm_freq / get_adc_value / get_vin_current",
+            "VIN_CURRENT 0x30 float32 LE (v1.1 only)"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0143 复用 CONTROL_HBRIDGE（0x20）实现 hbridge-v11；v1.1 仅新增 0x30 float32 VIN 电流（vin-current-a fixture），direction/PWM/频率/ADC/身份寄存器与 U160 相同。未采集 guest/Device Service 证据 → planned。**电机/RZ7899/INA199/过流保护/真实负载电流 NOT RUN；0x20 与 hbridge U160 同地址；0x30 float 字节序与 v1.0 行为需 guest 证据**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "adc-mv": {
+            "property": "adc-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "vin-current-a": {
+            "property": "vin-current-a",
+            "access": "read-write",
+            "type": "number"
+          },
+          "direction": {
+            "property": "direction",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pwm-duty-pct": {
+            "property": "pwm-duty-pct",
+            "access": "read-only",
+            "type": "number"
+          },
+          "pwm-frequency-hz": {
+            "property": "pwm-frequency-hz",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to the existing HBridge 0x20 register-file slave model"
+      },
+      "blocker": "0143 复用 CONTROL_HBRIDGE（0x20）实现 hbridge-v11；v1.1 仅新增 0x30 float32 VIN 电流（vin-current-a fixture），direction/PWM/频率/ADC/身份寄存器与 U160 相同。未采集 guest/Device Service 证据 → planned。**电机/RZ7899/INA199/过流保护/真实负载电流 NOT RUN；0x20 与 hbridge U160 同地址；0x30 float 字节序与 v1.0 行为需 guest 证据**",
+      "input_semantics": "Synthetic ADC and VIN-current fixtures encoded into the STM32 register file; guest PWM/direction writes are observed as controller transactions.",
+      "output_semantics": "Observed guest register reads/writes; motor electrical behavior and current-sense physics are not modelled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "0x20 conflicts with hbridge U160; only one Unit per I2C bus is admitted.",
+        "Motor torque/current, RZ7899 dead time and INA199 over-current protection are NOT RUN.",
+        "The 0x30 float32 VIN current is a v1.1-only register; v1.0 semantics remain unresolved."
+      ]
+    },
+    {
+      "id": "cardkb-original",
+      "name": "Unit CardKB (original MEGA328P U035)",
+      "sku": "U035",
+      "visual_asset": {
+        "entry": "src/units/cardkb-original/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_CardKB",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "MEGA328P (page product name) / MEGA8A (official I2C index)",
+          "status": "officially-documented-conflict"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          95
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "50-key QWERTY I2C keyboard at 0x5F, one-byte key register: read 1 byte, 0 = no key, non-zero = key code. Shift/Sym/Fn combinations are resolved inside the keyboard MCU; the host sees only final key bytes. KeyCode constants include BS/TAB/ENTER/ESC/SPACE/DEL and 180-183 arrows.",
+        "registers": [
+          {
+            "register": "keyboard value 0x5F",
+            "length": 1,
+            "encoding": "read 1B; 0x00 none; otherwise KeyCode value"
+          }
+        ],
+        "gaps": [
+          "0x5F conflicts with cardkb U035-B (one Unit per bus).",
+          "MEGA8A (official I2C index) vs MEGA328P (product page) version difference is unresolved.",
+          "Keyboard matrix, RGB LED and mechanical feel are NOT RUN."
+        ]
+      },
+      "inputs": {
+        "keycode": {
+          "type": "integer",
+          "label": "键值",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "keys": {
+          "type": "array",
+          "label": "键值序列",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "led-rgb": {
+          "type": "integer",
+          "label": "RGB LED",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 16777215
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_CardKB",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U035 (original)",
+            "50-key QWERTY + 1 RGB LED",
+            "I2C 0x5F",
+            "Read 1 byte key register: 0 = no key, non-zero = key code",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/cardkb.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "CardKBUnit address 0x5F",
+            "get_key() reads 1 byte and queues non-zero values",
+            "KeyCode constants BS/TAB/ENTER/ESC/SPACE/DEL and 180-183 arrows"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0143 复用 CONTROL_CARDKB（0x5F 单字节键值）实现 cardkb-original；original U035 与 v1.1 U035-B 的 MCU 版本（MEGA8A vs MEGA328P）差异写入 blocker，冻结驱动协议不变。未采集 guest/Device Service 证据 → planned。**0x5F 与 cardkb U035-B 同地址；original/v1.1 键值表与组合键差异 unresolved；键盘矩阵/RGB LED/机械手感 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "keycode": {
+            "property": "keycode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "keys": {
+            "property": "keys",
+            "access": "read-write",
+            "type": "array"
+          },
+          "key-ids": {
+            "property": "key-ids",
+            "access": "read-only",
+            "type": "array"
+          },
+          "queued-keys": {
+            "property": "queued-keys",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "modifier-mode": {
+            "property": "modifier-mode",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "key-overflows": {
+            "property": "key-overflows",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to the existing CardKB 0x5F single-byte key-register slave model"
+      },
+      "blocker": "0143 复用 CONTROL_CARDKB（0x5F 单字节键值）实现 cardkb-original；original U035 与 v1.1 U035-B 的 MCU 版本（MEGA8A vs MEGA328P）差异写入 blocker，冻结驱动协议不变。未采集 guest/Device Service 证据 → planned。**0x5F 与 cardkb U035-B 同地址；original/v1.1 键值表与组合键差异 unresolved；键盘矩阵/RGB LED/机械手感 NOT RUN**",
+      "input_semantics": "Synthetic keycode/keys fixtures delivered through the 0x5F key register; Shift/Sym/Fn combinations are resolved inside the keyboard MCU, so QEMU only injects final key bytes.",
+      "output_semantics": "Observed guest 1-byte reads and queued key state; keyboard matrix and LED behavior are not modelled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "0x5F conflicts with cardkb U035-B; only one Unit per I2C bus is admitted.",
+        "The MEGA8A vs MEGA328P (original vs v1.1) keycode/matrix difference remains unresolved.",
+        "Keyboard matrix, RGB LED and mechanical feel are NOT RUN."
+      ]
+    },
+    {
+      "id": "env-ii",
+      "name": "Unit ENV-II",
+      "sku": "U001-B",
+      "visual_asset": {
+        "entry": "src/units/env-ii/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/envII",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SHT30",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMP280",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          68,
+          118
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SHT30 0x44 + BMP280 0x76 composite on one Grove I2C bus; ENVUnit(..., type=2) drives both. SHT30 measure 0x2C10 returns 6B T/RH/CRC; BMP280 chip-id 0x58, calib 0x88 24B, data 0xF7 6B.",
+        "registers": [
+          {
+            "register": "SHT30 measure 0x44",
+            "length": 6,
+            "encoding": "send 0x2C10; read T_MSB,T_LSB,T_CRC,H_MSB,H_LSB,H_CRC; CRC8 poly 0x31"
+          },
+          {
+            "register": "SHT30 status 0x44",
+            "length": 3,
+            "encoding": "send 0xF32D; read status+CRC"
+          },
+          {
+            "register": "SHT30 reset/heater 0x44",
+            "length": 2,
+            "encoding": "0x30A2 reset; 0x306D heater on; 0x3066 off"
+          },
+          {
+            "register": "BMP280 chip-id 0x76",
+            "length": 1,
+            "encoding": "reg 0xD0 == 0x58"
+          },
+          {
+            "register": "BMP280 calibration 0x76",
+            "length": 24,
+            "encoding": "reg 0x88..0x9F, little-endian u16 coefficients"
+          },
+          {
+            "register": "BMP280 data 0x76",
+            "length": 6,
+            "encoding": "reg 0xF7..0xFC, 20-bit pressure + temperature raw"
+          },
+          {
+            "register": "BMP280 control 0x76",
+            "length": 2,
+            "encoding": "0xF4 ctrl (temp/press oversample, mode); 0xF5 config (standby/IIR)"
+          }
+        ],
+        "gaps": [
+          "0x44 conflicts with env/env-iv/paper/hat SHT30 and 0x76 with bps/env/env-iv (one Unit per bus).",
+          "SHT30 accuracy/self-heating/filter, heater and clock-stretching behavior are NOT RUN.",
+          "Real temperature/humidity/pressure physics are NOT RUN; the BMP280 calibration block is synthetic-but-valid."
+        ]
+      },
+      "inputs": {
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 125
+        },
+        "humidity-pct": {
+          "type": "number",
+          "label": "湿度",
+          "default": 50,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "%RH",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "Pa",
+          "minimum": 30000,
+          "maximum": 110000
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/envII",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U001-B",
+            "SHT30 0x44 + BMP280 0x76 on one Grove I2C pair",
+            "ENV_II branch: SHT30 + BMP280",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ENV_II=2 uses SHT30(i2c) + BMP280(i2c)",
+            "read_temperature/read_humidity/read_pressure"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SHT30 address 0x44",
+            "measure command 0x2C10, status 0xF32D, reset 0x30A2, heater 0x306D/0x3066",
+            "6-byte response with CRC8 poly 0x31",
+            "T=-45+175*raw/65535, RH=100*raw/65535"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0143 新增 US_SHT30（0x44：2 字节命令、0x2C10 测量 6B CRC8、0xF32D 状态、复位/heater 命令）+ 复用 BMP280 0x76，双从机 attach 与 ENV-I/IV 相同。未采集 guest/Device Service 证据 → planned。**0x44 与 env/env-iv/paper/hat SHT30 冲突；0x76 与 bps/env/env-iv 冲突；温湿度/气压精度、自热、SHT30 heater/时钟拉伸 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "humidity-pct": {
+            "property": "humidity-pct",
+            "access": "read-write",
+            "type": "number"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa",
+            "access": "read-write",
+            "type": "number"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to two device-local slaves: SHT30 0x44 (6-byte CRC frames) + BMP280 0x76 (existing compensation model)"
+      },
+      "blocker": "0143 新增 US_SHT30（0x44：2 字节命令、0x2C10 测量 6B CRC8、0xF32D 状态、复位/heater 命令）+ 复用 BMP280 0x76，双从机 attach 与 ENV-I/IV 相同。未采集 guest/Device Service 证据 → planned。**0x44 与 env/env-iv/paper/hat SHT30 冲突；0x76 与 bps/env/env-iv 冲突；温湿度/气压精度、自热、SHT30 heater/时钟拉伸 NOT RUN**",
+      "input_semantics": "Synthetic temperature/humidity fixtures encoded into SHT30 CRC-valid measure frames; pressure via the existing BMP280 compensation model.",
+      "output_semantics": "Observed guest SHT30/BMP280 transactions and register reads; sensor accuracy and physics are not modelled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "0x44 conflicts with env/env-iv/paper/hat SHT30; 0x76 conflicts with bps/env/env-iv.",
+        "SHT30 accuracy, self-heating, heater elements and clock stretching are NOT RUN.",
+        "The BMP280 calibration block is synthetic-but-valid, not a real device calibration."
+      ]
+    },
+    {
+      "id": "mini-bps-v11",
+      "name": "Unit Mini BPS v1.1",
+      "sku": "U090-B",
+      "visual_asset": {
+        "entry": "src/units/mini-bps-v11/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/BPS(QMP6988)",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "QMP6988",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMP280 (software-compatible driver path)",
+          "status": "driver-fallback"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          86,
+          112
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-address-unresolved",
+        "summary": "QMP6988 barometer on I2C; product page and official I2C index say 0x56, but the frozen driver defaults to 0x70 and QMP6988 driver default is 0x70. Driver scans the first address and picks BMP280 (0x76) or QMP6988; QMP6988 chip-id 0x5C, reset 0xE6, calibration 0xA0 25B, data 0xF7 6B.",
+        "registers": [
+          {
+            "register": "QMP6988 chip-id",
+            "length": 1,
+            "encoding": "reg 0xD1 == 0x5C"
+          },
+          {
+            "register": "QMP6988 reset",
+            "length": 1,
+            "encoding": "reg 0xE0 = 0xE6"
+          },
+          {
+            "register": "QMP6988 status",
+            "length": 1,
+            "encoding": "reg 0xF3 measure status bit 3"
+          },
+          {
+            "register": "QMP6988 control",
+            "length": 1,
+            "encoding": "reg 0xF4 temp/press oversampling + power mode"
+          },
+          {
+            "register": "QMP6988 IO setup",
+            "length": 1,
+            "encoding": "reg 0xF5 standby/IIR"
+          },
+          {
+            "register": "QMP6988 calibration",
+            "length": 25,
+            "encoding": "reg 0xA0..0xB8"
+          },
+          {
+            "register": "QMP6988 data",
+            "length": 6,
+            "encoding": "reg 0xF7..0xFC 24-bit press + 24-bit temp"
+          }
+        ],
+        "gaps": [
+          "Product page + official I2C index say QMP6988 0x56; the frozen driver defaults to 0x70 and env-iii also uses 0x70: UNRESOLVED.",
+          "0x76 BMP280 fallback conflicts with env/bps.",
+          "QMP6988 compensation, pressure accuracy and altitude sea-level assumption are NOT RUN."
+        ]
+      },
+      "inputs": {
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 85
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "Pa",
+          "minimum": 30000,
+          "maximum": 110000
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/BPS(QMP6988)",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U090-B",
+            "QMP6988 barometer (product page/I2C index say 0x56)",
+            "Driver default QMP6988 address 0x70 and BMP280 0x76 fallback",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/bps.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "_BMP280_I2C_ADDR=0x76, _QMP6988_I2C_ADDR=0x70",
+            "scan()[0] picks BMP280 or QMP6988",
+            "get_temperature/get_pressure/get_altitude"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "I2C_DEFAULT_ADDR=0x70",
+            "CHIP_ID 0xD1=0x5C, RESET 0xE0=0xE6, calibration 0xA0 25B, data 0xF7 6B"
+          ]
+        }
+      ],
+      "research_status": "documented-with-address-unresolved",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0143 **DEFER 未实现**：产品页与官方 I2C 索引写 QMP6988 @0x56，冻结驱动默认 @0x70（env-iii 也用 0x70），地址无法从现有证据确证 → 不猜地址、不落 QEMU 模型，catalog/profile 仅登记 planned 并保留 address-unresolved。**0x56 vs 0x70 unresolved；0x76 BMP280 fallback 与 env/bps 冲突；QMP6988 芯片/气压物理/高度基准 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa",
+            "access": "read-write",
+            "type": "number"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "None yet: the QMP6988 address conflict is unresolved, so no QEMU model is registered for this Unit"
+      },
+      "blocker": "0143 **DEFER 未实现**：产品页与官方 I2C 索引写 QMP6988 @0x56，冻结驱动默认 @0x70（env-iii 也用 0x70），地址无法从现有证据确证 → 不猜地址、不落 QEMU 模型，catalog/profile 仅登记 planned 并保留 address-unresolved。**0x56 vs 0x70 unresolved；0x76 BMP280 fallback 与 env/bps 冲突；QMP6988 芯片/气压物理/高度基准 NOT RUN**",
+      "input_semantics": "Intended fixture contract only (temperature/pressure); no model is attached because the address is unresolved.",
+      "output_semantics": "No data plane is claimed: the QMP6988 address must be confirmed (0x56 vs 0x70) before the model can be implemented.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "DEFERRED: the QMP6988 0x56-vs-0x70 address conflict is unresolved; no QEMU model exists.",
+        "0x76 BMP280 fallback conflicts with env/bps; 0x70 conflicts with env-iii/pahub.",
+        "QMP6988 compensation, pressure accuracy and altitude assumptions are NOT RUN."
+      ]
     }
   ],
   "model_status_values": [

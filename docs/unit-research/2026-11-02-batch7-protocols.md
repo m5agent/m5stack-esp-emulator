@@ -517,3 +517,42 @@ blocker/limitations`。`runtime.status` 全部 `planned`，`model_status` 全部
 以上为研究结论，不构成实现/证据承诺；下一批实现前需重新核对驱动树 HEAD
 与产品页地址，特别是 `mini-bps-v11` 的 0x56/0x70 与 `lorawan-cn470` 的
 驱动/产品错配。
+
+## 9. 首批 5 款实现状态（补丁 0143）
+
+日期：`2026-11-02`。实现任务 `task-45`，分支 `m5agent/units13`（base `origin/main 7ed1d72d`，
+catalog 100 款）。
+
+**补丁与 base**
+
+- 补丁：`patches/qemu-m5stack-peripherals/0143-unit-batch7a.patch`（sha256 `b10fb7b0…`，
+  在 canonical 链上 `git apply --check` 通过）。
+- canonical 链：`75f1d24` → `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132`
+  → `0137` → `0138` → `0139` → `0140` → `0141`；本补丁是 `0120` 之后的第 23 层。
+  `0142` 由并行 batch-6 剩余实现任务占用，不属于本链；`0144` 为下一个可用号。
+
+**5 款实现与边界**
+
+| Unit | SKU | 状态 | QEMU 模型 | unresolved / NOT RUN |
+| --- | --- | --- | --- | --- |
+| `mini-tof-90` | U196 | planned（复用 + 新 SKU 别名） | 复用 `US_TOF`（VL53L0X 0x29）寄存器文件；90° 只是激光模块安装方向，协议不变 | **0x29 与 tof/tof4m/color 冲突（一总线一 Unit）；激光光学/测距精度/940nm/25° FoV NOT RUN；VL53L0X 与 tof4m 的 VL53L1X 初始化不可混用** |
+| `hbridge-v11` | U160-V11 | planned（复用 + v1.1 电流） | 复用 `CONTROL_HBRIDGE`（0x20）；新增的 0x30 float32 VIN 电流由现有 `vin-current-a` fixture 暴露 | **0x20 与 hbridge U160 同地址；电机/RZ7899/INA199/过流保护/真实负载电流 NOT RUN；0x30 float 字节序与 v1.0 行为需 guest 证据** |
+| `cardkb-original` | U035 | planned（复用 + 版本 blocker） | 复用 `CONTROL_CARDKB`（0x5F 单字节键值）；MEGA8A/MEGA328P 版本差异只写 blocker | **0x5F 与 cardkb U035-B 同地址；original/v1.1 键值表/组合键差异 unresolved；键盘矩阵/RGB LED/机械手感 NOT RUN** |
+| `env-ii` | U001-B | planned（新 SHT30 从机） | 新增 `US_SHT30`（0x44：2 字节命令、0x2C10 测量 6B CRC8、0xF32D 状态、复位/heater）+ 复用 BMP280 0x76；双从机 attach 同 ENV-I/IV | **0x44 与 env/env-iv/paper/hat SHT30 冲突；0x76 与 bps/env/env-iv 冲突；温湿度/气压精度、自热、heater/时钟拉伸 NOT RUN** |
+| `mini-bps-v11` | U090-B | **DEFER（未实现）** | 无 QEMU 模型：产品页/官方 I2C 索引写 QMP6988 @0x56，冻结驱动默认 @0x70 且 env-iii 也用 0x70，地址无法确证 | **0x56 vs 0x70 unresolved（不猜地址）；0x76 BMP280 fallback 与 env/bps 冲突；QMP6988 芯片/气压物理/高度基准 NOT RUN** |
+
+## 离线 QOM smoke（S3 `m5atoms3r`，无 guest 固件）
+
+4 个已实现单位各 1 个 attachment（`hbridge-v11`/`cardkb-original`/`mini-tof-90`/`env-ii`），
+QMP `qom-list`/`qom-set`/`qom-get` 共 **22 项检查全部 PASS**：属性注册、adc-mv/vin-current-a
+fixture 读写、keycode 写入、distance-mm 写入、ENV-II 双从机 child 与地址（SHT30 0x44 /
+BMP280 0x76）及温湿度/气压 fixture 读写。smoke **不**覆盖 I2C send/recv 字节语义
+（SHT30 0x2C10 帧、VL53L0X range 读取）、按键注入时序与电机/电流物理；这些仍需 guest 证据。
+
+**计数**：catalog 100 → **105**，runtime-profiles 100 → 105；visual mapping audit 5 条 +
+`all-105-products` 标记；计数测试（test_unit_runtime / test_serve_api units / visual mapping /
+batch3 A+B static marker）与 snapshot 已同步。
+
+**共同边界**：5 款都是控制器可见的事务/寄存器模型；复用模型的既有 NOT RUN 边界不因
+新 SKU 别名而升级为 simulated。没有 guest 与 Device Service 证据前不得把任何一款升级为
+`implemented`/`simulated`/`validated`。
