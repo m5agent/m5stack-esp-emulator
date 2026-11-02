@@ -20,7 +20,7 @@ class UnitBatch12cEvidenceTests(unittest.TestCase):
         self.assertIn("length < 4", text)
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text()
         self.assertIn("0161-unit-batch12c-chain-frames.patch", readme)
-        self.assertIn("40 layers", readme)
+        self.assertIn("41 layers", readme)
 
     def test_four_units_evidence_backed(self):
         for unit_id in UNITS:
