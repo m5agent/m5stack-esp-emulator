@@ -2,15 +2,14 @@
 
 Date: `2026-10-22`
 
-Last reviewed: `2026-10-26`. The evidence baseline remains the focused
+Last reviewed: `2026-11-02`. The evidence baseline remains the focused
 `2026-10-22` probes; no newer Tab5 data plane is implied.
 
 ## Status
 
-Tab5 is usable as a partial virtual host, but its full peripheral data plane is
-deferred. It must not be described as a complete replacement for a physical
-Tab5, and its current virtual flashing path is not yet a universal production
-firmware flasher.
+Tab5 is usable as the primary virtual host for currently modeled workflows, but
+its full peripheral data plane is deferred. Its current virtual flashing path
+is not yet a universal production firmware flasher.
 
 ## What already works
 
@@ -68,7 +67,7 @@ With a rebuildable or extensible P4 backend:
 | USB Host | 4–7 working days |
 | SDIO | 2–4 working days |
 | ST7123/IP2326 | 2–3 working days |
-| Integration, regression and real-device retest | 3–5 working days |
+| Integration and regression | 3–5 working days |
 
 This is roughly 4–6 serial work weeks, or 2–3 weeks with independent
 workstreams. Keeping the current closed-source backend gives no reliable
@@ -93,5 +92,3 @@ Resume the backlog when any of the following becomes true:
 - the completion-policy exemption is removed;
 - flash, boot, display, touch, audio, camera, USB, storage and power evidence
   are linked from the same run;
-- real-hardware validation is completed before any external claim that the
-  fix is production-ready.

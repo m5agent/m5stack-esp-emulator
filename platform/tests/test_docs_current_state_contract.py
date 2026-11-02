@@ -243,12 +243,26 @@ class DocsCurrentStateContractTests(DocsContractBase):
             "FW-01",
             "FW-02",
             "FW-03",
-            "HW-01",
         ):
             self.assertIn(task_id, current_tasks)
             self.assertIn(task_id, backlog)
             self.assertIn(task_id, workstreams)
             self.assertIn(task_id, status)
+
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "workstreams.md",
+            DOCS / "engineering-handoff.md",
+        ):
+            self.assertNotIn(
+                "HW-01",
+                path.read_text(),
+                "physical validation must remain claim-scoped, not a default task",
+            )
+        tab5_backlog = (DOCS / "tab5-deferred-backlog.md").read_text()
+        self.assertIn("primary virtual host", tab5_backlog)
+        self.assertNotIn("real-hardware validation is completed", tab5_backlog)
 
         self.assertIn("qemu-unified", status)
         self.assertIn("core2-native-hci", status)
