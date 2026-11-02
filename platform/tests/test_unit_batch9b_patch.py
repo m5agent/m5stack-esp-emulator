@@ -32,7 +32,7 @@ class UnitBatch9bPatchTests(unittest.TestCase):
         self.assertIn("0151-unit-batch9b.patch", readme)
         self.assertIn("31st layer", readme)
         self.assertIn("31 layers", readme)
-        for token in ("0149", "0150", "0152"):
+        for token in ("0149", "0150", "0152", "0154"):
             self.assertIn(token, readme)
 
     def test_patch_registers_the_four_uart_byte_planes(self):

@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-10 a-class six guest/Device Service evidence Units on one QEMU build (canonical 33 layers through 0152 + 0153 evidence fix); puzzle/asr generic/raw paths and dof BMM350/SPA06 BLOCKED features are explicit; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image",
+    "note": "8799 was occupied by another agent-owned service at task start; this run used the next free isolated port recorded in .work/unit-batch10-service.port and never touched 8787 or the other service."
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 33 layers (0120-0152, incl. 0152 batch10 model subsets) + 0154-unit-batch10-evidence-fixes",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0130-unit-batch3ab.patch",
+        "0131-unit-batch3c.patch",
+        "0132-unit-batch3c-fixes.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0134-unit-batch4ab.patch",
+        "0135-unit-batch3ab-fixes.patch",
+        "0136-unit-batch4c.patch",
+        "0137-unit-batch5a.patch",
+        "0138-unit-batch4-evidence-fixes.patch",
+        "0139-unit-batch5b.patch",
+        "0140-unit-batch6a.patch",
+        "0141-unit-batch5-evidence-fixes.patch",
+        "0142-unit-batch6b.patch",
+        "0143-unit-batch7a.patch",
+        "0144-unit-batch6-evidence-fixes.patch",
+        "0145-unit-batch7b.patch",
+        "0146-unit-batch8a.patch",
+        "0147-unit-batch6b-evidence-fixes.patch",
+        "0148-unit-batch8b.patch",
+        "0149-unit-batch9a.patch",
+        "0150-unit-batch7-evidence-fixes.patch",
+        "0151-unit-batch9b.patch",
+        "0152-unit-batch10ab.patch",
+        "0154-unit-batch10-evidence-fixes.patch"
+      ]
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "dcssr",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "DCSSRUnit (unit/acssr.py alias)",
+      "firmware_sha256": "3e6f999be895f3d69f2c2c24c05af148a110bf1e3713cb80e71e0908b04d1fba",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "d1af9ac00fff4ff08adc44e1943c387a",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_relay_cycle": true,
+        "guest_firmware": true,
+        "qom_relay_on": true,
+        "qom_transitions": true,
+        "qom_rgb": true,
+        "qom_i2c_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-dcssr.json",
+      "report_sha256": "12197221e7688890456d01e271096c66c8df0ef0f2b33f688e3e6fa0966dd44d",
+      "evidence_zip_sha256": "233fb743ecc553824a6d2cbed83e51b49a55f5fdd2880f2d9ede76590aa71d92",
+      "frame_sha256": "f8983c2f131196f47ff3b56e8921d93ea39a7de2a513942d79fc7e08277e7917",
+      "observations": {
+        "dcssr": {
+          "guest_on_off_on": [
+            "1",
+            "0",
+            "1"
+          ],
+          "guest_fw": "1",
+          "qom": {
+            "relay-level": true,
+            "relay-transitions": 3,
+            "led-rgb": 1122867,
+            "fw-version": 1,
+            "i2c-address": 80
+          },
+          "boundary": "Official DCSSRUnit/ACSSR I2C 0x50 register subset; Modbus/RS485 mode, SSR 10A/DC24-220V/isolation/switching-life/thermal NOT RUN; 0x50 conflicts with ACSSR."
+        }
+      },
+      "blocked_features": [
+        "Modbus/RS485 mode: outside Unit attachment"
+      ],
+      "boundaries": [
+        "Official DCSSRUnit/ACSSR I2C 0x50 register subset; Modbus/RS485 mode is outside the Unit attachment and NOT modeled.",
+        "SSR 10A/DC24-220V/isolation/switching-life/thermal and real load behavior are NOT RUN.",
+        "0x50 conflicts with ACSSR; one relay device per bus."
+      ]
+    },
+    {
+      "unit_id": "puzzle",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "RGBUnit/SK6812 generic 64 LEDs (no unit/puzzle.py)",
+      "firmware_sha256": "d13cacb95e0674b22f6222ce804435cbff2f21ad45e634ced71f8695f18753df",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "cff07c51fed24546ba2d0825c57d2452",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "generic_sk6812_driver_used": true,
+        "guest_frame_written": true,
+        "qom_64_leds_match": true,
+        "qom_led_frames": true,
+        "no_incomplete_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-puzzle.json",
+      "report_sha256": "09402b7672f494167dac4c6656380f26629c5a7fe5e221d8caf22dd9a69c1a23",
+      "evidence_zip_sha256": "ceb6771a5d4fc3a4c1ef30792c0165c6765ad2450c94dbe2cefabbcb1fe5c799",
+      "frame_sha256": "801050ed65098ae7269e825d4cb0fa060b48a6e578bf7c1286bc37f847c4bcf4",
+      "observations": {
+        "puzzle": {
+          "driver_gap": "public UIFlow2 has no unit/puzzle.py; probe uses generic RGBUnit/SK6812 64-LED path.",
+          "qom": {
+            "led-rgb": [
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867
+            ],
+            "led-frames": 1,
+            "incomplete-frames": 0,
+            "output-transitions": 1
+          },
+          "boundary": "8x8 WS2812E matrix via generic SK6812 RMT capture; WS2812E-vs-C timing/order, optics/thermal/power and cascade IN/OUT direction NOT RUN; official PORT.B substituted by cores3 PORT.A harness."
+        }
+      },
+      "blocked_features": [
+        "unit/puzzle.py: driver-gap (generic SK6812 path used)"
+      ],
+      "boundaries": [
+        "Public UIFlow2 has no unit/puzzle.py; the probe uses the generic RGBUnit/SK6812 64-LED path (explicit driver-gap).",
+        "WS2812E vs WS2812C timing/byte order, LED optics/brightness/thermal/power and cascade IN/OUT direction are unresolved/NOT RUN.",
+        "Official PORT.B is substituted by cores3 PORT.A harness wiring; the report records the substitution."
+      ]
+    },
+    {
+      "unit_id": "dof6",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "driver.BMI270 generic (no Unit DoF driver)",
+      "firmware_sha256": "c0731c84114b1bd9377a68a01f1b049e108858a0213f670409e444288f817541",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "8b3c972a091a45b5a2bf187428dca5bc",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_accel_fixture": true,
+        "guest_gyro_fixture": true,
+        "guest_temp_observation": true,
+        "qom_accel_fixture": true,
+        "qom_gyro_fixture": true,
+        "qom_temp_fixture": true,
+        "qom_whoami": true,
+        "blocked_sensors_recorded": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-dof6.json",
+      "report_sha256": "4d445fa5c791169a266e54ec2b43e3a3183df11337ae6709e7c0f91a24ce37bc",
+      "evidence_zip_sha256": "8a0f2d5a98b4966b50fc364864225753dc34573e0f6842659df5cc846b3ee3f3",
+      "frame_sha256": "814835dc5ca14b73e86dd820f8bcef488f41206fe38dd88c987457dc8e31170f",
+      "observations": {
+        "dof6": {
+          "guest_accel": "0.125, -0.0625, 0.03125",
+          "guest_gyro": "100.09765, -50.048824, 25.024412",
+          "guest_temp": "25.0",
+          "blocked_sensors": "",
+          "qom": {
+            "acceleration-x": 0.5,
+            "acceleration-y": -0.25,
+            "acceleration-z": 0.125,
+            "gyroscope-x": 100,
+            "gyroscope-y": -50,
+            "gyroscope-z": 25,
+            "temperature-c": 27,
+            "whoami": 36,
+            "transactions": 3120
+          },
+          "boundary": "Only the BMI270 0x68 fixture subset is modeled/asserted; BMM350 0x14 and SPA06 0x76 have no driver/register table and are NOT modeled or faked; real motion/range/calibration physics NOT RUN. The generic BMI270 driver uses its own 4g/2000dps scale factors (guest accel=fixture*0.25, guest gyro=fixture*(16.4/16.384), guest temp=fixture-2 due to the driver 23C offset); these are deterministic fixture readbacks, not physical units."
+        }
+      },
+      "blocked_features": [],
+      "boundaries": [
+        "Only the BMI270 0x68 fixture subset is modeled/asserted; no Unit DoF driver exists and the frozen generic BMI270 driver is used.",
+        "BMI270 init blob is accepted but not executed; range/motion-detect/real motion/vibration physics are NOT RUN.",
+        "The driver's own 4g/2000dps scale factors and 23C offset mean guest values are deterministic fixture readbacks (accel=fixture*0.25, gyro=fixture*16.4/16.384, temp=fixture-2), not physical units; 0x68 conflicts with mini-imu families."
+      ]
+    },
+    {
+      "unit_id": "dof9",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "driver.BMI270 generic (BMM350 NOT modeled)",
+      "firmware_sha256": "91fb4bcb495d933897ad4c9bb25210ba0cd63351316cd6eeb8fff0d7adc66aaa",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "4101438b7b8946eda27eb2ad9650312a",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_accel_fixture": true,
+        "guest_gyro_fixture": true,
+        "guest_temp_observation": true,
+        "qom_accel_fixture": true,
+        "qom_gyro_fixture": true,
+        "qom_temp_fixture": true,
+        "qom_whoami": true,
+        "blocked_sensors_recorded": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-dof9.json",
+      "report_sha256": "601b2db99576348241da2d7e852e1bdfd75dc24f4721de54a5d8ac8dfbf3aee6",
+      "evidence_zip_sha256": "a99cab9ca92ffbd06953bc6d15f6d1bd30e8d5c77a9af72d1235c9963ce3f514",
+      "frame_sha256": "35fc6a5adfabba9f61fb156981c984cbb69e2a1229e67b1f7a52cf35e50fbd03",
+      "observations": {
+        "dof9": {
+          "guest_accel": "0.125, -0.0625, 0.03125",
+          "guest_gyro": "100.09765, -50.048824, 25.024412",
+          "guest_temp": "25.0",
+          "blocked_sensors": "bmm350",
+          "qom": {
+            "acceleration-x": 0.5,
+            "acceleration-y": -0.25,
+            "acceleration-z": 0.125,
+            "gyroscope-x": 100,
+            "gyroscope-y": -50,
+            "gyroscope-z": 25,
+            "temperature-c": 27,
+            "whoami": 36,
+            "transactions": 3120
+          },
+          "boundary": "Only the BMI270 0x68 fixture subset is modeled/asserted; BMM350 0x14 and SPA06 0x76 have no driver/register table and are NOT modeled or faked; real motion/range/calibration physics NOT RUN. The generic BMI270 driver uses its own 4g/2000dps scale factors (guest accel=fixture*0.25, guest gyro=fixture*(16.4/16.384), guest temp=fixture-2 due to the driver 23C offset); these are deterministic fixture readbacks, not physical units."
+        }
+      },
+      "blocked_features": [
+        "BMM350 0x14 magnetic/heading: BLOCKED (no driver/register table, no magnetic fixture)"
+      ],
+      "boundaries": [
+        "Only the BMI270 0x68 fixture subset is modeled/asserted. BMM350 0x14 is NOT modeled (no driver/register table) and magnetic/heading paths are BLOCKED.",
+        "No magnetic fixture is faked; BMM350 OTP/calibration/heading physics NOT RUN.",
+        "BMI270 init/range/motion and driver scale-factor caveats as dof6; 0x68 and 0x14 conflict with mini-imu/bmm350 families."
+      ]
+    },
+    {
+      "unit_id": "dof10",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "driver.BMI270 generic (BMM350/SPA06 NOT modeled)",
+      "firmware_sha256": "b7820bed3d647aa4be2b8f11f6c6bf65970bae8ac62752fffdb31592c8cd1ba0",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "689a644a69404e59b0f0e155457360f4",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_accel_fixture": true,
+        "guest_gyro_fixture": true,
+        "guest_temp_observation": true,
+        "qom_accel_fixture": true,
+        "qom_gyro_fixture": true,
+        "qom_temp_fixture": true,
+        "qom_whoami": true,
+        "blocked_sensors_recorded": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-dof10.json",
+      "report_sha256": "46d37cb47f782f999bd48d9ff3c6eefdc41a54c5b7035b684f815166c876217e",
+      "evidence_zip_sha256": "1911e71507f8d66a3b9219db21f1dc6b85452b697a94df23ede0f74e95abd039",
+      "frame_sha256": "5ba082fa4e31b77fa45e89dfc57b54f260fcc8d0bc2de4f6886d315e1494f0ea",
+      "observations": {
+        "dof10": {
+          "guest_accel": "0.125, -0.0625, 0.03125",
+          "guest_gyro": "100.09765, -50.048824, 25.024412",
+          "guest_temp": "25.0",
+          "blocked_sensors": "bmm350,spa06",
+          "qom": {
+            "acceleration-x": 0.5,
+            "acceleration-y": -0.25,
+            "acceleration-z": 0.125,
+            "gyroscope-x": 100,
+            "gyroscope-y": -50,
+            "gyroscope-z": 25,
+            "temperature-c": 27,
+            "whoami": 36,
+            "transactions": 3120
+          },
+          "boundary": "Only the BMI270 0x68 fixture subset is modeled/asserted; BMM350 0x14 and SPA06 0x76 have no driver/register table and are NOT modeled or faked; real motion/range/calibration physics NOT RUN. The generic BMI270 driver uses its own 4g/2000dps scale factors (guest accel=fixture*0.25, guest gyro=fixture*(16.4/16.384), guest temp=fixture-2 due to the driver 23C offset); these are deterministic fixture readbacks, not physical units."
+        }
+      },
+      "blocked_features": [
+        "BMM350 0x14 magnetic/heading: BLOCKED (no driver/register table)",
+        "SPA06-003 0x76 pressure/altitude: BLOCKED (no driver/register table; BMP280 not a substitute)"
+      ],
+      "boundaries": [
+        "Only the BMI270 0x68 fixture subset is modeled/asserted. BMM350 0x14 and SPA06-003 0x76 are NOT modeled (no driver/register table); magnetic/pressure/heading/altitude paths are BLOCKED.",
+        "No BMP280 substitution for SPA06 and no faked pressure fixture; pressure/altitude/calibration physics NOT RUN.",
+        "BMI270 init/range/motion and driver scale-factor caveats as dof6; 0x68/0x14/0x76 conflict with mini-imu/bmm350/env families."
+      ]
+    },
+    {
+      "unit_id": "asr",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "raw UART AA55 frame (no unit/asr.py)",
+      "firmware_sha256": "d598cee9f04508f3dc282ca959d37d2f36370d64b01537ff5d6adea20f3b103b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+      "session_id": "b76d954ad1c54dde951330a98d0c8c98",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_tx_frame": true,
+        "guest_rx_fixture": true,
+        "qom_command_id": true,
+        "qom_tx_bytes": true,
+        "frames_counted": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch10/report-asr.json",
+      "report_sha256": "c85e22786d376bfcd5aaca9636c5726767f81718a74c7b5ec93ecee4850b05d2",
+      "evidence_zip_sha256": "f0a5484a27b8c1e69f17030286e4b2702f857e5c925218b4cae957f58d41fe94",
+      "frame_sha256": "e7cd870cf06c8f336809743e2cecab49a290cef5918602ea3c971beaee531278",
+      "observations": {
+        "asr": {
+          "guest_tx": "aa554555aa",
+          "guest_rx": "aa553055aa4f4b",
+          "qom": {
+            "responses-hex": "aa553055aa4f4b",
+            "tx-hex": "aa554555aa",
+            "frames-sent": 1,
+            "frames-injected": 1,
+            "command-id": 69
+          },
+          "boundary": "No public Unit ASR driver; raw UART 115200 AA55 <id> 55AA byte frame + fixture reply only. Speech recognition/AEC/microphone/speaker acoustics NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "blocked_features": [
+        "unit/asr.py: driver-gap (raw AA55 byte frame used)"
+      ],
+      "boundaries": [
+        "No public unit/asr.py driver; probe uses a raw UART 115200 AA55 <id> 55AA byte frame (version 0x45) plus fixture reply; only the byte layer is asserted.",
+        "Speech recognition/AEC/microphone/speaker acoustics and CI-03T firmware command table variants are NOT RUN.",
+        "Official PORT.C is substituted by cores3 PORT.A harness wiring."
+      ]
+    }
+  ],
+  "blocked_features": [
+    {
+      "unit_id": "dof9",
+      "features": [
+        "BMM350 0x14 magnetic/heading: BLOCKED (no driver/register table, no magnetic fixture)"
+      ]
+    },
+    {
+      "unit_id": "dof10",
+      "features": [
+        "BMM350 0x14 magnetic/heading: BLOCKED (no driver/register table)",
+        "SPA06-003 0x76 pressure/altitude: BLOCKED (no driver/register table; BMP280 not a substitute)"
+      ]
+    },
+    {
+      "unit_id": "puzzle",
+      "features": [
+        "unit/puzzle.py: driver-gap (generic SK6812 path used)"
+      ]
+    },
+    {
+      "unit_id": "asr",
+      "features": [
+        "unit/asr.py: driver-gap (raw AA55 byte frame used)"
+      ]
+    },
+    {
+      "unit_id": "dcssr",
+      "features": [
+        "Modbus/RS485 mode: outside Unit attachment"
+      ]
+    }
+  ]
+}

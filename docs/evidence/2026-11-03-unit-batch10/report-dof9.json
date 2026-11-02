@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T03:42:47.472405+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "dof9",
+  "driver_class": "driver.BMI270 generic (BMM350 NOT modeled)",
+  "driver_flavor": "reference-firmware-generic-driver-or-raw-uart",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_accel_fixture": true,
+    "guest_gyro_fixture": true,
+    "guest_temp_observation": true,
+    "qom_accel_fixture": true,
+    "qom_gyro_fixture": true,
+    "qom_temp_fixture": true,
+    "qom_whoami": true,
+    "blocked_sensors_recorded": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "91fb4bcb495d933897ad4c9bb25210ba0cd63351316cd6eeb8fff0d7adc66aaa",
+  "firmware_id": "91fb4bcb495d933897ad4c9bb25210ba0cd63351316cd6eeb8fff0d7adc66aaa",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "7e6082330197fc6eaeadc62bbf1dec49045c246412c270564258e8ef74f524f5",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 33 layers (0120-0152, incl. 0152 batch10 model subsets) + 0154-unit-batch10-evidence-fixes",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "initial_inputs": {
+    "acceleration-x": 0.5,
+    "acceleration-y": -0.25,
+    "acceleration-z": 0.125,
+    "gyroscope-x": 100.0,
+    "gyroscope-y": -50.0,
+    "gyroscope-z": 25.0,
+    "temperature-c": 27.0
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "22028d851cbf1f0f09ad71ad1cd3a9585395783174b17b5e88103b5a6fe56e64",
+    "main.py": "cec32e90d48cb100a0a957301c5c116902676bb1de2edb5ac6d0eff759e5113b"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "4101438b7b8946eda27eb2ad9650312a",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "dof9",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "dof9": {
+      "guest_accel": "0.125, -0.0625, 0.03125",
+      "guest_gyro": "100.09765, -50.048824, 25.024412",
+      "guest_temp": "25.0",
+      "blocked_sensors": "bmm350",
+      "qom": {
+        "acceleration-x": 0.5,
+        "acceleration-y": -0.25,
+        "acceleration-z": 0.125,
+        "gyroscope-x": 100,
+        "gyroscope-y": -50,
+        "gyroscope-z": 25,
+        "temperature-c": 27,
+        "whoami": 36,
+        "transactions": 3120
+      },
+      "boundary": "Only the BMI270 0x68 fixture subset is modeled/asserted; BMM350 0x14 and SPA06 0x76 have no driver/register table and are NOT modeled or faked; real motion/range/calibration physics NOT RUN. The generic BMI270 driver uses its own 4g/2000dps scale factors (guest accel=fixture*0.25, guest gyro=fixture*(16.4/16.384), guest temp=fixture-2 due to the driver 23C offset); these are deterministic fixture readbacks, not physical units."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T03:42:51.820259+08:00",
+      "properties": {
+        "acceleration-x": 0.5,
+        "acceleration-y": -0.25,
+        "acceleration-z": 0.125,
+        "gyroscope-x": 100,
+        "gyroscope-y": -50,
+        "gyroscope-z": 25,
+        "temperature-c": 27,
+        "whoami": 36,
+        "transactions": 3120,
+        "read-bytes": 16,
+        "written-bytes": 10795
+      }
+    }
+  ],
+  "serial_markers": {
+    "dof9": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (890) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH10_PROBE_START dof9\nE (1206) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH10_PROBE_READY dof9\nI2C_IMU_ACCEL (0.125, -0.0625, 0.03125)\nI2C_IMU_GYRO (100.09765, -50.048824, 25.024412)\nI2C_IMU_TEMP 25.0\nI2C_IMU_BLOCKED bmm350\nI2C_IMU_END\n"
+  },
+  "frame": {
+    "sha256": "35fc6a5adfabba9f61fb156981c984cbb69e2a1229e67b1f7a52cf35e50fbd03",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "a99cab9ca92ffbd06953bc6d15f6d1bd30e8d5c77a9af72d1235c9963ce3f514",
+    "bytes": 18466
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "blocked_features": [
+    "BMM350 0x14 magnetic/heading: BLOCKED (no driver/register table, no magnetic fixture)"
+  ],
+  "boundaries": [
+    "Only the BMI270 0x68 fixture subset is modeled/asserted. BMM350 0x14 is NOT modeled (no driver/register table) and magnetic/heading paths are BLOCKED.",
+    "No magnetic fixture is faked; BMM350 OTP/calibration/heading physics NOT RUN.",
+    "BMI270 init/range/motion and driver scale-factor caveats as dof6; 0x68 and 0x14 conflict with mini-imu/bmm350 families."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in local ignored .work; only concise reports, hashes and reproduction commands are committed."
+}

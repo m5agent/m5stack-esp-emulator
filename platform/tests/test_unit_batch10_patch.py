@@ -32,9 +32,10 @@ class UnitBatch10PatchTests(unittest.TestCase):
     def test_patch_base_is_the_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0152-unit-batch10ab.patch", readme)
+        self.assertIn("0154-unit-batch10-evidence-fixes.patch", readme)
         self.assertIn("34 layers", readme)
         self.assertIn("34th layer", readme)
-        for token in ("0150", "0151", "0153"):
+        for token in ("0150", "0151", "0152", "0153", "0154", "0155"):
             self.assertIn(token, readme)
 
     def test_patch_registers_only_the_six_model_units(self):
@@ -52,8 +53,21 @@ class UnitBatch10PatchTests(unittest.TestCase):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
 
-    def test_all_eighteen_stay_planned_with_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_six_modeled_units_are_evidence_backed_and_twelve_stay_planned(self):
+        import hashlib
+        evidence_dir = ROOT / "docs/evidence/2026-11-03-unit-batch10"
+        for unit_id in MODELED:
+            unit, profile = self.units[unit_id], self.profiles[unit_id]
+            self.assertEqual(unit["model_status"], "partial", unit_id)
+            self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"], hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            self.assertIn("0154-unit-batch10-evidence-fixes.patch", evidence["patches"], unit_id)
+        for unit_id in PLANNED_ONLY:
             unit, profile = self.units[unit_id], self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "planned", unit_id)
             self.assertEqual(unit["runtime"]["status"], "planned", unit_id)
@@ -66,7 +80,7 @@ class UnitBatch10PatchTests(unittest.TestCase):
     def test_six_models_expose_only_reusable_subset_properties(self):
         expected = {
             "dcssr": {"relay-level", "relay-transitions", "led-rgb", "fw-version"},
-            "puzzle": {"led-rgb", "led-frames", "incomplete-frames"},
+            "puzzle": {"led-rgb", "led-frames", "incomplete-frames", "output-transitions"},
             "dof6": {"acceleration-x", "acceleration-y", "acceleration-z",
                      "gyroscope-x", "gyroscope-y", "gyroscope-z",
                      "temperature-c", "whoami"},
@@ -111,13 +125,15 @@ class UnitBatch10PatchTests(unittest.TestCase):
         self.assertIn("all-160-products", test)
         self.assertIn("all-160-products", (ROOT / "platform/tests/test_unit_batch3ab_patch.py").read_text())
 
-    def test_implementation_status_doc_and_no_guest_evidence(self):
+    def test_implementation_status_doc_and_guest_evidence(self):
         doc = (ROOT / "docs/unit-research/2026-11-03-batch10-impl-status.md").read_text(encoding="utf-8")
         for unit_id in UNITS:
             self.assertIn(unit_id, doc)
-        self.assertIn("不做 guest", doc)
-        self.assertIn("planned", doc)
-        self.assertFalse((ROOT / "docs/evidence/2026-11-03-unit-batch10").exists())
+        evidence = (ROOT / "docs/evidence/2026-11-03-unit-batch10/README.md").read_text(encoding="utf-8")
+        self.assertIn("0154-unit-batch10-evidence-fixes.patch", evidence)
+        self.assertIn("BLOCKED", evidence)
+        for unit_id in MODELED:
+            self.assertTrue((ROOT / f"docs/evidence/2026-11-03-unit-batch10/report-{unit_id}.json").is_file(), unit_id)
 
 
 if __name__ == "__main__":
