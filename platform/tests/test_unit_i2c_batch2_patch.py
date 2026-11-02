@@ -6,6 +6,7 @@ the documented protocol conflicts visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -75,16 +76,33 @@ class UnitI2cBatch2PatchTests(unittest.TestCase):
         for token in ("calibration", "unresolved", "NOT RUN"):
             self.assertIn(token, json.dumps(self.units["weight-i2c"], ensure_ascii=False))
 
-    def test_no_premature_runtime_upgrade(self):
-        allowed = {"planned", "partial", "unsupported"}
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
+        hosts = {"dlight": "atoms3r", "accel": "sticks3",
+                 "4relay": "cores3", "weight-i2c": "stopwatch"}
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertIn(entry["runtime"]["status"], allowed, unit_id)
+            # Evidence upgrades runtime admission, but the catalog deliberately
+            # stays "partial" because optical/mechanical/electrical and
+            # unlisted-host behavior are NOT RUN.
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
-            self.assertTrue(profile["blocker"])
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], [hosts[unit_id]], unit_id)
+            self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            for token in ("0119-unit-i2c-batch2.patch",
+                          "0120-unit-i2c-dlight-command-mask.patch"):
+                self.assertIn(token, evidence["patches"], unit_id)
+            summary = json.loads(
+                (ROOT / "docs/evidence/2026-11-02-unit-bclass/summary.json").read_text())
+            self.assertIn(unit_id, [case["unit_id"] for case in summary["cases"]])
+            self.assertIn("0120-unit-i2c-dlight-command-mask.patch",
+                          summary["qemu"]["patches"])
 
     def test_patch_is_numbered_on_the_documented_base_and_has_no_guest_claim(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")

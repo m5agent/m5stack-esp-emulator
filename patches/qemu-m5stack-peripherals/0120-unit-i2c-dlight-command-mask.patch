@@ -1,0 +1,48 @@
+From c78b87665ad0342df9568882f49802691ba99b98 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 18:29:12 +0800
+Subject: [PATCH] hw/m5stopwatch: fix BH1750 command-bit masks
+
+The 0119 dlight command decoder compared (data & 0xe0) for the continuous and
+one-time measurement commands, but those commands occupy bits 4/5 (0x10 and
+0x20) so the mask always zeroed them and every measurement command was NACKed.
+The frozen official bh1750 driver writes 0x10 from its constructor, which
+surfaced the bug immediately in guest evidence. Decode all BH1750 command
+classes with 0xf0 so 0x10/0x11/0x13 and 0x20/0x21/0x23 are accepted while
+0x40..0x5f / 0x60..0x7f still select the MTreg bytes.
+
+No additional register semantics changed.
+---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index e9afdcd..ee522a1 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -425,11 +425,11 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+             s->last_sample = 0;
+             return 0;
+         }
+-        if ((data & 0xE0) == 0x40) {
++        if ((data & 0xF0) == 0x40) {
+             s->command = (data & 0x1f) << 5;   /* MTreg high byte */
+             return 0;
+         }
+-        if ((data & 0xE0) == 0x60) {
++        if ((data & 0xF0) == 0x60) {
+             unsigned mt = s->command | (data & 0x1f);
+             if (mt < 31) { mt = 31; }
+             if (mt > 254) { mt = 254; }
+@@ -437,7 +437,7 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+             s->dlight_sensitivity = s->dlight_mtreg / 69.0;
+             return 0;
+         }
+-        if ((data & 0xE0) == 0x10 || (data & 0xE0) == 0x20) {
++        if ((data & 0xF0) == 0x10 || (data & 0xF0) == 0x20) {
+             uint8_t resolution = data & 0x03;
+             if (resolution == 2) { return 1; }
+             s->dlight_continuous = (data & 0x20) == 0;
+-- 
+2.55.0
+

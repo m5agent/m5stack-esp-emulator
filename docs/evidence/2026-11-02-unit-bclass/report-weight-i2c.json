@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T18:30:22.100221+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "stopwatch",
+  "unit_id": "weight-i2c",
+  "driver_class": "WeightI2CUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "qom_fixture_exact": true,
+    "guest_adc_exact": true,
+    "guest_float_tracks_weight": true,
+    "guest_int_consistent_with_x100": true,
+    "guest_string_consistent": true,
+    "calibration_command_writes_observed": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "5a372bce31c6a4ab41381402b72840e58fb4ef1e8585a63be0d20c7a2030f9fa",
+  "firmware_id": "5a372bce31c6a4ab41381402b72840e58fb4ef1e8585a63be0d20c7a2030f9fa",
+  "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+  "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "2336d2d2f581b0545437174d9a1290297a9586ff546a769376f9e7369c09b7ee",
+    "main.py": "16c55e49ed1b3b61492be06b30108e00631b267d21a44a004e419b3db04a7e8a"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 10,
+      "white": 11
+    }
+  },
+  "session_id": "3a022424ecac44c7803191596103f001",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "weight-i2c",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "weight_i2c": {
+      "fixtures": {
+        "weight-g": 12.34,
+        "adc-raw": 1234567
+      },
+      "observed": {
+        "adc": 1234567,
+        "weight": 12.34,
+        "int": 12,
+        "text": "'12.340'"
+      },
+      "qom_after_calibration": {
+        "written-bytes": 50,
+        "read-bytes": 229
+      },
+      "calibration_readback": [
+        "1",
+        "10",
+        "20"
+      ],
+      "device_spec": "3 38",
+      "int_semantics": "divided-int",
+      "string_parsed": 12.34
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T18:30:23.983283+08:00",
+      "properties": {
+        "transactions": 10,
+        "read-bytes": 28,
+        "written-bytes": 4,
+        "input-events": 2,
+        "output-transitions": 0,
+        "weight-g": 12.34,
+        "adc-raw": 1234567,
+        "weight-fw": 3
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:24.290015+08:00",
+      "properties": {
+        "transactions": 26,
+        "read-bytes": 84,
+        "written-bytes": 12,
+        "input-events": 2,
+        "output-transitions": 0,
+        "weight-g": 12.34,
+        "adc-raw": 1234567,
+        "weight-fw": 3
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:26.129289+08:00",
+      "properties": {
+        "transactions": 86,
+        "read-bytes": 229,
+        "written-bytes": 50,
+        "input-events": 2,
+        "output-transitions": 0,
+        "weight-g": 12.34,
+        "adc-raw": 1234567,
+        "weight-fw": 3
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "I2C_PROBE_READY",
+    "calibration": ".34 12 '12.340'\nI2C_WEIGHT 1234567 12.34 12 '12.340'\nI2C_WEIGHT 1234567 12.34 12 '12.340'\nI2C_WEIGHT 1234567 12.34 12 '12.340'\nI2C_WEIGHT 1234567 12.34 12 '12.340'\nI2C_WEIGHT 1234567 12.34 12 '12.340'\nI2C_WEIGHT_CAL 1 10 20\nI2C_WEIGHT_SPEC 3 38\nI2C_WEIGHT_END\n"
+  },
+  "frame": {
+    "sha256": "02f1330e3508d7edb946d816b068a606d92c41117401cbc97427fe5a8f27a5cf",
+    "metrics": {
+      "width": 466,
+      "height": 466,
+      "nonblack_pixels": 170499,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "dceb95b40565e5da774b43eec91de59e15084ca394f0ea12b272781e91e3f6c8",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Load-cell mechanics, HX711 timing, calibration math, temperature drift and physical weighing are NOT RUN.",
+    "0x40 gap and 0x50 offset writes are stored but not applied to the fixture weight; calibration behavior is NOT RUN.",
+    "0x60 semantic version (snapshot raw integer vs master /100) remains unresolved; the frozen driver here divided by 100 (observed int != raw x100 encoding).",
+    "Default 0x26 conflicts with 4relay; this evidence used a dedicated StopWatch session and cannot be combined with 4relay on one bus."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

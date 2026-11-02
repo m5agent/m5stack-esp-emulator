@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T18:30:34.897216+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "4relay",
+  "driver_class": "Relay4Unit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "stage_qom_follows_guest_writes": true,
+    "mode_register_roundtrip": true,
+    "relay_all_also_lights_leds": true,
+    "guest_readback_matches_qom": true,
+    "output_transitions_observed": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "1260ac5ff187692d310cace26ae746e046ced6423d0a16ef3e9d54bf3f5ffc76",
+  "firmware_id": "1260ac5ff187692d310cace26ae746e046ced6423d0a16ef3e9d54bf3f5ffc76",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "6570b15cca9bfb464f040ce45c05e03fcf9ade6eb0231077b0303f706020ad72",
+    "main.py": "16c55e49ed1b3b61492be06b30108e00631b267d21a44a004e419b3db04a7e8a"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "78d80e1497f84bf298176f014f3f5049",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "4relay",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "4relay": {
+      "stages": {
+        "mode1": {
+          "mode": 1,
+          "relay-1-level": false,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": false,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "relay1_on": {
+          "mode": 0,
+          "relay-1-level": true,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": false,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "led1_on": {
+          "mode": 0,
+          "relay-1-level": true,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": true,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "relay1_off": {
+          "mode": 0,
+          "relay-1-level": false,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": true,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "led1_off": {
+          "mode": 0,
+          "relay-1-level": false,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": false,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "relay_all_on": {
+          "mode": 0,
+          "relay-1-level": true,
+          "relay-2-level": true,
+          "relay-3-level": true,
+          "relay-4-level": true,
+          "led-1-level": true,
+          "led-2-level": true,
+          "led-3-level": true,
+          "led-4-level": true
+        },
+        "relay_all_off": {
+          "mode": 0,
+          "relay-1-level": false,
+          "relay-2-level": false,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": false,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        },
+        "relay2_on": {
+          "mode": 0,
+          "relay-1-level": false,
+          "relay-2-level": true,
+          "relay-3-level": false,
+          "relay-4-level": false,
+          "led-1-level": false,
+          "led-2-level": false,
+          "led-3-level": false,
+          "led-4-level": false
+        }
+      },
+      "guest": {
+        "mode0": [
+          "0"
+        ],
+        "mode1": [
+          "1"
+        ],
+        "all_on": {
+          "relays": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "leds": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "all_off": {
+          "relays": [
+            false,
+            false,
+            false,
+            false
+          ],
+          "leds": [
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "final": {
+          "relays": [
+            false,
+            true,
+            false,
+            false
+          ],
+          "leds": [
+            false,
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "qom_final": {
+        "relays": [
+          false,
+          true,
+          false,
+          false
+        ],
+        "leds": [
+          false,
+          false,
+          false,
+          false
+        ]
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T18:30:37.084007+08:00",
+      "properties": {
+        "transactions": 9,
+        "read-bytes": 3,
+        "written-bytes": 5,
+        "input-events": 0,
+        "output-transitions": 1,
+        "relay-1-level": false,
+        "relay-2-level": false,
+        "relay-3-level": false,
+        "relay-4-level": false,
+        "led-1-level": false,
+        "led-2-level": false,
+        "led-3-level": false,
+        "led-4-level": false,
+        "mode": 1
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:37.291151+08:00",
+      "properties": {
+        "transactions": 9,
+        "read-bytes": 3,
+        "written-bytes": 5,
+        "input-events": 0,
+        "output-transitions": 1,
+        "relay-1-level": false,
+        "relay-2-level": false,
+        "relay-3-level": false,
+        "relay-4-level": false,
+        "led-1-level": false,
+        "led-2-level": false,
+        "led-3-level": false,
+        "led-4-level": false,
+        "mode": 1
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:41.982889+08:00",
+      "properties": {
+        "transactions": 85,
+        "read-bytes": 37,
+        "written-bytes": 55,
+        "input-events": 0,
+        "output-transitions": 9,
+        "relay-1-level": false,
+        "relay-2-level": true,
+        "relay-3-level": false,
+        "relay-4-level": false,
+        "led-1-level": false,
+        "led-2-level": false,
+        "led-3-level": false,
+        "led-4-level": false,
+        "mode": 0
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:42.188642+08:00",
+      "properties": {
+        "transactions": 85,
+        "read-bytes": 37,
+        "written-bytes": 55,
+        "input-events": 0,
+        "output-transitions": 9,
+        "relay-1-level": false,
+        "relay-2-level": true,
+        "relay-3-level": false,
+        "relay-4-level": false,
+        "led-1-level": false,
+        "led-2-level": false,
+        "led-3-level": false,
+        "led-4-level": false,
+        "mode": 0
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "I2C_PROBE_READY",
+    "mode1": "ter: this port has not been initialized, please initialize it first\r\nI2C_PROBE_START 4relay\nE (1235) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\n",
+    "relay1_on": " been initialized, please initialize it first\r\nI2C_PROBE_START 4relay\nE (1235) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\n",
+    "led1_on": "lease initialize it first\r\nI2C_PROBE_START 4relay\nE (1235) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\n",
+    "relay1_off": "rst\r\nI2C_PROBE_START 4relay\nE (1235) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\nI2C_RELAY_STATE 1 0 0\n",
+    "led1_off": " 4relay\nE (1235) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\nI2C_RELAY_STATE 1 0 0\nI2C_LED_STATE 1 0 0\n",
+    "relay_all_on": "r: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\nI2C_RELAY_STATE 1 0 0\nI2C_LED_STATE 1 0 0\nI2C_RELAY_ALL 1 1111 1111\n",
+    "relay_all_off": "initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x26']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\nI2C_RELAY_STATE 1 0 0\nI2C_LED_STATE 1 0 0\nI2C_RELAY_ALL 1 1111 1111\nI2C_RELAY_ALL 0 0000 0000\n",
+    "relay2_on": "']\nI2C_PROBE_READY 4relay\nI2C_RELAY_MODE0 0\nI2C_RELAY_MODE1 1\nI2C_RELAY_STATE 1 1 1\nI2C_LED_STATE 1 1 1\nI2C_RELAY_STATE 1 0 0\nI2C_LED_STATE 1 0 0\nI2C_RELAY_ALL 1 1111 1111\nI2C_RELAY_ALL 0 0000 0000\nI2C_RELAY_STATE 2 1 1\nI2C_RELAY_FINAL 0100 0000\nI2C_RELAY_END\n"
+  },
+  "frame": {
+    "sha256": "cd181c61cdd6413a67b29e7cd3bbbb43f2e789b474a3b4f265d833e1c73d54dd",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "b3481ce71d1e7bcf230aa321869d5f46cda93889c031e62047ba230cd9ceb28b",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Relay contacts, load capability, switching timing, isolation and AC/DC behavior are NOT RUN.",
+    "The official product-page Protocol table lists the reverse bit order (RELAY1=bit3/LED1=bit7); both official executable drivers and this model use RELAY1=bit0/LED1=bit4. The conflict must not be mixed.",
+    "The Python driver's set_relay_all(1) writes 0xff and also lights all LEDs; that observed side effect is preserved, not a hardware conclusion."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}
