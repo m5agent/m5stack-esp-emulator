@@ -1,0 +1,618 @@
+From 41a672e0dbd376d5047ebbd52caa664c05d1001c Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 19:47:59 +0800
+Subject: [PATCH] hw/m5stopwatch: add second Unit batch data planes
+
+Add controller-visible models for the first six Units of the second
+research batch:
+
+- joystick (U024, 0x52): controlled by the existing CONTROL_JOYSTICK
+  register/snapshot path (3 bytes at 0x52); same protocol as joystick-v11 and
+  the 0x52 address conflict stays documented. No new kind.
+- watering (U101): dual-endpoint GPIO model. The white wire is sampled by the
+  existing ADC controller hook and exposed as analog-mv/adc-samples; the yellow
+  PUMP_EN pad gets an output listener and reset listener so pump-level and
+  pump-transitions observe real guest pad writes instead of faking a GPIO
+  return value. Pump/soil physics is NOT modeled.
+- fader (U123): dual-endpoint GPIO model with white ADC sampling plus the
+  existing RMT capture path configured for 14 SK6812 LEDs (led-rgb,
+  led-frames, incomplete-frames). The frame bytes are whatever the frozen
+  driver sends; palette/mechanics are NOT modeled and the neopixel snapshot vs
+  master set_brightness difference is documented.
+- dac (U012, MCP4725 0x60): bare-command slave (no register pointer). Fast-mode
+  writes update the 12-bit register; 0x60||value commands commit DAC+EEPROM;
+  reads return the official 3-byte [ready-status, value>>4, (value&0xf)<<4]
+  shape. QOM dac-raw/dac-voltage-v/eeprom-value/eeprom-writes; the voltage
+  fixture uses the driver's default vdd=5.0 V and the physical 0..3.3 V range
+  stays UNRESOLVED.
+- bps (U090, BMP280 0x76): chip id 0x58, reset/status/control/config
+  registers, fixed synthetic-but-valid 24-byte calibration block and 0xF7
+  data registers derived by inverting the executable driver's integer
+  compensation (floor division preserved) so the guest's own compensation
+  reproduces temperature-c/pressure-pa. QMP6988 fallback (0x56/0x70) is NOT
+  modeled.
+- adc-v11 (0x48, ADS1110): single-byte config, 2-byte big-endian signed reads;
+  the raw count is derived from voltage-mv with the official ADS1110
+  mini-code/gain/divider formula. The page's ADS1100/rate/reference
+  contradictions stay UNRESOLVED.
+
+All six are transaction/controller models only; registers/addresses follow the
+executable drivers or official tables, and no runtime profile is upgraded
+without guest evidence.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  64 +++++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 106 +++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 226 +++++++++++++++++++++++++-
+ 3 files changed, 390 insertions(+), 6 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 444795f..7c84aa2 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -25,6 +25,10 @@ typedef struct GPIOUnit {
+     uint32_t rgb[25];
+     unsigned leds;
+     uint64_t frames, incomplete_frames, adc_samples;
++    /* U101 Watering: white analog input + yellow PUMP_EN output observation.
++     * U123 Fader: white analog input + 14x SK6812 RMT capture (leds=14). */
++    bool pump_level;
++    uint64_t pump_transitions;
+     uint32_t rx_pulses[192], tx_pulses[192];
+     unsigned rx_count, tx_count;
+     uint8_t uart_tx[4096];
+@@ -607,13 +611,48 @@ bool m5_unit_gpio_supported(const char *id)
+ {
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+-        "earth", "hall", "reflective-ir", "vibrator"};
++        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+     return false;
+ }
+ 
++static void watering_output_changed(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    if (pin != g->unit->yellow) { return; }
++    level = !!level;
++    if (g->pump_level != level) {
++        g->pump_level = level;
++        g->pump_transitions++;
++        g->unit->output_transitions++;
++    }
++}
++
++static void watering_output_reset(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    (void)level;
++    if (pin != g->unit->yellow) { return; }
++    g->pump_level = esp32_gpio_get_line(g->unit->yellow);
++    g->pump_transitions = 0;
++}
++
++static void pump_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = g->pump_level;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void count_u64_get(Object *o, Visitor *v, const char *name, void *op,
++                          Error **errp)
++{
++    uint64_t value = *(uint64_t *)op;
++    visit_type_uint64(v, name, &value, errp);
++}
++
+ static void bool_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     GPIOUnit *g = op;
+@@ -752,7 +791,9 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+         if (g->unit->white == pin && (!strcmp(g->unit->unit_id, "angle") ||
+                                     !strcmp(g->unit->unit_id, "light") ||
+                                     !strcmp(g->unit->unit_id, "earth") ||
+-                                    !strcmp(g->unit->unit_id, "reflective-ir"))) {
++                                    !strcmp(g->unit->unit_id, "reflective-ir") ||
++                                    !strcmp(g->unit->unit_id, "watering") ||
++                                    !strcmp(g->unit->unit_id, "fader"))) {
+             g->adc_samples++;
+             return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
+         }
+@@ -942,6 +983,25 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+             object_property_add(o, "blue-pressed", "bool", bool_get, bool_set, NULL, g);
+         } else { object_property_add(o, "pressed", "bool", bool_get, bool_set, NULL, g); }
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
++    } else if (!strcmp(id, "watering")) {
++        object_property_add(o, "analog-mv", "number", num_get, num_set, NULL, g);
++        object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL, &g->adc_samples);
++        /* Initial PUMP_EN state is unknown until the guest configures the pad;
++         * treat it as low and only count observed transitions. */
++        g->pump_level = false;
++        esp32_gpio_add_out_listener(unit->yellow, watering_output_changed, g);
++        esp32_gpio_add_reset_listener(unit->yellow, watering_output_reset, g);
++        object_property_add(o, "pump-level", "bool", pump_get, NULL, NULL, g);
++        object_property_add(o, "pump-transitions", "uint64", count_u64_get, NULL, NULL,
++                            &g->pump_transitions);
++    } else if (!strcmp(id, "fader")) {
++        object_property_add(o, "analog-mv", "number", num_get, num_set, NULL, g);
++        object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL, &g->adc_samples);
++        g->leds = 14;
++        object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
++        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
++        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
++                            &g->incomplete_frames);
+     } else if (!strcmp(id, "angle") || !strcmp(id, "light") ||
+                !strcmp(id, "earth") || !strcmp(id, "reflective-ir")) {
+         object_property_add(o, !strcmp(id, "angle") ? "voltage-mv" : "analog-mv", "number", num_get, num_set, NULL, g);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index f1e059b..522c8ec 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -38,6 +38,7 @@ typedef enum {
+     CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
+     CONTROL_RELAY4, CONTROL_WEIGHT,
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
++    CONTROL_DAC,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -98,6 +99,16 @@ typedef struct M5UnitControl {
+     double hbridge_adc_mv, hbridge_vin_a;
+     uint8_t hbridge_fw;
+     bool hbridge_pwm16;
++    /* U012 MCP4725 (0x60): bare-command DAC. Fast-mode writes update the
++     * 12-bit register; 0x60||value commands commit DAC+EEPROM. The read path
++     * returns [RDY-status, val>>4, (val&0x0f)<<4] because the official driver
++     * polls bit7 of the first byte while waiting for the EEPROM write. */
++    uint16_t dac_raw;
++    uint16_t dac_eeprom;
++    uint16_t dac_write_tmp;
++    uint8_t dac_write_byte1;
++    bool dac_write_eeprom;
++    uint64_t dac_eeprom_writes;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1100,6 +1111,62 @@ static void hbridge_freq_get(Object *obj, Visitor *v, const char *name,
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
++static void u64_get(Object *obj, Visitor *v, const char *name, void *opaque,
++                    Error **errp)
++{
++    uint64_t value = *(uint64_t *)opaque;
++    visit_type_uint64(v, name, &value, errp);
++}
++
++static void dac_raw_get(Object *obj, Visitor *v, const char *name,
++                         void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    double value = s->dac_raw;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void dac_raw_set(Object *obj, Visitor *v, const char *name,
++                        void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    double value;
++    if (!visit_type_number(v, name, &value, errp)) { return; }
++    if (!isfinite(value) || value < 0 || value > 4095 || trunc(value) != value) {
++        error_setg(errp, "dac-raw requires an integer in [0,4095]");
++        return;
++    }
++    if (s->dac_raw != (uint16_t)value) { input_changed(s); }
++    s->dac_raw = (uint16_t)value;
++}
++
++static void dac_voltage_get(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    /* Driver default vdd=5.0 V (the product page only states 0..3.3 V output;
++     * the output range/reference remains UNRESOLVED). */
++    double value = s->dac_raw / 4095.0 * 5.0;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void dac_eeprom_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->dac_eeprom;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static uint8_t dac_read_byte(M5UnitControl *s, unsigned pos)
++{
++    /* Fixed status byte with bit7 (EEPROM ready) set: enough for the driver's
++     * polling loop; the other POR/status bits are not modeled. */
++    if (pos == 0) { return 0x80; }
++    if (pos == 1) { return (s->dac_raw >> 4) & 0xff; }
++    return (s->dac_raw & 0x0f) << 4;
++}
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+@@ -1244,6 +1311,28 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         }
+         return 0;
+     }
++    if (s->kind == CONTROL_DAC) {
++        unsigned pos = s->write_pos++;
++        if (pos == 0) {
++            s->dac_write_eeprom = (value & 0xf0) == 0x60;
++            if ((value & 0xf0) != 0x00 && !s->dac_write_eeprom) { return 1; }
++            s->dac_write_tmp = (value & 0x0f) << 8;
++            return 0;
++        }
++        if (pos == 1) {
++            s->dac_write_byte1 = value;
++            if (!s->dac_write_eeprom) { s->dac_raw = s->dac_write_tmp | value; }
++            return 0;
++        }
++        if (pos == 2 && s->dac_write_eeprom) {
++            uint16_t value12 = ((s->dac_write_byte1 << 4) | (value >> 4)) & 0x0fff;
++            s->dac_raw = value12;
++            s->dac_eeprom = value12;
++            s->dac_eeprom_writes++;
++            return 0;
++        }
++        return 1;
++    }
+     if (s->write_pos++ == 0) {
+         s->pointer = s->write_base = value; s->memory_request = true;
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+@@ -1400,6 +1489,9 @@ static uint8_t control_recv(I2CSlave *dev)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->read_bytes++;
++    if (s->kind == CONTROL_DAC) {
++        return dac_read_byte(s, s->read_pos++);
++    }
+     if (s->kind == CONTROL_SCROLL) {
+         if (s->scroll_read_rejected || !s->scroll_tx_len) { return 0xff; }
+         uint8_t value = s->scroll_tx[s->scroll_tx_pos];
+@@ -1457,7 +1549,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+     static const char *const ids[] = {
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+-        "ncir2", "extio2", "hbridge",
++        "ncir2", "extio2", "hbridge", "dac", "joystick",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1472,7 +1564,7 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+     s = M5_UNIT_CONTROL(qdev_new(TYPE_M5_UNIT_CONTROL));
+     s->unit = unit;
+     s->auth_sector = s->pending_write = -1;
+-    if (!strcmp(unit->unit_id, "joystick-v11")) {
++    if (!strcmp(unit->unit_id, "joystick-v11") || !strcmp(unit->unit_id, "joystick")) {
+         s->kind = CONTROL_JOYSTICK; address = 0x52;
+         s->joystick[0] = s->joystick[1] = 128;
+         add_int(s, "x-raw", true); add_int(s, "y-raw", true); add_int(s, "button-raw", true);
+@@ -1524,6 +1616,16 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         object_property_add(OBJECT(s->unit), "weight-g", "number", weight_number_get,
+                             weight_number_set, NULL, s);
+         add_int(s, "adc-raw", true); add_int(s, "weight-fw", true);
++    } else if (!strcmp(unit->unit_id, "dac")) {
++        s->kind = CONTROL_DAC; address = 0x60;
++        object_property_add(OBJECT(s->unit), "dac-raw", "number", dac_raw_get,
++                            dac_raw_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "dac-voltage-v", "number", dac_voltage_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "eeprom-value", "int", dac_eeprom_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "eeprom-writes", "uint64", u64_get,
++                            NULL, NULL, &s->dac_eeprom_writes);
+     } else if (!strcmp(unit->unit_id, "ncir2")) {
+         s->kind = CONTROL_NCIR2; address = 0x5a;
+         s->regs[0x10] = 0xff; s->regs[0x11] = 0xff;  /* emissivity 1.0 default */
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index ee522a1..71e50c3 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -21,7 +21,7 @@
+ #define TYPE_M5_UNIT_SENSOR "m5-unit-i2c-sensor"
+ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+-    US_DLIGHT, US_ACCEL,
++    US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -50,6 +50,16 @@ typedef struct M5UnitSensor {
+     /* US_ACCEL: ADXL345 register-pointer state. Data registers are synthetic
+      * fixture-derived bytes; DEVID stays reserved because it is unresolved. */
+     uint8_t accel_power;
++    /* U013-V11 ADS1110 (0x48): single-byte config, 2-byte big-endian signed
++     * read. The raw count is derived from the voltage-mv fixture using the
++     * official driver's ADS1110 formula; the page's ADS1100/rate/reference
++     * contradictions stay UNRESOLVED. */
++    /* U090 Mini BPS BMP280 (0x76): chip id + 24-byte calibration block are
++     * fixed synthetic-but-valid coefficients; the 0xF7 data registers are
++     * derived from temperature-c/pressure-pa so the guest's own compensation
++     * reproduces the fixtures. QMP6988 fallback (0x56/0x70) is NOT modeled. */
++    double bmp_last_temperature_c, bmp_last_pressure_pa;
++    bool bmp_refreshed;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -134,6 +144,174 @@ static void be16(uint8_t *p, uint16_t value)
+     p[0] = value >> 8; p[1] = value;
+ }
+ 
++static void sensor_u64_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    uint64_t value = *(uint64_t *)opaque;
++    visit_type_uint64(v, name, &value, errp);
++}
++
++static void sensor_i64_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    int64_t value = *(int64_t *)opaque;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static unsigned ads_config_rate(uint8_t config)
++{
++    switch (config & 0x0c) {
++    case 0x0c: return 16;  /* 15 SPS */
++    case 0x08: return 15;  /* 30 SPS */
++    case 0x04: return 14;  /* 60 SPS */
++    default:   return 12;  /* 240 SPS */
++    }
++}
++
++static unsigned ads_config_gain(uint8_t config)
++{
++    return 1u << (config & 0x03);
++}
++
++static int16_t ads1110_raw(M5UnitSensor *s)
++{
++    /* Official driver: voltage = raw * 2.048 / 2**(mini_code-1) / gain / (100/610).
++     * Invert it so the guest's own conversion reproduces the fixture voltage. */
++    double raw = s->values[0] / 1000.0 * (1u << (ads_config_rate(s->command) - 1))
++                 * ads_config_gain(s->command) * (100.0 / 610.0) / 2.048;
++    long value = lround(raw);
++    if (value < -32768) { value = -32768; }
++    if (value > 32767) { value = 32767; }
++    return (int16_t)value;
++}
++
++static void add_i64(M5UnitSensor *s, const char *name, int64_t *value)
++{
++    object_property_add(OBJECT(s->unit), name, "int", sensor_i64_get, NULL, NULL, value);
++}
++
++static void add_u64(M5UnitSensor *s, const char *name, uint64_t *value)
++{
++    object_property_add(OBJECT(s->unit), name, "uint64", sensor_u64_get, NULL, NULL, value);
++}
++
++static void ads_raw_get(Object *obj, Visitor *v, const char *name,
++                        void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = ads1110_raw(s);
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void ads_config_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = s->command;
++    visit_type_int64(v, name, &value, errp);
++}
++
++/* Fixed synthetic-but-valid BMP280 calibration coefficients (the datasheet
++ * example set); they are NOT a real device calibration. Compensation formulas
++ * are taken verbatim from the executable driver so guest and model share the
++ * same integer math. */
++static const int32_t bmp_t1 = 27504, bmp_t2 = 26435, bmp_t3 = -1000;
++static const int32_t bmp_p1 = 36477, bmp_p2 = -10685, bmp_p3 = 3024;
++static const int32_t bmp_p4 = 2855, bmp_p5 = 140, bmp_p6 = -7;
++static const int32_t bmp_p7 = 15500, bmp_p8 = -14600, bmp_p9 = 6000;
++
++static int64_t py_floordiv(int64_t a, int64_t b)
++{
++    int64_t q = a / b;
++    if ((a % b) && ((a < 0) != (b < 0))) { q--; }
++    return q;
++}
++
++static int64_t bmp_t_fine(int32_t t_raw)
++{
++    int64_t var1 = (((t_raw >> 3) - (bmp_t1 << 1)) * (int64_t)bmp_t2) >> 11;
++    int64_t d = (int64_t)(t_raw >> 4) - bmp_t1;
++    int64_t var2 = (((d * d) >> 12) * (int64_t)bmp_t3) >> 14;
++    return var1 + var2;
++}
++
++static int32_t bmp_temperature_raw(double temperature_c)
++{
++    int32_t lo = 0, hi = 1048575;
++    while (lo < hi) {
++        int32_t mid = lo + (hi - lo) / 2;
++        double value = ((bmp_t_fine(mid) * 5 + 128) >> 8) / 100.0;
++        if (value < temperature_c) { lo = mid + 1; } else { hi = mid; }
++    }
++    return lo;
++}
++
++static double bmp_pressure_value(int32_t p_raw, int64_t t_fine)
++{
++    int64_t var1 = t_fine - 128000;
++    int64_t var2 = var1 * var1 * bmp_p6;
++    var2 += (var1 * bmp_p5) << 17;
++    var2 += (int64_t)bmp_p4 << 35;
++    var1 = ((var1 * var1 * bmp_p3) >> 8) + ((var1 * bmp_p2) << 12);
++    var1 = ((((int64_t)1 << 47) + var1) * bmp_p1) >> 33;
++    if (var1 == 0) { return 0; }
++    int64_t p = 1048576 - p_raw;
++    p = py_floordiv(((p << 31) - var2) * 3125, var1);
++    int64_t v1 = ((int64_t)bmp_p9 * (p >> 13) * (p >> 13)) >> 25;
++    int64_t v2 = ((int64_t)bmp_p8 * p) >> 19;
++    p = ((p + v1 + v2) >> 8) + ((int64_t)bmp_p7 << 4);
++    return p / 256.0;
++}
++
++static int32_t bmp_pressure_raw(double pressure_pa, int64_t t_fine)
++{
++    int32_t lo = 0, hi = 1048575;
++    while (lo < hi) {
++        int32_t mid = lo + (hi - lo) / 2;
++        if (bmp_pressure_value(mid, t_fine) > pressure_pa) { lo = mid + 1; }
++        else { hi = mid; }
++    }
++    return lo;
++}
++
++static void bmp280_refresh(M5UnitSensor *s)
++{
++    if (s->bmp_refreshed && s->bmp_last_temperature_c == s->values[0] &&
++        s->bmp_last_pressure_pa == s->values[1]) {
++        return;
++    }
++    int32_t t_raw = bmp_temperature_raw(s->values[0]);
++    int64_t t_fine = bmp_t_fine(t_raw);
++    int32_t p_raw = bmp_pressure_raw(s->values[1], t_fine);
++    s->regs[0][0xf7] = p_raw >> 12;
++    s->regs[0][0xf8] = (p_raw >> 4) & 0xff;
++    s->regs[0][0xf9] = (p_raw & 0x0f) << 4;
++    s->regs[0][0xfa] = t_raw >> 12;
++    s->regs[0][0xfb] = (t_raw >> 4) & 0xff;
++    s->regs[0][0xfc] = (t_raw & 0x0f) << 4;
++    s->bmp_last_temperature_c = s->values[0];
++    s->bmp_last_pressure_pa = s->values[1];
++    s->bmp_refreshed = true;
++}
++
++static void bmp280_fill_calibration(M5UnitSensor *s)
++{
++    le16(s->regs[0] + 0x88, (uint16_t)bmp_t1);
++    s->regs[0][0x8a] = (uint16_t)bmp_t2; s->regs[0][0x8b] = (uint16_t)bmp_t2 >> 8;
++    s->regs[0][0x8c] = (uint16_t)bmp_t3; s->regs[0][0x8d] = (uint16_t)bmp_t3 >> 8;
++    le16(s->regs[0] + 0x8e, (uint16_t)bmp_p1);
++    s->regs[0][0x90] = (uint16_t)bmp_p2; s->regs[0][0x91] = (uint16_t)bmp_p2 >> 8;
++    s->regs[0][0x92] = (uint16_t)bmp_p3; s->regs[0][0x93] = (uint16_t)bmp_p3 >> 8;
++    s->regs[0][0x94] = (uint16_t)bmp_p4; s->regs[0][0x95] = (uint16_t)bmp_p4 >> 8;
++    s->regs[0][0x96] = (uint16_t)bmp_p5; s->regs[0][0x97] = (uint16_t)bmp_p5 >> 8;
++    s->regs[0][0x98] = (uint16_t)bmp_p6; s->regs[0][0x99] = (uint16_t)bmp_p6 >> 8;
++    s->regs[0][0x9a] = (uint16_t)bmp_p7; s->regs[0][0x9b] = (uint16_t)bmp_p7 >> 8;
++    s->regs[0][0x9c] = (uint16_t)bmp_p8; s->regs[0][0x9d] = (uint16_t)bmp_p8 >> 8;
++    s->regs[0][0x9e] = (uint16_t)bmp_p9; s->regs[0][0x9f] = (uint16_t)bmp_p9 >> 8;
++    s->regs[0][0xd0] = 0x58;  /* BMP280 chip id */
++    s->bmp_refreshed = false;
++}
++
+ static bool thermal_configured(M5UnitSensor *s)
+ {
+     return s->have_eeprom && s->have_frame[0] && s->have_frame[1];
+@@ -273,6 +451,9 @@ static void sensor_update(M5UnitSensor *s)
+     if (s->kind == US_DLIGHT && s->pending && s->dlight_power && now >= s->due) {
+         dlight_complete(s);
+     }
++    if (s->kind == US_BMP280) {
++        bmp280_refresh(s);
++    }
+     if (s->kind == US_COLOR && (r[0] & 3) == 3 && now >= s->due) {
+         unsigned cycles = 256 - r[1];
+         unsigned maximum = MIN(65535, cycles * 1024);
+@@ -413,6 +594,11 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+     unsigned pos = s->write_pos++;
+     s->written_bytes++; s->unit->written_bytes++;
+     sensor_update(s);
++    if (s->kind == US_ADS1110) {
++        if (pos != 0) { return 1; }
++        s->command = data;
++        return 0;
++    }
+     if (s->kind == US_DLIGHT) {
+         if (pos != 0) { return 1; }
+         if (data == 0x00) { s->dlight_power = 0; s->pending = false; return 0; }
+@@ -507,6 +693,25 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         s->pointer = s->kind == US_COLOR ? data & 0x1f : data;
+         return 0;
+     }
++    if (s->kind == US_ADS1110) {
++        return 1;  /* the only ADS1110 write is the single config byte */
++    }
++    if (s->kind == US_BMP280) {
++        uint8_t reg = s->pointer++;
++        if (reg == 0xe0) {
++            if (data != 0xb6) { return 1; }
++            s->regs[0][0xf3] = s->regs[0][0xf4] = s->regs[0][0xf5] = 0;
++            s->bmp_refreshed = false;
++            bmp280_fill_calibration(s);
++            return 0;
++        }
++        if (reg == 0xf4 || reg == 0xf5) {
++            s->regs[0][reg] = data;
++            s->bmp_refreshed = false;
++            return 0;
++        }
++        return 1;
++    }
+     if (s->kind == US_NCIR) { return 1; }
+     uint8_t reg = s->pointer++;
+     if (s->kind == US_TOF) {
+@@ -584,6 +789,10 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         if (pos & 1) { s->pointer++; return word; }
+         return word >> 8;
+     }
++    if (s->kind == US_ADS1110) {
++        int16_t raw = ads1110_raw(s);
++        return pos == 0 ? (uint8_t)(raw >> 8) : (uint8_t)(raw & 0xff);
++    }
+     if (s->kind == US_DLIGHT) {
+         /* 2-byte big-endian raw; conversion window is enforced by
+          * sensor_update. Before the first completed sample the value is 0. */
+@@ -638,6 +847,7 @@ static int sensor_event(I2CSlave *dev, enum i2c_event event)
+         if (s->kind == US_THERMAL && !thermal_configured(s)) { return 1; }
+         if (s->kind == US_TVOC && now_ns() < s->due) { return 1; }
+         if (event == I2C_START_RECV) {
++            if (s->kind == US_BMP280) { bmp280_refresh(s); }
+             if ((s->kind == US_SONIC && (s->pending || !s->response_len)) ||
+                 (s->kind == US_TVOC && (s->command_error || now_ns() < s->due || !s->response_len))) {
+                 return 1;
+@@ -650,7 +860,7 @@ static int sensor_event(I2CSlave *dev, enum i2c_event event)
+ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+-        "ultrasonic-i2c", "thermal", "dlight", "accel" };
++        "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -710,6 +920,18 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_number(s, "accel-y-g", 1, 0, -16, 16, false);
+         add_number(s, "accel-z-g", 2, 1, -16, 16, false);
+         add_number(s, "int-source", 3, 0, 0, 255, true);
++    } else if (!strcmp(u->unit_id, "adc-v11")) {
++        s->kind = US_ADS1110; address = 0x48;
++        s->command = 0x0c;  /* default: 15 SPS, gain x1 (driver defaults) */
++        add_number(s, "voltage-mv", 0, 1000, 0, 12000, false);
++        object_property_add(OBJECT(s->unit), "adc-raw", "int", ads_raw_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "config-word", "int", ads_config_get, NULL, NULL, s);
++    } else if (!strcmp(u->unit_id, "bps")) {
++        s->kind = US_BMP280; address = 0x76;
++        s->regs[0][0xd0] = 0x58;
++        bmp280_fill_calibration(s);
++        add_number(s, "temperature-c", 0, 25, -40, 85, false);
++        add_number(s, "pressure-pa", 1, 101325, 30000, 110000, false);
+     } else {
+         error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
+         object_unref(OBJECT(s)); return;
+-- 
+2.55.0
+

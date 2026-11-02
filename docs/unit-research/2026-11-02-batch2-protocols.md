@@ -844,3 +844,27 @@ done
   快照一致，`sha256_master` 在差异文件中额外记录 master 哈希；
 - 所有 `inputs.*.default` 都是合成测试 fixture，不是实测值；`blocker` 写明实现
   前置条件与硬件边界。
+
+## 11. 前 6 款 QEMU 实现状态（0125，2026-11-02）
+
+第二批前 6 款已由
+[`0125-unit-batch2.patch`](../../patches/qemu-m5stack-peripherals/0125-unit-batch2.patch)
+接入 QEMU 数据面；base 为 canonical native layer `75f1d24` + 已合入的
+`0120/0121/0122/0123`（`0124` 为 StickT2 预留层，本补丁不依赖）。**尚未采集
+guest/Device Service 证据**，因此 catalog 6 条与 runtime-profiles 6 条均保持
+`planned`、hosts 为空。离线 QOM smoke 只验证属性注册、fixture 读写、范围拒绝与
+只读拒绝（6/6 PASS），不构成功能 PASS。
+
+| Unit | 0125 模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `joystick` U024 (0x52) | 复用现有 `CONTROL_JOYSTICK`：0x52 寄存器快照 3 字节（x/y/button），无新 kind | 输入/观测 `x-raw`/`y-raw`/`button-raw`（0..255） | 原版 U024 MCU/固件身份与按键极性 unresolved；0x52 与 joystick-v11 冲突（一总线一个）；机械行程/电位器线性度 NOT RUN |
+| `watering` U101 | 双端点 GPIO：白线走既有 ADC controller hook（analog-mv/adc-samples）；黄线 PUMP_EN 加 pad output listener + reset listener（pump-level/pump-transitions），观察真实 guest pad 写入 | 输入 `analog-mv`(0..3300)；观测 adc-samples/pump-level/pump-transitions | 初始 PUMP_EN 未知按低处理直到 guest 写；水泵电气/扬程/流量与土壤湿度物理 NOT RUN；ADC 11DB 满量程/校准 unresolved |
+| `fader` U123 | 双端点 GPIO：白线 ADC；黄线 RMT 捕获 14 颗 SK6812（led-rgb/led-frames/incomplete-frames） | 输入 `analog-mv`；观测 14 灯原始 G,R,B 帧与帧计数 | 快照 vs master 的 `set_brightness()` 缩放差异需锚定单个驱动 SHA；RMT 时序容差、调色板/机械手感/LED 光学 NOT RUN |
+| `dac` U012 (0x60) | 裸命令 `CONTROL_DAC`：2 字节 fast-mode 写、`0x60||value` EEPROM 命令、读 3 字节 `[ready,val>>4,(val&0xf)<<4]` | 输入 `dac-raw`(0..4095)；观测 dac-voltage-v/eeprom-value/eeprom-writes | EEPROM 保持/耐久与物理 0..3.3V 输出 NOT modeled；dac-voltage-v 用驱动默认 vdd=5.0V，输出参考 UNRESOLVED |
+| `bps` U090 (0x76) | `US_BMP280`：chip id 0x58、reset/status/control/config、固定合成 24B 校准块、0xF7 6B 数据由 temperature-c/pressure-pa 按驱动整数补偿**反算**（保留 floor division） | 输入 `temperature-c`(-40..85)、`pressure-pa`(30000..110000) | QMP6988 回退（U090-B 0x56 / 驱动 0x70 vs env-iii 0x70）不建模、unresolved；海拔是驱动固定海平面假设非测量；datasheet 补偿未逐页核对 |
+| `adc-v11` (0x48) | `US_ADS1110`：单字节配置（DR/GAIN 解析）、2 字节大端有符号读；raw 由 voltage-mv 按 master 驱动 mini-code/gain/divider 公式反算 | 输入 `voltage-mv`(0..12000)；观测 adc-raw/config-word | 产品页 ADS1100 vs ADS1110、SPS 集合、内部 2.048V vs VDD 参考互相矛盾，均 unresolved；0x48 与下一批 ameter 冲突；快照 get_voltage bug 需锚定 master 修正版 |
+
+共同边界：6 款都是控制器可见的事务/端点模型，不是电气/机械/光学/水泵物理模型；
+地址冲突（joystick 0x52、adc-v11 0x48 与 ameter）与版本差异必须随 catalog 一起读。
+其余 6 款（`env`/`ameter`/`extencoder`/`ain4-20ma`/`acssr`/`gesture`）本轮未实现，
+下一轮处理。没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。

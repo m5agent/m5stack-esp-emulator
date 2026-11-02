@@ -7883,7 +7883,1224 @@
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-cclass/report-hbridge.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123. Hardware and unlisted hosts remain NOT RUN."
       ]
     }
-
+,
+    {
+      "id": "joystick",
+      "name": "Unit Joystick",
+      "sku": "U024",
+      "visual_asset": {
+        "entry": "src/units/joystick/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/joystick",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "MEGA328P (visual inventory name only; original U024 not in official I2C index)",
+          "status": "unresolved-vendor-name-only"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          82
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y are 0..255; get_x/get_y subtract 128 (optional swap); get_button_status() is bool(buffer[2]).",
+        "registers": [
+          {
+            "register": "0x52",
+            "length": 3,
+            "encoding": "X:uint8,Y:uint8,button:uint8"
+          }
+        ],
+        "gaps": [
+          "Official I2C index lists only U024-C (MEGA8A @0x52); original U024 chip identity unresolved.",
+          "Button byte polarity is not verified beyond bool() semantics.",
+          "0x52 conflicts with registered joystick-v11 (one Unit per bus)."
+        ]
+      },
+      "inputs": {
+        "x-raw": {
+          "type": "integer",
+          "label": "X 原始值",
+          "default": 128,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "y-raw": {
+          "type": "integer",
+          "label": "Y 原始值",
+          "default": 128,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "button-raw": {
+          "type": "integer",
+          "label": "按键原始字节",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/joystick",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U024",
+            "PinMap PORT.A yellow=SDA white=SCL",
+            "I2C 0x52 and REG 0x52 3-byte read table"
+          ]
+        },
+        {
+          "kind": "official-i2c-address-index",
+          "url": "https://docs.m5stack.com/en/product_i2c_addr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "U024-C MEGA8A 0x52; original U024 absent"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x52 address and 3-byte register read path"
+          ],
+          "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "x-raw": {
+            "property": "x-raw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "y-raw": {
+            "property": "y-raw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "button-raw": {
+            "property": "button-raw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to the existing CONTROL_JOYSTICK register snapshot at 0x52; reuse m5_unit_i2c_controls.c"
+      },
+      "blocker": "0125 maps the U024 'joystick' id onto the existing CONTROL_JOYSTICK 0x52 three-byte snapshot (x-raw/y-raw/button-raw; no new kind) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. Original U024 MCU/firmware identity and button polarity remain unresolved; 0x52 conflicts with the registered joystick-v11 (one Unit per bus); mechanical travel/potentiometer linearity are NOT RUN.",
+      "input_semantics": "Synthetic raw X/Y/button bytes delivered through the controller-visible I2C register snapshot.",
+      "output_semantics": "Observed guest I2C reads and address probes; no output transitions.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Mechanical travel, potentiometer linearity and button feel are not modeled.",
+        "0125 reuses the joystick-v11 register/snapshot path; button polarity is preserved as a raw byte until explicitly confirmed.",
+        "0x52 conflicts with joystick-v11; the two cannot coexist on one I2C bus."
+      ]
+    },
+    {
+      "id": "watering",
+      "name": "Unit Watering",
+      "sku": "U101",
+      "visual_asset": {
+        "entry": "src/units/watering/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/watering",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "5W water pump + capacitive soil-moisture plate",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "PUMP_EN",
+            "direction": "host-to-unit",
+            "active_level": 1
+          },
+          "white": {
+            "signal": "Analog Output",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Pump enable on yellow (Pin(port[1])) driven high for on(); soil-moisture analog output on white (Pin(port[0])) read via ADC ATTN_11DB with read_u16()/read_uv().",
+        "registers": [],
+        "gaps": [
+          "PUMP_EN active polarity comes from on()→value(1) in the driver; the page only labels PUMP_EN.",
+          "ADC 11DB attenuation full scale/calibration is not stated on the product page.",
+          "Pump electrical/moisture physics are not modeled."
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "土壤湿度模拟电压",
+          "default": 1250,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300
+        }
+      },
+      "outputs": {
+        "pump-level": {
+          "type": "boolean",
+          "label": "水泵使能电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "pump-transitions": {
+          "type": "integer",
+          "label": "水泵电平变化次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "adc-samples": {
+          "type": "integer",
+          "label": "ADC 采样次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/watering",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U101",
+            "PinMap PORT.B yellow=PUMP_EN white=Analog Output",
+            "5W pump"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/watering.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "Pin(port[1]) pump output",
+            "ADC on port[0] ATTn_11DB",
+            "on/off/set_pump",
+            "get_raw/get_voltage"
+          ],
+          "sha256": "9428fe66a7cf21f4c81f425ca751a82706c8397fecab649281c55139c7f3b295",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "adc-samples": {
+            "property": "adc-samples",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pump-transitions": {
+            "property": "pump-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pump-level": {
+            "property": "pump-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC GPIO controller: white ADC sample injection through m5_unit_adc_sample and yellow GPIO output observation through a pad observer"
+      },
+      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling via the controller hook -> analog-mv/adc-samples; yellow PUMP_EN pad output listener -> pump-level/pump-transitions) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The initial PUMP_EN level is treated as low until the guest drives the pad; pump electrical/head/flow and soil-moisture physics are NOT RUN; ADC 11DB full-scale/calibration remains unresolved.",
+      "input_semantics": "Synthetic soil-moisture millivolt fixture delivered through the SoC ADC controller sample path.",
+      "output_semantics": "Observed guest-driven yellow pad level (pump enable); no pump physics.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Pump current, head/flow, soil moisture curve and ADC calibration are not modeled.",
+        "0125 observes the real guest pad writes; it does not fake a GPIO or pump return value.",
+        "ADC 11DB full-scale/calibration and the soil-moisture voltage curve are unresolved/NOT RUN."
+      ]
+    },
+    {
+      "id": "fader",
+      "name": "Unit Fader",
+      "sku": "U123",
+      "visual_asset": {
+        "entry": "src/units/fader/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/fader",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SK6812 x14",
+          "status": "officially-documented"
+        },
+        {
+          "part": "10k sliding potentiometer",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc-rmt",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "RGB (SK6812 data)",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "Analog Input",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "White wire is a 0-3.3V potentiometer output read by ADC10 ATTN_11DB read_u16(); yellow drives 14 SK6812 RGB LEDs (SK6812 ORDER=(1,0,2,3) => G,R,B, 800kHz timing 400/850/800/450ns). update_color() maps ADC raw to a 256-entry palette.",
+        "registers": [],
+        "gaps": [
+          "SK6812 timing tolerance is not modeled beyond the driver timing constants.",
+          "Master driver changes set_brightness() buffer rescaling; the snapshot and master produce different frame bytes after fill_color()+set_brightness().",
+          "Potentiometer linearity/mechanical feel and LED optics are not modeled."
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "电位器模拟电压",
+          "default": 1650,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300
+        }
+      },
+      "outputs": {
+        "led-rgb": {
+          "type": "array",
+          "label": "14x SK6812 帧 (G,R,B)",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-frames": {
+          "type": "integer",
+          "label": "完整 RMT 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "incomplete-frames": {
+          "type": "integer",
+          "label": "不完整 RMT 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "adc-samples": {
+          "type": "integer",
+          "label": "ADC 采样次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/fader",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U123",
+            "PinMap PORT.B yellow=RGB white=Analog Input",
+            "14x SK6812 + 10k potentiometer + 35mm travel"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/fader.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SK6812(port[1],14)",
+            "ADC(port[0]) ATTN_11DB",
+            "update_color 256-entry palette mapping",
+            "get_raw/get_voltage"
+          ],
+          "sha256": "cf364f95aa16a128bc0c6ea47635c7eae6268e674b75f1d394415f8df1d90b85",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ORDER=(1,0,2,3)",
+            "bpp=3 => G,R,B"
+          ],
+          "sha256": "b316cbebf49a5a459c67125445d860ad18f3b9e517a7abb856ac6914e8720e82",
+          "sha256_matches_snapshot_528edd8": false,
+          "sha256_master": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/__init__.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "800kHz timing constants",
+            "write()/fill_color()/set_brightness()"
+          ],
+          "sha256": "f1995e9fa025330b468836f4c76723924e4254c873f75970d4a343f8e727c1d8",
+          "sha256_matches_snapshot_528edd8": false,
+          "sha256_master": "d97ffc1bd3cce82be7b67e63b5578e853d6be0d42c44abdf2dd2484135c2452f"
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "adc-samples": {
+            "property": "adc-samples",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "led-frames": {
+            "property": "led-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "incomplete-frames": {
+            "property": "incomplete-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "array"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC GPIO/ADC for the white wire plus SoC RMT capture on the yellow wire; reuse the existing ADC and RGB branches of m5_unit_gpio.c in one Unit"
+      },
+      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling -> analog-mv/adc-samples; yellow RMT capture configured for 14 SK6812 LEDs -> led-rgb/led-frames/incomplete-frames) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The snapshot-vs-master set_brightness() divergence must be pinned to one driver SHA; RMT timing tolerance, palette mechanics, potentiometer linearity and LED optics are NOT RUN.",
+      "input_semantics": "Synthetic potentiometer millivolt fixture delivered through the SoC ADC controller sample path.",
+      "output_semantics": "Observed guest-driven SK6812 RMT frames (G,R,B per LED) and frame counters; optical output not modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "LED colorimetry, brightness, timing tolerance and slider mechanics are not modeled.",
+        "Frames captured by 0125 are the raw G,R,B bytes the frozen driver emits; they are not optical measurements.",
+        "The snapshot and master neopixel drivers scale brightness differently; a driver SHA must be pinned before guest evidence."
+      ]
+    },
+    {
+      "id": "dac",
+      "name": "Unit DAC",
+      "sku": "U012",
+      "visual_asset": {
+        "entry": "src/units/dac/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/dac",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "MCP4725",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          96
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "MCP4725 at 0x60: 2-byte fast-mode write [0b0000|val>>8, val&0xFF]; 3-byte read where DAC value=(buf[1]<<4)|(buf[2]>>4); 3-byte EEPROM write [0x60|val>>8, (val>>4)&0xFF, (val<<4)&0xFF].",
+        "registers": [
+          {
+            "register": "fast-mode command",
+            "length": 2,
+            "encoding": "[0b0000|(val>>8)&0x0F, val&0xFF]"
+          },
+          {
+            "register": "read",
+            "length": 3,
+            "encoding": "[status,(val>>4)&0xFF,(val&0x0F)<<4]"
+          },
+          {
+            "register": "EEPROM write",
+            "length": 3,
+            "encoding": "[0x60|(val>>8),(val>>4)&0xFF,(val<<4)&0xFF]"
+          }
+        ],
+        "gaps": [
+          "EEPROM write timing/endurance/power-loss retention not modeled.",
+          "Read status byte (POR/EEPROM bits) is ignored by the driver; model value needs a documented constant."
+        ]
+      },
+      "inputs": {
+        "dac-raw": {
+          "type": "integer",
+          "label": "DAC 12-bit 原始值",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 4095
+        }
+      },
+      "outputs": {
+        "dac-raw": {
+          "type": "integer",
+          "label": "DAC 12-bit 原始值",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "eeprom-writes": {
+          "type": "integer",
+          "label": "EEPROM 写次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "dac-voltage-v": {
+          "type": "number",
+          "label": "按驱动默认 vdd 的电压",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "V",
+          "readOnly": true
+        },
+        "eeprom-value": {
+          "type": "integer",
+          "label": "EEPROM 保存值",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 4095
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/dac",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U012",
+            "PinMap PORT.A yellow=SDA white=SCL",
+            "MCP4725, I2C 0x60, 12-bit 0-3.3V, EEPROM"
+          ]
+        },
+        {
+          "kind": "official-i2c-address-index",
+          "url": "https://docs.m5stack.com/en/product_i2c_addr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "MCP4725 0x60"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dac.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "one-line alias to driver.mcp4725.MCP4725"
+          ],
+          "sha256": "c44737ef77cd950af4321ec60c7cd8f25642b1ccadd3546abe6b0e338c22a4c4",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mcp4725.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "fast-mode write",
+            "3-byte read decode",
+            "EEPROM write"
+          ],
+          "sha256": "ed9f9f187100b618a76e7c419e3ae9624e5057847b9cd60601e94294efa360a2",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "dac-raw": {
+            "property": "dac-raw",
+            "access": "read-write",
+            "type": "number"
+          },
+          "dac-voltage-v": {
+            "property": "dac-voltage-v",
+            "access": "read-only",
+            "type": "number"
+          },
+          "eeprom-value": {
+            "property": "eeprom-value",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "eeprom-writes": {
+            "property": "eeprom-writes",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local bare-command slave: 2-byte fast-mode writes and 3-byte reads"
+      },
+      "blocker": "0125 adds a bare-command CONTROL_DAC at 0x60 (2-byte fast-mode writes update the 12-bit register; 0x60||value commits DAC+EEPROM; reads return the official 3-byte [ready,val>>4,(val&0xf)<<4] shape) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. EEPROM retention/endurance and the physical 0..3.3V output range are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and remains UNRESOLVED.",
+      "input_semantics": "Synthetic 12-bit DAC code fixture written by the guest through fast-mode/EEPROM commands.",
+      "output_semantics": "Observed guest-to-Unit writes and readback of the latched DAC code; analog voltage is derived, not measured.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Analog output accuracy, reference drift, EEPROM retention and load behavior are not modeled.",
+        "EEPROM retention/endurance is not modeled; writes are counted, not persisted across sessions.",
+        "dac-voltage-v uses the driver default vdd=5.0V; the physical output range/reference remains UNRESOLVED.",
+        "The fixed status byte only carries the EEPROM-ready bit needed by the driver poll; other POR/status bits are not modeled."
+      ]
+    },
+    {
+      "id": "bps",
+      "name": "Unit Mini BPS",
+      "sku": "U090",
+      "visual_asset": {
+        "entry": "src/units/bps/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/bps",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "BMP280",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          118
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "BMP280 at 0x76: chip id 0xD0=0x58, reset 0xE0=0xB6, status 0xF3, control 0xF4, config 0xF5, calibration 0x88 (24 bytes), data 0xF7 (6 bytes); measure() reads 6 data bytes and applies the 24-byte calibration. The driver falls back to QMP6988 (0x70) when scan()[0] is not 0x76.",
+        "registers": [
+          {
+            "chip": "BMP280",
+            "chip_id": "0xD0 -> 0x58",
+            "reset": "0xE0 <- 0xB6",
+            "status": "0xF3",
+            "control": "0xF4",
+            "config": "0xF5",
+            "calibration": "0x88, 24 bytes",
+            "data": "0xF7, 6 bytes"
+          },
+          {
+            "chip": "QMP6988 (driver fallback)",
+            "chip_id": "0xD1 -> 0x5C",
+            "reset": "0xE0 <- 0xE6",
+            "status": "0xF3 bit3",
+            "control": "0xF4",
+            "io_setup": "0xF5",
+            "calibration": "0xA0, 25 bytes",
+            "data": "0xF7, 6 bytes"
+          }
+        ],
+        "gaps": [
+          "Product page documents BMP280 only but the driver also accepts QMP6988; the probe uses scan()[0] order and can mis-detect.",
+          "Official I2C index lists U090-B Mini BPS v1.1 as QMP6988 @0x56, which does not match the driver fallback 0x70.",
+          "Calibration coefficients are synthetic fixtures, not factory values; the guest-side compensation formula is the driver implementation."
+        ]
+      },
+      "inputs": {
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 85
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "Pa",
+          "minimum": 30000,
+          "maximum": 110000
+        }
+      },
+      "outputs": {
+        "transactions": {
+          "type": "integer",
+          "label": "I2C 事务数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/bps",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U090",
+            "PinMap PORT.A yellow=SDA white=SCL",
+            "BMP280 0x76, 300-1100hPa, temperature range"
+          ]
+        },
+        {
+          "kind": "official-i2c-address-index",
+          "url": "https://docs.m5stack.com/en/product_i2c_addr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "BMP280 0x76; U090-B is QMP6988 0x56"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/bps.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x76/0x70 fallback detection",
+            "get_temperature/get_pressure/get_altitude"
+          ],
+          "sha256": "d169e198cda0dc274ca894897cf4582cb562416c52a60cc6ec8dd075fb8fbb52",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/bmp280.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "BMP280 register map",
+            "24-byte calibration read",
+            "compensated measure"
+          ],
+          "sha256": "01cd715d416cad4440fd5fa8ee2a006d68b9203512565677c0bf313a8be22c0f",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "QMP6988 register map and 25-byte OTP calibration"
+          ],
+          "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa",
+            "access": "read-write",
+            "type": "number"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local BMP280 register-file slave; data registers carry raw counts consistent with the synthetic calibration and fixtures"
+      },
+      "blocker": "0125 adds a US_BMP280 register-file kind at 0x76 (chip id 0x58, reset/status/control/config registers, fixed synthetic-but-valid 24-byte calibration block, and 0xF7 data registers inverse-compensated from temperature-c/pressure-pa with the executable driver's integer math) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The QMP6988 fallback (U090-B 0x56 / driver 0x70 vs env-iii 0x70) is NOT modeled and remains unresolved; altitude uses the driver's fixed sea-level assumption, not a measurement; datasheet compensation was not independently reviewed.",
+      "input_semantics": "Synthetic temperature/pressure fixtures encoded into the model's raw data registers using the same compensation coefficients.",
+      "output_semantics": "Observed guest I2C register transactions; compensated values are computed guest-side by the official driver.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Barometric accuracy, calibration authenticity, altitude sea-level assumption and QMP6988 variant support are not validated.",
+        "0125 returns raw counts; the guest driver performs the compensation, and the fixed calibration block is synthetic, not a real device calibration.",
+        "QMP6988/U090-B variants and the driver's scan()[0] probe order are NOT modeled.",
+        "Altitude stays a driver sea-level-pressure assumption (101325 Pa), not a measured height."
+      ]
+    },
+    {
+      "id": "adc-v11",
+      "name": "Unit ADC v1.1",
+      "sku": "U013-V11",
+      "visual_asset": {
+        "entry": "src/units/adc-v11/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-ADC_V1.1",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "ADS1110",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          72
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "ADS1110 at 0x48: one-byte config write (bit7 ST/DRDY start, bit4 single-shot, bit3:2 data rate, bit1:0 PGA), then read 2 bytes big-endian signed. The driver converts with raw*2.048/2**(mini_code-1)/gain/divider where divider=100/610.",
+        "registers": [
+          {
+            "register": "config (write/read)",
+            "length": 1,
+            "encoding": "st/start:bit7, mode:bit4, rate:bits3:2, gain:bits1:0"
+          },
+          {
+            "register": "data (read)",
+            "length": 2,
+            "encoding": "int16be"
+          }
+        ],
+        "gaps": [
+          "Product page contradicts itself: ADS1110 (description/spec/official I2C index) vs ADS1100 (comparison table).",
+          "Sampling rates: page description 15/30/60/240 SPS vs comparison table 8/16/32/128 SPS.",
+          "Reference: page description internal 2.048V vs spec table VDD reference; divider=100/610 has no page source.",
+          "Snapshot driver has a missing-call bug in get_voltage(); master fixed it."
+        ]
+      },
+      "inputs": {
+        "voltage-mv": {
+          "type": "number",
+          "label": "输入电压",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 12000
+        }
+      },
+      "outputs": {
+        "config-word": {
+          "type": "integer",
+          "label": "配置字节",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "adc-raw": {
+          "type": "integer",
+          "label": "16-bit ADC 原始值",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -32768,
+          "maximum": 32767
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-ADC_V1.1",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U013-V11",
+            "PinMap PORT.A yellow=SDA white=SCL",
+            "I2C 0x48, 16-bit, PGA 1/2/4/8, 0-12V input (with page contradictions)"
+          ]
+        },
+        {
+          "kind": "official-i2c-address-index",
+          "url": "https://docs.m5stack.com/en/product_i2c_addr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ADS1110 0x48"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/adc_v11.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "divider 100/610",
+            "get_voltage conversion; snapshot missing-call bug fixed only in master"
+          ],
+          "sha256": "1e8a2901369bac7bb6dd2a2a5f27f529c0399e8c986d8ccda1f1b7abb6514ab1",
+          "sha256_matches_snapshot_528edd8": false,
+          "sha256_master": "b21f1956ee7c3af05e96808f63ebcb152891b83093551356b4780415344a93bd"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/ads1110.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x48 address",
+            "config bit layout",
+            "2-byte big-endian read"
+          ],
+          "sha256": "e3de0e5f58b05af95e0a91d11e9ab3825c67652109e3e30ad9d6a7288bd4962c",
+          "sha256_matches_snapshot_528edd8": false,
+          "sha256_master": "f813e3c7e0efc6158e99555e2bae0a80316a6cf81de96a9440711bf570130374"
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "voltage-mv": {
+            "property": "voltage-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "adc-raw": {
+            "property": "adc-raw",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "config-word": {
+            "property": "config-word",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local ADS1110 register-file slave; 1-byte config write and 2-byte big-endian conversion read"
+      },
+      "blocker": "0125 adds a US_ADS1110 slave at 0x48 (single config byte, 2-byte big-endian signed reads; the raw count is derived from voltage-mv with the master driver's mini-code/gain/divider formula) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The official page contradicts itself (ADS1100 vs ADS1110, 8/16/32/128 vs 15/30/60/240 SPS, internal 2.048V vs VDD reference) and those stay unresolved; 0x48 conflicts with ameter (next batch); the snapshot get_voltage() bug requires anchoring the master-fixed driver.",
+      "input_semantics": "Synthetic input-voltage fixture inverse-encoded into a signed 16-bit ADC code using the driver formula.",
+      "output_semantics": "Observed guest config writes and conversion reads; voltage is guest-side driver output.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "ADC accuracy, PGA error, reference drift and 0-12V input divider tolerance are not modeled.",
+        "0125 implements ADS1110 semantics per the official I2C table; ADS1100 compatibility is NOT verified.",
+        "Config-word is observable; conversion timing/DRDY behavior beyond the config byte is not modeled.",
+        "0x48 conflicts with the planned ameter (ADS1115) Unit; one per bus."
+      ]
+    }
   ],
   "model_status_values": [
     "planned",
