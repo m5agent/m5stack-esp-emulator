@@ -1,0 +1,125 @@
+From 5a3ed3f95c024f664585598ae52d3dfb0f7fbdbc Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 17:33:33 +0800
+Subject: [PATCH] hw/m5stopwatch: add Atom Echo board
+
+M5Stack Atom Echo / Atom Voice (C008-C) is the ATOM bracket with an
+ESP32-PICO-D4, one SK6812 on GPIO27, the user button on GPIO39, an NS4168
+I2S amplifier (BCK GPIO19 / WS GPIO33 / DATA GPIO22), an SPM1423 PDM
+microphone (CLK GPIO33 / DATA GPIO23), an IR transmitter on GPIO12 and a
+Grove port on GPIO26/GPIO32; it has no display, no on-board I2C codec and
+no PSRAM.
+
+The board reuses the classic Atom board wiring (RGB/button diagnostic
+console, QMP key-driven GPIO input, unit runtime and classic ADC).  The
+NS4168 is a registerless I2S DAC and the SPM1423 capture path is served by
+the SoC-level ESP32 I2S models; no extra device is attached.  IR is not
+wired in this model.
+
+Wiring evidence: docs.m5stack.com/en/products/sku/C008-C PinMap (2026-11-02)
+and the M5Unified AtomVoice board entry used by the official MicroPython
+build (BOARD_ID 142).
+---
+ hw/m5stopwatch/m5atomclassic.c | 14 +++++++++++++
+ hw/m5stopwatch/m5stopwatch.h   |  2 ++
+ hw/xtensa/esp32.c              | 38 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 54 insertions(+)
+
+diff --git a/hw/m5stopwatch/m5atomclassic.c b/hw/m5stopwatch/m5atomclassic.c
+index 1f4c085..6137961 100644
+--- a/hw/m5stopwatch/m5atomclassic.c
++++ b/hw/m5stopwatch/m5atomclassic.c
+@@ -137,3 +137,17 @@ void m5atomu_board_init(Esp32SocState *s)
+ {
+     m5atomclassic_board_init_common(s, false);
+ }
++
++/*
++ * Atom Echo / Atom Voice (C008-C): the ATOM bracket with one SK6812 on G27 and
++ * the user button on G39, no IMU and no display.  Audio is attached by the
++ * SoC-level ESP32 I2S controllers: the NS4168 amplifier is an I2S DAC with no
++ * register interface (BCK G19 / WS G33 / DATA G22) and the SPM1423 PDM
++ * microphone (CLK G33 / DATA G23) is served by the I2S RX model when a host
++ * PCM fixture is injected.  There is no on-board I2C codec and IR G12 is not
++ * wired in this model.
++ */
++void m5atomecho_board_init(Esp32SocState *s)
++{
++    m5atomclassic_board_init_common(s, false);
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 3133497..0c87073 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -90,6 +90,7 @@ typedef enum {
+     M5_BOARD_ATOM_MATRIX_V11,
+     M5_BOARD_BASIC_V27,
+     M5_BOARD_ATOMU,
++    M5_BOARD_ATOM_ECHO,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -205,6 +206,7 @@ void m5stickcplus2_board_init(struct Esp32SocState *s);
+ void m5stickc_board_init(struct Esp32SocState *s);
+ void m5atomclassic_board_init(struct Esp32SocState *s);
+ void m5atomu_board_init(struct Esp32SocState *s);
++void m5atomecho_board_init(struct Esp32SocState *s);
+ void m5basic_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 18f640a..b248637 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1051,6 +1051,8 @@ static void esp32_machine_init(MachineState *machine)
+         m5basic_board_init(ss);
+     } else if (m5_board == M5_BOARD_ATOMU) {
+         m5atomu_board_init(ss);
++    } else if (m5_board == M5_BOARD_ATOM_ECHO) {
++        m5atomecho_board_init(ss);
+     }
+ 
+     /* Need MMU initialized prior to ELF loading,
+@@ -1503,3 +1505,39 @@ static void m5atomu_machine_type_init(void)
+ }
+ 
+ type_init(m5atomu_machine_type_init);
++
++
++/* M5Stack Atom Echo / Atom Voice (C008-C): ESP32-PICO-D4, one SK6812 on G27,
++ * button G39, NS4168 I2S amplifier (BCK G19 / WS G33 / DATA G22), SPM1423 PDM
++ * microphone (CLK G33 / DATA G23), Grove on G26/G32, no display/PSRAM. */
++static void m5atomecho_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOM_ECHO;
++    esp32_machine_init(machine);
++}
++
++static void m5atomecho_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5Stack Atom Echo C008-C (ESP32-PICO-D4, NS4168 I2S, PDM microphone)";
++    mc->init = m5atomecho_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5atomecho_info = {
++    .name = MACHINE_TYPE_NAME("m5atomecho"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5atomecho_machine_class_init,
++};
++
++static void m5atomecho_machine_type_init(void)
++{
++    type_register_static(&m5atomecho_info);
++}
++
++type_init(m5atomecho_machine_type_init);
+-- 
+2.55.0
+

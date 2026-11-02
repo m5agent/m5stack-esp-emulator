@@ -759,6 +759,38 @@
         }
       ],
       "unconfirmed": []
+    },
+    {
+      "device_id": "atom-echo",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "PORT.CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 26,
+            "white": 32
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/products/sku/C008-C",
+              "checked_at": "2026-11-02",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White) PORT.CUSTOM GND 5V G26 G32"
+            }
+          ],
+          "limitations": [
+            "Runtime controller routing and per-Unit protocols are not implied by this wiring entry."
+          ]
+        }
+      ],
+      "unconfirmed": []
     }
   ]
 }

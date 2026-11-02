@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import struct
 import subprocess
 import sys
 import time
@@ -251,6 +252,22 @@ def run_console(
     image = build_console_image(device, device_out, env)
     case_env = env.copy()
     case_env.update(device.get("env", {}))
+    # Deterministic host-side PCM fixture for a board-local PDM/I2S capture
+    # path.  The guest must consume it through the real DMA descriptors; the
+    # host never writes guest buffers or values.
+    microphone_fixture = None
+    fixture = device.get("microphone_fixture")
+    if fixture:
+        microphone_fixture = device_out / str(
+            fixture.get("file", "microphone-source.pcm")
+        )
+        sample_count = int(fixture.get("samples", 16000))
+        signed = b"".join(
+            struct.pack("<h", ((index * 137) % 20000) - 10000)
+            for index in range(sample_count)
+        )
+        microphone_fixture.write_bytes(signed)
+        case_env["M5SW_I2S_RX_PCM_FILE"] = str(microphone_fixture)
     rmt_nec = device.get("rmt_nec")
     rmt_capture = None
     if rmt_nec:
@@ -443,6 +460,8 @@ def run_console(
                 "rmt_nec": validation.stdout.strip(),
                 **({"pcm": pcm_detail} if pcm_detail else {}),
                 **({"qom": qom_detail} if qom_detail else {}),
+                **({"microphone_fixture": str(microphone_fixture)}
+                   if microphone_fixture else {}),
             }
         missing.append("RMT validation: " + validation.stdout.strip())
     elif matched and not missing:
@@ -454,6 +473,8 @@ def run_console(
             "flash": flash_info,
             **({"pcm": pcm_detail} if pcm_detail else {}),
             **({"qom": qom_detail} if qom_detail else {}),
+            **({"microphone_fixture": str(microphone_fixture)}
+               if microphone_fixture else {}),
         }
     return {
         "status": "FAIL",

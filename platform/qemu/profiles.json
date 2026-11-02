@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "27 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "28 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1809,6 +1809,57 @@
         "status": "native-boot-board-rgb-button-grove-pass",
         "detail": "官方 UIFlow2 v2.5.4 AtomU 4MB 镜像在同一 m5atomu guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=130、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读，以及 G26/G32 上 guest I2C 控制器扫描。无屏/无 PSRAM；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
         "evidence": "docs/evidence/2026-11-02-atomu-host/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "atom-echo",
+      "name": "Atom Echo",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atomecho",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "rgb-led",
+        "ns4168",
+        "spm1423",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 Atom Echo 4MB boot, M5.begin() and M5.getBoard()=142 in one m5atomecho guest",
+        "Single SK6812 on GPIO27 driven through the ESP32 classic RMT path; QOM decodes the final wire frame as 0x204060 across 5 completed frames",
+        "QMP key:a drives GPIO39 through the board input handler and the guest reports press/release and repaints the LED",
+        "NS4168 I2S standard-mode speaker produces non-silent host PCM captured at the I2S1 DMA boundary; guest I2C scan on G26/G32 shows no ES8311 codec",
+        "SPM1423 PDM RX path on I2S0 consumes the host-injected PCM fixture; the guest microphone buffer is non-zero"
+      ],
+      "blockers": [
+        "Device-local console evidence covers ROM boot, board id 142, RMT SK6812 output, QMP key-driven button, Grove I2C scan, NS4168 I2S speaker PCM and SPM1423 PDM RX with a host PCM fixture only. Analog amplifier/speaker acoustics, IR G12, Grove Unit protocols and physical behavior remain unvalidated."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-board-rgb-button-grove-speaker-pdm-pass",
+        "detail": "官方 UIFlow2 v2.5.4 Atom Echo 4MB 镜像在同一 m5atomecho guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=142、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读、G26/G32 guest I2C 扫描（0x48 为 QEMU 机器自带 tmp105，0x18 ES8311 不存在）、NS4168 I2S 扬声器在 I2S1 DMA 边界的非静音 PCM 捕获，以及 SPM1423 PDM 麦克风在 I2S0 上消费宿主注入 PCM 的非零缓冲。无屏/无 PSRAM；模拟功放/声学、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
+        "evidence": "docs/evidence/2026-11-02-atom-echo-host/summary.json",
         "category": "virtual-device"
       }
     }
