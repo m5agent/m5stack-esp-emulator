@@ -24,13 +24,13 @@
 | 设备 | SKU | 芯片 | 官方 UIFlow2 | 所需板级/模型工作 | 当前边界与决策 |
 | --- | --- | --- | --- | --- | --- |
 | AtomS3R-M12 | C126-M12 | ESP32-S3-PICO-1-N8R8 | 否（社区 `AtomS3R-CAM M12 User Demo`、`XiaoZhi` 等） | OV3660 SCCB/DVP 模型；复用 `m5atoms3rcam` 骨架 | 等 camera SCCB/DVP 数据面闭环后再接；不能用 AtomS3R 固件冒充 M12 |
-| AtomS3R-Ext | C126-Ext | ESP32-S3-PICO-1-N8R8 | 否 | 与 AtomS3R 同控制器 + 用户键 G41 + IR G47 + Proto 排针 | 无准确固件；只能登记为 `backend-required` 或以社区固件单独验证，不继承 AtomS3R |
-| AtomS3R-AI Chatbot | K147 | ESP32-S3-PICO-1-N8R8 | 否（套件使用控制器固件） | AtomS3R + Atomic Voice Base A149（ES8311）组合件 | 不是独立 host alias；按组合件在 Voice Base 数据面上验证，不能单独冒充 |
-| AtomS3R-CAM AI Chatbot | K147-CAM | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-CAM + Voice Base 组合件 | 依赖 camera 与 Voice Base 两条数据面，均未同时闭环 |
-| AtomS3R-M12 Volcengine Kit | D062-M12 | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-M12 + Voice Base 组合件 | 同 M12，且依赖套件固件，暂列 `backend-required` |
+| AtomS3R-Ext | C126-Ext | ESP32-S3-PICO-1-N8R8 | 否 | 与 AtomS3R 同控制器 + 用户键 G41 + IR G47 + Proto 排针 | **boundary-only**（2026-11-02 决策）：M5Burner/GitHub release/UIFlow2 build 均无 Ext 专属固件或 board profile；Ext 无屏 + Proto 扩展板，与 AtomS3R 板级 profile 不同；保持 visual-only，不继承 AtomS3R。详见 [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
+| AtomS3R-AI Chatbot | K147 | ESP32-S3-PICO-1-N8R8 | 否（套件使用控制器固件） | AtomS3R + Atomic Voice Base A149（ES8311）组合件 | **composition-only**（2026-11-02 决策）：AtomS3R（已接入）+ A149 组合件；M5Burner 官方 XiaoZhi/OpenAI/小聆固件均以控制器+底座组合投放（标签 `ATOMS3R`），无 K147 host alias；按组合件复用既有 host/base 证据验证。详见 [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
+| AtomS3R-CAM AI Chatbot | K147-CAM | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-CAM + Voice Base 组合件 | **composition-only**（2026-11-02 决策）：AtomS3R-CAM（已接入，camera 数据面）+ A149；官方 XiaoZhi CAM/M12 等为控制器应用固件，无 K147-CAM host alias；组合件复用 host/base 验证。详见 [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
+| AtomS3R-M12 Volcengine Kit | D062-M12 | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-M12 + Voice Base 组合件 | **composition-only**（2026-11-02 决策）：AtomS3R-M12（已接入，共享 UIFlow2 CAM-M12 描述覆盖的官方镜像）+ A149；官方 Volcengine 套件固件是应用/测试固件（v1.0-beta，需手机热点），不是独立 host；不新增 alias。详见 [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
 | M5Stick | K016 | ESP32（classic） | 否（通用 `UIFlow` UIFlow1） | SH1107 64×128 OLED、三键、MPU9250/无 IMU 两个修订 | 需先确定板修订；OLED 控制器模型是新工作 |
 | StickT2 | K016-T2 | ESP32（classic） | 否（社区 `StickT2 User Demo`） | MLX90640 热成像、ST7789 135×240 | 依赖 thermal fixture 与该板 I2C 拓扑；按社区镜像单独验证 |
-| StickV | K027 | K210（非 ESP32） | 否 | 不属于 ESP32 后端 | 明确异构边界：不用 ESP32 alias；需独立 K210 后端评估 |
+| StickV | K027 | K210（非 ESP32） | 否 | 不属于 ESP32 后端 | **boundary-only**（2026-11-02 决策）：K210 RISC-V/OV7740/MaixPy，非 ESP32；M5Burner/UIFlow2/GitHub release 无任何该板固件；保持 visual-only，K210 后端另行评估。详见 [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
 
 ## Unit 缺口与方法
 
