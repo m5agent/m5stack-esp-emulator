@@ -1,0 +1,438 @@
+From 690d645826dc8952ddc6af5ad9ca8084a5e3843e Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5agentdeMac-mini.local>
+Date: Tue, 3 Nov 2026 01:10:56 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-8 first five data planes
+
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  38 +++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 270 +++++++++++++++++++++++++-
+ 2 files changed, 300 insertions(+), 8 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index d3547db..cfe22df 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -66,6 +66,10 @@ typedef struct GPIOUnit {
+     char *gps_lines;
+     unsigned gps_line_index;
+     uint64_t gps_injected;
++    /* U032-V11 GPS v1.1 and U190 GPS SMA share the AT6668 NMEA path. The
++     * product pages say UART 115200 while the frozen unit/gps.py hard-codes
++     * 9600; the baud fixture keeps that UNRESOLVED, it does not pick a side. */
++    int64_t gps_baud;
+     /* U107 UHF-RFID (JRD4035 UART frames): capture guest command frames and
+      * inject fixture response frames; RF/Gen2/tag security is NOT modeled. */
+     char *uhf_responses;
+@@ -661,13 +665,18 @@ static AW3641State *aw3641_new(M5Unit *unit, Error **errp)
+ /* END AW3641 NOMINAL DIGITAL MODEL */
+ 
+ 
++static bool gpio_gps_unit(const char *id)
++{
++    return !strcmp(id, "gps") || !strcmp(id, "gps-v11") || !strcmp(id, "gps-sma");
++}
++
+ bool m5_unit_gpio_supported(const char *id)
+ {
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+-        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
++        "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+         "neohex", "lora-e220-433", "zigbee", "nbiot2",
+         "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+@@ -983,7 +992,7 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+             if ((!strcmp(g->unit->unit_id, "rs485") ||
+                  !strcmp(g->unit->unit_id, "rs485-iso") ||
+                  !strcmp(g->unit->unit_id, "midi") ||
+-                 !strcmp(g->unit->unit_id, "gps") ||
++                 gpio_gps_unit(g->unit->unit_id) ||
+                  !strcmp(g->unit->unit_id, "uhf-rfid") ||
+                  !strcmp(g->unit->unit_id, "lora-e220-433") ||
+                  !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2") ||
+@@ -1317,6 +1326,23 @@ static void uhf_inject_response(GPIOUnit *g)
+     }
+ }
+ 
++static void gps_baud_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value = g->gps_baud;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void gps_baud_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < 300 || value > 1000000) { error_setg(errp, "baud must be 300..1000000"); return; }
++    g->gps_baud = value;
++    g->unit->input_events++;
++}
++
+ static void gps_lines_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     GPIOUnit *g = op;
+@@ -1496,7 +1522,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+     }
+     if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485") ||
+                 !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi") ||
+-                !strcmp(unit->unit_id, "gps") || !strcmp(unit->unit_id, "uhf-rfid") ||
++                gpio_gps_unit(unit->unit_id) || !strcmp(unit->unit_id, "uhf-rfid") ||
+                 !strcmp(unit->unit_id, "lora-e220-433") ||
+                 !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2") ||
+                 !strcmp(unit->unit_id, "synth") ||
+@@ -1626,13 +1652,17 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         object_property_add(o, "weight-g", "number", hx_weight_get, NULL, NULL, g);
+         object_property_add(o, "conversions", "uint64", count_get, NULL, NULL, &g->hx_conversions);
+         object_property_add(o, "ready-level", "bool", hx_ready_get, NULL, NULL, g);
+-    } else if (!strcmp(id, "gps")) {
++    } else if (gpio_gps_unit(id)) {
++        /* U032 GPS (9600 frozen driver) and U032-V11/U190 AT6668 (115200 page):
++         * same NMEA path; the baud fixture keeps the conflict UNRESOLVED. */
++        g->gps_baud = 9600;
+         g->gps_lines = g_strdup("$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48");
+         g->gps_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, gps_timer_cb, g);
+         timer_mod_ns(g->gps_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INT64_C(50000000));
+         object_property_add(o, "nmea-lines", "str", gps_lines_get, gps_lines_set, NULL, g);
+         object_property_add(o, "injected-lines", "uint64", count_get, NULL, NULL, &g->gps_injected);
+         object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++        object_property_add(o, "baud", "int", gps_baud_get, gps_baud_set, NULL, g);
+     } else if (!strcmp(id, "uhf-rfid")) {
+         g->uhf_responses = g_strdup("bb010100000000007e");
+         object_property_add(o, "responses-hex", "str", uhf_responses_get, uhf_responses_set, NULL, g);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 08e96fc..0b3d72b 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -40,7 +40,7 @@ typedef enum {
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+-    CONTROL_PAHUB, CONTROL_MINISCALE,
++    CONTROL_PAHUB, CONTROL_MINISCALE, CONTROL_UNIT_LCD,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -193,6 +193,23 @@ typedef struct M5UnitControl {
+     int64_t miniscale_lpf, miniscale_avg, miniscale_ema;
+     uint8_t miniscale_rgb[3];
+     uint8_t miniscale_gap_buf[4];
++    /* U040-B-V21 PaHub v2.1: DIP-selectable 0x70-0x77 address fixture on the
++     * same PCA9548A 1-byte mask-only model. Downstream bus/nested hubs are
++     * NOT modeled; 0x70-0x77 conflicts with pahub/pahub-v20/env-iii. */
++    uint8_t pahub_dip;
++    /* U120 Unit LCD (driver 0x3D vs page 0x3E conflict): ST7789V2 I2C command
++     * table with a minimal 135x240 RGB565 framebuffer, read-id/bufcount
++     * responses and command/pixel counters. Display optics, backlight and the
++     * ESP32-PICO firmware are NOT modeled. */
++    uint8_t lcd_cmd_buf[64], lcd_last[16], lcd_read_buf[8], lcd_read_id[4];
++    unsigned lcd_cmd_len, lcd_last_len, lcd_read_len, lcd_read_pos;
++    uint8_t lcd_pixel_acc[4];
++    unsigned lcd_pixel_acc_len;
++    uint64_t lcd_commands, lcd_fill_rects, lcd_pixels_written, lcd_rle_runs;
++    int64_t lcd_bufcount, lcd_brightness, lcd_rotation, lcd_power;
++    uint16_t lcd_x0, lcd_y0, lcd_x1, lcd_y1, lcd_cx, lcd_cy;
++    uint16_t lcd_color;
++    uint16_t *lcd_fb;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1756,9 +1773,193 @@ static void snapshot_registers(M5UnitControl *s)
+     }
+ }
+ 
++/* U120 Unit LCD: minimal ST7789V2 I2C command model. The framebuffer is
++ * controller state only; no panel optics/backlight are modeled. */
++static void lcd_fb_store(M5UnitControl *s, uint16_t value)
++{
++    if (s->lcd_cx < 135 && s->lcd_cy < 240) {
++        s->lcd_fb[s->lcd_cy * 135 + s->lcd_cx] = value;
++    }
++    s->lcd_pixels_written++;
++    if (++s->lcd_cx > s->lcd_x1) { s->lcd_cx = s->lcd_x0; s->lcd_cy++; }
++    if (s->lcd_cy > s->lcd_y1) { s->lcd_cy = s->lcd_y0; }
++}
++
++static void lcd_fill_rect(M5UnitControl *s, unsigned xl, unsigned yt, unsigned xr, unsigned yb)
++{
++    if (xr >= 135) { xr = 134; }
++    if (yb >= 240) { yb = 239; }
++    if (xl > xr || yt > yb) { return; }
++    for (unsigned y = yt; y <= yb; y++) {
++        for (unsigned x = xl; x <= xr; x++) { s->lcd_fb[y * 135 + x] = s->lcd_color; }
++    }
++    s->lcd_fill_rects++;
++    s->lcd_pixels_written += (xr - xl + 1) * (yb - yt + 1);
++}
++
++static uint32_t lcd_fb_crc(M5UnitControl *s)
++{
++    uint32_t crc = 0xffffffffu;
++    const uint8_t *data = (const uint8_t *)s->lcd_fb;
++    for (size_t i = 0; i < 135u * 240u * 2u; i++) {
++        crc ^= data[i];
++        for (unsigned k = 0; k < 8; k++) { crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1))); }
++    }
++    return ~crc;
++}
++
++static void lcd_parse_command(M5UnitControl *s)
++{
++    if (!s->lcd_cmd_len) { return; }
++    uint8_t cmd = s->lcd_cmd_buf[0];
++    unsigned len = s->lcd_cmd_len > sizeof(s->lcd_cmd_buf) ? sizeof(s->lcd_cmd_buf) : s->lcd_cmd_len;
++    s->lcd_commands++;
++    switch (cmd) {
++    case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c:  /* FILLRECT family */
++        if (len >= 5) {
++            lcd_fill_rect(s, s->lcd_cmd_buf[1], s->lcd_cmd_buf[2],
++                          s->lcd_cmd_buf[3], s->lcd_cmd_buf[4]);
++        }
++        break;
++    case 0x2a:  /* CASET: 2-byte big-endian column window */
++        if (len >= 5) {
++            s->lcd_x0 = (uint16_t)((s->lcd_cmd_buf[1] << 8) | s->lcd_cmd_buf[2]);
++            s->lcd_x1 = (uint16_t)((s->lcd_cmd_buf[3] << 8) | s->lcd_cmd_buf[4]);
++            if (s->lcd_x0 > 134) { s->lcd_x0 = 0; }
++            if (s->lcd_x1 > 134) { s->lcd_x1 = 134; }
++            s->lcd_cx = s->lcd_x0;
++        }
++        break;
++    case 0x2b:  /* RASET: 2-byte big-endian row window */
++        if (len >= 5) {
++            s->lcd_y0 = (uint16_t)((s->lcd_cmd_buf[1] << 8) | s->lcd_cmd_buf[2]);
++            s->lcd_y1 = (uint16_t)((s->lcd_cmd_buf[3] << 8) | s->lcd_cmd_buf[4]);
++            if (s->lcd_y0 > 239) { s->lcd_y0 = 0; }
++            if (s->lcd_y1 > 239) { s->lcd_y1 = 239; }
++            s->lcd_cy = s->lcd_y0;
++        }
++        break;
++    case 0x22:  /* BRIGHTNESS */
++        if (len >= 2) { s->lcd_brightness = CLAMP((int64_t)s->lcd_cmd_buf[1], 0, 100); }
++        break;
++    case 0x36:  /* ROTATE */
++        if (len >= 2) { s->lcd_rotation = s->lcd_cmd_buf[1] & 0x03; }
++        break;
++    case 0x38:  /* SET_POWER */
++        if (len >= 2) { s->lcd_power = s->lcd_cmd_buf[1] ? 1 : 0; }
++        break;
++    case 0x39:  /* SET_SLEEP */
++        if (len >= 2) { s->lcd_power = s->lcd_cmd_buf[1] ? 0 : 1; }
++        break;
++    case 0x51: case 0x52: case 0x53: case 0x54:  /* SET_COLOR_* */
++        if (len >= 3) { s->lcd_color = (uint16_t)((s->lcd_cmd_buf[1] << 8) | s->lcd_cmd_buf[2]); }
++        break;
++    case 0x49: case 0x4a: case 0x4b: case 0x4c: case 0x4d:  /* WRITE_RLE_* */
++        s->lcd_rle_runs++;
++        break;
++    case 0x50:  /* RAM_FILL (single colour command) */
++        s->lcd_fill_rects++;
++        break;
++    case 0x23:  /* COPYRECT */
++        break;
++    case 0xa0:  /* CHANGE_ADDR: new address, complemented, then 0xA0 */
++        if (len >= 3 && ((uint8_t)~s->lcd_cmd_buf[1] == s->lcd_cmd_buf[2]) &&
++            s->lcd_cmd_buf[1] >= 0x08 && s->lcd_cmd_buf[1] < 0x78) {
++            i2c_slave_set_address(I2C_SLAVE(s), s->lcd_cmd_buf[1]);
++        }
++        break;
++    case 0x04: case 0x09:  /* READ_ID / READ_BUFCOUNT are read transactions */
++    default:
++        break;
++    }
++    unsigned copy = len > sizeof(s->lcd_last) ? sizeof(s->lcd_last) : len;
++    memcpy(s->lcd_last, s->lcd_cmd_buf, copy);
++    s->lcd_last_len = copy;
++    s->lcd_cmd_len = 0;
++    s->lcd_pixel_acc_len = 0;
++}
++
++static void lcd_read_id_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char hex[9];
++    for (unsigned i = 0; i < 4; i++) { g_snprintf(hex + i * 2, 3, "%02x", s->lcd_read_id[i]); }
++    char *value = g_strdup(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void lcd_last_hex_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char hex[sizeof(s->lcd_last) * 2 + 1];
++    for (unsigned i = 0; i < s->lcd_last_len; i++) { g_snprintf(hex + i * 2, 3, "%02x", s->lcd_last[i]); }
++    hex[s->lcd_last_len * 2] = 0;
++    char *value = g_strdup(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void lcd_fb_crc_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = lcd_fb_crc(s);
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void pahub_dip_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->pahub_dip;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void pahub_dip_set(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < 0x70 || value > 0x77) {
++        error_setg(errp, "dip-address must be 0x70..0x77"); return;
++    }
++    BusChild *child;
++    QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++        I2CSlave *other = I2C_SLAVE(child->child);
++        if (other != I2C_SLAVE(s) && other->address == value) {
++            error_setg(errp, "PaHub v2.1 I2C address is already in use"); return;
++        }
++    }
++    s->pahub_dip = value;
++    i2c_slave_set_address(I2C_SLAVE(s), value);
++    s->unit->input_events++;
++}
++
+ static int control_event(I2CSlave *dev, enum i2c_event event)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
++    if (s->kind == CONTROL_UNIT_LCD) {
++        if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC) {
++            s->unit->transactions++; s->write_pos = 0; s->reading = false;
++            s->lcd_cmd_len = 0; s->lcd_pixel_acc_len = 0;
++        } else if (event == I2C_START_RECV) {
++            s->unit->transactions++; s->read_pos = 0; s->reading = true;
++            s->lcd_read_len = s->lcd_read_pos = 0;
++            if (s->lcd_cmd_len >= 1) {
++                uint8_t cmd = s->lcd_cmd_buf[0];
++                if (cmd == 0x04) {
++                    memcpy(s->lcd_read_buf, s->lcd_read_id, 4);
++                    s->lcd_read_len = 4;
++                } else if (cmd == 0x09) {
++                    put_le32(s->lcd_read_buf, (uint32_t)s->lcd_bufcount);
++                    s->lcd_read_len = 4;
++                }
++            }
++        } else if (event == I2C_FINISH) {
++            if (s->reading) { s->reading = false; }
++            else { lcd_parse_command(s); }
++        }
++        return 0;
++    }
+     if (s->kind == CONTROL_SCROLL) {
+         if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC ||
+             event == I2C_START_RECV) {
+@@ -1788,6 +1989,30 @@ static int control_send(I2CSlave *dev, uint8_t value)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->written_bytes++;
++    if (s->kind == CONTROL_UNIT_LCD) {
++        /* Command byte first, then per-command payload until STOP. WRITE_RAW/
++         * DRAWPIXEL payloads can be a whole frame, so the small command log is
++         * bounded while the pixel stream is counted/written as it arrives. */
++        if (s->lcd_cmd_len < sizeof(s->lcd_cmd_buf)) {
++            s->lcd_cmd_buf[s->lcd_cmd_len] = value;
++        }
++        s->lcd_cmd_len++;
++        if (s->lcd_cmd_len > 1) {
++            uint8_t cmd = s->lcd_cmd_buf[0];
++            unsigned psize = cmd >= 0x41 && cmd <= 0x44 ? cmd - 0x40 : 0;
++            if (psize) {
++                s->lcd_pixel_acc[s->lcd_pixel_acc_len++] = value;
++                if (s->lcd_pixel_acc_len >= psize) {
++                    uint16_t px = psize >= 2
++                        ? (uint16_t)((s->lcd_pixel_acc[0] << 8) | s->lcd_pixel_acc[1])
++                        : (uint16_t)s->lcd_pixel_acc[0];
++                    lcd_fb_store(s, px);
++                    s->lcd_pixel_acc_len = 0;
++                }
++            }
++        }
++        return 0;
++    }
+     if (s->kind == CONTROL_PAHUB) {
+         /* Direct 1-byte channel-mask write; no register pointer phase. */
+         s->pahub_mask = value;
+@@ -2336,6 +2561,9 @@ static uint8_t control_recv(I2CSlave *dev)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->read_bytes++;
++    if (s->kind == CONTROL_UNIT_LCD) {
++        return s->lcd_read_pos < s->lcd_read_len ? s->lcd_read_buf[s->lcd_read_pos++] : 0x00;
++    }
+     if (s->kind == CONTROL_PAHUB) {
+         return s->pahub_mask;
+     }
+@@ -2473,7 +2701,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+-        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "mini-scales",
++        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2654,11 +2882,45 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_control_int_fixture(s, "lpf", &s->miniscale_lpf, 0, 1, true);
+         add_control_int_fixture(s, "avg-level", &s->miniscale_avg, 0, 50, true);
+         add_control_int_fixture(s, "ema-alpha", &s->miniscale_ema, 0, 99, true);
+-    } else if (!strcmp(unit->unit_id, "pahub-v20")) {
++    } else if (!strcmp(unit->unit_id, "pahub-v20") || !strcmp(unit->unit_id, "pahub-v21")) {
++        /* U040-B PaHub v2.0 (fixed 0x70) and v2.1 (DIP 0x70-0x77) share the
++         * PCA9548A mask-only model; downstream bus/nested hubs are NOT modeled. */
+         s->kind = CONTROL_PAHUB; address = 0x70;
+-        s->pahub_mask = 0;
++        s->pahub_mask = 0; s->pahub_dip = 0x70;
+         add_control_int_fixture(s, "channel-mask", &s->pahub_mask, 0, 255, false);
+         add_control_int_fixture(s, "channel-writes", &s->pahub_writes, 0, INT64_MAX, false);
++        if (!strcmp(unit->unit_id, "pahub-v21")) {
++            object_property_add(OBJECT(s->unit), "dip-address", "int",
++                                pahub_dip_get, pahub_dip_set, NULL, s);
++        }
++    } else if (!strcmp(unit->unit_id, "lcd")) {
++        /* U120 Unit LCD: driver default 0x3D, product page 0x3E; the conflict
++         * is UNRESOLVED, so the driver address is used and CHANGE_ADDR applies. */
++        s->kind = CONTROL_UNIT_LCD; address = 0x3d;
++        s->lcd_fb = g_new0(uint16_t, 135 * 240);
++        s->lcd_bufcount = 135 * 240 * 2;
++        s->lcd_read_id[0] = 0x77; s->lcd_read_id[1] = 0x89;
++        s->lcd_read_id[2] = 0x01; s->lcd_read_id[3] = 0x00;
++        s->lcd_brightness = 100; s->lcd_rotation = 0; s->lcd_power = 1;
++        s->lcd_color = 0xffff; s->lcd_x1 = 134; s->lcd_y1 = 239;
++        object_property_add(OBJECT(s->unit), "read-id-hex", "str",
++                            lcd_read_id_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "last-command-hex", "str",
++                            lcd_last_hex_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "framebuffer-crc", "int",
++                            lcd_fb_crc_get, NULL, NULL, s);
++        add_control_int_fixture(s, "bufcount", &s->lcd_bufcount, 0, INT64_MAX, false);
++        add_control_int_fixture(s, "brightness", &s->lcd_brightness, 0, 100, false);
++        add_control_int_fixture(s, "rotation", &s->lcd_rotation, 0, 3, false);
++        add_control_int_fixture(s, "power", &s->lcd_power, 0, 1, false);
++        object_property_add(OBJECT(s->unit), "commands", "uint64",
++                            u64_get, NULL, NULL, &s->lcd_commands);
++        object_property_add(OBJECT(s->unit), "fill-rects", "uint64",
++                            u64_get, NULL, NULL, &s->lcd_fill_rects);
++        object_property_add(OBJECT(s->unit), "pixels-written", "uint64",
++                            u64_get, NULL, NULL, &s->lcd_pixels_written);
++        object_property_add(OBJECT(s->unit), "rle-runs", "uint64",
++                            u64_get, NULL, NULL, &s->lcd_rle_runs);
+     } else if (!strcmp(unit->unit_id, "dds")) {
+         s->kind = CONTROL_DDS; address = 0x31;
+         s->dds_fw = 1; s->dds_mode = 1;
+-- 
+2.55.0
+

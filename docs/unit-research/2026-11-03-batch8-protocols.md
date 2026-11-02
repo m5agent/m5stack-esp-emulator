@@ -477,3 +477,40 @@ blocker/limitations`。`runtime.status` 全部 `planned`，`model_status` 全部
 
 以上为研究结论，不构成实现/证据承诺；下一批实现前需重新核对驱动树 HEAD
 与产品页地址，特别是显示地址（0x3C/0x3D/0x3E）与 GPS 波特率（9600/115200）。
+
+## 9. 首批 5 款实现状态（补丁 0146）
+
+日期：`2026-11-02`。实现任务 `task-50`，分支 `m5agent/units16`（base `origin/main 0578b162`，catalog
+111 款）。
+
+**补丁与 base**
+
+- 补丁：`patches/qemu-m5stack-peripherals/0146-unit-batch8a.patch`（sha256 `5b7d6ee1…`，
+  在 canonical 链上 `git apply --check` 通过）。
+- canonical 链：`75f1d24` → `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132`
+  → `0137` → `0138` → `0139` → `0140` → `0141` → `0142` → `0143` → `0144`；本补丁是 `0120`
+  之后的第 26 层。`0145` 由并行 batch-7 剩余实现任务占用，不属于本链；`0147` 为下一个可用号。
+
+**5 款实现与边界**
+
+| Unit | SKU | 状态 | QEMU 模型 | unresolved / NOT RUN |
+| --- | --- | --- | --- | --- |
+| `pahub-v21` | U040-B-V21 | planned（复用 + DIP fixture） | 复用 `CONTROL_PAHUB`（PCA9548A mask-only）；`dip-address` fixture 建模 0x70-0x77，`channel-mask`/`channel-writes` 读回 | **0x70-0x77 与 pahub/pahub-v20/env-iii 冲突；下游 bus 转发/嵌套 hub、A0-A2 DIP 电气、8-vs-6 通道曝光 NOT RUN** |
+| `gps-v11` | U032-V11 | planned（复用 GPS NMEA 路径） | 复用 batch4 `gps` UART RX 注入/NMEA 行路径；`nmea-lines`/`baud` fixture、`injected-lines`/`tx-hex` 观测 | **页面 115200 vs 冻结驱动 9600 unresolved（baud fixture 记录、不选边）；GNSS RF/天线/多星座/精度/冷启动 NOT RUN；PORT.C 共享** |
+| `gps-sma` | U190 | planned（同 AT6668 路径） | 同 `gps-v11`（外置有源 SMA 天线只写产品边界，不进数字模型） | **同 115200/9600 unresolved；天线增益/RF/精度 NOT RUN；与 v1.1 结果不得互相转授** |
+| `lcd` | U120 | planned（新增命令/framebuffer slave） | 新增 `CONTROL_UNIT_LCD`：READ_ID 0x04→0x77/0x89/版本、READ_BUFCOUNT 0x09、FILLRECT 0x68-0x6C、CASET 0x2A/RASET 0x2B、WRITE_RAW 0x41-0x44、WRITE_RLE 0x49-0x4D、DRAWPIXEL、SET_COLOR、BRIGHTNESS/ROTATE/POWER/SLEEP、CHANGE_ADDR 0xA0 + 135x240 RGB565 framebuffer/bufcount | **页面 0x3E vs 驱动 0x3D unresolved（按驱动 0x3D 建模）；0x3C/0x3D/0x3E 与 OLED/MiniOLED/Glass2 冲突；M5Unified external display 上屏组合、ST7789V2 光学/背光/RGB666、ESP32-PICO 固件 NOT RUN** |
+| `mini-can` | U179 | **blocked/DEFER（未实现）** | 无 QEMU 模型：CAN 帧走 m5can/TWAI，Unit attachment/CAN 帧注入在 Unit 运行时未建模（同 batch7 `can` gap），不伪造帧 | **CAN attachment/TWAI frame fixture unresolved；TJA1051 非隔离电气、120Ω 终端、差分电平、仲裁/错误帧、真实负载 NOT RUN** |
+
+**离线 QOM smoke**（S3 `m5atoms3r`，无 guest 固件）：`pahub-v21`/`lcd`/`gps-v11`/`gps-sma` 各 1 个
+attachment，QMP `qom-list`/`qom-set`/`qom-get` **20/20 PASS**——pahub DIP 0x70→0x71 地址联动、
+channel mask 默认值；GPS baud/nmea-lines 读写与 injected/tx 观测；LCD read-id `77890100`、
+bufcount=64800、brightness/power/地址默认与命令/像素计数器属性。smoke 不覆盖 I2C 命令字节语义
+（FILLRECT/WRITE_RAW 帧）、guest NMEA 解码或 CAN 帧；这些仍需 guest 证据。
+
+**计数**：catalog 111 → **116**，runtime-profiles 111 → 116；visual mapping audit 5 条 +
+`all-116-products` 标记；计数测试（test_unit_runtime / test_serve_api units / visual mapping /
+batch3 A+B、batch7 A static marker）与 snapshot 已同步。
+
+**共同边界**：4 款是控制器可见的事务/寄存器模型（`lcd` 为新增最小命令 slave），`mini-can` 明确
+blocked；复用模型的既有 NOT RUN 边界不因新 SKU 别名升级。没有 guest 与 Device Service 证据前
+不得把任何一款升级为 `implemented`/`simulated`/`validated`。

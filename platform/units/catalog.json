@@ -23886,6 +23886,1088 @@
         "Acceleration/gyroscope/magnetometer/attitude and magnetic interference are NOT RUN.",
         "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
       ]
+    },
+    {
+      "id": "pahub-v21",
+      "name": "Unit PaHub v2.1",
+      "sku": "U040-B-V21",
+      "visual_asset": {
+        "entry": "src/units/pahub-v21/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-PaHub%20v2.1",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "PCA9548AP",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "PCA9548AP I2C mux at 0x70-0x77 (default 0x70, DIP). Channel select/release is a 1-byte read-modify-write mask: read current mask, OR/AND (1<<channel), write back. Six downstream Grove ports can be cascaded.",
+        "registers": [
+          {
+            "register": "channel mask 0x70-0x77",
+            "length": 1,
+            "encoding": "1-byte mask; bit N enables channel N (select=read|bit, release=read&~bit)"
+          },
+          {
+            "register": "DIP address",
+            "length": 3,
+            "encoding": "A2-A0 straps map to 0x70-0x77 per page truth table"
+          }
+        ],
+        "gaps": [
+          "Downstream bus forwarding/nested hubs are NOT modeled; only the mask is asserted.",
+          "A0-A2 DIP/electrical/PCA9548A 8-vs-6 channel exposure NOT RUN."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "channel-mask": {
+          "type": "integer",
+          "label": "通道 mask",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "channel-writes": {
+          "type": "integer",
+          "label": "mask 写次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 112,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        },
+        "dip-address": {
+          "type": "integer",
+          "label": "DIP 地址",
+          "default": 112,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 112,
+          "maximum": 119
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-PaHub%20v2.1",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U040-B-V21",
+            "PCA9548AP",
+            "I2C 0x70-0x77 default 0x70",
+            "six downstream Grove ports",
+            "DIP address straps"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pahub.py",
+          "checked_at": "2026-11-03",
+          "sha256": "d5c9c5127efcdcb1447f9bf91411316e50a5f48c6f18b5521b5a1f75c42022fe",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-source",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "CONTROL_PAHUB 1-byte mask read/write on the pahub-v20 model",
+            "channel-mask/channel-writes QOM"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0146 复用 CONTROL_PAHUB（0x70，PCA9548A 1-byte mask-only）新增 `pahub-v21`：DIP 地址 0x70-0x77 由 dip-address fixture 建模（默认 0x70），读回 channel-mask/channel-writes；下游 bus 转发/嵌套 hub 仍未建模。未采集 guest/Device Service 证据 → planned。**0x70-0x77 与 pahub/pahub-v20/env-iii 冲突；A0-A2 DIP 电气、PCA9548A 8 vs 6 通道曝光、电气 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "channel-mask": {
+            "property": "channel-mask",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "channel-writes": {
+            "property": "channel-writes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "dip-address": {
+            "property": "dip-address",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to the reused PCA9548A mask-only slave model at 0x70-0x77"
+      },
+      "blocker": "0146 复用 CONTROL_PAHUB（0x70，PCA9548A 1-byte mask-only）新增 `pahub-v21`：DIP 地址 0x70-0x77 由 dip-address fixture 建模（默认 0x70），读回 channel-mask/channel-writes；下游 bus 转发/嵌套 hub 仍未建模。未采集 guest/Device Service 证据 → planned。**0x70-0x77 与 pahub/pahub-v20/env-iii 冲突；A0-A2 DIP 电气、PCA9548A 8 vs 6 通道曝光、电气 NOT RUN**",
+      "limitations": [
+        "0x70-0x77 conflicts with pahub-v20/pahub/env-iii; one mux per bus unless nested.",
+        "Only the 1-byte select/release mask is modeled; downstream bus forwarding and nested hubs are NOT modeled.",
+        "DIP address straps, PCA9548A 8-channel vs 6-channel exposure and electrical behavior are NOT RUN.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "lcd",
+      "name": "Unit LCD",
+      "sku": "U120",
+      "visual_asset": {
+        "entry": "src/units/lcd/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/lcd",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "ST7789V2",
+          "status": "officially-documented"
+        },
+        {
+          "part": "ESP32-PICO (internal firmware)",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          62,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-display-composition",
+        "summary": "1.14-inch 135x240 ST7789V2 driven by an internal ESP32-PICO over I2C at 0x3E (page) / 0x3D (frozen driver default). Host sends fixed-length and variable-length commands (READ_ID, READ_BUFCOUNT, FILLRECT, CASET/RASET, WRITE_RAW/RLE, DRAWPIXEL, CHANGE_ADDR) and the internal MCU renders into its framebuffer via SPI.",
+        "registers": [
+          {
+            "register": "READ_ID 0x04",
+            "length": 4,
+            "encoding": "read 4B: 0x77,0x89,major,minor"
+          },
+          {
+            "register": "READ_BUFCOUNT 0x09",
+            "length": 1,
+            "encoding": "remaining command buffer 0..255"
+          },
+          {
+            "register": "FILLRECT 0x68",
+            "length": 5,
+            "encoding": "X_Left,Y_Top,X_Right,Y_Bottom with last drawing color"
+          },
+          {
+            "register": "FILLRECT_8/16/24/32 0x69/0x6A/0x6B/0x6C",
+            "length": 6,
+            "encoding": "rect + color byte/2B/3B/4B"
+          },
+          {
+            "register": "CASET 0x2A / RASET 0x2B",
+            "length": 3,
+            "encoding": "X range / Y range"
+          },
+          {
+            "register": "WRITE_RAW_8/16/24/32 0x41/0x42/0x43/0x44",
+            "length": 0,
+            "encoding": "variable-length raw pixels until I2C STOP"
+          },
+          {
+            "register": "WRITE_RLE_* 0x49..0x4D",
+            "length": 0,
+            "encoding": "variable-length RLE pixels until STOP"
+          },
+          {
+            "register": "DRAWPIXEL 0x60..0x64",
+            "length": 3,
+            "encoding": "X,Y + optional color; alpha for 32-bit"
+          },
+          {
+            "register": "BRIGHTNESS 0x22 / ROTATE 0x36 / SET_POWER 0x38 / SET_SLEEP 0x39",
+            "length": 2,
+            "encoding": "single parameter"
+          },
+          {
+            "register": "CHANGE_ADDR 0xA0",
+            "length": 4,
+            "encoding": "new address + bitwise inverse + 0xA0"
+          }
+        ],
+        "gaps": [
+          "Page address 0x3E vs frozen driver 0x3D unresolved",
+          "Internal ESP32-PICO firmware version/command-buffer overflow behavior NOT modeled",
+          "Real ST7789V2 optical/RGB666 output NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "read-id-hex": {
+          "type": "string",
+          "label": "READ_ID 响应",
+          "default": "77890100",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "last-command-hex": {
+          "type": "string",
+          "label": "最近命令字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "framebuffer-crc": {
+          "type": "integer",
+          "label": "framebuffer CRC32",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "bufcount": {
+          "type": "integer",
+          "label": "命令缓冲余量",
+          "default": 64800,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "brightness": {
+          "type": "integer",
+          "label": "亮度",
+          "default": 100,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rotation": {
+          "type": "integer",
+          "label": "旋转",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "power": {
+          "type": "integer",
+          "label": "电源",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "commands": {
+          "type": "integer",
+          "label": "命令计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "fill-rects": {
+          "type": "integer",
+          "label": "填充矩形数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "pixels-written": {
+          "type": "integer",
+          "label": "像素写入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "rle-runs": {
+          "type": "integer",
+          "label": "RLE 命令数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 61,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/lcd",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U120",
+            "ST7789V2 135x240 RGB666",
+            "I2C @0x3E, 400kHz max",
+            "full command table READ_ID/READ_BUFCOUNT/FILLRECT/CASET/RASET/WRITE_RAW/RLE/DRAWPIXEL/CHANGE_ADDR"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lcd.py",
+          "checked_at": "2026-11-03",
+          "sha256": "8c99abd829742908a3852c6136ee57868c631b3cd3e7836f36dbf3252aae7881",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-source",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Unit LCD joins M5Unified external display composition via M5.addDisplay(i2c, addr, {\"unit_lcd\": True})"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0146 新增 CONTROL_UNIT_LCD（I2C slave，驱动默认 0x3D；页面 0x3E 与驱动 0x3D 冲突 unresolved）：ST7789V2 I2C 命令表最小实现（READ_ID 0x04 → 0x77/0x89/版本、READ_BUFCOUNT 0x09、FILLRECT 0x68-0x6C、CASET 0x2A/RASET 0x2B、WRITE_RAW 0x41-0x44、WRITE_RLE 0x49-0x4D、DRAWPIXEL、SET_COLOR、BRIGHTNESS/ROTATE/POWER/SLEEP、CHANGE_ADDR 0xA0）+ 135x240 RGB565 framebuffer/bufcount 计数。未采集 guest/Device Service 证据 → planned。**0x3D/0x3E 与 OLED/MiniOLED/Glass2 冲突；显示组合（M5Unified external display 上屏）、ST7789V2 光学/背光/RGB666 物理色、ESP32-PICO 内部固件 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "read-id-hex": {
+            "property": "read-id-hex",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-command-hex": {
+            "property": "last-command-hex",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "framebuffer-crc": {
+            "property": "framebuffer-crc",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "bufcount": {
+            "property": "bufcount",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "brightness": {
+            "property": "brightness",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "rotation": {
+            "property": "rotation",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "power": {
+            "property": "power",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "commands": {
+            "property": "commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "fill-rects": {
+            "property": "fill-rects",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pixels-written": {
+            "property": "pixels-written",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "rle-runs": {
+            "property": "rle-runs",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-write",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local ST7789V2 command/framebuffer slave model"
+      },
+      "blocker": "0146 新增 CONTROL_UNIT_LCD（I2C slave，驱动默认 0x3D；页面 0x3E 与驱动 0x3D 冲突 unresolved）：ST7789V2 I2C 命令表最小实现（READ_ID 0x04 → 0x77/0x89/版本、READ_BUFCOUNT 0x09、FILLRECT 0x68-0x6C、CASET 0x2A/RASET 0x2B、WRITE_RAW 0x41-0x44、WRITE_RLE 0x49-0x4D、DRAWPIXEL、SET_COLOR、BRIGHTNESS/ROTATE/POWER/SLEEP、CHANGE_ADDR 0xA0）+ 135x240 RGB565 framebuffer/bufcount 计数。未采集 guest/Device Service 证据 → planned。**0x3D/0x3E 与 OLED/MiniOLED/Glass2 冲突；显示组合（M5Unified external display 上屏）、ST7789V2 光学/背光/RGB666 物理色、ESP32-PICO 内部固件 NOT RUN**",
+      "limitations": [
+        "Page 0x3E vs driver 0x3D conflict unresolved; address must be pinned by evidence.",
+        "0x3C/0x3D/0x3E shared with OLED/MiniOLED/Glass2; one display per bus.",
+        "Internal ESP32-PICO firmware version, command-buffer overflow policy and real ST7789V2 optical/RGB666 output are NOT RUN.",
+        "Display composition goes through M5Unified external display; a Unit-level QOM framebuffer model needs a new command slave.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "gps-v11",
+      "name": "Unit GPS v1.1",
+      "sku": "U032-V11",
+      "visual_asset": {
+        "entry": "src/units/gps-v11/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_GPS_v1.1",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "AT6668 / ATGM336H-6N",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-baud-conflict",
+        "summary": "AT6668 multi-constellation GNSS (GPS/QZSS/BD2/BD3/GAL/GLO), UART NMEA0183 4.1. Page says default 115200 8N1; frozen unit/gps.py hardcodes 9600. Driver parses $GNGGA/$GNRMC/$GNVTG into latitude/longitude/altitude/speed/course/satellites/fix quality.",
+        "registers": [
+          {
+            "register": "$GNGGA NMEA sentence",
+            "length": 0,
+            "encoding": "UTC, lat, N/S, lon, E/W, fix quality, satellites, HDOP, altitude, geoid, age, checksum"
+          },
+          {
+            "register": "$GNRMC NMEA sentence",
+            "length": 0,
+            "encoding": "UTC, status, lat/lon, speed knots, course, date, checksum"
+          },
+          {
+            "register": "$GNVTG NMEA sentence",
+            "length": 0,
+            "encoding": "course true/magnetic, speed knots/kmh, checksum"
+          },
+          {
+            "register": "UART baud",
+            "length": 0,
+            "encoding": "page says 115200 8N1; frozen driver init(9600) -> unresolved"
+          }
+        ],
+        "gaps": [
+          "Page 115200 vs frozen driver 9600 unresolved",
+          "GNSS RF/antenna/constellation/fix accuracy/cold start NOT RUN"
+        ]
+      },
+      "inputs": {
+        "nmea-lines": {
+          "type": "string",
+          "label": "NMEA 行 fixture",
+          "default": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "baud": {
+          "type": "integer",
+          "label": "UART 波特率 fixture",
+          "default": 9600,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 300,
+          "maximum": 1000000
+        }
+      },
+      "outputs": {
+        "injected-lines": {
+          "type": "integer",
+          "label": "注入 NMEA 行数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "tx-hex": {
+          "type": "string",
+          "label": "guest TX 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_GPS_v1.1",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U032-V11",
+            "AT6668/ATGM336H-6N",
+            "UART default 115200 8N1",
+            "NMEA0183 4.1",
+            "GPS/QZSS/BD2/BD3/GAL/GLO"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/gps.py",
+          "checked_at": "2026-11-03",
+          "sha256": "527921a49640a5d354f75e7512d8f027dff4782d88a718d263cdd28f383b398a",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-source",
+          "url": "patches/qemu-m5stack-peripherals/0123-unit-i2c-batch3.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "existing GPS UART/NMEA model pattern from batch4 gps"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-v11`（AT6668，U032-V11）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "nmea-lines": {
+            "property": "nmea-lines",
+            "access": "read-write",
+            "type": "string"
+          },
+          "baud": {
+            "property": "baud",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "injected-lines": {
+            "property": "injected-lines",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          }
+        },
+        "required_data_plane": "SoC UART RX/TX path to the observed NMEA responder model (no RF/antenna model)"
+      },
+      "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-v11`（AT6668，U032-V11）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+      "limitations": [
+        "Page 115200 8N1 vs frozen unit/gps.py ini(9600) conflict unresolved; evidence must pick one.",
+        "PORT.C UART shared with all UART Units; one per port.",
+        "GNSS RF/antenna/constellation/fix accuracy/cold-start are NOT RUN.",
+        "AT6668 NMEA talker set vs the driver decoder must be validated per sentence.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "gps-sma",
+      "name": "Unit GPS SMA",
+      "sku": "U190",
+      "visual_asset": {
+        "entry": "src/units/gps-sma/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-GPS%20SMA",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "AT6668 / ATGM336H",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-baud-conflict",
+        "summary": "Same AT6668 multi-constellation GNSS as GPS v1.1, external active SMA antenna (30dBi, 1555-1580MHz), NMEA0183 4.1. Page says 115200 8N1; frozen unit/gps.py hardcodes 9600.",
+        "registers": [
+          {
+            "register": "NMEA $GNGGA/$GNRMC/$GNVTG",
+            "length": 0,
+            "encoding": "same decoder as GPS v1.1"
+          },
+          {
+            "register": "UART baud",
+            "length": 0,
+            "encoding": "page 115200 vs driver init(9600) unresolved"
+          }
+        ],
+        "gaps": [
+          "Page 115200 vs frozen driver 9600 unresolved",
+          "External active antenna/RF/fix accuracy NOT RUN"
+        ]
+      },
+      "inputs": {
+        "nmea-lines": {
+          "type": "string",
+          "label": "NMEA 行 fixture",
+          "default": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "baud": {
+          "type": "integer",
+          "label": "UART 波特率 fixture",
+          "default": 9600,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 300,
+          "maximum": 1000000
+        }
+      },
+      "outputs": {
+        "injected-lines": {
+          "type": "integer",
+          "label": "注入 NMEA 行数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "tx-hex": {
+          "type": "string",
+          "label": "guest TX 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-GPS%20SMA",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U190",
+            "AT6668",
+            "external active SMA antenna 30dBi 1555-1580MHz",
+            "UART default 115200 8N1",
+            "NMEA0183 4.1"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/gps.py",
+          "checked_at": "2026-11-03",
+          "sha256": "527921a49640a5d354f75e7512d8f027dff4782d88a718d263cdd28f383b398a",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-source",
+          "url": "patches/qemu-m5stack-peripherals/0123-unit-i2c-batch3.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "existing GPS UART/NMEA model pattern from batch4 gps"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-sma`（AT6668，U190）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "nmea-lines": {
+            "property": "nmea-lines",
+            "access": "read-write",
+            "type": "string"
+          },
+          "baud": {
+            "property": "baud",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "injected-lines": {
+            "property": "injected-lines",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          }
+        },
+        "required_data_plane": "SoC UART RX/TX path to the observed NMEA responder model (no RF/antenna model)"
+      },
+      "blocker": "0146 复用 batch4 `gps` 的 UART RX 注入/NMEA 行路径新增 `gps-sma`（AT6668，U190）：nmea-lines fixture、injected-lines/tx-hex 计数与 baud fixture（默认 9600）。**页面 115200 vs 冻结驱动 9600 unresolved，模型不选边、由 baud fixture 记录**；未采集 guest/Device Service 证据 → planned。**GNSS RF/天线/多星座/fix 精度/冷启动 NOT RUN；PORT.C 与其它 UART Unit 共享；真实波特率需证据钉**",
+      "limitations": [
+        "Page 115200 8N1 vs frozen unit/gps.py init(9600) conflict unresolved.",
+        "PORT.C UART shared with all UART Units; one per port.",
+        "External active antenna gain (30dBi)/RF/fix accuracy/cold-start NOT RUN.",
+        "GPS SMA and GPS v1.1 share the decoder but evidence must not be transferred between products.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "mini-can",
+      "name": "Unit Mini CAN",
+      "sku": "U179",
+      "visual_asset": {
+        "entry": "src/units/mini-can/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Mini%20CAN",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "TJA1051T/3",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "can",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "CAN_TX",
+            "direction": "output"
+          },
+          "white": {
+            "signal": "CAN_RX",
+            "direction": "input"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-c-module-tai",
+        "summary": "TJA1051T/3 non-isolated high-speed CAN transceiver on PORT.C yellow=CAN_TX, white=CAN_RX, up to 1Mbit/s, ISO11898-2:2016 / SAE J2284, 9-24V HT3.96 or Grove 5V, board 120Ω removable. unit/can.py MiniCANUnit wraps the C m5can/TWAI API exactly like Unit CAN.",
+        "registers": [
+          {
+            "register": "m5can.init",
+            "length": 0,
+            "encoding": "mode, prescaler, sjw, bs1, bs2, triple_sampling; TWAI/SJA1000 timing"
+          },
+          {
+            "register": "m5can.send",
+            "length": 0,
+            "encoding": "11-bit/29-bit id + data bytes; extframe/rtr flags"
+          },
+          {
+            "register": "m5can.recv/any",
+            "length": 0,
+            "encoding": "FIFO frame receive"
+          },
+          {
+            "register": "m5can.state/info/setfilter",
+            "length": 0,
+            "encoding": "states/counters and mask/list filters"
+          },
+          {
+            "register": "board termination",
+            "length": 0,
+            "encoding": "120Ω SMT resistor onboard; FAQ says removable"
+          }
+        ],
+        "gaps": [
+          "CAN attachment/host frame injection unresolved (same as batch7 can)",
+          "Non-isolated transceiver/termination/electrical NOT RUN",
+          "Real bus arbitration/error frames NOT RUN"
+        ]
+      },
+      "inputs": {
+        "rx-frames": {
+          "type": "array",
+          "label": "host 注入 CAN 帧 fixture（id:data hex）",
+          "default": [
+            "123#deadbeef"
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        }
+      },
+      "outputs": {
+        "tx-frames": {
+          "type": "array",
+          "label": "guest 发送 CAN 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "rx-frames": {
+          "type": "array",
+          "label": "guest 接收 CAN 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-received": {
+          "type": "integer",
+          "label": "接收帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "can-state": {
+          "type": "string",
+          "label": "CAN 状态",
+          "default": "STOPPED",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Mini%20CAN",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U179",
+            "TJA1051T/3 non-isolated CAN transceiver",
+            "ISO11898-2:2016, up to 1Mbit/s",
+            "PORT.C yellow=CAN_TX white=CAN_RX",
+            "onboard 120Ω resistor, removable"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/can.py",
+          "checked_at": "2026-11-03",
+          "sha256": "00434dbbba33a1ce4f3068f9e2c60850298f101d6a4a4bf400054cc62e19627b",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-source",
+          "url": "hw/net/can/esp32s3_twai.c",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "ESP32-S3 TWAI/SJA1000 model and cores3 m5_can_bus_create CANBusState from batch7 can research"
+          ]
+        }
+      ],
+      "research_status": "partial-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0146 **未实现（blocked/DEFER，不伪造帧）**：Mini CAN 走 C m5can/ESP32-S3 TWAI，CAN 帧不经 UART；本 QEMU Unit 运行时尚未建模 CAN Unit attachment / CAN 帧注入（与 batch7 `can` 同一 gap），PORT.C 当前按 UART 类型接入。catalog/profile 仅登记 planned/blocked 与 intended fixture 契约。**TJA1051 非隔离电气、120Ω 终端、差分电平、总线仲裁/错误帧、真实负载与 CAN attachment NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "rx-frames": {
+            "property": "rx-frames",
+            "access": "read-write",
+            "type": "array"
+          },
+          "tx-frames": {
+            "property": "tx-frames",
+            "access": "read-only",
+            "type": "array"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-received": {
+            "property": "frames-received",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "can-state": {
+            "property": "can-state",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "None yet: CAN Unit attachment/TWAI frame injection is unresolved; no UART responder is used"
+      },
+      "blocker": "0146 **未实现（blocked/DEFER，不伪造帧）**：Mini CAN 走 C m5can/ESP32-S3 TWAI，CAN 帧不经 UART；本 QEMU Unit 运行时尚未建模 CAN Unit attachment / CAN 帧注入（与 batch7 `can` 同一 gap），PORT.C 当前按 UART 类型接入。catalog/profile 仅登记 planned/blocked 与 intended fixture 契约。**TJA1051 非隔离电气、120Ω 终端、差分电平、总线仲裁/错误帧、真实负载与 CAN attachment NOT RUN**",
+      "limitations": [
+        "unit/can.py is a thin wrapper over the C m5can module; no Python register map.",
+        "CAN attachment/QOM frame fixture is unresolved; do not map it to a UART responder.",
+        "Non-isolated TJA1051, 120Ω termination, differential levels, bus arbitration/error frames NOT RUN.",
+        "PORT.C pins are shared with UART Units but CAN uses TWAI, not UART; host-port capability needs a CAN lane.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
     }
   ],
   "model_status_values": [
