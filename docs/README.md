@@ -55,7 +55,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 27 款。
+同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 28 款。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
