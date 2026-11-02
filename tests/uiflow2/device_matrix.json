@@ -593,6 +593,50 @@
       "memory": "0",
       "efuse_pkg_version": 5,
       "efuse_driver": "nvram.esp32.efuse"
+    },
+    {
+      "id": "atomu",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atomu",
+      "base": "platform/.cache/firmware/atomu/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atomu_console_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "pre_input_marker": "ATOMU_PROBE_READY",
+      "input": [
+        "key:a"
+      ],
+      "post_input_wait": 0.5,
+      "serial_expect": [
+        "ATOMU_BOOT_FLAG",
+        "ATOMU_MAIN_START",
+        "ATOMU_M5_BEGIN_OK",
+        "ATOMU_BOARD 130",
+        "ATOMU_RGB 1 204060",
+        "ATOMU_I2C_SCAN [",
+        "ATOMU_BUTTON_STATE 1 1",
+        "ATOMU_BUTTON_STATE 0 1"
+      ],
+      "timeout": 60,
+      "qom_expect": [
+        {
+          "path": "/machine/onboard_io",
+          "property": "led-rgb",
+          "expect": 2113632
+        },
+        {
+          "path": "/machine/onboard_io",
+          "property": "led-frames",
+          "min": 3
+        }
+      ]
     }
   ]
 }

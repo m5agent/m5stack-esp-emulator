@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atomu",
+  "machine": "m5atomu",
+  "board_id": 130,
+  "firmware": {
+    "name": "UIFlow2.0 AtomU",
+    "version": "v2.5.4",
+    "source": "official-github-release",
+    "url": "https://github.com/m5stack/uiflow-micropython/releases/download/2.5.4/uiflow-e437118-esp32-4mb-atomu-v2.5.4-20261030.bin",
+    "bytes": 4186112,
+    "sha256": "affa252d21f223bbe21cf1767604d345df97b2cb8dd62bc76993588d9bd9eda7",
+    "source_discovery": "M5Burner public API exposes no UIFlow2 AtomU entry (verified 2026-11-02); the reviewed pinned official GitHub release asset is the reference source and is verified fail-closed against the catalog sha256."
+  },
+  "image": {
+    "console_probe_sha256": "1232ba09e772c7f118a193fc2f19a7b4d86186bb54c917f1c99af02847985c44",
+    "flash_size": "0x400000",
+    "vfs_offset": "0x371000",
+    "vfs_size": "0x8d000",
+    "partition_table": [
+      {"label": "nvs", "offset": "0x9000", "size": "0x6000"},
+      {"label": "phy_init", "offset": "0xf000", "size": "0x1000"},
+      {"label": "factory", "offset": "0x10000", "size": "0x361000"},
+      {"label": "vfs", "offset": "0x371000", "size": "0x8d000"}
+    ],
+    "image_note": "The official 4,186,112-byte sparse merged image is padded to 4 MiB with 0xFF; the console probe replaces only the LittleFS vfs volume."
+  },
+  "runtime": {
+    "qemu_binary_sha256": "ecbe50bb5aea49685fbbbe9650309f1cb4e77d4e0787237786c46e9c5f64ee95",
+    "patch": "patches/qemu-m5stack-peripherals/0116-atomu-board.patch",
+    "patch_sha256": "82217b95fbe3471ab7be29a90110ea4862ee649a05358c201291fc4ab7f3d7fb",
+    "qemu_source_base": "native-lock tree with 0113-basic-v27-board.patch and 0114-unit-gpio-batch1.patch applied; AtomU board commit 1a2ea48",
+    "machine_desc": "M5Stack AtomU K117 (ESP32-PICO-D4, SK6812, PDM microphone)"
+  },
+  "probe": {
+    "files": {
+      "tests/uiflow2/atomu_console_test/boot.py": "8b1de7caa661005b42faea60cf2bc355b1baee24d464b6a9d0cf6c2fe1a40d83",
+      "tests/uiflow2/atomu_console_test/main.py": "c70c0eca53382c487028fa53e4bf0f181248d65b87171bbb01d02f22a6e29d41",
+      "tests/uiflow2/atomu_console_test/make_image.py": "8646a9df6b9c749ed38a351ec86bdd27f803e00abb63f32fc88fcecf7b229e96"
+    }
+  },
+  "case": {
+    "runner": "tests/uiflow2/run_device_matrix.py --device atomu --flash-transport direct",
+    "mode": "console",
+    "status": "PASS",
+    "repeat": "3/3 PASS",
+    "serial_log_sha256": "c643097cc2a4bf0a5a2f704652f574b09d8c6594cbfcb91dec77f43592bbb35b",
+    "serial_log_note": "hash of run 1; the ESP-IDF 'i2c.master' boot-warning timestamp varies with virtual-clock scheduling while all ATOMU_* markers and QOM values are identical in all three runs",
+    "serial_markers": [
+      "ATOMU_BOOT_FLAG",
+      "ATOMU_MAIN_START",
+      "ATOMU_M5_BEGIN_OK",
+      "ATOMU_BOARD 130",
+      "ATOMU_DISPLAY none",
+      "ATOMU_RGB 1 204060",
+      "ATOMU_I2C_SCAN ['0x48']",
+      "ATOMU_PROBE_READY",
+      "ATOMU_BUTTON_STATE 0 0",
+      "ATOMU_BUTTON_STATE 1 1",
+      "ATOMU_RGB 1 40A020",
+      "ATOMU_BUTTON_STATE 0 1",
+      "ATOMU_RGB 1 204060"
+    ],
+    "button_injection": "QMP key:a through the AtomU input handler -> ESP32 GPIO39 input register -> UIFlow2 BtnA; the guest reports press (1) and release (0) transitions and repaints the RGB value",
+    "i2c_scan_note": "0x48 is the QEMU classic ESP32 machine's built-in tmp105 test device on the board I2C bus; it is not an AtomU component and no Unit was attached. The scan proves the guest I2C controller/G26-G32 routing, not a Unit protocol.",
+    "qom": {
+      "/machine/onboard_io.led-rgb": 2113632,
+      "/machine/onboard_io.led-rgb.hex": "0x204060",
+      "/machine/onboard_io.led-frames": 5
+    }
+  },
+  "verified": [
+    "official UIFlow2 v2.5.4 AtomU 4 MiB image boot through ROM and second-stage bootloader",
+    "M5.begin() and M5.getBoard()=130 in one m5atomu guest",
+    "single SK6812 on GPIO27 driven through the ESP32 classic RMT path; host QOM decodes the final wire frame as RGB 0x204060 after 5 completed frames",
+    "QMP key:a drives GPIO39 through the board input handler; the guest reports press/release and repaints the LED",
+    "guest I2C controller on the Grove G26/G32 pins performs a bus scan (only the QEMU machine's tmp105 0x48 is present)",
+    "three independent matrix runs PASS with identical serial markers, probe image sha256 and QOM values"
+  ],
+  "blocked": [
+    "SPM1423 PDM microphone on G5/G19 is wired in the machine model (SoC I2S0 PDM RX) but this probe does not exercise it; no PCM evidence and therefore no microphone claim",
+    "IR transmitter G12 is not wired in the board model and not probed",
+    "Grove Unit protocols are not tested; the scan covers only the controller path",
+    "no display and no PSRAM on this board; display/PSRAM paths are not applicable",
+    "firmware source is a GitHub release asset, not an M5Burner firmware ID; the catalog entry is a reviewed SHA-pinned exception to the CDN rule"
+  ],
+  "not_run": [
+    "physical electrical, acoustic, optical or mechanical behavior",
+    "SPM1423 PDM capture, microphone sensitivity/SNR and analog audio path",
+    "IR NEC/RMT transmit behavior",
+    "Grove Unit data planes and host-port electrical compatibility",
+    "USB/FTDI serial path",
+    "stock UIFlow2 startup menu/network and third-party firmware",
+    "browser/WASM admission and any other classic ESP32 host (Atom Lite/Atom Echo conclusions are not inherited)"
+  ]
+}

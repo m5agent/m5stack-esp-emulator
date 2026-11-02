@@ -1,0 +1,132 @@
+From 1a2ea48ec7e324b8a7c562d9c1fa64ee20f371d6 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 17:09:18 +0800
+Subject: [PATCH] hw/m5stopwatch: add AtomU board
+
+M5Stack AtomU (K117) is the ATOM bracket with an ESP32-PICO-D4, one SK6812
+on GPIO27, the user button on GPIO39, an SPM1423 PDM microphone on
+GPIO5/GPIO19, an IR transmitter on GPIO12 and a Grove port on GPIO26/GPIO32;
+it has no display and no PSRAM.
+
+The board reuses the classic Atom board wiring (RGB/button diagnostic
+console, QMP key-driven GPIO input, unit runtime and classic ADC).  The PDM
+microphone data plane is provided by the SoC-level ESP32 I2S0 PDM RX model,
+so no extra device is attached.  IR is not wired in this model.
+
+Wiring evidence: docs.m5stack.com/en/core/AtomU PinMap, checked 2026-11-02.
+---
+ hw/m5stopwatch/m5atomclassic.c | 19 +++++++++++++++--
+ hw/m5stopwatch/m5stopwatch.h   |  2 ++
+ hw/xtensa/esp32.c              | 37 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 56 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5atomclassic.c b/hw/m5stopwatch/m5atomclassic.c
+index 62a24b7..1f4c085 100644
+--- a/hw/m5stopwatch/m5atomclassic.c
++++ b/hw/m5stopwatch/m5atomclassic.c
+@@ -74,9 +74,8 @@ static QemuInputHandler m5atomclassic_input_handler = {
+     .event = m5atomclassic_input,
+ };
+ 
+-void m5atomclassic_board_init(Esp32SocState *s)
++static void m5atomclassic_board_init_common(Esp32SocState *s, bool matrix)
+ {
+-    bool matrix = m5_board != M5_BOARD_ATOM_LITE;
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
+ 
+     esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus);
+@@ -122,3 +121,19 @@ void m5atomclassic_board_init(Esp32SocState *s)
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+ }
++
++void m5atomclassic_board_init(Esp32SocState *s)
++{
++    m5atomclassic_board_init_common(s, m5_board != M5_BOARD_ATOM_LITE);
++}
++
++/*
++ * AtomU (K117): the same ATOM bracket with one SK6812 on G27 and the user
++ * button on G39, no IMU and no display.  The SPM1423 PDM microphone on
++ * G5/G19 is served by the SoC-level ESP32 I2S0 PDM RX model, so no extra
++ * device is attached here.  IR (G12) is not wired in this model.
++ */
++void m5atomu_board_init(Esp32SocState *s)
++{
++    m5atomclassic_board_init_common(s, false);
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 27c6946..3133497 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -89,6 +89,7 @@ typedef enum {
+     M5_BOARD_ATOM_MATRIX,
+     M5_BOARD_ATOM_MATRIX_V11,
+     M5_BOARD_BASIC_V27,
++    M5_BOARD_ATOMU,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -203,6 +204,7 @@ void m5core2_board_init(struct Esp32SocState *s);
+ void m5stickcplus2_board_init(struct Esp32SocState *s);
+ void m5stickc_board_init(struct Esp32SocState *s);
+ void m5atomclassic_board_init(struct Esp32SocState *s);
++void m5atomu_board_init(struct Esp32SocState *s);
+ void m5basic_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 0f4258a..18f640a 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1049,6 +1049,8 @@ static void esp32_machine_init(MachineState *machine)
+         m5atomclassic_board_init(ss);
+     } else if (m5_board == M5_BOARD_BASIC_V27) {
+         m5basic_board_init(ss);
++    } else if (m5_board == M5_BOARD_ATOMU) {
++        m5atomu_board_init(ss);
+     }
+ 
+     /* Need MMU initialized prior to ELF loading,
+@@ -1466,3 +1468,38 @@ static void m5basic_machine_type_init(void)
+ }
+ 
+ type_init(m5basic_machine_type_init);
++
++
++/* M5Stack AtomU (K117): ESP32-PICO-D4, one SK6812 LED on G27, button G39,
++ * SPM1423 PDM microphone on G5/G19, Grove on G26/G32, no display/PSRAM. */
++static void m5atomu_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMU;
++    esp32_machine_init(machine);
++}
++
++static void m5atomu_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5Stack AtomU K117 (ESP32-PICO-D4, SK6812, PDM microphone)";
++    mc->init = m5atomu_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5atomu_info = {
++    .name = MACHINE_TYPE_NAME("m5atomu"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5atomu_machine_class_init,
++};
++
++static void m5atomu_machine_type_init(void)
++{
++    type_register_static(&m5atomu_info);
++}
++
++type_init(m5atomu_machine_type_init);
+-- 
+2.55.0
+

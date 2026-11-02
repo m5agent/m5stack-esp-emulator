@@ -21,6 +21,15 @@ DEFAULT_CACHE = ROOT / "platform" / ".cache" / "firmware"
 DEFAULT_API_BASE = "https://burner.m5stack.com"
 MAX_DOWNLOAD_BYTES = 96 * 1024 * 1024
 CDN_FILE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$")
+M5BURNER_CDN_PREFIX = "https://m5burner-cdn.m5stack.com/"
+OFFICIAL_GITHUB_RELEASE_PREFIX = (
+    "https://github.com/m5stack/uiflow-micropython/releases/download/"
+)
+# Reviewed non-M5Burner sources must pin the exact artifact bytes.  A pinned
+# source is never resolved through the mutable M5Burner API and never serves a
+# cached file whose digest differs from the declared sha256.
+PINNED_FIRMWARE_SOURCES = {"official-github-release"}
+SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 
 
 def load_devices() -> list[dict]:
@@ -228,12 +237,23 @@ def download(
     destination: Path,
     force: bool = False,
     extra_metadata: dict | None = None,
+    expected_sha256: str | None = None,
 ) -> dict:
     destination.parent.mkdir(parents=True, exist_ok=True)
+    if expected_sha256 is not None and not SHA256_HEX.fullmatch(expected_sha256):
+        raise RuntimeError(
+            f"invalid expected sha256: {expected_sha256!r}"
+        )
+    data: bytes | None = None
+    source = "cache"
     if destination.exists() and not force:
-        data = destination.read_bytes()
-        source = "cache"
-    else:
+        cached = destination.read_bytes()
+        if (
+            expected_sha256 is None
+            or hashlib.sha256(cached).hexdigest() == expected_sha256
+        ):
+            data = cached
+    if data is None:
         request = urllib.request.Request(url, headers={"User-Agent": "m5stack-device-simulator/1"})
         try:
             with urllib.request.urlopen(request, timeout=90) as response:
@@ -262,6 +282,15 @@ def download(
         destination.write_bytes(data)
         source = "download"
     digest = hashlib.sha256(data).hexdigest()
+    if expected_sha256 is not None and digest != expected_sha256:
+        destination.unlink(missing_ok=True)
+        metadata_path = destination.with_suffix(".json")
+        if metadata_path.exists():
+            metadata_path.unlink()
+        raise RuntimeError(
+            f"sha256 mismatch for {url}: expected {expected_sha256}, "
+            f"got {digest}; artifact rejected"
+        )
     try:
         display_path = str(destination.relative_to(ROOT))
     except ValueError:
@@ -274,8 +303,72 @@ def download(
         "sha256": digest,
         "source": source,
     }
+    if expected_sha256 is not None:
+        metadata["expected_sha256"] = expected_sha256
+        metadata["sha256_verified"] = True
     destination.with_suffix(".json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n")
     return metadata
+
+
+def validate_pinned_firmware(firmware: dict) -> tuple[str, str]:
+    """Validate a reviewed non-M5Burner firmware pin without any network I/O."""
+    source = firmware.get("source")
+    if source not in PINNED_FIRMWARE_SOURCES:
+        raise RuntimeError(f"unsupported pinned firmware source: {source!r}")
+    url = firmware.get("download_url")
+    expected = firmware.get("sha256")
+    if not isinstance(url, str) or not url.startswith(
+        OFFICIAL_GITHUB_RELEASE_PREFIX
+    ):
+        raise RuntimeError(
+            f"{source} download_url must start with "
+            f"{OFFICIAL_GITHUB_RELEASE_PREFIX}"
+        )
+    if not isinstance(expected, str) or not SHA256_HEX.fullmatch(expected):
+        raise RuntimeError(
+            f"{source} firmware requires a lowercase hex sha256"
+        )
+    return url, expected
+
+
+def resolve_pinned_download(firmware: dict) -> tuple[str, dict]:
+    url, expected = validate_pinned_firmware(firmware)
+    return url, {
+        "url_source": "catalog-pinned",
+        "firmware_source": firmware.get("source"),
+        "pinned_version": firmware.get("version"),
+        "expected_sha256": expected,
+    }
+
+
+def fetch_pinned_firmware(
+    device: dict,
+    destination: Path,
+    *,
+    force: bool,
+    analyze: bool,
+    expected_chip_id_value: int | None,
+) -> dict:
+    firmware = (device.get("uiflow2") or {}).get("firmware") or {}
+    url, resolution = resolve_pinned_download(firmware)
+    result = download(
+        url,
+        destination,
+        force,
+        extra_metadata=resolution,
+        expected_sha256=firmware["sha256"],
+    )
+    if analyze:
+        analysis = analyze_firmware(
+            destination,
+            expected_chip_id_value=expected_chip_id_value,
+        )
+        analysis["static_review"] = review_firmware(destination)
+        result["analysis"] = analysis
+        destination.with_suffix(".analysis.json").write_text(
+            json.dumps(analysis, ensure_ascii=False, indent=2) + "\n"
+        )
+    return result
 
 
 def resolve_community_firmware(
@@ -461,7 +554,16 @@ def main() -> None:
     if args.list:
         for item in downloadable:
             fw = item["uiflow2"]["firmware"]
-            print(f"{item['id']:18} {item['group_label']:12} {fw['version']:8} {fw['firmware_id']}")
+            if fw.get("source") in PINNED_FIRMWARE_SOURCES:
+                identity = "sha256:" + str(fw.get("sha256", ""))[:12]
+                source = str(fw.get("source"))
+            else:
+                identity = str(fw.get("firmware_id", ""))
+                source = "m5burner"
+            print(
+                f"{item['id']:18} {item['group_label']:12} "
+                f"{fw['version']:8} {source:22} {identity}"
+            )
         return
     if args.all:
         selected = downloadable
@@ -473,10 +575,40 @@ def main() -> None:
         parser.error("provide a device id, --all, or --list")
 
     failures = 0
+    expected_chip_id_value = None
+    if args.chip_id is not None:
+        try:
+            expected_chip_id_value = int(args.chip_id, 0)
+        except ValueError:
+            parser.error("--chip-id must be an integer")
     for item in selected:
         firmware = item["uiflow2"]["firmware"]
         target = args.cache / item["id"] / "uiflow2.bin"
         print(f"==> {item['id']} {firmware['version']}")
+        if firmware.get("source") in PINNED_FIRMWARE_SOURCES:
+            try:
+                metadata = fetch_pinned_firmware(
+                    item,
+                    target,
+                    force=args.force,
+                    analyze=args.analyze,
+                    expected_chip_id_value=expected_chip_id_value,
+                )
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                OSError,
+                RuntimeError,
+                ValueError,
+            ) as error:
+                failures += 1
+                print(f"    FAILED: {error}", file=sys.stderr)
+                continue
+            print(
+                f"    {metadata['bytes']} bytes  "
+                f"sha256={metadata['sha256']}"
+            )
+            continue
         try:
             resolved_url = firmware["download_url"]
             resolution = {"url_source": "catalog"}

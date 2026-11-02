@@ -17,12 +17,13 @@ machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine an
 (`ssr`, `earth`, `hall`, `reflective-ir`, `vibrator`) on top of that sequence.
 `0115-atoms3r-cam-sccb.patch` closes the AtomS3R-CAM camera data plane on top
 of `0112`.
+`0116-atomu-board.patch` adds the classic-ESP32 `m5atomu` board (K117; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The SPM1423 PDM microphone is served by the SoC-level ESP32 I2S0 PDM RX model and IR G12 is not wired; the board reuses the classic Atom board glue.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
 IP5306 is register-only, READ4 returns the explicit 0xff no-cell code and
 battery-mv is a host QOM fixture. `0114` registers the five gpio/gpio-adc/
-gpio-pwm Unit ids on the existing controller paths. Both `0113` and `0114` are
+gpio-pwm Unit ids on the existing controller paths. `0113`, `0114`, `0115` and `0116` are
 native-only layers: they are intentionally not listed in
 `scripts/qemu-wasm-build/sources.lock.json` and are not part of the WASM
 browser build until a separate reviewed registration. The older

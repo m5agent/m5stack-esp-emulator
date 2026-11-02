@@ -96,7 +96,13 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
     firmware_text = "不适用"
     if uiflow.get("firmware"):
         fw = uiflow["firmware"]
-        firmware_text = f"{fw['version']} / `{fw['firmware_id']}`"
+        if fw.get("source") == "official-github-release":
+            firmware_text = (
+                f"{fw['version']} / official GitHub release / "
+                f"`sha256:{fw['sha256'][:16]}…`"
+            )
+        else:
+            firmware_text = f"{fw['version']} / `{fw['firmware_id']}`"
     status_sections = [
         validation_readme(device["runtime"], out_dir),
         device["runtime"].get("reason", "").strip(),

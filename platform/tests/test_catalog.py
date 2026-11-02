@@ -16,13 +16,13 @@ EXPECTED = {
     "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
     "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
     "atom-matrix-v11", "atoms3u", "atom-echos3r", "atoms3r-cam",
-    "basic-v27",
+    "basic-v27", "atomu",
 }
 CANDIDATES = {
     "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
     "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
     "atom-matrix-v11", "atoms3u", "atom-echos3r", "atoms3r-cam",
-    "basic-v27",
+    "basic-v27", "atomu",
 }
 
 
@@ -136,12 +136,29 @@ class CatalogTests(unittest.TestCase):
             if device["runtime"]["status"] == "boot-capable":
                 self.assertIn(device["runtime"]["chip"], {"esp32s3", "esp32c6", "esp32p4"})
 
-    def test_uiflow_firmware_urls_are_public_https(self) -> None:
+    def test_uiflow_firmware_source_contract(self) -> None:
+        """Reviewed firmware sources: M5Burner CDN or a SHA-pinned official release.
+
+        M5Burner entries are resolved through the public metadata API and keep
+        their firmware_id.  The reviewed non-M5Burner exception is an official
+        M5Stack GitHub release asset, which must pin the exact artifact sha256;
+        a mutable or unpinned URL is rejected here.
+        """
+        pinned_prefix = (
+            "https://github.com/m5stack/uiflow-micropython/"
+            "releases/download/"
+        )
         for device in self.source["devices"]:
             firmware = device["uiflow2"].get("firmware")
-            if firmware:
-                self.assertTrue(firmware["download_url"].startswith("https://m5burner-cdn.m5stack.com/"))
+            if not firmware:
+                continue
+            url = firmware["download_url"]
+            if url.startswith("https://m5burner-cdn.m5stack.com/"):
                 self.assertTrue(firmware["firmware_id"])
+                continue
+            self.assertEqual(firmware.get("source"), "official-github-release")
+            self.assertTrue(url.startswith(pinned_prefix))
+            self.assertRegex(firmware.get("sha256", ""), r"^[0-9a-f]{64}$")
 
 
 if __name__ == "__main__":
