@@ -1,0 +1,194 @@
+From 7b2c9e1d4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 03:25:00 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-10 a-class model subsets
+
+Register the batch-10 a-class Units with reusable model subsets on the
+reconciled canonical chain. Base is the 32-layer chain through 0151; this is
+the 33rd layer after 0120 and applies at the chain end. All catalog/profile
+entries stay planned; no guest/Device Service evidence is recorded.
+
+- dcssr (U140): alias the official unit/acssr.py register subset at I2C 0x50
+  inside CONTROl_ACSSR: 0x00 relay level, 0x10 RGB, 0xFE firmware, 0x20 address.
+  The separate Modbus/RS485 mode and SSR electrical/isolation behavior are NOT
+  modeled.
+- puzzle (U193): reuse the neohex/hex RMT LED capture with 64 WS2812E LEDs on
+  the PORT.B yellow single wire (white NC); no public Unit Puzzle driver and
+  WS2812E-vs-WS2812C timing/order, optics and cascade direction are unresolved.
+- dof6/dof9/dof10 (U228/U229/U230): BMI270-only fixture subset at 0x68 using the
+  batch-7 US_BMI270 model (accel/gyro/temp/whoami). BMM350 0x14 and SPA06-003
+  0x76 have no driver/register table in the frozen tree and are NOT modeled;
+  dof10 does not substitute BMP280 for SPA06. Real motion/range/motion-detect
+  physics are NOT RUN.
+- asr (U194): UART 115200 fixture responder with a byte-layer AA55 <id> 55AA
+  parser exposing command-id, plus tx-hex/frames-sent/frames-injected and
+  responses-hex. Speech recognition/AEC/mic/speaker acoustics are NOT RUN.
+
+ina226-1a is registered as a planned contract only (no QEMU model) because the
+page has no register table and the TI datasheet is not pinned; the 11 b-class
+Units are planned contracts only with no models or guessed registers.
+Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -3064,7 +3064,7 @@
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+-        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
++        "cardkb-original", "extencoder", "acssr", "dcssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
+         "oled", "mini-oled", "glass2",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+@@ -3176,7 +3176,12 @@
+         add_control_int_fixture(s, "fw-version", &s->ext_fw, 0, 255, true);
+         object_property_add(OBJECT(s->unit), "reset-writes", "uint64", u64_get,
+                             NULL, NULL, &s->ext_reset_writes);
+-    } else if (!strcmp(unit->unit_id, "acssr")) {
++    } else if (!strcmp(unit->unit_id, "acssr") ||
++               !strcmp(unit->unit_id, "dcssr")) {
++        /* U139 ACSSR and U140 DCSSR share the official unit/acssr.py register
++         * subset: 0x00 relay level, 0x10 RGB, 0xFE firmware, 0x20 address.
++         * DCSSR also supports a separate Modbus/RS485 mode which is NOT part
++         * of the Unit I2C attachment. */
+         s->kind = CONTROL_ACSSR; address = 0x50;
+         s->acssr_fw = 1;  /* synthetic firmware fixture */
+         object_property_add(OBJECT(s->unit), "relay-level", "bool",
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -96,6 +96,7 @@
+     unsigned at_offset;
+     QEMUTimer *at_timer;
+     uint64_t at_frames_sent, at_frames_injected;
++    uint64_t asr_command_id;  /* last AA55 <id> 55AA command observed on ASR TX */
+     uint8_t at_buf[256];
+     size_t at_len;
+     /* U170-433 0xC0/0xC1 config mirror (8 bytes after the 3-byte header). */
+@@ -698,9 +699,9 @@
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "rf433t", "rf433r", "neco", "midi",
+         "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+-        "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
++        "neohex", "hex", "puzzle", "lora-e220-433", "zigbee", "nbiot2",
+         "catm", "catm-gnss", "lorawan-cn470", "lorawan-as923", "lorawan-eu868",
+-        "audioplayer", "fingerprint2", "can", "mini-can",
++        "audioplayer", "fingerprint2", "asr", "can", "mini-can",
+         "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
+         "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+@@ -1030,6 +1031,7 @@
+                  !strcmp(g->unit->unit_id, "lorawan-eu868") ||
+                  !strcmp(g->unit->unit_id, "audioplayer") ||
+                  !strcmp(g->unit->unit_id, "fingerprint2") ||
++                 !strcmp(g->unit->unit_id, "asr") ||
+                  !strcmp(g->unit->unit_id, "nbiot-cn") ||
+                  !strcmp(g->unit->unit_id, "lora-e220-920") ||
+                  !strcmp(g->unit->unit_id, "lorawan-us915")) &&
+@@ -1061,11 +1063,19 @@
+                            !strcmp(g->unit->unit_id, "lorawan-as923") ||
+                            !strcmp(g->unit->unit_id, "lorawan-eu868") ||
+                            !strcmp(g->unit->unit_id, "audioplayer") ||
+-                           !strcmp(g->unit->unit_id, "fingerprint2")) {
++                           !strcmp(g->unit->unit_id, "fingerprint2") ||
++                           !strcmp(g->unit->unit_id, "asr")) {
+                     /* Batch-7 UART units use the same idle-time fixture
+                      * responder as nbiot2; the 0145 list update registered the
+                      * unit ids but this capture body was missed. */
+                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
++                    if (!strcmp(g->unit->unit_id, "asr") && g->uart_tx_size >= 5) {
++                        size_t n = g->uart_tx_size;
++                        if (g->uart_tx[n - 5] == 0xaa && g->uart_tx[n - 4] == 0x55 &&
++                            g->uart_tx[n - 2] == 0x55 && g->uart_tx[n - 1] == 0xaa) {
++                            g->asr_command_id = g->uart_tx[n - 3];
++                        }
++                    }
+                     at_arm_idle(g);
+                 }
+             }
+@@ -1790,6 +1800,7 @@
+                 !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
+                 !strcmp(unit->unit_id, "lorawan-as923") || !strcmp(unit->unit_id, "lorawan-eu868") ||
+                 !strcmp(unit->unit_id, "audioplayer") || !strcmp(unit->unit_id, "fingerprint2") ||
++                !strcmp(unit->unit_id, "asr") ||
+                 !strcmp(unit->unit_id, "nbiot-cn") ||
+                 !strcmp(unit->unit_id, "lora-e220-920") ||
+                 !strcmp(unit->unit_id, "lorawan-us915") ||
+@@ -1972,13 +1983,14 @@
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+                             &g->incomplete_frames);
+-    } else if (!strcmp(id, "neohex") || !strcmp(id, "hex")) {
++    } else if (!strcmp(id, "neohex") || !strcmp(id, "hex") ||
++               !strcmp(id, "puzzle")) {
+         /* A045-B NeoHEX: 37x WS2812C; A045 HEX: 37x SK6812. Both are 37-LED
+          * data streams on the yellow line. Public UIFlow2 has no
+          * unit/neohex.py or unit/hex.py; the generic neopixel driver is the
+          * only reference, so this is an explicit driver-gap model. SK6812 vs
+          * WS2812C timing/order differences are UNRESOLVED. */
+-        g->leds = 37;
++        g->leds = !strcmp(id, "puzzle") ? 64 : 37;
+         object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+@@ -1989,7 +2001,8 @@
+                !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
+                !strcmp(id, "lorawan-cn470") || !strcmp(id, "lorawan-as923") ||
+                !strcmp(id, "lorawan-eu868") || !strcmp(id, "audioplayer") ||
+-               !strcmp(id, "fingerprint2") || !strcmp(id, "nbiot-cn") ||
++               !strcmp(id, "fingerprint2") || !strcmp(id, "asr") ||
++               !strcmp(id, "nbiot-cn") ||
+                !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
+         g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
+         object_property_add(o, "responses-hex", "str", at_responses_get,
+@@ -1999,6 +2012,10 @@
+                             &g->at_frames_sent);
+         object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
+                             &g->at_frames_injected);
++        if (!strcmp(id, "asr")) {
++            object_property_add(o, "command-id", "uint64", count_get, NULL, NULL,
++                                &g->asr_command_id);
++        }
+         if (!strcmp(id, "lora-e220-433") || !strcmp(id, "lora-e220-920")) {
+             object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
+         }
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -2294,7 +2294,8 @@
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+         "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
+-        "mini-imu", "mini-imu-pro", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode" };
++        "mini-imu", "mini-imu-pro", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode",
++        "dof6", "dof9", "dof10" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -2370,6 +2371,29 @@
+         add_number(bp, "pressure-pa", 1, 101325, 30000, 110000, false);
+         sensor_attach_one(u, "bmp280", bp, 0x76);
+         return;
++    } else if (!strcmp(u->unit_id, "dof6") || !strcmp(u->unit_id, "dof9") ||
++               !strcmp(u->unit_id, "dof10")) {
++        /* U228/U229/U230 DoF family: the BMI270 0x68/0x69 part is the only
++         * registered model subset. BMM350 (0x14) and SPA06-003 (0x76) are NOT
++         * modeled because the frozen tree has no driver/register table for
++         * them; dof10 must not substitute BMP280 for SPA06. */
++        M5UnitSensor *b = sensor_device(u);
++        b->kind = US_BMI270;
++        for (unsigned i = 0; i < 3; i++) {
++            b->values[i] = 0; b->values[3 + i] = 0; b->values[6 + i] = 0;
++        }
++        b->values[9] = 25;
++        add_number(b, "acceleration-x", 0, 0, -16, 16, false);
++        add_number(b, "acceleration-y", 1, 0, -16, 16, false);
++        add_number(b, "acceleration-z", 2, 0, -16, 16, false);
++        add_number(b, "gyroscope-x", 3, 0, -2000, 2000, false);
++        add_number(b, "gyroscope-y", 4, 0, -2000, 2000, false);
++        add_number(b, "gyroscope-z", 5, 0, -2000, 2000, false);
++        add_number(b, "temperature-c", 9, 25, -40, 85, false);
++        b->bmi_whoami = 0x24;
++        add_i64(b, "whoami", &b->bmi_whoami);
++        sensor_attach_one(u, "bmi270", b, 0x68);
++        return;
+     } else if (!strcmp(u->unit_id, "mini-imu-pro")) {
+         /* U171 Mini IMU-Pro: BMI270 0x68 (accel/gyro/temp + BMM150 aux) and
+          * BMP280 0x76 (pressure) on one Grove pair. 0x68 conflicts with

@@ -326,12 +326,19 @@ class VisualSnapshotImportTests(unittest.TestCase):
             self.assertEqual(entry["sha256"], hashlib.sha256(files[name]).hexdigest())
             self.assertIn(manifest["source_commit"], entry["source_url"])
         units = json.loads((sync.ROOT / "platform/units/catalog.json").read_text())["units"]
-        for visual in ("scroll", "roller485"):
+        for visual in ("scroll", "roller485", "puzzle"):
             self.assertIn(visual, manifest["units"])
-        self.assertNotIn("roller485", {unit["id"] for unit in units})
-        scroll = next(unit for unit in units if unit['id'] == 'scroll')
-        self.assertEqual(scroll['model_status'], 'partial')
-        self.assertTrue(scroll['protocol']['gaps'])
+        # U182/U193 were visual-only shells before batch-10; they are now
+        # planned Unit contracts, so the visual snapshot must no longer treat
+        # them as runtime-unregistered shells.
+        by_id = {unit["id"]: unit for unit in units}
+        self.assertIn("roller485", by_id)
+        self.assertIn("puzzle", by_id)
+        self.assertEqual(by_id["roller485"]["model_status"], "planned")
+        self.assertEqual(by_id["puzzle"]["model_status"], "planned")
+        scroll = by_id["scroll"]
+        self.assertEqual(scroll["model_status"], "partial")
+        self.assertTrue(scroll["protocol"]["gaps"])
 
     def test_expanded_host_models_and_runtime_inventory_are_separately_pinned(self):
         manifest = json.loads((sync.DESTINATION / "vendor-manifest.json").read_text())

@@ -51,11 +51,10 @@ class DocsCurrentStateContractTests(DocsContractBase):
         snapshot = project_snapshot.collect()
         units = snapshot["external_units"]
         visual_only = set(units["visual_source"]["visual_only_units"])
-        # The 0125 second-batch work registers a planned catalog contract for
-        # fader and the batch-4 work registers midi, so neither is "visual only"
-        # any more; the remaining shells must still stay outside runtime
-        # admission.
-        self.assertTrue({"roller485", "puzzle"} <= visual_only)
+        # fader/midi were registered by earlier batches; batch-10 registers
+        # roller485 and puzzle as planned Unit contracts, so none of them may
+        # remain in the visual-only shell set.
+        self.assertFalse({"roller485", "puzzle"} & visual_only)
         self.assertNotIn("fader", visual_only)
         self.assertNotIn("midi", visual_only)
         catalog = project_snapshot.load_json(project_snapshot.UNIT_CATALOG)
