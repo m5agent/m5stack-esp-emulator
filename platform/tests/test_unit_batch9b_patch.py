@@ -38,7 +38,7 @@ class UnitBatch9bPatchTests(unittest.TestCase):
     def test_patch_registers_the_four_uart_byte_planes(self):
         for unit_id in UART_IMPLEMENTED:
             self.assertIn(f'"{unit_id}"', self.text)
-        for token in ("m5_unit_gpio.c", "at_arm_idle", "responses-hex",
+        for token in ("m5_unit_gpio.c", "idle-time fixture", "responses-hex",
                       "frames-injected"):
             self.assertIn(token, self.text)
         added = [line for line in self.text.splitlines() if line.startswith("+")]
