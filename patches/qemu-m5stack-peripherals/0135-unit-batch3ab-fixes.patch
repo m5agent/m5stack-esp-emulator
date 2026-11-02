@@ -1,0 +1,67 @@
+From 8c0248571ba7cac5d66d09a6e068bd81a1edc448 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 21:47:51 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-3 A+B EXT.IO readback and Scales
+ RGB writes
+
+Guest evidence found two real 0130 model bugs:
+
+- EXT.IO PCA9554 input-port read applied the configuration mask backwards
+  (config bit 1 = input), so an all-output port returned the input fixtures and
+  the output latch written by digit_write_port() was never observable. Use the
+  correct mask: configured inputs read inverted pins, configured outputs read
+  the output latch.
+- Scales 0x50..0x52 RGB accepts only a single byte because the fifth write
+  offset was rejected, while the frozen driver writes all three colour bytes in
+  one transaction starting at 0x50. Map sequential bytes to registers
+  0x50/0x51/0x52 so led-rgb becomes the written 24-bit colour.
+
+No other semantics changed; catalogue stays planned until guest evidence
+passes.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 97b5f88..96ff3ca 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -1434,8 +1434,13 @@ static void snapshot_registers(M5UnitControl *s)
+     } else if (s->kind == CONTROL_PCA9554) {
+         uint8_t inputs = 0;
+         for (unsigned i = 0; i < 8; i++) { if (s->pca_inputs[i]) { inputs |= 1u << i; } }
+-        s->read_snapshot[0x00] = (uint8_t)(((inputs ^ s->pca_polarity) & ~s->pca_config) |
+-                                           (s->pca_output & s->pca_config));
++        /* PCA9554 config bit 1 = input, 0 = output. The input port register
++         * reflects inverted pin inputs for configured inputs and the output
++         * latch for configured outputs; the merged 0130 branch had the config
++         * mask inverted, so an all-output port read back the input fixtures and
++         * a written output latch was never observable. */
++        s->read_snapshot[0x00] = (uint8_t)((((inputs ^ s->pca_polarity) & s->pca_config) |
++                                            (s->pca_output & ~s->pca_config)) & 0xff);
+         s->read_snapshot[0x01] = s->pca_output;
+         s->read_snapshot[0x02] = s->pca_polarity;
+         s->read_snapshot[0x03] = s->pca_config;
+@@ -1654,9 +1659,16 @@ static int control_send(I2CSlave *dev, uint8_t value)
+             if (offset > 1) { return 1; }
+             if (offset == 1) { s->scales_cal_writes++; }
+         } else if (base >= 0x50 && base <= 0x52) {
+-            unsigned shift = (0x52 - base) * 8;
+-            if (offset != 0) { return 1; }
+-            s->scales_led_rgb = (s->scales_led_rgb & ~((int64_t)0xff << shift)) | ((int64_t)value << shift);
++            /* The official driver writes the three RGB bytes in one transaction
++             * starting at 0x50, so accept sequential registers 0x50..0x52
++             * instead of only the first byte. The merged 0130 branch rejected
++             * offsets 1/2 and left led-rgb at one shifted byte. */
++            unsigned reg = base + offset;
++            unsigned shift;
++            if (reg > 0x52 || offset > 2) { return 1; }
++            shift = (0x52 - reg) * 8;
++            s->scales_led_rgb = (s->scales_led_rgb & ~((int64_t)0xff << shift))
++                              | ((int64_t)value << shift);
+         } else if (base == 0xff) {
+             BusChild *child;
+             if (offset != 0) { return 1; }
+-- 
+2.55.0
+

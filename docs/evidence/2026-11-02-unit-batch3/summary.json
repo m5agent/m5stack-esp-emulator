@@ -1,0 +1,907 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "All twelve Units of the third research batch through isolated /api/v1 Device Service sessions on two parallel QEMU builds; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A+B": {
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0130-unit-batch3ab.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0135-unit-batch3ab-fixes.patch"
+      ]
+    },
+    "C": {
+      "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+      "tree": ".work/native-lock-source/qemu-c",
+      "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0131-unit-batch3c.patch",
+        "0132-unit-batch3c-fixes.patch"
+      ]
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "stopwatch": {
+      "path": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d"
+    },
+    "atoms3r": {
+      "path": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "sticks3": {
+      "path": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "rfid",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "RFIDUnit(MFRC522)",
+      "firmware_sha256": "b9ad1ee4d4dd7c31fa971e02ee06e0e0a344fb995ad0227eda78d2f7ee7d2b74",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "6ae5b8f7a8644363b8e0e44b36d1a74d",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_card_and_uid": true,
+        "qom_card_present_and_selected": true,
+        "i2c_transactions_observed": true,
+        "i2c_address_0x28": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-rfid.json",
+      "report_sha256": "e2319d28a08e1396a9d28b7cccd348b163a33d0a70f1e2e40dfcb812ccd7c0c9",
+      "evidence_zip_sha256": "f05d8d8d74366cc893034b7eeb1c435ed5c56d74264bfc29aa4c3a7207d6778a",
+      "frame_sha256": "3e6ba92da2c85b99ad889774c5079753456207606759d5db37096ae9e1b5fe5c",
+      "observations": {
+        "rfid": {
+          "guest": [
+            "1",
+            "04010203000000000000"
+          ],
+          "qom": {
+            "card-present": true,
+            "uid-hex": "04010203",
+            "selected": true,
+            "card-reads": 7,
+            "card-writes": 0,
+            "transactions": 1718,
+            "read-bytes": 541,
+            "written-bytes": 1676,
+            "i2c-address": 40
+          }
+        }
+      },
+      "boundaries": [
+        "The MFRC522 command/FIFO/anticollision data plane is covered with the synthetic MIFARE card; RF field, antenna, read range (<20 mm), real card contents and production keys are NOT RUN.",
+        "The frozen driver returns the 10-byte UID buffer (fixture UID 04 01 02 03 + zero padding); evidence asserts the 04010203 prefix. 0x28 conflicts with rfid2 (one per bus)."
+      ]
+    },
+    {
+      "unit_id": "tube-pressure",
+      "batch": "A+B",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "TubePressureUnit",
+      "firmware_sha256": "20089722ee598296c2d33177fb516b77c026f721855ab6fd34252d9226cad912",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "3c85d4f51370400eadda55b326ad6962",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_tracks_adc_fixture": true,
+        "qom_analog_fixture_exact": true,
+        "adc_samples_observed": true,
+        "voltage_path_reported_unsupported": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-tube-pressure.json",
+      "report_sha256": "9e579c5c2e2bea9c1ada4e8810f7e3a9974fbf07fa70c6a861edd766dc503684",
+      "evidence_zip_sha256": "cf3f22461ffafcb8063d84025b0400fb1aa6c1e54b09d1a90c77c237999ecff4",
+      "frame_sha256": "a6e326d5d5ffea5cdc338d8686902b9c08ebce377584cc0c5ceb1224569adec1",
+      "observations": {
+        "tube_pressure": {
+          "voltage_mv": 1600.0,
+          "expected_adc16": 33832,
+          "expected_adc12": 2114,
+          "guest_raw": [
+            "33832",
+            "2114"
+          ],
+          "pressure_voltage_unsupported": true,
+          "qom": {
+            "analog-mv": 1600,
+            "adc-samples": 3479,
+            "pressure-kpa": 50,
+            "transactions": null,
+            "read-bytes": null,
+            "written-bytes": null
+          },
+          "boundary": "read_uv()/get_pressure()/get_voltage() need the S3 ADC calibration fixture and are NOT RUN; the covered path is read_u16()/read()/get_analog_value()."
+        }
+      },
+      "boundaries": [
+        "read_uv()/get_pressure()/get_voltage() need the S3 ADC calibration fixture and raise OSError(95) here; only the read_u16()/read()/get_analog_value() raw path is covered.",
+        "Sensor linearity, temperature compensation and the +/-1.5 kPa accuracy are NOT RUN; ADC 11DB full scale is unresolved; yellow is NC."
+      ]
+    },
+    {
+      "unit_id": "laser-rx",
+      "batch": "A+B",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "LaserRXUnit",
+      "firmware_sha256": "7d7fecee7d235714e9f1adfa6093ec0c8f907f8c379a203dffeae48c444c7d5f",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "ad0c8bb294524f21b0e7bd0aaadeb918",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_level_tracks_fixture": true,
+        "input_events_counted": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-laser-rx.json",
+      "report_sha256": "f051f1e06886c4109156c68e09f57e78c1b10d17b871756d87cbc14efb464a3f",
+      "evidence_zip_sha256": "1189107cdc1399c272a615bcefed1f7debc3806c6d5553dbeaf4852724f14cb4",
+      "frame_sha256": "17111fe587070bab7e3d0fd406a69494718b5529b4b415108677c8cc3ac400e9",
+      "observations": {
+        "laser_rx": {
+          "guest_levels": [
+            "1",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "qom": {
+            "digital-level": true,
+            "input-events": 2,
+            "transactions": null
+          }
+        }
+      },
+      "boundaries": [
+        "Only the GPIO DOUT path is modeled; UART mode and the optical link (beam, 140-205 kHz receiver, 900 nm) are NOT RUN.",
+        "The input-level observation is the white-line fixture state; the paired LASER.TX (U066) is out of scope."
+      ]
+    },
+    {
+      "unit_id": "extio",
+      "batch": "A+B",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "EXTIOUnit(PCA9554)",
+      "firmware_sha256": "1a484f0f60aa60d031e29c707c19c5abade03648e44a2dd9d8b246c28dd78721",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "fa78b6c2e05641de99e1bea06f223113",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "input_fixture_read": true,
+        "output_latch_roundtrip": true,
+        "outputs_returned_to_zero": true,
+        "config_and_polarity_observed": true,
+        "i2c_transactions_observed": true,
+        "i2c_address_0x27": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-extio.json",
+      "report_sha256": "ed3f0aab398d46fb594fb332b848ca80a324c4a3fe20b001259d9c53ec0066b5",
+      "evidence_zip_sha256": "8f55e4478ccd75772dc0a3f7eafd76ecad0b243aaf9b5428377a4896e9028563",
+      "frame_sha256": "c6bd2beb6748de74cb02949c19d9ac2e37dd678abb91cb06b1dd0f16e538b990",
+      "observations": {
+        "extio": {
+          "guest_reads": [
+            "85",
+            "85"
+          ],
+          "guest_readback": "165",
+          "qom": {
+            "input-levels": [
+              true,
+              false,
+              true,
+              false,
+              true,
+              false,
+              true,
+              false
+            ],
+            "output-levels": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "polarity": 0,
+            "config": 255,
+            "i2c-address": 39,
+            "transactions": 14
+          }
+        }
+      },
+      "boundaries": [
+        "PCA9554 register semantics are covered after the 0135 fix; INT output, A0-A2 solder-pad addressing and pull-up/open-drain electrical behavior are NOT RUN.",
+        "Product page is EOL. 0x27 has no registered address conflict."
+      ]
+    },
+    {
+      "unit_id": "dac2",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "DAC2Unit(GP8413)",
+      "firmware_sha256": "e35c03ce336705cf693fffcf1e899c34d753fb4dd4cfeab5709de8d35310ab08",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "bfe73a8774144238949aa7350cf33ea4",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_write_paths_completed": true,
+        "both_channels_16bit_full_scale": true,
+        "range_switched_to_10v": true,
+        "voltage_follows_range": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-dac2.json",
+      "report_sha256": "d394e3f7ae0c06cdd822392fe81d94e71b7348b3d05e7622d63698f3c54dbacd",
+      "evidence_zip_sha256": "786cc4772b330f9171dc4792a69e4bebac986a34290de31f491f52adc514c7fd",
+      "frame_sha256": "dc5e4b33ccef2bd6b621cec81e42b4539cb64540404ea016bc459b20da823329",
+      "observations": {
+        "dac2": {
+          "guest_markers": {
+            "I2C_DAC2_CH1": true,
+            "I2C_DAC2_CH0": true,
+            "I2C_DAC2_BOTH": true,
+            "I2C_DAC2_RANGE1": true
+          },
+          "qom": {
+            "range": 1,
+            "dac-0-raw": 65535,
+            "dac-1-raw": 65535,
+            "voltage-0-v": 10,
+            "voltage-1-v": 10,
+            "i2c-address": null,
+            "transactions": 15
+          },
+          "driver_note": "The frozen driver's channel constants are tuples while set_voltage() compares with ==; callers must pass unit.CHANNEL_* (a plain 0/1/2 silently does nothing). The evidence uses the driver's constants."
+        }
+      },
+      "boundaries": [
+        "The frozen driver's channel constants are tuples while set_voltage() compares with ==, so a plain int silently writes nothing; the evidence uses the driver's own unit.CHANNEL_0/1/BOTH constants.",
+        "The product page says 15-bit while the driver writes 16-bit full scale (0xFFFF); that width conflict is UNRESOLVED. Analog output, short-circuit protection and linearity are NOT RUN. 0x59 conflicts with extencoder."
+      ]
+    },
+    {
+      "unit_id": "scales",
+      "batch": "A+B",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ScalesUnit",
+      "firmware_sha256": "f8bb2f375da4c91ccbebaf6fa144b026cf13e883e1d6bfbb9528ffaf8496adf9",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "fe460d8f099e404db9e1da5794ee5804",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_and_weight_registers": true,
+        "guest_rgb_roundtrip": true,
+        "guest_sync_and_fw": true,
+        "qom_fixtures_exact": true,
+        "qom_led_and_calibration": true,
+        "qom_offset_written": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-scales.json",
+      "report_sha256": "34f4163ced67b6fc495e8f56d0da77cf859c8e634fada94d7872fdf16416b6c3",
+      "evidence_zip_sha256": "f4c13a244328765bc7cfea79fcb483dac266d778048adfe9009d798809b7361f",
+      "frame_sha256": "a4efd800d45b747511d8ac5e911469f1baee9e622a655152f2c6ab20fc327142",
+      "observations": {
+        "scales": {
+          "fixtures": {
+            "weight-g": 543.21,
+            "adc-raw": 123456,
+            "button-status": 2
+          },
+          "guest": [
+            "123456",
+            "543"
+          ],
+          "guest_rgb": [
+            "17",
+            "34",
+            "51"
+          ],
+          "guest_sync": "1",
+          "guest_fw": "2",
+          "qom": {
+            "weight-g": 543.21,
+            "adc-raw": 123456,
+            "button-status": 2,
+            "offset-adc": 123,
+            "led-rgb": 1122867,
+            "led-sync": 1,
+            "calibration-writes": 2,
+            "fw-version": 2,
+            "i2c-address": 38,
+            "transactions": 41
+          }
+        }
+      },
+      "boundaries": [
+        "0x26 conflicts with 4relay and weight-i2c (one per bus). HX711 sampling timing, weighing mechanics, 20 kg range, tare/peel physics and the 10 SPS output rate are NOT RUN.",
+        "Firmware version is a synthetic fixture (2); RGB writes needed the 0135 fix (the 0130 decoder accepted only the first of the three colour bytes)."
+      ]
+    },
+    {
+      "unit_id": "vmeter",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "VoltmeterUnit(ADS1115)",
+      "firmware_sha256": "1bb436a92762b59c2033173f208567645194c96899d81170e77c7bfe1529e4a1",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "1346989e33a5476ca8c060e9352ae1f7",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_voltage_follows_driver_quantization": true,
+        "guest_raw_matches_default_gain": true,
+        "guest_gain_rate": true,
+        "guest_config_path": true,
+        "eeprom_write_rejected_and_counted": true,
+        "qom_voltage_fixture_exact": true,
+        "qom_config_after_writes": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-vmeter.json",
+      "report_sha256": "e65b105dca04f5bb4601de104f839c615b8f1fcd14ce3cbe05518060c5734dc8",
+      "evidence_zip_sha256": "de970ef8d50e6527270dcaccb5631afa0f1ed41a5f8035e8a98b66baca16f069",
+      "frame_sha256": "db59e4247ce770682cc2c14ebe9139e8430fc129376aec613563a5bba512f57d",
+      "observations": {
+        "vmeter": {
+          "fixtures": {
+            "voltage-v": 12.0
+          },
+          "guest": [
+            "11.7784",
+            "-3",
+            "2",
+            "4"
+          ],
+          "guest_config": [
+            "5",
+            "4",
+            "1"
+          ],
+          "eeprom_write_rejected": true,
+          "qom": {
+            "voltage-v": 12,
+            "adc-raw": -24,
+            "config-word": 35712,
+            "eeprom-writes": 1,
+            "i2c-address": 73,
+            "transactions": 148
+          },
+          "quantization_boundary": "PGA_2048 resolution is 3.93 V/LSB by the driver's own table; the 12.0 V fixture quantizes to 11.78 V. This is driver quantization, not a measurement."
+        }
+      },
+      "boundaries": [
+        "The factory calibration record is synthetic (factor 1.0); real calibration, 1% accuracy, +/-36 V range, isolation and fuse behavior are NOT RUN.",
+        "The driver's own PGA_2048 resolution table is 3.93 V/LSB, so the 12.0 V fixture reads 11.78 V; that is driver quantization, not a measurement. EEPROM writes are rejected and counted. 0x53 conflicts with accel.",
+        "The 0133 fix aligns the model's default ADS1115 config (0x8580) with the driver's assumed PGA_2048/RATE_128; the default read path previously disagreed with the guest's own conversion."
+      ]
+    },
+    {
+      "unit_id": "adc",
+      "batch": "A+B",
+      "device_id": "stopwatch",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ADCUnit(ADS1100)",
+      "firmware_sha256": "a0bb3166c6811127f52b19f8fe4a4b8b7fba6894955e04c34541366189c564d4",
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+      "session_id": "200f0e273c00496b95b4a16a9aa44a39",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_value_tracks_fixture": true,
+        "guest_raw_slice_is_two_bytes": true,
+        "guest_voltage_matches_fixture": true,
+        "guest_default_gain_rate": true,
+        "guest_config_sequence": true,
+        "qom_voltage_fixture_exact": true,
+        "qom_config_after_writes": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-adc.json",
+      "report_sha256": "24bc7a58d8832f62ec3faeaca43e2e3a8e4355d08de04794bd035a2babbf79ee",
+      "evidence_zip_sha256": "fbc55d4f90c550e8aab7d122f2c0f8a5e53f8aa21be245b2457a08883b4da13a",
+      "frame_sha256": "0e2b00bc18e1950c87091f648faa04a445394827c97adf909963cddec0c64a18",
+      "observations": {
+        "adc": {
+          "fixtures": {
+            "voltage-v": 3.3
+          },
+          "guest": [
+            "8192",
+            "2000",
+            "3.3",
+            "1",
+            "8",
+            "0"
+          ],
+          "guest_config": [
+            "2",
+            "16",
+            "1",
+            "None"
+          ],
+          "expected_raw_default": 8192,
+          "qom": {
+            "voltage-v": 3.3,
+            "adc-raw": 8192,
+            "config-word": 153,
+            "i2c-address": 72,
+            "transactions": 53
+          }
+        }
+      },
+      "boundaries": [
+        "ADS1100 and ADS1110 are distinct parts; the master/snapshot get_raw_value() return-length difference and the internal reference/PGA accuracy are unresolved.",
+        "0x48 conflicts with adc-v11 and ameter. Product page is EOL. set_operating_mode(SINGLE) makes get_value() return None until a conversion completes, as observed."
+      ]
+    },
+    {
+      "unit_id": "env-iv",
+      "batch": "C",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ENVUnit(ENV_IV: SHT40+BMP280)",
+      "firmware_sha256": "1196c71b88552cb94ce12a7d606e29b64ec8e53fdc17a9ca4f88187cca86e5a6",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+      "session_id": "849b3652619e4b88998eac29dafa0959",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_sht40_temperature_humidity": true,
+        "guest_bmp280_pressure": true,
+        "sht4x_crc_verified_by_driver": true,
+        "dual_slave_transactions": true,
+        "qom_fixtures_exact": true,
+        "qom_serial_number": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-env-iv.json",
+      "report_sha256": "fafed30c1cd122932e72e1248a01da43bb0272e017c7b858c6fbb2bf204840f6",
+      "evidence_zip_sha256": "79e0bf0eb85e625e3646ddd093bc643fc66a58b392452cacb80a8c24264e4955",
+      "frame_sha256": "074fd58c2b9dc130e5d5a42a0813474abc07e0680556bba99c87459ee788cee8",
+      "observations": {
+        "env_iv": {
+          "fixtures": {
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "pressure-pa": 100000.0
+          },
+          "guest": [
+            "25.5",
+            "60.5",
+            "1000.0"
+          ],
+          "sht4x_measure": [
+            "25.499352",
+            "60.500724"
+          ],
+          "serial_number_guest": "305419896",
+          "qom": {
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "pressure-pa": 100000,
+            "serial-number": 305419896,
+            "transactions": 114,
+            "read-bytes": 266,
+            "written-bytes": 64
+          }
+        }
+      },
+      "boundaries": [
+        "Only ENV-IV is covered; ENV-II/III are not. SHT40 accuracy/self-heating and real calibration are NOT RUN; the BMP280 half reuses synthetic-but-valid compensation coefficients.",
+        "The frozen unit package does not export the ENV_IV constant (explicit type 4 used). 0x44 conflicts with env-iii; 0x76 conflicts with bps/env. Product page is EOL."
+      ]
+    },
+    {
+      "unit_id": "co2",
+      "batch": "C",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "CO2Unit(SCD40)",
+      "firmware_sha256": "11a8b6bf78588323d68817308486539f51b8edb87ae82851e506efa3e6cbf70f",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+      "session_id": "cd8c2ba26db14306816bb690fb422c9d",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_co2_tracks_fixture": true,
+        "guest_humidity_tracks_fixture": true,
+        "guest_serial_number_readable": true,
+        "temperature_decode_driver_bug_recorded": true,
+        "qom_fixtures_exact": true,
+        "measurement_reads_observed": true,
+        "qom_serial_number": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-co2.json",
+      "report_sha256": "55deddfb1e0bd81b7276cc7360d42fdd1f00959ab9d37f858878ef864c1cce74",
+      "evidence_zip_sha256": "104097dd398fc0d08dc134cbff1f51d880547198f21adafb3025c9d438215598",
+      "frame_sha256": "49ac83ca76eb7b902ca6474793b11ff736db3cb5c7d414dabf8fe89a5fcec0e0",
+      "observations": {
+        "co2": {
+          "fixtures": {
+            "co2-ppm": 1234,
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "data-ready": true
+          },
+          "guest_co2": "1234",
+          "guest_humidity": "60.5",
+          "guest_temperature": "25.97",
+          "guest_serial_tuple": "(18, 52, 86, 120, 0, 0)",
+          "qom": {
+            "co2-ppm": 1234,
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "data-ready": false,
+            "serial-number": 305419896,
+            "measurement-reads": 14,
+            "transactions": 55
+          },
+          "driver_bug_boundary": "The frozen SCD40 driver decodes temperature from buf[1] instead of buf[4] (self.temperature is wrong); CO2 and humidity are assertable. SCD40-vs-SCD41 identity is unresolved."
+        }
+      },
+      "boundaries": [
+        "SCD40-vs-SCD41 identity is unresolved. The frozen SCD40 driver decodes temperature from buf[1] instead of buf[4]; the observed value is therefore NOT ASSERTED as a fixture match (driver bug recorded).",
+        "CO2 and humidity are asserted; CRC words, data-ready and the three-word serial number are covered. Measurement period (5 s), power-up timing, accuracy and pressure compensation are NOT RUN."
+      ]
+    },
+    {
+      "unit_id": "pbhub",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "PBHUBUnit",
+      "firmware_sha256": "54f13ea99e765f867ff8bc631c6159254fdb7c7f970564bd06433ef9fd41c09a",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+      "session_id": "33c2d99eab9548b2959287248088e8e2",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_digital_and_analog_reads": true,
+        "guest_write_markers": true,
+        "guest_status_registers": true,
+        "qom_inputs_exact": true,
+        "qom_pwm_observed": true,
+        "qom_rgb_observed": true,
+        "qom_rgb_mode_observed": true,
+        "qom_fw_and_address": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-pbhub.json",
+      "report_sha256": "e8f9acb4f0a725daf39c35560a8593553169ceaeba90b781faac3e4598a359f4",
+      "evidence_zip_sha256": "386d42e003915e63cfb4ea89ca18c6ab15de10667f434940c6a8375a61e6faeb",
+      "frame_sha256": "4dc6bb2da05b158d555bd2dd5cbe7e3dc45f985470269385363213c91b804dc6",
+      "observations": {
+        "pbhub": {
+          "fixtures": {
+            "digital-inputs": [
+              true,
+              false,
+              true,
+              false,
+              true,
+              false
+            ],
+            "analog-inputs": [
+              512,
+              0,
+              1023,
+              0,
+              100,
+              0
+            ]
+          },
+          "guest": [
+            "1",
+            "1",
+            "512"
+          ],
+          "guest_pwm_marker": true,
+          "guest_rgb_marker": true,
+          "guest_status": "1",
+          "qom": {
+            "digital-inputs": [
+              true,
+              false,
+              true,
+              false,
+              true,
+              false
+            ],
+            "analog-inputs": [
+              512,
+              0,
+              1023,
+              0,
+              100,
+              0
+            ],
+            "digital-outputs": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "pwm-outputs": [
+              128,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "rgb-frames": [
+              16711680,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "rgb-mode": 1,
+            "fw-version": 1,
+            "i2c-address": 97,
+            "transactions": 59
+          },
+          "boundary": "The 0131 model exposes one digital boolean per channel for both input and output (IO0/IO1 positions are collapsed: reads return the same fixture bit and writes use one latch). Per-position IO0/IO1 semantics are NOT modeled and remain a catalog limitation. RGB frame is the last committed GRB wire value; frozen tag driver sends GRB."
+        }
+      },
+      "boundaries": [
+        "The model has one 0x61 command space (channel_base|offset is a register byte, not a bus address); the six channel addresses are not separate slaves, as the frozen driver expects.",
+        "The 0131 model exposes one digital boolean per channel for both input and output, so IO0/IO1 positions are collapsed (reads return the same fixture bit and writes share one latch); per-position semantics are NOT modeled. MCU identity (MEGA328 vs STM32F030F4P6 vs I2C index) is unresolved; RGB byte order is pinned to the frozen tag driver (GRB wire value).",
+        "PWM/servo/RGB electrical behavior, nested hubs and the EOL status are NOT RUN. RGB single/range writes needed the 0132 fix (commit was one byte late)."
+      ]
+    },
+    {
+      "unit_id": "ultrasonic-io",
+      "batch": "C",
+      "device_id": "stopwatch",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ULTRASONIC_IOUnit",
+      "firmware_sha256": "624d3ea51ece719a7b374035aca03e97a263dca5b95fcbf2a538780cf037150c",
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+      "session_id": "af2d41ecb9944003afa18fcdf20310d3",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_distance_tracks_fixture": true,
+        "timeout_path_exercised": true,
+        "qom_echo_pulse_matches_formula": true,
+        "qom_trigger_count": true,
+        "model_timeouts_zero_for_valid_fixture": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch3/report-ultrasonic-io.json",
+      "report_sha256": "56d7f2759fd3e7271f3ce12e7a0e3088b04474e965e5a39f8548a38bd6dfd06e",
+      "evidence_zip_sha256": "a795a22a979e56ff8c461e95716f9bc5f8537dfe9aba3c24fc3a56a12692b7d5",
+      "frame_sha256": "b8359347a3f9336f6fe8e057f461dcec06e39582e09057313138794d9682a809",
+      "observations": {
+        "ultrasonic_io": {
+          "guest_distances_mm": [
+            1038,
+            1051,
+            1234,
+            1252,
+            1242,
+            1200,
+            1049,
+            1065,
+            1063,
+            1057
+          ],
+          "fast_timeout_value": "-1",
+          "fast_timeout_error": null,
+          "expected_echo_pulse_us": 5820,
+          "qom": {
+            "distance-mm": 1000,
+            "echo-pulse-us": 5820,
+            "trigger-count": 31,
+            "timeouts": 0,
+            "echo-level": false,
+            "input-events": 1
+          },
+          "boundary": "Echo width is distance-mm*582/100 us; acoustic physics, 40kHz response and the documented PORT.A SDA/SCL label conflict are NOT RUN. The timeout path uses a second unit instance with echo_timeout_us=1000 (< the 5820us echo), so machine.time_pulse_us reports the guest-side timeout; the catalog input range (20..4500) cannot express an invalid distance, so the model's timeouts counter stays 0."
+        }
+      },
+      "boundaries": [
+        "Echo width is distance-mm*582/100 us; acoustic physics, 40 kHz response, +/-2% accuracy and the 400 ms/50 ms cycle are NOT RUN. The PORT.A SDA/SCL PinMap label conflicts with the GPIO trigger/echo driver.",
+        "The timeout path is exercised with a second unit instance at echo_timeout_us=1000 (below the 5820 us echo); the catalog input range 20..4500 cannot express an invalid distance, so the model's timeouts counter stays 0.",
+        "The 0132 fix replaced the direct echo-line drive inside the GPIO pad observer (which aborted QEMU via the !g_pad_dispatch_depth assertion) with a QEMU timer."
+      ]
+    }
+  ]
+}

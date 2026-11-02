@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:50:17.842738+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "cores3",
+  "unit_id": "dac2",
+  "driver_class": "DAC2Unit(GP8413)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_write_paths_completed": true,
+    "both_channels_16bit_full_scale": true,
+    "range_switched_to_10v": true,
+    "voltage_follows_range": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "e35c03ce336705cf693fffcf1e899c34d753fb4dd4cfeab5709de8d35310ab08",
+  "firmware_id": "e35c03ce336705cf693fffcf1e899c34d753fb4dd4cfeab5709de8d35310ab08",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "0895b47df0ded2d9e3a21a332b02bf843d45d627172ff5d94278e04fb87e8c4c",
+    "main.py": "59c513dd4576cfbaeef3f1ba9ba9d2995fd3921bc6622d19b4eedea63f6bd936"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "bfe73a8774144238949aa7350cf33ea4",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "dac2",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "dac2": {
+      "guest_markers": {
+        "I2C_DAC2_CH1": true,
+        "I2C_DAC2_CH0": true,
+        "I2C_DAC2_BOTH": true,
+        "I2C_DAC2_RANGE1": true
+      },
+      "qom": {
+        "range": 1,
+        "dac-0-raw": 65535,
+        "dac-1-raw": 65535,
+        "voltage-0-v": 10,
+        "voltage-1-v": 10,
+        "i2c-address": null,
+        "transactions": 15
+      },
+      "driver_note": "The frozen driver's channel constants are tuples while set_voltage() compares with ==; callers must pass unit.CHANNEL_* (a plain 0/1/2 silently does nothing). The evidence uses the driver's constants."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:50:20.049193+08:00",
+      "properties": {
+        "dac-0-raw": 65535,
+        "dac-1-raw": 65535,
+        "transactions": 15,
+        "range": 1,
+        "voltage-0-v": 10,
+        "voltage-1-v": 10
+      }
+    },
+    {
+      "at": "2026-11-02T21:50:20.049193+08:00",
+      "properties": {
+        "dac-0-raw": 65535,
+        "dac-1-raw": 65535,
+        "transactions": 15,
+        "range": 1,
+        "voltage-0-v": 10,
+        "voltage-1-v": 10
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "dac2": " 0x403c8890\r\nE (895) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH3_PROBE_START dac2\nE (1282) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH3_PROBE_READY dac2\nI2C_DAC2_CH1 1.0\nI2C_DAC2_CH0 2.0\nI2C_DAC2_BOTH 1.0 2.0\nI2C_DAC2_RANGE1 10.0\nI2C_DAC2_END\n"
+  },
+  "frame": {
+    "sha256": "dc5e4b33ccef2bd6b621cec81e42b4539cb64540404ea016bc459b20da823329",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "786cc4772b330f9171dc4792a69e4bebac986a34290de31f491f52adc514c7fd",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The frozen driver's channel constants are tuples while set_voltage() compares with ==, so a plain int silently writes nothing; the evidence uses the driver's own unit.CHANNEL_0/1/BOTH constants.",
+    "The product page says 15-bit while the driver writes 16-bit full scale (0xFFFF); that width conflict is UNRESOLVED. Analog output, short-circuit protection and linearity are NOT RUN. 0x59 conflicts with extencoder."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

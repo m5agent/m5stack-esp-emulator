@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:51:21.074707+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "sticks3",
+  "unit_id": "scales",
+  "driver_class": "ScalesUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_raw_and_weight_registers": true,
+    "guest_rgb_roundtrip": true,
+    "guest_sync_and_fw": true,
+    "qom_fixtures_exact": true,
+    "qom_led_and_calibration": true,
+    "qom_offset_written": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "f8bb2f375da4c91ccbebaf6fa144b026cf13e883e1d6bfbb9528ffaf8496adf9",
+  "firmware_id": "f8bb2f375da4c91ccbebaf6fa144b026cf13e883e1d6bfbb9528ffaf8496adf9",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "d90e2c5056376aed59b8679cfcbc36b9acfec3bba60a4b2babb790ac1d1eb85c",
+    "main.py": "f86e8d6295d4f07981954bd23346f9137bb973274a3b3b29ec9355f1753e1f7f"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "fe460d8f099e404db9e1da5794ee5804",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "scales",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "scales": {
+      "fixtures": {
+        "weight-g": 543.21,
+        "adc-raw": 123456,
+        "button-status": 2
+      },
+      "guest": [
+        "123456",
+        "543"
+      ],
+      "guest_rgb": [
+        "17",
+        "34",
+        "51"
+      ],
+      "guest_sync": "1",
+      "guest_fw": "2",
+      "qom": {
+        "weight-g": 543.21,
+        "adc-raw": 123456,
+        "button-status": 2,
+        "offset-adc": 123,
+        "led-rgb": 1122867,
+        "led-sync": 1,
+        "calibration-writes": 2,
+        "fw-version": 2,
+        "i2c-address": 38,
+        "transactions": 41
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:51:22.970139+08:00",
+      "properties": {
+        "weight-g": 543.21,
+        "adc-raw": 123456,
+        "button-status": 2,
+        "led-rgb": 0,
+        "led-sync": 0,
+        "calibration-writes": 0,
+        "i2c-address": 38,
+        "transactions": 1,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "fw-version": 2,
+        "offset-adc": 0
+      }
+    },
+    {
+      "at": "2026-11-02T21:51:22.970139+08:00",
+      "properties": {
+        "weight-g": 543.21,
+        "adc-raw": 123456,
+        "button-status": 2,
+        "led-rgb": 0,
+        "led-sync": 0,
+        "calibration-writes": 0,
+        "i2c-address": 38,
+        "transactions": 1,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "fw-version": 2,
+        "offset-adc": 0
+      }
+    },
+    {
+      "at": "2026-11-02T21:51:26.081724+08:00",
+      "properties": {
+        "weight-g": 543.21,
+        "adc-raw": 123456,
+        "button-status": 2,
+        "led-rgb": 1122867,
+        "led-sync": 1,
+        "calibration-writes": 2,
+        "i2c-address": 38,
+        "transactions": 41,
+        "read-bytes": 53,
+        "written-bytes": 32,
+        "fw-version": 2,
+        "offset-adc": 123
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "scales": "nitialized, please initialize it first\r\nBATCH3_PROBE_READY scales\nI2C_SCALES 123456 543\nI2C_SCALES 123456 543\nI2C_SCALES 123456 543\nI2C_SCALES 123456 543\nI2C_SCALES 123456 543\nI2C_SCALES 123456 543\nI2C_SCALES_RGB [17, 34, 51]\nI2C_SCALES_SYNC 1\nI2C_SCALES_CAL_ZERO\nI2C_SCALES_CAL_LOAD 1000\nI2C_SCALES_FW 2\nI2C_SCALES_END\n"
+  },
+  "frame": {
+    "sha256": "a4efd800d45b747511d8ac5e911469f1baee9e622a655152f2c6ab20fc327142",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "f4c13a244328765bc7cfea79fcb483dac266d778048adfe9009d798809b7361f",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "0x26 conflicts with 4relay and weight-i2c (one per bus). HX711 sampling timing, weighing mechanics, 20 kg range, tare/peel physics and the 10 SPS output rate are NOT RUN.",
+    "Firmware version is a synthetic fixture (2); RGB writes needed the 0135 fix (the 0130 decoder accepted only the first of the three colour bytes)."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

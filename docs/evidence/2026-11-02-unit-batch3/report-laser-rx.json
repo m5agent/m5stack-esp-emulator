@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:51:03.605211+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "atoms3r",
+  "unit_id": "laser-rx",
+  "driver_class": "LaserRXUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_level_tracks_fixture": true,
+    "input_events_counted": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "7d7fecee7d235714e9f1adfa6093ec0c8f907f8c379a203dffeae48c444c7d5f",
+  "firmware_id": "7d7fecee7d235714e9f1adfa6093ec0c8f907f8c379a203dffeae48c444c7d5f",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "7b51d56fbc175646d324790264b2b51ec3473a1121888d2e08bb26a68696adff",
+    "main.py": "f86e8d6295d4f07981954bd23346f9137bb973274a3b3b29ec9355f1753e1f7f"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "ad0c8bb294524f21b0e7bd0aaadeb918",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "laser-rx",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "laser_rx": {
+      "guest_levels": [
+        "1",
+        "0",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "qom": {
+        "digital-level": true,
+        "input-events": 2,
+        "transactions": null
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:51:08.867088+08:00",
+      "properties": {
+        "digital-level": true,
+        "input-events": 2
+      }
+    },
+    {
+      "at": "2026-11-02T21:51:08.867088+08:00",
+      "properties": {
+        "digital-level": true,
+        "input-events": 2
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "laser": "700,len:0x2d24\r\nentry 0x403c8890\r\nE (1216) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH3_PROBE_START laser-rx\nBATCH3_PROBE_READY laser-rx\nGPIO_LASER 1\nGPIO_LASER 0\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER 1\nGPIO_LASER_END\n"
+  },
+  "frame": {
+    "sha256": "17111fe587070bab7e3d0fd406a69494718b5529b4b415108677c8cc3ac400e9",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "1189107cdc1399c272a615bcefed1f7debc3806c6d5553dbeaf4852724f14cb4",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Only the GPIO DOUT path is modeled; UART mode and the optical link (beam, 140-205 kHz receiver, 900 nm) are NOT RUN.",
+    "The input-level observation is the white-line fixture state; the paired LASER.TX (U066) is out of scope."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

@@ -1,0 +1,161 @@
+From e4eef447f7837054ec84caa7a182b9a4bf1e71a0 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 21:41:25 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-3 C model bugs found by guest
+ evidence
+
+Guest evidence found three real model issues in the merged 0131 layer:
+
+- PbHub single-LED (0x09) and range (0x0A) colour writes committed one byte
+  too late (offset 5/7 instead of 4/6), so the frozen driver's 5-byte and
+  7-byte payloads never committed and rgb-frames stayed zero. Commit on the
+  final data byte and decode the GRB payload from its real offsets.
+- Ultrasonic-IO raised the echo line directly from the GPIO pad observer, but
+  esp32_gpio_set_input asserts !g_pad_dispatch_depth, so the guest's first
+  trigger falling edge aborted QEMU (exit -6). Raise the echo from a QEMU timer
+  and schedule the falling edge from there; the pulse width still comes from
+  distance-mm*582/100.
+- SCD40 serial-number response returned only two data words (6 bytes) while
+  the driver reads three words (9 bytes), so get_serial_number() always raised
+  OSError after the CRC check. Return the third word.
+
+No other semantics changed; catalogue stays planned until guest evidence
+passes.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         | 21 ++++++++++---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 45 ++++++++++++++++++---------
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  |  4 +++
+ 3 files changed, 51 insertions(+), 19 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 747ada7..b24b168 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -21,6 +21,7 @@ typedef struct GPIOUnit {
+     double voltage, duty, frequency;
+     unsigned pwm_signal;
+     QEMUTimer *hold_timer;
++    QEMUTimer *ultra_rise_timer;
+     int64_t hold_until;
+     uint32_t rgb[25];
+     unsigned leds;
+@@ -975,6 +976,18 @@ static void ultra_echo_end(void *opaque)
+     g->ultra_echo_high = false;
+ }
+ 
++/* Raise the echo line from a timer, not from inside the pad dispatch: the GPIO
++ * controller asserts !g_pad_dispatch_depth inside esp32_gpio_set_input, so the
++ * first 0131 implementation aborted QEMU on the guest trigger's falling edge. */
++static void ultra_echo_rise(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    esp32_gpio_set_input(g->unit->white, 1);
++    g->ultra_echo_high = true;
++    timer_mod_ns(g->ultra_timer,
++                 qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + (int64_t)g->ultra_pulse_us * 1000);
++}
++
+ static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
+ {
+     GPIOUnit *g = opaque;
+@@ -996,10 +1009,9 @@ static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
+     if (g->ultra_distance_mm >= 20 && g->ultra_distance_mm <= 4500) {
+         int pulse_us = g->ultra_distance_mm * 582 / 100;
+         g->ultra_pulse_us = pulse_us;
+-        esp32_gpio_set_input(g->unit->white, 1);
+-        g->ultra_echo_high = true;
+-        timer_mod_ns(g->ultra_timer,
+-                     qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + (int64_t)pulse_us * 1000);
++        /* Defer both echo edges: the falling trigger edge is dispatched from
++         * inside esp32_gpio_notify_pads, where set_input is forbidden. */
++        timer_mod_ns(g->ultra_rise_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 10000);
+     } else {
+         g->ultra_timeouts++;
+     }
+@@ -1096,6 +1108,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+             return;
+         }
+         g->ultra_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, ultra_echo_end, g);
++        g->ultra_rise_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, ultra_echo_rise, g);
+         esp32_gpio_set_input(unit->white, 0);
+         g->ultra_observer = esp32_gpio_observe_pad(g->ultra_controller, unit->yellow,
+                                                    ultra_pad_event, g, &g->ultra_pad, errp);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index e9c2205..bd3c591 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -1540,24 +1540,39 @@ static int control_send(I2CSlave *dev, uint8_t value)
+                 if (offset > 1) { return 1; }
+                 s->pb_rgb_num[index] = offset == 0 ? value : (s->pb_rgb_num[index] & 0x00ff) | (value << 8);
+             } else if (cmd_offset == 0x09) {
+-                if (offset < 5) { s->pb_write_buf[offset] = value; return 0; }
+-                if (offset > 5) { return 1; }
+-                uint16_t pos = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
+-                if (pos < 75) {
+-                    s->pb_rgb_color[index][0] = s->pb_write_buf[3];  /* G */
+-                    s->pb_rgb_color[index][1] = s->pb_write_buf[2];  /* R */
+-                    s->pb_rgb_color[index][2] = s->pb_write_buf[4];  /* B */
++                /* Single-LED colour: 2-byte LE position + 3-byte GRB payload
++                 * (5 data bytes total). Commit on the fifth data byte. */
++                if (offset < 5) {
++                    s->pb_write_buf[offset] = value;
++                    if (offset == 4) {
++                        uint16_t pos = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
++                        if (pos < 75) {
++                            s->pb_rgb_color[index][0] = s->pb_write_buf[2];  /* G */
++                            s->pb_rgb_color[index][1] = s->pb_write_buf[3];  /* R */
++                            s->pb_rgb_color[index][2] = s->pb_write_buf[4];  /* B */
++                        }
++                    }
++                    return 0;
+                 }
++                return 1;
+             } else if (cmd_offset == 0x0a) {
+-                if (offset < 7) { s->pb_write_buf[offset] = value; return 0; }
+-                if (offset > 7) { return 1; }
+-                uint16_t begin = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
+-                uint16_t count = s->pb_write_buf[2] | (s->pb_write_buf[3] << 8);
+-                for (unsigned n = 0; n < count && begin + n < 75; n++) {
+-                    s->pb_rgb_color[index][0] = s->pb_write_buf[5];  /* G */
+-                    s->pb_rgb_color[index][1] = s->pb_write_buf[4];  /* R */
+-                    s->pb_rgb_color[index][2] = s->pb_write_buf[6];  /* B */
++                /* Range colour: 2-byte LE begin + 2-byte LE count + 3-byte GRB
++                 * payload (7 data bytes total). Commit on the seventh data
++                 * byte; the model records the last committed colour per channel. */
++                if (offset < 7) {
++                    s->pb_write_buf[offset] = value;
++                    if (offset == 6) {
++                        uint16_t begin = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
++                        uint16_t count = s->pb_write_buf[2] | (s->pb_write_buf[3] << 8);
++                        if (begin < 75 && count > 0) {
++                            s->pb_rgb_color[index][0] = s->pb_write_buf[4];  /* G */
++                            s->pb_rgb_color[index][1] = s->pb_write_buf[5];  /* R */
++                            s->pb_rgb_color[index][2] = s->pb_write_buf[6];  /* B */
++                        }
++                    }
++                    return 0;
+                 }
++                return 1;
+             } else if (cmd_offset == 0x0b) {
+                 if (offset) { return 1; }
+                 s->pb_rgb_brightness[index] = value;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 79acd78..9ba1bd4 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -442,8 +442,12 @@ static void scd40_build_response(M5UnitSensor *s)
+     case 0x2318: response_word(s, 0, (uint16_t)CLAMP(s->scd40_temp_offset, 0, 65535)); break;
+     case 0x2322: response_word(s, 0, (uint16_t)CLAMP(s->scd40_altitude, 0, 65535)); break;
+     case 0x3682:
++        /* SCD4x serial number is three data words (6 bytes + 3 CRC = 9
++         * bytes). The driver reads 9 bytes, so a two-word response failed its
++         * CRC loop and always raised OSError. */
+         response_word(s, 0, (uint16_t)((uint64_t)s->scd40_serial >> 16));
+         response_word(s, 1, (uint16_t)s->scd40_serial);
++        response_word(s, 2, 0x0000);
+         break;
+     case 0x3639: response_word(s, 0, 0x0000); break;
+     case 0x2313: response_word(s, 0, 0x0000); break;
+-- 
+2.55.0
+

@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:53:41.487552+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "cores3",
+  "unit_id": "pbhub",
+  "driver_class": "PBHUBUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_digital_and_analog_reads": true,
+    "guest_write_markers": true,
+    "guest_status_registers": true,
+    "qom_inputs_exact": true,
+    "qom_pwm_observed": true,
+    "qom_rgb_observed": true,
+    "qom_rgb_mode_observed": true,
+    "qom_fw_and_address": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "54f13ea99e765f867ff8bc631c6159254fdb7c7f970564bd06433ef9fd41c09a",
+  "firmware_id": "54f13ea99e765f867ff8bc631c6159254fdb7c7f970564bd06433ef9fd41c09a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "a1d0bb21d35da24e1eb65183d7f75401c381325e0ac0fe4f2c5ffd23ac9ab147",
+    "main.py": "8ac07eb1ba516c3db2109b94d312dbc64cd8342b4ad3e81eefe1df38e6e9575e"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "33c2d99eab9548b2959287248088e8e2",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "pbhub",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "pbhub": {
+      "fixtures": {
+        "digital-inputs": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "analog-inputs": [
+          512,
+          0,
+          1023,
+          0,
+          100,
+          0
+        ]
+      },
+      "guest": [
+        "1",
+        "1",
+        "512"
+      ],
+      "guest_pwm_marker": true,
+      "guest_rgb_marker": true,
+      "guest_status": "1",
+      "qom": {
+        "digital-inputs": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "analog-inputs": [
+          512,
+          0,
+          1023,
+          0,
+          100,
+          0
+        ],
+        "digital-outputs": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "pwm-outputs": [
+          128,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-frames": [
+          16711680,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-mode": 1,
+        "fw-version": 1,
+        "i2c-address": 97,
+        "transactions": 59
+      },
+      "boundary": "The 0131 model exposes one digital boolean per channel for both input and output (IO0/IO1 positions are collapsed: reads return the same fixture bit and writes use one latch). Per-position IO0/IO1 semantics are NOT modeled and remain a catalog limitation. RGB frame is the last committed GRB wire value; frozen tag driver sends GRB."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:53:43.689604+08:00",
+      "properties": {
+        "digital-inputs": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "analog-inputs": [
+          512,
+          0,
+          1023,
+          0,
+          100,
+          0
+        ],
+        "digital-outputs": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "pwm-outputs": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-frames": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-mode": 0,
+        "fw-version": 1,
+        "i2c-address": 97,
+        "transactions": 7,
+        "read-bytes": 4,
+        "written-bytes": 3
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:43.689604+08:00",
+      "properties": {
+        "digital-inputs": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "analog-inputs": [
+          512,
+          0,
+          1023,
+          0,
+          100,
+          0
+        ],
+        "digital-outputs": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "pwm-outputs": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-frames": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-mode": 0,
+        "fw-version": 1,
+        "i2c-address": 97,
+        "transactions": 7,
+        "read-bytes": 4,
+        "written-bytes": 3
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:45.850916+08:00",
+      "properties": {
+        "digital-inputs": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "analog-inputs": [
+          512,
+          0,
+          1023,
+          0,
+          100,
+          0
+        ],
+        "digital-outputs": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "pwm-outputs": [
+          128,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-frames": [
+          16711680,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-mode": 1,
+        "fw-version": 1,
+        "i2c-address": 97,
+        "transactions": 59,
+        "read-bytes": 28,
+        "written-bytes": 43
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "pbhub": "bhub\nI2C_PBHUB 0 0 0\nI2C_PBHUB 1 1 512\nI2C_PBHUB 1 1 512\nI2C_PBHUB 1 1 512\nI2C_PBHUB 1 1 512\nI2C_PBHUB 1 1 512\nI2C_PBHUB_DIGITAL 1 0\nI2C_PBHUB_PWM 50\nI2C_PBHUB_RGB 1 16711680 128\nI2C_PBHUB_CALL read_status (254,) 1\nI2C_PBHUB_CALL read_status (255,) 97\nI2C_PBHUB_CALL get_rgb_mode () 0\nI2C_PBHUB_RGB_MODE 1\nI2C_PBHUB_END\n"
+  },
+  "frame": {
+    "sha256": "4dc6bb2da05b158d555bd2dd5cbe7e3dc45f985470269385363213c91b804dc6",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "386d42e003915e63cfb4ea89ca18c6ab15de10667f434940c6a8375a61e6faeb",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The model has one 0x61 command space (channel_base|offset is a register byte, not a bus address); the six channel addresses are not separate slaves, as the frozen driver expects.",
+    "The 0131 model exposes one digital boolean per channel for both input and output, so IO0/IO1 positions are collapsed (reads return the same fixture bit and writes share one latch); per-position semantics are NOT modeled. MCU identity (MEGA328 vs STM32F030F4P6 vs I2C index) is unresolved; RGB byte order is pinned to the frozen tag driver (GRB wire value).",
+    "PWM/servo/RGB electrical behavior, nested hubs and the EOL status are NOT RUN. RGB single/range writes needed the 0132 fix (commit was one byte late)."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}
