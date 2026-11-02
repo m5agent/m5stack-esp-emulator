@@ -1,0 +1,2397 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-11-03",
+  "scope": "batch-8 Unit research draft for 12 unregistered Units; all planned; no evidence/PASS claimed",
+  "units": [
+    {
+      "id": "pahub-v21",
+      "name": "Unit PaHub v2.1",
+      "sku": "U040-B-V21",
+      "visual_asset": {
+        "entry": "src/units/pahub-v21/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-PaHub%20v2.1",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "PCA9548AP",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "PCA9548AP I2C mux at 0x70-0x77 (default 0x70, DIP). Channel select/release is a 1-byte read-modify-write mask: read current mask, OR/AND (1<<channel), write back. Six downstream Grove ports can be cascaded.",
+        "registers": [
+          {
+            "register": "channel mask 0x70-0x77",
+            "length": 1,
+            "encoding": "1-byte mask; bit N enables channel N (select=read|bit, release=read&~bit)"
+          },
+          {
+            "register": "DIP address",
+            "length": 3,
+            "encoding": "A2-A0 straps map to 0x70-0x77 per page truth table"
+          }
+        ],
+        "gaps": [
+          "Downstream bus forwarding/nested hubs are NOT modeled; only the mask is asserted.",
+          "A0-A2 DIP/electrical/PCA9548A 8-vs-6 channel exposure NOT RUN."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "channel-mask": {
+          "type": "integer",
+          "label": "通道 mask",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "channel-writes": {
+          "type": "integer",
+          "label": "mask 写次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 112,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-PaHub%20v2.1",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U040-B-V21",
+            "PCA9548AP",
+            "I2C 0x70-0x77 default 0x70",
+            "six downstream Grove ports",
+            "DIP address straps"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pahub.py",
+          "checked_at": "2026-11-03",
+          "sha256": "d5c9c5127efcdcb1447f9bf91411316e50a5f48c6f18b5521b5a1f75c42022fe",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "CONTROL_PAHUB 1-byte mask read/write on the pahub-v20 model",
+            "channel-mask/channel-writes QOM"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "channel-mask": {
+            "property": "channel-mask",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "channel-writes": {
+            "property": "channel-writes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "PCA9548AP mask-only data plane is planned; 0x70-0x77 conflicts with PaHub v2.0/PaHub/env-iii. Downstream bus forwarding/nested hubs are NOT modeled, and A0-A2 DIP/electrical/PCA9548A 8-vs-6 channel exposure are NOT RUN.",
+      "limitations": [
+        "0x70-0x77 conflicts with pahub-v20/pahub/env-iii; one mux per bus unless nested.",
+        "Only the 1-byte select/release mask is modeled; downstream bus forwarding and nested hubs are NOT modeled.",
+        "DIP address straps, PCA9548A 8-channel vs 6-channel exposure and electrical behavior are NOT RUN."
+      ]
+    },
+    {
+      "id": "lcd",
+      "name": "Unit LCD",
+      "sku": "U120",
+      "visual_asset": {
+        "entry": "src/units/lcd/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/lcd",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "ST7789V2",
+          "status": "officially-documented"
+        },
+        {
+          "part": "ESP32-PICO (internal firmware)",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          62,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-display-composition",
+        "summary": "1.14-inch 135x240 ST7789V2 driven by an internal ESP32-PICO over I2C at 0x3E (page) / 0x3D (frozen driver default). Host sends fixed-length and variable-length commands (READ_ID, READ_BUFCOUNT, FILLRECT, CASET/RASET, WRITE_RAW/RLE, DRAWPIXEL, CHANGE_ADDR) and the internal MCU renders into its framebuffer via SPI.",
+        "registers": [
+          {
+            "register": "READ_ID 0x04",
+            "length": 4,
+            "encoding": "read 4B: 0x77,0x89,major,minor"
+          },
+          {
+            "register": "READ_BUFCOUNT 0x09",
+            "length": 1,
+            "encoding": "remaining command buffer 0..255"
+          },
+          {
+            "register": "FILLRECT 0x68",
+            "length": 5,
+            "encoding": "X_Left,Y_Top,X_Right,Y_Bottom with last drawing color"
+          },
+          {
+            "register": "FILLRECT_8/16/24/32 0x69/0x6A/0x6B/0x6C",
+            "length": 6,
+            "encoding": "rect + color byte/2B/3B/4B"
+          },
+          {
+            "register": "CASET 0x2A / RASET 0x2B",
+            "length": 3,
+            "encoding": "X range / Y range"
+          },
+          {
+            "register": "WRITE_RAW_8/16/24/32 0x41/0x42/0x43/0x44",
+            "length": 0,
+            "encoding": "variable-length raw pixels until I2C STOP"
+          },
+          {
+            "register": "WRITE_RLE_* 0x49..0x4D",
+            "length": 0,
+            "encoding": "variable-length RLE pixels until STOP"
+          },
+          {
+            "register": "DRAWPIXEL 0x60..0x64",
+            "length": 3,
+            "encoding": "X,Y + optional color; alpha for 32-bit"
+          },
+          {
+            "register": "BRIGHTNESS 0x22 / ROTATE 0x36 / SET_POWER 0x38 / SET_SLEEP 0x39",
+            "length": 2,
+            "encoding": "single parameter"
+          },
+          {
+            "register": "CHANGE_ADDR 0xA0",
+            "length": 4,
+            "encoding": "new address + bitwise inverse + 0xA0"
+          }
+        ],
+        "gaps": [
+          "Page address 0x3E vs frozen driver 0x3D unresolved",
+          "Internal ESP32-PICO firmware version/command-buffer overflow behavior NOT modeled",
+          "Real ST7789V2 optical/RGB666 output NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "command-hex": {
+          "type": "string",
+          "label": "I2C 命令流",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "framebuffer": {
+          "type": "string",
+          "label": "framebuffer 摘要（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "read-id": {
+          "type": "string",
+          "label": "READ_ID 响应",
+          "default": "77890000",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "bufcount": {
+          "type": "integer",
+          "label": "命令缓冲余量",
+          "default": 255,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 62,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/lcd",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U120",
+            "ST7789V2 135x240 RGB666",
+            "I2C @0x3E, 400kHz max",
+            "full command table READ_ID/READ_BUFCOUNT/FILLRECT/CASET/RASET/WRITE_RAW/RLE/DRAWPIXEL/CHANGE_ADDR"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lcd.py",
+          "checked_at": "2026-11-03",
+          "sha256": "8c99abd829742908a3852c6136ee57868c631b3cd3e7836f36dbf3252aae7881",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-display",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Unit LCD joins M5Unified external display composition via M5.addDisplay(i2c, addr, {\"unit_lcd\": True})"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "command-hex": {
+            "property": "command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "framebuffer": {
+            "property": "framebuffer",
+            "access": "read-only",
+            "type": "string"
+          },
+          "read-id": {
+            "property": "read-id",
+            "access": "read-only",
+            "type": "string"
+          },
+          "bufcount": {
+            "property": "bufcount",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "Display-class Unit with a page-documented I2C command protocol; page address 0x3E conflicts with frozen driver default 0x3D and with OLED/MiniOLED/Glass2 at 0x3C/0x3D. The internal ESP32-PICO firmware version/buffer overflow behavior and real ST7789V2 optics/RGB666 output are NOT RUN.",
+      "limitations": [
+        "Page 0x3E vs driver 0x3D conflict unresolved; address must be pinned by evidence.",
+        "0x3C/0x3D/0x3E shared with OLED/MiniOLED/Glass2; one display per bus.",
+        "Internal ESP32-PICO firmware version, command-buffer overflow policy and real ST7789V2 optical/RGB666 output are NOT RUN.",
+        "Display composition goes through M5Unified external display; a Unit-level QOM framebuffer model needs a new command slave."
+      ]
+    },
+    {
+      "id": "oled",
+      "name": "Unit OLED",
+      "sku": "U119",
+      "visual_asset": {
+        "entry": "src/units/oled/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/oled",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SH1107",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-display-composition",
+        "summary": "1.3-inch 128x64 monochrome SH1107 OLED, page says I2C 0x3C but the frozen driver defaults 0x3D. The Unit driver only registers an M5Unified external display; SH1107 commands are emitted by that composition path.",
+        "registers": [
+          {
+            "register": "SET_CONTRAST 0x81",
+            "length": 2,
+            "encoding": "contrast 0..255"
+          },
+          {
+            "register": "SET_ENTIRE_ON 0xA4 / SET_NORM_INV 0xA6",
+            "length": 1,
+            "encoding": "normal/entire display"
+          },
+          {
+            "register": "SET_DISP 0xAE/0xAF",
+            "length": 1,
+            "encoding": "display off/on"
+          },
+          {
+            "register": "SET_MEM_MODE 0x20",
+            "length": 2,
+            "encoding": "memory addressing mode"
+          },
+          {
+            "register": "SET_PAGE_ADDR 0xB0",
+            "length": 1,
+            "encoding": "page start address"
+          },
+          {
+            "register": "SET_COL_LO/HI 0x00/0x10",
+            "length": 2,
+            "encoding": "column address low/high nibble"
+          },
+          {
+            "register": "MUX 0xA8 / COM 0xC0 / OFFSET 0xD3 / CLK 0xD5 / PRECHARGE 0xD9 / VCOM 0xDB",
+            "length": 2,
+            "encoding": "panel timing/geometry setup"
+          }
+        ],
+        "gaps": [
+          "Page 0x3C vs frozen driver 0x3D unresolved",
+          "No Unit-level QOM framebuffer; M5Unified composition only",
+          "OLED optics/brightness/lifetime NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "command-hex": {
+          "type": "string",
+          "label": "I2C 命令流",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "panel-framebuffer": {
+          "type": "string",
+          "label": "面板 framebuffer 摘要（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 61,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/oled",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U119",
+            "SH1107 128x64 monochrome",
+            "I2C @0x3C on the page",
+            "PORT.A"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/oled.py",
+          "checked_at": "2026-11-03",
+          "sha256": "36ea6e597f6d1087e57bd8d6b512154dc7d6d0e362cec068b89082378233ccce",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sh1107.py",
+          "checked_at": "2026-11-03",
+          "sha256": "bf96e8e177f11a9f157cac6613f52c46fb5ffa812a6d17a741385cd8b860d8fc",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-display",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Unit OLED joins M5Unified external display via M5.addDisplay(i2c, addr, {\"unit_oled\": True})"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "command-hex": {
+            "property": "command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "panel-framebuffer": {
+            "property": "panel-framebuffer",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "Display-class Unit: page address 0x3C vs frozen driver 0x3D unresolved, and M5Unified composition is the only executable path (no Unit-level QOM framebuffer). SH1107 optics/brightness/lifetime are NOT RUN; 0x3C/0x3D conflicts with MiniOLED/Glass2/LCD.",
+      "limitations": [
+        "Page 0x3C vs driver 0x3D conflict unresolved; address must be pinned by evidence.",
+        "No Unit-level QOM data plane: M5Unified external display composition only; display framebuffer model is a new display lane.",
+        "0x3C/0x3D shared with MiniOLED/Glass2/LCD; one display per bus.",
+        "OLED optics/brightness/lifetime and panel physical behavior NOT RUN."
+      ]
+    },
+    {
+      "id": "mini-oled",
+      "name": "Unit Mini OLED",
+      "sku": "U166",
+      "visual_asset": {
+        "entry": "src/units/mini-oled/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Mini_OLED",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SSD1315",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-display-composition",
+        "summary": "0.42-inch 72x40 monochrome SSD1315 OLED, page says I2C 0x3C but the frozen driver defaults 0x3D. Unit driver registers an M5Unified external display; SSD1315 command/pixel stream is emitted by that composition.",
+        "registers": [
+          {
+            "register": "SSD1315 command stream",
+            "length": 0,
+            "encoding": "M5Unified external display commands (display on/off, page/column address, pixel data)"
+          },
+          {
+            "register": "panel geometry",
+            "length": 0,
+            "encoding": "72x40 monochrome white"
+          }
+        ],
+        "gaps": [
+          "Page 0x3C vs frozen driver 0x3D unresolved",
+          "No Unit-level QOM framebuffer; composition only",
+          "SSD1315 optics NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "command-hex": {
+          "type": "string",
+          "label": "I2C 命令流",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "panel-framebuffer": {
+          "type": "string",
+          "label": "面板 framebuffer 摘要（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 61,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Mini_OLED",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U166",
+            "SSD1315 72x40 monochrome white",
+            "I2C @0x3C on the page",
+            "PORT.A"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/minioled.py",
+          "checked_at": "2026-11-03",
+          "sha256": "30e7467ae47a47133624443771fd0e0bad66939b0c7ecb8f82279516e3cc5302",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-display",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Unit MiniOLED joins M5Unified external display via M5.addDisplay(i2c, addr, {\"unit_mini_oled\": True})"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "command-hex": {
+            "property": "command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "panel-framebuffer": {
+            "property": "panel-framebuffer",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "Display-class Unit: page 0x3C vs frozen driver 0x3D unresolved and composition-only (no Unit-level QOM framebuffer). SSD1315 optics are NOT RUN; 0x3C/0x3D conflicts with OLED/Glass2/LCD.",
+      "limitations": [
+        "Page 0x3C vs driver 0x3D conflict unresolved.",
+        "No Unit-level QOM data plane: M5Unified external display composition only.",
+        "0x3C/0x3D shared with OLED/Glass2/LCD; one display per bus.",
+        "SSD1315 optics/panel physical behavior NOT RUN."
+      ]
+    },
+    {
+      "id": "glass2",
+      "name": "Unit Glass2",
+      "sku": "U158-B",
+      "visual_asset": {
+        "entry": "src/units/glass2/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Glass2",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SSD1309",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-address-dispute",
+        "summary": "1.51-inch 128x64 transparent OLED SSD1309. Description/specs say default 0x3C with solder option 0x3D; the product-comparison table says fixed 0x3D; frozen driver defaults 0x3C. Unit driver registers an M5Unified external display.",
+        "registers": [
+          {
+            "register": "SSD1309 command stream",
+            "length": 0,
+            "encoding": "M5Unified external display commands (display on/off, page/column address, pixel data)"
+          },
+          {
+            "register": "panel geometry",
+            "length": 0,
+            "encoding": "128x64 monochrome, transparent area 128x56"
+          }
+        ],
+        "gaps": [
+          "Page default 0x3C/0x3D vs comparison table fixed 0x3D unresolved",
+          "No Unit-level QOM framebuffer; composition only",
+          "Transparent OLED optics NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "command-hex": {
+          "type": "string",
+          "label": "I2C 命令流",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "panel-framebuffer": {
+          "type": "string",
+          "label": "面板 framebuffer 摘要（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 60,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Glass2",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U158-B",
+            "SSD1309 128x64 transparent OLED",
+            "default 0x3C solderable to 0x3D per description/specs",
+            "comparison table says fixed 0x3D (internal contradiction)",
+            "two Grove ports"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/glass2.py",
+          "checked_at": "2026-11-03",
+          "sha256": "71752fca1a8d3abeb565a81e741c9cdd46cece98ae5b8e3006782846c168c245",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-display",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Unit Glass2 joins M5Unified external display via M5.addDisplay(i2c, addr, {\"unit_glass2\": True})"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "command-hex": {
+            "property": "command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "panel-framebuffer": {
+            "property": "panel-framebuffer",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "Display-class Unit: the page is internally inconsistent (description/specs default 0x3C with 0x3D solder option vs comparison table fixed 0x3D); frozen driver defaults 0x3C. No Unit-level QOM framebuffer; transparent OLED optics are NOT RUN. 0x3C/0x3D conflicts with OLED/MiniOLED/LCD.",
+      "limitations": [
+        "Page default 0x3C/0x3D vs comparison table fixed 0x3D unresolved; drive must pin address by evidence.",
+        "No Unit-level QOM data plane: M5Unified external display composition only.",
+        "0x3C/0x3D shared with OLED/MiniOLED/LCD; one display per bus.",
+        "Transparent OLED optics/brightness/contrast and physical panel behavior NOT RUN."
+      ]
+    },
+    {
+      "id": "gps-v11",
+      "name": "Unit GPS v1.1",
+      "sku": "U032-V11",
+      "visual_asset": {
+        "entry": "src/units/gps-v11/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_GPS_v1.1",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "AT6668 / ATGM336H-6N",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-baud-conflict",
+        "summary": "AT6668 multi-constellation GNSS (GPS/QZSS/BD2/BD3/GAL/GLO), UART NMEA0183 4.1. Page says default 115200 8N1; frozen unit/gps.py hardcodes 9600. Driver parses $GNGGA/$GNRMC/$GNVTG into latitude/longitude/altitude/speed/course/satellites/fix quality.",
+        "registers": [
+          {
+            "register": "$GNGGA NMEA sentence",
+            "length": 0,
+            "encoding": "UTC, lat, N/S, lon, E/W, fix quality, satellites, HDOP, altitude, geoid, age, checksum"
+          },
+          {
+            "register": "$GNRMC NMEA sentence",
+            "length": 0,
+            "encoding": "UTC, status, lat/lon, speed knots, course, date, checksum"
+          },
+          {
+            "register": "$GNVTG NMEA sentence",
+            "length": 0,
+            "encoding": "course true/magnetic, speed knots/kmh, checksum"
+          },
+          {
+            "register": "UART baud",
+            "length": 0,
+            "encoding": "page says 115200 8N1; frozen driver init(9600) -> unresolved"
+          }
+        ],
+        "gaps": [
+          "Page 115200 vs frozen driver 9600 unresolved",
+          "GNSS RF/antenna/constellation/fix accuracy/cold start NOT RUN"
+        ]
+      },
+      "inputs": {
+        "nmea-lines": {
+          "type": "array",
+          "label": "NMEA 行 fixture",
+          "default": [
+            "$GNGGA,000000.00,0000.0000,N,00000.0000,E,0,00,0.0,0.0,M,0.0,M,,*00"
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        }
+      },
+      "outputs": {
+        "latitude": {
+          "type": "number",
+          "label": "纬度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "label": "经度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -180,
+          "maximum": 180
+        },
+        "altitude-m": {
+          "type": "number",
+          "label": "海拔",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "speed-kph": {
+          "type": "number",
+          "label": "速度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "course-deg": {
+          "type": "number",
+          "label": "航向",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 360
+        },
+        "fix-mode": {
+          "type": "integer",
+          "label": "定位状态",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "satellites": {
+          "type": "integer",
+          "label": "卫星数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_GPS_v1.1",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U032-V11",
+            "AT6668/ATGM336H-6N",
+            "UART default 115200 8N1",
+            "NMEA0183 4.1",
+            "GPS/QZSS/BD2/BD3/GAL/GLO"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/gps.py",
+          "checked_at": "2026-11-03",
+          "sha256": "527921a49640a5d354f75e7512d8f027dff4782d88a718d263cdd28f383b398a",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0123-unit-i2c-batch3.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "existing GPS UART/NMEA model pattern from batch4 gps"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "nmea-lines": {
+            "property": "nmea-lines",
+            "access": "read-write",
+            "type": "array"
+          },
+          "latitude": {
+            "property": "latitude",
+            "access": "read-only",
+            "type": "number"
+          },
+          "longitude": {
+            "property": "longitude",
+            "access": "read-only",
+            "type": "number"
+          },
+          "altitude-m": {
+            "property": "altitude-m",
+            "access": "read-only",
+            "type": "number"
+          },
+          "speed-kph": {
+            "property": "speed-kph",
+            "access": "read-only",
+            "type": "number"
+          },
+          "course-deg": {
+            "property": "course-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "fix-mode": {
+            "property": "fix-mode",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "satellites": {
+            "property": "satellites",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "AT6668 NMEA UART byte layer is planned; page default 115200 conflicts with the frozen driver 9600 and must be pinned by evidence. GNSS RF/antenna/constellation/fix accuracy/cold-start are NOT RUN; PORT.C is shared with every UART Unit.",
+      "limitations": [
+        "Page 115200 8N1 vs frozen unit/gps.py ini(9600) conflict unresolved; evidence must pick one.",
+        "PORT.C UART shared with all UART Units; one per port.",
+        "GNSS RF/antenna/constellation/fix accuracy/cold-start are NOT RUN.",
+        "AT6668 NMEA talker set vs the driver decoder must be validated per sentence."
+      ]
+    },
+    {
+      "id": "gps-sma",
+      "name": "Unit GPS SMA",
+      "sku": "U190",
+      "visual_asset": {
+        "entry": "src/units/gps-sma/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-GPS%20SMA",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "AT6668 / ATGM336H",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-baud-conflict",
+        "summary": "Same AT6668 multi-constellation GNSS as GPS v1.1, external active SMA antenna (30dBi, 1555-1580MHz), NMEA0183 4.1. Page says 115200 8N1; frozen unit/gps.py hardcodes 9600.",
+        "registers": [
+          {
+            "register": "NMEA $GNGGA/$GNRMC/$GNVTG",
+            "length": 0,
+            "encoding": "same decoder as GPS v1.1"
+          },
+          {
+            "register": "UART baud",
+            "length": 0,
+            "encoding": "page 115200 vs driver init(9600) unresolved"
+          }
+        ],
+        "gaps": [
+          "Page 115200 vs frozen driver 9600 unresolved",
+          "External active antenna/RF/fix accuracy NOT RUN"
+        ]
+      },
+      "inputs": {
+        "nmea-lines": {
+          "type": "array",
+          "label": "NMEA 行 fixture",
+          "default": [
+            "$GNGGA,000000.00,0000.0000,N,00000.0000,E,0,00,0.0,0.0,M,0.0,M,,*00"
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        }
+      },
+      "outputs": {
+        "latitude": {
+          "type": "number",
+          "label": "纬度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "label": "经度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -180,
+          "maximum": 180
+        },
+        "altitude-m": {
+          "type": "number",
+          "label": "海拔",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "speed-kph": {
+          "type": "number",
+          "label": "速度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "course-deg": {
+          "type": "number",
+          "label": "航向",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 360
+        },
+        "fix-mode": {
+          "type": "integer",
+          "label": "定位状态",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "satellites": {
+          "type": "integer",
+          "label": "卫星数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-GPS%20SMA",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U190",
+            "AT6668",
+            "external active SMA antenna 30dBi 1555-1580MHz",
+            "UART default 115200 8N1",
+            "NMEA0183 4.1"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/gps.py",
+          "checked_at": "2026-11-03",
+          "sha256": "527921a49640a5d354f75e7512d8f027dff4782d88a718d263cdd28f383b398a",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0123-unit-i2c-batch3.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "existing GPS UART/NMEA model pattern from batch4 gps"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "nmea-lines": {
+            "property": "nmea-lines",
+            "access": "read-write",
+            "type": "array"
+          },
+          "latitude": {
+            "property": "latitude",
+            "access": "read-only",
+            "type": "number"
+          },
+          "longitude": {
+            "property": "longitude",
+            "access": "read-only",
+            "type": "number"
+          },
+          "altitude-m": {
+            "property": "altitude-m",
+            "access": "read-only",
+            "type": "number"
+          },
+          "speed-kph": {
+            "property": "speed-kph",
+            "access": "read-only",
+            "type": "number"
+          },
+          "course-deg": {
+            "property": "course-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "fix-mode": {
+            "property": "fix-mode",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "satellites": {
+            "property": "satellites",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "Same AT6668 NMEA UART layer as GPS v1.1 with an external active antenna; page 115200 vs frozen driver 9600 conflict unresolved. GNSS RF/antenna gain/fix accuracy are NOT RUN; PORT.C is shared with every UART Unit.",
+      "limitations": [
+        "Page 115200 8N1 vs frozen unit/gps.py init(9600) conflict unresolved.",
+        "PORT.C UART shared with all UART Units; one per port.",
+        "External active antenna gain (30dBi)/RF/fix accuracy/cold-start NOT RUN.",
+        "GPS SMA and GPS v1.1 share the decoder but evidence must not be transferred between products."
+      ]
+    },
+    {
+      "id": "nbiot-cn",
+      "name": "Unit NBIoT-CN",
+      "sku": "U112",
+      "visual_asset": {
+        "entry": "src/units/nbiot-cn/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_NBIoT-CN",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SIM7020C",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-network-boundary",
+        "summary": "SIM7020C Cat-NB (CN B1/B3/B5/B8) UART 115200 AT module with SMA antenna. Frozen unit/nbiot.py builds SIM7020, probes AT readiness (repeat) and sends ATE0; SIM7020 driver exposes CGSN/CCID/CGACT/CGCONTRDP/CMQ*/CHTTP* AT commands.",
+        "registers": [
+          {
+            "register": "AT readiness",
+            "length": 6,
+            "encoding": "write AT\\r\\n; expect OK"
+          },
+          {
+            "register": "echo off",
+            "length": 6,
+            "encoding": "write ATE0\\r\\n; expect OK"
+          },
+          {
+            "register": "AT+CGSN / AT+CCID",
+            "length": 8,
+            "encoding": "IMEI / ICCID identity"
+          },
+          {
+            "register": "AT+CGACT / AT+CGACT?",
+            "length": 13,
+            "encoding": "PDP context activate/query"
+          },
+          {
+            "register": "AT+CMQNEW/CMQCON/CMQSUB/CMQPUB",
+            "length": 20,
+            "encoding": "MQTT setup/connect/subscribe/publish"
+          },
+          {
+            "register": "AT+CHTTPCREATE/CHTTPSEND/CHTTPCON",
+            "length": 20,
+            "encoding": "HTTP client setup/send/connect"
+          }
+        ],
+        "gaps": [
+          "SIM7020C AT firmware/URC/registration order unresolved",
+          "NB-IoT RF/network/SIM/operator certs/TLS/MQTT NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 chunk fixture（; 分隔 hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_NBIoT-CN",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U112",
+            "SIM7020C Cat-NB CN B1/B3/B5/B8",
+            "UART 115200",
+            "AT commands",
+            "SMA external antenna"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/nbiot.py",
+          "checked_at": "2026-11-03",
+          "sha256": "bee047da8bec3994259226df2b4cffcbc08d5c70dc1d742d551af6b827bd6437",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/sim7020.py",
+          "checked_at": "2026-11-03",
+          "sha256": "8ec36aa188527b8a948005bcca1f0affcd3fe77851463a932db40bcc41f69c36",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/common.py",
+          "checked_at": "2026-11-03",
+          "sha256": "d126ef03361769ea50c40b76ca9303a2f7fceca551dff489a73f497275845b52",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "UART TX capture and idle-gap response injection used by nbiot2 batch5"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "SIM7020C AT byte layer only: AT firmware/URC/registration order unresolved and NB-IoT RF/network/SIM/operator certification/TLS/MQTT are NOT RUN. PORT.C is shared with all UART Units; SIM7020C differs from batch5 SIM7028 and must not inherit its evidence.",
+      "limitations": [
+        "PORT.C UART shared with all UART Units; one per port.",
+        "SIM7020C AT firmware/URC/registration order unresolved.",
+        "NB-IoT RF/network/SIM/operator certification/TLS/MQTT NOT RUN.",
+        "SIM7020C vs batch5 nbiot2 SIM7028 command set/response differences must be re-verified."
+      ]
+    },
+    {
+      "id": "lora-e220-920",
+      "name": "Unit LoRaE220-920",
+      "sku": "U170",
+      "visual_asset": {
+        "entry": "src/units/lora-e220-920/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/LoRaE220-JP%20Unit",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "E220-900T22S (JP) / LLCC68",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 9600,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-rf-boundary",
+        "summary": "E220-900T22S (JP) 920MHz (920.6-928.0MHz) LLCC68 LoRa module, max 13dBm, DIP-selected Transmit/Receive, WOR Transmit, WOR Receive and Configuration modes. Frozen unit/lora_e220_jp.py uses 9600 UART, 0xC0 config frame readback and P2P send/receive frames.",
+        "registers": [
+          {
+            "register": "configuration frame 0xC0",
+            "length": 11,
+            "encoding": "header 0xC0 0x00 0x08 + addr H/L + REG0 baud/air-rate + REG1 subpacket/noise/power + REG2 channel + REG3 rssi/mode/lbt/wor + key H/L"
+          },
+          {
+            "register": "read config 0xC1",
+            "length": 3,
+            "encoding": "read request; response returns 11B header+config"
+          },
+          {
+            "register": "send frame",
+            "length": 0,
+            "encoding": ">HB target address/channel + payload (max 200B)"
+          },
+          {
+            "register": "receive",
+            "length": 0,
+            "encoding": "RX payload + optional RSSI byte; WOR/P2P modes"
+          }
+        ],
+        "gaps": [
+          "Page does not state baud; frozen driver uses 9600",
+          "920MHz RF/antenna/range/power/Telec NOT RUN",
+          "433 vs 920 register-bit definitions differ; no cross-transfer"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "RX fixture chunk（; 分隔 hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "config-hex": {
+          "type": "string",
+          "label": "配置回显（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入 RX 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/LoRaE220-JP%20Unit",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U170",
+            "E220-900T22S (JP) / LLCC68",
+            "920.6-928.0MHz, max 13dBm",
+            "DIP-selected transmit/receive/WOR/config modes",
+            "UART serial"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lora_e220_jp.py",
+          "checked_at": "2026-11-03",
+          "sha256": "a9c6d136e13b44ced6761e9edebe4ac5c31934adf7ce1f0e6100a0620a2e0fa6",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "lora-e220-433 UART TX/config capture and idle fixture injection pattern"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "config-hex": {
+            "property": "config-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "UART configuration/P2P byte layer only: page baud is unspecified (driver 9600) and 433 vs 920 register-bit definitions differ, so batch5 433 evidence cannot be transferred. 920MHz RF/antenna/range/power/Telec and WOR modes are NOT RUN; PORT.C is shared with all UART Units.",
+      "limitations": [
+        "Page does not state UART baud; frozen unit/lora_e220_jp.py uses 9600 -> unresolved.",
+        "433 vs 920 register/bit definitions differ; do not reuse batch5 lora-e220-433 evidence.",
+        "920MHz RF/antenna/range/power/Telec and WOR modes NOT RUN.",
+        "PORT.C UART shared with all UART Units; one per port."
+      ]
+    },
+    {
+      "id": "lorawan-us915",
+      "name": "Unit LoRaWAN-US915",
+      "sku": "U184-US915",
+      "visual_asset": {
+        "entry": "src/units/lorawan-us915/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-US915",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32WLE5 / RAK3172",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-driver-product-mismatch",
+        "summary": "STM32WLE5/RAK3172 LoRaWAN 1.0.3 (US915 902-928MHz, Class A/B/C, OTAA/ABP/P2P) at UART 115200 AT. Frozen unit/lorawan.py wraps driver.asr650x.LoRaWAN_470 (ASR6501); the driver contains LoRaWAN_915 but the Unit wrapper does not use it, so product/driver AT compatibility is unresolved.",
+        "registers": [
+          {
+            "register": "AT+CGSN?",
+            "length": 7,
+            "encoding": "product serial query"
+          },
+          {
+            "register": "AT+CDEVADDR?/=",
+            "length": 12,
+            "encoding": "DevAddr query/set"
+          },
+          {
+            "register": "AT+CDEVEUI?/= / AT+CAPPEUI?/= / AT+CAPPKEY?/=",
+            "length": 12,
+            "encoding": "OTAA identity/key fields"
+          },
+          {
+            "register": "AT+CJOINMODE?/= / AT+CCLASS?/= / AT+CWORKMODE?/=",
+            "length": 13,
+            "encoding": "OTAA/ABP, Class A/B/C, LoRaWAN/P2P"
+          },
+          {
+            "register": "AT+CFREQBANDMASK?/= / AT+CULDLMODE?/=",
+            "length": 17,
+            "encoding": "US915 band mask and uplink/downlink mode"
+          }
+        ],
+        "gaps": [
+          "STM32WLE5/RAK3172 product vs ASR650x driver AT compatibility unresolved",
+          "LoRaWAN stack/OTAA/ABP/join state machine NOT modeled",
+          "US915 RF/antenna/regulatory NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 chunk fixture（; 分隔 hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "dev-addr": {
+          "type": "string",
+          "label": "DevAddr",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "join-status": {
+          "type": "integer",
+          "label": "Join 状态",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-US915",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U184-US915",
+            "STM32WLE5/RAK3172",
+            "LoRaWAN 1.0.3 US915 902-928MHz",
+            "Class A/B/C, OTAA/ABP/P2P",
+            "UART 115200"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lorawan.py",
+          "checked_at": "2026-11-03",
+          "sha256": "5cd3fc5347ef202f6bf3a5dc2724e3994b65988f74787e011f152ac1976e6277",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/asr650x.py",
+          "checked_at": "2026-11-03",
+          "sha256": "fd5063b63d335ca8c7437eb2e0e0b0559317f62014b8929587b40bc74052a893",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "UART TX capture and idle response injection pattern used by lorawan-cn470 batch7"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "dev-addr": {
+            "property": "dev-addr",
+            "access": "read-only",
+            "type": "string"
+          },
+          "join-status": {
+            "property": "join-status",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "UART AT byte layer only: product STM32WLE5/RAK3172 conflicts with the frozen ASR650x-based LoRaWAN_470 wrapper (driver has LoRaWAN_915 but unit does not use it), so AT compatibility is unresolved. OTAA/ABP, Join/Accept, LoRaWAN stack, US915 RF/antenna/FCC and duty cycle are NOT RUN; PORT.C is shared with all UART Units.",
+      "limitations": [
+        "STM32WLE5/RAK3172 product vs ASR650x LoRaWAN_470 wrapper mismatch unresolved; driver LoRaWAN_915 class is unused.",
+        "OTAA/ABP keys, Join/Accept, LoRaWAN stack and P2P mode are NOT modeled.",
+        "US915 902-928MHz RF/antenna/FCC and duty cycle NOT RUN.",
+        "PORT.C UART shared with all UART Units; one per port."
+      ]
+    },
+    {
+      "id": "mini-can",
+      "name": "Unit Mini CAN",
+      "sku": "U179",
+      "visual_asset": {
+        "entry": "src/units/mini-can/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Mini%20CAN",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "TJA1051T/3",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "can",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "CAN_TX",
+            "direction": "output"
+          },
+          "white": {
+            "signal": "CAN_RX",
+            "direction": "input"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-c-module-tai",
+        "summary": "TJA1051T/3 non-isolated high-speed CAN transceiver on PORT.C yellow=CAN_TX, white=CAN_RX, up to 1Mbit/s, ISO11898-2:2016 / SAE J2284, 9-24V HT3.96 or Grove 5V, board 120Ω removable. unit/can.py MiniCANUnit wraps the C m5can/TWAI API exactly like Unit CAN.",
+        "registers": [
+          {
+            "register": "m5can.init",
+            "length": 0,
+            "encoding": "mode, prescaler, sjw, bs1, bs2, triple_sampling; TWAI/SJA1000 timing"
+          },
+          {
+            "register": "m5can.send",
+            "length": 0,
+            "encoding": "11-bit/29-bit id + data bytes; extframe/rtr flags"
+          },
+          {
+            "register": "m5can.recv/any",
+            "length": 0,
+            "encoding": "FIFO frame receive"
+          },
+          {
+            "register": "m5can.state/info/setfilter",
+            "length": 0,
+            "encoding": "states/counters and mask/list filters"
+          },
+          {
+            "register": "board termination",
+            "length": 0,
+            "encoding": "120Ω SMT resistor onboard; FAQ says removable"
+          }
+        ],
+        "gaps": [
+          "CAN attachment/host frame injection unresolved (same as batch7 can)",
+          "Non-isolated transceiver/termination/electrical NOT RUN",
+          "Real bus arbitration/error frames NOT RUN"
+        ]
+      },
+      "inputs": {
+        "rx-frames": {
+          "type": "array",
+          "label": "host 注入 CAN 帧 fixture（id:data hex）",
+          "default": [
+            "123#deadbeef"
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        }
+      },
+      "outputs": {
+        "tx-frames": {
+          "type": "array",
+          "label": "guest 发送 CAN 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "rx-frames": {
+          "type": "array",
+          "label": "guest 接收 CAN 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-received": {
+          "type": "integer",
+          "label": "接收帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "can-state": {
+          "type": "string",
+          "label": "CAN 状态",
+          "default": "STOPPED",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Mini%20CAN",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U179",
+            "TJA1051T/3 non-isolated CAN transceiver",
+            "ISO11898-2:2016, up to 1Mbit/s",
+            "PORT.C yellow=CAN_TX white=CAN_RX",
+            "onboard 120Ω resistor, removable"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/can.py",
+          "checked_at": "2026-11-03",
+          "sha256": "00434dbbba33a1ce4f3068f9e2c60850298f101d6a4a4bf400054cc62e19627b",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/net/can/esp32s3_twai.c",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "ESP32-S3 TWAI/SJA1000 model and cores3 m5_can_bus_create CANBusState from batch7 can research"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "rx-frames": {
+            "property": "rx-frames",
+            "access": "read-write",
+            "type": "array"
+          },
+          "tx-frames": {
+            "property": "tx-frames",
+            "access": "read-only",
+            "type": "array"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-received": {
+            "property": "frames-received",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "can-state": {
+            "property": "can-state",
+            "access": "read-only",
+            "type": "string"
+          }
+        }
+      },
+      "blocker": "CAN frames bypass UART and go through the C module m5can over ESP32-S3 TWAI; the Unit attachment/CAN frame injection model is unresolved (same as batch7 can) and PORT.C is currently UART-typed. Non-isolated TJA1051 electrical/termination/bus arbitration/error frames and real CAN traffic are NOT RUN.",
+      "limitations": [
+        "unit/can.py is a thin wrapper over the C m5can module; no Python register map.",
+        "CAN attachment/QOM frame fixture is unresolved; do not map it to a UART responder.",
+        "Non-isolated TJA1051, 120Ω termination, differential levels, bus arbitration/error frames NOT RUN.",
+        "PORT.C pins are shared with UART Units but CAN uses TWAI, not UART; host-port capability needs a CAN lane."
+      ]
+    },
+    {
+      "id": "mic",
+      "name": "Unit MIC",
+      "sku": "U096",
+      "visual_asset": {
+        "entry": "src/units/mic/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/mic",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "MAX4466 microphone preamplifier",
+          "status": "officially-documented"
+        },
+        {
+          "part": "LM393 comparator",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "Digital Output (comparator)",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "Analog Output",
+            "direction": "input"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "product-page-only-unit-driver-gap",
+        "summary": "Omnidirectional electret microphone with MAX4466 preamp and LM393 comparator; PORT.B yellow=digital comparator output, white=analog output, 10K threshold potentiometer. Public UIFlow2 has no unit/mic.py; host samples white with machine.ADC and reads yellow with Pin. No register protocol exists.",
+        "registers": [
+          {
+            "register": "analog output (white)",
+            "length": 0,
+            "encoding": "continuous analog voltage from MAX4466, sampled by ESP32-S3 SAR-ADC"
+          },
+          {
+            "register": "digital output (yellow)",
+            "length": 0,
+            "encoding": "LM393 comparator output; threshold set by 10K potentiometer, toggles on sound above threshold"
+          }
+        ],
+        "gaps": [
+          "No official Unit driver; only machine.ADC/Pin path",
+          "Acoustic sensitivity/SNR/frequency response/threshold NOT RUN",
+          "ADC calibration/noise not modeled"
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "模拟输出 fixture",
+          "default": 1650,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 3300,
+          "unit": "mV"
+        },
+        "comparator-level": {
+          "type": "boolean",
+          "label": "比较器数字电平 fixture",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "ADC 采样",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 3300
+        },
+        "digital-level": {
+          "type": "boolean",
+          "label": "比较器电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "samples": {
+          "type": "integer",
+          "label": "采样数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "sample-rate": {
+          "type": "integer",
+          "label": "采样率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/mic",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U096",
+            "MAX4466 + LM393",
+            "PORT.B yellow=Digital Output white=Analog Output",
+            "52dB sensitivity/40dB SNR",
+            "10K threshold potentiometer"
+          ]
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/m5stopwatch/esp32s3_sens.c",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "ESP32-S3 SENS/SAR-ADC compatibility model provides neutral ADC samples for firmware bring-up"
+          ],
+          "gaps": [
+            "No calibrated ADC accuracy; no acoustic/microphone physics"
+          ]
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/gpio/esp32_gpio.c",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "GPIO digital input path exists for the LM393 comparator output"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "comparator-level": {
+            "property": "comparator-level",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "digital-level": {
+            "property": "digital-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "samples": {
+            "property": "samples",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "sample-rate": {
+            "property": "sample-rate",
+            "access": "read-only",
+            "type": "integer"
+          }
+        }
+      },
+      "blocker": "No official UIFlow2 Unit MIC driver: the data plane is analog ADC + comparator GPIO only, exercised through machine.ADC/Pin rather than a frozen unit driver. Acoustic sensitivity/SNR/frequency response, threshold potentiometer/comparator behavior and ADC calibration/noise are NOT RUN; PORT.B two-wire use conflicts with other PORT.B Units.",
+      "limitations": [
+        "No official Unit driver; evidence path is machine.ADC/Pin, weaker than a frozen unit driver.",
+        "PORT.B white analog + yellow comparator two-wire use conflicts with other PORT.B Units.",
+        "Acoustic sensitivity (52dB)/SNR (40dB)/frequency response/threshold comparator behavior NOT RUN.",
+        "ADC calibration/noise and analog front-end physics are NOT RUN."
+      ]
+    }
+  ]
+}
