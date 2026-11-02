@@ -71,6 +71,9 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
+剩余 classic/异构主机的接入决策（固件 SHA、镜像格式、QEMU 复用、GO/DEFER/NO-GO）见
+[classic 主机可行性研究](plans/2026-11-02-classic-hosts.md)。
+
 Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项见
 [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md)；它只是实现前研究，不含 runtime 或 PASS 声明。
 
@@ -148,6 +151,7 @@ Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项�
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick/StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的官方驱动 file:line 证据、总线/寄存器/命令表、QEMU 复用建议与 11 条 unresolved；planned，不含 runtime 声明 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；原厂 camera.init/capture 仍 NOT_SUPPORTED，相机帧未闭环 |
