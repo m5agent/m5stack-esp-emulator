@@ -225,6 +225,10 @@ const AUDIT = {
   cardkb: {input: ['keys'], readback: ['keys', 'led-rgb'], extra: {keys: '50 bool matrix in fixtures/cardkb-keymap.json order; requires current controller baseline.', 'led-rgb': 'Packed RGB emitted by the controller modifier-state machine.'}},
   key: {input: ['pressed'], readback: ['pressed', 'led-rgb']},
   '8encoder': {input: ['pressed'], readback: ['pressed'], binding: {counters: 'Each count/revolution, zero and direction requires calibration.', 'switch-on': 'Electrical state to physical slide detent requires a confirmed truth table.', 'led-rgb': 'Uniform colors map by permutation invariance; distinct schematic LED colors to nine physical light pipes remain unconfirmed.'}},
+  dlight: {note: 'U136 illuminance-lx is a QOM fixture converted inside the future 0119 BH1750 transaction model; the frozen asset has no indicator component bound to the two-byte raw read, so the value stays panel-only and no photometric behavior is inferred.'},
+  accel: {note: 'U056 accel-x/y/z g fixtures and int-source are panel-only; the frozen asset has no orientation binding, and physical acceleration/tilt behavior is not inferred from register bytes.'},
+  '4relay': {note: 'U097 per-channel relay/led levels stay panel-only until guest evidence confirms the driver-compatible bit order; frozen relay indicators are qualitative and contacts/loads are not visualizable.'},
+  'weight-i2c': {note: 'U180 weight/adc fixtures are panel-only; no frozen display component is bound to 0x10/0x60/0x70 readings and load-cell mechanics are not modeled.'},
 };
 
 export function visualMappingCoverage(catalog) {

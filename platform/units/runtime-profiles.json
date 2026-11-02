@@ -4971,6 +4971,176 @@
         "session_id_sha256": "e675f88be9ab10781de510f00c71310d107779f3f0710f079946ca1384125d1f",
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
+    },
+    "dlight": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU BH1750 transaction model exists in 0119 (single-byte command machine, MTreg sensitivity bytes, conversion window, fixture-to-raw) but no guest/Device Service evidence is recorded, so admission stays planned. The power-on default MTreg, datasheet timing and datasheet register semantics remain unresolved; physical lux/optics are NOT RUN.",
+      "inputs": {
+        "illuminance-lx": {
+          "property": "illuminance-lx"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "illuminance-lx": {
+          "property": "illuminance-lx"
+        }
+      }
+    },
+    "accel": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU ADXL345 register-pointer model exists in 0119 (POWER_CTL/DATA_FORMAT, six data bytes derived from g fixtures, read-to-clear INT_SOURCE) but no guest/Device Service evidence is recorded, so admission stays planned. DEVID is deliberately reserved because the executable driver never reads it and no datasheet value is claimed; physical acceleration/mechanics are NOT RUN.",
+      "inputs": {
+        "accel-x-g": {
+          "property": "accel-x-g"
+        },
+        "accel-y-g": {
+          "property": "accel-y-g"
+        },
+        "accel-z-g": {
+          "property": "accel-z-g"
+        },
+        "int-source": {
+          "property": "int-source"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "accel-x-g": {
+          "property": "accel-x-g"
+        },
+        "accel-y-g": {
+          "property": "accel-y-g"
+        },
+        "accel-z-g": {
+          "property": "accel-z-g"
+        },
+        "int-source": {
+          "property": "int-source"
+        }
+      }
+    },
+    "4relay": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU U097 register model exists in 0119 (0x10 mode, 0x11 relay+LED read-modify-write, per-channel QOM levels in the official driver bit order) but no guest/Device Service evidence is recorded, so admission stays planned. The product-page reverse bit order is a documented conflict; relay contacts, load capability, timing and electrical isolation are NOT RUN.",
+      "inputs": {},
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "relay-1-level": {
+          "property": "relay-1-level"
+        },
+        "relay-2-level": {
+          "property": "relay-2-level"
+        },
+        "relay-3-level": {
+          "property": "relay-3-level"
+        },
+        "relay-4-level": {
+          "property": "relay-4-level"
+        },
+        "led-1-level": {
+          "property": "led-1-level"
+        },
+        "led-2-level": {
+          "property": "led-2-level"
+        },
+        "led-3-level": {
+          "property": "led-3-level"
+        },
+        "led-4-level": {
+          "property": "led-4-level"
+        },
+        "mode": {
+          "property": "mode"
+        }
+      }
+    },
+    "weight-i2c": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU U180 register model exists in 0119 (0x00 ADC, 0x10 float weight, 0x60 int weight*100, 0x70 ASCII, writable calibration/filter registers, 0xFE version, 0xFF address) but no guest/Device Service evidence is recorded, so admission stays planned. Default address 0x26 conflicts with 4relay on one bus; the 0x60 driver-version semantics and calibration application remain unresolved; load-cell mechanics are NOT RUN.",
+      "inputs": {
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "weight-fw": {
+          "property": "weight-fw"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "weight-fw": {
+          "property": "weight-fw"
+        }
+      }
     }
   },
   "evidence_policy": {

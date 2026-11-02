@@ -1,0 +1,404 @@
+From 5d80df734cec8b15d0c0edc360efc937a833d60a Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 17:37:27 +0800
+Subject: [PATCH] hw/m5stopwatch: add B-class external Unit I2C models
+
+Add controller-visible I2C slave models for the first B-class Unit batch:
+dlight (BH1750), accel (ADXL345), 4relay (U097) and weight-i2c (U180).
+
+- dlight: single-byte command machine (power/reset/continuous/one-time,
+  MTreg sensitivity register), fixture illuminance converted only inside the
+  conversion window to the two-byte big-endian raw the driver reads.
+- accel: ADXL345 register pointer with explicit POWER_CTL/DATA_FORMAT bytes,
+  fixture x/y/z bytes derived from g values, read-to-clear INT_SOURCE; DEVID
+  is reserved because the executable driver never reads it and no datasheet
+  value is claimed.
+- 4relay: 0x10 mode and 0x11 relay+LED read-modify-write register, per-channel
+  QOM levels in the official driver bit order (RELAY1=bit0, LED1=bit4); the
+  product-page reverse bit order is recorded as a documented conflict.
+- weight-i2c: fixture-derived 0x00 ADC, 0x10 f32 weight, 0x60 int32 weight*100,
+  0x70 ASCII string, writable calibration/filter registers, 0xFE firmware and
+  0xFF address. 0x60 semantic version remains unresolved and is documented.
+
+These are transaction models, not electrical/mechanical/optical models and
+they do not upgrade any runtime profile without guest evidence.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c |  97 ++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 134 +++++++++++++++++++++++++-
+ 2 files changed, 228 insertions(+), 3 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index bd6896d..5f2d25c 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -22,6 +22,7 @@
+ #include "hw/qdev-properties.h"
+ #include "m5stopwatch.h"
+ #include "m5_unit_runtime.h"
++#include <math.h>
+ 
+ #define TYPE_M5_UNIT_CONTROL "m5-unit-i2c-control"
+ #define CARD_KEYS 50
+@@ -35,6 +36,7 @@ typedef enum {
+     CONTROL_JOYSTICK, CONTROL_ENCODER, CONTROL_ENCODER8,
+     CONTROL_CARDKB, CONTROL_RFID2, CONTROL_SCROLL,
+     CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
++    CONTROL_RELAY4, CONTROL_WEIGHT,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -71,6 +73,15 @@ typedef struct M5UnitControl {
+     unsigned scroll_rx_len, scroll_tx_len, scroll_tx_pos;
+     bool scroll_rx_failed, scroll_read_rejected;
+     uint64_t scroll_bootloader_requests;
++    /* U097 4Relay (0x26): 0x10 mode bit0, 0x11 RELAY1..4=bit0..3 and
++     * LED1..4=bit4..7. Driver-compatible bit order; the product-page table is
++     * the reverse and is recorded as a conflict in catalog/docs. */
++    /* U180 Weight-I2C (0x26): fixture-derived weight/ADC bytes, plus the
++     * writable calibration/filter registers. 0x60 semantic version is
++     * UNRESOLVED; this model uses the master driver's weight*100 encoding. */
++    double weight_g;
++    uint32_t weight_adc;
++    uint8_t weight_fw;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -542,7 +553,11 @@ static void scalar_get(Object *obj, Visitor *v, const char *name, void *opaque,
+     else if (!strcmp(name, "card-reads")) { value = s->card_reads; }
+     else if (!strcmp(name, "card-writes")) { value = s->card_writes; }
+     else if (!strcmp(name, "command-errors")) { value = s->command_errors; }
+-    else if (!strcmp(name, "mode")) { value = s->regs[0]; }
++    else if (!strcmp(name, "mode")) {
++        value = s->kind == CONTROL_RELAY4 ? s->regs[0x10] : s->regs[0];
++    }
++    else if (!strcmp(name, "weight-fw")) { value = s->weight_fw; }
++    else if (!strcmp(name, "adc-raw")) { value = s->weight_adc; }
+     else if (!strcmp(name, "led-rgb") && s->kind == CONTROL_CARDKB) {
+         unsigned family = (s->modifier_mode + 1) / 2;
+         bool on = !(s->modifier_mode & 1) || (qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) / 250) % 2 == 0;
+@@ -556,6 +571,8 @@ static void scalar_set(Object *obj, Visitor *v, const char *name, void *opaque,
+     M5UnitControl *s = opaque;
+     int64_t value, lo = 0, hi = 255;
+     if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (!strcmp(name, "adc-raw")) { lo = 0; hi = 0xffffffffLL; }
++    if (!strcmp(name, "weight-fw")) { lo = 0; hi = 255; }
+     if (!strcmp(name, "i2c-address")) {
+         if (s->kind != CONTROL_JOYSTICK2 || (value != 0x63 && value != 0x64)) {
+             error_setg(errp, "i2c-address must be 0x63 or 0x64 for Joystick2");
+@@ -582,6 +599,8 @@ static void scalar_set(Object *obj, Visitor *v, const char *name, void *opaque,
+     else if (!strcmp(name, "button-raw")) { hi = 1; }
+     if (value < lo || value > hi) { error_setg(errp, "%s outside [%" PRId64 ",%" PRId64 "]", name, lo, hi); return; }
+     if (!strcmp(name, "counter")) { s->counter[0] = value; }
++    else if (!strcmp(name, "adc-raw")) { s->weight_adc = (uint32_t)value; input_changed(s); return; }
++    else if (!strcmp(name, "weight-fw")) { s->weight_fw = (uint8_t)value; input_changed(s); return; }
+     else if (!strcmp(name, "x-position")) { s->joystick2_x = value; }
+     else if (!strcmp(name, "y-position")) { s->joystick2_y = value; }
+     else if (!strcmp(name, "keycode")) {
+@@ -598,6 +617,8 @@ static void bool_get(Object *obj, Visitor *v, const char *name, void *opaque, Er
+     bool value = !strcmp(name, "button-pressed") ? s->joystick2_pressed :
+                  !strcmp(name, "pressed") ? s->pressed[0] :
+                  !strcmp(name, "switch-on") ? s->switch_on :
++                 !strncmp(name, "relay-", 6) ? (s->regs[0x11] >> (name[6] - '1')) & 1 :
++                 !strncmp(name, "led-", 4) ? (s->regs[0x11] >> (name[4] - '1' + 4)) & 1 :
+                  !strcmp(name, "timer-rollover-supported") ||
+                  !strcmp(name, "bootloader-supported") ||
+                  !strcmp(name, "zero-address-unicast-supported") ? false :
+@@ -748,9 +769,43 @@ out:
+     g_free(text);
+ }
+ 
++static void weight_number_get(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    double value = s->weight_g;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void weight_number_set(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    double value;
++    if (!visit_type_number(v, name, &value, errp)) { return; }
++    if (!isfinite(value) || value < -1000000.0 || value > 1000000.0) {
++        error_setg(errp, "weight-g requires a finite number in [-1e6,1e6] g");
++        return;
++    }
++    if (s->weight_g != value) { input_changed(s); }
++    s->weight_g = value;
++}
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
++    if (s->kind == CONTROL_WEIGHT) {
++        uint32_t adc = s->weight_adc;
++        for (unsigned b = 0; b < 4; b++) { s->read_snapshot[0x00 + b] = adc >> (b * 8); }
++        float weight = (float)s->weight_g;
++        memcpy(s->read_snapshot + 0x10, &weight, 4);
++        int32_t weight_x100 = (int32_t)llround(s->weight_g * 100.0);
++        memcpy(s->read_snapshot + 0x60, &weight_x100, 4);
++        memset(s->read_snapshot + 0x70, 0, 16);
++        g_snprintf((char *)s->read_snapshot + 0x70, 16, "%.3f", s->weight_g);
++        s->read_snapshot[0xfe] = s->weight_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    }
+     if (s->kind == CONTROL_JOYSTICK) { memcpy(s->read_snapshot + 0x52, s->joystick, 3); }
+     else if (s->kind == CONTROL_JOYSTICK2) {
+         uint16_t x = (uint16_t)s->joystick2_x;
+@@ -909,6 +964,31 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         if (s->regs[reg] != value) { output_changed(s); }
+         s->regs[reg] = value;
+         s->pointer++;
++    } else if (s->kind == CONTROL_RELAY4) {
++        if (reg != 0x10 && reg != 0x11) { return 1; }
++        if (s->regs[reg] != value) {
++            s->regs[reg] = value;
++            output_changed(s);
++        }
++        s->pointer++;
++    } else if (s->kind == CONTROL_WEIGHT) {
++        if (reg == 0xff) {
++            BusChild *child;
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++            s->regs[0xff] = value;
++            return 0;
++        }
++        if (reg == 0x40 || reg == 0x41 || reg == 0x42 || reg == 0x43 ||
++            reg == 0x50 || reg == 0x80 || reg == 0x81 || reg == 0x82) {
++            s->regs[reg] = value;
++            s->pointer++;
++            return 0;
++        }
++        return 1;
+     }
+     /* CardKB v1.1 accepts legacy writes but has no invented v2 report bank. */
+     return 0;
+@@ -974,7 +1054,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+ {
+     static const char *const ids[] = {
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+-        "joystick2", "8servos", "servo8-hat",
++        "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1028,6 +1108,19 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_bool(s, "timer-rollover-supported", false);
+         add_bool(s, "bootloader-supported", false);
+         add_bool(s, "zero-address-unicast-supported", false);
++    } else if (!strcmp(unit->unit_id, "4relay")) {
++        s->kind = CONTROL_RELAY4; address = 0x26;
++        add_bool(s, "relay-1-level", false); add_bool(s, "relay-2-level", false);
++        add_bool(s, "relay-3-level", false); add_bool(s, "relay-4-level", false);
++        add_bool(s, "led-1-level", false); add_bool(s, "led-2-level", false);
++        add_bool(s, "led-3-level", false); add_bool(s, "led-4-level", false);
++        add_int(s, "mode", false);
++    } else if (!strcmp(unit->unit_id, "weight-i2c")) {
++        s->kind = CONTROL_WEIGHT; address = 0x26;
++        s->weight_g = 0; s->weight_adc = 0; s->weight_fw = 3;
++        object_property_add(OBJECT(s->unit), "weight-g", "number", weight_number_get,
++                            weight_number_set, NULL, s);
++        add_int(s, "adc-raw", true); add_int(s, "weight-fw", true);
+     } else if (!strcmp(unit->unit_id, "cardkb")) {
+         s->kind = CONTROL_CARDKB; address = 0x5f;
+         add_int(s, "keycode", true); add_array(s, "keys", true);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 5bcfddc..e9afdcd 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -21,6 +21,7 @@
+ #define TYPE_M5_UNIT_SENSOR "m5-unit-i2c-sensor"
+ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
++    US_DLIGHT, US_ACCEL,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -42,6 +43,13 @@ typedef struct M5UnitSensor {
+     bool have_eeprom, have_frame[2], thermal_ready;
+     unsigned thermal_page;
+     uint64_t transactions, read_bytes, written_bytes, samples, crc_errors;
++    /* US_DLIGHT: BH1750 single-byte command state. MTreg 69 == driver default
++     * sensitivity 1.0; the power-on datasheet default remains UNRESOLVED. */
++    uint8_t dlight_power, dlight_continuous, dlight_resolution;
++    double dlight_mtreg, dlight_sensitivity;
++    /* US_ACCEL: ADXL345 register-pointer state. Data registers are synthetic
++     * fixture-derived bytes; DEVID stays reserved because it is unresolved. */
++    uint8_t accel_power;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -204,10 +212,67 @@ static void tof_reset(M5UnitSensor *s)
+     s->pending = s->continuous = s->reset_asserted = false;
+ }
+ 
++static void dlight_schedule(M5UnitSensor *s)
++{
++    /* Driver conversion window scales as 180ms/24ms divided by sensitivity;
++     * sensitivity = MTreg/69. This is a model policy from the executable
++     * driver, not a measured silicon timing. */
++    double interval_ms = (s->dlight_resolution == 3 ? 24.0 : 180.0) *
++                         69.0 / s->dlight_mtreg;
++    s->due = now_ns() + (int64_t)llround(interval_ms * 1e6);
++}
++
++static void dlight_complete(M5UnitSensor *s)
++{
++    double raw = s->values[0] * 1.2 * s->dlight_sensitivity;
++    /* H_RESOLUTION_MODE2: driver divides lux by 2 after raw/1.2/sensitivity. */
++    if (s->dlight_resolution == 1) { raw *= 2.0; }
++    if (raw < 0) { raw = 0; }
++    if (raw > 65535) { raw = 65535; }
++    be16(s->response, (uint16_t)llround(raw));
++    s->last_sample = now_ns();
++    s->samples++;
++    if (s->dlight_continuous) {
++        dlight_schedule(s);
++    } else {
++        s->pending = false;
++        s->dlight_power = 0;   /* one-time measurement auto powers down */
++    }
++}
++
++static uint8_t accel_data_byte(M5UnitSensor *s, uint8_t reg)
++{
++    unsigned axis = (reg - 0x32) / 2;
++    long raw = lround(s->values[axis] * 250.0); /* 4 mg/LSB, g fixture */
++    if (raw < INT16_MIN) { raw = INT16_MIN; }
++    if (raw > INT16_MAX) { raw = INT16_MAX; }
++    uint16_t word = (uint16_t)(int16_t)raw;
++    return (reg & 1) ? (word >> 8) : (word & 0xff);
++}
++
++static uint8_t accel_register_read(M5UnitSensor *s, uint8_t reg)
++{
++    if (reg == 0x00) {
++        /* DEVID is UNRESOLVED: the official driver never reads 0x00 and no
++         * datasheet value is claimed here. Reserved read-back stays 0xff. */
++        return 0xff;
++    }
++    if (reg == 0x30) {
++        uint8_t value = s->regs[0][0x30];
++        s->regs[0][0x30] = 0;   /* INT_SOURCE is read-to-clear */
++        return value;
++    }
++    if (reg >= 0x32 && reg <= 0x37) { return accel_data_byte(s, reg); }
++    return s->regs[0][reg];
++}
++
+ static void sensor_update(M5UnitSensor *s)
+ {
+     int64_t now = now_ns();
+     uint8_t *r = s->regs[0];
++    if (s->kind == US_DLIGHT && s->pending && s->dlight_power && now >= s->due) {
++        dlight_complete(s);
++    }
+     if (s->kind == US_COLOR && (r[0] & 3) == 3 && now >= s->due) {
+         unsigned cycles = 256 - r[1];
+         unsigned maximum = MIN(65535, cycles * 1024);
+@@ -348,6 +413,51 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+     unsigned pos = s->write_pos++;
+     s->written_bytes++; s->unit->written_bytes++;
+     sensor_update(s);
++    if (s->kind == US_DLIGHT) {
++        if (pos != 0) { return 1; }
++        if (data == 0x00) { s->dlight_power = 0; s->pending = false; return 0; }
++        if (data == 0x01) { s->dlight_power = 1; return 0; }
++        if (data == 0x07) {
++            s->dlight_power = 0; s->pending = false; s->dlight_continuous = 0;
++            s->dlight_resolution = 0; s->dlight_mtreg = 69.0;
++            s->dlight_sensitivity = s->dlight_mtreg / 69.0;
++            memset(s->response, 0, sizeof(s->response));
++            s->last_sample = 0;
++            return 0;
++        }
++        if ((data & 0xE0) == 0x40) {
++            s->command = (data & 0x1f) << 5;   /* MTreg high byte */
++            return 0;
++        }
++        if ((data & 0xE0) == 0x60) {
++            unsigned mt = s->command | (data & 0x1f);
++            if (mt < 31) { mt = 31; }
++            if (mt > 254) { mt = 254; }
++            s->dlight_mtreg = mt;
++            s->dlight_sensitivity = s->dlight_mtreg / 69.0;
++            return 0;
++        }
++        if ((data & 0xE0) == 0x10 || (data & 0xE0) == 0x20) {
++            uint8_t resolution = data & 0x03;
++            if (resolution == 2) { return 1; }
++            s->dlight_continuous = (data & 0x20) == 0;
++            s->dlight_resolution = resolution;
++            s->dlight_power = 1;
++            s->pending = true;
++            dlight_schedule(s);
++            return 0;
++        }
++        return 1;
++    }
++    if (s->kind == US_ACCEL) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        uint8_t reg = s->pointer++;
++        /* DEVID, data registers and INT_SOURCE are read-only in this model. */
++        if (reg == 0x00 || reg == 0x30 || (reg >= 0x32 && reg <= 0x37)) { return 1; }
++        s->regs[0][reg] = data;
++        if (reg == 0x2d) { s->accel_power = !!(data & 0x08); }
++        return 0;
++    }
+     if (s->kind == US_TVOC) {
+         if (pos >= sizeof(s->write_buf)) { return 1; }
+         s->write_buf[pos] = data;
+@@ -474,6 +584,15 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         if (pos & 1) { s->pointer++; return word; }
+         return word >> 8;
+     }
++    if (s->kind == US_DLIGHT) {
++        /* 2-byte big-endian raw; conversion window is enforced by
++         * sensor_update. Before the first completed sample the value is 0. */
++        return s->response[pos & 1];
++    }
++    if (s->kind == US_ACCEL) {
++        uint8_t reg = s->pointer++;
++        return accel_register_read(s, reg);
++    }
+     if (s->kind == US_NCIR) {
+         unsigned reg = s->pointer;
+         uint8_t bytes[5] = { 0x5a << 1, reg, (0x5a << 1) | 1, 0xff, 0xff };
+@@ -530,7 +649,8 @@ static int sensor_event(I2CSlave *dev, enum i2c_event event)
+ 
+ bool m5_unit_sensor_supported(const char *id)
+ {
+-    static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc", "ultrasonic-i2c", "thermal" };
++    static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
++        "ultrasonic-i2c", "thermal", "dlight", "accel" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -578,6 +698,18 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         for (unsigned i = 0; i < G_N_ELEMENTS(props); i++) {
+             object_property_add(OBJECT(u), props[i], "str", thermal_fixture, thermal_fixture, NULL, s);
+         }
++    } else if (!strcmp(u->unit_id, "dlight")) {
++        s->kind = US_DLIGHT; address = 0x23;
++        s->dlight_mtreg = 69.0;          /* driver default sensitivity 1.0 */
++        s->dlight_sensitivity = 1.0;
++        s->dlight_resolution = 0;
++        add_number(s, "illuminance-lx", 0, 400, 1, 65535, false);
++    } else if (!strcmp(u->unit_id, "accel")) {
++        s->kind = US_ACCEL; address = 0x53;
++        add_number(s, "accel-x-g", 0, 0, -16, 16, false);
++        add_number(s, "accel-y-g", 1, 0, -16, 16, false);
++        add_number(s, "accel-z-g", 2, 1, -16, 16, false);
++        add_number(s, "int-source", 3, 0, 0, 255, true);
+     } else {
+         error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
+         object_unref(OBJECT(s)); return;
+-- 
+2.55.0
+

@@ -59,11 +59,11 @@
 
 ## 外接 Unit 库存与准入
 
-- Unit 登记：`39` 款；主机接线登记：`19` 款。
-- Runtime profile 状态：`implemented` 39。
+- Unit 登记：`43` 款；主机接线登记：`19` 款。
+- Runtime profile 状态：`implemented` 39，`planned` 4。
 - 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `1373680d29667f99438a5412b87b955a3ba7702f`；包含 `38` 款主机、`184` 款 Unit。视觉库存不构成控制器或电气验证。
 - 仅视觉主机：`atom-echo`，`atoms3r-ai-chatbot`，`atoms3r-cam-ai-chatbot`，`atoms3r-ext`，`atoms3r-m12`，`atoms3r-m12-volcengine-kit`，`m5stick`，`stickt2`，`stickv`；这些型号没有设备运行登记，不能创建 Device Service 会话。
-- 仅视觉、尚无内部协议契约：`4relay`，`8angle`，`8servos2-chain`，`8servos2-i2c`，`ac-measure`，`accel`，`acssr`，`adc`，`adc-v11`，`ain4-20ma`，`ameter`，`asr`，`audioplayer`，`bldc-driver`，`bmm350`，`bps`，`bytebutton`，`byteswitch`，`c6l`，`cams3-5mp`，`can`，`cardkb-original`，`cardkb2`，`cat1-cn`，`catm`，`catm-gnss`，`chainbus`，`co2`，`co2l`，`dac`，`dac2`，`dcssr`，`dds`，`dlight`，`dmx`，`dof10`，`dof6`，`dof9`，`env`，`env-ii`，`env-iv`，`env-pro`，`esp32cam`，`extencoder`，`extio`，`extio2`，`fader`，`finger`，`fingerprint2`，`gateway-h2`，`gesture`，`glass`，`glass2`，`gps`，`gps-sma`，`gps-v11`，`grove-to-grove`，`hbridge`，`hbridge-v11`，`hex`，`ina226-10a`，`ina226-1a`，`joystick`，`kmeter-iso-v11`，`laser-rx`，`laser-tx`，`lcd`，`lora-e220-433`，`lora-e220-920`，`lorawan-as923`，`lorawan-cn470`，`lorawan-eu868`，`lorawan-us915`，`m5-bit`，`m5camera`，`m5camera-x`，`mic`，`midi`，`mini-bps-v11`，`mini-can`，`mini-imu`，`mini-imu-pro`，`mini-oled`，`mini-pdm`，`mini-proto`，`mini-scales`，`mini-tof-90`，`mq`，`nbiot-cn`，`nbiot2`，`ncir2`，`neco`，`neohex`，`oled`，`op180`，`op90`，`pahub-v20`，`pahub-v21`，`pbhub`，`pbhub-v11`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`puzzle`，`qrcode`，`rca`，`rf433r`，`rf433t`，`rfid`，`rgb-led-10cm`，`rgb-led-strip-50cm`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`rs485-iso`，`rtc`，`scales`，`step16`，`synth`，`thermal2`，`timercamera`，`timercamera-f`，`timercamera-x`，`timerpwr`，`tmos-pir`，`tof4m`，`tube-pressure`，`typec-to-grove`，`uhf-rfid`，`ultrasonic-io`，`unit-396`，`unit-id`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`，`uwb`，`vmeter`，`watering`，`weight`，`weight-i2c`，`zigbee`；这些型号不计 runtime 准入，也不能创建功能附件。
+- 仅视觉、尚无内部协议契约：`8angle`，`8servos2-chain`，`8servos2-i2c`，`ac-measure`，`acssr`，`adc`，`adc-v11`，`ain4-20ma`，`ameter`，`asr`，`audioplayer`，`bldc-driver`，`bmm350`，`bps`，`bytebutton`，`byteswitch`，`c6l`，`cams3-5mp`，`can`，`cardkb-original`，`cardkb2`，`cat1-cn`，`catm`，`catm-gnss`，`chainbus`，`co2`，`co2l`，`dac`，`dac2`，`dcssr`，`dds`，`dmx`，`dof10`，`dof6`，`dof9`，`env`，`env-ii`，`env-iv`，`env-pro`，`esp32cam`，`extencoder`，`extio`，`extio2`，`fader`，`finger`，`fingerprint2`，`gateway-h2`，`gesture`，`glass`，`glass2`，`gps`，`gps-sma`，`gps-v11`，`grove-to-grove`，`hbridge`，`hbridge-v11`，`hex`，`ina226-10a`，`ina226-1a`，`joystick`，`kmeter-iso-v11`，`laser-rx`，`laser-tx`，`lcd`，`lora-e220-433`，`lora-e220-920`，`lorawan-as923`，`lorawan-cn470`，`lorawan-eu868`，`lorawan-us915`，`m5-bit`，`m5camera`，`m5camera-x`，`mic`，`midi`，`mini-bps-v11`，`mini-can`，`mini-imu`，`mini-imu-pro`，`mini-oled`，`mini-pdm`，`mini-proto`，`mini-scales`，`mini-tof-90`，`mq`，`nbiot-cn`，`nbiot2`，`ncir2`，`neco`，`neohex`，`oled`，`op180`，`op90`，`pahub-v20`，`pahub-v21`，`pbhub`，`pbhub-v11`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`puzzle`，`qrcode`，`rca`，`rf433r`，`rf433t`，`rfid`，`rgb-led-10cm`，`rgb-led-strip-50cm`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`rs485-iso`，`rtc`，`scales`，`step16`，`synth`，`thermal2`，`timercamera`，`timercamera-f`，`timercamera-x`，`timerpwr`，`tmos-pir`，`tof4m`，`tube-pressure`，`typec-to-grove`，`uhf-rfid`，`ultrasonic-io`，`unit-396`，`unit-id`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`，`uwb`，`vmeter`，`watering`，`weight`，`zigbee`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
 
 准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
@@ -141,12 +141,12 @@
 | `worker_agent.py` | 1501 |
 
 - `tests/`：`136` 个可执行 Python 测试文件，分布在 `62` 个目录；`227` 个 evidence JSON。
-- `patches/`：`16` 个补丁组，`216` 个 patch 文件。
-- 文档：`536` 个 Markdown 页面；除本生成页外共 `52893` 行。
+- `patches/`：`16` 个补丁组，`217` 个 patch 文件。
+- 文档：`536` 个 Markdown 页面；除本生成页外共 `52922` 行。
 
 ## 文档与测试
 
-- 平台测试：`1734` 项。
+- 平台测试：`1741` 项。
 - Docs 新鲜度登记：`164` 行；其中非历史页 `148` 行，历史固定页 `16` 行。
 - 文档职责分布：待办 `3`，契约 `9`，证据/差异 `72`，历史固定 `16`，实现/设计 `10`，参考 `50`，工作流/导航 `4`。
 - 全量文档盘点：`536` 个 Markdown 页面；职责分布：权威/专题页 `164`，设备档案 `33`，示例 `1`，治理/入口 `9`，文档导航 `1`，其他 `9`，补丁说明 `19`，平台说明 `12`，仓内历史记录 `5`，测试/用例说明 `175`，未登记 docs 页面 `4`，第三方来源说明 `104`。

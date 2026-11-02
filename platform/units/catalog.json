@@ -5953,6 +5953,980 @@
         "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
         "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-reflective-ir.json for stopwatch only; hardware and unlisted hosts remain NOT RUN."
       ]
+    },
+    {
+      "id": "dlight",
+      "name": "DLight",
+      "sku": "U136",
+      "visual_asset": {
+        "entry": "src/units/dlight/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/DLight%20Unit",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "BH1750FVI",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          35
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x23. Single-byte command protocol: power down/on/reset (0x00/0x01/0x07); continuous H-res/H-res2/L-res (0x10/0x11/0x13); one-time H-res/H-res2/L-res (0x20/0x21/0x23); sensitivity is two bytes 0x40|(mt>>5) and 0x60|(mt&0x1F) with mt=int(69*sensitivity). A read returns 2 bytes big-endian raw and the driver converts lux=raw/1.2/sensitivity, dividing by 2 in H-res2.",
+        "registers": [
+          {
+            "command": "0x00",
+            "encoding": "u8",
+            "meaning": "power down"
+          },
+          {
+            "command": "0x01",
+            "encoding": "u8",
+            "meaning": "power on"
+          },
+          {
+            "command": "0x07",
+            "encoding": "u8",
+            "meaning": "reset"
+          },
+          {
+            "command": "0x10/0x11/0x13",
+            "encoding": "u8",
+            "meaning": "continuous measurement H-res / H-res2 / L-res"
+          },
+          {
+            "command": "0x20/0x21/0x23",
+            "encoding": "u8",
+            "meaning": "one-time measurement H-res / H-res2 / L-res"
+          },
+          {
+            "command": "0x40..0x5F",
+            "encoding": "u8",
+            "meaning": "sensitivity high byte: (0b01000<<3)|(mt>>5)"
+          },
+          {
+            "command": "0x60..0x7F",
+            "encoding": "u8",
+            "meaning": "sensitivity low byte: (0b011<<5)|(mt&0b11111); then re-issue the measurement command"
+          },
+          {
+            "read_length": 2,
+            "encoding": "big-endian uint16 raw",
+            "meaning": "illuminance raw value; lux=raw/1.2/sensitivity (H-res2 divides by 2 again)"
+          }
+        ],
+        "gaps": [
+          "BH1750FVI datasheet is linked but not reviewed; the power-on default MTreg is unresolved.",
+          "The driver _ready() timing expression is questionable and must not be replicated as hardware timing.",
+          "The product page claims 1..65535 lx, but the driver's lux=raw/1.2 conversion needs raw=lux*1.2; a 16-bit raw at sensitivity 1 caps near 54612 lx, so the declared top of range is not encodable without MTreg/sensitivity changes. Treat the top boundary as unresolved and clamp fixtures to the encodable range."
+        ]
+      },
+      "inputs": {
+        "illuminance-lx": {
+          "type": "number",
+          "label": "照度",
+          "default": 400,
+          "default_source": "synthetic-test-fixture",
+          "unit": "lx",
+          "minimum": 1,
+          "maximum": 65535,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/DLight%20Unit",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and sensor identity (BH1750FVI)",
+            "I2C address 0x23 and 1..65535 lx range",
+            "PinMap wire colors (yellow=SDA, white=SCL)"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dlight.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "unit class is an alias of the BH1750 driver"
+          ],
+          "sha256": "a4371a3bd3dd8dcd7dc17b6ae4e85753432354b6b15ceeb01ca85f4ac28a399c",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/bh1750.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "command encodings, read length, lux conversion and conversion delay"
+          ],
+          "sha256": "3d044da2aeeef464c3e05e0fec1c9158c6ee56b3684b20c3acbfe0b4c0ad5e12",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/BH1750FVI.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "illuminance-lx": {
+            "property": "illuminance-lx",
+            "access": "read-write",
+            "type": "number"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local command/response slave model"
+      },
+      "blocker": "0119 adds a QEMU BH1750 transaction-level slave (single-byte commands, MTreg sensitivity, conversion window, fixture illuminance converted only inside the model to the two-byte big-endian raw the driver reads), but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. Power-on default MTreg, datasheet timing and photometric/optical behavior remain unresolved or NOT RUN.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0119 models I2C command/response transactions only; no host-side lux return path exists and no guest evidence has been recorded.",
+        "A QOM illuminance-lx fixture is converted inside the model; it is not a photometric measurement."
+      ]
+    },
+    {
+      "id": "accel",
+      "name": "Accel",
+      "sku": "U056",
+      "visual_asset": {
+        "entry": "src/units/accel/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/accel",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "ADXL345",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          83
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x53. Register-pointer protocol with auto-increment on multi-byte reads. Driver init writes POWER_CTL(0x2D)=0x08 and INT_ENABLE(0x2E)=0. Acceleration is read as six bytes from 0x32 (X/Y/Z little-endian int16) and converted with raw*0.004*9.80665 m/s2. Interrupt source at 0x30 is read-to-clear.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 1,
+            "encoding": "device ID; the driver never reads it",
+            "status": "unresolved-value"
+          },
+          {
+            "register": "0x1D..0x2B",
+            "encoding": "tap/offset/duration/activity/free-fall threshold and status registers"
+          },
+          {
+            "register": "0x2C",
+            "length": 1,
+            "encoding": "u8 BW_RATE; rate encodings 0..15"
+          },
+          {
+            "register": "0x2D",
+            "length": 1,
+            "encoding": "u8 POWER_CTL; init writes 0x08 (measure)"
+          },
+          {
+            "register": "0x2E",
+            "length": 1,
+            "encoding": "u8 INT_ENABLE"
+          },
+          {
+            "register": "0x2F",
+            "length": 1,
+            "encoding": "u8 INT_MAP"
+          },
+          {
+            "register": "0x30",
+            "length": 1,
+            "encoding": "u8 INT_SOURCE, read-to-clear"
+          },
+          {
+            "register": "0x31",
+            "length": 1,
+            "encoding": "u8 DATA_FORMAT; range bits [1:0]"
+          },
+          {
+            "register": "0x32..0x37",
+            "length": 6,
+            "encoding": "X/Y/Z little-endian int16; m/s2 = raw*0.004*9.80665"
+          },
+          {
+            "register": "0x38/0x39",
+            "length": 1,
+            "encoding": "FIFO_CTL/FIFO_STATUS; driver does not use them"
+          }
+        ],
+        "gaps": [
+          "The DEVID(0x00) value is not verified from a datasheet the driver never reads; keep it as fixture/unresolved instead of inferring it.",
+          "Tap/activity/free-fall detection is not modeled beyond register read/write and INT_SOURCE read-clear.",
+          "The DATA_FORMAT range bit effect on raw LSB is unresolved."
+        ]
+      },
+      "inputs": {
+        "accel-x-g": {
+          "type": "number",
+          "label": "X轴重力分量",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16,
+          "readOnly": false
+        },
+        "accel-y-g": {
+          "type": "number",
+          "label": "Y轴重力分量",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16,
+          "readOnly": false
+        },
+        "accel-z-g": {
+          "type": "number",
+          "label": "Z轴重力分量",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16,
+          "readOnly": false
+        },
+        "int-source": {
+          "type": "integer",
+          "label": "中断源fixture",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "bitmask",
+          "minimum": 0,
+          "maximum": 255,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/accel",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and sensor identity (ADXL345)",
+            "I2C address 0x53 and +-2/4/8/16 g range",
+            "PinMap wire colors (yellow=SDA, white=SCL)"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/accel.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "UIFlow API names and default address"
+          ],
+          "sha256": "0a6bc7746d30bbbcd78d655d3137da23dad56c43bef74806ef8415344e7c1d68",
+          "sha256_matches_snapshot_528edd8": false,
+          "snapshot_note": "master adds docstrings and enable_* detection wrappers; register path unchanged"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/adxl34x.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register map, init writes, six-byte data read, conversion factor and interrupt source read-clear"
+          ],
+          "sha256": "1aa7d0b796922ff9aabaa68e510463bd94cfbbda44c87dbed6aacae4ca316bb7",
+          "sha256_matches_snapshot_528edd8": false,
+          "snapshot_note": "master differs in comments/docstrings only; register constants and conversion are unchanged"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/ADXL345_en.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "accel-x-g": {
+            "property": "accel-x-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "accel-y-g": {
+            "property": "accel-y-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "accel-z-g": {
+            "property": "accel-z-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "int-source": {
+            "property": "int-source",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-pointer slave model"
+      },
+      "blocker": "0119 adds a QEMU ADXL345 register-pointer slave (POWER_CTL/DATA_FORMAT stores, six fixture-derived data bytes, read-to-clear INT_SOURCE) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. DEVID(0x00) is UNRESOLVED and modeled as reserved read-back 0xff because the executable driver never reads it; no datasheet value is guessed. Physical acceleration, orientation and mechanics are NOT RUN.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0119 models registers/transactions only; acceleration and motion remain fixture inputs and are not physical measurements.",
+        "The int-source fixture is a synthetic interrupt bitmask, not an event model of the activity/tap/free-fall detectors."
+      ]
+    },
+    {
+      "id": "4relay",
+      "name": "4Relay",
+      "sku": "U097",
+      "visual_asset": {
+        "entry": "src/units/4relay/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/4relay",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          38
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x26, STM32 register device with two registers. 0x10 bit0 selects LED sync mode (0=manual, 1=auto: LEDs follow relay state); 0x10 bits 7..1 are documented read-only. 0x11 holds LED1..4 and RELAY1..4, 1=on 0=off. The official product-page table lists RELAY1 at bit3 / RELAY4 at bit0 and LED1 at bit7 / LED4 at bit4, while both official executable drivers (MicroPython unit/relay4.py and Arduino Unit_4RELAY.cpp) use RELAYn=bit(n-1) and LEDn=bit(n+3). This draft adopts the driver-compatible bit order and records the page-table conflict.",
+        "registers": [
+          {
+            "register": "0x10",
+            "encoding": "u8",
+            "meaning": "bit0 LED sync mode: 0 manual, 1 auto; bits 7..1 documented read-only"
+          },
+          {
+            "register": "0x11",
+            "encoding": "u8",
+            "meaning": "driver-compatible: bits 3..0 RELAY1..RELAY4, bits 7..4 LED1..LED4, 1=on 0=off; the product-page table lists the reverse bit order (bit3=RELAY1, bit0=RELAY4, bit7=LED1, bit4=LED4)"
+          }
+        ],
+        "gaps": [
+          "Bit-order conflict: the product-page Protocol table (RELAY1=bit3, LED1=bit7) is the reverse of both official executable drivers (RELAY1=bit0, LED1=bit4). This draft uses the driver-compatible order; do not mix the two.",
+          "The Python driver set_relay_all(1) writes 0xFF (also lights all LEDs) while the Arduino relayAll() writes 0x0f; that is a driver difference, not a hardware conclusion.",
+          "Relay contact timing, load capability and electrical isolation are not modeled.",
+          "Behavior when writing the read-only/reserved 0x10 bits is not documented."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "relay-1-level": {
+          "type": "boolean",
+          "label": "继电器1状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "relay-2-level": {
+          "type": "boolean",
+          "label": "继电器2状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "relay-3-level": {
+          "type": "boolean",
+          "label": "继电器3状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "relay-4-level": {
+          "type": "boolean",
+          "label": "继电器4状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-1-level": {
+          "type": "boolean",
+          "label": "指示灯1状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-2-level": {
+          "type": "boolean",
+          "label": "指示灯2状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-3-level": {
+          "type": "boolean",
+          "label": "指示灯3状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-4-level": {
+          "type": "boolean",
+          "label": "指示灯4状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "mode": {
+          "type": "integer",
+          "label": "LED同步模式",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "minimum": 0,
+          "maximum": 1,
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/4relay",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU, STM32F030F4P6 identity and I2C address 0x26",
+            "PinMap wire colors (yellow=SDA, white=SCL)",
+            "inline Protocol table for registers 0x10 and 0x11"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/relay4.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register constants, bit positions of relay/LED states and read-modify-write path"
+          ],
+          "sha256": "8a4fee2b141724bf55585d9da0e0fc867d6066b934218c05036eb29f4318ccd7",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/589/Sch_UNIT-4RELAY.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/M5Unit-RELAY/master/src/Unit_4RELAY.cpp",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "official Arduino driver bit order: relayWrite uses bit(number) 0..3 and ledWrite uses 0x10<<number (bits 4..7)",
+            "relayAll writes 0x0f (distinct from the Python set_relay_all 0xFF)"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "relay-1-level": {
+            "property": "relay-1-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "relay-2-level": {
+            "property": "relay-2-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "relay-3-level": {
+            "property": "relay-3-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "relay-4-level": {
+            "property": "relay-4-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "led-1-level": {
+            "property": "led-1-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "led-2-level": {
+            "property": "led-2-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "led-3-level": {
+            "property": "led-3-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "led-4-level": {
+            "property": "led-4-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model"
+      },
+      "blocker": "0119 adds a QEMU U097 register slave (0x10 mode, 0x11 relay+LED register with read-modify-write readback and per-channel QOM levels in the official driver bit order RELAY1=bit0/LED1=bit4) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The product-page Protocol table (RELAY1=bit3/LED1=bit7) is the reverse and remains a documented conflict in favour of both official executable drivers. Relay contacts, load capability, switching timing and electrical isolation are NOT RUN. Default address 0x26 conflicts with weight-i2c.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0119 implements the driver-compatible bit order; the product-page bit table is the documented opposite and must not be mixed.",
+        "Per-channel QOM levels mirror guest writes to 0x11; they are not contact closures, load ratings or electrical isolation evidence.",
+        "Default address 0x26 is shared with weight-i2c and the two Units cannot coexist on one I2C bus."
+      ]
+    },
+    {
+      "id": "weight-i2c",
+      "name": "Weight-I2C",
+      "sku": "U180",
+      "visual_asset": {
+        "entry": "src/units/weight-i2c/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Weight%20I2C",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "HX711",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          38
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x26, STM32 register device: 0x00 u32 ADC raw, 0x10 float32 weight grams, 0x40 float32 calibration gap, 0x50 write-1 offset reset, 0x60 int32 weight x100, 0x70 NUL-terminated ASCII weight string, 0x80/0x81/0x82 filter settings, 0xFE firmware version, 0xFF I2C address. Read lengths and encodings are taken line by line from the official driver.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 4,
+            "encoding": "little-endian uint32 HX711 ADC raw"
+          },
+          {
+            "register": "0x10",
+            "length": 4,
+            "encoding": "little-endian float32 weight in grams"
+          },
+          {
+            "register": "0x40",
+            "length": 4,
+            "encoding": "little-endian float32 calibration gap (write)"
+          },
+          {
+            "register": "0x50",
+            "length": 1,
+            "encoding": "write 0x01 to reset offset/tare"
+          },
+          {
+            "register": "0x60",
+            "length": 4,
+            "encoding": "little-endian int32 weight x100 (master driver divides by 100)"
+          },
+          {
+            "register": "0x70",
+            "length": 16,
+            "encoding": "NUL-terminated ASCII weight string"
+          },
+          {
+            "register": "0x80",
+            "encoding": "u8 low-pass filter enable"
+          },
+          {
+            "register": "0x81",
+            "encoding": "u8 average filter level 0..50"
+          },
+          {
+            "register": "0x82",
+            "encoding": "u8 EMA alpha 0..99"
+          },
+          {
+            "register": "0xFE",
+            "encoding": "u8 firmware version"
+          },
+          {
+            "register": "0xFF",
+            "encoding": "u8 I2C address"
+          }
+        ],
+        "gaps": [
+          "0x60 semantics differ by driver version: snapshot V2.1.5 returns the raw int32 while master divides by 100; implement master semantics and record the version.",
+          "The official v3 protocol PDF is linked but not reviewed; quantization between ADC 0x00 and float weight is unresolved.",
+          "Default address 0x26 collides with 4relay (and Mini Scales U177); not co-mountable on the same bus."
+        ]
+      },
+      "inputs": {
+        "weight-g": {
+          "type": "number",
+          "label": "重量",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "g",
+          "minimum": -1000000,
+          "maximum": 1000000,
+          "readOnly": false
+        },
+        "adc-raw": {
+          "type": "integer",
+          "label": "HX711原始ADC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "u32-raw",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "readOnly": false
+        },
+        "weight-fw": {
+          "type": "integer",
+          "label": "固件版本fixture",
+          "default": 3,
+          "default_source": "synthetic-test-fixture",
+          "unit": "version",
+          "minimum": 0,
+          "maximum": 255,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Weight%20I2C",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and chip identity (STM32F030F4P6 + HX711)",
+            "I2C address 0x26",
+            "PinMap wire colors (yellow=SDA, white=SCL)",
+            "protocol note v3/v4 with no register changes"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/weight_i2c.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register addresses, read lengths and integer/float/string encodings"
+          ],
+          "sha256": "26c631cea86185192a44cc05c77ef44d5a911aa522413938fa815893805c1ddf",
+          "sha256_matches_snapshot_528edd8": false,
+          "snapshot_note": "master divides 0x60 by 100 and drops abs() in the 0x40 calibration formula; import paths changed"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://github.com/m5stack/M5Unit-WeightI2C/blob/main/docs/Unit_Weight_I2C_Protocol.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/632/SCH_UNIT_WEIGHT_I2C.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "weight-g": {
+            "property": "weight-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "adc-raw": {
+            "property": "adc-raw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "weight-fw": {
+            "property": "weight-fw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model; float/int/string weight readings derived from one weight fixture"
+      },
+      "blocker": "0119 adds a minimal QEMU U180 register slave (0x00 u32 ADC, 0x10 f32 grams, 0x60 int32 weight*100, 0x70 ASCII string, writable 0x40/0x50/0x80/0x81/0x82 calibration/filter registers, 0xFE firmware, 0xFF address) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The 0x60 semantic version and 0x40/0x50 calibration application remain unresolved (the model stores calibration writes without deriving weight from them). Default address 0x26 conflicts with 4relay on one bus; load-cell mechanics/electrical behaviour are NOT RUN.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0x60 is modeled with the executable master driver's weight*100 encoding; the protocol-PDF/driver version difference is unresolved.",
+        "0x40 gap and 0x50 offset writes are stored but not applied to the fixture weight; calibration math is NOT RUN.",
+        "0x70 string format is synthetic (\"%.3f\") and does not establish the firmware's display formatting.",
+        "Default address 0x26 is shared with 4relay and the two Units cannot coexist on one I2C bus."
+      ]
     }
   ],
   "model_status_values": [
