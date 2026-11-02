@@ -13,11 +13,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0152-unit-batch10ab.patch"
 MODELED = ("dcssr", "puzzle", "dof6", "dof9", "dof10", "asr")
-PLANNED_ONLY = ("ina226-1a", "roller485", "roller485-lite", "rollercan-lite",
-                 "8servos2-chain", "cat1-cn", "chainbus")
+PLANNED_ONLY = ("ina226-1a", "roller485", "roller485-lite", "rollercan-lite")
+# 8servos2-chain/chainbus/cat1-cn got guest evidence in batch-12c (0160) and
+# are now implemented; their evidence is pinned by test_unit_batch12c_evidence.
+BATCH12C_EVIDENCE = ("8servos2-chain", "cat1-cn", "chainbus")
 # byteswitch/bytebutton/step16/timerpwr/mq got register-file models in 0157;
 # their modeled planned contract is pinned by test_unit_batch12a_patch.py.
-UNITS = MODELED + PLANNED_ONLY
+UNITS = MODELED + PLANNED_ONLY + BATCH12C_EVIDENCE
 
 
 class UnitBatch10PatchTests(unittest.TestCase):
@@ -34,9 +36,9 @@ class UnitBatch10PatchTests(unittest.TestCase):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0152-unit-batch10ab.patch", readme)
         self.assertIn("0154-unit-batch10-evidence-fixes.patch", readme)
-        self.assertIn("38th layer", readme)
-        self.assertIn("39 layers", readme)
-        for token in ("0150", "0151", "0152", "0153", "0154", "0156", "0157", "0158"):
+        self.assertIn("40 layers", readme)
+        self.assertIn("40 Unit layers", readme)
+        for token in ("0150", "0151", "0152", "0153", "0154", "0156", "0157", "0158", "0159", "0160", "0161"):
             self.assertIn(token, readme)
 
     def test_patch_registers_only_the_six_model_units(self):
@@ -68,6 +70,15 @@ class UnitBatch10PatchTests(unittest.TestCase):
             self.assertTrue(report.is_file(), unit_id)
             self.assertEqual(evidence["report_sha256"], hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
             self.assertIn("0154-unit-batch10-evidence-fixes.patch", evidence["patches"], unit_id)
+        for unit_id in BATCH12C_EVIDENCE:
+            unit, profile = self.units[unit_id], self.profiles[unit_id]
+            self.assertEqual(unit["model_status"], "partial", unit_id)
+            self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            self.assertIn("virtual_device_evidence", profile, unit_id)
+            report = ROOT / profile["virtual_device_evidence"]["report"]
+            self.assertTrue(report.is_file(), unit_id)
         for unit_id in PLANNED_ONLY:
             unit, profile = self.units[unit_id], self.profiles[unit_id]
             self.assertIn(unit["model_status"], ("planned", "partial"), unit_id)

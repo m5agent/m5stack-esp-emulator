@@ -1,0 +1,32 @@
+From 5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7081 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 06:25:00 +0800
+Subject: [PATCH] hw/m5stopwatch: accept zero-payload AA55 Chain frames
+
+Fix a batch-12c guest-evidence bug in the Chain AA55 responder. Chain frames
+encode length = data_len + 3, so data-less requests (get modes/angles/ADC/RGB/
+current, device info, enumeration, heartbeat) have length 3 and are valid.
+The parser required length >= 4 and cleared its whole receive buffer on such
+frames, which discarded every data-less command in a guest batch; only three
+status responses were produced before the buffer was reset.
+
+Accept length >= 3 while keeping the existing total/buffer guards and CRC/tail
+validation. This remains a raw UART frame-level responder: cascade topology,
+servo PWM, electrical behavior and physical Chain semantics are still NOT RUN.
+Base is the 39-layer canonical chain through 0159; this applies at the chain
+end. No guest PASS is claimed by the patch itself.
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -1794,7 +1794,11 @@
+         }
+         unsigned length = g->chain_buf[2] | ((unsigned)g->chain_buf[3] << 8);
+         unsigned total = length + 6;
+-        if (length < 4 || total > sizeof(g->chain_buf)) {
++        /* AA55 Chain frames encode length = data_len + 3, so a request with no
++         * payload has length 3. The old model required length >= 4 and cleared
++         * the parser buffer on every data-less get/enumeration command, which
++         * dropped the whole batch of guest frames. */
++        if (length < 3 || total > sizeof(g->chain_buf)) {
+             g->chain_len = 0;
+             return;
+         }
