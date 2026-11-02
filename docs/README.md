@@ -91,6 +91,9 @@ Unit 仍未覆盖；固件来自固定 SHA 的官方 GitHub release 资产。
 剩余 classic/异构主机的接入决策（固件 SHA、镜像格式、QEMU 复用、GO/DEFER/NO-GO）见
 [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md)。
 
+剩余仅视觉主机的最终边界决策（implemented / composition-only / boundary-only，含 M5Burner 与官方 GitHub release 检索记录、组合件判定和重开条件）见
+[主机边界决策](plans/2026-11-02-host-boundary-decisions.md)。
+
 Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项见
 [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md)；其中 A 类
 5 款（`ssr`/`earth`/`hall`/`reflective-ir`/`vibrator`）已通过独立 Device Service
@@ -189,6 +192,7 @@ C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 | [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomecho` 的官方 UIFlow2 v2.5.4 启动、板级识别 142、GPIO27 SK6812 RMT、QMP 注入 GPIO39 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方板载无 ES8311/I2C codec；模拟声学、IR、Grove Unit 与物理行为未验 |
 | [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；相机帧随后由同页的 SCCB 闭环证据补齐 |
 | [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md) | 计划 | `2026-11-02` | 剩余仅视觉主机的逐型号固件可用性/所需模型/决策，以及 150 款未登记 Unit 的方法与批次框架；不构成能力声明 |
+| [主机边界决策](plans/2026-11-02-host-boundary-decisions.md) | 计划 | `2026-11-02` | 五款剩余主机最终边界：AtomS3R-Ext/StickV 为 boundary-only，K147/K147-CAM/D062-M12 为 composition-only（复用已接入控制器 host + A149 底座，不新增 alias）；含 M5Burner/GitHub release/上游 board 检索结果与重开条件 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |
 | [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3u` 板级的官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过；IR、SPM1423 PDM 麦克风、Grove Unit、USB CDC 与物理行为未验 |
 | [AIFlow simulator skill consumer](plans/2026-10-27-aiflow-simulator-skill.md) | 调用侧历史验证 | `2026-10-27` | CoreS3/PIR 本机限定验证，远端 AIFlow 未验 |
