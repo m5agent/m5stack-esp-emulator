@@ -26663,7 +26663,7 @@
       "model_status": "planned",
       "runtime": {
         "status": "planned",
-        "blocker": "0149 新增 CONTROL_UNIT_GLASS（I2C 0x3D，SSD1309 128x64 透明 OLED + STM32 双按键/蜂鸣器）：实现 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast 与 1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture（2-bit mask / hex），**页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved，不宣称**。未采集 guest/Device Service 证据 → planned。**0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度、按键/蜂鸣器物理 NOT RUN**",
+        "blocker": "BLOCKED by batch11 guest evidence: official GlassUnit/M5.addDisplay returned a Display and I2C scan found 0x3D, but drawing produced no model-visible I2C commands/data bytes (QOM commands=0, data-bytes=0). No guest PASS is claimed; transparent OLED composition unresolved, static button/buzzer fixtures and optics NOT RUN; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "command-hex": {
@@ -26704,7 +26704,7 @@
         },
         "required_data_plane": "SoC I2C transactions to a device-local SSD1309 command/data slave model"
       },
-      "blocker": "0149 新增 CONTROL_UNIT_GLASS（I2C 0x3D，SSD1309 128x64 透明 OLED + STM32 双按键/蜂鸣器）：实现 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast 与 1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture（2-bit mask / hex），**页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved，不宣称**。未采集 guest/Device Service 证据 → planned。**0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度、按键/蜂鸣器物理 NOT RUN**",
+      "blocker": "BLOCKED by batch11 guest evidence: official GlassUnit/M5.addDisplay returned a Display and I2C scan found 0x3D, but drawing produced no model-visible I2C commands/data bytes (QOM commands=0, data-bytes=0). No guest PASS is claimed; transparent OLED composition unresolved, static button/buzzer fixtures and optics NOT RUN; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
       "limitations": [
         "Page Protocol table was unreadable in the fetched text; button/buzzer registers unresolved.",
         "No Unit-level QOM data plane: M5Unified external display composition only.",
@@ -26712,7 +26712,8 @@
         "Transparent OLED optics/buttons/buzzer physics NOT RUN.",
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Batch11 BLOCKED: reference GlassUnit/M5.addDisplay did not produce model-visible I2C transactions; profile stays planned, no virtual_device_evidence."
       ]
     },
     {
@@ -26836,10 +26837,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0149 新增 rf433t（U114，PORT.B 黄=RF_TX，SYN115 ASK 发射器）：**无官方 UIFlow2 Unit 驱动、无 ASK 编码表** → 仅做 Unit-level GPIO 输出观测（output-level / edge-count / bit-count / bitstream），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 调制/PCB 天线/10dBm/10m 距离与 SYN115 功率电阻 NOT RUN**",
+        "status": "implemented",
+        "blocker": "Guest evidence covers machine.Pin RF_TX bitbang only (no public Unit driver/ASK table): 10101010 -> QOM bitstream/bit-count/edge-count. RF 433.92MHz/antenna/10dBm/range NOT RUN; PORT.B substituted by cores3 PORT.A harness.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "output-level": {
@@ -26872,7 +26873,8 @@
         "PORT.B GPIO line shared with other PORT.B Units; one per port.",
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-rf433t.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ]
     },
     {
@@ -26991,10 +26993,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "0149 新增 rf433r（U113，PORT.B 白=RF_RX，SYN531R ASK 接收器）：**无官方 UIFlow2 Unit 驱动、无解码表** → Unit-level GPIO 输入 fixture（input-level / sample-rate / samples），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 解调/PCB 天线/-109dBm 灵敏度/10m 距离 NOT RUN**",
+        "status": "implemented",
+        "blocker": "Guest evidence covers machine.Pin RF_RX sampling only (no decoder): initial high then injected low observed by guest, QOM input-level/samples. ASK demodulation/-109dBm/antenna/range NOT RUN; PORT.B substituted.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "input-level": {
@@ -27022,7 +27024,8 @@
         "PORT.B GPIO line shared with other PORT.B Units; one per port.",
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-rf433r.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ]
     },
     {
@@ -27099,7 +27102,8 @@
         "gaps": [
           "STM32WLE5/RAK3172 product vs ASR650x driver mismatch",
           "No AS923 driver subclass",
-          "LoRaWAN stack/OTAA/ABP/AS923 RF/regulatory NOT RUN"
+          "LoRaWAN stack/OTAA/ABP/AS923 RF/regulatory NOT RUN",
+          "Guest evidence covers UART byte layer only; Join/RF state is not modeled/asserted"
         ]
       },
       "inputs": {
@@ -27135,15 +27139,6 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true,
           "minimum": 0
-        },
-        "join-status": {
-          "type": "integer",
-          "label": "Join 状态",
-          "default": 0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 1
         }
       },
       "evidence": [
@@ -27183,9 +27178,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -27209,7 +27204,7 @@
             "type": "integer"
           }
         },
-        "blocker": "0151 复用 UART fixture responder 登记 lorawan-as923，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x LoRaWAN_470 wrapper 错配 unresolved，驱动无 AS923 子类**；OTAA/ABP/Join、AS923 923-925MHz RF/天线/占空比/认证 NOT RUN；PORT.C 与所有 UART Unit 冲突。"
+        "blocker": "Guest evidence covers official LoRaWANUnit/ASR650x wrapper UART byte layer: CFWORKMODE=2 construction, set_work_mode(1) and DTRX send frames are captured and answered by the fixture responder. STM32WLE5/RAK3172 vs ASR650x mismatch unresolved; AS923 has no driver subclass; OTAA/ABP/Join/RF/regulatory NOT RUN; guest pre-init workaround recorded; PORT.C substituted."
       },
       "blocker": "0151 复用 UART fixture responder 登记 lorawan-as923，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x LoRaWAN_470 wrapper 错配 unresolved，驱动无 AS923 子类**；OTAA/ABP/Join、AS923 923-925MHz RF/天线/占空比/认证 NOT RUN；PORT.C 与所有 UART Unit 冲突。",
       "limitations": [
@@ -27217,7 +27212,8 @@
         "No AS923 subclass in the frozen driver; band mask/channel plan unresolved.",
         "OTAA/ABP keys, Join/Accept, LoRaWAN stack and AS923 923-925MHz RF/antenna/regulatory duty cycle NOT RUN.",
         "PORT.C UART shared with all UART Units; one per port.",
-        "0151 只登记 AS923 SKU 的 UART 字节层模型；LoRaWAN_Asr650x wrapper/AS923 band mask 与 STM32WLE5 产品差异 unresolved，RF/Join NOT RUN。"
+        "0151 只登记 AS923 SKU 的 UART 字节层模型；LoRaWAN_Asr650x wrapper/AS923 band mask 与 STM32WLE5 产品差异 unresolved，RF/Join NOT RUN。",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-lorawan-as923.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -27291,7 +27287,8 @@
         "gaps": [
           "wrapper uses LoRaWAN_470 while driver has LoRaWAN_868",
           "STM32WLE5 vs ASR650x mismatch",
-          "EU868 RF/regulatory NOT RUN"
+          "EU868 RF/regulatory NOT RUN",
+          "Guest evidence covers UART byte layer only; Join/RF state is not modeled/asserted"
         ]
       },
       "inputs": {
@@ -27327,15 +27324,6 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true,
           "minimum": 0
-        },
-        "join-status": {
-          "type": "integer",
-          "label": "Join 状态",
-          "default": 0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 1
         }
       },
       "evidence": [
@@ -27375,9 +27363,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -27401,7 +27389,7 @@
             "type": "integer"
           }
         },
-        "blocker": "0151 复用 UART fixture responder 登记 lorawan-eu868，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x wrapper 错配 unresolved；驱动有 LoRaWAN_868 但 unit/lorawan.py 仍用 470**；OTAA/ABP/Join、EU868 863-870MHz RF/天线/占空比/认证 NOT RUN；PORT.C 冲突。"
+        "blocker": "Guest evidence covers official LoRaWANUnit/ASR650x wrapper UART byte layer: CWORKMODE=2/1 and DTRX frames captured/answered. Driver has LoRaWAN_868 but frozen unit wrapper still uses 470; product STM32WLE5 mismatch unresolved; EU868 Join/RF/regulatory NOT RUN; PORT.C substituted."
       },
       "blocker": "0151 复用 UART fixture responder 登记 lorawan-eu868，仅 AT 字节层；无 guest/Device Service 证据 → planned。**产品 STM32WLE5/RAK3172 vs 冻结 ASR650x wrapper 错配 unresolved；驱动有 LoRaWAN_868 但 unit/lorawan.py 仍用 470**；OTAA/ABP/Join、EU868 863-870MHz RF/天线/占空比/认证 NOT RUN；PORT.C 冲突。",
       "limitations": [
@@ -27409,7 +27397,8 @@
         "STM32WLE5/RAK3172 product vs ASR650x driver mismatch unresolved.",
         "EU868 band mask/channel plan and OTAA/ABP/Join/LoRaWAN stack NOT modeled.",
         "EU868 863-870MHz RF/antenna/regulatory duty cycle NOT RUN; PORT.C shared with all UART Units.",
-        "0151 只登记 EU868 SKU 的 UART 字节层模型；LoRaWAN_868 类存在但包装未使用、STM32WLE5 差异 unresolved，RF/Join NOT RUN。"
+        "0151 只登记 EU868 SKU 的 UART 字节层模型；LoRaWAN_868 类存在但包装未使用、STM32WLE5 差异 unresolved，RF/Join NOT RUN。",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-lorawan-eu868.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -27540,9 +27529,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -27566,14 +27555,15 @@
             "type": "integer"
           }
         },
-        "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U197，9600 8N1）；**无官方 Unit AudioPlayer 驱动、N9301 命令/状态表不可读 → 只做字节层观测，不解析命令**；无 guest/Device Service 证据 → planned；MP3/WAV 解码、microSD/FAT、3.5mm 音频、扬声器 NOT RUN；PORT.C 冲突。"
+        "blocker": "Guest evidence covers raw UART 9600 byte layer only: 7e03010203 TX captured and fixture 4f4b0d0a RX read; no public driver/N9301 command table. Audio/microSD/3.5mm NOT RUN; PORT.C substituted."
       },
       "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U197，9600 8N1）；**无官方 Unit AudioPlayer 驱动、N9301 命令/状态表不可读 → 只做字节层观测，不解析命令**；无 guest/Device Service 证据 → planned；MP3/WAV 解码、microSD/FAT、3.5mm 音频、扬声器 NOT RUN；PORT.C 冲突。",
       "limitations": [
         "No public UIFlow2 AudioPlayer driver; UART command/status format unresolved (external manual).",
         "MP3/WAV decoding, microSD/FAT16/32, 3.5mm audio and speaker are NOT RUN.",
         "PORT.C UART shared with all UART Units; one per port.",
-        "0151 只登记 9600 UART 字节层模型；N9301 命令表/MP3 解码/音频输出/存储 NOT RUN，无 guest 证据。"
+        "0151 只登记 9600 UART 字节层模型；N9301 命令表/MP3 解码/音频输出/存储 NOT RUN，无 guest 证据。",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-audioplayer.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -27651,7 +27641,8 @@
         "gaps": [
           "No public UIFlow2 Fingerprint2 driver/frame format",
           "A-K323CP differs from FPC1020A (finger U008)",
-          "Biometric capture/match/security NOT RUN"
+          "Biometric capture/match/security NOT RUN",
+          "No A-K323CP driver/frame table; only raw UART byte layer is modeled/asserted"
         ]
       },
       "inputs": {
@@ -27672,13 +27663,6 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true
         },
-        "rx-hex": {
-          "type": "string",
-          "label": "RX 字节（hex）",
-          "default": "",
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true
-        },
         "frames-sent": {
           "type": "integer",
           "label": "TX 帧数",
@@ -27694,15 +27678,6 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true,
           "minimum": 0
-        },
-        "user-count": {
-          "type": "integer",
-          "label": "用户数",
-          "default": 0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 100
         }
       },
       "evidence": [
@@ -27729,9 +27704,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -27755,7 +27730,7 @@
             "type": "integer"
           }
         },
-        "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U203，115200 8N1）；**A-K323CP 无官方 Unit 驱动/帧格式，且与 batch6 finger U008 FPC1020A 不同芯片 → 不复用其帧/版本门**；无 guest 证据 → planned；指纹采集/匹配/100 用户/RGB 环/生物安全 NOT RUN；PORT.C 冲突。"
+        "blocker": "Guest evidence covers raw UART 115200 byte layer only: known 13-byte frame TX captured and fixture ef0107 RX read; no public driver/A-K323CP frame table. Biometric capture/match/100 users/RGB/security NOT RUN; PORT.C substituted."
       },
       "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U203，115200 8N1）；**A-K323CP 无官方 Unit 驱动/帧格式，且与 batch6 finger U008 FPC1020A 不同芯片 → 不复用其帧/版本门**；无 guest 证据 → planned；指纹采集/匹配/100 用户/RGB 环/生物安全 NOT RUN；PORT.C 冲突。",
       "limitations": [
@@ -27763,7 +27738,8 @@
         "A-K323CP differs from FPC1020A (finger U008); do not reuse the 0xF5 frame/version gate.",
         "Biometric capture/match, 100-user storage, RGB ring and security are NOT RUN.",
         "PORT.C UART shared with all UART Units; one per port.",
-        "0151 只登记 115200 UART 字节层模型；A-K323CP 帧格式/指纹匹配/用户存储 NOT RUN，无 guest 证据。"
+        "0151 只登记 115200 UART 字节层模型；A-K323CP 帧格式/指纹匹配/用户存储 NOT RUN，无 guest 证据。",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-fingerprint2.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
       ],
       "input_semantics": null,
       "output_semantics": null

@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-11 seven Units with existing QEMU models on the canonical 35-layer chain; six PASS, glass BLOCKED (no model-visible I2C transactions); no hardware validation.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8803,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; 8787 untouched; 8799/8801 not used",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 35 layers (0120-0154); no 0155 model fix was needed"
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "lorawan-as923",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "LoRaWANUnit (ASR650x wrapper)",
+      "firmware_sha256": "2928eb13ac2e6da84261c044130e152ee28ed68d93438a081e1fa51980b79a68",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "6c1f91ab917d4e5a8d80e3c936134b1d",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_mode_sent": true,
+        "guest_send_called": true,
+        "qom_workmode2": true,
+        "qom_workmode1": true,
+        "qom_dtrx": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-lorawan-as923.json",
+      "report_sha256": "2b4de3da3e2a6982611cb5d869bc520d5e9adc866a2a83e6ad2cccad79817b1e",
+      "evidence_zip_sha256": "071b306df249de61e7a6bd4fafd523c3ae74a2629c9be1a6011efb2a0db51e59",
+      "frame_sha256": "7167393202609993a27dde9b2e7ec4c316ada5867483ac50af561a0aa783a461",
+      "observations": {
+        "lorawan-as923": {
+          "qom": {
+            "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a",
+            "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+            "frames-sent": 3,
+            "frames-injected": 3,
+            "join-status": null
+          },
+          "boundary": "Official LoRaWANUnit/ASR650x wrapper byte layer only; product STM32WLE5/RAK3172 mismatch unresolved; OTAA/ABP/Join/RF/regulatory NOT RUN; guest pre-init workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "UART byte layer only via official LoRaWANUnit/ASR650x wrapper; OTAA/ABP/Join/RF/regulatory semantics NOT RUN.",
+        "Product STM32WLE5/RAK3172 vs frozen ASR650x LoRaWAN_470 wrapper mismatch unresolved; AS923 has no driver subclass.",
+        "Guest pre-init UART workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "lorawan-eu868",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "LoRaWANUnit (ASR650x wrapper)",
+      "firmware_sha256": "037b5236ab1380571dd95e94fbd85d9d0984ac8fa3775f6f9ec02ae0711c668d",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "09615010e48a4d1b9e9ef50d4bfa20fa",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_mode_sent": true,
+        "guest_send_called": true,
+        "qom_workmode2": true,
+        "qom_workmode1": true,
+        "qom_dtrx": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-lorawan-eu868.json",
+      "report_sha256": "c94fc11c12281f8567edd17966afc2c19360fc8147925f127151417778a93e81",
+      "evidence_zip_sha256": "aa8e884f3cdf4b8a029048460d7e4af5984798d224c80f8c565cfbf6606e6f5e",
+      "frame_sha256": "6f1adcf04828c57dfc5cdc24ae732181236369f6ff719066cbe393b35ef81c81",
+      "observations": {
+        "lorawan-eu868": {
+          "qom": {
+            "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a",
+            "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+            "frames-sent": 3,
+            "frames-injected": 3,
+            "join-status": null
+          },
+          "boundary": "Official LoRaWANUnit/ASR650x wrapper byte layer only; product STM32WLE5/RAK3172 mismatch unresolved; OTAA/ABP/Join/RF/regulatory NOT RUN; guest pre-init workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "UART byte layer only via official LoRaWANUnit/ASR650x wrapper; OTAA/ABP/Join/RF/regulatory semantics NOT RUN.",
+        "Driver has LoRaWAN_868 but frozen unit/lorawan.py still uses 470; product STM32WLE5 mismatch unresolved.",
+        "Guest pre-init UART workaround recorded; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "rf433t",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.Pin-OUT driver-gap",
+      "firmware_sha256": "9d7e58a8c9286c831ec46085a3b6760eca07e0fdfecea09cccf387d245312bdd",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "3002c4fd0c7e468cb003e62e287ed3ab",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "guest_bitbang": true,
+        "qom_bits": true,
+        "qom_edges": true,
+        "qom_bitstream": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-rf433t.json",
+      "report_sha256": "0679df950991bf1158d40f6d5f6bd734757f448b6502287f74b4f21a8f89d69b",
+      "evidence_zip_sha256": "70f7d856f5d0450f5b58b30acb8775af027c56ea665925312c2d27fd468c95d8",
+      "frame_sha256": "ea3b64ba9a5907c12dae14a4de7552201be0f43c2516b94f65c6bfbf0ed4ffb4",
+      "observations": {
+        "rf433t": {
+          "qom": {
+            "output-level": false,
+            "edge-count": 9,
+            "bit-count": 9,
+            "bitstream": "010101010"
+          },
+          "boundary": "No public Unit driver/ASK encoding table; machine.Pin bitbang only; RF 433.92MHz/antenna/10dBm/range NOT RUN; PORT.B substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "No public Unit driver/ASK encoding table; machine.Pin bitbang only (driver-gap), edge/bit/bitstream QOM observed.",
+        "RF 433.92MHz/antenna/10dBm/range and SYN115 power behavior NOT RUN; PORT.B substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "rf433r",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.Pin-IN driver-gap",
+      "firmware_sha256": "b25670b85651d2d324d8328fd9c480b006ab42cbedce88b07496b46c054a7d8b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "f87ba3c43bcc445383badda9ba913ef0",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "guest_saw_high": true,
+        "guest_saw_low": true,
+        "qom_samples": true,
+        "qom_input_low": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-rf433r.json",
+      "report_sha256": "f12f74ec43ccd7a4fc15263fc078845ff7e83f97ea2542e7d904e4c584452a51",
+      "evidence_zip_sha256": "fc5b975fdc33cf94c6f4ac7e2010c71eb27fd0e6396800c0c005fb1d7333929b",
+      "frame_sha256": "8938ed0a4fd73187c9fec7e044ebac6e71c1d12489fc44cb773a292b7cbd77a2",
+      "observations": {
+        "injected_level": false,
+        "rf433r": {
+          "guest_levels": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "qom": {
+            "input-level": false,
+            "sample-rate": 1000,
+            "samples": 2
+          },
+          "boundary": "No public Unit driver/decoder; machine.Pin input sampling only; ASK demodulation/-109dBm/antenna/range NOT RUN; PORT.B substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "No public Unit driver/decoder; machine.Pin input sampling only (driver-gap), QOM input-level/samples fixture.",
+        "ASK demodulation/-109dBm/antenna/range NOT RUN; PORT.B substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "audioplayer",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "raw UART 9600 driver-gap",
+      "firmware_sha256": "e694f2ca5cd5197338e60b4594d5becb3674fcbe95cfb88cdd552384d313516c",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "3bf9cbbae7d247aa97b3a82d64298157",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "guest_tx_frame": true,
+        "guest_rx_fixture": true,
+        "qom_tx_bytes": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-audioplayer.json",
+      "report_sha256": "5ef031445af0b7b5c915b49a6d2029a210d32c3c96fc7d7bc440c86b3b067b07",
+      "evidence_zip_sha256": "72818f92a4a76966808c2c23f85b0f74898063f2de1579baeddd67779f42615a",
+      "frame_sha256": "355e5aba41621bc83f0dfdebb38c2bd1f74944cee9a0e75474e78a86150d7eba",
+      "observations": {
+        "audioplayer": {
+          "qom": {
+            "responses-hex": "4f4b0d0a",
+            "tx-hex": "7e03010203",
+            "frames-sent": 1,
+            "frames-injected": 1
+          },
+          "boundary": "No public Unit AudioPlayer driver/readable N9301 command table; raw UART 9600 byte layer only; MP3/WAV/microSD/3.5mm/audio NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "No public Unit AudioPlayer driver/readable N9301 command table; raw UART 9600 byte layer only (driver-gap).",
+        "MP3/WAV decode/microSD/3.5mm audio/speaker NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "fingerprint2",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "raw UART 115200 driver-gap",
+      "firmware_sha256": "8cf858209117a89f7bd90128b4bb6a78921b60242540a2079ca0d2a1ad4df552",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "b33770ba3a5a49e8b3c587a3aeb3ea75",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "driver_gap_recorded": true,
+        "guest_tx_frame": true,
+        "guest_rx_fixture": true,
+        "qom_tx_bytes": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-fingerprint2.json",
+      "report_sha256": "83a3f0445ff1473813c02539ccf8fcb74a0476a8cc954e3491bb057dda2e8a4a",
+      "evidence_zip_sha256": "bf14d5ec92d66a3e96a16b7cdf2d0eb100adfc502b3116164f10ed8caca08d40",
+      "frame_sha256": "4c84109b9ef902824d5b6cc315b86c1d02bbdb4399b6bee0db79fa7a7060dfb5",
+      "observations": {
+        "fingerprint2": {
+          "qom": {
+            "responses-hex": "ef0107",
+            "tx-hex": "ef01ffffffff010003010005",
+            "frames-sent": 1,
+            "frames-injected": 1
+          },
+          "boundary": "No public Unit driver/A-K323CP frame table; raw UART 115200 byte layer only; fingerprint capture/match/100 users/RGB ring/security NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "No public Unit driver/A-K323CP frame table; raw UART 115200 byte layer only (driver-gap).",
+        "Fingerprint capture/match/100 users/RGB ring/security NOT RUN; PORT.C substituted by cores3 PORT.A harness."
+      ]
+    },
+    {
+      "unit_id": "glass",
+      "status": "BLOCKED",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "GlassUnit (unit/glass.py, M5.addDisplay)",
+      "firmware_sha256": "8c0105d87906866876d2767c12b6152211eac9cffca43a097de02791e206b449",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "9232cb1e64195d1deee72281552676dafd15665fe47335ea16f62930957e99bd",
+      "session_id": "7f1292fd3c9c488ca7fd472643cb195f",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch11/report-glass.json",
+      "report_sha256": "e0efa58acebe7e6bab42248b5a684e543553db1422b36e0b800798e2efc7bba9",
+      "evidence_zip_sha256": "78b502a8bbdde960ce7bca2d2effc6a64bab1577caf81b589efe68f66998815e",
+      "frame_sha256": null,
+      "observations": {},
+      "boundaries": [
+        "BLOCKED: frozen GlassUnit/M5.addDisplay returned a Display object and drawing produced no I2C transactions against the modeled 0x3D slave (QOM commands/data-bytes stayed 0); the transparent-OLED composition path is unresolved and NOT claimed.",
+        "Static button/buzzer QOM fixtures exist but are NOT asserted (internal-firmware Protocol table unreadable).",
+        "0x3D conflicts with lcd/oled/mini-oled/glass2; transparent OLED optics/phones/buttons/buzzer NOT RUN."
+      ]
+    }
+  ],
+  "blocked_cases": [
+    {
+      "unit_id": "glass",
+      "status": "BLOCKED",
+      "reason": "official GlassUnit/M5.addDisplay returned a Display but drawing produced no I2C commands/data bytes against the 0x3D model; QOM commands=0/data-bytes=0; transparent OLED composition unresolved; no PASS, profile stays planned"
+    }
+  ]
+}
