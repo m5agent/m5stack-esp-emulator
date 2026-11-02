@@ -1,0 +1,56 @@
+# 剩余仅视觉主机与 Unit 接入计划
+
+日期：`2026-11-02`。范围：`docs/project-snapshot.md` 与视觉库存中“有外壳、
+无运行登记”的剩余主机，以及未登记的 Unit。动态计数以自动快照为准；本页只
+维护逐型号的接入事实、所需模型和边界取舍。
+
+## 已完成批次
+
+| 批次 | 设备 | 结论 |
+| --- | --- | --- |
+| 1 | AtomS3U（`atoms3u`） | 官方 UIFlow2 v2.5.4 启动、GPIO41 按键、GPIO35 WS2812 RMT；PR #80 |
+| 2 | Atom VoiceS3R（`atom-echos3r`） | 官方 UIFlow2 v2.5.4 启动、128×128 面板、Speaker/I2S1 DMA 非静音 PCM；PR #80 |
+| 3 | AtomS3R-CAM（`atoms3r-cam`） | 启动、板级识别 144、显示初始化、GC0308 0x21/PID 0x9b；camera 捕获仍 `ESP_ERR_NOT_SUPPORTED`；PR #81 已合入 |
+
+## 剩余仅视觉主机（PR #81 合入后 11 款）
+
+固件可用性按 `burner.m5stack.com` 公开列表核对（`2026-11-02`）。只有
+“官方 UIFlow2 可用”才走同 guest 参考固件路径；“仅 UIFlow1/社区固件”必须
+先在计划中确认镜像格式、板级 profile 和探针，再接入。
+
+| 设备 | SKU | 芯片 | 官方 UIFlow2 | 所需板级/模型工作 | 当前边界与决策 |
+| --- | --- | --- | --- | --- | --- |
+| Basic v2.7 | K001-V27 | ESP32-D0WDQ6-V3 | 是（`UIFlow2.0 Core`，`1897200000000000786`） | classic ESP32 machine（复用 Core2 骨架，去掉触摸/PSRAM）、ILI9342C 面板、IP5306 `0x75` PMIC 模型、A/B/C G39/G38/G37、Speaker G25 | 下一批首选：唯一具备官方 UIFlow2 的剩余主机；IP5306 为新模型，其余复用既有面板/按键框架 |
+| AtomS3R-M12 | C126-M12 | ESP32-S3-PICO-1-N8R8 | 否（社区 `AtomS3R-CAM M12 User Demo`、`XiaoZhi` 等） | OV3660 SCCB/DVP 模型；复用 `m5atoms3rcam` 骨架 | 等 camera SCCB/DVP 数据面闭环后再接；不能用 AtomS3R 固件冒充 M12 |
+| AtomS3R-Ext | C126-Ext | ESP32-S3-PICO-1-N8R8 | 否 | 与 AtomS3R 同控制器 + 用户键 G41 + IR G47 + Proto 排针 | 无准确固件；只能登记为 `backend-required` 或以社区固件单独验证，不继承 AtomS3R |
+| AtomS3R-AI Chatbot | K147 | ESP32-S3-PICO-1-N8R8 | 否（套件使用控制器固件） | AtomS3R + Atomic Voice Base A149（ES8311）组合件 | 不是独立 host alias；按组合件在 Voice Base 数据面上验证，不能单独冒充 |
+| AtomS3R-CAM AI Chatbot | K147-CAM | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-CAM + Voice Base 组合件 | 依赖 camera 与 Voice Base 两条数据面，均未同时闭环 |
+| AtomS3R-M12 Volcengine Kit | D062-M12 | ESP32-S3-PICO-1-N8R8 | 否 | AtomS3R-M12 + Voice Base 组合件 | 同 M12，且依赖套件固件，暂列 `backend-required` |
+| Atom Echo（Atom Voice） | C008-C | ESP32（classic） | 否（`UIFlow_AtomU`/`UIFlow1`、社区 `Atom Echo speaker test`） | classic ESP32 machine、ES8311 + I2S + 麦克风、GPIO 按键 | 需先确认可复现 UIFlow1/社区镜像与该板准确分区，再按 generic-firmware 路径验证 |
+| AtomU | K117 | ESP32（classic） | 否（`UIFlow_AtomU` UIFlow1） | classic ESP32 machine + USB-A 形态；无屏 | 与 Atom Lite 硬件接近但不同 SKU；优先确认 UIFlow1 镜像后再评估 |
+| M5Stick | K016 | ESP32（classic） | 否（通用 `UIFlow` UIFlow1） | SH1107 64×128 OLED、三键、MPU9250/无 IMU 两个修订 | 需先确定板修订；OLED 控制器模型是新工作 |
+| StickT2 | K016-T2 | ESP32（classic） | 否（社区 `StickT2 User Demo`） | MLX90640 热成像、ST7789 135×240 | 依赖 thermal fixture 与该板 I2C 拓扑；按社区镜像单独验证 |
+| StickV | K027 | K210（非 ESP32） | 否 | 不属于 ESP32 后端 | 明确异构边界：不用 ESP32 alias；需独立 K210 后端评估 |
+
+## Unit 缺口与方法
+
+- 视觉库存 `184` 款 Unit，已有 runtime profile `34` 款，其余 `150` 款没有
+  协议契约或数据面登记。
+- 接入单位不是“注册一行 JSON”：每款要（1）固定官方协议/寄存器证据，
+  （2）在 QEMU 内实现控制器级数据面，（3）提供 fixture 或输入注入，
+  （4）用同 guest 的官方驱动探针拿到读写/事件证据，（5）在
+  `runtime-coverage.json` 登记，不能靠视觉模型或 host 端假值。
+- 建议批次（按可复用度排序，逐款以官方文档确认后实施）：
+  1. 与已实现模型同族的 I2C 传感器/控制 Unit（复用 SHT30/QMP6988、
+     GPIO/ADC、RMT 等既有数据面）；
+  2. 单寄存器 I2C DAC/OLED 类；
+  3. 需要新增控制器模型的距离/手势/热成像类；
+  4. UART 类（GPS/语音/总线）与 SPI/摄像头类。
+- 每一批次沿用本计划的主机侧证据模板：设备本地 probe、matrix case、
+  `docs/evidence/<date>-<topic>/` 摘要与 SHA-256。
+
+## 边界
+
+- 本页是计划，不构成能力声明；任何 PASS 必须绑定固件 SHA、device、profile
+  和可复现证据。
+- 视觉库存里的“模型”和“装配组合件”不等于可独立运行的 host 或 Unit。

@@ -68,6 +68,9 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 `m5atoms3rcam` 的启动、板级识别 144、显示初始化和 GC0308 身份读取；
 原厂 camera.init/capture 仍为 ESP_ERR_NOT_SUPPORTED，没有相机帧数据面。
 
+剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
+[剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
+
 ## 首页与维护入口
 
 面向使用者的首页为默认中文 [README](../README.md)，英文入口为 [README.en](../README.en.md)。
@@ -143,6 +146,7 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；原厂 camera.init/capture 仍 NOT_SUPPORTED，相机帧未闭环 |
+| [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md) | 计划 | `2026-11-02` | 剩余仅视觉主机的逐型号固件可用性/所需模型/决策，以及 150 款未登记 Unit 的方法与批次框架；不构成能力声明 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |
 | [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3u` 板级的官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过；IR、SPM1423 PDM 麦克风、Grove Unit、USB CDC 与物理行为未验 |
 | [AIFlow simulator skill consumer](plans/2026-10-27-aiflow-simulator-skill.md) | 调用侧历史验证 | `2026-10-27` | CoreS3/PIR 本机限定验证，远端 AIFlow 未验 |

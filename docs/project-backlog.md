@@ -739,6 +739,9 @@ Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
 AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）同期完成启动、板级识别 144、
 显示初始化与 GC0308 身份读取；原厂 camera.init/capture 仍返回
 ESP_ERR_NOT_SUPPORTED，相机帧与 IR/Grove 仍未覆盖。
+剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次框架见
+[剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)；
+该页是计划，不关闭任何设备或 Unit。
 固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
 本轮 AtomS3/Lite、StickC/SE/Plus2 的原生显示或 LED、输入及选定外设已有
 [限定验证](evidence/2026-10-29-expanded-hosts/README.md)，浏览器逐板准入独立维护。
