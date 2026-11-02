@@ -72,7 +72,8 @@
   },
   "regression": {
     "stopwatch": "PASS (ui matrix case; exercises the one-way M5GFX software-to-hardware I2C hand-off)",
-    "cores3": "PASS (ui matrix case; camera path over the modelled hardware I2C controller)"
+    "cores3": "PASS (ui matrix case; existing S3 host, no regression)",
+    "cores3-camera": "PASS (peripheral matrix case: CORES3_CAMERA_PASS 320x240 153600 bytes, CORES3_CAMERA_FRAMESTREAM PASS 1; existing hardware-I2C camera path unchanged)"
   },
   "not_run": [
     "physical optics, sensor exposure/color response, electrical SCCB timing and drive strength",
