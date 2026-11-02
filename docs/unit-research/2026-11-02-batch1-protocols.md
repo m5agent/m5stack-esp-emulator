@@ -842,3 +842,27 @@ runtime profile 仍保持 `planned`/`unsupported`，Device Service 以
   相同的文件两者一致；不同的 3 个文件哈希见上表）。
 - 本报告不产生也不要求任何 QEMU/固件运行证据；实现后的验收必须按仓库
   `AGENTS.md` 的 Device Service 路线另做 device-local 证据。
+
+## 10. B 类 QEMU 实现状态（0119，2026-11-02）
+
+本批 B 类 4 款已由
+[`0119-unit-i2c-batch2.patch`](../../patches/qemu-m5stack-peripherals/0119-unit-i2c-batch2.patch)
+接入 QEMU I2C slave 事务数据面。补丁 base 为 native-only 序列
+`0109+0110/0111/0112/0113/0114/0116`（不依赖 `0115`；`0117`/`0118` 是并行层）。
+**尚未采集 guest/Device Service 证据**，因此
+`platform/units/catalog.json` 的 4 条 `model_status`/`runtime.status` 和
+`platform/units/runtime-profiles.json` 的 `status` 均保持 `planned`、hosts 为空；
+离线 QOM smoke 只验证属性注册、读写、范围拒绝和只读拒绝，不构成功能 PASS。
+
+| Unit | 0119 事务模型 | QOM fixtures/读数 | 仍需 guest 证据 / 边界 |
+| --- | --- | --- | --- |
+| `dlight` | BH1750 0x23：单字节命令机（0x00/0x01/0x07、continuous 0x10/0x11/0x13、one-time 0x20/0x21/0x23）、MTreg 0x40/0x60 两字节编码、转换窗口 | 输入 `illuminance-lx`；模型内按 bh1750 驱动公式反算 raw=lux*1.2*sensitivity（H-res2 ×2）并裁剪到 u16，H 180ms/L 24ms ÷ sensitivity 的窗口只由模型自身计时 | 驱动读到的 2 字节 big-endian raw 尚未经 guest I2C 回放；power-on 默认 MTreg、数据手册 timing、照度/光学量值仍未确认 |
+| `accel` | ADXL345 0x53：寄存器指针/自增、POWER_CTL(0x2d)/DATA_FORMAT(0x31) 存储、0x32–0x37 六字节合成、INT_SOURCE(0x30) 读清 | 输入 `accel-x-g/y-g/z-g`（±16g，raw=round(g*250) 的 4mg/LSB 换算）与 `int-source`（中断源 bitmask fixture，读 0x30 后清零） | 6 字节 data/INT_SOURCE 的 guest 读路径尚未回放；DEVID(0x00) 保持 reserved 读回 0xff，明确不猜 0xE5；活动/tap/free-fall 检测器与物理加速度未建模 |
+| `4relay` | U097 0x26：0x10 mode 读写、0x11 relay+LED 读改写回环，逐通道 QOM 状态 | 输出 `relay-1..4-level`、`led-1..4-level`、`mode`（只读）；编码按两份官方可执行驱动的 `RELAYn=bit(n-1)`/`LEDn=bit(n+3)`，即 RELAY1=bit0/LED1=bit4 | 产品页 Protocol 表的反向位序（RELAY1=bit3/LED1=bit7）已作为冲突登记，未混用；guest 写 0x11/0x10 的读回与继电器触点/负载/切换时序/NOT RUN |
+| `weight-i2c` | U180 0x26：0x00 u32 ADC、0x10 f32 grams、0x40 f32 gap（存）、0x50 offset reset（存）、0x60 int32 weight×100、0x70 16B ASCII、0x80/0x81/0x82 滤波（存）、0xFE fw、0xFF 地址 | 输入 `weight-g`（±1e6 g）、`adc-raw`（u32）、`weight-fw`（0–255，默认 3）；读数由 fixture 派生 | 0x60 采用 master 驱动 weight×100 语义，但 protocol-PDF/driver 版本差异仍是 unresolved；0x40/0x50 只存储不加到 weight（校准运算 NOT RUN）；0x70 为合成 `"%.3f"` 格式；默认 0x26 与 4relay 同总线冲突 |
+
+共同边界：4 款都只是控制器可见的事务模型，不是电气/机械/光学/称重模型；
+在没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`，
+也不得把 QOM fixture 读数当作传感器测量值。下一步验收应按 `AGENTS.md` 的
+独立 Device Service 路线逐款 attach、运行官方 UIFlow2 驱动并记录 serial/QOM/
+帧/ZIP 证据后再升级 profile。

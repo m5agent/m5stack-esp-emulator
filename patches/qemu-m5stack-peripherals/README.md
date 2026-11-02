@@ -17,6 +17,11 @@ machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine an
 (`ssr`, `earth`, `hall`, `reflective-ir`, `vibrator`) on top of that sequence.
 `0115-atoms3r-cam-sccb.patch` closes the AtomS3R-CAM camera data plane on top
 of `0112`.
+`0119-unit-i2c-batch2.patch` adds the first B-class external Unit I2C
+transaction models (`dlight`, `accel`, `4relay`, `weight-i2c`) on the
+native-only order ending at `0116`; it does not require `0115`, and
+`0117`/`0118` are unrelated parallel layers. It registers no guest PASS and
+does not upgrade any runtime profile.
 `0116-atomu-board.patch` adds the classic-ESP32 `m5atomu` board (K117; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The SPM1423 PDM microphone is served by the SoC-level ESP32 I2S0 PDM RX model and IR G12 is not wired; the board reuses the classic Atom board glue.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
