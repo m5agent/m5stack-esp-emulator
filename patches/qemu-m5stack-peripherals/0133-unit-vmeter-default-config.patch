@@ -1,6 +1,6 @@
-From 5aefdc2773e8f53c77c02e67b032fb3c2a2c12c4 Mon Sep 17 00:00:00 2001
-From: m5agent <agent@example.invalid>
-Date: Mon, 2 Nov 2026 21:43:11 +0800
+From c2ce31f4ec3887554c32f6bb441320b335027927 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:32:44 +0800
 Subject: [PATCH] hw/m5stopwatch: align VMeter default ADS1115 config with its
  driver
 
@@ -14,15 +14,17 @@ self-consistent. Explicit set_gain() writes remain honoured.
 
 No other semantics changed; catalogue stays planned until guest evidence
 passes.
+
+(Rebased by patch-chain reconciliation: base is the canonical order batch-4 chain + 0130; applied before 0135/0132.)
 ---
  hw/m5stopwatch/m5_unit_i2c_sensors.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-index 7b85241..b13bbe6 100644
+index 54cec48..2533c4d 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -1335,7 +1335,12 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+@@ -1756,7 +1756,12 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
           * the driver's 0.015918958 divider. The synthetic EEPROM record keeps
           * calibration factor 1.0; it is NOT a real factory calibration. */
          s->kind = US_ADS1115_VMETER; address = 0x49;

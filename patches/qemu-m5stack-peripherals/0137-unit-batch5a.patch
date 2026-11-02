@@ -1,6 +1,6 @@
-From b991dd774a0cafc1c2742d76cfde3630a0b6df6f Mon Sep 17 00:00:00 2001
+From bc18be6c980e4561c57fec3c6920ae5e47a9526c Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Mon, 2 Nov 2026 22:28:13 +0800
+Date: Mon, 2 Nov 2026 22:45:07 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-5 first five data planes
 
 Add the first five batch-5 Units on top of the source-lock tree. No guest
@@ -29,6 +29,8 @@ evidence is recorded; host catalog keeps all five planned.
 Offline QOM smoke (S3 board, no guest firmware) validates property
 registration, fixture read/write, range/read-only rejection and the
 8/15/9-element array shapes; it is not a functional PASS.
+
+(Rebased by patch-chain reconciliation: base is the reconciled canonical chain 75f1d24 + 0120-0129 + 0131 + 0134 + 0136 + 0130 + 0133 + 0135 + 0132; this is the final layer of the canonical sequence.)
 ---
  hw/m5stopwatch/m5_unit_gpio.c         |  33 ++++-
  hw/m5stopwatch/m5_unit_i2c_controls.c |   9 +-
@@ -36,19 +38,19 @@ registration, fixture read/write, range/read-only rejection and the
  3 files changed, 236 insertions(+), 6 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
-index 5e6560f..248e36f 100644
+index e7e1577..9fd5f81 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -655,7 +655,7 @@ bool m5_unit_gpio_supported(const char *id)
+@@ -656,7 +656,7 @@ bool m5_unit_gpio_supported(const char *id)
          "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
          "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
          "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
--        "weight", "gps", "uhf-rfid"};
-+        "weight", "gps", "uhf-rfid", "op90", "rgb-led-10cm"};
+-        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx"};
++        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm"};
      for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -1295,6 +1295,24 @@ static void uhf_responses_set(Object *o, Visitor *v, const char *name, void *op,
+@@ -1323,6 +1323,24 @@ static void uhf_responses_set(Object *o, Visitor *v, const char *name, void *op,
      g->unit->input_events++;
  }
  
@@ -73,7 +75,7 @@ index 5e6560f..248e36f 100644
  void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
  {
      if (unit->onboard_led_count > 128) {
-@@ -1433,6 +1451,19 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+@@ -1470,6 +1488,19 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL, &g->uhf_frames_sent);
          object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
                              &g->uhf_frames_injected);
@@ -94,19 +96,19 @@ index 5e6560f..248e36f 100644
          g->ultra_distance_mm = 1000;
          g->ultra_controller = esp32_gpio_get_controller(unit->s3);
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index 622d8d9..43dfa47 100644
+index ade6e83..1abe485 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
-@@ -2119,7 +2119,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+@@ -2378,7 +2378,7 @@ bool m5_unit_controls_supported(const char *unit_id)
          "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
          "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
          "ncir2", "extio2", "hbridge", "dac", "joystick",
--        "extencoder", "acssr", "pbhub", "bldc-driver", "dds",
-+        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds",
+-        "extencoder", "acssr", "pbhub", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales",
++        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales",
      };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
      return false;
-@@ -2222,9 +2222,12 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+@@ -2481,9 +2481,12 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
          object_property_add(OBJECT(s->unit), "led-rgb", "int",
                              acssr_led_rgb_get, NULL, NULL, s);
          add_control_int_fixture(s, "fw-version", &s->acssr_fw, 0, 255, true);
@@ -122,7 +124,7 @@ index 622d8d9..43dfa47 100644
              s->pb_digital_in[i] = false;
              s->pb_digital_out[i] = false;
 diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-index 6257761..79ecfb0 100644
+index 5e8ed9e..7fb9502 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
 @@ -13,6 +13,9 @@
@@ -139,8 +141,8 @@ index 6257761..79ecfb0 100644
      US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
      US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
      US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
--    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE,
-+    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ANGLE8, US_KMETER,
+-    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100,
++    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
  } UnitSensorKind;
  
  typedef struct M5UnitSensor {
@@ -160,7 +162,7 @@ index 6257761..79ecfb0 100644
  } M5UnitSensor;
  OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
  
-@@ -1011,6 +1023,87 @@ static void ac_measure_ascii(M5UnitSensor *s, uint8_t reg, uint8_t *out, unsigne
+@@ -1048,6 +1060,87 @@ static void ac_measure_ascii(M5UnitSensor *s, uint8_t reg, uint8_t *out, unsigne
      memcpy(out, text, *len);
  }
  
@@ -248,7 +250,7 @@ index 6257761..79ecfb0 100644
  static int sensor_send(I2CSlave *dev, uint8_t data)
  {
      M5UnitSensor *s = M5_UNIT_SENSOR(dev);
-@@ -1249,6 +1342,46 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+@@ -1286,6 +1379,46 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
          default: return 1;
          }
      }
@@ -295,7 +297,7 @@ index 6257761..79ecfb0 100644
      if (!pos) {
          if (s->kind == US_COLOR && data == 0xe6) {
              s->regs[0][0x13] &= ~0x10; return 0;
-@@ -1345,6 +1478,45 @@ static uint8_t sensor_recv(I2CSlave *dev)
+@@ -1382,6 +1515,45 @@ static uint8_t sensor_recv(I2CSlave *dev)
      uint8_t value = 0xff;
      s->read_bytes++; s->unit->read_bytes++;
      sensor_update(s);
@@ -341,16 +343,16 @@ index 6257761..79ecfb0 100644
      if (s->kind == US_ACMEASURE) {
          uint8_t reg = (uint8_t)s->pointer;
          uint8_t text[16];
-@@ -1516,7 +1688,7 @@ bool m5_unit_sensor_supported(const char *id)
+@@ -1559,7 +1731,7 @@ bool m5_unit_sensor_supported(const char *id)
      static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
          "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
          "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
--        "ac-measure" };
-+        "ac-measure", "8angle", "kmeter-iso-v11" };
+-        "ac-measure", "vmeter", "adc" };
++        "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11" };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -1670,6 +1842,30 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+@@ -1713,6 +1885,30 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
          add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
          add_u64(s, "init-writes", &s->paj_init_writes);
          add_i2c_address(s);

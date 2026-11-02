@@ -1,6 +1,6 @@
-From e4eef447f7837054ec84caa7a182b9a4bf1e71a0 Mon Sep 17 00:00:00 2001
-From: m5agent <agent@example.invalid>
-Date: Mon, 2 Nov 2026 21:41:25 +0800
+From 80e977591f692bfe898e187e82f27e6a8daa340e Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:32:54 +0800
 Subject: [PATCH] hw/m5stopwatch: fix batch-3 C model bugs found by guest
  evidence
 
@@ -21,6 +21,8 @@ Guest evidence found three real model issues in the merged 0131 layer:
 
 No other semantics changed; catalogue stays planned until guest evidence
 passes.
+
+(Rebased by patch-chain reconciliation: base is the canonical order batch-4 chain + 0130 + 0133 + 0135; final layer of the canonical chain.)
 ---
  hw/m5stopwatch/m5_unit_gpio.c         | 21 ++++++++++---
  hw/m5stopwatch/m5_unit_i2c_controls.c | 45 ++++++++++++++++++---------
@@ -28,7 +30,7 @@ passes.
  3 files changed, 51 insertions(+), 19 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
-index 747ada7..b24b168 100644
+index 0b86a06..e7e1577 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
 @@ -21,6 +21,7 @@ typedef struct GPIOUnit {
@@ -37,9 +39,9 @@ index 747ada7..b24b168 100644
      QEMUTimer *hold_timer;
 +    QEMUTimer *ultra_rise_timer;
      int64_t hold_until;
-     uint32_t rgb[25];
-     unsigned leds;
-@@ -975,6 +976,18 @@ static void ultra_echo_end(void *opaque)
+     /* WS2812 frames are captured per LED; 128 covers the largest official
+      * panel/Unit (Neco: 35 per product page, 70 per driver default). */
+@@ -1035,6 +1036,18 @@ static void ultra_echo_end(void *opaque)
      g->ultra_echo_high = false;
  }
  
@@ -58,7 +60,7 @@ index 747ada7..b24b168 100644
  static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
  {
      GPIOUnit *g = opaque;
-@@ -996,10 +1009,9 @@ static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
+@@ -1056,10 +1069,9 @@ static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
      if (g->ultra_distance_mm >= 20 && g->ultra_distance_mm <= 4500) {
          int pulse_us = g->ultra_distance_mm * 582 / 100;
          g->ultra_pulse_us = pulse_us;
@@ -72,7 +74,7 @@ index 747ada7..b24b168 100644
      } else {
          g->ultra_timeouts++;
      }
-@@ -1096,6 +1108,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+@@ -1466,6 +1478,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
              return;
          }
          g->ultra_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, ultra_echo_end, g);
@@ -81,10 +83,10 @@ index 747ada7..b24b168 100644
          g->ultra_observer = esp32_gpio_observe_pad(g->ultra_controller, unit->yellow,
                                                     ultra_pad_event, g, &g->ultra_pad, errp);
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index e9c2205..bd3c591 100644
+index 0ba7301..ade6e83 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
-@@ -1540,24 +1540,39 @@ static int control_send(I2CSlave *dev, uint8_t value)
+@@ -1917,24 +1917,39 @@ static int control_send(I2CSlave *dev, uint8_t value)
                  if (offset > 1) { return 1; }
                  s->pb_rgb_num[index] = offset == 0 ? value : (s->pb_rgb_num[index] & 0x00ff) | (value << 8);
              } else if (cmd_offset == 0x09) {
@@ -140,10 +142,10 @@ index e9c2205..bd3c591 100644
                  if (offset) { return 1; }
                  s->pb_rgb_brightness[index] = value;
 diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-index 79acd78..9ba1bd4 100644
+index 2533c4d..5e8ed9e 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -442,8 +442,12 @@ static void scd40_build_response(M5UnitSensor *s)
+@@ -490,8 +490,12 @@ static void scd40_build_response(M5UnitSensor *s)
      case 0x2318: response_word(s, 0, (uint16_t)CLAMP(s->scd40_temp_offset, 0, 65535)); break;
      case 0x2322: response_word(s, 0, (uint16_t)CLAMP(s->scd40_altitude, 0, 65535)); break;
      case 0x3682:
