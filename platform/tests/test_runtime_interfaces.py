@@ -84,7 +84,7 @@ class RuntimeInterfaceTests(unittest.TestCase):
         encoded = json.dumps(self.payload)
         decoded = json.loads(encoded)
         self.assertEqual(decoded["model_count"], 71)
-        self.assertEqual(decoded["device_count"], 29)
+        self.assertEqual(decoded["device_count"], 30)
     def test_device_case_groups_are_resolved(self):
         stackchan = self.payload["devices"]["stackchan"]
         self.assertEqual(len(stackchan["matrix"]), 8)

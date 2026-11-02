@@ -55,7 +55,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 29 款。
+同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 30 款。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
@@ -71,6 +71,13 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 的官方 UIFlow2 启动、板级识别 130、GPIO27 SK6812 RMT、QMP 注入 GPIO39
 按键回读与 Grove I2C 控制器扫描；SPM1423 PDM 麦克风、IR G12 与 Grove
 Unit 数据面仍未覆盖。该板固件来自固定 SHA 的官方 GitHub release 资产。
+
+[Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立
+`m5atomecho` 的官方 UIFlow2 启动、板级识别 142、GPIO27 SK6812 RMT、
+QMP 注入 GPIO39 按键回读、Grove I2C 控制器扫描、NS4168 I2S1 非静音
+PCM 捕获与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C
+codec，probe 如实记录 `ATOMECHO_ES8311 absent`。模拟声学、IR 与 Grove
+Unit 仍未覆盖；固件来自固定 SHA 的官方 GitHub release 资产。
 
 [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md)记录软件 SCCB 根因（硬件 I2C hand-off 误关相机桥）与修复，官方 `camera.init()/capture()` 取得 320×240 RGB565 整帧；仅默认 QVGA 单帧、物理光学 NOT RUN。
 
@@ -166,6 +173,7 @@ Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项�
 | [Unit 第一批 A 类虚拟设备证据](evidence/2026-11-02-unit-batch1/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ssr`(cores3)/`earth`(atoms3r)/`hall`(sticks3)/`reflective-ir`(stopwatch)/`vibrator`(cores3) 各一个可见会话，原固件冻结驱动经真实 GPIO/ADC/LEDC 控制器产生或观测数据；`earth` 的 read_uv/humidity 与 `vibrator` 的 Haptic one-shot completion 未观测，电气/光学/机械/磁场语义均未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomu` 的官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060/5 帧）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验；固件为固定 SHA 官方 GitHub release 资产 |
+| [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomecho` 的官方 UIFlow2 v2.5.4 启动、板级识别 142、GPIO27 SK6812 RMT、QMP 注入 GPIO39 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方板载无 ES8311/I2C codec；模拟声学、IR、Grove Unit 与物理行为未验 |
 | [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；相机帧随后由同页的 SCCB 闭环证据补齐 |
 | [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md) | 计划 | `2026-11-02` | 剩余仅视觉主机的逐型号固件可用性/所需模型/决策，以及 150 款未登记 Unit 的方法与批次框架；不构成能力声明 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |

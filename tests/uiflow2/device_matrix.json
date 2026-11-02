@@ -637,6 +637,66 @@
           "min": 3
         }
       ]
+    },
+    {
+      "id": "atom-echo",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atomecho",
+      "base": "platform/.cache/firmware/atom-echo/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atom_echo_console_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "pre_input_marker": "ATOMECHO_PROBE_READY",
+      "input": [
+        "key:a"
+      ],
+      "post_input_wait": 0.5,
+      "serial_expect": [
+        "ATOMECHO_BOOT_FLAG",
+        "ATOMECHO_MAIN_START",
+        "ATOMECHO_M5_BEGIN_OK",
+        "ATOMECHO_BOARD 142",
+        "ATOMECHO_I2C_SCAN ['0x48']",
+        "ATOMECHO_ES8311 absent",
+        "ATOMECHO_RGB 1 204060",
+        "ATOMECHO_SPEAKER_BEGIN True",
+        "ATOMECHO_SPEAKER_RUNNING 1",
+        "ATOMECHO_SPEAKER_STATUS ok",
+        "ATOMECHO_MIC_BEGIN True",
+        "ATOMECHO_MIC_RECORD True",
+        "ATOMECHO_MIC_STATUS ok",
+        "ATOMECHO_BUTTON_STATE 1 1",
+        "ATOMECHO_BUTTON_STATE 0 1"
+      ],
+      "pcm": {
+        "file": "speaker.pcm",
+        "min_nonzero": 1000,
+        "min_peak_to_peak": 1000
+      },
+      "microphone_fixture": {
+        "file": "microphone-source.pcm",
+        "samples": 16000
+      },
+      "qom_expect": [
+        {
+          "path": "/machine/onboard_io",
+          "property": "led-rgb",
+          "expect": 2113632
+        },
+        {
+          "path": "/machine/onboard_io",
+          "property": "led-frames",
+          "min": 3
+        }
+      ],
+      "timeout": 60
     }
   ]
 }

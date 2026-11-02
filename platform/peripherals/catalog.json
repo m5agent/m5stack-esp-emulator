@@ -66,6 +66,10 @@
       "atomu": {
         "reason": "Device-local console evidence covers UIFlow2 boot, board id 130, SK6812 RMT output, QMP key-driven GPIO39 input and the Grove I2C controller scan. PDM microphone capture, IR, Grove Unit protocols and physical behavior remain open.",
         "review_by": "2026-12-31"
+      },
+      "atom-echo": {
+        "reason": "Device-local console evidence covers UIFlow2 boot, board id 142, SK6812 RMT output, QMP key-driven GPIO39 input, Grove I2C controller scan, NS4168 I2S1 speaker PCM and SPM1423 PDM RX with a host PCM fixture. Analog audio, IR, Grove Unit protocols and physical behavior remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -3413,6 +3417,71 @@
         {
           "model": "ir-tx-rx",
           "reason": "G12 IR transmitter is wired only in the hardware inventory; no board-level IR model/route or TX probe is registered."
+        }
+      ]
+    },
+    "atom-echo": {
+      "board_model": "m5atomecho",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/products/sku/C008-C"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 39,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "rgb-led",
+          "model": "rgb-led",
+          "gpio": 27,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "speaker",
+          "model": "ns4168",
+          "interface": "i2s",
+          "pins": "bck=19,ws=33,data=22",
+          "status": "partial"
+        },
+        {
+          "id": "microphone",
+          "model": "spm1423",
+          "pins": "pdm-clk=33,pdm-data=23",
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 12,
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "QMP-injected key events drive GPIO39 through the board input handler and the guest reports press/release, but physical button feel, debounce and wider input paths remain open."
+        },
+        {
+          "model": "rgb-led",
+          "reason": "The guest RMT path decodes the single SK6812 frame (QOM 0x204060, 5 frames); optical output, color calibration, power and other LED effects are not modelled."
+        },
+        {
+          "model": "ns4168",
+          "reason": "I2S1 standard-mode PCM is captured at the DMA boundary and the guest reports the speaker running. The NS4168 is a registerless amplifier: analog gain, PA electrical behavior, speaker acoustics and the shared G33 LRCK/PDM-CLK pad are not modelled."
+        },
+        {
+          "model": "spm1423",
+          "reason": "The SPM1423 PDM RX path is exercised only with a host-injected PCM fixture; real microphone acoustics, sensitivity/SNR and simultaneous record/play on the shared G33 pad are not validated."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "IR G12 is present in the hardware inventory but is not wired or probed in this board model."
         }
       ]
     }

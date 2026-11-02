@@ -17,18 +17,15 @@ machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine an
 (`ssr`, `earth`, `hall`, `reflective-ir`, `vibrator`) on top of that sequence.
 `0115-atoms3r-cam-sccb.patch` closes the AtomS3R-CAM camera data plane on top
 of `0112`.
-`0119-unit-i2c-batch2.patch` adds the first B-class external Unit I2C
-transaction models (`dlight`, `accel`, `4relay`, `weight-i2c`) on the
-native-only order ending at `0116`; it does not require `0115`, and
-`0117`/`0118` are unrelated parallel layers. It registers no guest PASS and
-does not upgrade any runtime profile.
-`0116-atomu-board.patch` adds the classic-ESP32 `m5atomu` board (K117; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The SPM1423 PDM microphone is served by the SoC-level ESP32 I2S0 PDM RX model and IR G12 is not wired; the board reuses the classic Atom board glue.
+`0116-atomu-board.patch` adds the classic-ESP32 `m5atomu` board (K117; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The SPM1423 PDM microphone is served by the SoC-level ESP32 I2S0 PDM RX model and IR G12 is not wired; the board reuses the classic Atom board glue. `0117-atomecho-board.patch` adds the classic-ESP32 `m5atomecho` board (C008-C; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The C008-C audio path is the registerless NS4168 I2S amplifier on the M5Unified classic ESP32 speaker port (I2S1: BCK G19 / WS G33 / DATA G22) plus the SPM1423 PDM microphone on I2S0 (CLK G33 / DATA G23); there is no on-board I2C codec and IR G12 is not wired. Both controllers are provided by the SoC-level I2S models.
+`0117`'s base is the `0116` layer (native-lock + `0110`/`0111`/`0112` + `0113`/`0114`/`0116`); `git apply --check` was verified against that exact tree state and the patch contains only the Atom Echo board/machine layer.
+`0119-unit-i2c-batch2.patch` adds the first B-class external Unit I2C transaction models (`dlight`, `accel`, `4relay`, `weight-i2c`) on the native-only order ending at `0116`; it does not require `0115`, and `0117`/`0118` are unrelated parallel layers. It registers no guest PASS and does not upgrade any runtime profile.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
 IP5306 is register-only, READ4 returns the explicit 0xff no-cell code and
 battery-mv is a host QOM fixture. `0114` registers the five gpio/gpio-adc/
-gpio-pwm Unit ids on the existing controller paths. `0113`, `0114`, `0115` and `0116` are
+gpio-pwm Unit ids on the existing controller paths. `0113`, `0114`, `0115`, `0116` and `0117` are
 native-only layers: they are intentionally not listed in
 `scripts/qemu-wasm-build/sources.lock.json` and are not part of the WASM
 browser build until a separate reviewed registration. The older

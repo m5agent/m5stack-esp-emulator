@@ -2361,6 +2361,79 @@
           "sha256": "affa252d21f223bbe21cf1767604d345df97b2cb8dd62bc76993588d9bd9eda7"
         }
       }
+    },
+    {
+      "id": "atom-echo",
+      "name": "Atom Echo",
+      "sku": "C008-C",
+      "group": "esp32-lx6",
+      "category": "atom",
+      "hardware": {
+        "soc": "ESP32-PICO-D4",
+        "architecture": "xtensa-lx6",
+        "flash_bytes": 4194304,
+        "psram_bytes": 0,
+        "display": null,
+        "controls": [
+          {
+            "id": "button",
+            "type": "button",
+            "label": "USER",
+            "gpio": 39
+          }
+        ],
+        "sensors": [
+          "rgb-led",
+          "ir",
+          "microphone:spm1423",
+          "speaker:ns4168"
+        ],
+        "led_matrix": {
+          "width": 1,
+          "height": 1,
+          "count": 1
+        },
+        "dimensions_mm": [
+          24.0,
+          24.0,
+          16.8
+        ],
+        "weight_g": 9.0
+      },
+      "shell": {
+        "preset": "atom",
+        "accent": "#3b82f6",
+        "screen_scale": 1.05,
+        "body_theme": "white"
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "blockers": [
+          "Device-local console evidence covers ROM boot, board id 142, RMT SK6812 output, QMP key-driven button, Grove I2C scan, NS4168 I2S speaker PCM and SPM1423 PDM RX with a host PCM fixture only. Analog amplifier/speaker acoustics, IR G12, Grove Unit protocols and physical behavior remain unvalidated."
+        ],
+        "validation": {
+          "date": "2026-11-02",
+          "status": "native-boot-board-rgb-button-grove-speaker-pdm-pass",
+          "detail": "官方 UIFlow2 v2.5.4 Atom Echo 4MB 镜像在同一 m5atomecho guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=142、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读、G26/G32 guest I2C 扫描（0x48 为 QEMU 机器自带 tmp105，0x18 ES8311 不存在）、NS4168 I2S 扬声器在 I2S1 DMA 边界的非静音 PCM 捕获，以及 SPM1423 PDM 麦克风在 I2S0 上消费宿主注入 PCM 的非零缓冲。无屏/无 PSRAM；模拟功放/声学、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
+          "evidence": "docs/evidence/2026-11-02-atom-echo-host/summary.json",
+          "category": "virtual-device"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "source": "official-github-release",
+          "download_url": "https://github.com/m5stack/uiflow-micropython/releases/download/2.5.4/uiflow-e437118-esp32-4mb-atomecho-v2.5.4-20261030.bin",
+          "sha256": "8bae873945e85eff496670b9fbddcf7b5fecf31c99eba786fc15cce8c8e89472"
+        }
+      }
     }
   ]
 }
