@@ -1,6 +1,38 @@
+From 81d30653535368a984760bd9729bd36a7900ee0e Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 01:41:30 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-6 second-half Unit model bugs found
+ by guest evidence
+
+Fix the batch-6 second-half model bugs found by guest/Device Service evidence.
+Base in the reconciled canonical order is the 27-layer chain through 0146
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145 and 0146); this is the
+28th layer after 0120 and it applies at the chain end.
+
+- finger (U008): the frozen driver reads two consecutive response frames for
+  one GET_VERSION command, but the generic responder injects one fixture chunk
+  per idle gap, so the second frame never arrived. Inject the whole flattened
+  FPC1020A fixture stream at once for the finger responder.
+- uwb (U100) / dmx (U183) / finger (U008): arm the idle fixture responder for
+  these unit ids so their UART TX/RX byte layer is captured and answered
+  (previously only lora/zigbee/nbiot2 were armed).
+- thermal2 (U149): read the live values[0..2] QOM fixture slots in the Thermal2
+  register builder instead of the power-on cached fields, so session-initial
+  fixtures are visible to the guest.
+
+No guest PASS is claimed here; the batch-6 second-half evidence reports record
+the guest results for the exact runtime binary built from this tree.
+---
+ hw/m5stopwatch/m5_unit_gpio.c        | 38 ++++++++++++++++++++++++++--
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 18 ++++++++-----
+ 2 files changed, 47 insertions(+), 9 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index a719b3f..358958f 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -1005,7 +1005,10 @@
+@@ -1025,7 +1025,10 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                      lora_respond(g);
                      if (g->at_len) { at_arm_idle(g); }
                  } else if (!strcmp(g->unit->unit_id, "zigbee") ||
@@ -12,7 +44,7 @@
                      if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
                      at_arm_idle(g);
                  }
-@@ -1413,12 +1416,43 @@
+@@ -1450,12 +1453,43 @@ static void at_inject_next(GPIOUnit *g)
      }
  }
  
@@ -57,9 +89,11 @@
      g->at_len = 0;
  }
  
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index e0d0ea9..e23fe61 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -1495,12 +1495,16 @@
+@@ -1523,12 +1523,16 @@ static void thermal2_fill_raw(M5UnitSensor *s)
      s->regs[0][0x08] = I2C_SLAVE(s)->address;
      s->regs[0][0x09] = (uint8_t)~I2C_SLAVE(s)->address;
      s->regs[0][0x0a] = (uint8_t)s->thermal2_refresh_rate;
@@ -82,7 +116,7 @@
      s->regs[0][0x6e] = 0; s->regs[0][0x6f] = 0;
      s->regs[0][0xfe] = (uint8_t)s->thermal2_fw;
      s->regs[0][0xff] = I2C_SLAVE(s)->address;
-@@ -2015,7 +2019,7 @@
+@@ -2054,7 +2058,7 @@ static uint8_t sensor_recv(I2CSlave *dev)
          if (reg >= 0x80 && reg < 0x380) {
              unsigned index = (reg - 0x80) / 2;
              unsigned lane = (reg - 0x80) & 1;
@@ -91,3 +125,6 @@
              int16_t raw = (int16_t)CLAMP(llround(temp * 128.0 + 8192.0), 0, 65535);
              return lane ? (uint8_t)((uint16_t)raw >> 8) : (uint8_t)((uint16_t)raw & 0xff);
          }
+-- 
+2.55.0
+

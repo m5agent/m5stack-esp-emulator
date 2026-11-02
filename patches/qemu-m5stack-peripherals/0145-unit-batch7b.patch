@@ -1,10 +1,13 @@
-From 9c7e5a1d3f2b4c6d8e0f1a2b3c4d5e6f708192a3 Mon Sep 17 00:00:00 2001
+From 73f844c8acc382253e50ac5fa726729c21772c4e Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 01:35:00 +0800
+Date: Tue, 3 Nov 2026 01:41:30 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-7 remaining seven data planes
 
-Implement the remaining batch-7 Unit contracts on top of the 25-layer
-reconciled canonical chain (through 0144). No guest/Device Service evidence is
+Implement the remaining batch-7 Unit contracts on top of the reconciled
+canonical chain. Base in the reconciled canonical order is the 25-layer chain
+through 0144 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133,
+0135, 0132, 0137, 0138, 0139, 0140, 0141, 0142, 0143 and 0144); this is the
+26th layer after 0120 and it applies at the chain end. No guest/Device Service evidence is
 recorded; all seven stay planned and the reused models keep their existing
 NOT RUN boundaries.
 
@@ -41,6 +44,13 @@ registration, responder fixtures, CAN injection/observation and the
 BMI270+BMP280 dual attach: 7/7 attach and property checks PASS. The smoke does
 NOT cover guest byte semantics, LED timing, AT decode, CAN bit timing or IMU
 physics.
+---
+ hw/m5stopwatch/m5_unit_gpio.c        | 141 +++++++++++++++++++++++++--
+ hw/m5stopwatch/m5_unit_i2c_sensors.c |  82 +++++++++++++++-
+ 2 files changed, 212 insertions(+), 11 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index d3547db..0f4ac53 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
 @@ -7,6 +7,7 @@
@@ -51,7 +61,7 @@ physics.
  #include "m5stopwatch.h"
  #include "m5_unit_runtime.h"
  #include <math.h>
-@@ -88,6 +89,14 @@
+@@ -88,6 +89,14 @@ typedef struct GPIOUnit {
      uint8_t uart_tx[4096];
      size_t uart_tx_size;
      char *last_rx;
@@ -66,7 +76,7 @@ physics.
  } GPIOUnit;
  static GPIOUnit *gpio_units;
  
-@@ -668,7 +677,8 @@
+@@ -668,7 +677,8 @@ bool m5_unit_gpio_supported(const char *id)
          "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
          "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
          "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
@@ -76,7 +86,7 @@ physics.
          "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger"};
      for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
-@@ -989,7 +999,8 @@
+@@ -989,7 +999,8 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                   !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2") ||
                   !strcmp(g->unit->unit_id, "synth") ||
                   !strcmp(g->unit->unit_id, "uwb") || !strcmp(g->unit->unit_id, "dmx") ||
@@ -86,7 +96,7 @@ physics.
                  esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
                  if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
                  g->unit->written_bytes++;
-@@ -1489,6 +1500,94 @@
+@@ -1489,6 +1500,94 @@ static void lora_config_get(Object *o, Visitor *v, const char *name, void *op, E
      g_free(value);
  }
  
@@ -181,7 +191,7 @@ physics.
  void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
  {
      if (unit->onboard_led_count > 128) {
-@@ -1501,7 +1600,9 @@
+@@ -1501,7 +1600,9 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                  !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2") ||
                  !strcmp(unit->unit_id, "synth") ||
                  !strcmp(unit->unit_id, "uwb") || !strcmp(unit->unit_id, "dmx") ||
@@ -192,7 +202,7 @@ physics.
          error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
      }
      GPIOUnit *g = g_new0(GPIOUnit, 1);
-@@ -1658,10 +1759,12 @@
+@@ -1658,10 +1759,12 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
          object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
                              &g->incomplete_frames);
@@ -209,7 +219,7 @@ physics.
          g->leds = 37;
          object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
          object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
-@@ -1669,7 +1772,9 @@
+@@ -1669,7 +1772,9 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                              &g->incomplete_frames);
      } else if (!strcmp(id, "lora-e220-433") || !strcmp(id, "zigbee") ||
                 !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
@@ -220,7 +230,7 @@ physics.
          g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
          object_property_add(o, "responses-hex", "str", at_responses_get,
                              at_responses_set, NULL, g);
-@@ -1681,6 +1786,26 @@
+@@ -1681,6 +1786,26 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          if (!strcmp(id, "lora-e220-433")) {
              object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
          }
@@ -247,9 +257,11 @@ physics.
      } else if (!strcmp(id, "rgb-led-strip-50cm")) {
          /* A093 0.5m strip: 30x SK6812 on the yellow data line; PORT.B-only. */
          g->leds = 30;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 6ef02e9..e0d0ea9 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -27,7 +27,7 @@
+@@ -27,7 +27,7 @@ typedef enum {
      US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
      US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
      US_SHT4X, US_SHT30, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
@@ -258,7 +270,7 @@ physics.
      US_ATECC608B, US_THERMAL2, US_QRCODE,
  } UnitSensorKind;
  
-@@ -39,7 +39,7 @@
+@@ -39,7 +39,7 @@ typedef struct M5UnitSensor {
      uint16_t pointer, command;
      uint8_t page, write_buf[32], response[32];
      unsigned write_pos, read_pos, response_len;
@@ -267,7 +279,7 @@ physics.
      int64_t due, aux_due, last_sample, iaq_started;
      bool pending, continuous, reset_asserted, iaq_initialized, command_error;
      uint16_t baseline_co2, baseline_tvoc, absolute_humidity;
-@@ -152,6 +152,13 @@
+@@ -152,6 +152,13 @@ typedef struct M5UnitSensor {
      double bme_temp, bme_hum, bme_press, bme_gas;
      bool bme_ready;
      int64_t bme_chip, bme_variant;
@@ -281,7 +293,7 @@ physics.
      /* U124 Unit ID (0x35, ATECC608B): deterministic test-vector fixtures for
       * RANDOM/GEN_KEY/SIGN/SHA/INFO. NO real keys or certificates are stored;
       * real ECDSA/AES/Trust&GO behavior is NOT modeled. */
-@@ -1378,6 +1385,27 @@
+@@ -1378,6 +1385,27 @@ static void bme68x_refresh(M5UnitSensor *s)
      r[0x25] = hum >> 8; r[0x26] = hum;
  }
  
@@ -309,7 +321,7 @@ physics.
  static void mpu_accel_range_set(Object *obj, Visitor *v, const char *name,
                                  void *opaque, Error **errp)
  {
-@@ -1805,6 +1833,17 @@
+@@ -1805,6 +1833,17 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
          if (reg <= 0x0f) { s->regs[0][reg] = data; s->pointer++; return 0; }
          return 1;
      }
@@ -327,7 +339,7 @@ physics.
      if (s->kind == US_STHS34PF80) {
          if (pos == 0) { s->pointer = data; return 0; }
          uint8_t reg = (uint8_t)s->pointer;
-@@ -2046,6 +2085,11 @@
+@@ -2046,6 +2085,11 @@ static uint8_t sensor_recv(I2CSlave *dev)
          uint16_t reg = s->pointer + pos;
          return reg <= 0xff ? s->regs[0][reg] : 0xff;
      }
@@ -339,7 +351,7 @@ physics.
      if (s->kind == US_RTC8563) {
          /* While running, the BCD registers mirror the QEMU virtual clock; when
           * stopped they are the guest-written alarm/config or date registers and
-@@ -2246,7 +2290,7 @@
+@@ -2246,7 +2290,7 @@ bool m5_unit_sensor_supported(const char *id)
          "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
          "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
          "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
@@ -348,7 +360,7 @@ physics.
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -2322,6 +2366,38 @@
+@@ -2322,6 +2366,38 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
          add_number(bp, "pressure-pa", 1, 101325, 30000, 110000, false);
          sensor_attach_one(u, "bmp280", bp, 0x76);
          return;
@@ -387,3 +399,6 @@ physics.
      }
  
      M5UnitSensor *s = sensor_device(u);
+-- 
+2.55.0
+

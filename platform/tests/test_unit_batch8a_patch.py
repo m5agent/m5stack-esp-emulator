@@ -35,13 +35,17 @@ class UnitBatch8aPatchTests(unittest.TestCase):
             self.assertIn(token, self.text)
 
     def test_blocked_mini_can_is_not_registered(self):
-        self.assertNotIn('"mini-can"', self.text)
+        # The 0145 layer already registers the batch-7 can/mini-can binding, so a
+        # plain assertNotIn would trip on context lines; this batch-8 layer must not
+        # ADD another registration path for mini-can.
+        added = [line for line in self.text.splitlines() if line.startswith('+')]
+        self.assertFalse(any('"mini-can"' in line for line in added))
         self.assertEqual(self.units["mini-can"]["model_status"], "planned")
 
     def test_patch_base_is_the_25_layer_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0146-unit-batch8a.patch", readme)
-        self.assertIn("26 layers", readme)
+        self.assertIn("28 layers", readme)
         self.assertIn("0145", readme)
 
     def test_pahub_v21_reuses_mask_only_with_dip_fixture(self):
