@@ -1,0 +1,42 @@
+From 4d6e8f0a2b4c6d8e0f1a3b5c7d9e1f2a4b6c8d0e Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 03:55:00 +0800
+Subject: [PATCH] hw/m5stopwatch: fix BMI270 status/temp fixtures for batch-10 evidence
+
+Fix two model-fixture gaps found by batch-10 guest/Device Service evidence on
+the canonical 33-layer chain through 0152. The patch adds no BMI270 blob
+execution or physical motion model.
+
+- The frozen generic BMI270 driver loads CONFIG_DATA and then polls
+  INTERNAL_STATUS bit0. The model intentionally does not execute the blob, but
+  it did not set the init-complete status bit, so every guest initialization
+  timed out. Expose 0x21=0x01 as an init-status fixture after the accepted
+  burst.
+- The driver reads TEMP at 0x22 as a little-endian int16. The batch-7 model
+  wrote temperature at 0x20 (big-endian) only, so the guest read a stale/zero
+  raw value. Alias the same synthetic temperature at 0x22 little-endian while
+  keeping the existing 0x20 layout for the batch-7 mini-imu-pro path.
+
+Result: the generic BMI270 driver initializes and reads the modeled accel/gyro/
+temperature fixture subset for dof6/dof9/dof10. BMM350 0x14 and SPA06 0x76 are
+still not modeled; the guest values carry the driver's own scale factors and
+the 23C offset, so they are deterministic fixture readbacks, not physical units.
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -1404,6 +1404,16 @@
+     }
+     int16_t temp = (int16_t)CLAMP(llround((s->values[9] - 25.0) * 512.0), -32768, 32767);
+     be16(r + 0x20, (uint16_t)temp);
++    /* The frozen BMI270 driver reads TEMP at 0x22 (not 0x20); expose the same
++     * fixture in both slots so the batch-7 mini-imu-pro layout and the generic
++     * BMI270 driver both see the synthetic temperature. */
++    le16(r + 0x22, (uint16_t)temp);  /* driver reads TEMP as little-endian */
++    /* U228/U229/U230 batch-10 guest evidence: the frozen BMI270 driver loads
++     * CONFIG_DATA and polls INTERNAL_STATUS bit0 after the init burst. The
++     * model intentionally does not execute the blob, but it must report the
++     * init-complete status bit after the accepted burst or every guest init
++     * times out. This is a status fixture, not proof of blob execution. */
++    r[0x21] = 0x01;
+ }
+ 
+ static void mpu_accel_range_set(Object *obj, Visitor *v, const char *name,
