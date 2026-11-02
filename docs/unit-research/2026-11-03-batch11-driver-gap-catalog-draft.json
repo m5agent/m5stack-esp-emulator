@@ -1,0 +1,4757 @@
+{
+ "schema_version": 1,
+ "checked_at": "2026-11-03",
+ "scope": "batch-11 Unit research draft: 17 driver-gap planned units (15 a-class protocol-documented, 2 b-class partial), protocol fields/evidence refreshed from 2026-11-03 network research; catalog not modified. All entries remain model_status=planned.",
+ "classification": {
+  "a": [
+   "8servos2-i2c",
+   "8servos2-chain",
+   "bmm350",
+   "ina226-10a",
+   "ina226-1a",
+   "rollercan",
+   "rollercan-lite",
+   "roller485",
+   "roller485-lite",
+   "byteswitch",
+   "bytebutton",
+   "step16",
+   "timerpwr",
+   "mq",
+   "chainbus"
+  ],
+  "b": [
+   "cardkb2",
+   "cat1-cn"
+  ],
+  "c": []
+ },
+ "sources": {
+  "uiflow2_master": "https://github.com/m5stack/uiflow-micropython tree f20d5a00e8c9106aae1d944f3d6f1128839f59cb (2026-11-02)",
+  "checked_at": "2026-11-03",
+  "method": "official product pages + docs.m5stack.com /en/protocol pages + official protocol PDFs/Markdown from m5stack org repos + vendor datasheets; see docs/unit-research/2026-11-03-batch11-driver-gap-protocols.md"
+ },
+ "units": [
+  {
+   "id": "cardkb2",
+   "name": "Unit CardKB2",
+   "sku": "U215",
+   "visual_asset": {
+    "entry": "src/units/cardkb2/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "ESP32-C61HF4",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA / UART_RX / G26",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL / UART_TX / G25",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-partial-protocol",
+    "summary": "42 键便携键盘（ESP32-C61HF4），四模式 I2C/UART/BLE HID/ESP-NOW，出厂 I2C 模式，Grove 为 PORT.CUSTOM G26/G25。官方 User Manual 明确 legacy I2C 0x5F（直接读 ASCII 键值、0xF1 版本）与 UART 115200 8N1 帧 AA 03 KEY_ID STATE checksum；上游 cardkb.py 另实现未见于手册的 v2 report（0x00-0x03 8 字节报告）。",
+    "registers": [
+     {
+      "register": "0x5F raw",
+      "length": 1,
+      "encoding": "I2C 直接读 1B = 按键 ASCII（无键 0x00）"
+     },
+     {
+      "register": "0xF1",
+      "length": 1,
+      "encoding": "先写 0xF1 再读 = 固件版本"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "写 1 = 产测模式触发（生产用，不建模）"
+     },
+     {
+      "register": "UART frame",
+      "length": 0,
+      "encoding": "AA <DATA_LEN=0x03> <KEY_ID 0-43> <KEY_STATE 0x01 按下/0x02 释放> <checksum=(len+id+state)&0xFF>"
+     },
+     {
+      "register": "v2 I2C",
+      "length": 8,
+      "encoding": "驱动观察：0x00 status/0x01 sequence/0x02 report_len=8/0x03 report(8B: modifier+reserved+6 keycode)；官方手册未写、固件版本 unresolved"
+     },
+     {
+      "register": "v2 UART",
+      "length": 0,
+      "encoding": "驱动观察：AA 08 <8B report> checksum；官方手册未写"
+     }
+    ],
+    "gaps": [
+     "v2 report 寄存器/固件版本无官方手册对应（仅上游驱动实现）",
+     "BLE HID / ESP-NOW 模式依赖 BLE/WiFi 协议栈，QEMU Unit 数据面不可建；NOT RUN",
+     "PORT.CUSTOM G26/G25 未在 host-ports 准入，需 host-port 准入或 cores3 harness 替代记录",
+     "按键保持（300ms 后 50ms 重复）与键码表映射未做时间轴测试"
+    ]
+   },
+   "inputs": {
+    "keys": {
+     "type": "array",
+     "label": "42 键矩阵 fixture",
+     "default": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "boolean"
+     },
+     "minItems": 42,
+     "maxItems": 42
+    },
+    "mode": {
+     "type": "string",
+     "label": "通信模式 fixture",
+     "default": "i2c",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "enum": [
+      "i2c",
+      "uart",
+      "ble-hid",
+      "esp-now"
+     ]
+    }
+   },
+   "outputs": {
+    "last-key": {
+     "type": "integer",
+     "label": "最后一次按键",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "led-rgb": {
+     "type": "integer",
+     "label": "RGB 状态灯",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 16777215
+    },
+    "mode": {
+     "type": "string",
+     "label": "当前模式",
+     "default": "i2c",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U215",
+      "ESP32-C61HF4",
+      "42 keys + RGB LED + Reset/Boot",
+      "I2C/UART/BLE HID/ESP-NOW modes with factory I2C",
+      "PORT.CUSTOM Yellow=SDA/UART_RX/G26, White=SCL/UART_TX/G25",
+      "UIFlow2 coming soon"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "External \"Unit CardKB2 User Manual & Registers\" is referenced but not readable from the page text; I2C address/registers unresolved"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1225/Unit_CardKB2_User_Manual_EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "User Manual：I2C 0x5F/0xF1、UART AA03 帧、键码表 Table 3-5、四模式切换表",
+      "v2 report 未写入手册"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "产品页：U215、ESP32-C61HF4、四模式、Grove PORT.CUSTOM G26/G25"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/cardkb.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/cardkb.py:436 CardKBI2C; :461-466 寄存器; :200-206 v2 帧常量; :538 CardKBUART"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-CardKB2-UserDemo/blob/282e4bc28363/src/main/bsp/bsp_i2c.c",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "出厂固件 I2C 从机源码：0x5F、0xF1 版本、按键队列读"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "partial protocol: official User Manual documents legacy I2C 0x5F raw-key/0xF1 version and UART AA03 frames, but v2 report registers (0x00-0x03/8B report, only in upstream cardkb.py) have no manual/firmware version mapping; BLE HID/ESP-NOW and PORT.CUSTOM G26/G25 are outside the QEMU Unit data plane. Model not built (docs-only)."
+   },
+   "blocker": "partial protocol: official User Manual documents legacy I2C 0x5F raw-key/0xF1 version and UART AA03 frames, but v2 report registers (0x00-0x03/8B report, only in upstream cardkb.py) have no manual/firmware version mapping; BLE HID/ESP-NOW and PORT.CUSTOM G26/G25 are outside the QEMU Unit data plane. Model not built (docs-only).",
+   "limitations": [
+    "Official User Manual documents legacy I2C 0x5F raw key + 0xF1 firmware version and UART AA03 frame; key-code tables included.",
+    "Upstream cardkb.py also implements a v2 report mode (0x00-0x03, 8-byte report) not present in the manual; firmware version unresolved.",
+    "BLE HID and ESP-NOW modes are not modelable through the QEMU Unit I2C/UART data plane; NOT RUN.",
+    "Grove is PORT.CUSTOM G26/G25 (not admitted host port)."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "8servos2-i2c",
+   "name": "Unit 8Servos2-I2C",
+   "sku": "U222",
+   "visual_asset": {
+    "entry": "src/units/8servos2-i2c/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_8Servos2-I2C",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "INA199A1DCKR",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "8 通道 servo/digital/ADC/RGB/PWM 控制器（STM32G031G8U6+INA199），I2C 0x25 基址+16 档旋钮=0x25-0x34。官方 docs protocol 页 /en/protocol/U222/I2C + 官方 V2.0 协议 PDF + 上游 unit/servos8_v2.py:15-30：0x00 模式、0x10 上下拉、0x20 输入、0x30 输出、0x40 ADC(2B/通道)、0x50 舵机角度、0x60 RGB 配置、0x70 PWM、0x80 RGB 缓冲(4B 步长)、0xD0 定时器频率、0xE0 UID、0xF0 遥测、0xFE FW、0xFF 地址。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 8,
+      "encoding": "每通道模式 0 INPUT/1 OUTPUT/2 ADC/3 SERVOS/4 RGB/5 PWM"
+     },
+     {
+      "register": "0x10",
+      "length": 8,
+      "encoding": "上下拉 0无/1上拉/2下拉"
+     },
+     {
+      "register": "0x20",
+      "length": 8,
+      "encoding": "输入电平 1高/0低"
+     },
+     {
+      "register": "0x30",
+      "length": 8,
+      "encoding": "输出电平"
+     },
+     {
+      "register": "0x40",
+      "length": 16,
+      "encoding": "ADC 12 位，每通道 2B LE（0-4095）"
+     },
+     {
+      "register": "0x50",
+      "length": 8,
+      "encoding": "舵机角度 0-180"
+     },
+     {
+      "register": "0x60",
+      "length": 8,
+      "encoding": "RGB 配置 bit5 刷新/bit4:0 灯数"
+     },
+     {
+      "register": "0x70",
+      "length": 8,
+      "encoding": "PWM 占空比 0-100"
+     },
+     {
+      "register": "0x80-0xBF",
+      "length": 64,
+      "encoding": "RGB 缓冲 16x4B（B/G/R+保留，reg=0x80+i*4）"
+     },
+     {
+      "register": "0xD0",
+      "length": 4,
+      "encoding": "TIM2_FREQ/TIM3_FREQ LE u16（1-65535，舵机 50Hz）"
+     },
+     {
+      "register": "0xE0-0xEB",
+      "length": 12,
+      "encoding": "设备 UID"
+     },
+     {
+      "register": "0xF0",
+      "length": 8,
+      "encoding": "参考电压/Grove 电压/DC 电压(mV)/系统电流(mA) 各 u16 LE + offset/刷新"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 0x25-0x34"
+     }
+    ],
+    "gaps": [
+     "舵机/PWM/WS2812 波形、INA199 电流精度、9-24V 供电、I2C 级联 NOT RUN",
+     "协议页写 STM32F030F4P6，产品页/内部固件 README 写 STM32G031G8U6，MCU 型号冲突",
+     "0xF0 复合寄存器子字段偏移协议页文字与 PDF 排列不完全一致，以内部固件代码为准"
+    ]
+   },
+   "inputs": {
+    "channel-modes": {
+     "type": "array",
+     "label": "8 通道模式 fixture",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "servo-angles": {
+     "type": "array",
+     "label": "8 通道角度 fixture",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 300
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "adc-values": {
+     "type": "array",
+     "label": "8 通道 ADC fixture",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4095
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "rgb-leds": {
+     "type": "array",
+     "label": "8 通道 RGB fixture",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16777215
+     },
+     "minItems": 8,
+     "maxItems": 8
+    }
+   },
+   "outputs": {
+    "channel-modes": {
+     "type": "array",
+     "label": "8 通道模式",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "servo-angles": {
+     "type": "array",
+     "label": "8 通道角度",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "总电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 37,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/Unit_8Servos2-I2C",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U222",
+      "STM32G031G8U6",
+      "8 configurable IO channels: servo/digital/ADC/RGB/PWM",
+      "I2C 0x25-0x34 rotary address",
+      "INA199 current detection",
+      "DC9-24V/5V 3A"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_8Servos2-I2C",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Protocol section not readable in the fetched page text; register layout unresolved"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://docs.m5stack.com/en/protocol/U222/I2C",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Firmware V2.0：I2C 0x25 基址+0-15 旋钮=0x25-0x34，8 通道 6 模式，寄存器总览 0x00-0xF0"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-8Servos2-I2C-Internal-FW/blob/44bdc24af921/protocol/V2/M5Unit-8Servos2-I2C-Protocol-EN_V2.0.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V2.0 2026-07-23 REG MAP(0x25) 完整"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/servos8_v2.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/servos8_v2.py:15-30 寄存器; :57-65 模式; :543-654 遥测/UID"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-8Servos2-I2C-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 44bdc24af921 开源内部固件+协议 PDF+release hex 清单"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: docs protocol page U222/I2C + official V2.0 PDF + upstream unit/servos8_v2.py:15-30; model not built (docs-only). Servo/PWM electrical, 9-24V, INA199 accuracy NOT RUN; MCU part conflict unresolved."
+   },
+   "blocker": "protocol now documented: docs protocol page U222/I2C + official V2.0 PDF + upstream unit/servos8_v2.py:15-30; model not built (docs-only). Servo/PWM electrical, 9-24V, INA199 accuracy NOT RUN; MCU part conflict unresolved.",
+   "limitations": [
+    "Official protocol page + V2.0 PDF + UIFlow2 master driver document full register map.",
+    "MCU part conflict (STM32F030F4P6 page vs STM32G031G8 product/Internal-FW).",
+    "No QEMU model yet; servo/PWM waveforms and power electrical NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "8servos2-chain",
+   "name": "Unit 8Servos2-Chain",
+   "sku": "U223",
+   "visual_asset": {
+    "entry": "src/units/8servos2-chain/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_8Servos2-Chain",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "INA199A1DCKR",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "uart",
+    "connector": "HY2.0-4P",
+    "address_7bit": [],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "UART_RX",
+      "direction": "input"
+     },
+     "white": {
+      "signal": "UART_TX",
+      "direction": "output"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    },
+    "baudrate": 115200
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "8 通道 servo/digital/ADC/RGB/PWM，STM32G031，UART Chain 115200 8N1。官方 docs protocol 页 /en/protocol/U223/UART 给出帧格式 AA 55 len index cmd data crc 55 AA、CRC=(index+cmd+data)&0xFF、0x10-0xFE 命令表、设备类型 0x000C；上游 chain/servos8_v2.py:31-58。",
+    "registers": [
+     {
+      "register": "frame",
+      "length": 0,
+      "encoding": "AA 55 <len_lo> <len_hi> <index> <cmd> <data...> <crc> 55 AA；len=Index..CRC 字节数；CRC=(index+cmd+data)&0xFF"
+     },
+     {
+      "register": "0x10/0x11",
+      "length": 0,
+      "encoding": "设模式（单/多）：0 INPUT/1 OUTPUT/2 ADC/3 SERVO/4 RGB/5 PWM"
+     },
+     {
+      "register": "0x12/0x13",
+      "length": 0,
+      "encoding": "读模式"
+     },
+     {
+      "register": "0x30-0x33",
+      "length": 0,
+      "encoding": "上下拉配置/回读"
+     },
+     {
+      "register": "0x34/0x35",
+      "length": 0,
+      "encoding": "输入电平"
+     },
+     {
+      "register": "0x40-0x43",
+      "length": 0,
+      "encoding": "输出电平"
+     },
+     {
+      "register": "0x50/0x51",
+      "length": 0,
+      "encoding": "ADC 8x u16 LE（0-4095）"
+     },
+     {
+      "register": "0x60-0x63",
+      "length": 0,
+      "encoding": "舵机角度 0-180"
+     },
+     {
+      "register": "0x70-0x77",
+      "length": 0,
+      "encoding": "RGB 配置/缓冲（16 色）"
+     },
+     {
+      "register": "0x80-0x83",
+      "length": 0,
+      "encoding": "PWM 占空比 0-100"
+     },
+     {
+      "register": "0x90-0x93",
+      "length": 0,
+      "encoding": "TIM2/TIM3 频率 1-65535（默认 50Hz）"
+     },
+     {
+      "register": "0xA0-0xA3",
+      "length": 0,
+      "encoding": "参考/Grove/DC 电压 mV、系统电流 mA（u16 LE）"
+     },
+     {
+      "register": "0xF8-0xFE",
+      "length": 0,
+      "encoding": "UID/bootloader/FW/设备类型/枚举/心跳/数量；设备类型=0x000C"
+     }
+    ],
+    "gaps": [
+     "舵机/PWM/WS2812 波形、Chain 多设备拓扑、9-24V/INA199 NOT RUN"
+    ]
+   },
+   "inputs": {
+    "channel-modes": {
+     "type": "array",
+     "label": "8 通道模式 fixture",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7
+     },
+     "minItems": 8,
+     "maxItems": 8
+    }
+   },
+   "outputs": {
+    "channel-modes": {
+     "type": "array",
+     "label": "8 通道模式",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "servo-angles": {
+     "type": "array",
+     "label": "8 通道角度",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "adc-values": {
+     "type": "array",
+     "label": "8 通道 ADC",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "rgb-leds": {
+     "type": "array",
+     "label": "8 通道 RGB",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "总电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/8servos2-chain",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U223",
+      "STM32G031",
+      "8 channel servo/digital/ADC/RGB/PWM",
+      "UART Chain-series cascade",
+      "DC9-24V/5V 3A, INA199"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_8Servos2-Chain",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Protocol is an external document; no readable Chain frame/register table"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://docs.m5stack.com/en/protocol/U223/UART",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "UART Control Protocol V1：帧格式/CRC/0x10-0xFE 命令表/设备类型 0x000C"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/servos8_v2.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "chain/servos8_v2.py:31-58 CMD_SET_MODE..CMD_GET_DEVICE_TYPE; DEVICE_TYPE=0x000C"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/chain.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "chain/chain.py:13-44 Chain 命令/状态/设备类型；:79 CRC；:87 打包"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Chain-Series-Internal-FW/tree/main/Unit-8Servos-Chain",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 421e922663bb：Unit-8Servos-Chain 内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: docs protocol page U223/UART (frame+0x10-0xFE command table+device type 0x000C) + upstream chain/servos8_v2.py:31-58; model not built (docs-only). Servo/PWM waveforms, cascade topology NOT RUN; needs frame-level Chain responder beyond raw UART fixture."
+   },
+   "blocker": "protocol now documented: docs protocol page U223/UART (frame+0x10-0xFE command table+device type 0x000C) + upstream chain/servos8_v2.py:31-58; model not built (docs-only). Servo/PWM waveforms, cascade topology NOT RUN; needs frame-level Chain responder beyond raw UART fixture.",
+   "limitations": [
+    "Official U223/UART protocol page documents Chain frame format, CRC and full command table.",
+    "No QEMU model yet; needs Chain frame responder (CRC/index/cmd) beyond existing raw UART byte fixture.",
+    "Servo/PWM/WS2812 electrical and multi-device topology NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "bmm350",
+   "name": "Unit BMM350",
+   "sku": "U231",
+   "visual_asset": {
+    "entry": "src/units/bmm350/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_BMM350",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "BMM350",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     20
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "BMM350 三轴 TMR 磁力计，I2C 0x14。Bosch datasheet BST-BMM350-DS001-27 Table 8(p.26-28) 给出寄存器图（0x00 CHIP_ID=0x33、0x04 PMU_AGGR、0x05 PMU_AXIS、0x06 PMU_CMD、0x31-0x3C MAG X/Y/Z+TEMP 24-bit、0x50/0x52/0x53/0x55 OTP、0x7E CMD），§9.2.3(p.46) 明确 I2C 读需丢弃前 2 个 dummy 字节；上游 unit/bmm350.py + driver/bmm350.py 完整实现。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "CHIP_ID（=0x33）"
+     },
+     {
+      "register": "0x04",
+      "length": 1,
+      "encoding": "PMU_AGGR（ODR/平均）"
+     },
+     {
+      "register": "0x05",
+      "length": 1,
+      "encoding": "PMU_AXIS"
+     },
+     {
+      "register": "0x06",
+      "length": 1,
+      "encoding": "PMU_CMD"
+     },
+     {
+      "register": "0x31-0x3C",
+      "length": 12,
+      "encoding": "MAG_X/Y/Z 各 24-bit LE + TEMP 24-bit LE"
+     },
+     {
+      "register": "0x50",
+      "length": 1,
+      "encoding": "OTP_CMD"
+     },
+     {
+      "register": "0x52/0x53",
+      "length": 2,
+      "encoding": "OTP_DATA_MSB/LSB"
+     },
+     {
+      "register": "0x55",
+      "length": 1,
+      "encoding": "OTP_STATUS"
+     },
+     {
+      "register": "0x7E",
+      "length": 1,
+      "encoding": "CMD（soft reset 0xB6）"
+     },
+     {
+      "register": "I2C read",
+      "length": 0,
+      "encoding": "每次读需先丢 2 个 dummy 字节（datasheet §9.2.3；驱动 readfrom_mem(reg,size+2)[2:]）"
+     }
+    ],
+    "gaps": [
+     "磁场/航向物理、OTP 校准精度、温度补偿、±2000uT 量程/噪声 NOT RUN",
+     "驱动灵敏度常数（0.007069979 等）与 datasheet 表值逐项核对留待实现"
+    ]
+   },
+   "inputs": {
+    "magnetic-x": {
+     "type": "number",
+     "label": "磁力 X fixture",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2000,
+     "maximum": 2000,
+     "unit": "uT"
+    },
+    "magnetic-y": {
+     "type": "number",
+     "label": "磁力 Y fixture",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2000,
+     "maximum": 2000,
+     "unit": "uT"
+    },
+    "magnetic-z": {
+     "type": "number",
+     "label": "磁力 Z fixture",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2000,
+     "maximum": 2000,
+     "unit": "uT"
+    }
+   },
+   "outputs": {
+    "magnetic-x": {
+     "type": "number",
+     "label": "磁力 X",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2000,
+     "maximum": 2000
+    },
+    "magnetic-y": {
+     "type": "number",
+     "label": "磁力 Y",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2000,
+     "maximum": 2000
+    },
+    "magnetic-z": {
+     "type": "number",
+     "label": "磁力 Z",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2000,
+     "maximum": 2000
+    },
+    "heading-deg": {
+     "type": "number",
+     "label": "航向",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 360
+    },
+    "whoami": {
+     "type": "integer",
+     "label": "CHIP_ID",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 20,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/Unit_BMM350",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U231",
+      "BMM350 3-axis TMR magnetometer",
+      "I2C @0x14, 100/400kHz",
+      "+/-2000uT, ~0.1uT resolution",
+      "heading after calibration",
+      "Port.A"
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Bosch BMM350 datasheet is the only register/OTP source; page has no register table. Local tree has no BMM350 driver."
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm350-ds001.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "BST-BMM350-DS001-27 Table 8 寄存器图 p.26-28",
+      "§9.2.3 dummy bytes p.46：n 字节读实际读 n+2 并丢弃前 2 字节"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1289/bst-bmm350-ds001.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "产品页镜像的同一 Bosch datasheet"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/bmm350.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/bmm350.py:14 class; :31-40 初始化"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/driver/bmm350.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "driver/bmm350.py:12-23 地址/寄存器; :38-57 初始化序列; :117-119 数据读"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: Bosch datasheet Table 8 + upstream unit/bmm350.py and driver/bmm350.py; model not built (docs-only). Magnetometer physics/OTP calibration/thermal NOT RUN."
+   },
+   "blocker": "protocol now documented: Bosch datasheet Table 8 + upstream unit/bmm350.py and driver/bmm350.py; model not built (docs-only). Magnetometer physics/OTP calibration/thermal NOT RUN.",
+   "limitations": [
+    "Bosch datasheet Table 8 documents registers; UIFlow2 master driver implements init/read.",
+    "I2C read requires discarding 2 dummy bytes; QEMU slave must reproduce this.",
+    "Magnetic/heading physics and calibration accuracy NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "ina226-10a",
+   "name": "Unit INA226-10A",
+   "sku": "U200",
+   "visual_asset": {
+    "entry": "src/units/ina226-10a/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_INA226-10A",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "INA226",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     65
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "隔离 INA226 电流/电压监控（0-30V，±10A，5mΩ shunt），I2C 0x41。TI datasheet SBOS547C Table 7-1(p.22)：8 个标准寄存器 + FEh/FFh ID，16-bit big-endian，shunt 2.5uV/LSB、bus 1.25mV/LSB；上游 unit/ina226.py type='10A'（shunt=0.005，cal=0x0C80）+ driver/ina226.py 校准/读公式。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 2,
+      "encoding": "Configuration R/W（POR 0x4127；RST/AVG/VBUSCT/VSHCT/MODE）"
+     },
+     {
+      "register": "0x01",
+      "length": 2,
+      "encoding": "Shunt Voltage R（2.5uV/LSB，±81.92mV）"
+     },
+     {
+      "register": "0x02",
+      "length": 2,
+      "encoding": "Bus Voltage R（1.25mV/LSB，0-40.96V）"
+     },
+     {
+      "register": "0x03",
+      "length": 2,
+      "encoding": "Power R"
+     },
+     {
+      "register": "0x04",
+      "length": 2,
+      "encoding": "Current R"
+     },
+     {
+      "register": "0x05",
+      "length": 2,
+      "encoding": "Calibration R/W（10A 版=0x0C80）"
+     },
+     {
+      "register": "0x06",
+      "length": 2,
+      "encoding": "Mask/Enable R/W"
+     },
+     {
+      "register": "0x07",
+      "length": 2,
+      "encoding": "Alert Limit R/W"
+     },
+     {
+      "register": "0xFE",
+      "length": 2,
+      "encoding": "Manufacturer ID=0x5449"
+     },
+     {
+      "register": "0xFF",
+      "length": 2,
+      "encoding": "Die ID=0x2260/0x2261"
+     }
+    ],
+    "gaps": [
+     "隔离/±10A/5mΩ/精度/温漂/自恢复保险 NOT RUN",
+     "与 ina226-1a 同地址 0x41，同一总线二选一"
+    ]
+   },
+   "inputs": {
+    "bus-voltage-v": {
+     "type": "number",
+     "label": "总线电压 fixture",
+     "default": 5.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": 0,
+     "maximum": 30,
+     "unit": "V"
+    },
+    "current-a": {
+     "type": "number",
+     "label": "电流 fixture",
+     "default": 1.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -10,
+     "maximum": 10,
+     "unit": "A"
+    }
+   },
+   "outputs": {
+    "bus-voltage-v": {
+     "type": "number",
+     "label": "总线电压",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 30
+    },
+    "current-a": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -10,
+     "maximum": 10
+    },
+    "power-w": {
+     "type": "number",
+     "label": "功率",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 65,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/Unit_INA226-10A",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U200",
+      "INA226 16-bit ADC",
+      "I2C @0x41",
+      "0-30V, +/-10A bidirectional, 5mOhm shunt",
+      "electrical isolation + self-resetting fuse"
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.ti.com/product/INA226",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "TI INA226 datasheet is the register/calibration source; product page has no register table and the local tree has no INA226 driver."
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SBOS547C Table 7-1 寄存器集 p.22；Table 7-2/7-3/7-4 config/AVG/VBUSCT 位域"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1171/INA226.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "产品页镜像 TI datasheet"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/ina226.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/ina226.py:8 class; :30-43 type=10A shunt=0.005 cal=0x0C80"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/driver/ina226.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "driver/ina226.py:33-42 寄存器; :117-231 校准/读数公式"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: TI INA226 SBOS547C Table 7-1 + upstream unit/ina226.py (type=10A) and driver/ina226.py; model not built (docs-only). Isolation/accuracy/fuse/thermal NOT RUN; shares 0x41 with ina226-1a."
+   },
+   "blocker": "protocol now documented: TI INA226 SBOS547C Table 7-1 + upstream unit/ina226.py (type=10A) and driver/ina226.py; model not built (docs-only). Isolation/accuracy/fuse/thermal NOT RUN; shares 0x41 with ina226-1a.",
+   "limitations": [
+    "TI datasheet Table 7-1 and UIFlow2 master INA226 driver document register map and calibration.",
+    "No QEMU model yet; isolation/accuracy/fuse/thermal NOT RUN.",
+    "0x41 shared with ina226-1a (different shunt/cal)."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "ina226-1a",
+   "name": "Unit INA226-1A",
+   "sku": "U200-1A",
+   "visual_asset": {
+    "entry": "src/units/ina226-1a/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_INA226-1A",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "INA226",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     65
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "隔离 INA226 电流/电压/功率监控（0-30V，±1A，80mΩ shunt），I2C 0x41。TI datasheet SBOS547C Table 7-1 同一寄存器集；上游 unit/ina226.py type='1A'（shunt=0.08，cal=0x0800，注释 0x811 与代码不一致，代码为准）+ driver/ina226.py 校准公式。",
+    "registers": [
+     {
+      "register": "0x00-0x08",
+      "length": 16,
+      "encoding": "标准 INA226 8 寄存器（config/shunt/bus/power/current/calibration/mask/alert，16-bit big-endian）"
+     },
+     {
+      "register": "0xFE/0xFF",
+      "length": 4,
+      "encoding": "Manufacturer ID 0x5449 / Die ID 0x2260；1A 版 cal=0x0800（current_lsb=3.125e-5 A）"
+     }
+    ],
+    "gaps": [
+     "隔离/±1A/80mΩ/精度/温漂/保险 NOT RUN",
+     "驱动注释 0x811 与代码 0x0800 冲突，实现时以 TI 公式+代码复核",
+     "与 ina226-10a 同地址 0x41"
+    ]
+   },
+   "inputs": {
+    "bus-voltage-v": {
+     "type": "number",
+     "label": "总线电压 fixture",
+     "default": 5.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": 0,
+     "maximum": 30,
+     "unit": "V"
+    },
+    "current-a": {
+     "type": "number",
+     "label": "电流 fixture",
+     "default": 1.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -1,
+     "maximum": 1,
+     "unit": "A"
+    }
+   },
+   "outputs": {
+    "bus-voltage-v": {
+     "type": "number",
+     "label": "总线电压",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 30
+    },
+    "current-a": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -1,
+     "maximum": 1
+    },
+    "power-w": {
+     "type": "number",
+     "label": "功率",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 65,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/ina226-1a",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U200-1A",
+      "INA226",
+      "I2C @0x41",
+      "0-30V, +/-1A bidirectional, 80mOhm shunt"
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.ti.com/product/INA226",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "TI INA226 datasheet is the only register/calibration source; local tree has no INA226 driver"
+     ]
+    },
+    {
+     "kind": "datasheet-reference",
+     "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SBOS547C Table 7-1 寄存器集 p.22"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1171/INA226.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "产品页镜像 TI datasheet"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/ina226.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/ina226.py:31-34 type=1A shunt=0.08 cal=0x0800（注释 0x811 不一致）"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/driver/ina226.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "driver/ina226.py:117-231 校准/读数公式"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: TI INA226 SBOS547C Table 7-1 + upstream unit/ina226.py (type=1A); model not built (docs-only). Isolation/accuracy/fuse/thermal NOT RUN; calibration comment/code discrepancy to resolve; shares 0x41 with ina226-10a."
+   },
+   "blocker": "protocol now documented: TI INA226 SBOS547C Table 7-1 + upstream unit/ina226.py (type=1A); model not built (docs-only). Isolation/accuracy/fuse/thermal NOT RUN; calibration comment/code discrepancy to resolve; shares 0x41 with ina226-10a.",
+   "limitations": [
+    "TI datasheet Table 7-1 + UIFlow2 master INA226 driver (type=1A) document register map/calibration.",
+    "Driver comment says 0x811 while code uses 0x0800; resolve against TI formula before implementation.",
+    "No QEMU model yet; isolation/accuracy/thermal NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "rollercan",
+   "name": "Unit RollerCAN",
+   "sku": "U188",
+   "visual_asset": {
+    "entry": "src/units/rollercan/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit-RollerCAN",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G431CBU6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "DRV8311HRRWR",
+     "status": "officially-documented"
+    },
+    {
+     "part": "D3504 200KV",
+     "status": "officially-documented"
+    },
+    {
+     "part": "TLI5012BE1000",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     100
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    },
+    "note": "also 2x CAN (XT30) on the same product; this catalog entry models the I2C 0x64 attachment only"
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "BLDC 电机套件（STM32G431+DRV8311+D3504 200KV+TLI5012，含滑环），I2C 0x64 + 2x CAN。官方协议 PDF（I2C/CAN）与 Internal-FW 仓库最新 Markdown V3.1(2026-08-24)：I2C 0x00-0xFF 完整寄存器总览（电机控制/状态/速度/位置/PID/电流/UID/校准/地址，产品设备 ID 0x02、FW 3）；CAN 2.0 扩展帧 29-bit、默认 1Mbps、cmd_id/para 位段、参数索引 0x7002-0x7072。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "电机输出 0/1"
+     },
+     {
+      "register": "0x01",
+      "length": 1,
+      "encoding": "模式 1速度/2位置/3电流/4编码器"
+     },
+     {
+      "register": "0x0A",
+      "length": 1,
+      "encoding": "位置超范围保护"
+     },
+     {
+      "register": "0x0B",
+      "length": 1,
+      "encoding": "解除堵转（写非零）"
+     },
+     {
+      "register": "0x0C",
+      "length": 1,
+      "encoding": "系统状态 0待机/1运行/2错误"
+     },
+     {
+      "register": "0x0D",
+      "length": 1,
+      "encoding": "错误位 bit0过压/bit1堵转/bit2超范围"
+     },
+     {
+      "register": "0x0E",
+      "length": 1,
+      "encoding": "按键切换模式"
+     },
+     {
+      "register": "0x0F",
+      "length": 1,
+      "encoding": "堵转保护"
+     },
+     {
+      "register": "0x10",
+      "length": 1,
+      "encoding": "CAN ID"
+     },
+     {
+      "register": "0x11",
+      "length": 1,
+      "encoding": "CAN 波特率 0=1M/1=500k/2=125k"
+     },
+     {
+      "register": "0x12",
+      "length": 1,
+      "encoding": "RGB 亮度"
+     },
+     {
+      "register": "0x20-0x23",
+      "length": 4,
+      "encoding": "位置环最大电流 X100mA"
+     },
+     {
+      "register": "0x30-0x33",
+      "length": 4,
+      "encoding": "RGB B/G/R+模式"
+     },
+     {
+      "register": "0x34-0x37",
+      "length": 4,
+      "encoding": "输入电压 X100V"
+     },
+     {
+      "register": "0x38-0x3B",
+      "length": 4,
+      "encoding": "MCU 温度"
+     },
+     {
+      "register": "0x3C-0x3F",
+      "length": 4,
+      "encoding": "编码器计数"
+     },
+     {
+      "register": "0x40-0x43",
+      "length": 4,
+      "encoding": "速度目标 X100rpm"
+     },
+     {
+      "register": "0x50-0x53",
+      "length": 4,
+      "encoding": "速度环最大电流"
+     },
+     {
+      "register": "0x60-0x63",
+      "length": 4,
+      "encoding": "实际速度"
+     },
+     {
+      "register": "0x70-0x7B",
+      "length": 12,
+      "encoding": "速度 PID"
+     },
+     {
+      "register": "0x80-0x83",
+      "length": 4,
+      "encoding": "旧格式目标位置 0.01deg"
+     },
+     {
+      "register": "0x88-0x8D",
+      "length": 6,
+      "encoding": "扩展目标位置（圈数+圈内角度）"
+     },
+     {
+      "register": "0x90-0x93",
+      "length": 4,
+      "encoding": "旧格式实际位置"
+     },
+     {
+      "register": "0x98-0x9D",
+      "length": 6,
+      "encoding": "扩展实际位置"
+     },
+     {
+      "register": "0xA0-0xAB",
+      "length": 12,
+      "encoding": "位置 PID"
+     },
+     {
+      "register": "0xB0-0xB3",
+      "length": 4,
+      "encoding": "电流目标"
+     },
+     {
+      "register": "0xC0-0xC3",
+      "length": 4,
+      "encoding": "实际电流"
+     },
+     {
+      "register": "0xE0-0xEB",
+      "length": 12,
+      "encoding": "STM32 UID"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "保存参数"
+     },
+     {
+      "register": "0xF1-0xF3",
+      "length": 3,
+      "encoding": "编码器校准"
+     },
+     {
+      "register": "0xF4",
+      "length": 1,
+      "encoding": "产品设备 ID=0x02"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本=3"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 0x08-0x77"
+     },
+     {
+      "register": "CAN frame",
+      "length": 0,
+      "encoding": "29-bit ext ID：cmd_id<<24|cmd_para<<16|option<<8|node；0x00 发现/0x02 状态(speed/pos/current/voltage int16)/0x03 使能/0x04 停止/0x07 设ID/0x09 解除堵转/0x0A 保存/0x0B 波特率/0x0C-0x0F 保护；0x11/0x12 单参数读写，0x13/0x14 按 I2C 地址访问，0x15/0x16 原始 I2C 转发，0x17/0x18 扩展位置"
+     }
+    ],
+    "gaps": [
+     "FOC/电机/编码器物理、温升/电流环、6-16V 供电、滑环/OLED/RGB/按键 NOT RUN",
+     "CAN 电气/位定时/过滤 NOT RUN（依赖 0145 CanBusClient 观测面）",
+     "I2C 0x64 与 roller485/rollercan-lite 冲突"
+    ]
+   },
+   "inputs": {
+    "mode": {
+     "type": "string",
+     "label": "运动模式 fixture",
+     "default": "speed",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "enum": [
+      "speed",
+      "position",
+      "current",
+      "dial"
+     ]
+    },
+    "target-speed-rpm": {
+     "type": "number",
+     "label": "目标速度 fixture",
+     "default": 100.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2100,
+     "maximum": 2100,
+     "unit": "rpm"
+    },
+    "target-position-deg": {
+     "type": "number",
+     "label": "目标位置 fixture",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -3600,
+     "maximum": 3600,
+     "unit": "deg"
+    }
+   },
+   "outputs": {
+    "mode": {
+     "type": "string",
+     "label": "当前模式",
+     "default": "speed",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "actual-speed-rpm": {
+     "type": "number",
+     "label": "实际速度",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2100,
+     "maximum": 2100
+    },
+    "actual-position-deg": {
+     "type": "number",
+     "label": "实际位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -3600,
+     "maximum": 3600
+    },
+    "encoder-pos": {
+     "type": "integer",
+     "label": "编码器位置",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2147483648,
+     "maximum": 2147483647
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "fault": {
+     "type": "integer",
+     "label": "故障码",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 100,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/Unit-RollerCAN",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U188",
+      "STM32G431CBU6 + DRV8311 + D3504 200KV + TLI5012",
+      "2x CAN (XT30) + 2x I2C (0x64)",
+      "0.66-inch 64x48 OLED, 2x WS2812, button, slip ring",
+      "FOC closed-loop current/speed/position",
+      "encoder 36000 pos = 360 deg (~2 deg mount error)"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit-RollerCAN",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Communication Protocols is an external document; page has no I2C register/CAN frame table"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/779/Unit-RollerCAN-I2C-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "I2C Control Protocol（官方产品页链接）"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/779/Unit-RollerCAN-CAN-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "CAN Control Protocol（官方产品页链接）"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW/blob/20039c84b122/protocol/M5Stack-Unit-RollerCAN-I2C-Protocol.md",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V3.1 2026-08-24 I2C 寄存器总览/逐寄存器说明/设备ID 0x02"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW/blob/20039c84b122/protocol/M5Stack-Unit-RollerCAN-CAN-Protocol.md",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V3.1 2026-08-24 CAN 帧格式/命令表/参数索引 0x7002-0x7072"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/rollercan.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/rollercan.py:17-63 地址/寄存器/CAN 命令; :554 RollerCAN"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 20039c84b122 开源内部固件+协议 md/xlsx+release firmware"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official I2C/CAN protocol PDFs + Internal-FW V3.1 protocol Markdown + upstream unit/rollercan.py; model not built (docs-only). Motor/FOC/encoder physics, 6-16V, OLED/RGB/slip-ring/thermal NOT RUN; CAN electrical not modeled."
+   },
+   "blocker": "protocol now documented: official I2C/CAN protocol PDFs + Internal-FW V3.1 protocol Markdown + upstream unit/rollercan.py; model not built (docs-only). Motor/FOC/encoder physics, 6-16V, OLED/RGB/slip-ring/thermal NOT RUN; CAN electrical not modeled.",
+   "limitations": [
+    "Official RollerCAN I2C and CAN protocol documents (V3.1 in Internal-FW repo) define registers and frames.",
+    "No QEMU model yet; motor/FOC/encoder physical behavior and CAN electrical NOT RUN.",
+    "0x64 conflicts with roller485 and rollercan-lite; one per bus."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "rollercan-lite",
+   "name": "Unit RollerCAN-Lite",
+   "sku": "U188-Lite",
+   "visual_asset": {
+    "entry": "src/units/rollercan-lite/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit-RollerCAN%20Lite",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G431CBU6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "DRV8311HRRWR",
+     "status": "officially-documented"
+    },
+    {
+     "part": "D3504 200KV",
+     "status": "officially-documented"
+    },
+    {
+     "part": "TLI5012BE1000",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     100
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "BLDC 电机套件无滑环版（STM32G431+DRV8311+D3504+TLI5012），I2C 0x64 + CAN。官方产品页链接与 RollerCAN 相同的 I2C/CAN 协议 PDF，共用 Internal-FW 仓库与上游 unit/rollercan.py；协议层按同族处理。",
+    "registers": [
+     {
+      "register": "same-as-rollercan",
+      "length": 0,
+      "encoding": "I2C 0x00-0xFF 寄存器总览（产品设备 ID 0x02、FW 3、默认地址 0x64）与 CAN 0x00-0x18 命令/参数索引 0x7002-0x7072 同 rollerCAN"
+     }
+    ],
+    "gaps": [
+     "lite 与标准版电流/机械差异未逐项核对",
+     "FOC/电机/编码器物理、6-16V、OLED/RGB/热 NOT RUN",
+     "I2C 0x64 冲突同 rollerCAN"
+    ]
+   },
+   "inputs": {
+    "mode": {
+     "type": "string",
+     "label": "运动模式",
+     "default": "speed",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "enum": [
+      "speed",
+      "position",
+      "current",
+      "dial"
+     ]
+    },
+    "target-speed-rpm": {
+     "type": "number",
+     "label": "目标速度",
+     "default": 100.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2100,
+     "maximum": 2100,
+     "unit": "rpm"
+    },
+    "target-position-deg": {
+     "type": "number",
+     "label": "目标位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -3600,
+     "maximum": 3600,
+     "unit": "deg"
+    }
+   },
+   "outputs": {
+    "actual-speed-rpm": {
+     "type": "number",
+     "label": "实际速度",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2100,
+     "maximum": 2100
+    },
+    "actual-position-deg": {
+     "type": "number",
+     "label": "实际位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -3600,
+     "maximum": 3600
+    },
+    "encoder-pos": {
+     "type": "integer",
+     "label": "编码器位置",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2147483648,
+     "maximum": 2147483647
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "fault": {
+     "type": "integer",
+     "label": "故障码",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 100,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/rollercan-lite",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U188-Lite",
+      "STM32G431/DRV8311/D3504/TLI5012",
+      "without slip ring",
+      "CAN/I2C @0x64",
+      "0.66-inch 64x48 OLED, 2x WS2812"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit-RollerCAN%20Lite",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Communication Protocols is an external document; no I2C/CAN frame table on the page"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/779/Unit-RollerCAN-I2C-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "官方产品页链接的 I2C 协议"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/779/Unit-RollerCAN-CAN-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "官方产品页链接的 CAN 协议"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/rollercan.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/rollercan.py:17-63; 同族寄存器/帧"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 20039c84b122 同族内部固件/协议文档"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented (same as RollerCAN): official I2C/CAN protocol docs + upstream unit/rollercan.py; model not built (docs-only). Lite hardware deltas not itemized; motor/FOC/encoder physics NOT RUN."
+   },
+   "blocker": "protocol now documented (same as RollerCAN): official I2C/CAN protocol docs + upstream unit/rollercan.py; model not built (docs-only). Lite hardware deltas not itemized; motor/FOC/encoder physics NOT RUN.",
+   "limitations": [
+    "Shares RollerCAN protocol documents and UIFlow2 master driver; treated as same protocol family.",
+    "No QEMU model yet; motor/FOC/encoder physical behavior NOT RUN.",
+    "0x64 conflicts with roller485 and rollercan; one per bus."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "roller485",
+   "name": "Unit Roller485",
+   "sku": "U182",
+   "visual_asset": {
+    "entry": "src/units/roller485/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G431CBU6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "DRV8311HRRWR",
+     "status": "officially-documented"
+    },
+    {
+     "part": "D3504 200KV",
+     "status": "officially-documented"
+    },
+    {
+     "part": "TLI5012BE1000",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     100
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "BLDC 电机套件含滑环（STM32G431+DRV8311+D3504+TLI5012），I2C 0x64 + RS485。官方 I2C/RS485 协议 PDF 与 Internal-FW 仓库最新 Markdown V2.2/V2.3(2026-09-02)：I2C 0x00-0xFF 寄存器总览（产品设备 ID 0x01、FW 3）；RS485 8N1 115200/19200/9600、15B 请求/17B 响应、CRC-8/MAXIM、I2C 转发 0x60-0x63。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "电机输出"
+     },
+     {
+      "register": "0x01",
+      "length": 1,
+      "encoding": "模式 1速度/2位置/3电流/4编码器"
+     },
+     {
+      "register": "0x0A",
+      "length": 1,
+      "encoding": "位置超范围保护"
+     },
+     {
+      "register": "0x0B",
+      "length": 1,
+      "encoding": "解除堵转"
+     },
+     {
+      "register": "0x0C",
+      "length": 1,
+      "encoding": "系统状态"
+     },
+     {
+      "register": "0x0D",
+      "length": 1,
+      "encoding": "错误位 bit0过压/bit1堵转/bit2超范围"
+     },
+     {
+      "register": "0x0E",
+      "length": 1,
+      "encoding": "按键切换模式"
+     },
+     {
+      "register": "0x0F",
+      "length": 1,
+      "encoding": "堵转保护"
+     },
+     {
+      "register": "0x10",
+      "length": 1,
+      "encoding": "RS485 Motor ID 0-255"
+     },
+     {
+      "register": "0x11",
+      "length": 1,
+      "encoding": "RS485 波特率 0=115200/1=19200/2=9600"
+     },
+     {
+      "register": "0x12",
+      "length": 1,
+      "encoding": "RGB 亮度 0-100"
+     },
+     {
+      "register": "0x20-0x23",
+      "length": 4,
+      "encoding": "位置环最大电流 X100mA"
+     },
+     {
+      "register": "0x30-0x33",
+      "length": 4,
+      "encoding": "RGB B/G/R+模式"
+     },
+     {
+      "register": "0x34-0x37",
+      "length": 4,
+      "encoding": "VIN X100V"
+     },
+     {
+      "register": "0x38-0x3B",
+      "length": 4,
+      "encoding": "MCU 温度"
+     },
+     {
+      "register": "0x3C-0x3F",
+      "length": 4,
+      "encoding": "编码器计数"
+     },
+     {
+      "register": "0x40-0x43",
+      "length": 4,
+      "encoding": "速度目标 X100rpm"
+     },
+     {
+      "register": "0x50-0x53",
+      "length": 4,
+      "encoding": "速度环最大电流"
+     },
+     {
+      "register": "0x60-0x63",
+      "length": 4,
+      "encoding": "实际速度"
+     },
+     {
+      "register": "0x70-0x7B",
+      "length": 12,
+      "encoding": "速度 PID"
+     },
+     {
+      "register": "0x80-0x83",
+      "length": 4,
+      "encoding": "旧格式目标位置"
+     },
+     {
+      "register": "0x88-0x8D",
+      "length": 6,
+      "encoding": "扩展目标位置"
+     },
+     {
+      "register": "0x90-0x93",
+      "length": 4,
+      "encoding": "旧格式实际位置"
+     },
+     {
+      "register": "0x98-0x9D",
+      "length": 6,
+      "encoding": "扩展实际位置"
+     },
+     {
+      "register": "0xA0-0xAB",
+      "length": 12,
+      "encoding": "位置 PID"
+     },
+     {
+      "register": "0xB0-0xB3",
+      "length": 4,
+      "encoding": "电流目标"
+     },
+     {
+      "register": "0xC0-0xC3",
+      "length": 4,
+      "encoding": "实际电流"
+     },
+     {
+      "register": "0xE0-0xEB",
+      "length": 12,
+      "encoding": "UID"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "保存"
+     },
+     {
+      "register": "0xF1-0xF3",
+      "length": 3,
+      "encoding": "编码器校准"
+     },
+     {
+      "register": "0xF4",
+      "length": 1,
+      "encoding": "产品设备 ID=0x01"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "FW=3"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 0x08-0x77"
+     },
+     {
+      "register": "RS485 frame",
+      "length": 0,
+      "encoding": "请求 15B: Cmd MotorID Data0..11 CRC8（无帧头）；响应 17B: AA 55 RespCmd MotorID Data0..11 CRC8；短查询 4B；I2C 转发 0x60/0x61/0x62/0x63；CRC8=MAXIM 初值0 多项式0x8C"
+     }
+    ],
+    "gaps": [
+     "FOC/电机/编码器物理、6-16V/过压/堵转/温升、滑环/OLED/RGB NOT RUN",
+     "RS485 电气/终端电阻 NOT RUN；需 UART+方向控制 attachment",
+     "I2C 0x64 与 rollercan 族冲突"
+    ]
+   },
+   "inputs": {
+    "mode": {
+     "type": "string",
+     "label": "运动模式",
+     "default": "speed",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "enum": [
+      "speed",
+      "position",
+      "current",
+      "dial"
+     ]
+    },
+    "target-speed-rpm": {
+     "type": "number",
+     "label": "目标速度",
+     "default": 100.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2100,
+     "maximum": 2100,
+     "unit": "rpm"
+    },
+    "target-position-deg": {
+     "type": "number",
+     "label": "目标位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -3600,
+     "maximum": 3600,
+     "unit": "deg"
+    }
+   },
+   "outputs": {
+    "actual-speed-rpm": {
+     "type": "number",
+     "label": "实际速度",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2100,
+     "maximum": 2100
+    },
+    "actual-position-deg": {
+     "type": "number",
+     "label": "实际位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -3600,
+     "maximum": 3600
+    },
+    "encoder-pos": {
+     "type": "integer",
+     "label": "编码器位置",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2147483648,
+     "maximum": 2147483647
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "fault": {
+     "type": "integer",
+     "label": "故障码",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 100,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/roller485",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U182",
+      "STM32G431/DRV8311/D3504/TLI5012",
+      "with slip ring",
+      "RS485/I2C @0x64",
+      "0.66-inch 64x48 OLED, 2x WS2812",
+      "position 123.4deg*100 4-byte example in FAQ"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-I2C-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "I2C Control Protocol（官方产品页链接）"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-RS485-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "RS485 Control Protocol（官方产品页链接）"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-Roller485-Internal-FW/blob/7216b24a264e/protocol/M5Stack-Unit-Roller485-I2C-Protocol.md",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V2.2 2026-09-02 I2C 寄存器总览/逐寄存器说明/设备ID 0x01"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-Roller485-Internal-FW/blob/7216b24a264e/protocol/M5Stack-Unit-Roller485-RS485-Protocol.md",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V2.3 2026-09-02 RS485 帧格式/命令集/CRC8"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/roller485.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/roller485.py:17-62 地址/寄存器; :508 Roller485; :649 _crc8"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-Roller485-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 7216b24a264e 开源内部固件+协议 md/xlsx+release firmware"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official I2C/RS485 protocol PDFs + Internal-FW V2.2/V2.3 Markdown + upstream unit/roller485.py; model not built (docs-only). Motor/FOC/encoder physics, 6-16V, slip-ring/OLED/RGB, RS485 electrical NOT RUN."
+   },
+   "blocker": "protocol now documented: official I2C/RS485 protocol PDFs + Internal-FW V2.2/V2.3 Markdown + upstream unit/roller485.py; model not built (docs-only). Motor/FOC/encoder physics, 6-16V, slip-ring/OLED/RGB, RS485 electrical NOT RUN.",
+   "limitations": [
+    "Official Roller485 I2C and RS485 protocol documents define registers and frames.",
+    "No QEMU model yet; RS485 needs UART+direction attachment; motor physics NOT RUN.",
+    "0x64 conflicts with rollercan family; one per bus."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "roller485-lite",
+   "name": "Unit Roller485-Lite",
+   "sku": "U182-Lite",
+   "visual_asset": {
+    "entry": "src/units/roller485-lite/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit-Roller485%20Lite",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G431CBU6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "DRV8311HRRWR",
+     "status": "officially-documented"
+    },
+    {
+     "part": "D3504 200KV",
+     "status": "officially-documented"
+    },
+    {
+     "part": "TLI5012BE1000",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     100
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "BLDC 电机套件无滑环版（STM32G431+DRV8311+D3504+TLI5012），I2C 0x64 + RS485。官方产品页链接与 Roller485 相同的 I2C/RS485 协议 PDF，共用 Internal-FW 仓库与上游 unit/roller485.py；协议层按同族处理。",
+    "registers": [
+     {
+      "register": "same-as-roller485",
+      "length": 0,
+      "encoding": "I2C 0x00-0xFF 寄存器总览（设备 ID 0x01、FW 3、默认 0x64）与 RS485 15B/17B 帧、CRC-8/MAXIM、I2C 转发 0x60-0x63 同 Roller485"
+     }
+    ],
+    "gaps": [
+     "lite 与标准版硬件差异未逐项核对",
+     "FOC/电机/编码器物理、6-16V、OLED/RGB、RS485 电气 NOT RUN",
+     "I2C 0x64 冲突同 Roller485"
+    ]
+   },
+   "inputs": {
+    "mode": {
+     "type": "string",
+     "label": "运动模式",
+     "default": "speed",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "enum": [
+      "speed",
+      "position",
+      "current",
+      "dial"
+     ]
+    },
+    "target-speed-rpm": {
+     "type": "number",
+     "label": "目标速度",
+     "default": 100.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -2100,
+     "maximum": 2100,
+     "unit": "rpm"
+    },
+    "target-position-deg": {
+     "type": "number",
+     "label": "目标位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": -3600,
+     "maximum": 3600,
+     "unit": "deg"
+    }
+   },
+   "outputs": {
+    "actual-speed-rpm": {
+     "type": "number",
+     "label": "实际速度",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2100,
+     "maximum": 2100
+    },
+    "actual-position-deg": {
+     "type": "number",
+     "label": "实际位置",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -3600,
+     "maximum": 3600
+    },
+    "encoder-pos": {
+     "type": "integer",
+     "label": "编码器位置",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -2147483648,
+     "maximum": 2147483647
+    },
+    "current-ma": {
+     "type": "number",
+     "label": "电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "fault": {
+     "type": "integer",
+     "label": "故障码",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 100,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/roller485-lite",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U182-Lite",
+      "STM32G431/DRV8311/D3504/TLI5012",
+      "without slip ring",
+      "RS485/I2C @0x64",
+      "0.66-inch 64x48 OLED, 2x WS2812",
+      "position 123.4deg*100 4-byte example in FAQ"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit-Roller485%20Lite",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-I2C-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "官方产品页链接的 I2C 协议"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-RS485-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "官方产品页链接的 RS485 协议"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/roller485.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/roller485.py:17-62; 同族寄存器/帧"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-Roller485-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 7216b24a264e 同族内部固件/协议文档"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented (same as Roller485); model not built (docs-only). Lite hardware deltas not itemized; motor/FOC/encoder physics and RS485 electrical NOT RUN."
+   },
+   "blocker": "protocol now documented (same as Roller485); model not built (docs-only). Lite hardware deltas not itemized; motor/FOC/encoder physics and RS485 electrical NOT RUN.",
+   "limitations": [
+    "Shares Roller485 protocol documents and UIFlow2 master driver; treated as same protocol family.",
+    "No QEMU model yet; motor/FOC/encoder physical behavior NOT RUN.",
+    "0x64 conflicts with rollercan; one per bus."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "byteswitch",
+   "name": "Unit ByteSwitch",
+   "sku": "U191",
+   "visual_asset": {
+    "entry": "src/units/byteswitch/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit%20ByteSwitch",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "WS2812C-2020",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     70
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "8 路 DPDT 拨动开关 + 9x WS2812C，STM32G031，I2C 0x46。官方 V1 协议 PDF 给出完整 0x00-0xFF 寄存器表；上游 UIFlow2 master f20d5a0 的 unit/bytebutton.py 用共享 ByteUnit/ByteSwitchUnit 实现（I2C 0x46），Internal-FW 仓库开源。可建 I2C 寄存器文件模型。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "8 路开关状态位图 bit0-bit7"
+     },
+     {
+      "register": "0x60",
+      "length": 8,
+      "encoding": "每路开关单独 1 字节 0/1"
+     },
+     {
+      "register": "0x10-0x18",
+      "length": 9,
+      "encoding": "LED0-LED8 亮度 0-255"
+     },
+     {
+      "register": "0x19",
+      "length": 1,
+      "encoding": "LED 显示模式 0=user 1=sys"
+     },
+     {
+      "register": "0x20-0x4F",
+      "length": 48,
+      "encoding": "user RGB888 9 灯 x 4 字节步长（B/G/R+保留，reg=0x20+(n//4)*0x10+(n%4)*4）"
+     },
+     {
+      "register": "0x50-0x58",
+      "length": 9,
+      "encoding": "user RGB233（bit7:6=R,bit5:3=G,bit2:0=B）"
+     },
+     {
+      "register": "0x70-0x8F",
+      "length": 32,
+      "encoding": "sys RGB888（switch=0 态）"
+     },
+     {
+      "register": "0x90-0xAF",
+      "length": 32,
+      "encoding": "sys RGB888（switch=1 态）"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "写 1 保存到 Flash"
+     },
+     {
+      "register": "0xF1",
+      "length": 1,
+      "encoding": "IRQ enable（PA13 变 IRQ，读 0x00 清中断）"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 1-127"
+     }
+    ],
+    "gaps": [
+     "开关机械/拨动电气、IRQ 电气、WS2812 光学、双 Grove 级联 NOT RUN",
+     "0x00 位图 1 的物理含义 PDF 未写（按驱动 get_switch_state read==0 反推闭合）待真机确认"
+    ]
+   },
+   "inputs": {
+    "switch-states": {
+     "type": "array",
+     "label": "8 路拨动开关 fixture",
+     "default": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "boolean"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    }
+   },
+   "outputs": {
+    "switch-states": {
+     "type": "array",
+     "label": "8 路拨动开关",
+     "default": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "boolean"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "led-rgb": {
+     "type": "array",
+     "label": "9 灯 RGB",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16777215
+     },
+     "minItems": 9,
+     "maxItems": 9
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 70,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/byteswitch",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U191",
+      "STM32G031",
+      "8 DPDT switches + 9x WS2812C",
+      "I2C @0x46",
+      "dual Grove cascade"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit%20ByteSwitch",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Protocol table not readable in page text; register map unresolved"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/820/Byte_Switch_protocol.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2024-06-19 完整 REG MAP(0x46) 0x00-0xFF",
+      "0x00 位图/0x60 单通道/0x10-0x19 LED/0x20-0xAF RGB/0xF0-0xFF 系统"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/bytebutton.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/bytebutton.py:5 BYTESWITCH_I2C_ADDRESS=0x46; :12-23 寄存器; :348 ByteSwitchUnit",
+      "unit/__init__.py:23 ByteSwitchUnit->bytebutton"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-ByteSwitch-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD ecc1b0c1dd71 开源内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official V1 protocol PDF (0x00-0xFF) + upstream UIFlow2 master driver unit/bytebutton.py:5-23,348 + open Internal-FW repo; model not built in this docs-only round. Mechanical/electrical/IRQ polarity NOT RUN."
+   },
+   "blocker": "protocol now documented: official V1 protocol PDF (0x00-0xFF) + upstream UIFlow2 master driver unit/bytebutton.py:5-23,348 + open Internal-FW repo; model not built in this docs-only round. Mechanical/electrical/IRQ polarity NOT RUN.",
+   "limitations": [
+    "Official V1 I2C protocol PDF documents full register map; UIFlow2 master has shared bytebutton driver (0x46/0x47).",
+    "No QEMU model yet; switch mechanics, IRQ electrical and WS2812 optics NOT RUN.",
+    "仅登记 planned 契约；本批只补协议证据，不建模型、不猜未公开字段。"
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "bytebutton",
+   "name": "Unit ByteButton",
+   "sku": "U192",
+   "visual_asset": {
+    "entry": "src/units/bytebutton/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit%20ByteButton",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "WS2812C-2020",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     71
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "8 按键 + 9x WS2812C，STM32G031，I2C 0x47。官方 V1 协议 PDF 与 ByteSwitch 同构寄存器表；上游 UIFlow2 master f20d5a0 的 unit/bytebutton.py:341 ByteButtonUnit（get_button_state 返回 read==0，按下=0）。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "8 按键状态位图 bit0-bit7"
+     },
+     {
+      "register": "0x60",
+      "length": 8,
+      "encoding": "每键单独 1 字节（驱动按下=0）"
+     },
+     {
+      "register": "0x10-0x18",
+      "length": 9,
+      "encoding": "LED0-LED8 亮度"
+     },
+     {
+      "register": "0x19",
+      "length": 1,
+      "encoding": "LED 模式 0=user 1=sys"
+     },
+     {
+      "register": "0x20-0x4F",
+      "length": 48,
+      "encoding": "user RGB888 9 灯 x 4 字节步长"
+     },
+     {
+      "register": "0x50-0x58",
+      "length": 9,
+      "encoding": "user RGB233"
+     },
+     {
+      "register": "0x70-0x8F",
+      "length": 32,
+      "encoding": "sys RGB888（按下态）"
+     },
+     {
+      "register": "0x90-0xAF",
+      "length": 32,
+      "encoding": "sys RGB888（未按下态）"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "写 1 保存 Flash"
+     },
+     {
+      "register": "0xF1",
+      "length": 1,
+      "encoding": "IRQ enable"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址"
+     }
+    ],
+    "gaps": [
+     "按键机械/光学、IRQ 电气 NOT RUN",
+     "与 ByteSwitch 共享驱动，模型需参数化地址/极性"
+    ]
+   },
+   "inputs": {
+    "button-states": {
+     "type": "array",
+     "label": "8 按键 fixture",
+     "default": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "items": {
+      "type": "boolean"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    }
+   },
+   "outputs": {
+    "button-states": {
+     "type": "array",
+     "label": "8 按键",
+     "default": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "boolean"
+     },
+     "minItems": 8,
+     "maxItems": 8
+    },
+    "led-rgb": {
+     "type": "array",
+     "label": "9 灯 RGB",
+     "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16777215
+     },
+     "minItems": 9,
+     "maxItems": 9
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 71,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/bytebutton",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U192",
+      "STM32G031",
+      "8 buttons + 9x WS2812C",
+      "I2C @0x47",
+      "dual Grove expansion"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit%20ByteButton",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Protocol table garbled in page text; register map unresolved"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit%20ByteButton/Byte_Button%20Protocol.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2024-06-19 完整 REG MAP(0x47)"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/bytebutton.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/bytebutton.py:6 BYTEBUTTON_I2C_ADDRESS=0x47; :341 ByteButtonUnit; :65 get_button_state read==0"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-ByteButton-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 0ad1bc9bd5b5 开源内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official V1 protocol PDF + upstream unit/bytebutton.py:6,341; model not built (docs-only round). No QEMU model, mechanics/optics NOT RUN."
+   },
+   "blocker": "protocol now documented: official V1 protocol PDF + upstream unit/bytebutton.py:6,341; model not built (docs-only round). No QEMU model, mechanics/optics NOT RUN.",
+   "limitations": [
+    "Official V1 I2C protocol PDF documents full register map; UIFlow2 master driver covers 0x47.",
+    "No QEMU model yet; key mechanics and LED optics NOT RUN.",
+    "仅登记 planned 契约；本批只补协议证据。"
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "step16",
+   "name": "Unit Step16",
+   "sku": "U198",
+   "visual_asset": {
+    "entry": "src/units/step16/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_Step16",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     72
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "16 位 BCD 旋钮 + 7 段显示 + 1x WS2812，STM32G031，I2C 0x48（可配 0x08-0x77）。官方 Unit-Step16_Protocol.pdf V1(2025-07-04) 与上游 unit/step16.py:30-41 完整寄存器表：0x00 编码器值、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB、0x50-0x52 RGB888、0xF0 保存、0xFE FW、0xFF 地址。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "编码器当前值 0-15"
+     },
+     {
+      "register": "0x10",
+      "length": 1,
+      "encoding": "LED 配置 0x00常灭/0xFE常亮/0-0xFD 睡眠秒"
+     },
+     {
+      "register": "0x20",
+      "length": 1,
+      "encoding": "LED 亮度 0-100"
+     },
+     {
+      "register": "0x30",
+      "length": 1,
+      "encoding": "旋转方向 0=逆时针增 1=顺时针增"
+     },
+     {
+      "register": "0x40",
+      "length": 1,
+      "encoding": "RGB 电源 0/1"
+     },
+     {
+      "register": "0x41",
+      "length": 1,
+      "encoding": "RGB 亮度 0-255"
+     },
+     {
+      "register": "0x50-0x52",
+      "length": 3,
+      "encoding": "RGB R/G/B"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "写 1 保存 LED 配置/写 2 保存 RGB 配置"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 0x08-0x77"
+     }
+    ],
+    "gaps": [
+     "旋钮机械/弹跳、7 段显示光学、睡眠 N 秒时间轴 NOT RUN",
+     "PDF 表格列错位（0xF0/0xFE/0xFF 同列），以驱动常量为准"
+    ]
+   },
+   "inputs": {
+    "position": {
+     "type": "integer",
+     "label": "16 位位置 fixture",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": 0,
+     "maximum": 15
+    }
+   },
+   "outputs": {
+    "position": {
+     "type": "integer",
+     "label": "16 位位置",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 15
+    },
+    "direction": {
+     "type": "integer",
+     "label": "方向",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 1
+    },
+    "led-rgb": {
+     "type": "integer",
+     "label": "RGB",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 16777215
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 72,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 8,
+     "maximum": 119
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/step16",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U198",
+      "STM32G031",
+      "16-position BCD encoder + 7-seg + WS2812",
+      "I2C @0x48 (0x08-0x77 configurable)"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_Step16",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Protocol table not readable in page text; register map unresolved"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit-Step16_Protocol.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2025-07-04 REG MAP(0x48)"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-Step16-Internal-FW/blob/f38479ae964f/protocol/M5Unit-Step16-I2C-Protocol-EN_V1.0.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal-FW 仓库内同版本协议 PDF"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/step16.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/step16.py:30-41 寄存器常量; :51-403 API"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-Step16-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD f38479ae964f 开源内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official protocol PDF + upstream unit/step16.py:30-41; model not built (docs-only). Encoder mechanics/7-seg display NOT RUN."
+   },
+   "blocker": "protocol now documented: official protocol PDF + upstream unit/step16.py:30-41; model not built (docs-only). Encoder mechanics/7-seg display NOT RUN.",
+   "limitations": [
+    "Official V1 protocol PDF and UIFlow2 master driver document complete register map.",
+    "No QEMU model yet; encoder mechanics and display optics NOT RUN.",
+    "仅登记 planned 契约；本批只补协议证据。"
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "timerpwr",
+   "name": "Unit TimerPWR",
+   "sku": "U189",
+   "visual_asset": {
+    "entry": "src/units/timerpwr/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "INA3221",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     86
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "定时电源（STM32G031+RTC+INA3221+LGS4056H+升压+0.66 寸 OLED+双按键），I2C 0x56。官方 U189 I2C Protocol V1(2024-03-11) + 上游 unit/timerpwr.py:28-56：0x00 Grove输出/0x01 OLED背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30 定时开、0x40 sleep/0x41 cycle、0x60 USB/Grove V&I、0x70 电池 V&I、0x80 定时关、0x90 充电状态、0xF0 保存、0xFE FW、0xFF 地址。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "Grove 5V 输出使能"
+     },
+     {
+      "register": "0x01",
+      "length": 1,
+      "encoding": "OLED 背光"
+     },
+     {
+      "register": "0x10-0x11",
+      "length": 2,
+      "encoding": "按键 A/B 状态"
+     },
+     {
+      "register": "0x20",
+      "length": 1,
+      "encoding": "wake trigger bit0 timer/bit1 button"
+     },
+     {
+      "register": "0x21",
+      "length": 1,
+      "encoding": "sleep trigger"
+     },
+     {
+      "register": "0x30",
+      "length": 3,
+      "encoding": "定时开机 H/M/S（>BBB）"
+     },
+     {
+      "register": "0x40",
+      "length": 1,
+      "encoding": "sleep command（写1睡眠）"
+     },
+     {
+      "register": "0x41",
+      "length": 1,
+      "encoding": "cycle 1=start 0=stop"
+     },
+     {
+      "register": "0x60/0x64/0x68/0x6C",
+      "length": 16,
+      "encoding": "USB V/I + Grove V/I（各 LE32；V raw/100, I raw/100 mA）"
+     },
+     {
+      "register": "0x70/0x74",
+      "length": 8,
+      "encoding": "电池 V（raw*10=mV）/电池电流（raw/100 mA）"
+     },
+     {
+      "register": "0x80",
+      "length": 3,
+      "encoding": "定时关机 H/M/S"
+     },
+     {
+      "register": "0x90",
+      "length": 1,
+      "encoding": "充电状态 0/1"
+     },
+     {
+      "register": "0xF0",
+      "length": 1,
+      "encoding": "写 1 保存 Flash"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址"
+     }
+    ],
+    "gaps": [
+     "电池/充电/DC-DC 升压/RTC 长期定时/OLED/按键/热与安全 NOT RUN",
+     "PDF 表格列错位，以驱动常量为准"
+    ]
+   },
+   "inputs": {
+    "schedule-on": {
+     "type": "string",
+     "label": "定时开机 fixture",
+     "default": "00:00",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+    },
+    "schedule-off": {
+     "type": "string",
+     "label": "定时关机 fixture",
+     "default": "00:00",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+    }
+   },
+   "outputs": {
+    "power-state": {
+     "type": "boolean",
+     "label": "电源状态",
+     "default": false,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "battery-mv": {
+     "type": "integer",
+     "label": "电池电压",
+     "default": 3700,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 2500,
+     "maximum": 4500
+    },
+    "input-current-ma": {
+     "type": "number",
+     "label": "输入电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "output-current-ma": {
+     "type": "number",
+     "label": "输出电流",
+     "default": 0.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 86,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/timerpwr",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U189",
+      "STM32G031 + RTC + INA3221 + LGS4056H + boost",
+      "I2C @0x56",
+      "0.66-inch 64x48 OLED, two buttons",
+      "battery/Type-C charge"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Page Learn/I2C sections do not give a readable schedule/status register table"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-TimerPWR/U189_UnitTimerPwr_I2C_Protocol_V1_20241018.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2024-03-11 REG MAP(0x56)"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/timerpwr.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/timerpwr.py:28-56 寄存器; :150-211 V/I LE32; :313-542 定时/触发"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-TimerPWR-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD b35b91e63b8f 开源内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official protocol PDF + upstream unit/timerpwr.py:28-56; model not built (docs-only). Battery/charger/boost/RTC/OLED/thermal/safety NOT RUN."
+   },
+   "blocker": "protocol now documented: official protocol PDF + upstream unit/timerpwr.py:28-56; model not built (docs-only). Battery/charger/boost/RTC/OLED/thermal/safety NOT RUN.",
+   "limitations": [
+    "Official U189 I2C protocol PDF and UIFlow2 master driver document full register map.",
+    "No QEMU model yet; battery/charger/boost/RTC physical behavior NOT RUN.",
+    "仅登记 planned 契约；本批只补协议证据。"
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "mq",
+   "name": "Unit MQ",
+   "sku": "U199",
+   "visual_asset": {
+    "entry": "src/units/mq/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_MQ",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G030F6P6",
+     "status": "officially-documented"
+    },
+    {
+     "part": "MQ-5",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "i2c",
+    "connector": "HY2.0-4P",
+    "address_7bit": [
+     17
+    ],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "SDA",
+      "direction": "bidirectional"
+     },
+     "white": {
+      "signal": "SCL",
+      "direction": "bidirectional"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    }
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "MQ-5 可燃气体传感器，STM32G030，I2C 0x11（可配 0x08-0x77）。官方 MQ I2C Protocol V1(2025-05-08) + xlsx + 上游 unit/mq.py:33-44：0x00 状态、0x01 LED、0x10/0x11 高/低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC 电阻、0x80 ref/MQ/NTC mV、0xFE FW、0xFF 地址。",
+    "registers": [
+     {
+      "register": "0x00",
+      "length": 1,
+      "encoding": "MQ 状态 0关闭/1持续加热/2引脚切换"
+     },
+     {
+      "register": "0x01",
+      "length": 1,
+      "encoding": "LED 状态 0/1"
+     },
+     {
+      "register": "0x10",
+      "length": 1,
+      "encoding": "高电平时间 30-255s 默认30"
+     },
+     {
+      "register": "0x11",
+      "length": 1,
+      "encoding": "低电平时间 5-255s 默认5"
+     },
+     {
+      "register": "0x20",
+      "length": 1,
+      "encoding": "MQ ADC 8 位"
+     },
+     {
+      "register": "0x30",
+      "length": 2,
+      "encoding": "MQ ADC 12 位 LE（0-4095）"
+     },
+     {
+      "register": "0x40",
+      "length": 1,
+      "encoding": "Valid Tags（PDF: 0=有效 1=无效；驱动 get_valid_tags 返回 ==1，冲突待核对）"
+     },
+     {
+      "register": "0x50",
+      "length": 1,
+      "encoding": "内部 NTC ADC 8 位"
+     },
+     {
+      "register": "0x60",
+      "length": 2,
+      "encoding": "NTC ADC 12 位 LE"
+     },
+     {
+      "register": "0x70",
+      "length": 2,
+      "encoding": "NTC 电阻 LE（Ω）"
+     },
+     {
+      "register": "0x80/0x82/0x84",
+      "length": 6,
+      "encoding": "内部参考电压/MQ 电压/NTC 电压 LE（mV）"
+     },
+     {
+      "register": "0xFE",
+      "length": 1,
+      "encoding": "固件版本"
+     },
+     {
+      "register": "0xFF",
+      "length": 1,
+      "encoding": "I2C 地址 0x08-0x77"
+     }
+    ],
+    "gaps": [
+     "MQ-5 气体浓度曲线/预热 20s/加热温度/热学 NOT RUN",
+     "Valid Tags 极性 PDF(0=有效) vs 驱动(==1) 冲突待固件/真机确认"
+    ]
+   },
+   "inputs": {
+    "sensor-mv": {
+     "type": "number",
+     "label": "传感器电压 fixture",
+     "default": 500.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "minimum": 0,
+     "maximum": 3300
+    }
+   },
+   "outputs": {
+    "sensor-mv": {
+     "type": "number",
+     "label": "传感器电压",
+     "default": 500.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "reference-mv": {
+     "type": "number",
+     "label": "内部参考电压",
+     "default": 1200.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "adc12": {
+     "type": "integer",
+     "label": "12-bit ADC",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 4095
+    },
+    "adc8": {
+     "type": "integer",
+     "label": "8-bit ADC",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "temperature-c": {
+     "type": "number",
+     "label": "热敏温度",
+     "default": 25.0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": -40,
+     "maximum": 125
+    },
+    "firmware-version": {
+     "type": "integer",
+     "label": "固件版本",
+     "default": 1,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 255
+    },
+    "heating-mode": {
+     "type": "integer",
+     "label": "加热模式",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 1
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/mq",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U199",
+      "STM32G030 + MQ-5",
+      "I2C @0x11 configurable",
+      "reference/sensor voltage, 12/8-bit ADC, firmware, thermistor temp",
+      "continuous/intermittent heating"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_MQ",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Page describes fields/heating modes but does not give a readable complete register/timing table"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1168/MQ_I2C_Protocol_EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2025-05-08 REG MAP(0x11) 完整寄存器/加热模式说明"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://github.com/m5stack/M5Unit-MQ-Internal-FW/blob/31744153440f/protocol/M5Unit-MQ-I2C-Protocl-ZH_V1.0.xlsx",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "官方 xlsx 同文协议（含 Valid Tags 与加热时序说明）"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/mq.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/mq.py:33-44 寄存器; :76-302 API"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Unit-MQ-Internal-FW",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 31744153440f 开源内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official MQ I2C protocol PDF/xlsx + upstream unit/mq.py:33-44; model not built (docs-only). Gas/preheat/heat/thermal NOT RUN; Valid Tags polarity conflict unresolved."
+   },
+   "blocker": "protocol now documented: official MQ I2C protocol PDF/xlsx + upstream unit/mq.py:33-44; model not built (docs-only). Gas/preheat/heat/thermal NOT RUN; Valid Tags polarity conflict unresolved.",
+   "limitations": [
+    "Official MQ I2C protocol PDF/xlsx and UIFlow2 master driver document full register map.",
+    "Valid Tags semantics conflict (PDF 0=valid vs driver ==1) needs firmware/real-device confirmation.",
+    "No QEMU model yet; gas concentration/preheat/heat behavior NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "cat1-cn",
+   "name": "Unit Cat1-CN",
+   "sku": "U204",
+   "visual_asset": {
+    "entry": "src/units/cat1-cn/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_Cat1-CN",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "ML307R-DL",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "uart",
+    "connector": "HY2.0-4P",
+    "address_7bit": [],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "UART_RX",
+      "direction": "input"
+     },
+     "white": {
+      "signal": "UART_TX",
+      "direction": "output"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    },
+    "baudrate": 115200
+   },
+   "protocol": {
+    "status": "documented-partial-protocol",
+    "summary": "LTE Cat.1 ML307R-DL 模块，UART 115200 8N1 AT，支持 TCP/UDP/HTTP/SSL/MQTT 最多 6 socket。官方页直链 OneMO AT 手册 V1.8.1（105 条命令）与通信流程示例；上游 unit/cat1.py + driver/simcom/ml307r.py 实现 MIPCALL/MIPOPEN/MIPSEND/MIPRD/MIPCLOSE/MDNSGIP 等 AT 命令与 socket 语义。AT 字节层可建，蜂窝/网络不可建。",
+    "registers": [
+     {
+      "register": "AT base",
+      "length": 0,
+      "encoding": "AT/ATE0/AT+CPIN?/AT+CREG?/AT+CEREG?/AT+CSQ/AT+CGATT?/AT+CGMM/AT+CGMI/AT+CGSN/AT+CIMI"
+     },
+     {
+      "register": "PDP",
+      "length": 0,
+      "encoding": "AT+CGDCONT=1,\"IP\",APN; AT+MIPCALL=1,1; AT+MIPCALL?; AT+CGPADDR; AT+CGCONTRDP"
+     },
+     {
+      "register": "Socket",
+      "length": 0,
+      "encoding": "AT+MIPOPEN=<fd>,<type>,<ip>,<port>; AT+MIPSEND=<fd>,<len>+data; AT+MIPRD=<fd>,<len>; AT+MIPCLOSE=<fd>; AT+MDNSGIP=<host>"
+     },
+     {
+      "register": "URC",
+      "length": 0,
+      "encoding": "+MIPOPEN/+MIPCLOSE/+MIPRD 等（逐条按 ML307R 手册核对）"
+     }
+    ],
+    "gaps": [
+     "蜂窝 RF/频段/天线、SIM 鉴权/文件系统、运营商网络注册/PDP 真实性 NOT RUN",
+     "TLS/HTTP/MQTT 协议栈语义、真实链路质量/时延 NOT RUN",
+     "AT/URC 逐条格式与超时需按 191 页手册核对后写入实现任务",
+     "PORT.C UART 与所有 UART Unit 冲突"
+    ]
+   },
+   "inputs": {
+    "responses-hex": {
+     "type": "string",
+     "label": "AT 响应 fixture（hex）",
+     "default": "4f4b0d0a",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false,
+     "pattern": "^([0-9a-fA-F]{2}|;)*$"
+    }
+   },
+   "outputs": {
+    "tx-hex": {
+     "type": "string",
+     "label": "TX 字节（hex）",
+     "default": "",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "frames-sent": {
+     "type": "integer",
+     "label": "TX burst 数",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0
+    },
+    "frames-injected": {
+     "type": "integer",
+     "label": "RX fixture 注入数",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/cat1-cn",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U204",
+      "ML307R-DL LTE Cat.1",
+      "B1/B3/B5/B8/B34/B38/B39/B40/B41",
+      "UART 115200 8N1 AT",
+      "TCP/UDP/HTTP/SSL/MQTT, 6 sockets"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_Cat1-CN",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Page Protocol is an external AT manual; no complete command/URC table in page text"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1189/AT_Commands_Reference_Guide_4G_Series_V1.8.1.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "OneMO AT Commands Reference Guide 4G Series V1.8.1（2024-02-02，191 页，105 条命令）"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1189/ML307R_Communication_Process_Example_V1.0.1.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "ML307R 通信流程示例 V1.0.1（2024-01-12）"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/cat1.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "unit/cat1.py:18 Cat1Unit(ML307R,Modem)，115200 8N1"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/driver/simcom/ml307r.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "driver/simcom/ml307r.py:127-362 MIPOPEN/MIPSEND/MIPRD; :573-676 MIPCALL/DNS"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/driver/simcom/common.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "driver/simcom/common.py:64-134 基础 AT 命令表"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "partial protocol: official ML307R AT Command Reference V1.8.1 + comm process example + upstream cat1/ml307r drivers document the AT control plane and socket commands, but cellular RF/SIM/network registration/PDP/TLS/HTTP/MQTT behavior cannot be modeled in the QEMU Unit data plane. Model not built (docs-only)."
+   },
+   "blocker": "partial protocol: official ML307R AT Command Reference V1.8.1 + comm process example + upstream cat1/ml307r drivers document the AT control plane and socket commands, but cellular RF/SIM/network registration/PDP/TLS/HTTP/MQTT behavior cannot be modeled in the QEMU Unit data plane. Model not built (docs-only).",
+   "limitations": [
+    "Official ML307R AT command manual (105 commands) and UIFlow2 master drivers document AT control plane.",
+    "Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN and not modelable at Unit data plane.",
+    "AT/URC exact formats/timeouts still need per-command confirmation from the 191-page manual.",
+    "PORT.C UART conflicts with all UART Units."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  },
+  {
+   "id": "chainbus",
+   "name": "Unit ChainBus",
+   "sku": "U212",
+   "visual_asset": {
+    "entry": "src/units/chainbus/index.js",
+    "export": "Model"
+   },
+   "official_docs": "https://docs.m5stack.com/en/unit/Unit_ChainBus",
+   "checked_at": "2026-11-03",
+   "chips": [
+    {
+     "part": "STM32G031G8U6",
+     "status": "officially-documented"
+    }
+   ],
+   "interface": {
+    "bus": "uart",
+    "connector": "HY2.0-4P",
+    "address_7bit": [],
+    "pins": {
+     "red": {
+      "signal": "5V",
+      "direction": "power"
+     },
+     "black": {
+      "signal": "GND",
+      "direction": "ground"
+     },
+     "yellow": {
+      "signal": "UART_RX",
+      "direction": "input"
+     },
+     "white": {
+      "signal": "UART_TX",
+      "direction": "output"
+     }
+    },
+    "power": {
+     "nominal_v": 5,
+     "source": "official-product-PinMap",
+     "logic_v": null,
+     "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+    },
+    "baudrate": 115200
+   },
+   "protocol": {
+    "status": "documented-official-protocol",
+    "summary": "Chain 系列协议转换单元（STM32G031），UART Chain 115200 8N1，顶部 I2C/GPIO/ADC/NVIC 扩展口。官方 M5Stack-Unit-ChainBus-Protocol-EN.pdf V1(2025-11-13) 给出完整 0x10-0xFE 命令与设备类型 0x0006；上游 chain/unit_bus.py:32-54 + chain/chain.py:13-44。",
+    "registers": [
+     {
+      "register": "frame",
+      "length": 0,
+      "encoding": "Chain 帧 AA 55 len index cmd data crc 55 AA；CRC=Index..CRC 前字节和低 8 位；设备类型 0x0006"
+     },
+     {
+      "register": "0x10",
+      "length": 0,
+      "encoding": "I2C 初始化（0=100kHz 1=400kHz）"
+     },
+     {
+      "register": "0x11",
+      "length": 0,
+      "encoding": "I2C 读（len<=64）"
+     },
+     {
+      "register": "0x12",
+      "length": 0,
+      "encoding": "I2C 写"
+     },
+     {
+      "register": "0x13",
+      "length": 0,
+      "encoding": "指定寄存器读（8/16-bit reg）"
+     },
+     {
+      "register": "0x14",
+      "length": 0,
+      "encoding": "指定寄存器写"
+     },
+     {
+      "register": "0x15",
+      "length": 0,
+      "encoding": "I2C 地址扫描"
+     },
+     {
+      "register": "0x20/0x21",
+      "length": 0,
+      "encoding": "设/读 RGB（1 灯）"
+     },
+     {
+      "register": "0x22/0x23",
+      "length": 0,
+      "encoding": "RGB 亮度 0-100"
+     },
+     {
+      "register": "0x30-0x32",
+      "length": 0,
+      "encoding": "GPIO 输出模式/电平/回读（GPIO 1/2）"
+     },
+     {
+      "register": "0x40/0x41",
+      "length": 0,
+      "encoding": "GPIO 输入模式/电平"
+     },
+     {
+      "register": "0x50",
+      "length": 0,
+      "encoding": "GPIO 外部中断配置"
+     },
+     {
+      "register": "0x60/0x61",
+      "length": 0,
+      "encoding": "ADC 配置/读（0-4095，3.3V 参考）"
+     },
+     {
+      "register": "0x70",
+      "length": 0,
+      "encoding": "工作状态查询（0 无/1 输出/2 输入/3 NVIC/4 ADC/5 I2C）"
+     },
+     {
+      "register": "0xE0",
+      "length": 0,
+      "encoding": "外部中断主动上报"
+     },
+     {
+      "register": "0xF8-0xFE",
+      "length": 0,
+      "encoding": "UID/版本/设备类型/枚举/心跳/数量"
+     }
+    ],
+    "gaps": [
+     "协议转换实时转发时延、真实 I2C 下游设备、GPIO 电气、NVIC 中断时序 NOT RUN",
+     "多级 Chain 拓扑未建模"
+    ]
+   },
+   "inputs": {
+    "chain-uid": {
+     "type": "string",
+     "label": "Chain UID fixture",
+     "default": "0000000000000000",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": false
+    }
+   },
+   "outputs": {
+    "chain-uid": {
+     "type": "string",
+     "label": "Chain UID",
+     "default": "",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "version": {
+     "type": "string",
+     "label": "版本",
+     "default": "",
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true
+    },
+    "link-devices": {
+     "type": "array",
+     "label": "链设备列表",
+     "default": [],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "string"
+     }
+    },
+    "heartbeat": {
+     "type": "integer",
+     "label": "心跳计数",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0
+    },
+    "i2c-address": {
+     "type": "integer",
+     "label": "I2C 地址",
+     "default": 0,
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "minimum": 0,
+     "maximum": 127
+    },
+    "gpio-levels": {
+     "type": "array",
+     "label": "GPIO 电平",
+     "default": [
+      false,
+      false,
+      false,
+      false
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "boolean"
+     }
+    },
+    "adc-values": {
+     "type": "array",
+     "label": "ADC 值",
+     "default": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "default_source": "synthetic-test-fixture",
+     "readOnly": true,
+     "items": {
+      "type": "integer"
+     }
+    }
+   },
+   "evidence": [
+    {
+     "kind": "official-product",
+     "url": "https://docs.m5stack.com/en/unit/chainbus",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "SKU U212",
+      "STM32G031",
+      "UART 115200 8N1 Chain daisy-chain",
+      "2x Chain UART + top I2C/GPIO/ADC/NVIC",
+      "1x WS2812"
+     ]
+    },
+    {
+     "kind": "official-protocol-manual",
+     "url": "https://docs.m5stack.com/en/unit/Unit_ChainBus",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "Internal Firmware/Protocol is external; no readable Chain/expansion register table"
+     ]
+    },
+    {
+     "kind": "official-protocol-doc",
+     "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1201/M5Stack-Unit-ChainBus-Protocol-EN.pdf",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "V1 2025-11-13：帧格式+0x10-0xFE 命令+设备类型 0x0006"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/unit_bus.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "chain/unit_bus.py:10 BusChainUnit; :32-54 CMD_BUS_*; :118-623 各命令"
+     ]
+    },
+    {
+     "kind": "official-driver",
+     "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/chain.py",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "chain/chain.py:13-44 命令/设备类型；:454 ChainBus"
+     ]
+    },
+    {
+     "kind": "official-firmware",
+     "url": "https://github.com/m5stack/M5Chain-Series-Internal-FW/tree/main/Unit-ChainBus",
+     "checked_at": "2026-11-03",
+     "claims": [
+      "HEAD 421e922663bb：Unit-ChainBus 内部固件源码"
+     ]
+    }
+   ],
+   "research_status": "confirmed-contract-with-explicit-gaps",
+   "model_status": "planned",
+   "runtime": {
+    "status": "planned",
+    "qom_path_template": "/machine/units/{attachment_id}",
+    "properties": {},
+    "blocker": "protocol now documented: official ChainBus protocol PDF (frame+0x10-0xFE+device type 0x0006) + upstream chain/unit_bus.py:32-54; model not built (docs-only). Protocol-conversion forwarding, real downstream I2C, GPIO electrical/NVIC timing NOT RUN."
+   },
+   "blocker": "protocol now documented: official ChainBus protocol PDF (frame+0x10-0xFE+device type 0x0006) + upstream chain/unit_bus.py:32-54; model not built (docs-only). Protocol-conversion forwarding, real downstream I2C, GPIO electrical/NVIC timing NOT RUN.",
+   "limitations": [
+    "Official ChainBus protocol PDF and UIFlow2 master chain drivers document full command set.",
+    "No QEMU model yet; needs Chain frame responder + expansion-port fixture (I2C/GPIO/ADC).",
+    "Real-time forwarding, downstream devices and NVIC timing NOT RUN."
+   ],
+   "input_semantics": null,
+   "output_semantics": null
+  }
+ ]
+}
