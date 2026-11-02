@@ -8,8 +8,9 @@
 - 视觉库存：**38 款主机、184 款 Unit**；仍有 **5 款主机仅视觉**
   （全部为 boundary-only/composition-only，见下）。
 - Unit catalog：**160 条**（159 个 unit 产品 + `servo8-hat` HAT 口径差）；
-  **129 implemented/partial + 31 planned**；另有 **25 款 c 类明确边界**不登记。
+  **158 implemented/partial + 2 planned DEFER**；另有 **25 款 c 类明确边界**不登记。
   184 个 unit 产品 = 159 登记产品 + 25 c 类边界，**184/184 全覆盖**。
+- canonical QEMU 链：**41 层**（`0120`–`0161`；人工实测 41/41 replay 可复现）。
 
 > 原计划写“150 款未登记 Unit 目标”；收口时登记到 **160**，因为 a/b 类研究
 > 把 18 款可登记产品纳入 catalog，并新增 25 款 c 类边界；这不是把 c 类强登。
@@ -46,7 +47,7 @@
 [主机边界决策](../../plans/2026-11-02-host-boundary-decisions.md)。M5Stick 的工厂
 固件路径仍是 **blocked/partial**，不因“host 已登记”写成完整 PASS。
 
-## 2. Unit：150 目标 → 160 登记、184/184 全覆盖
+## 2. Unit：150 目标 → 160 登记、158 implemented / 2 DEFER、184/184 全覆盖
 
 10 个研究批（每批 12 款）与对应实现/证据 PR：
 
@@ -62,6 +63,22 @@
 | 8 | #128 | #130 / #134 | #144 | 12 款；8A/8B 实现，12 款 guest 证据 |
 | 9 | #133 | #135 / #139 | —（无 guest 证据） | 12 款；9A/9B 仅 planned 契约/字节层 |
 | 10 | #140 | #142 | #146 | 收口批 43 款分类；18 款登记，6 款 guest 证据 |
+
+batch11–12 解锁与证据 PR（最终收口）：
+
+| PR | 内容 |
+| --- | --- |
+| #149 | Unit ID ATECC608A wake/CRC 证据链解锁（`0156`） |
+| #150 | batch11 driver-gap 官方协议研究 |
+| #151 | batch11 六款既有模型 guest 证据（6 PASS；glass 当时 BLOCKED） |
+| #152 | CAN / mini-CAN / LoRaWAN-US915 契约与准入解锁 |
+| #153 | batch12a 七款 driver-gap 寄存器文件模型层（`0158`） |
+| #154 | glass M5GFX REG_INDEX 协议修复与解锁（`0157`） |
+| #155 | batch12b 十款 driver-gap 模型层（`0159`） |
+| #156 | recon11：`0157/0158/0159` 折叠为 canonical 39 层链 |
+| #157 | batch12a 七款 guest 证据（`0160` MQ ADC12 修复） |
+| #158 | batch12c 四款 guest 证据（`0161` AA55 Chain 帧长修复） |
+| #159 | batch12b 七款 I2C Unit guest 证据（7 PASS） |
 
 配套 patch 链与 recon PR 不在本表重复，见
 [`patches/qemu-m5stack-peripherals/README.md`](../../../patches/qemu-m5stack-peripherals/README.md)
@@ -92,44 +109,28 @@
 | batch7：UART 应答器 TX 捕获后未 arm idle、ASR650x RX 路由未命中 | `0150`；否则 CATM/LoRaWAN 每条 AT 超时、注入字节进不了 guest RX |
 | batch8：LCD read-after-command 事务跨写/读两段 | `0153`；否则官方 LCDUnit init 读回 0 |
 | batch10：BMI270 INTERNAL_STATUS 未置 init-complete、TEMP 0x22 读法/端序不符 | `0154`；否则 generic BMI270 驱动初始化超时、温度读错 |
+| unit-id：ATECC608A wake 写 I2C 地址 0x00 导致 0x35 从机收不到、CRC 路径 | `0156`（base 36 层链）；guest IDUnit 不再被 wake 假写阻断 |
+| CAN / mini-CAN / LoRaWAN-US915 契约与 attachment 语义缺失 | PR #152 解锁契约/准入（不伪造 CAN 帧或 RF）；相应 guest 证据独立限定 |
+| glass：模型误实现 SSD1309 控制字节，真实 M5GFX M5UnitGLASS 用 REG_INDEX 寄存器协议 | `0157`（37 层）；否则 commands/data 恒 0，guest 画不进去 |
+| batch12a：MQ ADC12 QOM 12-bit 值截断（2233 vs guest 0x08BA=2234） | `0160`（batch12a evidence fix）；修复后 QOM 与 guest 一致 |
+| batch12c：AA55 Chain 帧 `length=data_len+3`，无数据请求 length=3 被旧解析器清空接收缓冲 | `0161`（chain-frame fix）；否则 guest 连续发帧只处理前 3 条 |
 
 这些是**模型 fixture/语义 bug**，修复后仍只绑定对应 guest/QOM 证据；不能
 外推为物理传感器/执行器 PASS。
 
-## 3. DEFER / BLOCKED / planned-only 清单（31 planned）
+## 3. 剩余 DEFER（2 planned）
 
-### 3.1 DEFER / BLOCKED（7）
+Unit 160 条中 **158 implemented/partial**，仅 2 项仍 planned：
 
-| Unit | 状态 | 原因 |
+| Unit | 状态 | 原因/关闭条件 |
 | --- | --- | --- |
-| `unit-id` U124 | BLOCKED | guest `IDUnit` 找到 0x35，但冻结 ATECC608B 驱动每条命令前 wake 写 I2C 地址 0x00，绑定 0x35 的从机收不到；不伪造 revision/serial/random |
-| `mini-bps-v11` U090-B | DEFER | QMP6988 页面/I2C 索引 0x56 vs 冻结驱动 0x70（env-iii 也用 0x70），地址无法确证；不猜地址、不建模型 |
-| `mini-pdm` U089 | DEFER | 无 public Unit PDM 驱动；SPM1423 PDM RX 是板级 I2S，不是 Unit attachment；不伪造 PCM |
-| `mini-can` U179 | BLOCKED | Unit runtime 无 CAN attachment/帧 lane，session 被 `contract is incomplete` 拒绝 |
-| `lorawan-us915` U184-US915 | BLOCKED | 冻结 `unit/lorawan.py` 继承 ASR650x `LoRaWAN_470`，产品为 STM32WLE5/RAK3172；guest 命令被拒绝 |
-| `can` U085 | BLOCKED | 0145 仅有 CanBusClient QOM 观测/inject-hex；guest TWAI/CAN 帧方向、过滤、位定时、外部收发器/仲裁未建模 |
-| `mini-imu-pro` U171 | planned | BMI270 init burst accepted 不执行、BMM150 简化 aux；无 guest 证据，运动/磁力物理 NOT RUN |
+| `mini-bps-v11` U090-B | DEFER | QMP6988 页面/I2C 索引 `0x56` vs 冻结驱动 `0x70`（env-iii 也用 0x70），地址无法确证；不猜地址、不建模型。取得官方 datasheet/驱动或实测证据后按 evidence gate 重开 |
+| `mini-pdm` U089 | DEFER | 无 public Unit PDM 驱动；SPM1423 PDM RX 是板级 I2S，不是 Unit attachment；不伪造 PCM。取得 Unit PDM 官方驱动/协议与可复现 attachment 路径后重开 |
 
-### 3.2 已有模型但无 guest 证据（7，planned）
-
-`glass`、`rf433t`、`rf433r`、`lorawan-as923`、`lorawan-eu868`、
-`audioplayer`、`fingerprint2`：QOM offline smoke/planned 实现存在，但没有
-同 guest Device Service evidence，不能升 implemented；RF/显示/音频/指纹/蜂窝
-语义 NOT RUN。
-
-### 3.3 planned-only driver-gap（17）
-
-`cardkb2`（I2C 地址/UART 帧未知、PORT.CUSTOM G26/G25）、
-`8servos2-i2c`（0x25-0x34、内部固件寄存器表不可读）、
-`bmm350`（0x14、无 driver/寄存器表）、`ina226-10a`（0x41、无 datasheet 寄存器表）、
-`ina226-1a`（0x41、同上）、`rollercan`（0x64+CAN、内部协议未公开）、
-`roller485`/`roller485-lite`（RS485/I2C 0x64 电机、协议外部）、
-`rollercan-lite`（CAN/I2C 0x64）、`byteswitch`（0x46、开关表不可读）、
-`bytebutton`（0x47、按键表不可读）、`step16`（0x48、位置/配置表不可读）、
-`timerpwr`（0x56、RTC/INA3221/定时电源表不可读）、`mq`（0x11、MQ-5/加热表不完整）、
-`8servos2-chain`（UART Chain、帧表外部）、`cat1-cn`（ML307R AT/URC 外部）、
-`chainbus`（Chain UART/扩展表外部）。
-全部只登记 planned 契约 + blocker，**不建 QEMU 模型、不猜寄存器**。
+此前的 unit-id、CAN/mini-CAN、lorawan-us915、glass、rf433t/r、
+lorawan-as923/eu868、audioplayer、fingerprint2、mini-imu-pro 以及
+batch12a/b/c 各款均已取得限定 guest/QOM 证据并升 implemented；DEFER 不能被
+视觉模型、主机 PASS 或 QOM smoke 转授。
 
 ## 4. 边界与不可继承结论
 

@@ -30,7 +30,7 @@
   仍是 blocked/partial，按 evidence 限定引用）。
 - Unit：catalog 160 条（133 implemented/partial + 27 planned），184 个
   unit 产品全部有登记或 c 类边界结论；10 个研究批与实现/证据 PR 收口。
-  剩余 DEFER/BLOCKED/planned-only 项见下方 `UNIT-DEFER-01`。
+  剩余 2 项 DEFER 见下方 `UNIT-DEFER-01`（其余 batch11/12 planned 已取得 guest 证据并升 implemented）。
 
 以下里程碑已经进入当前状态和验证台账，只作为后续工作的依赖，不再重复列入
 任务板：
@@ -70,7 +70,7 @@ eFuse 或生产 key。
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
-| 已完成（virtual-device） | 视觉主机与 Unit 接入战役 | 9 个独立视觉 host 接入、5 项边界决策；Unit 160 登记（133 implemented/partial + 27 planned）+ 25 c 类边界，184/184 覆盖 | 剩余 27 planned 见 `UNIT-DEFER-01`；visual/Unit 结果不授予硬件、RF、光学或电气 PASS |
+| 已完成（virtual-device） | 视觉主机与 Unit 接入战役 | 9 个独立视觉 host 接入、5 项边界决策；Unit 160 登记（**158 implemented/partial + 2 planned DEFER**）+ 25 c 类边界，184/184 覆盖；canonical 41 层链实测 41/41 replay | 仅剩 `mini-bps-v11`（QMP6988 0x56/0x70）与 `mini-pdm`（无 Unit PDM 驱动）2 项 DEFER 见 `UNIT-DEFER-01`；visual/Unit 结果不授予硬件、RF、光学或电气 PASS |
 | P2 | CardputerZero | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 ## 当前执行顺序
@@ -768,30 +768,22 @@ classic legacy I2C FIFO 路径限制（MPU 探测/按键/最终 UI blocked），
 “同 SoC”不等于独立 host 或硬件 PASS。视觉保真（结构/材质/hitbox）仍按
 `P1 设备视觉保真` 独立跟踪。
 
-### UNIT-DEFER-01：Unit 剩余 planned/DEFER/BLOCKED（收口后保留）
+### UNIT-DEFER-01：Unit 剩余 planned/DEFER（收口后仅 2 项）
 
-状态：**余量跟踪**，不是未接入战役。31 个 planned 条目分三类：
+状态：**余量跟踪**，不是未接入战役。Unit 160 条中 **158 implemented/partial**，
+仅 **2 项 planned（均为 DEFER）**：
 
-1. **DEFER/BLOCKED（7）**：`unit-id`（ATECC wake 写 0x00，0x35 从机收不到，
-   不伪造 revision/serial）、`mini-bps-v11`（QMP6988 0x56 vs 0x70）、
-   `mini-pdm`（无 Unit PDM 驱动，板级 I2S，不伪造 PCM）、`mini-can`
-   （CANN attachment/frame lane 缺失）、`lorawan-us915`（STM32WLE5 vs
-   ASR650x 驱动错配）、`can`（仅 CanBusClient QOM 观测，guest CAN 帧语义
-   未建模）、`mini-imu-pro`（BMI270 init 不执行/BMM150 简化 aux，无 guest
-   证据）。
-2. **已有模型、无 guest 证据（7）**：`glass`、`rf433t`、`rf433r`、
-   `lorawan-as923`、`lorawan-eu868`、`audioplayer`、`fingerprint2`；不得因
-   QOM smoke 升 implemented。
-3. **planned-only driver-gap（17）**：`cardkb2`、`8servos2-i2c`、`bmm350`、
-   `ina226-10a`、`ina226-1a`、`rollercan`、`roller485`、`roller485-lite`、
-   `rollercan-lite`、`byteswitch`、`bytebutton`、`step16`、`timerpwr`、`mq`、
-   `8servos2-chain`、`cat1-cn`、`chainbus`；只保留地址/接口元数据与 blocker，
-   不建模型、不猜寄存器。
+1. **`mini-bps-v11`（U090-B）**：QMP6988 页面/I2C 索引写 `0x56` vs 冻结驱动
+   默认 `0x70`（env-iii 也用 0x70），地址无法从现有证据确证 → 不猜地址、
+   不建模型。关闭条件：取得能确证地址的官方 datasheet/驱动或产品实测证据。
+2. **`mini-pdm`（U089）**：无 public Unit PDM 驱动；SPM1423 PDM RX 是板级
+   I2S，不是 Unit attachment → 不伪造 PCM。关闭条件：取得 Unit PDM 官方
+   驱动/协议与可复现 attachment 路径。
 
-关闭条件：取得官方驱动/寄存器表/帧格式或 datasheet 后按 batch1-10 证据
-gate 采集同 guest 证据；DEFER 地址/驱动错配必须先解决；`can`/`mini-can`
-需要真实 Unit CAN attachment 语义。汇总页、catalog blocker 与各 research
-页是唯一依据，不能把视觉模型或主机 PASS 转授 Unit。
+其余 158 款均已取得限定 virtual-device guest/QOM 证据（含 batch11/12 的
+unit-id、CAN/LoRaWAN、glass、batch12a/b/c）。DEFER 关闭前 catalog/profile
+保持 planned；汇总页、catalog blocker 与各 research 页是唯一依据，不能把
+视觉模型或主机 PASS 转授 Unit。
 
 ## P2：CardputerZero
 
