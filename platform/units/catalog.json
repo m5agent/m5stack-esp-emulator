@@ -26511,29 +26511,49 @@
         }
       },
       "protocol": {
-        "status": "documented-with-display-composition",
-        "summary": "1.51-inch 128x64 transparent OLED (SSD1309) with STM32F030F4P6 integrating two input buttons and one buzzer; I2C @0x3D. unit/glass.py only registers an M5Unified external display (unit_glass); the internal firmware Protocol section was not readable in the fetched page text, so button/buzzer registers are UNRESOLVED.",
+        "status": "documented-official-m5gfx-protocol",
+        "summary": "U158 Unit Glass uses M5GFX M5UnitGLASS, a custom STM32 register protocol over I2C 0x3D (not SSD1309 control-byte framing). writeCommand sends a little-endian word whose first byte is REG_INDEX: 0x00 clear, 0x10 show, 0x20 draw string, 0x30 point, 0x40 line, 0x50 circle, 0x60 invert, 0x70 display on/off, 0x80 string buffer, 0x90 picture buffer, 0xA0 color invert, 0xB0 draw picture, 0xC0 buzzer, 0xD0 read key, 0xFE firmware version. Init writes 0xFE then reads one byte. 0157 implements the parser; 2 buttons/1 buzzer are STM32 internal firmware and remain unresolved (no readable table).",
         "registers": [
           {
-            "register": "SSD1309 command stream",
-            "length": 0,
-            "encoding": "M5Unified external display commands (display on/off, page/column address, pixel data)"
+            "register": "0x00",
+            "length": 2,
+            "encoding": "clear"
           },
           {
-            "register": "two input buttons",
-            "length": 0,
-            "encoding": "STM32 internal firmware; page Protocol table unreadable -> UNRESOLVED"
+            "register": "0x10",
+            "length": 2,
+            "encoding": "show/page update"
           },
           {
-            "register": "buzzer",
-            "length": 0,
-            "encoding": "STM32 internal firmware; no register table in readable page text"
+            "register": "0x90",
+            "length": 4,
+            "encoding": "picture buffer [index, high, pixel]"
+          },
+          {
+            "register": "0xB0",
+            "length": 4,
+            "encoding": "draw picture [x_start,y,index,...]"
+          },
+          {
+            "register": "0xC0",
+            "length": 4,
+            "encoding": "buzzer freq/duty/enable"
+          },
+          {
+            "register": "0xD0",
+            "length": 1,
+            "encoding": "read key (fixture)"
+          },
+          {
+            "register": "0xFE",
+            "length": 1,
+            "encoding": "firmware version (fixture)"
           }
         ],
         "gaps": [
-          "Page Protocol table unreadable; button/buzzer registers unresolved",
-          "No Unit-level QOM framebuffer; M5Unified composition only",
-          "Transparent OLED optics/buttons/buzzer physics NOT RUN"
+          "2 buttons + buzzer internal-firmware protocol table unreadable; static fixtures only",
+          "Transparent OLED optics/transparent area NOT RUN",
+          "0x3D conflicts with lcd/oled/mini-oled/glass2"
         ]
       },
       "inputs": {
@@ -26593,6 +26613,14 @@
           "readOnly": true,
           "minimum": 0,
           "maximum": 127
+        },
+        "pages": {
+          "type": "integer",
+          "label": "显示页/帧更新数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
         }
       },
       "evidence": [
@@ -26625,10 +26653,10 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
-        "blocker": "BLOCKED by batch11 guest evidence: official GlassUnit/M5.addDisplay returned a Display and I2C scan found 0x3D, but drawing produced no model-visible I2C commands/data bytes (QOM commands=0, data-bytes=0). No guest PASS is claimed; transparent OLED composition unresolved, static button/buzzer fixtures and optics NOT RUN; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
+        "status": "implemented",
+        "blocker": "Guest evidence covers official M5GFX M5UnitGLASS custom STM32 register protocol at I2C 0x3D: fillScreen/fillRect/print -> QOM commands=4366, data-bytes=13144, pages=44, command-hex=10, panel-framebuffer=8458bede. The old SSD1309 control-byte model was the BLOCKED root cause and is replaced by 0157. Transparent OLED optics, 2 buttons and buzzer semantics remain NOT RUN/static fixtures only; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "command-hex": {
@@ -26665,11 +26693,16 @@
             "property": "i2c-address",
             "access": "read-only",
             "type": "integer"
+          },
+          "pages": {
+            "property": "pages",
+            "access": "read-only",
+            "type": "integer"
           }
         },
         "required_data_plane": "SoC I2C transactions to a device-local SSD1309 command/data slave model"
       },
-      "blocker": "BLOCKED by batch11 guest evidence: official GlassUnit/M5.addDisplay returned a Display and I2C scan found 0x3D, but drawing produced no model-visible I2C commands/data bytes (QOM commands=0, data-bytes=0). No guest PASS is claimed; transparent OLED composition unresolved, static button/buzzer fixtures and optics NOT RUN; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
+      "blocker": "Guest evidence covers official M5GFX M5UnitGLASS custom STM32 register protocol at I2C 0x3D: fillScreen/fillRect/print -> QOM commands=4366, data-bytes=13144, pages=44, command-hex=10, panel-framebuffer=8458bede. The old SSD1309 control-byte model was the BLOCKED root cause and is replaced by 0157. Transparent OLED optics, 2 buttons and buzzer semantics remain NOT RUN/static fixtures only; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
       "limitations": [
         "Page Protocol table was unreadable in the fetched text; button/buzzer registers unresolved.",
         "No Unit-level QOM data plane: M5Unified external display composition only.",
@@ -26678,7 +26711,7 @@
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
-        "Batch11 BLOCKED: reference GlassUnit/M5.addDisplay did not produce model-visible I2C transactions; profile stays planned, no virtual_device_evidence."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-glass-unblock/report-glass.json; official M5GFX M5UnitGLASS custom protocol PASS (commands/data/pages/framebuffer), transparent OLED optics/buttons/buzzer NOT RUN. Supersedes the batch11 BLOCKED observation after 0157."
       ]
     },
     {
