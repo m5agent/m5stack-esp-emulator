@@ -11,7 +11,7 @@ from peripheral_inventory import build_inventory
 class PeripheralInventoryTests(unittest.TestCase):
     def test_every_hardware_requirement_maps_to_a_component(self):
         inventory = build_inventory()
-        self.assertEqual(inventory["device_count"], 32)
+        self.assertEqual(inventory["device_count"], 33)
         self.assertEqual(
             inventory["runtime_coverage"]["covered_models"],
             inventory["runtime_coverage"]["simulated_models"],
@@ -39,7 +39,7 @@ class PeripheralInventoryTests(unittest.TestCase):
                 "tab5", "atoms3", "atoms3-lite", "dial", "stickc",
                 "stickc-plus", "stickc-plus-se", "stickc-plus2",
                 "atom-lite", "atom-matrix", "atom-matrix-v11", "atoms3u", "atom-echos3r", "atoms3r-cam", "atoms3r-m12",
-                "m5stick",
+                "m5stick", "stickt2",
                 "basic-v27", "atomu", "atom-echo",
             },
         )

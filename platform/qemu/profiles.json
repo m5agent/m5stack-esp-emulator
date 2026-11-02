@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "30 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "31 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1998,6 +1998,85 @@
         "status": "native-factory-boot-oled-probe-blocked",
         "detail": "官方 EasyLoader FactoryTest 镜像（安装包 SHA-256 99c640b0…；规范化 4 MB 镜像 SHA-256 84228dfb…）在独立 m5stick machine 内完成 ROM/二级 bootloader 加载并在 icount 确定性模式下输出原生串口 `mpu9250 addr: FF`；SH1107 收到完整 64x128 初始化命令流与 4,096 字节 GDDRAM 写周期（含 1,024 字节非零内容），但工厂固件随后停滞，未到达 UI 绘制/按键阶段。MPU9250/IP5306/GPIO35 模型数据面由 generic classic-ESP32 MicroPython fixture 在同一 machine 上取证。",
         "evidence": "docs/evidence/2026-11-02-m5stick-host/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "stickt2",
+      "name": "M5StickT2",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5stickt2",
+      "display_model": "spi-st7789",
+      "display": {
+        "driver": "ST7789",
+        "width": 135,
+        "height": 240
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "mpu6886",
+        "pcf8563",
+        "axp192",
+        "lepton",
+        "encoder",
+        "st7789"
+      ],
+      "runtime_state": {
+        "lepton": {
+          "path": "/machine/lepton",
+          "properties": [
+            "frames-started",
+            "segments-served",
+            "packets-served",
+            "vsyncs",
+            "frame-seed",
+            "frame-digest",
+            "segment-interval-us",
+            "vsync-width-us"
+          ]
+        },
+        "lepton-cci": {
+          "path": "/machine/lepton-cci",
+          "properties": [
+            "commands",
+            "gets",
+            "sets",
+            "fpa-temp-mk",
+            "aux-temp-mk"
+          ]
+        },
+        "encoder": {
+          "path": "/machine/encoder",
+          "properties": [
+            "increment",
+            "switch"
+          ]
+        }
+      },
+      "board_work": [
+        "Bare-metal probe (committed source, ELF SHA recorded in evidence) boots through QEMU -kernel on m5stickt2 and prints STICKT2 markers over UART0",
+        "FLIR Lepton CCI at I2C 0x2A: PING, 8-word serial, FPA/AUX temperature GET and OEM sync SET commands are served by the 16-bit CCI register model",
+        "VoSPI over classic HSPI with GPIO0 chip select: 164-byte packets, 4 segments x 60 packets per 160x120 frame; three consecutive guest FNV-1a digests match the independent host fixture oracle (seed 0/1/2) with zero packet errors",
+        "ST7789 135x240 panel over VSPI: init sequence and full-frame thermal render produce a 135x240 QMP screenshot with 32,400 non-black pixels and 89 unique colors",
+        "QOM encoder increment=5 is read back by the guest I2C encoder path; AXP192/PCF8563/MPU6886 models are attached but not exercised by the probe",
+        "Official M5StickT User Demo (4 MB, SHA-256 bb33ffd4…) boots to its app marker under deterministic icount after the classic UART TX_DONE latch fix; its thermal/UI path remains unpinned and cannot be probe-injected"
+      ],
+      "blockers": [
+        "Thermal virtual-device data plane passed with the committed bare-metal probe: Lepton CCI commands/PID-free register path, deterministic VoSPI frames matching the host fixture oracle, ST7789 panel screenshot and encoder QOM injection. The official M5Burner StickT2 User Demo (SHA-256 bb33ffd4…) reaches its app boot marker under deterministic icount but its thermal/UI path is not reached and cannot be probe-injected; physical LWIR optics/thermal measurement, Grove Units, PDM microphone, encoder hardware and full factory UI remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-thermal-vospi-panel-probe-pass",
+        "detail": "自建 bare-metal 探针（tests/uiflow2/stickt2_probe，xtensa-esp-elf 14.2.0 编译，ELF SHA-256 记录在证据中）由 QEMU -kernel 加载到新 machine `m5stickt2`，经真实内存映射控制器完成：UART0 标记输出；GPIO bit-bang I2C 上的 FLIR Lepton CCI （PING/序列号/FPA+AUX 温度/OEM sync 设置，16-bit CCI 寄存器）；HSPI 上的 VoSPI 流（164 字节包、4 段×60 包/frame，CRC 字段本固件不校验）解出 160×120 热帧，连续 3 帧的 guest FNV-1a digest 与宿主按模型 fixture seed 0/1/2 独立重建完全一致、0 包错误；ST7789 135×240 面板经 VSPI 初始化并渲染热帧，QMP 截图 135×240、32,400 非黑像素、89 种颜色；QOM 注入 encoder increment=5 被 guest 读回。另：官方 M5Burner `StickT2 User Demo` v1.0 4 MB 镜像在确定性 icount 下经 classic UART TX_DONE latch 修复后可启动到 `M5StickC initializing...OK`，但其热成像/UI 路径未在运行窗口内到达且不可注入探针，因此不作为数据面证据。物理 LWIR 光学/热测量、Grove、PDM 麦克风、编码器实际接线（文档 PA2/PA3/PA4 与官方示例 I2C 0x30 的矛盾按官方示例取 I2C 0x30）与完整工厂 UI 未验证。",
+        "evidence": "docs/evidence/2026-11-02-stickt2-host/summary.json",
         "category": "virtual-device"
       }
     }

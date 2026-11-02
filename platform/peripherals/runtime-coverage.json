@@ -104,6 +104,11 @@
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_peripheral_scenarios.py",
       "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+    },
+    "stickt2-thermal-probe": {
+      "device": "stickt2",
+      "test": "tests/uiflow2/run_stickt2_probe.py",
+      "evidence": "tests/uiflow2/stickt2_probe/evidence-2026-11-02.json"
     }
   },
   "case_models": {
@@ -509,6 +514,10 @@
     "tab5-peripheral-scenarios": [],
     "core2-atecc608": [
       "atecc608"
+    ],
+    "stickt2-thermal-probe": [
+      "lepton",
+      "encoder"
     ]
   },
   "device_case_groups": {
@@ -965,6 +974,15 @@
       "matrix": [],
       "external": [],
       "models": []
+    },
+    "stickt2": {
+      "external": [
+        "stickt2-thermal-probe"
+      ],
+      "models": [
+        "lepton",
+        "encoder"
+      ]
     }
   },
   "models": {
@@ -1273,6 +1291,16 @@
     "atecc608": {
       "external": [
         "core2-atecc608"
+      ]
+    },
+    "lepton": {
+      "external": [
+        "stickt2-thermal-probe"
+      ]
+    },
+    "encoder": {
+      "external": [
+        "stickt2-thermal-probe"
       ]
     }
   }

@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "stickt2",
+  "machine": "m5stickt2",
+  "qemu": {
+    "base_layer": "0109 + 0110-atoms3u + 0111-atom-voices3r + 0112-atoms3r-cam + 0113-basic-v27 + 0114-unit-gpio-batch1 + 0115-atoms3r-cam-sccb + 0116-atomu-board + 0117-atomecho-board + 0118-camera-geometry-stream + 0119-unit-i2c-batch2 + 0120-unit-i2c-dlight-command-mask + 0121-m5stick-board + 0122-atoms3r-m12-board + 0123-unit-i2c-batch3",
+    "base_commit": "acfb7f4",
+    "fix_commit": "47cd598",
+    "patch": "patches/qemu-m5stack-peripherals/0124-stickt2-board.patch",
+    "patch_sha256": "203bdfee4f8daee7cac0e23c64f63a341a164ae9d4a8965234e11034f3774a05",
+    "patch_apply_checks": [
+      "git apply --reverse --check in the fix tree",
+      "pristine 6961d82 (0112) + 0113..0123 in native order, then git apply --check 0124 => clean"
+    ],
+    "binary": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+  },
+  "probe_firmware": {
+    "source_dir": "tests/uiflow2/stickt2_probe",
+    "files": [
+      "build.sh",
+      "start.S",
+      "link.ld",
+      "probe.c"
+    ],
+    "runner": "tests/uiflow2/run_stickt2_probe.py",
+    "toolchain": "xtensa-esp-elf 14.2.0 (crosstool-NG esp-14.2.0_20260121), XTENSA_GNU_CONFIG=xtensa_esp32.so, -mabi=call0 -O0 -nostdlib",
+    "elf_sha256": "8eed52a9b86c75dbbd8fee65f614973df6ec29b61882f25f9e7801a6481ea036",
+    "loaded_with": "QEMU -kernel (classic ESP32 ELF loader); no flash image is used"
+  },
+  "probe_evidence": {
+    "status": "PASS",
+    "runs": 2,
+    "serial_markers": [
+      "STICKT2_BOOT baremetal-v1",
+      "LEPTON_CCI_PING 0000",
+      "LEPTON_CCI_SERIAL 1000:1001:1002:1003:1004:1005:1006:1007",
+      "LEPTON_CCI_TEMP 30000 29950",
+      "LEPTON_CCI_SET_OK",
+      "STICKT2_PANEL_INIT 135 240",
+      "VOPSI_FRAME 0 160 120 38400 0xeef6b214 4300 9978",
+      "VOPSI_FRAME 1 160 120 38400 0x07861e5a 4311 10399",
+      "VOPSI_FRAME 2 160 120 38400 0xcdea9a2b 4322 10399",
+      "VOPSI_FRAME_ERRORS 0",
+      "STICKT2_ENCODER 5 0",
+      "STICKT2_PANEL_OK 135 240",
+      "STICKT2_STATUS ok"
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "seed": 0,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "fnv1a": "0xeef6b214",
+        "raw_min": 4300,
+        "raw_max": 9978
+      },
+      {
+        "index": 1,
+        "seed": 1,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "fnv1a": "0x07861e5a",
+        "raw_min": 4311,
+        "raw_max": 10399
+      },
+      {
+        "index": 2,
+        "seed": 2,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "fnv1a": "0xcdea9a2b",
+        "raw_min": 4322,
+        "raw_max": 10399
+      }
+    ],
+    "oracle": {
+      "method": "host-side reconstruction of the deterministic Lepton fixture (slow gradient + warm block + cool block) from frame-seed, FNV-1a over the 160x120 big-endian byte stream",
+      "matches": 3,
+      "frame_sha256": [
+        "02c1b5ef5560ce23... (seed 0)",
+        "3668c43f66e7cacb... (seed 1)",
+        "485e92deee1ac5dd... (seed 2)"
+      ]
+    },
+    "qom": {
+      "lepton": {
+        "frames-started": 3,
+        "segments-served": 12,
+        "packets-served": 720,
+        "vsyncs": 88,
+        "frame-seed": 3,
+        "segment-interval-us": 30000,
+        "vsync-width-us": 1000
+      },
+      "lepton-cci": {
+        "commands": 6,
+        "gets": 4,
+        "sets": 2,
+        "fpa-temp-mk": 30000,
+        "aux-temp-mk": 29950
+      },
+      "encoder": {
+        "increment": 5,
+        "switch": 0
+      }
+    },
+    "panel": {
+      "width": 135,
+      "height": 240,
+      "sha256": "eb4a8e25e33cdba3e60966ca11ea44eaa6ca4b98444ed3012007395e5f73cdd9",
+      "nonblack_pixels": 32400,
+      "unique_colors": 89,
+      "mean_channel": 84.44
+    },
+    "matrix": {
+      "runner": "tests/uiflow2/run_device_matrix.py --device stickt2",
+      "mode": "kernel",
+      "status": "PASS",
+      "note": "kernel lane added for committed bare-metal probe ELFs; see platform/tests"
+    },
+    "note": "vsync count is a free-running reference-pulse counter and varies with wall time; frames, segments, packets, digests and the panel screenshot are deterministic across runs"
+  },
+  "official_firmware_black_box": {
+    "firmware_id": "1897200000000001879",
+    "name": "StickT2 User Demo",
+    "version": "v1.0",
+    "source_type": "OFFICIAL",
+    "bytes": 4194304,
+    "sha256": "bb33ffd41f9c6f9235b2fb44eac893b7ce6f70879f48eed9cb1ff75ef9419cd7",
+    "layout": "bootloader 0x1000, partition table 0x8000, ota_0 0x10000/1536000, ota_1 0x190000/1536000; app segments end 0x78144; region ~0x78000-0x100000 is non-0xFF and does not belong to any partition (documented as unexplained bytes, not interpreted)",
+    "segmented_repo": "https://github.com/m5stack/M5-StickT",
+    "segmented_app_sha256": "361f0d25e5ad7d5dbb8fb52a4e412dcf9fc118c7b0a3aef73fc3159bad539b40",
+    "segmented_partitions_sha256": "efba4421982bd177695a2e2091828fe3b6aa42076be3844a84f0fb08085cead4",
+    "run": {
+      "mode": "deterministic icount (shift=2, thread=single)",
+      "boot_marker": "M5StickC initializing...OK",
+      "uart_log_sha256": "065d1e55b625353e...",
+      "result": "the factory image boots through ROM/bootloader to the app marker after the classic UART TX_DONE latch fix; no Lepton CCI command or VoSPI packet read was observed within the 150 s deterministic run window, and the image has no MicroPython filesystem so it cannot be probe-injected",
+      "boundary": "official firmware thermal/UI path NOT RUN"
+    }
+  },
+  "not_run": [
+    "physical LWIR optics, thermal measurement, lens/exposure and Lepton mechanical/electrical behaviour",
+    "Grove G32/G33 Units and the SPM1423 PDM microphone data plane",
+    "encoder hardware wiring (documented PA2/PA3/PA4 do not exist on the PICO-D4; the model follows the official example's I2C 0x30 protocol)",
+    "AXP192/PCF8563/MPU6886 device-local data planes, button events and the full factory UI",
+    "arbitrary third-party firmware and hardware validation"
+  ]
+}

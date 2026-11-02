@@ -85,6 +85,8 @@ Unit 仍未覆盖；固件来自固定 SHA 的官方 GitHub release 资产。
 
 [AtomS3R-M12 主机接入](evidence/2026-11-02-atoms3r-m12-host/README.md)记录 OV3660 M12 相机主机：共享官方 UIFlow2 镜像（M5Burner 描述覆盖 AtomS3R-M12）自动探测 0x3c/PID 0x3660，QQVGA/QVGA/VGA/HD 帧与宿主重建一致、5 帧流互异；社区 `AtomS3R-CAM M12 User Demo` 黑盒确认 OV3660 控制面，其 MJPEG/UVC 数据面与物理光学 NOT RUN。
 
+[M5StickT2 热成像主机接入](evidence/2026-11-02-stickt2-host/README.md)记录 classic ESP32 热成像主机：自建 bare-metal 探针经真实 HSPI/GPIO I2C/ST7789 控制器读取 FLIR Lepton 3.0 VoSPI 与 CCI，3 帧 guest FNV-1a digest 与宿主 fixture oracle 一致、0 包错误，面板截图与 encoder QOM 注入通过；官方 `StickT2 User Demo` 只到达 app 启动标记，其热成像/UI 路径与物理 LWIR 光学 NOT RUN。
+
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
@@ -195,6 +197,7 @@ Unit 第二批后 6 款（`env`/`ameter`/`extencoder`/`ain4-20ma`/`acssr`/`gestu
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |
 | [AtomS3R-CAM 相机几何与多帧流](evidence/2026-11-02-atoms3r-cam-geometry/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | LCD_CAM DVP 几何跟随 GC0308 window/subsample 寄存器（0118）：QQVGA/240×240/QVGA/CIF/VGA 帧的 guest SHA-256 与宿主重建一致；QOM auto-increment 下连续 5 帧互异、各自匹配重建 scene seed 帧、无撕裂；动态改尺寸/物理光学 NOT RUN |
 | [AtomS3R-M12 主机接入](evidence/2026-11-02-atoms3r-m12-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 新 machine `m5atoms3rm12` + OV3660 16-bit SCCB 模型（PID 0x3660、0x3808-0x380b 几何）：共享官方 UIFlow2 镜像（描述覆盖 AtomS3R-M12）camera.init True、QQVGA/VGA/HD 帧与宿主重建一致、5 帧流互异；社区 M12 User Demo 黑盒确认 OV3660 控制面，MJPEG/UVC/物理光学 NOT RUN |
+| [M5StickT2 热成像主机接入](evidence/2026-11-02-stickt2-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 新 machine `m5stickt2` + FLIR Lepton 3.0 模型（164 字节 VoSPI 包、4×60 包/帧、16-bit CCI 命令）+ classic SPI slave 挂载 + UART TX_DONE latch 修复：探针 3 帧 digest 与宿主 oracle 一致、ST7789 截图与 encoder QOM 注入通过；官方 demo 仅到 app 启动标记，物理 LWIR/UI NOT RUN |
 | [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的官方驱动 file:line 证据、总线/寄存器/命令表、QEMU 复用建议与 11 条 unresolved；planned，不含 runtime 声明 |
 | [Unit 第一批 A 类虚拟设备证据](evidence/2026-11-02-unit-batch1/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ssr`(cores3)/`earth`(atoms3r)/`hall`(sticks3)/`reflective-ir`(stopwatch)/`vibrator`(cores3) 各一个可见会话，原固件冻结驱动经真实 GPIO/ADC/LEDC 控制器产生或观测数据；`earth` 的 read_uv/humidity 与 `vibrator` 的 Haptic one-shot completion 未观测，电气/光学/机械/磁场语义均未验 |
 | [Unit 第一批 B 类虚拟设备证据](evidence/2026-11-02-unit-bclass/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `dlight`(atoms3r)/`accel`(sticks3)/`4relay`(cores3)/`weight-i2c`(stopwatch) 各一个可见会话，原固件冻结 I2C 驱动经真实 SoC I2C 控制器读写；0119 的 BH1750 命令掩码 bug 由 0120 修复后全部通过；4relay 触点/负载、dlight 光学/MTreg、accel 物理量程/DEVID、weight 校准/0x60/0x26 冲突与真机均未验 |

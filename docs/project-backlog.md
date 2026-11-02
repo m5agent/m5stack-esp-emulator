@@ -729,7 +729,7 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 ### UI-01
 
 当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-31 款有运行登记，其余 7 款仅模型，不能提示连接服务即可运行固件。
+33 款有运行登记，其余 5 款仅模型，不能提示连接服务即可运行固件。
 2026-11-02 起 AtomS3U（`atoms3u` / `m5atoms3u`）是独立运行登记主机：
 官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过，
 IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
@@ -746,6 +746,15 @@ AtomS3R-CAM」条目描述覆盖 AtomS3R-M12，共享镜像在同一 guest 内�
 M5Burner `AtomS3R-CAM M12 User Demo`（usb_webcam, IDF v5.1.4）黑盒启动并由其自带
 esp32-camera 识别/初始化 OV3660，但其 MJPEG/UVC 帧路径未建模（NO-SOI）且应用周期性软复位。
 剩余：MJPEG/UVC 数据面、动态改尺寸、IR/Grove/USB、物理光学与电气时序；无 M12 专属 UIFlow2 条目。
+M5StickT2（`stickt2` / `m5stickt2`）接入 FLIR Lepton 3.0 热成像主机：新 machine 复用 classic
+ESP32 SoC、ST7789 135×240 面板与 G21/G22 soft-I2C 桥，新增传输驱动的 VoSPI 包流模型、
+16-bit CCI 从设备（PING/序列号/FPA+AUX 温度/OEM sync）、I2C 0x30 编码器与 classic SPI
+slave 挂载；修复 classic UART TX_DONE 电平位后官方 demo 可启动到 app 标记。自建 bare-metal
+探针（源码入库，ELF SHA 固定）经真实控制器取得 3 帧 160×120 热帧，guest FNV-1a digest 与
+宿主 fixture oracle 一致、0 包错误，ST7789 135×240 截图 32,400 非黑像素/89 色，QOM 注入
+encoder delta=5 被 guest 读回；设备矩阵新增 `kernel` lane PASS。剩余：官方 demo 热成像/UI
+路径、物理 LWIR 光学/热测量、PDM 麦克风、Grove、编码器实际接线（文档 PA2/PA3/PA4 与官方
+示例 I2C 0x30 矛盾按示例建模）与 AXP192/PCF8563/MPU6886 板级数据面。
 Basic v2.7（`basic-v27` / `m5basic`）同期接入：classic ESP32 启动、320×240
 ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数字 PCM
 限定通过；IP5306 电芯/电气、microSD、电源键、背光 PWM、Grove Unit 与

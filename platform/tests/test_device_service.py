@@ -407,7 +407,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         rows = {row["device_id"]: row for row in payload["devices"]}
         # The original Plus now has an exact reference; its functional status
         # remains candidate. Linux metadata cannot create a service session.
-        self.assertEqual(len(rows), 32)
+        self.assertEqual(len(rows), 33)
         self.assertIn("stickc-plus", rows)
         self.assertEqual(sum(row["creatable"] for row in rows.values()), 30)
         self.assertFalse(rows["cardputer-zero"]["creatable"])
@@ -418,7 +418,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus-se",
             "stickc-plus2", "atom-lite", "atom-matrix", "atom-matrix-v11",
             "atoms3u", "atom-echos3r", "atoms3r-cam", "atoms3r-m12", "atomu",
-            "atom-echo",
+            "atom-echo", "stickt2",
         ):
             self.assertEqual(rows[candidate]["peripheral_status"], "partial")
             self.assertFalse(rows[candidate]["coverage"]["complete"])
@@ -6223,7 +6223,7 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)
         self.assertEqual(payload["api_version"], "v1")
-        self.assertEqual(len(payload["devices"]), 32)
+        self.assertEqual(len(payload["devices"]), 33)
         rows = {row["device_id"]: row for row in payload["devices"]}
         self.assertIn("stickc-plus", rows)
         self.assertFalse(rows["cardputer-zero"]["supported"])

@@ -33,6 +33,8 @@ was also verified with `git apply --check` on the parallel `0117` (Atom Echo)
 and `0119` (B-class Unit) layer states and on their combination.
 `0122-atoms3r-m12-board.patch` adds the AtomS3R-M12 (C126-M12) machine and
 the OV3660 M12 camera model on the native sequence ending at `0120`.
+`0124-stickt2-board.patch` adds the M5StickT2 (K016-T2) board and the FLIR
+Lepton 3.0 thermal model on the native sequence ending at `0123`.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
@@ -1167,3 +1169,41 @@ patch. The patch base is the current native sequence 0109 + 0110/0111/0112 +
 0113..0120 (including the 0120 dlight/BH1750 command-mask fix) and `git apply --check` was verified on a pristine 0112 tree with
 that exact sequence applied; see
 [evidence](../../docs/evidence/2026-11-02-atoms3r-m12-host/README.md).
+
+`0124-stickt2-board.patch` adds the M5StickT2 (K016-T2) classic-ESP32 host and
+the FLIR Lepton 3.0 thermal model on the native sequence ending at `0123`
+(canonical `0109` + `0110`/`0111`/`0112` + `0113`..`0119` plus the merged
+`0120`/`0121`/`0122`/`0123` layers). The new `m5stickt2` machine reuses the
+classic ESP32 SoC, the ST7789 135x240 board panel model (VSPI, DC G23) and the
+shared G21/G22 soft-I2C bridge, and attaches AXP192 0x34, PCF8563 0x51,
+MPU6886 0x68, the FLIR Lepton CCI at 0x2A and the I2C encoder at 0x30. The
+`m5.lepton` model serves a transfer-driven VoSPI stream of 164-byte packets
+(segment/line header, 80 big-endian pixels, CRC field carried as zero because
+the official driver reads and ignores it), 4 segments x 60 packets per
+deterministic synthetic 160x120 thermal frame selected by frame-seed, with
+VSYNC pulses at segment boundaries and reset handling. The CCI model implements
+the 16-bit register/16-bit data-word command interface used by the official
+example (PING, serial number, FPA/AUX temperature, OEM sync SET), and the
+encoder model implements the example's 0x10/0x00/0x20 register protocol with a
+QOM-injectable delta. A generic classic-ESP32 SPI slave attachment
+(`esp32_spi_attach_spi_slave`) lets the VoSPI model answer USR transactions
+while the guest drives the chip select through GPIO. The patch also latches the
+classic UART `TX_DONE` raw bit and clears it through `INT_CLR` instead of
+deriving it from the TX FIFO level: the previous level-derived bit produced a
+permanent level interrupt for the Arduino-ESP32 1.0.4 / IDF v3 UART driver used
+by the official StickT2 demo.
+
+Guest evidence: the committed bare-metal probe
+(`tests/uiflow2/stickt2_probe`, built with xtensa-esp-elf 14.2.0, loaded with
+QEMU `-kernel`) runs on this machine through the real UART/HSPI/GPIO-I2C/VSPI
+controllers. It receives three 160x120 VoSPI frames whose guest FNV-1a digests
+match the independent host fixture oracle for seeds 0/1/2 with zero packet
+errors, completes every CCI command, renders the frame to the ST7789 panel
+(135x240 screenshot) and reads back a QOM-injected encoder delta; the device
+matrix gained a `kernel` lane for this probe ELF. The official M5Burner
+"StickT2 User Demo" v1.0 image boots to its app marker under deterministic
+icount after the UART fix but does not reach the thermal/UI path and cannot be
+probe-injected; physical LWIR optics/thermal measurement remain outside this
+patch. The patch base and `git apply --check` were verified on a pristine 0112
+tree with the full 0113..0123 sequence applied; see
+[evidence](../../docs/evidence/2026-11-02-stickt2-host/README.md).

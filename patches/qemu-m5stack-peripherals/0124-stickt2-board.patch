@@ -1,0 +1,1060 @@
+From 47cd598333f7d2a399c0b5dacd3e1f8be8e2e7cd Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 20:23:45 +0800
+Subject: [PATCH] hw/m5stopwatch: add M5StickT2 board with FLIR Lepton 3.0
+ thermal model
+
+M5StickT2 (K016-T2) is the classic-ESP32 thermal-camera variant of the
+StickC: ESP32-PICO-D4, 4 MiB flash, ST7789 135x240 panel, AXP192/PCF8563/
+MPU6886 on the shared G21/G22 bus, and a FLIR Lepton 3.0 (160x120,
+I2C CCI + SPI VoSPI) on SCK G2 / MISO G25 / CS G0 / VSYNC G38 /
+RESET G26 with CCI at I2C 0x2A.  The official M5-StickT example also reads
+an external I2C encoder at 0x30 (documented PA2/PA3/PA4 pin names do not
+exist on the PICO-D4); the model follows the example.
+
+New objects:
+- m5stickt2 machine and board glue reusing the classic ESP32 SoC, the
+  ST7789 board panel model (VSPI, DC G23) and the G21/G22 soft-I2C bridge;
+- FLIR Lepton 3.0 model (hw/m5stopwatch/m5_lepton.c): a transfer-driven
+  VoSPI stream of 164-byte packets (segment/line header, 80 big-endian
+  pixels, CRC field carried as zero because the official driver reads and
+  ignores it), 4 segments x 60 packets per deterministic synthetic 160x120
+  thermal frame selected by frame-seed, VSYNC pulses at segment boundaries,
+  RESET pin handling and QOM counters/digest;
+- Lepton CCI model in the I2C slave device: 16-bit register addresses and
+  16-bit data words with command execution for PING, FLIR serial number,
+  FPA/AUX temperature and OEM sync SET commands;
+- encoder 0x30 model: pointer 0x10 switch, pointer 0x00 big-endian delta and
+  pointer 0x20 delta clear, with QOM-injectable increment/switch;
+- a generic classic-ESP32 SPI slave attachment (esp32_spi_attach_spi_slave)
+  so the VoSPI model can answer USR transactions while the guest drives the
+  chip select through a GPIO;
+- classic UART TX_DONE is now latched and cleared by INT_CLR instead of
+  being derived from the TX FIFO level, which is required by the Arduino-
+  ESP32 1.0.4/IDF v3 UART driver used by the official StickT2 demo (the
+  previous level-derived bit produced a permanent level interrupt).
+
+Guest evidence: the committed bare-metal probe
+(tests/uiflow2/stickt2_probe) boots on this machine, receives three VoSPI
+frames whose guest FNV-1a digests match the host fixture oracle for seeds
+0/1/2 with zero packet errors, answers every CCI command, renders the frame
+to the ST7789 panel (135x240 screenshot) and reads back a QOM-injected
+encoder delta.  The official M5Burner "StickT2 User Demo" now reaches its
+app boot marker under deterministic icount but its thermal/UI path is not
+reached; physical optics/thermals remain NOT RUN.
+---
+ hw/char/esp32_uart.c           |  22 +-
+ hw/m5stopwatch/m5_lepton.c     | 388 +++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5stickt2.c     |  96 ++++++++
+ hw/m5stopwatch/m5stopwatch.h   |   5 +
+ hw/m5stopwatch/m5sw_i2c_devs.c | 205 +++++++++++++++++
+ hw/ssi/esp32_spi.c             |  34 ++-
+ hw/xtensa/esp32.c              |  37 ++++
+ hw/xtensa/meson.build          |   2 +
+ include/hw/ssi/esp32_spi.h     |   9 +
+ 9 files changed, 795 insertions(+), 3 deletions(-)
+ create mode 100644 hw/m5stopwatch/m5_lepton.c
+ create mode 100644 hw/m5stopwatch/m5stickt2.c
+
+diff --git a/hw/char/esp32_uart.c b/hw/char/esp32_uart.c
+index ada504e..8d8510d 100644
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -37,7 +37,12 @@ void esp32_uart_update_irq(ESP32UARTState *s)
+ 
+     uint32_t tx_empty_raw = (fifo8_num_used(&s->tx_fifo) <= s->tx_empty_threshold);
+     uint32_t rx_full_raw = (fifo8_num_used(&s->rx_fifo) >= s->rx_full_threshold);
+-    uint32_t tx_done_raw = (fifo8_num_used(&s->tx_fifo) == 0);
++    /* TX_DONE is latched when a transmission drains the FIFO and is
++     * acknowledged through INT_CLR; deriving it from the FIFO level leaves a
++     * permanently asserted level interrupt for drivers that enable it
++     * (Arduino-ESP32 1.0.4 uartBegin does exactly that). */
++    uint32_t tx_done_raw = FIELD_EX32(s->reg[R_UART_INT_RAW],
++                                      UART_INT_RAW, TX_DONE);
+     uint32_t rxfifo_tout_raw = (s->rxfifo_tout) ? 1 : 0;
+ 
+     uint32_t int_raw = s->reg[R_UART_INT_RAW];
+@@ -51,6 +56,13 @@ void esp32_uart_update_irq(ESP32UARTState *s)
+     irq = int_st != 0;
+     s->reg[R_UART_INT_ST] = int_st;
+ 
++    if (getenv("M5SW_UART_IRQ_TRACE") && irq) {
++        static unsigned trace_count;
++        if (trace_count++ < 40) {
++            fprintf(stderr, "[uart-irq] raw=%08x ena=%08x st=%08x\n",
++                    s->reg[R_UART_INT_RAW], s->reg[R_UART_INT_ENA], int_st);
++        }
++    }
+     qemu_set_irq(s->irq, irq);
+ }
+ 
+@@ -154,6 +166,7 @@ static void uart_write(void *opaque, hwaddr addr,
+ 
+     case A_UART_INT_CLR:
+         s->reg[R_UART_INT_ST] &= ~((uint32_t) value);
++        s->reg[R_UART_INT_RAW] &= ~((uint32_t) value);
+         s->reg[addr / 4] = value;
+         if (value & R_UART_INT_CLR_RXFIFO_TOUT_MASK) {
+             s->rxfifo_tout = false;
+@@ -231,6 +244,9 @@ static gboolean uart_transmit(void *do_not_use, GIOCondition cond, void *opaque)
+     /* drain the fifo instantly, if the char device backend is not connected */
+     if (!qemu_chr_fe_backend_open(&s->chr)) {
+         fifo8_reset(&s->tx_fifo);
++        s->reg[R_UART_INT_RAW] = FIELD_DP32(s->reg[R_UART_INT_RAW],
++                                            UART_INT_RAW, TX_DONE, 1);
++        esp32_uart_update_irq(s);
+         return FALSE;
+     }
+ 
+@@ -246,6 +262,10 @@ static gboolean uart_transmit(void *do_not_use, GIOCondition cond, void *opaque)
+         }
+     }
+ 
++    if (fifo8_num_used(&s->tx_fifo) == 0) {
++        s->reg[R_UART_INT_RAW] = FIELD_DP32(s->reg[R_UART_INT_RAW],
++                                            UART_INT_RAW, TX_DONE, 1);
++    }
+     esp32_uart_update_irq(s);
+ 
+     return FALSE;
+diff --git a/hw/m5stopwatch/m5_lepton.c b/hw/m5stopwatch/m5_lepton.c
+new file mode 100644
+index 0000000..58bee63
+--- /dev/null
++++ b/hw/m5stopwatch/m5_lepton.c
+@@ -0,0 +1,388 @@
++/*
++ * FLIR Lepton 3.0 thermal camera model (VoSPI video + VSYNC + reset).
++ *
++ * The official M5-StickT example (examples/M5StickT_Lepton_opensource_v1)
++ * clocks 164-byte VoSPI packets out of the sensor on HSPI, reads one packet
++ * per video line-half, and expects:
++ *   - packet byte 0: high nibble = segment number (1..4), low nibble 0x0 for
++ *     a valid packet (0xF marks the discard packets the driver skips),
++ *   - packet byte 1: packet number 0..59 inside the segment,
++ *   - packet bytes 2..3: CRC word (the example reads and ignores it; the
++ *     model writes 0 and this is documented as an unvalidated field),
++ *   - packet bytes 4..163: 80 big-endian 16-bit raw pixel values.
++ * The example's getRawValues() waits for a VSYNC rising edge on GPIO38
++ * before reading each segment, so this model resets its packet pointer and
++ * pulses VSYNC at every segment boundary (4 segments per 160x120 frame).
++ *
++ * Data plane: a deterministic synthetic thermal fixture is generated inside
++ * the model from `frame-seed`; the host-side oracle rebuilds the same field
++ * from that seed.  No frame or register content is injected by the host: the
++ * QOM properties only select the fixture seed and whether it advances once
++ * per frame, like the camera sensor models in this tree.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/module.h"
++#include "qemu/log.h"
++#include "qemu/timer.h"
++#include "hw/sysbus.h"
++#include "qapi/error.h"
++#include "hw/qdev-properties.h"
++#include "hw/ssi/esp32_spi.h"
++#include "m5stopwatch.h"
++
++#define LEPTON_WIDTH 160
++#define LEPTON_HEIGHT 120
++#define LEPTON_SEGMENTS 4
++#define LEPTON_PACKETS_PER_SEGMENT 60
++#define LEPTON_PACKET_BYTES 164
++#define LEPTON_PIXELS_PER_PACKET 80
++#define LEPTON_ROWS_PER_SEGMENT 30
++
++typedef struct M5LeptonState {
++    DeviceState parent_obj;
++
++    QEMUTimer *segment_timer;
++    QEMUTimer *vsync_timer;
++    uint32_t vsync_width_us;
++    uint32_t cs_pin;
++    uint32_t vsync_pin;
++    uint32_t reset_pin;
++    uint32_t segment_interval_us;
++
++    uint32_t frame_seed;
++    uint32_t base_frame_seed;
++    bool auto_increment;
++
++    uint8_t segment;   /* 1..4, next segment to serve */
++    uint8_t packet;    /* 0..59, next packet inside the segment */
++    uint8_t packet_buf[LEPTON_PACKET_BYTES];
++    int packet_offset; /* bytes already served from packet_buf, -1 = idle */
++    int cs_level;
++    bool trace;
++
++    uint32_t frames_started;
++    uint32_t segments_started;
++    uint32_t segments_served;
++    uint32_t packets_served;
++    uint32_t vsyncs;
++    uint32_t bytes_this_packet;
++    uint16_t frame[LEPTON_WIDTH * LEPTON_HEIGHT];
++    char frame_digest[65];
++} M5LeptonState;
++
++#define TYPE_M5_LEPTON "m5.lepton"
++#define M5_LEPTON(obj) \
++    OBJECT_CHECK(M5LeptonState, (obj), TYPE_M5_LEPTON)
++#define M5_LEPTON_CLASS(klass) \
++    OBJECT_CLASS_CHECK(M5LeptonClass, (klass), TYPE_M5_LEPTON)
++
++typedef struct M5LeptonClass {
++    DeviceClass parent_class;
++} M5LeptonClass;
++
++static uint16_t lepton_fixture_raw(int x, int y, uint32_t seed)
++{
++    /* Deterministic LWIR-like field: slow gradient, two warm blocks and one
++     * cool block.  Values stay in 16-bit raw counts and never hit 0 (the
++     * guest treats a 0 pixel as a failed packet). */
++    int warm_x = 12 + (int)((seed * 13u) % 96u);
++    int warm_y = 10 + (int)((seed * 7u) % 64u);
++    uint32_t value = 5200u + (uint32_t)((x * 19 + y * 31 + (int)(seed * 337u)) % 2600);
++
++    if (x >= warm_x && x < warm_x + 40 && y >= warm_y && y < warm_y + 30) {
++        value += 2600u;
++    }
++    if (x >= 118 && x < 150 && y >= 88 && y < 114) {
++        value = 4300u + (seed * 11u) % 600u;
++    }
++    if (value == 0) {
++        value = 1;
++    }
++    return (uint16_t)value;
++}
++
++static void lepton_build_frame(M5LeptonState *s, uint32_t seed)
++{
++    g_autoptr(GChecksum) checksum = g_checksum_new(G_CHECKSUM_SHA256);
++
++    s->frame_seed = seed;
++    for (int y = 0; y < LEPTON_HEIGHT; y++) {
++        for (int x = 0; x < LEPTON_WIDTH; x++) {
++            uint16_t raw = lepton_fixture_raw(x, y, seed);
++            s->frame[y * LEPTON_WIDTH + x] = raw;
++        }
++    }
++    g_checksum_update(checksum, (const guchar *)s->frame, sizeof(s->frame));
++    g_strlcpy(s->frame_digest, g_checksum_get_string(checksum),
++              sizeof(s->frame_digest));
++    if (s->trace) {
++        qemu_log("[lepton] frame seed=%u digest=%s\n", seed, s->frame_digest);
++    }
++}
++
++static void lepton_build_packet(M5LeptonState *s)
++{
++    int segment = s->segment;
++    int line = s->packet;
++    int row = (segment - 1) * LEPTON_ROWS_PER_SEGMENT + (line >> 1);
++    int half = line & 1;
++
++    s->packet_buf[0] = (uint8_t)(segment << 4);
++    s->packet_buf[1] = (uint8_t)line;
++    s->packet_buf[2] = 0;
++    s->packet_buf[3] = 0;
++    for (int col = 0; col < LEPTON_PIXELS_PER_PACKET; col++) {
++        uint16_t raw = s->frame[row * LEPTON_WIDTH + half * 80 + col];
++        s->packet_buf[4 + col * 2] = raw >> 8;
++        s->packet_buf[5 + col * 2] = raw & 0xff;
++    }
++}
++
++static uint8_t lepton_spi_transfer(void *opaque, uint8_t tx)
++{
++    M5LeptonState *s = M5_LEPTON(opaque);
++
++    if (s->cs_level != 0) {
++        return 0xff;
++    }
++    if (s->packet_offset < 0 || s->packet_offset >= LEPTON_PACKET_BYTES) {
++        if (s->packet >= LEPTON_PACKETS_PER_SEGMENT) {
++            /* Segment already consumed; wait for the next VSYNC. */
++            return 0xff;
++        }
++        lepton_build_packet(s);
++        s->packet_offset = 0;
++        s->packets_served++;
++        if (s->trace) {
++            qemu_log("[lepton] serve seg=%u line=%u hdr=%02x%02x%02x%02x\n",
++                     s->segment, s->packet, s->packet_buf[0],
++                     s->packet_buf[1], s->packet_buf[2], s->packet_buf[3]);
++        }
++    }
++    uint8_t value = s->packet_buf[s->packet_offset];
++    s->bytes_this_packet++;
++    s->packet_offset++;
++    if (s->packet_offset == LEPTON_PACKET_BYTES) {
++        s->bytes_this_packet = 0;
++        s->packet_offset = -1;
++        s->packet++;
++        if (s->packet >= LEPTON_PACKETS_PER_SEGMENT) {
++            /* VoSPI is a continuous stream: the sensor advances to the next
++             * segment after 60 packets regardless of the VSYNC timer, which
++             * only provides the reference pulse. */
++            s->segments_served++;
++            s->packet = 0;
++            if (s->segment >= LEPTON_SEGMENTS) {
++                if (s->auto_increment) {
++                    s->base_frame_seed++;
++                }
++                s->frames_started++;
++                lepton_build_frame(s, s->base_frame_seed);
++                s->segment = 1;
++            } else {
++                s->segment++;
++            }
++        }
++    }
++    return value;
++}
++
++static void lepton_set_cs(void *opaque, int level);
++
++static const M5SpiSlaveOps lepton_spi_ops = {
++    .set_cs = lepton_set_cs,
++    .transfer = lepton_spi_transfer,
++};
++
++static void lepton_set_cs(void *opaque, int level)
++{
++    M5LeptonState *s = M5_LEPTON(opaque);
++
++    s->cs_level = level;
++    if (s->trace) {
++        qemu_log("[lepton] cs level=%d\n", level);
++    }
++}
++
++static void m5_lepton_cs_line(void *opaque, int pin, int level)
++{
++    lepton_set_cs(opaque, level);
++}
++
++static void m5_lepton_vsync_end(void *opaque)
++{
++    M5LeptonState *s = M5_LEPTON(opaque);
++
++    esp32_gpio_set_input(s->vsync_pin, 1);
++}
++
++static void m5_lepton_vsync_pulse(M5LeptonState *s)
++{
++    /* Drive a real low pulse so both interrupt-driven and polling guests can
++     * observe the rising edge; a zero-width pulse would be invisible to a
++     * CPU that polls the GPIO input register. */
++    esp32_gpio_set_input(s->vsync_pin, 0);
++    timer_mod(s->vsync_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              (uint64_t)s->vsync_width_us * 1000);
++    s->vsyncs++;
++}
++
++static void lepton_segment_tick(void *opaque)
++{
++    M5LeptonState *s = M5_LEPTON(opaque);
++
++    m5_lepton_vsync_pulse(s);
++    if (s->trace) {
++        qemu_log("[lepton] vsync pulse segment=%u frames=%u\n",
++                 s->segment, s->frames_started);
++    }
++    timer_mod(s->segment_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              (uint64_t)s->segment_interval_us * 1000);
++}
++
++static void lepton_reset_line(void *opaque, int pin, int level)
++{
++    M5LeptonState *s = M5_LEPTON(opaque);
++
++    if (s->trace) {
++        qemu_log("[lepton] reset pin=%d level=%d\n", pin, level);
++    }
++    if (level == 0) {
++        /* Sensor held in reset: restart the stream at segment 1 of the
++         * configured seed frame. */
++        s->segment = 1;
++        s->packet = 0;
++        s->packet_offset = -1;
++        s->base_frame_seed = s->frame_seed;
++        lepton_build_frame(s, s->base_frame_seed);
++    }
++}
++
++static void m5_lepton_realize(DeviceState *dev, Error **errp)
++{
++    M5LeptonState *s = M5_LEPTON(dev);
++
++    s->trace = getenv("M5SW_LEPTON_TRACE") != NULL;
++    s->cs_level = 1;
++    s->packet_offset = -1;
++    s->packet = 0;
++    s->segment = 1;
++    s->base_frame_seed = s->frame_seed;
++    lepton_build_frame(s, s->frame_seed);
++
++    esp32_gpio_set_input(s->vsync_pin, 1);
++    esp32_gpio_add_out_listener(s->cs_pin, m5_lepton_cs_line, s);
++    esp32_gpio_add_out_listener(s->reset_pin, lepton_reset_line, s);
++
++    s->vsync_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                  (QEMUTimerCB *)m5_lepton_vsync_end, s);
++    s->segment_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                    (QEMUTimerCB *)lepton_segment_tick, s);
++    timer_mod(s->segment_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              (uint64_t)s->segment_interval_us * 1000);
++}
++
++static void m5_lepton_unrealize(DeviceState *dev)
++{
++    M5LeptonState *s = M5_LEPTON(dev);
++
++    if (s->segment_timer) {
++        timer_del(s->segment_timer);
++        timer_free(s->segment_timer);
++        s->segment_timer = NULL;
++    }
++    if (s->vsync_timer) {
++        timer_del(s->vsync_timer);
++        timer_free(s->vsync_timer);
++        s->vsync_timer = NULL;
++    }
++}
++
++static char *lepton_frame_digest_get(Object *obj, Error **errp)
++{
++    return g_strdup(M5_LEPTON(obj)->frame_digest);
++}
++
++static bool lepton_auto_increment_get(Object *obj, Error **errp)
++{
++    return M5_LEPTON(obj)->auto_increment;
++}
++
++static void lepton_auto_increment_set(Object *obj, bool value, Error **errp)
++{
++    M5_LEPTON(obj)->auto_increment = value;
++}
++
++static void m5_lepton_instance_init(Object *obj)
++{
++    M5LeptonState *s = M5_LEPTON(obj);
++
++    /* One segment per 30 ms virtual time: the official example reads each
++     * 60-packet segment in roughly 4 ms at 20 MHz SPI, leaving headroom for
++     * QEMU's SPI transaction overhead. */
++    s->segment_interval_us = 30000;
++    s->vsync_width_us = 1000;
++    s->base_frame_seed = 0;
++    s->auto_increment = true;
++    object_property_add_uint32_ptr(obj, "frame-seed", &s->frame_seed,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "cs-pin", &s->cs_pin,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "vsync-pin", &s->vsync_pin,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "reset-pin", &s->reset_pin,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "segment-interval-us",
++                                   &s->segment_interval_us,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "vsync-width-us", &s->vsync_width_us,
++                                   OBJ_PROP_FLAG_READWRITE);
++    object_property_add_uint32_ptr(obj, "frames-started", &s->frames_started,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(obj, "segments-started", &s->segments_started,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(obj, "segments-served", &s->segments_served,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(obj, "packets-served", &s->packets_served,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(obj, "vsyncs", &s->vsyncs,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_bool(obj, "auto-increment",
++                             lepton_auto_increment_get,
++                             lepton_auto_increment_set);
++    object_property_add_str(obj, "frame-digest", lepton_frame_digest_get, NULL);
++}
++
++static void m5_lepton_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++
++    dc->realize = m5_lepton_realize;
++    dc->unrealize = m5_lepton_unrealize;
++    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
++}
++
++static const TypeInfo m5_lepton_info = {
++    .name = TYPE_M5_LEPTON,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(M5LeptonState),
++    .instance_init = m5_lepton_instance_init,
++    .class_init = m5_lepton_class_init,
++};
++
++static void m5_lepton_register(void)
++{
++    type_register_static(&m5_lepton_info);
++}
++type_init(m5_lepton_register)
++
++void m5_lepton_attach_spi(DeviceState *dev, DeviceState *spi)
++{
++    esp32_spi_attach_spi_slave(spi, &lepton_spi_ops, M5_LEPTON(dev),
++                               M5_LEPTON(dev)->cs_pin);
++}
+diff --git a/hw/m5stopwatch/m5stickt2.c b/hw/m5stopwatch/m5stickt2.c
+new file mode 100644
+index 0000000..265feaf
+--- /dev/null
++++ b/hw/m5stopwatch/m5stickt2.c
+@@ -0,0 +1,96 @@
++/*
++ * M5StickT2 (K016-T2) board wiring.
++ *
++ * ESP32-PICO-D4, 4 MiB flash, no PSRAM; 1.14" 240x135 ST7789 IPS on
++ * VSPI/SPI3 (MOSI G15, SCK G13, CS G5, DC G23, RST G18); AXP192 (0x34),
++ * PCF8563 (0x51) and MPU6886 (0x68) on the G21/G22 I2C bus; two GPIO
++ * buttons G37/G39; SPM1423 PDM microphone on G0 (CLK) / G34 (DATA); Grove
++ * port G32/G33.
++ *
++ * Thermal camera: FLIR Lepton 3.0 (160x120, 25 MHz input clock) whose CCI
++ * control interface is I2C address 0x2A on the same G21/G22 bus and whose
++ * VoSPI video stream is read from HSPI/SPI2 (SCK G2, MISO G25, MOSI G34 is
++ * not used for VoSPI) with CS on G0, VSYNC on G38 and RESET on G26.  The
++ * official M5-StickT example uses this exact wiring
++ * (examples/M5StickT_Lepton_opensource_v1/M5StickT_Lepton_opensource_v1.ino
++ * and src/utility/In_eSPI_Setup.h pin defines).
++ *
++ * The onboard "rotary encoder" listed by some product pages does not appear
++ * in the official example; the example talks to an external encoder at I2C
++ * 0x30 on the same G21/G22 bus (ENCODER_ADDR, registers 0x00/0x10/0x20).
++ * The model follows the example and keeps the encoder QOM-injectable.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5stickt2_board_init(Esp32SocState *s)
++{
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++    static const struct {
++        const char *model;
++        uint8_t address;
++    } devices[] = {
++        { "axp192", 0x34 },
++        { "pcf8563", 0x51 },
++        { "mpu6886", 0x68 },
++        { "lepton", 0x2a },
++        { "encoder", 0x30 },
++    };
++
++    /* Both controller blocks may be routed to the GPIO21/22 board bus. */
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus);
++    for (unsigned i = 0; i < ARRAY_SIZE(devices); i++) {
++        DeviceState *dev = qdev_new(TYPE_M5SW_I2C_DEV);
++
++        qdev_prop_set_string(dev, "model", devices[i].model);
++        qdev_prop_set_uint8(dev, "address", devices[i].address);
++        object_property_add_child(qdev_get_machine(),
++                                  strcmp(devices[i].model, "lepton") == 0
++                                      ? "lepton-cci" : devices[i].model,
++                                  OBJECT(dev));
++        qdev_realize_and_unref(dev, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init_pins(bus, 21, 22);
++
++    /* Buttons A/B are active-low with external pull-ups. */
++    esp32_gpio_set_input(37, 1);
++    esp32_gpio_set_input(39, 1);
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++
++    qdev_prop_set_uint32(panel, "mem-width", 240);
++    qdev_prop_set_uint32(panel, "mem-height", 320);
++    qdev_prop_set_uint32(panel, "vis-width", 135);
++    qdev_prop_set_uint32(panel, "vis-height", 240);
++    qdev_prop_set_uint32(panel, "offset-x", 52);
++    qdev_prop_set_uint32(panel, "offset-y", 40);
++    qdev_prop_set_uint32(panel, "read-id", 0x00000085);
++    qdev_prop_set_uint32(panel, "key-a-pin", 37);
++    qdev_prop_set_uint32(panel, "key-b-pin", 39);
++    qdev_prop_set_bit(panel, "immediate-update", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++
++    /* ST7789 135x240 on VSPI/SPI3, MOSI G15 / SCK G13 / CS G5 / DC G23. */
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 23);
++
++    /* FLIR Lepton 3.0 VoSPI on HSPI/SPI2, CS G0, VSYNC G38, RESET G26. */
++    DeviceState *lepton = qdev_new(TYPE_M5_LEPTON);
++    qdev_prop_set_uint32(lepton, "cs-pin", 0);
++    qdev_prop_set_uint32(lepton, "vsync-pin", 38);
++    qdev_prop_set_uint32(lepton, "reset-pin", 26);
++    object_property_add_child(qdev_get_machine(), "lepton", OBJECT(lepton));
++    qdev_realize_and_unref(lepton, NULL, &error_fatal);
++    m5_lepton_attach_spi(lepton, DEVICE(&s->spi[2]));
++
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 2fc207c..b5d4b68 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -21,6 +21,7 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5Ip5306State, M5_IP5306)
+ OBJECT_DECLARE_SIMPLE_TYPE(Co5300State, CO5300)
+ 
+ #define TYPE_M5_SPI_PANEL "m5.spi-panel"
++#define TYPE_M5_LEPTON "m5.lepton"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5SpiPanelState, M5_SPI_PANEL)
+ 
+ #define TYPE_M5_EPD_PANEL "m5.epd-panel"
+@@ -93,6 +94,7 @@ typedef enum {
+     M5_BOARD_ATOMU,
+     M5_BOARD_ATOM_ECHO,
+     M5_BOARD_M5STICK,
++    M5_BOARD_STICKT2,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -151,6 +153,8 @@ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++/* FLIR Lepton 3.0 VoSPI model attached to a classic ESP32 SPI controller. */
++void m5_lepton_attach_spi(DeviceState *dev, DeviceState *spi);
+ void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_scs_servo_attach(DeviceState *uart);
+ bool m5sw_stackchan_servo_power_enabled(void);
+@@ -228,6 +232,7 @@ void m5atomu_board_init(struct Esp32SocState *s);
+ void m5atomecho_board_init(struct Esp32SocState *s);
+ void m5basic_board_init(struct Esp32SocState *s);
+ void m5stick_board_init(struct Esp32SocState *s);
++void m5stickt2_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+ void m5_unit_runtime_init(bool s3);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 7543e75..dda5804 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -50,6 +50,8 @@ enum {
+     M_IP2315,
+     M_GC0308,
+     M_OV3660,
++    M_LEPTON,
++    M_ENCODER,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -67,6 +69,23 @@ typedef struct M5swI2CDev {
+     uint8_t ov3660_addr_bytes;
+     bool ov3660_ptr_valid;
+     DeviceState *ov3660_lcd_cam;
++    /* FLIR Lepton 3.0 CCI (I2C 0x2A): 16-bit register address, 16-bit data
++     * words, word-addressable register file and command execution. */
++    uint16_t *lepton_regs;
++    uint16_t lepton_ptr;
++    uint8_t lepton_addr_bytes;
++    uint8_t lepton_wr_hi;
++    uint16_t lepton_wr_value;
++    uint16_t lepton_read_ptr;
++    int64_t lepton_fpa_temp_mk;
++    int64_t lepton_aux_temp_mk;
++    int64_t lepton_commands;
++    int64_t lepton_gets;
++    int64_t lepton_sets;
++    /* External I2C encoder at 0x30 used by the M5-StickT example. */
++    int64_t encoder_increment;
++    int64_t encoder_switch;
++    uint8_t encoder_read_index;
+     uint8_t ptr;
+     bool ptr_set;          /* first byte of a write = register address */
+     int64_t rtc_base_seconds; /* host epoch captured at device realize */
+@@ -1612,6 +1631,82 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+     return s->regs[r];
+ }
+ 
++
++#define LEPTON_CCI_WORDS 0x8000
++#define LEPTON_CCI_ADDR_COMMAND  0x0004
++#define LEPTON_CCI_ADDR_DATA_LEN 0x0006
++#define LEPTON_CCI_ADDR_DATA     0x0008
++
++static uint16_t lepton_reg_get(M5swI2CDev *s, uint16_t addr)
++{
++    if (!s->lepton_regs || addr >= LEPTON_CCI_WORDS * 2) {
++        return 0;
++    }
++    return s->lepton_regs[addr >> 1];
++}
++
++static void lepton_reg_set(M5swI2CDev *s, uint16_t addr, uint16_t value)
++{
++    if (s->lepton_regs && addr < LEPTON_CCI_WORDS * 2) {
++        s->lepton_regs[addr >> 1] = value;
++    }
++}
++
++static void lepton_set_response(M5swI2CDev *s, const uint16_t *words,
++                                unsigned count)
++{
++    lepton_reg_set(s, LEPTON_CCI_ADDR_DATA_LEN, count * 2);
++    for (unsigned i = 0; i < count; i++) {
++        lepton_reg_set(s, LEPTON_CCI_ADDR_DATA + i * 2, words[i]);
++    }
++}
++
++static void lepton_execute_command(M5swI2CDev *s, uint16_t command)
++{
++    uint16_t base = command & 0xfffc;
++    uint16_t type = command & 3;
++
++    s->lepton_commands++;
++    if (type == 0) {
++        uint16_t words[8] = { 0 };
++        unsigned count = 1;
++
++        switch (base) {
++        case 0x0210:   /* CMD_SYS_AUX_TEMPERATURE_KELVIN, 0.01 K units */
++            words[0] = (uint16_t)s->lepton_aux_temp_mk;
++            break;
++        case 0x0214:   /* CMD_SYS_FPA_TEMPERATURE_KELVIN */
++            words[0] = (uint16_t)s->lepton_fpa_temp_mk;
++            break;
++        case 0x0208:   /* CMD_SYS_FLIR_SERIAL_NUMBER: 8 sixteen-bit words */
++            count = 8;
++            for (unsigned i = 0; i < count; i++) {
++                words[i] = 0x1000 + i;
++            }
++            break;
++        case 0x0200:   /* CMD_SYS_PING */
++            count = 1;
++            words[0] = 0x0000;
++            break;
++        case 0x0204:   /* CMD_SYS_STATUS */
++            count = 2;
++            words[0] = 0x0000;
++            words[1] = 0x0000;
++            break;
++        default:
++            count = 1;
++            words[0] = 0x0000;
++            break;
++        }
++        s->lepton_gets++;
++        lepton_set_response(s, words, count);
++    } else {
++        /* SET/RUN commands keep the caller-provided data words; nothing in
++         * the official example's command set needs extra side effects. */
++        s->lepton_sets++;
++    }
++}
++
+ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+@@ -1626,8 +1721,18 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+         if (s->model == M_OV3660) {
+             s->ov3660_addr_bytes = 0;
+         }
++        if (s->model == M_LEPTON) {
++            s->lepton_addr_bytes = 0;
++            s->lepton_wr_hi = 0;
++        }
+     } else if (ev == I2C_START_RECV) {
+         s->read_start = s->ptr;
++        if (s->model == M_LEPTON) {
++            s->lepton_read_ptr = s->lepton_ptr;
++        }
++        if (s->model == M_ENCODER) {
++            s->encoder_read_index = 0;
++        }
+         s->ina3221_read_index = 0;
+         if (s->model == M_ST25R3916) {
+             s->st25_read_space_b = s->st25_mode == 3;
+@@ -1649,6 +1754,30 @@ static uint8_t dev_recv(I2CSlave *i2c)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+     s->read_bytes++;
++    if (s->model == M_LEPTON) {
++        uint16_t word = lepton_reg_get(s, s->lepton_read_ptr & 0xfffe);
++        uint8_t v = (s->lepton_read_ptr & 1) ? (word & 0xff) : (word >> 8);
++        s->lepton_read_ptr++;
++        if (s->trace) {
++            qemu_log("[lepton-cci] rd16 %04x -> %02x\n",
++                     s->lepton_read_ptr - 1, v);
++        }
++        return v;
++    }
++    if (s->model == M_ENCODER) {
++        uint8_t v = 0;
++        if (s->read_start == 0x00) {
++            uint16_t words = (uint16_t)(s->encoder_increment & 0xffff);
++            v = s->encoder_read_index++ & 1 ? words & 0xff : words >> 8;
++        } else if (s->read_start == 0x10) {
++            v = (uint8_t)s->encoder_switch;
++        }
++        if (s->trace) {
++            qemu_log("[encoder] rd %02x[%u] -> %02x\n", s->read_start,
++                     s->encoder_read_index, v);
++        }
++        return v;
++    }
+     if (s->model == M_OV3660) {
+         uint8_t v = ov3660_read_reg(s, s->ov3660_ptr);
+         if (s->trace) {
+@@ -1686,6 +1815,55 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+     s->written_bytes++;
++    if (s->model == M_LEPTON) {
++        if (s->lepton_addr_bytes == 0) {
++            s->lepton_ptr = (uint16_t)data << 8;
++            s->lepton_addr_bytes = 1;
++            return 0;
++        }
++        if (s->lepton_addr_bytes == 1) {
++            s->lepton_ptr |= data;
++            s->lepton_addr_bytes = 2;
++            s->lepton_wr_hi = 0;
++            return 0;
++        }
++        if (!s->lepton_wr_hi) {
++            s->lepton_wr_value = (uint16_t)data << 8;
++            s->lepton_wr_hi = 1;
++            return 0;
++        }
++        {
++            uint16_t value = s->lepton_wr_value | data;
++            s->lepton_wr_hi = 0;
++            if (s->trace) {
++                qemu_log("[lepton-cci] wr16 %04x <- %04x\n",
++                         s->lepton_ptr, value);
++            }
++            lepton_reg_set(s, s->lepton_ptr, value);
++            if (s->lepton_ptr == LEPTON_CCI_ADDR_COMMAND) {
++                lepton_execute_command(s, value);
++            }
++            s->lepton_ptr += 2;
++        }
++        return 0;
++    }
++    if (s->model == M_ENCODER) {
++        if (!s->ptr_set) {
++            s->ptr = data;
++            s->ptr_set = true;
++            return 0;
++        }
++        if (s->ptr == 0x20) {
++            /* The example clears the accumulated encoder delta here. */
++            s->encoder_increment = 0;
++        } else {
++            s->regs[s->ptr] = data;
++        }
++        if (s->trace) {
++            qemu_log("[encoder] wr %02x <- %02x\n", s->ptr, data);
++        }
++        return 0;
++    }
+     if (s->model == M_OV3660) {
+         if (s->ov3660_addr_bytes == 0) {
+             s->ov3660_ptr = (uint16_t)data << 8;
+@@ -2624,6 +2802,29 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         s->ov3660_regs = g_malloc0(OV3660_REG_SPACE);
+         s->ov3660_addr_bytes = 0;
+         s->ov3660_ptr_valid = false;
++    } else if (!strcmp(m, "lepton")) {
++        s->model = M_LEPTON;
++        s->lepton_regs = g_new0(uint16_t, LEPTON_CCI_WORDS);
++        s->lepton_fpa_temp_mk = 30000;
++        s->lepton_aux_temp_mk = 29950;
++        object_property_add(OBJECT(s), "fpa-temp-mk", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->lepton_fpa_temp_mk);
++        object_property_add(OBJECT(s), "aux-temp-mk", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->lepton_aux_temp_mk);
++        object_property_add(OBJECT(s), "commands", "int", prop_get_i64, NULL,
++                            NULL, &s->lepton_commands);
++        object_property_add(OBJECT(s), "gets", "int", prop_get_i64, NULL,
++                            NULL, &s->lepton_gets);
++        object_property_add(OBJECT(s), "sets", "int", prop_get_i64, NULL,
++                            NULL, &s->lepton_sets);
++    } else if (!strcmp(m, "encoder")) {
++        s->model = M_ENCODER;
++        s->encoder_increment = 0;
++        s->encoder_switch = 0;
++        object_property_add(OBJECT(s), "increment", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->encoder_increment);
++        object_property_add(OBJECT(s), "switch", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->encoder_switch);
+     } else if (!strcmp(m, "m5ioe1_v4")) {
+         s->model = M_IOE1;
+         s->regs[0x00] = 0x34;
+@@ -2696,6 +2897,10 @@ static void dev_unrealize(DeviceState *dev)
+         g_free(s->ov3660_regs);
+         s->ov3660_regs = NULL;
+     }
++    if (s->lepton_regs) {
++        g_free(s->lepton_regs);
++        s->lepton_regs = NULL;
++    }
+     if (s->power_key_timer) {
+         timer_free(s->power_key_timer);
+         s->power_key_timer = NULL;
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+index 52af28d..2262847 100644
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -238,9 +238,15 @@ static void esp32_spi_txrx_buffer(Esp32SpiState *s, void *buf, int tx_bytes, int
+         if (i < tx_bytes) {
+             memcpy(&byte, c_buf + i, 1);
+         }
+-        uint32_t res = ssi_transfer(s->spi, byte);
++        int res;
++        if (s->spi_slave_ops && s->spi_slave_cs_level == 0) {
++            res = s->spi_slave_ops->transfer(s->spi_slave_opaque, byte);
++        } else {
++            res = ssi_transfer(s->spi, byte);
++        }
+         if (i < rx_bytes) {
+-            memcpy(c_buf + i, &res, 1);
++            uint8_t value = res;
++            memcpy(c_buf + i, &value, 1);
+         }
+     }
+ }
+@@ -318,6 +324,30 @@ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,
+     s->m5_dc_pin = dc_pin;
+ }
+ 
++static void esp32_spi_slave_cs(void *opaque, int pin, int level)
++{
++    Esp32SpiState *s = ESP32_SPI(opaque);
++
++    s->spi_slave_cs_level = level;
++    if (s->spi_slave_ops) {
++        s->spi_slave_ops->set_cs(s->spi_slave_opaque, level);
++    }
++}
++
++void esp32_spi_attach_spi_slave(DeviceState *dev,
++                                const struct M5SpiSlaveOps *ops,
++                                void *opaque, int cs_pin)
++{
++    Esp32SpiState *s = ESP32_SPI(dev);
++
++    s->spi_slave_ops = ops;
++    s->spi_slave_opaque = opaque;
++    s->spi_slave_cs_pin = cs_pin;
++    s->spi_slave_cs_level = 1;
++    esp32_gpio_set_input(cs_pin, 1);
++    esp32_gpio_add_out_listener(cs_pin, esp32_spi_slave_cs, s);
++}
++
+ /* Convert one of the hardware "bitlen" registers to a byte count */
+ static inline int bitlen_to_bytes(uint32_t val)
+ {
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 8babdba..6aa7254 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1051,6 +1051,8 @@ static void esp32_machine_init(MachineState *machine)
+         m5basic_board_init(ss);
+     } else if (m5_board == M5_BOARD_M5STICK) {
+         m5stick_board_init(ss);
++    } else if (m5_board == M5_BOARD_STICKT2) {
++        m5stickt2_board_init(ss);
+     } else if (m5_board == M5_BOARD_ATOMU) {
+         m5atomu_board_init(ss);
+     } else if (m5_board == M5_BOARD_ATOM_ECHO) {
+@@ -1578,3 +1580,38 @@ static void m5stick_machine_type_init(void)
+ }
+ 
+ type_init(m5stick_machine_type_init);
++
++
++/* M5StickT2: ESP32-PICO-D4, 4 MiB flash, ST7789 135x240, FLIR Lepton 3.0. */
++static void m5stickt2_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_STICKT2;
++    esp32_machine_init(machine);
++}
++
++static void m5stickt2_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5StickT2 K016-T2 (ESP32-PICO-D4, ST7789 135x240, "
++               "FLIR Lepton 3.0 thermal)";
++    mc->init = m5stickt2_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stickt2_info = {
++    .name = MACHINE_TYPE_NAME("m5stickt2"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stickt2_machine_class_init,
++};
++
++static void m5stickt2_machine_type_init(void)
++{
++    type_register_static(&m5stickt2_info);
++}
++
++type_init(m5stickt2_machine_type_init);
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 29c70bc..b668809 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -38,6 +38,8 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32', if_true: files(
+   '../m5stopwatch/m5basic.c',
+   '../m5stopwatch/m5_ip5306.c',
+   '../m5stopwatch/m5stick.c',
++  '../m5stopwatch/m5stickt2.c',
++  '../m5stopwatch/m5_lepton.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+diff --git a/include/hw/ssi/esp32_spi.h b/include/hw/ssi/esp32_spi.h
+index 7029cb3..e3752c6 100644
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -37,9 +37,18 @@ typedef struct Esp32SpiState {
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;
++    /* Optional generic SPI slave (e.g. FLIR Lepton VoSPI) served on the
++     * data phase of USR transactions while its CS pin is low. */
++    const struct M5SpiSlaveOps *spi_slave_ops;
++    void *spi_slave_opaque;
++    int spi_slave_cs_pin;
++    int spi_slave_cs_level;
+ } Esp32SpiState;
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel, int dc_pin);
++void esp32_spi_attach_spi_slave(DeviceState *dev,
++                                const struct M5SpiSlaveOps *ops,
++                                void *opaque, int cs_pin);
+ 
+ 
+ REG32(SPI_CMD, 0x00)

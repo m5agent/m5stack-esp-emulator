@@ -407,7 +407,11 @@
         {
           "marker": "CAM_BASE_DONE",
           "set": [
-            ["/machine/m5-lcd-cam", "auto-increment", true]
+            [
+              "/machine/m5-lcd-cam",
+              "auto-increment",
+              true
+            ]
           ]
         }
       ],
@@ -450,7 +454,11 @@
         {
           "marker": "M12_BASE_DONE",
           "set": [
-            ["/machine/m5-lcd-cam", "auto-increment", true]
+            [
+              "/machine/m5-lcd-cam",
+              "auto-increment",
+              true
+            ]
           ]
         }
       ],
@@ -567,6 +575,28 @@
       ],
       "expected_blocked": "Factory firmware boots to its MPU probe and reports 0xFF; the SH1107 init/GDDRAM path is covered separately and no factory-firmware button/IMU data plane is claimed.",
       "timeout": 150
+    },
+    {
+      "id": "stickt2",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "kernel",
+      "machine": "m5stickt2",
+      "kernel": "platform/.cache/firmware/stickt2/probe/stickt2-probe.elf",
+      "build": "tests/uiflow2/stickt2_probe/build.sh",
+      "serial_index": 0,
+      "timeout": 60,
+      "serial_expect": [
+        "STICKT2_BOOT baremetal-v1",
+        "LEPTON_CCI_PING 0000",
+        "LEPTON_CCI_TEMP 30000 29950",
+        "VOPSI_FRAME 0 160 120 38400 0xeef6b214",
+        "VOPSI_FRAME 1 160 120 38400 0x07861e5a",
+        "VOPSI_FRAME 2 160 120 38400 0xcdea9a2b",
+        "STICKT2_PANEL_INIT 135 240",
+        "STICKT2_PANEL_OK 135 240",
+        "STICKT2_STATUS ok"
+      ]
     },
     {
       "id": "stickc",
