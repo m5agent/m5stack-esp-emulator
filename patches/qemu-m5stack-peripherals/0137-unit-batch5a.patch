@@ -1,0 +1,386 @@
+From b991dd774a0cafc1c2742d76cfde3630a0b6df6f Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:28:13 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-5 first five data planes
+
+Add the first five batch-5 Units on top of the source-lock tree. No guest
+evidence is recorded; host catalog keeps all five planned.
+
+- pbhub-v11 (U041-B): reuse the 0131 CONTROL_PBHUB model (single 0x61
+  command space, six channel bases and the 0xFA RGB mode) and expose the
+  v1.1 firmware fixture version 2; the SK6812/IAP additions documented for
+  firmware v2 are represented by the shared transaction model only.
+- op90 (U057): white digital-input observation on PORT.B with an
+  active-low 'blocked' fixture and a raw input-level view; the exact
+  output polarity and the PORT.B host availability stay catalog blockers.
+- rgb-led-10cm (A035): 15-SK6812 RMT capture on the yellow PORT.B data
+  line (led-rgb/led-frames/incomplete-frames); PORT.B host availability
+  stays a blocker and the LED optics/power are not modeled.
+- 8angle (U154): new US_ANGLE8 at 0x43 with 8x ADC12 (int16le), 8x ADC8,
+  the toggle-switch byte, 9x SK6812 4-byte R,G,B,bright registers,
+  firmware and address migration; the potentiometer/switch mechanics are
+  NOT modeled.
+- kmeter-iso-v11 (U133-V11): new US_KMETER at 0x66 exposing the
+  MAX31855-derived int32le/100 Celsius and Fahrenheit values, the internal
+  temperature, the ready byte, the 8-byte ASCII string views (sign + text),
+  firmware and address migration. Thermocouple/isolation physics are NOT
+  modeled.
+
+Offline QOM smoke (S3 board, no guest firmware) validates property
+registration, fixture read/write, range/read-only rejection and the
+8/15/9-element array shapes; it is not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  33 ++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c |   9 +-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 200 +++++++++++++++++++++++++-
+ 3 files changed, 236 insertions(+), 6 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 5e6560f..248e36f 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -655,7 +655,7 @@ bool m5_unit_gpio_supported(const char *id)
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+-        "weight", "gps", "uhf-rfid"};
++        "weight", "gps", "uhf-rfid", "op90", "rgb-led-10cm"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1295,6 +1295,24 @@ static void uhf_responses_set(Object *o, Visitor *v, const char *name, void *op,
+     g->unit->input_events++;
+ }
+ 
++static void op90_blocked_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    /* U057 output is active-low in the model: object blocking the 90-degree
++     * infrared path drives the white line low. Exact polarity is UNRESOLVED. */
++    bool value = !esp32_gpio_get_line(g->unit->white);
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void op90_blocked_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    esp32_gpio_set_input(g->unit->white, !value);
++    g->unit->input_events++;
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+     if (unit->onboard_led_count > 128) {
+@@ -1433,6 +1451,19 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL, &g->uhf_frames_sent);
+         object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
+                             &g->uhf_frames_injected);
++    } else if (!strcmp(id, "op90")) {
++        /* U057: white Digital Output on PORT.B, yellow NC. */
++        esp32_gpio_set_input(unit->white, 1);
++        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
++        object_property_add(o, "blocked", "bool", op90_blocked_get, op90_blocked_set, NULL, g);
++    } else if (!strcmp(id, "rgb-led-10cm")) {
++        /* A035 10cm strip: 15 SK6812 LEDs on the yellow data line, white NC.
++         * PORT.B host availability stays a catalog blocker. */
++        g->leds = 15;
++        object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
++        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
++        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
++                            &g->incomplete_frames);
+     } else if (!strcmp(id, "ultrasonic-io")) {
+         g->ultra_distance_mm = 1000;
+         g->ultra_controller = esp32_gpio_get_controller(unit->s3);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 622d8d9..43dfa47 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -2119,7 +2119,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr", "pbhub", "bldc-driver", "dds",
++        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2222,9 +2222,12 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         object_property_add(OBJECT(s->unit), "led-rgb", "int",
+                             acssr_led_rgb_get, NULL, NULL, s);
+         add_control_int_fixture(s, "fw-version", &s->acssr_fw, 0, 255, true);
+-    } else if (!strcmp(unit->unit_id, "pbhub")) {
++    } else if (!strcmp(unit->unit_id, "pbhub") || !strcmp(unit->unit_id, "pbhub-v11")) {
+         s->kind = CONTROL_PBHUB; address = 0x61;
+-        s->pb_fw = 1;  /* synthetic firmware fixture */
++        /* U041-B firmware v1/v2 fixture: the v1.1 page documents v2 as adding
++         * SK6812 support and I2C IAP; the visible transaction model is shared
++         * with v1 (0x61 single command space) and only the version differs. */
++        s->pb_fw = !strcmp(unit->unit_id, "pbhub-v11") ? 2 : 1;
+         for (unsigned i = 0; i < 6; i++) {
+             s->pb_digital_in[i] = false;
+             s->pb_digital_out[i] = false;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 6257761..79ecfb0 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -13,6 +13,9 @@
+ #include "qemu/timer.h"
+ #include "qapi/error.h"
+ #include "qapi/visitor.h"
++#include "qapi/qmp/qlist.h"
++#include "qapi/qmp/qnum.h"
++#include "qapi/qmp/qbool.h"
+ #include "hw/i2c/i2c.h"
+ #include "hw/qdev-properties.h"
+ #include "m5_unit_runtime.h"
+@@ -23,7 +26,7 @@ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+-    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE,
++    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ANGLE8, US_KMETER,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -112,6 +115,15 @@ typedef struct M5UnitSensor {
+     int64_t ac_coeff_voltage, ac_coeff_current, ac_fw;
+     bool ac_data_ready;
+     uint64_t ac_save_writes;
++    /* U154 8Angle (0x43): 8x ADC12 + 8x ADC8 + toggle switch + 9x SK6812
++     * (4-byte R,G,B,bright writes). The physical potentiometer/switch
++     * mechanics are NOT modeled. */
++    int64_t angle8_adc12[8], angle8_adc8[8], angle8_switch, angle8_rgb[9], angle8_fw;
++    /* U133-V11 KMeter-ISO (0x66): MAX31855KASA int32le/100 and 8-byte ASCII
++     * views; thermocouple/isolation physics are NOT modeled. */
++    double kmeter_tc_c, kmeter_internal_c;
++    bool kmeter_ready;
++    int64_t kmeter_fw;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -1011,6 +1023,87 @@ static void ac_measure_ascii(M5UnitSensor *s, uint8_t reg, uint8_t *out, unsigne
+     memcpy(out, text, *len);
+ }
+ 
++static QList *int64_list(const int64_t *values, unsigned count)
++{
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < count; i++) { qlist_append_int(list, values[i]); }
++    return list;
++}
++
++static void angle8_any_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    QList *list = !strcmp(name, "led-rgb") ? int64_list(s->angle8_rgb, 9) :
++                  !strcmp(name, "adc8-raw") ? int64_list(s->angle8_adc8, 8) :
++                  int64_list(s->angle8_adc12, 8);
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void angle8_any_set(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    unsigned count = !strcmp(name, "adc8-raw") ? 8 : 8;
++    int64_t maximum = !strcmp(name, "adc8-raw") ? 255 : 4095;
++    if (!list || qlist_size(list) != count) {
++        error_setg(errp, "%s requires exactly %u items", name, count);
++        qobject_unref(value); return;
++    }
++    int64_t values[8];
++    unsigned i = 0;
++    const QListEntry *entry;
++    QLIST_FOREACH_ENTRY(list, entry) {
++        QNum *n = qobject_to(QNum, qlist_entry_obj(entry));
++        if (!n || !qnum_get_try_int(n, &values[i]) || values[i] < 0 || values[i] > maximum) {
++            error_setg(errp, "%s items must be int 0..%lld", name, (long long)maximum);
++            qobject_unref(value); return;
++        }
++        i++;
++    }
++    if (!strcmp(name, "adc8-raw")) {
++        memcpy(s->angle8_adc8, values, sizeof(s->angle8_adc8));
++    } else {
++        memcpy(s->angle8_adc12, values, sizeof(s->angle8_adc12));
++    }
++    s->unit->input_events++;
++    qobject_unref(value);
++}
++
++static void angle8_switch_get(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    bool value = s->angle8_switch != 0;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void angle8_switch_set(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    s->angle8_switch = value;
++    s->unit->input_events++;
++}
++
++static void kmeter_ascii(double value, char out[9])
++{
++    memset(out, ' ', 8);
++    char tmp[16];
++    g_snprintf(tmp, sizeof(tmp), "%.2f", fabs(value));
++    size_t n = strlen(tmp);
++    if (n > 8) { n = 8; }
++    memcpy(out, tmp, n);
++    out[8] = 0;
++}
++
+ static int sensor_send(I2CSlave *dev, uint8_t data)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(dev);
+@@ -1249,6 +1342,46 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         default: return 1;
+         }
+     }
++    if (s->kind == US_ANGLE8) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        unsigned offset = pos - 1;
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg >= 0x30 && reg <= 0x53) {
++            if (offset >= 4) { return 1; }
++            s->regs[0][reg + offset] = data;
++            if (((reg - 0x30) % 4) == 0 && offset == 3) {
++                unsigned ch = (reg - 0x30) / 4;
++                s->angle8_rgb[ch] = ((int64_t)s->regs[0][reg] << 16) |
++                    ((int64_t)s->regs[0][reg + 1] << 8) | s->regs[0][reg + 2];
++            }
++            return 0;
++        }
++        if (reg == 0xff) {
++            BusChild *child;
++            if (data < 1) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == data) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), data);
++            return 0;
++        }
++        return 1;
++    }
++    if (s->kind == US_KMETER) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        if (s->pointer == 0xff) {
++            BusChild *child;
++            if (data < 0x08 || data > 0x77) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == data) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), data);
++            return 0;
++        }
++        return 1;
++    }
+     if (!pos) {
+         if (s->kind == US_COLOR && data == 0xe6) {
+             s->regs[0][0x13] &= ~0x10; return 0;
+@@ -1345,6 +1478,45 @@ static uint8_t sensor_recv(I2CSlave *dev)
+     uint8_t value = 0xff;
+     s->read_bytes++; s->unit->read_bytes++;
+     sensor_update(s);
++    if (s->kind == US_ANGLE8) {
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg <= 0x0f) {
++            int16_t raw = (int16_t)CLAMP(s->angle8_adc12[reg / 2], 0, 4095);
++            return pos == 0 ? (uint8_t)((uint16_t)raw & 0xff) : (uint8_t)((uint16_t)raw >> 8);
++        }
++        if (reg >= 0x10 && reg <= 0x17) { return (uint8_t)CLAMP(s->angle8_adc8[reg - 0x10], 0, 255); }
++        if (reg == 0x20) { return s->angle8_switch ? 1 : 0; }
++        if (reg >= 0x30 && reg <= 0x53) { return s->regs[0][reg]; }
++        if (reg == 0xfe) { return (uint8_t)s->angle8_fw; }
++        if (reg == 0xff) { return I2C_SLAVE(s)->address; }
++        return 0xff;
++    }
++    if (s->kind == US_KMETER) {
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg == 0x00 || reg == 0x04 || reg == 0x10 || reg == 0x14) {
++            bool internal = (reg & 0x10) != 0;
++            bool fahr = (reg & 0x04) != 0;
++            double c = internal ? s->kmeter_internal_c : s->kmeter_tc_c;
++            int32_t raw = (int32_t)llround((fahr ? c * 9.0 / 5.0 + 32.0 : c) * 100.0);
++            uint8_t bytes[4] = { raw, raw >> 8, raw >> 16, raw >> 24 };
++            return pos < 4 ? bytes[pos] : 0xff;
++        }
++        if (reg == 0x20) { return s->kmeter_ready ? 0 : 1; }
++        if (reg >= 0x30 && reg <= 0x68) {
++            bool internal = reg >= 0x50;
++            bool fahr = (reg & 0x10) != 0;
++            double c = internal ? s->kmeter_internal_c : s->kmeter_tc_c;
++            double v = fahr ? c * 9.0 / 5.0 + 32.0 : c;
++            char text[9];
++            kmeter_ascii(v, text);
++            if (pos == 0) { return v < 0 ? '-' : '+'; }
++            if (pos <= 8) { return (uint8_t)text[pos - 1]; }
++            return 0xff;
++        }
++        if (reg == 0xfe) { return (uint8_t)s->kmeter_fw; }
++        if (reg == 0xff) { return I2C_SLAVE(s)->address; }
++        return 0xff;
++    }
+     if (s->kind == US_ACMEASURE) {
+         uint8_t reg = (uint8_t)s->pointer;
+         uint8_t text[16];
+@@ -1516,7 +1688,7 @@ bool m5_unit_sensor_supported(const char *id)
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+-        "ac-measure" };
++        "ac-measure", "8angle", "kmeter-iso-v11" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1670,6 +1842,30 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "8angle")) {
++        s->kind = US_ANGLE8; address = 0x43;
++        s->angle8_fw = 1;
++        for (unsigned i = 0; i < 8; i++) { s->angle8_adc12[i] = 0; s->angle8_adc8[i] = 0; }
++        for (unsigned i = 0; i < 9; i++) { s->angle8_rgb[i] = 0; }
++        object_property_add(OBJECT(s->unit), "adc12-raw", "any", angle8_any_get,
++                            angle8_any_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "adc8-raw", "any", angle8_any_get,
++                            angle8_any_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "switch-pressed", "bool", angle8_switch_get,
++                            angle8_switch_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "led-rgb", "any", angle8_any_get,
++                            NULL, NULL, s);
++        add_i64(s, "fw-version", &s->angle8_fw);
++        add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "kmeter-iso-v11")) {
++        s->kind = US_KMETER; address = 0x66;
++        s->kmeter_tc_c = 25; s->kmeter_internal_c = 25;
++        s->kmeter_ready = true; s->kmeter_fw = 1;
++        add_number(s, "thermocouple-temperature-c", 0, 25, -200, 1350, false);
++        add_number(s, "internal-temperature-c", 1, 25, -40, 125, false);
++        add_fixture_bool(s, "data-ready", &s->kmeter_ready);
++        add_i64(s, "fw-version", &s->kmeter_fw);
++        add_i2c_address(s);
+     } else if (!strcmp(u->unit_id, "ac-measure")) {
+         s->kind = US_ACMEASURE; address = 0x42;
+         s->values[0] = 230; s->values[1] = 1; s->values[2] = 230;
+-- 
+2.55.0
+

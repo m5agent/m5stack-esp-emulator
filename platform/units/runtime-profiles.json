@@ -7518,6 +7518,160 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "pbhub-v11": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0137 复用 0131 CONTROL_PBHUB：同一 0x61 单命令空间（base 0x40/0x50/0x60/0x70/0x80/0xA0 × offset 0x00..0x0B），unit id pbhub-v11 只把 fw-version fixture 设为 2（v1.1 页面 v2 新增 SK6812/IAP）。未采集 guest/Device Service 证据 → planned。**v1/v2 行为差异除版本字节外 unresolved；0x61 与 pbhub 冲突；通道基址与 encoder/scroll/nfc/acssr/dac/env-iii 重叠；hub 不支持嵌套；PWM/servo/RGB 电气与 IAP NOT RUN**",
+      "inputs": {
+        "digital-inputs": {
+          "property": "digital-inputs"
+        },
+        "analog-inputs": {
+          "property": "analog-inputs"
+        }
+      },
+      "state": {
+        "digital-inputs": {
+          "property": "digital-inputs"
+        },
+        "analog-inputs": {
+          "property": "analog-inputs"
+        },
+        "digital-outputs": {
+          "property": "digital-outputs"
+        },
+        "pwm-outputs": {
+          "property": "pwm-outputs"
+        },
+        "rgb-frames": {
+          "property": "rgb-frames"
+        },
+        "rgb-mode": {
+          "property": "rgb-mode"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "op90": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0137 新增 GPIO id 'op90'：白线数字输入观测 input-level + active-low 'blocked' fixture；黄线 NC。**无官方 UIFlow2 单位驱动 wrapper（仅产品页/EasyLoader）→ 协议按页面 + 通用 GPIO 语义，极性 unresolved；PORT.B 主机限制（cores3/core2/stackchan 才有）写死；IR 光学/遮挡物理 NOT RUN**",
+      "inputs": {
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "blocked": {
+          "property": "blocked"
+        },
+        "input-events": {
+          "property": "input-events"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "rgb-led-10cm": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0137 新增 GPIO id 'rgb-led-10cm'：黄线 RMT 捕获 15 灯 SK6812 帧（led-rgb/led-frames/incomplete-frames）。**PORT.B 主机限制写死；无官方 UIFlow2 单位驱动 wrapper；LED 光学/功耗/级联扩展 NOT RUN**",
+      "inputs": {},
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "8angle": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0137 新增 US_ANGLE8（0x43）：8x ADC12 int16le、8x ADC8、拨动开关、9x SK6812 4B（R,G,B,bright）写入、fw/地址迁移。未采集 guest/Device Service 证据 → planned。**电位器硬件/ADC 参考/开关机械 NOT RUN；0x43 无已登记冲突；SK6812 光学/功耗 NOT RUN**",
+      "inputs": {
+        "adc12-raw": {
+          "property": "adc12-raw"
+        },
+        "adc8-raw": {
+          "property": "adc8-raw"
+        },
+        "switch-pressed": {
+          "property": "switch-pressed"
+        }
+      },
+      "state": {
+        "adc12-raw": {
+          "property": "adc12-raw"
+        },
+        "adc8-raw": {
+          "property": "adc8-raw"
+        },
+        "switch-pressed": {
+          "property": "switch-pressed"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "kmeter-iso-v11": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0137 新增 US_KMETER（0x66）：MAX31855 派生 int32le/100 C/F、内部温度、ready 字节、9B ASCII 字符串视图（符号 + 8B 文本）、fw/地址迁移。未采集 guest/Device Service 证据 → planned。**热电偶/冷端补偿/隔离/故障检测 NOT RUN；±2C 精度与 -200..1350C 量程 NOT RUN；0x66 无已登记冲突**",
+      "inputs": {
+        "thermocouple-temperature-c": {
+          "property": "thermocouple-temperature-c"
+        },
+        "internal-temperature-c": {
+          "property": "internal-temperature-c"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        }
+      },
+      "state": {
+        "thermocouple-temperature-c": {
+          "property": "thermocouple-temperature-c"
+        },
+        "internal-temperature-c": {
+          "property": "internal-temperature-c"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {

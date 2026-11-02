@@ -83,7 +83,7 @@ class UnitBatch3abPatchTests(unittest.TestCase):
     def test_visual_audit_registers_all_eight_units(self):
         for unit_id in UNITS:
             self.assertTrue(f"'{unit_id}':" in self.visual or f"{unit_id}:" in self.visual, unit_id)
-        self.assertIn("all-82-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text())
+        self.assertIn("all-87-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text())
 
     def test_patch_is_numbered_on_documented_base_and_has_no_guest_claim(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
