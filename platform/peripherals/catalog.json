@@ -58,6 +58,10 @@
       "atoms3r-cam": {
         "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 144, 128x128 panel init and GC0308 identity at 0x21 (PID 0x9b) passed. The official camera.init/capture path returns ESP_ERR_NOT_SUPPORTED and no frame data plane is claimed; IR, Grove and USB CDC remain open.",
         "review_by": "2026-12-31"
+      },
+      "basic-v27": {
+        "reason": "Device-local official UIFlow2 console path, display init, A/B/C button injection, IP5306 register data plane and digital speaker PCM pass; IP5306 electrical/battery modeling, power key, microSD, backlight PWM and physical behavior remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -1295,6 +1299,35 @@
       ],
       "blocker": "Dial WS1850S reset/IRQ and FIFO/CRC driver transactions have not been implemented or validated through the board I2C controller.",
       "tested_devices": []
+    },
+    "ip5306": {
+      "kind": "pmic",
+      "interface": "i2c",
+      "address": "0x75",
+      "capabilities": [
+        "battery",
+        "charging"
+      ],
+      "status": "partial",
+      "injection": [
+        "qom-battery-mv",
+        "qom-charger-present"
+      ],
+      "data_plane": "IP5306 I2C register file at 0x75: documented SYS_CTL0/1/2 reset values with reserved-bit write masks, charger CTL0/1/2/3 and CHG_DIG_CTL0 voltage/current requests, READ0/READ1 charge and full flags, READ3 write-1-to-clear key flags, READ4 charge bucket (0xff when no cell is modelled), and boost/power-off request observation through QOM properties; the stock M5Unified IP5306_Class path decodes the same registers",
+      "blocker": "The I2C variant exposes no voltage or current telemetry and this model has no cell, charger or boost power path: battery percentage only appears after a host fixture injects battery-mv, READ4 otherwise returns the explicit 0xff no-cell code, and clearing BOOST bits only records a power-off request instead of changing QEMU power state."
+    },
+    "esp32-i2s-dac": {
+      "kind": "dac-audio",
+      "interface": "i2s",
+      "capabilities": [
+        "speaker"
+      ],
+      "status": "partial",
+      "injection": [
+        "qom-pcm"
+      ],
+      "data_plane": "ESP32 classic I2S0 in DAC mode: the linked-list TX DMA controller model consumes real IDF descriptors and captures the digital sample stream as host PCM; no analog DAC, filter, amplifier, speaker or acoustic behavior is modelled",
+      "blocker": "Digital I2S0 DAC-mode PCM is captured at the DMA boundary only; the on-chip DAC, analog output stage, speaker acoustics, loudness, distortion and physical audio output are not modelled or measured."
     }
   },
   "devices": {
@@ -3245,6 +3278,83 @@
         {
           "model": "ir-tx-rx",
           "reason": "IR GPIO47 has no transmit/receive validation."
+        }
+      ]
+    },
+    "basic-v27": {
+      "board_model": "m5basic",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/basic_v2.7"
+      ],
+      "components": [
+        {
+          "id": "button-a",
+          "model": "gpio-button",
+          "gpio": 39,
+          "status": "partial"
+        },
+        {
+          "id": "button-b",
+          "model": "gpio-button",
+          "gpio": 38,
+          "status": "partial"
+        },
+        {
+          "id": "button-c",
+          "model": "gpio-button",
+          "gpio": 37,
+          "status": "partial"
+        },
+        {
+          "id": "pmic",
+          "model": "ip5306",
+          "address": "0x75",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/ip5306",
+          "status": "partial"
+        },
+        {
+          "id": "speaker",
+          "model": "esp32-i2s-dac",
+          "interface": "i2s0",
+          "gpio": 25,
+          "status": "partial"
+        },
+        {
+          "id": "power-key",
+          "model": "pwr-button",
+          "source": "ip5306-key",
+          "status": "planned"
+        },
+        {
+          "id": "micro-sd",
+          "model": "sd-card-spi",
+          "pins": "clk=18,mosi=23,miso=19,cs=4",
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "A/B/C on GPIO39/38/37 are driven by QMP-injected key events through the panel input handler and read back by the guest; physical button feel, debounce and wider input paths remain open."
+        },
+        {
+          "model": "ip5306",
+          "reason": "Only the I2C register contract is modelled: no cell, no charger/boost power path and no voltage/current telemetry. READ4 returns the explicit 0xff no-cell code and battery-mv must be injected by the host; KEY power-off does not change QEMU power state."
+        },
+        {
+          "model": "esp32-i2s-dac",
+          "reason": "I2S0 DAC-mode digital PCM is captured at the DMA boundary, but the analog DAC/amplifier/speaker path and acoustic behavior are not modelled."
+        },
+        {
+          "model": "pwr-button",
+          "reason": "The red power key is wired to the IP5306 KEY input rather than an ESP32 GPIO; no QEMU power-key input or power-state transition model exists for this board."
+        },
+        {
+          "model": "sd-card-spi",
+          "reason": "The microSD slot (SPI CLK18/MOSI23/MISO19/CS4) is declared from the official PinMap but has no device-local block backend or case."
         }
       ]
     }

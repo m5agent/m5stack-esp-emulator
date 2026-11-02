@@ -540,6 +540,101 @@
       }
     },
     {
+      "id": "basic-v27",
+      "name": "Basic v2.7",
+      "sku": "K001-V27",
+      "group": "esp32-lx6",
+      "category": "core",
+      "hardware": {
+        "soc": "ESP32-D0WDQ6-V3",
+        "architecture": "xtensa-lx6",
+        "flash_bytes": 16777216,
+        "psram_bytes": 0,
+        "display": {
+          "type": "ips",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ILI9342C",
+          "touch": false,
+          "diagonal_in": 2.0
+        },
+        "controls": [
+          {
+            "id": "a",
+            "type": "button",
+            "label": "A",
+            "gpio": 39
+          },
+          {
+            "id": "b",
+            "type": "button",
+            "label": "B",
+            "gpio": 38
+          },
+          {
+            "id": "c",
+            "type": "button",
+            "label": "C",
+            "gpio": 37
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "speaker:dac",
+          "battery:ip5306",
+          "charger:ip5306",
+          "storage:sd-spi"
+        ],
+        "dimensions_mm": [
+          54.0,
+          54.0,
+          17.0
+        ],
+        "weight_g": 49.4,
+        "power": {
+          "pmic": "IP5306"
+        }
+      },
+      "shell": {
+        "preset": "core",
+        "accent": "#5f6b7a",
+        "screen_scale": 0.82,
+        "body_theme": "graphite"
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-ili9342",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-02",
+          "status": "native-boot-display-input-pmic-audio-pass",
+          "detail": "官方 UIFlow2 v2.5.4 Core 4MB 镜像在同一 m5basic guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=1、ILI9342C 320x240 面板初始化、A/B/C 按键 GPIO39/38/37 的 QMP 注入与 guest 状态回读、IP5306 0x75 寄存器读写（SYS 0xb9、充电电压请求 0x02/0x09、READ0 0x08、READ4 0xff 无电量数据），以及 Speaker/I2S0 DAC 非静音 PCM。IP5306 电量与电气、microSD、电源键、面板亮度/背光与物理行为未验证。",
+          "evidence": "docs/evidence/2026-11-02-basic-v27-host/summary.json",
+          "category": "virtual-device"
+        },
+        "blockers": [
+          "IP5306 只建模 I2C 寄存器/状态/充电电压电流请求/BOOST 控制；没有电池电芯、电压电流测量或升压电源路径，READ4 默认 0xff 且不伪造电量。microSD、IP5306 KEY 电源键、面板背光 PWM、Grove Unit 运行时协议与物理电气/声学行为未验证。"
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "1897200000000000786",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000786/2116030764468178946/bin/2116030764468178947.bin"
+        }
+      }
+    },
+    {
       "id": "core2",
       "name": "Core2",
       "sku": "K010-V11",

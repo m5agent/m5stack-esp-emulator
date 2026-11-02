@@ -315,15 +315,15 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(groups["esp32-s3"], 15)
         self.assertEqual(groups["esp32-c6"], 2)
         self.assertEqual(groups["esp32-p4"], 1)
-        self.assertEqual(groups["esp32-lx6"], 8)
+        self.assertEqual(groups["esp32-lx6"], 9)
         self.assertEqual(groups["linux-arm64"], 1)
         qemu_count = sum(
             row["backend"].startswith("qemu-esp32")
             for row in self.registry["devices"]
         )
         summary = self.registry["validation_matrix"]["result"]
-        self.assertEqual(qemu_count, 25)
-        self.assertIn("25 QEMU-backed ESP32", summary)
+        self.assertEqual(qemu_count, 26)
+        self.assertIn("26 QEMU-backed ESP32", summary)
         self.assertIn("Tab5 through esp-emu", summary)
         self.assertNotIn("13 QEMU ESP32", summary)
 

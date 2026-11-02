@@ -11,8 +11,9 @@
 | 1 | AtomS3U（`atoms3u`） | 官方 UIFlow2 v2.5.4 启动、GPIO41 按键、GPIO35 WS2812 RMT；PR #80 |
 | 2 | Atom VoiceS3R（`atom-echos3r`） | 官方 UIFlow2 v2.5.4 启动、128×128 面板、Speaker/I2S1 DMA 非静音 PCM；PR #80 |
 | 3 | AtomS3R-CAM（`atoms3r-cam`） | 启动、板级识别 144、显示初始化、GC0308 0x21/PID 0x9b；camera 捕获仍 `ESP_ERR_NOT_SUPPORTED`；PR #81 已合入 |
+| 4 | Basic v2.7（`basic-v27`） | 官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 `0x75` 寄存器模型与 I2S0 DAC 非静音 PCM；PMIC 电芯/电气、microSD、电源键、背光和 Grove Unit 仍未覆盖 |
 
-## 剩余仅视觉主机（PR #81 合入后 11 款）
+## 剩余仅视觉主机（Basic v2.7 接入后 10 款）
 
 固件可用性按 `burner.m5stack.com` 公开列表核对（`2026-11-02`）。只有
 “官方 UIFlow2 可用”才走同 guest 参考固件路径；“仅 UIFlow1/社区固件”必须
@@ -20,7 +21,6 @@
 
 | 设备 | SKU | 芯片 | 官方 UIFlow2 | 所需板级/模型工作 | 当前边界与决策 |
 | --- | --- | --- | --- | --- | --- |
-| Basic v2.7 | K001-V27 | ESP32-D0WDQ6-V3 | 是（`UIFlow2.0 Core`，`1897200000000000786`） | classic ESP32 machine（复用 Core2 骨架，去掉触摸/PSRAM）、ILI9342C 面板、IP5306 `0x75` PMIC 模型、A/B/C G39/G38/G37、Speaker G25 | 下一批首选：唯一具备官方 UIFlow2 的剩余主机；IP5306 为新模型，其余复用既有面板/按键框架 |
 | AtomS3R-M12 | C126-M12 | ESP32-S3-PICO-1-N8R8 | 否（社区 `AtomS3R-CAM M12 User Demo`、`XiaoZhi` 等） | OV3660 SCCB/DVP 模型；复用 `m5atoms3rcam` 骨架 | 等 camera SCCB/DVP 数据面闭环后再接；不能用 AtomS3R 固件冒充 M12 |
 | AtomS3R-Ext | C126-Ext | ESP32-S3-PICO-1-N8R8 | 否 | 与 AtomS3R 同控制器 + 用户键 G41 + IR G47 + Proto 排针 | 无准确固件；只能登记为 `backend-required` 或以社区固件单独验证，不继承 AtomS3R |
 | AtomS3R-AI Chatbot | K147 | ESP32-S3-PICO-1-N8R8 | 否（套件使用控制器固件） | AtomS3R + Atomic Voice Base A149（ES8311）组合件 | 不是独立 host alias；按组合件在 Voice Base 数据面上验证，不能单独冒充 |

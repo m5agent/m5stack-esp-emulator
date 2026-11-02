@@ -930,6 +930,13 @@
       "matrix": [],
       "external": [],
       "models": []
+    },
+    "basic-v27": {
+      "status": "candidate",
+      "blocker": "Device-local official UIFlow2 console case passes boot, board id 1, 320x240 panel init, QMP-injected A/B/C GPIO reads, IP5306 0x75 register reads/write requests and non-silent I2S0 DAC PCM (PCM + button markers in /tmp matrix run, recorded in docs/evidence/2026-11-02-basic-v27-host/summary.json). No device-local peripheral-matrix case is registered; IP5306 cell/electrical behavior, power key, microSD and Grove Units remain open.",
+      "matrix": [],
+      "external": [],
+      "models": []
     }
   },
   "models": {

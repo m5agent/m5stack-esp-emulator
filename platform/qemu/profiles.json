@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "25 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3U adds a device-local console boot, GPIO41 button and GPIO35 WS2812 RMT path, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "26 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -253,6 +253,64 @@
         "date": "2026-10-22",
         "status": "linux-display-input-i2c-audio-power-usb-camera-partial",
         "detail": "Official ARM64 image boots with 512 MiB RAM and no reset workaround; 320x170 DRM frame capture, TCA8418 Linux input, BQ27220/BMI270/BMM150/RX8130/M5IOE1/ES8389 bindings, ES8389 identity/state, byte-exact ALSA playback and microphone PCM, IP2315 charging/discharging injection, register-driven IMX219 Unicam 640x480 RG10 V4L2 frames and V4L2 controls, GL852G MTT-compatible Full-Speed SR9900A and Low-Speed HID paths, and GPIO13/GPIO12 LIRC transport pass. factory_test completes fbdev, input, asset and LVGL 320x170 startup; its fb1 frame is fully non-black with 127 RGB565 colors and a changed frame hash."
+      }
+    },
+    {
+      "id": "basic-v27",
+      "name": "Basic v2.7",
+      "group": "esp32-lx6",
+      "soc": "ESP32-D0WDQ6-V3",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5basic",
+      "display_model": "spi-ili9342",
+      "display": {
+        "driver": "ILI9342C",
+        "width": 320,
+        "height": 240
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "ip5306",
+        "esp32-i2s-dac",
+        "pwr-button",
+        "sd-card-spi"
+      ],
+      "runtime_state": {
+        "ip5306": {
+          "path": "/machine/ip5306",
+          "properties": [
+            "battery-mv",
+            "charger-present",
+            "boost-enabled",
+            "boost-keep-on",
+            "charge-voltage-mv",
+            "charge-current-ma",
+            "battery-code",
+            "power-off-requests"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 Core 4MB boot, M5.begin(), board id 1 and 320x240 ILI9342C init in one m5basic guest",
+        "QMP key injection drives BtnA/BtnC GPIO39/38/37 through the panel input handler and the guest reports the press/release states",
+        "IP5306 register file at 0x75 (SYS 0xb9, charge voltage 0x02/0x09, READ0 0x08, READ4 0xff no cell) is read and written over the guest I2C controller",
+        "I2S0 DAC-mode speaker path produces non-silent host PCM captured at the DMA boundary"
+      ],
+      "blockers": [
+        "The IP5306 is a register-only model: no battery cell, charger/boost power path or voltage/current telemetry; READ4 returns the explicit 0xff no-cell code and battery-mv must be injected. Power key, microSD, backlight PWM, Grove Units and physical electrical/acoustic behavior remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-display-input-pmic-audio-pass",
+        "detail": "官方 UIFlow2 v2.5.4 Core 4MB 镜像在同一 m5basic guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=1、ILI9342C 320x240 面板初始化、A/B/C 按键 QMP 注入与 guest 状态回读、IP5306 0x75 寄存器读写（SYS 0xb9、充电电压请求 0x02/0x09、READ0 0x08、READ4 0xff）与 Speaker/I2S0 DAC 非静音 PCM。电量、microSD、电源键、背光与物理行为未验证。",
+        "evidence": "docs/evidence/2026-11-02-basic-v27-host/summary.json",
+        "category": "virtual-device"
       }
     },
     {
