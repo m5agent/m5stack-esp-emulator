@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T04:24:09.757791+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "unit-id",
+  "driver_class": "IDUnit (ATECC608B, 0x35)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "firmware_sha256": "ce831fbd7f0a0b90e2ddea7684701b578ff35268e9a2448ccb1dcf147d4f7f76",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "37578ef5466927813ec5ed828415b7f0f3847c26b40f046a3ab8ec8bd3002d6e",
+    "main.py": "b95e6b74f86b3893db5e16257e6667af89b0f0b0f0959900e34a5239cda3bee3"
+  },
+  "runtime_binary_sha256": "aec121a00bdc622acbdd64a8064f017e95860b4598673b7268dce421f9fe3b63",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 24 layers through 0144 (incl. 0142 batch6 B) + 0145-unit-batch6b-evidence-finger-fix",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {},
+  "serial_markers": {
+    "unit-id": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (875) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6B_PROBE_START unit-id\nE (1290) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6B_PROBE_READY unit-id\nID_REVISION 0x260\nID_SERIAL 101112131415161718\nID_RANDOM 20\nID_RANDOM_IN_RANGE 1\nID_SHA aabbccdd0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c\nID_PUBLIC 303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f\nID_END\n"
+  },
+  "observations": {
+    "errors": [],
+    "revision": "0x260",
+    "serial": "101112131415161718",
+    "random": "20",
+    "sha": "aabbccdd0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c",
+    "public": "303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f",
+    "crypto_boundary": "All returned values are fixed deterministic non-secret test vectors. Real ECDSA/AES-GCM/Trust&GO chains, key-slot locking, the 10Kb EEPROM and production key material are NOT present or modeled."
+  },
+  "checks": {
+    "official_driver_started": true,
+    "live_controller_state": true,
+    "guest_driver_registered": true,
+    "no_command_errors": true,
+    "guest_revision_fixture": true,
+    "guest_serial_fixture": true,
+    "guest_random_in_range": true,
+    "guest_sha_fixture": true,
+    "guest_public_fixture": true,
+    "qom_revision": true,
+    "qom_serial_hex": true,
+    "qom_wake_count": true,
+    "qom_read_commands": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "status": "PASS",
+  "evidence": {
+    "sha256": "d3019a3b7ba85953e5736d85871d2416e306d192196164ce6dcae2224102f733",
+    "bytes": 19479
+  },
+  "frame": {
+    "sha256": "0f56589f38d3728a6895c192f09203c52443cbc894c029a02001055e92c3b7b1",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed.",
+  "blocker": "Guest IDUnit on cores3 completed the ATECC608A wake-to-address-0 path: the frozen driver's 0x00 wake token written to I2C address 0x00 is ACKed as the broadcast wake (28 wakes observed), command frames survive the inter-command wake and are reset only by the next 0x03 command word. INFO revision=0x260, READ serial fixture=101112131415161718, SHA-256 digest fixture and GEN_KEY public-key fixture all equal the QOM fixtures; randint returns a deterministic value inside the requested range. 0156 also fixes the response CRC to the frozen driver's exact _at_crc algorithm, READ/SHA/NONCE/GEN_KEY response modes, and exposes serial/wake/idle/read QOM fixtures. All values are fixed non-secret test vectors; real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking/permissions, the 10Kb EEPROM and production key material are NOT RUN/absent."
+}

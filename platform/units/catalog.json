@@ -20303,9 +20303,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "revision": {
@@ -20322,12 +20322,47 @@
             "property": "i2c-address",
             "access": "read-only",
             "type": "integer"
+          },
+          "serial-hex": {
+            "property": "serial-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "wake-count": {
+            "property": "wake-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "idle-count": {
+            "property": "idle-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "sleep-count": {
+            "property": "sleep-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-commands": {
+            "property": "read-commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-command-hex": {
+            "property": "last-command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "tx-bytes": {
+            "property": "tx-bytes",
+            "access": "read-only",
+            "type": "integer"
           }
         },
         "required_data_plane": "SoC I2C transactions to a device-local ATECC608B command slave at 0x35",
-        "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates."
+        "blocker": "Guest IDUnit on cores3 completed the ATECC608A wake-to-address-0 path: the frozen driver's 0x00 wake token written to I2C address 0x00 is ACKed as the broadcast wake (28 wakes observed), command frames survive the inter-command wake and are reset only by the next 0x03 command word. INFO revision=0x260, READ serial fixture=101112131415161718, SHA-256 digest fixture and GEN_KEY public-key fixture all equal the QOM fixtures; randint returns a deterministic value inside the requested range. 0156 also fixes the response CRC to the frozen driver's exact _at_crc algorithm, READ/SHA/NONCE/GEN_KEY response modes, and exposes serial/wake/idle/read QOM fixtures. All values are fixed non-secret test vectors; real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking/permissions, the 10Kb EEPROM and production key material are NOT RUN/absent."
       },
-      "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates.",
+      "blocker": "Guest IDUnit on cores3 completed the ATECC608A wake-to-address-0 path: the frozen driver's 0x00 wake token written to I2C address 0x00 is ACKed as the broadcast wake (28 wakes observed), command frames survive the inter-command wake and are reset only by the next 0x03 command word. INFO revision=0x260, READ serial fixture=101112131415161718, SHA-256 digest fixture and GEN_KEY public-key fixture all equal the QOM fixtures; randint returns a deterministic value inside the requested range. 0156 also fixes the response CRC to the frozen driver's exact _at_crc algorithm, READ/SHA/NONCE/GEN_KEY response modes, and exposes serial/wake/idle/read QOM fixtures. All values are fixed non-secret test vectors; real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking/permissions, the 10Kb EEPROM and production key material are NOT RUN/absent.",
       "input_semantics": "Guest command bytes are parsed into the fixed test-vector responses; no real crypto is performed.",
       "output_semantics": "Observed guest command/response frames and CRC; no cryptographic security is claimed.",
       "limitations": [

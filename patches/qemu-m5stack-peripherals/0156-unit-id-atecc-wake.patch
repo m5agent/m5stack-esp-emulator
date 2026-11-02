@@ -1,0 +1,214 @@
+From 33cf04749fcb1df06d7625af35077c9082de621b Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 04:24:12 +0800
+Subject: [PATCH] hw/m5stopwatch: unlock Unit ID ATECC608A wake-to-address-0
+ path
+
+Implement the ATECC608A wake/read/sha semantics the frozen UIFlow2 driver needs.
+The driver writes a 0x00 wake token to I2C address 0x00 before every command;
+QEMU delivers that broadcast byte to the Unit slave, which now ACKs it as the
+wake token (plus Sleep 0x01 / Idle 0x02 single-byte commands) instead of
+treating it as a command byte. Command frames stay buffered across the wake
+token the driver re-sends between the command write and the response read, and
+are reset only when the next 0x03 command word arrives.
+
+The response CRC is now the exact frozen-driver _at_crc algorithm (LSB-first bit
+compare against CRC bit15, left-shift, polynomial 0x8005); the previous
+reflected right-shift form made every response fail with CRC Mismatch. READ
+returns the deterministic config-zone serial fixture, SHA modes 0/1 return the
+ACK status while mode 2 returns the digest fixture, NONCE pass-through mode
+returns the ACK status, and GEN_KEY/SIGN return fixed non-secret test vectors.
+New QOM fixtures expose serial-hex/wake-count/idle-count/sleep-count/
+read-commands/tx-bytes/last-command-hex for evidence. No real keys,
+certificates or cryptographic operations are present; ECDSA/AES/Trust&GO,
+key-slot locking and the 10Kb EEPROM remain NOT modeled.
+---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 129 +++++++++++++++++++++++++--
+ 1 file changed, 124 insertions(+), 5 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 0e46d2e..846c503 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -166,6 +166,15 @@ typedef struct M5UnitSensor {
+     uint8_t ecc_resp[128];
+     unsigned ecc_resp_len, ecc_resp_pos;
+     int64_t ecc_serial[9], ecc_revision;
++    /* ATECC608A wake-to-address-0: the frozen driver writes a single 0x00
++     * wake token to I2C address 0x00 (general call) before each command;
++     * QEMU delivers that broadcast byte to this slave. It is ACKed as the
++     * wake token and does not start a command frame. 0x01/0x02 are the
++     * single-byte Sleep/Idle commands sent to the device address. The
++     * config-zone fixture below only populates the nine serial bytes read by
++     * the frozen driver; other zone reads return zeros. */
++    uint64_t ecc_wakes, ecc_idles, ecc_sleeps, ecc_reads, ecc_tx_bytes;
++    uint8_t ecc_zone0[16];
+     /* U149 Thermal2 (0x32): ESP32 MCU register file + 768x2B temperature array
+      * (raw = temp*128 + 8192 per driver decode). 0x33 collides with thermal. */
+     double thermal2_median_c, thermal2_avg_c, thermal2_diff_c;
+@@ -1453,13 +1462,22 @@ static void mpu_range_get(Object *obj, Visitor *v, const char *name,
+ }
+ 
+ /* ATECC608B CRC16: poly 0x8005, init 0, refin/refout (ATECC variant). */
++/* Exact frozen-driver ATECC CRC16: per byte, LSB-first bits compared against
++ * the CRC's bit15 while shifting left, polynomial 0x8005. This matches
++ * driver/atecc608b_tngtls/atecc.py::_at_crc byte-for-byte (the earlier
++ * reflected right-shift form produced a different CRC and every response was
++ * rejected with "CRC Mismatch"). */
+ static uint16_t atecc_crc16(const uint8_t *data, unsigned length)
+ {
+     uint16_t crc = 0;
+     for (unsigned i = 0; i < length; i++) {
+-        crc ^= data[i];
+-        for (unsigned b = 0; b < 8; b++) {
+-            crc = (crc & 1) ? ((crc >> 1) ^ 0x8005) : (crc >> 1);
++        for (unsigned shift = 0; shift < 8; shift++) {
++            unsigned data_bit = (data[i] >> shift) & 1;
++            unsigned crc_bit = (crc >> 15) & 1;
++            crc = (uint16_t)(crc << 1);
++            if (data_bit != crc_bit) {
++                crc ^= 0x8005;
++            }
+         }
+     }
+     return crc;
+@@ -1511,11 +1529,46 @@ static void atecc_build_response(M5UnitSensor *s)
+         }
+         break;
+     }
++    case 0x02: {  /* READ: 4-byte config-zone words for the serial fixture */
++        uint8_t zone = s->ecc_cmd_len >= 4 ? s->ecc_cmd[3] : 0;
++        unsigned addr = s->ecc_cmd_len >= 6
++            ? ((unsigned)s->ecc_cmd[4] | ((unsigned)s->ecc_cmd[5] << 8)) : 0;
++        uint8_t data[4] = { 0x00, 0x00, 0x00, 0x00 };
++        s->ecc_reads++;
++        if (zone == 0x00 && addr * 4u + 4u <= sizeof(s->ecc_zone0)) {
++            memcpy(data, s->ecc_zone0 + addr * 4u, 4);
++        }
++        atecc_respond(s, data, 4);
++        break;
++    }
+     case 0x1b: atecc_respond(s, ecc_random_vector, 32); break;  /* RANDOM */
+-    case 0x47: atecc_respond(s, ecc_sha_vector, 32); break;     /* SHA */
++    case 0x47: {  /* SHA: mode 0/1 ACK status, mode 2 returns the digest fixture */
++        uint8_t mode = s->ecc_cmd_len >= 4 ? s->ecc_cmd[3] : 0;
++        if (mode == 0x02) {
++            atecc_respond(s, ecc_sha_vector, 32);
++        } else {
++            uint8_t status = 0x00;
++            atecc_respond(s, &status, 1);
++        }
++        break;
++    }
+     case 0x40: atecc_respond(s, ecc_pubkey_vector, 64); break;  /* GEN_KEY */
+     case 0x41: atecc_respond(s, ecc_sign_vector, 64); break;    /* SIGN */
+-    case 0x16: atecc_respond(s, ecc_random_vector, 32); break;  /* NONCE fixture */
++    case 0x16: {  /* NONCE: pass-through mode 3 ACKs, other modes return fixture */
++        uint8_t mode = s->ecc_cmd_len >= 4 ? s->ecc_cmd[3] : 0;
++        if (mode == 0x03) {
++            uint8_t status = 0x00;
++            atecc_respond(s, &status, 1);
++        } else {
++            atecc_respond(s, ecc_random_vector, 32);
++        }
++        break;
++    }
++    case 0x45: case 0x17: {  /* VERIFY / LOCK: success status only, no crypto */
++        uint8_t status = 0x00;
++        atecc_respond(s, &status, 1);
++        break;
++    }
+     default: {
+         uint8_t data[4] = { 0x00, 0x00, 0x00, 0x00 };
+         atecc_respond(s, data, 4);
+@@ -1524,6 +1577,34 @@ static void atecc_build_response(M5UnitSensor *s)
+     }
+ }
+ 
++static void atecc_last_command_hex_get(Object *obj, Visitor *v, const char *name,
++                                       void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    unsigned len = s->ecc_cmd_len > sizeof(s->ecc_cmd) ? sizeof(s->ecc_cmd) : s->ecc_cmd_len;
++    char *text = g_malloc(len * 2 + 1);
++    for (unsigned i = 0; i < len; i++) { g_snprintf(text + i * 2, 3, "%02x", s->ecc_cmd[i]); }
++    text[len * 2] = 0;
++    char *value = g_strdup(text);
++    g_free(text);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void atecc_serial_hex_get(Object *obj, Visitor *v, const char *name,
++                                 void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    char text[19];
++    for (unsigned i = 0; i < 9; i++) {
++        g_snprintf(text + i * 2, 3, "%02x", (uint8_t)s->ecc_serial[i]);
++    }
++    text[18] = 0;
++    char *value = g_strdup(text);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
+ static void thermal2_fill_raw(M5UnitSensor *s)
+ {
+     s->regs[0][0x00] = s->thermal2_button ? 0x01 : 0x00;
+@@ -1897,6 +1978,27 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         return 0;
+     }
+     if (s->kind == US_ATECC608B) {
++        if (pos == 0 && (data == 0x00 || data == 0x01 || data == 0x02)) {
++            /* ATECC608A wake token (0x00, written to I2C address 0x00 and
++             * delivered here by the I2C broadcast) / Sleep (0x01) / Idle
++             * (0x02): single-byte control writes, never command frames. The
++             * frozen driver sends one of these before each operation. */
++            if (data == 0x00) { s->ecc_wakes++; }
++            else if (data == 0x01) { s->ecc_sleeps++; }
++            else { s->ecc_idles++; }
++            /* Do not clear the command frame here: the frozen driver sends a
++             * wake token between the command write and the response read. The
++             * frame is reset only when the next command packet starts (0x03). */
++            return 0;
++        }
++        s->ecc_tx_bytes++;
++        if (pos == 0) {
++            /* A new security command packet always starts with the 0x03
++             * word-address byte; reset the frame here instead of on every
++             * START_SEND, because the frozen driver sends another 0x00 wake
++             * broadcast between the command write and the response read. */
++            s->ecc_cmd_len = 0;
++        }
+         if (s->ecc_cmd_len < sizeof(s->ecc_cmd)) { s->ecc_cmd[s->ecc_cmd_len++] = data; }
+         return 0;
+     }
+@@ -2538,7 +2640,24 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         s->kind = US_ATECC608B; address = 0x35;
+         s->ecc_revision = 0x0260;  /* synthetic revision fixture */
+         for (unsigned i = 0; i < 9; i++) { s->ecc_serial[i] = 0x10 + i; }
++        /* Deterministic 9-byte serial fixture in the config-zone word layout
++         * the frozen driver reads: words 0/2 hold SN<0:3>/SN<4:8>, word 3
++         * byte 0 holds SN<8>. Only these serial reads are populated. */
++        s->ecc_zone0[0] = 0x10; s->ecc_zone0[1] = 0x11;
++        s->ecc_zone0[2] = 0x12; s->ecc_zone0[3] = 0x13;
++        s->ecc_zone0[8] = 0x14; s->ecc_zone0[9] = 0x15;
++        s->ecc_zone0[10] = 0x16; s->ecc_zone0[11] = 0x17;
++        s->ecc_zone0[12] = 0x18;
+         add_i64(s, "revision", &s->ecc_revision);
++        object_property_add(OBJECT(s->unit), "serial-hex", "str",
++                            atecc_serial_hex_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "last-command-hex", "str",
++                            atecc_last_command_hex_get, NULL, NULL, s);
++        add_u64(s, "wake-count", &s->ecc_wakes);
++        add_u64(s, "idle-count", &s->ecc_idles);
++        add_u64(s, "sleep-count", &s->ecc_sleeps);
++        add_u64(s, "read-commands", &s->ecc_reads);
++        add_u64(s, "tx-bytes", &s->ecc_tx_bytes);
+         add_i2c_address(s);
+     } else if (!strcmp(u->unit_id, "thermal2")) {
+         s->kind = US_THERMAL2; address = 0x32;
+-- 
+2.55.0
+

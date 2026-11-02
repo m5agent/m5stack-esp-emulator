@@ -34,7 +34,7 @@ class UnitBatch6bPatchTests(unittest.TestCase):
 
     def test_unit_id_uses_only_fixed_test_vectors(self):
         entry = json.dumps(self.units["unit-id"], ensure_ascii=False)
-        for token in ("0x35", "ATECC608B", "test vectors", "NO real keys", "NOT RUN"):
+        for token in ("0x35", "ATECC608B", "test vectors", "non-secret", "NOT RUN"):
             self.assertIn(token, entry, token)
         self.assertIn("test vectors", self.text.lower())
 
@@ -56,25 +56,20 @@ class UnitBatch6bPatchTests(unittest.TestCase):
         for unit_id in UNITS:
             entry = self.units[unit_id]
             profile = self.profiles[unit_id]
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(
+                hashlib.sha256(report.read_bytes()).hexdigest(),
+                evidence["report_sha256"], unit_id)
+            self.assertIn("0142-unit-batch6b.patch", evidence["patches"], unit_id)
+            self.assertIn("0147-unit-batch6b-evidence-fixes.patch", evidence["patches"], unit_id)
             if unit_id == "unit-id":
-                # Blocked by the ATECC wake-to-address-0 harness requirement.
-                self.assertEqual(entry["model_status"], "planned", unit_id)
-                self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
-                self.assertEqual(profile["status"], "planned", unit_id)
-                self.assertEqual(profile["hosts"], [], unit_id)
-            else:
-                self.assertEqual(entry["model_status"], "partial", unit_id)
-                self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
-                self.assertEqual(profile["status"], "implemented", unit_id)
-                self.assertEqual(profile["hosts"], ["cores3"], unit_id)
-                evidence = profile["virtual_device_evidence"]
-                report = ROOT / evidence["report"]
-                self.assertTrue(report.is_file(), unit_id)
-                self.assertEqual(
-                    hashlib.sha256(report.read_bytes()).hexdigest(),
-                    evidence["report_sha256"], unit_id)
-                self.assertIn("0142-unit-batch6b.patch", evidence["patches"], unit_id)
-                self.assertIn("0147-unit-batch6b-evidence-fixes.patch", evidence["patches"], unit_id)
+                self.assertIn("0156-unit-id-atecc-wake.patch", evidence["patches"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
     def test_patch_has_no_guest_claim(self):
