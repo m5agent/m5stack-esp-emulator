@@ -24974,6 +24974,1482 @@
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Fixtures are synthetic; no guest/Device Service evidence exists yet."
       ]
+    },
+    {
+      "id": "oled",
+      "name": "Unit OLED",
+      "sku": "U119",
+      "visual_asset": {
+        "entry": "src/units/oled/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/oled",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SH1107",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "SH1107 128x64 monochrome OLED behind the M5Unified external display composition; the Unit has no page-level register table, so the model records the standard 2-wire control-byte command stream (0x00 command / 0x40 data), column/page addressing commands and pixel bytes into a 1024-byte framebuffer.",
+        "registers": [
+          {
+            "register": "control byte",
+            "length": 1,
+            "encoding": "0x00 command stream / 0x40 data stream"
+          },
+          {
+            "register": "column/page address",
+            "length": 1,
+            "encoding": "0x00-0x0F low / 0x10-0x1F high column, 0xB0-0xB7 page (also 0x21/0x22 window)"
+          },
+          {
+            "register": "panel commands",
+            "length": 0,
+            "encoding": "0x81 contrast, 0xAE/0xAF display, 0xA6/0xA7 inverse, 0xA8 mux, 0xD3 offset, 0xDC start line, 0x20 memory mode"
+          }
+        ],
+        "gaps": [
+          "The product page address and the frozen driver default disagree (UNRESOLVED); both are recorded, only the driver address is modeled.",
+          "The three display Units (oled/mini-oled/glass2) share 0x3C/0x3D and can only be attached one at a time on one bus.",
+          "M5Unified external display composition is firmware-side; the Unit QOM only sees the I2C command/data stream.",
+          "OLED panel optics/luminance/lifetime/transparent-region behavior are NOT RUN."
+        ]
+      },
+      "inputs": {
+        "contrast": {
+          "type": "integer",
+          "label": "对比度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "display-on": {
+          "type": "boolean",
+          "label": "显示开关",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "inverse": {
+          "type": "boolean",
+          "label": "反色",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "start-line": {
+          "type": "integer",
+          "label": "显示起始行",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "outputs": {
+        "display-controller": {
+          "type": "string",
+          "label": "控制器",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 16
+        },
+        "commands": {
+          "type": "integer",
+          "label": "命令计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "data-bytes": {
+          "type": "integer",
+          "label": "数据字节数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "pixels-written": {
+          "type": "integer",
+          "label": "像素字节写入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "framebuffer-crc": {
+          "type": "integer",
+          "label": "framebuffer CRC32",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "last-command-hex": {
+          "type": "string",
+          "label": "最近命令字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 64
+        },
+        "framebuffer-hex": {
+          "type": "string",
+          "label": "framebuffer 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 2304
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/oled",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U119",
+            "1.3-inch 128x64 SH1107 monochrome",
+            "I2C @0x3C",
+            "PORT.A yellow=SDA white=SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/oled.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "default I2C address 0x3D",
+            "M5.addDisplay(i2c, address, {unit_oled: True})"
+          ],
+          "sha256": "36ea6e597f6d1087e57bd8d6b512154dc7d6d0e362cec068b89082378233ccce",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "contrast": {
+            "property": "contrast",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-on": {
+            "property": "display-on",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "inverse": {
+            "property": "inverse",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "start-line": {
+            "property": "start-line",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-controller": {
+            "property": "display-controller",
+            "access": "read-only",
+            "type": "string"
+          },
+          "commands": {
+            "property": "commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "data-bytes": {
+            "property": "data-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pixels-written": {
+            "property": "pixels-written",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "framebuffer-crc": {
+            "property": "framebuffer-crc",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-command-hex": {
+            "property": "last-command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "framebuffer-hex": {
+            "property": "framebuffer-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local SH1107 command/data slave at 0x3D",
+        "blocker": "0148 新增共享 OLED 显示命令 slave（SH1107）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SH1107 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+      },
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SH1107）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SH1107 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "mini-oled",
+      "name": "Unit Mini OLED",
+      "sku": "U166",
+      "visual_asset": {
+        "entry": "src/units/mini-oled/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Mini_OLED",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SSD1315",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "SSD1315 72x40 monochrome OLED behind the M5Unified external display composition; the Unit has no page-level register table, so the model records the standard 2-wire control-byte command stream (0x00 command / 0x40 data), column/page addressing commands and pixel bytes into a 360-byte framebuffer.",
+        "registers": [
+          {
+            "register": "control byte",
+            "length": 1,
+            "encoding": "0x00 command stream / 0x40 data stream"
+          },
+          {
+            "register": "column/page address",
+            "length": 1,
+            "encoding": "0x00-0x0F low / 0x10-0x1F high column, 0xB0-0xB7 page (also 0x21/0x22 window)"
+          },
+          {
+            "register": "panel commands",
+            "length": 0,
+            "encoding": "0x81 contrast, 0xAE/0xAF display, 0xA6/0xA7 inverse, 0xA8 mux, 0xD3 offset, 0xDC start line, 0x20 memory mode"
+          }
+        ],
+        "gaps": [
+          "The product page address and the frozen driver default disagree (UNRESOLVED); both are recorded, only the driver address is modeled.",
+          "The three display Units (oled/mini-oled/glass2) share 0x3C/0x3D and can only be attached one at a time on one bus.",
+          "M5Unified external display composition is firmware-side; the Unit QOM only sees the I2C command/data stream.",
+          "OLED panel optics/luminance/lifetime/transparent-region behavior are NOT RUN."
+        ]
+      },
+      "inputs": {
+        "contrast": {
+          "type": "integer",
+          "label": "对比度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "display-on": {
+          "type": "boolean",
+          "label": "显示开关",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "inverse": {
+          "type": "boolean",
+          "label": "反色",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "start-line": {
+          "type": "integer",
+          "label": "显示起始行",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "outputs": {
+        "display-controller": {
+          "type": "string",
+          "label": "控制器",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 16
+        },
+        "commands": {
+          "type": "integer",
+          "label": "命令计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "data-bytes": {
+          "type": "integer",
+          "label": "数据字节数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "pixels-written": {
+          "type": "integer",
+          "label": "像素字节写入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "framebuffer-crc": {
+          "type": "integer",
+          "label": "framebuffer CRC32",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "last-command-hex": {
+          "type": "string",
+          "label": "最近命令字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 64
+        },
+        "framebuffer-hex": {
+          "type": "string",
+          "label": "framebuffer 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 2304
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Mini_OLED",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U166",
+            "0.42-inch 72x40 monochrome SSD1315",
+            "I2C @0x3C",
+            "PORT.A yellow=SDA white=SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/minioled.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "default I2C address 0x3D",
+            "M5.addDisplay(i2c, address, {unit_mini_oled: True})"
+          ],
+          "sha256": "30e7467ae47a47133624443771fd0e0bad66939b0c7ecb8f82279516e3cc5302",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "contrast": {
+            "property": "contrast",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-on": {
+            "property": "display-on",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "inverse": {
+            "property": "inverse",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "start-line": {
+            "property": "start-line",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-controller": {
+            "property": "display-controller",
+            "access": "read-only",
+            "type": "string"
+          },
+          "commands": {
+            "property": "commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "data-bytes": {
+            "property": "data-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pixels-written": {
+            "property": "pixels-written",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "framebuffer-crc": {
+            "property": "framebuffer-crc",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-command-hex": {
+            "property": "last-command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "framebuffer-hex": {
+            "property": "framebuffer-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local SSD1315 command/data slave at 0x3D",
+        "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1315 72x40）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1315 72x40 command/data stream recorder with column/page addressing and 360-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+      },
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1315 72x40）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1315 72x40 command/data stream recorder with column/page addressing and 360-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "glass2",
+      "name": "Unit Glass2",
+      "sku": "U158-B",
+      "visual_asset": {
+        "entry": "src/units/glass2/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Glass2",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SSD1309",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          60,
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "SSD1309 128x64 monochrome OLED behind the M5Unified external display composition; the Unit has no page-level register table, so the model records the standard 2-wire control-byte command stream (0x00 command / 0x40 data), column/page addressing commands and pixel bytes into a 1024-byte framebuffer.",
+        "registers": [
+          {
+            "register": "control byte",
+            "length": 1,
+            "encoding": "0x00 command stream / 0x40 data stream"
+          },
+          {
+            "register": "column/page address",
+            "length": 1,
+            "encoding": "0x00-0x0F low / 0x10-0x1F high column, 0xB0-0xB7 page (also 0x21/0x22 window)"
+          },
+          {
+            "register": "panel commands",
+            "length": 0,
+            "encoding": "0x81 contrast, 0xAE/0xAF display, 0xA6/0xA7 inverse, 0xA8 mux, 0xD3 offset, 0xDC start line, 0x20 memory mode"
+          }
+        ],
+        "gaps": [
+          "The product page address and the frozen driver default disagree (UNRESOLVED); both are recorded, only the driver address is modeled.",
+          "The three display Units (oled/mini-oled/glass2) share 0x3C/0x3D and can only be attached one at a time on one bus.",
+          "M5Unified external display composition is firmware-side; the Unit QOM only sees the I2C command/data stream.",
+          "OLED panel optics/luminance/lifetime/transparent-region behavior are NOT RUN.",
+          "Glass2 页面描述默认 0x3C/可焊 0x3D，但产品对比表写“固定 0x3D”，且驱动默认 0x3C：地址二义 UNRESOLVED。",
+          "透明区 128x56 与透过率/亮度物理行为 NOT RUN。"
+        ]
+      },
+      "inputs": {
+        "contrast": {
+          "type": "integer",
+          "label": "对比度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "display-on": {
+          "type": "boolean",
+          "label": "显示开关",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "inverse": {
+          "type": "boolean",
+          "label": "反色",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "start-line": {
+          "type": "integer",
+          "label": "显示起始行",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "outputs": {
+        "display-controller": {
+          "type": "string",
+          "label": "控制器",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 16
+        },
+        "commands": {
+          "type": "integer",
+          "label": "命令计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "data-bytes": {
+          "type": "integer",
+          "label": "数据字节数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "pixels-written": {
+          "type": "integer",
+          "label": "像素字节写入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "framebuffer-crc": {
+          "type": "integer",
+          "label": "framebuffer CRC32",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "last-command-hex": {
+          "type": "string",
+          "label": "最近命令字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 64
+        },
+        "framebuffer-hex": {
+          "type": "string",
+          "label": "framebuffer 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 2304
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Glass2",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U158-B",
+            "1.51-inch transparent 128x64 SSD1309",
+            "default 0x3C, solderable 0x3D",
+            "comparison table says fixed 0x3D"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/glass2.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "default I2C address 0x3C",
+            "M5.addDisplay(i2c, address, {unit_glass2: True})"
+          ],
+          "sha256": "71752fca1a8d3abeb565a81e741c9cdd46cece98ae5b8e3006782846c168c245",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "contrast": {
+            "property": "contrast",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-on": {
+            "property": "display-on",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "inverse": {
+            "property": "inverse",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "start-line": {
+            "property": "start-line",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "display-controller": {
+            "property": "display-controller",
+            "access": "read-only",
+            "type": "string"
+          },
+          "commands": {
+            "property": "commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "data-bytes": {
+            "property": "data-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pixels-written": {
+            "property": "pixels-written",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "framebuffer-crc": {
+            "property": "framebuffer-crc",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-command-hex": {
+            "property": "last-command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "framebuffer-hex": {
+            "property": "framebuffer-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local SSD1309 command/data slave at 0x3C",
+        "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1309 128x64，驱动 0x3C）。 I2C display command slave at the frozen driver address 0x3C (page 0x3C vs driver 0x3C: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1309 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN."
+      },
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1309 128x64，驱动 0x3C）。 I2C display command slave at the frozen driver address 0x3C (page 0x3C vs driver 0x3C: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1309 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "nbiot-cn",
+      "name": "Unit NBIoT-CN",
+      "sku": "U112",
+      "visual_asset": {
+        "entry": "src/units/nbiot-cn/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_NBIoT-CN",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SIM7020C",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "SIM7020C AT command slave behind the shared UART fixture responder; the model captures guest TX bytes and injects session-initial responses-hex chunks after an idle gap, without decoding AT semantics.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0]) 115200 8N1"
+          },
+          {
+            "kind": "fixture-responder",
+            "encoding": "session-initial responses-hex chunks injected after an idle gap; no protocol decoding"
+          }
+        ],
+        "gaps": [
+          "SIM7020C AT firmware/URC/attach ordering unresolved; only fixture responses are modeled.",
+          "NB-IoT RF/basestation/SIM/operator certification/TLS/MQTT are NOT RUN.",
+          "PORT.C conflicts with the other UART Units (one per port)."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "响应 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest UART 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_NBIoT-CN",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U112",
+            "SIM7020C Cat-NB CN B1/B3/B5/B8",
+            "UART 115200bps",
+            "SMA external antenna",
+            "TCP/UDP/LWM2M/CoAP/MQTT/HTTP/HTTPS/TLS/DNS/NTP/PING"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/nbiot.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "NBIOTUnit(SIM7020)",
+            "AT readiness probe AT->OK and ATE0",
+            "SIM7020 command set"
+          ],
+          "sha256": "bee047da8bec3994259226df2b4cffcbc08d5c70dc1d742d551af6b827bd6437",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
+        "blocker": "0148 新增 UART id 'nbiot-cn'（SIM7020C，115200）：沿用 idle-gap fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突**"
+      },
+      "blocker": "0148 新增 UART id 'nbiot-cn'（SIM7020C，115200）：沿用 idle-gap fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突**",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "lora-e220-920",
+      "name": "Unit LoRaE220-920",
+      "sku": "U170",
+      "visual_asset": {
+        "entry": "src/units/lora-e220-920/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/LoRaE220-JP%20Unit",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "E220-900T22S(JP) / LLCC68",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "E220-900T22S-JP 0xC0/C1 configuration-frame responder plus generic UART byte capture; RF behavior is not modeled.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0]) 9600 8N1 (frozen driver)"
+          },
+          {
+            "kind": "fixture-responder",
+            "encoding": "session-initial responses-hex chunks injected after an idle gap; no protocol decoding"
+          }
+        ],
+        "gaps": [
+          "The 920MHz product page does not state a baud rate; the frozen driver uses 9600.",
+          "920 register bit definitions differ from the 433 SKU: the batch5 433 evidence is NOT transferable.",
+          "920MHz RF/antenna/range/Telec certification are NOT RUN; PORT.C conflicts."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "响应 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest UART 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "config-hex": {
+          "type": "string",
+          "label": "0xC1 配置镜像",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 32
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/LoRaE220-JP%20Unit",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U170",
+            "E220-900T22S(JP) / LLCC68, 920.6-928.0MHz, max 13dBm",
+            "4 DIP modes (transmit/receive, WOR, configuration)",
+            "PORT.C yellow=UART_RX white=UART_TX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lora_e220_jp.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "LoRaE220JPUnit",
+            "setup() builds 0xC0 config frame and waits same-length echo",
+            "send() builds >HB target header + payload"
+          ],
+          "sha256": "a9c6d136e13b44ced6761e9edebe4ac5c31934adf7ce1f0e6100a0620a2e0fa6",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "config-hex": {
+            "property": "config-hex",
+            "access": "read-only",
+            "type": "string"
+          }
+        },
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
+        "blocker": "0148 新增 UART id 'lora-e220-920'（E220-900T22S JP/LLCC68，驱动 9600）：复用 0xC0/C1 配置帧回显与 idle fixture responder，QOM tx-hex/config-hex/frames-*。未采集 guest 证据 → planned。**页面未写波特率（驱动 9600）；920 寄存器位与 433 不同，不得转授 433 证据；RF/天线/Telec NOT RUN；PORT.C 冲突**"
+      },
+      "blocker": "0148 新增 UART id 'lora-e220-920'（E220-900T22S JP/LLCC68，驱动 9600）：复用 0xC0/C1 配置帧回显与 idle fixture responder，QOM tx-hex/config-hex/frames-*。未采集 guest 证据 → planned。**页面未写波特率（驱动 9600）；920 寄存器位与 433 不同，不得转授 433 证据；RF/天线/Telec NOT RUN；PORT.C 冲突**",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "lorawan-us915",
+      "name": "Unit LoRaWAN-US915",
+      "sku": "U184-US915",
+      "visual_asset": {
+        "entry": "src/units/lorawan-us915/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-US915",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32WLE5 / RAK3172",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "LoRaWAN-US915 AT command stream captured through the shared UART fixture responder; join/RF semantics are not modeled.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0]) 115200 8N1"
+          },
+          {
+            "kind": "fixture-responder",
+            "encoding": "session-initial responses-hex chunks injected after an idle gap; no protocol decoding"
+          }
+        ],
+        "gaps": [
+          "Product STM32WLE5/RAK3172 vs frozen ASR650x driver mismatch UNRESOLVED; only fixture responses are modeled.",
+          "US915 join/OTAA/ABP, duty cycle, FCC certification, RF/antenna are NOT RUN.",
+          "PORT.C conflicts with the other UART Units."
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "响应 fixture（; 分隔）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "maxLength": 8192
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "guest UART 字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "发送帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-US915",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U184-US915",
+            "STM32WLE5/RAK3172, LoRaWAN 1.0.3 Class A/B/C, US915 902-928MHz",
+            "UART 115200bps AT control",
+            "OTAA/ABP/P2P"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lorawan.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "LoRaWANUnit inherits driver.asr650x.LoRaWAN_470 (ASR6501)",
+            "LoRaWAN_915 subclass exists in the driver but the Unit wrapper does not use it",
+            "AT command set DevAddr/DevEUI/AppEUI/AppKey/join mode/frequency band mask"
+          ],
+          "sha256": "5cd3fc5347ef202f6bf3a5dc2724e3994b65988f74787e011f152ac1976e6277",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, fixture responses injected after an idle gap",
+        "blocker": "0148 新增 UART id 'lorawan-us915'（STM32WLE5/RAK3172 vs ASR650x 驱动错配）：最小 AT fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**驱动/产品错配 unresolved；US915 RF/OTAA/ABP/Join/FCC NOT RUN；PORT.C 冲突**"
+      },
+      "blocker": "0148 新增 UART id 'lorawan-us915'（STM32WLE5/RAK3172 vs ASR650x 驱动错配）：最小 AT fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**驱动/产品错配 unresolved；US915 RF/OTAA/ABP/Join/FCC NOT RUN；PORT.C 冲突**",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "mic",
+      "name": "Unit MIC",
+      "sku": "U096",
+      "visual_asset": {
+        "entry": "src/units/mic/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/mic",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "MAX4466",
+          "status": "officially-documented"
+        },
+        {
+          "part": "LM393",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-adc",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "Digital Output",
+            "direction": "unit-to-host"
+          },
+          "white": {
+            "signal": "Analog Output",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-explicit-gaps",
+        "summary": "MAX4466 electret microphone pre-amp plus an LM393 comparator with a 10K threshold potentiometer; the white Grove wire is the continuous analog output and the yellow wire is the comparator digital output. There is no Unit register protocol: the guest samples the white pin through the SoC SAR-ADC and reads the yellow pin as a GPIO digital input.",
+        "registers": [
+          {
+            "kind": "adc",
+            "encoding": "white analog output sampled by the SoC SAR-ADC channel fixture"
+          },
+          {
+            "kind": "gpio-in",
+            "encoding": "yellow comparator output read as a digital input fixture"
+          }
+        ],
+        "gaps": [
+          "No official Unit driver in public UIFlow2; only machine.ADC/machine.Pin paths can be probed.",
+          "Port.B yellow/white conflict with other GPIO/RMT/UART/ADC Units (one per port).",
+          "Acoustic response, threshold potentiometer, sensitivity 52dB/SNR 40dB and frequency response are NOT RUN.",
+          "ADC calibration/noise is not modeled; the fixture is a synthetic millivolt level."
+        ]
+      },
+      "inputs": {
+        "analog-mv": {
+          "type": "number",
+          "label": "模拟输出",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300
+        },
+        "comparator-level": {
+          "type": "boolean",
+          "label": "比较器输出",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "digital-level": {
+          "type": "boolean",
+          "label": "黄线数字电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "adc-samples": {
+          "type": "integer",
+          "label": "ADC 采样数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/mic",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U096",
+            "MAX4466 + LM393 + 10K threshold potentiometer",
+            "PORT.B yellow=Digital Output, white=Analog Output",
+            "52dB sensitivity, 40dB SNR"
+          ]
+        },
+        {
+          "kind": "official-driver-gap",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "no unit/mic.py in the frozen UIFlow2 tree"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "analog-mv": {
+            "property": "analog-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "comparator-level": {
+            "property": "comparator-level",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "digital-level": {
+            "property": "digital-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "adc-samples": {
+            "property": "adc-samples",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC SAR-ADC sample of the white analog pin plus a GPIO digital input observation of the yellow comparator pin",
+        "blocker": "U096 MIC has NO official Unit driver in public UIFlow2 (explicit driver-gap): guest code uses machine.ADC on the white analog output and machine.Pin on the yellow LM393 comparator output. The model provides an ADC input fixture on the white pin and a GPIO digital input fixture on the yellow pin; acoustic response, the 10K threshold potentiometer, sensitivity/SNR/frequency response and the microphone physics are NOT RUN."
+      },
+      "blocker": "U096 MIC has NO official Unit driver in public UIFlow2 (explicit driver-gap): guest code uses machine.ADC on the white analog output and machine.Pin on the yellow LM393 comparator output. The model provides an ADC input fixture on the white pin and a GPIO digital input fixture on the yellow pin; acoustic response, the 10K threshold potentiometer, sensitivity/SNR/frequency response and the microphone physics are NOT RUN.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
     }
   ],
   "model_status_values": [

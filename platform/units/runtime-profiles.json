@@ -9992,6 +9992,286 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "oled": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SH1107）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SH1107 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "inputs": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        }
+      },
+      "state": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        },
+        "display-controller": {
+          "property": "display-controller"
+        },
+        "commands": {
+          "property": "commands"
+        },
+        "data-bytes": {
+          "property": "data-bytes"
+        },
+        "pixels-written": {
+          "property": "pixels-written"
+        },
+        "framebuffer-crc": {
+          "property": "framebuffer-crc"
+        },
+        "last-command-hex": {
+          "property": "last-command-hex"
+        },
+        "framebuffer-hex": {
+          "property": "framebuffer-hex"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "mini-oled": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1315 72x40）。 I2C display command slave at the frozen driver address 0x3D (page 0x3C vs driver 0x3D: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1315 72x40 command/data stream recorder with column/page addressing and 360-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "inputs": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        }
+      },
+      "state": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        },
+        "display-controller": {
+          "property": "display-controller"
+        },
+        "commands": {
+          "property": "commands"
+        },
+        "data-bytes": {
+          "property": "data-bytes"
+        },
+        "pixels-written": {
+          "property": "pixels-written"
+        },
+        "framebuffer-crc": {
+          "property": "framebuffer-crc"
+        },
+        "last-command-hex": {
+          "property": "last-command-hex"
+        },
+        "framebuffer-hex": {
+          "property": "framebuffer-hex"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "glass2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增共享 OLED 显示命令 slave（SSD1309 128x64，驱动 0x3C）。 I2C display command slave at the frozen driver address 0x3C (page 0x3C vs driver 0x3C: UNRESOLVED, the driver address is modeled and the page address is recorded as a gap); SSD1309 128x64 command/data stream recorder with column/page addressing and 1024-byte framebuffer; display composition (M5Unified external display) and the panel optics/contrast/lifetime are NOT RUN.",
+      "inputs": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        }
+      },
+      "state": {
+        "contrast": {
+          "property": "contrast"
+        },
+        "display-on": {
+          "property": "display-on"
+        },
+        "inverse": {
+          "property": "inverse"
+        },
+        "start-line": {
+          "property": "start-line"
+        },
+        "display-controller": {
+          "property": "display-controller"
+        },
+        "commands": {
+          "property": "commands"
+        },
+        "data-bytes": {
+          "property": "data-bytes"
+        },
+        "pixels-written": {
+          "property": "pixels-written"
+        },
+        "framebuffer-crc": {
+          "property": "framebuffer-crc"
+        },
+        "last-command-hex": {
+          "property": "last-command-hex"
+        },
+        "framebuffer-hex": {
+          "property": "framebuffer-hex"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "nbiot-cn": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增 UART id 'nbiot-cn'（SIM7020C，115200）：沿用 idle-gap fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "lora-e220-920": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增 UART id 'lora-e220-920'（E220-900T22S JP/LLCC68，驱动 9600）：复用 0xC0/C1 配置帧回显与 idle fixture responder，QOM tx-hex/config-hex/frames-*。未采集 guest 证据 → planned。**页面未写波特率（驱动 9600）；920 寄存器位与 433 不同，不得转授 433 证据；RF/天线/Telec NOT RUN；PORT.C 冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "config-hex": {
+          "property": "config-hex"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "lorawan-us915": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0148 新增 UART id 'lorawan-us915'（STM32WLE5/RAK3172 vs ASR650x 驱动错配）：最小 AT fixture responder，QOM tx-hex/responses-hex/frames-*。未采集 guest 证据 → planned。**驱动/产品错配 unresolved；US915 RF/OTAA/ABP/Join/FCC NOT RUN；PORT.C 冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "mic": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "U096 MIC has NO official Unit driver in public UIFlow2 (explicit driver-gap): guest code uses machine.ADC on the white analog output and machine.Pin on the yellow LM393 comparator output. The model provides an ADC input fixture on the white pin and a GPIO digital input fixture on the yellow pin; acoustic response, the 10K threshold potentiometer, sensitivity/SNR/frequency response and the microphone physics are NOT RUN.",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "comparator-level": {
+          "property": "comparator-level"
+        }
+      },
+      "state": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "comparator-level": {
+          "property": "comparator-level"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
