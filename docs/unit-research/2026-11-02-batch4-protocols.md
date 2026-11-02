@@ -804,3 +804,59 @@ done
   快照一致，`sha256_master` 在差异文件中额外记录 master 哈希；
 - 所有 `inputs.*.default` 都是合成测试 fixture，不是实测值；`blocker` 写明实现
   前置条件与硬件边界（含激光安全、AC 市电测量、RF/称重等 NOT RUN）。
+
+## 11. A+B 6 款 QEMU 实现状态（补丁 0134，2026-11-02）
+
+第四批 A+B 6 款（`rs485-iso`/`laser-tx`/`co2l`/`neco`/`midi`/`tof4m`）已由
+[`0134-unit-batch4ab.patch`](../../patches/qemu-m5stack-peripherals/0134-unit-batch4ab.patch)
+接入 QEMU 数据面。**base 是 canonical native layer `75f1d24` + 已合入的
+`0120/0121/0122/0123/0124/0125/0126/0127/0128/0129` + `0131`（batch3 C）**；
+`0130`（batch3 A+B）与本补丁是并行层，不能顺序 apply，本补丁不依赖 `0130`；
+`0132`/`0133` 已被 unit-protocols 的 batch3 证据修复占用，所以本批补丁号用
+**0134**。0130/0131 的 reconciliation 留给后续独立任务，不在本任务范围。
+**尚未采集 guest/Device Service 证据**，因此 catalog 6 条与 runtime-profiles 6 条
+均保持 `planned`、hosts 为空；离线 QOM smoke（S3 board、无 guest 固件）只验证属性
+注册、fixture 读写、范围/只读拒绝与结构（21/21 PASS），不构成功能 PASS。
+
+| Unit | 0134 模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `rs485-iso` U094 (UART PORT.C) | 复用已登记 `rs485`（U034）UART 端点：`tx-hex` 捕获 + `rx-hex` 注入；零新 kind | 输入 rx-hex；观测 tx-hex、transactions/read/written-bytes | 隔离耐压/ESD/fail-safe/500Kbps/256 节点 NOT RUN；快照 uSerial 继承 vs master `__new__` 工厂差异须钉 SHA；Modbus 从站语义由 guest 负责；PORT.C 与 midi/gps/uhf-rfid 端口冲突 |
+| `laser-tx` U066 (GPIO DIN) | GPIO id `laser-tx`：黄线 pad 输出观测 `output-level` + 单元级 `output-transitions`；UART TX 模式未建模 | 输入 output-level；观测 output-transitions | **激光安全：人眼/光功率/波长/调制带宽 NOT RUN；catalog 保留不可直视/不可对人或动物的警告；不得声称光学输出** |
+| `co2l` U104 (0x62 SCD41) | 复用 0131 `US_SCD40`：量程 400..5000、单次测量 0x219D/0x2196、只读 `chip-id`=0x41 身份 fixture | 输入 co2-ppm/temperature-c/humidity-pct/data-ready；观测 serial-number/chip-id/measurement-reads | **SCD40（co2 页面）vs SCD41（co2l 页面/官方总表）冲突；快照 `CO2LUnit(CO2Unit)` vs master `CO2LUnit(SCD40)` 结构不同须钉 SHA；两份驱动温度解码取 buf[1] 而非 buf[4] → guest temperature 不可断言，只有 CO2/湿度可断言；0x62 与 co2 冲突；5s 周期/CRC/精度 NOT RUN** |
+| `neco` U163 (RMT+BTN) | GPIO id `neco`：黄线 RMT 捕获 35 灯 WS2812 帧（RGB 缓冲 25→128、realize 上限 128）；白线 active-low 按键 | 输入 button-pressed（QOM `pressed`）；观测 led-rgb(35)/led-frames/incomplete-frames/input-events | **驱动默认 70 灯 vs 产品页 35 灯冲突（模型按 35 实现）；两 Grove 口级联/pass-through 不建模；WS2812 时序/亮度/光学/功耗 NOT RUN；neopixel 快照 vs master `set_brightness` 语义差异须钉 SHA** |
+| `midi` U187 (UART) | GPIO id `midi`：黄线捕获 guest→SAM2695 MIDI 字节流（tx-hex），白线可选 MIDI IN 注入（rx-hex）；音频合成不建模 | 输入 rx-hex；观测 tx-hex/transactions/written-bytes | **页面 31520bps vs 标准 31250 vs 驱动未设 baud → 波特率 unresolved；SAM2695 音色/复调/音频 NOT RUN；Bypass/Separate 硬件切换不建模；PORT.C 端口冲突** |
+| `tof4m` U172 (0x29 VL53L1X) | 新增 `US_VL53L1X`：16-bit 寄存器地址相位（2B BE 地址 + 数据、读自动递增）、model id 0x010F..0x0111=0xEA/0xCC/0x10、data-ready 0x0031、range status 0x0089、distance 0x0096/0x0097、start/stop 0x0087、interrupt clear 0x0086、地址迁移 0x0001、init 序列寄存器文件、fixture 20ms 就绪节拍 | 输入 distance-mm(40..4000)/data-ready；观测 timing-budget-ms/range-status/clear-writes/i2c-address | **页面 VL53L1CXV0FY/1 vs 对比表 VL53L1X 命名冲突；16-bit 地址/自增语义需逐字节核对；4m/分辨率/激光安全/光学 NOT RUN；0x29 与 tof（VL53L0X）/color（TCS3472）三方冲突** |
+
+离线 QOM smoke 复现（S3 板；`m5atoms3r`，无 guest 固件；6 attachment 共享一次
+启动，UART 单元在离线状态下 RX 注入按“无路由”拒绝，属预期）：
+
+```bash
+cat > /tmp/unit-smoke-config4.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"iso1","unit_id":"rs485-iso","pins":{"yellow":5,"white":6}},
+ {"id":"midi1","unit_id":"midi","pins":{"yellow":11,"white":12}},
+ {"id":"laser1","unit_id":"laser-tx","pins":{"yellow":7,"white":8}},
+ {"id":"neco1","unit_id":"neco","pins":{"yellow":9,"white":10}},
+ {"id":"tof1","unit_id":"tof4m","pins":{"yellow":15,"white":16}},
+ {"id":"co2l1","unit_id":"co2l","pins":{"yellow":17,"white":18}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config4.json qemu-system-xtensa -M m5atoms3r \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke4.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+21 项检查全部 PASS：rs485-iso 3（属性/空缓冲/未路由 RX 拒绝）、midi 3、laser-tx 2
+（默认 output-level=false、只读拒绝）、neco 4（35 灯数组/默认值/按下/释放，
+active-low 电平）、co2l 4（默认/chip-id=0x41/量程拒绝/只读拒绝）、tof4m 5
+（默认/距离写入/双向越界拒绝/data-ready 写入）。该 smoke **不**覆盖 I2C
+`send/recv` 字节语义（SCD4x 命令+CRC、VL53L1X 16-bit 地址/自增）、UART TX 捕获
+（离线无 guest UART 路由）、RMT WS2812 帧、GPIO 输出写；这些仍需 guest 证据。
+
+**计数说明**：本分支 base `origin/main 0cd21dab` 的 catalog 为 70 款，加上本批 6 款
+后为 **76 款**（catalog 与 runtime-profiles 都是 76）；计数测试、visual mapping
+audit（`all-76-products`）与 snapshot 已同步。
+
+共同边界：6 款都是控制器可见的事务/时序模型，不是电气/光学/声学/音频/射频物理
+模型；没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。
