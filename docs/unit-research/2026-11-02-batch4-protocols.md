@@ -860,3 +860,59 @@ audit（`all-76-products`）与 snapshot 已同步。
 
 共同边界：6 款都是控制器可见的事务/时序模型，不是电气/光学/声学/音频/射频物理
 模型；没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。
+
+## 12. C 类 6 款 QEMU 实现状态（补丁 0136，2026-11-02）
+
+第四批 C 类 6 款（`weight`/`bldc-driver`/`ac-measure`/`dds`/`gps`/`uhf-rfid`）已由
+[`0136-unit-batch4c.patch`](../../patches/qemu-m5stack-peripherals/0136-unit-batch4c.patch)
+接入 QEMU 数据面。**base 是 source-lock 树 `8c85548` = canonical native layer
+`75f1d24` + 已合入的 `0120/0121/0122/0123/0124/0125/0126/0127/0128/0129` +
+`0131`（batch3 C）+ `0134`（batch4 A+B）**。`0130/0132/0133/0135` 是 batch3
+并行层，不按顺序 apply、本补丁也不依赖它们；batch3 证据层与 0136 的合并
+（reconciliation）留给后续独立任务。**尚未采集 guest/Device Service 证据**，因此
+catalog 6 条与 runtime-profiles 6 条均保持 `planned`、hosts 为空；离线 QOM smoke
+（S3 board、无 guest 固件）只验证属性注册、fixture 读写、范围/只读拒绝（23/23
+PASS），不构成功能 PASS。
+
+| Unit | 0136 模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `weight` U030 (HX711 GPIO) | GPIO id `weight`：黄线 pad observer 统计 CLK 下降沿，白线按 24-bit MSB-first 输出 fixture 位；24 个数据脉冲后按 channel 消费 1/3/2 个 gain 脉冲；转换完成 → DAT 高 + 合成 100ms 后就绪 | 输入 adc-raw(24-bit)/channel；观测 weight-g、conversions、ready-level | **HX711 电气/10SPS 时序/称重力学/载荷/温漂/量程 NOT RUN；驱动把 raw 左移一位再 XOR 0x800000，QOM adc-raw 是 DAT 位承载的 24-bit 原始码；页面 FAQ I2C 与 PinMap/驱动 GPIO 冲突 unresolved；weight-i2c（U180，I2C 0x26）是不同协议** |
+| `bldc-driver` U181 (0x65) | `CONTROL_BLDC`：mode/direction/motor model/pole pairs、int16le PWM、float/int/ASCII RPM 与频率视图、12B LE PID、flash 写计数、fw/地址迁移；RPM float 为真实 IEEE754 LE | 输入 mode/direction/pole-pairs/rpm/pwm；观测 rpm-readback/frequency-hz/motor-status/flash-writes/fw-version/i2c-address | **BLDC 电机电气/转速/失速保护/DRV11873 状态/5V 输出 NOT RUN；频率回读是合成 rpm/60 约定（真实极对数/电频率关系无驱动锚点 unresolved）；0xF0 flash 持久化语义 unresolved；0x65 无已登记冲突** |
+| `ac-measure` U164 (0x42) | `US_ACMEASURE`：同一组 fixture 派生 ASCII 字符串视图（7/7/7/7/4/11B，宽度为模型侧确定性约定）与小端 byte 视图（0x60..0xB3）；系数 0xC0/0xD0、保存 0xE0、data-ready 0xFC、bootloader 0xFD（只记录不跳转）、fw 0xFE、address 0xFF | 输入 voltage-v/current-a/active-power-w/apparent-power-va/power-factor/energy-kwh/data-ready；观测 coeff-voltage/coeff-current/save-coeff-writes/fw-version/i2c-address | **安全边界：AC 100-240V@10A 是测量输入，绝不是可切换负载；模型只模拟寄存器读数，绝不宣称市电通断/隔离耐压/过流/计量精度；HLW8032/隔离/校准语义 NOT RUN；页面 STM32G030 vs 官方 I2C 总表 STM32F030 冲突 unresolved；0x42 无已登记冲突** |
+| `dds` U105 (0x31) | `CONTROL_DDS`：mode 0x20 (0x80|wave)、control 0x21、frequency 0x30（4B，bit7 写/bit6 选 FREQ0/1，28-bit word=freq*2^28/10MHz）、phase 0x34（2B，bit7 写/bit6 选 PHASE0/1，11-bit word=deg*2048/360），回读当前选中寄存器 | 输入 waveform/frequency-hz/phase-deg/freq-reg/phase-reg；观测 ctrl-word/active-freq-reg/active-phase-reg/i2c-address | **AD9833 模拟波形/幅度/相位精度/输出阻抗/0-0.6V NOT RUN；set_ctrl bit 语义只按驱动实现；0x31 无已登记冲突** |
+| `gps` U032 (UART 9600) | GPIO id `gps`：50ms 定时器把 ';'/'\n' 分隔的 fixture NMEA 行经 guest UART RX 路由注入（无路由不注入、不计数），捕获 guest TX 字节 | 输入 nmea-lines；观测 injected-lines、tx-hex | **真实 GNSS 卫星/射频/天线/定位精度 NOT RUN；驱动不校验 NMEA checksum（unresolved）；冷/热启动与 1-10Hz 更新率不建模；PORT.C 与 midi/uhf-rfid/rs485-iso 同端口冲突；页面 EOL** |
+| `uhf-rfid` U107 (UART 115200) | GPIO id `uhf-rfid`：黄线按字节捕获 guest 命令，检测 0xBB..0x7E 完整命令帧后从 ';' 分隔 hex fixture 取下一响应帧经 guest UART RX 注入（无路由不注入、不计数） | 输入 responses-hex；观测 tx-hex、rx-frames-hex、frames-sent、frames-injected | **RF 840-960MHz/天线/Gen2 空口/1m 读取距离/区域限制 NOT RUN；kill/lock/密码只做帧层，绝不宣称真实标签能力或安全；快照 vs master NXP API 差异须钉 SHA；PORT.C 端口冲突** |
+
+离线 QOM smoke 复现（S3 板 `m5atoms3r`，无 guest 固件；6 attachment 一次启动）：
+
+```bash
+cat > /tmp/unit-smoke-config5.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"wgt1","unit_id":"weight","pins":{"yellow":9,"white":10}},
+ {"id":"bldc1","unit_id":"bldc-driver","pins":{"yellow":15,"white":16}},
+ {"id":"acm1","unit_id":"ac-measure","pins":{"yellow":17,"white":18}},
+ {"id":"dds1","unit_id":"dds","pins":{"yellow":21,"white":38}},
+ {"id":"gps1","unit_id":"gps","pins":{"yellow":5,"white":6}},
+ {"id":"uhf1","unit_id":"uhf-rfid","pins":{"yellow":7,"white":8}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config5.json qemu-system-xtensa -M m5atoms3r \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke5.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+23 项检查全部 PASS：weight 5（默认/fixture 写入/24-bit 范围拒绝/channel 拒绝/切换）、
+bldc 4（默认/模式+RPM+PWM/模式拒绝/只读拒绝）、ac-measure 5（默认/电压写入/电压
+范围拒绝/PF 范围拒绝/data-ready）、dds 5（默认/波形/波形拒绝/频率/相位）、gps 3
+（默认/写入 fixture/空 tx）、uhf-rfid 3（默认/响应 fixture/空 tx）。该 smoke **不**
+覆盖 I2C `send/recv` 字节语义（AC 测量 ASCII/byte 视图、BLDC 寄存器读回、DDS
+编码）、HX711 CLK/DAT 位时序、UART NMEA/帧注入（离线无 guest UART 路由）；这些
+仍需 guest 证据。
+
+**计数说明**：本分支 base `origin/main 76b492fd` 的 catalog 为 76 款，加上本批 6 款
+后为 **82 款**（catalog 与 runtime-profiles 都是 82）；计数测试、visual mapping
+audit（`all-82-products`）与 snapshot 已同步。
+
+共同边界：6 款都是控制器可见的事务/时序模型，不是电气/光学/音频/射频/计量物理
+模型；没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。

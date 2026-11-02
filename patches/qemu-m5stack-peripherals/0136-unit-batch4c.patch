@@ -1,0 +1,843 @@
+From 3cd12869f8576af96f21c3a362388b4edb4d981c Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:10:35 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-4 C data planes
+
+Add the six C-class batch-4 Units on top of the source-lock tree
+(canonical + 0120-0129 + 0131 + 0134; the parallel batch-3 layers are not
+required here). No guest evidence is recorded; host catalog keeps all six
+planned.
+
+- weight (U030): HX711 bit-pulse data plane. The model observes guest
+  clock edges on yellow, shifts out the 24-bit fixture on white MSB-first,
+  consumes the 1/3/2 gain pulses, then marks a conversion complete and
+  re-arms DAT after a synthetic 100ms ready delay. Weighing mechanics and
+  HX711 electrical behavior are NOT modeled; the product-page FAQ I2C
+  wording conflicts with the PinMap/driver GPIO path and stays a blocker.
+- bldc-driver (U181): CONTROL_BLDC at 0x65 with the official register
+  file: mode, direction, motor model, pole pairs, int16le PWM, float/int/
+  ASCII RPM and frequency views, 12-byte little-endian PID, flash-write
+  counter, firmware and address migration. Motor electrical behavior,
+  stall protection and the 5V output are NOT modeled.
+- ac-measure (U164): US_ACMEASURE at 0x42 deriving the documented ASCII
+  string views (fixed model-side width convention) and little-endian byte
+  views from the same fixtures, plus coefficients, save-coefficient,
+  data-ready, firmware and address migration. AC 100-240V@10A is a
+  measurement input and is NEVER modeled as a switchable load; mains,
+  isolation and metering accuracy are NOT RUN.
+- dds (U105): CONTROL_DDS at 0x31 encoding the AD9833 mode/control/frequency
+  (28-bit, 10MHz reference) and phase (11-bit) words with the dual
+  register selection bits; analog waveform/amplitude are NOT modeled.
+- gps (U032): UART NMEA fixture injection. A 50ms timer feeds one
+  ';'-separated fixture sentence into the guest UART RX path when the
+  firmware routes UART RX to the white pin; without a guest route nothing
+  is injected. GNSS RF/satellite behavior and checksum validation are NOT
+  modeled.
+- uhf-rfid (U107): JRD4035 UART frame capture/injection. Guest 0xBB..0x7E
+  command frames are captured on yellow; each complete frame triggers the
+  next ';'-separated hex response fixture on white when routed. RF/Gen2
+  air protocol and kill-lock/password security are NOT modeled.
+
+Offline QOM smoke (S3 board, no guest firmware) validates property
+registration, fixture read/write, range/read-only rejection and defaults;
+it is not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         | 290 +++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 227 +++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 113 +++++++++-
+ 3 files changed, 624 insertions(+), 6 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index a5e899c..5e6560f 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -47,6 +47,30 @@ typedef struct GPIOUnit {
+     int ultra_pulse_us;
+     uint64_t ultra_triggers, ultra_timeouts;
+     bool ultra_echo_high;
++    /* U030 Weight (HX711): guest clocks yellow and reads 24 data bits from
++     * white, then 1/3/2 gain pulses. Weighing mechanics and HX711 electrical
++     * behavior are NOT modeled; DAT stays high while a conversion is pending. */
++    Esp32GpioState *hx_controller;
++    Esp32GpioPadObserver *hx_observer;
++    Esp32GpioPadSnapshot hx_pad;
++    QEMUTimer *hx_timer;
++    int64_t hx_raw;
++    int64_t hx_channel;
++    unsigned hx_bit, hx_extra;
++    bool hx_ready, hx_in_frame;
++    uint64_t hx_conversions;
++    /* U032 GPS (UART 9600 NMEA): inject one fixture sentence every 50ms on
++     * the unit->host wire. GNSS RF/satellite behavior is NOT modeled. */
++    QEMUTimer *gps_timer;
++    char *gps_lines;
++    unsigned gps_line_index;
++    uint64_t gps_injected;
++    /* U107 UHF-RFID (JRD4035 UART frames): capture guest command frames and
++     * inject fixture response frames; RF/Gen2/tag security is NOT modeled. */
++    char *uhf_responses;
++    unsigned uhf_response_offset;
++    uint64_t uhf_frames_sent, uhf_frames_injected;
++    bool uhf_in_frame;
+     uint32_t rx_pulses[192], tx_pulses[192];
+     unsigned rx_count, tx_count;
+     uint8_t uart_tx[4096];
+@@ -630,7 +654,8 @@ bool m5_unit_gpio_supported(const char *id)
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+-        "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi"};
++        "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
++        "weight", "gps", "uhf-rfid"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -916,6 +941,8 @@ unsigned m5_unit_rmt_rx(unsigned channel, uint32_t *symbols,
+ }
+ 
+ static const unsigned uart_signal[] = {12, 15, 18};
++
++static void uhf_inject_response(GPIOUnit *g);
+ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+ {
+     for (unsigned n = 0; n < 3; n++) {
+@@ -923,10 +950,20 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+         for (GPIOUnit *g = gpio_units; g; g = g->next) {
+             if ((!strcmp(g->unit->unit_id, "rs485") ||
+                  !strcmp(g->unit->unit_id, "rs485-iso") ||
+-                 !strcmp(g->unit->unit_id, "midi")) &&
++                 !strcmp(g->unit->unit_id, "midi") ||
++                 !strcmp(g->unit->unit_id, "gps") ||
++                 !strcmp(g->unit->unit_id, "uhf-rfid")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
++                if (!strcmp(g->unit->unit_id, "uhf-rfid")) {
++                    if (byte == 0xbb) { g->uhf_in_frame = true; }
++                    if (byte == 0x7e && g->uhf_in_frame) {
++                        g->uhf_in_frame = false;
++                        g->uhf_frames_sent++;
++                        uhf_inject_response(g);
++                    }
++                }
+             }
+         }
+     }
+@@ -1049,13 +1086,223 @@ static void laser_get(Object *o, Visitor *v, const char *name, void *op, Error *
+     visit_type_bool(v, name, &value, errp);
+ }
+ 
++/* ---- U030 Weight (HX711 bit-pulse) ---- */
++static bool gpio_uart_rx_device_for_white(GPIOUnit *g, DeviceState **uart_out)
++{
++    for (unsigned n = 0; n < 3; n++) {
++        if (esp32_gpio_matrix_in_pin(uart_signal[n], true) == g->unit->white) {
++            DeviceState *uart = m5soc_get_uart_device(n);
++            if (uart) { *uart_out = uart; return true; }
++        }
++    }
++    return false;
++}
++
++static void hx_finish_conversion(GPIOUnit *g)
++{
++    g->hx_conversions++;
++    g->hx_in_frame = false;
++    g->hx_bit = g->hx_extra = 0;
++    g->hx_ready = false;
++    esp32_gpio_set_input(g->unit->white, 1);  /* DAT high: next conversion pending */
++    timer_mod_ns(g->hx_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INT64_C(100000000));
++}
++
++static void hx_ready_cb(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    g->hx_ready = true;
++    esp32_gpio_set_input(g->unit->white, 0);  /* DAT low: conversion ready */
++}
++
++static void hx_pad_event(void *opaque, const Esp32GpioPadEvent *event)
++{
++    GPIOUnit *g = opaque;
++    const Esp32GpioPadSnapshot *before = &event->before, *after = &event->after;
++    if (after->pin != (unsigned)g->unit->yellow || after->s3 != g->unit->s3) { return; }
++    if (!before->known || !after->known || before->conflict || after->conflict ||
++        before->controller_generation != after->controller_generation) { return; }
++    if (before->level == after->level || after->level != 0) { return; }
++    if (!g->hx_ready) { return; }
++    if (!g->hx_in_frame) { g->hx_in_frame = true; g->hx_bit = g->hx_extra = 0; }
++    if (g->hx_bit < 24) {
++        bool bit = ((uint64_t)g->hx_raw >> (23 - g->hx_bit)) & 1;
++        g->hx_bit++;
++        esp32_gpio_set_input(g->unit->white, bit);
++    } else {
++        g->hx_extra++;
++        unsigned gain = g->hx_channel == 2 ? 3 : g->hx_channel == 3 ? 2 : 1;
++        if (g->hx_extra >= gain) { hx_finish_conversion(g); }
++    }
++}
++
++static void hx_int_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value = !strcmp(name, "adc-raw") ? g->hx_raw : g->hx_channel;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void hx_int_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (!strcmp(name, "adc-raw")) {
++        if (value < -8388608 || value > 8388607) {
++            error_setg(errp, "adc-raw requires a signed 24-bit value"); return;
++        }
++        g->hx_raw = value;
++    } else {
++        if (value < 1 || value > 3) { error_setg(errp, "channel requires 1..3"); return; }
++        g->hx_channel = value;
++    }
++    g->unit->input_events++;
++}
++
++static void hx_weight_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    double value = (double)g->hx_raw;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void hx_ready_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = g->hx_ready && !g->hx_in_frame;
++    visit_type_bool(v, name, &value, errp);
++}
++
++/* ---- U032 GPS / U107 UHF-RFID (UART fixtures) ---- */
++static char *hex_chunk(const char *text, unsigned *offset)
++{
++    if (!text || !*text) { return NULL; }
++    const char *start = text + *offset;
++    while (*start == ';' || *start == ' ' || *start == '\n' || *start == '\r') { start++; }
++    if (!*start) { *offset = 0; start = text; while (*start == ' ' || *start == ';') { start++; } }
++    const char *end = start;
++    while (*end && *end != ';') { end++; }
++    *offset = (unsigned)(end - text) + (*end == ';' ? 1 : 0);
++    if (*offset >= strlen(text)) { *offset = 0; }
++    return g_strndup(start, end - start);
++}
++
++static unsigned parse_hex_bytes(const char *text, uint8_t *out, unsigned capacity)
++{
++    unsigned count = 0;
++    int hi = -1;
++    for (const char *p = text; *p && count < capacity; p++) {
++        if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') { continue; }
++        int digit = g_ascii_xdigit_value(*p);
++        if (digit < 0) { return count; }
++        if (hi < 0) { hi = digit; }
++        else { out[count++] = (uint8_t)((hi << 4) | digit); hi = -1; }
++    }
++    return count;
++}
++
++static void gps_timer_cb(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    timer_mod_ns(g->gps_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INT64_C(50000000));
++    if (!g->gps_lines || !*g->gps_lines) { return; }
++    /* Advance to the next non-empty ';'-separated sentence fixture. */
++    char *line = NULL;
++    for (unsigned attempts = 0; attempts < 64; attempts++) {
++        const char *start = g->gps_lines + g->gps_line_index;
++        while (*start == ';' || *start == ' ' || *start == '\n' || *start == '\r') { start++; }
++        if (!*start) { g->gps_line_index = 0; continue; }
++        const char *end = start;
++        while (*end && *end != ';' && *end != '\n') { end++; }
++        line = g_strndup(start, end - start);
++        g->gps_line_index = (unsigned)(end - g->gps_lines);
++        if (*end == ';' || *end == '\n') { g->gps_line_index++; }
++        if (*line) { break; }
++        g_free(line); line = NULL;
++    }
++    if (!line) { return; }
++    DeviceState *uart = NULL;
++    if (gpio_uart_rx_device_for_white(g, &uart)) {
++        size_t len = strlen(line);
++        uint8_t *frame = g_malloc(len + 2);
++        memcpy(frame, line, len); frame[len] = '\r'; frame[len + 1] = '\n';
++        if (len + 2 <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++            esp32_uart_inject_rx(ESP32_UART(uart), frame, len + 2);
++            g->unit->read_bytes += len + 2;
++            g->gps_injected++;
++        }
++        g_free(frame);
++    }
++    g_free(line);
++}
++
++static void uhf_inject_response(GPIOUnit *g)
++{
++    if (!g->uhf_responses || !*g->uhf_responses) { return; }
++    unsigned offset = g->uhf_response_offset;
++    char *chunk = hex_chunk(g->uhf_responses, &offset);
++    g->uhf_response_offset = offset;
++    if (!chunk) { return; }
++    uint8_t frame[1024];
++    unsigned count = parse_hex_bytes(chunk, frame, sizeof(frame));
++    g_free(chunk);
++    if (!count) { return; }
++    DeviceState *uart = NULL;
++    if (gpio_uart_rx_device_for_white(g, &uart) &&
++        count <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++        esp32_uart_inject_rx(ESP32_UART(uart), frame, count);
++        g->unit->read_bytes += count;
++        g->uhf_frames_injected++;
++    }
++}
++
++static void gps_lines_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = g_strdup(g->gps_lines ? g->gps_lines : "");
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void gps_lines_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = NULL;
++    if (!visit_type_str(v, name, &value, errp)) { return; }
++    g_free(g->gps_lines);
++    g->gps_lines = value;
++    g->gps_line_index = 0;
++    g->unit->input_events++;
++}
++
++static void uhf_responses_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = g_strdup(g->uhf_responses ? g->uhf_responses : "");
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void uhf_responses_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = NULL;
++    if (!visit_type_str(v, name, &value, errp)) { return; }
++    g_free(g->uhf_responses);
++    g->uhf_responses = value;
++    g->uhf_response_offset = 0;
++    g->unit->input_events++;
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+     if (unit->onboard_led_count > 128) {
+         error_setg(errp, "onboard RGB count must not exceed 128"); return;
+     }
+     if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485") ||
+-                !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi"))) {
++                !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi") ||
++                !strcmp(unit->unit_id, "gps") || !strcmp(unit->unit_id, "uhf-rfid"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -1149,6 +1396,43 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         esp32_gpio_set_input(unit->white, 1);  /* active-low button, released */
+         object_property_add(o, "pressed", "bool", bool_get, bool_set, NULL, g);
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
++    } else if (!strcmp(id, "weight")) {
++        g->hx_raw = 1000;
++        g->hx_channel = 1;
++        g->hx_ready = true;
++        g->hx_controller = esp32_gpio_get_controller(unit->s3);
++        if (!g->hx_controller) {
++            error_setg(errp, "Weight requires the matching GPIO controller");
++            return;
++        }
++        g->hx_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, hx_ready_cb, g);
++        esp32_gpio_set_input(unit->white, 0);  /* DAT low: ready */
++        g->hx_observer = esp32_gpio_observe_pad(g->hx_controller, unit->yellow,
++                                                hx_pad_event, g, &g->hx_pad, errp);
++        if (!g->hx_observer) {
++            error_setg(errp, "Weight requires the GPIO pad observer");
++            return;
++        }
++        object_property_add(o, "adc-raw", "int", hx_int_get, hx_int_set, NULL, g);
++        object_property_add(o, "channel", "int", hx_int_get, hx_int_set, NULL, g);
++        object_property_add(o, "weight-g", "number", hx_weight_get, NULL, NULL, g);
++        object_property_add(o, "conversions", "uint64", count_get, NULL, NULL, &g->hx_conversions);
++        object_property_add(o, "ready-level", "bool", hx_ready_get, NULL, NULL, g);
++    } else if (!strcmp(id, "gps")) {
++        g->gps_lines = g_strdup("$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48");
++        g->gps_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, gps_timer_cb, g);
++        timer_mod_ns(g->gps_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INT64_C(50000000));
++        object_property_add(o, "nmea-lines", "str", gps_lines_get, gps_lines_set, NULL, g);
++        object_property_add(o, "injected-lines", "uint64", count_get, NULL, NULL, &g->gps_injected);
++        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++    } else if (!strcmp(id, "uhf-rfid")) {
++        g->uhf_responses = g_strdup("bb010100000000007e");
++        object_property_add(o, "responses-hex", "str", uhf_responses_get, uhf_responses_set, NULL, g);
++        object_property_add(o, "rx-frames-hex", "str", uhf_responses_get, NULL, NULL, g);
++        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++        object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL, &g->uhf_frames_sent);
++        object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
++                            &g->uhf_frames_injected);
+     } else if (!strcmp(id, "ultrasonic-io")) {
+         g->ultra_distance_mm = 1000;
+         g->ultra_controller = esp32_gpio_get_controller(unit->s3);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index e9c2205..622d8d9 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -39,6 +39,7 @@ typedef enum {
+     CONTROL_RELAY4, CONTROL_WEIGHT,
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
++    CONTROL_BLDC, CONTROL_DDS,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -141,6 +142,22 @@ typedef struct M5UnitControl {
+     uint8_t pb_rgb_mode, pb_fw;
+     uint8_t pb_write_buf[8];
+     uint64_t pb_writes;
++    /* U181 BLDC Driver (0x65): STM32/DRV11873 motor-control register file.
++     * RPM/frequency readbacks are synthetic views of the same fixture; motor
++     * electrical behavior, stall protection and the 5V output are NOT modeled.
++     * PID is three little-endian int32 values (12 bytes) per the driver. */
++    int64_t bl_mode, bl_direction, bl_motor_model, bl_pole_pairs, bl_status;
++    int64_t bl_pwm, bl_rpm_i, bl_pid[3], bl_fw;
++    double bl_rpm;
++    uint64_t bl_flash_writes;
++    uint8_t bl_buf[16];
++    /* U105 DDS (0x31): AD9833 register words written through the STM32 bridge.
++     * Frequency word = Hz * 2^28 / 10MHz (28-bit), phase word = degrees *
++     * 2048 / 360 (11-bit); analog waveform/amplitude are NOT modeled. */
++    int64_t dds_mode, dds_ctrl, dds_freq_word[2], dds_phase_word[2];
++    int64_t dds_freq_reg, dds_phase_reg, dds_fw;
++    double dds_freq_hz, dds_phase_deg;
++    uint8_t dds_buf[8];
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1307,6 +1324,94 @@ static uint8_t dac_read_byte(M5UnitControl *s, unsigned pos)
+ 
+ static void put_le32(uint8_t *p, uint32_t value);
+ 
++static float le_float(const uint8_t *p)
++{
++    union { uint32_t u; float f; } v;
++    v.u = (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) |
++          ((uint32_t)p[3] << 24);
++    return v.f;
++}
++
++static void put_le_float(uint8_t *p, double value)
++{
++    union { uint32_t u; float f; } v;
++    v.f = (float)value;
++    put_le32(p, v.u);
++}
++
++static void put_ascii_fixed(uint8_t *p, unsigned width, const char *fmt, double value)
++{
++    char tmp[32];
++    g_snprintf(tmp, sizeof(tmp), fmt, value);
++    size_t n = strlen(tmp);
++    if (n > width) { n = width; }
++    memset(p, ' ', width);
++    memcpy(p + width - n, tmp, n);
++}
++
++/* U181 BLDC Driver register readback. All values are derived from the same
++ * fixture; the frequency relation is a synthetic rpm/60 convention because the
++ * real pole-pair/electrical-frequency relation is not documented. */
++static void bldc_snapshot(M5UnitControl *s)
++{
++    uint8_t *r = s->read_snapshot;
++    memset(r, 0, 256);
++    r[0x00] = (uint8_t)s->bl_mode;
++    s->bl_pwm = CLAMP(s->bl_pwm, 0, 2047);
++    r[0x10] = (uint8_t)s->bl_pwm; r[0x11] = (uint8_t)(s->bl_pwm >> 8);
++    double rpm = s->bl_rpm;
++    double freq = rpm / 60.0;
++    put_le_float(r + 0x20, rpm);
++    put_le_float(r + 0x30, freq);
++    put_le_float(r + 0x40, rpm);
++    put_le32(r + 0x50, (uint32_t)s->bl_pid[0]);
++    put_le32(r + 0x54, (uint32_t)s->bl_pid[1]);
++    put_le32(r + 0x58, (uint32_t)s->bl_pid[2]);
++    r[0x60] = (uint8_t)s->bl_direction;
++    r[0x70] = (uint8_t)s->bl_motor_model;
++    r[0x71] = (uint8_t)s->bl_pole_pairs;
++    r[0x80] = (uint8_t)s->bl_status;
++    int32_t rpm_i = (int32_t)lround(rpm);
++    put_le32(r + 0x90, (uint32_t)rpm_i);
++    put_le32(r + 0xa0, (uint32_t)lround(freq));
++    put_ascii_fixed(r + 0xb0, 16, "%.2f", rpm);
++    put_ascii_fixed(r + 0xc0, 16, "%.2f", freq);
++    put_le32(r + 0xd0, (uint32_t)rpm_i);
++    r[0xfe] = (uint8_t)s->bl_fw;
++    r[0xff] = I2C_SLAVE(s)->address;
++}
++
++/* U105 DDS (AD9833) register readback for the currently selected words. */
++static void dds_snapshot(M5UnitControl *s)
++{
++    uint8_t *r = s->read_snapshot;
++    memset(r, 0, 256);
++    r[0x20] = 0x80 | (uint8_t)(s->dds_mode & 0x0f);
++    r[0x21] = (uint8_t)s->dds_ctrl;
++    for (unsigned i = 0; i < 2; i++) {
++        uint32_t f = (uint32_t)s->dds_freq_word[i];
++        uint8_t *p = r + 0x30 + i * 4;
++        p[0] = (uint8_t)((f >> 24) & 0x3f) | (i ? 0xc0 : 0x80);
++        p[1] = (uint8_t)(f >> 16); p[2] = (uint8_t)(f >> 8); p[3] = (uint8_t)f;
++        uint32_t ph = (uint32_t)s->dds_phase_word[i];
++        uint8_t *q = r + 0x34 + i * 2;
++        q[0] = (uint8_t)((ph >> 8) & 0x0f) | (i ? 0xc0 : 0x80);
++        q[1] = (uint8_t)ph;
++    }
++    r[0xfe] = (uint8_t)s->dds_fw;
++    r[0xff] = I2C_SLAVE(s)->address;
++}
++
++static void bldc_freq_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    /* Synthetic rpm/60 convention: the real pole-pair/electrical-frequency
++     * relation has no driver anchor and stays UNRESOLVED. */
++    double value = s->bl_rpm / 60.0;
++    visit_type_number(v, name, &value, errp);
++}
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+@@ -1431,6 +1536,10 @@ static void snapshot_registers(M5UnitControl *s)
+         } else if (s->pointer == 0xff) {
+             s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
+         }
++    } else if (s->kind == CONTROL_BLDC) {
++        bldc_snapshot(s);
++    } else if (s->kind == CONTROL_DDS) {
++        dds_snapshot(s);
+     }
+ }
+ 
+@@ -1524,6 +1633,95 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+     }
+     uint8_t reg = s->pointer;
++    if (s->kind == CONTROL_BLDC) {
++        unsigned offset = s->write_pos - 2;
++        uint8_t reg = s->pointer;
++        switch (reg) {
++        case 0x00: if (offset) { return 1; } if (value > 1) { return 1; } s->bl_mode = value; return 0;
++        case 0x10:
++            if (offset > 1) { return 1; }
++            s->bl_buf[offset] = value;
++            if (offset == 1) { s->bl_pwm = (int16_t)(s->bl_buf[0] | (s->bl_buf[1] << 8)); }
++            return 0;
++        case 0x40:
++            if (offset > 3) { return 1; }
++            s->bl_buf[offset] = value;
++            if (offset == 3) { s->bl_rpm = le_float(s->bl_buf); }
++            return 0;
++        case 0xd0:
++            if (offset > 3) { return 1; }
++            s->bl_buf[offset] = value;
++            if (offset == 3) {
++                int32_t v = (int32_t)((uint32_t)s->bl_buf[0] | ((uint32_t)s->bl_buf[1] << 8) |
++                                      ((uint32_t)s->bl_buf[2] << 16) | ((uint32_t)s->bl_buf[3] << 24));
++                s->bl_rpm = v;
++            }
++            return 0;
++        case 0x50:
++            if (offset > 11) { return 1; }
++            s->bl_buf[offset] = value;
++            if (offset == 11) {
++                for (unsigned i = 0; i < 3; i++) {
++                    s->bl_pid[i] = (int32_t)((uint32_t)s->bl_buf[i * 4] |
++                        ((uint32_t)s->bl_buf[i * 4 + 1] << 8) |
++                        ((uint32_t)s->bl_buf[i * 4 + 2] << 16) |
++                        ((uint32_t)s->bl_buf[i * 4 + 3] << 24));
++                }
++            }
++            return 0;
++        case 0x60: if (offset) { return 1; } s->bl_direction = value; return 0;
++        case 0x70: if (offset) { return 1; } s->bl_motor_model = value; return 0;
++        case 0x71: if (offset) { return 1; } s->bl_pole_pairs = value; return 0;
++        case 0x80: return 1;  /* status is read-only */
++        case 0xf0: if (offset) { return 1; } if (value == 1) { s->bl_flash_writes++; } return 0;
++        case 0xfe: return 1;
++        case 0xff: {
++            BusChild *child;
++            if (offset || value < 1) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++            return 0;
++        }
++        default: return 1;
++        }
++    }
++    if (s->kind == CONTROL_DDS) {
++        unsigned offset = s->write_pos - 2;
++        uint8_t reg = s->pointer;
++        switch (reg) {
++        case 0x20: if (offset) { return 1; } s->dds_mode = value & 0x0f; return 0;
++        case 0x21: if (offset) { return 1; } s->dds_ctrl = value; return 0;
++        case 0x30:
++            if (offset > 3) { return 1; }
++            s->dds_buf[offset] = value;
++            if (offset == 3) {
++                uint32_t word = ((uint32_t)(s->dds_buf[0] & 0x3f) << 24) |
++                    ((uint32_t)s->dds_buf[1] << 16) |
++                    ((uint32_t)s->dds_buf[2] << 8) | s->dds_buf[3];
++                unsigned index = (s->dds_buf[0] >> 6) & 1;
++                s->dds_freq_word[index] = word;
++                s->dds_freq_hz = word * 10000000.0 / 268435456.0;
++                s->dds_freq_reg = index;
++            }
++            return 0;
++        case 0x34:
++            if (offset > 1) { return 1; }
++            s->dds_buf[offset] = value;
++            if (offset == 1) {
++                unsigned word = ((s->dds_buf[0] & 0x0f) << 8) | s->dds_buf[1];
++                unsigned index = (s->dds_buf[0] >> 6) & 1;
++                s->dds_phase_word[index] = word;
++                s->dds_phase_deg = word * 360.0 / 2048.0;
++                s->dds_phase_reg = index;
++            }
++            return 0;
++        case 0xfe: return 1;
++        default: return 1;
++        }
++    }
+     if (s->kind == CONTROL_PBHUB) {
+         unsigned offset = s->write_pos - 2;  /* write_pos was incremented for this byte */
+         uint8_t cmd_offset = 0;
+@@ -1921,7 +2119,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr", "pbhub",
++        "extencoder", "acssr", "pbhub", "bldc-driver", "dds",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2049,6 +2247,33 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+                             pbhub_scalar_get, NULL, NULL, s);
+         object_property_add(OBJECT(s->unit), "fw-version", "int",
+                             pbhub_scalar_get, NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "bldc-driver")) {
++        s->kind = CONTROL_BLDC; address = 0x65;
++        s->bl_fw = 1; s->bl_pole_pairs = 7; s->bl_rpm = 1000;
++        add_control_int_fixture(s, "mode", &s->bl_mode, 0, 1, true);
++        add_control_int_fixture(s, "direction", &s->bl_direction, 0, 1, true);
++        add_control_int_fixture(s, "pole-pairs", &s->bl_pole_pairs, 0, 255, true);
++        add_control_int_fixture(s, "pwm", &s->bl_pwm, 0, 2047, true);
++        add_control_number(s, "rpm", &s->bl_rpm, 1000, 0, 30000, true, false);
++        add_control_number(s, "rpm-readback", &s->bl_rpm, 1000, 0, 30000, false, false);
++        object_property_add(OBJECT(s->unit), "frequency-hz", "number",
++                            bldc_freq_get, NULL, NULL, s);
++        add_control_int_fixture(s, "motor-status", &s->bl_status, 0, 255, false);
++        add_control_int_fixture(s, "flash-writes", &s->bl_flash_writes, 0, INT64_MAX, false);
++        add_control_int_fixture(s, "fw-version", &s->bl_fw, 0, 255, false);
++    } else if (!strcmp(unit->unit_id, "dds")) {
++        s->kind = CONTROL_DDS; address = 0x31;
++        s->dds_fw = 1; s->dds_mode = 1;
++        s->dds_freq_word[0] = (int64_t)llround(1000.0 * 268435456.0 / 10000000.0);
++        s->dds_freq_hz = 1000; s->dds_freq_reg = 0; s->dds_phase_reg = 0;
++        add_control_int_fixture(s, "waveform", &s->dds_mode, 1, 5, true);
++        add_control_number(s, "frequency-hz", &s->dds_freq_hz, 1000, 0, 1000000, true, false);
++        add_control_number(s, "phase-deg", &s->dds_phase_deg, 0, 0, 360, true, false);
++        add_control_int_fixture(s, "freq-reg", &s->dds_freq_reg, 0, 1, true);
++        add_control_int_fixture(s, "phase-reg", &s->dds_phase_reg, 0, 1, true);
++        add_control_int_fixture(s, "ctrl-word", &s->dds_ctrl, 0, 255, false);
++        add_control_int_fixture(s, "active-freq-reg", &s->dds_freq_reg, 0, 1, false);
++        add_control_int_fixture(s, "active-phase-reg", &s->dds_phase_reg, 0, 1, false);
+     } else if (!strcmp(unit->unit_id, "ncir2")) {
+         s->kind = CONTROL_NCIR2; address = 0x5a;
+         s->regs[0x10] = 0xff; s->regs[0x11] = 0xff;  /* emissivity 1.0 default */
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 5bddfb4..6257761 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -23,7 +23,7 @@ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+-    US_SHT4X, US_SCD40, US_VL53L1X,
++    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -104,6 +104,14 @@ typedef struct M5UnitSensor {
+     bool vl_ready;
+     int64_t vl_range_status, vl_timing_budget;
+     uint64_t vl_clear_writes;
++    /* U164 AC Measure (0x42): ASCII string and little-endian byte views are
++     * both derived from the same fixtures. The unit measures AC 100-240V@10A;
++     * it is never a switchable load and mains/isolation/metering accuracy are
++     * NOT modeled. */
++    double ac_voltage, ac_current, ac_active, ac_apparent, ac_power_factor, ac_kwh;
++    int64_t ac_coeff_voltage, ac_coeff_current, ac_fw;
++    bool ac_data_ready;
++    uint64_t ac_save_writes;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -975,6 +983,34 @@ static void vl53l1x_refresh(M5UnitSensor *s)
+     s->regs[1][0x12] = 0x10;
+ }
+ 
++/* U164 AC Measure: fixed-width ASCII views. The exact formatting is a
++ * deterministic model-side convention (the page/protocol does not document
++ * the ASCII layout), so only the numeric/byte view is a protocol claim. */
++static void ac_fixed(char *out, unsigned width, const char *fmt, double value)
++{
++    char tmp[24];
++    g_snprintf(tmp, sizeof(tmp), fmt, value);
++    size_t n = strlen(tmp);
++    if (n > width) { n = width; }
++    memset(out, ' ', width);
++    memcpy(out + width - n, tmp, n);
++}
++
++static void ac_measure_ascii(M5UnitSensor *s, uint8_t reg, uint8_t *out, unsigned *len)
++{
++    char text[16];
++    switch (reg) {
++    case 0x00: ac_fixed(text, 7, "%.1f", s->ac_voltage); *len = 7; break;
++    case 0x10: ac_fixed(text, 7, "%.2f", s->ac_current); *len = 7; break;
++    case 0x20: ac_fixed(text, 7, "%.0f", s->ac_active); *len = 7; break;
++    case 0x30: ac_fixed(text, 7, "%.0f", s->ac_apparent); *len = 7; break;
++    case 0x40: ac_fixed(text, 4, "%.2f", s->ac_power_factor); *len = 4; break;
++    case 0x50: ac_fixed(text, 11, "%.2f", s->ac_kwh); *len = 11; break;
++    default: return;
++    }
++    memcpy(out, text, *len);
++}
++
+ static int sensor_send(I2CSlave *dev, uint8_t data)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(dev);
+@@ -1188,6 +1224,31 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         }
+         return 0;
+     }
++    if (s->kind == US_ACMEASURE) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        if (pos != 1) { return 1; }
++        switch (s->pointer) {
++        case 0xc0: s->ac_coeff_voltage = data; return 0;
++        case 0xd0: s->ac_coeff_current = data; return 0;
++        case 0xe0:
++            if (data == 0x01) { s->ac_save_writes++; }
++            return 0;
++        case 0xfd:
++            /* bootloader jump is recorded only; never actually jumps */
++            return 0;
++        case 0xff: {
++            BusChild *child;
++            if (data < 0x01 || data > 0x7f) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == data) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), data);
++            return 0;
++        }
++        default: return 1;
++        }
++    }
+     if (!pos) {
+         if (s->kind == US_COLOR && data == 0xe6) {
+             s->regs[0][0x13] &= ~0x10; return 0;
+@@ -1284,6 +1345,36 @@ static uint8_t sensor_recv(I2CSlave *dev)
+     uint8_t value = 0xff;
+     s->read_bytes++; s->unit->read_bytes++;
+     sensor_update(s);
++    if (s->kind == US_ACMEASURE) {
++        uint8_t reg = (uint8_t)s->pointer;
++        uint8_t text[16];
++        unsigned len = 0;
++        if (reg <= 0x5a) {
++            ac_measure_ascii(s, reg & 0xf0, text, &len);
++            unsigned offset = reg & 0x0f;
++            return offset < len ? text[offset] : 0xff;
++        }
++        uint8_t raw[4] = {0};
++        unsigned width = 0;
++        if (reg == 0x60) { uint16_t v = (uint16_t)CLAMP(llround(s->ac_voltage * 100), 0, 65535);
++            raw[0] = v & 0xff; raw[1] = v >> 8; width = 2; }
++        else if (reg == 0x70) { uint16_t v = (uint16_t)CLAMP(llround(s->ac_current * 1000), 0, 65535);
++            raw[0] = v & 0xff; raw[1] = v >> 8; width = 2; }
++        else if (reg == 0x80) { uint32_t v = (uint32_t)CLAMP(llround(s->ac_active * 100), 0, UINT32_MAX);
++            raw[0]=v; raw[1]=v>>8; raw[2]=v>>16; raw[3]=v>>24; width = 4; }
++        else if (reg == 0x90) { uint32_t v = (uint32_t)CLAMP(llround(s->ac_apparent * 100), 0, UINT32_MAX);
++            raw[0]=v; raw[1]=v>>8; raw[2]=v>>16; raw[3]=v>>24; width = 4; }
++        else if (reg == 0xa0) { raw[0] = (uint8_t)CLAMP(llround(s->ac_power_factor * 100), 0, 255); width = 1; }
++        else if (reg == 0xb0) { uint32_t v = (uint32_t)CLAMP(llround(s->ac_kwh * 100), 0, UINT32_MAX);
++            raw[0]=v; raw[1]=v>>8; raw[2]=v>>16; raw[3]=v>>24; width = 4; }
++        else if (reg == 0xc0) { raw[0] = (uint8_t)s->ac_coeff_voltage; width = 1; }
++        else if (reg == 0xd0) { raw[0] = (uint8_t)s->ac_coeff_current; width = 1; }
++        else if (reg == 0xfc) { raw[0] = s->ac_data_ready ? 1 : 0; width = 1; }
++        else if (reg == 0xfe) { raw[0] = (uint8_t)s->ac_fw; width = 1; }
++        else if (reg == 0xff) { raw[0] = I2C_SLAVE(s)->address; width = 1; }
++        else { return 0xff; }
++        return pos < width ? raw[pos] : 0xff;
++    }
+     if (s->kind == US_VL53L1X) {
+         if (pos == 0) { vl53l1x_refresh(s); }
+         uint16_t addr = s->vl_addr + pos;
+@@ -1424,7 +1515,8 @@ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+-        "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m" };
++        "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
++        "ac-measure" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1578,6 +1670,23 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "ac-measure")) {
++        s->kind = US_ACMEASURE; address = 0x42;
++        s->values[0] = 230; s->values[1] = 1; s->values[2] = 230;
++        s->values[3] = 230; s->values[4] = 1; s->values[5] = 0;
++        s->ac_data_ready = true; s->ac_fw = 1;
++        add_number(s, "voltage-v", 0, 230, 0, 260, false);
++        add_number(s, "current-a", 1, 1, 0, 10, false);
++        add_number(s, "active-power-w", 2, 230, -2600, 2600, false);
++        add_number(s, "apparent-power-va", 3, 230, 0, 2600, false);
++        add_number(s, "power-factor", 4, 1, -1, 1, false);
++        add_number(s, "energy-kwh", 5, 0, 0, 1000000, false);
++        add_fixture_bool(s, "data-ready", &s->ac_data_ready);
++        add_i64(s, "coeff-voltage", &s->ac_coeff_voltage);
++        add_i64(s, "coeff-current", &s->ac_coeff_current);
++        add_u64(s, "save-coeff-writes", &s->ac_save_writes);
++        add_i64(s, "fw-version", &s->ac_fw);
++        add_i2c_address(s);
+     } else if (!strcmp(u->unit_id, "tof4m")) {
+         s->kind = US_VL53L1X; address = 0x29;
+         s->values[0] = 1000;        /* synthetic distance fixture, mm */
+-- 
+2.55.0
+
