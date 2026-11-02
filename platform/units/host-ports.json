@@ -696,6 +696,37 @@
           ]
         }
       ]
+    },
+    {
+      "device_id": "basic-v27",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 21,
+            "white": 22
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/basic_v2.7",
+              "checked_at": "2026-11-02",
+              "locator": "PinMap > HY2.0-4P PORT.A (GND / 5V / G21 / G22) and GROVE Interface A (SCL G22, SDA G21)"
+            }
+          ],
+          "limitations": [
+            "Runtime controller routing and per-Unit protocols are not implied by this wiring entry."
+          ]
+        }
+      ]
     }
   ]
 }

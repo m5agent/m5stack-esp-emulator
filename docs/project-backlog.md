@@ -729,7 +729,7 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 ### UI-01
 
 当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-27 款有运行登记，其余 11 款仅模型，不能提示连接服务即可运行固件。
+28 款有运行登记，其余 10 款仅模型，不能提示连接服务即可运行固件。
 2026-11-02 起 AtomS3U（`atoms3u` / `m5atoms3u`）是独立运行登记主机：
 官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过，
 IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
@@ -739,6 +739,10 @@ Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
 AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）同期完成启动、板级识别 144、
 显示初始化与 GC0308 身份读取；原厂 camera.init/capture 仍返回
 ESP_ERR_NOT_SUPPORTED，相机帧与 IR/Grove 仍未覆盖。
+Basic v2.7（`basic-v27` / `m5basic`）同期接入：classic ESP32 启动、320×240
+ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数字 PCM
+限定通过；IP5306 电芯/电气、microSD、电源键、背光 PWM、Grove Unit 与
+模拟声学仍未覆盖。
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次框架见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)；
 该页是计划，不关闭任何设备或 Unit。

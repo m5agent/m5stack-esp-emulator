@@ -219,6 +219,11 @@ def run_console(
         )
         rmt_capture = device_out / rmt_capture.name
         case_env["M5SW_RMT_TX_FILE"] = str(rmt_capture)
+    pcm = device.get("pcm")
+    pcm_capture = None
+    if pcm:
+        pcm_capture = device_out / pcm.get("file", "audio.pcm")
+        case_env["M5SW_I2S_PCM_FILE"] = str(pcm_capture)
     flash_info = {"transport": "host-image", "verified": True}
     esp_emu_chip = backend.get("esp_emu_chip")
     if flash_transport == "esp-emu" and esp_emu_chip:
@@ -261,6 +266,23 @@ def run_console(
             "-serial",
             f"file:{serial}" if index == console_serial else "null",
         ])
+    # Console cases may inject host key events through QMP after a guest
+    # readiness marker (for example a device-local button case).  The panel
+    # input handler then drives the real GPIO/controller path, so the guest
+    # observes the press through the same registers as physical input.
+    inputs = device.get("input") or []
+    if isinstance(inputs, str):
+        inputs = [inputs]
+    qmp_path = None
+    if inputs:
+        qmp_path = Path("/tmp") / f"m5-console-{os.getpid()}-{device['id']}.sock"
+        try:
+            qmp_path.unlink()
+        except FileNotFoundError:
+            pass
+        command.extend([
+            "-qmp", f"unix:{qmp_path},server=on,wait=off",
+        ])
     deadline = time.time() + device.get("timeout", 20)
     proc = subprocess.Popen(
         command, cwd=ROOT, env=case_env,
@@ -268,9 +290,36 @@ def run_console(
     )
     expected = device["serial_expect"]
     matched = False
+    qmp = None
+    injected = not inputs
     try:
         while time.time() < deadline:
             text = serial.read_text(errors="replace") if serial.exists() else ""
+            if not injected:
+                pre_marker = device.get("pre_input_marker")
+                if pre_marker is None or pre_marker in text:
+                    from run_profile_ui_test import send_input, wait_qmp
+
+                    qmp = wait_qmp(
+                        qmp_path, timeout=max(1.0, deadline - time.time())
+                    )
+                    # Let the guest enter its event loop before the first
+                    # injected key event; the readiness marker is printed
+                    # immediately before the loop starts.
+                    time.sleep(0.3)
+                    frame = tuple(
+                        int(value)
+                        for value in device.get(
+                            "input_frame", (320, 240)
+                        )
+                    )
+                    for spec in inputs:
+                        send_input(
+                            qmp, spec, frame,
+                            device.get("post_input_wait", 0.3),
+                        )
+                    injected = True
+                    continue
             if all(marker in text for marker in expected):
                 matched = True
                 break
@@ -278,6 +327,13 @@ def run_console(
                 break
             time.sleep(0.1)
     finally:
+        if qmp is not None:
+            qmp.close()
+        if qmp_path is not None:
+            try:
+                qmp_path.unlink()
+            except FileNotFoundError:
+                pass
         proc.terminate()
         try:
             proc.wait(timeout=5)
@@ -285,7 +341,32 @@ def run_console(
             proc.kill()
     text = serial.read_text(errors="replace") if serial.exists() else ""
     missing = [marker for marker in expected if marker not in text]
-    if matched and rmt_nec and rmt_capture:
+    pcm_detail = None
+    if matched and pcm and pcm_capture:
+        pcm_command = [
+            sys.executable,
+            str(ROOT / "tests/uiflow2/check_pcm.py"),
+            str(pcm_capture),
+        ]
+        if "min_nonzero" in pcm:
+            pcm_command.extend(["--min-nonzero", str(pcm["min_nonzero"])])
+        if "min_peak_to_peak" in pcm:
+            pcm_command.extend(
+                ["--min-peak-to-peak", str(pcm["min_peak_to_peak"])]
+            )
+        validation = subprocess.run(
+            pcm_command,
+            cwd=ROOT,
+            env=case_env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        pcm_detail = validation.stdout.strip()
+        if validation.returncode:
+            missing.append("PCM validation: " + pcm_detail)
+    if matched and not missing and rmt_nec and rmt_capture:
         validation = subprocess.run(
             [
                 sys.executable,
@@ -309,15 +390,17 @@ def run_console(
                 "output": str(device_out),
                 "flash": flash_info,
                 "rmt_nec": validation.stdout.strip(),
+                **({"pcm": pcm_detail} if pcm_detail else {}),
             }
         missing.append("RMT validation: " + validation.stdout.strip())
-    elif matched:
+    elif matched and not missing:
         return {
             "status": "PASS",
             "exit_code": 0,
             "command": command,
             "output": str(device_out),
             "flash": flash_info,
+            **({"pcm": pcm_detail} if pcm_detail else {}),
         }
     return {
         "status": "FAIL",

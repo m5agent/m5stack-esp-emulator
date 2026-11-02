@@ -1,0 +1,687 @@
+From 7d11a2ae4f1bb2ceff53ca6c25ef04978885d731 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 15:59:05 +0800
+Subject: [PATCH] hw/m5stopwatch: add Basic v2.7 board
+
+K001-V27 is a classic ESP32-D0WDQ6-V3 board with an ILI9342C 320x240
+SPI panel, A/B/C buttons on GPIO39/38/37, an IP5306 I2C power controller
+at 0x75 on the shared G21/G22 Grove bus, a DAC speaker fed by I2S0 on
+GPIO25, and no PSRAM.  Register a separate m5basic machine and a minimal
+IP5306 register model (documented reset values, reserved-bit write masks,
+charge voltage/current requests, READ0/READ1 status, READ3 key flags and
+READ4 charge bucket).  Battery telemetry is only produced from a
+host-injected battery-mv QOM fixture; with no cell modelled READ4 reads
+0xff so no percentage is fabricated.  Power-off requests are observed
+through the boost bits and exposed as a QOM counter; the model does not
+change QEMU power state.
+
+Wiring evidence: docs.m5stack.com/en/core/basic_v2.7 PinMap, checked
+2026-11-02.
+---
+ hw/m5stopwatch/m5_ip5306.c   | 469 +++++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5basic.c     |  80 ++++++
+ hw/m5stopwatch/m5stopwatch.h |   4 +
+ hw/xtensa/esp32.c            |  37 +++
+ hw/xtensa/meson.build        |   2 +
+ 5 files changed, 592 insertions(+)
+ create mode 100644 hw/m5stopwatch/m5_ip5306.c
+ create mode 100644 hw/m5stopwatch/m5basic.c
+
+diff --git a/hw/m5stopwatch/m5_ip5306.c b/hw/m5stopwatch/m5_ip5306.c
+new file mode 100644
+index 0000000..6615834
+--- /dev/null
++++ b/hw/m5stopwatch/m5_ip5306.c
+@@ -0,0 +1,469 @@
++/*
++ * Injoinic IP5306 (I2C variant) minimal register model for the M5Stack
++ * Basic v2.7 (K001-V27).
++ *
++ * The M5Stack Basic wires the IP5306 power bank controller as an I2C slave
++ * at 0x75 on the same G21/G22 bus as Grove A.  M5Unified's IP5306_Class is
++ * the stock driver: it probes with reg 0x06, reads the charge state from
++ * regs 0x70/0x71, the battery bucket from reg 0x78 (high nibble), and the
++ * charge voltage/current requests from regs 0x22/0x24.  It drives the boost
++ * output through SYS_CTL0 (0x00) bit 1.
++ *
++ * This model implements the documented register file and reset values from
++ * the IP5306 register manual (V1.21), including the "read -> modify -> write"
++ * rule for reserved bits and the write-1-to-clear key flags in reg 0x77.
++ *
++ * Boundary: the controller is modelled as a register bank, not as the power
++ * path.  There is no cell, no charger, no boost converter and no voltage or
++ * current measurement inside the IP5306 (the manual states the chip has no
++ * voltage/current telemetry).  Battery telemetry is only produced when a
++ * host fixture injects a cell voltage through the "battery-mv" QOM property;
++ * by default reg 0x78 reads 0xff ("no valid battery code") so no percentage
++ * is fabricated.  A guest write that clears the boost enable/keep-on bits is
++ * recorded as a power-off request; the model does not switch itself off.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/i2c/i2c.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "m5stopwatch.h"
++
++#define IP5306_REG_SYS_CTL0   0x00
++#define IP5306_REG_SYS_CTL1   0x01
++#define IP5306_REG_SYS_CTL2   0x02
++#define IP5306_REG_WLED_CTL   0x06
++#define IP5306_REG_CHG_CTL0   0x20
++#define IP5306_REG_CHG_CTL1   0x21
++#define IP5306_REG_CHG_CTL2   0x22
++#define IP5306_REG_CHG_CTL3   0x23
++#define IP5306_REG_CHG_DIG0   0x24
++#define IP5306_REG_READ0      0x70
++#define IP5306_REG_READ1      0x71
++#define IP5306_REG_READ2      0x72
++#define IP5306_REG_READ3      0x77
++#define IP5306_REG_READ4      0x78
++
++#define IP5306_BATTERY_NONE   0xffffffffu
++
++/* Documented reset values (IP5306 register manual V1.21, section 3). */
++static const struct {
++    uint8_t reg;
++    uint8_t value;
++} ip5306_reset_values[] = {
++    { IP5306_REG_SYS_CTL0, 0xbe },  /* bits 7:6=10, boost/charge/auto-on/keep-on, key-off off */
++    { IP5306_REG_SYS_CTL1, 0x05 },  /* VIN-removal boost + batlow 3.0V shutdown enabled */
++    { IP5306_REG_SYS_CTL2, 0x00 },
++    { IP5306_REG_CHG_CTL0, 0x02 },
++    { IP5306_REG_CHG_CTL1, 0x54 },
++    { IP5306_REG_CHG_CTL2, 0x01 },
++    { IP5306_REG_CHG_CTL3, 0x20 },  /* VIN-side constant-current loop */
++    { IP5306_REG_CHG_DIG0, 0x00 },  /* reset value not specified; 0 = 50mA request floor */
++};
++
++/* Registers whose non-documented bits are preserved on write. */
++static uint8_t ip5306_write_mask(uint8_t reg)
++{
++    switch (reg) {
++    case IP5306_REG_SYS_CTL0: return 0x37;  /* boost, charge, auto-on, keep-on, key-off */
++    case IP5306_REG_SYS_CTL1: return 0xe5;
++    case IP5306_REG_SYS_CTL2: return 0x1c;
++    case IP5306_REG_CHG_CTL0: return 0x03;
++    case IP5306_REG_CHG_CTL1: return 0xdc;
++    case IP5306_REG_CHG_CTL2: return 0x0f;
++    case IP5306_REG_CHG_CTL3: return 0x20;
++    case IP5306_REG_CHG_DIG0: return 0x1f;
++    default: return 0xff;
++    }
++}
++
++typedef struct M5Ip5306State {
++    I2CSlave parent_obj;
++
++    uint8_t regs[256];
++    uint8_t ptr;
++    bool ptr_set;
++    bool trace;
++
++    /* Host test fixtures.  battery_mv == IP5306_BATTERY_NONE means "no cell
++     * is attached to the model", never "0 volts". */
++    uint32_t battery_mv;
++    bool charger_present;
++    int64_t power_off_requests;
++} M5Ip5306State;
++
++static bool ip5306_battery_present(const M5Ip5306State *s)
++{
++    return s->battery_mv != IP5306_BATTERY_NONE;
++}
++
++/*
++ * M5Stack documents the IP5306 charge/discharge buckets in the Basic v2.7
++ * pinmap page.  The stock M5Unified IP5306_Class decodes reg 0x78 as
++ * (data >> 4): 0x0 -> 100%, 0x8 -> 75%, 0xC -> 50%, 0xE -> 25%, anything
++ * else -> 0%.  The code therefore lives in the high nibble.  With no cell
++ * modelled the register reads 0xff, which is not one of the documented
++ * codes: the driver's fallback reports 0% but the raw register and the
++ * model's QOM state keep the "no valid reading" fact explicit.
++ */
++static uint8_t ip5306_battery_code(const M5Ip5306State *s)
++{
++    uint32_t mv = s->battery_mv;
++
++    if (!ip5306_battery_present(s)) {
++        return 0xff;
++    }
++    if (mv >= 4070) {
++        return 0x00;
++    }
++    if (mv >= 3810) {
++        return 0x08;
++    }
++    if (mv >= 3550) {
++        return 0x0c;
++    }
++    if (mv >= 3330) {
++        return 0x0e;
++    }
++    return 0x0f;
++}
++
++static uint8_t ip5306_battery_read4(const M5Ip5306State *s)
++{
++    uint8_t code = ip5306_battery_code(s);
++
++    return code == 0xff ? 0xff : (uint8_t)(code << 4);
++}
++
++static uint32_t ip5306_charge_target_mv(const M5Ip5306State *s)
++{
++    static const uint16_t base_mv[4] = { 4200, 4300, 4350, 4400 };
++    static const uint16_t boost_mv[4] = { 0, 14, 28, 42 };
++    uint8_t reg = s->regs[IP5306_REG_CHG_CTL2];
++
++    return base_mv[(reg >> 2) & 3] + boost_mv[reg & 3];
++}
++
++static bool ip5306_charge_full(const M5Ip5306State *s)
++{
++    return ip5306_battery_present(s) &&
++           s->battery_mv >= ip5306_charge_target_mv(s);
++}
++
++static bool ip5306_charging(const M5Ip5306State *s)
++{
++    return s->charger_present &&
++           (s->regs[IP5306_REG_SYS_CTL0] & 0x10) &&
++           !ip5306_charge_full(s);
++}
++
++static uint8_t ip5306_read_reg(M5Ip5306State *s, uint8_t reg)
++{
++    switch (reg) {
++    case IP5306_REG_READ0:
++        return (s->regs[IP5306_REG_READ0] & ~0x08) |
++               (ip5306_charging(s) ? 0x08 : 0x00);
++    case IP5306_REG_READ1:
++        return (s->regs[IP5306_REG_READ1] & ~0x08) |
++               (ip5306_charge_full(s) ? 0x08 : 0x00);
++    case IP5306_REG_READ2:
++        /* Heavy load: the emulated SoC is running, so the light-load flag is
++         * clear.  This is a model policy, not a measured load current. */
++        return s->regs[IP5306_REG_READ2] & ~0x04;
++    case IP5306_REG_READ3:
++        return s->regs[IP5306_REG_READ3] & 0x07;
++    case IP5306_REG_READ4:
++        return ip5306_battery_read4(s);
++    default:
++        return s->regs[reg];
++    }
++}
++
++static void ip5306_note_power_off(M5Ip5306State *s, uint8_t old_value,
++                                  uint8_t new_value)
++{
++    /* M5Unified's I2C power-off path clears SYS_CTL0 bit 1 (boost output
++     * normally-on).  Clearing bit 5 (boost enable) is the other documented
++     * way to stop the rail.  Record the request; no power state changes. */
++    if ((old_value & 0x22) != 0 && (new_value & 0x22) == 0) {
++        s->power_off_requests++;
++        if (s->trace) {
++            fprintf(stderr, "[m5-ip5306] power-off request regs=%02x->%02x\n",
++                    old_value, new_value);
++        }
++    }
++}
++
++static void ip5306_write_reg(M5Ip5306State *s, uint8_t reg, uint8_t value)
++{
++    uint8_t old_value;
++
++    switch (reg) {
++    case IP5306_REG_READ3:
++        /* Key flags: write 1 to clear. */
++        s->regs[reg] &= ~(value & 0x07);
++        break;
++    case IP5306_REG_READ0:
++    case IP5306_REG_READ1:
++    case IP5306_REG_READ2:
++    case IP5306_REG_READ4:
++        /* Read-only status registers. */
++        break;
++    default:
++        old_value = s->regs[reg];
++        s->regs[reg] = (old_value & ~ip5306_write_mask(reg)) |
++                       (value & ip5306_write_mask(reg));
++        if (reg == IP5306_REG_SYS_CTL0) {
++            ip5306_note_power_off(s, old_value, s->regs[reg]);
++        }
++        break;
++    }
++    if (s->trace) {
++        fprintf(stderr, "[m5-ip5306] write reg=%02x value=%02x -> %02x\n",
++                reg, value, s->regs[reg]);
++    }
++}
++
++/* ---- QOM fixture properties -------------------------------------------- */
++
++static void ip5306_get_battery_mv(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    uint32_t value = s->battery_mv;
++
++    visit_type_uint32(v, name, &value, errp);
++}
++
++static void ip5306_set_battery_mv(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    uint32_t value;
++
++    if (!visit_type_uint32(v, name, &value, errp)) {
++        return;
++    }
++    s->battery_mv = value;
++}
++
++static void ip5306_get_charger_present(Object *obj, Visitor *v,
++                                       const char *name, void *opaque,
++                                       Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    bool value = s->charger_present;
++
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void ip5306_set_charger_present(Object *obj, Visitor *v,
++                                       const char *name, void *opaque,
++                                       Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    bool value;
++
++    if (!visit_type_bool(v, name, &value, errp)) {
++        return;
++    }
++    s->charger_present = value;
++}
++
++static void ip5306_get_boost_enabled(Object *obj, Visitor *v,
++                                     const char *name, void *opaque,
++                                     Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    bool value = (s->regs[IP5306_REG_SYS_CTL0] & 0x20) != 0;
++
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void ip5306_get_boost_keep_on(Object *obj, Visitor *v,
++                                     const char *name, void *opaque,
++                                     Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    bool value = (s->regs[IP5306_REG_SYS_CTL0] & 0x02) != 0;
++
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void ip5306_get_charger_enabled(Object *obj, Visitor *v,
++                                       const char *name, void *opaque,
++                                       Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    bool value = (s->regs[IP5306_REG_SYS_CTL0] & 0x10) != 0;
++
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void ip5306_get_charge_voltage_mv(Object *obj, Visitor *v,
++                                         const char *name, void *opaque,
++                                         Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    uint32_t value = ip5306_charge_target_mv(s);
++
++    visit_type_uint32(v, name, &value, errp);
++}
++
++static void ip5306_get_charge_current_ma(Object *obj, Visitor *v,
++                                         const char *name, void *opaque,
++                                         Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    uint8_t bits = s->regs[IP5306_REG_CHG_DIG0] & 0x1f;
++    uint32_t value = 50;
++
++    value += (bits & 1) * 100;
++    value += ((bits >> 1) & 1) * 200;
++    value += ((bits >> 2) & 1) * 400;
++    value += ((bits >> 3) & 1) * 800;
++    value += ((bits >> 4) & 1) * 1600;
++    visit_type_uint32(v, name, &value, errp);
++}
++
++static void ip5306_get_battery_code(Object *obj, Visitor *v,
++                                    const char *name, void *opaque,
++                                    Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    uint32_t value = ip5306_battery_code(s);
++
++    visit_type_uint32(v, name, &value, errp);
++}
++
++static void ip5306_get_power_off_requests(Object *obj, Visitor *v,
++                                          const char *name, void *opaque,
++                                          Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(obj);
++    int64_t value = s->power_off_requests;
++
++    visit_type_int(v, name, &value, errp);
++}
++
++/* ---- I2C slave interface ------------------------------------------------ */
++
++static int ip5306_event(I2CSlave *i2c, enum i2c_event event)
++{
++    M5Ip5306State *s = M5_IP5306(i2c);
++
++    if (event == I2C_START_SEND) {
++        s->ptr_set = false;
++    }
++    return 0;
++}
++
++static int ip5306_send(I2CSlave *i2c, uint8_t value)
++{
++    M5Ip5306State *s = M5_IP5306(i2c);
++
++    if (!s->ptr_set) {
++        s->ptr = value;
++        s->ptr_set = true;
++        if (s->trace) {
++            fprintf(stderr, "[m5-ip5306] ptr=%02x\n", value);
++        }
++    } else {
++        ip5306_write_reg(s, s->ptr, value);
++        /*
++         * The stock driver always writes one data byte per transaction and
++         * the register manual only documents single-byte writes.  Accept
++         * sequential data bytes as pointer increments for convenience.
++         */
++        s->ptr++;
++    }
++    return 0;
++}
++
++static uint8_t ip5306_recv(I2CSlave *i2c)
++{
++    M5Ip5306State *s = M5_IP5306(i2c);
++    uint8_t value = ip5306_read_reg(s, s->ptr);
++
++    if (s->trace) {
++        fprintf(stderr, "[m5-ip5306] read reg=%02x value=%02x\n", s->ptr, value);
++    }
++    /*
++     * The register document shows only single-byte reads and never states
++     * that the address auto-increments; repeated reads return the same
++     * register.  The stock M5Unified driver reads one byte at a time.
++     */
++    return value;
++}
++
++static void ip5306_reset(DeviceState *dev)
++{
++    M5Ip5306State *s = M5_IP5306(dev);
++
++    memset(s->regs, 0, sizeof(s->regs));
++    for (size_t i = 0; i < ARRAY_SIZE(ip5306_reset_values); i++) {
++        s->regs[ip5306_reset_values[i].reg] = ip5306_reset_values[i].value;
++    }
++    s->ptr = 0;
++    s->ptr_set = false;
++}
++
++static void ip5306_realize(DeviceState *dev, Error **errp)
++{
++    M5Ip5306State *s = M5_IP5306(dev);
++
++    s->battery_mv = IP5306_BATTERY_NONE;
++    s->charger_present = true;
++    s->trace = getenv("M5SW_IP5306_TRACE") != NULL;
++
++    object_property_add(OBJECT(s), "battery-mv", "uint32",
++                        ip5306_get_battery_mv, ip5306_set_battery_mv,
++                        NULL, NULL);
++    object_property_add(OBJECT(s), "charger-present", "bool",
++                        ip5306_get_charger_present,
++                        ip5306_set_charger_present, NULL, NULL);
++    object_property_add(OBJECT(s), "boost-enabled", "bool",
++                        ip5306_get_boost_enabled, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "boost-keep-on", "bool",
++                        ip5306_get_boost_keep_on, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "charger-enabled", "bool",
++                        ip5306_get_charger_enabled, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "charge-voltage-mv", "uint32",
++                        ip5306_get_charge_voltage_mv, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "charge-current-ma", "uint32",
++                        ip5306_get_charge_current_ma, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "battery-code", "uint32",
++                        ip5306_get_battery_code, NULL, NULL, NULL);
++    object_property_add(OBJECT(s), "power-off-requests", "int",
++                        ip5306_get_power_off_requests, NULL, NULL, NULL);
++
++    ip5306_reset(dev);
++}
++
++static void ip5306_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
++
++    dc->realize = ip5306_realize;
++    device_class_set_legacy_reset(dc, ip5306_reset);
++    k->event = ip5306_event;
++    k->recv = ip5306_recv;
++    k->send = ip5306_send;
++}
++
++static const TypeInfo ip5306_info = {
++    .name = TYPE_M5_IP5306,
++    .parent = TYPE_I2C_SLAVE,
++    .instance_size = sizeof(M5Ip5306State),
++    .class_init = ip5306_class_init,
++};
++
++static void ip5306_register_types(void)
++{
++    type_register_static(&ip5306_info);
++}
++
++type_init(ip5306_register_types)
+diff --git a/hw/m5stopwatch/m5basic.c b/hw/m5stopwatch/m5basic.c
+new file mode 100644
+index 0000000..2e87307
+--- /dev/null
++++ b/hw/m5stopwatch/m5basic.c
+@@ -0,0 +1,80 @@
++/*
++ * M5Stack Basic v2.7 (K001-V27) board wiring: classic ESP32-D0WDQ6-V3,
++ * ILI9342C 320x240 IPS SPI panel, A/B/C buttons on GPIO39/38/37, a speaker
++ * driven by the on-chip DAC through I2S0 (GPIO25), an IP5306 I2C power
++ * controller at 0x75 and one Grove port on GPIO21/22.
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/basic_v2.7 "PinMap", checked
++ * 2026-11-02.  MCU/SKU: ESP32-D0WDQ6-V3, 16 MB flash, no PSRAM.
++ *
++ * The panel, buttons, I2C bus and I2S controller are shared with the existing
++ * classic board models, but the board keeps its own machine identity and does
++ * not inherit Core2/AXP192, touch, PSRAM or SD conclusions.  The microSD slot
++ * (SPI: CLK G18, MOSI G23, MISO G19, CS G4) is declared but not modelled.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5basic_board_init(Esp32SocState *s)
++{
++    I2CBus *bus0 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++
++    /*
++     * The Basic has a single physical I2C bus on G21 (SDA) / G22 (SCL),
++     * shared by Grove A and the IP5306 at 0x75.  ESP32 has two I2C
++     * controller register blocks; either of them may be routed to those
++     * pins by firmware, so point both controllers at the same board bus
++     * and attach each slave once.
++     */
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus0);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus0);
++
++    DeviceState *pmic = qdev_new(TYPE_M5_IP5306);
++    qdev_prop_set_uint8(pmic, "address", 0x75);
++    object_property_add_child(qdev_get_machine(), "ip5306", OBJECT(pmic));
++    qdev_realize_and_unref(pmic, (BusState *)bus0, &error_fatal);
++
++    /* M5GFX autodetects through a bit-banged probe on the Grove pins. */
++    m5stopwatch_soft_i2c_init_pins(bus0, 21, 22);
++
++    /* Buttons are active-low inputs with external pull-ups. */
++    esp32_gpio_set_input(39, 1);  /* BtnA */
++    esp32_gpio_set_input(38, 1);  /* BtnB */
++    esp32_gpio_set_input(37, 1);  /* BtnC */
++
++    /*
++     * ILI9342C on VSPI/SPI3: MOSI G23, MISO G19, SCLK G18, CS G14,
++     * DC G27, RST G33, backlight PWM G32.  The stock M5GFX board profile
++     * reads ID 0xE3 on CS G14 and uses rotation 1 with offset_rotation 3,
++     * so the panel geometry matches the Core2 ILI9342C model.
++     */
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 320);
++    qdev_prop_set_uint32(panel, "mem-height", 240);
++    qdev_prop_set_uint32(panel, "vis-width", 320);
++    qdev_prop_set_uint32(panel, "vis-height", 240);
++    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_uint32(panel, "offset-x", 0);
++    qdev_prop_set_uint32(panel, "offset-y", 0);
++    qdev_prop_set_uint32(panel, "read-id", 0x000000e3);
++    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_uint32(panel, "key-a-pin", 39);
++    qdev_prop_set_uint32(panel, "key-b-pin", 38);
++    qdev_prop_set_uint32(panel, "key-power-pin", 37);
++    qdev_prop_set_bit(panel, "immediate-update", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 27);
++
++    /* The speaker is the ESP32 DAC on G25 fed by I2S0 (DAC mode); the
++     * classic I2S controller model is registered by the SoC itself. */
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index ef54de4..27c6946 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -14,6 +14,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(Esp32s3GpspiState, ESP32S3_GPSPI)
+ #define TYPE_M5SW_I2C_DEV "m5sw-i2c-dev"
+ #define TYPE_M5_ATECC608 "m5.atecc608"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5Atecc608State, M5_ATECC608)
++#define TYPE_M5_IP5306 "m5.ip5306"
++OBJECT_DECLARE_SIMPLE_TYPE(M5Ip5306State, M5_IP5306)
+ #define TYPE_M5SW_IP2315 "m5sw-ip2315"
+ #define TYPE_CO5300 "co5300"
+ OBJECT_DECLARE_SIMPLE_TYPE(Co5300State, CO5300)
+@@ -86,6 +88,7 @@ typedef enum {
+     M5_BOARD_ATOM_LITE,
+     M5_BOARD_ATOM_MATRIX,
+     M5_BOARD_ATOM_MATRIX_V11,
++    M5_BOARD_BASIC_V27,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -200,6 +203,7 @@ void m5core2_board_init(struct Esp32SocState *s);
+ void m5stickcplus2_board_init(struct Esp32SocState *s);
+ void m5stickc_board_init(struct Esp32SocState *s);
+ void m5atomclassic_board_init(struct Esp32SocState *s);
++void m5basic_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+ void m5_unit_runtime_init(bool s3);
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 536d808..0f4258a 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1047,6 +1047,8 @@ static void esp32_machine_init(MachineState *machine)
+                || m5_board == M5_BOARD_ATOM_MATRIX
+                || m5_board == M5_BOARD_ATOM_MATRIX_V11) {
+         m5atomclassic_board_init(ss);
++    } else if (m5_board == M5_BOARD_BASIC_V27) {
++        m5basic_board_init(ss);
+     }
+ 
+     /* Need MMU initialized prior to ELF loading,
+@@ -1429,3 +1431,38 @@ static void m5atommatrixv11_machine_type_init(void)
+ }
+ 
+ type_init(m5atommatrixv11_machine_type_init);
++
++
++/* M5Stack Basic v2.7 (K001-V27): ESP32-D0WDQ6-V3, ILI9342C 320x240,
++ * A/B/C buttons, IP5306 at 0x75, DAC speaker on G25, no PSRAM. */
++static void m5basic_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_BASIC_V27;
++    esp32_machine_init(machine);
++}
++
++static void m5basic_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5Stack Basic v2.7 K001-V27 (ESP32-D0WDQ6-V3, ILI9342C 320x240, IP5306)";
++    mc->init = m5basic_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5basic_info = {
++    .name = MACHINE_TYPE_NAME("m5basic"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5basic_machine_class_init,
++};
++
++static void m5basic_machine_type_init(void)
++{
++    type_register_static(&m5basic_info);
++}
++
++type_init(m5basic_machine_type_init);
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 8a40c00..d1f3b9a 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -35,6 +35,8 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32', if_true: files(
+   '../m5stopwatch/m5stickcplus2.c',
+   '../m5stopwatch/m5stickc.c',
+   '../m5stopwatch/m5atomclassic.c',
++  '../m5stopwatch/m5basic.c',
++  '../m5stopwatch/m5_ip5306.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+-- 
+2.55.0
+

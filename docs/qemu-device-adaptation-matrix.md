@@ -38,6 +38,7 @@
 | NanoC6 | ESP32-C6FH4 | `qemu-esp32c6` | 无屏 / GPIO、RGB、IR | 是 |
 | Arduino Nesso N1 | ESP32-C6 | `qemu-esp32c6` | ST7789 135x240 / 触摸 | 是 |
 | Core2 | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | ILI9342 320x240 / 触摸 | 是 |
+| Basic v2.7 | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | ILI9342C 320x240 / A/B/C GPIO、IP5306 0x75、I2S0 DAC | 是，外设 `partial` |
 | Tab5 | ESP32-P4NRW32 + C6 | `esp-emulator-native` | 1280x720 / 固件 touch mailbox | 是，外设 `partial` |
 | AtomS3U | ESP32-S3FN8 | `qemu-esp32s3` | 无屏 / GPIO41 按键、GPIO35 WS2812、IR G12、PDM 麦克风 | 是，外设 `partial` |
 | Atom VoiceS3R | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、ES8311、NS4150B、IR G47 | 是，外设 `partial` |
