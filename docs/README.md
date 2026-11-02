@@ -147,6 +147,11 @@ Unit 第六批首批 6 款（mini-scales/rgb-led-strip-50cm/op180/synth/mini-imu
 0144 的 mini-scales 指针相位/button-pressed 别名与 mini-imu 量程同步三个模型 bug，并在
 单次会话中验证 6 款的 guest 数据面；env-pro 只断言 identity/raw field bytes/QOM fixture，
 guest 解码温/湿/压因 BME68x 补偿逆运算未建模而 NOT ASSERTED。
+Unit 第六批剩余 6 款（unit-id/thermal2/qrcode/uwb/dmx/finger）在单一 QEMU 构建上取得虚拟设备证据，见
+[Unit 第六批剩余虚拟设备证据](evidence/2026-11-03-unit-batch6b/README.md)；证据发现并修复了
+0145 的 Thermal2 fixture 槽位、UWB/DMX/Finger UART 应答器 idle arming 与 FPC1020A 多帧注入三个模型 bug，
+thermal2/qrcode/uwb/dmx/finger 5 款 PASS，unit-id 因 ATECC 驱动 wake 写 I2C 地址 0x00 的 harness 限制如实 BLOCKED；
+PORT.C 未准入使用 cores3 PORT.A harness；热/光/RF/生物/电气物理语义与 DMX512 电气行为全部 NOT RUN。
 
 ## 首页与维护入口
 
@@ -246,6 +251,7 @@ guest 解码温/湿/压因 BME68x 补偿逆运算未建模而 NOT ASSERTED。
 | [Unit 第四批 12 款虚拟设备证据](evidence/2026-11-02-unit-batch4/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | A+B 6 款（rs485-iso UART TX/RX、laser-tx GPIO DIN、co2l CO2/RH、neco 35-LED RMT、midi MIDI 字节流、tof4m VL53L1X）与 C 6 款（weight HX711 位脉冲、bldc-driver 寄存器组、ac-measure ASCII/byte 视图、dds AD9833 分段写、gps NMEA、uhf-rfid JRD4035 帧）各一个 cores3 可见会话，单一 QEMU 构建（0134+0136+0138）；0138 修复 AC 视图/ASCII 偏移与 Weight pad-observer 断言；端口使用 cores3 PORT.A harness 替代官方 PORT.B/C；AC 市电/隔离、UHF RF/Gen2、激光光学、HX711 电气、传感器物理/精度等如实 NOT RUN |
 | [Unit 第五批 12 款虚拟设备证据](evidence/2026-11-02-unit-batch5/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | A 5 款（pbhub-v11 6 通道/RGB、op90 数字电平、rgb-led-10cm 15 灯 RMT、8angle ADC/RGB、kmeter-iso-v11 温度）与 B 7 款（pahub-v20 mask-only、rtc 虚拟时钟+停止写回、tmos-pir presence/motion/raw、neohex generic WS2812 37 灯、lora/zigbee/nbiot2 UART 帧）各一个 cores3 可见会话，单一 QEMU 构建（…0139+0141）；0141 修复 op90 digital-level 属性、RTC 停止时钟写回、TMOS 状态位/页读取、KMeter fixture 同步；PORT.B/C 使用 cores3 PORT.A harness 替换；光学/热学/RF/蜂窝/市电语义如实 NOT RUN |
 | [Unit 第六批首批虚拟设备证据](evidence/2026-11-02-unit-batch6/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | mini-scales（0x26 ADC/weight/button/校准/滤波，0144 修复 readfrom_mem 指针相位与 button-pressed 别名）、rgb-led-strip-50cm（30×SK6812 RMT）、op180（白线数字输入）、synth（TX-only MIDI 31250，无 RX）、mini-imu（MPU6886 0x68 accel/gyro/temp + 2g/250→8g/1000 量程，0144 QOM 同步）、env-pro（BME688 0x77 identity + raw field bytes；guest 解码 T/RH/P NOT ASSERTED）各一个 cores3 可见会话，单一 QEMU 构建（…0141+0144）；PORT.B/C 使用 cores3 PORT.A harness 替换；物理/光学/音频/热学/气体语义如实 NOT RUN |
+| [Unit 第六批剩余虚拟设备证据](evidence/2026-11-03-unit-batch6b/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | thermal2（0x32 中位/平均/差分 + 768B/384×u16 数组，fixture 精确）、qrcode（0x21 2B-LE 地址窗口，status=1/len=15/data fixture/clear→0）、uwb（UART AT fixture 应答器，仅字节层，tx 命令字节精确）、dmx（cdriver 可执行，write_data 后 QOM 捕获 00ff… 字节流，仅字节层）、finger（FPC1020A version gate B1.10.00 + user count/capacity=150，仅 0xF5/XOR 字节层）各一个 cores3 可见会话，单一 QEMU 构建（…0143+0144+0145）；unit-id BLOCKED（ATECC wake 写 0x00 无法被 0x35 从机接收，revision/serial/random 失败，不伪造）；PORT.C 使用 cores3 PORT.A harness 替换；RF/热成像/光学/生物识别/DMX512 电气语义 NOT RUN |
 | [M5Stick 主机接入](evidence/2026-11-02-m5stick-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5stick`：EasyLoader FactoryTest 4MB 镜像确定性 icount 启动到原生串口 `mpu9250 addr: FF`；SH1107 初始化命令流+4096 字节 GDDRAM；工厂固件 legacy I2C FIFO 未闭环，MPU9250/IP5306/GPIO35 模型由 generic MicroPython fixture 取证；AK8963/DMP、最终 UI 帧、buzzer/IR/LED 与物理行为未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomu` 的官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060/5 帧）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验；固件为固定 SHA 官方 GitHub release 资产 |

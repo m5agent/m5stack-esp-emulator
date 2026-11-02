@@ -20324,9 +20324,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C transactions to a device-local ATECC608B command slave at 0x35"
+        "required_data_plane": "SoC I2C transactions to a device-local ATECC608B command slave at 0x35",
+        "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates."
       },
-      "blocker": "0142 新增 US_ATECC608B（0x35）：0x03 命令帧 + CRC16(0x8005) 响应帧；INFO revision/serial、RANDOM、SHA、GEN_KEY、SIGN、NONCE 返回固定非秘密测试向量。未采集 guest/Device Service 证据 → planned。**真实 ECDSA/AES-GCM/Trust&GO 证书链/key slot 锁定/权限/10Kb EEPROM NOT RUN；wake-to-address-0/idle/sleep 未建模（需 guest 证据）；仓库与 QEMU 不含任何真实私钥/证书；0x35 无已登记冲突**",
+      "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates.",
       "input_semantics": "Guest command bytes are parsed into the fixed test-vector responses; no real crypto is performed.",
       "output_semantics": "Observed guest command/response frames and CRC; no cryptographic security is claimed.",
       "limitations": [
@@ -20526,9 +20527,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "median-c": {
@@ -20577,9 +20578,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C transactions to a device-local ESP32/MLX90640 register slave at 0x32"
+        "required_data_plane": "SoC I2C transactions to a device-local ESP32/MLX90640 register slave at 0x32",
+        "blocker": "Guest Thermal2Unit on cores3 at 0x32: device detail 0x4064/100.1, alarm 0, button 0, median 31.5C, 768-byte (384 u16) temperature buffer with fixture-exact head values, QOM median/average/differential fixtures exact. Page 0x33-vs-driver-0x32 ambiguity remains unresolved (0x33 collides with registered thermal; only 0x32 modeled). Thermal imaging optics/accuracy/refresh, ESP32 MCU alarm state machine and the 0x33 address are NOT RUN."
       },
-      "blocker": "0142 新增 US_THERMAL2（0x32）：按键/报警/设备信息/功能/刷新/阈值/蜂鸣器/RGB 寄存器、中位/平均/差分温度、768×2B 温度数组（raw=temp*128+8192）。未采集 guest/Device Service 证据 → planned。**页面 0x33 vs 协议表/驱动 0x32 二义 unresolved（0x33 与 thermal 冲突，只实现 0x32）；热成像光学/精度/刷新/报警状态机 NOT RUN；ESP32 内部缓存语义不建模**",
+      "blocker": "Guest Thermal2Unit on cores3 at 0x32: device detail 0x4064/100.1, alarm 0, button 0, median 31.5C, 768-byte (384 u16) temperature buffer with fixture-exact head values, QOM median/average/differential fixtures exact. Page 0x33-vs-driver-0x32 ambiguity remains unresolved (0x33 collides with registered thermal; only 0x32 modeled). Thermal imaging optics/accuracy/refresh, ESP32 MCU alarm state machine and the 0x33 address are NOT RUN.",
       "input_semantics": "Synthetic median/average/differential temperatures and a deterministic temperature array are encoded into the register file.",
       "output_semantics": "Observed guest register/array reads; no thermal imaging behavior is modeled.",
       "limitations": [
@@ -20759,9 +20761,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "data-status": {
@@ -20795,9 +20797,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C transactions to a device-local QRCode register slave at 0x21 with 16-bit addresses"
+        "required_data_plane": "SoC I2C transactions to a device-local QRCode register slave at 0x21 with 16-bit addresses",
+        "blocker": "Guest QRCodeUnit (I2C mode) on cores3 at 0x21: status=1, length=15, data='M5STACK-TEST-QR', trigger mode 0, clear->status 0; QOM status/trigger exact. Camera/optics/illumination/decoding NOT RUN; the I2C/UART side switch is mutually exclusive and only the I2C side is modeled; UART command frames are not modeled on this attachment."
       },
-      "blocker": "0142 新增 US_QRCODE（0x21）：2 字节小端地址窗口 + 状态/长度/触发模式/按键/固件/地址寄存器 + 0x1000–0x11FF QR 数据窗口。未采集 guest/Device Service 证据 → planned。**摄像头/扫码光学/补光/瞄准/解码 NOT RUN；I2C/UART 侧开关物理互斥、只实现 I2C 侧；UART 命令帧未在该 attachment 建模；0x21 无已登记冲突**",
+      "blocker": "Guest QRCodeUnit (I2C mode) on cores3 at 0x21: status=1, length=15, data='M5STACK-TEST-QR', trigger mode 0, clear->status 0; QOM status/trigger exact. Camera/optics/illumination/decoding NOT RUN; the I2C/UART side switch is mutually exclusive and only the I2C side is modeled; UART command frames are not modeled on this attachment.",
       "input_semantics": "Synthetic QR payload and status fixtures are exposed through the register window; scanning/decoding is not modeled.",
       "output_semantics": "Observed guest register/buffer reads; no camera or decoding behavior is modeled.",
       "limitations": [
@@ -20937,9 +20940,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -20963,9 +20966,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART bytes: guest AT lines captured and fixture responses injected after an idle gap when routed"
+        "required_data_plane": "SoC UART bytes: guest AT lines captured and fixture responses injected after an idle gap when routed",
+        "blocker": "Guest UWBUnit constructor completed through the UART AT responder on cores3 (AT/anchor_tag/RST/interval/switchdis byte sequence captured in QOM tx-hex, frames counted). Only the byte layer is asserted; the frozen UWBUnit does not expose device_id/continuous state as QOM-checkable values. UWB 3.5-6.5GHz RF/antenna/ranging/anchor network are NOT RUN; the page explicitly does not support custom data transmission; PORT.C substituted to cores3 PORT.A harness."
       },
-      "blocker": "0142 新增 GPIO id 'uwb'：UART 捕获 + idle-time fixture 应答器，不解析 AT/UWB 语义。未采集 guest/Device Service 证据 → planned。**UWB 3.5–6.5GHz RF/天线/多径/10cm 精度/基站网络 NOT RUN；页面明确不支持自定义数据传输；固件/AT 响应格式需钉 SHA；PORT.C 端口冲突**",
+      "blocker": "Guest UWBUnit constructor completed through the UART AT responder on cores3 (AT/anchor_tag/RST/interval/switchdis byte sequence captured in QOM tx-hex, frames counted). Only the byte layer is asserted; the frozen UWBUnit does not expose device_id/continuous state as QOM-checkable values. UWB 3.5-6.5GHz RF/antenna/ranging/anchor network are NOT RUN; the page explicitly does not support custom data transmission; PORT.C substituted to cores3 PORT.A harness.",
       "input_semantics": "Synthetic AT response fixtures injected through the guest UART RX path.",
       "output_semantics": "Observed guest AT bytes; no RF/ranging behavior is modeled.",
       "limitations": [
@@ -21105,9 +21109,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -21131,9 +21135,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART bytes on the Grove pair: guest DMX-frame bytes captured and fixture RX injected when routed"
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest DMX-frame bytes captured and fixture RX injected when routed",
+        "blocker": "Guest DMX512Unit initialised and write_data(1,255) executed on cores3; QOM observed a DMX start-code/channel byte stream beginning 00ff. cdriver.esp_dmx was importable in this reference firmware. Only the UART byte layer is asserted: DMX512 framing, RS485 differential bus, 5kVrms isolation, XLR-3, 120ohm termination and 250kbps timing are NOT RUN; PORT.C substituted to cores3 PORT.A harness."
       },
-      "blocker": "0142 新增 GPIO id 'dmx'：仅 UART 字节观测/注入（C 模块 esp_dmx 不可执行），不解析 DMX 帧。未采集 guest/Device Service 证据 → planned。**DMX512/RS485 差分总线/5kVrms 隔离/XLR-3/120Ω/250kbps 时序 NOT RUN；cdriver C 模块帧格式/中断不可见；master/slave 互斥未区分；PORT.C 端口冲突**",
+      "blocker": "Guest DMX512Unit initialised and write_data(1,255) executed on cores3; QOM observed a DMX start-code/channel byte stream beginning 00ff. cdriver.esp_dmx was importable in this reference firmware. Only the UART byte layer is asserted: DMX512 framing, RS485 differential bus, 5kVrms isolation, XLR-3, 120ohm termination and 250kbps timing are NOT RUN; PORT.C substituted to cores3 PORT.A harness.",
       "input_semantics": "Synthetic RX byte fixtures injected through the guest UART RX path.",
       "output_semantics": "Observed guest TX bytes; no DMX512 electrical or framing behavior is modeled.",
       "limitations": [
@@ -21281,9 +21286,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -21307,9 +21312,10 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART bytes: guest FPC1020A frames captured and fixture responses injected when routed"
+        "required_data_plane": "SoC UART bytes: guest FPC1020A frames captured and fixture responses injected when routed",
+        "blocker": "Guest FingerUnit (FPC1020A) on cores3 passed the B1.10.00 version gate and read user count/capacity 150 from the fixture responder frames; QOM frame counters observed. Only the 0xF5/XOR byte layer is asserted: fingerprint capture/matching, security levels, 150-user storage and 193B templates are NOT RUN; PORT.C substituted to cores3 PORT.A harness."
       },
-      "blocker": "0142 新增 GPIO id 'finger'：UART 捕获 + idle-time fixture 应答器，不解析 0xF5/XOR 帧语义。未采集 guest/Device Service 证据 → planned。**指纹采集/匹配/安全等级/150 用户/193B 特征/防伪 NOT RUN；版本门 B1.10.00/B1.07.00 需 fixture 满足；XOR/ACK 语义未解码；PORT.C 端口冲突**",
+      "blocker": "Guest FingerUnit (FPC1020A) on cores3 passed the B1.10.00 version gate and read user count/capacity 150 from the fixture responder frames; QOM frame counters observed. Only the 0xF5/XOR byte layer is asserted: fingerprint capture/matching, security levels, 150-user storage and 193B templates are NOT RUN; PORT.C substituted to cores3 PORT.A harness.",
       "input_semantics": "Synthetic response-frame fixtures injected through the guest UART RX path.",
       "output_semantics": "Observed guest frames; no biometric capture or matching is modeled.",
       "limitations": [
