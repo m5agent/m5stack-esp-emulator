@@ -1484,7 +1484,7 @@ def execute_sample(
                         "timeout_seconds": observe_seconds,
                         "ready": {
                             "frame_nonblank": True,
-                            "frame_min_bytes": 1024,
+                            "frame_min_bytes": 1,
                             "frame_min_nonblack_pixels": 16,
                             "require_all": True,
                         },
