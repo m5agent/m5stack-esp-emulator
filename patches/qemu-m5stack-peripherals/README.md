@@ -10,8 +10,9 @@ The reviewed native layer order for the current board set is
 `scripts/qemu-wasm-build/sources.lock.json`; it applies cleanly to the pinned
 `espressif/qemu` commit `40edccac415693c5130f91c01d84176ae6008566` and ends with
 `0109-uart-rxfifo-reset.patch`. `0110-atoms3u-board.patch` adds the AtomS3U K125
-machine and `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine
-on top of that sequence. The older `scripts/bootstrap-unit-runtime.py`
+machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine and
+`0112-atoms3r-cam-board.patch` the AtomS3R-CAM C126-CAM machine on top of that
+sequence. The older `scripts/bootstrap-unit-runtime.py`
 list is a historical Unit-only receipt and does not contain the `0096`-`0109`
 board layers; do not read it as the current native order.
 

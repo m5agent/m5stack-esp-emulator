@@ -1,0 +1,234 @@
+From 6961d82fd4ce6d285ae9964a269dffc339f5ac51 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 15:14:25 +0800
+Subject: [PATCH] hw/m5stopwatch: add AtomS3R-CAM board
+
+C126-CAM is an AtomS3R controller with a GC0308 camera on the LCD_CAM
+DVP port. The camera SCCB bus is bit-banged on GPIO12/GPIO9 and the
+sensor stays attached to the shared I2C bus at 0x21; the board also wires
+the LCD_CAM controller and IRQ. Register a separate machine identity.
+
+The official AtomS3R-CAM camera probe still returns NOT_SUPPORTED even
+though the guest scans 0x21 and reads PID 0x9b, so the capture data plane
+is not claimed by this patch.
+
+Wiring evidence: docs.m5stack.com/en/core/AtomS3R-CAM PinMap, checked
+2026-11-02.
+---
+ hw/m5stopwatch/m5atoms3rcam.c | 110 ++++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5sticks3.c    |   3 +
+ hw/m5stopwatch/m5stopwatch.h  |   3 +
+ hw/xtensa/esp32s3.c           |  32 ++++++++++
+ hw/xtensa/meson.build         |   1 +
+ 5 files changed, 149 insertions(+)
+ create mode 100644 hw/m5stopwatch/m5atoms3rcam.c
+
+diff --git a/hw/m5stopwatch/m5atoms3rcam.c b/hw/m5stopwatch/m5atoms3rcam.c
+new file mode 100644
+index 0000000..3d570b0
+--- /dev/null
++++ b/hw/m5stopwatch/m5atoms3rcam.c
+@@ -0,0 +1,110 @@
++/*
++ * M5Stack AtomS3R-CAM (C126-CAM) board wiring.
++ *
++ * AtomS3R controller (ESP32-S3-PICO-1-N8R8, GC9107 128x128 panel,
++ * BMI270 at 0x68 with BMM150 behind the sensor hub) plus a GC0308 camera on
++ * the LCD_CAM DVP port.  The camera SCCB bus is bit-banged on SDA GPIO12 /
++ * SCL GPIO9, while the sensor/codec bus stays on the AtomS3R SYS pins.
++ * Camera control pins: VSYNC G10, HREF G14, XCLK G21, PCLK G40,
++ * Y2 G3, Y3 G42, Y4 G46, Y5 G48, Y6 G4, Y7 G17, Y8 G11, Y9 G13,
++ * POWER_N G18.  Grove port on GPIO2/GPIO1.
++ *
++ * The LCD_CAM/DVP model delivers frames through the same controller path as
++ * CoreS3; the board keeps its own machine identity and does not inherit
++ * AtomS3R conclusions.
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/AtomS3R-CAM PinMap, checked
++ * 2026-11-02.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5atoms3rcam_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                          ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    MemoryRegion *i2c0_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000, i2c0_mr, 1);
++
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    MemoryRegion *i2c1_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000, i2c1_mr, 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
++
++    static const struct { const char *model; uint8_t addr; } devs[] = {
++        { "lp5562", 0x30 },
++        { "es8311", 0x18 },
++        { "pi4ioe", 0x43 },
++        { "bmm150", 0x10 },
++        { "bmi270", 0x68 },
++        { "gc0308", 0x21 },
++    };
++    for (int i = 0; i < ARRAY_SIZE(devs); i++) {
++        DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(d, "model", devs[i].model);
++        qdev_prop_set_uint8(d, "address", devs[i].addr);
++        object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
++        qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init(bus);
++    /* Camera SCCB is bit-banged on GPIO12/GPIO9. */
++    m5stopwatch_soft_i2c_init_pins(bus, 12, 9);
++
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
++    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
++    memory_region_init_alias(spi2_alias, NULL, "m5atoms3rcam.spi2-alias",
++                             spi_mr, 0, memory_region_size(spi_mr));
++    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
++    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                                ETS_SPI3_INTR_SOURCE);
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 132);
++    qdev_prop_set_uint32(panel, "mem-height", 132);
++    qdev_prop_set_uint32(panel, "vis-width", 128);
++    qdev_prop_set_uint32(panel, "vis-height", 128);
++    qdev_prop_set_uint32(panel, "offset-x", 2);
++    qdev_prop_set_uint32(panel, "offset-y", 1);
++    qdev_prop_set_uint32(panel, "key-a-pin", 41);
++    qdev_prop_set_uint32(panel, "key-b-pin", 41);
++    qdev_prop_set_uint32(panel, "read-id", 0x00007683);
++    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_bit(panel, "infer-command", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
++    esp32s3_gpspi_set_dc_pin(spi, 42);
++
++    DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
++    m5_lcd_cam_attach(cam, gdma, 128, 128);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(cam), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(cam), 0), 1);
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(cam), 0,
++        qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++}
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 71092ff..0414dd4 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -101,6 +101,9 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_ATOM_VOICES3R:
+         m5atomvoices3r_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_ATOMS3R_CAM:
++        m5atoms3rcam_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3:
+         m5atoms3_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 0ff77cf..ef54de4 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -77,6 +77,7 @@ typedef enum {
+     M5_BOARD_ATOMS3_LITE,
+     M5_BOARD_ATOMS3U,
+     M5_BOARD_ATOM_VOICES3R,
++    M5_BOARD_ATOMS3R_CAM,
+     M5_BOARD_STICKC_PLUS2,
+     M5_BOARD_STICKC,
+     M5_BOARD_STICKC_PLUS,
+@@ -176,6 +177,8 @@ void m5atoms3u_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
+ void m5atomvoices3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                struct ESPGdmaState *gdma);
++void m5atoms3rcam_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             struct ESPGdmaState *gdma);
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          struct ESPGdmaState *gdma);
+ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 7d3a37d..1d34d22 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1518,6 +1518,38 @@ static void m5atomvoices3r_machine_type_init(void)
+ 
+ type_init(m5atomvoices3r_machine_type_init);
+ 
++/* C126-CAM AtomS3R-CAM: AtomS3R controller plus a GC0308 DVP camera. */
++static void m5atoms3rcam_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMS3R_CAM;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atoms3rcam_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack AtomS3R-CAM C126-CAM (ESP32-S3-PICO-1-N8R8, GC9107, GC0308)";
++    mc->init = m5atoms3rcam_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atoms3rcam_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3rcam"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atoms3rcam_machine_class_init,
++};
++
++static void m5atoms3rcam_machine_type_init(void)
++{
++    type_register_static(&m5atoms3rcam_info);
++}
++
++type_init(m5atoms3rcam_machine_type_init);
++
+ /* K130 M5Dial: original ESP32-S3FN8 with no PSRAM. */
+ static void m5dial_machine_init(MachineState *machine)
+ {
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 40aea94..8a40c00 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -53,6 +53,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5atoms3lite.c',
+   '../m5stopwatch/m5atoms3u.c',
+   '../m5stopwatch/m5atomvoices3r.c',
++  '../m5stopwatch/m5atoms3rcam.c',
+   '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',
+-- 
+2.55.0
+
