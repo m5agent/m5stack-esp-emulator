@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atoms3r-m12",
+  "machine": "m5atoms3rm12",
+  "firmware": {
+    "status": "shared official image; there is no M12-specific M5Burner UIFlow2 entry",
+    "name": "UIFlow2.0 AtomS3R-CAM",
+    "version": "v2.5.4",
+    "firmware_id": "1897200000000003117",
+    "bytes": 8384512,
+    "sha256": "1b29cc3d838834b3a4713130010815f952cff58619001c76183dd0b0a588f2c1",
+    "m5burner_description": "UIFlow2 for AtomS3R-CAM and AtomS3R-M12",
+    "fetch_command": "python3 platform/tools/fetch_firmware.py atoms3r-m12",
+    "evidence_sha256_match": "downloaded by M5Burner public metadata; sha256 matches the image already used for the AtomS3R-CAM evidence"
+  },
+  "qemu": {
+    "base_layer": "0109 + 0110-atoms3u + 0111-atom-voices3r + 0112-atoms3r-cam + 0113-basic-v27 + 0114-unit-gpio-batch1 + 0115-atoms3r-cam-sccb + 0116-atomu-board + 0117-atomecho-board + 0118-camera-geometry-stream + 0119-unit-i2c-batch2 + 0120-unit-i2c-dlight-command-mask",
+    "base_commit": "0f384fa",
+    "fix_commit": "6f742e2",
+    "patch": "patches/qemu-m5stack-peripherals/0122-atoms3r-m12-board.patch",
+    "patch_sha256": "216ce4490d206e5aba4e88d3af50ce403fae4ace940c38019c10fa962487ebe4",
+    "patch_apply_checks": [
+      "git apply --reverse --check in the fix tree",
+      "pristine 6961d82 (0112) + 0113..0120 in native order, then git apply --check 0122 => clean"
+    ],
+    "binary": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+  },
+  "implementation": {
+    "machine": "m5atoms3rm12 reuses the AtomS3R-CAM controller/panel/PSRAM/LCD_CAM/dedicated SCCB bridge",
+    "inventory": "BMM150 0x10, BMI270 0x68, OV3660 0x3c on the shared bus; the AtomS3R-CAM-only LP5562/ES8311/PI4IOE models are not part of this board",
+    "ov3660_model": "16-bit SCCB register space (write: addr high, addr low, data; read: address bytes then a separate read transaction); PID 0x3660 in read-only 0x300A/0x300B; software reset via 0x3008 bit 7; DVP output size from 0x3808-0x380b published to LCD_CAM and latched at CAM_START",
+    "guest_scan": "guest I2C scan on GPIO12/9 sees 0x10/0x3c/0x68 (OV3660 at 0x3c) in both UIFlow2 and the community demo"
+  },
+  "probe": {
+    "test_dir": "tests/uiflow2/atoms3r_m12_console_test",
+    "markers": [
+      "M12_BOOT_FLAG",
+      "M12_MAIN_START",
+      "M12_M5_BEGIN_OK",
+      "M12_BOARD 144",
+      "M12_I2C_SCAN ['0x8', '0x10', '0x3c', '0x68']",
+      "M12_PID 3660",
+      "M12_INIT True",
+      "M12_CAPTURE_BYTES 153600",
+      "M12_FRAME_SHA256 09c8ded0…",
+      "M12_GEOM QQVGA/VGA/HD markers",
+      "M12_GEOMETRY_DONE 3 3",
+      "M12_STREAM_CAPTURED 5",
+      "M12_STREAM_BYTES_OK 5",
+      "M12_STREAM_DISTINCT 5",
+      "M12_STATUS ok"
+    ],
+    "geometry": [
+      {
+        "name": "QQVGA",
+        "framesize_enum": 1,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "sha256": "94203cc2fa9273a07b6052e820462e15ace7421cf08ea409da536f53bae69034"
+      },
+      {
+        "name": "QVGA",
+        "framesize_enum": 6,
+        "width": 320,
+        "height": 240,
+        "bytes": 153600,
+        "sha256": "09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696",
+        "note": "module default single-frame baseline"
+      },
+      {
+        "name": "VGA",
+        "framesize_enum": 10,
+        "width": 640,
+        "height": 480,
+        "bytes": 614400,
+        "sha256": "94a147ff55c5c3189eb6a9871dded374483ed7d33f1d0767889879986fa6e412"
+      },
+      {
+        "name": "HD",
+        "framesize_enum": 13,
+        "width": 1280,
+        "height": 720,
+        "bytes": 1843200,
+        "sha256": "990f35de36a528f307231c220509df15f16b874c74e29105b2e3010725d5fec3"
+      }
+    ],
+    "stream": {
+      "frames": 5,
+      "bytes_per_frame": 153600,
+      "distinct_digests": 5,
+      "scene_seeds_observed": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "enable_path": "console matrix sets QOM /machine/m5-lcd-cam auto-increment=true after the guest prints M12_BASE_DONE (no frame data injected)"
+    },
+    "frame_oracle": {
+      "script": "tests/uiflow2/atoms3r_m12_console_test/frame_oracle.py",
+      "sha256": "46550078aecb2a053126059fd5fcd69e2ff8dbae7d84c17c3a12632593d8243d",
+      "result": "M12_FRAME_ORACLE_OK geometry=4 stream=5 (both matrix runs)"
+    }
+  },
+  "case": {
+    "runner": "PYTHONPATH=platform/tools python3 tests/uiflow2/run_device_matrix.py --device atoms3r-m12 --flash-transport direct",
+    "status": "PASS",
+    "runs": 2,
+    "serial_sha256": {
+      "run1": "01014bc9a92e4e9e579b1fcb93aeb0e18c0c5a12bde7e4f53fef3c928392e8c3",
+      "run2": "d6feac7b1eb300a023dec53f1e2472f51f95fd7a667e0baf928baa371c21d40f"
+    }
+  },
+  "community_demo": {
+    "purpose": "second, independent firmware path for the OV3660 control plane; downloaded and verified, run black-box",
+    "provenance": {
+      "discovery": "M5Burner public API search /api/v1/firmwares?keyword=M12",
+      "firmware_id": "1897200000000000208",
+      "firmware_name": "AtomS3R-CAM M12 User Demo",
+      "source_type": "OFFICIAL",
+      "resolved_version": "v0.1",
+      "resolved_publish_time": "2024-11-11T00:00:00+08:00",
+      "bin_file_name": "1b10ef1ebf96562ab98113bec1f4158b.bin",
+      "url": "https://m5burner-cdn.m5stack.com/firmware/1b10ef1ebf96562ab98113bec1f4158b.bin",
+      "bytes": 2413726,
+      "sha256": "96b9acc65047e05dc1b37797896e8297691c3fbf2355eb035c5f8d2db15a0bd0",
+      "padded_flash_image_sha256": "dffada545bd5930a9d918e2e237c3223b73b375d988fd8c937f7caaa61ad1daa",
+      "padded_flash_image_note": "the sparse merged image is padded to the declared 8 MiB flash with 0xFF; the demo app writes NVS during boot, so the working copy mutates after a run and must be regenerated from this SHA-verified sparse image"
+    },
+    "image_analysis": {
+      "project_name": "usb_webcam",
+      "idf_version": "v5.1.4",
+      "app_version": "837e6bc-dirty",
+      "declared_flash_size": 8388608,
+      "bootloader_offset": 0,
+      "partition_table_offset": 32768,
+      "factory_app_offset": 65536,
+      "partition_end": 4259840,
+      "filesystems": [],
+      "valid": true
+    },
+    "run_markers": [
+      "get 0x10 / get 0x3c / get 0x68 / device num: 3",
+      "bmi270 init ok / bmm150 init ok / ir init",
+      "camera: Detected camera at address=0x3c",
+      "camera: Detected OV3660 camera",
+      "camera: Camera PID=0x3660 VER=0x00 MIDL=0x00 MIDH=0x00",
+      "cam_hal: cam config ok",
+      "usb_webcam: Selected Camera Board M5STACK AtomS3R-CAM",
+      "usb_webcam: Service uvc started"
+    ],
+    "observed_limits": {
+      "no_soi_warnings": 21,
+      "software_resets": 23,
+      "note": "the demo selects an MJPEG UVC pipeline; the LCD_CAM model emits the deterministic RGB565 DVP waveform used by the UIFlow2 path and has no JPEG encoder, so cam_hal reports NO-SOI and the app restarts itself (rst:0x3 RTC_SW_SYS_RST). Full community-demo application, UVC and web-server behavior are NOT RUN."
+    },
+    "serial_sha256": {
+      "uart0": "74fb681787a376d733c4db407a98869359cb888662fb0d89dedb640fe0914512",
+      "uart1": "2ab70939c6e18ec218df0218210da214186e4a461d8776b5832d51b9f6fe4e0d"
+    }
+  },
+  "not_run": [
+    "physical optics/lens/exposure and DVP/SCCB electrical timing or drive strength",
+    "the community usb_webcam MJPEG/UVC data plane, UVC enumeration and web server behaviour",
+    "dynamic framesize changes while frames are streaming and sizes above the OV3660 driver maximum",
+    "IR GPIO47 transmit/receive data plane, Grove G2/G1 Units, USB CDC console",
+    "arbitrary third-party firmware and hardware validation"
+  ]
+}

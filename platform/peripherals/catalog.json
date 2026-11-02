@@ -71,6 +71,10 @@
         "reason": "Device-local console evidence covers UIFlow2 boot, board id 142, SK6812 RMT output, QMP key-driven GPIO39 input, Grove I2C controller scan, NS4168 I2S1 speaker PCM and SPM1423 PDM RX with a host PCM fixture. Analog audio, IR, Grove Unit protocols and physical behavior remain open.",
         "review_by": "2026-12-31"
       },
+      "atoms3r-m12": {
+        "reason": "New M12 host: camera RGB565 data plane, IMU/magnetometer bring-up and button wiring are registered, but IR, Grove Units and the community MJPEG/UVC data path are not modeled yet.",
+        "review_by": "2026-12-31"
+      },
       "m5stick": {
         "reason": "Device-local m5stick machine boots the official EasyLoader factory image deterministically to its MPU probe (mpu9250 addr: FF) and drives the SH1107 init/GDDRAM path; MPU9250/IP5306/button model data planes pass through a generic classic-ESP32 MicroPython fixture. Factory-firmware nine-axis/button path, AK8963, SH1107 final UI frame, buzzer/IR/LED, Grove Units and physical behavior remain open.",
         "review_by": "2026-12-31"
@@ -1341,6 +1345,23 @@
       ],
       "data_plane": "ESP32 classic I2S0 in DAC mode: the linked-list TX DMA controller model consumes real IDF descriptors and captures the digital sample stream as host PCM; no analog DAC, filter, amplifier, speaker or acoustic behavior is modelled",
       "blocker": "Digital I2S0 DAC-mode PCM is captured at the DMA boundary only; the on-chip DAC, analog output stage, speaker acoustics, loudness, distortion and physical audio output are not modelled or measured."
+    },
+    "ov3660": {
+      "kind": "camera",
+      "interface": "dvp-sccb16",
+      "address": "0x3c",
+      "capabilities": [
+        "camera"
+      ],
+      "status": "partial",
+      "injection": [
+        "qom-frame"
+      ],
+      "data_plane": "ESP32-S3 LCD_CAM + GDMA RGB565 frame chunks; DVP geometry follows the OV3660 output-size registers 0x3808-0x380b; M5SW_CAMERA_FRAME file injection",
+      "tested_devices": [
+        "atoms3r-m12"
+      ],
+      "blocker": "Control plane (16-bit SCCB PID/reset/window/PLL) and the RGB565 DVP frame path pass for the official UIFlow2 image, but the MJPEG/UVC path used by the community usb_webcam demo (JPEG SOI) is not modeled, and physical optics/electrical timing are NOT RUN."
     },
     "sh1107": {
       "kind": "display",
@@ -3516,6 +3537,69 @@
         {
           "model": "ir-tx-rx",
           "reason": "IR G12 is present in the hardware inventory but is not wired or probed in this board model."
+        }
+      ]
+    },
+    "atoms3r-m12": {
+      "board_model": "m5atoms3rm12",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/AtomS3R-M12"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 41,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "imu",
+          "model": "bmi270",
+          "i2c_address": 104,
+          "status": "partial"
+        },
+        {
+          "id": "magnetometer",
+          "model": "bmm150",
+          "i2c_address": 16,
+          "status": "partial"
+        },
+        {
+          "id": "camera",
+          "model": "ov3660",
+          "address": "0x3c",
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 47,
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "GPIO41 button reaches the guest model; broader input and physical behavior remain open."
+        },
+        {
+          "model": "bmi270",
+          "reason": "IMU initializes through the shared AtomS3R model (community demo logs bmi270 init ok) but has no device-local vector case for this board."
+        },
+        {
+          "model": "bmm150",
+          "reason": "BMM150 has no device-local magnetometer case for this board."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "IR GPIO47 has no transmit/receive validation; the community demo only creates its RMT TX channel."
+        },
+        {
+          "model": "ov3660",
+          "reason": "Virtual-device camera path passed for QQVGA/QVGA/VGA/HD framing (frame sha256 matches the reconstructed LCD_CAM DVP waveform) and a five-frame QOM-driven stream; the community usb_webcam MJPEG/UVC data path and physical optics/electrical timing are NOT RUN."
         }
       ]
     },

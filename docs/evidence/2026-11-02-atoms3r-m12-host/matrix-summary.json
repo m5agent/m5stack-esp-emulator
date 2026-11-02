@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-02T18:43:37+0800",
+  "out_dir": "/tmp/m12-matrix-newbase",
+  "results": {
+    "atoms3r-m12": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "-M",
+        "m5atoms3rm12",
+        "-drive",
+        "file=/tmp/m12-matrix-newbase/atoms3r-m12/uiflow2-console-test.bin,if=mtd,format=raw",
+        "-L",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "-display",
+        "none",
+        "-serial",
+        "file:/tmp/m12-matrix-newbase/atoms3r-m12/serial.log",
+        "-serial",
+        "null",
+        "-serial",
+        "null",
+        "-qmp",
+        "unix:/tmp/m5-console-33382-atoms3r-m12.sock,server=on,wait=off"
+      ],
+      "output": "/tmp/m12-matrix-newbase/atoms3r-m12",
+      "flash": {
+        "transport": "host-image",
+        "verified": true
+      },
+      "qom": {
+        "/machine/m5-lcd-cam.auto-increment": true
+      }
+    }
+  }
+}

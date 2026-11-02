@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "29 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; Basic v2.7 adds a classic-ESP32 console boot, ILI9342C 320x240 panel, QMP-injected A/B/C buttons, an IP5306 I2C register model and I2S0 DAC PCM, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "30 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1366,6 +1366,72 @@
       }
     },
     {
+      "id": "atoms3r-m12",
+      "name": "AtomS3R-M12",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3-PICO-1-N8R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atoms3rm12",
+      "display_model": "spi-gc9107",
+      "display": {
+        "driver": "GC9107",
+        "width": 128,
+        "height": 128
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "bmi270",
+        "bmm150",
+        "ov3660",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "pressed"
+          ]
+        },
+        "ov3660": {
+          "path": "/machine/ov3660",
+          "properties": [
+            "model",
+            "address"
+          ]
+        },
+        "m5-lcd-cam": {
+          "path": "/machine/m5-lcd-cam",
+          "properties": [
+            "frame-seed",
+            "auto-increment"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 shared image (M5Burner entry declares AtomS3R-CAM and AtomS3R-M12) boot, board id 144, 128x128 GC9107 init",
+        "OV3660 16-bit SCCB model: guest scan reads PID 0x3660 at 0x3c; camera.init() True",
+        "LCD_CAM DVP geometry follows OV3660 output-size registers (0x3808-0x380b): QQVGA, QVGA, VGA and HD frames match the reconstructed waveform",
+        "QOM-driven five-frame QVGA stream: distinct digests, each a reconstructed scene frame",
+        "M5Burner AtomS3R-CAM M12 User Demo (usb_webcam) boots black-box and its own esp32-camera detects/initializes the OV3660; MJPEG/UVC frame path not modeled"
+      ],
+      "blockers": [
+        "Camera virtual-device path passed on the shared official UIFlow2 image: OV3660 detected at 0x3c, QQVGA/QVGA/VGA/HD frames match the reconstructed DVP waveform and five QQVGA streamed frames are distinct. There is no M12-specific UIFlow2 entry; the community MJPEG/UVC demo frame path, physical optics/electrics, IR GPIO47, Grove Units and USB CDC remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-display-camera-geometry-stream-pass",
+        "detail": "M12（C126-M12）复用 AtomS3R 控制器 + GC9107 128×128 + N8R8 8 MiB PSRAM，新增 machine `m5atoms3rm12` 与 OV3660 16-bit SCCB 从设备模型（PID 0x3660、0x3808-0x380b 输出几何跟随）。官方 M5Burner「UIFlow2.0 AtomS3R-CAM」条目描述明确覆盖 AtomS3R-CAM 与 AtomS3R-M12；该共享官方镜像在同一 guest 内以 software SCCB 自动探测到 0x3c OV3660（PID 3660），camera.init() 返回 True，QQVGA 160×120 / QVGA 320×240 / VGA 640×480 / HD 1280×720 帧的 guest SHA-256 与宿主按 LCD_CAM 确定性 DVP 波形重建一致，QOM auto-increment 下连续 5 帧 digest 互异且各自匹配重建 scene 帧；矩阵 case PASS。M5Burner「AtomS3R-CAM M12 User Demo」（usb_webcam, IDF v5.1.4）黑盒启动并在其自带 esp32-camera 中探测/初始化 OV3660（0x3c, PID 3660，I2C 扫描恰为 0x10/0x3c/0x68），但其 MJPEG/UVC 帧路径未建模（NO-SOI）且应用周期性软复位，完整 demo 行为未验证。无 M12 专属 UIFlow2 条目；物理光学/电气、IR/Grove/USB 与第三方固件未验证。",
+        "evidence": "docs/evidence/2026-11-02-atoms3r-m12-host/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
       "id": "dial",
       "name": "Dial",
       "group": "esp32-s3",
@@ -1426,77 +1492,6 @@
         "status": "native-display-input-rtc-pass-rotary-partial",
         "detail": "独立 Dial K130 官方 UIFlow2 同 guest 已验证显示、触摸、GPIO42 按键和 RTC；原 RotaryIRQ 延迟回调丢中间状态，50ms 慢输入点不作为修复。旋钮、WS1850S、蜂鸣器与更广行为仍开放。",
         "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
-        "category": "virtual-device"
-      }
-    },
-    {
-      "id": "m5stick",
-      "name": "M5Stick",
-      "group": "esp32-lx6",
-      "soc": "ESP32-WROOM32",
-      "backend": "qemu-esp32lx6",
-      "qemu_status": "ready",
-      "peripheral_status": "partial",
-      "priority": 1,
-      "board_model": "m5stick",
-      "display_model": "spi-sh1107",
-      "display": {
-        "driver": "SH1107",
-        "width": 64,
-        "height": 128
-      },
-      "input": [
-        "gpio-button"
-      ],
-      "peripherals": [
-        "gpio-button",
-        "mpu9250",
-        "ip5306",
-        "sh1107",
-        "pwr-button",
-        "buzzer",
-        "ir-tx-rx",
-        "gpio-led"
-      ],
-      "runtime_state": {
-        "ip5306": {
-          "path": "/machine/ip5306",
-          "properties": [
-            "battery-mv",
-            "battery-code",
-            "charger-present",
-            "boost-enabled",
-            "charge-voltage-mv",
-            "charge-current-ma"
-          ]
-        },
-        "mpu9250": {
-          "path": "/machine/mpu9250",
-          "properties": [
-            "accel-x",
-            "accel-y",
-            "accel-z",
-            "gyro-x",
-            "gyro-y",
-            "gyro-z",
-            "temperature-c"
-          ]
-        }
-      },
-      "board_work": [
-        "Official M5Stick EasyLoader FactoryTest 4 MB image loads through ROM/bootloader into the app in deterministic icount mode; native serial marker mpu9250 addr: FF observed",
-        "SH1107 mono SPI panel model receives the complete 64x128 init sequence plus 4096 GDDRAM data bytes (1024 non-zero) from the factory firmware",
-        "MPU9250 0x68 and IP5306 0x75 models attached to the shared G21/G22 bus; generic classic-ESP32 MicroPython fixture reads WHO_AM_I 0x71, accel frame, IP5306 SYS 0xbe/READ4 0xff",
-        "QOM accel-x fixture 2.0 is read back as raw 8192 by the guest; QMP key injection drives GPIO35 low/high and the guest reports both states"
-      ],
-      "blockers": [
-        "The EasyLoader factory firmware's legacy ESP-IDF I2C FIFO data path does not complete against the classic I2C model, so its MPU probe reports 0xFF and the factory firmware stalls before the menu/button stage; AK8963/DMP, final SH1107 UI frame, buzzer/IR/LED, Grove Units, black/gray revision distinction and physical acoustics/optics/electrics remain open."
-      ],
-      "validation": {
-        "date": "2026-11-02",
-        "status": "native-factory-boot-oled-probe-blocked",
-        "detail": "官方 EasyLoader FactoryTest 镜像（安装包 SHA-256 99c640b0…；规范化 4 MB 镜像 SHA-256 84228dfb…）在独立 m5stick machine 内完成 ROM/二级 bootloader 加载并在 icount 确定性模式下输出原生串口 `mpu9250 addr: FF`；SH1107 收到完整 64x128 初始化命令流与 4,096 字节 GDDRAM 写周期（含 1,024 字节非零内容），但工厂固件随后停滞，未到达 UI 绘制/按键阶段。MPU9250/IP5306/GPIO35 模型数据面由 generic classic-ESP32 MicroPython fixture 在同一 machine 上取证。",
-        "evidence": "docs/evidence/2026-11-02-m5stick-host/summary.json",
         "category": "virtual-device"
       }
     },
@@ -1932,6 +1927,77 @@
         "status": "native-boot-board-rgb-button-grove-speaker-pdm-pass",
         "detail": "官方 UIFlow2 v2.5.4 Atom Echo 4MB 镜像在同一 m5atomecho guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=142、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读、G26/G32 guest I2C 扫描（0x48 为 QEMU 机器自带 tmp105，0x18 ES8311 不存在）、NS4168 I2S 扬声器在 I2S1 DMA 边界的非静音 PCM 捕获，以及 SPM1423 PDM 麦克风在 I2S0 上消费宿主注入 PCM 的非零缓冲。无屏/无 PSRAM；模拟功放/声学、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
         "evidence": "docs/evidence/2026-11-02-atom-echo-host/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "m5stick",
+      "name": "M5Stick",
+      "group": "esp32-lx6",
+      "soc": "ESP32-WROOM32",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5stick",
+      "display_model": "spi-sh1107",
+      "display": {
+        "driver": "SH1107",
+        "width": 64,
+        "height": 128
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "mpu9250",
+        "ip5306",
+        "sh1107",
+        "pwr-button",
+        "buzzer",
+        "ir-tx-rx",
+        "gpio-led"
+      ],
+      "runtime_state": {
+        "ip5306": {
+          "path": "/machine/ip5306",
+          "properties": [
+            "battery-mv",
+            "battery-code",
+            "charger-present",
+            "boost-enabled",
+            "charge-voltage-mv",
+            "charge-current-ma"
+          ]
+        },
+        "mpu9250": {
+          "path": "/machine/mpu9250",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z",
+            "temperature-c"
+          ]
+        }
+      },
+      "board_work": [
+        "Official M5Stick EasyLoader FactoryTest 4 MB image loads through ROM/bootloader into the app in deterministic icount mode; native serial marker mpu9250 addr: FF observed",
+        "SH1107 mono SPI panel model receives the complete 64x128 init sequence plus 4096 GDDRAM data bytes (1024 non-zero) from the factory firmware",
+        "MPU9250 0x68 and IP5306 0x75 models attached to the shared G21/G22 bus; generic classic-ESP32 MicroPython fixture reads WHO_AM_I 0x71, accel frame, IP5306 SYS 0xbe/READ4 0xff",
+        "QOM accel-x fixture 2.0 is read back as raw 8192 by the guest; QMP key injection drives GPIO35 low/high and the guest reports both states"
+      ],
+      "blockers": [
+        "The EasyLoader factory firmware's legacy ESP-IDF I2C FIFO data path does not complete against the classic I2C model, so its MPU probe reports 0xFF and the factory firmware stalls before the menu/button stage; AK8963/DMP, final SH1107 UI frame, buzzer/IR/LED, Grove Units, black/gray revision distinction and physical acoustics/optics/electrics remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-factory-boot-oled-probe-blocked",
+        "detail": "官方 EasyLoader FactoryTest 镜像（安装包 SHA-256 99c640b0…；规范化 4 MB 镜像 SHA-256 84228dfb…）在独立 m5stick machine 内完成 ROM/二级 bootloader 加载并在 icount 确定性模式下输出原生串口 `mpu9250 addr: FF`；SH1107 收到完整 64x128 初始化命令流与 4,096 字节 GDDRAM 写周期（含 1,024 字节非零内容），但工厂固件随后停滞，未到达 UI 绘制/按键阶段。MPU9250/IP5306/GPIO35 模型数据面由 generic classic-ESP32 MicroPython fixture 在同一 machine 上取证。",
+        "evidence": "docs/evidence/2026-11-02-m5stick-host/summary.json",
         "category": "virtual-device"
       }
     }

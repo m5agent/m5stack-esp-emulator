@@ -897,6 +897,53 @@
       }
     },
     {
+      "id": "atoms3r-m12",
+      "name": "AtomS3R-M12",
+      "sku": "C126-M12",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "atom",
+      "path": "esp32-s3/atoms3r-m12",
+      "shell": "atom",
+      "display": {
+        "type": "ips",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "driver": "GC9107",
+        "touch": false,
+        "diagonal_in": 0.85
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-gc9107",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-02",
+          "status": "native-boot-display-camera-geometry-stream-pass",
+          "detail": "M12（C126-M12）复用 AtomS3R 控制器 + GC9107 128×128 + N8R8 8 MiB PSRAM，新增 machine `m5atoms3rm12` 与 OV3660 16-bit SCCB 从设备模型（PID 0x3660、0x3808-0x380b 输出几何跟随，0122）。官方 M5Burner「UIFlow2.0 AtomS3R-CAM」条目描述明确覆盖 AtomS3R-CAM 与 AtomS3R-M12；该共享官方镜像在同一 guest 内以software SCCB 自动探测到 0x3c OV3660（PID 3660），camera.init() 返回 True，QQVGA 160×120 / QVGA 320×240 / VGA 640×480 / HD 1280×720 帧的 guest SHA-256 与宿主按LCD_CAM 确定性 DVP 波形重建一致，QOM auto-increment 下连续 5 帧 digest 互异且各自匹配重建 scene 帧；矩阵 case PASS。M5Burner「AtomS3R-CAM M12 User Demo」（usb_webcam, IDF v5.1.4）黑盒启动并在其自带 esp32-camera 中探测/初始化 OV3660（0x3c, PID 3660，I2C 扫描恰为 0x10/0x3c/0x68），但其 MJPEG/UVC 帧路径未建模（NO-SOI）且应用周期性软复位，完整 demo 行为未验证。无 M12 专属 UIFlow2 条目；物理光学/电气、IR/Grove/USB 与第三方固件未验证。",
+          "evidence": "docs/evidence/2026-11-02-atoms3r-m12-host/summary.json",
+          "category": "virtual-device"
+        },
+        "blockers": [
+          "Camera virtual-device path passed on the shared official UIFlow2 image (M5Burner entry declares AtomS3R-CAM and AtomS3R-M12 support): OV3660 detected at 0x3c, QQVGA/QVGA/VGA/HD frames match the reconstructed DVP waveform and five QQVGA streamed frames are distinct. There is no M12-specific UIFlow2 entry; the community MJPEG/UVC demo frame path, physical optics/electrics, IR GPIO47, Grove Units and USB CDC remain open."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "1897200000000003117",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003117/2116030691759919106/bin/2116030691759919107.bin"
+        },
+        "note": "共用 M5Burner「UIFlow2.0 AtomS3R-CAM」官方镜像；该条目描述为「UIFlow2 for AtomS3R-CAM and AtomS3R-M12」，运行时由 esp32-camera 自动识别 OV3660。没有 M12 专属 UIFlow2 条目。"
+      }
+    },
+    {
       "id": "atoms3u",
       "name": "AtomS3U",
       "sku": "K125",
