@@ -39,13 +39,14 @@ class UnitBatch11EvidenceTests(unittest.TestCase):
             self.assertEqual(evidence["report_sha256"], hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
             self.assertEqual(json.loads(report.read_text(encoding="utf-8"))["status"], "PASS", unit_id)
 
-    def test_glass_is_blocked_and_stays_planned(self):
+    def test_glass_history_is_superseded_by_unblock_evidence(self):
+        # batch11 recorded glass BLOCKED; the later glass-unblock evidence supersedes it.
         unit, profile = self.units["glass"], self.profiles["glass"]
-        self.assertEqual(unit["model_status"], "planned")
-        self.assertEqual(unit["runtime"]["status"], "planned")
-        self.assertEqual(profile["status"], "planned")
-        self.assertEqual(profile["hosts"], [])
-        self.assertNotIn("virtual_device_evidence", profile)
+        self.assertEqual(unit["model_status"], "partial")
+        self.assertEqual(unit["runtime"]["status"], "implemented")
+        self.assertEqual(profile["status"], "implemented")
+        self.assertEqual(profile["hosts"], ["cores3"])
+        self.assertIn("virtual_device_evidence", profile)
         self.assertIn("BLOCKED", unit["blocker"])
         report = EVID / "report-glass.json"
         self.assertTrue(report.is_file())
@@ -55,8 +56,8 @@ class UnitBatch11EvidenceTests(unittest.TestCase):
     def test_inventory_counts(self):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 139)
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 21)
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 140)
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 20)
 
     def test_evidence_reports_and_summary_cover_seven(self):
         summary = json.loads((EVID / "summary.json").read_text(encoding="utf-8"))

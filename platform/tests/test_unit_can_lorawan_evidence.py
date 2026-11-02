@@ -124,7 +124,7 @@ class UnitCanLorawanEvidenceTests(unittest.TestCase):
 
     def test_no_qemu_patch_was_needed(self):
         patches_dir = ROOT / "patches/qemu-m5stack-peripherals"
-        for number in ("0155", "0157"):
+        for number in ("0155",):
             self.assertFalse(list(patches_dir.glob(f"{number}-*.patch")), number)
         readme = (patches_dir / "README.md").read_text(encoding="utf-8")
         self.assertIn("0154", readme)

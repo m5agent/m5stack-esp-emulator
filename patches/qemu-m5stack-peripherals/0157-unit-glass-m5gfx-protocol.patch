@@ -1,0 +1,120 @@
+From 1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 05:20:00 +0800
+Subject: [PATCH] hw/m5stopwatch: implement M5GFX M5UnitGLASS register protocol
+
+Fix the glass BLOCKED root cause found by task-75. The official M5UnitGLASS
+driver in M5GFX does NOT use SSD1309 control-byte framing (0x00 commands /
+0x40 GDDRAM); it uses a custom STM32 register protocol where writeCommand()
+sends a little-endian word whose first byte is REG_INDEX:
+  0x00 clear, 0x10 show, 0x20 draw string, 0x30 point, 0x40 line,
+  0x50 circle, 0x60 invert, 0x70 display on/off, 0x80 string buffer,
+  0x90 picture buffer, 0xA0 color invert, 0xB0 draw picture,
+  0xC0 buzzer, 0xD0 read key, 0xFE firmware version.
+Init writes 0xFE then reads one byte. The previous model set the first byte as
+glass_control and only counted data for 0x00/0x40, so every real transaction was
+ignored: QOM commands/data stayed 0 and panel-framebuffer never changed.
+
+Implement the custom protocol parser: count commands/data bytes, parse 0x90
+picture-buffer payloads into the GDDRAM digest, count 0x10/0xB0 page updates
+(new `pages` QOM property), track display on/off, buzzer payload bytes, and
+return firmware-version/key fixtures on read. No optical, button or buzzer
+semantics are claimed; the transparent-OLED/0x3D conflict/button/buzzer
+boundaries remain.
+
+Base is the 36-layer canonical chain through 0156; this is the 37th layer
+after 0120 and applies at the chain end (verified with `git apply --check`). No guest PASS is claimed by the
+patch itself; the glass-unblock evidence records the guest result.
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -245,7 +245,14 @@
+     unsigned glass_page, glass_col;
+     bool glass_display_on;
+     int64_t glass_contrast, glass_buttons_fixture;
+-    uint64_t glass_commands, glass_data_bytes;
++    uint64_t glass_commands, glass_data_bytes, glass_pages;
++    /* M5GFX M5UnitGLASS uses a custom STM32 register protocol, not SSD1309
++     * command/data control bytes: writeCommand() sends a little-endian word
++     * whose first byte is REG_INDEX (0x00 clear, 0x10 show, 0x90 picture
++     * buffer, 0xB0 draw picture, 0xC0 buzzer, 0xD0 read key, 0xFE firmware),
++     * followed by up to 3 payload bytes. Init reads one byte after 0xFE. */
++    uint8_t glass_reg, glass_payload[4];
++    unsigned glass_payload_len;
+     char glass_buzzer_hex[17];
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+@@ -2356,20 +2363,45 @@
+         return 0;
+     }
+     if (s->kind == CONTROL_UNIT_GLASS) {
+-        /* SSD1309 I2C framing: first byte is the control byte 0x00 (commands)
+-         * or 0x40 (GDDRAM data); the rest of the transaction is that stream. */
++        /* M5GFX M5UnitGLASS custom register protocol. The first byte of each
++         * write is REG_INDEX; the remaining bytes are the little-endian
++         * payload. Init writes 0xFE then reads one byte. */
+         if (s->write_pos == 0) {
++            s->glass_reg = value;
++            s->glass_payload_len = 0;
+             s->glass_control = value;
+             s->write_pos = 1;
++            s->glass_commands++;
++            if (s->glass_cmd_len < sizeof(s->glass_cmd)) {
++                s->glass_cmd[s->glass_cmd_len++] = value;
++            }
++            if (value == 0x00) { memset(s->glass_fb, 0, sizeof(s->glass_fb)); }
++            else if (value == 0x10) { s->glass_pages++; }
++            else if (value == 0xb0) { s->glass_pages++; }
++            else if (value == 0xa0 && s->glass_payload_len < 1) {
++                /* inversion payload arrives below */
++            }
+             return 0;
+         }
+         s->write_pos++;
+-        if (s->glass_control == 0x40) {
+-            s->glass_fb[s->glass_page * 128 + s->glass_col] = value;
+-            s->glass_data_bytes++;
+-            s->glass_col = (s->glass_col + 1) & 0x7f;
+-        } else if (s->glass_control == 0x00) {
+-            glass_stream_command(s, value);
++        if (s->glass_payload_len < sizeof(s->glass_payload)) {
++            s->glass_payload[s->glass_payload_len++] = value;
++        }
++        s->glass_data_bytes++;
++        if (s->glass_reg == 0x90) {
++            /* picture buffer command: [index, high=0, pixel] little-endian */
++            unsigned slot = ((s->glass_payload_len >= 1 ? s->glass_payload[0] : 0u) +
++                             (unsigned)(s->glass_data_bytes >> 3)) & (sizeof(s->glass_fb) - 1);
++            s->glass_fb[slot] = value;
++        } else if (s->glass_reg == 0xa0) {
++            s->glass_control = value ? 1 : 0;
++        } else if (s->glass_reg == 0x70) {
++            s->glass_display_on = value != 0;
++        } else if (s->glass_reg == 0xc0 && s->glass_data_bytes <= 16) {
++            unsigned n = (unsigned)(s->glass_data_bytes - 1) * 2;
++            if (n + 2 <= sizeof(s->glass_buzzer_hex) - 1) {
++                snprintf(s->glass_buzzer_hex + n, 3, "%02x", value);
++            }
+         }
+         return 0;
+     }
+@@ -2928,7 +2960,10 @@
+         return s->lcd_read_pos < s->lcd_read_len ? s->lcd_read_buf[s->lcd_read_pos++] : 0x00;
+     }
+     if (s->kind == CONTROL_UNIT_GLASS) {
+-        /* SSD1309 is write-only on this Unit; reads return the idle ACK byte. */
++        /* Firmware version / key-read fixtures for the M5GFX M5UnitGLASS
++         * protocol; the display is otherwise write-only. */
++        if (s->glass_reg == 0xfe) { return 1; }
++        if (s->glass_reg == 0xd0) { return (uint8_t)(s->glass_buttons_fixture & 0xff); }
+         return 0x00;
+     }
+     if (s->kind == CONTROL_PAHUB) {
+@@ -3313,6 +3348,8 @@
+                             u64_get, NULL, NULL, &s->glass_commands);
+         object_property_add(OBJECT(s->unit), "data-bytes", "uint64",
+                             u64_get, NULL, NULL, &s->glass_data_bytes);
++        object_property_add(OBJECT(s->unit), "pages", "uint64",
++                            u64_get, NULL, NULL, &s->glass_pages);
+     } else if (!strcmp(unit->unit_id, "oled") || !strcmp(unit->unit_id, "mini-oled") ||
+                !strcmp(unit->unit_id, "glass2")) {
+         /* U119 OLED (SH1107 128x64), U166 Mini OLED (SSD1315 72x40) and U158-B

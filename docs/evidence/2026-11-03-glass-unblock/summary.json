@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "task-75 glass BLOCKED root-cause fix and guest re-run; PASS",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8821,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; 8787 and other agent ports untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "893a8d2127d28846baa5212841255b1002b1c11e839130b83203d171761f6d65",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 36 layers (0120–0156) + 0157-unit-glass-m5gfx-protocol"
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "glass",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-glass-unblock/report-glass.json",
+      "report_sha256": "6f92467376699de1c4a27e600a266bd8235c5b21617e9293c3bba957ef11d251",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_display_init": true,
+        "qom_commands": true,
+        "qom_data_bytes": true,
+        "qom_framebuffer_crc": true,
+        "qom_command_hex": true,
+        "qom_i2c_address": true,
+        "qom_pages": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "qom": {
+        "command-hex": "10",
+        "panel-framebuffer": "8458bede",
+        "commands": 4366,
+        "data-bytes": 13144,
+        "pages": 44,
+        "i2c-address": 61
+      },
+      "boundaries": [
+        "Official GlassUnit/M5Unified composition now produces model-visible command/data/page transactions; transparent OLED optics, 2 buttons and buzzer semantics are NOT RUN (static fixtures/no asserted behavior).",
+        "0x3D conflicts with lcd/oled/mini-oled/glass2; one display per bus.",
+        "Guest drawing is a synthetic controller-level path, not a physical transparent-panel optical validation."
+      ]
+    }
+  ],
+  "previous_evidence": "docs/evidence/2026-11-03-unit-batch11/report-glass.json (historical BLOCKED observation before the protocol fix)"
+}

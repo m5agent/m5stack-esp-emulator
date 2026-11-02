@@ -11476,9 +11476,11 @@
       }
     },
     "glass": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "BLOCKED by batch11 guest evidence: official GlassUnit/M5.addDisplay returned a Display and I2C scan found 0x3D, but drawing produced no model-visible I2C commands/data bytes (QOM commands=0, data-bytes=0). No guest PASS is claimed; transparent OLED composition unresolved, static button/buzzer fixtures and optics NOT RUN; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest evidence covers official M5GFX M5UnitGLASS custom STM32 register protocol at I2C 0x3D: fillScreen/fillRect/print -> QOM commands=4366, data-bytes=13144, pages=44, command-hex=10, panel-framebuffer=8458bede. The old SSD1309 control-byte model was the BLOCKED root cause and is replaced by 0157. Transparent OLED optics, 2 buttons and buzzer semantics remain NOT RUN/static fixtures only; 0x3D conflicts with lcd/oled/mini-oled/glass2.",
       "inputs": {
         "button-states": {
           "property": "button-states"
@@ -11508,9 +11510,64 @@
         },
         "i2c-address": {
           "property": "i2c-address"
+        },
+        "pages": {
+          "property": "pages"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-glass-unblock/report-glass.json",
+        "report_sha256": "6f92467376699de1c4a27e600a266bd8235c5b21617e9293c3bba957ef11d251",
+        "evidence_sha256": "a5a1db8771e15a6dd34b09c64e03ce468f7baf6cb65a2a536bcd00e6b04a7038",
+        "firmware_sha256": "8c0105d87906866876d2767c12b6152211eac9cffca43a097de02791e206b449",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "893a8d2127d28846baa5212841255b1002b1c11e839130b83203d171761f6d65",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "5d9ee490ae1e36a6c93bf22fc88483977eb26778488d81e71b3e259a402785c8",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Supersedes the batch11 BLOCKED glass report after 0157."
+      }
     },
     "rf433t": {
       "status": "implemented",

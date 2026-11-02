@@ -33,9 +33,9 @@ class UnitBatch10PatchTests(unittest.TestCase):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0152-unit-batch10ab.patch", readme)
         self.assertIn("0154-unit-batch10-evidence-fixes.patch", readme)
-        self.assertIn("35 layers", readme)
-        self.assertIn("35th layer", readme)
-        for token in ("0150", "0151", "0152", "0153", "0154", "0155"):
+        self.assertIn("36th layer", readme)
+        self.assertIn("37 layers", readme)
+        for token in ("0150", "0151", "0152", "0153", "0154", "0156", "0157", "0158"):
             self.assertIn(token, readme)
 
     def test_patch_registers_only_the_six_model_units(self):
