@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T16:50:00.047467+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "hall",
+  "driver_class": "HallEffectUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "qom_low_active_semantics": true,
+    "guest_status_follows_low_active": true,
+    "both_direction_callbacks_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "f14458e9f7532cb6758071b6d4bdac0729a07349b78ce1e3655aae10ddf14da5",
+  "firmware_id": "f14458e9f7532cb6758071b6d4bdac0729a07349b78ce1e3655aae10ddf14da5",
+  "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "9fc3134dd30204dffc41dae63d6af0f4dd67efc9f92f02c770f66aeaea5eb49e",
+    "main.py": "ee660713a9b311421fb835fa61377ec4ceef618b8d6275bcda24b33b578f2399"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "06ddb6a418b84a67ae94ea043163261f",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "hall",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "hall": {
+      "initial": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0,
+        "magnetic-detected": false,
+        "input-level": true
+      },
+      "detected": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 0,
+        "magnetic-detected": true,
+        "input-level": false
+      },
+      "released": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 2,
+        "output-transitions": 0,
+        "magnetic-detected": false,
+        "input-level": true
+      },
+      "guest_active_level": 0,
+      "guest_released_level": 1
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T16:50:01.608893+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0,
+        "magnetic-detected": false,
+        "input-level": true
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:02.733018+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 2,
+        "output-transitions": 0,
+        "magnetic-detected": false,
+        "input-level": true
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "GPIO_PROBE_READY",
+    "active": "cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (840) i2c.master: this port has not been initialized, please initialize it first\r\nGPIO_PROBE_START hall\nGPIO_PROBE_READY hall\nGPIO_HALL_LOOP\nGPIO_HALL 1\nGPIO_HALL_EVENT active 1\nGPIO_HALL 0\nGPIO_HALL 0\n",
+    "negative": "zed, please initialize it first\r\nGPIO_PROBE_START hall\nGPIO_PROBE_READY hall\nGPIO_HALL_LOOP\nGPIO_HALL 1\nGPIO_HALL_EVENT active 1\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL 0\nGPIO_HALL_EVENT negative 1\n"
+  },
+  "frame": {
+    "sha256": "96eeba301fbd464fc646664629c93a22dc59dda0df33d534d75d849d4cc5b055",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "9ad7d9e666be9fb2c59b4f892c0a87ed069446cec6ce1ea56d9a3fd903a33550",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The A3144E x3 + 74HC08D spatial combination logic, magnetic field strength and the indicator LED are NOT RUN; only the single low-active white-wire level and both guest callback directions are covered."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary.",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+}

@@ -5242,26 +5242,52 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "simulated",
       "runtime": {
-        "status": "unsupported",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
           "output-level": {
             "property": "output-level",
             "access": "read-only",
             "type": "boolean"
           }
         },
-        "required_data_plane": "GPIO matrix/pad output observation through the existing UNIT_RELAY data plane (registered by patch 0114)"
+        "required_data_plane": "GPIO matrix/pad output observation through the existing UNIT_RELAY data plane (registered by 0114)"
       },
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. SSR zero-cross/overcurrent switching, load isolation and contact behavior remain out of scope.",
+      "blocker": "Only the recorded CoreS3 guest/output-pad session is admitted. The official SSRUnit driver has no get_status(); the model exposes only guest-driven pad output. SSR zero-cross/overcurrent switching, load isolation, AC-only behavior and physical hardware remain NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
+        "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-ssr.json for cores3 only; hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -5377,11 +5403,36 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "simulated",
       "runtime": {
-        "status": "unsupported",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
           "frequency-hz": {
             "property": "frequency-hz",
             "access": "read-only",
@@ -5393,15 +5444,16 @@
             "type": "number"
           }
         },
-        "required_data_plane": "SoC LEDC PWM configuration observed through the GPIO matrix using the fan/buzzer branch (registered by patch 0114)"
+        "required_data_plane": "SoC LEDC PWM configuration observed through the GPIO matrix using the fan/buzzer branch (registered by 0114)"
       },
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Motor vibration strength, PWM frequency optimality and electrical behavior remain out of scope.",
+      "blocker": "Only the recorded CoreS3 LEDC frequency/duty session is admitted. Haptic.once() one-shot completion was NOT OBSERVED due to the original SoftTimer callback gap; motor force, frequency optimum and electrical behavior remain NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
+        "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-vibrator.json for cores3 only; hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -5515,11 +5567,36 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "simulated",
       "runtime": {
-        "status": "unsupported",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
           "analog-mv": {
             "property": "analog-mv",
             "access": "read-write",
@@ -5529,17 +5606,23 @@
             "property": "digital-level",
             "access": "read-write",
             "type": "boolean"
+          },
+          "adc-samples": {
+            "property": "adc-samples",
+            "access": "read-only",
+            "type": "integer"
           }
         },
-        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by patch 0114)"
+        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by 0114)"
       },
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Soil physics, probe chemistry and digital-output polarity-to-moisture semantics remain unresolved/out of scope.",
+      "blocker": "Only the recorded AtomS3R guest ADC/DIN session is admitted; read_uv()/humidity() require the esp32s3 ADC calibration eFuse fixture and remain NOT RUN, as do soil physics, probe chemistry and threshold calibration.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
+        "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-earth.json for atoms3r only; hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -5653,26 +5736,57 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "simulated",
       "runtime": {
-        "status": "unsupported",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
           "magnetic-detected": {
             "property": "magnetic-detected",
             "access": "read-write",
             "type": "boolean"
+          },
+          "input-level": {
+            "property": "input-level",
+            "access": "read-only",
+            "type": "boolean"
           }
         },
-        "required_data_plane": "GPIO digital input on the white wire with low-level-active semantics (registered by patch 0114; no retrigger hold)"
+        "required_data_plane": "GPIO digital input on the white wire with low-level-active semantics (registered by 0114; no retrigger hold)"
       },
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. The A3144E x3 + 74HC08D spatial logic and field strength are modeled only as one synthetic line level.",
+      "blocker": "Only the recorded StickS3 low-active white-wire input session is admitted; the A3144E x3 / 74HC08D spatial combination logic, field strength and indicator LED remain NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
+        "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-hall.json for sticks3 only; hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -5782,11 +5896,36 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "simulated",
       "runtime": {
-        "status": "unsupported",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
           "analog-mv": {
             "property": "analog-mv",
             "access": "read-write",
@@ -5796,17 +5935,23 @@
             "property": "digital-level",
             "access": "read-write",
             "type": "boolean"
+          },
+          "adc-samples": {
+            "property": "adc-samples",
+            "access": "read-only",
+            "type": "integer"
           }
         },
-        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by patch 0114)"
+        "required_data_plane": "GPIO comparator digital input plus SoC ADC sampling of the analog wire using the angle/light branch (registered by 0114)"
       },
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch, but no guest/Device Service device-local evidence exists yet; runtime status remains planned. Comparator polarity-to-detection semantics, threshold circuit and optical response remain unresolved.",
+      "blocker": "Only the recorded StopWatch guest ADC/DIN + both-edge callback session is admitted; comparator polarity-to-detection mapping, the LM393 threshold circuit, optics and emitter identity remain NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet."
+        "QEMU data plane is registered by patch 0114; no guest or Device Service evidence is recorded yet.",
+        "Virtual-device PASS is recorded in docs/evidence/2026-11-02-unit-batch1/report-reflective-ir.json for stopwatch only; hardware and unlisted hosts remain NOT RUN."
       ]
     }
   ],
