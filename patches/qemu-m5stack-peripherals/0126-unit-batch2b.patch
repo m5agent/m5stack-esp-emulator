@@ -1,0 +1,786 @@
+From 9dd5e2afee79a1c0b091a46852ba78d641da9ead Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 20:05:05 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-2b I2C data planes
+
+Map the remaining six 2026-11-02 batch-2 Units onto controller-visible I2C
+slave models, following docs/unit-research/2026-11-02-batch2-protocols.md.
+Address/version conflicts stay explicit; every read-only fixture and every
+rejected write is documented in the host catalog blocker.
+
+- m5_unit_runtime: expose m5_unit_i2c_attach() so one Unit attachment can
+  attach more than one I2C slave (a single Grove pair, multiple addresses).
+- env (U001): DHT12 0x5c 5-byte frame derived from temperature-c/humidity-pct
+  with a valid checksum, plus a BMP280 0x76 half that exposes only pressure-pa
+  and reuses the existing US_BMP280 register/calibration model.
+- ameter (U086): ADS1115 0x48 config/conversion registers inverse-derived from
+  current-a (driver gain/rate/resolution formula), plus a read-only EEPROM 0x51
+  with a synthetic checksum-valid calibration record (factor 1.0); EEPROM
+  writes are rejected and counted (product page warns not to write it).
+- extencoder (U161, 0x59): 4-byte little-endian register bank (counter,
+  synthetic meter, reset, perimeter, pulse, zero-pulse, zero-mode, fw,
+  address) with pointer-write/read semantics and address migration.
+- ain4-20ma (U162, 0x55): 0x00 raw ADC, 0x20 current mA*100, 0x30 calibration
+  RW, 0xFE firmware, 0xFF address; 12-bit vs raw16 and the page 0xF0 conflict
+  stay UNRESOLVED.
+- acssr (U139, 0x50): relay level, 3-byte big-endian RGB, address migration
+  and firmware registers. This is a transaction model only; AC 24-480V/10A
+  zero-cross/leakage/lifetime behavior is explicitly out of scope and must be
+  a catalog safety blocker.
+- gesture (U127, 0x73): bank-aware PAJ7620 register file, part id 0x7620,
+  fixture-driven 0x43/0x44 gesture flags and 219-entry init writes accepted.
+
+Offline QOM smoke (no guest firmware) validates property registration, fixture
+read/write, range rejection and read-only rejection; no functional PASS.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 195 +++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 372 +++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_runtime.c      |  13 +-
+ hw/m5stopwatch/m5_unit_runtime.h      |   7 +
+ 4 files changed, 568 insertions(+), 19 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 522c8ec..9a67e5f 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -38,7 +38,7 @@ typedef enum {
+     CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
+     CONTROL_RELAY4, CONTROL_WEIGHT,
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+-    CONTROL_DAC,
++    CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -109,6 +109,23 @@ typedef struct M5UnitControl {
+     uint8_t dac_write_byte1;
+     bool dac_write_eeprom;
+     uint64_t dac_eeprom_writes;
++    /* U161 ExtEncoder (0x59): 4-byte little-endian register bank. 0x00 counter,
++     * 0x10 meter (synthetic = counter; the ASCII 0x20 form is unused by the
++     * driver and the product-page table is corrupt), 0x30 reset write,
++     * 0x40 perimeter, 0x50 pulse, 0x60 zero-pulse, 0x70 zero-mode,
++     * 0xFE firmware, 0xFF address. */
++    int64_t ext_counter, ext_increments;
++    int64_t ext_perimeter, ext_pulse, ext_zero_pulse, ext_zero_mode;
++    int64_t ext_fw;
++    uint64_t ext_reset_writes;
++    /* U139 ACSSR (0x50): 0x00 relay level byte, 0x10 3-byte big-endian RGB,
++     * 0x20 address write, 0xFE firmware. The model NEVER claims AC mains
++     * switching: 24-480V/10A zero-cross/leakage/lifetime behavior is out of
++     * scope and must stay a catalog safety blocker. */
++    uint8_t acssr_relay_raw;
++    uint64_t acssr_transitions;
++    int64_t acssr_led_rgb;
++    int64_t acssr_fw;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1167,6 +1184,8 @@ static uint8_t dac_read_byte(M5UnitControl *s, unsigned pos)
+     return (s->dac_raw & 0x0f) << 4;
+ }
+ 
++static void put_le32(uint8_t *p, uint32_t value);
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+@@ -1250,6 +1269,22 @@ static void snapshot_registers(M5UnitControl *s)
+         }
+         s->read_snapshot[0xfe] = 1; /* Emulated MCU protocol revision */
+         s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_EXTENCODER) {
++        put_le32(s->read_snapshot + 0x00, (uint32_t)s->ext_counter);
++        /* 0x10 meter is synthetic == counter; 0x20 ASCII form is unused by the
++         * official driver and the product-page table is corrupt. */
++        put_le32(s->read_snapshot + 0x10, (uint32_t)s->ext_counter);
++        g_snprintf((char *)s->read_snapshot + 0x20, 16, "%" PRId64, s->ext_counter);
++        put_le32(s->read_snapshot + 0x40, (uint32_t)s->ext_perimeter);
++        put_le32(s->read_snapshot + 0x50, (uint32_t)s->ext_pulse);
++        put_le32(s->read_snapshot + 0x60, (uint32_t)s->ext_zero_pulse);
++        s->read_snapshot[0x70] = s->ext_zero_mode;
++        s->read_snapshot[0xfe] = s->ext_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_ACSSR) {
++        s->read_snapshot[0x00] = s->acssr_relay_raw;
++        s->read_snapshot[0xfe] = s->acssr_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
+     }
+ }
+ 
+@@ -1338,7 +1373,63 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+     }
+     uint8_t reg = s->pointer;
+-    if (s->kind == CONTROL_RFID2) {
++    if (s->kind == CONTROL_EXTENCODER) {
++        unsigned offset = s->write_pos - 1;
++        uint8_t base = s->write_base;
++        if (base == 0x30) {
++            if (offset != 0 || value != 1) { return 1; }
++            s->ext_counter = 0; s->ext_increments = 0; s->ext_reset_writes++;
++        } else if (base >= 0x40 && base <= 0x43) {
++            if (offset > 3) { return 1; }
++            s->ext_perimeter = (s->ext_perimeter & ~((int64_t)0xff << (offset * 8)))
++                             | ((int64_t)value << (offset * 8));
++        } else if (base >= 0x50 && base <= 0x53) {
++            if (offset > 3) { return 1; }
++            s->ext_pulse = (s->ext_pulse & ~((int64_t)0xff << (offset * 8)))
++                         | ((int64_t)value << (offset * 8));
++        } else if (base >= 0x60 && base <= 0x63) {
++            if (offset > 3) { return 1; }
++            s->ext_zero_pulse = (s->ext_zero_pulse & ~((int64_t)0xff << (offset * 8)))
++                              | ((int64_t)value << (offset * 8));
++        } else if (base == 0x70) {
++            if (offset) { return 1; }
++            s->ext_zero_mode = value;
++        } else if (base == 0xff) {
++            BusChild *child;
++            if (offset) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++        } else {
++            return 1;
++        }
++        s->pointer++;
++    } else if (s->kind == CONTROL_ACSSR) {
++        unsigned offset = s->write_pos - 1;
++        if (s->write_base == 0x00) {
++            if (offset) { return 1; }
++            if (s->acssr_relay_raw != value) {
++                s->acssr_relay_raw = value;
++                s->acssr_transitions++;
++                s->unit->output_transitions++;
++            }
++        } else if (s->write_base == 0x10 && offset < 3) {
++            if (offset == 0) { s->acssr_led_rgb = 0; }
++            s->acssr_led_rgb = ((s->acssr_led_rgb << 8) | value) & 0xffffff;
++        } else if (s->write_base == 0x20 && offset == 0) {
++            BusChild *child;
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++        } else {
++            return 1;
++        }
++        s->pointer++;
++    } else if (s->kind == CONTROL_RFID2) {
+         rfid_write(s, reg, value);
+         if (reg != 9) { s->pointer++; }
+     } else if (s->kind == CONTROL_ENCODER) {
+@@ -1544,12 +1635,86 @@ static void add_string(M5UnitControl *s, const char *name)
+     object_property_add(OBJECT(s->unit), name, "str", string_get, string_set, NULL, s);
+ }
+ 
++typedef struct ControlInteger {
++    M5UnitControl *control;
++    int64_t *value, lo, hi;
++} ControlInteger;
++
++static void control_integer_get(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    ControlInteger *p = opaque;
++    int64_t value = *p->value;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void control_integer_set(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    ControlInteger *p = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < p->lo || value > p->hi) {
++        error_setg(errp, "%s must be in [%" PRId64 ",%" PRId64 "]",
++                   name, p->lo, p->hi);
++        return;
++    }
++    if (*p->value != value) { p->control->unit->input_events++; }
++    *p->value = value;
++}
++
++static void release_control_integer(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_control_int_fixture(M5UnitControl *s, const char *name,
++                                    int64_t *value, int64_t lo, int64_t hi,
++                                    bool writable)
++{
++    ControlInteger *p = g_new0(ControlInteger, 1);
++    *p = (ControlInteger){ s, value, lo, hi };
++    object_property_add(OBJECT(s->unit), name, "int", control_integer_get,
++                        writable ? control_integer_set : NULL,
++                        release_control_integer, p);
++}
++
++static void put_le32(uint8_t *p, uint32_t value)
++{
++    p[0] = value; p[1] = value >> 8; p[2] = value >> 16; p[3] = value >> 24;
++}
++
++static void acssr_relay_level_get(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    bool value = s->acssr_relay_raw != 0;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void acssr_led_rgb_get(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->acssr_led_rgb;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void control_i2c_address_get(Object *obj, Visitor *v, const char *name,
++                                    void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = I2C_SLAVE(s)->address;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ bool m5_unit_controls_supported(const char *unit_id)
+ {
+     static const char *const ids[] = {
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
++        "extencoder", "acssr",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1626,6 +1791,32 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+                             NULL, NULL, s);
+         object_property_add(OBJECT(s->unit), "eeprom-writes", "uint64", u64_get,
+                             NULL, NULL, &s->dac_eeprom_writes);
++    } else if (!strcmp(unit->unit_id, "extencoder")) {
++        s->kind = CONTROL_EXTENCODER; address = 0x59;
++        s->ext_fw = 2;  /* synthetic firmware fixture */
++        add_control_int_fixture(s, "counter", &s->ext_counter,
++                                INT32_MIN, INT32_MAX, true);
++        add_control_int_fixture(s, "increments", &s->ext_increments,
++                                INT32_MIN, INT32_MAX, false);
++        add_control_int_fixture(s, "perimeter", &s->ext_perimeter,
++                                0, UINT32_MAX, true);
++        add_control_int_fixture(s, "pulse", &s->ext_pulse, 0, UINT32_MAX, true);
++        add_control_int_fixture(s, "zero-pulse", &s->ext_zero_pulse,
++                                0, UINT32_MAX, true);
++        add_control_int_fixture(s, "zero-mode", &s->ext_zero_mode, 0, 255, true);
++        add_control_int_fixture(s, "fw-version", &s->ext_fw, 0, 255, true);
++        object_property_add(OBJECT(s->unit), "reset-writes", "uint64", u64_get,
++                            NULL, NULL, &s->ext_reset_writes);
++    } else if (!strcmp(unit->unit_id, "acssr")) {
++        s->kind = CONTROL_ACSSR; address = 0x50;
++        s->acssr_fw = 1;  /* synthetic firmware fixture */
++        object_property_add(OBJECT(s->unit), "relay-level", "bool",
++                            acssr_relay_level_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "relay-transitions", "uint64",
++                            u64_get, NULL, NULL, &s->acssr_transitions);
++        object_property_add(OBJECT(s->unit), "led-rgb", "int",
++                            acssr_led_rgb_get, NULL, NULL, s);
++        add_control_int_fixture(s, "fw-version", &s->acssr_fw, 0, 255, true);
+     } else if (!strcmp(unit->unit_id, "ncir2")) {
+         s->kind = CONTROL_NCIR2; address = 0x5a;
+         s->regs[0x10] = 0xff; s->regs[0x11] = 0xff;  /* emissivity 1.0 default */
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 71e50c3..7586d97 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -22,6 +22,7 @@
+ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
++    US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -60,6 +61,26 @@ typedef struct M5UnitSensor {
+      * reproduces the fixtures. QMP6988 fallback (0x56/0x70) is NOT modeled. */
+     double bmp_last_temperature_c, bmp_last_pressure_pa;
+     bool bmp_refreshed;
++    /* U001 ENV-I (0x5c DHT12 + 0x76 BMP280): the DHT12 frame is derived from
++     * temperature-c/humidity-pct with a valid checksum; the BMP280 half reuses
++     * US_BMP280 with only pressure-pa exposed, so its own temperature slot is a
++     * fixed synthetic 25C used by the shared compensation path. */
++    /* U086 AMeter (0x48 ADS1115 + 0x51 EEPROM): config/conversion registers are
++     * derived from current-a; the EEPROM holds a synthetic but checksum-valid
++     * factory record (factor 1.0) and is READ-ONLY by policy because the
++     * official page warns not to write it. */
++    uint64_t eeprom_writes;
++    /* U162 AIN4-20mA (0x55): 0x00 raw ADC, 0x20 current mA*100, 0x30 calibration
++     * mA*100 RW, 0xFE firmware, 0xFF address. The page says 12-bit while the
++     * snapshot driver exposes get_adc_raw16_value(); that width stays
++     * UNRESOLVED and the adc-raw fixture range is not silently narrowed. */
++    int64_t ain_adc, ain_fw, ain_cal_ma100;
++    /* U127 Gesture (0x73 PAJ7620): bank-aware register file. The 219-entry
++     * official init array is accepted as writes, bank0 0x00 reports part id
++     * 0x7620 and 0x43/0x44 flag bytes come from gesture/gesture-flags fixtures. */
++    uint8_t paj_bank, paj_fw, paj_flags_lo, paj_flags_hi;
++    int64_t paj_gesture, paj_flags;
++    uint64_t paj_init_writes;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -211,6 +232,175 @@ static void ads_config_get(Object *obj, Visitor *v, const char *name,
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
++typedef struct SensorInteger {
++    M5UnitSensor *sensor;
++    int64_t *value, lo, hi;
++} SensorInteger;
++
++static void sensor_integer_get(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    SensorInteger *p = opaque;
++    int64_t value = *p->value;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void sensor_integer_set(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    SensorInteger *p = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < p->lo || value > p->hi) {
++        error_setg(errp, "%s must be in [%" PRId64 ",%" PRId64 "]",
++                   name, p->lo, p->hi);
++        return;
++    }
++    if (*p->value != value) { p->sensor->unit->input_events++; }
++    *p->value = value;
++}
++
++static void release_sensor_integer(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_fixture_int(M5UnitSensor *s, const char *name,
++                            int64_t *value, int64_t lo, int64_t hi)
++{
++    SensorInteger *p = g_new0(SensorInteger, 1);
++    *p = (SensorInteger){ s, value, lo, hi };
++    object_property_add(OBJECT(s->unit), name, "int", sensor_integer_get,
++                        sensor_integer_set, release_sensor_integer, p);
++}
++
++static void sensor_i2c_address_get(Object *obj, Visitor *v, const char *name,
++                                   void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = I2C_SLAVE(s)->address;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void add_i2c_address(M5UnitSensor *s)
++{
++    object_property_add(OBJECT(s->unit), "i2c-address", "int",
++                        sensor_i2c_address_get, NULL, NULL, s);
++}
++
++/* U001 ENV-I DHT12 half: 5-byte frame decoded by driver/dht12.py as
++ * humidity=b0+b1*0.1, temperature=b2+(b3&0x7f)*0.1 with sign in b2 bit7 and
++ * checksum=(b0+b1+b2+b3)&0xff. Values are quantized to the driver's 0.1 units. */
++static void dht12_frame(M5UnitSensor *s, uint8_t out[5])
++{
++    double humidity = s->values[1], temperature = s->values[0];
++    int humidity_int, humidity_dec, temperature_int, temperature_dec;
++
++    humidity = CLAMP(humidity, 0.0, 100.0);
++    humidity_int = (int)floor(humidity);
++    humidity_dec = (int)lround((humidity - humidity_int) * 10.0);
++    if (humidity_dec > 9) { humidity_dec = 9; }
++
++    temperature = CLAMP(temperature, -40.0, 120.0);
++    bool negative = temperature < 0;
++    double magnitude = fabs(temperature);
++    temperature_int = (int)floor(magnitude);
++    temperature_dec = (int)lround((magnitude - temperature_int) * 10.0);
++    if (temperature_dec > 9) { temperature_dec = 9; }
++    if (temperature_int > 127) { temperature_int = 127; }
++
++    out[0] = humidity_int;
++    out[1] = humidity_dec;
++    out[2] = temperature_int | (negative ? 0x80 : 0);
++    out[3] = temperature_dec;
++    out[4] = (out[0] + out[1] + out[2] + out[3]) & 0xff;
++}
++
++/* U086 AMeter ADS1115 half. Driver formula:
++ * current = resolution(gain) * calibration_factor * conversion * -1 with
++ * resolution = mV-per-LSB(gain) / 0.05 and factor 1.0 from the synthetic EEPROM
++ * record. The conversion count is inverse-derived from the current-a fixture so
++ * the guest's own math reproduces it. */
++static int16_t ameter_raw(M5UnitSensor *s)
++{
++    static const double mv_lsb[6] = { 0.1875, 0.125, 0.0625, 0.03125, 0.015625, 0.007813 };
++    unsigned gain = ((unsigned)s->command >> 9) & 7;
++    double resolution;
++    long raw;
++
++    if (gain > 5) { gain = 5; }
++    resolution = mv_lsb[gain] / 0.05;
++    raw = lround(-s->values[0] / resolution);
++    if (raw < -32768) { raw = -32768; }
++    if (raw > 32767) { raw = 32767; }
++    return (int16_t)raw;
++}
++
++static void ameter_raw_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = ameter_raw(s);
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void ameter_config_get(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    /* OS bit reads 1 = conversion complete; the model has no conversion timer. */
++    int64_t value = (int64_t)((uint16_t)s->command | 0x8000);
++    visit_type_int64(v, name, &value, errp);
++}
++
++/* Synthetic factory calibration record: gain byte + expect/real big-endian
++ * pairs + XOR of the first five bytes. expect==real keeps factor 1.0; this is
++ * NOT a real factory calibration. */
++static void ameter_fill_eeprom(M5UnitSensor *s)
++{
++    for (unsigned gain = 0; gain < 6; gain++) {
++        uint8_t *r = s->regs[0] + 208 + gain * 16;
++        r[0] = gain;
++        r[1] = 0x03; r[2] = 0xe8;   /* expect = 1000 */
++        r[3] = 0x03; r[4] = 0xe8;   /* real   = 1000 */
++        r[5] = r[0] ^ r[1] ^ r[2] ^ r[3] ^ r[4];
++    }
++}
++
++/* U162 AIN4-20mA: 0x00 raw u16le, 0x20 current u16le (mA*100), 0x30 calibration
++ * u16le RW, 0xFE firmware, 0xFF address. */
++static uint16_t ain420_current_raw(M5UnitSensor *s)
++{
++    long value = lround(CLAMP(s->values[0], 4.0, 20.0) * 100.0);
++    return (uint16_t)CLAMP(value, 0, 65535);
++}
++
++/* U127 Gesture PAJ7620 flags. gesture is a 9-bit gesture mask; wave is bit8 and
++ * the driver reads it from 0x44[0]<<8, the lower eight bits from 0x43[0]. The
++ * gesture-flags fixture overrides both bytes verbatim when non-zero. */
++static void paj7620_flags(M5UnitSensor *s)
++{
++    if (s->paj_flags) {
++        s->paj_flags_lo = (uint8_t)s->paj_flags;
++        s->paj_flags_hi = (uint8_t)((uint64_t)s->paj_flags >> 8);
++    } else {
++        s->paj_flags_lo = (uint8_t)s->paj_gesture;
++        s->paj_flags_hi = (uint8_t)(((uint64_t)s->paj_gesture >> 8) & 0x01);
++    }
++}
++
++static void sensor_add_counters(M5UnitSensor *s)
++{
++    struct { const char *name; uint64_t *value; } counts[] = {
++        { "transactions", &s->transactions }, { "read-bytes", &s->read_bytes },
++        { "written-bytes", &s->written_bytes }, { "samples-generated", &s->samples },
++        { "crc-errors", &s->crc_errors },
++    };
++    for (unsigned i = 0; i < G_N_ELEMENTS(counts); i++) {
++        object_property_add(OBJECT(s), counts[i].name, "uint64", get_count, NULL, NULL, counts[i].value);
++    }
++}
++
+ /* Fixed synthetic-but-valid BMP280 calibration coefficients (the datasheet
+  * example set); they are NOT a real device calibration. Compensation formulas
+  * are taken verbatim from the executable driver so guest and model share the
+@@ -599,6 +789,60 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         s->command = data;
+         return 0;
+     }
++    if (s->kind == US_DHT12) {
++        /* DHT12 is read-only: the driver only writes the register pointer. */
++        if (pos != 0) { return 1; }
++        s->pointer = data;
++        return 0;
++    }
++    if (s->kind == US_ADS1115) {
++        /* AMeter ADS1115: pointer then 2-byte big-endian config write. */
++        if (pos == 0) { s->pointer = data; return 0; }
++        if (s->pointer != 0x01 || pos > 2) { return 1; }
++        if (pos == 1) { s->command = data << 8; }
++        else { s->command = ((uint16_t)s->command & 0xff00) | data; }
++        return 0;
++    }
++    if (s->kind == US_AMETER_EEPROM) {
++        /* AMeter EEPROM 0x51: pointer reads are accepted, data writes are
++         * rejected by model policy (the product page warns not to write the
++         * factory calibration). The rejected attempts stay observable. */
++        if (pos == 0) { s->pointer = data; return 0; }
++        s->eeprom_writes++;
++        return 1;
++    }
++    if (s->kind == US_AIN420) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        if (s->pointer == 0x30) {
++            if (pos == 1) { s->write_buf[0] = data; return 0; }
++            if (pos == 2) {
++                s->write_buf[1] = data;
++                s->ain_cal_ma100 = s->write_buf[0] | (s->write_buf[1] << 8);
++                return 0;
++            }
++            return 1;
++        }
++        if (s->pointer == 0xff && pos == 1) {
++            BusChild *child;
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == data) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), data);
++            return 0;
++        }
++        return 1;
++    }
++    if (s->kind == US_PAJ7620) {
++        /* Gesture PAJ7620: bank-aware register file. Every write is accepted
++         * because the official begin() sequence performs 219 [reg,val] writes. */
++        if (pos == 0) { s->pointer = data; return 0; }
++        s->paj_init_writes++;
++        s->regs[s->paj_bank][(uint8_t)s->pointer] = data;
++        if (s->pointer == 0xef && data <= 1) { s->paj_bank = data; }
++        s->pointer++;
++        return 0;
++    }
+     if (s->kind == US_DLIGHT) {
+         if (pos != 0) { return 1; }
+         if (data == 0x00) { s->dlight_power = 0; s->pending = false; return 0; }
+@@ -793,6 +1037,52 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         int16_t raw = ads1110_raw(s);
+         return pos == 0 ? (uint8_t)(raw >> 8) : (uint8_t)(raw & 0xff);
+     }
++    if (s->kind == US_DHT12) {
++        uint8_t frame[5];
++        dht12_frame(s, frame);
++        return pos < sizeof(frame) ? frame[pos] : 0xff;
++    }
++    if (s->kind == US_ADS1115) {
++        uint16_t config = (uint16_t)s->command | 0x8000;
++        if (s->pointer == 0x00) {
++            int16_t raw = ameter_raw(s);
++            return pos == 0 ? (uint8_t)((uint16_t)raw >> 8) : (uint8_t)(raw & 0xff);
++        }
++        if (s->pointer == 0x01) {
++            return pos == 0 ? (uint8_t)(config >> 8) : (uint8_t)(config & 0xff);
++        }
++        return 0xff;
++    }
++    if (s->kind == US_AMETER_EEPROM) {
++        return s->regs[0][(uint8_t)s->pointer++];
++    }
++    if (s->kind == US_AIN420) {
++        uint16_t value = 0;
++        int bytes = 1;
++        if (s->pointer == 0x00) { value = (uint16_t)s->ain_adc; bytes = 2; }
++        else if (s->pointer == 0x20) { value = ain420_current_raw(s); bytes = 2; }
++        else if (s->pointer == 0x30) { value = (uint16_t)s->ain_cal_ma100; bytes = 2; }
++        else if (s->pointer == 0xfe) { value = (uint16_t)s->ain_fw; }
++        else if (s->pointer == 0xff) { value = I2C_SLAVE(s)->address; }
++        else { return 0xff; }
++        if (pos >= (unsigned)bytes) { return 0xff; }
++        return pos == 0 ? (uint8_t)(value & 0xff) : (uint8_t)(value >> 8);
++    }
++    if (s->kind == US_PAJ7620) {
++        if (s->paj_bank == 0 && s->pointer == 0x00) {
++            static const uint8_t part_id[4] = { 0x20, 0x76, 0x01, 0x00 };
++            return pos < sizeof(part_id) ? part_id[pos] : 0xff;
++        }
++        if (s->paj_bank == 0 && s->pointer == 0x43) {
++            paj7620_flags(s);
++            return pos == 0 ? s->paj_flags_lo : 0;
++        }
++        if (s->paj_bank == 0 && s->pointer == 0x44) {
++            paj7620_flags(s);
++            return pos == 0 ? s->paj_flags_hi : 0;
++        }
++        return s->regs[s->paj_bank][(uint8_t)(s->pointer + pos)];
++    }
+     if (s->kind == US_DLIGHT) {
+         /* 2-byte big-endian raw; conversion window is enforced by
+          * sensor_update. Before the first completed sample the value is 0. */
+@@ -860,18 +1150,50 @@ static int sensor_event(I2CSlave *dev, enum i2c_event event)
+ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+-        "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps" };
++        "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
++        "env", "ameter", "ain4-20ma", "gesture" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+     return false;
+ }
+ 
+-void m5_unit_sensor_realize(M5Unit *u, Error **errp)
++static M5UnitSensor *sensor_device(M5Unit *u)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(qdev_new(TYPE_M5_UNIT_SENSOR));
+-    uint8_t address = 0;
+     s->unit = u;
++    return s;
++}
++
++static void sensor_attach_one(M5Unit *u, const char *name,
++                              M5UnitSensor *s, uint8_t address)
++{
++    sensor_add_counters(s);
++    m5_unit_i2c_attach(u, name, I2C_SLAVE(s), address);
++}
++
++void m5_unit_sensor_realize(M5Unit *u, Error **errp)
++{
++    if (!strcmp(u->unit_id, "env")) {
++        /* U001 ENV-I: one Grove pair, two device addresses. */
++        M5UnitSensor *d = sensor_device(u);
++        d->kind = US_DHT12;
++        add_number(d, "temperature-c", 0, 25, -40, 60, false);
++        add_number(d, "humidity-pct", 1, 50, 20, 95, false);
++        sensor_attach_one(u, "dht12", d, 0x5c);
++
++        M5UnitSensor *b = sensor_device(u);
++        b->kind = US_BMP280;
++        b->values[0] = 25;  /* BMP280's own temperature is not exposed on ENV-I */
++        b->regs[0][0xd0] = 0x58;
++        bmp280_fill_calibration(b);
++        add_number(b, "pressure-pa", 1, 101325, 30000, 110000, false);
++        sensor_attach_one(u, "bmp280", b, 0x76);
++        return;
++    }
++
++    M5UnitSensor *s = sensor_device(u);
++    uint8_t address = 0;
+     if (!strcmp(u->unit_id, "color")) {
+         s->kind = US_COLOR; address = 0x29; s->regs[0][0x12] = 0x44;
+         s->regs[0][1] = 0xff;
+@@ -932,21 +1254,43 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         bmp280_fill_calibration(s);
+         add_number(s, "temperature-c", 0, 25, -40, 85, false);
+         add_number(s, "pressure-pa", 1, 101325, 30000, 110000, false);
++    } else if (!strcmp(u->unit_id, "ameter")) {
++        /* U086 AMeter: ADS1115 0x48 + factory-calibration EEPROM 0x51. */
++        s->kind = US_ADS1115; address = 0x48;
++        /* Driver defaults: OS ready, single-shot, 128 SPS, PGA 256mV. */
++        s->command = 0x8b80;
++        add_number(s, "current-a", 0, 0, -4, 4, false);
++        object_property_add(OBJECT(u), "adc-raw", "int", ameter_raw_get, NULL, NULL, s);
++        object_property_add(OBJECT(u), "config-word", "int", ameter_config_get, NULL, NULL, s);
++        add_i2c_address(s);
++        M5UnitSensor *e = sensor_device(u);
++        e->kind = US_AMETER_EEPROM;
++        ameter_fill_eeprom(e);
++        add_u64(e, "eeprom-writes", &e->eeprom_writes);
++        sensor_attach_one(u, "ads1115", s, 0x48);
++        sensor_attach_one(u, "eeprom", e, 0x51);
++        return;
++    } else if (!strcmp(u->unit_id, "ain4-20ma")) {
++        s->kind = US_AIN420; address = 0x55;
++        s->ain_fw = 1;                  /* synthetic firmware fixture */
++        s->ain_cal_ma100 = 1200;        /* 12.00mA synthetic calibration */
++        add_number(s, "current-ma", 0, 12, 4, 20, false);
++        add_number(s, "cal-ma", 1, 12, 4, 20, false);
++        add_fixture_int(s, "adc-raw", &s->ain_adc, 0, 65535);
++        add_fixture_int(s, "fw-version", &s->ain_fw, 0, 255);
++        add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "gesture")) {
++        s->kind = US_PAJ7620; address = 0x73;
++        s->paj_fw = 1;                  /* synthetic firmware fixture */
++        add_fixture_int(s, "gesture", &s->paj_gesture, 0, 511);
++        add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
++        add_u64(s, "init-writes", &s->paj_init_writes);
++        add_i2c_address(s);
+     } else {
+         error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
+         object_unref(OBJECT(s)); return;
+     }
+-    object_property_add_child(OBJECT(u), "chip", OBJECT(s));
+-    struct { const char *name; uint64_t *value; } counts[] = {
+-        { "transactions", &s->transactions }, { "read-bytes", &s->read_bytes },
+-        { "written-bytes", &s->written_bytes }, { "samples-generated", &s->samples },
+-        { "crc-errors", &s->crc_errors },
+-    };
+-    for (unsigned i = 0; i < G_N_ELEMENTS(counts); i++) {
+-        object_property_add(OBJECT(s), counts[i].name, "uint64", get_count, NULL, NULL, counts[i].value);
+-    }
+-    qdev_prop_set_uint8(DEVICE(s), "address", address);
+-    i2c_slave_realize_and_unref(I2C_SLAVE(s), u->bus, errp);
++    sensor_attach_one(u, "chip", s, address);
+ }
+ 
+ static void sensor_class_init(ObjectClass *klass, void *data)
+diff --git a/hw/m5stopwatch/m5_unit_runtime.c b/hw/m5stopwatch/m5_unit_runtime.c
+index fb6805a..9cbebb8 100644
+--- a/hw/m5stopwatch/m5_unit_runtime.c
++++ b/hw/m5stopwatch/m5_unit_runtime.c
+@@ -340,6 +340,15 @@ static void counters(Object *obj, uint64_t *transactions,
+     object_property_add(obj, "written-bytes", "uint64", get_u64, NULL, NULL, written_bytes);
+ }
+ 
++void m5_unit_i2c_attach(M5Unit *unit, const char *name, I2CSlave *slave,
++                        uint8_t address)
++{
++    g_assert(unit->bus);
++    object_property_add_child(OBJECT(unit), name, OBJECT(slave));
++    qdev_prop_set_uint8(DEVICE(slave), "address", address);
++    i2c_slave_realize_and_unref(slave, unit->bus, &error_fatal);
++}
++
+ static void sensor_attach(M5Unit *unit, const char *name,
+                           uint8_t address, SensorKind sensor)
+ {
+@@ -350,10 +359,8 @@ static void sensor_attach(M5Unit *unit, const char *name,
+         memcpy(s->regs + 0xa0, otp, sizeof(otp));
+         s->regs[0xd1] = 0x5c;
+     }
+-    object_property_add_child(OBJECT(unit), name, OBJECT(s));
+-    qdev_prop_set_uint8(DEVICE(s), "address", address);
+     counters(OBJECT(s), &s->transactions, &s->read_bytes, &s->written_bytes);
+-    i2c_slave_realize_and_unref(I2C_SLAVE(s), unit->bus, &error_fatal);
++    m5_unit_i2c_attach(unit, name, I2C_SLAVE(s), address);
+ }
+ 
+ static void unit_realize(DeviceState *dev, Error **errp)
+diff --git a/hw/m5stopwatch/m5_unit_runtime.h b/hw/m5stopwatch/m5_unit_runtime.h
+index ec24e9c..fd015e6 100644
+--- a/hw/m5stopwatch/m5_unit_runtime.h
++++ b/hw/m5stopwatch/m5_unit_runtime.h
+@@ -31,6 +31,13 @@ bool m5_unit_extra_supported(const char *unit_id);
+ void m5_unit_extra_realize(M5Unit *unit, Error **errp);
+ bool m5_unit_sensor_supported(const char *unit_id);
+ void m5_unit_sensor_realize(M5Unit *unit, Error **errp);
++/*
++ * Attach one extra I2C slave to an existing Unit attachment.  A Unit with two
++ * device addresses (for example ENV-I DHT12+BMP280 or AMeter ADS1115+EEPROM)
++ * calls this once per slave; the Unit keeps a single bus/pin pair.
++ */
++void m5_unit_i2c_attach(M5Unit *unit, const char *name, I2CSlave *slave,
++                        uint8_t address);
+ bool m5_unit_controls_supported(const char *unit_id);
+ void m5_unit_controls_realize(M5Unit *unit, Error **errp);
+ bool m5_unit_gpio_supported(const char *id);
+-- 
+2.55.0
+

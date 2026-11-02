@@ -868,3 +868,57 @@ guest/Device Service 证据**，因此 catalog 6 条与 runtime-profiles 6 条�
 地址冲突（joystick 0x52、adc-v11 0x48 与 ameter）与版本差异必须随 catalog 一起读。
 其余 6 款（`env`/`ameter`/`extencoder`/`ain4-20ma`/`acssr`/`gesture`）本轮未实现，
 下一轮处理。没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。
+
+## 12. 后 6 款 QEMU 实现状态（0126，2026-11-02）
+
+第二批剩余 6 款已由
+[`0126-unit-batch2b.patch`](../../patches/qemu-m5stack-peripherals/0126-unit-batch2b.patch)
+接入 QEMU 数据面；base 为 canonical native layer `75f1d24` + 已合入的
+`0120/0121/0122/0123/0125`（`0124` 为 StickT2 预留层，本补丁不依赖）。**尚未
+采集 guest/Device Service 证据**，因此 catalog 6 条与 runtime-profiles 6 条均保持
+`planned`、hosts 为空。离线 QOM smoke 只验证属性注册、fixture 读写、范围拒绝、
+只读拒绝与双从机结构（33/33 PASS），不构成功能 PASS。
+
+框架扩展：`m5_unit_runtime.c` 新增 `m5_unit_i2c_attach()`，允许一个 Unit
+attachment（同一 Grove 引脚对）挂多个 I2C slave，并由各模型自行做同总线地址
+占用检查；`env`/`ameter` 是该机制的首批使用方。
+
+| Unit | 0126 模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `env` U001 (0x5C + 0x76) | 双从机：DHT12 `US_DHT12` 5 字节帧由 temperature-c/humidity-pct 量化并生成合法校验和；BMP280 复用 `US_BMP280`，仅暴露 pressure-pa（自身温度槽固定 25C 供补偿） | 输入 `temperature-c`(-40..60)/`humidity-pct`(20..95)/`pressure-pa`(30000..110000)；观测两地址事务计数 | ENV-II/III/IV 变体不声明；产品页温度精度 ±0.2 vs ±0.5、DHT12 上电/校验语义、BMP280 合成校准真实性 unresolved；guest 必须显式 ENV-I type |
+| `ameter` U086 (0x48 + 0x51) | 双从机：ADS1115 `US_ADS1115` config/conversion 由 current-a 按驱动 gain/rate/resolution 公式反算；EEPROM `US_AMETER_EEPROM` 为合成校验合法记录（factor 1.0），按页面警告只读（写被 NACK 并计数） | 输入 `current-a`(-4..4)；观测 `adc-raw`/`config-word`/`eeprom-writes`/`i2c-address` | 真实出厂校准系数、1% 精度/0.3mA 分辨率、方向/隔离/保险丝、EEPROM 写入策略 NOT RUN/unresolved；0x48 与 adc-v11 冲突（一总线一个） |
+| `extencoder` U161 (0x59) | `CONTROL_EXTENCODER`：0x00 counter / 0x10 meter(合成=counter) / 0x30 reset / 0x40 perimeter / 0x50 pulse / 0x60 zero-pulse / 0x70 zero-mode / 0xFE fw / 0xFF address；4B LE、指针写+读快照、地址迁移冲突检查 | 输入 counter/perimeter/pulse/zero-pulse/zero-mode/fw-version；观测 increments/reset-writes/i2c-address | 产品页协议表渲染损坏、0x20 ASCII 格式与 0x30 复位语义 unresolved；AB/ABZ 解码、12-bit 采样与机械耦合 NOT RUN |
+| `ain4-20ma` U162 (0x55) | `US_AIN420`：0x00 raw ADC / 0x20 current mA*100 / 0x30 校准 RW / 0xFE fw / 0xFF address，u16le 与地址迁移冲突检查 | 输入 current-ma/cal-ma/adc-raw/fw-version；观测 i2c-address | 页面 0xF0 vs 驱动 0xFE/0xFF、12-bit vs raw16、主控 STM32F030 vs STM32G030F6P6 unresolved；环路精度/隔离/ADC 线性/跳线 NOT RUN |
+| `acssr` U139 (0x50) | `CONTROL_ACSSR`：0x00 继电器电平 / 0x10 3B 大端 RGB / 0x20 地址写 / 0xFE fw，写事务更新只读观测 | 输入 fw-version；观测 relay-level/relay-transitions/led-rgb/i2c-address | **安全边界：I2C 事务观测，不是 AC 市电开关模型；不得宣称可切换 24–480V/10A 市电**；过零/漏电流/寿命/隔离、Button/Modbus 模式、set_address 5s 语义 NOT RUN/unresolved；0x50 与 nfc 冲突 |
+| `gesture` U127 (0x73) | `US_PAJ7620`：bank-aware 寄存器文件接受 219 项初始化写、bank0 0x00 返回 part id 0x7620、0x43/0x44 flags 由 gesture/gesture-flags fixture 生成 | 输入 gesture(0..511)/gesture-flags(0..65535)；观测 init-writes/i2c-address | 产品页无寄存器表、datasheet 未读、驱动 low-rate 属性名 bug、手势物理/光学/距离 NOT RUN；0x73 无已登记冲突 |
+
+共同边界：6 款都是控制器可见的 I2C 事务模型，不是电气/光学/机械/市电物理模型。
+地址冲突必须在 fixture 中显式（`env` 0x76 与 `bps`、`ameter` 0x48 与 `adc-v11`、
+`acssr` 0x50 与 `nfc`；双从机 `env`/`ameter` 的两个地址都必须做占用检查）。
+没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`。
+
+离线 QOM smoke 复现（无 guest 固件；在 `m5basic` machine 上以同一 Grove 引脚对
+挂 6 个 attachment，用 QMP `qom-get`/`qom-set` 验证）：
+
+```bash
+cat > /tmp/unit-smoke-config.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"env1","unit_id":"env","pins":{"yellow":32,"white":33}},
+ {"id":"ameter1","unit_id":"ameter","pins":{"yellow":32,"white":33}},
+ {"id":"extencoder1","unit_id":"extencoder","pins":{"yellow":32,"white":33}},
+ {"id":"ain420","unit_id":"ain4-20ma","pins":{"yellow":32,"white":33}},
+ {"id":"acssr1","unit_id":"acssr","pins":{"yellow":32,"white":33}},
+ {"id":"gesture1","unit_id":"gesture","pins":{"yellow":32,"white":33}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config.json qemu-system-xtensa -M m5basic \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+33 项检查全部 PASS：env 6（默认值/三个 fixture 写入/范围拒绝）、ameter 5
+（默认值/current 写入/派生 adc-raw/范围拒绝/只读拒绝）、extencoder 6、ain4-20ma 5、
+acssr 4、gesture 5、双从机结构 2（`env1` 子对象 `dht12`@0x5c/`bmp280`@0x76，
+`ameter1` 子对象 `ads1115`@0x48/`eeprom`@0x51）。该 smoke **不**覆盖 I2C
+`send/recv` 字节语义；寄存器/事务编码仍需 guest 证据。
