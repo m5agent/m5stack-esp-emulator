@@ -6,6 +6,7 @@ keep the documented address conflicts and unresolved boundaries visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -35,19 +36,28 @@ class UnitBatch3abPatchTests(unittest.TestCase):
         for token in ("0x28", "0x27", "0x59", "0x26", "0x49", "0x53", "0x48"):
             self.assertIn(token, self.text)
 
-    def test_inventory_stays_planned_with_explicit_blockers(self):
-        self.assertEqual(len(self.catalog["units"]), 76)
-        self.assertEqual(len(self.profiles), 76)
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
+        hosts = {"rfid": "cores3", "tube-pressure": "atoms3r", "laser-rx": "atoms3r",
+                 "extio": "sticks3", "dac2": "cores3", "scales": "sticks3",
+                 "vmeter": "cores3", "adc": "stopwatch"}
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
             self.assertNotEqual(entry["model_status"], "simulated", unit_id)
             self.assertTrue(entry["blocker"], unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], [hosts[unit_id]], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            for patch in ("0130-unit-batch3ab.patch", "0133-unit-vmeter-default-config.patch",
+                          "0135-unit-batch3ab-fixes.patch"):
+                self.assertIn(patch, evidence["patches"], unit_id)
             for field in entry["inputs"]:
                 self.assertIn(field, profile["inputs"], f"{unit_id}.{field}")
             for field in entry["outputs"]:
@@ -79,6 +89,10 @@ class UnitBatch3abPatchTests(unittest.TestCase):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0130-unit-batch3ab.patch", readme)
         self.assertIn("0131", readme)
+        for patch in ("0132-unit-batch3c-fixes.patch", "0133-unit-vmeter-default-config.patch",
+                      "0135-unit-batch3ab-fixes.patch"):
+            self.assertIn(patch, readme)
+            self.assertTrue((ROOT / "patches/qemu-m5stack-peripherals" / patch).is_file(), patch)
         self.assertEqual(self.text.count("guest PASS"), 1)
         self.assertIn("No guest PASS", self.text)
         self.assertIn("planned", readme)

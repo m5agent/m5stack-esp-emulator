@@ -1,0 +1,41 @@
+From 5aefdc2773e8f53c77c02e67b032fb3c2a2c12c4 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 21:43:11 +0800
+Subject: [PATCH] hw/m5stopwatch: align VMeter default ADS1115 config with its
+ driver
+
+The 0130 VMeter branch reused the AMeter default config (0x8b80: PGA_256,
+gain 5) even though VoltmeterUnit never writes a gain in its constructor and
+assumes PGA_2048 (gain 2) + RATE_128 in its own resolution table. The model's
+inverse-derived conversion therefore disagreed with the guest's conversion
+formula on the default path. Use the ADS1115 power-on-style config 0x8580
+(OS ready, single-shot, RATE_128, gain 2) so the default path is
+self-consistent. Explicit set_gain() writes remain honoured.
+
+No other semantics changed; catalogue stays planned until guest evidence
+passes.
+---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 7b85241..b13bbe6 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -1335,7 +1335,12 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+          * the driver's 0.015918958 divider. The synthetic EEPROM record keeps
+          * calibration factor 1.0; it is NOT a real factory calibration. */
+         s->kind = US_ADS1115_VMETER; address = 0x49;
+-        s->command = 0x8b80;
++        /* VMeter never writes a gain in its constructor and assumes PGA_2048
++         * (gain 2) + RATE_128 in single-shot mode. The 0130 branch inherited
++         * the AMeter default (gain 5), which disagreed with the driver's own
++         * resolution table and made the default read path inconsistent. Use
++         * the ADS1115 power-on-style config so both sides agree. */
++        s->command = 0x8580;
+         add_number(s, "voltage-v", 0, 5.0, -36, 36, false);
+         object_property_add(OBJECT(u), "adc-raw", "int", ameter_raw_get, NULL, NULL, s);
+         object_property_add(OBJECT(u), "config-word", "int", ameter_config_get, NULL, NULL, s);
+-- 
+2.55.0
+

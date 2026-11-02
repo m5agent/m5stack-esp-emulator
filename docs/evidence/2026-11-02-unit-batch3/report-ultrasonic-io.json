@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:53:46.125955+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "stopwatch",
+  "unit_id": "ultrasonic-io",
+  "driver_class": "ULTRASONIC_IOUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_distance_tracks_fixture": true,
+    "timeout_path_exercised": true,
+    "qom_echo_pulse_matches_formula": true,
+    "qom_trigger_count": true,
+    "model_timeouts_zero_for_valid_fixture": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "624d3ea51ece719a7b374035aca03e97a263dca5b95fcbf2a538780cf037150c",
+  "firmware_id": "624d3ea51ece719a7b374035aca03e97a263dca5b95fcbf2a538780cf037150c",
+  "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+  "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "03fee0cbcca76be684ad8be557c4603d464741d9befd7cfbe05baddb26282113",
+    "main.py": "8ac07eb1ba516c3db2109b94d312dbc64cd8342b4ad3e81eefe1df38e6e9575e"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 10,
+      "white": 11
+    }
+  },
+  "session_id": "af2d41ecb9944003afa18fcdf20310d3",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "ultrasonic-io",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "ultrasonic_io": {
+      "guest_distances_mm": [
+        1038,
+        1051,
+        1234,
+        1252,
+        1242,
+        1200,
+        1049,
+        1065,
+        1063,
+        1057
+      ],
+      "fast_timeout_value": "-1",
+      "fast_timeout_error": null,
+      "expected_echo_pulse_us": 5820,
+      "qom": {
+        "distance-mm": 1000,
+        "echo-pulse-us": 5820,
+        "trigger-count": 31,
+        "timeouts": 0,
+        "echo-level": false,
+        "input-events": 1
+      },
+      "boundary": "Echo width is distance-mm*582/100 us; acoustic physics, 40kHz response and the documented PORT.A SDA/SCL label conflict are NOT RUN. The timeout path uses a second unit instance with echo_timeout_us=1000 (< the 5820us echo), so machine.time_pulse_us reports the guest-side timeout; the catalog input range (20..4500) cannot express an invalid distance, so the model's timeouts counter stays 0."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:53:48.043958+08:00",
+      "properties": {
+        "distance-mm": 1000,
+        "echo-pulse-us": 5820,
+        "trigger-count": 4,
+        "timeouts": 0,
+        "echo-level": true,
+        "input-events": 1
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:48.043958+08:00",
+      "properties": {
+        "distance-mm": 1000,
+        "echo-pulse-us": 5820,
+        "trigger-count": 4,
+        "timeouts": 0,
+        "echo-level": true,
+        "input-events": 1
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:51.158728+08:00",
+      "properties": {
+        "distance-mm": 1000,
+        "echo-pulse-us": 5820,
+        "trigger-count": 31,
+        "timeouts": 0,
+        "echo-level": false,
+        "input-events": 1
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "ultrasonic": "IO_ULTRA 1252 104.1\nGPIO_ULTRA_ECHO 7385\nGPIO_ULTRA 1242 103.0\nGPIO_ULTRA_ECHO 6914\nGPIO_ULTRA 1200 105.2\nGPIO_ULTRA_ECHO 6908\nGPIO_ULTRA 1049 105.2\nGPIO_ULTRA_ECHO 5977\nGPIO_ULTRA 1065 124.4\nGPIO_ULTRA_ECHO 7276\nGPIO_ULTRA 1063 104.7\nGPIO_ULTRA_ECHO 5915\nGPIO_ULTRA 1057 104.6\nGPIO_ULTRA_FAST_TIMEOUT -1\nGPIO_ULTRA_END\n"
+  },
+  "frame": {
+    "sha256": "b8359347a3f9336f6fe8e057f461dcec06e39582e09057313138794d9682a809",
+    "metrics": {
+      "width": 466,
+      "height": 466,
+      "nonblack_pixels": 170499,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "a795a22a979e56ff8c461e95716f9bc5f8537dfe9aba3c24fc3a56a12692b7d5",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Echo width is distance-mm*582/100 us; acoustic physics, 40 kHz response, +/-2% accuracy and the 400 ms/50 ms cycle are NOT RUN. The PORT.A SDA/SCL PinMap label conflicts with the GPIO trigger/echo driver.",
+    "The timeout path is exercised with a second unit instance at echo_timeout_us=1000 (below the 5820 us echo); the catalog input range 20..4500 cannot express an invalid distance, so the model's timeouts counter stays 0.",
+    "The 0132 fix replaced the direct echo-line drive inside the GPIO pad observer (which aborted QEMU via the !g_pad_dispatch_depth assertion) with a QEMU timer."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

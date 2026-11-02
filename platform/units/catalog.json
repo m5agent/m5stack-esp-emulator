@@ -11096,9 +11096,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "card-present": {
@@ -11170,15 +11170,19 @@
         "required_data_plane": "SoC I2C controller transactions to the existing MFRC522-compatible CONTROL_RFID2 model at 0x28 (synthetic deterministic MIFARE card fixture; no RF field)",
         "blocker": "U031 与已登记 rfid2 (U031-B) 同为 MFRC522 兼容命令面：可直接复用 CONTROL_RFID2（0x28、确定性合成卡、UID/认证/FIFO 状态），不需要新 kind；与 rfid2 的 0x28 地址冲突按“一总线一个”处理。未采集 guest/Device Service 证据，保持 planned。RF 场/天线/读卡距离/真实卡片与密钥 NOT RUN。"
       },
-      "blocker": "U031 与已登记 rfid2 (U031-B) 同为 MFRC522 兼容命令面：可直接复用 CONTROL_RFID2（0x28、确定性合成卡、UID/认证/FIFO 状态），不需要新 kind；与 rfid2 的 0x28 地址冲突按“一总线一个”处理。未采集 guest/Device Service 证据，保持 planned。RF 场/天线/读卡距离/真实卡片与密钥 NOT RUN。",
+      "blocker": "U031 与已登记 rfid2 (U031-B) 同为 MFRC522 兼容命令面：可直接复用 CONTROL_RFID2（0x28、确定性合成卡、UID/认证/FIFO 状态），不需要新 kind；与 rfid2 的 0x28 地址冲突按“一总线一个”处理。RF 场/天线/读卡距离/真实卡片与密钥 NOT RUN。Guest/Device Service evidence covers the frozen RFIDUnit (MFRC522) on CoreS3 at 0x28: injected card-present makes is_new_card_present()=1 and read_card_uid() returns the synthetic UID prefix 04010203; QOM selected/card transactions are consistent. Only this host/firmware combination is admitted; RF field/antenna/range and real card contents/keys are NOT RUN; 0x28 conflicts with rfid2.",
       "input_semantics": "Synthetic card identity and block data fixtures delivered through MFRC522 register/FIFO transactions.",
       "output_semantics": "Observed guest MFRC522 register/FIFO traffic and card state transitions; no RF field.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "RF field, antenna, read range, card electrical/security behavior and real MIFARE keys are not modeled."
+        "RF field, antenna, read range, card electrical/security behavior and real MIFARE keys are not modeled.",
+        "The MFRC522 command/FIFO/anticollision data plane is covered with the synthetic MIFARE card; RF field, antenna, read range (<20 mm), real card contents and production keys are NOT RUN.",
+        "The frozen driver returns the 10-byte UID buffer (fixture UID 04 01 02 03 + zero padding); evidence asserts the 04010203 prefix. 0x28 conflicts with rfid2 (one per bus).",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-rfid.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "tube-pressure",
       "name": "Unit Tube Pressure",
@@ -11292,9 +11296,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "analog-mv": {
@@ -11316,15 +11320,19 @@
         "required_data_plane": "SoC GPIO ADC controller sample on the white analog wire; guest computes pressure from read_mv",
         "blocker": "新增 GPIO id 'tube-pressure'：白线模拟输入复用现有 m5_unit_adc_sample（analog-mv/adc-samples），黄线 NC；guest 按驱动公式 (v-0.1)/3*300-100 kPa 换算。未采集 guest/Device Service 证据，保持 planned。传感器线性度/温补/±1.5kPa NOT RUN；ADC 11DB 校准 unresolved。"
       },
-      "blocker": "新增 GPIO id 'tube-pressure'：白线模拟输入复用现有 m5_unit_adc_sample（analog-mv/adc-samples），黄线 NC；guest 按驱动公式 (v-0.1)/3*300-100 kPa 换算。未采集 guest/Device Service 证据，保持 planned。传感器线性度/温补/±1.5kPa NOT RUN；ADC 11DB 校准 unresolved。",
+      "blocker": "新增 GPIO id 'tube-pressure'：白线模拟输入复用现有 m5_unit_adc_sample（analog-mv/adc-samples），黄线 NC；guest 按驱动公式 (v-0.1)/3*300-100 kPa 换算。传感器线性度/温补/±1.5kPa NOT RUN；ADC 11DB 校准 unresolved。Guest/Device Service evidence covers the frozen TubePressureUnit on AtomS3R: analog-mv=1600 fixture yields get_analog_value(16)=33832 and (12)=2114 over the SoC ADC path. get_pressure()/get_voltage() need the S3 ADC calibration fixture and raise OSError(95), recorded as a boundary. Only this host/firmware combination is admitted; sensor linearity/temperature compensation and the 11DB calibration are unresolved/NOT RUN.",
       "input_semantics": "Synthetic sensor output millivolt fixture delivered through the SoC ADC controller sample path.",
       "output_semantics": "Observed guest ADC samples; converted pressure is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Sensor linearity, temperature compensation and ±1.5kPa accuracy are not modeled."
+        "Sensor linearity, temperature compensation and ±1.5kPa accuracy are not modeled.",
+        "read_uv()/get_pressure()/get_voltage() need the S3 ADC calibration fixture and raise OSError(95) here; only the read_u16()/read()/get_analog_value() raw path is covered.",
+        "Sensor linearity, temperature compensation and the +/-1.5 kPa accuracy are NOT RUN; ADC 11DB full scale is unresolved; yellow is NC.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-tube-pressure.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "laser-rx",
       "name": "Unit Laser RX",
@@ -11424,9 +11432,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "digital-level": {
@@ -11443,15 +11451,19 @@
         "required_data_plane": "SoC GPIO digital input on the white DOUT wire (pull-up), guest reads value()",
         "blocker": "新增 GPIO id 'laser-rx'：白线数字输入（上拉，默认高）复用现有 digital-level/input-events 观测；黄线 NC；UART 模式暂不建模。未采集 guest/Device Service 证据，保持 planned。光学链路/接收频率/灵敏度 NOT RUN；配对 TX U066 不在本批。"
       },
-      "blocker": "新增 GPIO id 'laser-rx'：白线数字输入（上拉，默认高）复用现有 digital-level/input-events 观测；黄线 NC；UART 模式暂不建模。未采集 guest/Device Service 证据，保持 planned。光学链路/接收频率/灵敏度 NOT RUN；配对 TX U066 不在本批。",
+      "blocker": "新增 GPIO id 'laser-rx'：白线数字输入（上拉，默认高）复用现有 digital-level/input-events 观测；黄线 NC；UART 模式暂不建模。光学链路/接收频率/灵敏度 NOT RUN；配对 TX U066 不在本批。Guest/Device Service evidence covers the frozen LaserRXUnit on AtomS3R: a digital-level false→true sequence produces value() 0→1 with input-events counted and zero I2C transactions. Only this host/firmware combination is admitted; UART mode, the optical link (140-205 kHz/900 nm) and the paired TX Unit are NOT RUN.",
       "input_semantics": "Synthetic digital level fixture delivered through the SoC GPIO input controller path.",
       "output_semantics": "Observed guest digital reads; optical reception is not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Optical link, 140-205kHz receive frequency and 900nm sensitivity are not modeled."
+        "Optical link, 140-205kHz receive frequency and 900nm sensitivity are not modeled.",
+        "Only the GPIO DOUT path is modeled; UART mode and the optical link (beam, 140-205 kHz receiver, 900 nm) are NOT RUN.",
+        "The input-level observation is the white-line fixture state; the paired LASER.TX (U066) is out of scope.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-laser-rx.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "extio",
       "name": "Unit EXT.IO",
@@ -11544,7 +11556,13 @@
             false
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": false
+          "readOnly": false,
+          "items": {
+            "type": "boolean",
+            "label": "通道数字电平"
+          },
+          "minItems": 8,
+          "maxItems": 8
         }
       },
       "outputs": {
@@ -11562,7 +11580,12 @@
             false
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": true
+          "readOnly": true,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 8,
+          "maxItems": 8
         },
         "polarity": {
           "type": "integer",
@@ -11643,9 +11666,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "input-levels": {
@@ -11692,15 +11715,19 @@
         "required_data_plane": "SoC I2C controller transactions to a device-local PCA9554 register slave at 0x27 (input/output/polarity/config)",
         "blocker": "新增 CONTROL_PCA9554（0x27）：4 寄存器 input 0x00 / output 0x01 / polarity 0x02 / config 0x03；读 0x00 按 PCA9554 语义组合输入、输出锁存与极性。未采集 guest/Device Service 证据，保持 planned。INT 输出/A0-A2 焊盘改址/上下拉电气 NOT RUN；产品页 EOL。"
       },
-      "blocker": "新增 CONTROL_PCA9554（0x27）：4 寄存器 input 0x00 / output 0x01 / polarity 0x02 / config 0x03；读 0x00 按 PCA9554 语义组合输入、输出锁存与极性。未采集 guest/Device Service 证据，保持 planned。INT 输出/A0-A2 焊盘改址/上下拉电气 NOT RUN；产品页 EOL。",
+      "blocker": "新增 CONTROL_PCA9554（0x27）：4 寄存器 input 0x00 / output 0x01 / polarity 0x02 / config 0x03；读 0x00 按 PCA9554 语义组合输入、输出锁存与极性。INT 输出/A0-A2 焊盘改址/上下拉电气 NOT RUN；产品页 EOL。Guest/Device Service evidence covers the frozen EXTIOUnit (PCA9554) on StickS3 at 0x27: injected 8-channel input fixture reads 0x55, set_port_mode(OUT)+digit_write_port(0xA5) reads back 165, and switching back to IN returns the input fixture; QOM output-levels/config/polarity agree. Guest evidence required the 0135 fix (0130 applied the config mask backwards so the output latch was never observable). Only this host/firmware combination is admitted; INT/A0-A2/electrical behavior are NOT RUN.",
       "input_semantics": "Synthetic 8-bit input-level fixture combined with guest-written output latch, polarity and config registers.",
       "output_semantics": "Observed guest register reads/writes and derived input/output bytes; no electrical behavior.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Interrupt output, A0-A2 solder address straps and open-drain/pull-up electrical behavior are not modeled."
+        "Interrupt output, A0-A2 solder address straps and open-drain/pull-up electrical behavior are not modeled.",
+        "PCA9554 register semantics are covered after the 0135 fix; INT output, A0-A2 solder-pad addressing and pull-up/open-drain electrical behavior are NOT RUN.",
+        "Product page is EOL. 0x27 has no registered address conflict.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-extio.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "dac2",
       "name": "Unit DAC2",
@@ -11870,9 +11897,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "dac-0-raw": {
@@ -11909,15 +11936,19 @@
         "required_data_plane": "SoC I2C controller transactions to a device-local GP8413 register slave at 0x59 (range register 0x01, channel registers 0x02/0x04)",
         "blocker": "新增 CONTROL_DAC2（0x59）：0x01 写量程（0x00=0-5V/0x11=0-10V），0x02/0x04 写 2B LE 通道码，0x02 可写 4B LE 双通道。未采集 guest/Device Service 证据，保持 planned。页面写 15-bit 而驱动按 16-bit 满码（0xFFFF）编码 → 15/16-bit 未决；0x59 与 extencoder 冲突（一总线一个）；模拟输出/短路保护 NOT RUN。"
       },
-      "blocker": "新增 CONTROL_DAC2（0x59）：0x01 写量程（0x00=0-5V/0x11=0-10V），0x02/0x04 写 2B LE 通道码，0x02 可写 4B LE 双通道。未采集 guest/Device Service 证据，保持 planned。页面写 15-bit 而驱动按 16-bit 满码（0xFFFF）编码 → 15/16-bit 未决；0x59 与 extencoder 冲突（一总线一个）；模拟输出/短路保护 NOT RUN。",
+      "blocker": "新增 CONTROL_DAC2（0x59）：0x01 写量程（0x00=0-5V/0x11=0-10V），0x02/0x04 写 2B LE 通道码，0x02 可写 4B LE 双通道。页面写 15-bit 而驱动按 16-bit 满码（0xFFFF）编码 → 15/16-bit 未决；0x59 与 extencoder 冲突（一总线一个）；模拟输出/短路保护 NOT RUN。Guest/Device Service evidence covers the frozen DAC2Unit (GP8413) on CoreS3 at 0x59: using the driver-owned CHANNEL_* constants, CH1/CH0/BOTH writes and the 0-5V/0-10V range switch produce QOM range=1 and both raw codes 0xFFFF. The frozen driver compares channel constants (tuples) with ==, so a plain int silently writes nothing; this is recorded. Only this host/firmware combination is admitted; the page 15-bit vs driver 16-bit full scale is UNRESOLVED and analog output/short-circuit behavior is NOT RUN; 0x59 conflicts with extencoder.",
       "input_semantics": "No host fixture; the guest driver writes range 0x01 and channel codes 0x02/0x04, which the model only observes.",
       "output_semantics": "Observed guest-written range and 16-bit channel codes; voltages are computed from the stored code and selected range.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Analog output accuracy, short-circuit protection and 0-10V electrical behavior are not modeled."
+        "Analog output accuracy, short-circuit protection and 0-10V electrical behavior are not modeled.",
+        "The frozen driver's channel constants are tuples while set_voltage() compares with ==, so a plain int silently writes nothing; the evidence uses the driver's own unit.CHANNEL_0/1/BOTH constants.",
+        "The product page says 15-bit while the driver writes 16-bit full scale (0xFFFF); that width conflict is UNRESOLVED. Analog output, short-circuit protection and linearity are NOT RUN. 0x59 conflicts with extencoder.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-dac2.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "scales",
       "name": "Unit Scales",
@@ -12097,6 +12128,24 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true,
           "minimum": 0
+        },
+        "fw-version": {
+          "type": "integer",
+          "label": "固件版本",
+          "default": 2,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "offset-adc": {
+          "type": "integer",
+          "label": "偏移 ADC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2147483648,
+          "maximum": 2147483647
         }
       },
       "evidence": [
@@ -12133,9 +12182,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "weight-g": {
@@ -12187,20 +12236,34 @@
             "property": "written-bytes",
             "access": "read-only",
             "type": "integer"
+          },
+          "fw-version": {
+            "property": "fw-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "offset-adc": {
+            "property": "offset-adc",
+            "access": "read-only",
+            "type": "integer"
           }
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local 0x26 register-file slave (4-byte BE values, RGB/calibration writes, 0xFF address migration)",
         "blocker": "新增 CONTROL_SCALES 寄存器组（0x26）：0x10 raw ADC int32be、0x14 weight int32be(/100)、0x18 offset、0x20-0x25 按键/RGB 控制、0x30/0x32 校准写、0x50-0x52 RGB、0xFE/0xFF 身份/地址。未采集 guest/Device Service 证据，保持 planned。0x26 与 4relay/weight-i2c 冲突（一总线一个）；HX711 采样与称重力学 NOT RUN；master 常量重命名（值不变）需钉 SHA。"
       },
-      "blocker": "新增 CONTROL_SCALES 寄存器组（0x26）：0x10 raw ADC int32be、0x14 weight int32be(/100)、0x18 offset、0x20-0x25 按键/RGB 控制、0x30/0x32 校准写、0x50-0x52 RGB、0xFE/0xFF 身份/地址。未采集 guest/Device Service 证据，保持 planned。0x26 与 4relay/weight-i2c 冲突（一总线一个）；HX711 采样与称重力学 NOT RUN；master 常量重命名（值不变）需钉 SHA。",
+      "blocker": "新增 CONTROL_SCALES 寄存器组（0x26）：0x10 raw ADC int32be、0x14 weight int32be(/100)、0x18 offset、0x20-0x25 按键/RGB 控制、0x30/0x32 校准写、0x50-0x52 RGB、0xFE/0xFF 身份/地址。0x26 与 4relay/weight-i2c 冲突（一总线一个）；HX711 采样与称重力学 NOT RUN；master 常量重命名（值不变）需钉 SHA。Guest/Device Service evidence covers the frozen ScalesUnit on StickS3 at 0x26: injected weight-g=543.21/adc-raw=123456/button-status=2 yield guest 123456 and 543, RGB writes return [17,34,51], sync=1, two calibration writes are counted and QOM led-rgb=0x112233/offset-adc=123/fw=2. Guest evidence required the 0135 fix (0130 accepted only the first RGB byte and NACKed the rest). Only this host/firmware combination is admitted; HX711 sampling/weighing mechanics/tare/range are NOT RUN; 0x26 conflicts with 4relay/weight-i2c.",
       "input_semantics": "Synthetic weight/ADC/button fixtures encoded into the register file; guest applies its own /100 scaling.",
       "output_semantics": "Observed guest register reads/writes, RGB writes and calibration-write counts; load-cell mechanics are not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "HX711 sampling timing, weighing mechanics and 20kg range are not modeled."
+        "HX711 sampling timing, weighing mechanics and 20kg range are not modeled.",
+        "0x26 conflicts with 4relay and weight-i2c (one per bus). HX711 sampling timing, weighing mechanics, 20 kg range, tare/peel physics and the 10 SPS output rate are NOT RUN.",
+        "Firmware version is a synthetic fixture (2); RGB writes needed the 0135 fix (the 0130 decoder accepted only the first of the three colour bytes).",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-scales.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "vmeter",
       "name": "Unit VMeter",
@@ -12370,9 +12433,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "voltage-v": {
@@ -12419,15 +12482,20 @@
         "required_data_plane": "SoC I2C controller transactions to two device-local slaves (ADS1115 0x49 + read-only EEPROM 0x53) attached to one Grove pair",
         "blocker": "参数化复用 0126 ameter 双从机模式：ADS1115 0x49 config/conversion 由 voltage-v 按驱动 gain/rate 与 0.015918958 分压系数反算；EEPROM 0x53 为合成校验合法记录（factor 1.0）且默认只读。未采集 guest/Device Service 证据，保持 planned。真实出厂校准、±36V/隔离/保险丝、1% 精度 NOT RUN；0x53 与 accel 冲突（一总线一个）。"
       },
-      "blocker": "参数化复用 0126 ameter 双从机模式：ADS1115 0x49 config/conversion 由 voltage-v 按驱动 gain/rate 与 0.015918958 分压系数反算；EEPROM 0x53 为合成校验合法记录（factor 1.0）且默认只读。未采集 guest/Device Service 证据，保持 planned。真实出厂校准、±36V/隔离/保险丝、1% 精度 NOT RUN；0x53 与 accel 冲突（一总线一个）。",
+      "blocker": "参数化复用 0126 ameter 双从机模式：ADS1115 0x49 config/conversion 由 voltage-v 按驱动 gain/rate 与 0.015918958 分压系数反算；EEPROM 0x53 为合成校验合法记录（factor 1.0）且默认只读。真实出厂校准、±36V/隔离/保险丝、1% 精度 NOT RUN；0x53 与 accel 冲突（一总线一个）。Guest/Device Service evidence covers the frozen VoltmeterUnit (ADS1115 0x49 + EEPROM 0x53) on CoreS3: voltage-v=12.0 fixture yields guest 11.7784 V/raw=-3 (PGA_2048 3.93 V/LSB quantization per the driver table), EEPROM calibration is readable and a calibration write is rejected/counted; explicit set_gain/set_data_rate/set_operating_mode produce config-word=0x8B80. The 0133 fix aligned the model default config with the driver assumed PGA_2048/RATE_128. Only this host/firmware combination is admitted; real calibration/±36 V/isolation/fuse and 1% accuracy are NOT RUN; 0x53 conflicts with accel.",
       "input_semantics": "Synthetic voltage fixture inverse-encoded into the ADS1115 conversion register; EEPROM record is synthetic but checksum-valid.",
       "output_semantics": "Observed guest config/conversion transactions and rejected EEPROM writes; voltage is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Real factory calibration coefficients are unavailable; fixtures are synthetic. Isolation, ±36V range and 1% accuracy are NOT RUN."
+        "Real factory calibration coefficients are unavailable; fixtures are synthetic. Isolation, ±36V range and 1% accuracy are NOT RUN.",
+        "The factory calibration record is synthetic (factor 1.0); real calibration, 1% accuracy, +/-36 V range, isolation and fuse behavior are NOT RUN.",
+        "The driver's own PGA_2048 resolution table is 3.93 V/LSB, so the 12.0 V fixture reads 11.78 V; that is driver quantization, not a measurement. EEPROM writes are rejected and counted. 0x53 conflicts with accel.",
+        "The 0133 fix aligns the model's default ADS1115 config (0x8580) with the driver's assumed PGA_2048/RATE_128; the default read path previously disagreed with the guest's own conversion.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-vmeter.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "adc",
       "name": "Unit ADC",
@@ -12590,9 +12658,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "voltage-v": {
@@ -12634,15 +12702,19 @@
         "required_data_plane": "SoC I2C controller transactions to a device-local ADS1100 slave at 0x48 (1-byte config write, 3-byte read: data hi/lo/config)",
         "blocker": "新增 US_ADS1100（0x48，区别于已有 US_ADS1110）：配置字节 ST/BSY 0x80、SC 0x10、DR bits 0x0C、PGA bits 0x03；读事务返回 3B [data_hi,data_lo,config]；raw 由 voltage-v 按驱动公式反算。未采集 guest/Device Service 证据，保持 planned。0x48 与 adc-v11/ameter 冲突；master/snapshot get_raw_value 返回长度差异需钉 SHA；精度/参考 NOT RUN；产品页 EOL。"
       },
-      "blocker": "新增 US_ADS1100（0x48，区别于已有 US_ADS1110）：配置字节 ST/BSY 0x80、SC 0x10、DR bits 0x0C、PGA bits 0x03；读事务返回 3B [data_hi,data_lo,config]；raw 由 voltage-v 按驱动公式反算。未采集 guest/Device Service 证据，保持 planned。0x48 与 adc-v11/ameter 冲突；master/snapshot get_raw_value 返回长度差异需钉 SHA；精度/参考 NOT RUN；产品页 EOL。",
+      "blocker": "新增 US_ADS1100（0x48，区别于已有 US_ADS1110）：配置字节 ST/BSY 0x80、SC 0x10、DR bits 0x0C、PGA bits 0x03；读事务返回 3B [data_hi,data_lo,config]；raw 由 voltage-v 按驱动公式反算。0x48 与 adc-v11/ameter 冲突；master/snapshot get_raw_value 返回长度差异需钉 SHA；精度/参考 NOT RUN；产品页 EOL。Guest/Device Service evidence covers the frozen ADCUnit (ADS1100) on StopWatch at 0x48: voltage-v=3.3 fixture yields get_value()=8192 and get_voltage()=3.3 with a 2-byte raw slice; gain/rate/mode writes advance QOM config-word to 0x99. Only this host/firmware combination is admitted; ADS1100 vs ADS1110, reference/PGA accuracy and the master/snapshot raw-length difference are unresolved; 0x48 conflicts with adc-v11/ameter.",
       "input_semantics": "Synthetic input-voltage fixture inverse-encoded into a 16-bit ADS1100 code using the driver min-code/gain formula.",
       "output_semantics": "Observed guest config writes and 3-byte conversion reads; voltage is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "ADC accuracy, internal reference and PGA errors are not modeled."
+        "ADC accuracy, internal reference and PGA errors are not modeled.",
+        "ADS1100 and ADS1110 are distinct parts; the master/snapshot get_raw_value() return-length difference and the internal reference/PGA accuracy are unresolved.",
+        "0x48 conflicts with adc-v11 and ameter. Product page is EOL. set_operating_mode(SINGLE) makes get_value() return None until a conversion completes, as observed.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-adc.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "env-iv",
       "name": "Unit ENV-IV",
@@ -12832,9 +12904,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "temperature-c": {
@@ -12875,16 +12947,20 @@
         },
         "required_data_plane": "SoC I2C controller transactions to two device-local slaves (SHT40 0x44 + BMP280 0x76) attached to one Grove pair via m5_unit_i2c_attach"
       },
-      "blocker": "0126 双从机 attach：新增 US_SHT4X（0x44，命令字节 + 6 字节 T/RH 或序列号帧，每 2 字节后 CRC8 poly 0x31）+ 复用 US_BMP280（0x76，仅暴露 pressure-pa）；模型返回 spec-correct 帧。未采集 guest/Device Service 证据 → planned。**快照 driver/sht4x.py 的 getter 缺 measure() 调用（self.measure[0/1]）→ 实现/测试必须锚定 master 修正版或打补丁**；0x44 与已登记 env-iii 冲突、0x76 与 bps/env 冲突（一总线一个）；ENVUnit 必须显式 type=4；产品页 EOL；SHT40 精度/自热 NOT RUN。",
+      "blocker": "0126 双从机 attach：新增 US_SHT4X（0x44，命令字节 + 6 字节 T/RH 或序列号帧，每 2 字节后 CRC8 poly 0x31）+ 复用 US_BMP280（0x76，仅暴露 pressure-pa）；模型返回 spec-correct 帧。**快照 driver/sht4x.py 的 getter 缺 measure() 调用（self.measure[0/1]）→ 实现/测试必须锚定 master 修正版或打补丁**；0x44 与已登记 env-iii 冲突、0x76 与 bps/env 冲突（一总线一个）；ENVUnit 必须显式 type=4；产品页 EOL；SHT40 精度/自热 NOT RUN。Guest/Device Service evidence covers the frozen ENVUnit(ENV_IV) on AtomS3R: SHT40 0x44 CRC-valid measure() returns 25.5C/60.5%RH, BMP280 0x76 returns 1000.0 hPa, serial-number=0x12345678 and both slaves produce transactions. The frozen unit package does not export the ENV_IV constant, so explicit type 4 is used. Only this host/firmware combination is admitted; ENV-II/III, SHT40 accuracy/self-heating and BMP280 calibration authenticity are NOT RUN; 0x44 conflicts with env-iii and 0x76 with bps/env.",
       "input_semantics": "Synthetic temperature/humidity fixtures encoded into SHT40 CRC-valid frames; pressure via the existing BMP280 compensation model.",
       "output_semantics": "Observed guest I2C transactions to both addresses; decoded physical values are guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "SHT40 accuracy, self-heating and filter behavior are not modeled. The snapshot SHT4x getters are buggy; implementation must pin the fixed master version or patch.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Only ENV-IV is covered; ENV-II/III are not. SHT40 accuracy/self-heating and real calibration are NOT RUN; the BMP280 half reuses synthetic-but-valid compensation coefficients.",
+        "The frozen unit package does not export the ENV_IV constant (explicit type 4 used). 0x44 conflicts with env-iii; 0x76 conflicts with bps/env. Product page is EOL.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-env-iv.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "co2",
       "name": "Unit CO2",
@@ -13099,9 +13175,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "co2-ppm": {
@@ -13152,16 +13228,20 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local SCD4x slave at 0x62 implementing the 2-byte command + CRC-word protocol and its measurement state machine"
       },
-      "blocker": "0131 新增 US_SCD40（0x62）：2 字节 BE 命令 + 每 2 字节数据后 CRC8(poly 0x31, init 0xFF) 词协议；实现 0x21B1/0x3F86/0x21AC 周期测量、0xE4B8 就绪、0xEC05 测量（9B）、0x241D/0x2318 温度偏移、0x2427/0x2322 海拔、0xE000 压力、0x3682 序列号、0x3646/0x3632 复位、0x219D/0x2196 单次测量等；测量值由 fixture 编码。未采集 guest/Device Service 证据 → planned。**SCD40（页面/驱动）vs SCD41（官方 I2C 总表）芯片冲突 unresolved；快照 asyncio 实现 vs master 同步重写是两套 API，必须钉一个 SHA；两份驱动的温度解码都从 buf[1] 而不是 buf[4] 取值（既有驱动 bug）→ guest read_temperature 不可断言，只有 CO2/湿度可断言；5s 测量周期/CRC/精度 NOT RUN。**",
+      "blocker": "0131 新增 US_SCD40（0x62）：2 字节 BE 命令 + 每 2 字节数据后 CRC8(poly 0x31, init 0xFF) 词协议；实现 0x21B1/0x3F86/0x21AC 周期测量、0xE4B8 就绪、0xEC05 测量（9B）、0x241D/0x2318 温度偏移、0x2427/0x2322 海拔、0xE000 压力、0x3682 序列号、0x3646/0x3632 复位、0x219D/0x2196 单次测量等；测量值由 fixture 编码。**SCD40（页面/驱动）vs SCD41（官方 I2C 总表）芯片冲突 unresolved；快照 asyncio 实现 vs master 同步重写是两套 API，必须钉一个 SHA；两份驱动的温度解码都从 buf[1] 而不是 buf[4] 取值（既有驱动 bug）→ guest read_temperature 不可断言，只有 CO2/湿度可断言；5s 测量周期/CRC/精度 NOT RUN。**Guest/Device Service evidence covers the frozen CO2Unit (SCD4x/SCD40) on StickS3 at 0x62: injected 1234 ppm/60.5 %RH yield guest co2=1234 and humidity=60.5, the three-word serial number is readable, and measurement-reads are observed. The frozen driver decodes temperature from buf[1] instead of buf[4]; the observed temperature is therefore NOT asserted as a fixture match and is recorded as a driver bug. Only this host/firmware combination is admitted; SCD40-vs-SCD41, 5 s period/power-up timing and accuracy are NOT RUN.",
       "input_semantics": "Synthetic CO2/temperature/humidity/readiness fixtures encoded into CRC-valid SCD4x response words.",
       "output_semantics": "Observed guest command words, CRC words and measurement reads; gas-sensor physics are not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "CO2 accuracy, 5s measurement cycle and SCD4x calibration behavior are not modeled.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "SCD40-vs-SCD41 identity is unresolved. The frozen SCD40 driver decodes temperature from buf[1] instead of buf[4]; the observed value is therefore NOT ASSERTED as a fixture match (driver bug recorded).",
+        "CO2 and humidity are asserted; CRC words, data-ready and the three-word serial number are covered. Measurement period (5 s), power-up timing, accuracy and pressure compensation are NOT RUN.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-co2.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "pbhub",
       "name": "Unit PbHub",
@@ -13253,7 +13333,13 @@
             false
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": false
+          "readOnly": false,
+          "items": {
+            "type": "boolean",
+            "label": "通道数字电平"
+          },
+          "minItems": 6,
+          "maxItems": 6
         },
         "analog-inputs": {
           "type": "array",
@@ -13267,7 +13353,15 @@
             0
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": false
+          "readOnly": false,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1023,
+            "label": "通道模拟值(10-bit)"
+          },
+          "minItems": 6,
+          "maxItems": 6
         }
       },
       "outputs": {
@@ -13283,7 +13377,12 @@
             false
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": true
+          "readOnly": true,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 6,
+          "maxItems": 6
         },
         "pwm-outputs": {
           "type": "array",
@@ -13297,7 +13396,14 @@
             0
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": true
+          "readOnly": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "minItems": 6,
+          "maxItems": 6
         },
         "rgb-frames": {
           "type": "array",
@@ -13311,7 +13417,12 @@
             0
           ],
           "default_source": "synthetic-test-fixture",
-          "readOnly": true
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 6,
+          "maxItems": 6
         },
         "rgb-mode": {
           "type": "integer",
@@ -13386,9 +13497,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "digital-inputs": {
@@ -13449,16 +13560,21 @@
         },
         "required_data_plane": "SoC I2C controller transactions to the single device-local PbHub slave at 0x61 whose 256-byte command space encodes six channels (bases 0x40/0x50/0x60/0x70/0x80/0xA0, offsets 0x00..0x0B)"
       },
-      "blocker": "0131 新增 CONTROL_PBHUB（0x61）：**官方驱动始终访问单一 hub 地址 0x61，把 channel_base|offset 作为寄存器字节传入**，所以 6 通道（base 0x40/0x50/0x60/0x70/0x80/0xA0，offset 0x00..0x0B）在同一个 256 字节命令空间内，不是 6 个独立总线地址（研究草稿的\"7-address hub\" 说法已按驱动修正）。数字/模拟/RGB/servo/brightness 写入更新每通道 QOM；0xFA RGB mode 与 0xFF 地址迁移按 master 驱动（wire RGB 为 GRB）；读回 fixture 输入。未采集 guest/Device Service 证据 → planned。**MCU 身份三方冲突（页面 MEGA328 vs 规格 STM32F030F4P6 vs 官方 I2C 总表 MEGA328）unresolved；RGB 字节序快照大端 vs master GRB 已按 master 实现并须写 SHA；通道命令地址与 encoder/scroll/nfc/acssr/dac/env-iii 等已登记地址重叠，只在 hub 命令空间内部暴露；hub 不支持嵌套；PWM/servo/RGB 电气与 10-bit ADC 校准 NOT RUN。**",
+      "blocker": "0131 新增 CONTROL_PBHUB（0x61）：**官方驱动始终访问单一 hub 地址 0x61，把 channel_base|offset 作为寄存器字节传入**，所以 6 通道（base 0x40/0x50/0x60/0x70/0x80/0xA0，offset 0x00..0x0B）在同一个 256 字节命令空间内，不是 6 个独立总线地址（研究草稿的\"7-address hub\" 说法已按驱动修正）。数字/模拟/RGB/servo/brightness 写入更新每通道 QOM；0xFA RGB mode 与 0xFF 地址迁移按 master 驱动（wire RGB 为 GRB）；读回 fixture 输入。**MCU 身份三方冲突（页面 MEGA328 vs 规格 STM32F030F4P6 vs 官方 I2C 总表 MEGA328）unresolved；RGB 字节序快照大端 vs master GRB 已按 master 实现并须写 SHA；通道命令地址与 encoder/scroll/nfc/acssr/dac/env-iii 等已登记地址重叠，只在 hub 命令空间内部暴露；hub 不支持嵌套；PWM/servo/RGB 电气与 10-bit ADC 校准 NOT RUN。**Guest/Device Service evidence covers the frozen PBHUBUnit on CoreS3 at 0x61: six-channel digital/analog fixtures read back, pwm_write(50%) maps to 128, set_rgb_led_num+set_rgb_color(0xFF0000) produce rgb-frames=0xFF0000, rgb-mode=1 and fw/address 0x61. The 0132 fix corrected the one-byte-late single/range RGB commit. Only this host/firmware combination is admitted; the 0131 contract collapses IO0/IO1 positions to one boolean per channel (per-position semantics NOT modeled), and MCU identity/RGB byte order/nested hubs/electrical behavior are unresolved/NOT RUN.",
       "input_semantics": "Synthetic per-channel digital/analog input fixtures; guest writes update per-channel output/PWM/RGB state.",
       "output_semantics": "Observed guest per-channel command writes and hub config/address traffic; no servo/RGB electrical behavior.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "PWM/servo/RGB electrical behavior, hub nesting and 10-bit ADC calibration are not modeled.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "The model has one 0x61 command space (channel_base|offset is a register byte, not a bus address); the six channel addresses are not separate slaves, as the frozen driver expects.",
+        "The 0131 model exposes one digital boolean per channel for both input and output, so IO0/IO1 positions are collapsed (reads return the same fixture bit and writes share one latch); per-position semantics are NOT modeled. MCU identity (MEGA328 vs STM32F030F4P6 vs I2C index) is unresolved; RGB byte order is pinned to the frozen tag driver (GRB wire value).",
+        "PWM/servo/RGB electrical behavior, nested hubs and the EOL status are NOT RUN. RGB single/range writes needed the 0132 fix (commit was one byte late).",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-pbhub.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "ultrasonic-io",
       "name": "Unit Ultrasonic-IO",
@@ -13593,9 +13709,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "distance-mm": {
@@ -13631,14 +13747,18 @@
         },
         "required_data_plane": "SoC GPIO: pad observer on the yellow trigger wire and a QEMU timer generating the white echo pulse measured by machine.time_pulse_us()"
       },
-      "blocker": "0131 新增 GPIO id 'ultrasonic-io'：黄线 pad observer 观测 guest 触发（上升沿计数、下降沿启动回波），按 distance-mm 生成pulse_us=distance_mm*582/100 的白线高脉冲；越界距离不生成回波，让 guest 收到真实超时而非伪造值。未采集 guest/Device Service 证据 → planned。**页面 PinMap 把 PORT.A 标成 SDA/SCL，但描述与驱动都是 GPIO trigger/echo → 标签冲突 unresolved；MicroPython time_pulse_us 的高电平超时语义需在实现/测试时逐项对齐（本模型只覆盖有回波/无回波两条路径）；RCWL-9620 >3.5m 延迟、50ms 周期、温度补偿与±2% 精度、40kHz 声学 NOT RUN。**",
+      "blocker": "0131 新增 GPIO id 'ultrasonic-io'：黄线 pad observer 观测 guest 触发（上升沿计数、下降沿启动回波），按 distance-mm 生成pulse_us=distance_mm*582/100 的白线高脉冲；越界距离不生成回波，让 guest 收到真实超时而非伪造值。**页面 PinMap 把 PORT.A 标成 SDA/SCL，但描述与驱动都是 GPIO trigger/echo → 标签冲突 unresolved；MicroPython time_pulse_us 的高电平超时语义需在实现/测试时逐项对齐（本模型只覆盖有回波/无回波两条路径）；RCWL-9620 >3.5m 延迟、50ms 周期、温度补偿与±2% 精度、40kHz 声学 NOT RUN。**Guest/Device Service evidence covers the frozen ULTRASONIC_IOUnit on StopWatch: distance-mm=1000 fixture yields guest ~1000-1200 mm echoes with QOM echo-pulse-us=5820 and trigger-count>=8; a second instance with echo_timeout_us=1000 exercises the guest timeout path. The 0132 fix replaced the pad-observer set_input (QEMU abort) with a QEMU timer. Only this host/firmware combination is admitted; acoustic 40 kHz response/±2%/cycle timing and the PORT.A SDA/SCL PinMap conflict are unresolved/NOT RUN.",
       "input_semantics": "Synthetic target-distance fixture drives a model-generated echo pulse width on the white wire; out-of-range distances exercise the timeout path.",
       "output_semantics": "Observed guest trigger pulses and model echo pulses; distance is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Ultrasonic acoustics, temperature compensation and ±2% accuracy are not modeled.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Echo width is distance-mm*582/100 us; acoustic physics, 40 kHz response, +/-2% accuracy and the 400 ms/50 ms cycle are NOT RUN. The PORT.A SDA/SCL PinMap label conflicts with the GPIO trigger/echo driver.",
+        "The timeout path is exercised with a second unit instance at echo_timeout_us=1000 (below the 5820 us echo); the catalog input range 20..4500 cannot express an invalid distance, so the model's timeouts counter stays 0.",
+        "The 0132 fix replaced the direct echo-line drive inside the GPIO pad observer (which aborted QEMU via the !g_pad_dispatch_depth assertion) with a QEMU timer.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch3/report-ultrasonic-io.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132. Hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -14890,6 +15010,7 @@
         "Fixtures are synthetic; no guest/Device Service evidence exists yet."
       ]
     }
+
   ],
   "model_status_values": [
     "planned",

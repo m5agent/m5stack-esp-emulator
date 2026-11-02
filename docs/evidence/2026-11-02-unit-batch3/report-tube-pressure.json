@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:48:28.056490+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "atoms3r",
+  "unit_id": "tube-pressure",
+  "driver_class": "TubePressureUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_raw_tracks_adc_fixture": true,
+    "qom_analog_fixture_exact": true,
+    "adc_samples_observed": true,
+    "voltage_path_reported_unsupported": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "20089722ee598296c2d33177fb516b77c026f721855ab6fd34252d9226cad912",
+  "firmware_id": "20089722ee598296c2d33177fb516b77c026f721855ab6fd34252d9226cad912",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "61530831546c8e425c491712635147f39bf1b4d6262a4607a222ae1cc2d9ebe3",
+    "main.py": "59c513dd4576cfbaeef3f1ba9ba9d2995fd3921bc6622d19b4eedea63f6bd936"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "3c85d4f51370400eadda55b326ad6962",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "tube-pressure",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "tube_pressure": {
+      "voltage_mv": 1600.0,
+      "expected_adc16": 33832,
+      "expected_adc12": 2114,
+      "guest_raw": [
+        "33832",
+        "2114"
+      ],
+      "pressure_voltage_unsupported": true,
+      "qom": {
+        "analog-mv": 1600,
+        "adc-samples": 3479,
+        "pressure-kpa": 50,
+        "transactions": null,
+        "read-bytes": null,
+        "written-bytes": null
+      },
+      "boundary": "read_uv()/get_pressure()/get_voltage() need the S3 ADC calibration fixture and are NOT RUN; the covered path is read_u16()/read()/get_analog_value()."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:48:30.267567+08:00",
+      "properties": {
+        "analog-mv": 1600,
+        "adc-samples": 2408,
+        "pressure-kpa": 50
+      }
+    },
+    {
+      "at": "2026-11-02T21:48:30.267567+08:00",
+      "properties": {
+        "analog-mv": 1600,
+        "adc-samples": 2408,
+        "pressure-kpa": 50
+      }
+    },
+    {
+      "at": "2026-11-02T21:48:32.761382+08:00",
+      "properties": {
+        "analog-mv": 1600,
+        "adc-samples": 3479,
+        "pressure-kpa": 50
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "tube": "E_PRESSURE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nADC_TUBE_VOLTAGE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nADC_TUBE_RAW 33832 2114\nADC_TUBE_PRESSURE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nADC_TUBE_VOLTAGE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nADC_TUBE_RAW 33832 2114\nADC_TUBE_END\n"
+  },
+  "frame": {
+    "sha256": "a6e326d5d5ffea5cdc338d8686902b9c08ebce377584cc0c5ceb1224569adec1",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "cf3f22461ffafcb8063d84025b0400fb1aa6c1e54b09d1a90c77c237999ecff4",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "read_uv()/get_pressure()/get_voltage() need the S3 ADC calibration fixture and raise OSError(95) here; only the read_u16()/read()/get_analog_value() raw path is covered.",
+    "Sensor linearity, temperature compensation and the +/-1.5 kPa accuracy are NOT RUN; ADC 11DB full scale is unresolved; yellow is NC."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

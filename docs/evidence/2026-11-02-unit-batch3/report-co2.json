@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:53:36.548946+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "sticks3",
+  "unit_id": "co2",
+  "driver_class": "CO2Unit(SCD40)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_co2_tracks_fixture": true,
+    "guest_humidity_tracks_fixture": true,
+    "guest_serial_number_readable": true,
+    "temperature_decode_driver_bug_recorded": true,
+    "qom_fixtures_exact": true,
+    "measurement_reads_observed": true,
+    "qom_serial_number": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "11a8b6bf78588323d68817308486539f51b8edb87ae82851e506efa3e6cbf70f",
+  "firmware_id": "11a8b6bf78588323d68817308486539f51b8edb87ae82851e506efa3e6cbf70f",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "f91ad8ff1e07812987ea1ae4cc0c14a318e36eb64f0bde3c901534b360c48c77",
+    "main.py": "8ac07eb1ba516c3db2109b94d312dbc64cd8342b4ad3e81eefe1df38e6e9575e"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "cd8c2ba26db14306816bb690fb422c9d",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "co2",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "co2": {
+      "fixtures": {
+        "co2-ppm": 1234,
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "data-ready": true
+      },
+      "guest_co2": "1234",
+      "guest_humidity": "60.5",
+      "guest_temperature": "25.97",
+      "guest_serial_tuple": "(18, 52, 86, 120, 0, 0)",
+      "qom": {
+        "co2-ppm": 1234,
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "data-ready": false,
+        "serial-number": 305419896,
+        "measurement-reads": 14,
+        "transactions": 55
+      },
+      "driver_bug_boundary": "The frozen SCD40 driver decodes temperature from buf[1] instead of buf[4] (self.temperature is wrong); CO2 and humidity are assertable. SCD40-vs-SCD41 identity is unresolved."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:53:38.431832+08:00",
+      "properties": {
+        "co2-ppm": 1234,
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "data-ready": true,
+        "serial-number": 305419896,
+        "measurement-reads": 4,
+        "transactions": 24,
+        "read-bytes": 63,
+        "written-bytes": 24
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:38.431832+08:00",
+      "properties": {
+        "co2-ppm": 1234,
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "data-ready": true,
+        "serial-number": 305419896,
+        "measurement-reads": 4,
+        "transactions": 24,
+        "read-bytes": 63,
+        "written-bytes": 24
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:41.233931+08:00",
+      "properties": {
+        "co2-ppm": 1234,
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "data-ready": false,
+        "serial-number": 305419896,
+        "measurement-reads": 14,
+        "transactions": 55,
+        "read-bytes": 168,
+        "written-bytes": 56
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "co2": "O2_ATTR temperature 25.97\nI2C_CO2_READY 1\nI2C_CO2_ATTR co2 1234\nI2C_CO2_ATTR humidity 60.5\nI2C_CO2_ATTR temperature 25.97\nI2C_CO2_STOP set_stop_periodic_measurement None\nI2C_CO2_STOP_ERROR set_continuous_stop_measurement AttributeError(\"'CO2Unit' object has no attribute 'set_continuous_stop_measurement'\",)\nI2C_CO2_END\n"
+  },
+  "frame": {
+    "sha256": "49ac83ca76eb7b902ca6474793b11ff736db3cb5c7d414dabf8fe89a5fcec0e0",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "104097dd398fc0d08dc134cbff1f51d880547198f21adafb3025c9d438215598",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "SCD40-vs-SCD41 identity is unresolved. The frozen SCD40 driver decodes temperature from buf[1] instead of buf[4]; the observed value is therefore NOT ASSERTED as a fixture match (driver bug recorded).",
+    "CO2 and humidity are asserted; CRC words, data-ready and the three-word serial number are covered. Measurement period (5 s), power-up timing, accuracy and pressure compensation are NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

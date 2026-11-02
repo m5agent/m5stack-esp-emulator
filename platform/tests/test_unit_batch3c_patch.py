@@ -6,6 +6,7 @@ keep the SHT4x/SCD4x/PbHub/Ultrasonic unresolved boundaries visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -67,20 +68,35 @@ class UnitBatch3cPatchTests(unittest.TestCase):
         self.assertIn("echo-pulse-us", entry)
         self.assertIn("timeout", self.text)
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
+        hosts = {"env-iv": "atoms3r", "co2": "sticks3", "pbhub": "cores3",
+                 "ultrasonic-io": "stopwatch"}
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+            self.assertTrue(entry["blocker"], unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
-            self.assertTrue(profile["blocker"], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], [hosts[unit_id]], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            for patch in ("0131-unit-batch3c.patch", "0132-unit-batch3c-fixes.patch"):
+                self.assertIn(patch, evidence["patches"], unit_id)
+            for field in entry["inputs"]:
+                self.assertIn(field, profile["inputs"], f"{unit_id}.{field}")
+            for field in entry["outputs"]:
+                self.assertIn(field, profile["state"], f"{unit_id}.{field}")
 
     def test_patch_is_numbered_on_the_documented_base_and_has_no_guest_claim(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0131-unit-batch3c.patch", readme)
         self.assertIn("0129", readme)
+        self.assertIn("0132-unit-batch3c-fixes.patch", readme)
+        self.assertTrue((ROOT / "patches/qemu-m5stack-peripherals/0132-unit-batch3c-fixes.patch").is_file())
         self.assertIn("Offline QOM smoke", self.text)
         self.assertNotIn("guest PASS", self.text)
 

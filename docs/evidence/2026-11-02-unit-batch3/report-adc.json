@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:50:38.235682+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "stopwatch",
+  "unit_id": "adc",
+  "driver_class": "ADCUnit(ADS1100)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_value_tracks_fixture": true,
+    "guest_raw_slice_is_two_bytes": true,
+    "guest_voltage_matches_fixture": true,
+    "guest_default_gain_rate": true,
+    "guest_config_sequence": true,
+    "qom_voltage_fixture_exact": true,
+    "qom_config_after_writes": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "a0bb3166c6811127f52b19f8fe4a4b8b7fba6894955e04c34541366189c564d4",
+  "firmware_id": "a0bb3166c6811127f52b19f8fe4a4b8b7fba6894955e04c34541366189c564d4",
+  "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+  "runtime_binary_sha256": "f71ae85c21944431a3ab6334b624ac1f6a63a751eb285259daa10caf98f061d9",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0130 + 0133 + 0135",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "a66d648b0b83de578449a56473aece572ee017293cc7a76dbb34d6e5a5ea4840",
+    "main.py": "59c513dd4576cfbaeef3f1ba9ba9d2995fd3921bc6622d19b4eedea63f6bd936"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 10,
+      "white": 11
+    }
+  },
+  "session_id": "200f0e273c00496b95b4a16a9aa44a39",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "adc",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "adc": {
+      "fixtures": {
+        "voltage-v": 3.3
+      },
+      "guest": [
+        "8192",
+        "2000",
+        "3.3",
+        "1",
+        "8",
+        "0"
+      ],
+      "guest_config": [
+        "2",
+        "16",
+        "1",
+        "None"
+      ],
+      "expected_raw_default": 8192,
+      "qom": {
+        "voltage-v": 3.3,
+        "adc-raw": 8192,
+        "config-word": 153,
+        "i2c-address": 72,
+        "transactions": 53
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:50:40.143022+08:00",
+      "properties": {
+        "voltage-v": 3.3,
+        "adc-raw": 8192,
+        "config-word": 140,
+        "i2c-address": 72,
+        "transactions": 7,
+        "read-bytes": 9,
+        "written-bytes": 4
+      }
+    },
+    {
+      "at": "2026-11-02T21:50:40.143022+08:00",
+      "properties": {
+        "voltage-v": 3.3,
+        "adc-raw": 8192,
+        "config-word": 140,
+        "i2c-address": 72,
+        "transactions": 7,
+        "read-bytes": 9,
+        "written-bytes": 4
+      }
+    },
+    {
+      "at": "2026-11-02T21:50:44.496536+08:00",
+      "properties": {
+        "voltage-v": 3.3,
+        "adc-raw": 8192,
+        "config-word": 153,
+        "i2c-address": 72,
+        "transactions": 53,
+        "read-bytes": 75,
+        "written-bytes": 28
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "adc": " adc\nE (1090) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH3_PROBE_READY adc\nI2C_ADC 2482 09b2 3.3 1 8 0\nI2C_ADC 8192 2000 3.3 1 8 0\nI2C_ADC 8192 2000 3.3 1 8 0\nI2C_ADC 8192 2000 3.3 1 8 0\nI2C_ADC 8192 2000 3.3 1 8 0\nI2C_ADC 8192 2000 3.3 1 8 0\nI2C_ADC_CONFIG 2 16 1 None\nI2C_ADC_END\n"
+  },
+  "frame": {
+    "sha256": "0e2b00bc18e1950c87091f648faa04a445394827c97adf909963cddec0c64a18",
+    "metrics": {
+      "width": 466,
+      "height": 466,
+      "nonblack_pixels": 170499,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "fbc55d4f90c550e8aab7d122f2c0f8a5e53f8aa21be245b2457a08883b4da13a",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "ADS1100 and ADS1110 are distinct parts; the master/snapshot get_raw_value() return-length difference and the internal reference/PGA accuracy are unresolved.",
+    "0x48 conflicts with adc-v11 and ameter. Product page is EOL. set_operating_mode(SINGLE) makes get_value() return None until a conversion completes, as observed."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T21:53:29.397300+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "atoms3r",
+  "unit_id": "env-iv",
+  "driver_class": "ENVUnit(ENV_IV: SHT40+BMP280)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_sht40_temperature_humidity": true,
+    "guest_bmp280_pressure": true,
+    "sht4x_crc_verified_by_driver": true,
+    "dual_slave_transactions": true,
+    "qom_fixtures_exact": true,
+    "qom_serial_number": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "1196c71b88552cb94ce12a7d606e29b64ec8e53fdc17a9ca4f88187cca86e5a6",
+  "firmware_id": "1196c71b88552cb94ce12a7d606e29b64ec8e53fdc17a9ca4f88187cca86e5a6",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "d56e7b47befc18396cca5cb42011a956b9fdd12117f66e77e189b11cfaf08d63",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0132",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "b06e20d83ceeb98818f27ac9fb51d451c809b9a814f384c928b3e8df625ec692",
+    "main.py": "8ac07eb1ba516c3db2109b94d312dbc64cd8342b4ad3e81eefe1df38e6e9575e"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "849b3652619e4b88998eac29dafa0959",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "env-iv",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "env_iv": {
+      "fixtures": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000.0
+      },
+      "guest": [
+        "25.5",
+        "60.5",
+        "1000.0"
+      ],
+      "sht4x_measure": [
+        "25.499352",
+        "60.500724"
+      ],
+      "serial_number_guest": "305419896",
+      "qom": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "serial-number": 305419896,
+        "transactions": 114,
+        "read-bytes": 266,
+        "written-bytes": 64
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T21:53:31.615523+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "serial-number": 305419896,
+        "transactions": 15,
+        "read-bytes": 42,
+        "written-bytes": 8
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:31.615523+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "serial-number": 305419896,
+        "transactions": 15,
+        "read-bytes": 42,
+        "written-bytes": 8
+      }
+    },
+    {
+      "at": "2026-11-02T21:53:36.312451+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "serial-number": 305419896,
+        "transactions": 114,
+        "read-bytes": 266,
+        "written-bytes": 64
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH3_PROBE_READY",
+    "env-iv": "BMP280 999.999 25.0\nI2C_ENV4_BMP280 999.999 25.0\nE (4419) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_ENV4_INIT_OK\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4 25.5 60.5 1000.0\nI2C_ENV4_END\n"
+  },
+  "frame": {
+    "sha256": "074fd58c2b9dc130e5d5a42a0813474abc07e0680556bba99c87459ee788cee8",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "79e0bf0eb85e625e3646ddd093bc643fc66a58b392452cacb80a8c24264e4955",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Only ENV-IV is covered; ENV-II/III are not. SHT40 accuracy/self-heating and real calibration are NOT RUN; the BMP280 half reuses synthetic-but-valid compensation coefficients.",
+    "The frozen unit package does not export the ENV_IV constant (explicit type 4 used). 0x44 conflicts with env-iii; 0x76 conflicts with bps/env. Product page is EOL."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip stay in local ignored .work storage; this report is the committed summary."
+}
