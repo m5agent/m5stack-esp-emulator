@@ -71,6 +71,9 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
+Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项见
+[Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md)；它只是实现前研究，不含 runtime 或 PASS 声明。
+
 ## 首页与维护入口
 
 面向使用者的首页为默认中文 [README](../README.md)，英文入口为 [README.en](../README.en.md)。
@@ -145,6 +148,7 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的官方驱动 file:line 证据、总线/寄存器/命令表、QEMU 复用建议与 11 条 unresolved；planned，不含 runtime 声明 |
 | [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；原厂 camera.init/capture 仍 NOT_SUPPORTED，相机帧未闭环 |
 | [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md) | 计划 | `2026-11-02` | 剩余仅视觉主机的逐型号固件可用性/所需模型/决策，以及 150 款未登记 Unit 的方法与批次框架；不构成能力声明 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |
