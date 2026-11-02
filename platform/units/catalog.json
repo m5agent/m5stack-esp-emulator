@@ -27761,7 +27761,9 @@
       "interface": {
         "bus": "i2c",
         "connector": "HY2.0-4P",
-        "address_7bit": [],
+        "address_7bit": [
+          95
+        ],
         "pins": {
           "red": {
             "signal": "5V",
@@ -27814,98 +27816,44 @@
         ]
       },
       "inputs": {
-        "keys": {
-          "type": "array",
-          "label": "42 键矩阵 fixture",
-          "default": [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-          ],
-          "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 42,
-          "maxItems": 42
-        },
-        "mode": {
-          "type": "string",
-          "label": "通信模式 fixture",
-          "default": "i2c",
-          "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "enum": [
-            "i2c",
-            "uart",
-            "ble-hid",
-            "esp-now"
-          ]
-        }
-      },
-      "outputs": {
-        "last-key": {
+        "key-code": {
           "type": "integer",
-          "label": "最后一次按键",
+          "label": "key-code",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
+          "readOnly": false,
           "minimum": 0,
           "maximum": 255
         },
-        "led-rgb": {
+        "mode": {
           "type": "integer",
-          "label": "RGB 状态灯",
+          "label": "mode",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
+          "readOnly": false,
           "minimum": 0,
-          "maximum": 16777215
+          "maximum": 255
+        }
+      },
+      "outputs": {
+        "key-events": {
+          "type": "integer",
+          "label": "key-events",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         },
-        "mode": {
-          "type": "string",
-          "label": "当前模式",
-          "default": "i2c",
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": true
         }
@@ -27938,16 +27886,44 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；官方 UIFlow2 driver coming soon，**数字 I2C 地址/UART 帧格式未知**；Grove 引脚为 PORT.CUSTOM G26/G25，不在 cores3 host-port 准入；四模式/BLE HID/ESP-NOW/键盘机械 NOT RUN。"
+        "properties": {
+          "key-code": {
+            "property": "key-code",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "key-events": {
+            "property": "key-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；官方 UIFlow2 driver coming soon，**数字 I2C 地址/UART 帧格式未知**；Grove 引脚为 PORT.CUSTOM G26/G25，不在 cores3 host-port 准入；四模式/BLE HID/ESP-NOW/键盘机械 NOT RUN。",
+      "blocker": "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**",
       "limitations": [
         "No official UIFlow2 Unit driver (page says coming soon).",
         "Numeric I2C address/register map and Grove UART frame format are unresolved (external manual).",
         "PORT.CUSTOM G26/G25 is not an admitted host port; a new attachment/mapping is required.",
         "Wi-Fi 6/BLE HID/ESP-NOW RF and keyboard mechanics are NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。"
+        "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。",
+        "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -28045,158 +28021,114 @@
         ]
       },
       "inputs": {
-        "channel-modes": {
-          "type": "array",
-          "label": "8 通道模式 fixture",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "rotary": {
+          "type": "integer",
+          "label": "rotary",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 7
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "minimum": 0,
+          "maximum": 15
         },
-        "servo-angles": {
-          "type": "array",
-          "label": "8 通道角度 fixture",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "channel-modes-hex": {
+          "type": "string",
+          "label": "channel-modes-hex",
+          "default": "",
           "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 300
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "readOnly": false
         },
-        "adc-values": {
-          "type": "array",
-          "label": "8 通道 ADC fixture",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "servo-angles-hex": {
+          "type": "string",
+          "label": "servo-angles-hex",
+          "default": "",
           "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 4095
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "readOnly": false
         },
-        "rgb-leds": {
-          "type": "array",
-          "label": "8 通道 RGB fixture",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "adc-values-hex": {
+          "type": "string",
+          "label": "adc-values-hex",
+          "default": "",
           "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 16777215
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "readOnly": false
+        },
+        "rgb-hex": {
+          "type": "string",
+          "label": "rgb-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "pwm-hex": {
+          "type": "string",
+          "label": "pwm-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "timer-freq-hex": {
+          "type": "string",
+          "label": "timer-freq-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "uid-hex": {
+          "type": "string",
+          "label": "uid-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "input-levels-hex": {
+          "type": "string",
+          "label": "input-levels-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "sys-ref-mv": {
+          "type": "number",
+          "label": "sys-ref-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "sys-grove-mv": {
+          "type": "number",
+          "label": "sys-grove-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "sys-dc-mv": {
+          "type": "number",
+          "label": "sys-dc-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "sys-ma": {
+          "type": "number",
+          "label": "sys-ma",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
         }
       },
       "outputs": {
-        "channel-modes": {
-          "type": "array",
-          "label": "8 通道模式",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "integer"
-          },
-          "minItems": 8,
-          "maxItems": 8
-        },
-        "servo-angles": {
-          "type": "array",
-          "label": "8 通道角度",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "integer"
-          },
-          "minItems": 8,
-          "maxItems": 8
-        },
-        "current-ma": {
-          "type": "number",
-          "label": "总电流",
-          "default": 0.0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0
+          "readOnly": true
         },
         "i2c-address": {
           "type": "integer",
-          "label": "I2C 地址",
-          "default": 37,
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 127
+          "readOnly": true
         }
       },
       "evidence": [
@@ -28227,15 +28159,93 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；I2C 地址由旋钮映射 0x25-0x34（页面明确），但**内部固件通道模式/角度/ADC/RGB/PWM 寄存器表不可读**；0x25 与 8servos U165 冲突、0x26 与 scales 系冲突；servo/ADC/RGB/PWM 电气、9-24V/3A、INA199 电流检测 NOT RUN。"
+        "properties": {
+          "rotary": {
+            "property": "rotary",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "channel-modes-hex": {
+            "property": "channel-modes-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "servo-angles-hex": {
+            "property": "servo-angles-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "adc-values-hex": {
+            "property": "adc-values-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "rgb-hex": {
+            "property": "rgb-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "pwm-hex": {
+            "property": "pwm-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "timer-freq-hex": {
+            "property": "timer-freq-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "uid-hex": {
+            "property": "uid-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "input-levels-hex": {
+            "property": "input-levels-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "sys-ref-mv": {
+            "property": "sys-ref-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "sys-grove-mv": {
+            "property": "sys-grove-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "sys-dc-mv": {
+            "property": "sys-dc-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "sys-ma": {
+            "property": "sys-ma",
+            "access": "read-write",
+            "type": "number"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；I2C 地址由旋钮映射 0x25-0x34（页面明确），但**内部固件通道模式/角度/ADC/RGB/PWM 寄存器表不可读**；0x25 与 8servos U165 冲突、0x26 与 scales 系冲突；servo/ADC/RGB/PWM 电气、9-24V/3A、INA199 电流检测 NOT RUN。",
+      "blocker": "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**",
       "limitations": [
         "No public UIFlow2 Unit driver; internal-firmware channel register layout unresolved.",
         "0x25 conflicts with 8servos U165 and 0x26 with scales/weight-i2c/4relay; one address per bus.",
         "Servo/ADC/RGB/PWM electrical, 9-24V/3A power and INA199 current detection NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，内部固件寄存器与 servo/ADC 电气 NOT RUN。"
+        "仅 planned 契约；无模型/无 guest 证据，内部固件寄存器与 servo/ADC 电气 NOT RUN。",
+        "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31232,82 +31242,76 @@
         ]
       },
       "inputs": {
-        "switch-states": {
-          "type": "array",
-          "label": "8 路拨动开关 fixture",
-          "default": [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-          ],
+        "state-bitmap": {
+          "type": "integer",
+          "label": "state-bitmap",
+          "default": 255,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "minimum": 0,
+          "maximum": 255
+        },
+        "brightness": {
+          "type": "integer",
+          "label": "brightness",
+          "default": 128,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "led-mode": {
+          "type": "integer",
+          "label": "led-mode",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rgb-hex": {
+          "type": "string",
+          "label": "rgb-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "irq-enable": {
+          "type": "boolean",
+          "label": "irq-enable",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
         }
       },
       "outputs": {
-        "switch-states": {
-          "type": "array",
-          "label": "8 路拨动开关",
-          "default": [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-          ],
+        "irq-count": {
+          "type": "integer",
+          "label": "irq-count",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "readOnly": true
         },
-        "led-rgb": {
-          "type": "array",
-          "label": "9 灯 RGB",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "save-count": {
+          "type": "integer",
+          "label": "save-count",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 16777215
-          },
-          "minItems": 9,
-          "maxItems": 9
+          "readOnly": true
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         },
         "i2c-address": {
           "type": "integer",
-          "label": "I2C 地址",
-          "default": 70,
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 127
+          "readOnly": true
         }
       },
       "evidence": [
@@ -31337,15 +31341,63 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U191 has a clear I2C 0x46 address but no public Unit driver and the internal firmware switch/LED register table is unreadable; only a planned contract is registered. Switch mechanics/optics/cascade are NOT RUN; 0x46 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "state-bitmap": {
+            "property": "state-bitmap",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "brightness": {
+            "property": "brightness",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "led-mode": {
+            "property": "led-mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "rgb-hex": {
+            "property": "rgb-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "irq-enable": {
+            "property": "irq-enable",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "irq-count": {
+            "property": "irq-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "U191 has a clear I2C 0x46 address but no public Unit driver and the internal firmware switch/LED register table is unreadable; only a planned contract is registered. Switch mechanics/optics/cascade are NOT RUN; 0x46 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**",
       "limitations": [
         "No public Unit ByteSwitch driver; switch/LED register map unresolved.",
         "0x46 conflicts with other I2C units; two Grove ports are a pass-through cascade.",
         "Switch mechanics/optics/cascade NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+        "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31418,82 +31470,76 @@
         ]
       },
       "inputs": {
-        "button-states": {
-          "type": "array",
-          "label": "8 按键 fixture",
-          "default": [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-          ],
+        "state-bitmap": {
+          "type": "integer",
+          "label": "state-bitmap",
+          "default": 255,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "minimum": 0,
+          "maximum": 255
+        },
+        "brightness": {
+          "type": "integer",
+          "label": "brightness",
+          "default": 128,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "led-mode": {
+          "type": "integer",
+          "label": "led-mode",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rgb-hex": {
+          "type": "string",
+          "label": "rgb-hex",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "irq-enable": {
+          "type": "boolean",
+          "label": "irq-enable",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
         }
       },
       "outputs": {
-        "button-states": {
-          "type": "array",
-          "label": "8 按键",
-          "default": [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-          ],
+        "irq-count": {
+          "type": "integer",
+          "label": "irq-count",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 8,
-          "maxItems": 8
+          "readOnly": true
         },
-        "led-rgb": {
-          "type": "array",
-          "label": "9 灯 RGB",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ],
+        "save-count": {
+          "type": "integer",
+          "label": "save-count",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "items": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 16777215
-          },
-          "minItems": 9,
-          "maxItems": 9
+          "readOnly": true
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         },
         "i2c-address": {
           "type": "integer",
-          "label": "I2C 地址",
-          "default": 71,
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 127
+          "readOnly": true
         }
       },
       "evidence": [
@@ -31523,15 +31569,63 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U192 has a clear I2C 0x47 address but no public Unit driver and the internal firmware button/LED register table is unreadable; only a planned contract is registered. Button mechanics/optics/cascade are NOT RUN; 0x47 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "state-bitmap": {
+            "property": "state-bitmap",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "brightness": {
+            "property": "brightness",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "led-mode": {
+            "property": "led-mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "rgb-hex": {
+            "property": "rgb-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "irq-enable": {
+            "property": "irq-enable",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "irq-count": {
+            "property": "irq-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "U192 has a clear I2C 0x47 address but no public Unit driver and the internal firmware button/LED register table is unreadable; only a planned contract is registered. Button mechanics/optics/cascade are NOT RUN; 0x47 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**",
       "limitations": [
         "No public Unit ByteButton driver; button/LED register map unresolved.",
         "0x47 conflicts with other I2C units; two Grove ports are a pass-through expansion.",
         "Key mechanics/optics/cascade NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+        "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31607,50 +31701,87 @@
       "inputs": {
         "position": {
           "type": "integer",
-          "label": "16 位位置 fixture",
+          "label": "position",
           "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
           "minimum": 0,
           "maximum": 15
-        }
-      },
-      "outputs": {
-        "position": {
+        },
+        "led-config": {
           "type": "integer",
-          "label": "16 位位置",
-          "default": 0,
+          "label": "led-config",
+          "default": 254,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
+          "readOnly": false,
           "minimum": 0,
-          "maximum": 15
+          "maximum": 255
+        },
+        "led-brightness": {
+          "type": "integer",
+          "label": "led-brightness",
+          "default": 50,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 100
         },
         "direction": {
           "type": "integer",
-          "label": "方向",
-          "default": 0,
+          "label": "direction",
+          "default": 1,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
+          "readOnly": false,
           "minimum": 0,
           "maximum": 1
         },
-        "led-rgb": {
+        "rgb": {
           "type": "integer",
-          "label": "RGB",
+          "label": "rgb",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
+          "readOnly": false,
           "minimum": 0,
-          "maximum": 16777215
+          "maximum": 255
+        },
+        "rgb-power": {
+          "type": "boolean",
+          "label": "rgb-power",
+          "default": true,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "rgb-brightness": {
+          "type": "integer",
+          "label": "rgb-brightness",
+          "default": 255,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "outputs": {
+        "save-count": {
+          "type": "integer",
+          "label": "save-count",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         },
         "i2c-address": {
           "type": "integer",
-          "label": "I2C 地址",
-          "default": 72,
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 8,
-          "maximum": 119
+          "readOnly": true
         }
       },
       "evidence": [
@@ -31679,15 +31810,68 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U198 has a clear I2C 0x48 address range but no public Unit driver and the internal firmware position/config register table is unreadable; only a planned contract is registered. Encoder mechanics/7-segment display/optics are NOT RUN; 0x48 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "position": {
+            "property": "position",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "led-config": {
+            "property": "led-config",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "led-brightness": {
+            "property": "led-brightness",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "direction": {
+            "property": "direction",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "rgb": {
+            "property": "rgb",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "rgb-power": {
+            "property": "rgb-power",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "rgb-brightness": {
+            "property": "rgb-brightness",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "U198 has a clear I2C 0x48 address range but no public Unit driver and the internal firmware position/config register table is unreadable; only a planned contract is registered. Encoder mechanics/7-segment display/optics are NOT RUN; 0x48 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**",
       "limitations": [
         "No public Unit Step16 driver; position/config register map unresolved.",
         "0x48 conflicts with other I2C units; 0x08-0x77 configurable address must avoid all bus addresses.",
         "Encoder mechanics/7-seg display/optics NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+        "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31767,60 +31951,130 @@
       "inputs": {
         "schedule-on": {
           "type": "string",
-          "label": "定时开机 fixture",
-          "default": "00:00",
+          "label": "schedule-on",
+          "default": "",
           "default_source": "synthetic-test-fixture",
-          "readOnly": false,
-          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          "readOnly": false
         },
         "schedule-off": {
           "type": "string",
-          "label": "定时关机 fixture",
-          "default": "00:00",
+          "label": "schedule-off",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "usb-v": {
+          "type": "number",
+          "label": "usb-v",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "usb-i": {
+          "type": "number",
+          "label": "usb-i",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "grove-v": {
+          "type": "number",
+          "label": "grove-v",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "grove-i": {
+          "type": "number",
+          "label": "grove-i",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "battery-mv": {
+          "type": "number",
+          "label": "battery-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "battery-i-ma": {
+          "type": "number",
+          "label": "battery-i-ma",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "charging": {
+          "type": "boolean",
+          "label": "charging",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "grove-output": {
+          "type": "boolean",
+          "label": "grove-output",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "backlight": {
+          "type": "integer",
+          "label": "backlight",
+          "default": 1,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
-          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          "minimum": 0,
+          "maximum": 255
+        },
+        "trigger-bits": {
+          "type": "integer",
+          "label": "trigger-bits",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "cycle": {
+          "type": "integer",
+          "label": "cycle",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
         }
       },
       "outputs": {
         "power-state": {
-          "type": "boolean",
-          "label": "电源状态",
-          "default": false,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true
-        },
-        "battery-mv": {
           "type": "integer",
-          "label": "电池电压",
-          "default": 3700,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 2500,
-          "maximum": 4500
-        },
-        "input-current-ma": {
-          "type": "number",
-          "label": "输入电流",
-          "default": 0.0,
+          "label": "power-state",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": true
         },
-        "output-current-ma": {
-          "type": "number",
-          "label": "输出电流",
-          "default": 0.0,
+        "save-count": {
+          "type": "integer",
+          "label": "save-count",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "firmware-version",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": true
         },
         "i2c-address": {
           "type": "integer",
-          "label": "I2C 地址",
-          "default": 86,
+          "label": "i2c-address",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 127
+          "readOnly": true
         }
       },
       "evidence": [
@@ -31850,15 +32104,103 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U189 has a clear I2C 0x56 address but no public Unit driver and the schedule/status command table is unreadable; only a planned contract is registered. Battery/charger/boost/RTC/timed switching/OLED/thermal/safety are NOT RUN; 0x56 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "schedule-on": {
+            "property": "schedule-on",
+            "access": "read-write",
+            "type": "string"
+          },
+          "schedule-off": {
+            "property": "schedule-off",
+            "access": "read-write",
+            "type": "string"
+          },
+          "usb-v": {
+            "property": "usb-v",
+            "access": "read-write",
+            "type": "number"
+          },
+          "usb-i": {
+            "property": "usb-i",
+            "access": "read-write",
+            "type": "number"
+          },
+          "grove-v": {
+            "property": "grove-v",
+            "access": "read-write",
+            "type": "number"
+          },
+          "grove-i": {
+            "property": "grove-i",
+            "access": "read-write",
+            "type": "number"
+          },
+          "battery-mv": {
+            "property": "battery-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "battery-i-ma": {
+            "property": "battery-i-ma",
+            "access": "read-write",
+            "type": "number"
+          },
+          "charging": {
+            "property": "charging",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "grove-output": {
+            "property": "grove-output",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "backlight": {
+            "property": "backlight",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "trigger-bits": {
+            "property": "trigger-bits",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "cycle": {
+            "property": "cycle",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "power-state": {
+            "property": "power-state",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "U189 has a clear I2C 0x56 address but no public Unit driver and the schedule/status command table is unreadable; only a planned contract is registered. Battery/charger/boost/RTC/timed switching/OLED/thermal/safety are NOT RUN; 0x56 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**",
       "limitations": [
         "No public Unit TimerPWR driver; schedule/status register map unresolved.",
         "0x56 conflicts with other I2C units.",
         "Battery/charger/boost/RTC/timed switching/OLED/thermal/safety NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+        "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31933,73 +32275,111 @@
       "inputs": {
         "sensor-mv": {
           "type": "number",
-          "label": "传感器电压 fixture",
-          "default": 500.0,
+          "label": "sensor-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "ref-mv": {
+          "type": "number",
+          "label": "ref-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "ntc-mv": {
+          "type": "number",
+          "label": "ntc-mv",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "ntc-ohm": {
+          "type": "number",
+          "label": "ntc-ohm",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "valid-tags": {
+          "type": "boolean",
+          "label": "valid-tags",
+          "default": true,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "mq-mode": {
+          "type": "integer",
+          "label": "mq-mode",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
           "minimum": 0,
-          "maximum": 3300
+          "maximum": 255
+        },
+        "led": {
+          "type": "integer",
+          "label": "led",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "heat-high": {
+          "type": "integer",
+          "label": "heat-high",
+          "default": 30,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "heat-low": {
+          "type": "integer",
+          "label": "heat-low",
+          "default": 5,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 255
         }
       },
       "outputs": {
-        "sensor-mv": {
-          "type": "number",
-          "label": "传感器电压",
-          "default": 500.0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true
-        },
-        "reference-mv": {
-          "type": "number",
-          "label": "内部参考电压",
-          "default": 1200.0,
+        "adc8": {
+          "type": "integer",
+          "label": "adc8",
+          "default": 0,
           "default_source": "synthetic-test-fixture",
           "readOnly": true
         },
         "adc12": {
           "type": "integer",
-          "label": "12-bit ADC",
+          "label": "adc12",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 4095
+          "readOnly": true
         },
-        "adc8": {
+        "valid-raw": {
           "type": "integer",
-          "label": "8-bit ADC",
+          "label": "valid-raw",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 255
-        },
-        "temperature-c": {
-          "type": "number",
-          "label": "热敏温度",
-          "default": 25.0,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": -40,
-          "maximum": 125
+          "readOnly": true
         },
         "firmware-version": {
           "type": "integer",
-          "label": "固件版本",
-          "default": 1,
-          "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 255
-        },
-        "heating-mode": {
-          "type": "integer",
-          "label": "加热模式",
+          "label": "firmware-version",
           "default": 0,
           "default_source": "synthetic-test-fixture",
-          "readOnly": true,
-          "minimum": 0,
-          "maximum": 1
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "i2c-address",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         }
       },
       "evidence": [
@@ -32029,15 +32409,88 @@
       "runtime": {
         "status": "planned",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U199 has a clear I2C 0x11 address and a documented field list but no public Unit driver and no readable complete register/heating table; only a planned contract is registered. Gas concentration/preheat/heating/thermal are NOT RUN; 0x11 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "sensor-mv": {
+            "property": "sensor-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "ref-mv": {
+            "property": "ref-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "ntc-mv": {
+            "property": "ntc-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "ntc-ohm": {
+            "property": "ntc-ohm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "valid-tags": {
+            "property": "valid-tags",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "mq-mode": {
+            "property": "mq-mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "led": {
+            "property": "led",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "heat-high": {
+            "property": "heat-high",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "heat-low": {
+            "property": "heat-low",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "adc8": {
+            "property": "adc8",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "adc12": {
+            "property": "adc12",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "valid-raw": {
+            "property": "valid-raw",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "firmware-version": {
+            "property": "firmware-version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**",
+        "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "U199 has a clear I2C 0x11 address and a documented field list but no public Unit driver and no readable complete register/heating table; only a planned contract is registered. Gas concentration/preheat/heating/thermal are NOT RUN; 0x11 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**",
       "limitations": [
         "No public Unit MQ driver; register/heating-timing map unresolved.",
         "0x11 conflicts with other I2C units.",
         "Gas concentration/preheat/heating/thermal behavior NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+        "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null

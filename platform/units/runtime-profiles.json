@@ -12075,35 +12075,32 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；官方 UIFlow2 driver coming soon，**数字 I2C 地址/UART 帧格式未知**；Grove 引脚为 PORT.CUSTOM G26/G25，不在 cores3 host-port 准入；四模式/BLE HID/ESP-NOW/键盘机械 NOT RUN。",
+      "blocker": "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**",
       "bindings_required": [],
       "notes": "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。",
       "inputs": {
-        "keys": {
-          "property": "keys"
+        "key-code": {
+          "property": "key-code"
         },
         "mode": {
           "property": "mode"
         }
       },
       "state": {
-        "last-key": {
-          "property": "last-key"
-        },
-        "led-rgb": {
-          "property": "led-rgb"
+        "key-code": {
+          "property": "key-code"
         },
         "mode": {
           "property": "mode"
         },
-        "transactions": {
-          "property": "transactions"
+        "key-events": {
+          "property": "key-events"
         },
-        "read-bytes": {
-          "property": "read-bytes"
+        "firmware-version": {
+          "property": "firmware-version"
         },
-        "written-bytes": {
-          "property": "written-bytes"
+        "i2c-address": {
+          "property": "i2c-address"
         }
       }
     },
@@ -12111,44 +12108,95 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；I2C 地址由旋钮映射 0x25-0x34（页面明确），但**内部固件通道模式/角度/ADC/RGB/PWM 寄存器表不可读**；0x25 与 8servos U165 冲突、0x26 与 scales 系冲突；servo/ADC/RGB/PWM 电气、9-24V/3A、INA199 电流检测 NOT RUN。",
+      "blocker": "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**",
       "bindings_required": [],
       "notes": "仅 planned 契约；无模型/无 guest 证据，内部固件寄存器与 servo/ADC 电气 NOT RUN。",
       "inputs": {
-        "channel-modes": {
-          "property": "channel-modes"
+        "rotary": {
+          "property": "rotary"
         },
-        "servo-angles": {
-          "property": "servo-angles"
+        "channel-modes-hex": {
+          "property": "channel-modes-hex"
         },
-        "adc-values": {
-          "property": "adc-values"
+        "servo-angles-hex": {
+          "property": "servo-angles-hex"
         },
-        "rgb-leds": {
-          "property": "rgb-leds"
+        "adc-values-hex": {
+          "property": "adc-values-hex"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "pwm-hex": {
+          "property": "pwm-hex"
+        },
+        "timer-freq-hex": {
+          "property": "timer-freq-hex"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "input-levels-hex": {
+          "property": "input-levels-hex"
+        },
+        "sys-ref-mv": {
+          "property": "sys-ref-mv"
+        },
+        "sys-grove-mv": {
+          "property": "sys-grove-mv"
+        },
+        "sys-dc-mv": {
+          "property": "sys-dc-mv"
+        },
+        "sys-ma": {
+          "property": "sys-ma"
         }
       },
       "state": {
-        "channel-modes": {
-          "property": "channel-modes"
+        "rotary": {
+          "property": "rotary"
         },
-        "servo-angles": {
-          "property": "servo-angles"
+        "channel-modes-hex": {
+          "property": "channel-modes-hex"
         },
-        "current-ma": {
-          "property": "current-ma"
+        "servo-angles-hex": {
+          "property": "servo-angles-hex"
+        },
+        "adc-values-hex": {
+          "property": "adc-values-hex"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "pwm-hex": {
+          "property": "pwm-hex"
+        },
+        "timer-freq-hex": {
+          "property": "timer-freq-hex"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "input-levels-hex": {
+          "property": "input-levels-hex"
+        },
+        "sys-ref-mv": {
+          "property": "sys-ref-mv"
+        },
+        "sys-grove-mv": {
+          "property": "sys-grove-mv"
+        },
+        "sys-dc-mv": {
+          "property": "sys-dc-mv"
+        },
+        "sys-ma": {
+          "property": "sys-ma"
+        },
+        "firmware-version": {
+          "property": "firmware-version"
         },
         "i2c-address": {
           "property": "i2c-address"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13091,32 +13139,53 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U191 has a clear I2C 0x46 address but no public Unit driver and the internal firmware switch/LED register table is unreadable; only a planned contract is registered. Switch mechanics/optics/cascade are NOT RUN; 0x46 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
-        "switch-states": {
-          "property": "switch-states"
+        "state-bitmap": {
+          "property": "state-bitmap"
+        },
+        "brightness": {
+          "property": "brightness"
+        },
+        "led-mode": {
+          "property": "led-mode"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "irq-enable": {
+          "property": "irq-enable"
         }
       },
       "state": {
-        "switch-states": {
-          "property": "switch-states"
+        "state-bitmap": {
+          "property": "state-bitmap"
         },
-        "led-rgb": {
-          "property": "led-rgb"
+        "brightness": {
+          "property": "brightness"
+        },
+        "led-mode": {
+          "property": "led-mode"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "irq-enable": {
+          "property": "irq-enable"
+        },
+        "irq-count": {
+          "property": "irq-count"
+        },
+        "save-count": {
+          "property": "save-count"
+        },
+        "firmware-version": {
+          "property": "firmware-version"
         },
         "i2c-address": {
           "property": "i2c-address"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13124,32 +13193,53 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U192 has a clear I2C 0x47 address but no public Unit driver and the internal firmware button/LED register table is unreadable; only a planned contract is registered. Button mechanics/optics/cascade are NOT RUN; 0x47 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
-        "button-states": {
-          "property": "button-states"
+        "state-bitmap": {
+          "property": "state-bitmap"
+        },
+        "brightness": {
+          "property": "brightness"
+        },
+        "led-mode": {
+          "property": "led-mode"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "irq-enable": {
+          "property": "irq-enable"
         }
       },
       "state": {
-        "button-states": {
-          "property": "button-states"
+        "state-bitmap": {
+          "property": "state-bitmap"
         },
-        "led-rgb": {
-          "property": "led-rgb"
+        "brightness": {
+          "property": "brightness"
+        },
+        "led-mode": {
+          "property": "led-mode"
+        },
+        "rgb-hex": {
+          "property": "rgb-hex"
+        },
+        "irq-enable": {
+          "property": "irq-enable"
+        },
+        "irq-count": {
+          "property": "irq-count"
+        },
+        "save-count": {
+          "property": "save-count"
+        },
+        "firmware-version": {
+          "property": "firmware-version"
         },
         "i2c-address": {
           "property": "i2c-address"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13157,35 +13247,62 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U198 has a clear I2C 0x48 address range but no public Unit driver and the internal firmware position/config register table is unreadable; only a planned contract is registered. Encoder mechanics/7-segment display/optics are NOT RUN; 0x48 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
         "position": {
           "property": "position"
+        },
+        "led-config": {
+          "property": "led-config"
+        },
+        "led-brightness": {
+          "property": "led-brightness"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "rgb": {
+          "property": "rgb"
+        },
+        "rgb-power": {
+          "property": "rgb-power"
+        },
+        "rgb-brightness": {
+          "property": "rgb-brightness"
         }
       },
       "state": {
         "position": {
           "property": "position"
         },
+        "led-config": {
+          "property": "led-config"
+        },
+        "led-brightness": {
+          "property": "led-brightness"
+        },
         "direction": {
           "property": "direction"
         },
-        "led-rgb": {
-          "property": "led-rgb"
+        "rgb": {
+          "property": "rgb"
+        },
+        "rgb-power": {
+          "property": "rgb-power"
+        },
+        "rgb-brightness": {
+          "property": "rgb-brightness"
+        },
+        "save-count": {
+          "property": "save-count"
+        },
+        "firmware-version": {
+          "property": "firmware-version"
         },
         "i2c-address": {
           "property": "i2c-address"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13193,7 +13310,7 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U189 has a clear I2C 0x56 address but no public Unit driver and the schedule/status command table is unreadable; only a planned contract is registered. Battery/charger/boost/RTC/timed switching/OLED/thermal/safety are NOT RUN; 0x56 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
@@ -13202,32 +13319,92 @@
         },
         "schedule-off": {
           "property": "schedule-off"
-        }
-      },
-      "state": {
-        "power-state": {
-          "property": "power-state"
+        },
+        "usb-v": {
+          "property": "usb-v"
+        },
+        "usb-i": {
+          "property": "usb-i"
+        },
+        "grove-v": {
+          "property": "grove-v"
+        },
+        "grove-i": {
+          "property": "grove-i"
         },
         "battery-mv": {
           "property": "battery-mv"
         },
-        "input-current-ma": {
-          "property": "input-current-ma"
+        "battery-i-ma": {
+          "property": "battery-i-ma"
         },
-        "output-current-ma": {
-          "property": "output-current-ma"
+        "charging": {
+          "property": "charging"
+        },
+        "grove-output": {
+          "property": "grove-output"
+        },
+        "backlight": {
+          "property": "backlight"
+        },
+        "trigger-bits": {
+          "property": "trigger-bits"
+        },
+        "cycle": {
+          "property": "cycle"
+        }
+      },
+      "state": {
+        "schedule-on": {
+          "property": "schedule-on"
+        },
+        "schedule-off": {
+          "property": "schedule-off"
+        },
+        "usb-v": {
+          "property": "usb-v"
+        },
+        "usb-i": {
+          "property": "usb-i"
+        },
+        "grove-v": {
+          "property": "grove-v"
+        },
+        "grove-i": {
+          "property": "grove-i"
+        },
+        "battery-mv": {
+          "property": "battery-mv"
+        },
+        "battery-i-ma": {
+          "property": "battery-i-ma"
+        },
+        "charging": {
+          "property": "charging"
+        },
+        "grove-output": {
+          "property": "grove-output"
+        },
+        "backlight": {
+          "property": "backlight"
+        },
+        "trigger-bits": {
+          "property": "trigger-bits"
+        },
+        "cycle": {
+          "property": "cycle"
+        },
+        "power-state": {
+          "property": "power-state"
+        },
+        "save-count": {
+          "property": "save-count"
+        },
+        "firmware-version": {
+          "property": "firmware-version"
         },
         "i2c-address": {
           "property": "i2c-address"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13235,44 +13412,80 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U199 has a clear I2C 0x11 address and a documented field list but no public Unit driver and no readable complete register/heating table; only a planned contract is registered. Gas concentration/preheat/heating/thermal are NOT RUN; 0x11 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
         "sensor-mv": {
           "property": "sensor-mv"
+        },
+        "ref-mv": {
+          "property": "ref-mv"
+        },
+        "ntc-mv": {
+          "property": "ntc-mv"
+        },
+        "ntc-ohm": {
+          "property": "ntc-ohm"
+        },
+        "valid-tags": {
+          "property": "valid-tags"
+        },
+        "mq-mode": {
+          "property": "mq-mode"
+        },
+        "led": {
+          "property": "led"
+        },
+        "heat-high": {
+          "property": "heat-high"
+        },
+        "heat-low": {
+          "property": "heat-low"
         }
       },
       "state": {
         "sensor-mv": {
           "property": "sensor-mv"
         },
-        "reference-mv": {
-          "property": "reference-mv"
+        "ref-mv": {
+          "property": "ref-mv"
         },
-        "adc12": {
-          "property": "adc12"
+        "ntc-mv": {
+          "property": "ntc-mv"
+        },
+        "ntc-ohm": {
+          "property": "ntc-ohm"
+        },
+        "valid-tags": {
+          "property": "valid-tags"
+        },
+        "mq-mode": {
+          "property": "mq-mode"
+        },
+        "led": {
+          "property": "led"
+        },
+        "heat-high": {
+          "property": "heat-high"
+        },
+        "heat-low": {
+          "property": "heat-low"
         },
         "adc8": {
           "property": "adc8"
         },
-        "temperature-c": {
-          "property": "temperature-c"
+        "adc12": {
+          "property": "adc12"
+        },
+        "valid-raw": {
+          "property": "valid-raw"
         },
         "firmware-version": {
           "property": "firmware-version"
         },
-        "heating-mode": {
-          "property": "heating-mode"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
+        "i2c-address": {
+          "property": "i2c-address"
         }
       }
     },
