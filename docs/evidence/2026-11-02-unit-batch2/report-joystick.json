@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:07:46.069581+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "joystick",
+  "driver_class": "JoystickUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_axes_track_fixture": true,
+    "qom_fixture_exact": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "690c41387da5dfb8d38a87bf836057371ffb8f9b99380086b01fd95e76e93cc7",
+  "firmware_id": "690c41387da5dfb8d38a87bf836057371ffb8f9b99380086b01fd95e76e93cc7",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "36eb1386d88b0277c840110674801524c8093b2e76c8a300adc25e1d9920065c",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "6ed3fecfa91c4ce6a1e4ebcc1f647393",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "joystick",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "joystick": {
+      "fixtures": {
+        "x-raw": 37,
+        "y-raw": 201,
+        "button-raw": 1
+      },
+      "guest": [
+        "37",
+        "201",
+        "1"
+      ],
+      "qom": {
+        "x-raw": 37,
+        "y-raw": 201,
+        "button-raw": 1,
+        "transactions": 13,
+        "read-bytes": 18,
+        "written-bytes": 6
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:07:48.291233+08:00",
+      "properties": {
+        "transactions": 7,
+        "read-bytes": 9,
+        "written-bytes": 3,
+        "input-events": 3,
+        "output-transitions": 0,
+        "x-raw": 37,
+        "y-raw": 201,
+        "button-raw": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:48.291233+08:00",
+      "properties": {
+        "transactions": 7,
+        "read-bytes": 9,
+        "written-bytes": 3,
+        "input-events": 3,
+        "output-transitions": 0,
+        "x-raw": 37,
+        "y-raw": 201,
+        "button-raw": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:48.598482+08:00",
+      "properties": {
+        "transactions": 13,
+        "read-bytes": 18,
+        "written-bytes": 6,
+        "input-events": 3,
+        "output-transitions": 0,
+        "x-raw": 37,
+        "y-raw": 201,
+        "button-raw": 1
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "axis": "34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (941) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_START joystick\nE (1267) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_READY joystick\nI2C_JOYSTICK 128 128 0\nI2C_JOYSTICK 37 201 1\n"
+  },
+  "frame": {
+    "sha256": "46429304fba60089b8b7f521fdeaac02a76f5e4e55bd0f9619a7aeb6ac0882db",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "1bb3a65d4354b9fc41b27b3b37d0ea14ede668a4fe053e2208a05d8959fe2920",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The shared CONTROL_JOYSTICK model exposes button-raw as 0/1 (joystick-v11 semantics); the U024 raw button byte polarity/full 0..255 range remains unresolved and is not injectable.",
+    "0x52 conflicts with the registered joystick-v11; one Unit per bus.",
+    "Stick travel, potentiometer linearity and mechanical calibration are NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

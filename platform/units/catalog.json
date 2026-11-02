@@ -7973,7 +7973,8 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
           "minimum": 0,
-          "maximum": 255
+          "maximum": 1,
+          "unit": "normalized-button-byte"
         }
       },
       "outputs": {},
@@ -8008,9 +8009,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "x-raw": {
@@ -8056,7 +8057,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to the existing CONTROL_JOYSTICK register snapshot at 0x52; reuse m5_unit_i2c_controls.c"
       },
-      "blocker": "0125 maps the U024 'joystick' id onto the existing CONTROL_JOYSTICK 0x52 three-byte snapshot (x-raw/y-raw/button-raw; no new kind) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. Original U024 MCU/firmware identity and button polarity remain unresolved; 0x52 conflicts with the registered joystick-v11 (one Unit per bus); mechanical travel/potentiometer linearity are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen JoystickUnit on CoreS3 at 0x52: injected x-raw/y-raw/button-raw read back by get_x_raw()/get_y_raw()/get_button_status() and by QOM. Only this host/firmware combination is admitted; the shared CONTROL_JOYSTICK model exposes button-raw as 0/1, so the U024 raw-byte polarity/full 0..255 range remains unresolved; 0x52 conflicts with joystick-v11 (one per bus); mechanical travel/potentiometer linearity are NOT RUN.",
       "input_semantics": "Synthetic raw X/Y/button bytes delivered through the controller-visible I2C register snapshot.",
       "output_semantics": "Observed guest I2C reads and address probes; no output transitions.",
       "limitations": [
@@ -8064,9 +8065,13 @@
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Mechanical travel, potentiometer linearity and button feel are not modeled.",
         "0125 reuses the joystick-v11 register/snapshot path; button polarity is preserved as a raw byte until explicitly confirmed.",
-        "0x52 conflicts with joystick-v11; the two cannot coexist on one I2C bus."
+        "0x52 conflicts with joystick-v11; the two cannot coexist on one I2C bus.",
+        "The shared CONTROL_JOYSTICK model exposes button-raw as 0/1 (joystick-v11 semantics); the U024 raw byte polarity/full 0..255 range remains unresolved and is not exposed as an injectable range.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-joystick.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+
+,
     {
       "id": "watering",
       "name": "Unit Watering",
@@ -8186,9 +8191,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "analog-mv": {
@@ -8239,7 +8244,7 @@
         },
         "required_data_plane": "SoC GPIO controller: white ADC sample injection through m5_unit_adc_sample and yellow GPIO output observation through a pad observer"
       },
-      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling via the controller hook -> analog-mv/adc-samples; yellow PUMP_EN pad output listener -> pump-level/pump-transitions) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The initial PUMP_EN level is treated as low until the guest drives the pad; pump electrical/head/flow and soil-moisture physics are NOT RUN; ADC 11DB full-scale/calibration remains unresolved.",
+      "blocker": "Guest/Device Service evidence covers the frozen WateringUnit on AtomS3R: analog-mv fixture tracked by get_raw() through the SoC ADC controller, and on()/off()/set_pump() PUMP_EN writes observed via pump-level/pump-transitions with zero I2C transactions. Only this host/firmware combination is admitted; pump electrical/head/flow and soil-moisture physics are NOT RUN; read_uv()/get_voltage() need the S3 ADC calibration fixture (NOT RUN) and the 11DB full-scale is UNRESOLVED.",
       "input_semantics": "Synthetic soil-moisture millivolt fixture delivered through the SoC ADC controller sample path.",
       "output_semantics": "Observed guest-driven yellow pad level (pump enable); no pump physics.",
       "limitations": [
@@ -8247,9 +8252,11 @@
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Pump current, head/flow, soil moisture curve and ADC calibration are not modeled.",
         "0125 observes the real guest pad writes; it does not fake a GPIO or pump return value.",
-        "ADC 11DB full-scale/calibration and the soil-moisture voltage curve are unresolved/NOT RUN."
+        "ADC 11DB full-scale/calibration and the soil-moisture voltage curve are unresolved/NOT RUN.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-watering.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "fader",
       "name": "Unit Fader",
@@ -8404,9 +8411,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "analog-mv": {
@@ -8462,7 +8469,7 @@
         },
         "required_data_plane": "SoC GPIO/ADC for the white wire plus SoC RMT capture on the yellow wire; reuse the existing ADC and RGB branches of m5_unit_gpio.c in one Unit"
       },
-      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling -> analog-mv/adc-samples; yellow RMT capture configured for 14 SK6812 LEDs -> led-rgb/led-frames/incomplete-frames) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The snapshot-vs-master set_brightness() divergence must be pinned to one driver SHA; RMT timing tolerance, palette mechanics, potentiometer linearity and LED optics are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen FaderUnit on AtomS3R: analog-mv fixture tracked by get_raw(), and update_color()/update_brightness() SK6812 frames captured as 14-led G,R,B bytes matching the guest buffer exactly with no incomplete frames. Only this host/firmware combination is admitted; the frozen neopixel set_brightness() semantics are captured verbatim (last brightness frame wraps/scales to zero for high raw), so a different driver SHA may differ; LED optics, palette perception, RMT timing tolerance and potentiometer mechanics are NOT RUN.",
       "input_semantics": "Synthetic potentiometer millivolt fixture delivered through the SoC ADC controller sample path.",
       "output_semantics": "Observed guest-driven SK6812 RMT frames (G,R,B per LED) and frame counters; optical output not modeled.",
       "limitations": [
@@ -8470,9 +8477,11 @@
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "LED colorimetry, brightness, timing tolerance and slider mechanics are not modeled.",
         "Frames captured by 0125 are the raw G,R,B bytes the frozen driver emits; they are not optical measurements.",
-        "The snapshot and master neopixel drivers scale brightness differently; a driver SHA must be pinned before guest evidence."
+        "The snapshot and master neopixel drivers scale brightness differently; a driver SHA must be pinned before guest evidence.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-fader.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "dac",
       "name": "Unit DAC",
@@ -8635,9 +8644,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "dac-raw": {
@@ -8663,7 +8672,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local bare-command slave: 2-byte fast-mode writes and 3-byte reads"
       },
-      "blocker": "0125 adds a bare-command CONTROL_DAC at 0x60 (2-byte fast-mode writes update the 12-bit register; 0x60||value commits DAC+EEPROM; reads return the official 3-byte [ready,val>>4,(val&0xf)<<4] shape) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. EEPROM retention/endurance and the physical 0..3.3V output range are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and remains UNRESOLVED.",
+      "blocker": "Guest/Device Service evidence covers the frozen DACUnit (MCP4725) on CoreS3 at 0x60: set_raw_value/set_voltage/get_raw_value/get_voltage/save_to_eeprom round-trips with QOM dac-raw/eeprom-value/eeprom-writes/dac-voltage-v. Guest evidence required the 0127 fix (the official driver writes a full 3-byte buffer even for a fast-mode update; merged 0125 initially NACKed it). Only this host/firmware combination is admitted; EEPROM retention/endurance and the physical 0..3.3V output are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and the output reference is UNRESOLVED.",
       "input_semantics": "Synthetic 12-bit DAC code fixture written by the guest through fast-mode/EEPROM commands.",
       "output_semantics": "Observed guest-to-Unit writes and readback of the latched DAC code; analog voltage is derived, not measured.",
       "limitations": [
@@ -8672,9 +8681,11 @@
         "Analog output accuracy, reference drift, EEPROM retention and load behavior are not modeled.",
         "EEPROM retention/endurance is not modeled; writes are counted, not persisted across sessions.",
         "dac-voltage-v uses the driver default vdd=5.0V; the physical output range/reference remains UNRESOLVED.",
-        "The fixed status byte only carries the EEPROM-ready bit needed by the driver poll; other POR/status bits are not modeled."
+        "The fixed status byte only carries the EEPROM-ready bit needed by the driver poll; other POR/status bits are not modeled.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-dac.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0127 (DAC fast-mode fix). Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "bps",
       "name": "Unit Mini BPS",
@@ -8839,9 +8850,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "temperature-c": {
@@ -8882,7 +8893,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local BMP280 register-file slave; data registers carry raw counts consistent with the synthetic calibration and fixtures"
       },
-      "blocker": "0125 adds a US_BMP280 register-file kind at 0x76 (chip id 0x58, reset/status/control/config registers, fixed synthetic-but-valid 24-byte calibration block, and 0xF7 data registers inverse-compensated from temperature-c/pressure-pa with the executable driver's integer math) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The QMP6988 fallback (U090-B 0x56 / driver 0x70 vs env-iii 0x70) is NOT modeled and remains unresolved; altitude uses the driver's fixed sea-level assumption, not a measurement; datasheet compensation was not independently reviewed.",
+      "blocker": "Guest/Device Service evidence covers the frozen BPSUnit on StickS3 at 0x76: the model's inverse-compensated 0xF7 data registers make the guest's own compensation reproduce temperature-c/pressure-pa fixtures (25.0C/1013.25hPa then 10.5C/950hPa) and the driver altitude formula. Only this host/firmware combination is admitted; QMP6988/U090-B variants and the scan()[0] probe order are NOT modeled; the synthetic 24-byte calibration is not a real device calibration; altitude uses the driver's 101325 Pa sea-level assumption; physical pressure accuracy/datasheet compensation review are NOT RUN.",
       "input_semantics": "Synthetic temperature/pressure fixtures encoded into the model's raw data registers using the same compensation coefficients.",
       "output_semantics": "Observed guest I2C register transactions; compensated values are computed guest-side by the official driver.",
       "limitations": [
@@ -8891,9 +8902,11 @@
         "Barometric accuracy, calibration authenticity, altitude sea-level assumption and QMP6988 variant support are not validated.",
         "0125 returns raw counts; the guest driver performs the compensation, and the fixed calibration block is synthetic, not a real device calibration.",
         "QMP6988/U090-B variants and the driver's scan()[0] probe order are NOT modeled.",
-        "Altitude stays a driver sea-level-pressure assumption (101325 Pa), not a measured height."
+        "Altitude stays a driver sea-level-pressure assumption (101325 Pa), not a measured height.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-bps.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "adc-v11",
       "name": "Unit ADC v1.1",
@@ -9041,9 +9054,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "voltage-mv": {
@@ -9089,7 +9102,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local ADS1110 register-file slave; 1-byte config write and 2-byte big-endian conversion read"
       },
-      "blocker": "0125 adds a US_ADS1110 slave at 0x48 (single config byte, 2-byte big-endian signed reads; the raw count is derived from voltage-mv with the master driver's mini-code/gain/divider formula) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The official page contradicts itself (ADS1100 vs ADS1110, 8/16/32/128 vs 15/30/60/240 SPS, internal 2.048V vs VDD reference) and those stay unresolved; 0x48 conflicts with ameter (next batch); the snapshot get_voltage() bug requires anchoring the master-fixed driver.",
+      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; ADS1100-vs-ADS1110, SPS set and internal-2.048V-vs-VDD reference contradictions remain UNRESOLVED; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
       "input_semantics": "Synthetic input-voltage fixture inverse-encoded into a signed 16-bit ADC code using the driver formula.",
       "output_semantics": "Observed guest config writes and conversion reads; voltage is guest-side driver output.",
       "limitations": [
@@ -9098,9 +9111,13 @@
         "ADC accuracy, PGA error, reference drift and 0-12V input divider tolerance are not modeled.",
         "0125 implements ADS1110 semantics per the official I2C table; ADS1100 compatibility is NOT verified.",
         "Config-word is observable; conversion timing/DRDY behavior beyond the config byte is not modeled.",
-        "0x48 conflicts with the planned ameter (ADS1115) Unit; one per bus."
+        "0x48 conflicts with the planned ameter (ADS1115) Unit; one per bus.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-adc-v11.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN.",
+        "ADS1100-vs-ADS1110 identity, the SPS set and internal-2.048V-vs-VDD reference remain unresolved."
       ]
     }
+
+
   ],
   "model_status_values": [
     "planned",

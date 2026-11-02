@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:07:55.882450+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "fader",
+  "driver_class": "FaderUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_raw_tracks_adc_fixture": true,
+    "qom_analog_fixture_exact": true,
+    "adc_samples_observed": true,
+    "led_frames_observed": true,
+    "incomplete_frames_none": true,
+    "fourteen_led_strip": true,
+    "guest_buffer_matches_qom_frame": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "0ecebf8281ad6aea0e839994c01f9abb0cf6b9f8afd3695ff8399f6ad16a33aa",
+  "firmware_id": "0ecebf8281ad6aea0e839994c01f9abb0cf6b9f8afd3695ff8399f6ad16a33aa",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "fcd6164063c56e495d615fb4e17fa4ee711f051bf0dca9b7da06b59616338a92",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "f7ffa492405f4db3905ce5a45a158d57",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "fader",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "fader": {
+      "voltage_mv": 2500.0,
+      "expected_read_u16": 52844,
+      "guest_raw": 52844,
+      "voltage_readback_unsupported": true,
+      "voltage_boundary": "read_uv()/get_voltage() require the S3 ADC calibration fixture and are NOT RUN in this batch; read_u16() is the covered path.",
+      "guest_frame": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "qom": {
+        "analog-mv": 2500,
+        "adc-samples": 2338,
+        "led-rgb": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "led-frames": 7,
+        "incomplete-frames": 0,
+        "transactions": 0,
+        "written-bytes": 0
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:07:58.057221+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 2,
+        "analog-mv": 2500,
+        "adc-samples": 2268,
+        "led-rgb": [
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728
+        ],
+        "led-frames": 2,
+        "incomplete-frames": 0
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:58.057221+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 2,
+        "analog-mv": 2500,
+        "adc-samples": 2268,
+        "led-rgb": [
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728,
+          201728
+        ],
+        "led-frames": 2,
+        "incomplete-frames": 0
+      }
+    },
+    {
+      "at": "2026-11-02T20:08:00.215954+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 7,
+        "analog-mv": 2500,
+        "adc-samples": 2338,
+        "led-rgb": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "led-frames": 7,
+        "incomplete-frames": 0
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "frames": "')\nI2C_FADER_FRAME 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038\nI2C_FADER_RAW 52844\nI2C_FADER_VOLTAGE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nI2C_FADER_FRAME 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038 1038\nI2C_FADER_FRAME 0 0 0 0 0 0 0 0 0 0 0 0 0 0\nI2C_FADER_END\n"
+  },
+  "frame": {
+    "sha256": "3f7d68f47d2fcdb26a5ae08f84b4f4506fae83d9c9d7c0eab8a8da4886aa910e",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "6c484e3a5514edab76d21e04e8745c82103c2901fa3ba8aac26cb233d09f9de5",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "14-LED SK6812 optical output, palette perception, mechanical feel and potentiometer linearity are NOT RUN.",
+    "The frozen neopixel set_brightness() semantics are captured verbatim (the last update_brightness frame is all-zero at raw=52844 because of the driver's buffer scaling/wrap); a different driver SHA may emit different bytes.",
+    "RMT timing tolerance versus real SK6812 is NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

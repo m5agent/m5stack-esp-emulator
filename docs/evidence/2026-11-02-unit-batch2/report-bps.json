@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:08:00.435450+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "bps",
+  "driver_class": "BPSUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_temperature_tracks_fixture": true,
+    "guest_pressure_tracks_fixture": true,
+    "guest_altitude_matches_driver_formula": true,
+    "qom_fixture_exact": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "ad2ed9f7489995f41b33510d767c8c4b8822bac7dd058fd8aba8e3aab036e9e8",
+  "firmware_id": "ad2ed9f7489995f41b33510d767c8c4b8822bac7dd058fd8aba8e3aab036e9e8",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "c12812ef776bc3a340f3caabdebeaece746c6f30540cf9838cda525159dccd63",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "c322f5069da2495997e23d8750505198",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "bps",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "bps": {
+      "low_fixture": [
+        "25.0",
+        "1013.25",
+        "0.01"
+      ],
+      "high_fixture": [
+        "10.5",
+        "950.0",
+        "540.42"
+      ],
+      "expected_altitude": 540.42,
+      "qom": {
+        "temperature-c": 10.5,
+        "pressure-pa": 95000,
+        "transactions": 35,
+        "read-bytes": 67,
+        "written-bytes": 20
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:08:02.318044+08:00",
+      "properties": {
+        "transactions": 23,
+        "read-bytes": 46,
+        "written-bytes": 14,
+        "input-events": 0,
+        "output-transitions": 0,
+        "temperature-c": 25,
+        "pressure-pa": 101325
+      }
+    },
+    {
+      "at": "2026-11-02T20:08:02.318044+08:00",
+      "properties": {
+        "transactions": 23,
+        "read-bytes": 46,
+        "written-bytes": 14,
+        "input-events": 0,
+        "output-transitions": 0,
+        "temperature-c": 25,
+        "pressure-pa": 101325
+      }
+    },
+    {
+      "at": "2026-11-02T20:08:02.638319+08:00",
+      "properties": {
+        "transactions": 35,
+        "read-bytes": 67,
+        "written-bytes": 20,
+        "input-events": 2,
+        "output-transitions": 0,
+        "temperature-c": 10.5,
+        "pressure-pa": 95000
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "bps": "0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (845) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_START bps\nE (1173) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2_PROBE_READY bps\nI2C_BPS 25.0 1013.25 0.01\nI2C_BPS 10.5 950.0 540.42\n"
+  },
+  "frame": {
+    "sha256": "2c0c5efa55721fde8a4fb3a771bc9bffb3ba01519701d1cf2bde31194e9f4744",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "31f3db730dfb2927f02ec81eeeda6d6c66295f6da760483c30c4253cdb8815b1",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "QMP6988/U090-B variants and the driver's scan()[0] probe order are NOT modeled; the BMP280 path is the only covered variant.",
+    "The 24-byte calibration block is synthetic-but-valid, not a real device calibration; datasheet compensation was not independently reviewed.",
+    "Altitude uses the driver's fixed 101325 Pa sea-level assumption; it is not a measured height, and physical pressure accuracy is NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

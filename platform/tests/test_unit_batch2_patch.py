@@ -6,6 +6,7 @@ keep the documented address/version conflicts and unresolved items visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -39,7 +40,7 @@ class UnitBatch2PatchTests(unittest.TestCase):
         entry = json.dumps(self.units["joystick"], ensure_ascii=False)
         for token in ("0x52", "joystick-v11", "polarity", "NOT RUN"):
             self.assertIn(token, entry)
-        self.assertEqual(self.units["joystick"]["runtime"]["status"], "planned")
+        self.assertEqual(self.units["joystick"]["runtime"]["status"], "implemented")
 
     def test_watering_and_fader_dual_endpoint_boundaries(self):
         for token in ("pump-level", "pump-transitions", "adc-samples",
@@ -65,18 +66,28 @@ class UnitBatch2PatchTests(unittest.TestCase):
         for token in ("0x48", "ADS1110", "ADS1100", "SPS", "unresolved"):
             self.assertIn(token, adc)
         for unit_id in ("dac", "bps", "adc-v11"):
-            self.assertEqual(self.units[unit_id]["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(self.units[unit_id]["runtime"]["status"], "implemented", unit_id)
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
+        hosts = {"joystick": "cores3", "watering": "atoms3r", "fader": "atoms3r",
+                 "dac": "cores3", "bps": "sticks3", "adc-v11": "stopwatch"}
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
             self.assertNotEqual(entry["model_status"], "simulated", unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], [hosts[unit_id]], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            self.assertIn("0125-unit-batch2.patch", evidence["patches"], unit_id)
+            if unit_id == "dac":
+                self.assertIn("0127-unit-dac-fast-mode-write.patch", evidence["patches"], unit_id)
 
     def test_patch_is_numbered_on_the_documented_base_and_has_no_guest_claim(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")

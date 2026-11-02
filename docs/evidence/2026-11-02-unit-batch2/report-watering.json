@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:07:48.845939+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "watering",
+  "driver_class": "WateringUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_raw_tracks_adc_fixture": true,
+    "qom_analog_fixture_exact": true,
+    "adc_samples_observed": true,
+    "pump_on_observed": true,
+    "pump_off_and_retrigger_observed": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "e0943544ebfd6e99fdcd3ce4fb9e90775f90749122444e2e8034d65035fd93c9",
+  "firmware_id": "e0943544ebfd6e99fdcd3ce4fb9e90775f90749122444e2e8034d65035fd93c9",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "c3d13b448e7a19c040f007aec054ff047e469edee06a34c374d1b07bd9913957",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "08e51d926f4948328a4874a7ea4df128",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "watering",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "watering": {
+      "voltage_mv": 1600.0,
+      "expected_read_u16": 33832,
+      "guest_raw": 33832,
+      "voltage_readback_unsupported": true,
+      "voltage_boundary": "read_uv()/get_voltage() require the S3 ADC calibration fixture and are NOT RUN in this batch; read_u16() is the covered path.",
+      "qom": {
+        "analog-mv": 1600,
+        "adc-samples": 2317,
+        "pump-level": false,
+        "pump-transitions": 5,
+        "transactions": 0,
+        "written-bytes": 0
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:07:51.036437+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 1,
+        "analog-mv": 1600,
+        "adc-samples": 2261,
+        "pump-level": false,
+        "pump-transitions": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:53.819965+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 3,
+        "analog-mv": 1600,
+        "adc-samples": 2317,
+        "pump-level": false,
+        "pump-transitions": 3
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:55.654677+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 5,
+        "analog-mv": 1600,
+        "adc-samples": 2317,
+        "pump-level": false,
+        "pump-transitions": 5
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "pump": "OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nI2C_WATERING_RAW 33832\nI2C_WATERING_VOLTAGE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nI2C_WATERING_RAW 33832\nI2C_WATERING_VOLTAGE_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nI2C_WATERING_PUMP 1\nI2C_WATERING_PUMP 0\nI2C_WATERING_PUMP 1\nI2C_WATERING_PUMP 0\nI2C_WATERING_END\n"
+  },
+  "frame": {
+    "sha256": "e09f7b6a83d783c5c9c983a152d4749dbda613b9d4df0dcf2dc97c0864b800a3",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "a76d71b3a4253789fd86cd8c57606961668dfa41205bc9125794669e6e6b09c8",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Pump electrical behavior, head/flow and soil-moisture physics are NOT RUN; this evidence observes the PUMP_EN pad, not water movement.",
+    "read_uv()/get_voltage() require the S3 ADC calibration fixture and were NOT RUN; the covered ADC path is read_u16() against the analog-mv fixture.",
+    "ADC 11DB full-scale/calibration remains UNRESOLVED."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

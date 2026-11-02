@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:07:26.645326+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "stopwatch",
+  "unit_id": "adc-v11",
+  "driver_class": "ADCV11Unit(ADS1110)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_voltage_tracks_fixture": true,
+    "guest_raw_matches_default_config": true,
+    "guest_config_writes_observed": true,
+    "guest_final_voltage_after_config": true,
+    "qom_fixture_exact": true,
+    "qom_config_word_after_writes": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "6818b2eef950a6ed7f9ab726540ecb21d8ee001d72dcc7fc1c8fbf08b2f76670",
+  "firmware_id": "6818b2eef950a6ed7f9ab726540ecb21d8ee001d72dcc7fc1c8fbf08b2f76670",
+  "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+  "runtime_binary_sha256": "34ca685b745c61b6e90cccd5f83ead2980fd2a36ad7ebd62efecd33c0a4751c9",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "02b0d8e037291e63bc9d600a41a722e8543b8a5903382da0a23d211fa509213c",
+    "main.py": "aac358ab388d2038c14f133833509ed6d56f82afe8c133d840d9f6714aa2d74b"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 10,
+      "white": 11
+    }
+  },
+  "session_id": "389e56c2584c49bf818088e7f136541a",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "adc-v11",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "adc_v11": {
+      "voltage_mv": 1000.0,
+      "initial_voltage": "1.0",
+      "initial_raw": 2623,
+      "expected_raw_default": 2623,
+      "gain_raw": "5246",
+      "rate_raw": "1311",
+      "final_voltage": "1.0",
+      "qom": {
+        "voltage-mv": 1000,
+        "adc-raw": 1311,
+        "config-word": 149,
+        "transactions": 21,
+        "read-bytes": 32
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:07:28.547278+08:00",
+      "properties": {
+        "transactions": 3,
+        "read-bytes": 4,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0,
+        "voltage-mv": 1000,
+        "adc-raw": 2623,
+        "config-word": 12
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:28.547278+08:00",
+      "properties": {
+        "transactions": 3,
+        "read-bytes": 4,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0,
+        "voltage-mv": 1000,
+        "adc-raw": 2623,
+        "config-word": 12
+      }
+    },
+    {
+      "at": "2026-11-02T20:07:30.399178+08:00",
+      "properties": {
+        "transactions": 21,
+        "read-bytes": 32,
+        "written-bytes": 4,
+        "input-events": 0,
+        "output-transitions": 0,
+        "voltage-mv": 1000,
+        "adc-raw": 1311,
+        "config-word": 149
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2_PROBE_READY",
+    "adc": "OLTAGE 1.0\nI2C_ADC11_RAW 2623\nI2C_ADC11_VOLTAGE 1.0\nI2C_ADC11_RAW 2623\nI2C_ADC11_VOLTAGE 1.0\nI2C_ADC11_RAW 2623\nI2C_ADC11_VOLTAGE 1.0\nI2C_ADC11_RAW 2623\nI2C_ADC11_VOLTAGE 1.0\nI2C_ADC11_RAW 2623\nI2C_ADC11_VOLTAGE 1.0\nI2C_ADC11_GAIN 5246\nI2C_ADC11_RATE 1311\nI2C_ADC11_SINGLE 1311\nI2C_ADC11_FINAL_VOLTAGE 1.0\nI2C_ADC11_END\n"
+  },
+  "frame": {
+    "sha256": "33e79f5d3994bf73e967ab778456bed586c6daac7c718973c6e9f12b44a2bca4",
+    "metrics": {
+      "width": 466,
+      "height": 466,
+      "nonblack_pixels": 170499,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "bda65b79759e115ce28f7c9fcecc18cf35426f030007d4ea72ebcd73ea8c20bc",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The official page contradicts itself (ADS1100 vs ADS1110, 8/16/32/128 vs 15/30/60/240 SPS, internal 2.048V vs VDD reference); those remain UNRESOLVED.",
+    "ADS1100 compatibility is NOT verified; 0x48 conflicts with the planned ameter (ADS1115) Unit.",
+    "Physical voltage accuracy, PGA error and divider tolerance are NOT RUN; the fixture mapping follows the master driver formula."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}
