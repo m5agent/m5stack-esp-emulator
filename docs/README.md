@@ -112,6 +112,8 @@ Unit 第四批 12 款（`co2l`/`rs485-iso`/`laser-tx`/`neco`/`midi`/`weight`/`to
 [Unit 第四批协议研究](unit-research/2026-11-02-batch4-protocols.md)；catalog 草稿见同目录 batch4 JSON，全部 planned。
 Unit 第五批 12 款（`pahub-v20`/`pbhub-v11`/`8angle`/`kmeter-iso-v11`/`rtc`/`tmos-pir`/`rgb-led-10cm`/`neohex`/`op90`/`lora-e220-433`/`zigbee`/`nbiot2`）的官方驱动证据、I2C/GPIO-RMT/UART 协议表、QEMU 复用建议（PaHub 多总线、PbHub v1.1→0131、8Angle 寄存器组、RTC 虚拟时钟、黑白线 GPIO/RMT、UART 应答器）与 unresolved 见
 [Unit 第五批协议研究](unit-research/2026-11-02-batch5-protocols.md)；catalog 草稿见同目录 batch5 JSON，全部 planned。
+其中首批 5 款（`pbhub-v11`/`op90`/`rgb-led-10cm`/`8angle`/`kmeter-iso-v11`）已由 `0137` 接入 QEMU 数据面，实现状态、QOM fixture、QOM smoke 与 unresolved（PORT.B 主机限制、op90 极性、pbhub v1/v2 差异、8angle/kmeter 寄存器组）见
+[Unit 第五批首批实现状态](unit-research/2026-11-02-batch5-impl-status.md)，与协议研究 §4.2/4.3/4.4/4.7/4.9/§5 对应。
 C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md)。
 Unit 第二批前 6 款（`joystick`/`watering`/`fader`/`dac`/`bps`/`adc-v11`）的
@@ -203,6 +205,7 @@ VMeter 默认配置、EXT.IO 读回、Scales RGB 写入）。
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |
 | [Unit 第四批协议研究](unit-research/2026-11-02-batch4-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rs485-iso→rs485、co2l→co2、tof4m→tof 同族复用、HX711 位脉冲、MIDI/NMEA/JRD4035 UART 帧、SCD41/AC 市电/激光安全边界、WS2812 35-vs-70 灯冲突）；planned，不含 runtime 声明 |
 | [Unit 第五批协议研究](unit-research/2026-11-02-batch5-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（pbhub-v11→0131 PBHUB 复用、op90→limit/pir GPIO、rgb-led-10cm→fader RMT、8angle 寄存器组、PaHub 多总线框架缺口、RTC 虚拟时钟、LoRa 页面 115200 vs 驱动 9600 冲突、Zigbee/NBIoT AT 应答器、neohex 无 unit 驱动）；planned，不含 runtime 声明 |
+| [Unit 第五批首批实现状态](unit-research/2026-11-02-batch5-impl-status.md) | Unit 实现状态 | `2026-11-02` | 5 款首批 Unit（pbhub-v11/op90/rgb-led-10cm/8angle/kmeter-iso-v11）的 0137 模型、QOM fixture、smoke 19/19 与 unresolved（PORT.B 限制、op90 极性、pbhub v1/v2、8angle/kmeter 寄存器）；planned，不含 runtime 声明 |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick 条件接入（EasyLoader 工厂镜像提取；原 `d960e57e…` 提取长度已修正）、StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |
 | [AtomS3R-CAM 相机几何与多帧流](evidence/2026-11-02-atoms3r-cam-geometry/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | LCD_CAM DVP 几何跟随 GC0308 window/subsample 寄存器（0118）：QQVGA/240×240/QVGA/CIF/VGA 帧的 guest SHA-256 与宿主重建一致；QOM auto-increment 下连续 5 帧互异、各自匹配重建 scene seed 帧、无撕裂；动态改尺寸/物理光学 NOT RUN |
