@@ -7,6 +7,7 @@ visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -38,6 +39,7 @@ class UnitBatch5aPatchTests(unittest.TestCase):
         self.assertIn("0137-unit-batch5a.patch", readme)
         self.assertIn("0136", readme)
         self.assertIn("0134", readme)
+        self.assertIn("0141-unit-batch5-evidence-fixes.patch", readme)
 
     def test_pbhub_v11_reuses_single_0x61_command_space(self):
         entry = json.dumps(self.units["pbhub-v11"], ensure_ascii=False)
@@ -62,15 +64,40 @@ class UnitBatch5aPatchTests(unittest.TestCase):
         for token in ("0x66", "MAX31855", "-200", "1350", "NOT RUN", "隔离"):
             self.assertIn(token, kmeter, token)
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+            self.assertNotEqual(entry["model_status"], "simulated", unit_id)
+            self.assertTrue(entry["runtime"]["blocker"], unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            for patch in ("0137-unit-batch5a.patch", "0141-unit-batch5-evidence-fixes.patch"):
+                self.assertIn(patch, evidence["patches"], unit_id)
+            for field in entry["inputs"]:
+                self.assertIn(field, profile["inputs"], f"{unit_id}.{field}")
+            for field in entry["outputs"]:
+                self.assertIn(field, profile["state"], f"{unit_id}.{field}")
+
+    def test_0141_evidence_fixes_pin_batch5_bugs(self):
+        fix = ROOT / "patches/qemu-m5stack-peripherals/0141-unit-batch5-evidence-fixes.patch"
+        self.assertTrue(fix.is_file())
+        text = fix.read_text(encoding="utf-8")
+        for token in ("digital-level", "rtc_running", "kmeter_tc_c",
+                      "tmos_presence", "tmos_shock"):
+            self.assertIn(token, text)
+        readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
+        self.assertIn("0141-unit-batch5-evidence-fixes.patch", readme)
+        evidence = (ROOT / "docs/evidence/2026-11-02-unit-batch5/README.md").read_text(encoding="utf-8")
+        self.assertIn("0141-unit-batch5-evidence-fixes.patch", evidence)
 
     def test_patch_has_no_guest_claim(self):
         self.assertIn("Offline QOM smoke", self.text)

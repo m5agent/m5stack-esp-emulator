@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T23:43:52.885853+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A",
+  "device_id": "cores3",
+  "unit_id": "kmeter-iso-v11",
+  "driver_class": "KMeterISOUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_thermocouple_temperature": true,
+    "guest_internal_temperature": true,
+    "guest_ready_and_fw": true,
+    "qom_fixtures_exact": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "16d42ffe8a80cce6fceed3cc6635034c40134c59d5b8cc49e26283600000d3e3",
+  "firmware_id": "16d42ffe8a80cce6fceed3cc6635034c40134c59d5b8cc49e26283600000d3e3",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "0962a76a864ab12d20dcfa84b6b6b5a0c59ff4d75b9089098f67c5b59145a4b9",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 20 layers (0120-0139, incl. 0137 batch5 A and 0139 batch5 B) + 0141-unit-batch5-evidence-fixes",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "initial_inputs": {
+    "thermocouple-temperature-c": 123.45,
+    "internal-temperature-c": 26.5,
+    "data-ready": true
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "6fe06bfdc1a0297256e022ad62c5fe221ac8b657b0248a3a00c4f1fa5ab1e13d",
+    "main.py": "edd00dddf1bb640423dc09a87862cbaa6b763b77fef3d52e55f6da8f2ccaf808"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "d65c56aa006d49fe9b9e079361c3ea42",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "kmeter-iso-v11",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "kmeter_iso_v11": {
+      "guest_temperatures": [
+        "123.45",
+        "26.5"
+      ],
+      "guest_ready": "1",
+      "guest_fw": "1",
+      "qom": {
+        "thermocouple-temperature-c": 123.45,
+        "internal-temperature-c": 26.5,
+        "data-ready": true,
+        "fw-version": 1,
+        "i2c-address": 102,
+        "transactions": null
+      },
+      "boundary": "MAX31855 fault bits, thermocouple physics/cold-junction/isolation and 10Hz sampling are NOT RUN; 0x66 has no registered conflict."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T23:43:55.427268+08:00",
+      "properties": {
+        "thermocouple-temperature-c": 123.45,
+        "internal-temperature-c": 26.5,
+        "data-ready": true,
+        "fw-version": 1,
+        "i2c-address": 102
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH5_PROBE_READY",
+    "kmeter-iso-v11": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (888) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH5_PROBE_START kmeter-iso-v11\nE (1251) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH5_PROBE_READY kmeter-iso-v11\nI2C_KMETER 123.45 26.5\nI2C_KMETER_READY 1\nI2C_KMETER_FW 1\nI2C_KMETER_END\n"
+  },
+  "frame": {
+    "sha256": "135a5ed98ce835d3be4d7184b6193090fd0c932af5c1924382d8798bce477021",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "742015113fc2a640c8c469a3f8c75cbbf4ee62aae17301ac3312142650d7bff3",
+    "bytes": 19368
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "MAX31855 fault bits, thermocouple physics/cold-junction/isolation and 10Hz sampling are NOT RUN.",
+    "0x66 has no registered address conflict; the frozen driver string/ready path is exercised but the physical probe is NOT RUN."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed."
+}
