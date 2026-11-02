@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atoms3r-cam",
+  "machine": "m5atoms3rcam",
+  "firmware": {
+    "name": "UIFlow2.0 AtomS3R-CAM",
+    "version": "v2.5.4",
+    "firmware_id": "1897200000000003117",
+    "bytes": 8384512,
+    "sha256": "1b29cc3d838834b3a4713130010815f952cff58619001c76183dd0b0a588f2c1"
+  },
+  "case": {
+    "runner": "tests/uiflow2/run_device_matrix.py --device atoms3r-cam --flash-transport direct",
+    "status": "PASS",
+    "serial_markers": ["CAM_BOOT_FLAG", "CAM_MAIN_START", "CAM_M5_BEGIN_OK", "CAM_BOARD 144", "CAM_I2C_SCAN [0x8,0x10,0x18,0x21,0x30,0x43,0x68]", "CAM_PID 9b00", "CAM_CAPTURE_BYTES 0", "CAM_STATUS blocked"],
+    "board_id": 144
+  },
+  "verified": [
+    "official UIFlow2 v2.5.4 boot and M5.begin()",
+    "M5.getBoard()=144",
+    "128x128 GC9107 display init",
+    "guest I2C scan reaches GC0308 0x21 and reads PID 0x9b"
+  ],
+  "blocked": [
+    "official esp32-camera camera.init()/capture() returns ESP_ERR_NOT_SUPPORTED",
+    "no camera frame data plane is claimed"
+  ],
+  "not_run": [
+    "IR GPIO47",
+    "Grove G2/G1 Unit data planes",
+    "USB Type-C/CDC console",
+    "arbitrary third-party firmware",
+    "physical optics and electrical behavior"
+  ]
+}

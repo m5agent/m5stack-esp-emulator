@@ -54,6 +54,10 @@
       "atom-echos3r": {
         "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 145, 128x128 panel init and Speaker.begin/tone with non-silent I2S1 TX DMA PCM passed. NS4150B enable, Voice Base IR, microphone, Grove Units, USB CDC and physical behavior remain open.",
         "review_by": "2026-12-31"
+      },
+      "atoms3r-cam": {
+        "reason": "Device-local official UIFlow2 v2.5.4 boot, board id 144, 128x128 panel init and GC0308 identity at 0x21 (PID 0x9b) passed. The official camera.init/capture path returns ESP_ERR_NOT_SUPPORTED and no frame data plane is claimed; IR, Grove and USB CDC remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -3178,6 +3182,69 @@
         {
           "model": "ir-tx-rx",
           "reason": "Voice Base IR GPIO47 has no transmit/receive validation."
+        }
+      ]
+    },
+    "atoms3r-cam": {
+      "board_model": "m5atoms3rcam",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/AtomS3R-CAM"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 41,
+          "qom_path": "/machine/onboard_io",
+          "status": "partial"
+        },
+        {
+          "id": "imu",
+          "model": "bmi270",
+          "i2c_address": 104,
+          "status": "partial"
+        },
+        {
+          "id": "magnetometer",
+          "model": "bmm150",
+          "i2c_address": 16,
+          "status": "partial"
+        },
+        {
+          "id": "camera",
+          "model": "gc0308",
+          "i2c_address": 33,
+          "status": "planned"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 47,
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "GPIO41 button reaches the guest model; broader input and physical behavior remain open."
+        },
+        {
+          "model": "bmi270",
+          "reason": "IMU shares the AtomS3R init but has no device-local vector case for this board."
+        },
+        {
+          "model": "bmm150",
+          "reason": "BMM150 has no device-local magnetometer case for this board."
+        },
+        {
+          "model": "gc0308",
+          "reason": "Guest I2C scan reaches 0x21 and reads PID 0x9b, but the official esp32-camera probe still returns ESP_ERR_NOT_SUPPORTED, so no camera frame data plane is claimed."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "IR GPIO47 has no transmit/receive validation."
         }
       ]
     }

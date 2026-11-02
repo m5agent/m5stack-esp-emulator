@@ -55,7 +55,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 26 款。
+同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 27 款。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
@@ -64,6 +64,9 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md)记录独立
 `m5atomvoices3r` 的原厂固件启动、128×128 面板初始化和 Speaker/I2S1 DMA
 非静音 PCM；功放使能、IR、麦克风与 Grove Unit 仍未覆盖。
+[AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md)记录独立
+`m5atoms3rcam` 的启动、板级识别 144、显示初始化和 GC0308 身份读取；
+原厂 camera.init/capture 仍为 ESP_ERR_NOT_SUPPORTED，没有相机帧数据面。
 
 ## 首页与维护入口
 
@@ -139,6 +142,7 @@ IR、PDM 麦克风与 Grove Unit 数据面仍为未覆盖。
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [AtomS3R-CAM 主机接入](evidence/2026-11-02-atoms3r-cam-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3rcam` 的官方固件启动、板级识别 144、显示初始化与 GC0308 0x21 PID 0x9b；原厂 camera.init/capture 仍 NOT_SUPPORTED，相机帧未闭环 |
 | [Atom VoiceS3R 主机接入](evidence/2026-11-02-atom-echos3r-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomvoices3r` 的原厂 UIFlow2 v2.5.4 启动、板级识别 145、128×128 面板与 Speaker/I2S1 DMA 非静音 PCM；功放、IR、麦克风、Grove Unit 与物理声学未验 |
 | [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atoms3u` 板级的官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过；IR、SPM1423 PDM 麦克风、Grove Unit、USB CDC 与物理行为未验 |
 | [AIFlow simulator skill consumer](plans/2026-10-27-aiflow-simulator-skill.md) | 调用侧历史验证 | `2026-10-27` | CoreS3/PIR 本机限定验证，远端 AIFlow 未验 |

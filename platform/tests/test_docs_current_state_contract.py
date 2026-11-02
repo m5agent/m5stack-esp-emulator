@@ -85,7 +85,7 @@ class DocsCurrentStateContractTests(DocsContractBase):
         # This explicit admission boundary is independent of the imported model
         # inventory: adding a visual host must not silently grant runtime ports.
         self.assertEqual(expected, {
-            "atoms3r-ai-chatbot", "atoms3r-cam", "atoms3r-cam-ai-chatbot",
+            "atoms3r-ai-chatbot", "atoms3r-cam-ai-chatbot",
             "atoms3r-m12", "atoms3r-m12-volcengine-kit", "atoms3r-ext", "atom-echo",
             "atomu", "m5stick", "stickv", "stickt2", "basic-v27",
         })

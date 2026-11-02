@@ -390,6 +390,30 @@
       "timeout": 45
     },
     {
+      "id": "atoms3r-cam",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atoms3rcam",
+      "base": "platform/.cache/firmware/atoms3r-cam/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atoms3r_cam_console_test",
+      "vfs_offset": "0x651000",
+      "vfs_size": "0x1ae000",
+      "flash_size": "0x800000",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "serial_index": 0,
+      "serial_expect": [
+        "CAM_BOOT_FLAG",
+        "CAM_MAIN_START",
+        "CAM_M5_BEGIN_OK",
+        "CAM_BOARD 144",
+        "CAM_PID 9b00",
+        "CAM_STATUS blocked"
+      ],
+      "timeout": 60
+    },
+    {
       "id": "dial",
       "backend": "qemu-esp32s3",
       "network_status": "unverified",
