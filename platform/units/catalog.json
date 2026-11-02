@@ -9538,9 +9538,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "temperature-c": {
@@ -9576,16 +9576,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to two device-local slaves (DHT12 0x5C + BMP280 0x76) attached to one Grove pair"
       },
-      "blocker": "0126 在同一次 attachment 上挂 DHT12 0x5C + BMP280 0x76 两个 slave（m5_unit_i2c_attach），DHT12 5 字节帧由 temperature-c/humidity-pct 量化并生成合法校验和，BMP280 复用 US_BMP280 且仅暴露 pressure-pa（其自身温度槽固定 25C 供补偿）。未采集 guest/Device Service 证据 → planned。ENV-II/III/IV 变体、产品页温度精度 ±0.2/±0.5 矛盾、DHT12 上电/校验语义、BMP280 校准真实性均 unresolved；双从机共享一条 Grove 总线，guest 必须按 ENV-I 显式 type 使用。",
+      "blocker": "0126 在同一次 attachment 上挂 DHT12 0x5C + BMP280 0x76 两个 slave（m5_unit_i2c_attach），DHT12 5 字节帧由 temperature-c/humidity-pct 量化并生成合法校验和，BMP280 复用 US_BMP280 且仅暴露 pressure-pa（其自身温度槽固定 25C 供补偿）。ENV-II/III/IV 变体、产品页温度精度 ±0.2/±0.5 矛盾、DHT12 上电/校验语义、BMP280 校准真实性均 unresolved；双从机共享一条 Grove 总线，guest 必须按 ENV-I 显式 type 使用。Guest/Device Service evidence covers the frozen ENVUnit(ENV_I) on AtomS3R: one Grove pair served DHT12 0x5C and BMP280 0x76; injected 25.5C/60.5%/100000Pa read back as 25.5/60.5/1000.0 and QOM fixtures. Only this host/firmware combination is admitted; ENV-II/III/IV, sensor accuracy/self-heating, product-page +/-0.2 vs +/-0.5C and DHT12 power-up/checksum semantics remain unresolved; physical sensor behavior is NOT RUN.",
       "input_semantics": "Synthetic temperature/humidity/pressure fixtures encoded into DHT12 and BMP280 device-local registers.",
       "output_semantics": "Observed guest I2C transactions to both addresses; decoded physical values are guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Sensor accuracy, calibration, self-heating and ENV-II/III/IV variants are not modeled.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-env.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only AtomS3R/ENV-I is evidenced; ENV-II/III/IV, sensor accuracy and physical behavior are NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "ameter",
       "name": "Unit AMeter",
@@ -9756,9 +9758,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "current-a": {
@@ -9804,16 +9806,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to two device-local slaves (ADS1115 0x48 + read-only EEPROM 0x51) attached to one Grove pair"
       },
-      "blocker": "0126 挂 ADS1115 0x48 + EEPROM 0x51 双 slave：ADS1115 config/conversion 由 current-a 按驱动 gain/rate/resolution 公式反算；EEPROM 为合成校验合法记录（factor 1.0）且按产品页警告只读（写被 NACK 并计数）。未采集 guest/Device Service 证据 → planned。真实出厂校准系数、1% 精度/0.3mA 分辨率、方向/隔离/保险丝、EEPROM 实际写入策略均 NOT RUN/unresolved；0x48 与 adc-v11 冲突（一总线一个）。",
+      "blocker": "0126 挂 ADS1115 0x48 + EEPROM 0x51 双 slave：ADS1115 config/conversion 由 current-a 按驱动 gain/rate/resolution 公式反算；EEPROM 为合成校验合法记录（factor 1.0）且按产品页警告只读（写被 NACK 并计数）。真实出厂校准系数、1% 精度/0.3mA 分辨率、方向/隔离/保险丝、EEPROM 实际写入策略均 NOT RUN/unresolved；0x48 与 adc-v11 冲突（一总线一个）。Guest/Device Service evidence covers the frozen AMeterUnit on StickS3: ADS1115 0x48 conversion follows the driver PGA-256 formula (1.0A fixture -> 0.9376A guest quantization, raw -6), the EEPROM 0x51 synthetic factor-1.0 calibration is readable and a calibration write is rejected/counted (eeprom-writes=1). Guest evidence required the 0128 fix (merged 0126 used a 16-byte stride while the driver reads 8-byte records, causing 0/0 in set_gain). Only this host/firmware combination is admitted; factory calibration/1% accuracy/0.3mA resolution/isolation and real current measurement are NOT RUN; 0x48 conflicts with adc-v11.",
       "input_semantics": "Synthetic current fixture inverse-encoded into the ADS1115 conversion register; EEPROM record is synthetic but checksum-valid.",
       "output_semantics": "Observed guest config/conversion transactions and rejected EEPROM writes; current is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Measurement accuracy, factory calibration authenticity, isolation, thermal drift and fuse behavior are not modeled.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-ameter.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only StickS3 is evidenced; factory calibration, accuracy, isolation and real current measurement are NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "extencoder",
       "name": "Unit ExtEncoder",
@@ -10047,9 +10051,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "counter": {
@@ -10115,16 +10119,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local 256-byte register-file slave with pointer-write/read, 4-byte LE registers and 0xFF address migration"
       },
-      "blocker": "0126 新增 CONTROL_EXTENCODER（0x59）：0x00 counter / 0x10 meter(合成=counter) / 0x30 reset / 0x40 perimeter / 0x50 pulse / 0x60 zero-pulse / 0x70 zero-mode / 0xFE fw / 0xFF address，指针写+读快照、4 字节 LE、地址迁移含同总线冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表渲染损坏、0x20 ASCII 米值格式与 0x30 复位语义 unresolved；AB/ABZ 解码、12-bit 采样与机械耦合 NOT RUN。",
+      "blocker": "0126 新增 CONTROL_EXTENCODER（0x59）：0x00 counter / 0x10 meter(合成=counter) / 0x30 reset / 0x40 perimeter / 0x50 pulse / 0x60 zero-pulse / 0x70 zero-mode / 0xFE fw / 0xFF address，指针写+读快照、4 字节 LE、地址迁移含同总线冲突检查。产品页协议表渲染损坏、0x20 ASCII 米值格式与 0x30 复位语义 unresolved；AB/ABZ 解码、12-bit 采样与机械耦合 NOT RUN。Guest/Device Service evidence covers the frozen ExtEncoderUnit on CoreS3 at 0x59: injected counter 1234 read back as value/increments, perimeter/pulse/zero-mode/zero-pulse writes round-tripped (500/20/1/10), reset cleared the counter with reset-writes=1, fw fixture=2. Guest evidence required the 0129 fix (merged 0126 used write_pos-1 so the first data byte was offset 1 and every 32-bit write was shifted left by 8 bits). Only this host/firmware combination is admitted; mechanical AB/ABZ motion, pulse timing, calibration physics and non-volatile behavior are NOT RUN.",
       "input_semantics": "Synthetic counter/perimeter/pulse fixtures encoded into the 4-byte little-endian register bank.",
       "output_semantics": "Observed guest register reads/writes and address changes; encoder mechanics are not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "AB/ABZ signal decoding, sampling accuracy, mechanical coupling and reset semantics are not modeled.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-extencoder.json for cores3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only CoreS3 is evidenced; mechanical encoder/ABZ timing and non-volatile behavior are NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "ain4-20ma",
       "name": "Unit AIN4-20mA",
@@ -10310,9 +10316,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "current-ma": {
@@ -10358,16 +10364,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local 5-register slave (u16le) with 0xFF address migration"
       },
-      "blocker": "0126 新增 US_AIN420（0x55）：0x00 raw ADC / 0x20 current mA*100 / 0x30 校准 RW / 0xFE fw / 0xFF address，LE 编码与地址迁移冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表 0xF0 vs 驱动 0xFE/0xFF、12-bit vs raw16、主控 STM32F030 vs STM32G030F6P6 均 unresolved；4-20mA 环路精度、隔离、ADC 线性与跳线接线 NOT RUN。",
+      "blocker": "0126 新增 US_AIN420（0x55）：0x00 raw ADC / 0x20 current mA*100 / 0x30 校准 RW / 0xFE fw / 0xFF address，LE 编码与地址迁移冲突检查。产品页协议表 0xF0 vs 驱动 0xFE/0xFF、12-bit vs raw16、主控 STM32F030 vs STM32G030F6P6 均 unresolved；4-20mA 环路精度、隔离、ADC 线性与跳线接线 NOT RUN。Guest/Device Service evidence covers the frozen AIN4_20MAUnit on StopWatch at 0x55: injected adc-raw=2500/current-ma=12.5 read back as 2500/12.5, fw=1, address 0x55, and set_cal_current(15) was accepted. Only this host/firmware combination is admitted; product-page 0xF0 vs 0xFE/0xFF, 12-bit vs raw16 and STM32F030 vs STM32G030F contradictions remain unresolved; 4-20mA loop electrical/accuracy/isolation behavior is NOT RUN.",
       "input_semantics": "Synthetic current/ADC/calibration fixtures encoded into the u16le register file.",
       "output_semantics": "Observed guest register reads/writes and address change; loop electrical behavior is not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "4-20mA loop accuracy, isolation, ADC linearity and jumper wiring are not modeled.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-ain4-20ma.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only StopWatch is evidenced; 4-20mA loop electrical/accuracy behavior is NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "acssr",
       "name": "Unit ACSSR",
@@ -10544,9 +10552,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "relay-level": {
@@ -10597,16 +10605,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local register slave (relay level/RGB/address/firmware); AC electrical behavior is not modeled"
       },
-      "blocker": "0126 新增 CONTROL_ACSSR（0x50）：0x00 继电器电平 / 0x10 3 字节大端 RGB / 0x20 地址写 / 0xFE fw，写事务更新只读观测。未采集 guest/Device Service 证据 → planned。**安全边界：本模型是 I2C 事务观测，不是 AC 市电开关模型；绝不能宣称可切换 24–480V/10A 市电负载**；过零/漏电流/寿命/隔离、Button/Modbus 模式、set_address 的 5s 语义均 NOT RUN/unresolved；0x50 与 nfc 冲突（一总线一个）。",
+      "blocker": "0126 新增 CONTROL_ACSSR（0x50）：0x00 继电器电平 / 0x10 3 字节大端 RGB / 0x20 地址写 / 0xFE fw，写事务更新只读观测。**安全边界：本模型是 I2C 事务观测，不是 AC 市电开关模型；绝不能宣称可切换 24–480V/10A 市电负载**；过零/漏电流/寿命/隔离、Button/Modbus 模式、set_address 的 5s 语义均 NOT RUN/unresolved；0x50 与 nfc 冲突（一总线一个）。SAFETY BOUNDARY: this is an I2C register/transaction observer only, NOT an AC mains switch model; it must never be described as capable of switching mains loads. Guest/Device Service evidence covers the frozen ACSSRUnit on AtomS3R at 0x50: on()/off() relay register writes were observed via relay-level/relay-transitions, fill_color(0x112233) produced led-rgb=0x112233. Only this host/firmware combination is admitted; 24-480V/10A load switching, zero-cross, leakage, isolation, lifetime, Button/Modbus modes and physical contact behavior are NOT RUN and cannot be inferred; 0x50 conflicts with nfc.",
       "input_semantics": "No host input for the relay itself; only the firmware-version fixture is host-writable.",
       "output_semantics": "Observed guest-to-Unit relay/RGB/address writes and readback; AC load is not modeled.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "AC mains safety, switching behavior, relay lifetime and RGB optics are not modeled; never treat this model as a mains-capable switch.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-acssr.json for atoms3r only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only AtomS3R I2C transactions are evidenced; this is NOT an AC mains switch model and no mains-safety claim is made."
       ]
-    },
+    }
+,
     {
       "id": "gesture",
       "name": "Unit Gesture",
@@ -10783,9 +10793,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "gesture": {
@@ -10826,16 +10836,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local bank-aware PAJ7620 register slave; 219 init writes accepted and part-id/flags driven by fixtures"
       },
-      "blocker": "0126 新增 US_PAJ7620（0x73）：bank-aware 寄存器文件接受 219 项官方初始化写、bank0 0x00 返回 part id 0x7620、0x43/0x44 flags 由 gesture/gesture-flags fixture 生成。未采集 guest/Device Service 证据 → planned。产品页无寄存器表、datasheet 未读、驱动 low-rate 属性名 bug、手势物理/光学/距离 NOT RUN；0x73 无已登记冲突。",
+      "blocker": "0126 新增 US_PAJ7620（0x73）：bank-aware 寄存器文件接受 219 项官方初始化写、bank0 0x00 返回 part id 0x7620、0x43/0x44 flags 由 gesture/gesture-flags fixture 生成。产品页无寄存器表、datasheet 未读、驱动 low-rate 属性名 bug、手势物理/光学/距离 NOT RUN；0x73 无已登记冲突。Guest/Device Service evidence covers the frozen GestureUnit on StickS3 at 0x73: the official begin() sequence performed >=219 init writes (part-id 0x7620 check passed), injected gesture=64 and gesture=256 were read back by get_hand_gestures() and QOM. Only this host/firmware combination is admitted; IR optics, gesture recognition, ambient-light immunity, distance and 120/240Hz timing are NOT RUN; the product page has no register table and the low-rate driver branch has a known property-name bug.",
       "input_semantics": "Synthetic gesture bitmask/raw-flags fixtures encoded into the 0x43/0x44 flag bytes.",
       "output_semantics": "Observed guest init writes, bank switches and flag reads; recognized gesture is guest-side driver output.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "IR optics, gesture recognition, ambient-light immunity, distance and 240Hz timing are not modeled.",
-        "Fixtures and address/firmware values are synthetic; no guest/Device Service evidence exists yet."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2b/report-gesture.json for sticks3 only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129. Hardware and unlisted hosts remain NOT RUN.",
+        "Only StickS3 is evidenced; IR optics, recognition and timing are NOT RUN."
       ]
     }
+
 
 
   ],

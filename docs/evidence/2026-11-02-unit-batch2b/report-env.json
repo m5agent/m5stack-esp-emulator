@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:30:09.821953+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "env",
+  "driver_class": "ENVUnit(ENV_I)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_temperature_humidity_tracks_fixture": true,
+    "guest_pressure_tracks_fixture": true,
+    "dual_slave_addresses_served": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "45d1ea276398bd4913b95dd0e731a62d39a924e259192c3aec02d3d87b7639d1",
+  "firmware_id": "45d1ea276398bd4913b95dd0e731a62d39a924e259192c3aec02d3d87b7639d1",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "fabca84ad25c6366eae8ce3625570e3107f154644a8d92f5726df5f646f3f1a7",
+    "main.py": "df07eb5ff41bc3625e007782cf5e1df902fe15e4a206db00f5be1fb99bf1cae2"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "c49a6e5b36954f83a37b7cd53689e29f",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "env",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "env": {
+      "fixtures": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000.0
+      },
+      "guest": [
+        "25.5",
+        "60.5",
+        "1000.0"
+      ],
+      "qom": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "transactions": 74,
+        "read-bytes": 161,
+        "written-bytes": 40
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:30:12.572601+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "transactions": 18,
+        "read-bytes": 42,
+        "written-bytes": 12
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:12.572601+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "transactions": 18,
+        "read-bytes": 42,
+        "written-bytes": 12
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:15.022244+08:00",
+      "properties": {
+        "temperature-c": 25.5,
+        "humidity-pct": 60.5,
+        "pressure-pa": 100000,
+        "transactions": 74,
+        "read-bytes": 161,
+        "written-bytes": 40
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2B_PROBE_READY",
+    "env": "(1518) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_READY env\nI2C_ENV 25.0 50.0 1013.25\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV 25.5 60.5 1000.0\nI2C_ENV_END\n"
+  },
+  "frame": {
+    "sha256": "e7a91f8f415a0a8091fc66a1d7b89cac1da2c787fb95cc9fd93def807798a4ed",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "912a9d8007bf15bd8a67c232bdf8cd53f7cd054915c09a2afe4dd81193c51ce3",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Only ENV-I is modeled (DHT12 0x5C + BMP280 0x76 on one Grove pair, explicitly selected as type 1); ENV-II/III/IV variants are NOT modeled.",
+    "Sensor accuracy, self-heating, calibration and the product-page +/-0.2 vs +/-0.5 C contradiction are unresolved; DHT12 power-up/checksum semantics beyond the in-frame checksum are NOT RUN.",
+    "The BMP280 calibration block and the ENV-I pressure path are the same synthetic-but-valid model as bps; physical pressure accuracy is NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

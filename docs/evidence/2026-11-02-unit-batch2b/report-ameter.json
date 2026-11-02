@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:30:15.244896+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "ameter",
+  "driver_class": "AMeterUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_current_tracks_fixture": true,
+    "guest_adc_raw_matches_driver_resolution": true,
+    "config_word_observed": true,
+    "eeprom_write_rejected_and_counted": true,
+    "qom_current_fixture_exact": true,
+    "i2c_address_0x48": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "cbac02e169f99268556933595f535a09239acd403d3e50ffbd824ba8efee64f9",
+  "firmware_id": "cbac02e169f99268556933595f535a09239acd403d3e50ffbd824ba8efee64f9",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "0a3bf4fb2e2d186190cddc2768dd912992e47111ba567964f2d6ce829644e322",
+    "main.py": "df07eb5ff41bc3625e007782cf5e1df902fe15e4a206db00f5be1fb99bf1cae2"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "df21d9cdeb4143ac85eca94914e3d1c4",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "ameter",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "ameter": {
+      "fixtures": {
+        "current-a": 1.0
+      },
+      "guest": [
+        "0.9376",
+        "-6"
+      ],
+      "guest_gain": [
+        "5",
+        "4",
+        "1"
+      ],
+      "expected_raw": -6,
+      "eeprom_write_rejected": true,
+      "qom": {
+        "current-a": 1,
+        "adc-raw": -6,
+        "config-word": 35712,
+        "eeprom-writes": 1,
+        "i2c-address": 72,
+        "transactions": 112
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:30:17.126217+08:00",
+      "properties": {
+        "current-a": 1,
+        "adc-raw": -6,
+        "config-word": 35712,
+        "eeprom-writes": 0,
+        "i2c-address": 72,
+        "transactions": 24,
+        "read-bytes": 22,
+        "written-bytes": 17
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:17.126217+08:00",
+      "properties": {
+        "current-a": 1,
+        "adc-raw": -6,
+        "config-word": 35712,
+        "eeprom-writes": 0,
+        "i2c-address": 72,
+        "transactions": 24,
+        "read-bytes": 22,
+        "written-bytes": 17
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:18.982332+08:00",
+      "properties": {
+        "current-a": 1,
+        "adc-raw": -6,
+        "config-word": 35712,
+        "eeprom-writes": 1,
+        "i2c-address": 72,
+        "transactions": 112,
+        "read-bytes": 88,
+        "written-bytes": 82
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2B_PROBE_READY",
+    "ameter": "\nE (1145) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_READY ameter\nI2C_AMETER -0.0 0\nI2C_AMETER 0.9376 -6\nI2C_AMETER 0.9376 -6\nI2C_AMETER 0.9376 -6\nI2C_AMETER 0.9376 -6\nI2C_AMETER 0.9376 -6\nI2C_AMETER_GAIN 5 4 1\nI2C_AMETER_EEPROM_WRITE_REJECTED OSError(259,)\nI2C_AMETER_END\n"
+  },
+  "frame": {
+    "sha256": "cfe34691f0c0350ebd7951d2473c475a36ced394ab370780ed7a64647084c301",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "ee4c276f1b744d7f89238981c0f8c530421e6820c209d6f04ebe8c70a00b1d72",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The factory calibration EEPROM record is synthetic (factor 1.0); real per-unit calibration, 1% accuracy/0.3mA resolution, gain/rate error and EEPROM retention are NOT RUN.",
+    "The model rejects every EEPROM data write (product page warns not to write the calibration); the rejected attempts are counted, not stored.",
+    "Guest current is quantized by the driver's PGA-256 resolution (0.15626 A/LSB): a 1.0 A fixture reads 0.9376 A, which is expected driver behavior, not a measurement.",
+    "0x48 conflicts with the planned/implemented adc-v11 Unit; one per bus."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}
