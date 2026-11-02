@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-02T16:54:16+0800",
+  "out_dir": "/tmp/camsccb-matrix",
+  "results": {
+    "atoms3r-cam": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "-M",
+        "m5atoms3rcam",
+        "-drive",
+        "file=/tmp/camsccb-matrix/atoms3r-cam/uiflow2-console-test.bin,if=mtd,format=raw",
+        "-L",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "-display",
+        "none",
+        "-serial",
+        "file:/tmp/camsccb-matrix/atoms3r-cam/serial.log",
+        "-serial",
+        "null",
+        "-serial",
+        "null"
+      ],
+      "output": "/tmp/camsccb-matrix/atoms3r-cam",
+      "flash": {
+        "transport": "host-image",
+        "verified": true
+      }
+    }
+  }
+}

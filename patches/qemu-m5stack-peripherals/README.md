@@ -15,6 +15,8 @@ machine, `0111-atom-voices3r-board.patch` the Atom VoiceS3R C126-ECHO machine an
 `0113-basic-v27-board.patch` the Basic v2.7 K001-V27 machine and
 `0114-unit-gpio-batch1.patch` the first A-class external Unit data planes
 (`ssr`, `earth`, `hall`, `reflective-ir`, `vibrator`) on top of that sequence.
+`0115-atoms3r-cam-sccb.patch` closes the AtomS3R-CAM camera data plane on top
+of `0112`.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
@@ -1079,3 +1081,27 @@ framing, interrupt masks, classic UART behavior and overflow policy are
 unchanged. Exact-source UART/S3/Fifo8/SCS C waveforms retain the failed old
 ACK/flush/ReadPos recovery path. A single SDK ReadPos=-1 is not sufficient to
 identify its error class or establish this gap as its unique cause.
+
+`0115-atoms3r-cam-sccb.patch` delivers the AtomS3R-CAM GC0308 camera data
+plane. The official UIFlow2 camera module for BOARD_ID 144 builds
+esp32-camera with `CONFIG_SCCB_SOFTWARE_SUPPORT` and probes the sensor over a
+bit-banged SCCB bus on SDA GPIO12 / SCL GPIO9, so the probe never uses the
+hardware I2C controller or LCD_CAM SCCB registers. `M5.begin()` first drives
+the on-board sensors through the modelled S3 hardware I2C controller; its
+one-way software-I2C hand-off then permanently closed every bridge on the
+shared QEMU `I2CBus`, including the camera bridge whose pads the controller
+never owned. Every decoded SCCB transfer was dropped, the 0x21 probe never
+saw an ACK and `camera.init()` returned `ESP_ERR_NOT_SUPPORTED`. The patch
+adds a dedicated-pin bridge variant that is not superseded by the hardware
+controller transaction and uses it for the camera SCCB port; all other boards
+keep the M5GFX hand-off semantics. It also models the ESP32-S3-PICO-1-N8R8
+8 MiB PSRAM on `m5atoms3rcam` (esp32-camera allocates frame buffers with
+`MALLOC_CAP_SPIRAM`) and attaches the LCD_CAM DVP model with the QVGA
+320x240 RGB565 geometry of the camera module default. Guest evidence:
+`camera.init()` succeeds and `camera.capture()` returns a 153600-byte frame
+whose FNV-1a digest and byte sum match the model's deterministic DVP
+waveform; see
+[evidence](../../docs/evidence/2026-11-02-atoms3r-cam-sccb/README.md).
+The DVP frame geometry is board-fixed QVGA and does not track GC0308
+window/subsample registers; non-QVGA frame sizes, physical optics and
+electrical SCCB timing stay outside this patch.

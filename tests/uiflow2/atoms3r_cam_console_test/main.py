@@ -20,13 +20,33 @@ try:
     print("CAM_PID", bus.readfrom_mem(0x21, 0x00, 2).hex())
 except Exception as exc:
     print("CAM_I2C_ERROR", repr(exc))
+
+
+def frame_digest(frame):
+    try:
+        import hashlib
+        return "sha256", hashlib.sha256(frame).hexdigest()
+    except Exception:
+        pass
+    fnv = 2166136261
+    for value in frame:
+        fnv = ((fnv ^ value) * 16777619) & 0xFFFFFFFF
+    return "fnv1a", "%08x" % fnv
+
+
 try:
     import camera
-    camera.init(framesize=camera.FRAME_QQVGA)
+    init_result = camera.init()
+    print("CAM_INIT_RESULT", init_result)
     buf = camera.capture()
     size = len(buf) if buf else 0
     print("CAM_CAPTURE_BYTES", size)
-    status = "ok" if size else "blocked"
+    if size:
+        print("CAM_FRAME_FIRST64", bytes(buf[:64]).hex())
+        algo, digest = frame_digest(buf)
+        print("CAM_FRAME_DIGEST", algo, digest)
+        print("CAM_FRAME_SUM", sum(buf) & 0xFFFFFFFF)
+        status = "ok"
 except Exception as exc:
     print("CAM_ERROR", repr(exc))
     status = "blocked"

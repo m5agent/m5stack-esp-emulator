@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atoms3r-cam",
+  "machine": "m5atoms3rcam",
+  "firmware": {
+    "name": "UIFlow2.0 AtomS3R-CAM",
+    "version": "v2.5.4",
+    "firmware_id": "1897200000000003117",
+    "bytes": 8384512,
+    "sha256": "1b29cc3d838834b3a4713130010815f952cff58619001c76183dd0b0a588f2c1"
+  },
+  "qemu": {
+    "base_commit": "6961d82",
+    "fix_commit": "78a245c",
+    "patch": "patches/qemu-m5stack-peripherals/0115-atoms3r-cam-sccb.patch",
+    "patch_sha256": "ae089afae51baf4a99d4254ffc441aee52ba587c00163686a93091d2143e82ec",
+    "binary": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+  },
+  "root_cause": {
+    "guest_path": "UIFlow2 camera module (BOARD_ID 144) builds esp32-camera with CONFIG_SCCB_SOFTWARE_SUPPORT and probes GC0308 at 0x21 over a bit-banged SCCB bus on SDA GPIO12 / SCL GPIO9 (m5stack/components/esp32-camera/driver/sccb.c SCCB_Init/SCCB_Probe; m5stack/cmodules/omv/modules/py_camera.c BOARD_ID==144 branch).",
+    "model_gap": "M5.begin() first drives the on-board sensors through the modelled ESP32-S3 hardware I2C controller. esp32s3_soft_i2c_set_hardware_active_on_bus() closed every software-I2C bridge on the shared QEMU I2CBus as a permanent hardware hand-off, including the camera bridge on GPIO12/GPIO9 whose pads the controller never owned. The guest SCCB waveform was still delivered to the bridge and decoded, but dropped after the hardware_active guard.",
+    "pre_fix_debug_evidence": {
+      "note": "temporary fprintf diagnostics (removed before the exported patch)",
+      "sccb_line_events_dropped": 466,
+      "sccb_line_events_dropped_hw_active": true,
+      "gc0308_i2c_transactions": 0,
+      "guest_error": "Detected camera not supported. / ESP_ERR_NOT_SUPPORTED (0x106)"
+    }
+  },
+  "fix": [
+    "m5stopwatch_soft_i2c_init_dedicated_pins(): bridge variant whose pads are owned only by that bit-banged bus; it ignores the hardware-controller hand-off. Used for the AtomS3R-CAM camera SCCB bridge on GPIO12/GPIO9. Existing boards keep the one-way hand-off.",
+    "m5atoms3rcam machine class default_ram_size = 8 MiB: models the ESP32-S3-PICO-1-N8R8 octal PSRAM. esp32-camera allocates frame buffers with MALLOC_CAP_SPIRAM; without the PSRAM model camera.init() stops after SCCB probe.",
+    "m5_lcd_cam attach geometry for AtomS3R-CAM set to QVGA 320x240 RGB565, matching the camera module's default frame size so the deterministic DVP waveform fills exactly one frame buffer."
+  ],
+  "case": {
+    "runner": "PYTHONPATH=platform/tools python3 tests/uiflow2/run_device_matrix.py --device atoms3r-cam --flash-transport direct --out-dir /tmp/camsccb-matrix",
+    "status": "PASS",
+    "serial_markers": [
+      "CAM_BOOT_FLAG",
+      "CAM_MAIN_START",
+      "CAM_M5_BEGIN_OK",
+      "CAM_BOARD 144",
+      "CAM_I2C_SCAN [0x8,0x10,0x18,0x21,0x30,0x43,0x68]",
+      "CAM_PID 9b00",
+      "CAM_INIT_RESULT True",
+      "CAM_CAPTURE_BYTES 153600",
+      "CAM_FRAME_FIRST64 f7be...",
+      "CAM_FRAME_DIGEST fnv1a 42521dc5",
+      "CAM_FRAME_SUM 24725536",
+      "CAM_STATUS ok"
+    ],
+    "serial_transcript": {
+      "bytes": 808,
+      "sha256": "384f29b0511f518234a31968dc6bb1ecf703652ae5a560fc57c0683fc0db2591",
+      "note": "raw transcript kept in the local run dir /tmp/camsccb-matrix/atoms3r-cam/serial.log (ignored); only the marker list and digest are committed"
+    }
+  },
+  "frame": {
+    "bytes": 153600,
+    "geometry": "320x240 RGB565 (2 bytes per pixel)",
+    "digest": {
+      "algorithm": "fnv1a-32",
+      "value": "42521dc5",
+      "sum32": 24725536,
+      "first64_hex": "f7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7bef7be"
+    },
+    "oracle": "The guest buffer digests equal a host-side reconstruction of the m5_lcd_cam camera_pattern_pixel() deterministic DVP waveform (same fnv1a 42521dc5, sum 24725536, sha256 09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696). No frame bytes, PID or register values are injected from the host Python layer.",
+    "repeatability": "identical digest/sum in three independent runs (two manual QEMU runs and the matrix run)"
+  },
+  "regression": {
+    "stopwatch": "PASS (ui matrix case; exercises the one-way M5GFX software-to-hardware I2C hand-off)",
+    "cores3": "PASS (ui matrix case; camera path over the modelled hardware I2C controller)"
+  },
+  "not_run": [
+    "physical optics, sensor exposure/color response, electrical SCCB timing and drive strength",
+    "other camera frame sizes: the DVP model geometry is board-fixed QVGA and does not track GC0308 window/subsample registers",
+    "IR GPIO47, Grove G2/G1 Unit data planes, USB CDC console",
+    "arbitrary third-party firmware on the AtomS3R-CAM machine"
+  ]
+}
