@@ -1,11 +1,16 @@
-From 4d6e8f0a2b4c6d8e0f1a3b5c7d9e1f2a4b6c8d0e Mon Sep 17 00:00:00 2001
+From a9c5e568cd1a43e265ca5a3f9a8d32815d001db4 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 03:55:00 +0800
-Subject: [PATCH] hw/m5stopwatch: fix BMI270 status/temp fixtures for batch-10 evidence
+Date: Tue, 3 Nov 2026 03:59:36 +0800
+Subject: [PATCH] hw/m5stopwatch: fix BMI270 status/temp fixtures for batch-10
+ evidence
 
 Fix two model-fixture gaps found by batch-10 guest/Device Service evidence on
-the canonical 33-layer chain through 0152. The patch adds no BMI270 blob
-execution or physical motion model.
+the reconciled canonical chain. Base in the reconciled canonical order is the
+34-layer chain through 0153 (canonical 75f1d24 plus 0120-0129, 0131, 0134,
+0136, 0130, 0133, 0135, 0132, 0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144,
+0145, 0146, 0147, 0148, 0149, 0150, 0151, 0152 and 0153); this is the 35th
+layer after 0120 and it applies at the chain end. The patch adds no BMI270
+blob execution or physical motion model.
 
 - The frozen generic BMI270 driver loads CONFIG_DATA and then polls
   INTERNAL_STATUS bit0. The model intentionally does not execute the blob, but
@@ -21,9 +26,15 @@ Result: the generic BMI270 driver initializes and reads the modeled accel/gyro/
 temperature fixture subset for dof6/dof9/dof10. BMM350 0x14 and SPA06 0x76 are
 still not modeled; the guest values carry the driver's own scale factors and
 the 23C offset, so they are deterministic fixture readbacks, not physical units.
+---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index a8d2b4b..0e46d2e 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -1404,6 +1404,16 @@
+@@ -1404,6 +1404,16 @@ static void bmi270_refresh(M5UnitSensor *s)
      }
      int16_t temp = (int16_t)CLAMP(llround((s->values[9] - 25.0) * 512.0), -32768, 32767);
      be16(r + 0x20, (uint16_t)temp);
@@ -40,3 +51,6 @@ the 23C offset, so they are deterministic fixture readbacks, not physical units.
  }
  
  static void mpu_accel_range_set(Object *obj, Visitor *v, const char *name,
+-- 
+2.55.0
+

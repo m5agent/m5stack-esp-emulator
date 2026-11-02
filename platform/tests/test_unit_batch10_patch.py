@@ -33,8 +33,8 @@ class UnitBatch10PatchTests(unittest.TestCase):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0152-unit-batch10ab.patch", readme)
         self.assertIn("0154-unit-batch10-evidence-fixes.patch", readme)
-        self.assertIn("34 layers", readme)
-        self.assertIn("34th layer", readme)
+        self.assertIn("35 layers", readme)
+        self.assertIn("35th layer", readme)
         for token in ("0150", "0151", "0152", "0153", "0154", "0155"):
             self.assertIn(token, readme)
 
