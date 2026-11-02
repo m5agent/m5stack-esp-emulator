@@ -56,9 +56,9 @@ class UnitBatch11EvidenceTests(unittest.TestCase):
     def test_inventory_counts(self):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
-        # 140 batch11-era implemented + 7 batch-12a + 4 batch-12c raw-I2C evidence promotions.
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 151)
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 9)
+        # 140 batch11-era implemented + 7 batch-12a + 4 batch-12c + 7 batch-12b raw-I2C evidence promotions.
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 158)
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 2)
 
     def test_evidence_reports_and_summary_cover_seven(self):
         summary = json.loads((EVID / "summary.json").read_text(encoding="utf-8"))

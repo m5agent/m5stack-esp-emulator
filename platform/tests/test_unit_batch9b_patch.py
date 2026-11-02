@@ -13,9 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0151-unit-batch9b.patch"
 UART_IMPLEMENTED = ("lorawan-as923", "lorawan-eu868", "audioplayer", "fingerprint2")
-PLANNED_ONLY = ("bmm350", "ina226-10a", "rollercan")
-# cardkb2/8servos2-i2c got register-file models in 0157; their modeled
-# planned contract is pinned by test_unit_batch12a_patch.py.
+PLANNED_ONLY = ()
+# cardkb2/8servos2-i2c got register-file models in 0157 and are pinned by
+# test_unit_batch12a_patch.py; bmm350/ina226-10a/rollercan got guest raw
+# machine.I2C evidence in the batch12b evidence task and are implemented.
 UNITS = UART_IMPLEMENTED + PLANNED_ONLY
 
 
