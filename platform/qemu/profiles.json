@@ -5,8 +5,8 @@
   "validation_matrix": {
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
-    "date": "2026-10-24",
-    "result": "22 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3 and StickC Plus2 are unvalidated candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "date": "2026-11-02",
+    "result": "23 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3U adds a device-local console boot, GPIO41 button and GPIO35 WS2812 RMT path, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1133,6 +1133,61 @@
         "status": "native-button-rmt-rgb-pass",
         "detail": "C124 官方 UIFlow2 v2.5.3 原 RGB()/BtnA 经 GPIO41 和 GPIO35 RMT 完成双色/释放闭环，无 LCD。固件关闭 UART REPL，测试 boot 通过真实 UART0 dupterm 输出日志；USB CDC、IR、网络和物理光度未验证。",
         "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "atoms3u",
+      "name": "AtomS3U",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atoms3u",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx",
+        "pdm-microphone"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        },
+        "rmt0": {
+          "path": "/machine/rmt0",
+          "properties": [
+            "tx-symbols",
+            "tx-completions",
+            "tx-errors"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 Atoms3U console boot, GPIO41 button and GPIO35 WS2812 RMT",
+        "Independent machine m5atoms3u; IR GPIO12 and SPM1423 PDM microphone remain open"
+      ],
+      "blockers": [
+        "IR GPIO12, SPM1423 PDM microphone and Grove Unit data planes have no same-guest validation. USB CDC console, arbitrary third-party firmware and physical optics/acoustics remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-console-boot-rgb-pass",
+        "detail": "官方 UIFlow2 v2.5.4 AtomS3U 在同一 QEMU guest 内通过 ROM/二级 bootloader、M5.begin()、M5.getBoard()=138 与原 RGB() GPIO35 RMT 输出；GPIO41 按键经 QMP 输入到达 guest 模型。",
+        "evidence": "docs/evidence/2026-11-02-atoms3u-host/summary.json",
         "category": "virtual-device"
       }
     },

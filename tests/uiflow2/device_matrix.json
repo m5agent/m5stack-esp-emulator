@@ -340,6 +340,28 @@
       ]
     },
     {
+      "id": "atoms3u",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atoms3u",
+      "base": "platform/.cache/firmware/atoms3u/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atoms3u_console_test",
+      "vfs_offset": "0x651000",
+      "vfs_size": "0x1ae000",
+      "flash_size": "0x800000",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "serial_expect": [
+        "ATOMS3U_BOOT_FLAG",
+        "ATOMS3U_MAIN_START",
+        "ATOMS3U_M5_BEGIN_OK",
+        "ATOMS3U_RGB 0x204060"
+      ],
+      "timeout": 40,
+      "serial_index": 0
+    },
+    {
       "id": "dial",
       "backend": "qemu-esp32s3",
       "network_status": "unverified",

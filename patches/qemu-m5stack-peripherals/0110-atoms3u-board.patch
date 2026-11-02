@@ -1,0 +1,176 @@
+From 7c5637a05b6136cc5e32726881d4fe3140b63107 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 14:30:01 +0800
+Subject: [PATCH] hw/m5stopwatch: add AtomS3U K125 board
+
+ESP32-S3FN8, 8 MiB flash, no PSRAM and no display. WS2812 on GPIO35,
+active-low GPIO41 button, IR emitter on GPIO12 and the SPM1423 PDM
+microphone clock/data pair on GPIO38/GPIO39; Grove port on GPIO2/GPIO1.
+The board is registered as its own machine because these pins differ
+from the AtomS3 Lite wiring.
+
+Wiring evidence: docs.m5stack.com/en/core/AtomS3U PinMap, checked
+2026-11-02.
+---
+ hw/m5stopwatch/m5atoms3u.c   | 56 ++++++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5sticks3.c   |  3 ++
+ hw/m5stopwatch/m5stopwatch.h |  3 ++
+ hw/xtensa/esp32s3.c          | 31 ++++++++++++++++++++
+ hw/xtensa/meson.build        |  1 +
+ 5 files changed, 94 insertions(+)
+ create mode 100644 hw/m5stopwatch/m5atoms3u.c
+
+diff --git a/hw/m5stopwatch/m5atoms3u.c b/hw/m5stopwatch/m5atoms3u.c
+new file mode 100644
+index 0000000..d61ce40
+--- /dev/null
++++ b/hw/m5stopwatch/m5atoms3u.c
+@@ -0,0 +1,56 @@
++/*
++ * M5Stack AtomS3U K125 board wiring.
++ *
++ * ESP32-S3FN8, 8 MiB Flash, no PSRAM and no display.  The only onboard
++ * electrical components are one WS2812 on GPIO35, an active-low user button
++ * on GPIO41, an IR emitter on GPIO12 and the SPM1423 PDM microphone clock/data
++ * pair on GPIO38/GPIO39.  The Grove port uses GPIO2/GPIO1 (Yellow/White).
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/AtomS3U (PinMap: IR & WS2812 &
++ * BUTTON G12/G35/G41, SPM1423 MIC_CLK G38 / MIC_DATA G39, PORT.CUSTOM G2 G1),
++ * checked 2026-11-02.  This is a separate board, not an AtomS3 Lite alias:
++ * the IR pin, the PDM microphone and the Grove pins differ.
++ *
++ * The PDM microphone has no controller model yet, so guest microphone reads
++ * stay unavailable rather than returning synthetic PCM.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5atoms3u_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                          ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0), 1);
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
++    m5stopwatch_soft_i2c_init_pins(bus, 2, 1);
++
++    /* WS2812 on GPIO35 and the active-low GPIO41 button share the AtomS3
++     * onboard component used by C123/C124; the LED is observed through the
++     * real RMT APB FIFO and GPIO matrix route, not a host-side setter.
++     */
++    m5atoms3_onboard_io_init();
++}
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 698fc8f..444014d 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -95,6 +95,9 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_ATOMS3_LITE:
+         m5atoms3lite_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_ATOMS3U:
++        m5atoms3u_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3:
+         m5atoms3_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index ab8c0f0..6f0d4be 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -75,6 +75,7 @@ typedef enum {
+     M5_BOARD_CORE2,
+     M5_BOARD_ATOMS3,
+     M5_BOARD_ATOMS3_LITE,
++    M5_BOARD_ATOMS3U,
+     M5_BOARD_STICKC_PLUS2,
+     M5_BOARD_STICKC,
+     M5_BOARD_STICKC_PLUS,
+@@ -170,6 +171,8 @@ void m5dial_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                        struct ESPGdmaState *gdma);
+ void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                              struct ESPGdmaState *gdma);
++void m5atoms3u_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                          struct ESPGdmaState *gdma);
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          struct ESPGdmaState *gdma);
+ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 2cf99b5..806d8ef 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1454,6 +1454,37 @@ static void m5atoms3lite_machine_type_init(void)
+ 
+ type_init(m5atoms3lite_machine_type_init);
+ 
++/* K125 AtomS3U: ESP32-S3FN8, 8 MiB Flash, no PSRAM, no LCD. */
++static void m5atoms3u_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMS3U;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atoms3u_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack AtomS3U K125 (ESP32-S3FN8, WS2812, GPIO41 button, IR G12)";
++    mc->init = m5atoms3u_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atoms3u_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3u"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atoms3u_machine_class_init,
++};
++
++static void m5atoms3u_machine_type_init(void)
++{
++    type_register_static(&m5atoms3u_info);
++}
++
++type_init(m5atoms3u_machine_type_init);
+ 
+ /* K130 M5Dial: original ESP32-S3FN8 with no PSRAM. */
+ static void m5dial_machine_init(MachineState *machine)
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 11887af..c26ca45 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -51,6 +51,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5atoms3r.c',
+   '../m5stopwatch/m5atoms3.c',
+   '../m5stopwatch/m5atoms3lite.c',
++  '../m5stopwatch/m5atoms3u.c',
+   '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',
+-- 
+2.55.0
+

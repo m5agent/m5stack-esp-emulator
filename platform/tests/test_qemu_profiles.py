@@ -312,7 +312,7 @@ class QemuProfileTest(unittest.TestCase):
         groups = {}
         for row in self.registry["devices"]:
             groups[row["group"]] = groups.get(row["group"], 0) + 1
-        self.assertEqual(groups["esp32-s3"], 12)
+        self.assertEqual(groups["esp32-s3"], 13)
         self.assertEqual(groups["esp32-c6"], 2)
         self.assertEqual(groups["esp32-p4"], 1)
         self.assertEqual(groups["esp32-lx6"], 8)
@@ -322,8 +322,8 @@ class QemuProfileTest(unittest.TestCase):
             for row in self.registry["devices"]
         )
         summary = self.registry["validation_matrix"]["result"]
-        self.assertEqual(qemu_count, 22)
-        self.assertIn("22 QEMU-backed ESP32", summary)
+        self.assertEqual(qemu_count, 23)
+        self.assertIn("23 QEMU-backed ESP32", summary)
         self.assertIn("Tab5 through esp-emu", summary)
         self.assertNotIn("13 QEMU ESP32", summary)
 

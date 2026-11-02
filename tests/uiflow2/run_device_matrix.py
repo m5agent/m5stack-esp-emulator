@@ -251,10 +251,16 @@ def run_console(
         "-drive", f"file={image},if=mtd,format=raw",
         "-L", str(ROOT / backend["rom_dir"]),
         "-display", "none",
-        "-serial", "null",
-        "-serial", "null",
-        "-serial", f"file:{serial}",
     ]
+    # The console probe channel depends on the board's physical UART
+    # assignment.  NanoC6 observes UART2 in the third slot; ESP32-S3 boards
+    # without a USB model keep the console on UART0 in the first slot.
+    console_serial = int(device.get("serial_index", 2))
+    for index in range(3):
+        command.extend([
+            "-serial",
+            f"file:{serial}" if index == console_serial else "null",
+        ])
     deadline = time.time() + device.get("timeout", 20)
     proc = subprocess.Popen(
         command, cwd=ROOT, env=case_env,

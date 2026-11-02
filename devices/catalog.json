@@ -630,6 +630,44 @@
       }
     },
     {
+      "id": "atoms3u",
+      "name": "AtomS3U",
+      "sku": "K125",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "atom",
+      "path": "esp32-s3/atoms3u",
+      "shell": "atom",
+      "display": null,
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-02",
+          "status": "native-console-boot-rgb-pass",
+          "detail": "官方 UIFlow2 v2.5.4 AtomS3U 构建在同一 QEMU guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=138 和原 RGB() GPIO35 RMT 双色输出；GPIO41 按键经 QEMU 输入到达 guest 模型。IR、SPM1423 PDM 麦克风、Grove Unit 数据面、USB CDC 和物理行为未验证。",
+          "evidence": "docs/evidence/2026-11-02-atoms3u-host/summary.json",
+          "category": "virtual-device"
+        },
+        "blockers": [
+          "IR GPIO12、SPM1423 PDM 麦克风和 Grove Unit 数据面没有同 guest 验证；USB CDC 控制台与物理光学/声学行为未覆盖。"
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "2099000000000000005",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000005/2116030715159941121/bin/2116030715159941122.bin"
+        }
+      }
+    },
+    {
       "id": "cardputer-adv",
       "name": "Cardputer-ADV",
       "sku": "K132-Adv",
