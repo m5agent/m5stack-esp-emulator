@@ -36,8 +36,8 @@ class UnitBatch3abPatchTests(unittest.TestCase):
             self.assertIn(token, self.text)
 
     def test_inventory_stays_planned_with_explicit_blockers(self):
-        self.assertEqual(len(self.catalog["units"]), 70)
-        self.assertEqual(len(self.profiles), 70)
+        self.assertEqual(len(self.catalog["units"]), 76)
+        self.assertEqual(len(self.profiles), 76)
         for unit_id in UNITS:
             entry = self.units[unit_id]
             self.assertEqual(entry["model_status"], "planned", unit_id)
@@ -73,7 +73,7 @@ class UnitBatch3abPatchTests(unittest.TestCase):
     def test_visual_audit_registers_all_eight_units(self):
         for unit_id in UNITS:
             self.assertTrue(f"'{unit_id}':" in self.visual or f"{unit_id}:" in self.visual, unit_id)
-        self.assertIn("all-70-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text())
+        self.assertIn("all-76-products", (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text())
 
     def test_patch_is_numbered_on_documented_base_and_has_no_guest_claim(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")

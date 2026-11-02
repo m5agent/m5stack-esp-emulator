@@ -1,0 +1,315 @@
+From bbac02a50d9d8042cd3f4e195346fd623676ed54 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 21:46:46 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-4 A+B data planes
+
+Add the six A+B batch-4 Units on top of the 0129+0131 layer state
+(0130 is a parallel layer and is not required). No guest evidence is
+recorded; host catalog keeps all six planned.
+
+- rs485-iso (U094): register the isolated RS485 Unit on the existing
+  RS485 uSerial UART data plane (tx capture + rx injection); no new kind,
+  only the isolation/electrical boundary stays out of scope.
+- laser-tx (U066): GPIO DIN output observation (output-level plus the
+  existing unit-level output-transitions); UART TX mode is not modeled and
+  the laser eye-safety boundary stays an explicit catalog blocker.
+- co2l (U104): reuse the 0131 US_SCD40 command+CRC word protocol at 0x62;
+  add the SCD41 chip-id fixture (0x41) and keep the SCD40/SCD41 conflict
+  and the driver temperature-decode bug as documented blockers.
+- neco (U163): 35 WS2812C-2020 LEDs captured through the existing RMT
+  path (RGB buffer raised from 25 to 128 entries; realize limit raised to
+  128) plus the active-low button on the white wire. The 35-vs-70 LED
+  count remains unresolved.
+- midi (U187): UART TX MIDI byte-stream capture on the SAM2695 path plus
+  optional MIDI-IN injection on white; baud-rate conflict stays
+  unresolved and SAM2695 audio is not modeled.
+- tof4m (U172): new US_VL53L1X kind with the 16-bit register-address
+  phase (2-byte BE address then data; reads auto-increment), model-id
+  registers 0x010F-0x0111, data-ready 0x0031, range status 0x0089,
+  distance 0x0096/0x0097, start/stop 0x0087, interrupt clear 0x0086,
+  address migration 0x0001; distance/data-ready fixtures exposed on QOM.
+
+The shared UART TX capture now also recognizes rs485-iso/midi, and the
+GPIO RGB buffer/limit is raised for Neco. Offline QOM smoke (S3 board, no
+guest firmware) validates properties, fixtures, range rejection,
+read-only rejection and the 35-LED/button structure; it is not a
+functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c        | 75 ++++++++++++++++++++++---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 82 +++++++++++++++++++++++++++-
+ 2 files changed, 147 insertions(+), 10 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 747ada7..a5e899c 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -22,9 +22,14 @@ typedef struct GPIOUnit {
+     unsigned pwm_signal;
+     QEMUTimer *hold_timer;
+     int64_t hold_until;
+-    uint32_t rgb[25];
++    /* WS2812 frames are captured per LED; 128 covers the largest official
++     * panel/Unit (Neco: 35 per product page, 70 per driver default). */
++    uint32_t rgb[128];
+     unsigned leds;
+     uint64_t frames, incomplete_frames, adc_samples;
++    /* U066 Laser TX: yellow DIN output observation (GPIO mode only). */
++    bool laser_level;
++    uint64_t laser_transitions;
+     /* U101 Watering: white analog input + yellow PUMP_EN output observation.
+      * U123 Fader: white analog input + 14x SK6812 RMT capture (leds=14). */
+     bool pump_level;
+@@ -625,7 +630,7 @@ bool m5_unit_gpio_supported(const char *id)
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+-        "ultrasonic-io"};
++        "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -916,7 +921,9 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+     for (unsigned n = 0; n < 3; n++) {
+         if (m5soc_get_uart_device(n) != DEVICE(uart)) { continue; }
+         for (GPIOUnit *g = gpio_units; g; g = g->next) {
+-            if (!strcmp(g->unit->unit_id, "rs485") &&
++            if ((!strcmp(g->unit->unit_id, "rs485") ||
++                 !strcmp(g->unit->unit_id, "rs485-iso") ||
++                 !strcmp(g->unit->unit_id, "midi")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+@@ -1014,12 +1021,41 @@ static void ultra_pulse_get(Object *o, Visitor *v, const char *name,
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
++static void laser_output_changed(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    if (pin != g->unit->yellow) { return; }
++    level = !!level;
++    if (g->laser_level != level) {
++        g->laser_level = level;
++        g->laser_transitions++;
++        g->unit->output_transitions++;
++    }
++}
++
++static void laser_output_reset(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    (void)level;
++    if (pin != g->unit->yellow) { return; }
++    g->laser_level = esp32_gpio_get_line(g->unit->yellow);
++    g->laser_transitions = 0;
++}
++
++static void laser_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = g->laser_level;
++    visit_type_bool(v, name, &value, errp);
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+-    if (unit->onboard_led_count > 25) {
+-        error_setg(errp, "onboard RGB count must not exceed 25"); return;
++    if (unit->onboard_led_count > 128) {
++        error_setg(errp, "onboard RGB count must not exceed 128"); return;
+     }
+-    if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485"))) {
++    if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485") ||
++                !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -1085,9 +1121,34 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+     } else if (!strcmp(id, "ir")) {
+         object_property_add(o, "rx-pulses-us", "any", pulses_get, pulses_set, NULL, g);
+         object_property_add(o, "tx-pulses-us", "any", pulses_get, NULL, NULL, g);
+-    } else if (!strcmp(id, "rs485")) {
++    } else if (!strcmp(id, "rs485") || !strcmp(id, "rs485-iso")) {
+         object_property_add(o, "rx-hex", "str", hex_get, hex_set, NULL, g);
+         object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++    } else if (!strcmp(id, "midi")) {
++        /* U187: guest TX drives the SAM2695 MIDI IN; the white wire is only
++         * modeled as optional MIDI-IN injection for Bypass mode. */
++        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++        object_property_add(o, "rx-hex", "str", hex_get, hex_set, NULL, g);
++    } else if (!strcmp(id, "laser-tx")) {
++        /* U066: GPIO DIN output observation; UART TX mode is not modeled. */
++        esp32_gpio_add_out_listener(unit->yellow, laser_output_changed, g);
++        esp32_gpio_add_reset_listener(unit->yellow, laser_output_reset, g);
++        /* Listener registration samples the current pad; treat the pre-guest
++         * DIN state as low until the guest drives it. */
++        g->laser_level = false;
++        object_property_add(o, "output-level", "bool", laser_get, NULL, NULL, g);
++    } else if (!strcmp(id, "neco")) {
++        /* U163: two Grove ports are collapsed to one attachment. The product
++         * page says 35 WS2812C-2020 LEDs while the snapshot driver defaults to
++         * 70; the page count is modeled and the conflict stays UNRESOLVED. */
++        g->leds = 35;
++        object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
++        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
++        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
++                            &g->incomplete_frames);
++        esp32_gpio_set_input(unit->white, 1);  /* active-low button, released */
++        object_property_add(o, "pressed", "bool", bool_get, bool_set, NULL, g);
++        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+     } else if (!strcmp(id, "ultrasonic-io")) {
+         g->ultra_distance_mm = 1000;
+         g->ultra_controller = esp32_gpio_get_controller(unit->s3);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 79acd78..5bddfb4 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -23,7 +23,7 @@ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+-    US_SHT4X, US_SCD40,
++    US_SHT4X, US_SCD40, US_VL53L1X,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -96,6 +96,14 @@ typedef struct M5UnitSensor {
+     int64_t scd40_co2_ppm, scd40_temp, scd40_rh, scd40_temp_offset;
+     int64_t scd40_altitude, scd40_serial, scd40_pressure;
+     uint64_t scd40_reads;
++    int64_t scd40_chip_id;   /* 0x40 SCD40 / 0x41 SCD41 identity fixture */
++    /* U172 ToF4M VL53L1X (0x29): 16-bit register address phase. The write
++     * transaction carries a 2-byte big-endian register address followed by
++     * data; reads auto-increment. Model ID 0xEA/0xCC/0x10 lives at 0x010F. */
++    uint16_t vl_addr;
++    bool vl_ready;
++    int64_t vl_range_status, vl_timing_budget;
++    uint64_t vl_clear_writes;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -804,6 +812,10 @@ static uint8_t accel_register_read(M5UnitSensor *s, uint8_t reg)
+ static void sensor_update(M5UnitSensor *s)
+ {
+     int64_t now = now_ns();
++    if (s->kind == US_VL53L1X && !s->vl_ready && s->due && now >= s->due) {
++        s->vl_ready = true;
++        s->due = 0;
++    }
+     uint8_t *r = s->regs[0];
+     if (s->kind == US_DLIGHT && s->pending && s->dlight_power && now >= s->due) {
+         dlight_complete(s);
+@@ -945,6 +957,24 @@ static void thermal_write(M5UnitSensor *s, uint16_t value)
+     }
+ }
+ 
++/* U172 VL53L1X: derive the read registers from the fixture on every read.
++ * 0x0031 bit0 is the data-ready flag (polarity bit4 of 0x0030 is low in the
++ * official init sequence, so ready reads as 1); 0x0089 range status 0x09;
++ * 0x0096/0x0097 big-endian distance; 0x010F/0x0110/0x0111 model id. */
++static void vl53l1x_refresh(M5UnitSensor *s)
++{
++    uint16_t distance = (uint16_t)CLAMP(llround(s->values[0]), 40, 4000);
++    s->regs[0][0x31] = s->vl_ready ? 0x01 : 0x00;
++    s->vl_range_status = s->vl_ready ? 0x09 : 0x00;
++    s->regs[0][0x89] = (uint8_t)s->vl_range_status;
++    s->regs[0][0x96] = (uint8_t)(distance >> 8);
++    s->regs[0][0x97] = (uint8_t)(distance & 0xff);
++    s->regs[1][0x0f] = 0xea;
++    s->regs[1][0x10] = 0xcc;
++    s->regs[1][0x11] = 0x10;
++    s->regs[1][0x12] = 0x10;
++}
++
+ static int sensor_send(I2CSlave *dev, uint8_t data)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(dev);
+@@ -1131,6 +1161,33 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         else { thermal_write(s, s->command | data); s->pointer++; }
+         return 0;
+     }
++    if (s->kind == US_VL53L1X) {
++        /* 16-bit register address phase: byte0=addr high, byte1=addr low,
++         * then data bytes with auto-increment. */
++        if (pos == 0) { s->vl_addr = data << 8; return 0; }
++        if (pos == 1) { s->vl_addr |= data; s->pointer = s->vl_addr; return 0; }
++        uint16_t addr = s->vl_addr++;
++        s->regs[(addr >> 8) & 7][addr & 0xff] = data;
++        if (addr == 0x0001 && pos == 2) {
++            BusChild *child;
++            if (data < 1 || data > 127) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == data) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), data);
++        } else if (addr == 0x0087) {
++            if (data == 0x40) { s->vl_ready = false; s->due = now_ns() + INT64_C(20000000); }
++            else if (data == 0x00) { s->vl_ready = false; s->due = 0; }
++        } else if (addr == 0x0086) {
++            s->vl_clear_writes++;
++            if (data & 0x01) { s->vl_ready = false; s->due = now_ns() + INT64_C(20000000); }
++        } else if (addr == 0x005e || addr == 0x0061) {
++            /* timing-budget macro writes: observation only, encoding not decoded */
++            s->vl_timing_budget = s->vl_timing_budget ? s->vl_timing_budget : 50;
++        }
++        return 0;
++    }
+     if (!pos) {
+         if (s->kind == US_COLOR && data == 0xe6) {
+             s->regs[0][0x13] &= ~0x10; return 0;
+@@ -1227,6 +1284,11 @@ static uint8_t sensor_recv(I2CSlave *dev)
+     uint8_t value = 0xff;
+     s->read_bytes++; s->unit->read_bytes++;
+     sensor_update(s);
++    if (s->kind == US_VL53L1X) {
++        if (pos == 0) { vl53l1x_refresh(s); }
++        uint16_t addr = s->vl_addr + pos;
++        return s->regs[(addr >> 8) & 7][addr & 0xff];
++    }
+     if (s->kind == US_SHT4X) {
+         if (pos == 0) { sht4x_build_response(s); }
+         return pos < s->response_len ? s->response[pos] : 0xff;
+@@ -1362,7 +1424,7 @@ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+-        "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2" };
++        "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1516,15 +1578,29 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
+-    } else if (!strcmp(u->unit_id, "co2")) {
++    } else if (!strcmp(u->unit_id, "tof4m")) {
++        s->kind = US_VL53L1X; address = 0x29;
++        s->values[0] = 1000;        /* synthetic distance fixture, mm */
++        s->vl_ready = true;
++        s->vl_timing_budget = 50;
++        s->regs[0][0x30] = 0x01;    /* active-high interrupt polarity */
++        add_number(s, "distance-mm", 0, 1000, 40, 4000, false);
++        add_fixture_bool(s, "data-ready", &s->vl_ready);
++        add_i64(s, "timing-budget-ms", &s->vl_timing_budget);
++        add_i64(s, "range-status", &s->vl_range_status);
++        add_u64(s, "clear-writes", &s->vl_clear_writes);
++        add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "co2") || !strcmp(u->unit_id, "co2l")) {
+         s->kind = US_SCD40; address = 0x62;
+         s->scd40_serial = 0x12345678;   /* synthetic serial fixture */
++        s->scd40_chip_id = !strcmp(u->unit_id, "co2l") ? 0x41 : 0x40;
+         s->scd40_data_ready = true;
+         add_number(s, "co2-ppm", 0, 400, 400, 5000, true);
+         add_number(s, "temperature-c", 1, 25, -10, 60, false);
+         add_number(s, "humidity-pct", 2, 50, 0, 95, false);
+         add_fixture_bool(s, "data-ready", &s->scd40_data_ready);
+         add_i64(s, "serial-number", &s->scd40_serial);
++        add_i64(s, "chip-id", &s->scd40_chip_id);
+         add_u64(s, "measurement-reads", &s->scd40_reads);
+         add_i2c_address(s);
+     } else {
+-- 
+2.55.0
+
