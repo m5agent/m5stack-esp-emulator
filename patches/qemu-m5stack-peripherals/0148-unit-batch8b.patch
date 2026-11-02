@@ -1,9 +1,13 @@
-From 066baaa976f2f183220f7a7049632af6a53793fc Mon Sep 17 00:00:00 2001
+From cf76881ebac85cad8652fe5fe26f11f311a21e66 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 01:48:38 +0800
+Date: Tue, 3 Nov 2026 02:15:27 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-8 remaining seven data planes
 
-Add the remaining seven batch-8 Units on top of the 28-layer canonical tree.
+Add the remaining seven batch-8 Units on top of the reconciled canonical chain.
+Base in the reconciled canonical order is the 28-layer chain through 0147
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146 and 0147); this is
+the 29th layer after 0120 and it applies at the chain end.
 
 - oled (U119), mini-oled (U166) and glass2 (U158-B) share a new OLED display
   command-slave kind: SH1107 128x64, SSD1315 72x40 and SSD1309 128x64 command /
