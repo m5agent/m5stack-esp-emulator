@@ -18782,6 +18782,1330 @@
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim."
       ]
+    },
+    {
+      "id": "mini-scales",
+      "name": "Unit Mini Scales",
+      "sku": "U177",
+      "visual_asset": {
+        "entry": "src/units/mini-scales/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Mini%20Scales",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "HX711",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          38
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x26 register file: u32 LE ADC at 0x00, float LE weight (g) at 0x10, signed button at 0x20 (0=pressed), RGB at 0x30, calibration-gap float at 0x40, reset/tare at 0x50, low-pass/avg/EMA filter at 0x80/0x81/0x82, firmware 0xFE and address 0xFF.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 4,
+            "encoding": "ADC uint32le"
+          },
+          {
+            "register": "0x10",
+            "length": 4,
+            "encoding": "weight float LE (g)"
+          },
+          {
+            "register": "0x20",
+            "length": 1,
+            "encoding": "button int8 (0=pressed)"
+          },
+          {
+            "register": "0x30",
+            "length": 3,
+            "encoding": "RGB"
+          },
+          {
+            "register": "0x40",
+            "length": 4,
+            "encoding": "calibration gap float"
+          },
+          {
+            "register": "0x50",
+            "length": 1,
+            "encoding": "reset/tare write"
+          },
+          {
+            "register": "0x80/0x81/0x82",
+            "length": 1,
+            "encoding": "LPF / average level / EMA alpha"
+          }
+        ],
+        "gaps": [
+          "HX711/5kg load-cell mechanics, temperature drift and linearity are NOT RUN.",
+          "Firmware v3 vs v4 (absolute ADC-delta limit) needs a pinned version.",
+          "Page FAQ says I2C OR UART while the driver is I2C-only: UNRESOLVED.",
+          "0x26 has a four-way conflict with 4relay/weight-i2c/scales (one Unit per bus)."
+        ]
+      },
+      "inputs": {
+        "adc-raw": {
+          "type": "integer",
+          "label": "ADC 原始值",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "weight-g": {
+          "type": "number",
+          "label": "重量",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "g",
+          "minimum": -5000,
+          "maximum": 5000
+        },
+        "button-pressed": {
+          "type": "boolean",
+          "label": "按键按下",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "outputs": {
+        "calibration-gap": {
+          "type": "number",
+          "label": "校准 gap",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -1000000,
+          "maximum": 1000000
+        },
+        "reset-writes": {
+          "type": "integer",
+          "label": "去皮次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "calibration-writes": {
+          "type": "integer",
+          "label": "校准写次数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "lpf": {
+          "type": "integer",
+          "label": "低通滤波",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "avg-level": {
+          "type": "integer",
+          "label": "平均等级",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 50
+        },
+        "ema-alpha": {
+          "type": "integer",
+          "label": "EMA alpha",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 99
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 38,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Mini%20Scales",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U177",
+            "STM32F030F4P6 + HX711, 5kg",
+            "I2C 0x26",
+            "SK6812 RGB + button",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/miniscale.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x26 address",
+            "u32 ADC / float weight / button / RGB / calibration / filter register map"
+          ],
+          "sha256": "1dce2237a99df575a12a770384267e66cd4af60b9c12c79920a244afa097d069",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "adc-raw": {
+            "property": "adc-raw",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "weight-g": {
+            "property": "weight-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "button": {
+            "property": "button",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "calibration-gap": {
+            "property": "calibration-gap",
+            "access": "read-only",
+            "type": "number"
+          },
+          "reset-writes": {
+            "property": "reset-writes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "calibration-writes": {
+            "property": "calibration-writes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "lpf": {
+            "property": "lpf",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "avg-level": {
+            "property": "avg-level",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "ema-alpha": {
+            "property": "ema-alpha",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local Mini Scales register slave at 0x26"
+      },
+      "blocker": "0140 新增 CONTROL_MINISCALE（0x26）：u32 LE ADC、float LE weight、signed button（0=按下）、RGB、校准 gap float、reset/去皮、LPF/avg/EMA 寄存器。未采集 guest/Device Service 证据 → planned。**HX711/5kg 载荷/温漂/线性度 NOT RUN；v3/v4 固件差异需钉版本；页面“I2C OR UART”与驱动仅 I2C 冲突 unresolved；0x26 与 4relay/weight-i2c/scales 四方冲突**",
+      "input_semantics": "Synthetic ADC/weight/button fixtures encoded into the register file; guest tare is a guest-side offset.",
+      "output_semantics": "Observed guest register reads/writes and calibration/filter writes; no load-cell mechanics.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "rgb-led-strip-50cm",
+      "name": "Unit RGB LED Strip 0.5m / 30LED",
+      "sku": "A093",
+      "visual_asset": {
+        "entry": "src/units/rgb-led-strip-50cm/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_RGB_LED_Strip",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SK6812 5050",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-rmt",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "LED Signal",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "30x SK6812 5050 on a single data line (0.5m strip). The model captures RMT frames into 30 per-LED RGB values; the Grove adapter data-line mapping and A093 variant counts are unresolved.",
+        "registers": [
+          {
+            "kind": "rmt",
+            "encoding": "SK6812 single-wire, G/R/B order, 800kHz"
+          }
+        ],
+        "gaps": [
+          "The page documents the strip-side VCC/GND/DATA wire colors only; the Grove-adapter data-line mapping is UNRESOLVED.",
+          "A093 vs A093-B/C/D (60/120/300 LEDs) variants are not modeled.",
+          "LED optics/IP65/power/timing tolerance are NOT RUN.",
+          "PORT.B host availability is a blocker."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "led-rgb": {
+          "type": "array",
+          "label": "30 灯 RGB 帧",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-frames": {
+          "type": "integer",
+          "label": "RMT 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "incomplete-frames": {
+          "type": "integer",
+          "label": "不完整帧",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "output-transitions": {
+          "type": "integer",
+          "label": "输出跳变",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_RGB_LED_Strip",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU A093",
+            "30x SK6812 5050, 0.5m",
+            "800K/s single-wire, cascade",
+            "strip-side VCC/GND/DATA"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "RGBUnit(port, number) uses yellow as SK6812 data"
+          ],
+          "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SK6812 driver"
+          ],
+          "sha256": "b316cbebf49a5a459c67125445d860ad18f3b9e517a7abb856ac6914e8720e82",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "array"
+          },
+          "led-frames": {
+            "property": "led-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "incomplete-frames": {
+            "property": "incomplete-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC RMT capture of 30 SK6812 frames on the yellow data line"
+      },
+      "blocker": "0140 新增 GPIO id 'rgb-led-strip-50cm'：黄线 RMT 捕获 30×SK6812 帧。未采集 guest/Device Service 证据 → planned。**页面只给灯带侧 VCC/GND/DATA 线色，Grove 适配器数据线映射 unresolved；A093 vs A093-B/C/D 变体不建模；LED 光学/IP65/功率/时序容差 NOT RUN；PORT.B 主机限制**",
+      "input_semantics": "Guest RMT frames are captured by the controller model; no host-side fixture.",
+      "output_semantics": "Observed LED frames; no optical output.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "op180",
+      "name": "Unit OP180",
+      "sku": "U058",
+      "visual_asset": {
+        "entry": "src/units/op180/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/OP180",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "IR transmitter/receiver pair",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "NC",
+            "direction": "none"
+          },
+          "white": {
+            "signal": "Digital Output",
+            "direction": "unit-to-host"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "180-degree infrared photoelectric limit switch; white carries the digital output on PORT.B, yellow NC. Shares unit/op.py with OP90; the GPIO transaction model is identical but results are not transferred between the two products.",
+        "registers": [
+          {
+            "kind": "gpio-in",
+            "encoding": "white digital input; active-low per driver default"
+          }
+        ],
+        "gaps": [
+          "180-degree optical geometry/alignment/response are NOT RUN.",
+          "Output polarity/levels are taken from the shared driver default and remain fixture-verified only.",
+          "PORT.B host availability is a blocker.",
+          "OP90 and OP180 share the driver but are different products: results are not transferable."
+        ]
+      },
+      "inputs": {
+        "digital-level": {
+          "type": "boolean",
+          "label": "白线电平",
+          "default": true,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "blocked": {
+          "type": "boolean",
+          "label": "遮挡状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "input-events": {
+          "type": "integer",
+          "label": "输入事件",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/OP180",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U058",
+            "180-degree IR limit switch",
+            "PORT.B yellow=NC white=Digital Output"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/op.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "OPUnit(Button) on port[0]=white",
+            "active-low default",
+            "COUNTER mode IRQ counting"
+          ],
+          "sha256": "dc9f5ce452530694ccdcfab7a08f37ba461446cbdc1fc488cddca79a67ca4647",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "digital-level": {
+            "property": "digital-level",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "blocked": {
+            "property": "blocked",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC GPIO digital input observation on the white PORT.B wire"
+      },
+      "blocker": "0140 新增 GPIO id 'op180'（与 op90 共用 GPIO 事务模型，不转授结果）：白线数字输入 + active-low blocked fixture；黄线 NC。未采集 guest/Device Service 证据 → planned。**180° 光学/对射几何/响应/机械安装 NOT RUN；极性来自共享驱动默认；PORT.B 主机限制；OP90 与 OP180 是不同产品，结果不可互相转授**",
+      "input_semantics": "Synthetic digital level/blocked fixture observed through the GPIO input path.",
+      "output_semantics": "Observed guest digital reads; no IR optics or object detection is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "synth",
+      "name": "Unit Synth",
+      "sku": "U178",
+      "visual_asset": {
+        "entry": "src/units/synth/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Synth",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SAM2695",
+          "status": "officially-documented"
+        },
+        {
+          "part": "NS4150B",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "TX-only UART MIDI at 31250 to the SAM2695 synthesizer (white NC, no RX). The model captures the guest MIDI byte stream; the NS4150B amplifier and speaker are not modeled.",
+        "registers": [
+          {
+            "kind": "uart",
+            "encoding": "UART(id, tx=port[1], rx=port[0]) 31250 8N1"
+          }
+        ],
+        "gaps": [
+          "SAM2695 audio synthesis/voices/effects, NS4150B amplifier and speaker are NOT RUN.",
+          "TX-only: white is NC and must not be modeled as an RX/injection path.",
+          "31250 baud comes from the driver; the page does not state it.",
+          "PORT.C conflicts with other UART Units."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "MIDI 字节流",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maxLength": 8192
+        },
+        "written-bytes": {
+          "type": "integer",
+          "label": "写字节数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "transactions": {
+          "type": "integer",
+          "label": "UART 事务数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Synth",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U178",
+            "SAM2695 + NS4150B, MIDI 1.0",
+            "UART, white=NC",
+            "PORT.C yellow=UART_RX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/synth.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "31250 UART",
+            "note/instrument/CC/SysEx commands",
+            "cmd_write"
+          ],
+          "sha256": "18dc58029382b7095ce4b6368659377d883f85093c2226c13ef84917a1312758",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured, no RX path"
+      },
+      "blocker": "0140 新增 GPIO id 'synth'：仅 TX 捕获 31250 MIDI 字节流（white=NC，不建模 RX/注入）。未采集 guest/Device Service 证据 → planned。**SAM2695 音频/音色/复调/NS4150B 功放/扬声器 NOT RUN；TX-only 不得注入 RX；31250 来自驱动（页面未写）；PORT.C 冲突**",
+      "input_semantics": "Guest TX bytes are captured by the UART model; no host-side fixture.",
+      "output_semantics": "Observed guest MIDI byte stream; audio synthesis is never claimed.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "mini-imu",
+      "name": "Unit Mini IMU",
+      "sku": "U095",
+      "visual_asset": {
+        "entry": "src/units/mini-imu/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/imu",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "MPU6886",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          104
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "MPU6886 6-axis IMU at 0x68: ACCEL/GYRO/TEMP data registers 0x3B..0x48 (16-bit BE), CONFIG 0x1A, GYRO_CONFIG 0x1B, ACCEL_CONFIG 0x1C, ACCEL_CONFIG2 0x1D, PWR_MGMT_1 0x6B and WHO_AM_I 0x75=0x19.",
+        "registers": [
+          {
+            "register": "0x3B..0x40",
+            "length": 6,
+            "encoding": "accel X/Y/Z 16-bit BE"
+          },
+          {
+            "register": "0x41/0x42",
+            "length": 2,
+            "encoding": "temperature 16-bit BE"
+          },
+          {
+            "register": "0x43..0x48",
+            "length": 6,
+            "encoding": "gyro X/Y/Z 16-bit BE"
+          },
+          {
+            "register": "0x1B/0x1C",
+            "length": 1,
+            "encoding": "gyro/accel full-scale select"
+          },
+          {
+            "register": "0x75",
+            "length": 1,
+            "encoding": "WHO_AM_I=0x19"
+          }
+        ],
+        "gaps": [
+          "Real motion/vibration/temperature and calibration are NOT modeled.",
+          "MPU6886 DMP/FIFO are not modeled.",
+          "0x68 is free among registered Units; 0x69 alternate address is also free but not implemented."
+        ]
+      },
+      "inputs": {
+        "accel-x-g": {
+          "type": "number",
+          "label": "X 加速度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16
+        },
+        "accel-y-g": {
+          "type": "number",
+          "label": "Y 加速度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16
+        },
+        "accel-z-g": {
+          "type": "number",
+          "label": "Z 加速度",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "g",
+          "minimum": -16,
+          "maximum": 16
+        },
+        "gyro-x-dps": {
+          "type": "number",
+          "label": "X 角速度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "dps",
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyro-y-dps": {
+          "type": "number",
+          "label": "Y 角速度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "dps",
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyro-z-dps": {
+          "type": "number",
+          "label": "Z 角速度",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "dps",
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 85
+        },
+        "accel-range": {
+          "type": "integer",
+          "label": "加速度量程",
+          "default": 2,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 2,
+          "maximum": 16
+        },
+        "gyro-range": {
+          "type": "integer",
+          "label": "陀螺量程",
+          "default": 250,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 250,
+          "maximum": 2000
+        }
+      },
+      "outputs": {
+        "whoami": {
+          "type": "integer",
+          "label": "WHO_AM_I",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "accel-range": {
+          "type": "integer",
+          "label": "加速度量程",
+          "default": 2,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 2,
+          "maximum": 16
+        },
+        "gyro-range": {
+          "type": "integer",
+          "label": "陀螺量程",
+          "default": 250,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 250,
+          "maximum": 2000
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 104,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/imu",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U095",
+            "MPU6886, I2C 0x68",
+            "accel +-2/4/8/16g, gyro +-250/500/1000/2000dps",
+            "16-bit ADC, 1KB FIFO",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/imu.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x68 address",
+            "accel/gyro/attitude APIs"
+          ],
+          "sha256": "323a6c96b5db132c0e758a26c2bc87f3f6a8a610437dac086be60f19558b8abb",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mpu6886.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register map 0x1A..0x75",
+            "data registers 0x3B..0x48",
+            "WHO_AM_I 0x19",
+            "scale factors 16384/8192/4096/2048 and 131/62.5/32.8/16.4"
+          ],
+          "sha256": "10223a4e1a2a89661d502b44dc2dc1c40d52ee880da2d9a612901c1756f9f59f",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "accel-x-g": {
+            "property": "accel-x-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "accel-y-g": {
+            "property": "accel-y-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "accel-z-g": {
+            "property": "accel-z-g",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyro-x-dps": {
+            "property": "gyro-x-dps",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyro-y-dps": {
+            "property": "gyro-y-dps",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyro-z-dps": {
+            "property": "gyro-z-dps",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "accel-range": {
+            "property": "accel-range",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "gyro-range": {
+            "property": "gyro-range",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local MPU6886 register slave at 0x68"
+      },
+      "blocker": "0140 新增 US_MPU6886（0x68）：WHO_AM_I=0x19、accel/gyro/temp 数据寄存器由 fixture 按驱动比例因子反算、量程配置 0x1B/0x1C、地址迁移。未采集 guest/Device Service 证据 → planned。**真实运动/振动/温度/校准 NOT RUN；DMP/FIFO 不建模；0x68 无已登记冲突**",
+      "input_semantics": "Synthetic accel/gyro/temperature fixtures encoded into MPU6886 big-endian data registers with driver scale factors.",
+      "output_semantics": "Observed guest register reads/writes; no real motion or DMP/FIFO behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "env-pro",
+      "name": "Unit ENV-Pro",
+      "sku": "U169",
+      "visual_asset": {
+        "entry": "src/units/env-pro/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_ENV-Pro",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "BME688",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          119
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "BME688 at 0x77: CHIP_ID 0xD0=0x61, variant 0xF0, soft-reset 0xE0, status/measurement 0x1D, CONFIG 0x75, CTRL_MEAS 0x74, CTRL_HUM 0x72, gas control/wait/heat registers 0x50..0x71, calibration blocks at 0x8A and 0xE1. The model stores the register/calibration bytes and fills synthetic 17-byte field data; the guest compensation decode is NOT asserted.",
+        "registers": [
+          {
+            "register": "0xD0",
+            "length": 1,
+            "encoding": "CHIP_ID=0x61"
+          },
+          {
+            "register": "0xF0",
+            "length": 1,
+            "encoding": "variant"
+          },
+          {
+            "register": "0xE0",
+            "length": 1,
+            "encoding": "soft reset (0xB6)"
+          },
+          {
+            "register": "0x1D",
+            "length": 17,
+            "encoding": "status + synthetic field data"
+          },
+          {
+            "register": "0x8A/0xE1",
+            "length": 1.6428571428571428,
+            "encoding": "calibration coefficient blocks"
+          },
+          {
+            "register": "0x74/0x72/0x75",
+            "length": 1,
+            "encoding": "CTRL_MEAS/CTRL_HUM/CONFIG"
+          }
+        ],
+        "gaps": [
+          "BME688 gas/IAQ/heater profile and the 10.8s gas scan are NOT RUN.",
+          "The BME68x compensation inverse is NOT modeled: field bytes are synthetic and guest temperature/humidity/pressure decode is NOT asserted.",
+          "Only the default 0x77 address is implemented; the alternate 0x76 conflicts with bps/env/env-iv.",
+          "0x77 is free among registered Units."
+        ]
+      },
+      "inputs": {
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "C",
+          "minimum": -40,
+          "maximum": 85
+        },
+        "humidity-pct": {
+          "type": "number",
+          "label": "湿度",
+          "default": 50,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "%RH",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "Pa",
+          "minimum": 30000,
+          "maximum": 110000
+        },
+        "gas-resistance-ohm": {
+          "type": "number",
+          "label": "气阻",
+          "default": 100000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "unit": "ohm",
+          "minimum": 0,
+          "maximum": 10000000
+        },
+        "data-ready": {
+          "type": "boolean",
+          "label": "数据就绪",
+          "default": true,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "chip-id": {
+          "type": "integer",
+          "label": "CHIP_ID",
+          "default": 97,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "variant": {
+          "type": "integer",
+          "label": "variant",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 119,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_ENV-Pro",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U169",
+            "BME688, I2C 0x77",
+            "T/RH/P + gas (VOC/CO2eq/IAQ)",
+            "PORT.A SDA/SCL"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/envpro.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "0x77 address",
+            "BME68x wrapper"
+          ],
+          "sha256": "1f525793ddd86bb96fe38f3d0cb37f6c9a545516e74df3ba707b3b36bab89dd6",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/bme68x.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "CHIP_ID 0x61",
+            "register/calibration map",
+            "field-data layout 0x1D",
+            "forced-mode selection"
+          ],
+          "sha256": "6131a58eeb5252506584ef325053868a3038a236625f4033a5be5e2aedb3e774",
+          "sha256_matches_snapshot_528edd8": true
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "humidity-pct": {
+            "property": "humidity-pct",
+            "access": "read-write",
+            "type": "number"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gas-resistance-ohm": {
+            "property": "gas-resistance-ohm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "data-ready": {
+            "property": "data-ready",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "chip-id": {
+            "property": "chip-id",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "variant": {
+            "property": "variant",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local BME688 register slave at 0x77"
+      },
+      "blocker": "0140 新增 US_BME68X（0x77）：CHIP_ID 0x61、variant、软复位、CTRL/STATUS/校准寄存器存储、合成 17B field data。未采集 guest/Device Service 证据 → planned。**BME688 气体/IAQ/加热器/10.8s 扫描 NOT RUN；BME68x 补偿逆运算未建模 → guest 温/湿/压解码不可断言，field bytes 为合成；仅实现默认 0x77，备选 0x76 与 bps/env/env-iv 冲突；0x77 无已登记冲突**",
+      "input_semantics": "Synthetic temperature/humidity/pressure/gas fixtures plus synthetic field bytes; guest compensation decode is not asserted.",
+      "output_semantics": "Observed guest register reads/writes; no gas/IAQ/heater behavior is modeled.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim."
+      ]
     }
   ],
   "model_status_values": [

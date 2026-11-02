@@ -1,0 +1,443 @@
+From f1778081a8ae82c2c234f7f80a3097b59293c899 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 23:32:08 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-6 first six data planes
+
+Add the first six batch-6 Units on top of the 20-layer canonical tree. No
+guest evidence is recorded; all six stay planned and the new sensor
+machines are deliberately minimal with explicit catalog blockers.
+
+- mini-scales (U177): CONTROL_MINISCALE at 0x26 with u32 LE ADC, float LE
+  weight, signed button (0=pressed), RGB, calibration-gap float, reset and
+  low-pass/average/EMA filter registers. The 5kg load-cell mechanics are NOT
+  modeled; 0x26 has a four-way product conflict.
+- rgb-led-strip-50cm (A093): 30-SK6812 RMT capture on the yellow data line;
+  PORT.B host availability is a blocker and the adapter wire order is
+  unresolved.
+- op180 (U058): white digital-input observation sharing the OP90 GPIO
+  transaction model (same unit/op.py driver); the 180-degree optics/mechanics
+  differ and results are not transferred between products.
+- synth (U178): TX-only UART 31250 capture (white NC, no RX injection);
+  SAM2695 audio synthesis is NOT modeled.
+- mini-imu (U095): US_MPU6886 at 0x68 with WHOAMI 0x19, accel/gyro/temp data
+  registers derived from fixtures using the driver scale factors, range
+  configuration and address migration; DMP/FIFO and real motion are NOT
+  modeled.
+- env-pro (U169): US_BME68X at 0x77 with WHOAMI 0x61, variant, soft-reset,
+  control/status/calibration register storage and synthetic 17-byte field
+  data; the BME68x compensation inverse, gas/IAQ/heater behavior are NOT
+  modeled and guest decode is not asserted.
+
+Offline QOM smoke (S3 board, no guest firmware) validates property
+registration, fixtures, range/read-only rejection and the 30-LED shape; it is
+not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  26 ++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c |  89 +++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 148 +++++++++++++++++++++++++-
+ 3 files changed, 254 insertions(+), 9 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 0795ed1..081ec4c 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -668,7 +668,8 @@ bool m5_unit_gpio_supported(const char *id)
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+         "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+-        "neohex", "lora-e220-433", "zigbee", "nbiot2"};
++        "neohex", "lora-e220-433", "zigbee", "nbiot2",
++        "rgb-led-strip-50cm", "op180", "synth"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -985,7 +986,8 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                  !strcmp(g->unit->unit_id, "gps") ||
+                  !strcmp(g->unit->unit_id, "uhf-rfid") ||
+                  !strcmp(g->unit->unit_id, "lora-e220-433") ||
+-                 !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2")) &&
++                 !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2") ||
++                 !strcmp(g->unit->unit_id, "synth")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+@@ -1474,7 +1476,8 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+                 !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi") ||
+                 !strcmp(unit->unit_id, "gps") || !strcmp(unit->unit_id, "uhf-rfid") ||
+                 !strcmp(unit->unit_id, "lora-e220-433") ||
+-                !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2"))) {
++                !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2") ||
++                !strcmp(unit->unit_id, "synth"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -1614,8 +1617,11 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL, &g->uhf_frames_sent);
+         object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
+                             &g->uhf_frames_injected);
+-    } else if (!strcmp(id, "op90")) {
+-        /* U057: white Digital Output on PORT.B, yellow NC. */
++    } else if (!strcmp(id, "op90") || !strcmp(id, "op180")) {
++        /* U057 OP90 / U058 OP180: white Digital Output on PORT.B, yellow NC.
++         * Both share unit/op.py; the 180-degree optics/mechanics differ but the
++         * GPIO transaction model is identical (results are not transferred
++         * between products). */
+         esp32_gpio_set_input(unit->white, 1);
+         object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+         object_property_add(o, "blocked", "bool", op90_blocked_get, op90_blocked_set, NULL, g);
+@@ -1649,6 +1655,16 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         if (!strcmp(id, "lora-e220-433")) {
+             object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
+         }
++    } else if (!strcmp(id, "rgb-led-strip-50cm")) {
++        /* A093 0.5m strip: 30x SK6812 on the yellow data line; PORT.B-only. */
++        g->leds = 30;
++        object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
++        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
++        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
++                            &g->incomplete_frames);
++    } else if (!strcmp(id, "synth")) {
++        /* U178: TX-only MIDI to SAM2695; white is NC so no RX injection. */
++        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
+     } else if (!strcmp(id, "ultrasonic-io")) {
+         g->ultra_distance_mm = 1000;
+         g->ultra_controller = esp32_gpio_get_controller(unit->s3);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 7c062b7..6746773 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -40,7 +40,7 @@ typedef enum {
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+-    CONTROL_PAHUB,
++    CONTROL_PAHUB, CONTROL_MINISCALE,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -183,6 +183,16 @@ typedef struct M5UnitControl {
+      * attachment framework supports a single bus per attachment. */
+     uint8_t pahub_mask;
+     uint64_t pahub_writes;
++    /* U177 Mini Scales (0x26): STM32 register file with u32 LE ADC, float LE
++     * weight (g), signed button byte (0=pressed), RGB, calibration gap float,
++     * reset/tare and low-pass/average/EMA filter settings. The 5kg load-cell
++     * mechanics are NOT modeled; 0x26 has a four-way product conflict. */
++    uint32_t miniscale_adc;
++    double miniscale_weight_g, miniscale_gap;
++    int64_t miniscale_button, miniscale_resets, miniscale_cal_writes;
++    int64_t miniscale_lpf, miniscale_avg, miniscale_ema;
++    uint8_t miniscale_rgb[3];
++    uint8_t miniscale_gap_buf[4];
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1726,6 +1736,23 @@ static void snapshot_registers(M5UnitControl *s)
+         s->read_snapshot[0x52] = s->scales_led_rgb & 0xff;
+         s->read_snapshot[0xfe] = clamp_u8(s->scales_fw);
+         s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_MINISCALE) {
++        uint8_t *r = s->read_snapshot;
++        memset(r, 0, 256);
++        put_le32(r + 0x00, s->miniscale_adc);
++        union { float f; uint32_t u; } w = { .f = (float)s->miniscale_weight_g };
++        put_le32(r + 0x10, w.u);
++        r[0x20] = (uint8_t)(int8_t)s->miniscale_button;
++        r[0x30] = s->miniscale_rgb[0]; r[0x31] = s->miniscale_rgb[1];
++        r[0x32] = s->miniscale_rgb[2];
++        union { float f; uint32_t u; } g = { .f = (float)s->miniscale_gap };
++        put_le32(r + 0x40, g.u);
++        r[0x50] = 0;
++        r[0x80] = (uint8_t)(s->miniscale_lpf ? 1 : 0);
++        r[0x81] = (uint8_t)(int8_t)s->miniscale_avg;
++        r[0x82] = (uint8_t)(int8_t)s->miniscale_ema;
++        r[0xfe] = 1;
++        r[0xff] = I2C_SLAVE(s)->address;
+     }
+ }
+ 
+@@ -1768,6 +1795,49 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         s->unit->output_transitions++;
+         return 0;
+     }
++    if (s->kind == CONTROL_MINISCALE) {
++        if (s->write_pos == 1) { s->pointer = value; return 0; }
++        unsigned offset = s->write_pos - 2;
++        uint8_t reg = s->pointer;
++        if (reg == 0x30) {
++            if (offset < 3) { s->miniscale_rgb[offset] = value; return 0; }
++            return 1;
++        }
++        if (reg == 0x40) {
++            if (offset < 4) {
++                s->miniscale_gap_buf[offset] = value;
++                if (offset == 3) {
++                    union { float f; uint32_t u; } g;
++                    g.u = (uint32_t)s->miniscale_gap_buf[0] |
++                          ((uint32_t)s->miniscale_gap_buf[1] << 8) |
++                          ((uint32_t)s->miniscale_gap_buf[2] << 16) |
++                          ((uint32_t)s->miniscale_gap_buf[3] << 24);
++                    s->miniscale_gap = g.f;
++                    s->miniscale_cal_writes++;
++                }
++                return 0;
++            }
++            return 1;
++        }
++        if (offset) { return 1; }
++        switch (reg) {
++        case 0x50: s->miniscale_resets++; return 0;
++        case 0x80: s->miniscale_lpf = value != 0; return 0;
++        case 0x81: s->miniscale_avg = (int8_t)value; return 0;
++        case 0x82: s->miniscale_ema = (int8_t)value; return 0;
++        case 0xff: {
++            BusChild *child;
++            if (value < 1) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), value);
++            return 0;
++        }
++        default: return 1;
++        }
++    }
+     if (s->kind == CONTROL_SCROLL) {
+         if (s->scroll_rx_failed) { return 1; }
+         if (s->scroll_rx_len) {
+@@ -2395,7 +2465,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20",
++        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "mini-scales",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2540,6 +2610,21 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_control_int_fixture(s, "motor-status", &s->bl_status, 0, 255, false);
+         add_control_int_fixture(s, "flash-writes", &s->bl_flash_writes, 0, INT64_MAX, false);
+         add_control_int_fixture(s, "fw-version", &s->bl_fw, 0, 255, false);
++    } else if (!strcmp(unit->unit_id, "mini-scales")) {
++        s->kind = CONTROL_MINISCALE; address = 0x26;
++        s->miniscale_adc = 1000;
++        s->miniscale_weight_g = 0;
++        s->miniscale_button = 1;   /* 0 = pressed */
++        s->miniscale_lpf = 0; s->miniscale_avg = 0; s->miniscale_ema = 0;
++        add_control_int_fixture(s, "adc-raw", (int64_t *)&s->miniscale_adc, 0, UINT32_MAX, true);
++        add_control_number(s, "weight-g", &s->miniscale_weight_g, 0, -5000, 5000, true, false);
++        add_control_int_fixture(s, "button", &s->miniscale_button, 0, 1, false);
++        add_control_number(s, "calibration-gap", &s->miniscale_gap, 0, -1000000, 1000000, false, false);
++        add_control_int_fixture(s, "reset-writes", &s->miniscale_resets, 0, INT64_MAX, false);
++        add_control_int_fixture(s, "calibration-writes", &s->miniscale_cal_writes, 0, INT64_MAX, false);
++        add_control_int_fixture(s, "lpf", &s->miniscale_lpf, 0, 1, true);
++        add_control_int_fixture(s, "avg-level", &s->miniscale_avg, 0, 50, true);
++        add_control_int_fixture(s, "ema-alpha", &s->miniscale_ema, 0, 99, true);
+     } else if (!strcmp(unit->unit_id, "pahub-v20")) {
+         s->kind = CONTROL_PAHUB; address = 0x70;
+         s->pahub_mask = 0;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 1127d93..ea953ad 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -27,7 +27,7 @@ typedef enum {
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+     US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
+-    US_RTC8563, US_STHS34PF80,
++    US_RTC8563, US_STHS34PF80, US_MPU6886, US_BME68X,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -135,6 +135,17 @@ typedef struct M5UnitSensor {
+     double tmos_tobject_c, tmos_tambient_c;
+     bool tmos_presence, tmos_motion, tmos_shock;
+     int64_t tmos_gain_mode, tmos_odr;
++    /* U095 Mini IMU (0x68, MPU6886): accel/gyro/temperature register file with
++     * the board-level MPU6886 register semantics; real motion/vibration/temp
++     * physics are NOT modeled. */
++    double mpu_accel[3], mpu_gyro[3], mpu_temp;
++    int64_t mpu_accel_fs, mpu_gyro_fs, mpu_whoami;
++    /* U169 ENV-Pro (0x169/BME688): minimal register machine with synthetic
++     * field bytes. Guest compensation decode is NOT asserted because the
++     * BME68x compensation inverse is not modeled; gas/IAQ/heater NOT RUN. */
++    double bme_temp, bme_hum, bme_press, bme_gas;
++    bool bme_ready;
++    int64_t bme_chip, bme_variant;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -1254,6 +1265,82 @@ static void rtc_time_set(Object *obj, Visitor *v, const char *name,
+     s->unit->input_events++;
+ }
+ 
++/* U095 MPU6886: refresh the accel/gyro/temperature data registers from the
++ * fixtures using the driver's scale factors (16384/8192/4096/2048 LSB/g and
++ * 131/62.5/32.8/16.4 LSB/dps; temperature = raw/326.8 + 25). */
++static void mpu6886_refresh(M5UnitSensor *s)
++{
++    uint8_t accel_cfg = s->regs[0][0x1c] & 0x18;
++    uint8_t gyro_cfg = s->regs[0][0x1b] & 0x18;
++    double accel_so = accel_cfg == 0x08 ? 8192.0 : accel_cfg == 0x10 ? 4096.0 :
++                      accel_cfg == 0x18 ? 2048.0 : 16384.0;
++    double gyro_so = gyro_cfg == 0x08 ? 62.5 : gyro_cfg == 0x10 ? 32.8 :
++                     gyro_cfg == 0x18 ? 16.4 : 131.0;
++    for (unsigned i = 0; i < 3; i++) {
++        int16_t a = (int16_t)CLAMP(llround(s->values[i] * accel_so), -32768, 32767);
++        int16_t g = (int16_t)CLAMP(llround(s->values[3 + i] * gyro_so), -32768, 32767);
++        be16(s->regs[0] + 0x3b + i * 2, (uint16_t)a);
++        be16(s->regs[0] + 0x43 + i * 2, (uint16_t)g);
++    }
++    int16_t temp = (int16_t)CLAMP(llround((s->values[6] - 25.0) * 326.8), -32768, 32767);
++    be16(s->regs[0] + 0x41, (uint16_t)temp);
++    s->regs[0][0x75] = 0x19;  /* MPU6886 WHO_AM_I */
++}
++
++/* U169 BME688: WHOAMI/variant plus synthetic 17-byte field data starting at
++ * 0x1D. Encodings are model-side conventions; the guest compensation path is
++ * NOT asserted (BME68x calibration inverse NOT modeled). */
++static void bme68x_refresh(M5UnitSensor *s)
++{
++    uint8_t *r = s->regs[0];
++    r[0xd0] = 0x61;
++    r[0xf0] = (uint8_t)(s->bme_variant & 0x03);
++    r[0x1d] = s->bme_ready ? 0x80 : 0x00;
++    r[0x1e] = 1;
++    uint32_t press = (uint32_t)CLAMP(llround(s->values[2] * 16.0), 0, 0xffffff);
++    uint32_t temp = (uint32_t)CLAMP(llround((s->values[0] + 40.0) * 16.0), 0, 0xffffff);
++    uint16_t hum = (uint16_t)CLAMP(llround(s->values[1] / 100.0 * 65535.0), 0, 65535);
++    r[0x1f] = press >> 16; r[0x20] = press >> 8; r[0x21] = press;
++    r[0x22] = temp >> 16; r[0x23] = temp >> 8; r[0x24] = temp;
++    r[0x25] = hum >> 8; r[0x26] = hum;
++}
++
++static void mpu_accel_range_set(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    uint8_t bits = value == 2 ? 0x00 : value == 4 ? 0x08 : value == 8 ? 0x10 :
++                   value == 16 ? 0x18 : 0xff;
++    if (bits == 0xff) { error_setg(errp, "accel-range must be 2, 4, 8 or 16 g"); return; }
++    s->regs[0][0x1c] = (uint8_t)((s->regs[0][0x1c] & ~0x18) | bits);
++    s->mpu_accel_fs = value;
++    s->unit->input_events++;
++}
++
++static void mpu_gyro_range_set(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    uint8_t bits = value == 250 ? 0x00 : value == 500 ? 0x08 : value == 1000 ? 0x10 :
++                   value == 2000 ? 0x18 : 0xff;
++    if (bits == 0xff) { error_setg(errp, "gyro-range must be 250/500/1000/2000 dps"); return; }
++    s->regs[0][0x1b] = (uint8_t)((s->regs[0][0x1b] & ~0x18) | bits);
++    s->mpu_gyro_fs = value;
++    s->unit->input_events++;
++}
++
++static void mpu_range_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = !strcmp(name, "accel-range") ? s->mpu_accel_fs : s->mpu_gyro_fs;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static int sensor_send(I2CSlave *dev, uint8_t data)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(dev);
+@@ -1550,6 +1637,21 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         s->pointer++;
+         return 0;
+     }
++    if (s->kind == US_MPU6886) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        s->regs[0][(uint8_t)s->pointer] = data;
++        s->pointer++;
++        return 0;
++    }
++    if (s->kind == US_BME68X) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg == 0xe0 && data == 0xb6) { s->bme_ready = false; return 0; }
++        s->regs[0][reg] = data;
++        if (reg == 0x74) { s->bme_ready = true; }
++        s->pointer++;
++        return 0;
++    }
+     if (!pos) {
+         if (s->kind == US_COLOR && data == 0xe6) {
+             s->regs[0][0x13] &= ~0x10; return 0;
+@@ -1685,6 +1787,16 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         if (reg == 0xff) { return I2C_SLAVE(s)->address; }
+         return 0xff;
+     }
++    if (s->kind == US_MPU6886) {
++        if (pos == 0) { mpu6886_refresh(s); }
++        uint16_t reg = s->pointer + pos;
++        return reg <= 0xff ? s->regs[0][reg] : 0xff;
++    }
++    if (s->kind == US_BME68X) {
++        if (pos == 0) { bme68x_refresh(s); }
++        uint16_t reg = s->pointer + pos;
++        return reg <= 0xff ? s->regs[0][reg] : 0xff;
++    }
+     if (s->kind == US_RTC8563) {
+         if (pos == 0) { rtc8563_refresh(s); }
+         uint16_t reg = s->pointer + pos;
+@@ -1874,7 +1986,8 @@ bool m5_unit_sensor_supported(const char *id)
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+-        "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir" };
++        "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
++        "mini-imu", "env-pro" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -2028,6 +2141,37 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "mini-imu")) {
++        s->kind = US_MPU6886; address = 0x68;
++        s->mpu_accel_fs = 2; s->mpu_gyro_fs = 250;
++        s->regs[0][0x6b] = 0x01;  /* PWR_MGMT_1 clock source fixture */
++        for (unsigned i = 0; i < 3; i++) { s->mpu_accel[i] = 0; s->mpu_gyro[i] = 0; }
++        add_number(s, "accel-x-g", 0, 0, -16, 16, false);
++        add_number(s, "accel-y-g", 1, 0, -16, 16, false);
++        add_number(s, "accel-z-g", 2, 1, -16, 16, false);
++        add_number(s, "gyro-x-dps", 3, 0, -2000, 2000, false);
++        add_number(s, "gyro-y-dps", 4, 0, -2000, 2000, false);
++        add_number(s, "gyro-z-dps", 5, 0, -2000, 2000, false);
++        add_number(s, "temperature-c", 6, 25, -40, 85, false);
++        object_property_add(OBJECT(s->unit), "accel-range", "int", mpu_range_get,
++                            mpu_accel_range_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "gyro-range", "int", mpu_range_get,
++                            mpu_gyro_range_set, NULL, s);
++        s->mpu_whoami = 0x19;
++        add_i64(s, "whoami", &s->mpu_whoami);
++        add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "env-pro")) {
++        s->kind = US_BME68X; address = 0x77;
++        s->bme_chip = 0x61; s->bme_variant = 0x01; s->bme_ready = true;
++        s->bme_temp = 25; s->bme_hum = 50; s->bme_press = 101325; s->bme_gas = 100000;
++        add_number(s, "temperature-c", 0, 25, -40, 85, false);
++        add_number(s, "humidity-pct", 1, 50, 0, 100, false);
++        add_number(s, "pressure-pa", 2, 101325, 30000, 110000, false);
++        add_number(s, "gas-resistance-ohm", 3, 100000, 0, 10000000, false);
++        add_fixture_bool(s, "data-ready", &s->bme_ready);
++        add_i64(s, "chip-id", &s->bme_chip);
++        add_i64(s, "variant", &s->bme_variant);
++        add_i2c_address(s);
+     } else if (!strcmp(u->unit_id, "rtc")) {
+         s->kind = US_RTC8563; address = 0x51;
+         s->rtc_base = INT64_C(1767225600);  /* synthetic 2026-01-01 UTC fixture */
+-- 
+2.55.0
+
