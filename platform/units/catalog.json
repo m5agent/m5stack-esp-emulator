@@ -6935,7 +6935,907 @@
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-bclass/report-weight-i2c.json for stopwatch only; it used the 0120 QEMU fix on top of 0119. Hardware and unlisted hosts remain NOT RUN."
       ]
     }
-
+,
+    {
+      "id": "ncir2",
+      "name": "NCIR2",
+      "sku": "U150",
+      "visual_asset": {
+        "entry": "src/units/ncir2/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/NCIR2",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "MLX90614",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          90
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x5A, STM32 register device accessed as register pointer plus 1..N byte read. Temperature 0x00 int16 x0.01 C; emissivity 0x10 uint16 /65535; alarm thresholds 0x20/0x22; alarm RGB 0x30/0x33 (3 bytes); alarm buzzer freq/interval/duty 0x40..0x49; buzzer 0x50/0x52/0x53; RGB 0x60; button 0x70 (0=pressed); save config 0x80 (write 1); chip temperature 0x90 int16 x0.01 C; firmware 0xFE; address 0xFF.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 2,
+            "encoding": "int16 little-endian /100 = object temperature C"
+          },
+          {
+            "register": "0x10",
+            "length": 2,
+            "encoding": "uint16 little-endian /65535 = emissivity (0.1..1)"
+          },
+          {
+            "register": "0x20/0x22",
+            "length": 2,
+            "encoding": "int16 little-endian /100 = low/high alarm threshold C"
+          },
+          {
+            "register": "0x30/0x33",
+            "length": 3,
+            "encoding": "RGB bytes for low/high alarm color"
+          },
+          {
+            "register": "0x40..0x49",
+            "encoding": "low/high alarm buzzer frequency (u16 LE), interval (u16 LE) and duty (u8)"
+          },
+          {
+            "register": "0x50/0x52/0x53",
+            "encoding": "buzzer frequency (u16 LE) / duty (u8) / control (u8)"
+          },
+          {
+            "register": "0x60",
+            "length": 3,
+            "encoding": "RGB indicator color"
+          },
+          {
+            "register": "0x70",
+            "length": 1,
+            "encoding": "button raw; driver reports pressed when the byte reads 0"
+          },
+          {
+            "register": "0x80",
+            "length": 1,
+            "encoding": "write 0x01 to save configuration"
+          },
+          {
+            "register": "0x90",
+            "length": 2,
+            "encoding": "int16 little-endian /100 = chip temperature C"
+          },
+          {
+            "register": "0xFE",
+            "length": 1,
+            "encoding": "firmware version"
+          },
+          {
+            "register": "0xFF",
+            "length": 1,
+            "encoding": "I2C address"
+          }
+        ],
+        "gaps": [
+          "The official NCIR-STM32 protocol PDF is linked but not reviewed; register meanings are taken from the executable driver.",
+          "The internal alarm state machine (auto buzzer/RGB on threshold) is not modeled; only register read/write is.",
+          "Default address 0x5A collides with the registered NCIR (MLX90614) unit; not co-mountable.",
+          "The product range is -70..380 C, but the driver reads 0x00 as signed int16 x0.01, which caps at +327.67 C; values above that are not encodable and must be treated as unresolved/saturating."
+        ]
+      },
+      "inputs": {
+        "object-c": {
+          "type": "number",
+          "label": "目标温度",
+          "default": 32,
+          "default_source": "synthetic-test-fixture",
+          "unit": "degC",
+          "minimum": -70,
+          "maximum": 380,
+          "readOnly": false
+        },
+        "chip-c": {
+          "type": "number",
+          "label": "芯片温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "unit": "degC",
+          "minimum": -40,
+          "maximum": 125,
+          "readOnly": false
+        },
+        "button-pressed": {
+          "type": "boolean",
+          "label": "按键按下",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "rgb-led": {
+          "type": "integer",
+          "label": "RGB指示灯",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "minimum": 0,
+          "maximum": 16777215,
+          "readOnly": true
+        },
+        "buzzer-on": {
+          "type": "boolean",
+          "label": "蜂鸣器开关",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/NCIR2",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and chip identity (STM32F030F4P6 + MLX90614)",
+            "I2C address 0x5A and -70..380 C range",
+            "PinMap wire colors (yellow=SDA, white=SCL)"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir2.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register addresses, read lengths, integer/float encodings, button polarity and address-change path"
+          ],
+          "sha256": "9acd068c6a70695cd9400ced7aa6eec4249b60bb75f2729d8533990062c8f60c",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/739/NCIR-STM32.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/604/Sch_UNIT-NCIR2.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "object-c": {
+            "property": "object-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "chip-c": {
+            "property": "chip-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "button-pressed": {
+            "property": "button-pressed",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "rgb-led": {
+            "property": "rgb-led",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "buzzer-on": {
+            "property": "buzzer-on",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model; internal STM32 alarm state machine not modeled"
+      },
+      "blocker": "0122 adds a QEMU NCIR2 transaction-level slave (temperature/chip-temperature bytes from host fixtures, emissivity/thresholds/alarm-LED/buzzer/RGB/button/save and 0xFE/0xFF registers) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The STM32 alarm state machine is not modeled; the NCIR-STM32 protocol PDF is unread; default address 0x5A collides with the registered ncir (MLX90614); the -70..380C range exceeds the signed int16 x0.01 encoding limit (+327.67C) and the top-range encoding/saturation policy is unresolved; infrared optics are NOT RUN.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0122 models registers/transactions only; threshold alarms, auto RGB/buzzer behavior and temperature conversion remain guest-side/NOT RUN.",
+        "0x5A conflicts with the registered ncir unit; the two cannot coexist on one I2C bus.",
+        "Values above +327.67C cannot be encoded by the driver's signed int16 x0.01 read path; no 380C readback is claimed."
+      ]
+    },
+    {
+      "id": "extio2",
+      "name": "EXT.IO2",
+      "sku": "U011-B",
+      "visual_asset": {
+        "entry": "src/units/extio2/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/extio2",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          69
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x45 (programmable), STM32 8-channel IO expander with a flat register map: 0x00..0x07 channel mode (0=IN, 1=OUT, 2=ANALOG, 3=SERVO, 4=NEOPIXEL), 0x10..0x17 digital output, 0x20..0x27 digital input, 0x30..0x37 8-bit ADC, 0x40..0x4F 12-bit ADC (u16 LE per channel), 0x50..0x57 servo angle, 0x60..0x6F servo pulse (u16 LE), 0x70..0x87 RGB (3 bytes per channel), 0xFE firmware, 0xFF address. Upstream master additionally defines 0x90 PWM duty and 0xA0 PWM frequency.",
+        "registers": [
+          {
+            "register": "0x00..0x07",
+            "encoding": "u8 channel mode: 0 IN / 1 OUT / 2 ANALOG / 3 SERVO / 4 NEOPIXEL"
+          },
+          {
+            "register": "0x10..0x17",
+            "encoding": "u8 digital output level"
+          },
+          {
+            "register": "0x20..0x27",
+            "encoding": "u8 digital input readback"
+          },
+          {
+            "register": "0x30..0x37",
+            "encoding": "u8 8-bit ADC"
+          },
+          {
+            "register": "0x40..0x4F",
+            "encoding": "u16 little-endian 12-bit ADC at 0x40+ch*2"
+          },
+          {
+            "register": "0x50..0x57",
+            "encoding": "u8 servo angle"
+          },
+          {
+            "register": "0x60..0x6F",
+            "encoding": "u16 little-endian servo pulse at 0x60+ch*2"
+          },
+          {
+            "register": "0x70..0x87",
+            "encoding": "3-byte RGB at 0x70+ch*3; driver writes r,g,b in that order"
+          },
+          {
+            "register": "0x90..0x97",
+            "encoding": "u8 PWM duty cycle (master driver only, protocol v3)"
+          },
+          {
+            "register": "0xA0",
+            "encoding": "u8 PWM frequency (master driver only, protocol v3)"
+          },
+          {
+            "register": "0xFE",
+            "encoding": "u8 firmware version"
+          },
+          {
+            "register": "0xFF",
+            "encoding": "u8 I2C address"
+          }
+        ],
+        "gaps": [
+          "Official v1 and v3 protocol PDFs are linked but not reviewed.",
+          "ADC full-scale/reference, servo angle/pulse units and RGB internal byte order are unresolved.",
+          "Snapshot driver has no PWM registers; master adds 0x90/0xA0 (protocol v3). Pin one driver version before implementation.",
+          "I2C address 0x45 is programmable; address-change persistence is not modeled."
+        ]
+      },
+      "inputs": {
+        "input-levels": {
+          "type": "array",
+          "label": "8通道数字输入",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "adc-mv": {
+          "type": "array",
+          "label": "8通道模拟输入",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300,
+          "readOnly": false
+        },
+        "fw-version": {
+          "type": "integer",
+          "label": "固件版本",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "minimum": 0,
+          "maximum": 255,
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "modes": {
+          "type": "array",
+          "label": "8通道模式",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "output-levels": {
+          "type": "array",
+          "label": "8通道输出电平",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "servo-angles": {
+          "type": "array",
+          "label": "8通道舵机角度",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "servo-pulses": {
+          "type": "array",
+          "label": "8通道舵机脉宽",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "rgb-leds": {
+          "type": "array",
+          "label": "8通道RGB",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/extio2",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and STM32F030F4P6 identity",
+            "I2C address 0x45 (programmable) and 8-channel IO description",
+            "PinMap wire colors (yellow=SDA, white=SCL)",
+            "protocol v1/v3 document links"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/extio2.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register base addresses, per-channel offsets, read/write lengths and mode constants"
+          ],
+          "sha256": "d1781a00a000813983ffe34fd2a47df0829108f4c0b8653c3a40ffe8cbc4e31d",
+          "sha256_matches_snapshot_528edd8": false,
+          "snapshot_note": "master adds 0x90 PWM duty and 0xA0 PWM frequency registers plus set/get helpers; base map otherwise identical"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://github.com/m5stack/M5Unit-EXTIO2/blob/main/docs/V3/EXTIO2_V3_Protocol.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/574/Sch_UNIT-EXTIO2.pdf",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "input-levels": {
+            "property": "input-levels",
+            "access": "read-write",
+            "type": "array"
+          },
+          "adc-mv": {
+            "property": "adc-mv",
+            "access": "read-write",
+            "type": "array"
+          },
+          "fw-version": {
+            "property": "fw-version",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "modes": {
+            "property": "modes",
+            "access": "read-only",
+            "type": "array"
+          },
+          "output-levels": {
+            "property": "output-levels",
+            "access": "read-only",
+            "type": "array"
+          },
+          "servo-angles": {
+            "property": "servo-angles",
+            "access": "read-only",
+            "type": "array"
+          },
+          "servo-pulses": {
+            "property": "servo-pulses",
+            "access": "read-only",
+            "type": "array"
+          },
+          "rgb-leds": {
+            "property": "rgb-leds",
+            "access": "read-only",
+            "type": "array"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model"
+      },
+      "blocker": "0122 adds a QEMU EXTIO2 transaction-level slave (8-channel mode/output/servo-angle/servo-pulse/RGB registers, input-levels and adc-mv fixtures for 0x20/0x30/0x40 reads, fw-version/address and master-driver 0x90/0xA0 PWM bytes) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. Protocol v1/v3 PDFs are unread; ADC full-scale/reference voltage, servo angle/pulse units and the chip-internal RGB byte order remain unresolved; the frozen-firmware driver version (with/without 0x90/0xA0) is unresolved; ST IAP/upgrade mode is NOT modeled.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0122 models register bytes only; ADC accuracy, servo motion and NeoPixel optical output are NOT RUN.",
+        "The 0x90/0xA0 PWM registers exist only in the master driver (Protocol v3 target); they are exposed as driver-visible bytes, not calibrated PWM behavior.",
+        "RGB banks store the driver's r,g,b write order; the chip-internal order is unread/UNRESOLVED."
+      ]
+    },
+    {
+      "id": "hbridge",
+      "name": "HBridge",
+      "sku": "U160",
+      "visual_asset": {
+        "entry": "src/units/hbridge/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_HBridge",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "RZ7899",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          32
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C 0x20 (DIP-selectable 0x20..0x2F), STM32 register device: 0x00 direction (0 stop, 1 forward, 2 reverse per official driver docstring), 0x01 8-bit PWM duty, 0x02 16-bit PWM duty (u16 LE), 0x04 PWM frequency (u16 LE, driver clamps 100..10000 Hz), 0x10 8-bit ADC, 0x20 16-bit ADC (u16 LE), 0x30 VIN current (float32 LE, v1.1 driver section only), 0xFE firmware, 0xFF address.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 1,
+            "encoding": "u8 direction: 0 stop / 1 forward / 2 reverse (driver docstring)"
+          },
+          {
+            "register": "0x01",
+            "length": 1,
+            "encoding": "u8 8-bit PWM duty 0..255"
+          },
+          {
+            "register": "0x02",
+            "length": 2,
+            "encoding": "u16 little-endian 16-bit PWM duty 0..65535"
+          },
+          {
+            "register": "0x04",
+            "length": 2,
+            "encoding": "u16 little-endian PWM frequency Hz; driver clamps 100..10000"
+          },
+          {
+            "register": "0x10",
+            "length": 1,
+            "encoding": "u8 8-bit ADC"
+          },
+          {
+            "register": "0x20",
+            "length": 2,
+            "encoding": "u16 little-endian 16-bit ADC"
+          },
+          {
+            "register": "0x30",
+            "length": 4,
+            "encoding": "little-endian float32 VIN current (v1.1 only)"
+          },
+          {
+            "register": "0xFE",
+            "length": 1,
+            "encoding": "firmware version"
+          },
+          {
+            "register": "0xFF",
+            "length": 1,
+            "encoding": "I2C address"
+          }
+        ],
+        "gaps": [
+          "The product page links an internal firmware repository but no separate I2C protocol PDF; register semantics come from the official driver only.",
+          "0x30 VIN current exists on v1.1 only; the U160 v1.0 read value is unresolved.",
+          "Direction/brake timing, RZ7899 dead time and overcurrent/overtemperature protection are not modeled.",
+          "get_adc_value() scaling 3.3/res*val*11 is a driver heuristic, not calibration."
+        ]
+      },
+      "inputs": {
+        "adc-mv": {
+          "type": "number",
+          "label": "ADC输入电压",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "mV",
+          "minimum": 0,
+          "maximum": 3300,
+          "readOnly": false
+        },
+        "vin-current-a": {
+          "type": "number",
+          "label": "母线电流",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "A",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "direction": {
+          "type": "integer",
+          "label": "电机方向",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "minimum": 0,
+          "maximum": 2,
+          "readOnly": true
+        },
+        "pwm-duty-pct": {
+          "type": "number",
+          "label": "PWM占空比",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "%",
+          "minimum": 0,
+          "maximum": 100,
+          "readOnly": true
+        },
+        "pwm-frequency-hz": {
+          "type": "number",
+          "label": "PWM频率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "Hz",
+          "minimum": 0,
+          "maximum": 10000,
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_HBridge",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU and chip identity (STM32F030 + RZ7899)",
+            "I2C address 0x20 with 0x20..0x2F DIP range",
+            "PinMap wire colors (yellow=SDA, white=SCL)"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/hbridge.py",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "register addresses, directions, PWM encodings, frequency clamp, ADC and v1.1 current read path"
+          ],
+          "sha256": "3835ba81f823b3d29aecc9160ba2e76687048bb358d3e2a87dc461783bec18c7",
+          "sha256_matches_snapshot_528edd8": true
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/U160%20Hbridge%20Unit/RZ7899.PDF",
+          "checked_at": "2026-11-02",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "adc-mv": {
+            "property": "adc-mv",
+            "access": "read-write",
+            "type": "number"
+          },
+          "vin-current-a": {
+            "property": "vin-current-a",
+            "access": "read-write",
+            "type": "number"
+          },
+          "direction": {
+            "property": "direction",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "pwm-duty-pct": {
+            "property": "pwm-duty-pct",
+            "access": "read-only",
+            "type": "number"
+          },
+          "pwm-frequency-hz": {
+            "property": "pwm-frequency-hz",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "input-events": {
+            "property": "input-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model; motor electrical behavior not modeled"
+      },
+      "blocker": "0122 adds a QEMU HBridge transaction-level slave (direction/PWM8/PWM16/frequency writes, 0x10 ADC8, 0x20 ADC16 and 0x30 VIN-current reads from host fixtures, 0xFE/0xFF identity, address changes restricted to 0x20-0x2F) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The product page has no independent protocol PDF; 0x30 VIN current exists only on v1.1 hardware and the U160 v1.0 read semantics are unresolved; direction/brake timing, RZ7899 dead-time/protection and motor electrical behavior are NOT RUN.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "0122 models registers/transactions only; motor torque, current, direction timing and protection behavior are NOT RUN.",
+        "0x30 (VIN current) is a v1.1-only register; the modeled float fixture does not establish U160 v1.0 behavior.",
+        "set_percentage_pwm's 16-bit branch writes the 8-bit PWM register in the official driver; the model keeps explicit register semantics and does not reproduce that bug."
+      ]
+    }
   ],
   "model_status_values": [
     "planned",

@@ -5225,6 +5225,156 @@
         ],
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
+    },
+    "ncir2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU NCIR2 register-file model exists in 0122 (0x00/0x90 temperature bytes from object-c/chip-c fixtures, emissivity/threshold/alarm-LED/buzzer/RGB/button/save/0xFE/0xFF registers with strict read-only fixture regs) but no guest/Device Service evidence is recorded, so admission stays planned. The STM32 alarm state machine is NOT modeled; the NCIR-STM32 protocol PDF is unread; 0x5A conflicts with the registered ncir (MLX90614) unit; the -70..380C product range exceeds the signed int16 x0.01 encode limit (+327.67C), so top-range encoding remains unresolved. Infrared optics/emissivity physics are NOT RUN.",
+      "inputs": {
+        "object-c": {
+          "property": "object-c"
+        },
+        "chip-c": {
+          "property": "chip-c"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "object-c": {
+          "property": "object-c"
+        },
+        "chip-c": {
+          "property": "chip-c"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "rgb-led": {
+          "property": "rgb-led"
+        },
+        "buzzer-on": {
+          "property": "buzzer-on"
+        }
+      }
+    },
+    "extio2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU EXTIO2 register-file model exists in 0122 (8-channel mode/output/servo-angle/servo-pulse/RGB banks, input-levels and adc-mv fixtures for 0x20/0x30/0x40 reads, fw-version and address registers) but no guest/Device Service evidence is recorded, so admission stays planned. Protocol v1/v3 PDFs are unread; 8/12-bit ADC full-scale/reference, servo angle/pulse units and the chip-internal RGB byte order remain unresolved; the v3 0x90/0xA0 PWM registers are modeled only as driver-visible bytes; ST IAP/upgrade mode is NOT modeled.",
+      "inputs": {
+        "input-levels": {
+          "property": "input-levels"
+        },
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "input-levels": {
+          "property": "input-levels"
+        },
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "modes": {
+          "property": "modes"
+        },
+        "output-levels": {
+          "property": "output-levels"
+        },
+        "servo-angles": {
+          "property": "servo-angles"
+        },
+        "servo-pulses": {
+          "property": "servo-pulses"
+        },
+        "rgb-leds": {
+          "property": "rgb-leds"
+        }
+      }
+    },
+    "hbridge": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "QEMU HBridge register-file model exists in 0122 (direction/PWM8/PWM16/frequency writes, 0x10/0x20 ADC and 0x30 VIN-current reads from fixtures, 0xFE/0xFF identity, address change restricted to 0x20-0x2F) but no guest/Device Service evidence is recorded, so admission stays planned. No independent protocol PDF exists; the 0x30 VIN-current register exists only on v1.1 hardware (U160 v1.0 read semantics unresolved); direction/brake timing, RZ7899 dead-time/protection and motor electrical behavior are NOT RUN.",
+      "inputs": {
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "vin-current-a": {
+          "property": "vin-current-a"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "adc-mv": {
+          "property": "adc-mv"
+        },
+        "vin-current-a": {
+          "property": "vin-current-a"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "pwm-duty-pct": {
+          "property": "pwm-duty-pct"
+        },
+        "pwm-frequency-hz": {
+          "property": "pwm-frequency-hz"
+        }
+      }
     }
   },
   "evidence_policy": {
