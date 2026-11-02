@@ -17,6 +17,13 @@ import {createUnitPicker} from './unit-panel.js';
 
 const $ = (id) => document.getElementById(id),
   root = siteRoot();
+function localSameOriginServiceUrl() {
+  const page = new URL(location.href);
+  return page.protocol === 'http:' &&
+    ['localhost', '127.0.0.1', '[::1]'].includes(page.hostname)
+    ? page.origin
+    : '';
+}
 const state = {
   devices: [],
   units: [],
@@ -99,6 +106,17 @@ function lane(device = state.selected) {
   if (mode !== 'service' && browserProfile(device?.id)) return 'browser';
   if (mode !== 'browser' && serviceReady) return 'service';
   return null;
+}
+function deviceRuntimeLabel(device) {
+  if (browserProfile(device?.id)) return '浏览器运行';
+  if (device?.visual_only) return '仅模型';
+  if (
+    state.serviceDevices.some(
+      (item) => item.device_id === device?.id && item.creatable,
+    )
+  )
+    return '服务可运行';
+  return '连接服务';
 }
 function appendSerial(text) {
   if (!text) return;
@@ -189,6 +207,7 @@ function renderDevices() {
   $('deviceNav').replaceChildren();
   for (const device of filtered) {
     const item = node('button', 'device-choice');
+    const runtimeLabel = deviceRuntimeLabel(device);
     item.type = 'button';
     item.dataset.deviceId = device.id;
     item.setAttribute('aria-pressed', String(state.selected?.id === device.id));
@@ -197,7 +216,7 @@ function renderDevices() {
       node(
         'small',
         browserProfile(device.id) ? 'browser-marker' : '',
-        `${device.sku || device.group_label || 'M5Stack'} · ${browserProfile(device.id) ? '浏览器运行' : device.visual_only ? '仅模型' : '连接服务'}`,
+        `${device.sku || device.group_label || 'M5Stack'} · ${runtimeLabel}`,
       ),
     );
     item.addEventListener('click', () => void selectDevice(device.id).catch(error));
@@ -972,7 +991,9 @@ async function init() {
   $('runtimeMode').value = launch.mode;
   if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
   else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
-  $('serviceUrl').value = launch.serviceUrl || config.service_url || '';
+  const configuredServiceUrl =
+    launch.serviceUrl || config.service_url || localSameOriginServiceUrl();
+  $('serviceUrl').value = configuredServiceUrl;
   if (launch.firmware) {
     $('firmwareUrl').value = launch.firmware;
     document.querySelector('[name="firmwareSource"][value="url"]').checked = true;
@@ -986,7 +1007,11 @@ async function init() {
     $('stageTitle').textContent = '请选择设备';
     $('deviceMount').replaceChildren(node('p', 'stage-loading', '链接中的设备无法确认，请从设备列表选择。'));
   }
-  if ($('serviceUrl').value && launch.device && (launch.mode === 'service' || !browserProfile(launch.device.id)))
+  if (
+    configuredServiceUrl &&
+    launch.device &&
+    !['browser', 'model'].includes(launch.mode)
+  )
     await connectService();
   const sharedReference = (reference()?.composed || reference()?.composedProbe) && launch.sha256 === reference().sha256;
   if ((launch.firmware || sharedReference) && launch.autostart && launch.device) {

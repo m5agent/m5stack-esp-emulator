@@ -747,6 +747,21 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertEqual(result["app_descriptor"]["version"], "1.2.3")
         self.assertEqual(result["app_descriptor"]["project_name"], "probe")
 
+    def test_reports_bootloader_declared_flash_size(self):
+        image = bytearray(build_flash())
+        image[3] = 0x3F
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "firmware.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+        bootloader = result["bootloader"]
+        self.assertEqual(bootloader["flash_size_code"], 3)
+        self.assertEqual(bootloader["flash_speed_code"], 0x0F)
+        self.assertEqual(bootloader["flash_size"], 8 << 20)
+        self.assertTrue(
+            result["bootloader_flash_contract"]["partitions_fit"]
+        )
+
     def test_detects_secure_boot_v2_signature_structure_and_digest(self):
         for scheme, curve_id, expected in (
             ("rsa", 2, "rsa-pss-sha256"),

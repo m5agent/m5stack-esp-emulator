@@ -33,7 +33,7 @@ const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',imp
 const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(device=>device.id===profile.deviceId))
   .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
-async function entry({search='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
+async function entry({search='',pageUrl=pageRoot,isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const element=(id)=>{
     if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
@@ -57,13 +57,13 @@ async function entry({search='',isolationError,registryFailure=false,publication
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
   Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,qemuServo,{
-    siteRoot:()=>new URL(pageRoot),
+    siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     getBrowserProfile:()=>null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
   const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
-    navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:pageRoot+search,search},
+    navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
     URL,URLSearchParams,Map,TextEncoder,AbortController,DOMException,console,
     fetch:fetchFixture,events,
   });
@@ -72,7 +72,7 @@ async function entry({search='',isolationError,registryFailure=false,publication
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
     connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
     startRun=async()=>events.push('start:'+lane());
-    globalThis.contract={state,browserProfile,lane,share,reference,status,applyBrowserFrame,applyBrowserPresentation};
+    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -91,6 +91,15 @@ for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavail
 }
 const navigation=await entry({isolation:{isolated:false,reloading:true}});
 assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolation navigation must not accept firmware or start execution');
+
+const localService=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',search:'?device=cardputer-adv&autostart=0'});
+assert.equal(localService.element('serviceUrl').value,'http://127.0.0.1:8787');
+assert.ok(localService.events.includes('connect-service'),'a loopback page served by its own Device Service must connect the same origin automatically');
+localService.state.browserUnavailable=true;
+assert.equal(localService.deviceRuntimeLabel(localService.state.selected),'服务可运行','connected devices must not keep the connect-service label');
+const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',search:'?device=cardputer-adv&mode=browser&autostart=0'});
+assert.equal(localBrowser.element('serviceUrl').value,'http://127.0.0.1:8787');
+assert.equal(localBrowser.events.includes('connect-service'),false,'an explicit browser-only link must not create a service connection');
 
 const unavailable=await entry({registryFailure:true,search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0'});
 assert.equal(unavailable.state.browserUnavailable,true);assert.equal(unavailable.browserProfile('cores3'),null);

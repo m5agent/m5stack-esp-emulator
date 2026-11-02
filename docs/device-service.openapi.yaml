@@ -1520,6 +1520,10 @@ paths:
   /firmware/import:
     post:
       summary: Normalize a firmware package and create a validated firmware
+      description: >
+        A valid partition table extending beyond the SPI flash capacity
+        declared by the bootloader image header returns 409
+        bootloader_flash_size_too_small before session allocation.
       requestBody:
         required: true
         content:
@@ -1546,7 +1550,10 @@ paths:
         The entire serialized HTTP JSON body is limited to 1 MiB (1048576
         bytes), including keys, paths, syntax, whitespace and escaping.
         Oversized bodies return 413 body_too_large. For kind=uiflow, the
-        separate decoded-source UTF-8 byte/file limits also apply.
+        separate decoded-source UTF-8 byte/file limits also apply. A valid
+        partition table extending beyond the SPI flash capacity declared by
+        the bootloader image header returns 409
+        bootloader_flash_size_too_small before session allocation.
       requestBody:
         required: true
         content:

@@ -2154,6 +2154,41 @@ class FirmwareStore:
         if not intervals:
             raise ServiceError("empty_firmware", "firmware has no data", 400)
         image_bytes = bytes(image)
+        partition_table = parse_partition_table(
+            image_bytes,
+            image_size=spec.flash_size,
+        )
+        bootloader = analyze_esp_image(image_bytes, 0)
+        if not bootloader["valid"]:
+            for offset in (0x1000, 0x2000):
+                candidate = analyze_esp_image(image_bytes, offset)
+                if candidate["valid"]:
+                    bootloader = candidate
+                    break
+        bootloader_flash_size = bootloader.get("flash_size")
+        partition_end = max(
+            (
+                partition["offset"] + partition["size"]
+                for partition in partition_table.get("partitions", [])
+            ),
+            default=0,
+        )
+        if (
+            partition_table["valid"]
+            and bootloader["valid"]
+            and bootloader_flash_size is not None
+            and partition_end > bootloader_flash_size
+        ):
+            raise ServiceError(
+                "bootloader_flash_size_too_small",
+                (
+                    f"bootloader declares 0x{bootloader_flash_size:x} bytes "
+                    f"of SPI flash, but the partition table requires "
+                    f"0x{partition_end:x} bytes; rebuild the bootloader for "
+                    f"the {spec.flash_size}-byte device flash"
+                ),
+                409,
+            )
         firmware_id = hashlib.sha256(image_bytes).hexdigest()
         if kind == "uiflow" and base_manifest is not None and firmware_id == payload["base_firmware_id"]:
             raise ServiceError("uiflow_source_context_conflict", "source composition must not replace its base manifest context", 409)

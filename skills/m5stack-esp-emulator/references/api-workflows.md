@@ -69,6 +69,13 @@ Offsets accept integers or numeric strings. Segments must be nonempty,
 nonoverlapping and within the selected flash size. A bare application BIN is
 not automatically a merged flash image.
 
+Merged, segmented and manifest composition compare the highest partition end
+with the SPI flash capacity encoded in the bootloader image header. A package
+whose partition table needs more space than that bootloader declares returns
+`409 bootloader_flash_size_too_small` before a session is allocated. Padding a
+4 MiB build to an 8 MiB device does not repair a bootloader compiled for 4 MiB;
+rebuild the complete image with the target flash-size configuration.
+
 For a `.bin` merged flash or `.zip`/`.m5burner`/`.webburner` package, the
 recommended reviewed intake is:
 
