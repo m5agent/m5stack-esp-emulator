@@ -8255,6 +8255,235 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "mini-scales": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 CONTROL_MINISCALE（0x26）：u32 LE ADC、float LE weight、signed button（0=按下）、RGB、校准 gap float、reset/去皮、LPF/avg/EMA 寄存器。未采集 guest/Device Service 证据 → planned。**HX711/5kg 载荷/温漂/线性度 NOT RUN；v3/v4 固件差异需钉版本；页面“I2C OR UART”与驱动仅 I2C 冲突 unresolved；0x26 与 4relay/weight-i2c/scales 四方冲突**",
+      "inputs": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        }
+      },
+      "state": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "button": {
+          "property": "button"
+        },
+        "calibration-gap": {
+          "property": "calibration-gap"
+        },
+        "reset-writes": {
+          "property": "reset-writes"
+        },
+        "calibration-writes": {
+          "property": "calibration-writes"
+        },
+        "lpf": {
+          "property": "lpf"
+        },
+        "avg-level": {
+          "property": "avg-level"
+        },
+        "ema-alpha": {
+          "property": "ema-alpha"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "rgb-led-strip-50cm": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 GPIO id 'rgb-led-strip-50cm'：黄线 RMT 捕获 30×SK6812 帧。未采集 guest/Device Service 证据 → planned。**页面只给灯带侧 VCC/GND/DATA 线色，Grove 适配器数据线映射 unresolved；A093 vs A093-B/C/D 变体不建模；LED 光学/IP65/功率/时序容差 NOT RUN；PORT.B 主机限制**",
+      "inputs": {},
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "op180": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 GPIO id 'op180'（与 op90 共用 GPIO 事务模型，不转授结果）：白线数字输入 + active-low blocked fixture；黄线 NC。未采集 guest/Device Service 证据 → planned。**180° 光学/对射几何/响应/机械安装 NOT RUN；极性来自共享驱动默认；PORT.B 主机限制；OP90 与 OP180 是不同产品，结果不可互相转授**",
+      "inputs": {
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "blocked": {
+          "property": "blocked"
+        },
+        "input-events": {
+          "property": "input-events"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "synth": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 GPIO id 'synth'：仅 TX 捕获 31250 MIDI 字节流（white=NC，不建模 RX/注入）。未采集 guest/Device Service 证据 → planned。**SAM2695 音频/音色/复调/NS4150B 功放/扬声器 NOT RUN；TX-only 不得注入 RX；31250 来自驱动（页面未写）；PORT.C 冲突**",
+      "inputs": {},
+      "state": {
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "mini-imu": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 US_MPU6886（0x68）：WHO_AM_I=0x19、accel/gyro/temp 数据寄存器由 fixture 按驱动比例因子反算、量程配置 0x1B/0x1C、地址迁移。未采集 guest/Device Service 证据 → planned。**真实运动/振动/温度/校准 NOT RUN；DMP/FIFO 不建模；0x68 无已登记冲突**",
+      "inputs": {
+        "accel-x-g": {
+          "property": "accel-x-g"
+        },
+        "accel-y-g": {
+          "property": "accel-y-g"
+        },
+        "accel-z-g": {
+          "property": "accel-z-g"
+        },
+        "gyro-x-dps": {
+          "property": "gyro-x-dps"
+        },
+        "gyro-y-dps": {
+          "property": "gyro-y-dps"
+        },
+        "gyro-z-dps": {
+          "property": "gyro-z-dps"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "accel-range": {
+          "property": "accel-range"
+        },
+        "gyro-range": {
+          "property": "gyro-range"
+        }
+      },
+      "state": {
+        "accel-x-g": {
+          "property": "accel-x-g"
+        },
+        "accel-y-g": {
+          "property": "accel-y-g"
+        },
+        "accel-z-g": {
+          "property": "accel-z-g"
+        },
+        "gyro-x-dps": {
+          "property": "gyro-x-dps"
+        },
+        "gyro-y-dps": {
+          "property": "gyro-y-dps"
+        },
+        "gyro-z-dps": {
+          "property": "gyro-z-dps"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "accel-range": {
+          "property": "accel-range"
+        },
+        "gyro-range": {
+          "property": "gyro-range"
+        },
+        "whoami": {
+          "property": "whoami"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "env-pro": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0140 新增 US_BME68X（0x77）：CHIP_ID 0x61、variant、软复位、CTRL/STATUS/校准寄存器存储、合成 17B field data。未采集 guest/Device Service 证据 → planned。**BME688 气体/IAQ/加热器/10.8s 扫描 NOT RUN；BME68x 补偿逆运算未建模 → guest 温/湿/压解码不可断言，field bytes 为合成；仅实现默认 0x77，备选 0x76 与 bps/env/env-iv 冲突；0x77 无已登记冲突**",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "gas-resistance-ohm": {
+          "property": "gas-resistance-ohm"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "gas-resistance-ohm": {
+          "property": "gas-resistance-ohm"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        },
+        "chip-id": {
+          "property": "chip-id"
+        },
+        "variant": {
+          "property": "variant"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {

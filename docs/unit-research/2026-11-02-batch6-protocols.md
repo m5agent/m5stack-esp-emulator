@@ -855,3 +855,53 @@ research_status/model_status/runtime/blocker/limitations`）。草稿仅提案�
 - 地址/端口冲突与 unresolved 均写入 `blocker`/`limitations`；
 - 合并进 `platform/units/catalog.json` 前需要另行任务（本批只研究，不修改
   catalog/runtime/tests）。
+
+## 11. 首批 6 款实现状态（补丁 0140，2026-11-02）
+
+batch6 首批 6 款（`mini-scales`/`rgb-led-strip-50cm`/`op180`/`synth`/`mini-imu`/
+`env-pro`）已由
+[`0140-unit-batch6a.patch`](../../patches/qemu-m5stack-peripherals/0140-unit-batch6a.patch)
+接入 QEMU 数据面。**base 是 20 层 canonical 链 `96b68ae`**（canonical `75f1d24`
++ `0120…0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132` →
+`0137` → `0138` → `0139`），实现 commit `f177808`。**尚未采集 guest/Device Service
+证据**，catalog 6 条与 runtime-profiles 6 条保持 `planned`、hosts 为空；离线 QOM
+smoke（S3 board、无 guest 固件）只验证属性注册、fixture 读写、范围/只读拒绝、
+30 灯数组与寄存器机默认值（18/18 PASS），不构成功能 PASS。
+
+| Unit | 0140 模型 | QOM fixtures/观测 | 显式 blocker/unresolved |
+| --- | --- | --- | --- |
+| `mini-scales` U177 (0x26) | `CONTROL_MINISCALE`：u32 LE ADC 0x00、float LE weight 0x10、signed button 0x20（0=按下）、RGB 0x30、校准 gap float 0x40、reset/去皮 0x50、LPF/avg/EMA 0x80/0x81/0x82、fw/地址 | adc-raw、weight-g、button、calibration-gap、reset-writes、calibration-writes、lpf、avg-level、ema-alpha、i2c-address | **HX711/5kg 载荷/温漂/线性度 NOT RUN；v3/v4 固件差异需钉版本；页面“I2C OR UART”与驱动仅 I2C 冲突 unresolved；0x26 与 4relay/weight-i2c/scales 四方冲突** |
+| `rgb-led-strip-50cm` A093 (RMT) | GPIO id：黄线 RMT 捕获 30×SK6812 帧 | led-rgb[30]、led-frames、incomplete-frames、output-transitions | **页面只给灯带侧 VCC/GND/DATA 线色，Grove 适配器数据线映射 unresolved；A093 vs A093-B/C/D（60/120/300）变体不建模；LED 光学/IP65/功率/时序容差 NOT RUN；PORT.B 主机限制** |
+| `op180` U058 (GPIO) | GPIO id（与 op90 共用事务模型）：白线数字输入 input-level + active-low blocked；黄线 NC | digital-level、blocked、input-events | **180° 光学/对射几何/响应/机械安装 NOT RUN；极性来自共享驱动默认；PORT.B 主机限制；OP90 与 OP180 是不同产品，结果不可互相转授** |
+| `synth` U178 (UART) | GPIO id：仅 TX 捕获 31250 MIDI 字节流；white=NC，不建模 RX/注入 | tx-hex、written-bytes、transactions | **SAM2695 音频/音色/复调/NS4150B 功放/扬声器 NOT RUN；TX-only 不得注入 RX；31250 来自驱动（页面未写）；PORT.C 冲突** |
+| `mini-imu` U095 (0x68) | `US_MPU6886`：WHO_AM_I=0x19、accel/gyro/temp 数据寄存器由 fixture 按驱动比例因子反算（16384/8192/4096/2048、131/62.5/32.8/16.4）、0x1B/0x1C 量程写、地址迁移 | accel-x/y/z-g、gyro-x/y/z-dps、temperature-c、accel-range、gyro-range、whoami、i2c-address | **真实运动/振动/温度/校准 NOT RUN；DMP/FIFO 不建模；0x68 无已登记冲突（0x69 备选未实现）** |
+| `env-pro` U169 (0x77) | `US_BME68X`：CHIP_ID 0x61、variant、软复位 0xB6、CTRL/STATUS/校准寄存器存储、0x1D 起 17B 合成 field data | temperature-c、humidity-pct、pressure-pa、gas-resistance-ohm、data-ready、chip-id、variant、i2c-address | **BME688 气体/IAQ/加热器/10.8s 扫描 NOT RUN；BME68x 补偿逆运算未建模 → guest 温/湿/压解码不可断言，field bytes 为合成；仅实现默认 0x77，备选 0x76 与 bps/env/env-iv 冲突；0x77 无已登记冲突** |
+
+离线 QOM smoke 复现（S3 `m5atoms3r`，无 guest；6 attachment 一次启动）：
+
+```bash
+cat > /tmp/unit-smoke-config9.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"ms1","unit_id":"mini-scales","pins":{"yellow":15,"white":16}},
+ {"id":"strip1","unit_id":"rgb-led-strip-50cm","pins":{"yellow":21,"white":38}},
+ {"id":"op1801","unit_id":"op180","pins":{"yellow":9,"white":10}},
+ {"id":"synth1","unit_id":"synth","pins":{"yellow":11,"white":12}},
+ {"id":"imu1","unit_id":"mini-imu","pins":{"yellow":17,"white":18}},
+ {"id":"envpro1","unit_id":"env-pro","pins":{"yellow":5,"white":6}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config9.json qemu-system-xtensa -M m5atoms3r \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke9.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+18 项检查全部 PASS：mini-scales 3（默认/fixture 写入/范围拒绝）、
+rgb-led-strip-50cm 2（30 灯/帧计数）、op180 2（默认/遮挡）、synth 2（默认/
+无 RX 拒绝）、mini-imu 5（默认/fixture/量程/非法量程拒绝/WHO_AM_I 只读）、
+env-pro 4（默认/fixture/范围拒绝/CHIP_ID 只读）。smoke **不**覆盖 I2C
+send/recv 字节语义（Mini Scales 寄存器、MPU6886 数据寄存器、BME688 页/校准）、
+RMT 30 灯帧、UART TX 捕获；这些仍需 guest 证据。
+
+**计数**：catalog 94 → **100**、runtime-profiles 94 → 100；visual mapping audit
+6 条 + `all-100-products`；计数测试与 snapshot 已同步。
