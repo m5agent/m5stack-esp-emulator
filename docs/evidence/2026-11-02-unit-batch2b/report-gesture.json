@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:30:32.880189+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "gesture",
+  "driver_class": "GestureUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "official_init_sequence_observed": true,
+    "guest_gesture_flags_track_fixture": true,
+    "qom_gesture_fixture_exact": true,
+    "i2c_address_0x73": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "1e610dd75b47654a2e68e3200e7ec0e3b0ab911a5babce9e53584a797cbdf4e8",
+  "firmware_id": "1e610dd75b47654a2e68e3200e7ec0e3b0ab911a5babce9e53584a797cbdf4e8",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "08906db6bfc6be21e6f17d0fc5448b052a78b49875bfc618d5b68fd8383a13f5",
+    "main.py": "df07eb5ff41bc3625e007782cf5e1df902fe15e4a206db00f5be1fb99bf1cae2"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "267e96e699d044a3869f1631da4332ff",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "gesture",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "gesture": {
+      "guest_values": [
+        0,
+        64,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256
+      ],
+      "qom": {
+        "gesture": 256,
+        "gesture-flags": 0,
+        "init-writes": 221,
+        "i2c-address": 115,
+        "transactions": 471
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:30:34.751661+08:00",
+      "properties": {
+        "gesture": 64,
+        "gesture-flags": 0,
+        "init-writes": 221,
+        "i2c-address": 115,
+        "transactions": 451,
+        "read-bytes": 16,
+        "written-bytes": 446
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:34.751661+08:00",
+      "properties": {
+        "gesture": 64,
+        "gesture-flags": 0,
+        "init-writes": 221,
+        "i2c-address": 115,
+        "transactions": 451,
+        "read-bytes": 16,
+        "written-bytes": 446
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:46.455825+08:00",
+      "properties": {
+        "gesture": 256,
+        "gesture-flags": 0,
+        "init-writes": 221,
+        "i2c-address": 115,
+        "transactions": 471,
+        "read-bytes": 56,
+        "written-bytes": 456
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2B_PROBE_READY",
+    "gesture": "irst\r\nBATCH2B_PROBE_START gesture\nE (1163) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_READY gesture\nI2C_GESTURE 0\nI2C_GESTURE 64\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE 256\nI2C_GESTURE_END\n"
+  },
+  "frame": {
+    "sha256": "df1a935787a71b20ed9be72bfb52f82feb2d976278dcc1ea048e48754518846f",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "80fe1ddf7c1f10f3c326bbe796564f8690fe5ed94b019ce50af2d6992498aa34",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "IR optics, gesture recognition, ambient-light immunity, detection distance and 240Hz/120Hz timing are NOT RUN; flags are synthetic fixtures.",
+    "The product page has no register table and the PAJ7620 datasheet was not read; the 219-write init sequence and part-id 0x7620 follow the official driver, while the low-rate branch has a known driver property-name bug.",
+    "0x73 has no registered address conflict, but no other host/Unit combination is covered by this evidence."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

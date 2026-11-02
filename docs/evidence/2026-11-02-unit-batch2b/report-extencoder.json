@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:31:25.812984+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "extencoder",
+  "driver_class": "ExtEncoderUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_counter_tracks_fixture": true,
+    "config_registers_roundtrip": true,
+    "reset_clears_counter": true,
+    "reset_write_counted": true,
+    "guest_increments_track_fixture": true,
+    "fw_fixture_and_address": true,
+    "qom_config_matches_guest": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "d8570477265fd0bf8fa8f5a385d06f28cbc5e0cc6bd58160bfc95e37dd194724",
+  "firmware_id": "d8570477265fd0bf8fa8f5a385d06f28cbc5e0cc6bd58160bfc95e37dd194724",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "473c36ca4e5f47a66d5220a842a4c48e8caf1f836693baddffbce380457dceaa",
+    "main.py": "df07eb5ff41bc3625e007782cf5e1df902fe15e4a206db00f5be1fb99bf1cae2"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "a729e8616f3b48ff8d3059afb130e2b5",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "extencoder",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "extencoder": {
+      "fixtures": {
+        "counter": 1234
+      },
+      "guest_value": [
+        "1234",
+        "1"
+      ],
+      "guest_config": [
+        "500",
+        "20",
+        "1",
+        "10"
+      ],
+      "guest_reset": "0",
+      "guest_increments": "1234",
+      "guest_fw": "2",
+      "qom": {
+        "counter": 0,
+        "increments": 0,
+        "perimeter": 500,
+        "pulse": 20,
+        "zero-pulse": 10,
+        "zero-mode": 1,
+        "fw-version": 2,
+        "reset-writes": 1,
+        "i2c-address": 89,
+        "transactions": 46
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:31:28.025895+08:00",
+      "properties": {
+        "counter": 1234,
+        "increments": 0,
+        "perimeter": 0,
+        "pulse": 0,
+        "zero-pulse": 0,
+        "zero-mode": 0,
+        "fw-version": 2,
+        "reset-writes": 0,
+        "i2c-address": 89,
+        "transactions": 3,
+        "read-bytes": 4,
+        "written-bytes": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:31:28.025895+08:00",
+      "properties": {
+        "counter": 1234,
+        "increments": 0,
+        "perimeter": 0,
+        "pulse": 0,
+        "zero-pulse": 0,
+        "zero-mode": 0,
+        "fw-version": 2,
+        "reset-writes": 0,
+        "i2c-address": 89,
+        "transactions": 3,
+        "read-bytes": 4,
+        "written-bytes": 1
+      }
+    },
+    {
+      "at": "2026-11-02T20:31:31.412675+08:00",
+      "properties": {
+        "counter": 0,
+        "increments": 0,
+        "perimeter": 500,
+        "pulse": 20,
+        "zero-pulse": 10,
+        "zero-mode": 1,
+        "fw-version": 2,
+        "reset-writes": 1,
+        "i2c-address": 89,
+        "transactions": 46,
+        "read-bytes": 74,
+        "written-bytes": 39
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2B_PROBE_READY",
+    "extencoder": "ad:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (912) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_START extencoder\nE (1269) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_READY extencoder\nI2C_EXTENC 1234 1\n"
+  },
+  "frame": {
+    "sha256": "332231c9d4568fa23ab3221c326ed641377cd74287326b0a7a0710f62378a7c5",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "b46672e041bf24083eef6b1f960721b19e458804ba3cacf5999a0339af223877",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The meter register is synthetic and equals the counter; the ASCII form and the corrupt product-page table are not modeled.",
+    "Mechanical rotary encoder motion, ABZ pulse timing, perimeter/zero calibration physics and non-volatile behavior are NOT RUN.",
+    "Firmware version is a synthetic fixture (2); the 0xFE/0xFF registers are protocol-valid but not a real MCU image."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

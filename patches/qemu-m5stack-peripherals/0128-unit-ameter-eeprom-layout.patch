@@ -1,0 +1,39 @@
+From 459a03998463fcf22ab7b62ea56190dbbf7351dc Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 20:28:53 +0800
+Subject: [PATCH] hw/m5stopwatch: fix AMeter calibration EEPROM record stride
+
+The merged 0126 AMeter EEPROM filled six 8-byte calibration records at
+208 + gain*16, but the executable driver reads them at 208 + gain*8
+(PAG_6144/4096/.../256_CAL_ADDR). Loading the PGA_256 record therefore
+returned zeros, the synthetic CRC matched a zero record, and the driver's
+set_gain() divided expect/real = 0/0, so AMeterUnit could not be constructed
+in guest evidence.
+
+Use the driver's 8-byte stride and keep the same synthetic factor-1.0 record
+(expect=real=1000). No other AMeter semantics changed.
+---
+ hw/m5stopwatch/m5_unit_i2c_sensors.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index 7586d97..a17d0c4 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -358,8 +358,12 @@ static void ameter_config_get(Object *obj, Visitor *v, const char *name,
+  * NOT a real factory calibration. */
+ static void ameter_fill_eeprom(M5UnitSensor *s)
+ {
++    /* The official driver reads the per-gain calibration record at
++     * 208 + gain * 8 (PAG_*_CAL_ADDR), not at a 16-byte stride. The merged
++     * 0126 used stride 16, so PGA_256 read a zero record and the driver's
++     * set_gain() divided by zero (expect/real). */
+     for (unsigned gain = 0; gain < 6; gain++) {
+-        uint8_t *r = s->regs[0] + 208 + gain * 16;
++        uint8_t *r = s->regs[0] + 208 + gain * 8;
+         r[0] = gain;
+         r[1] = 0x03; r[2] = 0xe8;   /* expect = 1000 */
+         r[3] = 0x03; r[4] = 0xe8;   /* real   = 1000 */
+-- 
+2.55.0
+

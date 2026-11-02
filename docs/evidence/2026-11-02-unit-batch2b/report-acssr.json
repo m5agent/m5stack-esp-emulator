@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T20:30:29.508538+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "acssr",
+  "driver_class": "ACSSRUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_relay_register_roundtrip": true,
+    "guest_rgb_marker": true,
+    "qom_relay_state_final_off": true,
+    "qom_relay_transitions": true,
+    "qom_led_rgb": true,
+    "fw_and_address": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "53cdaf50c61c17d51a8f5308b9ba2cff6d303589cf09d277823df034c494ea14",
+  "firmware_id": "53cdaf50c61c17d51a8f5308b9ba2cff6d303589cf09d277823df034c494ea14",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "f137f459a08b3c5295845163cc27e734dd9007a5fd2d994bb6467dde6694967f",
+    "main.py": "df07eb5ff41bc3625e007782cf5e1df902fe15e4a206db00f5be1fb99bf1cae2"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "080e835212c24cd68de5a492a666ce04",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "acssr",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "acssr": {
+      "guest_relay_marks": [
+        "1",
+        "0"
+      ],
+      "guest_rgb_marker": true,
+      "guest_fw": "1",
+      "qom": {
+        "relay-level": false,
+        "relay-transitions": 2,
+        "led-rgb": 1122867,
+        "fw-version": 1,
+        "i2c-address": 80,
+        "transactions": 15
+      },
+      "safety_boundary": "I2C transaction model only: NOT an AC mains switch model; 24-480V/10A, zero-cross, leakage, isolation, lifetime and any mains-switching claim are NOT RUN and must not be inferred."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T20:30:32.648467+08:00",
+      "properties": {
+        "relay-level": false,
+        "relay-transitions": 2,
+        "led-rgb": 1122867,
+        "fw-version": 1,
+        "i2c-address": 80,
+        "transactions": 15,
+        "read-bytes": 4,
+        "written-bytes": 12,
+        "output-transitions": 2
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:32.648467+08:00",
+      "properties": {
+        "relay-level": false,
+        "relay-transitions": 2,
+        "led-rgb": 1122867,
+        "fw-version": 1,
+        "i2c-address": 80,
+        "transactions": 15,
+        "read-bytes": 4,
+        "written-bytes": 12,
+        "output-transitions": 2
+      }
+    },
+    {
+      "at": "2026-11-02T20:30:32.652853+08:00",
+      "properties": {
+        "relay-level": false,
+        "relay-transitions": 2,
+        "led-rgb": 1122867,
+        "fw-version": 1,
+        "i2c-address": 80,
+        "transactions": 15,
+        "read-bytes": 4,
+        "written-bytes": 12,
+        "output-transitions": 2
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH2B_PROBE_READY",
+    "acssr": "x403c8890\r\nE (1217) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_START acssr\nE (1478) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH2B_PROBE_READY acssr\nI2C_ACSSR_RELAY 1\nI2C_ACSSR_RGB 1122867\nI2C_ACSSR_RELAY 0\nI2C_ACSSR_FW 1\nI2C_ACSSR_END\n"
+  },
+  "frame": {
+    "sha256": "ac2b399e15e463a3e4b6f28c09f05eb6e968593e3d544aa1fd607d61d67177a8",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "08f37c1d5e30907016ac6dae4f2f99d44e1509e41c83eb95220babdb1b4b88ff",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "SAFETY BOUNDARY: this model is an I2C register/transaction observer only. It is NOT an AC mains switch model and must not be described as one: 24-480V/10A load switching, zero-cross detection, leakage, isolation, lifetime and any mains-safety claim are NOT RUN and cannot be inferred.",
+    "Relay level and RGB are observed at the I2C register level only; Button/Modbus modes, enclosure/thermal behavior and physical relay contact behavior are NOT RUN.",
+    "0x50 conflicts with the implemented nfc Unit; one per bus."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary.",
+  "safety_boundary": "I2C transaction model only: NOT an AC mains switch model; 24-480V/10A, zero-cross, leakage, isolation, lifetime and any mains-switching claim are NOT RUN and must not be inferred."
+}

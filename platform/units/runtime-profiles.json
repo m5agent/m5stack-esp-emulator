@@ -5830,9 +5830,11 @@
       }
     },
     "env": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 在同一次 attachment 上挂 DHT12 0x5C + BMP280 0x76 两个 slave（m5_unit_i2c_attach），DHT12 5 字节帧由 temperature-c/humidity-pct 量化并生成合法校验和，BMP280 复用 US_BMP280 且仅暴露 pressure-pa（其自身温度槽固定 25C 供补偿）。未采集 guest/Device Service 证据 → planned。ENV-II/III/IV 变体、产品页温度精度 ±0.2/±0.5 矛盾、DHT12 上电/校验语义、BMP280 校准真实性均 unresolved；双从机共享一条 Grove 总线，guest 必须按 ENV-I 显式 type 使用。",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen ENVUnit(ENV_I) on AtomS3R: one Grove pair served DHT12 0x5C and BMP280 0x76; injected 25.5C/60.5%/100000Pa read back as 25.5/60.5/1000.0 and QOM fixtures. Only this host/firmware combination is admitted; ENV-II/III/IV, sensor accuracy/self-heating, product-page +/-0.2 vs +/-0.5C and DHT12 power-up/checksum semantics remain unresolved; physical sensor behavior is NOT RUN.",
       "inputs": {
         "temperature-c": {
           "property": "temperature-c"
@@ -5864,12 +5866,39 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-env.json",
+        "report_sha256": "cdfb9a960529518a661e312206d3cfa2212adeb905a1f4b404f0ccc7b3abc975",
+        "evidence_sha256": "912a9d8007bf15bd8a67c232bdf8cd53f7cd054915c09a2afe4dd81193c51ce3",
+        "firmware_sha256": "45d1ea276398bd4913b95dd0e731a62d39a924e259192c3aec02d3d87b7639d1",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "026627e3d6d60958a3d9a9466e16f3307c309aecdb336a64ccf066a6f3e4b736",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "ameter": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 挂 ADS1115 0x48 + EEPROM 0x51 双 slave：ADS1115 config/conversion 由 current-a 按驱动 gain/rate/resolution 公式反算；EEPROM 为合成校验合法记录（factor 1.0）且按产品页警告只读（写被 NACK 并计数）。未采集 guest/Device Service 证据 → planned。真实出厂校准系数、1% 精度/0.3mA 分辨率、方向/隔离/保险丝、EEPROM 实际写入策略均 NOT RUN/unresolved；0x48 与 adc-v11 冲突（一总线一个）。",
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen AMeterUnit on StickS3: ADS1115 0x48 conversion follows the driver PGA-256 formula (1.0A fixture -> 0.9376A guest quantization, raw -6), the EEPROM 0x51 synthetic factor-1.0 calibration is readable and a calibration write is rejected/counted (eeprom-writes=1). Guest evidence required the 0128 fix (merged 0126 used a 16-byte stride while the driver reads 8-byte records, causing 0/0 in set_gain). Only this host/firmware combination is admitted; factory calibration/1% accuracy/0.3mA resolution/isolation and real current measurement are NOT RUN; 0x48 conflicts with adc-v11.",
       "inputs": {
         "current-a": {
           "property": "current-a"
@@ -5901,12 +5930,39 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-ameter.json",
+        "report_sha256": "3bc6a3fbe4997d032e33ced0ee893e9cd3a03f598151e10e00ba2c117846ceba",
+        "evidence_sha256": "ee4c276f1b744d7f89238981c0f8c530421e6820c209d6f04ebe8c70a00b1d72",
+        "firmware_sha256": "cbac02e169f99268556933595f535a09239acd403d3e50ffbd824ba8efee64f9",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "743ffa8b092c27d7aa16e251477264cf47a91bc3a82cda4581ebf0133896a8a6",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "extencoder": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 新增 CONTROL_EXTENCODER（0x59）：0x00 counter / 0x10 meter(合成=counter) / 0x30 reset / 0x40 perimeter / 0x50 pulse / 0x60 zero-pulse / 0x70 zero-mode / 0xFE fw / 0xFF address，指针写+读快照、4 字节 LE、地址迁移含同总线冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表渲染损坏、0x20 ASCII 米值格式与 0x30 复位语义 unresolved；AB/ABZ 解码、12-bit 采样与机械耦合 NOT RUN。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen ExtEncoderUnit on CoreS3 at 0x59: injected counter 1234 read back as value/increments, perimeter/pulse/zero-mode/zero-pulse writes round-tripped (500/20/1/10), reset cleared the counter with reset-writes=1, fw fixture=2. Guest evidence required the 0129 fix (merged 0126 used write_pos-1 so the first data byte was offset 1 and every 32-bit write was shifted left by 8 bits). Only this host/firmware combination is admitted; mechanical AB/ABZ motion, pulse timing, calibration physics and non-volatile behavior are NOT RUN.",
       "inputs": {
         "counter": {
           "property": "counter"
@@ -5965,12 +6021,39 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-extencoder.json",
+        "report_sha256": "288823378f2b278eae389e5b71ab746ee4794d5cf8b7257d02053ae451764a68",
+        "evidence_sha256": "b46672e041bf24083eef6b1f960721b19e458804ba3cacf5999a0339af223877",
+        "firmware_sha256": "d8570477265fd0bf8fa8f5a385d06f28cbc5e0cc6bd58160bfc95e37dd194724",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "a9de0354dda6139491d5899b520aa80ef386d6261f3d7bf2ecfc8aaa8ada79fc",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "ain4-20ma": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 新增 US_AIN420（0x55）：0x00 raw ADC / 0x20 current mA*100 / 0x30 校准 RW / 0xFE fw / 0xFF address，LE 编码与地址迁移冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表 0xF0 vs 驱动 0xFE/0xFF、12-bit vs raw16、主控 STM32F030 vs STM32G030F6P6 均 unresolved；4-20mA 环路精度、隔离、ADC 线性与跳线接线 NOT RUN。",
+      "status": "implemented",
+      "hosts": [
+        "stopwatch"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen AIN4_20MAUnit on StopWatch at 0x55: injected adc-raw=2500/current-ma=12.5 read back as 2500/12.5, fw=1, address 0x55, and set_cal_current(15) was accepted. Only this host/firmware combination is admitted; product-page 0xF0 vs 0xFE/0xFF, 12-bit vs raw16 and STM32F030 vs STM32G030F contradictions remain unresolved; 4-20mA loop electrical/accuracy/isolation behavior is NOT RUN.",
       "inputs": {
         "current-ma": {
           "property": "current-ma"
@@ -6011,12 +6094,39 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-ain4-20ma.json",
+        "report_sha256": "e7cba7f5e176876b14306ccc97dec5df6b2241f70f58a11dabd4a8a7df883988",
+        "evidence_sha256": "10e5f09a7c04f537e9914715703e4088c73911087858df9c85918f89d7606e93",
+        "firmware_sha256": "7ce34a3ac30853f4cf6e3a56530e1d00fcb72cc3ac5f735a37ee9c0baf741078",
+        "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "0e2ef24cc54aad7f16beee0e764bea7d037cd605fd69aa7b6b8fd36a3dd84312",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "acssr": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 新增 CONTROL_ACSSR（0x50）：0x00 继电器电平 / 0x10 3 字节大端 RGB / 0x20 地址写 / 0xFE fw，写事务更新只读观测。未采集 guest/Device Service 证据 → planned。**安全边界：本模型是 I2C 事务观测，不是 AC 市电开关模型；绝不能宣称可切换 24–480V/10A 市电负载**；过零/漏电流/寿命/隔离、Button/Modbus 模式、set_address 的 5s 语义均 NOT RUN/unresolved；0x50 与 nfc 冲突（一总线一个）。",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "SAFETY BOUNDARY: this is an I2C register/transaction observer only, NOT an AC mains switch model; it must never be described as capable of switching mains loads. Guest/Device Service evidence covers the frozen ACSSRUnit on AtomS3R at 0x50: on()/off() relay register writes were observed via relay-level/relay-transitions, fill_color(0x112233) produced led-rgb=0x112233. Only this host/firmware combination is admitted; 24-480V/10A load switching, zero-cross, leakage, isolation, lifetime, Button/Modbus modes and physical contact behavior are NOT RUN and cannot be inferred; 0x50 conflicts with nfc.",
       "inputs": {
         "fw-version": {
           "property": "fw-version"
@@ -6051,12 +6161,39 @@
           "property": "output-transitions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-acssr.json",
+        "report_sha256": "aeee00b171c8a9a18b46045e6f71adf4986abd2732f586cf937f303b480da264",
+        "evidence_sha256": "08f37c1d5e30907016ac6dae4f2f99d44e1509e41c83eb95220babdb1b4b88ff",
+        "firmware_sha256": "53cdaf50c61c17d51a8f5308b9ba2cff6d303589cf09d277823df034c494ea14",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "3e56a0ccc3ed2d0774306d5a60f1b00905159760f3988391f845e3ece4c8a849",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "gesture": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0126 新增 US_PAJ7620（0x73）：bank-aware 寄存器文件接受 219 项官方初始化写、bank0 0x00 返回 part id 0x7620、0x43/0x44 flags 由 gesture/gesture-flags fixture 生成。未采集 guest/Device Service 证据 → planned。产品页无寄存器表、datasheet 未读、驱动 low-rate 属性名 bug、手势物理/光学/距离 NOT RUN；0x73 无已登记冲突。",
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen GestureUnit on StickS3 at 0x73: the official begin() sequence performed >=219 init writes (part-id 0x7620 check passed), injected gesture=64 and gesture=256 were read back by get_hand_gestures() and QOM. Only this host/firmware combination is admitted; IR optics, gesture recognition, ambient-light immunity, distance and 120/240Hz timing are NOT RUN; the product page has no register table and the low-rate driver branch has a known property-name bug.",
       "inputs": {
         "gesture": {
           "property": "gesture"
@@ -6088,7 +6225,32 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch2b/report-gesture.json",
+        "report_sha256": "f202bcc20595d89feeced036238c0483aa5d60d0e6199e61f1368aad2ef5fece",
+        "evidence_sha256": "80fe1ddf7c1f10f3c326bbe796564f8690fe5ed94b019ce50af2d6992498aa34",
+        "firmware_sha256": "1e610dd75b47654a2e68e3200e7ec0e3b0ab911a5babce9e53584a797cbdf4e8",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "cce5b20f611e52d5aa7fff5634746f56f970d18a825195b6204860a1146f5738",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     }
   },
   "evidence_policy": {

@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "Remaining six Units of the second research batch through isolated /api/v1 Device Service sessions; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu": {
+    "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+    "source_tree": ".work/native-lock-source/qemu",
+    "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125 + 0126 + 0127 + 0128 + 0129 (0124 StickT2 reserved/not required)",
+    "patches": [
+      "0120-unit-i2c-dlight-command-mask.patch",
+      "0121-m5stick-board.patch",
+      "0122-atoms3r-m12-board.patch",
+      "0123-unit-i2c-batch3.patch",
+      "0125-unit-batch2.patch",
+      "0126-unit-batch2b.patch",
+      "0127-unit-dac-fast-mode-write.patch",
+      "0128-unit-ameter-eeprom-layout.patch",
+      "0129-unit-batch2b-write-offset.patch"
+    ]
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "stopwatch": {
+      "path": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d"
+    },
+    "atoms3r": {
+      "path": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "sticks3": {
+      "path": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+    }
+  },
+  "acssr_safety_boundary": "I2C transaction observer only; NOT an AC mains switch model.",
+  "cases": [
+    {
+      "unit_id": "env",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ENVUnit(ENV_I)",
+      "firmware_sha256": "45d1ea276398bd4913b95dd0e731a62d39a924e259192c3aec02d3d87b7639d1",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "c49a6e5b36954f83a37b7cd53689e29f",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_temperature_humidity_tracks_fixture": true,
+        "guest_pressure_tracks_fixture": true,
+        "dual_slave_addresses_served": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-env.json",
+      "report_sha256": "cdfb9a960529518a661e312206d3cfa2212adeb905a1f4b404f0ccc7b3abc975",
+      "evidence_zip_sha256": "912a9d8007bf15bd8a67c232bdf8cd53f7cd054915c09a2afe4dd81193c51ce3",
+      "frame_sha256": "e7a91f8f415a0a8091fc66a1d7b89cac1da2c787fb95cc9fd93def807798a4ed",
+      "observations": {
+        "env": {
+          "fixtures": {
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "pressure-pa": 100000.0
+          },
+          "guest": [
+            "25.5",
+            "60.5",
+            "1000.0"
+          ],
+          "qom": {
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "pressure-pa": 100000,
+            "transactions": 74,
+            "read-bytes": 161,
+            "written-bytes": 40
+          }
+        }
+      },
+      "boundaries": [
+        "Only ENV-I is modeled (DHT12 0x5C + BMP280 0x76 on one Grove pair, explicitly selected as type 1); ENV-II/III/IV variants are NOT modeled.",
+        "Sensor accuracy, self-heating, calibration and the product-page +/-0.2 vs +/-0.5 C contradiction are unresolved; DHT12 power-up/checksum semantics beyond the in-frame checksum are NOT RUN.",
+        "The BMP280 calibration block and the ENV-I pressure path are the same synthetic-but-valid model as bps; physical pressure accuracy is NOT RUN."
+      ]
+    },
+    {
+      "unit_id": "ameter",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "AMeterUnit",
+      "firmware_sha256": "cbac02e169f99268556933595f535a09239acd403d3e50ffbd824ba8efee64f9",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "df21d9cdeb4143ac85eca94914e3d1c4",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_current_tracks_fixture": true,
+        "guest_adc_raw_matches_driver_resolution": true,
+        "config_word_observed": true,
+        "eeprom_write_rejected_and_counted": true,
+        "qom_current_fixture_exact": true,
+        "i2c_address_0x48": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-ameter.json",
+      "report_sha256": "3bc6a3fbe4997d032e33ced0ee893e9cd3a03f598151e10e00ba2c117846ceba",
+      "evidence_zip_sha256": "ee4c276f1b744d7f89238981c0f8c530421e6820c209d6f04ebe8c70a00b1d72",
+      "frame_sha256": "cfe34691f0c0350ebd7951d2473c475a36ced394ab370780ed7a64647084c301",
+      "observations": {
+        "ameter": {
+          "fixtures": {
+            "current-a": 1.0
+          },
+          "guest": [
+            "0.9376",
+            "-6"
+          ],
+          "guest_gain": [
+            "5",
+            "4",
+            "1"
+          ],
+          "expected_raw": -6,
+          "eeprom_write_rejected": true,
+          "qom": {
+            "current-a": 1,
+            "adc-raw": -6,
+            "config-word": 35712,
+            "eeprom-writes": 1,
+            "i2c-address": 72,
+            "transactions": 112
+          }
+        }
+      },
+      "boundaries": [
+        "The factory calibration EEPROM record is synthetic (factor 1.0); real per-unit calibration, 1% accuracy/0.3mA resolution, gain/rate error and EEPROM retention are NOT RUN.",
+        "The model rejects every EEPROM data write (product page warns not to write the calibration); the rejected attempts are counted, not stored.",
+        "Guest current is quantized by the driver's PGA-256 resolution (0.15626 A/LSB): a 1.0 A fixture reads 0.9376 A, which is expected driver behavior, not a measurement.",
+        "0x48 conflicts with the planned/implemented adc-v11 Unit; one per bus."
+      ]
+    },
+    {
+      "unit_id": "extencoder",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ExtEncoderUnit",
+      "firmware_sha256": "d8570477265fd0bf8fa8f5a385d06f28cbc5e0cc6bd58160bfc95e37dd194724",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "a729e8616f3b48ff8d3059afb130e2b5",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_counter_tracks_fixture": true,
+        "config_registers_roundtrip": true,
+        "reset_clears_counter": true,
+        "reset_write_counted": true,
+        "guest_increments_track_fixture": true,
+        "fw_fixture_and_address": true,
+        "qom_config_matches_guest": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-extencoder.json",
+      "report_sha256": "288823378f2b278eae389e5b71ab746ee4794d5cf8b7257d02053ae451764a68",
+      "evidence_zip_sha256": "b46672e041bf24083eef6b1f960721b19e458804ba3cacf5999a0339af223877",
+      "frame_sha256": "332231c9d4568fa23ab3221c326ed641377cd74287326b0a7a0710f62378a7c5",
+      "observations": {
+        "extencoder": {
+          "fixtures": {
+            "counter": 1234
+          },
+          "guest_value": [
+            "1234",
+            "1"
+          ],
+          "guest_config": [
+            "500",
+            "20",
+            "1",
+            "10"
+          ],
+          "guest_reset": "0",
+          "guest_increments": "1234",
+          "guest_fw": "2",
+          "qom": {
+            "counter": 0,
+            "increments": 0,
+            "perimeter": 500,
+            "pulse": 20,
+            "zero-pulse": 10,
+            "zero-mode": 1,
+            "fw-version": 2,
+            "reset-writes": 1,
+            "i2c-address": 89,
+            "transactions": 46
+          }
+        }
+      },
+      "boundaries": [
+        "The meter register is synthetic and equals the counter; the ASCII form and the corrupt product-page table are not modeled.",
+        "Mechanical rotary encoder motion, ABZ pulse timing, perimeter/zero calibration physics and non-volatile behavior are NOT RUN.",
+        "Firmware version is a synthetic fixture (2); the 0xFE/0xFF registers are protocol-valid but not a real MCU image."
+      ]
+    },
+    {
+      "unit_id": "ain4-20ma",
+      "device_id": "stopwatch",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        }
+      },
+      "status": "PASS",
+      "driver_class": "AIN4_20MAUnit",
+      "firmware_sha256": "7ce34a3ac30853f4cf6e3a56530e1d00fcb72cc3ac5f735a37ee9c0baf741078",
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "95798c067826404a9e2f85063d3b9645",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_adc_raw_tracks_fixture": true,
+        "guest_current_tracks_fixture": true,
+        "guest_fw_and_address": true,
+        "calibration_write_accepted": true,
+        "qom_fixture_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-ain4-20ma.json",
+      "report_sha256": "e7cba7f5e176876b14306ccc97dec5df6b2241f70f58a11dabd4a8a7df883988",
+      "evidence_zip_sha256": "10e5f09a7c04f537e9914715703e4088c73911087858df9c85918f89d7606e93",
+      "frame_sha256": "21b9079a4acdb6c2dfe348fc6d575b7c99494b9d20bfa29beb3b5bdf5e996304",
+      "observations": {
+        "ain4_20ma": {
+          "fixtures": {
+            "current-ma": 12.5,
+            "adc-raw": 2500
+          },
+          "guest": [
+            "2500",
+            "12.5",
+            "1",
+            "0x55"
+          ],
+          "calibration_written": true,
+          "qom": {
+            "current-ma": 12.5,
+            "adc-raw": 2500,
+            "fw-version": 1,
+            "i2c-address": 85,
+            "transactions": 51
+          }
+        }
+      },
+      "boundaries": [
+        "The 4-20mA loop electrical behavior, loop supply, burden voltage, isolation, calibration accuracy and sensor drift are NOT RUN.",
+        "Product-page contradictions (0xF0 vs driver 0xFE/0xFF, 12-bit vs raw16, STM32F030 vs STM32G030F) remain unresolved.",
+        "current-ma and adc-raw are synthetic fixtures encoded as the driver's little-endian register formats; no real current is measured."
+      ]
+    },
+    {
+      "unit_id": "acssr",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ACSSRUnit",
+      "firmware_sha256": "53cdaf50c61c17d51a8f5308b9ba2cff6d303589cf09d277823df034c494ea14",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "080e835212c24cd68de5a492a666ce04",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_relay_register_roundtrip": true,
+        "guest_rgb_marker": true,
+        "qom_relay_state_final_off": true,
+        "qom_relay_transitions": true,
+        "qom_led_rgb": true,
+        "fw_and_address": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-acssr.json",
+      "report_sha256": "aeee00b171c8a9a18b46045e6f71adf4986abd2732f586cf937f303b480da264",
+      "evidence_zip_sha256": "08f37c1d5e30907016ac6dae4f2f99d44e1509e41c83eb95220babdb1b4b88ff",
+      "frame_sha256": "ac2b399e15e463a3e4b6f28c09f05eb6e968593e3d544aa1fd607d61d67177a8",
+      "observations": {
+        "acssr": {
+          "guest_relay_marks": [
+            "1",
+            "0"
+          ],
+          "guest_rgb_marker": true,
+          "guest_fw": "1",
+          "qom": {
+            "relay-level": false,
+            "relay-transitions": 2,
+            "led-rgb": 1122867,
+            "fw-version": 1,
+            "i2c-address": 80,
+            "transactions": 15
+          },
+          "safety_boundary": "I2C transaction model only: NOT an AC mains switch model; 24-480V/10A, zero-cross, leakage, isolation, lifetime and any mains-switching claim are NOT RUN and must not be inferred."
+        }
+      },
+      "boundaries": [
+        "SAFETY BOUNDARY: this model is an I2C register/transaction observer only. It is NOT an AC mains switch model and must not be described as one: 24-480V/10A load switching, zero-cross detection, leakage, isolation, lifetime and any mains-safety claim are NOT RUN and cannot be inferred.",
+        "Relay level and RGB are observed at the I2C register level only; Button/Modbus modes, enclosure/thermal behavior and physical relay contact behavior are NOT RUN.",
+        "0x50 conflicts with the implemented nfc Unit; one per bus."
+      ]
+    },
+    {
+      "unit_id": "gesture",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "GestureUnit",
+      "firmware_sha256": "1e610dd75b47654a2e68e3200e7ec0e3b0ab911a5babce9e53584a797cbdf4e8",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "25b6112ef8c66ec8f4331e19aa57778a8de386598946f38188f2c1c2d7ad8813",
+      "session_id": "267e96e699d044a3869f1631da4332ff",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "official_init_sequence_observed": true,
+        "guest_gesture_flags_track_fixture": true,
+        "qom_gesture_fixture_exact": true,
+        "i2c_address_0x73": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch2b/report-gesture.json",
+      "report_sha256": "f202bcc20595d89feeced036238c0483aa5d60d0e6199e61f1368aad2ef5fece",
+      "evidence_zip_sha256": "80fe1ddf7c1f10f3c326bbe796564f8690fe5ed94b019ce50af2d6992498aa34",
+      "frame_sha256": "df1a935787a71b20ed9be72bfb52f82feb2d976278dcc1ea048e48754518846f",
+      "observations": {
+        "gesture": {
+          "guest_values": [
+            0,
+            64,
+            256,
+            256,
+            256,
+            256,
+            256,
+            256,
+            256,
+            256
+          ],
+          "qom": {
+            "gesture": 256,
+            "gesture-flags": 0,
+            "init-writes": 221,
+            "i2c-address": 115,
+            "transactions": 471
+          }
+        }
+      },
+      "boundaries": [
+        "IR optics, gesture recognition, ambient-light immunity, detection distance and 240Hz/120Hz timing are NOT RUN; flags are synthetic fixtures.",
+        "The product page has no register table and the PAJ7620 datasheet was not read; the 219-write init sequence and part-id 0x7620 follow the official driver, while the low-rate branch has a known driver property-name bug.",
+        "0x73 has no registered address conflict, but no other host/Unit combination is covered by this evidence."
+      ]
+    }
+  ]
+}

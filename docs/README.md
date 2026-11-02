@@ -109,6 +109,9 @@ C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 Unit 第二批前 6 款（`joystick`/`watering`/`fader`/`dac`/`bps`/`adc-v11`）的
 GPIO/ADC/RMT 与 I2C 数据面证据见
 [Unit 第二批前 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2/README.md)。
+Unit 第二批后 6 款（`env`/`ameter`/`extencoder`/`ain4-20ma`/`acssr`/`gesture`）的
+双从机 I2C 与寄存器数据面证据见
+[Unit 第二批后 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2b/README.md)。
 
 ## 首页与维护入口
 
@@ -194,6 +197,7 @@ GPIO/ADC/RMT 与 I2C 数据面证据见
 | [Unit 第一批 B 类虚拟设备证据](evidence/2026-11-02-unit-bclass/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `dlight`(atoms3r)/`accel`(sticks3)/`4relay`(cores3)/`weight-i2c`(stopwatch) 各一个可见会话，原固件冻结 I2C 驱动经真实 SoC I2C 控制器读写；0119 的 BH1750 命令掩码 bug 由 0120 修复后全部通过；4relay 触点/负载、dlight 光学/MTreg、accel 物理量程/DEVID、weight 校准/0x60/0x26 冲突与真机均未验 |
 | [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ncir2`(atoms3r)/`extio2`(sticks3)/`hbridge`(cores3) 各一个可见会话，原固件冻结 I2C 驱动经真实 SoC I2C 控制器读写；ncir2 温度/编码上限饱和（+327.67°C）与 0x5A 冲突、extio2 ADC/舵机/RGB 单位 unresolved、hbridge 0x30 v1.1/电机电气与真机均未验 |
 | [Unit 第二批前 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `joystick`(cores3)/`watering`(atoms3r)/`fader`(atoms3r)/`dac`(cores3)/`bps`(sticks3)/`adc-v11`(stopwatch) 各一个可见会话，原固件冻结驱动经真实 ADC/RMT/GPIO 或 I2C 控制器读写；0125 的 MCP4725 3 字节 fast-mode bug 由 0127 修复后全部通过；joystick 原始字节/机械、watering 水泵/土壤物理、fader LED 光学、dac EEPROM/输出参考、bps QMP6988/物理气压、adc-v11 ADS1100 分歧与真机均未验 |
+| [Unit 第二批后 6 款虚拟设备证据](evidence/2026-11-02-unit-batch2b/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `env`(atoms3r)/`ameter`(sticks3)/`extencoder`(cores3)/`ain4-20ma`(stopwatch)/`acssr`(atoms3r)/`gesture`(sticks3) 各一个可见会话，原固件冻结驱动经真实 I2C 控制器读写；0126 的 AMeter 校准 EEPROM 跨距 bug 由 0128 修复、batch-2b 写偏移 off-by-one 由 0129 修复后全部通过；acssr 仅为 I2C 事务观测、绝不是 AC 市电开关模型（24–480V/10A/过零/隔离 NOT RUN）；env 变体/传感器精度、ameter 出厂校准/电流测量、extencoder 机械/ABZ、ain4-20ma 环路、gesture 光学与真机均未验 |
 | [M5Stick 主机接入](evidence/2026-11-02-m5stick-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5stick`：EasyLoader FactoryTest 4MB 镜像确定性 icount 启动到原生串口 `mpu9250 addr: FF`；SH1107 初始化命令流+4096 字节 GDDRAM；工厂固件 legacy I2C FIFO 未闭环，MPU9250/IP5306/GPIO35 模型由 generic MicroPython fixture 取证；AK8963/DMP、最终 UI 帧、buzzer/IR/LED 与物理行为未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomu` 的官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060/5 帧）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验；固件为固定 SHA 官方 GitHub release 资产 |

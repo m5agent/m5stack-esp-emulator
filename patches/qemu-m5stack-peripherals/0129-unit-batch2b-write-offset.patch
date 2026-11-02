@@ -1,0 +1,45 @@
+From ec8ad7c3296ae4ff19778d1c0f51882d5603bdf1 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 20:30:02 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-2b write offsets after the pointer
+ byte
+
+The merged 0126 EXTENCODER and ACSSR write decoders derived the data-byte
+offset from write_pos - 1, but control_send increments write_pos for the byte
+currently being decoded, so the first data byte after the register pointer was
+treated as offset 1. EXTENCODER therefore shifted every 32-bit register write
+left by 8 bits (e.g. perimeter 500 became 128000), rejected the 0x30 reset and
+4-byte writes; ACSSR NACKed every relay/RGB write, so no relay level or RGB
+could be observed in guest evidence.
+
+Use write_pos - 2 so the first data byte is offset 0 while keeping the pointer
+byte handling unchanged.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index d2e84d4..fad82b3 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -1379,7 +1379,7 @@ static int control_send(I2CSlave *dev, uint8_t value)
+     }
+     uint8_t reg = s->pointer;
+     if (s->kind == CONTROL_EXTENCODER) {
+-        unsigned offset = s->write_pos - 1;
++        unsigned offset = s->write_pos - 2;  /* write_pos was already incremented for this byte */
+         uint8_t base = s->write_base;
+         if (base == 0x30) {
+             if (offset != 0 || value != 1) { return 1; }
+@@ -1412,7 +1412,7 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         }
+         s->pointer++;
+     } else if (s->kind == CONTROL_ACSSR) {
+-        unsigned offset = s->write_pos - 1;
++        unsigned offset = s->write_pos - 2;  /* write_pos was already incremented for this byte */
+         if (s->write_base == 0x00) {
+             if (offset) { return 1; }
+             if (s->acssr_relay_raw != value) {
+-- 
+2.55.0
+
