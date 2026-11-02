@@ -1,0 +1,521 @@
+From fd82208ed033460efc814353232c154fdfcb9ba0 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 18:46:18 +0800
+Subject: [PATCH] hw/m5stopwatch: add C-class external Unit I2C models
+
+Add controller-visible register-file slaves for the third Unit batch:
+
+- ncir2 (NCIR2Unit, 0x5a): object/chip temperature bytes derived from host
+  fixtures, emissivity/threshold/alarm-LED/buzzer/RGB/button/save registers,
+  0xFE/0xFF identity; read-only fixture registers are rejected on write. The
+  STM32 alarm state machine is deliberately not modeled, the unread protocol
+  PDF and 0x5A ncir(MLX90614) address conflict stay documented, and top-range
+  temperatures above the signed int16 x0.01 limit saturate instead of claiming
+  a correct 380C readback.
+- extio2 (EXTIO2Unit, 0x45): eight-channel mode/output/servo-angle/pulse/RGB
+  register banks, input-levels and adc-mv fixtures for the 0x20/0x30/0x40 read
+  banks, fw/address and the master-driver 0x90/0xA0 PWM bytes. Protocol v1/v3
+  PDFs remain unread; ADC full-scale, servo units and chip-internal RGB byte
+  order stay unresolved.
+- hbridge (HbridgeUnit, 0x20): direction/PWM8/PWM16/frequency writes,
+  0x10 ADC8, 0x20 ADC16 and v1.1-only 0x30 VIN-current reads from fixtures,
+  0xFE/0xFF identity and address change restricted to the driver's 0x20-0x2F
+  range. No dedicated protocol PDF exists; motor/RZ7899 electrical behavior is
+  out of scope.
+
+All three are transaction models only; no runtime profile is upgraded without
+guest evidence.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 438 +++++++++++++++++++++++++-
+ 1 file changed, 437 insertions(+), 1 deletion(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 5f2d25c..f1e059b 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -37,6 +37,7 @@ typedef enum {
+     CONTROL_CARDKB, CONTROL_RFID2, CONTROL_SCROLL,
+     CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
+     CONTROL_RELAY4, CONTROL_WEIGHT,
++    CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -82,6 +83,21 @@ typedef struct M5UnitControl {
+     double weight_g;
+     uint32_t weight_adc;
+     uint8_t weight_fw;
++    /* C-class Units (0122): register-file transaction models whose read-only
++     * registers are derived from explicit host fixtures, not guest API hooks.
++     * NCIR2 (0x5a) keeps its LED/buzzer registers only; the STM32 alarm state
++     * machine is NOT modeled. EXTIO2 (0x45) inputs/ADC and HBridge (0x20)
++     * ADC/bus-current are fixtures. Electrical/mechanical behavior is out. */
++    double ncir2_object_c, ncir2_chip_c;
++    bool ncir2_button;
++    uint8_t ncir2_fw;
++    uint64_t ncir2_saves;
++    bool extio2_inputs[8];
++    double extio2_adc_mv[8];
++    uint8_t extio2_fw;
++    double hbridge_adc_mv, hbridge_vin_a;
++    uint8_t hbridge_fw;
++    bool hbridge_pwm16;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -791,10 +807,332 @@ static void weight_number_set(Object *obj, Visitor *v, const char *name,
+     s->weight_g = value;
+ }
+ 
++typedef struct ControlNumber {
++    M5UnitControl *control;
++    double *value, lo, hi;
++    bool integer;
++} ControlNumber;
++
++static void control_number_get(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    ControlNumber *p = opaque;
++    double value = *p->value;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void control_number_set(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    ControlNumber *p = opaque;
++    double value;
++    if (!visit_type_number(v, name, &value, errp)) { return; }
++    if (!isfinite(value) || value < p->lo || value > p->hi ||
++        (p->integer && trunc(value) != value)) {
++        error_setg(errp, "%s requires %s in [%g,%g]", name,
++                   p->integer ? "an integer" : "a finite number", p->lo, p->hi);
++        return;
++    }
++    if (*p->value != value) { input_changed(p->control); }
++    *p->value = value;
++}
++
++static void control_number_release(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_control_number(M5UnitControl *s, const char *name, double *slot,
++                               double initial, double lo, double hi, bool writable,
++                               bool integer)
++{
++    ControlNumber *p = g_new0(ControlNumber, 1);
++    *slot = initial;
++    *p = (ControlNumber){ s, slot, lo, hi, integer };
++    object_property_add(OBJECT(s->unit), name, "number", control_number_get,
++                        writable ? control_number_set : NULL,
++                        control_number_release, p);
++}
++
++typedef struct ControlBool {
++    M5UnitControl *control;
++    bool *value;
++} ControlBool;
++
++static void control_bool_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    ControlBool *p = opaque;
++    bool value = *p->value;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void control_bool_set(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    ControlBool *p = opaque;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    if (*p->value != value) { input_changed(p->control); }
++    *p->value = value;
++}
++
++static void control_bool_release(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_control_bool(M5UnitControl *s, const char *name, bool *slot,
++                             bool initial, bool writable)
++{
++    ControlBool *p = g_new0(ControlBool, 1);
++    *slot = initial;
++    *p = (ControlBool){ s, slot };
++    object_property_add(OBJECT(s->unit), name, "bool", control_bool_get,
++                        writable ? control_bool_set : NULL,
++                        control_bool_release, p);
++}
++
++static uint8_t clamp_u8(long value)
++{
++    return value < 0 ? 0 : value > 255 ? 255 : value;
++}
++
++static uint16_t clamp_u16(long value)
++{
++    return value < 0 ? 0 : value > 65535 ? 65535 : value;
++}
++
++static int16_t clamp_i16(long value)
++{
++    return value < -32768 ? -32768 : value > 32767 ? 32767 : value;
++}
++
++static uint16_t extio_adc12(M5UnitControl *s, unsigned channel)
++{
++    return clamp_u16(lround(s->extio2_adc_mv[channel] * 4095.0 / 3300.0));
++}
++
++static uint8_t extio_adc8(M5UnitControl *s, unsigned channel)
++{
++    return clamp_u8(lround(s->extio2_adc_mv[channel] * 255.0 / 3300.0));
++}
++
++static void extio2_inputs_get(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 8; i++) { qlist_append_bool(list, s->extio2_inputs[i]); }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void extio2_inputs_set(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    if (!list || qlist_size(list) != 8) {
++        error_setg(errp, "input-levels requires exactly 8 booleans");
++        qobject_unref(value);
++        return;
++    }
++    bool next[8];
++    const QListEntry *entry = qlist_first(list);
++    for (unsigned i = 0; i < 8; i++) {
++        QBool *item = qobject_to(QBool, qlist_entry_obj(entry));
++        if (!item) {
++            error_setg(errp, "input-levels requires booleans only");
++            qobject_unref(value);
++            return;
++        }
++        next[i] = qbool_get_bool(item);
++        entry = qlist_next(entry);
++    }
++    memcpy(s->extio2_inputs, next, sizeof(next));
++    input_changed(s);
++    qobject_unref(value);
++}
++
++static void extio2_adc_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 8; i++) {
++        qlist_append(list, QOBJECT(qnum_from_double(s->extio2_adc_mv[i])));
++    }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void extio2_adc_set(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    if (!list || qlist_size(list) != 8) {
++        error_setg(errp, "adc-mv requires exactly 8 numbers in [0,3300]");
++        qobject_unref(value);
++        return;
++    }
++    double next[8];
++    const QListEntry *entry = qlist_first(list);
++    for (unsigned i = 0; i < 8; i++) {
++        QNum *item = qobject_to(QNum, qlist_entry_obj(entry));
++        if (!item) {
++            error_setg(errp, "adc-mv requires numbers only");
++            qobject_unref(value);
++            return;
++        }
++        double mv = qnum_get_double(item);
++        if (!isfinite(mv) || mv < 0 || mv > 3300) {
++            error_setg(errp, "adc-mv items must be finite and in [0,3300] mV");
++            qobject_unref(value);
++            return;
++        }
++        next[i] = mv;
++        entry = qlist_next(entry);
++    }
++    memcpy(s->extio2_adc_mv, next, sizeof(next));
++    input_changed(s);
++    qobject_unref(value);
++}
++
++static void extio2_array_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 8; i++) {
++        if (!strcmp(name, "modes")) {
++            qlist_append_int(list, s->regs[0x00 + i]);
++        } else if (!strcmp(name, "output-levels")) {
++            qlist_append_bool(list, !!s->regs[0x10 + i]);
++        } else if (!strcmp(name, "servo-angles")) {
++            qlist_append_int(list, s->regs[0x50 + i]);
++        } else if (!strcmp(name, "servo-pulses")) {
++            unsigned reg = 0x60 + i * 2;
++            qlist_append_int(list, s->regs[reg] | (s->regs[reg + 1] << 8));
++        } else {
++            unsigned reg = 0x70 + i * 3;
++            qlist_append_int(list, (s->regs[reg] << 16) |
++                                    (s->regs[reg + 1] << 8) | s->regs[reg + 2]);
++        }
++    }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void extio2_fw_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->extio2_fw;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void extio2_fw_set(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < 0 || value > 255) {
++        error_setg(errp, "fw-version requires an integer in [0,255]");
++        return;
++    }
++    if (s->extio2_fw != value) { input_changed(s); }
++    s->extio2_fw = value;
++}
++
++static void ncir2_rgb_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = (s->regs[0x60] << 16) | (s->regs[0x61] << 8) | s->regs[0x62];
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void ncir2_buzzer_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    bool value = s->regs[0x53] != 0;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void hbridge_direction_get(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->regs[0x00];
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void hbridge_duty_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    double value = 0;
++    if (s->hbridge_pwm16) {
++        uint16_t word = s->regs[0x02] | (s->regs[0x03] << 8);
++        value = word * 100.0 / 65535.0;
++    } else {
++        value = s->regs[0x01] * 100.0 / 255.0;
++    }
++    visit_type_number(v, name, &value, errp);
++}
++
++static void hbridge_freq_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->regs[0x04] | (s->regs[0x05] << 8);
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+-    if (s->kind == CONTROL_WEIGHT) {
++    if (s->kind == CONTROL_NCIR2) {
++        int16_t object_c = clamp_i16((long)lround(s->ncir2_object_c * 100.0));
++        int16_t chip_c = clamp_i16((long)lround(s->ncir2_chip_c * 100.0));
++        s->read_snapshot[0x00] = object_c;
++        s->read_snapshot[0x01] = (uint16_t)object_c >> 8;
++        s->read_snapshot[0x70] = s->ncir2_button ? 0 : 1;
++        s->read_snapshot[0x90] = chip_c;
++        s->read_snapshot[0x91] = (uint16_t)chip_c >> 8;
++        s->read_snapshot[0xfe] = s->ncir2_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_EXTIO2) {
++        for (unsigned i = 0; i < 8; i++) {
++            uint16_t adc12 = extio_adc12(s, i);
++            s->read_snapshot[0x20 + i] = s->extio2_inputs[i] ? 1 : 0;
++            s->read_snapshot[0x30 + i] = extio_adc8(s, i);
++            s->read_snapshot[0x40 + i * 2] = adc12;
++            s->read_snapshot[0x41 + i * 2] = adc12 >> 8;
++        }
++        s->read_snapshot[0xfe] = s->extio2_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_HBRIDGE) {
++        uint16_t adc16 = clamp_u16((long)lround(s->hbridge_adc_mv * 4095.0 / 3300.0));
++        float vin = (float)s->hbridge_vin_a;
++        s->read_snapshot[0x10] = clamp_u8((long)lround(s->hbridge_adc_mv * 255.0 / 3300.0));
++        s->read_snapshot[0x20] = adc16;
++        s->read_snapshot[0x21] = adc16 >> 8;
++        memcpy(s->read_snapshot + 0x30, &vin, 4);
++        s->read_snapshot[0xfe] = s->hbridge_fw;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_WEIGHT) {
+         uint32_t adc = s->weight_adc;
+         for (unsigned b = 0; b < 4; b++) { s->read_snapshot[0x00 + b] = adc >> (b * 8); }
+         float weight = (float)s->weight_g;
+@@ -989,6 +1327,70 @@ static int control_send(I2CSlave *dev, uint8_t value)
+             return 0;
+         }
+         return 1;
++    } else if (s->kind == CONTROL_NCIR2) {
++        bool writable = reg == 0x10 || reg == 0x11 || reg == 0x20 || reg == 0x21 ||
++                        reg == 0x22 || reg == 0x23 ||
++                        (reg >= 0x30 && reg <= 0x35) ||
++                        (reg >= 0x40 && reg <= 0x53) ||
++                        (reg >= 0x60 && reg <= 0x62) || reg == 0x80;
++        if (reg == 0xff) {
++            BusChild *child;
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++            return 0;
++        }
++        if (!writable) { return 1; }
++        s->regs[reg] = value;
++        if ((reg >= 0x60 && reg <= 0x62) || reg == 0x53) { output_changed(s); }
++        if (reg == 0x80 && value == 1) { s->ncir2_saves++; }
++        s->pointer++;
++    } else if (s->kind == CONTROL_EXTIO2) {
++        bool writable = reg <= 0x07 || (reg >= 0x10 && reg <= 0x17) ||
++                        (reg >= 0x50 && reg <= 0x57) || (reg >= 0x60 && reg <= 0x6f) ||
++                        (reg >= 0x70 && reg <= 0x87) || (reg >= 0x90 && reg <= 0x97) ||
++                        reg == 0xa0;
++        if (reg == 0xff) {
++            BusChild *child;
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++            return 0;
++        }
++        if (!writable) { return 1; }
++        if (s->regs[reg] != value) {
++            s->regs[reg] = value;
++            output_changed(s);
++        }
++        s->pointer++;
++    } else if (s->kind == CONTROL_HBRIDGE) {
++        if (reg == 0xff) {
++            BusChild *child;
++            if (value < 0x20 || value > 0x2f) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++            return 0;
++        }
++        if (reg == 0x00) {
++            if (value > 2) { return 1; }
++            if (s->regs[reg] != value) { s->regs[reg] = value; output_changed(s); }
++        } else if (reg == 0x01) {
++            s->regs[reg] = value; s->hbridge_pwm16 = false; output_changed(s);
++        } else if (reg == 0x02 || reg == 0x03) {
++            s->regs[reg] = value; s->hbridge_pwm16 = true; output_changed(s);
++        } else if (reg == 0x04 || reg == 0x05) {
++            s->regs[reg] = value; output_changed(s);
++        } else {
++            return 1;
++        }
++        s->pointer++;
+     }
+     /* CardKB v1.1 accepts legacy writes but has no invented v2 report bank. */
+     return 0;
+@@ -1055,6 +1457,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+     static const char *const ids[] = {
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
++        "ncir2", "extio2", "hbridge",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1121,6 +1524,39 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         object_property_add(OBJECT(s->unit), "weight-g", "number", weight_number_get,
+                             weight_number_set, NULL, s);
+         add_int(s, "adc-raw", true); add_int(s, "weight-fw", true);
++    } else if (!strcmp(unit->unit_id, "ncir2")) {
++        s->kind = CONTROL_NCIR2; address = 0x5a;
++        s->regs[0x10] = 0xff; s->regs[0x11] = 0xff;  /* emissivity 1.0 default */
++        s->ncir2_object_c = 32; s->ncir2_chip_c = 25;
++        s->ncir2_fw = 1; s->ncir2_button = false;
++        add_control_number(s, "object-c", &s->ncir2_object_c, 32, -70, 380, true, false);
++        add_control_number(s, "chip-c", &s->ncir2_chip_c, 25, -40, 125, true, false);
++        add_control_bool(s, "button-pressed", &s->ncir2_button, false, true);
++        object_property_add(OBJECT(s->unit), "rgb-led", "int", ncir2_rgb_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "buzzer-on", "bool", ncir2_buzzer_get, NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "extio2")) {
++        s->kind = CONTROL_EXTIO2; address = 0x45;
++        s->extio2_fw = 1;
++        for (unsigned i = 0; i < 8; i++) { s->extio2_inputs[i] = false; s->extio2_adc_mv[i] = 0; }
++        object_property_add(OBJECT(s->unit), "input-levels", "any", extio2_inputs_get,
++                            extio2_inputs_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "adc-mv", "any", extio2_adc_get,
++                            extio2_adc_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "fw-version", "int", extio2_fw_get,
++                            extio2_fw_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "modes", "any", extio2_array_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "output-levels", "any", extio2_array_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "servo-angles", "any", extio2_array_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "servo-pulses", "any", extio2_array_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "rgb-leds", "any", extio2_array_get, NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "hbridge")) {
++        s->kind = CONTROL_HBRIDGE; address = 0x20;
++        s->hbridge_adc_mv = 0; s->hbridge_vin_a = 0; s->hbridge_fw = 1;
++        add_control_number(s, "adc-mv", &s->hbridge_adc_mv, 0, 0, 3300, true, false);
++        add_control_number(s, "vin-current-a", &s->hbridge_vin_a, 0, -1000, 1000, true, false);
++        object_property_add(OBJECT(s->unit), "direction", "int", hbridge_direction_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "pwm-duty-pct", "number", hbridge_duty_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "pwm-frequency-hz", "int", hbridge_freq_get, NULL, NULL, s);
+     } else if (!strcmp(unit->unit_id, "cardkb")) {
+         s->kind = CONTROL_CARDKB; address = 0x5f;
+         add_int(s, "keycode", true); add_array(s, "keys", true);
+-- 
+2.55.0
+

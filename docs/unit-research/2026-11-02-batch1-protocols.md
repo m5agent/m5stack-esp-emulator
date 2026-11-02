@@ -866,3 +866,24 @@ runtime profile 仍保持 `planned`/`unsupported`，Device Service 以
 也不得把 QOM fixture 读数当作传感器测量值。下一步验收应按 `AGENTS.md` 的
 独立 Device Service 路线逐款 attach、运行官方 UIFlow2 驱动并记录 serial/QOM/
 帧/ZIP 证据后再升级 profile。
+
+## 11. C 类 QEMU 实现状态（0122，2026-11-02）
+
+C 类 3 款已由
+[`0123-unit-i2c-batch3.patch`](../../patches/qemu-m5stack-peripherals/0123-unit-i2c-batch3.patch)
+接入 QEMU I2C 寄存器事务数据面；补丁 base 为 canonical native layer `75f1d24`（`0109+0110…0119`）
++ 已合入的 `0120` 修复（`0121` 是并行预留层，不依赖）。**尚未采集 guest/Device Service
+证据**，因此 `platform/units/catalog.json` 3 条 `model_status`/`runtime.status` 与
+`platform/units/runtime-profiles.json` 3 条均保持 `planned`、hosts 为空。离线 QOM smoke
+只验证属性注册、fixture 读写、范围拒绝和只读拒绝（3/3 PASS），不构成功能 PASS。
+
+| Unit | 0122 事务模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `ncir2` U150 (0x5A) | 0x00/0x90 温度字节由 fixture 编码 int16 LE ×0.01；0x10 发射率、0x20/0x22 阈值、0x30/0x33 报警 LED、0x40–0x53 报警/蜂鸣器参数、0x60 RGB、0x70 按键、0x80 保存、0xFE/0xFF 身份；只读 fixture 寄存器拒写 | 输入 `object-c`/`chip-c`/`button-pressed`；观测 `rgb-led`、`buzzer-on`（寄存器回读） | 零 guest 回放；STM32 报警状态机不建模；NCIR-STM32 PDF 未读；0x5A 与已登记 ncir(MLX90614) 地址冲突；-70..380°C 与 signed int16 ×0.01 编码上限 +327.67°C 的 top-range 语义 unresolved（模型饱和而不声明 380°C 正确回读）；红外光学/发射率物理 NOT RUN |
+| `extio2` U011-B (0x45) | 8 通道 0x00 模式/0x10 输出/0x50 舵机角/0x60 舵机脉宽/0x70 RGB 寄存器；0x20 输入、0x30/0x40 ADC 由 fixture 派生；0xFE fw、0xFF 地址；master v3 的 0x90/0xA0 PWM 字节 | 输入 `input-levels`/`adc-mv`/`fw-version`；观测 `modes`/`output-levels`/`servo-angles`/`servo-pulses`/`rgb-leds` | 零 guest 回放；Protocol v1/v3 PDF 未读；8/12-bit ADC 满量程与参考电压、舵机角度/脉宽单位、芯片内部 RGB 字节序均 unresolved；冻结固件驱动是否含 0x90/0xA0 未确认；ST IAP/升级不建模 |
+| `hbridge` U160 (0x20) | 0x00 方向、0x01 PWM8、0x02 PWM16、0x04 频率写；0x10 ADC8、0x20 ADC16、0x30 VIN 电流（v1.1）由 fixture 派生；0xFE/0xFF 身份，地址变更加 0x20–0x2F 限制 | 输入 `adc-mv`/`vin-current-a`；观测 `direction`/`pwm-duty-pct`/`pwm-frequency-hz` | 零 guest 回放；无独立 protocol PDF，仅按可执行驱动；0x30 仅 v1.1 硬件有、U160 v1.0 读回语义 unresolved（本模型返回 fixture float）；方向/刹车时序、RZ7899 死区/保护、电机电气行为 NOT RUN；`set_percentage_pwm` 的 16-bit 分支写 8-bit 寄存器是驱动 bug，模型只保留显式寄存器语义 |
+
+共同边界：3 款都只是控制器可见的寄存器事务模型，不是红外/电气/机械/无线模型；
+地址冲突（0x5A 与 ncir）、unresolved 寄存器语义与饱和策略必须随 catalog 一起读；
+在没有 guest 与 Device Service 证据前不得升级为 `implemented`/`simulated`，也不得把
+QOM fixture 读数当作传感器/电机测量值。

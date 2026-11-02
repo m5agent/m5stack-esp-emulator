@@ -229,6 +229,9 @@ const AUDIT = {
   accel: {note: 'U056 accel-x/y/z g fixtures and int-source are panel-only; the frozen asset has no orientation binding, and physical acceleration/tilt behavior is not inferred from register bytes.'},
   '4relay': {note: 'U097 per-channel relay/led levels stay panel-only until guest evidence confirms the driver-compatible bit order; frozen relay indicators are qualitative and contacts/loads are not visualizable.'},
   'weight-i2c': {note: 'U180 weight/adc fixtures are panel-only; no frozen display component is bound to 0x10/0x60/0x70 readings and load-cell mechanics are not modeled.'},
+  ncir2: {note: 'U150 temperature/chip-temperature/RGB/buzzer are QOM fixtures and register readback only; the STM32 alarm state machine and infrared optics cannot be visualized from this contract.'},
+  extio2: {note: 'U011-B eight-channel mode/output/servo/RGB are register-readback values only; ADC full scale, servo units and chip-internal RGB order remain unresolved, so no motion or color binding is inferred.'},
+  hbridge: {note: 'U160 direction/PWM duty/frequency are register readbacks only; motor rotation, torque, current and RZ7899 protection behavior are not modeled.'},
 };
 
 export function visualMappingCoverage(catalog) {
