@@ -27882,9 +27882,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "key-code": {
@@ -27913,10 +27913,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
       "limitations": [
         "No official UIFlow2 Unit driver (page says coming soon).",
         "Numeric I2C address/register map and Grove UART frame format are unresolved (external manual).",
@@ -28155,9 +28155,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "rotary": {
@@ -28236,10 +28236,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) used the rotary-selected address 0x28 (rotary fixture 3), read the 12-byte UID fixture 101112...1b and firmware, then wrote mode 2 for channel 0, servo angles 10..17, PWM 50..57 and an RGB buffer block; guest readbacks and QOM rotary/i2c-address/servo-angles-hex/pwm-hex match. Only register/byte-level virtual data plane evidence; servo/WS2812/PWM electrical/waveforms, INA199 current accuracy, 9-24V supply, I2C cascade and the MCU model conflict (STM32F030F4P6 vs STM32G031G8) are NOT RUN; 0x25 conflicts with 8servos and 0x26 with the scales family.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_SERVOS8V2（I2C 0x25-0x34 由 rotary fixture 选地址）：0x00 8 通道模式、0x10 上下拉、0x20 输入电平、0x30 输出电平、0x40 ADC、0x50 舵机角、0x60 RGB 配置、0x70 PWM、0x80-0xBF RGB 缓冲、0xD0 定时器频率、0xE0 UID、0xF0 系统遥测、0xFE/0xFF。**无 guest 证据 → planned；舵机/WS2812/PWM 电气与波形、INA199 电流精度、9-24V 供电、I2C 级联、MCU 型号冲突（STM32F030F4P6 vs STM32G031G8）NOT RUN；0x25 与 8servos、0x26 与 4relay/weight-i2c/scales/mini-scales 冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) used the rotary-selected address 0x28 (rotary fixture 3), read the 12-byte UID fixture 101112...1b and firmware, then wrote mode 2 for channel 0, servo angles 10..17, PWM 50..57 and an RGB buffer block; guest readbacks and QOM rotary/i2c-address/servo-angles-hex/pwm-hex match. Only register/byte-level virtual data plane evidence; servo/WS2812/PWM electrical/waveforms, INA199 current accuracy, 9-24V supply, I2C cascade and the MCU model conflict (STM32F030F4P6 vs STM32G031G8) are NOT RUN; 0x25 conflicts with 8servos and 0x26 with the scales family.",
       "limitations": [
         "No public UIFlow2 Unit driver; internal-firmware channel register layout unresolved.",
         "0x25 conflicts with 8servos U165 and 0x26 with scales/weight-i2c/4relay; one address per bus.",
@@ -32050,9 +32050,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "state-bitmap": {
@@ -32101,10 +32101,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the ByteUnit state bitmap 0xA5 fixture (ch0=1, ch7=1, FW=1), then wrote brightness 0x42, LED mode 1, user RGB 11/22/33 and save 0xF0/IRQ 0xF1; guest readbacks and QOM state-bitmap/rgb-hex/save-count/irq-count all match. Only register/byte-level virtual data plane evidence; switch mechanical/electrical polarity, WS2812 optics, cascade and IRQ pin electrical behavior are NOT RUN. 0x46 has no registered conflict.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x46，8 拨动开关 + 9×WS2812C）：0x00 状态位图/0x60-0x67 单通道（驱动约定 0=按下/闭合，物理极性 unresolved）、0x10-0x18 亮度、0x19 模式、0x20-0x4F user RGB888（base=0x20+(n//4)*0x10+(n%4)*4）、0x70/0x90 sys RGB、0xF0 保存、0xF1 IRQ、0xFE FW、0xFF 地址。**无 guest 证据 → planned；开关机械/拨动电气、WS2812 光学、级联双 Grove、IRQ 引脚电气与位图物理含义 NOT RUN；0x46 当前无已登记冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the ByteUnit state bitmap 0xA5 fixture (ch0=1, ch7=1, FW=1), then wrote brightness 0x42, LED mode 1, user RGB 11/22/33 and save 0xF0/IRQ 0xF1; guest readbacks and QOM state-bitmap/rgb-hex/save-count/irq-count all match. Only register/byte-level virtual data plane evidence; switch mechanical/electrical polarity, WS2812 optics, cascade and IRQ pin electrical behavior are NOT RUN. 0x46 has no registered conflict.",
       "limitations": [
         "No public Unit ByteSwitch driver; switch/LED register map unresolved.",
         "0x46 conflicts with other I2C units; two Grove ports are a pass-through cascade.",
@@ -32278,9 +32278,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "state-bitmap": {
@@ -32329,10 +32329,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the ByteUnit state bitmap 0x5A fixture (ch0=1, ch7=0, FW=1), then wrote brightness/LED mode/user RGB/save/IRQ; guest readbacks and QOM state-bitmap/rgb-hex/save-count/irq-count match. Only register/byte-level virtual data plane evidence; key mechanics/optics/cascade and IRQ electrical are NOT RUN. 0x47 has no registered conflict.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_BYTEUNIT（I2C 0x47，8 按键 + 9×WS2812C，与 byteswitch 共享模型）：0x00 位图/0x60 单通道（驱动约定 0=按下）、LED/RGB/IRQ/FW/地址同构。**无 guest 证据 → planned；按键机械/光学、9 灯 WS2812 串接方向、IRQ 电气 NOT RUN；0x47 当前无已登记冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the ByteUnit state bitmap 0x5A fixture (ch0=1, ch7=0, FW=1), then wrote brightness/LED mode/user RGB/save/IRQ; guest readbacks and QOM state-bitmap/rgb-hex/save-count/irq-count match. Only register/byte-level virtual data plane evidence; key mechanics/optics/cascade and IRQ electrical are NOT RUN. 0x47 has no registered conflict.",
       "limitations": [
         "No public Unit ByteButton driver; button/LED register map unresolved.",
         "0x47 conflicts with other I2C units; two Grove ports are a pass-through expansion.",
@@ -32519,9 +32519,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "position": {
@@ -32575,10 +32575,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
       "limitations": [
         "No public Unit Step16 driver; position/config register map unresolved.",
         "0x48 conflicts with other I2C units; 0x08-0x77 configurable address must avoid all bus addresses.",
@@ -32813,9 +32813,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "schedule-on": {
@@ -32904,10 +32904,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
       "limitations": [
         "No public Unit TimerPWR driver; schedule/status register map unresolved.",
         "0x56 conflicts with other I2C units.",
@@ -33118,9 +33118,9 @@
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "sensor-mv": {
@@ -33194,10 +33194,10 @@
             "type": "integer"
           }
         },
-        "blocker": "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**",
+        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read valid=1, ADC8=139, ADC12 raw 0x08BA (2234), NTC 10000 ohm and reference 1100 mV, then wrote mode 1/LED 1/heat-high 60; guest readbacks and QOM adc8/adc12/valid-raw/mq-mode/led/heat-high match. The model follows the driver semantics get_valid_tags()==1 while the protocol PDF says 0 = valid: the conflict stays UNRESOLVED and is recorded. MQ-5 gas curve/preheat/heating physics are NOT RUN. 0x11 has no registered conflict.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "0157 新增 CONTROL_MQ（I2C 0x11）：0x00 模式、0x01 LED、0x10/0x11 加热高低电平时间、0x20 ADC8、0x30 ADC12、0x40 valid、0x50/0x60 NTC ADC、0x70 NTC Ω、0x80-0x85 ref/MQ/NTC mV、0xFE/0xFF。**valid 极性按驱动 `get_valid_tags()==1` 实现，协议 PDF 写 0=有效：冲突 unresolved 并写入 blocker；无 guest 证据 → planned；MQ-5 气体浓度曲线/预热/加热热学 NOT RUN；0x11 当前无已登记冲突**",
+      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read valid=1, ADC8=139, ADC12 raw 0x08BA (2234), NTC 10000 ohm and reference 1100 mV, then wrote mode 1/LED 1/heat-high 60; guest readbacks and QOM adc8/adc12/valid-raw/mq-mode/led/heat-high match. The model follows the driver semantics get_valid_tags()==1 while the protocol PDF says 0 = valid: the conflict stays UNRESOLVED and is recorded. MQ-5 gas curve/preheat/heating physics are NOT RUN. 0x11 has no registered conflict.",
       "limitations": [
         "No public Unit MQ driver; register/heating-timing map unresolved.",
         "0x11 conflicts with other I2C units.",

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T05:56:53.597821+08:00",
+  "validation": "virtual-device validation",
+  "scope": "Unit raw-I2C register data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "8servos2-i2c",
+  "driver_class": "raw machine.I2C register probe (driver-gap: no official Unit driver)",
+  "driver_flavor": "guest raw machine.I2C probe (driver-gap; no official Unit driver)",
+  "runtime": "qemu",
+  "firmware_sha256": "c200ab5dfbb5716a48998eb55e809d4ccef072e55cb2b2fd2f104e601fcd8a17",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "8e0811c8a3346f47ec383ca26bff7b2e76b5fe3c9703b2dbfdd64e0b0da565d1",
+    "main.py": "1ae259d5b2b3767875e249a1e33ab0c26b48dfbf3863e99140938400b07d8f4c"
+  },
+  "runtime_binary_sha256": "bf304e61365af5e342602f386ca57191a2bee177b90bb0dfca1254a1a7bed08c",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 39 layers through 0159",
+  "official_port": "PORT.A",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {
+    "rotary": 3
+  },
+  "serial_markers": {
+    "8servos2-i2c": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (923) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH12A_PROBE_START 8servos2-i2c\nE (1247) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH12A_PROBE_READY 8servos2-i2c\nSV_SCAN [40]\nSV_MODES 0000000000000000\nSV_UID 101112131415161718191a1b\nSV_FW 1\nSV_MODE_READBACK 2\nSV_SERVO_READBACK 0a0b0c0d0e0f1011\nSV_PWM_READBACK 3233343536373839\nSV_RGB_READBACK 01020304\nSV_END\n"
+  },
+  "observations": {
+    "scan": "40",
+    "uid": "101112131415161718191a1b",
+    "mode": "2",
+    "servo": "0a0b0c0d0e0f1011",
+    "pwm": "3233343536373839",
+    "rgb": "01020304"
+  },
+  "checks": {
+    "guest_probe_started": true,
+    "live_controller_state": true,
+    "guest_rotary_address_visible": true,
+    "guest_uid_fixture": true,
+    "guest_mode_readback": true,
+    "guest_servo_roundtrip": true,
+    "guest_pwm_roundtrip": true,
+    "guest_rgb_roundtrip": true,
+    "qom_rotary_address": true,
+    "qom_servo_hex": true,
+    "qom_pwm_hex": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "status": "PASS",
+  "evidence": {
+    "sha256": "61657cf91feeae91244186355a769da32852e575cde3684d76cf398a7b7dfbe7",
+    "bytes": 20359
+  },
+  "frame": {
+    "sha256": "06d1b6a3761818bf711de5b6b5748b39871bdb101582af7d4f7831bb08b68468",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "driver_gap": "no official Unit driver exists for this product; the guest probe uses machine.I2C directly",
+  "raw_evidence_note": "Raw execution artifacts stay in local ignored .work; only concise reports, hashes and reproduction commands are committed.",
+  "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) used the rotary-selected address 0x28 (rotary fixture 3), read the 12-byte UID fixture 101112...1b and firmware, then wrote mode 2 for channel 0, servo angles 10..17, PWM 50..57 and an RGB buffer block; guest readbacks and QOM rotary/i2c-address/servo-angles-hex/pwm-hex match. Only register/byte-level virtual data plane evidence; servo/WS2812/PWM electrical/waveforms, INA199 current accuracy, 9-24V supply, I2C cascade and the MCU model conflict (STM32F030F4P6 vs STM32G031G8) are NOT RUN; 0x25 conflicts with 8servos and 0x26 with the scales family."
+}

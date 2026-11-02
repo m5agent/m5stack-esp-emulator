@@ -1,0 +1,40 @@
+From b481d6779d449e359f13d148deb0e83cb7e0f13a Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 05:57:06 +0800
+Subject: [PATCH] hw/m5stopwatch: fix Unit MQ ADC QOM rounding seen in guest
+ evidence
+
+The batch-12a raw-I2C guest probe read ADC12 raw 0x08BA (2234) from the MQ
+register file while the QOM adc12 fixture reported the truncated 2233: the
+register refresh already used llround(sensor-mv * 4095 / ref-mv) but the QOM
+getter truncated the double. Use the same rounded integer for both the QOM
+adc12 getter and the adc8 = adc12 / 16 derivation so guest register reads and
+the QOM view agree.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 22041c5..bc2d28a 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -2665,14 +2665,14 @@ static double mq_adc12_value(M5UnitControl *s)
+ static void mq_adc8_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
+ {
+     M5UnitControl *s = opaque;
+-    int64_t value = (int64_t)(mq_adc12_value(s) / 16.0);
++    int64_t value = (int64_t)(llround(mq_adc12_value(s)) / 16);
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
+ static void mq_adc12_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
+ {
+     M5UnitControl *s = opaque;
+-    int64_t value = (int64_t)mq_adc12_value(s);
++    int64_t value = llround(mq_adc12_value(s));
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
+-- 
+2.55.0
+
