@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "device": "atoms3r-cam",
+  "machine": "m5atoms3rcam",
+  "firmware": {
+    "name": "UIFlow2.0 AtomS3R-CAM",
+    "version": "v2.5.4",
+    "firmware_id": "1897200000000003117",
+    "bytes": 8384512,
+    "sha256": "1b29cc3d838834b3a4713130010815f952cff58619001c76183dd0b0a588f2c1"
+  },
+  "qemu": {
+    "base_layer": "0109 + 0110-atoms3u + 0111-atom-voices3r + 0112-atoms3r-cam + 0113-basic-v27 + 0114-unit-gpio-batch1 + 0115-atoms3r-cam-sccb + 0116-atomu-board",
+    "base_commit": "2f7cd67d0b91d1ffda5ef6ec9354017ad6ece58c",
+    "fix_commit": "42e2b4a",
+    "patch": "patches/qemu-m5stack-peripherals/0118-camera-geometry-stream.patch",
+    "patch_sha256": "cbff7293435fb91b626bfaf33f9b6ed60da8ad9544ecd08b6c54e52a89c6f9d4",
+    "patch_apply_checks": [
+      "git apply --reverse --check in the fix tree",
+      "pristine 6961d82 (0112) + 0113 + 0114 + 0115 + 0116 then git apply --check 0118"
+    ],
+    "binary": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+    "parallel_layers": "0117-atomecho-board and 0119-unit-i2c-batch2 are unrelated parallel layers merged separately; git apply --check of 0118 was verified on 0116, 0116+0117, 0116+0119 and 0116+0117+0119."
+  },
+  "root_cause": {
+    "problem": "GC0308 DVP output geometry was fixed at the board-attached QVGA 320x240, so any other framesize requested through camera.init(framesize=...) produced a frame byte length that did not match the LCD_CAM/DMA frame the driver assembled (QQVGA returned 38400 bytes of a QVGA stream, CIF/VGA returned no complete frame).",
+    "guest_path": "esp32-camera set_framesize() (sensors/gc0308.c, CONFIG_GC_SENSOR_SUBSAMPLE_MODE) writes GC0308 page 0 0x09/0x0a (window height + 8) and 0x0b/0x0c (window width + 8), then page 1 0x54/0x56-0x59 (subsample ratio). Output resolution = window * ratio.",
+    "observed_registers": {
+      "160x120": {
+        "window": [
+          648,
+          488
+        ],
+        "ratio_regs": [
+          "54=44",
+          "56..59=00"
+        ],
+        "ratio": "1/4"
+      },
+      "240x240": {
+        "window": [
+          488,
+          488
+        ],
+        "ratio_regs": [
+          "54=22",
+          "56..59=00"
+        ],
+        "ratio": "1/2"
+      },
+      "320x240": {
+        "window": [
+          648,
+          488
+        ],
+        "ratio_regs": [
+          "54=22",
+          "56..59=00"
+        ],
+        "ratio": "1/2"
+      },
+      "400x296": {
+        "window": [
+          608,
+          452
+        ],
+        "ratio_regs": [
+          "54=33",
+          "56=02",
+          "57=00",
+          "58=02",
+          "59=00"
+        ],
+        "ratio": "2/3"
+      },
+      "640x480": {
+        "window": [
+          648,
+          488
+        ],
+        "ratio_regs": [
+          "54=11",
+          "56..59=00"
+        ],
+        "ratio": "1/1"
+      }
+    }
+  },
+  "fix": [
+    "m5sw_i2c_devs.c: the GC0308 model decodes the window/subsample register pair with an exact integer inverse for the eight esp32-camera subsample configurations and publishes the output geometry to the bound LCD_CAM device.",
+    "m5_lcd_cam.c: stores the sensor geometry and latches it at CAM_START, so partially written register sets cannot change a running frame; the synthetic scene advances one white-grid row per frame (frame_seed 0 keeps the original pattern) so consecutive streamed frames stay distinct.",
+    "m5atoms3rcam.c: binds the board GC0308 model to the LCD_CAM instance."
+  ],
+  "geometry_cases": [
+    {
+      "name": "QQVGA",
+      "framesize_enum": 1,
+      "width": 160,
+      "height": 120,
+      "bytes": 38400,
+      "expected_sha256": "94203cc2fa9273a07b6052e820462e15ace7421cf08ea409da536f53bae69034",
+      "guest_sha256": "94203cc2fa9273a07b6052e820462e15ace7421cf08ea409da536f53bae69034"
+    },
+    {
+      "name": "240X240",
+      "framesize_enum": 5,
+      "width": 240,
+      "height": 240,
+      "bytes": 115200,
+      "expected_sha256": "f1c922554c4dd2c16023ded4f3c3ddc27700e271e5e03fad55be7cc3945ec698",
+      "guest_sha256": "f1c922554c4dd2c16023ded4f3c3ddc27700e271e5e03fad55be7cc3945ec698"
+    },
+    {
+      "name": "QVGA",
+      "framesize_enum": 6,
+      "width": 320,
+      "height": 240,
+      "bytes": 153600,
+      "expected_sha256": "09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696",
+      "guest_sha256": "09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696",
+      "note": "module default framesize; keeps the original single-frame oracle"
+    },
+    {
+      "name": "CIF",
+      "framesize_enum": 8,
+      "width": 400,
+      "height": 296,
+      "bytes": 236800,
+      "expected_sha256": "28cf4b4abf1c3311c24e91550b871fea83c7bc1fb95d24991ee6cd22efe508b6",
+      "guest_sha256": "28cf4b4abf1c3311c24e91550b871fea83c7bc1fb95d24991ee6cd22efe508b6"
+    },
+    {
+      "name": "VGA",
+      "framesize_enum": 10,
+      "width": 640,
+      "height": 480,
+      "bytes": 614400,
+      "expected_sha256": "94a147ff55c5c3189eb6a9871dded374483ed7d33f1d0767889879986fa6e412",
+      "guest_sha256": "94a147ff55c5c3189eb6a9871dded374483ed7d33f1d0767889879986fa6e412"
+    }
+  ],
+  "stream": {
+    "frames": 5,
+    "bytes_per_frame": 153600,
+    "distinct_digests": 5,
+    "scene_seeds_observed": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "oracle": "each guest digest equals the sha256 of a host-reconstructed QVGA frame for a distinct frame_seed; no frame matched a torn/partial buffer",
+    "enable_path": "QOM /machine/m5-lcd-cam auto-increment=true is applied by the console matrix runner when the guest prints CAM_BASE_DONE, i.e. after the static-frame oracle and before the stream captures (no host frame data is injected)"
+  },
+  "case": {
+    "runner": "PYTHONPATH=platform/tools python3 tests/uiflow2/run_device_matrix.py --device atoms3r-cam --flash-transport direct --out-dir /tmp/geom-matrix2",
+    "status": "PASS",
+    "runs": 2,
+    "serial_markers": [
+      "CAM_BOARD 144",
+      "CAM_PID 9b00",
+      "CAM_INIT_RESULT True",
+      "CAM_CAPTURE_BYTES 153600",
+      "CAM_GEOM QQVGA 1 160 120 38400 94203cc2…",
+      "CAM_GEOM 240X240 5 240 240 115200 f1c92255…",
+      "CAM_GEOM CIF 8 400 296 236800 28cf4b4a…",
+      "CAM_GEOM VGA 10 640 480 614400 94a147ff…",
+      "CAM_GEOMETRY_DONE 4 4",
+      "CAM_STREAM_CAPTURED 5",
+      "CAM_STREAM_BYTES_OK 5",
+      "CAM_STREAM_DISTINCT 5",
+      "CAM_STATUS ok"
+    ],
+    "serial_sha256": {
+      "run1": "dd98ea2ed307cb0ff1972f26a5f6b0b8731b9dfdd1af4b25e5546b6fa01a128c",
+      "run2": "9f1642dbae135f52c5825de924e2e54b40ae9e78c814671bfb4a012e1216e648"
+    },
+    "frame_oracle": {
+      "script": "tests/uiflow2/atoms3r_cam_console_test/frame_oracle.py",
+      "sha256": "bea6597d85c6b2ae8d8ff3e81419eae02f34ce29cd34d5201a06d44cd19fcd2f",
+      "result": "FRAME_ORACLE_OK geometry=5 stream=5 (both matrix runs)"
+    }
+  },
+  "regression": {
+    "cores3-camera": "PASS (peripheral matrix: CORES3_CAMERA_PASS 320x240 153600 bytes, CORES3_CAMERA_FRAMESTREAM PASS 1)",
+    "stackchan-camera": "PASS (peripheral matrix: CORES3_CAMERA_PASS 320x240 153600 bytes)",
+    "cores3-device-matrix": "PASS",
+    "stopwatch-device-matrix": "PASS"
+  },
+  "not_run": [
+    "physical optics, exposure/white balance, sensor noise and electrical DVP/SCCB timing or drive strength",
+    "dynamic framesize change while frames are streaming (the probe re-initializes the camera per size; LCD_CAM latches geometry at CAM_START)",
+    "frame sizes above VGA (the GC0308 driver clamps to VGA) and non-4:3 sizes not in the esp32-camera resolution table",
+    "IR GPIO47, Grove G2/G1 Units, USB CDC console and arbitrary third-party firmware",
+    "the modeled scene is a deterministic synthetic DVP waveform, not captured optics"
+  ]
+}

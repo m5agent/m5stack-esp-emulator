@@ -19,13 +19,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-11-02",
-      "status": "native-boot-display-camera-frame-pass",
-      "detail": "官方 UIFlow2 v2.5.4 AtomS3R-CAM 在同一 QEMU guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=144、128×128 GC9107 面板初始化；原厂 camera.init() 返回 True，camera.capture() 返回 320×240 RGB565 整帧 153,600 bytes，帧摘要 fnv1a 42521dc5 / sum 24725536，宿主按 LCD_CAM 确定性 DVP 波形重建逐字节一致（sha256 09c8ded0…）。修复为软件 SCCB 桥 dedicated-pin 变体 + N8R8 8 MiB PSRAM 建模 + QVGA 几何。非 QVGA framesize、多帧流、IR/Grove/USB CDC 与物理光学/电气行为未验证。",
-      "evidence": "docs/evidence/2026-11-02-atoms3r-cam-sccb/summary.json",
+      "status": "native-boot-display-camera-geometry-stream-pass",
+      "detail": "官方 UIFlow2 v2.5.4 AtomS3R-CAM 在同一 QEMU guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=144、128×128 GC9107 面板初始化；原厂 camera.init()/capture() 在 QQVGA 160×120、240×240、QVGA 320×240、CIF 400×296、VGA 640×480 五个 framesize 上返回 38,400/115,200/153,600/236,800/614,400 字节 RGB565 整帧，逐帧 SHA-256 与宿主按 LCD_CAM 确定性 DVP 波形重建一致（LCD_CAM 几何跟随 GC0308 window/subsample 寄存器，0118）；QOM auto-increment 下连续 5 帧 digest 互异且各自等于重建的 scene seed 0–4 帧（无撕裂/半帧）。修复链：软件 SCCB dedicated-pin 桥 + N8R8 8 MiB PSRAM 建模（0115）+ 传感器几何跟随（0118）。运行中动态改 framesize、IR/Grove/USB CDC、物理光学/电气行为未验证。",
+      "evidence": "docs/evidence/2026-11-02-atoms3r-cam-geometry/summary.json",
       "category": "virtual-device"
     },
     "blockers": [
-      "Camera SCCB/DVP virtual-device path passed for the default QVGA frame only. Non-QVGA framesize geometry does not follow GC0308 window/subsample registers, multi-frame streaming is not tested, and IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open."
+      "Camera virtual-device path passed for QQVGA, 240x240, QVGA, CIF and VGA geometry and five-frame streaming. Dynamic framesize changes while frames are streaming, IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open."
     ]
   },
   "cache_path": "platform/.cache/firmware/atoms3r-cam/uiflow2.bin"

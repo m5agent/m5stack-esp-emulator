@@ -20,6 +20,10 @@ of `0112`.
 `0116-atomu-board.patch` adds the classic-ESP32 `m5atomu` board (K117; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The SPM1423 PDM microphone is served by the SoC-level ESP32 I2S0 PDM RX model and IR G12 is not wired; the board reuses the classic Atom board glue. `0117-atomecho-board.patch` adds the classic-ESP32 `m5atomecho` board (C008-C; ESP32-PICO-D4, single SK6812 on GPIO27, user button GPIO39, Grove on G26/G32, no display/PSRAM). The C008-C audio path is the registerless NS4168 I2S amplifier on the M5Unified classic ESP32 speaker port (I2S1: BCK G19 / WS G33 / DATA G22) plus the SPM1423 PDM microphone on I2S0 (CLK G33 / DATA G23); there is no on-board I2C codec and IR G12 is not wired. Both controllers are provided by the SoC-level I2S models.
 `0117`'s base is the `0116` layer (native-lock + `0110`/`0111`/`0112` + `0113`/`0114`/`0116`); `git apply --check` was verified against that exact tree state and the patch contains only the Atom Echo board/machine layer.
 `0119-unit-i2c-batch2.patch` adds the first B-class external Unit I2C transaction models (`dlight`, `accel`, `4relay`, `weight-i2c`) on the native-only order ending at `0116`; it does not require `0115`, and `0117`/`0118` are unrelated parallel layers. It registers no guest PASS and does not upgrade any runtime profile.
+`0118-camera-geometry-stream.patch` closes the AtomS3R-CAM non-QVGA and
+multi-frame boundaries left by `0115`. Its base is the `0116` layer; the patch
+was also verified with `git apply --check` on the parallel `0117` (Atom Echo)
+and `0119` (B-class Unit) layer states and on their combination.
 `0113` adds the classic-ESP32 `m5basic` board (ILI9342C 320x240, A/B/C
 GPIO39/38/37, shared G21/G22 I2C bus with the first IP5306 register model at
 0x75, I2S0 DAC speaker on GPIO25, no PSRAM) and the `m5.ip5306` I2C slave; the
@@ -1108,3 +1112,24 @@ waveform; see
 The DVP frame geometry is board-fixed QVGA and does not track GC0308
 window/subsample registers; non-QVGA frame sizes, physical optics and
 electrical SCCB timing stay outside this patch.
+
+`0118-camera-geometry-stream.patch` makes the AtomS3R-CAM DVP geometry follow
+the GC0308 configuration instead of the fixed board QVGA. esp32-camera's
+`set_framesize()` in `CONFIG_GC_SENSOR_SUBSAMPLE_MODE` encodes the output size
+in GC0308 page 0 window registers 0x09/0x0a (height + 8) and 0x0b/0x0c
+(width + 8) plus page 1 subsample registers 0x54/0x56-0x59. The sensor model
+decodes the eight esp32-camera subsample configurations with an exact integer
+inverse and publishes the result to the bound LCD_CAM device, which latches it
+at `CAM_START` so a partially written register set cannot change a running
+frame. The synthetic scene also advances one white-grid row per frame; frame
+seed 0 keeps the original pattern and digests, while consecutive frames stay
+distinct for streaming through the existing QOM `auto-increment` counter. The
+AtomS3R-CAM board binds its GC0308 device to LCD_CAM; other boards keep their
+fixed geometry. Guest evidence: QQVGA 160x120, 240x240, QVGA 320x240, CIF
+400x296 and VGA 640x480 frames (38,400/115,200/153,600/236,800/614,400 bytes)
+each match the host-reconstructed deterministic DVP waveform, and five
+consecutive QVGA captures have distinct digests that each match a
+reconstructed scene frame; see
+[evidence](../../docs/evidence/2026-11-02-atoms3r-cam-geometry/README.md).
+Dynamic framesize changes while streaming, sizes above VGA, physical optics
+and electrical DVP/SCCB timing stay outside this patch.

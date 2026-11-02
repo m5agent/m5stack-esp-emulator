@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-02T17:55:31.451669+08:00",
+  "out_dir": "/tmp/cam-regress",
+  "results": {
+    "cores3-camera": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/py312/bin/python",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/tests/uiflow2/cores3_camera",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "3.0",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/cam-regress/cores3-camera",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:p",
+        "--qom-set-boot",
+        "/machine/m5-lcd-cam",
+        "auto-increment",
+        "true",
+        "--serial-expect",
+        "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        "--serial-expect",
+        "CORES3_CAMERA_FRAMESTREAM PASS 1",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/cam-regress/cores3-camera",
+      "before": "/tmp/cam-regress/cores3-camera/before.png",
+      "after": "/tmp/cam-regress/cores3-camera/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_change",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_stream",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_CAMERA_PASS 320x240 153600 bytes, CORES3_CAMERA_FRAMESTREAM PASS 1\n",
+      "reason": "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, camera.snapshot(), and camera image display all pass."
+    },
+    "stackchan-camera": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/py312/bin/python",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/tests/uiflow2/cores3_camera",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-camera/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/cam-regress/stackchan-camera",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--serial-expect",
+        "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/cam-regress/stackchan-camera",
+      "before": "/tmp/cam-regress/stackchan-camera/before.png",
+      "after": "/tmp/cam-regress/stackchan-camera/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "stackchan_camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_CAMERA_PASS 320x240 153600 bytes\n",
+      "reason": "StackChan GC0308 SCCB, ESP32-S3 LCD_CAM, GDMA frame delivery, snapshot and camera image display all pass."
+    }
+  }
+}

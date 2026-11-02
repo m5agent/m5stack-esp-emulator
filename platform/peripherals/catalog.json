@@ -743,10 +743,11 @@
       "injection": [
         "qom-frame"
       ],
-      "data_plane": "ESP32-S3 LCD_CAM + GDMA RGB565 frame chunks; M5SW_CAMERA_FRAME file injection",
+      "data_plane": "ESP32-S3 LCD_CAM + GDMA RGB565 frame chunks; the DVP frame geometry follows the GC0308 window (0x09-0x0c) and subsample (page 1 0x54/0x56-0x59) registers with an exact integer inverse; M5SW_CAMERA_FRAME file injection",
       "tested_devices": [
         "cores3",
-        "stackchan"
+        "stackchan",
+        "atoms3r-cam"
       ]
     },
     "lp5562": {
@@ -3285,7 +3286,7 @@
         },
         {
           "model": "gc0308",
-          "reason": "Virtual-device camera path passed: official camera.init()/capture() produced a 320x240 RGB565 frame whose digest matches the deterministic LCD_CAM DVP waveform. Only the default QVGA geometry, a single capture, and not the GC0308 window/subsample registers are covered; physical optics and electrical timing are NOT RUN."
+          "reason": "Virtual-device camera path passed for QQVGA, 240x240, QVGA, CIF and VGA geometry (frame sha256 matches the reconstructed LCD_CAM DVP waveform) and for a five-frame QOM-driven stream (distinct digests, no torn frames). Dynamic framesize changes while streaming and physical optics/electrical timing are NOT RUN."
         }
       ]
     },

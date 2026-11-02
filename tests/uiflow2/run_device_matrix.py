@@ -200,6 +200,24 @@ def build_console_image(device: dict, device_out: Path,
     return image
 
 
+def _apply_console_qom_sets(qmp, sets: list) -> dict[str, object]:
+    """Apply QOM writes through the console QMP channel.
+
+    Console cases can request a runtime controller transition once a guest
+    serial marker proves the pre-transition phase finished (for example the
+    LCD_CAM frame-counter animation only starts after the static frame
+    digest was captured).  The guest observes the change through the modelled
+    controller state, never through injected frame data.
+    """
+    applied: dict[str, object] = {}
+    for spec in sets:
+        path, prop, value = spec
+        qmp.cmd("qom-set", path=path, property=prop, value=value)
+        reply = qmp.cmd("qom-get", path=path, property=prop)
+        applied[f"{path}.{prop}"] = reply.get("return")
+    return applied
+
+
 def _check_console_qom(device: dict, qmp, deadline: float
                        ) -> tuple[bool, dict, str]:
     """Read QOM values from a live console QEMU after the serial markers.
@@ -330,8 +348,9 @@ def run_console(
     inputs = device.get("input") or []
     if isinstance(inputs, str):
         inputs = [inputs]
+    qom_markers = device.get("qom_set_on_marker") or []
     qmp_path = None
-    if inputs:
+    if inputs or qom_markers:
         qmp_path = Path("/tmp") / f"m5-console-{os.getpid()}-{device['id']}.sock"
         try:
             qmp_path.unlink()
@@ -350,18 +369,35 @@ def run_console(
     qmp = None
     qom_detail = None
     qom_error = None
+    qom_transitions: dict[str, object] = {}
+    qom_markers_pending = [
+        (spec["marker"], list(spec.get("set") or [])) for spec in qom_markers
+    ]
     injected = not inputs
     try:
         while time.time() < deadline:
             text = serial.read_text(errors="replace") if serial.exists() else ""
+            for entry in list(qom_markers_pending):
+                marker, sets = entry
+                if marker not in text:
+                    continue
+                from run_profile_ui_test import wait_qmp
+
+                if qmp is None:
+                    qmp = wait_qmp(
+                        qmp_path, timeout=max(1.0, deadline - time.time())
+                    )
+                qom_transitions.update(_apply_console_qom_sets(qmp, sets))
+                qom_markers_pending.remove(entry)
             if not injected:
                 pre_marker = device.get("pre_input_marker")
                 if pre_marker is None or pre_marker in text:
                     from run_profile_ui_test import send_input, wait_qmp
 
-                    qmp = wait_qmp(
-                        qmp_path, timeout=max(1.0, deadline - time.time())
-                    )
+                    if qmp is None:
+                        qmp = wait_qmp(
+                            qmp_path, timeout=max(1.0, deadline - time.time())
+                        )
                     # Let the guest enter its event loop before the first
                     # injected key event; the readiness marker is printed
                     # immediately before the loop starts.
@@ -409,6 +445,14 @@ def run_console(
     missing = [marker for marker in expected if marker not in text]
     if matched and qom_error is not None:
         missing.append("QOM validation: " + qom_error)
+    if matched and qom_markers_pending:
+        missing.append(
+            "QOM transition markers not reached: "
+            + json.dumps([marker for marker, _ in qom_markers_pending])
+        )
+    if matched and qom_transitions:
+        qom_detail = dict(qom_detail or {})
+        qom_detail.update(qom_transitions)
     pcm_detail = None
     if matched and pcm and pcm_capture:
         pcm_command = [
