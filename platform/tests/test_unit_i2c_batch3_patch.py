@@ -6,6 +6,7 @@ keep the documented address conflicts and protocol-unresolved items visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -64,15 +65,25 @@ class UnitI2cBatch3PatchTests(unittest.TestCase):
         for field in ("direction", "pwm-duty-pct", "pwm-frequency-hz"):
             self.assertIn(field, self.units["hbridge"]["runtime"]["properties"])
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
+        hosts = {"ncir2": "atoms3r", "extio2": "sticks3", "hbridge": "cores3"}
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            # Evidence upgrades runtime admission, but the catalog deliberately
+            # stays "partial": physical/optical/electrical behavior and
+            # unlisted-host combinations remain NOT RUN.
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], [hosts[unit_id]], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            self.assertIn("0123-unit-i2c-batch3.patch", evidence["patches"], unit_id)
             self.assertNotEqual(entry["model_status"], "simulated", unit_id)
 
     def test_patch_has_no_guest_claim_and_numbering_is_documented(self):

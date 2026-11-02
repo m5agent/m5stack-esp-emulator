@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T19:18:26.688610+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "hbridge",
+  "driver_class": "HbridgeUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_register_roundtrip": true,
+    "guest_adc8_tracks_fixture": true,
+    "guest_adc16_tracks_fixture": true,
+    "guest_vin_current_tracks_fixture": true,
+    "final_direction_and_pwm": true,
+    "spec_identity": true,
+    "qom_fixtures_exact": true,
+    "qom_motor_state": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "14c99d35d49f848aafb3535d8bd16f503cee073f168100f756e7d4e93e2a29d1",
+  "firmware_id": "14c99d35d49f848aafb3535d8bd16f503cee073f168100f756e7d4e93e2a29d1",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "c4f7be39aeb413fb3c4a7d6afe936474fd21da89c288d831cad5148731292cbf",
+    "main.py": "8af5421f10821787927dd86b327038a108e248058b3ec091ccfc2c9cc32b223f"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "95e5f75fd77c49f9b490c6c4f3946357",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "hbridge",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "hbridge": {
+      "sample": [
+        "1",
+        "32767",
+        "500",
+        "128",
+        "2048",
+        "1.5"
+      ],
+      "final": [
+        "2",
+        "128"
+      ],
+      "spec": [
+        "1",
+        "32"
+      ],
+      "expected_adc8": 128,
+      "expected_adc16": 2048,
+      "qom": {
+        "adc-mv": 1650,
+        "vin-current-a": 1.5,
+        "direction": 2,
+        "pwm-duty-pct": 50.19607843137255,
+        "pwm-frequency-hz": 500,
+        "transactions": 104,
+        "output-transitions": 23
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T19:18:29.192756+08:00",
+      "properties": {
+        "transactions": 38,
+        "read-bytes": 24,
+        "written-bytes": 28,
+        "input-events": 2,
+        "output-transitions": 9,
+        "adc-mv": 1650,
+        "vin-current-a": 1.5,
+        "direction": 1,
+        "pwm-duty-pct": 49.999237048905165,
+        "pwm-frequency-hz": 500
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:29.192756+08:00",
+      "properties": {
+        "transactions": 38,
+        "read-bytes": 24,
+        "written-bytes": 28,
+        "input-events": 2,
+        "output-transitions": 9,
+        "adc-mv": 1650,
+        "vin-current-a": 1.5,
+        "direction": 1,
+        "pwm-duty-pct": 49.999237048905165,
+        "pwm-frequency-hz": 500
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:30.735997+08:00",
+      "properties": {
+        "transactions": 104,
+        "read-bytes": 64,
+        "written-bytes": 78,
+        "input-events": 2,
+        "output-transitions": 23,
+        "adc-mv": 1650,
+        "vin-current-a": 1.5,
+        "direction": 2,
+        "pwm-duty-pct": 50.19607843137255,
+        "pwm-frequency-hz": 500
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "CCLASS_PROBE_READY",
+    "config": " please initialize it first\r\nCCLASS_PROBE_SCAN ['0x20']\nCCLASS_PROBE_READY hbridge\nI2C_HBRIDGE 1 32767 500 0 0 0.0\nI2C_HBRIDGE 1 32767 500 0 0 0.0\nI2C_HBRIDGE 1 32767 500 128 2048 1.5\nI2C_HBRIDGE 1 32767 500 128 2048 1.5\nI2C_HBRIDGE 1 32767 500 128 2048 1.5\nI2C_HBRIDGE_FINAL 2 128\nI2C_HBRIDGE_SPEC 1 32\nI2C_HBRIDGE_END\n"
+  },
+  "frame": {
+    "sha256": "303093917e171ab08e459308fe866d0226551301e0850bbe78177c3be8b61f23",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "6a4b19ed8ccf0bb329f47d026fa83a04def876e6ceffa766cdf1ea2e97c70d50",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Motor torque, current draw, direction/brake timing, RZ7899 dead-time and protection behavior are NOT RUN.",
+    "The product has no independent I2C protocol PDF; registers follow the executable official driver only.",
+    "0x30 VIN current exists only on v1.1 hardware; the U160 v1.0 read semantics are UNRESOLVED (this run used the fixture path, not a physical current measurement).",
+    "Address/identity were verified at the default 0x20; address-change semantics are model-checked but not needed for this evidence."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

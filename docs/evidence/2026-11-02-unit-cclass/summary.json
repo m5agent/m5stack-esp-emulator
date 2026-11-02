@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "First C-class external Unit batch through isolated /api/v1 Device Service sessions; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu": {
+    "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+    "source_tree": ".work/native-lock-source/qemu",
+    "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 (evidence snapshot d660c8d)",
+    "patches": [
+      "0120-unit-i2c-dlight-command-mask.patch",
+      "0121-m5stick-board.patch",
+      "0122-atoms3r-m12-board.patch",
+      "0123-unit-i2c-batch3.patch"
+    ]
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "atoms3r": {
+      "path": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "sticks3": {
+      "path": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "ncir2",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "NCIR2Unit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "83a95f35d8bf21f4b46c3ac910f46393eb441b9ef700690225939feb1cc9b51d",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+      "session_id": "40c25071cb53488b892150f726da75a2",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_temperature_tracks_fixture": true,
+        "negative_temperature_encoded": true,
+        "int16_encode_limit_saturates": true,
+        "qom_fixture_exact": true,
+        "emissivity_roundtrip": true,
+        "thresholds_roundtrip": true,
+        "alarm_led_roundtrip": true,
+        "buzzer_roundtrip": true,
+        "rgb_led_roundtrip": true,
+        "rgb_led_qom_observed": true,
+        "buzzer_on_qom_observed": true,
+        "spec_identity": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-cclass/report-ncir2.json",
+      "report_sha256": "211943e78c7a003ef92aeb88d2e67e9de091c4422ad8ec113f6e376f0dc233ce",
+      "evidence_zip_sha256": "eafd4905e76abf8e9a215914b0b528d1b0b8c56c51f98c5ea3091ecb3b70e149",
+      "frame_sha256": "c5795726cd6808b436d8488715da06a3a5df726be71a2b05209f568c575e2eb6",
+      "observations": {
+        "ncir2": {
+          "normal": {
+            "temperature": 25.5,
+            "chip": 30.25,
+            "emissivity": 1.0,
+            "pressed": 1
+          },
+          "saturated": {
+            "temperature": 327.67,
+            "chip": 30.25,
+            "emissivity": 1.0,
+            "pressed": 1
+          },
+          "negative": {
+            "temperature": -20.5,
+            "chip": 30.25,
+            "emissivity": 1.0,
+            "pressed": 1
+          },
+          "emissivity": "0.5",
+          "thresholds": [
+            "5.0",
+            "40.0"
+          ],
+          "alarm_rgb": [
+            17,
+            34,
+            51
+          ],
+          "buzzer": [
+            "2000",
+            "50",
+            "1"
+          ],
+          "rgb": [
+            10,
+            11,
+            12
+          ],
+          "spec": [
+            "1",
+            "90"
+          ],
+          "saturation_boundary": "signed int16 x0.01 encode limit is +327.67C; the product-page 380C range is unresolved and NOT claimed",
+          "qom": {
+            "object-c": -20.5,
+            "chip-c": 30.25,
+            "button-pressed": true,
+            "rgb-led": 658188,
+            "buzzer-on": true,
+            "transactions": 88,
+            "written-bytes": 60
+          }
+        }
+      },
+      "boundaries": [
+        "Infrared optics, field of view, emissivity physics and temperature accuracy are NOT RUN.",
+        "The STM32 alarm state machine (threshold-triggered RGB/buzzer/save behavior) is NOT modeled; only register readback is exercised.",
+        "Default address 0x5A collides with the registered ncir (MLX90614) unit; this evidence used a dedicated host/session and cannot be combined with ncir on one bus.",
+        "The driver reads 0x00 as signed int16 x0.01, so the encode limit is +327.67C. Injecting the product-page 380C saturates to 327.67C; the top-range encoding policy remains UNRESOLVED and 380C correctness is not claimed."
+      ]
+    },
+    {
+      "unit_id": "extio2",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "EXTIO2Unit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "f014fb9b53cc5c1079f0c612c592a1efef6274c92d146a037081dabc7c9d4c78",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+      "session_id": "c09fbb7f4f9346cdbbd0f017b9b6d76c",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_modes_roundtrip": true,
+        "guest_inputs_track_fixture": true,
+        "guest_adc8_tracks_fixture": true,
+        "guest_adc12_tracks_fixture": true,
+        "servo_roundtrip": true,
+        "rgb_roundtrip": true,
+        "fw_and_address": true,
+        "qom_output_registers": true,
+        "qom_fixtures_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-cclass/report-extio2.json",
+      "report_sha256": "3f980704e4a3f288ad37fa6abe51d795470fecebad6df2c1576c5a2720c48ccf",
+      "evidence_zip_sha256": "3de46e81b362b40979e89506b0945e3cf7d9142f6185b181b813a4bf05aafef5",
+      "frame_sha256": "bcb813a825fad91c880d0a8ed9d20f840fb4e2bb05d1db1950a87ba32326fcda",
+      "observations": {
+        "extio2": {
+          "modes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            0,
+            1,
+            2
+          ],
+          "inputs": [
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "adc8": [
+            8,
+            39,
+            77,
+            116,
+            155,
+            193,
+            232,
+            255
+          ],
+          "adc12": [
+            124,
+            620,
+            1241,
+            1861,
+            2482,
+            3102,
+            3723,
+            4095
+          ],
+          "servo": [
+            "90",
+            "1500"
+          ],
+          "rgb": [
+            "1122867",
+            "4478310"
+          ],
+          "fw": [
+            "7",
+            "69"
+          ],
+          "expected_adc8": [
+            8,
+            39,
+            77,
+            116,
+            155,
+            193,
+            232,
+            255
+          ],
+          "expected_adc12": [
+            124,
+            620,
+            1241,
+            1861,
+            2482,
+            3102,
+            3723,
+            4095
+          ],
+          "qom": {
+            "modes": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              0,
+              1,
+              2
+            ],
+            "output-levels": [
+              true,
+              true,
+              false,
+              false,
+              false,
+              true,
+              true,
+              false
+            ],
+            "servo-angles": [
+              0,
+              0,
+              0,
+              90,
+              0,
+              0,
+              0,
+              0
+            ],
+            "servo-pulses": [
+              0,
+              0,
+              0,
+              0,
+              1500,
+              0,
+              0,
+              0
+            ],
+            "rgb-leds": [
+              0,
+              0,
+              1122867,
+              0,
+              0,
+              0,
+              0,
+              4478310
+            ],
+            "fw-version": 7,
+            "transactions": 373,
+            "written-bytes": 207
+          }
+        }
+      },
+      "boundaries": [
+        "Electrical levels, NeoPixel optical output, servo motion and ADC accuracy are NOT RUN; the injected adc-mv fixture is mapped inside the model to 8/12-bit bytes, not a calibrated measurement.",
+        "Protocol v1/v3 PDFs remain unread; ADC full-scale/reference voltage, servo angle/pulse units and the chip-internal RGB byte order are UNRESOLVED.",
+        "The frozen firmware driver version is unresolved (master adds 0x90/0xA0 PWM registers); this session exercises the shared v1 register bank only.",
+        "ST IAP/upgrade mode is not modeled."
+      ]
+    },
+    {
+      "unit_id": "hbridge",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "HbridgeUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "14c99d35d49f848aafb3535d8bd16f503cee073f168100f756e7d4e93e2a29d1",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+      "session_id": "95e5f75fd77c49f9b490c6c4f3946357",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_register_roundtrip": true,
+        "guest_adc8_tracks_fixture": true,
+        "guest_adc16_tracks_fixture": true,
+        "guest_vin_current_tracks_fixture": true,
+        "final_direction_and_pwm": true,
+        "spec_identity": true,
+        "qom_fixtures_exact": true,
+        "qom_motor_state": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-cclass/report-hbridge.json",
+      "report_sha256": "de8d159c74844c02570dce1620b07eecf01b6d05fc0c6ff358b8d6fd21c21c14",
+      "evidence_zip_sha256": "6a4b19ed8ccf0bb329f47d026fa83a04def876e6ceffa766cdf1ea2e97c70d50",
+      "frame_sha256": "303093917e171ab08e459308fe866d0226551301e0850bbe78177c3be8b61f23",
+      "observations": {
+        "hbridge": {
+          "sample": [
+            "1",
+            "32767",
+            "500",
+            "128",
+            "2048",
+            "1.5"
+          ],
+          "final": [
+            "2",
+            "128"
+          ],
+          "spec": [
+            "1",
+            "32"
+          ],
+          "expected_adc8": 128,
+          "expected_adc16": 2048,
+          "qom": {
+            "adc-mv": 1650,
+            "vin-current-a": 1.5,
+            "direction": 2,
+            "pwm-duty-pct": 50.19607843137255,
+            "pwm-frequency-hz": 500,
+            "transactions": 104,
+            "output-transitions": 23
+          }
+        }
+      },
+      "boundaries": [
+        "Motor torque, current draw, direction/brake timing, RZ7899 dead-time and protection behavior are NOT RUN.",
+        "The product has no independent I2C protocol PDF; registers follow the executable official driver only.",
+        "0x30 VIN current exists only on v1.1 hardware; the U160 v1.0 read semantics are UNRESOLVED (this run used the fixture path, not a physical current measurement).",
+        "Address/identity were verified at the default 0x20; address-change semantics are model-checked but not needed for this evidence."
+      ]
+    }
+  ]
+}
