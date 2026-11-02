@@ -6501,6 +6501,175 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "env-iv": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 双从机 attach：新增 US_SHT4X（0x44，命令字节 + 6 字节 T/RH 或序列号帧，每 2 字节后 CRC8 poly 0x31）+ 复用 US_BMP280（0x76，仅暴露 pressure-pa）；模型返回 spec-correct 帧。未采集 guest/Device Service 证据 → planned。**快照 driver/sht4x.py 的 getter 缺 measure() 调用（self.measure[0/1]）→ 实现/测试必须锚定 master 修正版或打补丁**；0x44 与已登记 env-iii 冲突、0x76 与 bps/env 冲突（一总线一个）；ENVUnit 必须显式 type=4；产品页 EOL；SHT40 精度/自热 NOT RUN。",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "serial-number": {
+          "property": "serial-number"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "co2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0131 新增 US_SCD40（0x62）：2 字节 BE 命令 + 每 2 字节数据后 CRC8(poly 0x31, init 0xFF) 词协议；实现 0x21B1/0x3F86/0x21AC 周期测量、0xE4B8 就绪、0xEC05 测量（9B）、0x241D/0x2318 温度偏移、0x2427/0x2322 海拔、0xE000 压力、0x3682 序列号、0x3646/0x3632 复位、0x219D/0x2196 单次测量等；测量值由 fixture 编码。未采集 guest/Device Service 证据 → planned。**SCD40（页面/驱动）vs SCD41（官方 I2C 总表）芯片冲突 unresolved；快照 asyncio 实现 vs master 同步重写是两套 API，必须钉一个 SHA；两份驱动的温度解码都从 buf[1] 而不是 buf[4] 取值（既有驱动 bug）→ guest read_temperature 不可断言，只有 CO2/湿度可断言；5s 测量周期/CRC/精度 NOT RUN。**",
+      "inputs": {
+        "co2-ppm": {
+          "property": "co2-ppm"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        }
+      },
+      "state": {
+        "co2-ppm": {
+          "property": "co2-ppm"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        },
+        "serial-number": {
+          "property": "serial-number"
+        },
+        "measurement-reads": {
+          "property": "measurement-reads"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "pbhub": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0131 新增 CONTROL_PBHUB（0x61）：**官方驱动始终访问单一 hub 地址 0x61，把 channel_base|offset 作为寄存器字节传入**，所以 6 通道（base 0x40/0x50/0x60/0x70/0x80/0xA0，offset 0x00..0x0B）在同一个 256 字节命令空间内，不是 6 个独立总线地址（研究草稿的\"7-address hub\" 说法已按驱动修正）。数字/模拟/RGB/servo/brightness 写入更新每通道 QOM；0xFA RGB mode 与 0xFF 地址迁移按 master 驱动（wire RGB 为 GRB）；读回 fixture 输入。未采集 guest/Device Service 证据 → planned。**MCU 身份三方冲突（页面 MEGA328 vs 规格 STM32F030F4P6 vs 官方 I2C 总表 MEGA328）unresolved；RGB 字节序快照大端 vs master GRB 已按 master 实现并须写 SHA；通道命令地址与 encoder/scroll/nfc/acssr/dac/env-iii 等已登记地址重叠，只在 hub 命令空间内部暴露；hub 不支持嵌套；PWM/servo/RGB 电气与 10-bit ADC 校准 NOT RUN。**",
+      "inputs": {
+        "digital-inputs": {
+          "property": "digital-inputs"
+        },
+        "analog-inputs": {
+          "property": "analog-inputs"
+        }
+      },
+      "state": {
+        "digital-inputs": {
+          "property": "digital-inputs"
+        },
+        "analog-inputs": {
+          "property": "analog-inputs"
+        },
+        "digital-outputs": {
+          "property": "digital-outputs"
+        },
+        "pwm-outputs": {
+          "property": "pwm-outputs"
+        },
+        "rgb-frames": {
+          "property": "rgb-frames"
+        },
+        "rgb-mode": {
+          "property": "rgb-mode"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "ultrasonic-io": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0131 新增 GPIO id 'ultrasonic-io'：黄线 pad observer 观测 guest 触发（上升沿计数、下降沿启动回波），按 distance-mm 生成pulse_us=distance_mm*582/100 的白线高脉冲；越界距离不生成回波，让 guest 收到真实超时而非伪造值。未采集 guest/Device Service 证据 → planned。**页面 PinMap 把 PORT.A 标成 SDA/SCL，但描述与驱动都是 GPIO trigger/echo → 标签冲突 unresolved；MicroPython time_pulse_us 的高电平超时语义需在实现/测试时逐项对齐（本模型只覆盖有回波/无回波两条路径）；RCWL-9620 >3.5m 延迟、50ms 周期、温度补偿与±2% 精度、40kHz 声学 NOT RUN。**",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "echo-pulse-us": {
+          "property": "echo-pulse-us"
+        },
+        "trigger-count": {
+          "property": "trigger-count"
+        },
+        "timeouts": {
+          "property": "timeouts"
+        },
+        "echo-level": {
+          "property": "echo-level"
+        },
+        "input-events": {
+          "property": "input-events"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
