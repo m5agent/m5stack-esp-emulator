@@ -905,3 +905,31 @@ RMT 30 灯帧、UART TX 捕获；这些仍需 guest 证据。
 
 **计数**：catalog 94 → **100**、runtime-profiles 94 → 100；visual mapping audit
 6 条 + `all-100-products`；计数测试与 snapshot 已同步。
+
+## 12. 剩余 6 款实现状态（补丁 0142，2026-11-02）
+
+batch6 剩余 6 款（`unit-id`/`thermal2`/`qrcode`/`uwb`/`dmx`/`finger`）已由
+[`0142-unit-batch6b.patch`](../../patches/qemu-m5stack-peripherals/0142-unit-batch6b.patch)
+接入 QEMU 数据面。**base 是 22 层 canonical 链 `94b6298`**（canonical `75f1d24`
++ `0120…0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132` →
+`0137` → `0138` → `0139` → `0140` → `0141`），实现 commit `eb4ce0c`。**尚未采集
+guest/Device Service 证据**，catalog 6 条与 runtime-profiles 6 条保持 `planned`；
+离线 QOM smoke（S3 board、无 guest 固件）15/15 PASS，不构成功能 PASS。
+
+| Unit | 0142 模型 | QOM fixtures/观测 | 显式 blocker/unresolved |
+| --- | --- | --- | --- |
+| `unit-id` U124 (0x35) | `US_ATECC608B`：0x03 命令帧解析、CRC16(poly 0x8005) 响应帧；INFO revision/serial、RANDOM、SHA、GEN_KEY、SIGN、NONCE 返回**固定非秘密测试向量** | revision、transactions、i2c-address | **真实 ECDSA/AES-GCM/Trust&GO 证书链/key slot 锁定/权限/10Kb EEPROM NOT RUN；wake-to-address-0/idle/sleep 未建模；仓库与 QEMU 不含任何真实私钥/证书；0x35 无已登记冲突** |
+| `thermal2` U149 (0x32) | `US_THERMAL2`：按键/报警/设备信息/功能/刷新/阈值/蜂鸣器/RGB 寄存器、中位/平均/差分温度、768×2B 温度数组（raw=temp*128+8192，驱动解码） | median-c、average-c、differential-c、button-pressed、alarm-status、refresh-rate、fw-version、i2c-address | **页面 0x33 vs 协议表/驱动 0x32 二义 unresolved（0x33 与已登记 thermal 冲突，只实现 0x32）；热成像光学/精度/刷新/报警状态机 NOT RUN；ESP32 内部缓存语义不建模** |
+| `qrcode` U173 (0x21) | `US_QRCODE`：2 字节小端地址窗口、状态/长度/触发模式/按键/固件/地址寄存器、0x1000–0x11FF QR 数据窗口 | data-status、trigger-mode、button-pressed、fw-version、i2c-address | **摄像头/扫码光学/补光/瞄准/解码 NOT RUN；I2C/UART 侧开关物理互斥、只实现 I2C 侧；UART 命令帧未在该 attachment 建模；0x21 无已登记冲突** |
+| `uwb` U100 (UART) | GPIO id：UART 捕获 + idle-time fixture 应答器（不解析 AT/UWB 语义） | responses-hex、tx-hex、frames-sent/injected | **UWB 3.5–6.5GHz RF/天线/多径/10cm 精度/基站网络 NOT RUN；页面明确不支持自定义数据传输；AT/固件响应格式需钉 SHA；PORT.C 端口冲突** |
+| `dmx` U183 (UART) | GPIO id：仅 UART 字节观测/注入（cdriver.esp_dmx C 模块不可执行，不解析 DMX 帧） | responses-hex、tx-hex、frames-sent/injected | **DMX512/RS485 差分总线/5kVrms 隔离/XLR-3/120Ω/250kbps 时序 NOT RUN；C 模块帧格式/中断不可见；master/slave 互斥未区分；PORT.C 端口冲突** |
+| `finger` U008 (UART) | GPIO id：UART 捕获 + idle-time fixture 应答器（不解析 0xF5/XOR 帧语义） | responses-hex、tx-hex、frames-sent/injected | **指纹采集/匹配/安全等级/150 用户/193B 特征/防伪 NOT RUN；版本门 B1.10.00/B1.07.00 需 fixture 满足；XOR/ACK 语义未解码；PORT.C 端口冲突** |
+
+离线 QOM smoke（S3 `m5atoms3r`，无 guest）15 项 PASS：unit-id 2（默认/只读拒绝）、
+thermal2 3（默认/fixture/范围拒绝）、qrcode 4（默认/触发模式/状态/非法状态拒绝）、
+uwb 2、dmx 2、finger 2（默认/响应 fixture）。smoke **不**覆盖 I2C send/recv 字节
+语义（ATECC 命令/CRC、Thermal2 数组、QRCode 地址窗口）、UART 应答器 idle 时序；
+这些仍需 guest 证据。
+
+**计数**：catalog 100 → **106**、runtime-profiles 100 → 106；visual mapping audit
+6 条 + `all-106-products`；计数测试与 snapshot 已同步。

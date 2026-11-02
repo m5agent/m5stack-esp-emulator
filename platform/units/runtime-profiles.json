@@ -8940,6 +8940,198 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "unit-id": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 US_ATECC608B（0x35）：0x03 命令帧 + CRC16(0x8005) 响应帧；INFO revision/serial、RANDOM、SHA、GEN_KEY、SIGN、NONCE 返回固定非秘密测试向量。未采集 guest/Device Service 证据 → planned。**真实 ECDSA/AES-GCM/Trust&GO 证书链/key slot 锁定/权限/10Kb EEPROM NOT RUN；wake-to-address-0/idle/sleep 未建模（需 guest 证据）；仓库与 QEMU 不含任何真实私钥/证书；0x35 无已登记冲突**",
+      "inputs": {
+        "revision": {
+          "property": "revision"
+        },
+        "serial-hex": {
+          "property": "serial-hex"
+        }
+      },
+      "state": {
+        "revision": {
+          "property": "revision"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "thermal2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 US_THERMAL2（0x32）：按键/报警/设备信息/功能/刷新/阈值/蜂鸣器/RGB 寄存器、中位/平均/差分温度、768×2B 温度数组（raw=temp*128+8192）。未采集 guest/Device Service 证据 → planned。**页面 0x33 vs 协议表/驱动 0x32 二义 unresolved（0x33 与 thermal 冲突，只实现 0x32）；热成像光学/精度/刷新/报警状态机 NOT RUN；ESP32 内部缓存语义不建模**",
+      "inputs": {
+        "median-c": {
+          "property": "median-c"
+        },
+        "average-c": {
+          "property": "average-c"
+        },
+        "differential-c": {
+          "property": "differential-c"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "alarm-status": {
+          "property": "alarm-status"
+        },
+        "refresh-rate": {
+          "property": "refresh-rate"
+        }
+      },
+      "state": {
+        "median-c": {
+          "property": "median-c"
+        },
+        "average-c": {
+          "property": "average-c"
+        },
+        "differential-c": {
+          "property": "differential-c"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "alarm-status": {
+          "property": "alarm-status"
+        },
+        "refresh-rate": {
+          "property": "refresh-rate"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "qrcode": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 US_QRCODE（0x21）：2 字节小端地址窗口 + 状态/长度/触发模式/按键/固件/地址寄存器 + 0x1000–0x11FF QR 数据窗口。未采集 guest/Device Service 证据 → planned。**摄像头/扫码光学/补光/瞄准/解码 NOT RUN；I2C/UART 侧开关物理互斥、只实现 I2C 侧；UART 命令帧未在该 attachment 建模；0x21 无已登记冲突**",
+      "inputs": {
+        "data-status": {
+          "property": "data-status"
+        },
+        "trigger-mode": {
+          "property": "trigger-mode"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        }
+      },
+      "state": {
+        "data-status": {
+          "property": "data-status"
+        },
+        "trigger-mode": {
+          "property": "trigger-mode"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "uwb": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 GPIO id 'uwb'：UART 捕获 + idle-time fixture 应答器，不解析 AT/UWB 语义。未采集 guest/Device Service 证据 → planned。**UWB 3.5–6.5GHz RF/天线/多径/10cm 精度/基站网络 NOT RUN；页面明确不支持自定义数据传输；固件/AT 响应格式需钉 SHA；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "dmx": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 GPIO id 'dmx'：仅 UART 字节观测/注入（C 模块 esp_dmx 不可执行），不解析 DMX 帧。未采集 guest/Device Service 证据 → planned。**DMX512/RS485 差分总线/5kVrms 隔离/XLR-3/120Ω/250kbps 时序 NOT RUN；cdriver C 模块帧格式/中断不可见；master/slave 互斥未区分；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "finger": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0142 新增 GPIO id 'finger'：UART 捕获 + idle-time fixture 应答器，不解析 0xF5/XOR 帧语义。未采集 guest/Device Service 证据 → planned。**指纹采集/匹配/安全等级/150 用户/193B 特征/防伪 NOT RUN；版本门 B1.10.00/B1.07.00 需 fixture 满足；XOR/ACK 语义未解码；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
