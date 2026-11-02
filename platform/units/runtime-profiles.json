@@ -4973,9 +4973,11 @@
       }
     },
     "dlight": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU BH1750 transaction model exists in 0119 (single-byte command machine, MTreg sensitivity bytes, conversion window, fixture-to-raw) but no guest/Device Service evidence is recorded, so admission stays planned. The power-on default MTreg, datasheet timing and datasheet register semantics remain unresolved; physical lux/optics are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen BH1750 driver on AtomS3R: constructor command path, conversion-window sampling and get_lux() tracking the illuminance-lx fixture within 1 lx (400.0 -> 400.0, 1000.0 -> 999.9999). Only this host/firmware combination is admitted; photometric/optical accuracy, power-on MTreg, datasheet timing and the product-page 1..65535 lx encoding consistency remain unresolved or NOT RUN.",
       "inputs": {
         "illuminance-lx": {
           "property": "illuminance-lx"
@@ -5000,12 +5002,33 @@
         "illuminance-lx": {
           "property": "illuminance-lx"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-bclass/report-dlight.json",
+        "report_sha256": "c345ba6c46267d4281f360b5bc10bee3487b66ed84e63ee8a9b15926808ab292",
+        "evidence_sha256": "550ee7620914b1b9e378653b8468f648d55d9773ddeaf4743ffb0ff476d729de",
+        "firmware_sha256": "065e78388ad76891b6531a6fb60987941b1e79de0250b4b3b7fb553c44d34b29",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "ad743ed53a6577887bd667fdd653bf69336f52cdc4d09ede8713342fef8648fc",
+        "patches": [
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "accel": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU ADXL345 register-pointer model exists in 0119 (POWER_CTL/DATA_FORMAT, six data bytes derived from g fixtures, read-to-clear INT_SOURCE) but no guest/Device Service evidence is recorded, so admission stays planned. DEVID is deliberately reserved because the executable driver never reads it and no datasheet value is claimed; physical acceleration/mechanics are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen ADXL345 driver on StickS3: POWER_CTL/register init writes, six-byte little-endian data read and get_accel() matching fixture-derived raw x0.004x9.80665 m/s2 exactly for x=1.0g, y=-0.5g, z=2.0g. Only this host/firmware combination is admitted; DEVID stays reserved/unresolved, DATA_FORMAT range-vs-LSB scaling and physical acceleration/mechanics remain NOT RUN.",
       "inputs": {
         "accel-x-g": {
           "property": "accel-x-g"
@@ -5048,12 +5071,33 @@
         "int-source": {
           "property": "int-source"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-bclass/report-accel.json",
+        "report_sha256": "9be7fe128eca1b94623b683c9b1eb558c691c8978ea512de505bc7602523e565",
+        "evidence_sha256": "653e0308279adb884c9be4b65f696c646f64e9f1a2b1c7df78fae4cdf61d2ffb",
+        "firmware_sha256": "d2cb64dbfd326a42e6e7d1deb50be078f2570a40fdc6396e1cb560aa03945b16",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "796205097e98ca88cebd7f07e8368146d86044d150296d052973307d4f1b632a",
+        "patches": [
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "4relay": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU U097 register model exists in 0119 (0x10 mode, 0x11 relay+LED read-modify-write, per-channel QOM levels in the official driver bit order) but no guest/Device Service evidence is recorded, so admission stays planned. The product-page reverse bit order is a documented conflict; relay contacts, load capability, timing and electrical isolation are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen U097 driver on CoreS3: 0x10 mode round-trip, per-channel relay/LED read-modify-write, set_relay_all(1) writing 0xff (relays and LEDs all on) and readable QOM relay-*/led-*-level mirroring guest readback. Only this host/firmware combination is admitted; relay contacts/load/timing/isolation are NOT RUN and the product-page reverse bit order remains a documented conflict (driver order implemented).",
       "inputs": {},
       "state": {
         "transactions": {
@@ -5098,12 +5142,33 @@
         "mode": {
           "property": "mode"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-bclass/report-4relay.json",
+        "report_sha256": "e822f317e705f0b9f51471a304ccaa9ecc1b9be3896df9285970f88029bbb6a0",
+        "evidence_sha256": "b3481ce71d1e7bcf230aa321869d5f46cda93889c031e62047ba230cd9ceb28b",
+        "firmware_sha256": "1260ac5ff187692d310cace26ae746e046ced6423d0a16ef3e9d54bf3f5ffc76",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "596baa092ebdf7f935fe7e871c042a8362068cee30d6894030b411c86469f8a6",
+        "patches": [
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "weight-i2c": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU U180 register model exists in 0119 (0x00 ADC, 0x10 float weight, 0x60 int weight*100, 0x70 ASCII, writable calibration/filter registers, 0xFE version, 0xFF address) but no guest/Device Service evidence is recorded, so admission stays planned. Default address 0x26 conflicts with 4relay on one bus; the 0x60 driver-version semantics and calibration application remain unresolved; load-cell mechanics are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "stopwatch"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen U180 driver on StopWatch: 0x00 ADC, 0x10 float grams, 0x60 int weight (driver /100), 0x70 ASCII string, 0xFE/0xFF spec and calibration/filter command writes all observed for weight-g=12.34/adc-raw=1234567. Only this dedicated host/firmware session is admitted and it cannot be combined with 4relay on 0x26; load-cell mechanics, calibration application and the 0x60 semantic-version difference remain NOT RUN/unresolved.",
       "inputs": {
         "weight-g": {
           "property": "weight-g"
@@ -5140,6 +5205,25 @@
         "weight-fw": {
           "property": "weight-fw"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-bclass/report-weight-i2c.json",
+        "report_sha256": "4217693518d5e096153c96c0dd292e9dcbf3bf650578a3e153e869d2542d2957",
+        "evidence_sha256": "dceb95b40565e5da774b43eec91de59e15084ca394f0ea12b272781e91e3f6c8",
+        "firmware_sha256": "5a372bce31c6a4ab41381402b72840e58fb4ef1e8585a63be0d20c7a2030f9fa",
+        "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+        "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "09e9a65e8a46b9e4fbbc5d2d1f9282eb85be26e3cd6e63f48a23de08cd381806",
+        "patches": [
+          "0119-unit-i2c-batch2.patch",
+          "0120-unit-i2c-dlight-command-mask.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     }
   },

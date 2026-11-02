@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T18:30:45.123484+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "accel",
+  "driver_class": "AccelUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_accel_matches_raw_conversion": true,
+    "qom_fixture_exact": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "d2cb64dbfd326a42e6e7d1deb50be078f2570a40fdc6396e1cb560aa03945b16",
+  "firmware_id": "d2cb64dbfd326a42e6e7d1deb50be078f2570a40fdc6396e1cb560aa03945b16",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "cd3c3d09b7054cc298458b92431c2f09f550c529a736075a7afdbb5bf95d8716",
+    "main.py": "16c55e49ed1b3b61492be06b30108e00631b267d21a44a004e419b3db04a7e8a"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "1500ee0beeee48cc935b8420c234a313",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "accel",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "accel": {
+      "fixtures": {
+        "accel-x-g": 1.0,
+        "accel-y-g": -0.5,
+        "accel-z-g": 2.0
+      },
+      "expected_m_s2": [
+        9.80665,
+        -4.903325,
+        19.6133
+      ],
+      "observed_m_s2": [
+        9.80665,
+        -4.903325,
+        19.6133
+      ],
+      "qom": {
+        "transactions": 7,
+        "read-bytes": 12,
+        "written-bytes": 6,
+        "input-events": 3,
+        "output-transitions": 0,
+        "accel-x-g": 1,
+        "accel-y-g": -0.5,
+        "accel-z-g": 2,
+        "int-source": 0
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T18:30:46.991074+08:00",
+      "properties": {
+        "transactions": 5,
+        "read-bytes": 6,
+        "written-bytes": 5,
+        "input-events": 3,
+        "output-transitions": 0,
+        "accel-x-g": 1,
+        "accel-y-g": -0.5,
+        "accel-z-g": 2,
+        "int-source": 0
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:47.297282+08:00",
+      "properties": {
+        "transactions": 7,
+        "read-bytes": 12,
+        "written-bytes": 6,
+        "input-events": 3,
+        "output-transitions": 0,
+        "accel-x-g": 1,
+        "accel-y-g": -0.5,
+        "accel-z-g": 2,
+        "int-source": 0
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "I2C_PROBE_READY"
+  },
+  "frame": {
+    "sha256": "de8924cfab3eb6e4f3de4bba426d6fea676615307b261fc2b09020d09610fb17",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "653e0308279adb884c9be4b65f696c646f64e9f1a2b1c7df78fae4cdf61d2ffb",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Physical acceleration, orientation, range accuracy and mechanical events are NOT RUN.",
+    "DEVID(0x00) is unresolved and the model keeps reserved read-back 0xff; the driver never reads it and no datasheet value is guessed.",
+    "DATA_FORMAT range bits are stored only; full-resolution LSB scaling versus range and tap/motion/free-fall detector semantics are not modeled beyond register/INT_SOURCE read-clear bytes."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

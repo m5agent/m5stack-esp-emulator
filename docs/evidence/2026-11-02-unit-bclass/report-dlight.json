@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T18:30:42.435341+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "dlight",
+  "driver_class": "DLightUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_lux_tracks_fixture": true,
+    "qom_fixture_exact": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "065e78388ad76891b6531a6fb60987941b1e79de0250b4b3b7fb553c44d34b29",
+  "firmware_id": "065e78388ad76891b6531a6fb60987941b1e79de0250b4b3b7fb553c44d34b29",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "99542054653c6f082a464d98717ef5e64d2e3d50684210617145006672622b01",
+    "main.py": "16c55e49ed1b3b61492be06b30108e00631b267d21a44a004e419b3db04a7e8a"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "7fb1b36c27494b799482fabf673688b9",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "dlight",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "dlight": {
+      "samples": [
+        {
+          "fixture": 400.0,
+          "guest_lux": 400.0,
+          "serial_tail": "please initialize it first\r\nI2C_PROBE_START dlight\nE (1462) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x23']\nI2C_PROBE_READY dlight\nI2C_DLIGHT_LOOP\nI2C_DLIGHT_LUX 400.0\n"
+        },
+        {
+          "fixture": 1000.0,
+          "guest_lux": 999.9999,
+          "serial_tail": "st\r\nI2C_PROBE_START dlight\nE (1462) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x23']\nI2C_PROBE_READY dlight\nI2C_DLIGHT_LOOP\nI2C_DLIGHT_LUX 400.0\nI2C_DLIGHT_LUX 999.9999\n"
+        }
+      ],
+      "qom": {
+        "transactions": 4,
+        "read-bytes": 4,
+        "written-bytes": 1,
+        "input-events": 1,
+        "output-transitions": 0,
+        "illuminance-lx": 1000
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T18:30:44.593876+08:00",
+      "properties": {
+        "transactions": 3,
+        "read-bytes": 2,
+        "written-bytes": 1,
+        "input-events": 0,
+        "output-transitions": 0,
+        "illuminance-lx": 400
+      }
+    },
+    {
+      "at": "2026-11-02T18:30:44.909559+08:00",
+      "properties": {
+        "transactions": 4,
+        "read-bytes": 4,
+        "written-bytes": 1,
+        "input-events": 1,
+        "output-transitions": 0,
+        "illuminance-lx": 1000
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "I2C_PROBE_READY"
+  },
+  "frame": {
+    "sha256": "0d4675ba8bf7c85375f11ca47877f7e4fe7bf3ecfdf14fd4bbdee167e4747131",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "550ee7620914b1b9e378653b8468f648d55d9773ddeaf4743ffb0ff476d729de",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Photometric/optical behavior, sensitivity calibration and lux accuracy are NOT RUN.",
+    "Power-on default MTreg and datasheet timing/conversion values remain unresolved; the driver-derived MTreg 69/sensitivity 1.0 default is a model policy.",
+    "The product page claims 1..65535 lx while the executable conversion raw=lux*1.2 can only encode a subset at sensitivity 1.0; top-range consistency remains unresolved."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

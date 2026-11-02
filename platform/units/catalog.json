@@ -6107,9 +6107,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "illuminance-lx": {
@@ -6145,16 +6145,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local command/response slave model"
       },
-      "blocker": "0119 adds a QEMU BH1750 transaction-level slave (single-byte commands, MTreg sensitivity, conversion window, fixture illuminance converted only inside the model to the two-byte big-endian raw the driver reads), but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. Power-on default MTreg, datasheet timing and photometric/optical behavior remain unresolved or NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen BH1750 driver on AtomS3R: constructor command path, conversion-window sampling and get_lux() tracking the illuminance-lx fixture within 1 lx (400.0 -> 400.0, 1000.0 -> 999.9999). Only this host/firmware combination is admitted; photometric/optical accuracy, power-on MTreg, datasheet timing and the product-page 1..65535 lx encoding consistency remain unresolved or NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "0119 models I2C command/response transactions only; no host-side lux return path exists and no guest evidence has been recorded.",
-        "A QOM illuminance-lx fixture is converted inside the model; it is not a photometric measurement."
+        "A QOM illuminance-lx fixture is converted inside the model; it is not a photometric measurement.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-bclass/report-dlight.json for atoms3r only; it used the 0120 QEMU fix on top of 0119. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "accel",
       "name": "Accel",
@@ -6350,9 +6352,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "accel-x-g": {
@@ -6403,16 +6405,18 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local register-pointer slave model"
       },
-      "blocker": "0119 adds a QEMU ADXL345 register-pointer slave (POWER_CTL/DATA_FORMAT stores, six fixture-derived data bytes, read-to-clear INT_SOURCE) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. DEVID(0x00) is UNRESOLVED and modeled as reserved read-back 0xff because the executable driver never reads it; no datasheet value is guessed. Physical acceleration, orientation and mechanics are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen ADXL345 driver on StickS3: POWER_CTL/register init writes, six-byte little-endian data read and get_accel() matching fixture-derived raw x0.004x9.80665 m/s2 exactly for x=1.0g, y=-0.5g, z=2.0g. Only this host/firmware combination is admitted; DEVID stays reserved/unresolved, DATA_FORMAT range-vs-LSB scaling and physical acceleration/mechanics remain NOT RUN.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "0119 models registers/transactions only; acceleration and motion remain fixture inputs and are not physical measurements.",
-        "The int-source fixture is a synthetic interrupt bitmask, not an event model of the activity/tap/free-fall detectors."
+        "The int-source fixture is a synthetic interrupt bitmask, not an event model of the activity/tap/free-fall detectors.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-bclass/report-accel.json for sticks3 only; it used the 0120 QEMU fix on top of 0119. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "4relay",
       "name": "4Relay",
@@ -6591,9 +6595,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "relay-1-level": {
@@ -6669,7 +6673,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model"
       },
-      "blocker": "0119 adds a QEMU U097 register slave (0x10 mode, 0x11 relay+LED register with read-modify-write readback and per-channel QOM levels in the official driver bit order RELAY1=bit0/LED1=bit4) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The product-page Protocol table (RELAY1=bit3/LED1=bit7) is the reverse and remains a documented conflict in favour of both official executable drivers. Relay contacts, load capability, switching timing and electrical isolation are NOT RUN. Default address 0x26 conflicts with weight-i2c.",
+      "blocker": "Guest/Device Service evidence covers the frozen U097 driver on CoreS3: 0x10 mode round-trip, per-channel relay/LED read-modify-write, set_relay_all(1) writing 0xff (relays and LEDs all on) and readable QOM relay-*/led-*-level mirroring guest readback. Only this host/firmware combination is admitted; relay contacts/load/timing/isolation are NOT RUN and the product-page reverse bit order remains a documented conflict (driver order implemented).",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
@@ -6677,9 +6681,11 @@
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "0119 implements the driver-compatible bit order; the product-page bit table is the documented opposite and must not be mixed.",
         "Per-channel QOM levels mirror guest writes to 0x11; they are not contact closures, load ratings or electrical isolation evidence.",
-        "Default address 0x26 is shared with weight-i2c and the two Units cannot coexist on one I2C bus."
+        "Default address 0x26 is shared with weight-i2c and the two Units cannot coexist on one I2C bus.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-bclass/report-4relay.json for cores3 only; it used the 0120 QEMU fix on top of 0119. Hardware and unlisted hosts remain NOT RUN."
       ]
-    },
+    }
+,
     {
       "id": "weight-i2c",
       "name": "Weight-I2C",
@@ -6868,9 +6874,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "weight-g": {
@@ -6916,7 +6922,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local register-file slave model; float/int/string weight readings derived from one weight fixture"
       },
-      "blocker": "0119 adds a minimal QEMU U180 register slave (0x00 u32 ADC, 0x10 f32 grams, 0x60 int32 weight*100, 0x70 ASCII string, writable 0x40/0x50/0x80/0x81/0x82 calibration/filter registers, 0xFE firmware, 0xFF address) but no guest/Device Service evidence is recorded yet, so runtime admission stays planned. The 0x60 semantic version and 0x40/0x50 calibration application remain unresolved (the model stores calibration writes without deriving weight from them). Default address 0x26 conflicts with 4relay on one bus; load-cell mechanics/electrical behaviour are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen U180 driver on StopWatch: 0x00 ADC, 0x10 float grams, 0x60 int weight (driver /100), 0x70 ASCII string, 0xFE/0xFF spec and calibration/filter command writes all observed for weight-g=12.34/adc-raw=1234567. Only this dedicated host/firmware session is admitted and it cannot be combined with 4relay on 0x26; load-cell mechanics, calibration application and the 0x60 semantic-version difference remain NOT RUN/unresolved.",
       "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
       "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
       "limitations": [
@@ -6925,9 +6931,11 @@
         "0x60 is modeled with the executable master driver's weight*100 encoding; the protocol-PDF/driver version difference is unresolved.",
         "0x40 gap and 0x50 offset writes are stored but not applied to the fixture weight; calibration math is NOT RUN.",
         "0x70 string format is synthetic (\"%.3f\") and does not establish the firmware's display formatting.",
-        "Default address 0x26 is shared with 4relay and the two Units cannot coexist on one I2C bus."
+        "Default address 0x26 is shared with 4relay and the two Units cannot coexist on one I2C bus.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-bclass/report-weight-i2c.json for stopwatch only; it used the 0120 QEMU fix on top of 0119. Hardware and unlisted hosts remain NOT RUN."
       ]
     }
+
   ],
   "model_status_values": [
     "planned",

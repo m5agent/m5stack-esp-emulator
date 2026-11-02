@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "First B-class external Unit batch through isolated /api/v1 Device Service sessions; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu": {
+    "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+    "source_tree": ".work/native-lock-source/qemu",
+    "source_commit": "75f1d24 (canonical native layer 0109 + 0110..0119)",
+    "patches": [
+      "0119-unit-i2c-batch2.patch",
+      "0120-unit-i2c-dlight-command-mask.patch"
+    ],
+    "fix_note": "0119 had a BH1750 command-mask bug (data&0xe0 vs 0xf0) that NACKed the driver constructor; 0120 fixes it. All B-class evidence used the 0120 binary."
+  },
+  "firmware_cache": {
+    "stopwatch": {
+      "path": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d"
+    },
+    "sticks3": {
+      "path": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+    },
+    "atoms3r": {
+      "path": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "dlight",
+      "device_id": "atoms3r",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "DLightUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "065e78388ad76891b6531a6fb60987941b1e79de0250b4b3b7fb553c44d34b29",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+      "session_id": "7fb1b36c27494b799482fabf673688b9",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_lux_tracks_fixture": true,
+        "qom_fixture_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-bclass/report-dlight.json",
+      "report_sha256": "c345ba6c46267d4281f360b5bc10bee3487b66ed84e63ee8a9b15926808ab292",
+      "evidence_zip_sha256": "550ee7620914b1b9e378653b8468f648d55d9773ddeaf4743ffb0ff476d729de",
+      "frame_sha256": "0d4675ba8bf7c85375f11ca47877f7e4fe7bf3ecfdf14fd4bbdee167e4747131",
+      "observations": {
+        "dlight": {
+          "samples": [
+            {
+              "fixture": 400.0,
+              "guest_lux": 400.0,
+              "serial_tail": "please initialize it first\r\nI2C_PROBE_START dlight\nE (1462) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x23']\nI2C_PROBE_READY dlight\nI2C_DLIGHT_LOOP\nI2C_DLIGHT_LUX 400.0\n"
+            },
+            {
+              "fixture": 1000.0,
+              "guest_lux": 999.9999,
+              "serial_tail": "st\r\nI2C_PROBE_START dlight\nE (1462) i2c.master: this port has not been initialized, please initialize it first\r\nI2C_PROBE_SCAN ['0x23']\nI2C_PROBE_READY dlight\nI2C_DLIGHT_LOOP\nI2C_DLIGHT_LUX 400.0\nI2C_DLIGHT_LUX 999.9999\n"
+            }
+          ],
+          "qom": {
+            "transactions": 4,
+            "read-bytes": 4,
+            "written-bytes": 1,
+            "input-events": 1,
+            "output-transitions": 0,
+            "illuminance-lx": 1000
+          }
+        }
+      },
+      "boundaries": [
+        "Photometric/optical behavior, sensitivity calibration and lux accuracy are NOT RUN.",
+        "Power-on default MTreg and datasheet timing/conversion values remain unresolved; the driver-derived MTreg 69/sensitivity 1.0 default is a model policy.",
+        "The product page claims 1..65535 lx while the executable conversion raw=lux*1.2 can only encode a subset at sensitivity 1.0; top-range consistency remains unresolved."
+      ]
+    },
+    {
+      "unit_id": "accel",
+      "device_id": "sticks3",
+      "port": {
+        "id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        }
+      },
+      "status": "PASS",
+      "driver_class": "AccelUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "d2cb64dbfd326a42e6e7d1deb50be078f2570a40fdc6396e1cb560aa03945b16",
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+      "session_id": "1500ee0beeee48cc935b8420c234a313",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_accel_matches_raw_conversion": true,
+        "qom_fixture_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-bclass/report-accel.json",
+      "report_sha256": "9be7fe128eca1b94623b683c9b1eb558c691c8978ea512de505bc7602523e565",
+      "evidence_zip_sha256": "653e0308279adb884c9be4b65f696c646f64e9f1a2b1c7df78fae4cdf61d2ffb",
+      "frame_sha256": "de8924cfab3eb6e4f3de4bba426d6fea676615307b261fc2b09020d09610fb17",
+      "observations": {
+        "accel": {
+          "fixtures": {
+            "accel-x-g": 1.0,
+            "accel-y-g": -0.5,
+            "accel-z-g": 2.0
+          },
+          "expected_m_s2": [
+            9.80665,
+            -4.903325,
+            19.6133
+          ],
+          "observed_m_s2": [
+            9.80665,
+            -4.903325,
+            19.6133
+          ],
+          "qom": {
+            "transactions": 7,
+            "read-bytes": 12,
+            "written-bytes": 6,
+            "input-events": 3,
+            "output-transitions": 0,
+            "accel-x-g": 1,
+            "accel-y-g": -0.5,
+            "accel-z-g": 2,
+            "int-source": 0
+          }
+        }
+      },
+      "boundaries": [
+        "Physical acceleration, orientation, range accuracy and mechanical events are NOT RUN.",
+        "DEVID(0x00) is unresolved and the model keeps reserved read-back 0xff; the driver never reads it and no datasheet value is guessed.",
+        "DATA_FORMAT range bits are stored only; full-resolution LSB scaling versus range and tap/motion/free-fall detector semantics are not modeled beyond register/INT_SOURCE read-clear bytes."
+      ]
+    },
+    {
+      "unit_id": "4relay",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "Relay4Unit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "1260ac5ff187692d310cace26ae746e046ced6423d0a16ef3e9d54bf3f5ffc76",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+      "session_id": "78d80e1497f84bf298176f014f3f5049",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "stage_qom_follows_guest_writes": true,
+        "mode_register_roundtrip": true,
+        "relay_all_also_lights_leds": true,
+        "guest_readback_matches_qom": true,
+        "output_transitions_observed": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-bclass/report-4relay.json",
+      "report_sha256": "e822f317e705f0b9f51471a304ccaa9ecc1b9be3896df9285970f88029bbb6a0",
+      "evidence_zip_sha256": "b3481ce71d1e7bcf230aa321869d5f46cda93889c031e62047ba230cd9ceb28b",
+      "frame_sha256": "cd181c61cdd6413a67b29e7cd3bbbb43f2e789b474a3b4f265d833e1c73d54dd",
+      "observations": {
+        "4relay": {
+          "stages": {
+            "mode1": {
+              "mode": 1,
+              "relay-1-level": false,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": false,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "relay1_on": {
+              "mode": 0,
+              "relay-1-level": true,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": false,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "led1_on": {
+              "mode": 0,
+              "relay-1-level": true,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": true,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "relay1_off": {
+              "mode": 0,
+              "relay-1-level": false,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": true,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "led1_off": {
+              "mode": 0,
+              "relay-1-level": false,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": false,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "relay_all_on": {
+              "mode": 0,
+              "relay-1-level": true,
+              "relay-2-level": true,
+              "relay-3-level": true,
+              "relay-4-level": true,
+              "led-1-level": true,
+              "led-2-level": true,
+              "led-3-level": true,
+              "led-4-level": true
+            },
+            "relay_all_off": {
+              "mode": 0,
+              "relay-1-level": false,
+              "relay-2-level": false,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": false,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            },
+            "relay2_on": {
+              "mode": 0,
+              "relay-1-level": false,
+              "relay-2-level": true,
+              "relay-3-level": false,
+              "relay-4-level": false,
+              "led-1-level": false,
+              "led-2-level": false,
+              "led-3-level": false,
+              "led-4-level": false
+            }
+          },
+          "guest": {
+            "mode0": [
+              "0"
+            ],
+            "mode1": [
+              "1"
+            ],
+            "all_on": {
+              "relays": [
+                true,
+                true,
+                true,
+                true
+              ],
+              "leds": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "all_off": {
+              "relays": [
+                false,
+                false,
+                false,
+                false
+              ],
+              "leds": [
+                false,
+                false,
+                false,
+                false
+              ]
+            },
+            "final": {
+              "relays": [
+                false,
+                true,
+                false,
+                false
+              ],
+              "leds": [
+                false,
+                false,
+                false,
+                false
+              ]
+            }
+          },
+          "qom_final": {
+            "relays": [
+              false,
+              true,
+              false,
+              false
+            ],
+            "leds": [
+              false,
+              false,
+              false,
+              false
+            ]
+          }
+        }
+      },
+      "boundaries": [
+        "Relay contacts, load capability, switching timing, isolation and AC/DC behavior are NOT RUN.",
+        "The official product-page Protocol table lists the reverse bit order (RELAY1=bit3/LED1=bit7); both official executable drivers and this model use RELAY1=bit0/LED1=bit4. The conflict must not be mixed.",
+        "The Python driver's set_relay_all(1) writes 0xff and also lights all LEDs; that observed side effect is preserved, not a hardware conclusion."
+      ]
+    },
+    {
+      "unit_id": "weight-i2c",
+      "device_id": "stopwatch",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        }
+      },
+      "status": "PASS",
+      "driver_class": "WeightI2CUnit",
+      "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+      "firmware_sha256": "5a372bce31c6a4ab41381402b72840e58fb4ef1e8585a63be0d20c7a2030f9fa",
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "runtime_binary_sha256": "e6f529fb7b925bc63877d124892b5af2a5a66fdcf10b180fedcc7c4b14b9b990",
+      "session_id": "3a022424ecac44c7803191596103f001",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "qom_fixture_exact": true,
+        "guest_adc_exact": true,
+        "guest_float_tracks_weight": true,
+        "guest_int_consistent_with_x100": true,
+        "guest_string_consistent": true,
+        "calibration_command_writes_observed": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-bclass/report-weight-i2c.json",
+      "report_sha256": "4217693518d5e096153c96c0dd292e9dcbf3bf650578a3e153e869d2542d2957",
+      "evidence_zip_sha256": "dceb95b40565e5da774b43eec91de59e15084ca394f0ea12b272781e91e3f6c8",
+      "frame_sha256": "02f1330e3508d7edb946d816b068a606d92c41117401cbc97427fe5a8f27a5cf",
+      "observations": {
+        "weight_i2c": {
+          "fixtures": {
+            "weight-g": 12.34,
+            "adc-raw": 1234567
+          },
+          "observed": {
+            "adc": 1234567,
+            "weight": 12.34,
+            "int": 12,
+            "text": "'12.340'"
+          },
+          "qom_after_calibration": {
+            "written-bytes": 50,
+            "read-bytes": 229
+          },
+          "calibration_readback": [
+            "1",
+            "10",
+            "20"
+          ],
+          "device_spec": "3 38",
+          "int_semantics": "divided-int",
+          "string_parsed": 12.34
+        }
+      },
+      "boundaries": [
+        "Load-cell mechanics, HX711 timing, calibration math, temperature drift and physical weighing are NOT RUN.",
+        "0x40 gap and 0x50 offset writes are stored but not applied to the fixture weight; calibration behavior is NOT RUN.",
+        "0x60 semantic version (snapshot raw integer vs master /100) remains unresolved; the frozen driver here divided by 100 (observed int != raw x100 encoding).",
+        "Default 0x26 conflicts with 4relay; this evidence used a dedicated StopWatch session and cannot be combined with 4relay on one bus."
+      ]
+    }
+  ]
+}
