@@ -14,8 +14,9 @@ ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0152-unit-batch10ab.patch"
 MODELED = ("dcssr", "puzzle", "dof6", "dof9", "dof10", "asr")
 PLANNED_ONLY = ("ina226-1a", "roller485", "roller485-lite", "rollercan-lite",
-                 "byteswitch", "bytebutton", "step16", "timerpwr", "mq",
                  "8servos2-chain", "cat1-cn", "chainbus")
+# byteswitch/bytebutton/step16/timerpwr/mq got register-file models in 0157;
+# their modeled planned contract is pinned by test_unit_batch12a_patch.py.
 UNITS = MODELED + PLANNED_ONLY
 
 

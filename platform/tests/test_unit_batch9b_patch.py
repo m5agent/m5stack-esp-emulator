@@ -13,7 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0151-unit-batch9b.patch"
 UART_IMPLEMENTED = ("lorawan-as923", "lorawan-eu868", "audioplayer", "fingerprint2")
-PLANNED_ONLY = ("cardkb2", "8servos2-i2c", "bmm350", "ina226-10a", "rollercan")
+PLANNED_ONLY = ("bmm350", "ina226-10a", "rollercan")
+# cardkb2/8servos2-i2c got register-file models in 0157; their modeled
+# planned contract is pinned by test_unit_batch12a_patch.py.
 UNITS = UART_IMPLEMENTED + PLANNED_ONLY
 
 
@@ -97,7 +99,7 @@ class UnitBatch9bPatchTests(unittest.TestCase):
         self.assertEqual(self.units["rollercan"]["interface"]["address_7bit"], [0x64])
         self.assertEqual(self.units["8servos2-i2c"]["interface"]["address_7bit"],
                          list(range(0x25, 0x35)))
-        self.assertEqual(self.units["cardkb2"]["interface"]["address_7bit"], [])
+        self.assertEqual(self.units["cardkb2"]["interface"]["address_7bit"], [0x5f])
 
     def test_visual_mappings_cover_all_nine(self):
         mappings = (ROOT / "platform/web/unit-visual-mappings.js").read_text(encoding="utf-8")
