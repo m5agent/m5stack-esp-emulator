@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-8 twelve Units through isolated /api/v1 Device Service sessions on one QEMU build (canonical 32-layer chain through 0151 + 0152 LCD evidence fix); not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8801,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 and the 8799 service untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "single": {
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 32 layers through 0151 + 0153-unit-batch8-evidence-lcd-read",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0124-stickt2-board.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0131-unit-batch3c.patch",
+        "0134-unit-batch4ab.patch",
+        "0136-unit-batch4c.patch",
+        "0130-unit-batch3ab.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0135-unit-batch3ab-fixes.patch",
+        "0132-unit-batch3c-fixes.patch",
+        "0137-unit-batch5a.patch",
+        "0138-unit-batch4-evidence-fixes.patch",
+        "0139-unit-batch5b.patch",
+        "0140-unit-batch6a.patch",
+        "0141-unit-batch5-evidence-fixes.patch",
+        "0142-unit-batch6b.patch",
+        "0143-unit-batch7a.patch",
+        "0144-unit-batch6-evidence-fixes.patch",
+        "0145-unit-batch7b.patch",
+        "0146-unit-batch8a.patch",
+        "0147-unit-batch6b-evidence-fixes.patch",
+        "0148-unit-batch8b.patch",
+        "0149-unit-batch9a.patch",
+        "0150-unit-batch7-evidence-fixes.patch",
+        "0151-unit-batch9b.patch",
+        "0153-unit-batch8-evidence-lcd-read.patch"
+      ]
+    }
+  },
+  "units": [
+    {
+      "unit_id": "pahub-v21",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-pahub-v21.json",
+      "report_sha256": "4253faad72a6313f7583f34c56f963868aad3546ae820b9534dd83d1265b89d8",
+      "evidence_sha256": "912ad92752fb0f06a5342a7059dc3db6114de4632298f27526e8f0871e7811cd",
+      "firmware_sha256": "cd760307527e7b67874e85e7f7eecd8a088f2c90b75633b2b851a7c88716393b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_masks": true,
+        "qom_channel_mask_0x20": true,
+        "qom_channel_writes": true,
+        "qom_dip_0x70": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "read0": "0",
+        "sel3": "8",
+        "sel5": "40",
+        "rel3": "32"
+      },
+      "blocker": "Guest PAHUBUnit on cores3 at 0x70 read/select/release produced masks 0/8/40/32; QOM channel-mask=0x20, channel-writes>=3, dip-address=0x70 and i2c-address=0x70. Downstream bus forwarding/nested hubs are NOT modeled; A0-A2 DIP electrical behavior, 8-vs-6 channel exposure and 0x70-0x77 conflicts with pahub/pahub-v20/env-iii remain explicit."
+    },
+    {
+      "unit_id": "gps-v11",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-gps-v11.json",
+      "report_sha256": "19d7931888370191c8bdb64a6142bbee37ec08e09aeabc148e3950f5343dcb3a",
+      "evidence_sha256": "5b782a08e62effe79a3caf6d1d3d1cee08f7e3bcfa7a083bee792cfefc6e587f",
+      "firmware_sha256": "a59ca3b200d9dc952f3d98658bb67a482c713fdb5f0af74a7cb7ad4fb40a724a",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_lat": true,
+        "guest_lon": true,
+        "guest_time_utc_plus_8": true,
+        "guest_date": true,
+        "guest_satellites_14": true,
+        "guest_altitude": true,
+        "guest_course_speed": true,
+        "qom_nmea_fixture": true,
+        "qom_baud_fixture": true,
+        "qom_injected": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "time": "10:44:23",
+        "date": "01/11/22",
+        "lat": [
+          "2242.10772N",
+          "22.701796"
+        ],
+        "lon": [
+          "11348.64472E",
+          "113.810744"
+        ],
+        "sat": "14",
+        "alt": "52.1",
+        "speed": [
+          "18.52",
+          "90.5"
+        ],
+        "baud_caveat": "Frozen unit/gps.py hard-codes 9600; the product page says 115200. The guest cannot expose the configured baud, so the 9600 host fixture is recorded and the page value stays UNRESOLVED/NOT validated."
+      },
+      "blocker": "Guest GPSUnit on cores3 decoded the injected NMEA fixture exactly: 2242.10772N/11348.64472E, time 10:44:23 (UTC+8), date 01/11/22, 14 satellites, altitude 52.1, course 90.5, 18.52 kph; QOM nmea-lines fixture and injected-lines observed. The frozen unit/gps.py hard-codes 9600 while the product page says 115200; the guest cannot expose the configured baud, so the 9600 fixture is recorded and the page value remains UNRESOLVED/NOT validated. GNSS RF/antenna/accuracy/cold-start are NOT RUN."
+    },
+    {
+      "unit_id": "gps-sma",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-gps-sma.json",
+      "report_sha256": "2a6f45e8b074940e950da32b69f9fa7e7e6762a7e1b89cc775a82658c53d5114",
+      "evidence_sha256": "73ef0eb32852a1aac8b46f06c18e2e135318025d04a101afc0ec7a25c03c3722",
+      "firmware_sha256": "fcb0d378b894b94f6aa1f1226238f7312bb57237de3adf38d3caa94a91e34350",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_lat": true,
+        "guest_lon": true,
+        "guest_time_utc_plus_8": true,
+        "guest_date": true,
+        "guest_satellites_14": true,
+        "guest_altitude": true,
+        "guest_course_speed": true,
+        "qom_nmea_fixture": true,
+        "qom_baud_fixture": true,
+        "qom_injected": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "time": "10:44:23",
+        "date": "01/11/22",
+        "lat": [
+          "2242.10772N",
+          "22.701796"
+        ],
+        "lon": [
+          "11348.64472E",
+          "113.810744"
+        ],
+        "sat": "14",
+        "alt": "52.1",
+        "speed": [
+          "18.52",
+          "90.5"
+        ],
+        "baud_caveat": "Frozen unit/gps.py hard-codes 9600; the product page says 115200. The guest cannot expose the configured baud, so the 9600 host fixture is recorded and the page value stays UNRESOLVED/NOT validated."
+      },
+      "blocker": "Guest GPSUnit on cores3 (shared AT6668 NMEA path) decoded the injected NMEA fixture exactly (lat/lon/time/date/satellites/altitude/course/speed) and QOM injected-lines observed. The 9600-driver vs 115200-page baud conflict remains UNRESOLVED and the external active SMA antenna/RF/accuracy are NOT RUN; results are not transferred between GPS v1.1 and GPS SMA."
+    },
+    {
+      "unit_id": "lcd",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-lcd.json",
+      "report_sha256": "726e1168f5525a415028317896e6c95c9055a987fc6480e1e6891890a56478fe",
+      "evidence_sha256": "cc0b4b6ac3fecc1e3f7cdcda081f4903c851d6eac63277598b5cb85058726722",
+      "firmware_sha256": "008017ac215e3dbaa6e5c196d20317a1567778fee244bf333afafa6b6611fab0",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_draw_calls": true,
+        "qom_commands": true,
+        "qom_pixels": true,
+        "qom_framebuffer_crc": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "last_cmd": "6a0a14273b02af"
+      },
+      "blocker": "Guest LCDUnit on cores3 initialised through the frozen composition driver with explicit address 0x3D (frozen reference driver default differs from the public-driver/model address; explicit address used and recorded), then fillScreen/fillRect produced QOM commands/pixels/framebuffer traffic. 0152 fixes the READ_ID/READ_BUFCOUNT read-after-command transaction (the 0146 model cleared the command buffer on write FINISH, so the frozen driver aborted with OSError). ST7789V2 optics/backlight/RGB666 and the internal ESP32-PICO firmware, plus the page 0x3E-vs-driver 0x3D ambiguity, are NOT RUN."
+    },
+    {
+      "unit_id": "mini-can",
+      "status": "BLOCKED",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-mini-can.json",
+      "report_sha256": "b5346cf0026899f8f2820d47f88d6983d83adfdf65d5a4296c3fa86252c95f78",
+      "evidence_sha256": "215e4b948e0589a05101d79f3b405b59a255f0e50c2b3efbcacda189b081927a",
+      "firmware_sha256": "60b00b833bc1083bb7803a962ca602aface822dc8e57b71457bca0ae9339e8c7",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {},
+      "blocker": "BLOCKED: the session was refused with 'QEMU Unit model/state contract is incomplete' because the Unit runtime has no CAN attachment/frame lane for m5can/TWAI (the catalog rx-frames/tx-frames contract does not match the batch-7 CAN client model properties). No CAN frame is fabricated or asserted; TJA1051 non-isolated electrical/termination/arbitration are NOT RUN."
+    },
+    {
+      "unit_id": "oled",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-oled.json",
+      "report_sha256": "0686a14e7b7878a4031a4699ca683f89ffc98c99c51aa45999599ff8fe3e2739",
+      "evidence_sha256": "712d5869359aa880afe1fcb012c4885757ad3bf1ae406bcc1c8e197f2a2470f8",
+      "firmware_sha256": "b4d0c4b1ce4517fca832351716f21d845d4df85dc37b23634eebc3da058e51a8",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_draw_calls": true,
+        "qom_controller": true,
+        "qom_commands": true,
+        "qom_data_bytes": true,
+        "qom_pixels": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "controller": "sh1107",
+        "commands": 126,
+        "data_bytes": 2144,
+        "pixels": 2144,
+        "fb_crc": 4021661486,
+        "last_cmd": ""
+      },
+      "blocker": "Guest OLEDUnit (SH1107 128x64) initialised through M5.addDisplay with explicit address 0x3D (the frozen reference-firmware driver defaults to 0x3C while the batch8 model follows the public-driver default 0x3D; explicit address recorded), then fillScreen/fillRect produced QOM commands/data-bytes/pixels/framebuffer traffic on the SH1107 command slave. Panel optics/luminance/lifetime and the 0x3C-vs-0x3D page/driver/three-display conflicts are NOT RUN."
+    },
+    {
+      "unit_id": "mini-oled",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-mini-oled.json",
+      "report_sha256": "11a5431e1de5d865cd72b5359295702f031e8620f50bbdbe47e2b09acd0da81a",
+      "evidence_sha256": "04fb8b786d0dce6a341b5e6bca746656ab8c6c57f400f40768a8d3569c9f9dcd",
+      "firmware_sha256": "1b0b579675823e93b4ecd24803d9cba338e2bc4cf3cfca08bd1a6e637ad21f8b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_draw_calls": true,
+        "qom_controller": true,
+        "qom_commands": true,
+        "qom_data_bytes": true,
+        "qom_pixels": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "controller": "ssd1315",
+        "commands": 28,
+        "data_bytes": 816,
+        "pixels": 816,
+        "fb_crc": 389760966,
+        "last_cmd": ""
+      },
+      "blocker": "Guest MiniOLEDUnit (SSD1315 72x40) initialised through M5.addDisplay with explicit address 0x3D (frozen driver default 0x3C vs model 0x3D; explicit address recorded) and produced QOM commands/data-bytes/pixels/framebuffer traffic. Small-panel optics and the 0x3C/0x3D conflicts are NOT RUN."
+    },
+    {
+      "unit_id": "glass2",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-glass2.json",
+      "report_sha256": "0f2dcee17d2160c9cb895c3299de9391b623dee9ea754d62a6d28d79d1796f37",
+      "evidence_sha256": "e89913109e7ea6fc5b1a429413bef396cdb7c7981beb36345a0249b8ce6a6280",
+      "firmware_sha256": "2ac35dac0a0082632ecc35552f0ca562eead27377c4552b986273973e48bae64",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_draw_calls": true,
+        "qom_controller": true,
+        "qom_commands": true,
+        "qom_data_bytes": true,
+        "qom_pixels": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "controller": "ssd1309",
+        "commands": 28,
+        "data_bytes": 2144,
+        "pixels": 2144,
+        "fb_crc": 4021661486,
+        "last_cmd": ""
+      },
+      "blocker": "Guest Glass2Unit (SSD1309 128x64) initialised through M5.addDisplay at its default 0x3C and produced QOM commands/data-bytes/pixels/framebuffer traffic. Transparent-panel optics/transmittance and the page description (default 0x3C/solderable 0x3D) vs comparison-table (fixed 0x3D) contradiction are NOT RUN."
+    },
+    {
+      "unit_id": "nbiot-cn",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-nbiot-cn.json",
+      "report_sha256": "a43fe85f363c10adb2e0fef43095aafc0ea5bb381b31ea5dbc618eda1313c4c5",
+      "evidence_sha256": "cc70580acb6ac8ac968dbc458f17585f87fd61413f7934843b3139b955d2a366",
+      "firmware_sha256": "e1880c59883ae8e7c7e78b4d77c43ad1d9a8f538e09d71f993f67644065a2375",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "qom_at_probe": true,
+        "qom_reset_or_cfun": true,
+        "qom_cgsn": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "tx_hex": "41540d0a41542b4352455345540d0a41540d0a41542b4346554e3d310d0a41542b4347534e0d0a"
+      },
+      "blocker": "Guest NBIOTUnit (SIM7020) constructor completed on cores3; QOM tx-hex captured AT/AT+CRESET/AT+CFUN=1/AT+CGSN bytes and frames-sent advanced, so only the AT byte layer is asserted. SIM7020C AT firmware/URC/attach ordering remains unresolved; NB-IoT RF/basestation/SIM/operator/TLS/MQTT and AT semantics are NOT RUN."
+    },
+    {
+      "unit_id": "lora-e220-920",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-lora-e220-920.json",
+      "report_sha256": "fcc06576574ef8d101513f97aaf2b58a62fb6394a8c26aea7dd7c23b287302e3",
+      "evidence_sha256": "c48e05a502475067903a8aa12c29c4287dbba088e4a1b405eef8521f73a8d652",
+      "firmware_sha256": "797c971a2575efc9085072b679afbd93531e42f4d4626f753e55f1901c59ee1a",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_setup_ok": true,
+        "guest_sent": true,
+        "qom_config_frame": true,
+        "qom_config_mirror": true,
+        "qom_send_frame": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "tx_hex": "c000081234702005c3abcd43210748454c4c4f",
+        "config_hex": "1234702005c3abcd"
+      },
+      "blocker": "Guest LoRaE220JPUnit setup() completed with the same-length 0xC0 echo and send() wrote the target header; QOM tx-hex contains the 0xC0 config frame and the 432107 send header, and config-hex mirrors the 8-byte configuration. The 920MHz register bits/RF/antenna/range/Telec certification are NOT RUN and the batch5 433 evidence is not transferable; the page states no baud (frozen driver 9600)."
+    },
+    {
+      "unit_id": "lorawan-us915",
+      "status": "BLOCKED",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-lorawan-us915.json",
+      "report_sha256": "a85602252ce89dabedd120d1fd0e21b73a69726b22e546f879982777a694044d",
+      "evidence_sha256": "f2ffbec2b8bde9c6c121789e0669976ab47b7c73f2528f3d8710a5f80d6054fe",
+      "firmware_sha256": "e0b0786755bcdcb375bc02decab820c0d0e36893f039adf3cbd2f2ae8d17d6b0",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_constructed": true,
+        "byte_layer_not_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "tx_hex": "",
+        "blocker": "The frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (driver/product mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete, but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN."
+      },
+      "blocker": "BLOCKED: the frozen unit/lorawan.py inherits driver.asr650x.LoRaWAN_470 while the product is STM32WLE5/RAK3172 (product/driver mismatch). The guest constructor and get_DevAddr/get_DevEui/get_AppEui calls complete but no AT bytes reach the attached Unit UART lane (tx-hex stays empty), so the byte layer cannot be asserted and no PASS is claimed. US915 join/OTAA/ABP/duty-cycle/FCC/RF are NOT RUN."
+    },
+    {
+      "unit_id": "mic",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch8/report-mic.json",
+      "report_sha256": "fb84c0a541038a7ac4687aa69e0004317c243aaa47e69e557668d69d09346421",
+      "evidence_sha256": "3369e550cd8f98f93e36b1643287724e077c8b4139a51e837805aacf0e620db7",
+      "firmware_sha256": "23e967478097eae95eecada7b8286b31e8c7d3490a1c446b9ade9f98a4939533",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_adc_path": true,
+        "guest_comparator": true,
+        "guest_read_uv_boundary": true,
+        "qom_analog_mv": true,
+        "qom_digital_level": true,
+        "qom_adc_samples": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "guest_raw": "33832",
+        "guest_uv": null,
+        "guest_level": "1",
+        "driver_gap_caveat": "U096 has no public Unit MIC driver: the guest path is machine.ADC on the white analog output plus machine.Pin on the yellow comparator. Acoustic response/threshold/SNR are NOT RUN and are not claimed."
+      },
+      "blocker": "Guest machine.ADC/machine.Pin path on cores3 (no public Unit MIC driver: explicit driver gap) read adc raw 33832 at the 1600mV analog-mv fixture and comparator level 1; QOM analog-mv=1600, digital-level=true and adc-samples advanced. read_uv() is unavailable because the QEMU S3 ADC calibration eFuse is not burnt (recorded boundary). Acoustic response/threshold potentiometer/sensitivity/SNR/frequency response are NOT RUN."
+    }
+  ],
+  "blocked": [
+    "mini-can",
+    "lorawan-us915"
+  ],
+  "note": "Raw ZIP/frame/serial artifacts stay in local ignored storage. mini-can is BLOCKED by the missing CAN attachment lane and lorawan-us915 by the frozen ASR650x driver not reaching the Unit UART; the other ten are byte/register/display-command PASS."
+}

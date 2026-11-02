@@ -7,6 +7,7 @@ LCD address conflict, the GPS baud conflict and the blocked Mini CAN visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -67,7 +68,7 @@ class UnitBatch8aPatchTests(unittest.TestCase):
 
     def test_mini_can_is_blocked_not_fabricated(self):
         unit = json.dumps(self.units["mini-can"], ensure_ascii=False)
-        for token in ("blocked", "TWAI", "attachment", "NOT RUN"):
+        for token in ("BLOCKED", "TWAI", "attachment", "NOT RUN"):
             self.assertIn(token, unit, token)
         profile = self.profiles["mini-can"]
         self.assertEqual(profile["status"], "planned")
@@ -76,17 +77,31 @@ class UnitBatch8aPatchTests(unittest.TestCase):
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
         self.assertEqual(len(self.catalog["units"]), 160)
 
-    def test_planned_contracts_keep_blockers_and_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_evidence_status_matches_validation(self):
+        for unit_id in IMPLEMENTED:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned")
-            self.assertEqual(unit["runtime"]["status"], "planned")
-            self.assertEqual(unit["blocker"], unit["runtime"]["blocker"])
-            self.assertTrue(unit["blocker"])
-            self.assertEqual(profile["status"], "planned")
-            self.assertEqual(profile["hosts"], [])
+            self.assertEqual(unit["model_status"], "partial", unit_id)
+            self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(unit["blocker"], unit["runtime"]["blocker"], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
+                             evidence["report_sha256"], unit_id)
+            self.assertIn("0153-unit-batch8-evidence-lcd-read.patch",
+                          evidence["patches"], unit_id)
             self.assertTrue(profile["blocker"])
+        # Mini CAN stays BLOCKED: the Unit runtime has no CAN attachment lane.
+        unit = self.units["mini-can"]
+        profile = self.profiles["mini-can"]
+        self.assertEqual(unit["model_status"], "planned")
+        self.assertEqual(unit["runtime"]["status"], "planned")
+        self.assertEqual(profile["status"], "planned")
+        self.assertEqual(profile["hosts"], [])
+        self.assertIn("BLOCKED", unit["blocker"])
 
 
 if __name__ == "__main__":

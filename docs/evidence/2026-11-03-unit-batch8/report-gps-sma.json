@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T03:24:56.430901+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "gps-sma",
+  "driver_class": "GPSUnit (AT6668 NMEA, 9600 driver, SMA antenna)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "firmware_sha256": "fcb0d378b894b94f6aa1f1226238f7312bb57237de3adf38d3caa94a91e34350",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "9ac29318efd967bf754fd948153c84d7da0d38573976cb5c24f982c39723fbdc",
+    "main.py": "b42a9f11fd555998676d96594355bd2c601b7270ba6f88adc8e7f3bf79f11183"
+  },
+  "runtime_binary_sha256": "bed1fea87bf45fee012f486a0ad3f2a1efe6d33cd4da7b34ba9910749883b832",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 32 layers through 0151",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {
+    "nmea-lines": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48\r\n$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,011122,,,A*XX\r\n$GNVTG,90.5,T,,M,10.0,N,18.52,K,A*XX\r\n",
+    "baud": 9600
+  },
+  "serial_markers": {
+    "gps-sma": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (937) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH8_PROBE_START gps-sma\nBATCH8_PROBE_READY gps-sma\nGPS_TIME 10:44:23\nGPS_DATE 01/11/22\nGPS_LAT 2242.10772N 22.701796\nGPS_LON 11348.64472E 113.810744\nGPS_SAT 14\nGPS_ALT 52.1\nGPS_SPEED 18.52 90.5\nGPS_BAUD_CAVEAT driver-9600-page-115200-unresolved\nGPS_END\n"
+  },
+  "observations": {
+    "time": "10:44:23",
+    "date": "01/11/22",
+    "lat": [
+      "2242.10772N",
+      "22.701796"
+    ],
+    "lon": [
+      "11348.64472E",
+      "113.810744"
+    ],
+    "sat": "14",
+    "alt": "52.1",
+    "speed": [
+      "18.52",
+      "90.5"
+    ],
+    "baud_caveat": "Frozen unit/gps.py hard-codes 9600; the product page says 115200. The guest cannot expose the configured baud, so the 9600 host fixture is recorded and the page value stays UNRESOLVED/NOT validated."
+  },
+  "checks": {
+    "official_driver_started": true,
+    "live_controller_state": true,
+    "guest_driver_ready": true,
+    "guest_lat": true,
+    "guest_lon": true,
+    "guest_time_utc_plus_8": true,
+    "guest_date": true,
+    "guest_satellites_14": true,
+    "guest_altitude": true,
+    "guest_course_speed": true,
+    "qom_nmea_fixture": true,
+    "qom_baud_fixture": true,
+    "qom_injected": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "status": "PASS",
+  "evidence": {
+    "sha256": "73ef0eb32852a1aac8b46f06c18e2e135318025d04a101afc0ec7a25c03c3722",
+    "bytes": 19366
+  },
+  "frame": {
+    "sha256": "df57961fa57b52d32a056369e47620ddd650ab82eeb40c5d7f03499ecf1f49f9",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed.",
+  "blocker": "Guest GPSUnit on cores3 (shared AT6668 NMEA path) decoded the injected NMEA fixture exactly (lat/lon/time/date/satellites/altitude/course/speed) and QOM injected-lines observed. The 9600-driver vs 115200-page baud conflict remains UNRESOLVED and the external active SMA antenna/RF/accuracy are NOT RUN; results are not transferred between GPS v1.1 and GPS SMA."
+}

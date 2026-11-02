@@ -1,0 +1,52 @@
+From 999be4edfa5dbd75aeee512174162a1d4644c3e5 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 03:24:56 +0800
+Subject: [PATCH] hw/m5stopwatch: fix Unit LCD read-after-command transaction
+
+The frozen reference-firmware LCDUnit init writes READ_ID/READ_BUFCOUNT as one
+I2C transaction and reads the response in a separate transaction. The 0146
+model cleared lcd_cmd_buf when the write transaction FINISHed, so the read
+phase fell back to a zero-length response and the guest driver aborted with
+OSError("LCD Unit init failed"). Keep using the last-command log for the read
+phase; the LCD session then passes READ_ID and the subsequent framebuffer
+commands.
+---
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 0c6b81b..98a03af 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -2266,15 +2266,19 @@ static int control_event(I2CSlave *dev, enum i2c_event event)
+         } else if (event == I2C_START_RECV) {
+             s->unit->transactions++; s->read_pos = 0; s->reading = true;
+             s->lcd_read_len = s->lcd_read_pos = 0;
+-            if (s->lcd_cmd_len >= 1) {
+-                uint8_t cmd = s->lcd_cmd_buf[0];
+-                if (cmd == 0x04) {
+-                    memcpy(s->lcd_read_buf, s->lcd_read_id, 4);
+-                    s->lcd_read_len = 4;
+-                } else if (cmd == 0x09) {
+-                    put_le32(s->lcd_read_buf, (uint32_t)s->lcd_bufcount);
+-                    s->lcd_read_len = 4;
+-                }
++            /* READ_ID/READ_BUFCOUNT arrive as a command write followed by a
++             * separate read transaction. The command buffer is cleared when the
++             * write FINISHes, so fall back to the last-command log; otherwise
++             * the read phase always returned 0x00 and the frozen driver's
++             * LCDUnit init failed with OSError("LCD Unit init failed"). */
++            uint8_t cmd = s->lcd_cmd_len >= 1 ? s->lcd_cmd_buf[0] :
++                          (s->lcd_last_len >= 1 ? s->lcd_last[0] : 0);
++            if (cmd == 0x04) {
++                memcpy(s->lcd_read_buf, s->lcd_read_id, 4);
++                s->lcd_read_len = 4;
++            } else if (cmd == 0x09) {
++                put_le32(s->lcd_read_buf, (uint32_t)s->lcd_bufcount);
++                s->lcd_read_len = 4;
+             }
+         } else if (event == I2C_FINISH) {
+             if (s->reading) { s->reading = false; }
+-- 
+2.55.0
+
