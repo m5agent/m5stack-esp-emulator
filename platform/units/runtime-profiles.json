@@ -5828,6 +5828,267 @@
         ],
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
+    },
+    "env": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 在同一次 attachment 上挂 DHT12 0x5C + BMP280 0x76 两个 slave（m5_unit_i2c_attach），DHT12 5 字节帧由 temperature-c/humidity-pct 量化并生成合法校验和，BMP280 复用 US_BMP280 且仅暴露 pressure-pa（其自身温度槽固定 25C 供补偿）。未采集 guest/Device Service 证据 → planned。ENV-II/III/IV 变体、产品页温度精度 ±0.2/±0.5 矛盾、DHT12 上电/校验语义、BMP280 校准真实性均 unresolved；双从机共享一条 Grove 总线，guest 必须按 ENV-I 显式 type 使用。",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "ameter": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 挂 ADS1115 0x48 + EEPROM 0x51 双 slave：ADS1115 config/conversion 由 current-a 按驱动 gain/rate/resolution 公式反算；EEPROM 为合成校验合法记录（factor 1.0）且按产品页警告只读（写被 NACK 并计数）。未采集 guest/Device Service 证据 → planned。真实出厂校准系数、1% 精度/0.3mA 分辨率、方向/隔离/保险丝、EEPROM 实际写入策略均 NOT RUN/unresolved；0x48 与 adc-v11 冲突（一总线一个）。",
+      "inputs": {
+        "current-a": {
+          "property": "current-a"
+        }
+      },
+      "state": {
+        "current-a": {
+          "property": "current-a"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "config-word": {
+          "property": "config-word"
+        },
+        "eeprom-writes": {
+          "property": "eeprom-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "extencoder": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 新增 CONTROL_EXTENCODER（0x59）：0x00 counter / 0x10 meter(合成=counter) / 0x30 reset / 0x40 perimeter / 0x50 pulse / 0x60 zero-pulse / 0x70 zero-mode / 0xFE fw / 0xFF address，指针写+读快照、4 字节 LE、地址迁移含同总线冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表渲染损坏、0x20 ASCII 米值格式与 0x30 复位语义 unresolved；AB/ABZ 解码、12-bit 采样与机械耦合 NOT RUN。",
+      "inputs": {
+        "counter": {
+          "property": "counter"
+        },
+        "perimeter": {
+          "property": "perimeter"
+        },
+        "pulse": {
+          "property": "pulse"
+        },
+        "zero-pulse": {
+          "property": "zero-pulse"
+        },
+        "zero-mode": {
+          "property": "zero-mode"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        }
+      },
+      "state": {
+        "counter": {
+          "property": "counter"
+        },
+        "increments": {
+          "property": "increments"
+        },
+        "perimeter": {
+          "property": "perimeter"
+        },
+        "pulse": {
+          "property": "pulse"
+        },
+        "zero-pulse": {
+          "property": "zero-pulse"
+        },
+        "zero-mode": {
+          "property": "zero-mode"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "reset-writes": {
+          "property": "reset-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "ain4-20ma": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 新增 US_AIN420（0x55）：0x00 raw ADC / 0x20 current mA*100 / 0x30 校准 RW / 0xFE fw / 0xFF address，LE 编码与地址迁移冲突检查。未采集 guest/Device Service 证据 → planned。产品页协议表 0xF0 vs 驱动 0xFE/0xFF、12-bit vs raw16、主控 STM32F030 vs STM32G030F6P6 均 unresolved；4-20mA 环路精度、隔离、ADC 线性与跳线接线 NOT RUN。",
+      "inputs": {
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "cal-ma": {
+          "property": "cal-ma"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        }
+      },
+      "state": {
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "cal-ma": {
+          "property": "cal-ma"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "acssr": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 新增 CONTROL_ACSSR（0x50）：0x00 继电器电平 / 0x10 3 字节大端 RGB / 0x20 地址写 / 0xFE fw，写事务更新只读观测。未采集 guest/Device Service 证据 → planned。**安全边界：本模型是 I2C 事务观测，不是 AC 市电开关模型；绝不能宣称可切换 24–480V/10A 市电负载**；过零/漏电流/寿命/隔离、Button/Modbus 模式、set_address 的 5s 语义均 NOT RUN/unresolved；0x50 与 nfc 冲突（一总线一个）。",
+      "inputs": {
+        "fw-version": {
+          "property": "fw-version"
+        }
+      },
+      "state": {
+        "relay-level": {
+          "property": "relay-level"
+        },
+        "relay-transitions": {
+          "property": "relay-transitions"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "gesture": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0126 新增 US_PAJ7620（0x73）：bank-aware 寄存器文件接受 219 项官方初始化写、bank0 0x00 返回 part id 0x7620、0x43/0x44 flags 由 gesture/gesture-flags fixture 生成。未采集 guest/Device Service 证据 → planned。产品页无寄存器表、datasheet 未读、驱动 low-rate 属性名 bug、手势物理/光学/距离 NOT RUN；0x73 无已登记冲突。",
+      "inputs": {
+        "gesture": {
+          "property": "gesture"
+        },
+        "gesture-flags": {
+          "property": "gesture-flags"
+        }
+      },
+      "state": {
+        "gesture": {
+          "property": "gesture"
+        },
+        "gesture-flags": {
+          "property": "gesture-flags"
+        },
+        "init-writes": {
+          "property": "init-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
