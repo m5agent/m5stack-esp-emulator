@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T04:35:05.252634+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "mini-can",
+  "driver_class": "official m5can C module on esp32s3 TWAI (TJA1051T/3 non-isolated transceiver); frozen unit/can.py wrapper release incompatibility recorded",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "firmware_sha256": "1afe4077b170f5739b1d300d22d15caf26ebec12d54ceceaa949a5345ff73a46",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "89f40309a583e3e9d4e1d1cfa8faede0652769aa4eb4f3495dba603cde450a1d",
+    "main.py": "b148bf1b7065d992c725ad73be05bcb4a7489e69c31968956f3f84d84d145778"
+  },
+  "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+  "qemu_source_state": "canonical 75f1d24 + canonical 35-layer chain through 0154",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {},
+  "qom_samples": [
+    {
+      "at": "2026-11-03T04:35:08.096429+08:00",
+      "properties": {
+        "frames-observed": 1,
+        "injected-frames": 1,
+        "last-frame-hex": "123#0102030405060708"
+      }
+    }
+  ],
+  "serial_markers": {
+    "mini-can": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (921) i2c.master: this port has not been initialized, please initialize it first\r\nCANLORA_PROBE_START mini-can\nCAN_WRAPPER_CAVEAT frozen-unit-can-wrapper-unusable-ESP_ERR_INVALID_ARG-using-official-m5can-C-module\nCAN_READY\nCANLORA_PROBE_READY mini-can\nCAN_STATE_INIT 6\nCAN_SENT 123#0102030405060708\nCAN_RECV 456#deadbeef\nCAN_STATE_FINAL 6\nCAN_END\n"
+  },
+  "checks": {
+    "official_driver_started": true,
+    "live_controller_state": true,
+    "can_unit_ready": true,
+    "can_wrapper_caveat_recorded": true,
+    "guest_sent_frame": true,
+    "qom_frames_observed": true,
+    "qom_injected_frames": true,
+    "qom_last_frame_hex": true,
+    "guest_received_fixture_frame": true,
+    "can_state_reported": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "observations": {
+    "mini-can": {
+      "guest_ready": true,
+      "guest_sent": true,
+      "frames_observed": 1,
+      "injected_frames": 1,
+      "last_frame_hex": "123#0102030405060708",
+      "guest_recv": "456#deadbeef",
+      "can_state_final": "6",
+      "wrapper_caveat": "The frozen UIFlow2 release image's Python unit/can.py wrapper is unusable on this firmware build (TypeError / ESP_ERR_INVALID_ARG); the probe drives the same official m5can C module (bus 0, default 125 kbit/s timing) the wrapper subclasses.",
+      "boundary": "CAN frame lane only: electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration NOT modeled and NOT RUN; PORT.C substituted by the cores3 PORT.A harness."
+    }
+  },
+  "evidence": {
+    "sha256": "a33ee1a008453075c3fdcdd4b139f5705254acc1f64b78741f31abbc4f502ff5",
+    "bytes": 19366
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "frame": {
+    "sha256": "ec08f8294b0d07f7ae49b0b2ff26406bf8c03eac1e818a5990c208cc24195391",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "session_id": "fc39df7ed2c546819cfe05951255f462",
+  "session_id_sha256": "31c55819406bc0b8b773db7f7d407d37e9efbdfb208377aca84b85ea33739061",
+  "raw_evidence_note": "Raw execution artifacts (evidence ZIP, frame, serial log, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed.",
+  "injection": {
+    "values": {
+      "inject-hex": "456#deadbeef"
+    },
+    "properties": {
+      "frames-observed": 1,
+      "injected-frames": 1,
+      "last-frame-hex": "123#0102030405060708"
+    }
+  },
+  "can_fixture_frame": "456#deadbeef"
+}

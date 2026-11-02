@@ -62,25 +62,20 @@ class UnitBatch8bPatchTests(unittest.TestCase):
         for unit_id in UNITS:
             entry = self.units[unit_id]
             profile = self.profiles[unit_id]
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
+                             evidence["report_sha256"], unit_id)
+            self.assertIn("0153-unit-batch8-evidence-lcd-read.patch",
+                          evidence["patches"], unit_id)
             if unit_id == "lorawan-us915":
-                # BLOCKED by the frozen ASR650x driver not reaching the Unit UART.
-                self.assertEqual(entry["model_status"], "planned", unit_id)
-                self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
-                self.assertEqual(profile["status"], "planned", unit_id)
-                self.assertEqual(profile["hosts"], [], unit_id)
-                self.assertIn("BLOCKED", entry["blocker"])
-            else:
-                self.assertEqual(entry["model_status"], "partial", unit_id)
-                self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
-                self.assertEqual(profile["status"], "implemented", unit_id)
-                self.assertEqual(profile["hosts"], ["cores3"], unit_id)
-                evidence = profile["virtual_device_evidence"]
-                report = ROOT / evidence["report"]
-                self.assertTrue(report.is_file(), unit_id)
-                self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
-                                 evidence["report_sha256"], unit_id)
-                self.assertIn("0153-unit-batch8-evidence-lcd-read.patch",
-                              evidence["patches"], unit_id)
+                self.assertIn("byte layer", entry["blocker"], unit_id)
+                self.assertIn("NOT RUN", entry["blocker"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
     def test_patch_has_no_guest_claim(self):

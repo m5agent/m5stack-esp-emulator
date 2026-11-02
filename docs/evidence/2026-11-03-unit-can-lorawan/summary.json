@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T04:35:02.088235+08:00",
+  "validation": "virtual-device validation",
+  "scope": "CAN/LoRaWAN lane unlock: can, mini-can and lorawan-us915 through visible Device Service sessions on one QEMU build; not hardware.",
+  "device_service": {
+    "endpoint": "127.0.0.1:8831",
+    "isolation": "dedicated state dir and API token; user 8787 not touched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "canonical-35-layers": {
+      "runtime_binary_sha256": "cead867a415f33203baad2af4eb2ac900efef0e0bfdc3791ccb420e828aa197a",
+      "qemu_source_state": "canonical 75f1d24 + canonical 35-layer chain through 0154",
+      "note": "QEMU source is canonical 75f1d24 + canonical 35-layer chain through 0154; no new QEMU source patch was required for the CAN/LoRaWAN lanes (the gaps were the Unit runtime contract and the guest-side probe paths)."
+    }
+  },
+  "firmware_cache": {
+    "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+    "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+  },
+  "cases": [
+    {
+      "unit_id": "can",
+      "driver_class": "official m5can C module on esp32s3 TWAI (CA-IS3050G isolated transceiver); frozen unit/can.py wrapper release incompatibility recorded",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-can.json",
+      "report_sha256": "ac0ef5547a4aa43a31c33852151ece0585d81db0cc3769a32d84794cdeda91f6",
+      "official_port": "PORT.C",
+      "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3"
+    },
+    {
+      "unit_id": "mini-can",
+      "driver_class": "official m5can C module on esp32s3 TWAI (TJA1051T/3 non-isolated transceiver); frozen unit/can.py wrapper release incompatibility recorded",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-mini-can.json",
+      "report_sha256": "911ae897bf6d46a8a9263f843713e4aa872550c8b3b52af02840b70275c03c7c",
+      "official_port": "PORT.C",
+      "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3"
+    },
+    {
+      "unit_id": "lorawan-us915",
+      "driver_class": "LoRaWANUnit (ASR650x driver / STM32WLE5 product)",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-can-lorawan/report-lorawan-us915.json",
+      "report_sha256": "6092abefc2e96250d9dea52fd69804611c47a797723e07447859147509349b8f",
+      "official_port": "PORT.C",
+      "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3"
+    }
+  ],
+  "boundaries": [
+    "CAN: frame lane only; electrical/transceiver/isolation/termination/bit-timing/filtering/arbitration NOT modeled and NOT RUN; PORT.C substituted by cores3 PORT.A harness.",
+    "The frozen UIFlow2 release image unit/can.py wrapper is unusable (TypeError/ESP_ERR_INVALID_ARG); the probes use the same official m5can C module the wrapper subclasses.",
+    "LoRaWAN-US915: UART AT byte layer only; frozen unit/lorawan.py inherits ASR650x driver while product is STM32WLE5/RAK3172; US915 OTAA/ABP/Join/duty-cycle/FCC/RF/antenna NOT RUN.",
+    "All results are virtual-device results; no hardware validation is claimed."
+  ]
+}
