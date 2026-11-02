@@ -8044,6 +8044,217 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "pahub-v20": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 CONTROL_PAHUB（0x70）：按驱动实现直接 1 字节通道 mask 读写（read-modify-write select/release，无寄存器指针）。未采集 guest/Device Service 证据 → planned。**多总线/嵌套 hub 组合 NOT modeled（attachment 框架单 bus 缺口）；PCA9548A 8 通道 vs 驱动 6 通道 unresolved；A0-A2 改址/热插拔/轮询时序/总线电气 NOT RUN；0x70 与 env-iii 冲突**",
+      "inputs": {
+        "channel-mask": {
+          "property": "channel-mask"
+        },
+        "channel-writes": {
+          "property": "channel-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "state": {
+        "channel-mask": {
+          "property": "channel-mask"
+        },
+        "channel-writes": {
+          "property": "channel-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "rtc": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 US_RTC8563（0x51）：CS1 STOP 位、0x02..0x08 BCD 日历由 QEMU 虚拟时钟推进（running 时），unix-time fixture 读写，0x09..0x0F 告警/定时器寄存器存储。未采集 guest/Device Service 证据 → planned。**晶振精度/电池备份/掉电保持/时区 NOT RUN；alarm/timer IRQ 与 internet-time（网络依赖）不建模；世纪/闰年边界与 STOP/resume 语义 unresolved；0x51 与 ameter 校准 EEPROM 冲突**",
+      "inputs": {
+        "unix-time": {
+          "property": "unix-time"
+        },
+        "running": {
+          "property": "running"
+        }
+      },
+      "state": {
+        "unix-time": {
+          "property": "unix-time"
+        },
+        "running": {
+          "property": "running"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "tmos-pir": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 US_STHS34PF80（0x5A）：WHOAMI=0xD3、控制/状态寄存器、TOBJECT/TAMBIENT/PRESENCE/MOTION/SHOCK 数据寄存器由 fixture 反算（合成 raw=round(C*100)）、embedded page 机制。未采集 guest/Device Service 证据 → planned。**IR 光学/5-20um/FOV/距离/热模型 NOT RUN；gain 饱和/power-down 复位/页内阈值迟滞与中断时序 unresolved；raw 缩放是合成约定非 datasheet 标定；0x5A 与 ncir/ncir2 冲突**",
+      "inputs": {
+        "tobject-c": {
+          "property": "tobject-c"
+        },
+        "tambient-c": {
+          "property": "tambient-c"
+        },
+        "presence": {
+          "property": "presence"
+        },
+        "motion": {
+          "property": "motion"
+        },
+        "shock": {
+          "property": "shock"
+        },
+        "gain-mode": {
+          "property": "gain-mode"
+        },
+        "odr": {
+          "property": "odr"
+        }
+      },
+      "state": {
+        "tobject-c": {
+          "property": "tobject-c"
+        },
+        "tambient-c": {
+          "property": "tambient-c"
+        },
+        "presence": {
+          "property": "presence"
+        },
+        "motion": {
+          "property": "motion"
+        },
+        "shock": {
+          "property": "shock"
+        },
+        "gain-mode": {
+          "property": "gain-mode"
+        },
+        "odr": {
+          "property": "odr"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "neohex": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 GPIO id 'neohex'：黄线 RMT 捕获 37 灯 WS2812 帧。未采集 guest/Device Service 证据 → planned。**public UIFlow2 源无 unit/neohex.py（driver-gap，仅 neopixel 通用驱动 + 页面锚定）；WS2812 vs SK6812 字节序/时序 unresolved；LED 光学/功率/1024 帧级联上限 NOT RUN；PORT.B 主机限制写死**",
+      "inputs": {
+        "led-rgb": {
+          "property": "led-rgb"
+        }
+      },
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "lora-e220-433": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 GPIO id 'lora-e220-433'：UART 捕获 + 0xC0 写配置回显（存 8B 配置镜像）/0xC1 读配置回 11B（header+config），其余帧按 idle-time fixture 响应注入。未采集 guest/Device Service 证据 → planned。**RF/433MHz/天线/空速/功率 NOT RUN；DIP M0/M1 模式不建模；页面 115200 vs 驱动 9600 冲突 unresolved；0xC0/0xC1 固件差异/RSSI/加密语义 unresolved；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "config-hex": {
+          "property": "config-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "zigbee": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 GPIO id 'zigbee'：UART 捕获 guest 帧，idle-gap 后经 guest RX 注入 ';' 分隔 fixture 响应；解析保持最小（不做完整 0xFA 语义）。未采集 guest/Device Service 证据 → planned。**Zigbee Mesh/路由/2.4GHz RF/加密/天线/1000 节点 NOT RUN；DRF1609H 固件与参数帧布局未完全核对；最小 responder 不覆盖全部 0xFA 变体；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "nbiot2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0139 新增 GPIO id 'nbiot2'：UART 捕获 guest AT 字节，idle-gap 后经 guest RX 注入 ';' 分隔 fixture 响应。未采集 guest/Device Service 证据 → planned。**NB-IoT 蜂窝/网络/SIM/运营商认证/TLS/DTLS/CoAP/SSL NOT RUN；SIM7028 固件版本/多行 AT/URC 时序/错误码未钉；responder 不合成 AT 语义，只注入 fixture；PORT.C 端口冲突**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {

@@ -1,0 +1,518 @@
+From b1274ff4f9266c35e2e1146a8a2c18eae264c528 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 23:04:53 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-5 remaining seven data planes
+
+Add the remaining seven batch-5 Units on top of the 19-layer source-lock
+tree. No guest evidence is recorded; host catalog keeps all seven planned,
+and the three new frameworks are deliberately minimal with explicit
+catalog blockers.
+
+- pahub-v20 (U040-B): CONTROL_PAHUB at 0x70 implementing the direct 1-byte
+  PCA9548A channel mask (driver read-modify-write) only. Downstream bus
+  forwarding/nesting is NOT modeled because the attachment framework is
+  single-bus; 0x70 conflicts with env-iii.
+- rtc (U126): US_RTC8563 at 0x51 with the BCD calendar register file
+  (0x00/0x01 control, 0x02..0x08 seconds..year, 0x09..0x0F alarm/timer
+  storage). The model advances seconds from the QEMU virtual clock when
+  running and exposes a unix-time fixture; crystal/backup/alarm IRQ physics
+  are NOT modeled and 0x51 conflicts with the ameter EEPROM.
+- tmos-pir (U185): US_STHS34PF80 at 0x5A with WHOAMI 0xD3, CTRL/page
+  register file and synthetic tobject/tambient/presence/motion/shock data
+  registers; IR optics and thermal physics are NOT modeled and 0x5A
+  conflicts with ncir/ncir2.
+- neohex (A045-B): 37x WS2812C RMT capture on the yellow data line. The
+  public UIFlow2 tree has no unit/neohex.py driver, so this is an explicit
+  driver-gap model anchored on the generic neopixel path; LED optics/power
+  and cascade limits are NOT modeled.
+- lora-e220-433 (U170-433): UART responder with the 0xC0 write-config echo,
+  0xC1 read-config mirror (8-byte config fixture) and idle-time fixture
+  responses for other frames. RF/433MHz/air-rate/mode switching are NOT
+  modeled and the page-115200-vs-driver-9600 conflict stays unresolved.
+- zigbee (U110): UART responder that captures guest frames and injects
+  deterministic ;-separated fixture responses after an idle gap; DRF1609H
+  frame parsing is deliberately minimal and Zigbee mesh/RF/encryption are
+  NOT modeled.
+- nbiot2 (U111-B): UART AT responder using the same idle-time fixture
+  mechanism; SIM7028 AT/MQTT/HTTP sequences are NOT decoded and cellular
+  network/SIM/operator behavior is NOT modeled.
+  The three UART Units share the existing TX-capture/RX-injection path and
+  remain mutually exclusive on PORT.C.
+
+Offline QOM smoke (S3 board, no guest firmware) validates property
+registration, fixtures, range/read-only rejection, the 37-LED shape and the
+responder fixtures; it is not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         | 150 +++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c |  24 ++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 132 ++++++++++++++++++++++-
+ 3 files changed, 301 insertions(+), 5 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 45fd6f2..0795ed1 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -72,6 +72,17 @@ typedef struct GPIOUnit {
+     unsigned uhf_response_offset;
+     uint64_t uhf_frames_sent, uhf_frames_injected;
+     bool uhf_in_frame;
++    /* U170-433/U110/U111-B UART responders: idle-time fixture responses.
++     * RF/cellular/Zigbee network behavior is NOT modeled; the response
++     * fixtures are deterministic host-side data. */
++    char *at_responses;
++    unsigned at_offset;
++    QEMUTimer *at_timer;
++    uint64_t at_frames_sent, at_frames_injected;
++    uint8_t at_buf[256];
++    size_t at_len;
++    /* U170-433 0xC0/0xC1 config mirror (8 bytes after the 3-byte header). */
++    uint8_t lora_config[8];
+     uint32_t rx_pulses[192], tx_pulses[192];
+     unsigned rx_count, tx_count;
+     uint8_t uart_tx[4096];
+@@ -656,7 +667,8 @@ bool m5_unit_gpio_supported(const char *id)
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+-        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm"};
++        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
++        "neohex", "lora-e220-433", "zigbee", "nbiot2"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -960,6 +972,8 @@ unsigned m5_unit_rmt_rx(unsigned channel, uint32_t *symbols,
+ static const unsigned uart_signal[] = {12, 15, 18};
+ 
+ static void uhf_inject_response(GPIOUnit *g);
++static void lora_respond(GPIOUnit *g);
++static void at_arm_idle(GPIOUnit *g);
+ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+ {
+     for (unsigned n = 0; n < 3; n++) {
+@@ -969,7 +983,9 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                  !strcmp(g->unit->unit_id, "rs485-iso") ||
+                  !strcmp(g->unit->unit_id, "midi") ||
+                  !strcmp(g->unit->unit_id, "gps") ||
+-                 !strcmp(g->unit->unit_id, "uhf-rfid")) &&
++                 !strcmp(g->unit->unit_id, "uhf-rfid") ||
++                 !strcmp(g->unit->unit_id, "lora-e220-433") ||
++                 !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+@@ -980,6 +996,14 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                         g->uhf_frames_sent++;
+                         uhf_inject_response(g);
+                     }
++                } else if (!strcmp(g->unit->unit_id, "lora-e220-433")) {
++                    if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
++                    lora_respond(g);
++                    if (g->at_len) { at_arm_idle(g); }
++                } else if (!strcmp(g->unit->unit_id, "zigbee") ||
++                           !strcmp(g->unit->unit_id, "nbiot2")) {
++                    if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
++                    at_arm_idle(g);
+                 }
+             }
+         }
+@@ -1345,6 +1369,102 @@ static void op90_blocked_set(Object *o, Visitor *v, const char *name, void *op,
+     g->unit->input_events++;
+ }
+ 
++static void at_inject_next(GPIOUnit *g)
++{
++    if (!g->at_responses || !*g->at_responses) { return; }
++    unsigned offset = g->at_offset;
++    char *chunk = hex_chunk(g->at_responses, &offset);
++    g->at_offset = offset;
++    if (!chunk) { return; }
++    uint8_t frame[512];
++    unsigned count = parse_hex_bytes(chunk, frame, sizeof(frame));
++    g_free(chunk);
++    if (!count) { return; }
++    DeviceState *uart = NULL;
++    if (gpio_uart_rx_device_for_white(g, &uart) &&
++        count <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++        esp32_uart_inject_rx(ESP32_UART(uart), frame, count);
++        g->unit->read_bytes += count;
++        g->at_frames_injected++;
++    }
++}
++
++static void at_idle_cb(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    if (!g->at_len) { return; }
++    g->at_frames_sent++;
++    at_inject_next(g);
++    g->at_len = 0;
++}
++
++static void at_arm_idle(GPIOUnit *g)
++{
++    unsigned delay = !strcmp(g->unit->unit_id, "zigbee") ? 8 : 5;
++    timer_mod_ns(g->at_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                 (int64_t)delay * 1000000);
++}
++
++static void lora_respond(GPIOUnit *g)
++{
++    /* 0xC1 read-config: 3-byte request -> 11-byte response (header + 8-byte
++     * config mirror). 0xC0 write-config: 11-byte frame mirrored back for the
++     * driver's same-length readback check. Other bytes fall back to the
++     * generic idle-time fixture response. */
++    if (g->at_len == 3 && g->at_buf[0] == 0xc1) {
++        uint8_t frame[11] = {0xc1, 0x00, 0x08};
++        memcpy(frame + 3, g->lora_config, 8);
++        DeviceState *uart = NULL;
++        if (gpio_uart_rx_device_for_white(g, &uart)) {
++            esp32_uart_inject_rx(ESP32_UART(uart), frame, sizeof(frame));
++            g->unit->read_bytes += sizeof(frame);
++            g->at_frames_injected++;
++        }
++        g->at_frames_sent++;
++        g->at_len = 0;
++    } else if (g->at_len == 11 && g->at_buf[0] == 0xc0) {
++        memcpy(g->lora_config, g->at_buf + 3, 8);
++        DeviceState *uart = NULL;
++        if (gpio_uart_rx_device_for_white(g, &uart)) {
++            esp32_uart_inject_rx(ESP32_UART(uart), g->at_buf, 11);
++            g->unit->read_bytes += 11;
++            g->at_frames_injected++;
++        }
++        g->at_frames_sent++;
++        g->at_len = 0;
++    }
++}
++
++static void at_responses_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = g_strdup(g->at_responses ? g->at_responses : "");
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void at_responses_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = NULL;
++    if (!visit_type_str(v, name, &value, errp)) { return; }
++    g_free(g->at_responses);
++    g->at_responses = value;
++    g->at_offset = 0;
++    g->unit->input_events++;
++}
++
++static void lora_config_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char text[17];
++    for (unsigned i = 0; i < 8; i++) { sprintf(text + i * 2, "%02x", g->lora_config[i]); }
++    text[16] = 0;
++    char *value = g_strdup(text);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+     if (unit->onboard_led_count > 128) {
+@@ -1352,7 +1472,9 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+     }
+     if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485") ||
+                 !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi") ||
+-                !strcmp(unit->unit_id, "gps") || !strcmp(unit->unit_id, "uhf-rfid"))) {
++                !strcmp(unit->unit_id, "gps") || !strcmp(unit->unit_id, "uhf-rfid") ||
++                !strcmp(unit->unit_id, "lora-e220-433") ||
++                !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -1505,6 +1627,28 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+                             &g->incomplete_frames);
++    } else if (!strcmp(id, "neohex")) {
++        /* A045-B NeoHEX: 37x WS2812C on the yellow data line. The public
++         * UIFlow2 tree has no unit/neohex.py; the generic neopixel driver is
++         * the only reference, so this is an explicit driver-gap model. */
++        g->leds = 37;
++        object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
++        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
++        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
++                            &g->incomplete_frames);
++    } else if (!strcmp(id, "lora-e220-433") || !strcmp(id, "zigbee") ||
++               !strcmp(id, "nbiot2")) {
++        g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
++        object_property_add(o, "responses-hex", "str", at_responses_get,
++                            at_responses_set, NULL, g);
++        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++        object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL,
++                            &g->at_frames_sent);
++        object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
++                            &g->at_frames_injected);
++        if (!strcmp(id, "lora-e220-433")) {
++            object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
++        }
+     } else if (!strcmp(id, "ultrasonic-io")) {
+         g->ultra_distance_mm = 1000;
+         g->ultra_controller = esp32_gpio_get_controller(unit->s3);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 1abe485..7c062b7 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -40,6 +40,7 @@ typedef enum {
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
++    CONTROL_PAHUB,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -176,6 +177,12 @@ typedef struct M5UnitControl {
+     double scales_weight_g;
+     int64_t scales_led_rgb, scales_fw;
+     uint64_t scales_cal_writes;
++    /* U040-B PaHub v2.0 (0x70, PCA9548A): mask-only mux data plane. The 1-byte
++     * channel mask is written/read directly (driver read-modify-write);
++     * downstream bus forwarding/nesting is NOT modeled because the current
++     * attachment framework supports a single bus per attachment. */
++    uint8_t pahub_mask;
++    uint64_t pahub_writes;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1754,6 +1761,13 @@ static int control_send(I2CSlave *dev, uint8_t value)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->written_bytes++;
++    if (s->kind == CONTROL_PAHUB) {
++        /* Direct 1-byte channel-mask write; no register pointer phase. */
++        s->pahub_mask = value;
++        s->pahub_writes++;
++        s->unit->output_transitions++;
++        return 0;
++    }
+     if (s->kind == CONTROL_SCROLL) {
+         if (s->scroll_rx_failed) { return 1; }
+         if (s->scroll_rx_len) {
+@@ -2244,6 +2258,9 @@ static uint8_t control_recv(I2CSlave *dev)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->read_bytes++;
++    if (s->kind == CONTROL_PAHUB) {
++        return s->pahub_mask;
++    }
+     if (s->kind == CONTROL_DAC) {
+         return dac_read_byte(s, s->read_pos++);
+     }
+@@ -2378,7 +2395,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales",
++        "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2523,6 +2540,11 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_control_int_fixture(s, "motor-status", &s->bl_status, 0, 255, false);
+         add_control_int_fixture(s, "flash-writes", &s->bl_flash_writes, 0, INT64_MAX, false);
+         add_control_int_fixture(s, "fw-version", &s->bl_fw, 0, 255, false);
++    } else if (!strcmp(unit->unit_id, "pahub-v20")) {
++        s->kind = CONTROL_PAHUB; address = 0x70;
++        s->pahub_mask = 0;
++        add_control_int_fixture(s, "channel-mask", &s->pahub_mask, 0, 255, false);
++        add_control_int_fixture(s, "channel-writes", &s->pahub_writes, 0, INT64_MAX, false);
+     } else if (!strcmp(unit->unit_id, "dds")) {
+         s->kind = CONTROL_DDS; address = 0x31;
+         s->dds_fw = 1; s->dds_mode = 1;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index b1d3490..1127d93 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -27,6 +27,7 @@ typedef enum {
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+     US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
++    US_RTC8563, US_STHS34PF80,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -124,6 +125,16 @@ typedef struct M5UnitSensor {
+     double kmeter_tc_c, kmeter_internal_c;
+     bool kmeter_ready;
+     int64_t kmeter_fw;
++    /* U126 RTC (0x51, HYM8563/PCF8563): BCD calendar register file. The model
++     * advances seconds from the QEMU virtual clock when running; crystal
++     * accuracy/battery backup/alarm IRQ physics are NOT modeled. */
++    int64_t rtc_base;
++    bool rtc_running, rtc_have_base;
++    /* U185 TMOS PIR (0x5A, STHS34PF80): register + embedded page file. IR
++     * optics/thermal physics are NOT modeled; raw values are synthetic. */
++    double tmos_tobject_c, tmos_tambient_c;
++    bool tmos_presence, tmos_motion, tmos_shock;
++    int64_t tmos_gain_mode, tmos_odr;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
+@@ -1172,6 +1183,77 @@ static void kmeter_ascii(double value, char out[9])
+     out[8] = 0;
+ }
+ 
++static uint8_t bcd_enc(unsigned value) { return (uint8_t)(((value / 10) << 4) | (value % 10)); }
++static unsigned bcd_dec(uint8_t value) { return (value >> 4) * 10 + (value & 0x0f); }
++
++/* U126 RTC refresh: fill 0x02..0x08 BCD from base epoch + virtual time. */
++static void rtc8563_refresh(M5UnitSensor *s)
++{
++    int64_t base = s->rtc_have_base ? s->rtc_base : INT64_C(1767225600);
++    if (!s->rtc_have_base) { s->rtc_base = base; s->rtc_have_base = true; }
++    int64_t seconds = s->rtc_running ? base + now_ns() / INT64_C(1000000000) : base;
++    time_t stamp = (time_t)seconds;
++    struct tm tm;
++    gmtime_r(&stamp, &tm);
++    s->regs[0][0x02] = bcd_enc(tm.tm_sec);
++    s->regs[0][0x03] = bcd_enc(tm.tm_min);
++    s->regs[0][0x04] = bcd_enc(tm.tm_hour);
++    s->regs[0][0x05] = bcd_enc(tm.tm_mday);
++    s->regs[0][0x06] = bcd_enc(tm.tm_wday);
++    s->regs[0][0x07] = bcd_enc(tm.tm_mon + 1) | (tm.tm_year + 1900 >= 2100 ? 0x80 : 0);
++    s->regs[0][0x08] = bcd_enc((tm.tm_year + 1900) % 100);
++}
++
++/* U185 TMOS data registers: synthetic raw = round(celsius * 100). */
++static void sths34pf80_refresh(M5UnitSensor *s)
++{
++    int16_t tobject = (int16_t)CLAMP(llround(s->tmos_tobject_c * 100.0), -32768, 32767);
++    int16_t tambient = (int16_t)CLAMP(llround(s->tmos_tambient_c * 100.0), -32768, 32767);
++    s->regs[0][0x0f] = 0xd3;  /* WHOAMI */
++    le16(s->regs[0] + 0x26, (uint16_t)tobject);
++    le16(s->regs[0] + 0x28, (uint16_t)tambient);
++    le16(s->regs[0] + 0x38, (uint16_t)tobject);
++    le16(s->regs[0] + 0x3a, s->tmos_presence ? 1 : 0);
++    le16(s->regs[0] + 0x3c, s->tmos_motion ? 1 : 0);
++    le16(s->regs[0] + 0x3e, s->tmos_shock ? 1 : 0);
++    s->regs[0][0x23] = (s->tmos_presence ? 0x01 : 0) | (s->tmos_motion ? 0x02 : 0) |
++                       (s->tmos_shock ? 0x04 : 0);
++    s->regs[0][0x25] = s->regs[0][0x23];
++}
++
++static void rtc_time_get(Object *obj, Visitor *v, const char *name,
++                         void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value;
++    if (s->rtc_running) {
++        value = (s->rtc_have_base ? s->rtc_base : INT64_C(1767225600)) +
++                now_ns() / INT64_C(1000000000);
++    } else {
++        struct tm tm = {0};
++        tm.tm_sec = bcd_dec(s->regs[0][0x02]);
++        tm.tm_min = bcd_dec(s->regs[0][0x03]);
++        tm.tm_hour = bcd_dec(s->regs[0][0x04]);
++        tm.tm_mday = bcd_dec(s->regs[0][0x05]);
++        tm.tm_mon = bcd_dec(s->regs[0][0x07] & 0x7f) - 1;
++        tm.tm_year = bcd_dec(s->regs[0][0x08]) + 100;
++        value = (int64_t)timegm(&tm);
++    }
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void rtc_time_set(Object *obj, Visitor *v, const char *name,
++                         void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    s->rtc_base = value;
++    s->rtc_have_base = true;
++    rtc8563_refresh(s);
++    s->unit->input_events++;
++}
++
+ static int sensor_send(I2CSlave *dev, uint8_t data)
+ {
+     M5UnitSensor *s = M5_UNIT_SENSOR(dev);
+@@ -1450,6 +1532,24 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         }
+         return 1;
+     }
++    if (s->kind == US_RTC8563) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg == 0x00) { s->rtc_running = !(data & 0x20); return 0; }
++        if (reg <= 0x0f) { s->regs[0][reg] = data; s->pointer++; return 0; }
++        return 1;
++    }
++    if (s->kind == US_STHS34PF80) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        uint8_t reg = (uint8_t)s->pointer;
++        if (reg == 0x08) { s->page = data & 0x07; return 0; }
++        if (reg == 0x09) { s->regs[s->page][0x09] = data; return 0; }
++        if (reg == 0x11) { return 0; }
++        if (reg == 0x0f) { return 1; }
++        s->regs[s->page][reg] = data;
++        s->pointer++;
++        return 0;
++    }
+     if (!pos) {
+         if (s->kind == US_COLOR && data == 0xe6) {
+             s->regs[0][0x13] &= ~0x10; return 0;
+@@ -1585,6 +1685,16 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         if (reg == 0xff) { return I2C_SLAVE(s)->address; }
+         return 0xff;
+     }
++    if (s->kind == US_RTC8563) {
++        if (pos == 0) { rtc8563_refresh(s); }
++        uint16_t reg = s->pointer + pos;
++        return reg <= 0x0f ? s->regs[0][reg] : 0xff;
++    }
++    if (s->kind == US_STHS34PF80) {
++        if (pos == 0) { sths34pf80_refresh(s); }
++        uint16_t reg = s->pointer + pos;
++        return reg <= 0xff ? s->regs[s->page & 0x07][reg] : 0xff;
++    }
+     if (s->kind == US_ACMEASURE) {
+         uint8_t reg = (uint8_t)s->pointer;
+         uint8_t text[16];
+@@ -1764,7 +1874,7 @@ bool m5_unit_sensor_supported(const char *id)
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+-        "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11" };
++        "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1918,6 +2028,26 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "rtc")) {
++        s->kind = US_RTC8563; address = 0x51;
++        s->rtc_base = INT64_C(1767225600);  /* synthetic 2026-01-01 UTC fixture */
++        s->rtc_running = true; s->rtc_have_base = true;
++        rtc8563_refresh(s);
++        object_property_add(OBJECT(s->unit), "unix-time", "int", rtc_time_get,
++                            rtc_time_set, NULL, s);
++        add_fixture_bool(s, "running", &s->rtc_running);
++        add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "tmos-pir")) {
++        s->kind = US_STHS34PF80; address = 0x5a;
++        s->tmos_tobject_c = 25; s->tmos_tambient_c = 25;
++        add_number(s, "tobject-c", 0, 25, -40, 200, false);
++        add_number(s, "tambient-c", 1, 25, -40, 125, false);
++        add_fixture_bool(s, "presence", &s->tmos_presence);
++        add_fixture_bool(s, "motion", &s->tmos_motion);
++        add_fixture_bool(s, "shock", &s->tmos_shock);
++        add_fixture_int(s, "gain-mode", &s->tmos_gain_mode, 0, 3);
++        add_fixture_int(s, "odr", &s->tmos_odr, 0, 15);
++        add_i2c_address(s);
+     } else if (!strcmp(u->unit_id, "8angle")) {
+         s->kind = US_ANGLE8; address = 0x43;
+         s->angle8_fw = 1;
+-- 
+2.55.0
+

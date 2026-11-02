@@ -797,3 +797,57 @@ research_status/model_status/runtime/blocker/limitations`）。草稿仅提案�
 - 地址/端口冲突与 unresolved 均写入 `blocker`/`limitations`；
 - 合并进 `platform/units/catalog.json` 前需要另行任务（本批只研究，不修改
   catalog/runtime/tests）。
+
+## 10. 剩余 7 款实现状态（补丁 0139，2026-11-02）
+
+batch5 剩余 7 款（`pahub-v20`/`rtc`/`tmos-pir`/`neohex`/`lora-e220-433`/`zigbee`/
+`nbiot2`）已由
+[`0139-unit-batch5b.patch`](../../patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch)
+接入 QEMU 数据面。**base 是 19 层 canonical 链 `c589573`**：canonical `75f1d24` +
+`0120…0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132` →
+`0137` → `0138`；实现 commit `b1274ff`。**尚未采集 guest/Device Service 证据**，
+catalog 7 条与 runtime-profiles 7 条保持 `planned`、hosts 为空；离线 QOM smoke
+（S3 board、无 guest 固件）只验证属性注册、fixture 读写、范围/只读拒绝、37 灯
+数组与 responder fixture（16/16 PASS），不构成功能 PASS。
+
+三种新框架都按任务要求做了**最小语义**：多总线 hub 只做 mask、RTC 用虚拟时钟、
+UART 模块只做 fixture 应答器；物理/网络能力全部 NOT RUN 并写进 catalog blocker。
+
+| Unit | 0139 模型 | QOM fixtures/观测 | 显式 blocker/unresolved |
+| --- | --- | --- | --- |
+| `pahub-v20` U040-B (0x70) | `CONTROL_PAHUB`：PCA9548A 直接 1 字节通道 mask 读写（驱动 read-modify-write select/release，无寄存器指针） | channel-mask、channel-writes、i2c-address | **多总线/嵌套 hub NOT modeled（attachment 框架单 bus 缺口）；PCA9548A 8 通道 vs 驱动 6 通道 unresolved；A0-A2 改址/热插拔/轮询/总线电气 NOT RUN；0x70 与 env-iii 冲突** |
+| `rtc` U126 (0x51) | `US_RTC8563`：CS1 STOP、0x02..0x08 BCD 日历由 QEMU 虚拟时钟推进（running 时），unix-time fixture 读写，0x09..0x0F 告警/定时器寄存器存储 | unix-time(int rw)、running(bool rw)、i2c-address | **晶振精度/电池备份/掉电保持/时区 NOT RUN；alarm/timer IRQ 与 internet-time（网络依赖）不建模；世纪/闰年边界与 STOP/resume 语义 unresolved；0x51 与 ameter 校准 EEPROM 冲突** |
+| `tmos-pir` U185 (0x5A) | `US_STHS34PF80`：WHOAMI=0xD3、控制/状态寄存器、TOBJECT/TAMBIENT/PRESENCE/MOTION/SHOCK 数据寄存器由 fixture 反算（合成 raw=round(C*100)）、embedded page 0x08/0x09/0x11 | tobject-c/tambient-c(number rw)、presence/motion/shock(bool rw)、gain-mode/odr(int rw)、i2c-address | **IR 光学/5-20um/FOV/距离/热模型 NOT RUN；gain 饱和/power-down 复位/页内阈值迟滞与中断时序 unresolved；raw 缩放是合成约定非 datasheet 标定；0x5A 与 ncir/ncir2 冲突** |
+| `neohex` A045-B (RMT) | GPIO id `neohex`：黄线 RMT 捕获 37 灯 WS2812 帧 | led-rgb[37]、led-frames、incomplete-frames、output-transitions | **public UIFlow2 源无 unit/neohex.py（driver-gap，仅 neopixel 通用驱动 + 页面锚定）；WS2812 vs SK6812 字节序/时序 unresolved；LED 光学/功率/1024 帧级联上限 NOT RUN；PORT.B 主机限制** |
+| `lora-e220-433` U170-433 (UART) | GPIO id：UART 捕获 + 0xC0 写配置回显（8B 配置镜像）/0xC1 读配置回 11B（header+config），其余帧按 idle-time fixture 响应注入 | responses-hex(rw)、tx-hex、config-hex、frames-sent/injected | **RF/433MHz/天线/空速/功率 NOT RUN；DIP M0/M1 模式不建模；页面 115200 vs 驱动 9600 冲突 unresolved；0xC0/0xC1 固件差异/RSSI/加密语义 unresolved；PORT.C 端口冲突** |
+| `zigbee` U110 (UART) | GPIO id：UART 捕获 guest 帧，idle-gap 后注入 ';' 分隔 fixture 响应；解析保持最小（不做完整 0xFA 语义） | responses-hex、tx-hex、frames-sent/injected | **Zigbee Mesh/路由/2.4GHz RF/加密/天线 NOT RUN；DRF1609H 固件与参数帧布局未完全核对；最小 responder 不覆盖全部 0xFA 变体；PORT.C 端口冲突** |
+| `nbiot2` U111-B (UART) | GPIO id：UART 捕获 guest AT 字节，idle-gap 后注入 ';' 分隔 fixture 响应；AT/MQTT/HTTP 不解析 | responses-hex、tx-hex、frames-sent/injected | **NB-IoT 蜂窝/网络/SIM/运营商认证/TLS/DTLS/CoAP/SSL NOT RUN；SIM7028 固件/多行 AT/URC 时序/错误码未钉；responder 不合成 AT 语义；PORT.C 端口冲突** |
+
+离线 QOM smoke 复现（S3 `m5atoms3r`，无 guest；7 attachment 一次启动）：
+
+```bash
+cat > /tmp/unit-smoke-config8.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"pah1","unit_id":"pahub-v20","pins":{"yellow":15,"white":16}},
+ {"id":"rtc1","unit_id":"rtc","pins":{"yellow":17,"white":18}},
+ {"id":"tmos1","unit_id":"tmos-pir","pins":{"yellow":5,"white":6}},
+ {"id":"neohex1","unit_id":"neohex","pins":{"yellow":21,"white":38}},
+ {"id":"lora1","unit_id":"lora-e220-433","pins":{"yellow":9,"white":10}},
+ {"id":"zb1","unit_id":"zigbee","pins":{"yellow":11,"white":12}},
+ {"id":"nb1","unit_id":"nbiot2","pins":{"yellow":13,"white":14}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config8.json qemu-system-xtensa -M m5atoms3r \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke8.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+16 项检查全部 PASS：pahub 2（默认/只读拒绝）、rtc 3（默认/时间写入/停止）、
+tmos 3（默认/fixture 写入/范围拒绝）、neohex 2（37 灯/帧计数）、lora 2（默认/
+响应 fixture）、zigbee 2、nbiot2 2。smoke **不**覆盖 I2C send/recv 字节语义
+（PaHub mask read-modify-write、RTC BCD 读写、TMOS 页机制）、RMT 37 灯帧、
+UART responder 的 idle 时序与 0xC0/0xC1 交换；这些仍需 guest 证据。
+
+**计数**：catalog 87 → **94**、runtime-profiles 87 → 94；visual mapping audit 7 条
++ `all-94-products`；计数测试与 snapshot 已同步。
