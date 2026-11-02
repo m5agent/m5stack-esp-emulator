@@ -1,0 +1,102 @@
+From 4a1c2e3d5b6f708192a3b4c5d6e7f8091a2b3c4d Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 00:45:00 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-6 Unit model bugs found by guest evidence
+
+Fix the batch-6 first-half model bugs found by guest/Device Service evidence.
+Base: canonical 75f1d24 + canonical chain 22 layers through 0141 (incl. 0140
+batch6 A).
+
+- mini-scales (U177): the 0140 write path forgot to advance write_pos, so the
+  register-pointer byte was never recognized and every memory write - including
+  the pointer phase of i2c.readfrom_mem - was NACKed. Guest reads of the ADC,
+  weight, button and filters failed with OSError. Mirror the generic control
+  pointer phase (write_pos++ / memory_request) so readfrom_mem/writeto_mem work.
+- mini-scales: the catalog/profile input is named 'button-pressed', but the
+  model only exposed the raw firmware byte 'button' (0=pressed). Add a bool
+  'button-pressed' alias with inverse semantics so session-initial/unit-input
+  fixtures can drive the guest button without type or polarity confusion.
+- mini-imu (U095): guest ACCEL_CONFIG/GYRO_CONFIG writes updated the register
+  file but not the QOM 'accel-range'/'gyro-range' fixture view, so state could
+  report a range the driver had already overwritten. Keep the QOM range fields
+  in sync with the guest register writes (2/4/8/16 g and 250/500/1000/2000 dps).
+
+No guest PASS is claimed here; the batch-6 evidence reports record the guest
+results for the exact runtime binary built from this tree.
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -1796,7 +1796,15 @@
+         return 0;
+     }
+     if (s->kind == CONTROL_MINISCALE) {
+-        if (s->write_pos == 1) { s->pointer = value; return 0; }
++        /* The 0140 mini-scale branch forgot to advance write_pos, so the
++         * register-pointer byte was never recognized and every memory write
++         * (and the pointer phase of readfrom_mem) was NACKed. Mirror the
++         * generic control pointer phase here. */
++        if (s->write_pos++ == 0) {
++            s->pointer = value;
++            s->memory_request = true;
++            return 0;
++        }
+         unsigned offset = s->write_pos - 2;
+         uint8_t reg = s->pointer;
+         if (reg == 0x30) {
+@@ -2471,6 +2479,24 @@
+     return false;
+ }
+ 
++static void miniscale_button_pressed_get(Object *o, Visitor *v, const char *name,
++                                          void *op, Error **errp)
++{
++    M5UnitControl *s = op;
++    bool value = s->miniscale_button == 0;  /* firmware byte 0 = pressed */
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void miniscale_button_pressed_set(Object *o, Visitor *v, const char *name,
++                                         void *op, Error **errp)
++{
++    M5UnitControl *s = op;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    s->miniscale_button = value ? 0 : 1;
++    s->unit->input_events++;
++}
++
+ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+ {
+     M5UnitControl *s;
+@@ -2619,6 +2645,9 @@
+         add_control_int_fixture(s, "adc-raw", (int64_t *)&s->miniscale_adc, 0, UINT32_MAX, true);
+         add_control_number(s, "weight-g", &s->miniscale_weight_g, 0, -5000, 5000, true, false);
+         add_control_int_fixture(s, "button", &s->miniscale_button, 0, 1, false);
++        object_property_add(OBJECT(unit), "button-pressed", "bool",
++                            miniscale_button_pressed_get, miniscale_button_pressed_set,
++                            NULL, s);
+         add_control_number(s, "calibration-gap", &s->miniscale_gap, 0, -1000000, 1000000, false, false);
+         add_control_int_fixture(s, "reset-writes", &s->miniscale_resets, 0, INT64_MAX, false);
+         add_control_int_fixture(s, "calibration-writes", &s->miniscale_cal_writes, 0, INT64_MAX, false);
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -1653,7 +1653,19 @@
+     }
+     if (s->kind == US_MPU6886) {
+         if (pos == 0) { s->pointer = data; return 0; }
+-        s->regs[0][(uint8_t)s->pointer] = data;
++        uint8_t reg = (uint8_t)s->pointer;
++        s->regs[0][reg] = data;
++        /* Keep the QOM range fixture view in sync with the guest's
++         * GYRO_CONFIG/ACCEL_CONFIG writes so state reflects the scale the
++         * driver actually selected. */
++        if (reg == 0x1b) {
++            uint8_t bits = data & 0x18;
++            s->mpu_gyro_fs = bits == 0x08 ? 500 : bits == 0x10 ? 1000 : bits == 0x18 ? 2000 : 250;
++        }
++        if (reg == 0x1c) {
++            uint8_t bits = data & 0x18;
++            s->mpu_accel_fs = bits == 0x08 ? 4 : bits == 0x10 ? 8 : bits == 0x18 ? 16 : 2;
++        }
+         s->pointer++;
+         return 0;
+     }

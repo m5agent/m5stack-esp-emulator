@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T00:21:52.692118+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "mini-imu",
+  "driver_class": "IMUUnit (MPU6886, 0x68)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_whoami": true,
+    "guest_accel_g": true,
+    "guest_gyro_dps": true,
+    "guest_temperature": true,
+    "guest_default_range": true,
+    "guest_range_switch": true,
+    "guest_accel_after_range": true,
+    "qom_range_fixtures": true,
+    "qom_identity": true,
+    "qom_sensor_fixtures": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "855ac2a9df51841e6a1a78d405d27bf776c2a95f2ee23c8e4fb5a1ca22943f38",
+  "firmware_id": "855ac2a9df51841e6a1a78d405d27bf776c2a95f2ee23c8e4fb5a1ca22943f38",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 22 layers (0120-0141, incl. 0140 batch6 A) + 0144-unit-batch6-evidence-fixes",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "initial_inputs": {
+    "accel-x-g": 1.5,
+    "accel-y-g": -0.5,
+    "accel-z-g": 1.0,
+    "gyro-x-dps": 12.5,
+    "gyro-y-dps": -25.0,
+    "gyro-z-dps": 50.0,
+    "temperature-c": 31.25,
+    "accel-range": 2,
+    "gyro-range": 250
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "a61e7e5ed7e8e275c99143f0d5b7746047873dda231ca1d483b6ed1052db2cbe",
+    "main.py": "386971e8943fe779040c581d2cc924ebe9eada8a0b3ba4d9d275f624eb28ec24"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "9a9b391bae5c46ce88df0871bfdbb509",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "mini-imu",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "mini_imu": {
+      "guest_whoami": "25",
+      "guest_accel_g": [
+        "1.5",
+        "-0.5",
+        "1.0"
+      ],
+      "guest_gyro_dps": [
+        "12.503817",
+        "-25.0",
+        "50.0"
+      ],
+      "guest_temperature_c": "31.25153",
+      "guest_range0": [
+        "16384",
+        "131"
+      ],
+      "guest_range1": [
+        "4096",
+        "32.8"
+      ],
+      "guest_accel_after_range": [
+        "1.5",
+        "-0.5",
+        "1.0"
+      ],
+      "qom": {
+        "accel-x-g": 1.5,
+        "accel-y-g": -0.5,
+        "accel-z-g": 1,
+        "gyro-x-dps": 12.5,
+        "gyro-y-dps": -25,
+        "gyro-z-dps": 50,
+        "temperature-c": 31.25,
+        "accel-range": 8,
+        "gyro-range": 1000,
+        "whoami": 25,
+        "i2c-address": 104
+      },
+      "boundary": "Real motion/vibration/temperature and MPU6886 DMP/FIFO calibration are NOT RUN. The 0144 fix keeps the QOM accel-range/gyro-range view in sync with guest ACCEL_CONFIG/GYRO_CONFIG writes; guest init selects 2g/250dps and the probe then switches to 8g/1000dps. 0x68 is shared with Mini IMU-Pro (U171)."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T00:21:55.526980+08:00",
+      "properties": {
+        "accel-x-g": 1.5,
+        "accel-y-g": -0.5,
+        "accel-z-g": 1,
+        "gyro-x-dps": 12.5,
+        "gyro-y-dps": -25,
+        "gyro-z-dps": 50,
+        "temperature-c": 31.25,
+        "accel-range": 8,
+        "gyro-range": 1000,
+        "whoami": 25,
+        "i2c-address": 104
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH6_PROBE_READY",
+    "mini-imu": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (927) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6_PROBE_START mini-imu\nE (1302) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6_PROBE_READY mini-imu\nI2C_IMU_WHOAMI 25\nI2C_IMU_ACC 1.5 -0.5 1.0\nI2C_IMU_GYRO 12.503817 -25.0 50.0\nI2C_IMU_TEMP 31.25153\nI2C_IMU_RANGE0 16384 131\nI2C_IMU_RANGE1 4096 32.8\nI2C_IMU_ACC2 1.5 -0.5 1.0\nI2C_IMU_GYRO2 12.5 -25.0 50.0\nI2C_IMU_END\n"
+  },
+  "frame": {
+    "sha256": "50ed2aeb3cb3ecc38af68a7304cac2b2b1d12cd212a2feb37db2cc1ac9b266a5",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "15b93847f1f0298de385558f1249bbc5a76c32688164f85f366e8976ec177030",
+    "bytes": 19904
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Real motion/vibration/temperature and MPU6886 DMP/FIFO calibration are NOT RUN.",
+    "0x68 is shared with Mini IMU-Pro (U171); guest ACCEL_CONFIG/GYRO_CONFIG writes are the range source of truth after the 0144 QOM sync.",
+    "The driver returns g/deg/s only after the probe switches units explicitly; the default MPU6886 path returns m/s^2/rad/s."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed."
+}

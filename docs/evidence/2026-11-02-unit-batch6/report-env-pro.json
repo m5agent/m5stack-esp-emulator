@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T00:21:55.820940+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "env-pro",
+  "driver_class": "ENVPROUnit (BME688, 0x77; raw fields only)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_chip_variant": true,
+    "guest_raw_field_bytes_exact": true,
+    "guest_status_ready": true,
+    "qom_fixtures_exact": true,
+    "qom_identity": true,
+    "i2c_address_0x77": true,
+    "guest_decoded_not_asserted": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "be5bb9cf05e40c089dc2fa6824496edf05a4d5e8f1612213c74d3f92f619a978",
+  "firmware_id": "be5bb9cf05e40c089dc2fa6824496edf05a4d5e8f1612213c74d3f92f619a978",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "0bf77bf1cf7d2a58559576ce55495dc592ea099cd6124b0f732160ced9306906",
+  "qemu_source_state": "canonical 75f1d24 + canonical chain 22 layers (0120-0141, incl. 0140 batch6 A) + 0144-unit-batch6-evidence-fixes",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "initial_inputs": {
+    "temperature-c": 31.5,
+    "humidity-pct": 45.5,
+    "pressure-pa": 100500,
+    "gas-resistance-ohm": 500000,
+    "data-ready": true
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "3266d649824c848ac986ba2e5057b51aaaf1c64ab93730a3177ef855c5d96648",
+    "main.py": "386971e8943fe779040c581d2cc924ebe9eada8a0b3ba4d9d275f624eb28ec24"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "b021a2c3513042479b38bd17146ce503",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "env-pro",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "env_pro": {
+      "guest_id": [
+        "97",
+        "1"
+      ],
+      "guest_raw_field_hex": "8001188940000478747a",
+      "guest_status": "128",
+      "guest_decoded_observation": "0.0 0.0 0.0 102400.0",
+      "expected_raw_field_hex": "8001188940000478747a",
+      "qom": {
+        "temperature-c": 31.5,
+        "humidity-pct": 45.5,
+        "pressure-pa": 100500,
+        "gas-resistance-ohm": 500000,
+        "data-ready": true,
+        "chip-id": 97,
+        "variant": 1,
+        "i2c-address": 119
+      },
+      "decoded_assertion": "NOT ASSERTED: the 0140 model does not implement the BME68x compensation inverse, so guest T/RH/P are observation-only. Raw field bytes are the assertable data plane.",
+      "boundary": "BME688 gas/IAQ/heater profile/10.8s scan, real T/RH/P physics and calibration coefficients are NOT RUN; 0x77 is free but the 0x76 alternate conflicts with env/bps/env-ii/env-iv."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T00:21:58.654566+08:00",
+      "properties": {
+        "temperature-c": 31.5,
+        "humidity-pct": 45.5,
+        "pressure-pa": 100500,
+        "gas-resistance-ohm": 500000,
+        "data-ready": true,
+        "chip-id": 97,
+        "variant": 1,
+        "i2c-address": 119
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH6_PROBE_READY",
+    "env-pro": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (927) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6_PROBE_START env-pro\nE (1309) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH6_PROBE_READY env-pro\nI2C_BME_ID 97 1\nI2C_BME_RAW 8001188940000478747a\nI2C_BME_STATUS 128\nI2C_BME_DECODED_OBSERVATION 0.0 0.0 0.0 102400.0\nI2C_BME_END\n"
+  },
+  "frame": {
+    "sha256": "919a9aa244ab55104f78ac6abfeb20bc129489e49aa22cec3bc862baa9012cf4",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "b753041a634868b0575a3e2ac82dc72367a0f83ad163b0b8f5c85a1920c37d29",
+    "bytes": 20339
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Guest-decoded temperature/humidity/pressure are NOT ASSERTED: the 0140 model does not implement the BME68x compensation inverse. Only chip/variant identity, raw field bytes and QOM fixtures are asserted.",
+    "BME688 gas/IAQ/heater profile, 10.8s scan, calibration coefficients and real T/RH/P physics are NOT RUN.",
+    "0x77 is free but the 0x76 alternate conflicts with env/bps/env-ii/env-iv; the frozen driver uses 8-bit register addresses."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only concise reports, hashes and reproduction commands are committed.",
+  "decoded_assertion": "NOT ASSERTED: guest temperature/humidity/pressure/gas decode requires the BME68x compensation inverse, which the 0140 model does not implement. The PASS covers identity, raw field bytes and QOM fixtures only; decoded values are recorded as observation."
+}
