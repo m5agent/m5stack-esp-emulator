@@ -1,11 +1,13 @@
-From 2f8e4a6c1d3b5e7f9a0b2c4d6e8f1a3b5c7d9e1f Mon Sep 17 00:00:00 2001
+From 1ebf80e62f24107334bdc6503ab17a3d02624858 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 02:20:00 +0800
+Date: Tue, 3 Nov 2026 02:35:18 +0800
 Subject: [PATCH] hw/m5stopwatch: fix batch-7 UART responder capture/injection
 
 Fix the batch-7 UART evidence gaps found by guest/Device Service evidence.
-Base: canonical 75f1d24 + 28-layer canonical chain through 0147 (incl. 0143
-batch7 A and 0145 batch7 B).
+Base in the reconciled canonical order is the 30-layer chain through 0149
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0148 and
+0149); this is the 31st layer after 0120 and it applies at the chain end.
 
 - The 0145 batch-7 UART ids (catm, catm-gnss, lorawan-cn470) were added to the
   TX-capture condition but not to the generic idle-time responder body, so the
@@ -22,28 +24,33 @@ batch7 A and 0145 batch7 B).
 No model protocol decode is added: the UART units remain byte-layer fixture
 responders, with SIM7080G/GNSS/LoRaWAN AT semantics and RF/cellular behavior
 left unresolved/NOT RUN.
+---
+ hw/m5stopwatch/m5_unit_gpio.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index bb7c2cb..25d00e6 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -1028,7 +1028,13 @@
-                            !strcmp(g->unit->unit_id, "nbiot2") ||
+@@ -1048,8 +1048,14 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                             !strcmp(g->unit->unit_id, "uwb") ||
                             !strcmp(g->unit->unit_id, "dmx") ||
--                           !strcmp(g->unit->unit_id, "finger")) {
-+                           !strcmp(g->unit->unit_id, "finger") ||
+                            !strcmp(g->unit->unit_id, "finger") ||
 +                           !strcmp(g->unit->unit_id, "catm") ||
 +                           !strcmp(g->unit->unit_id, "catm-gnss") ||
-+                           !strcmp(g->unit->unit_id, "lorawan-cn470")) {
++                           !strcmp(g->unit->unit_id, "lorawan-cn470") ||
+                            !strcmp(g->unit->unit_id, "nbiot-cn") ||
+                            !strcmp(g->unit->unit_id, "lorawan-us915")) {
 +                    /* Batch-7 UART units use the same idle-time fixture
 +                     * responder as nbiot2; the 0145 list update registered the
 +                     * unit ids but this capture body was missed. */
                      if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
                      at_arm_idle(g);
                  }
-@@ -1173,6 +1179,16 @@
-             DeviceState *uart = m5soc_get_uart_device(n);
+@@ -1275,6 +1281,16 @@ static bool gpio_uart_rx_device_for_white(GPIOUnit *g, DeviceState **uart_out)
              if (uart) { *uart_out = uart; return true; }
          }
-+    }
+     }
 +    /* Fallback for frozen drivers that create/init their UART without the
 +     * GPIO-matrix RX route seen by the responder (e.g. the ASR650x wrapper):
 +     * reuse the UART whose TX signal is routed to this Unit's yellow pin. The
@@ -53,6 +60,10 @@ left unresolved/NOT RUN.
 +            DeviceState *uart = m5soc_get_uart_device(n);
 +            if (uart) { *uart_out = uart; return true; }
 +        }
-     }
++    }
      return false;
  }
+ 
+-- 
+2.55.0
+
