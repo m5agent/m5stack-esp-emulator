@@ -9563,6 +9563,62 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "hex": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。",
+      "bindings_required": [],
+      "notes": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。"
+    },
+    "mini-pdm": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "unsupported",
+      "blocker": "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。",
+      "bindings_required": [],
+      "notes": "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。"
+    },
+    "catm": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。",
+      "bindings_required": [],
+      "notes": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。"
+    },
+    "catm-gnss": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。",
+      "bindings_required": [],
+      "notes": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。"
+    },
+    "lorawan-cn470": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。",
+      "bindings_required": [],
+      "notes": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。"
+    },
+    "can": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。",
+      "bindings_required": [],
+      "notes": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。"
+    },
+    "mini-imu-pro": {
+      "status": "planned",
+      "hosts": [],
+      "model_completeness": "pending",
+      "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
+      "bindings_required": [],
+      "notes": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
     }
   },
   "evidence_policy": {

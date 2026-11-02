@@ -22356,6 +22356,1536 @@
         "0x76 BMP280 fallback conflicts with env/bps; 0x70 conflicts with env-iii/pahub.",
         "QMP6988 compensation, pressure accuracy and altitude assumptions are NOT RUN."
       ]
+    },
+    {
+      "id": "hex",
+      "name": "Unit HEX",
+      "sku": "A045",
+      "visual_asset": {
+        "entry": "src/units/hex/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/hex",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SK6812 x37",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-rmt",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "LED Signal",
+            "direction": "output"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "not-connected"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "product-page-only-unit-driver-gap",
+        "summary": "37x SK6812 RGB LEDs on the yellow signal line, white NC; output-only RMT data stream (no readback). Public UIFlow2 has no unit/hex.py; only generic driver.neopixel.sk6812.SK6812 (GRB order, bpp=3) is executable. HEX can cascade via its input/output ports.",
+        "registers": [
+          {
+            "register": "SK6812 frame",
+            "length": 111,
+            "encoding": "37 LEDs x 3 bytes GRB, 800kHz RMT stream (generic driver ORDER GRB)"
+          },
+          {
+            "register": "cascade input/output",
+            "length": 1,
+            "encoding": "data in/out pass-through for chained HEX panels"
+          }
+        ],
+        "gaps": [
+          "No official unit/hex.py; generic SK6812 path only",
+          "SK6812 vs WS2812C timing/order differences",
+          "LED optics/power/cascade timing NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "led-rgb": {
+          "type": "array",
+          "label": "37 灯 RGB",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "minItems": 37,
+          "maxItems": 37
+        },
+        "led-frames": {
+          "type": "integer",
+          "label": "完整帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "incomplete-frames": {
+          "type": "integer",
+          "label": "不完整帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "output-transitions": {
+          "type": "integer",
+          "label": "输出状态变化",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/hex",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU A045",
+            "37x SK6812 RGB LEDs",
+            "PORT.B Yellow=LED Signal White=NC",
+            "5V"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+          "checked_at": "2026-11-02",
+          "sha256": "b316cbebf49a5a459c67125445d860ad18f3b9e517a7abb856ac6914e8720e82",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/__init__.py",
+          "checked_at": "2026-11-02",
+          "sha256": "f1995e9fa025330b468836f4c76723924e4254c873f75970d4a343f8e727c1d8",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-patch",
+          "url": "patches/qemu-m5stack-peripherals/0139-unit-batch5b.patch",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "neohex 37-LED RMT capture on yellow data line",
+            "led-rgb/led-frames/incomplete-frames QOM pattern"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "array"
+          },
+          "led-frames": {
+            "property": "led-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "incomplete-frames": {
+            "property": "incomplete-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-transitions": {
+            "property": "output-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。"
+      },
+      "blocker": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。",
+      "limitations": [
+        "No official Unit HEX driver: guest probe must use generic NeoPixel/SK6812, unlike a frozen unit driver.",
+        "SK6812 (HEX A045) vs WS2812C (NeoHEX A045-B) timing/order/cascade differences unresolved until measured.",
+        "PORT.B yellow data line shared with neohex/rgb-led-10cm/op90; one output Unit per port.",
+        "LED optics/color/power/cascade input-output NOT RUN.",
+        "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。"
+      ]
+    },
+    {
+      "id": "mini-pdm",
+      "name": "Unit Mini PDM",
+      "sku": "U089",
+      "visual_asset": {
+        "entry": "src/units/mini-pdm/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/pdm",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SPM1423",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-pdm",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "Data",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "Clock",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "product-page-only-no-official-unit-driver",
+        "summary": "SPM1423 PDM MEMS microphone, two-wire PDM: yellow=DATA input, white=CLK output. No I2C/UART register map and no public UIFlow2 Unit driver; guest must use machine.I2S PDM RX (or a future unit/mini_pdm wrapper). Data plane is a PCM stream, not register transactions.",
+        "registers": [
+          {
+            "register": "PDM stream",
+            "length": 0,
+            "encoding": "1-bit PDM DATA sampled on CLK, decimated to PCM by I2S/PDM RX"
+          },
+          {
+            "register": "clock",
+            "length": 0,
+            "encoding": "host-generated PDM clock; frequency selects power/sleep per product page"
+          }
+        ],
+        "gaps": [
+          "No official Unit driver/API; guest path is machine.I2S only",
+          "Acoustic sensitivity/SNR/THD NOT RUN",
+          "PDM pinmux/clock frequency not verified on cores3 PORT.B"
+        ]
+      },
+      "inputs": {
+        "pcm-frame": {
+          "type": "string",
+          "label": "PCM 采样 fixture（hex）",
+          "default": "00000000",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2})*$"
+        }
+      },
+      "outputs": {
+        "pcm-frame": {
+          "type": "string",
+          "label": "PDM 解码 PCM",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "sample-rate": {
+          "type": "integer",
+          "label": "采样率",
+          "default": 16000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames": {
+          "type": "integer",
+          "label": "PCM 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "clock-hz": {
+          "type": "integer",
+          "label": "PDM 时钟",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/pdm",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U089",
+            "SPM1423 PDM microphone",
+            "PORT.B Yellow=Data White=Clock",
+            "SNR 61.4dB, -22dBFS"
+          ]
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/m5stopwatch/m5_i2s_esp32.c",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SPM1423 PDM RX path exists for ESP32 AtomU/Echo boards"
+          ]
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/m5stopwatch/m5_i2s.c",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ESP32-S3 I2S RX DMA with rx_pcm injection"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "pcm-frame": {
+            "property": "pcm-frame",
+            "access": "read-write",
+            "type": "string"
+          },
+          "sample-rate": {
+            "property": "sample-rate",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames": {
+            "property": "frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "clock-hz": {
+            "property": "clock-hz",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。"
+      },
+      "blocker": "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。",
+      "limitations": [
+        "No official Unit driver: evidence path is machine.I2S PDM, weaker than a frozen unit driver.",
+        "PORT.B DATA/CLK two-wire use conflicts with hex RMT and other PORT.B units.",
+        "Acoustic sensitivity/SNR/THD/clock frequency and enclosure acoustics NOT RUN.",
+        "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。"
+      ]
+    },
+    {
+      "id": "catm",
+      "name": "Unit CatM",
+      "sku": "U128",
+      "visual_asset": {
+        "entry": "src/units/catm/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_CatM",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SIM7080G",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SIM7080G Cat-M/NB-IoT module, UART 115200 8N1, AT controlled. unit/catm.py constructs SIM7080, probes AT readiness (repeat) and sends ATE0; SIM7080 driver exposes CMNB/CSQ/GSN/CCID/CNACT/SMCONF/SMCONN and MQTT/HTTP commands. Network/RF is not modeled; only AT bytes and fixture responses are assertable.",
+        "registers": [
+          {
+            "register": "AT readiness",
+            "length": 6,
+            "encoding": "write AT\\r\\n; expect OK"
+          },
+          {
+            "register": "echo off",
+            "length": 6,
+            "encoding": "write ATE0\\r\\n; expect OK"
+          },
+          {
+            "register": "mode AT+CMNB?",
+            "length": 9,
+            "encoding": "query cat-M/NB-IoT mode; response +CMNB:"
+          },
+          {
+            "register": "network AT+CNACT?",
+            "length": 11,
+            "encoding": "PDP activation query; response +CNACT:"
+          },
+          {
+            "register": "IMEI/CCID AT+GSN / AT+CCID",
+            "length": 8,
+            "encoding": "identity query; response OK/text"
+          },
+          {
+            "register": "MQTT AT+SMCONF/AT+SMCONN",
+            "length": 9,
+            "encoding": "MQTT server config/connect; OK"
+          }
+        ],
+        "gaps": [
+          "AT firmware version/URC timing unresolved",
+          "Cat-M/NB-IoT RF/network/SIM/certs NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 chunk fixture（; 分隔 hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_CatM",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U128",
+            "SIM7080G Cat-M/NB-IoT",
+            "UART 115200 8N1",
+            "PORT.C Yellow=UART_RX White=UART_TX",
+            "AT controlled, external SMA"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/catm.py",
+          "checked_at": "2026-11-02",
+          "sha256": "cda366f28ed32637b679ba498521cd26e806fa0967a9c6bb852a723a3dee8b5f",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/sim7080.py",
+          "checked_at": "2026-11-02",
+          "sha256": "8fe42a717b1c13bb70e8fd471c6b4d14fbfee14c7f7e26d8437a81da825f84b2",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/common.py",
+          "checked_at": "2026-11-02",
+          "sha256": "d126ef03361769ea50c40b76ca9303a2f7fceca551dff489a73f497275845b52",
+          "sha256_source": "local checkout HEAD 528edd8"
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。"
+      },
+      "blocker": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。",
+      "limitations": [
+        "PORT.C UART pins shared with every other UART Unit; one per port.",
+        "SIM7080 AT firmware/URC timing and unsolicited response order are unresolved.",
+        "Cat-M/NB-IoT RF, SIM, network registration, TCP/TLS/MQTT and certifications NOT RUN.",
+        "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。"
+      ]
+    },
+    {
+      "id": "catm-gnss",
+      "name": "Unit CatM GNSS",
+      "sku": "U137",
+      "visual_asset": {
+        "entry": "src/units/catm-gnss/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_CatM_GNSS",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "SIM7080G",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SIM7080G Cat-M/NB-IoT + GNSS (GPS/GLONASS/BeiDou/Galileo), UART 115200 8N1. Same CATMGNSSUnit constructor as CatM; GNSS additions: AT+CGNSPWR?/CGNSPWR=, AT+CGNSMOD=, AT+CGNSINF polling (NMEA), AT+CGNSCOLD/WARM/HOT, get_gnss_position. RF/positioning is fixture-only; page FAQ says COG in CGNSINF is not travel heading.",
+        "registers": [
+          {
+            "register": "AT readiness/echo",
+            "length": 8,
+            "encoding": "AT / ATE0; expect OK"
+          },
+          {
+            "register": "AT+CGNSPWR?/=",
+            "length": 11,
+            "encoding": "GNSS power query/set; +CGNSPWR"
+          },
+          {
+            "register": "AT+CGNSMOD=",
+            "length": 17,
+            "encoding": "GNSS constellation enable flags"
+          },
+          {
+            "register": "AT+CGNSINF",
+            "length": 10,
+            "encoding": "poll NMEA/fix line; +CGNSINF: run,fix,UTC,lat,lon,alt,speed,course,..."
+          },
+          {
+            "register": "AT+CGNSCOLD/WARM/HOT",
+            "length": 10,
+            "encoding": "start mode; OK"
+          }
+        ],
+        "gaps": [
+          "SIM7080 AT firmware/URC unresolved",
+          "GNSS antenna/RF/fix accuracy NOT RUN",
+          "page FAQ: COG field is not travel heading"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT/GNSS 响应 chunk fixture（; 分隔 hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_CatM_GNSS",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U137",
+            "SIM7080G + GNSS",
+            "UART 115200 8N1",
+            "PORT.C",
+            "GPS/GLONASS/BeiDou/Galileo",
+            "CGNSINF COG is not travel heading"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/catm_gnss.py",
+          "checked_at": "2026-11-02",
+          "sha256": "5b03cdff80d46556359eee31ad6f7bac12d5d6b970db0372f2a52de011343234",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/simcom/sim7080.py",
+          "checked_at": "2026-11-02",
+          "sha256": "8fe42a717b1c13bb70e8fd471c6b4d14fbfee14c7f7e26d8437a81da825f84b2",
+          "sha256_source": "local checkout HEAD 528edd8"
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。"
+      },
+      "blocker": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。",
+      "limitations": [
+        "PORT.C UART shared with CatM and every UART Unit; one per port.",
+        "SIM7080 AT firmware/URC and GNSS/CGNSSINF formatting are resolved only by fixture, not RF.",
+        "Cellular + GNSS cannot run concurrently (page FAQ); COG field is not heading.",
+        "GNSS antenna/constellation/fix accuracy/time-to-first-fix NOT RUN.",
+        "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。"
+      ]
+    },
+    {
+      "id": "lorawan-cn470",
+      "name": "Unit LoRaWAN-CN470",
+      "sku": "U184-CN470",
+      "visual_asset": {
+        "entry": "src/units/lorawan-cn470/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-CN470",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "STM32WLE5",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": 115200,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-driver-product-mismatch",
+        "summary": "STM32WLE5 LoRaWAN 1.0.3 module (CN470 470-510MHz, Class A/B/C, OTAA/ABP, P2P) at UART 115200, AT controlled. Frozen unit/lorawan.py wraps driver.asr650x.LoRaWAN_470 (ASR6501) with AT commands for DevAddr/DevEUI/AppEUI/AppKey/AppSKey/NwkSKey/JoinMode/WorkMode/Class/band mask; product/driver chip mismatch is unresolved.",
+        "registers": [
+          {
+            "register": "AT+CGSN?",
+            "length": 7,
+            "encoding": "product serial query"
+          },
+          {
+            "register": "AT+CDEVADDR?/=",
+            "length": 12,
+            "encoding": "DevAddr query/set"
+          },
+          {
+            "register": "AT+CDEVEUI?/=",
+            "length": 12,
+            "encoding": "DevEUI query/set"
+          },
+          {
+            "register": "AT+CAPPEUI?/=",
+            "length": 12,
+            "encoding": "AppEUI query/set"
+          },
+          {
+            "register": "AT+CAPPKEY?/=",
+            "length": 12,
+            "encoding": "AppKey query/set"
+          },
+          {
+            "register": "AT+CJOINMODE?/=",
+            "length": 13,
+            "encoding": "OTAA/ABP join mode"
+          },
+          {
+            "register": "AT+CFREQBANDMASK?/=",
+            "length": 17,
+            "encoding": "CN470 band mask"
+          },
+          {
+            "register": "AT+CWORKMODE?/=",
+            "length": 13,
+            "encoding": "LoRaWAN/P2P work mode"
+          }
+        ],
+        "gaps": [
+          "STM32WLE5 product vs ASR650x driver AT compatibility unresolved",
+          "LoRaWAN stack/OTAA/ABP/join state machine NOT modeled",
+          "CN470 RF/antenna/regulatory duty cycle NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 chunk fixture（; 分隔 hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_LoRaWAN-CN470",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U184-CN470",
+            "STM32WLE5",
+            "LoRaWAN 1.0.3 CN470, Class A/B/C, OTAA/ABP/P2P",
+            "UART 115200",
+            "PORT.C"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/lorawan.py",
+          "checked_at": "2026-11-02",
+          "sha256": "5cd3fc5347ef202f6bf3a5dc2724e3994b65988f74787e011f152ac1976e6277",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/asr650x.py",
+          "checked_at": "2026-11-02",
+          "sha256": "fd5063b63d335ca8c7437eb2e0e0b0559317f62014b8929587b40bc74052a893",
+          "sha256_source": "local checkout HEAD 528edd8"
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。"
+      },
+      "blocker": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。",
+      "limitations": [
+        "STM32WLE5 product vs ASR650x driver AT command set mismatch unresolved; must capture actual responses.",
+        "OTAA/ABP keys, Join/Accept, LoRaWAN stack and P2P mode are NOT modeled.",
+        "CN470 470-510MHz RF/antenna/range/regulatory duty cycle and certifications NOT RUN.",
+        "PORT.C UART shared with all UART Units; one per port.",
+        "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。"
+      ]
+    },
+    {
+      "id": "can",
+      "name": "Unit CAN",
+      "sku": "U085",
+      "visual_asset": {
+        "entry": "src/units/can/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/can",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "CA-IS3050G isolated CAN transceiver",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "baudrate": null,
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "CAN_TX",
+            "direction": "output"
+          },
+          "white": {
+            "signal": "CAN_RX",
+            "direction": "input"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-c-module-tai",
+        "summary": "Isolated CAN transceiver (CA-IS3050G, 1000V, ISO11898-2, up to 1Mbps, 110 nodes, 120Ω termination) on PORT.C yellow=CAN_TX, white=CAN_RX. unit/can.py is a thin wrapper over C module m5can (CANUnit); timing table maps 25k-1M baud to prescaler/sjw/bs1/bs2/triple_sampling; m5can exposes init/send/recv/any/state/info/setfilter/clearfilter with standard/extended frames.",
+        "registers": [
+          {
+            "register": "m5can.init",
+            "length": 0,
+            "encoding": "mode, prescaler, sjw, bs1, bs2, triple_sampling; TWAI/SJA1000 timing"
+          },
+          {
+            "register": "m5can.send",
+            "length": 0,
+            "encoding": "id + data bytes, extframe/rtr flags; standard 11-bit / extended 29-bit"
+          },
+          {
+            "register": "m5can.recv/any",
+            "length": 0,
+            "encoding": "FIFO frame receive; returns (id, data, ...)"
+          },
+          {
+            "register": "m5can.state/info",
+            "length": 0,
+            "encoding": "STOPPED/RUNNING/BUS_OFF states and counters"
+          },
+          {
+            "register": "m5can.setfilter/clearfilter",
+            "length": 0,
+            "encoding": "mask16/list16/mask32/list32 filter banks"
+          },
+          {
+            "register": "timing table",
+            "length": 0,
+            "encoding": "25k..1M -> (prescaler,bs1,bs2,sjw,triple_sampling)"
+          }
+        ],
+        "gaps": [
+          "C module m5can has no Python protocol source; frame format is the m5can API",
+          "External CAN bus/transceiver/isolation/termination NOT RUN",
+          "Unit attachment for CAN frames and host injection unresolved"
+        ]
+      },
+      "inputs": {
+        "inject-hex": {
+          "type": "string",
+          "label": "CAN 注入帧 fixture（id#data）",
+          "default": "123#deadbeef",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "frames-observed": {
+          "type": "integer",
+          "label": "总线观测帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "injected-frames": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "last-frame-hex": {
+          "type": "string",
+          "label": "最近观测帧",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/can",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U085",
+            "CA-IS3050G isolated CAN transceiver",
+            "ISO11898-2, up to 1Mbps, 110 nodes, 120Ω",
+            "PORT.C Yellow=CAN_TX White=CAN_RX"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/can.py",
+          "checked_at": "2026-11-02",
+          "sha256": "00434dbbba33a1ce4f3068f9e2c60850298f101d6a4a4bf400054cc62e19627b",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-model",
+          "url": "hw/net/can/esp32s3_twai.c",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "ESP32-S3 TWAI/SJA1000 model exists in canonical QEMU",
+            "cores3 board creates m5_can_bus_create() CanBusState and realizes TWAI"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/m5can/modcan.c",
+          "checked_at": "2026-11-02",
+          "sha256": "9e77c05c8b196cd943fba5b589c5f94211b8464b64949e166da8a9d2fbe798bf",
+          "sha256_source": "local checkout HEAD 528edd8",
+          "claims": [
+            "m5can C module: init/send/recv/any/state/info/setfilter/clearfilter",
+            "NORMAL/NO_ACKNOWLEDGE/LISTEN_ONLY, standard/extended frames"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "inject-hex": {
+            "property": "inject-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "frames-observed": {
+            "property": "frames-observed",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "injected-frames": {
+            "property": "injected-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-frame-hex": {
+            "property": "last-frame-hex",
+            "access": "read-only",
+            "type": "string"
+          }
+        },
+        "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。"
+      },
+      "blocker": "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。",
+      "limitations": [
+        "unit/can.py is a thin wrapper over the C m5can module; no Python driver register map.",
+        "CAN uses PORT.C CAN_TX/CAN_RX pins, not UART; current host-port/attachment model needs a CAN lane.",
+        "External transceiver CA-IS3050G, 1000V isolation, 120Ω termination, bus arbitration/error frames NOT RUN.",
+        "CAN bus injection/QOM frame fixture design is unresolved; do not map it to a UART responder.",
+        "0145 绑定 cores3 m5-canbus 的 CanBusClient：guest TWAI 帧可观测（frames-observed/last-frame-hex），QOM inject-hex 可注入一帧（injected-frames）。**帧方向/过滤/位定时、外部收发器/隔离/终端/总线仲裁 NOT modeled**；CAN attachment 语义仍有限；PORT.C 与 UART Unit 复用 pins。"
+      ]
+    },
+    {
+      "id": "mini-imu-pro",
+      "name": "Unit Mini IMU-Pro",
+      "sku": "U171",
+      "visual_asset": {
+        "entry": "src/units/mini-imu-pro/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Mini_IMU-Pro",
+      "checked_at": "2026-11-02",
+      "chips": [
+        {
+          "part": "BMI270",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMM150 (behind BMI270 auxiliary bus)",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMP280",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          104,
+          16,
+          118
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-composite-boundary",
+        "summary": "10-DoF composite: BMI270 0x68 (DIP can select secondary 0x69), BMM150 0x10 behind BMI270 auxiliary bus, BMP280 0x76 on the Grove bus. BMI270 needs an init blob (CMD 0x7E=0xB0) then aux config/read/write 0x44/0x4D/0x4E; magnetometer uses BMM150 behind that aux window.",
+        "registers": [
+          {
+            "register": "BMI270 chip-id",
+            "length": 1,
+            "encoding": "reg 0x00 == 0x24 (driver-defined)"
+          },
+          {
+            "register": "BMI270 DATA",
+            "length": 12,
+            "encoding": "reg 0x0C accel x/y/z + gyro x/y/z int16 LE"
+          },
+          {
+            "register": "BMI270 AUX_X",
+            "length": 8,
+            "encoding": "reg 0x04 aux sensor data window"
+          },
+          {
+            "register": "BMI270 AUX_CONF/RD/WR",
+            "length": 1,
+            "encoding": "0x44 aux config; 0x4D aux read; 0x4E aux write"
+          },
+          {
+            "register": "BMI270 INIT_ADDR_0/1",
+            "length": 1,
+            "encoding": "0x5B/0x5C init burst address"
+          },
+          {
+            "register": "BMI270 CMD",
+            "length": 1,
+            "encoding": "0x7E init burst 0xB0, soft reset 0xB6"
+          },
+          {
+            "register": "BMM150 aux 0x10",
+            "length": 8,
+            "encoding": "mag x/y/z via BMI270 aux; chip-id 0x32"
+          },
+          {
+            "register": "BMP280 0x76",
+            "length": 6,
+            "encoding": "chip-id 0xD0=0x58; calib 0x88; data 0xF7"
+          }
+        ],
+        "gaps": [
+          "BMI270 init blob must be accepted by guest; QEMU needs aux window emulation",
+          "magnetometer/attitude physics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z fixture",
+          "default": 1.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "magnetic-x": {
+          "type": "number",
+          "label": "磁力 X fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-y": {
+          "type": "number",
+          "label": "磁力 Y fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-z": {
+          "type": "number",
+          "label": "磁力 Z fixture",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度 fixture",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -40,
+          "maximum": 85,
+          "unit": "C"
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压 fixture",
+          "default": 101325.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 30000,
+          "maximum": 110000,
+          "unit": "Pa"
+        }
+      },
+      "outputs": {
+        "whoami": {
+          "type": "integer",
+          "label": "WHO_AM_I",
+          "default": 36,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "transactions": {
+          "type": "integer",
+          "label": "I2C 事务数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Mini_IMU-Pro",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "SKU U171",
+            "BMI270 0x68, BMM150 0x10, BMP280 0x76",
+            "10-DoF",
+            "PORT.A"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/imu_pro.py",
+          "checked_at": "2026-11-02",
+          "sha256": "c3006ee15156a14838dac20ef512010239da20f66976705cde464d8d2791ea04",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/bmi270_bmm150.py",
+          "checked_at": "2026-11-02",
+          "sha256": "0b6397a3c9e89cdb15ae5a572652c2d99017f644d2f363db9b0a53cb97e0d7c5",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/bmp280.py",
+          "checked_at": "2026-11-02",
+          "sha256": "01cd715d416cad4440fd5fa8ee2a006d68b9203512565677c0bf313a8be22c0f",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "official-i2c-address-index",
+          "url": "https://docs.m5stack.com/en/product_i2c_addr",
+          "checked_at": "2026-11-02",
+          "claims": [
+            "Mini IMU-Pro: BMI270 0x68, BMP280 0x76; BMM150 0x10 on BMI270 aux bus 2"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "acceleration-x": {
+            "property": "acceleration-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-y": {
+            "property": "acceleration-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-z": {
+            "property": "acceleration-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-x": {
+            "property": "gyroscope-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-y": {
+            "property": "gyroscope-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-z": {
+            "property": "gyroscope-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "magnetic-x": {
+            "property": "magnetic-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "magnetic-y": {
+            "property": "magnetic-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "magnetic-z": {
+            "property": "magnetic-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa",
+            "access": "read-write",
+            "type": "number"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
+      },
+      "blocker": "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。",
+      "limitations": [
+        "BMM150 0x10 is behind BMI270 aux, not a direct Grove address; QEMU needs aux window emulation.",
+        "0x68/0x76 address conflicts; one Unit per bus only.",
+        "Acceleration/gyroscope/magnetometer/attitude and magnetic interference are NOT RUN.",
+        "0145 新增 US_BMI270（0x68）+ 复用 BMP280（0x76）双从机：BMI270 接受 CMD 0x7E init burst，accel/gyro/temp 由 fixture 合成，BMM150 以 0x04..0x09 简化 16-bit 窗口（raw=uT*16）。**完整 init blob/aux 事务/量程配置未建模**；0x68 与 mini-imu、0x76 与 env/bps/env-ii/env-iv 冲突；运动/磁力/姿态物理 NOT RUN。"
+      ]
     }
   ],
   "model_status_values": [
