@@ -47,8 +47,8 @@ class UnitBatch9bPatchTests(unittest.TestCase):
                              f"{unit_id} must not be registered as a model")
 
     def test_catalog_and_profiles_counts(self):
-        self.assertEqual(len(self.catalog["units"]), 142)
-        self.assertEqual(len(self.profiles), 142)
+        self.assertEqual(len(self.catalog["units"]), 160)
+        self.assertEqual(len(self.profiles), 160)
 
     def test_all_nine_stay_planned_with_empty_hosts(self):
         for unit_id in UNITS:
@@ -102,9 +102,9 @@ class UnitBatch9bPatchTests(unittest.TestCase):
         for unit_id in UNITS:
             self.assertIn(unit_id, mappings)
         test = (ROOT / "platform/tests/test_unit_visual_mappings.mjs").read_text(encoding="utf-8")
-        self.assertIn("catalog.units.length, 142", test)
-        self.assertIn("all-142-products", test)
-        self.assertIn("all-142-products", (ROOT / "platform/tests/test_unit_batch3ab_patch.py").read_text())
+        self.assertIn("catalog.units.length, 160", test)
+        self.assertIn("all-160-products", test)
+        self.assertIn("all-160-products", (ROOT / "platform/tests/test_unit_batch3ab_patch.py").read_text())
 
     def test_implementation_status_doc_and_no_guest_evidence(self):
         doc = (ROOT / "docs/unit-research/2026-11-03-batch9-impl-status.md").read_text(encoding="utf-8")

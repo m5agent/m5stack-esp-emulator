@@ -28838,6 +28838,3884 @@
       ],
       "input_semantics": null,
       "output_semantics": null
+    },
+    {
+      "id": "dcssr",
+      "name": "Unit DCSSR",
+      "sku": "U140",
+      "visual_asset": {
+        "entry": "src/units/dcssr/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/DCSSR%20Unit",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "ESP32C3",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          80
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-official-driver",
+        "summary": "DC SSR controller with ESP32C3, three modes (manual button / I2C slave @0x50 / RS485 Modbus @0x04), programmable SK6812 RGB LED, 10A DC24-220V load, isolated SSR. unit/acssr.py implements ACSSRI2CUnit (0x00 on/off, 0x10 RGB, 0xFE firmware, 0x20 set address) and ACSSRModbusUnit; unit/__init__.py aliases DCSSRUnit to acssr.",
+        "registers": [
+          {
+            "register": "0x00",
+            "length": 1,
+            "encoding": "relay on/off read/write"
+          },
+          {
+            "register": "0x10",
+            "length": 3,
+            "encoding": "SK6812 RGB"
+          },
+          {
+            "register": "0xFE",
+            "length": 1,
+            "encoding": "firmware version"
+          },
+          {
+            "register": "0x20",
+            "length": 1,
+            "encoding": "set I2C address"
+          }
+        ],
+        "gaps": [
+          "Modbus mode is a separate RS485 path not modeled by the Unit attachment",
+          "SSR 10A/DC24-220V/isolation/switching life/thermal NOT RUN"
+        ]
+      },
+      "inputs": {
+        "relay-state": {
+          "type": "boolean",
+          "label": "继电器状态 fixture",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "relay-state": {
+          "type": "boolean",
+          "label": "继电器状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-rgb": {
+          "type": "integer",
+          "label": "RGB",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 16777215
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "固件版本",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 80,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/dcssr",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U140",
+            "ESP32C3",
+            "I2C @0x50 / Modbus @0x04",
+            "10A DC24-220V SSR",
+            "SK6812 RGB"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/acssr.py",
+          "checked_at": "2026-11-03",
+          "sha256": null,
+          "sha256_source": "local checkout HEAD 528edd8",
+          "claims": [
+            "ACSSRI2CUnit address 0x50; 0x00 on/off, 0x10 RGB, 0xFE firmware, 0x20 address",
+            "DCSSRUnit alias"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "relay-level": {
+            "property": "relay-level",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "relay-transitions": {
+            "property": "relay-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "fw-version": {
+            "property": "fw-version",
+            "access": "read-write",
+            "type": "integer"
+          }
+        },
+        "blocker": "U140 has an official Unit driver (unit/acssr.py) and a clear I2C 0x50 register subset, so a minimal relay/RGB model is implementable. Modbus @0x04 is a separate RS485 path not modeled by the Unit attachment; SSR 10A/DC24-220V/isolation/switching life/thermal are NOT RUN. 0152/next implementation should keep planned until guest evidence. 0152 复用 CONTROL_ACSSR I2C slave（0x50：0x00 relay/0x10 RGB/0xFE fw/0x20 addr）登记 dcssr；无 guest 证据 → planned。Modbus/RS485 模式与 SSR 电气/隔离/寿命/热 NOT RUN。"
+      },
+      "blocker": "U140 has an official Unit driver (unit/acssr.py) and a clear I2C 0x50 register subset, so a minimal relay/RGB model is implementable. Modbus @0x04 is a separate RS485 path not modeled by the Unit attachment; SSR 10A/DC24-220V/isolation/switching life/thermal are NOT RUN. 0152/next implementation should keep planned until guest evidence. 0152 复用 CONTROL_ACSSR I2C slave（0x50：0x00 relay/0x10 RGB/0xFE fw/0x20 addr）登记 dcssr；无 guest 证据 → planned。Modbus/RS485 模式与 SSR 电气/隔离/寿命/热 NOT RUN。",
+      "limitations": [
+        "Modbus RS485 mode is outside the Unit data plane and not modeled.",
+        "SSR electrical/thermal/isolation/switching-life behavior NOT RUN.",
+        "0x50 must be checked against other I2C units on the same bus.",
+        "0152 复用 CONTROL_ACSSR I2C slave（0x50：0x00 relay/0x10 RGB/0xFE fw/0x20 addr）登记 dcssr；无 guest 证据 → planned。Modbus/RS485 模式与 SSR 电气/隔离/寿命/热 NOT RUN。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "ina226-1a",
+      "name": "Unit INA226-1A",
+      "sku": "U200-1A",
+      "visual_asset": {
+        "entry": "src/units/ina226-1a/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_INA226-1A",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "INA226",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          65
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-address-known",
+        "summary": "Isolated INA226 current/voltage/power monitor at I2C 0x41, 0-30V, +/-1A bidirectional, 80mOhm shunt, isolation/self-resetting fuse. No Unit INA226 driver exists; TI datasheet registers (config 0x00, shunt 0x01, bus 0x02, power 0x03, current 0x04, calibration 0x05, mask 0x06, alert 0x07) need a pinned datasheet SHA.",
+        "registers": [
+          {
+            "register": "0x00-0x07",
+            "length": 2,
+            "encoding": "standard INA226 config/shunt/bus/power/current/calibration/mask/alert; datasheet unresolved"
+          }
+        ],
+        "gaps": [
+          "No public Unit INA226 driver",
+          "Page gives no register table; TI datasheet must be pinned",
+          "Isolation/accuracy/fuse/thermal NOT RUN"
+        ]
+      },
+      "inputs": {
+        "bus-voltage-v": {
+          "type": "number",
+          "label": "总线电压 fixture",
+          "default": 5.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 30,
+          "unit": "V"
+        },
+        "current-a": {
+          "type": "number",
+          "label": "电流 fixture",
+          "default": 1.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -1,
+          "maximum": 1,
+          "unit": "A"
+        }
+      },
+      "outputs": {
+        "bus-voltage-v": {
+          "type": "number",
+          "label": "总线电压",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 30
+        },
+        "current-a": {
+          "type": "number",
+          "label": "电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -1,
+          "maximum": 1
+        },
+        "power-w": {
+          "type": "number",
+          "label": "功率",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 65,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/ina226-1a",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U200-1A",
+            "INA226",
+            "I2C @0x41",
+            "0-30V, +/-1A bidirectional, 80mOhm shunt"
+          ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.ti.com/product/INA226",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "TI INA226 datasheet is the only register/calibration source; local tree has no INA226 driver"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U200-1A has a clear I2C 0x41 address and standard INA226 datasheet, but no Unit driver/register table in the product page; a planned contract is registrable, and implementation must pin the TI datasheet. Isolation/0-30V/+-1A/fuse/accuracy NOT RUN; 0x41 is shared with INA226-10A. 仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。"
+      },
+      "blocker": "U200-1A has a clear I2C 0x41 address and standard INA226 datasheet, but no Unit driver/register table in the product page; a planned contract is registrable, and implementation must pin the TI datasheet. Isolation/0-30V/+-1A/fuse/accuracy NOT RUN; 0x41 is shared with INA226-10A. 仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。",
+      "limitations": [
+        "No public Unit INA226 driver; register/calibration map must come from a pinned TI datasheet.",
+        "0x41 is shared with ina226-10a (5mOhm +/-10A); one per bus.",
+        "Isolation/accuracy/fuse/thermal behavior NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "dof6",
+      "name": "Unit DoF6",
+      "sku": "U228",
+      "visual_asset": {
+        "entry": "src/units/dof6/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_DoF6",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "BMI270",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          104,
+          105
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-address-known",
+        "summary": "Six-axis BMI270 at I2C 0x68/0x69 selected by an onboard switch; 16-bit accel +/-2/4/8/16g and gyro +/-125/250/500/1000/2000dps, temperature. No Unit DoF driver; BMI270 register/init knowledge exists in the batch-7 mini-imu-pro US_BMI270 model (init burst accepted but not executed, fixtures only).",
+        "registers": [
+          {
+            "register": "BMI270 WHO_AM_I/init/accel/gyro/temp",
+            "length": 0,
+            "encoding": "BMI270 datasheet; US_BMI270 in 0145 is a partial fixture model, not a full driver"
+          }
+        ],
+        "gaps": [
+          "No public Unit DoF6 driver",
+          "BMI270 init blob/range/motion NOT executed",
+          "Real motion/vibration NOT RUN"
+        ]
+      },
+      "inputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -40,
+          "maximum": 85,
+          "unit": "C"
+        }
+      },
+      "outputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -40,
+          "maximum": 85
+        },
+        "whoami": {
+          "type": "integer",
+          "label": "CHIP_ID",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/dof6",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U228",
+            "BMI270 6-axis",
+            "I2C @0x68/0x69 onboard switch",
+            "+/-2/4/8/16g, +/-125..2000dps",
+            "16-bit"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/imu_pro.py",
+          "checked_at": "2026-11-03",
+          "sha256": null,
+          "sha256_source": "local checkout HEAD 528edd8",
+          "claims": [
+            "No unit/dof driver exists; imu_pro uses BMI270 but is a different product; US_BMI270 model in 0145 is fixture-only"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "acceleration-x": {
+            "property": "acceleration-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-y": {
+            "property": "acceleration-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-z": {
+            "property": "acceleration-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-x": {
+            "property": "gyroscope-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-y": {
+            "property": "gyroscope-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-z": {
+            "property": "gyroscope-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "U228 has clear BMI270 addresses 0x68/0x69 and public datasheet, so a planned contract is registrable; no Unit DoF driver exists and the 0145 US_BMI270 model only accepts the init burst without executing it. Real motion/range/motion-interrupt/init physics are NOT RUN; 0x68 conflicts with mini-imu/mini-imu-pro and DoF9/DoF10. 0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。"
+      },
+      "blocker": "U228 has clear BMI270 addresses 0x68/0x69 and public datasheet, so a planned contract is registrable; no Unit DoF driver exists and the 0145 US_BMI270 model only accepts the init burst without executing it. Real motion/range/motion-interrupt/init physics are NOT RUN; 0x68 conflicts with mini-imu/mini-imu-pro and DoF9/DoF10. 0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。",
+      "limitations": [
+        "No public Unit DoF6 driver; BMI270 init blob/range/motion is not executed.",
+        "0x68 conflicts with mini-imu/mini-imu-pro/DoF9/DoF10; 0x69 requires the onboard switch.",
+        "Real motion/vibration/temperature physics NOT RUN.",
+        "0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "dof9",
+      "name": "Unit DoF9",
+      "sku": "U229",
+      "visual_asset": {
+        "entry": "src/units/dof9/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_DoF9",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "BMI270",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMM350",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          104,
+          105,
+          20
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-address-known",
+        "summary": "Nine-axis BMI270 (0x68/0x69) + BMM350 magnetometer (0x14); BMM350 +/-2000uT/0.1uT with heading after calibration. No Unit DoF/BMM350 driver or register table in the tree; BMI270 can reuse the partial US_BMI270 fixture model, BMM350 needs Bosch datasheet.",
+        "registers": [
+          {
+            "register": "BMI270 0x68/0x69",
+            "length": 0,
+            "encoding": "BMI270 datasheet; partial 0145 fixture model"
+          },
+          {
+            "register": "BMM350 0x14",
+            "length": 0,
+            "encoding": "BMM350 datasheet/OTP; no driver/register table"
+          }
+        ],
+        "gaps": [
+          "No public Unit DoF9/BMM350 driver",
+          "BMM350 register/OTP/calibration unresolved",
+          "Magnetic/heading physics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -40,
+          "maximum": 85,
+          "unit": "C"
+        },
+        "magnetic-x": {
+          "type": "number",
+          "label": "磁力 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-y": {
+          "type": "number",
+          "label": "磁力 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-z": {
+          "type": "number",
+          "label": "磁力 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        }
+      },
+      "outputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -40,
+          "maximum": 85
+        },
+        "magnetic-x": {
+          "type": "number",
+          "label": "磁力 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "magnetic-y": {
+          "type": "number",
+          "label": "磁力 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "magnetic-z": {
+          "type": "number",
+          "label": "磁力 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "heading-deg": {
+          "type": "number",
+          "label": "航向",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 360
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/dof9",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U229",
+            "BMI270 + BMM350",
+            "BMI270 0x68/0x69, BMM350 0x14",
+            "+/-2000uT/0.1uT magnetometer"
+          ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "BMM350 datasheet is the register/OTP/calibration source; no BMM350 driver or register table exists in the frozen tree"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "acceleration-x": {
+            "property": "acceleration-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-y": {
+            "property": "acceleration-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-z": {
+            "property": "acceleration-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-x": {
+            "property": "gyroscope-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-y": {
+            "property": "gyroscope-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-z": {
+            "property": "gyroscope-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "U229 has clear BMI270/BMM350 addresses and public datasheets, so a planned contract is registrable; no Unit DoF9/BMM350 driver exists and BMM350 register/OTP/calibration is unresolved. Magnetic/heading physics are NOT RUN; 0x68 and 0x14 conflict with mini-imu/bmm350 families. 0152 只登记 BMI270 0x68 子集；BMM350 0x14 无驱动/寄存器表，未建模；磁力/heading NOT RUN；无 guest 证据 → planned。"
+      },
+      "blocker": "U229 has clear BMI270/BMM350 addresses and public datasheets, so a planned contract is registrable; no Unit DoF9/BMM350 driver exists and BMM350 register/OTP/calibration is unresolved. Magnetic/heading physics are NOT RUN; 0x68 and 0x14 conflict with mini-imu/bmm350 families. 0152 只登记 BMI270 0x68 子集；BMM350 0x14 无驱动/寄存器表，未建模；磁力/heading NOT RUN；无 guest 证据 → planned。",
+      "limitations": [
+        "No public Unit DoF9/BMM350 driver; BMM350 register/OTP/calibration map unresolved.",
+        "0x68 conflicts with mini-imu families; 0x14 is shared with Unit BMM350.",
+        "Magnetic/heading/calibration physics NOT RUN.",
+        "0152 只登记 BMI270 0x68 子集；BMM350 0x14 无驱动/寄存器表，未建模；磁力/heading NOT RUN；无 guest 证据 → planned。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "dof10",
+      "name": "Unit DoF10",
+      "sku": "U230",
+      "visual_asset": {
+        "entry": "src/units/dof10/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_DoF10",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "BMI270",
+          "status": "officially-documented"
+        },
+        {
+          "part": "BMM350",
+          "status": "officially-documented"
+        },
+        {
+          "part": "SPA06-003",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          104,
+          105,
+          20,
+          118
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-address-known",
+        "summary": "10-axis BMI270 (0x68/0x69) + BMM350 (0x14) + SPA06-003 pressure (0x76); 300-1100hPa, -40..85C. No Unit DoF/SPA06/BMM350 driver or register table; BMI270 can reuse the partial US_BMI270 fixture model, BMM350/SPA06 need datasheets.",
+        "registers": [
+          {
+            "register": "BMI270 0x68/0x69",
+            "length": 0,
+            "encoding": "BMI270 datasheet; partial 0145 fixture model"
+          },
+          {
+            "register": "BMM350 0x14",
+            "length": 0,
+            "encoding": "BMM350 datasheet/OTP; no driver/register table"
+          },
+          {
+            "register": "SPA06-003 0x76",
+            "length": 0,
+            "encoding": "SPA06 datasheet; not replaceable by BMP280 model"
+          }
+        ],
+        "gaps": [
+          "No public Unit DoF10/BMM350/SPA06 driver",
+          "BMM350 and SPA06 register/OTP/calibration unresolved",
+          "Pressure/altitude/magnetic physics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -16,
+          "maximum": 16,
+          "unit": "g"
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "dps"
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -40,
+          "maximum": 85,
+          "unit": "C"
+        },
+        "magnetic-x": {
+          "type": "number",
+          "label": "磁力 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-y": {
+          "type": "number",
+          "label": "磁力 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "magnetic-z": {
+          "type": "number",
+          "label": "磁力 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2000,
+          "maximum": 2000,
+          "unit": "uT"
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 30000,
+          "maximum": 110000,
+          "unit": "Pa"
+        }
+      },
+      "outputs": {
+        "acceleration-x": {
+          "type": "number",
+          "label": "加速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-y": {
+          "type": "number",
+          "label": "加速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "acceleration-z": {
+          "type": "number",
+          "label": "加速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -16,
+          "maximum": 16
+        },
+        "gyroscope-x": {
+          "type": "number",
+          "label": "角速度 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-y": {
+          "type": "number",
+          "label": "角速度 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "gyroscope-z": {
+          "type": "number",
+          "label": "角速度 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -40,
+          "maximum": 85
+        },
+        "magnetic-x": {
+          "type": "number",
+          "label": "磁力 X",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "magnetic-y": {
+          "type": "number",
+          "label": "磁力 Y",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "magnetic-z": {
+          "type": "number",
+          "label": "磁力 Z",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2000,
+          "maximum": 2000
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "heading-deg": {
+          "type": "number",
+          "label": "航向",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 360
+        },
+        "altitude-m": {
+          "type": "number",
+          "label": "相对高度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/dof10",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U230",
+            "BMI270 + BMM350 + SPA06-003",
+            "BMI270 0x68/0x69, BMM350 0x14, SPA06 0x76",
+            "300-1100hPa, -40..85C"
+          ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/spa06-003/",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SPA06/BMM350 datasheets are the register/calibration source; no Unit/SPA06/BMM350 driver exists in the frozen tree; BMP280 0x76 model is not SPA06"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "acceleration-x": {
+            "property": "acceleration-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-y": {
+            "property": "acceleration-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "acceleration-z": {
+            "property": "acceleration-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-x": {
+            "property": "gyroscope-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-y": {
+            "property": "gyroscope-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "gyroscope-z": {
+            "property": "gyroscope-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "U230 has clear addresses and public datasheets, so a planned contract is registrable; no Unit/SPA06/BMM350 driver exists and the BMP280 0x76 model cannot substitute SPA06. Pressure/altitude/magnetic physics are NOT RUN; 0x76 conflicts with env/bps/env-ii/env-iv and 0x68 with mini-imu families. 0152 只登记 BMI270 0x68 子集；BMM350 0x14/SPA06 0x76 无驱动/寄存器表，未建模，不用 BMP280 替代 SPA06；气压/高度 NOT RUN；无 guest 证据 → planned。"
+      },
+      "blocker": "U230 has clear addresses and public datasheets, so a planned contract is registrable; no Unit/SPA06/BMM350 driver exists and the BMP280 0x76 model cannot substitute SPA06. Pressure/altitude/magnetic physics are NOT RUN; 0x76 conflicts with env/bps/env-ii/env-iv and 0x68 with mini-imu families. 0152 只登记 BMI270 0x68 子集；BMM350 0x14/SPA06 0x76 无驱动/寄存器表，未建模，不用 BMP280 替代 SPA06；气压/高度 NOT RUN；无 guest 证据 → planned。",
+      "limitations": [
+        "No public Unit DoF10/BMM350/SPA06 driver; datasheets must be pinned before implementation.",
+        "0x76 conflicts with env/bps/env-ii/env-iv; SPA06 is not a BMP280 replacement.",
+        "Pressure/altitude/magnetic/calibration physics NOT RUN.",
+        "0152 只登记 BMI270 0x68 子集；BMM350 0x14/SPA06 0x76 无驱动/寄存器表，未建模，不用 BMP280 替代 SPA06；气压/高度 NOT RUN；无 guest 证据 → planned。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "asr",
+      "name": "Unit ASR",
+      "sku": "U194",
+      "visual_asset": {
+        "entry": "src/units/asr/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_ASR",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "CI-03T",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        },
+        "baudrate": 115200
+      },
+      "protocol": {
+        "status": "documented-no-unit-driver-frame-known",
+        "summary": "Offline speech recognition CI-03T at UART 115200 8N1; 42 built-in commands, up to 300; page Protocol documents recognition frames AA 55 <ID> 55 AA and replies, with IDs 0x01-0x4A for directions/operations/numbers/ack/volume/version. No unit/asr.py in the frozen tree.",
+        "registers": [
+          {
+            "register": "AA 55 ID 55 AA",
+            "length": 5,
+            "encoding": "recognition result command frame; ID table 0x01-0x4A"
+          },
+          {
+            "register": "AA 55 ID 55 AA <reply>",
+            "length": 0,
+            "encoding": "voice reply bytes (OK/I am here/version)"
+          }
+        ],
+        "gaps": [
+          "No public Unit ASR driver",
+          "CI-03T custom firmware can change command table/version",
+          "Speech recognition/AEC/mic/speaker acoustics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "识别帧 fixture（hex）",
+          "default": "aa553055aa4f4b",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2})*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 帧（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "rx-frames-hex": {
+          "type": "string",
+          "label": "识别/回复帧（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX 帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "注入帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "command-id": {
+          "type": "integer",
+          "label": "最后命令 ID",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/asr",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U194",
+            "CI-03T offline speech",
+            "UART 115200 8N1",
+            "42 commands/300 max",
+            "AA 55 ID 55 AA protocol table"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_ASR",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Protocol section gives the full AA55 recognition command table; no unit/asr.py in the frozen tree"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "command-id": {
+            "property": "command-id",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "U194 has a complete documented UART frame format (AA55 ID 55AA) even though no Unit driver exists; a planned byte/frame contract is registrable and a UART fixture responder can implement the byte layer. Speech recognition/AEC/microphone/speaker acoustics are NOT RUN; PORT.C conflicts with all UART Units. 0152 UART 115200 fixture responder + 字节层 AA55 <id> 55AA 解析（command-id）；语音识别/AEC/麦克风/扬声器 NOT RUN；无 guest 证据 → planned。"
+      },
+      "blocker": "U194 has a complete documented UART frame format (AA55 ID 55AA) even though no Unit driver exists; a planned byte/frame contract is registrable and a UART fixture responder can implement the byte layer. Speech recognition/AEC/microphone/speaker acoustics are NOT RUN; PORT.C conflicts with all UART Units. 0152 UART 115200 fixture responder + 字节层 AA55 <id> 55AA 解析（command-id）；语音识别/AEC/麦克风/扬声器 NOT RUN；无 guest 证据 → planned。",
+      "limitations": [
+        "No public Unit ASR driver; frame decode must be implemented from the page protocol table.",
+        "CI-03T custom firmware can change command IDs/version; use the preloaded firmware table.",
+        "Speech recognition/AEC/mic/speaker acoustics NOT RUN.",
+        "PORT.C UART shared with all UART Units.",
+        "0152 UART 115200 fixture responder + 字节层 AA55 <id> 55AA 解析（command-id）；语音识别/AEC/麦克风/扬声器 NOT RUN；无 guest 证据 → planned。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "puzzle",
+      "name": "Unit Puzzle",
+      "sku": "U193",
+      "visual_asset": {
+        "entry": "src/units/puzzle/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Puzzle",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "WS2812E-1313",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "LED Signal",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "not-connected"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-rmt",
+        "summary": "8x8=64 WS2812E-1313 RGB matrix on PORT.B yellow single-wire LED signal, white NC; two Grove IN/OUT ports for cascade. No unit/puzzle.py; control is a serial RMT/GPIO bitstream, same class as neohex/hex, with 64 LEDs; WS2812E timing vs WS2812C needs resolution.",
+        "registers": [
+          {
+            "register": "single-wire WS2812E bitstream",
+            "length": 0,
+            "encoding": "GRB 24-bit per LED x64; page gives arrangement/cascade order, no byte-order/timing table"
+          }
+        ],
+        "gaps": [
+          "No public Unit Puzzle driver",
+          "WS2812E vs WS2812C timing/order unresolved",
+          "LED optics/brightness/thermal/cascade direction NOT RUN"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "led-rgb": {
+          "type": "array",
+          "label": "64 灯颜色",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "minItems": 64,
+          "maxItems": 64
+        },
+        "led-frames": {
+          "type": "integer",
+          "label": "帧数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "incomplete-frames": {
+          "type": "integer",
+          "label": "不完整帧",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "output-transitions": {
+          "type": "integer",
+          "label": "输出变化",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/puzzle",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U193",
+            "64x WS2812E-1313 8x8",
+            "PORT.B Yellow=LED Signal White=NC",
+            "dual Grove IN/OUT cascade"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Puzzle",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "No unit/puzzle.py in the frozen tree; LED arrangement/cascade order is on the page, timing/byte order not specified"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-write",
+            "type": "array"
+          },
+          "led-frames": {
+            "property": "led-frames",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "incomplete-frames": {
+            "property": "incomplete-frames",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "U193 has a clear single-wire RMT interface with 64 WS2812E LEDs and no address/register ambiguities, so a minimal RMT capture contract is registrable; public UIFlow2 has no unit/puzzle.py (driver-gap). WS2812E-vs-WS2812C timing/order, LED optics/brightness/thermal and cascade IN/OUT direction are NOT RUN; PORT.B is substituted by cores3 PORT.A harness when needed. 0152 复用 hex/neohex RMT 捕获为 64×WS2812E；无 public Unit Puzzle driver，WS2812E 时序/光学/级联方向 unresolved；无 guest 证据 → planned。"
+      },
+      "blocker": "U193 has a clear single-wire RMT interface with 64 WS2812E LEDs and no address/register ambiguities, so a minimal RMT capture contract is registrable; public UIFlow2 has no unit/puzzle.py (driver-gap). WS2812E-vs-WS2812C timing/order, LED optics/brightness/thermal and cascade IN/OUT direction are NOT RUN; PORT.B is substituted by cores3 PORT.A harness when needed. 0152 复用 hex/neohex RMT 捕获为 64×WS2812E；无 public Unit Puzzle driver，WS2812E 时序/光学/级联方向 unresolved；无 guest 证据 → planned。",
+      "limitations": [
+        "No public Unit Puzzle driver; WS2812E timing/byte order unresolved.",
+        "LED optics/brightness/thermal and 64-LED power are NOT RUN; page recommends 10% brightness.",
+        "PORT.B conflicts with other PORT.B Units; runtime substitution must be recorded.",
+        "0152 复用 hex/neohex RMT 捕获为 64×WS2812E；无 public Unit Puzzle driver，WS2812E 时序/光学/级联方向 unresolved；无 guest 证据 → planned。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "roller485",
+      "name": "Unit Roller485",
+      "sku": "U182",
+      "visual_asset": {
+        "entry": "src/units/roller485/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G431CBU6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "DRV8311HRRWR",
+          "status": "officially-documented"
+        },
+        {
+          "part": "D3504 200KV",
+          "status": "officially-documented"
+        },
+        {
+          "part": "TLI5012BE1000",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          100
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-protocol-unresolved",
+        "summary": "Brushless motor kit (with slip ring): STM32G431 + DRV8311 + D3504 200KV + TLI5012, RS485/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit Roller485 driver; the page points to an external Internal Firmware/Communication Protocols document and gives no I2C register/RS485 frame table (only a position 123.4deg*100 4-byte example in FAQ).",
+        "registers": [
+          {
+            "register": "I2C 0x64 register map",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "RS485 frame",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "encoder 36000 pos = 360deg",
+            "length": 0,
+            "encoding": "page Learn; ~2deg mount error"
+          }
+        ],
+        "gaps": [
+          "No public Unit Roller485 driver",
+          "Internal firmware/communication protocol external and unresolved",
+          "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V NOT RUN"
+        ]
+      },
+      "inputs": {
+        "mode": {
+          "type": "string",
+          "label": "运动模式",
+          "default": "speed",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "enum": [
+            "speed",
+            "position",
+            "current",
+            "dial"
+          ]
+        },
+        "target-speed-rpm": {
+          "type": "number",
+          "label": "目标速度",
+          "default": 100.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2100,
+          "maximum": 2100,
+          "unit": "rpm"
+        },
+        "target-position-deg": {
+          "type": "number",
+          "label": "目标位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -3600,
+          "maximum": 3600,
+          "unit": "deg"
+        }
+      },
+      "outputs": {
+        "actual-speed-rpm": {
+          "type": "number",
+          "label": "实际速度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2100,
+          "maximum": 2100
+        },
+        "actual-position-deg": {
+          "type": "number",
+          "label": "实际位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -3600,
+          "maximum": 3600
+        },
+        "encoder-pos": {
+          "type": "integer",
+          "label": "编码器位置",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        },
+        "current-ma": {
+          "type": "number",
+          "label": "电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "fault": {
+          "type": "integer",
+          "label": "故障码",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 100,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/roller485",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U182",
+            "STM32G431/DRV8311/D3504/TLI5012",
+            "with slip ring",
+            "RS485/I2C @0x64",
+            "0.66-inch 64x48 OLED, 2x WS2812",
+            "position 123.4deg*100 4-byte example in FAQ"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "roller485 has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "roller485 has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit Roller485 driver; register/RS485 frame map unresolved.",
+        "0x64 conflicts with RollerCAN/RollerCAN-Lite; protocol modes are mutually exclusive.",
+        "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal NOT RUN.",
+        "Slip ring/OLED/RGB/button are NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "roller485-lite",
+      "name": "Unit Roller485-Lite",
+      "sku": "U182-Lite",
+      "visual_asset": {
+        "entry": "src/units/roller485-lite/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-Roller485%20Lite",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G431CBU6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "DRV8311HRRWR",
+          "status": "officially-documented"
+        },
+        {
+          "part": "D3504 200KV",
+          "status": "officially-documented"
+        },
+        {
+          "part": "TLI5012BE1000",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          100
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-protocol-unresolved",
+        "summary": "Brushless motor kit (without slip ring): STM32G431 + DRV8311 + D3504 200KV + TLI5012, RS485/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit Roller485 driver; the page points to an external Internal Firmware/Communication Protocols document and gives no I2C register/RS485 frame table (only a position 123.4deg*100 4-byte example in FAQ).",
+        "registers": [
+          {
+            "register": "I2C 0x64 register map",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "RS485 frame",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "encoder 36000 pos = 360deg",
+            "length": 0,
+            "encoding": "page Learn; ~2deg mount error"
+          }
+        ],
+        "gaps": [
+          "No public Unit Roller485 driver",
+          "Internal firmware/communication protocol external and unresolved",
+          "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V NOT RUN"
+        ]
+      },
+      "inputs": {
+        "mode": {
+          "type": "string",
+          "label": "运动模式",
+          "default": "speed",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "enum": [
+            "speed",
+            "position",
+            "current",
+            "dial"
+          ]
+        },
+        "target-speed-rpm": {
+          "type": "number",
+          "label": "目标速度",
+          "default": 100.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2100,
+          "maximum": 2100,
+          "unit": "rpm"
+        },
+        "target-position-deg": {
+          "type": "number",
+          "label": "目标位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -3600,
+          "maximum": 3600,
+          "unit": "deg"
+        }
+      },
+      "outputs": {
+        "actual-speed-rpm": {
+          "type": "number",
+          "label": "实际速度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2100,
+          "maximum": 2100
+        },
+        "actual-position-deg": {
+          "type": "number",
+          "label": "实际位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -3600,
+          "maximum": 3600
+        },
+        "encoder-pos": {
+          "type": "integer",
+          "label": "编码器位置",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        },
+        "current-ma": {
+          "type": "number",
+          "label": "电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "fault": {
+          "type": "integer",
+          "label": "故障码",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 100,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/roller485-lite",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U182-Lite",
+            "STM32G431/DRV8311/D3504/TLI5012",
+            "without slip ring",
+            "RS485/I2C @0x64",
+            "0.66-inch 64x48 OLED, 2x WS2812",
+            "position 123.4deg*100 4-byte example in FAQ"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit-Roller485%20Lite",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "roller485-lite has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "roller485-lite has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit Roller485 driver; register/RS485 frame map unresolved.",
+        "0x64 conflicts with RollerCAN/RollerCAN-Lite; protocol modes are mutually exclusive.",
+        "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal NOT RUN.",
+        "No slip ring/OLED? same motor path; motor not run.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "rollercan-lite",
+      "name": "Unit RollerCAN-Lite",
+      "sku": "U188-Lite",
+      "visual_asset": {
+        "entry": "src/units/rollercan-lite/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-RollerCAN%20Lite",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G431CBU6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "DRV8311HRRWR",
+          "status": "officially-documented"
+        },
+        {
+          "part": "D3504 200KV",
+          "status": "officially-documented"
+        },
+        {
+          "part": "TLI5012BE1000",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          100
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-protocol-unresolved",
+        "summary": "Brushless motor kit without slip ring: STM32G431 + DRV8311 + D3504 + TLI5012, CAN/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit driver; internal firmware/communication protocols external and unresolved; CAN path is limited to the 0145 CanBusClient observation model.",
+        "registers": [
+          {
+            "register": "I2C 0x64 register map",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "CAN frame format",
+            "length": 0,
+            "encoding": "external protocol document; UNRESOLVED"
+          },
+          {
+            "register": "encoder 36000 pos = 360deg",
+            "length": 0,
+            "encoding": "page Learn; ~2deg mount error"
+          }
+        ],
+        "gaps": [
+          "No public Unit RollerCAN-Lite driver",
+          "Internal firmware/CAN frame table external and unresolved",
+          "Motor/FOC/encoder/OLED/RGB/6-16V NOT RUN"
+        ]
+      },
+      "inputs": {
+        "mode": {
+          "type": "string",
+          "label": "运动模式",
+          "default": "speed",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "enum": [
+            "speed",
+            "position",
+            "current",
+            "dial"
+          ]
+        },
+        "target-speed-rpm": {
+          "type": "number",
+          "label": "目标速度",
+          "default": 100.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -2100,
+          "maximum": 2100,
+          "unit": "rpm"
+        },
+        "target-position-deg": {
+          "type": "number",
+          "label": "目标位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": -3600,
+          "maximum": 3600,
+          "unit": "deg"
+        }
+      },
+      "outputs": {
+        "actual-speed-rpm": {
+          "type": "number",
+          "label": "实际速度",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2100,
+          "maximum": 2100
+        },
+        "actual-position-deg": {
+          "type": "number",
+          "label": "实际位置",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -3600,
+          "maximum": 3600
+        },
+        "encoder-pos": {
+          "type": "integer",
+          "label": "编码器位置",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        },
+        "current-ma": {
+          "type": "number",
+          "label": "电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "fault": {
+          "type": "integer",
+          "label": "故障码",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 100,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/rollercan-lite",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U188-Lite",
+            "STM32G431/DRV8311/D3504/TLI5012",
+            "without slip ring",
+            "CAN/I2C @0x64",
+            "0.66-inch 64x48 OLED, 2x WS2812"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit-RollerCAN%20Lite",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Communication Protocols is an external document; no I2C/CAN frame table on the page"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U188-Lite has a clear I2C 0x64 address but no public Unit driver and the CAN/internal protocol is external/unresolved; only a planned contract is registered. The CAN path can use the finite 0145 CanBusClient observation, not a full motor model. Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal are NOT RUN; 0x64 conflicts with Roller485 family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U188-Lite has a clear I2C 0x64 address but no public Unit driver and the CAN/internal protocol is external/unresolved; only a planned contract is registered. The CAN path can use the finite 0145 CanBusClient observation, not a full motor model. Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal are NOT RUN; 0x64 conflicts with Roller485 family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit RollerCAN-Lite driver; I2C/CAN frame map unresolved.",
+        "0x64 conflicts with Roller485 family; CAN/I2C modes are mutually exclusive.",
+        "Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal NOT RUN; CAN attachment is finite (0145).",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "byteswitch",
+      "name": "Unit ByteSwitch",
+      "sku": "U191",
+      "visual_asset": {
+        "entry": "src/units/byteswitch/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit%20ByteSwitch",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "WS2812C-2020",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          70
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-register-unresolved",
+        "summary": "8-channel DPDT toggle switch input + 9x WS2812C RGB LEDs, STM32G031, I2C @0x46, two Grove ports for I2C cascade. No public Unit ByteSwitch driver; page Internal Firmware/Protocol table is unreadable in text, so switch/LED register map is UNRESOLVED.",
+        "registers": [
+          {
+            "register": "I2C 0x46 switch/LED register map",
+            "length": 0,
+            "encoding": "Internal Firmware/Protocol table unreadable -> UNRESOLVED"
+          }
+        ],
+        "gaps": [
+          "No public Unit ByteSwitch driver",
+          "Switch/LED register map unresolved",
+          "Switch mechanics/optics/cascade NOT RUN"
+        ]
+      },
+      "inputs": {
+        "switch-states": {
+          "type": "array",
+          "label": "8 路拨动开关 fixture",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        }
+      },
+      "outputs": {
+        "switch-states": {
+          "type": "array",
+          "label": "8 路拨动开关",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "led-rgb": {
+          "type": "array",
+          "label": "9 灯 RGB",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "minItems": 9,
+          "maxItems": 9
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 70,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/byteswitch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U191",
+            "STM32G031",
+            "8 DPDT switches + 9x WS2812C",
+            "I2C @0x46",
+            "dual Grove cascade"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit%20ByteSwitch",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Protocol table not readable in page text; register map unresolved"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U191 has a clear I2C 0x46 address but no public Unit driver and the internal firmware switch/LED register table is unreadable; only a planned contract is registered. Switch mechanics/optics/cascade are NOT RUN; 0x46 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U191 has a clear I2C 0x46 address but no public Unit driver and the internal firmware switch/LED register table is unreadable; only a planned contract is registered. Switch mechanics/optics/cascade are NOT RUN; 0x46 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit ByteSwitch driver; switch/LED register map unresolved.",
+        "0x46 conflicts with other I2C units; two Grove ports are a pass-through cascade.",
+        "Switch mechanics/optics/cascade NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "bytebutton",
+      "name": "Unit ByteButton",
+      "sku": "U192",
+      "visual_asset": {
+        "entry": "src/units/bytebutton/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit%20ByteButton",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "WS2812C-2020",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          71
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-register-unresolved",
+        "summary": "8 tactile buttons + 9x WS2812C RGB LEDs, STM32G031, I2C @0x47, two Grove ports for I2C expansion. No public Unit ByteButton driver; the page Protocol table is badly garbled in text, so button/LED register map is UNRESOLVED.",
+        "registers": [
+          {
+            "register": "I2C 0x47 button/LED register map",
+            "length": 0,
+            "encoding": "page Protocol table garbled -> UNRESOLVED"
+          }
+        ],
+        "gaps": [
+          "No public Unit ByteButton driver",
+          "Button/LED register map unresolved",
+          "Key mechanics/optics/cascade NOT RUN"
+        ]
+      },
+      "inputs": {
+        "button-states": {
+          "type": "array",
+          "label": "8 按键 fixture",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        }
+      },
+      "outputs": {
+        "button-states": {
+          "type": "array",
+          "label": "8 按键",
+          "default": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "boolean"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "led-rgb": {
+          "type": "array",
+          "label": "9 灯 RGB",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "minItems": 9,
+          "maxItems": 9
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 71,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/bytebutton",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U192",
+            "STM32G031",
+            "8 buttons + 9x WS2812C",
+            "I2C @0x47",
+            "dual Grove expansion"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit%20ByteButton",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Protocol table garbled in page text; register map unresolved"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U192 has a clear I2C 0x47 address but no public Unit driver and the internal firmware button/LED register table is unreadable; only a planned contract is registered. Button mechanics/optics/cascade are NOT RUN; 0x47 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U192 has a clear I2C 0x47 address but no public Unit driver and the internal firmware button/LED register table is unreadable; only a planned contract is registered. Button mechanics/optics/cascade are NOT RUN; 0x47 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit ByteButton driver; button/LED register map unresolved.",
+        "0x47 conflicts with other I2C units; two Grove ports are a pass-through expansion.",
+        "Key mechanics/optics/cascade NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "step16",
+      "name": "Unit Step16",
+      "sku": "U198",
+      "visual_asset": {
+        "entry": "src/units/step16/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Step16",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          72
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-register-unresolved",
+        "summary": "16-position BCD rotary encoder + 7-segment display + 1x WS2812, STM32G031, I2C @0x48 (address range 0x08-0x77 configurable, saved), 100ms update. No public Unit Step16 driver; Protocol table unreadable, so register map for position/direction/brightness/RGB/address is UNRESOLVED.",
+        "registers": [
+          {
+            "register": "I2C 0x48 position/config register map",
+            "length": 0,
+            "encoding": "Protocol table unreadable -> UNRESOLVED"
+          },
+          {
+            "register": "address range 0x08-0x77",
+            "length": 0,
+            "encoding": "page; configurable and persistent"
+          }
+        ],
+        "gaps": [
+          "No public Unit Step16 driver",
+          "Position/config/RGB/address register map unresolved",
+          "Encoder mechanics/7-seg display/optics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "position": {
+          "type": "integer",
+          "label": "16 位位置 fixture",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 15
+        }
+      },
+      "outputs": {
+        "position": {
+          "type": "integer",
+          "label": "16 位位置",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 15
+        },
+        "direction": {
+          "type": "integer",
+          "label": "方向",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "led-rgb": {
+          "type": "integer",
+          "label": "RGB",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 16777215
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 72,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 8,
+          "maximum": 119
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/step16",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U198",
+            "STM32G031",
+            "16-position BCD encoder + 7-seg + WS2812",
+            "I2C @0x48 (0x08-0x77 configurable)"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Step16",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Protocol table not readable in page text; register map unresolved"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U198 has a clear I2C 0x48 address range but no public Unit driver and the internal firmware position/config register table is unreadable; only a planned contract is registered. Encoder mechanics/7-segment display/optics are NOT RUN; 0x48 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U198 has a clear I2C 0x48 address range but no public Unit driver and the internal firmware position/config register table is unreadable; only a planned contract is registered. Encoder mechanics/7-segment display/optics are NOT RUN; 0x48 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit Step16 driver; position/config register map unresolved.",
+        "0x48 conflicts with other I2C units; 0x08-0x77 configurable address must avoid all bus addresses.",
+        "Encoder mechanics/7-seg display/optics NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "timerpwr",
+      "name": "Unit TimerPWR",
+      "sku": "U189",
+      "visual_asset": {
+        "entry": "src/units/timerpwr/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "INA3221",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          86
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-register-unresolved",
+        "summary": "Timed power supply with STM32G031 RTC, LGS4056H charger, DC-DC boost, INA3221 current/voltage monitor, 0.66\" 64x48 OLED, two buttons, battery connector, I2C @0x56. No public Unit TimerPWR driver; the I2C command/schedule register table is not readable on the page.",
+        "registers": [
+          {
+            "register": "I2C 0x56 schedule/status register map",
+            "length": 0,
+            "encoding": "page does not give readable command/register table -> UNRESOLVED"
+          },
+          {
+            "register": "INA3221 internal I2C2",
+            "length": 0,
+            "encoding": "internal to STM32, not the Grove bus"
+          }
+        ],
+        "gaps": [
+          "No public Unit TimerPWR driver",
+          "Schedule/status register map unresolved",
+          "Battery/charger/boost/RTC/timed switching/OLED/thermal/safety NOT RUN"
+        ]
+      },
+      "inputs": {
+        "schedule-on": {
+          "type": "string",
+          "label": "定时开机 fixture",
+          "default": "00:00",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "schedule-off": {
+          "type": "string",
+          "label": "定时关机 fixture",
+          "default": "00:00",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        }
+      },
+      "outputs": {
+        "power-state": {
+          "type": "boolean",
+          "label": "电源状态",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "battery-mv": {
+          "type": "integer",
+          "label": "电池电压",
+          "default": 3700,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 2500,
+          "maximum": 4500
+        },
+        "input-current-ma": {
+          "type": "number",
+          "label": "输入电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "output-current-ma": {
+          "type": "number",
+          "label": "输出电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 86,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/timerpwr",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U189",
+            "STM32G031 + RTC + INA3221 + LGS4056H + boost",
+            "I2C @0x56",
+            "0.66-inch 64x48 OLED, two buttons",
+            "battery/Type-C charge"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Page Learn/I2C sections do not give a readable schedule/status register table"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U189 has a clear I2C 0x56 address but no public Unit driver and the schedule/status command table is unreadable; only a planned contract is registered. Battery/charger/boost/RTC/timed switching/OLED/thermal/safety are NOT RUN; 0x56 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U189 has a clear I2C 0x56 address but no public Unit driver and the schedule/status command table is unreadable; only a planned contract is registered. Battery/charger/boost/RTC/timed switching/OLED/thermal/safety are NOT RUN; 0x56 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit TimerPWR driver; schedule/status register map unresolved.",
+        "0x56 conflicts with other I2C units.",
+        "Battery/charger/boost/RTC/timed switching/OLED/thermal/safety NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "mq",
+      "name": "Unit MQ",
+      "sku": "U199",
+      "visual_asset": {
+        "entry": "src/units/mq/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_MQ",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G030F6P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "MQ-5",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          17
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-register-unresolved",
+        "summary": "Combustible-gas (MQ-5) sensor with STM32G030, I2C @0x11 configurable; page lists readable internal reference voltage, sensor voltage, 12-bit/8-bit ADC, firmware version, thermistor temperature, and continuous/intermittent heating modes. No public Unit MQ driver; complete register/heating-timing table is not readable.",
+        "registers": [
+          {
+            "register": "I2C 0x11 sensor/reference/ADC/temp/firmware/heating",
+            "length": 0,
+            "encoding": "page describes fields but no readable register map -> UNRESOLVED"
+          }
+        ],
+        "gaps": [
+          "No public Unit MQ driver",
+          "Register/heating-mode timing unresolved",
+          "Gas concentration/preheat/heating/thermal NOT RUN"
+        ]
+      },
+      "inputs": {
+        "sensor-mv": {
+          "type": "number",
+          "label": "传感器电压 fixture",
+          "default": 500.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 3300
+        }
+      },
+      "outputs": {
+        "sensor-mv": {
+          "type": "number",
+          "label": "传感器电压",
+          "default": 500.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "reference-mv": {
+          "type": "number",
+          "label": "内部参考电压",
+          "default": 1200.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "adc12": {
+          "type": "integer",
+          "label": "12-bit ADC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "adc8": {
+          "type": "integer",
+          "label": "8-bit ADC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "temperature-c": {
+          "type": "number",
+          "label": "热敏温度",
+          "default": 25.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": -40,
+          "maximum": 125
+        },
+        "firmware-version": {
+          "type": "integer",
+          "label": "固件版本",
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 255
+        },
+        "heating-mode": {
+          "type": "integer",
+          "label": "加热模式",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/mq",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U199",
+            "STM32G030 + MQ-5",
+            "I2C @0x11 configurable",
+            "reference/sensor voltage, 12/8-bit ADC, firmware, thermistor temp",
+            "continuous/intermittent heating"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_MQ",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Page describes fields/heating modes but does not give a readable complete register/timing table"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U199 has a clear I2C 0x11 address and a documented field list but no public Unit driver and no readable complete register/heating table; only a planned contract is registered. Gas concentration/preheat/heating/thermal are NOT RUN; 0x11 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U199 has a clear I2C 0x11 address and a documented field list but no public Unit driver and no readable complete register/heating table; only a planned contract is registered. Gas concentration/preheat/heating/thermal are NOT RUN; 0x11 conflicts with other I2C units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit MQ driver; register/heating-timing map unresolved.",
+        "0x11 conflicts with other I2C units.",
+        "Gas concentration/preheat/heating/thermal behavior NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "8servos2-chain",
+      "name": "Unit 8Servos2-Chain",
+      "sku": "U223",
+      "visual_asset": {
+        "entry": "src/units/8servos2-chain/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_8Servos2-Chain",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "INA199A1DCKR",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        },
+        "baudrate": 115200
+      },
+      "protocol": {
+        "status": "documented-driver-gap-chain-protocol-unresolved",
+        "summary": "8-channel servo/digital/ADC/RGB/PWM controller, STM32G031, UART Chain-series cascade protocol (dual Grove IN/OUT), DC9-24V/5V 3A, INA199 current sense. No public Unit driver; Internal Firmware/Protocol is external and no Chain frame/register table is readable.",
+        "registers": [
+          {
+            "register": "Chain UART frame format",
+            "length": 0,
+            "encoding": "external protocol document -> UNRESOLVED"
+          },
+          {
+            "register": "8 channel modes/angles/ADC/RGB/PWM",
+            "length": 0,
+            "encoding": "external protocol document -> UNRESOLVED"
+          }
+        ],
+        "gaps": [
+          "No public Unit 8Servos2-Chain driver",
+          "Chain frame/register table unresolved",
+          "Servo/ADC/PWM/9-24V/INA199/cascade NOT RUN"
+        ]
+      },
+      "inputs": {
+        "channel-modes": {
+          "type": "array",
+          "label": "8 通道模式 fixture",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "minItems": 8,
+          "maxItems": 8
+        }
+      },
+      "outputs": {
+        "channel-modes": {
+          "type": "array",
+          "label": "8 通道模式",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "servo-angles": {
+          "type": "array",
+          "label": "8 通道角度",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "adc-values": {
+          "type": "array",
+          "label": "8 通道 ADC",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "rgb-leds": {
+          "type": "array",
+          "label": "8 通道 RGB",
+          "default": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "current-ma": {
+          "type": "number",
+          "label": "总电流",
+          "default": 0.0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/8servos2-chain",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U223",
+            "STM32G031",
+            "8 channel servo/digital/ADC/RGB/PWM",
+            "UART Chain-series cascade",
+            "DC9-24V/5V 3A, INA199"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_8Servos2-Chain",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Protocol is an external document; no readable Chain frame/register table"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U223 has a clear UART Chain interface but no public Unit driver and the Chain frame/register table is external; only a planned contract is registered. Servo/ADC/PWM/9-24V/INA199/cascade behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U223 has a clear UART Chain interface but no public Unit driver and the Chain frame/register table is external; only a planned contract is registered. Servo/ADC/PWM/9-24V/INA199/cascade behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit 8Servos2-Chain driver; Chain frame/register table unresolved.",
+        "UART shared with all UART Units; one per port.",
+        "Servo/ADC/PWM/9-24V/INA199/cascade NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "cat1-cn",
+      "name": "Unit Cat1-CN",
+      "sku": "U204",
+      "visual_asset": {
+        "entry": "src/units/cat1-cn/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Cat1-CN",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "ML307R-DL",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        },
+        "baudrate": 115200
+      },
+      "protocol": {
+        "status": "documented-driver-gap-at-unresolved",
+        "summary": "LTE Cat.1 ML307R-DL module at UART 115200 8N1 AT; bands B1/B3/B5/B8/B34/B38/B39/B40/B41; TCP/UDP/HTTP/SSL/MQTT, up to 6 sockets, Nano-SIM. No public Unit Cat1 driver; the page Protocol is an external AT manual and no complete command/URC sequence is readable.",
+        "registers": [
+          {
+            "register": "AT command/URC sequence",
+            "length": 0,
+            "encoding": "external AT manual -> UNRESOLVED"
+          },
+          {
+            "register": "default UART 115200 8N1",
+            "length": 0,
+            "encoding": "page; up to 460800 recommended"
+          }
+        ],
+        "gaps": [
+          "No public Unit Cat1 driver",
+          "AT/URC command set external and unresolved",
+          "Cellular RF/SIM/network/operator certification/TLS/MQTT NOT RUN"
+        ]
+      },
+      "inputs": {
+        "responses-hex": {
+          "type": "string",
+          "label": "AT 响应 fixture（hex）",
+          "default": "4f4b0d0a",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "pattern": "^([0-9a-fA-F]{2}|;)*$"
+        }
+      },
+      "outputs": {
+        "tx-hex": {
+          "type": "string",
+          "label": "TX 字节（hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "frames-sent": {
+          "type": "integer",
+          "label": "TX burst 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "frames-injected": {
+          "type": "integer",
+          "label": "RX fixture 注入数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/cat1-cn",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U204",
+            "ML307R-DL LTE Cat.1",
+            "B1/B3/B5/B8/B34/B38/B39/B40/B41",
+            "UART 115200 8N1 AT",
+            "TCP/UDP/HTTP/SSL/MQTT, 6 sockets"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Cat1-CN",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Page Protocol is an external AT manual; no complete command/URC table in page text"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U204 has a clear UART 115200 AT interface but no public Unit driver and the ML307R AT/URC command set is external; only a planned UART byte-layer contract with fixture responder is registered. Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN; PORT.C conflicts with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U204 has a clear UART 115200 AT interface but no public Unit driver and the ML307R AT/URC command set is external; only a planned UART byte-layer contract with fixture responder is registered. Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN; PORT.C conflicts with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit Cat1 driver; ML307R AT/URC command set unresolved.",
+        "Cellular RF/SIM/network/operator certification/TLS/MQTT NOT RUN.",
+        "PORT.C UART shared with all UART Units.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
+    },
+    {
+      "id": "chainbus",
+      "name": "Unit ChainBus",
+      "sku": "U212",
+      "visual_asset": {
+        "entry": "src/units/chainbus/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_ChainBus",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32G031G8U6",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "uart",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "UART_RX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "UART_TX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        },
+        "baudrate": 115200
+      },
+      "protocol": {
+        "status": "documented-driver-gap-chain-protocol-unresolved",
+        "summary": "Chain-series protocol conversion unit: STM32G031, UART 115200 8N1 daisy-chain (device UID/version/link enumeration/heartbeat), 2x Chain UART IN/OUT, top multifunction Grove for I2C/GPIO/ADC/NVIC, 1x WS2812. No public Unit driver; Chain and expansion register/frame tables are not readable.",
+        "registers": [
+          {
+            "register": "Chain UART frame/command",
+            "length": 0,
+            "encoding": "Internal Firmware/Protocol external -> UNRESOLVED"
+          },
+          {
+            "register": "expansion I2C/GPIO/ADC/NVIC",
+            "length": 0,
+            "encoding": "external protocol doc -> UNRESOLVED"
+          }
+        ],
+        "gaps": [
+          "No public Unit ChainBus driver",
+          "Chain/expansion frame/register table unresolved",
+          "Chain topology/heartbeat/GPIO/ADC/NVIC NOT RUN"
+        ]
+      },
+      "inputs": {
+        "chain-uid": {
+          "type": "string",
+          "label": "Chain UID fixture",
+          "default": "0000000000000000",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "chain-uid": {
+          "type": "string",
+          "label": "Chain UID",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "version": {
+          "type": "string",
+          "label": "版本",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "link-devices": {
+          "type": "array",
+          "label": "链设备列表",
+          "default": [],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "heartbeat": {
+          "type": "integer",
+          "label": "心跳计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        },
+        "gpio-levels": {
+          "type": "array",
+          "label": "GPIO 电平",
+          "default": [
+            false,
+            false,
+            false,
+            false
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "boolean"
+          }
+        },
+        "adc-values": {
+          "type": "array",
+          "label": "ADC 值",
+          "default": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/chainbus",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U212",
+            "STM32G031",
+            "UART 115200 8N1 Chain daisy-chain",
+            "2x Chain UART + top I2C/GPIO/ADC/NVIC",
+            "1x WS2812"
+          ]
+        },
+        {
+          "kind": "official-protocol-manual",
+          "url": "https://docs.m5stack.com/en/unit/Unit_ChainBus",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Internal Firmware/Protocol is external; no readable Chain/expansion register table"
+          ]
+        }
+      ],
+      "research_status": "researched",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {},
+        "blocker": "U212 is a Chain protocol converter with UART/I2C/GPIO/ADC expansion; it is a Unit entity with a clear UART 115200 interface but no public driver and unresolved protocol tables, so it is registered as a planned contract (not c). Chain topology/heartbeat/GPIO/ADC/NVIC behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      },
+      "blocker": "U212 is a Chain protocol converter with UART/I2C/GPIO/ADC expansion; it is a Unit entity with a clear UART 115200 interface but no public driver and unresolved protocol tables, so it is registered as a planned contract (not c). Chain topology/heartbeat/GPIO/ADC/NVIC behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "limitations": [
+        "No public Unit ChainBus driver; Chain/expansion frame/register tables unresolved.",
+        "UART shared with all UART Units; one per port.",
+        "Chain topology/heartbeat/GPIO/ADC/NVIC and protocol conversion NOT RUN.",
+        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+      ],
+      "input_semantics": null,
+      "output_semantics": null
     }
   ],
   "model_status_values": [
