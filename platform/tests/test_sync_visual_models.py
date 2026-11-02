@@ -334,7 +334,7 @@ class VisualSnapshotImportTests(unittest.TestCase):
         by_id = {unit["id"]: unit for unit in units}
         self.assertIn("roller485", by_id)
         self.assertIn("puzzle", by_id)
-        self.assertEqual(by_id["roller485"]["model_status"], "planned")
+        self.assertEqual(by_id["roller485"]["model_status"], "partial")
         self.assertEqual(by_id["puzzle"]["model_status"], "partial")
         scroll = by_id["scroll"]
         self.assertEqual(scroll["model_status"], "partial")

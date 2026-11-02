@@ -1,0 +1,1374 @@
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -29,6 +29,7 @@
+     US_SHT4X, US_SHT30, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
+     US_RTC8563, US_STHS34PF80, US_MPU6886, US_BME68X, US_BMI270,
+     US_ATECC608B, US_THERMAL2, US_QRCODE,
++    US_BMM350, US_INA226,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -186,8 +187,36 @@
+     char *qr_data;
+     unsigned qr_data_len;
+     int64_t qr_status, qr_trigger_mode, qr_button, qr_fw;
++    /* U231 BMM350 (0x14): Bosch BST-BMM350-DS001-27 Table 8 register file.
++     * The guest driver discards the first two bytes of every I2C read
++     * (datasheet section 9.2.3); the 24-bit MAG/TEMP data registers are
++     * inverse-derived from the magnetic-x/y/z and temperature-c fixtures.
++     * OTP words are synthetic zeros (sensitivity 1.0, offset 0), so the
++     * magnetometer/heading/OTP-calibration physics stays NOT RUN. */
++    int64_t bmm_chip_id;
++    /* U200/U200-1A INA226 family (0x41): TI SBOS547C Table 7-1 16-bit
++     * big-endian register file. Bus/shunt/current/power bytes are
++     * inverse-derived from the bus-voltage-v/current-a fixtures using the
++     * calibration register written by the guest driver (10A 5 mOhm/0x0C80,
++     * 1A 80 mOhm/0x0800). Isolation/accuracy/fuse/thermal behavior NOT RUN. */
++    double ina_shunt_ohm;
++    uint16_t ina_config, ina_calibration, ina_mask, ina_alert, ina_reg_hi;
++    int64_t ina_manufacturer, ina_die;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
++
++/* Batch-12b U231 BMM350 / U200 INA226 helpers (defined after the I2C event
++ * handlers; declared here because the read/write paths use them). */
++static uint32_t bmm_mag_raw(M5UnitSensor *s, unsigned axis);
++static uint32_t bmm_temp_raw(M5UnitSensor *s);
++static void ina_power_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp);
++static int16_t ina_clamp16(long value);
++static double ina_current_lsb(M5UnitSensor *s);
++static int16_t ina_shunt_raw(M5UnitSensor *s);
++static uint16_t ina_bus_raw(M5UnitSensor *s);
++static int16_t ina_current_raw(M5UnitSensor *s);
++static int16_t ina_power_raw(M5UnitSensor *s);
+ 
+ static void response_word(M5UnitSensor *s, unsigned word, uint16_t value);
+ 
+@@ -2049,6 +2078,29 @@
+         }
+         return 1;
+     }
++    if (s->kind == US_BMM350) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        /* Table 8 register file: CMD/PMU/OTP writes are accepted and stored but
++         * the soft-reset/init sequence and OTP calibration are not executed. */
++        s->regs[0][(uint8_t)s->pointer] = data;
++        s->pointer++;
++        return 0;
++    }
++    if (s->kind == US_INA226) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        if (pos == 1) { s->ina_reg_hi = data; return 0; }
++        if (pos > 2) { return 1; }
++        uint16_t word = (uint16_t)((s->ina_reg_hi << 8) | data);
++        switch ((uint8_t)s->pointer) {
++        case 0x00: s->ina_config = word; break;
++        case 0x05: s->ina_calibration = word; break;
++        case 0x06: s->ina_mask = word; break;
++        case 0x07: s->ina_alert = word; break;
++        /* 0x01-0x04 are read-only measurement registers. */
++        default: return 1;
++        }
++        return 0;
++    }
+     if (s->kind == US_NCIR) { return 1; }
+     uint8_t reg = s->pointer++;
+     if (s->kind == US_TOF) {
+@@ -2353,6 +2405,47 @@
+         if (pos < 2) { return bytes[3 + pos]; }
+         return pos == 2 ? crc8(bytes, sizeof(bytes), 7, 0) : 0xff;
+     }
++    if (s->kind == US_BMM350) {
++        /* Bosch datasheet section 9.2.3: an n-byte register read returns n+2
++         * bytes and the first two are dummy bytes. The frozen driver slices
++         * readfrom_mem(reg, size + 2)[2:], so QEMU must send them. */
++        if (pos < 2) { return 0x00; }
++        unsigned reg = (unsigned)(uint8_t)s->pointer + (pos - 2);
++        if (reg == 0x00) { return (uint8_t)s->bmm_chip_id; }
++        if (reg >= 0x31 && reg <= 0x36) {
++            uint32_t raw = bmm_mag_raw(s, (reg - 0x31) / 3);
++            return (raw >> (((reg - 0x31) % 3) * 8)) & 0xff;
++        }
++        if (reg >= 0x37 && reg <= 0x39) {
++            uint32_t raw = bmm_mag_raw(s, 2);
++            return (raw >> ((reg - 0x37) * 8)) & 0xff;
++        }
++        if (reg >= 0x3a && reg <= 0x3c) {
++            uint32_t raw = bmm_temp_raw(s);
++            return (raw >> ((reg - 0x3a) * 8)) & 0xff;
++        }
++        if (reg == 0x55) { return 0x01; }  /* otp_cmd_done */
++        if (reg == 0x52 || reg == 0x53) { return 0x00; }
++        return reg <= 0xff ? s->regs[0][reg] : 0x00;
++    }
++    if (s->kind == US_INA226) {
++        if (pos > 1) { return 0x00; }
++        uint16_t word;
++        switch ((uint8_t)s->pointer) {
++        case 0x00: word = s->ina_config; break;
++        case 0x01: word = (uint16_t)ina_shunt_raw(s); break;
++        case 0x02: word = ina_bus_raw(s); break;
++        case 0x03: word = (uint16_t)ina_power_raw(s); break;
++        case 0x04: word = (uint16_t)ina_current_raw(s); break;
++        case 0x05: word = s->ina_calibration; break;
++        case 0x06: word = s->ina_mask; break;
++        case 0x07: word = s->ina_alert; break;
++        case 0xfe: word = (uint16_t)s->ina_manufacturer; break;
++        case 0xff: word = (uint16_t)s->ina_die; break;
++        default: return 0x00;
++        }
++        return pos == 0 ? (uint8_t)(word >> 8) : (uint8_t)(word & 0xff);
++    }
+     uint8_t reg = s->pointer;
+     if (s->kind == US_HEART && reg == 5) {
+         if (!s->fifo_count) { return 0; }
+@@ -2407,11 +2500,80 @@
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+         "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
+         "mini-imu", "mini-imu-pro", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode",
+-        "dof6", "dof9", "dof10" };
++        "dof6", "dof9", "dof10", "bmm350", "ina226-10a", "ina226-1a" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+     return false;
++}
++
++/* Batch-12b I2C sensor helpers: U231 BMM350 (0x14) and U200 INA226 (0x41).
++ * Register maps come from Bosch BST-BMM350-DS001-27 Table 8 and TI SBOS547C
++ * Table 7-1; values are inverse-derived from explicit host fixtures and do not
++ * model magnetic/heading physics, OTP calibration or electrical accuracy. */
++static uint32_t bmm_mag_raw(M5UnitSensor *s, unsigned axis)
++{
++    double scale = axis == 2 ? 0.007174964 : 0.007069979;
++    long raw = lround(s->values[axis] / scale);
++    if (raw < -8388608L) { raw = -8388608L; }
++    if (raw > 8388607L) { raw = 8388607L; }
++    return (uint32_t)raw & 0xffffffu;
++}
++
++static uint32_t bmm_temp_raw(M5UnitSensor *s)
++{
++    long raw = lround((s->values[3] + 25.49) / 0.000981282);
++    if (raw < -8388608L) { raw = -8388608L; }
++    if (raw > 8388607L) { raw = 8388607L; }
++    return (uint32_t)raw & 0xffffffu;
++}
++
++static void ina_power_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    double value = s->values[0] * s->values[1];
++    visit_type_number(v, name, &value, errp);
++}
++
++static int16_t ina_clamp16(long value)
++{
++    if (value < INT16_MIN) { value = INT16_MIN; }
++    if (value > INT16_MAX) { value = INT16_MAX; }
++    return (int16_t)value;
++}
++
++static double ina_current_lsb(M5UnitSensor *s)
++{
++    if (!s->ina_calibration || s->ina_shunt_ohm <= 0) { return 0.0; }
++    return 0.00512 / ((double)s->ina_calibration * s->ina_shunt_ohm);
++}
++
++static int16_t ina_shunt_raw(M5UnitSensor *s)
++{
++    return ina_clamp16(lround(s->values[1] * s->ina_shunt_ohm / 2.5e-6));
++}
++
++static uint16_t ina_bus_raw(M5UnitSensor *s)
++{
++    long raw = lround(s->values[0] / 1.25e-3);
++    if (raw < 0) { raw = 0; }
++    if (raw > 0x7fff) { raw = 0x7fff; }
++    return (uint16_t)raw;
++}
++
++static int16_t ina_current_raw(M5UnitSensor *s)
++{
++    double lsb = ina_current_lsb(s);
++    if (lsb <= 0) { return 0; }
++    return ina_clamp16(lround(s->values[1] / lsb));
++}
++
++static int16_t ina_power_raw(M5UnitSensor *s)
++{
++    double lsb = ina_current_lsb(s) * 25.0;
++    if (lsb <= 0) { return 0; }
++    return ina_clamp16(lround(s->values[0] * s->values[1] / lsb));
+ }
+ 
+ static M5UnitSensor *sensor_device(M5Unit *u)
+@@ -2537,6 +2699,47 @@
+         bmp280_fill_calibration(p);
+         add_number(p, "pressure-pa", 1, 101325, 30000, 110000, false);
+         sensor_attach_one(u, "bmp280", p, 0x76);
++        return;
++    } else if (!strcmp(u->unit_id, "bmm350")) {
++        /* U231 BMM350 (0x14): Bosch Table 8 register file. Only the chip id,
++         * PMU/OTP command write acceptance and fixture-derived MAG/TEMP data
++         * are modeled; OTP calibration/heading/magnetic physics NOT RUN. */
++        M5UnitSensor *b = sensor_device(u);
++        b->kind = US_BMM350;
++        b->bmm_chip_id = 0x33;
++        b->regs[0][0x00] = 0x33;
++        add_number(b, "magnetic-x", 0, 0, -2000, 2000, false);
++        add_number(b, "magnetic-y", 1, 0, -2000, 2000, false);
++        add_number(b, "magnetic-z", 2, 0, -2000, 2000, false);
++        add_number(b, "temperature-c", 3, 25, -40, 85, false);
++        add_i64(b, "whoami", &b->bmm_chip_id);
++        add_i2c_address(b);
++        sensor_attach_one(u, "bmm350", b, 0x14);
++        return;
++    } else if (!strcmp(u->unit_id, "ina226-10a") ||
++               !strcmp(u->unit_id, "ina226-1a")) {
++        /* U200/U200-1A INA226 (0x41): TI Table 7-1 register file. 10A uses a
++         * 5 mOhm shunt and calibration 0x0C80; 1A uses 80 mOhm and 0x0800 (the
++         * frozen driver comment says 0x811 while the code writes 0x0800; the
++         * code path is modeled and the conflict is recorded as a blocker).
++         * Sharing address 0x41 means only one of the two can sit on a bus. */
++        bool ten_amp = !strcmp(u->unit_id, "ina226-10a");
++        M5UnitSensor *i = sensor_device(u);
++        i->kind = US_INA226;
++        i->ina_shunt_ohm = ten_amp ? 0.005 : 0.08;
++        i->ina_config = 0x4127;
++        i->ina_calibration = ten_amp ? 0x0c80 : 0x0800;
++        i->ina_manufacturer = 0x5449;
++        i->ina_die = 0x2260;
++        add_number(i, "bus-voltage-v", 0, 5, 0, 40.96, false);
++        add_number(i, "current-a", 1, ten_amp ? 1.0 : 0.5,
++                   ten_amp ? -10.48 : -1.024, ten_amp ? 10.48 : 1.024, false);
++        object_property_add(OBJECT(u), "power-w", "number", ina_power_get,
++                            NULL, NULL, i);
++        add_i64(i, "manufacturer-id", &i->ina_manufacturer);
++        add_i64(i, "die-id", &i->ina_die);
++        add_i2c_address(i);
++        sensor_attach_one(u, ten_amp ? "ina226-10a" : "ina226-1a", i, 0x41);
+         return;
+     }
+ 
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -41,7 +41,7 @@
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+     CONTROL_PAHUB, CONTROL_MINISCALE, CONTROL_UNIT_LCD, CONTROL_UNIT_GLASS,
+-    CONTROL_UNIT_DISPLAY,
++    CONTROL_UNIT_DISPLAY, CONTROL_ROLLER,
+ } ControlKind;
+ 
+ typedef enum {
+@@ -247,6 +247,24 @@
+     int64_t glass_contrast, glass_buttons_fixture;
+     uint64_t glass_commands, glass_data_bytes;
+     char glass_buzzer_hex[17];
++    /* U182/U188 Roller family (I2C 0x64): register-file subset derived from
++     * explicit host fixtures. Family-specific configuration registers
++     * (0x10-0x12) stay generic; the RS485/CAN frame layers, FOC motor physics
++     * and the encoder/position loop are NOT modeled. All four 0x64 Units share
++     * one default address, so only one may sit on a bus. */
++    uint8_t roller_family;  /* 0x01 Roller485 / 0x02 RollerCAN */
++    bool roller_output;
++    int64_t roller_mode, roller_system_state, roller_fault, roller_encoder;
++    bool roller_range_protect, roller_button_mode, roller_stall_protect;
++    uint16_t roller_family_config, roller_rgb_brightness;
++    uint8_t roller_rgb[3], roller_rgb_mode;
++    double roller_target_speed_rpm, roller_actual_speed_rpm;
++    double roller_target_position_deg, roller_actual_position_deg;
++    double roller_current_ma, roller_current_target_ma;
++    double roller_vin_v, roller_mcu_temp_c;
++    int32_t roller_speed_limit_ma, roller_position_limit_ma;
++    uint8_t roller_pid[24];
++    uint64_t roller_save_writes;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1412,6 +1430,8 @@
+ }
+ 
+ static void put_le32(uint8_t *p, uint32_t value);
++static uint32_t get_le32(const uint8_t *p);
++static void roller_refresh(M5UnitControl *s);
+ 
+ static float le_float(const uint8_t *p)
+ {
+@@ -2489,6 +2509,90 @@
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+     }
+     uint8_t reg = s->pointer;
++    if (s->kind == CONTROL_ROLLER) {
++        /* Writable protocol blocks only; read-only status/vendor/PID-in-read
++         * blocks NACK. Multi-byte little-endian fields are decoded from the
++         * stored register image after each byte so partial writes never invent
++         * bytes the guest did not send. */
++        if (reg <= 0x01 || reg == 0x0a || reg == 0x0b || reg == 0x0e ||
++            reg == 0x0f || (reg >= 0x10 && reg <= 0x12) ||
++            (reg >= 0x20 && reg <= 0x23) || (reg >= 0x30 && reg <= 0x33) ||
++            (reg >= 0x3c && reg <= 0x3f) || (reg >= 0x40 && reg <= 0x43) ||
++            (reg >= 0x50 && reg <= 0x53) || (reg >= 0x70 && reg <= 0x7b) ||
++            (reg >= 0x80 && reg <= 0x83) || (reg >= 0x88 && reg <= 0x8d) ||
++            (reg >= 0xa0 && reg <= 0xab) || (reg >= 0xb0 && reg <= 0xb3) ||
++            reg == 0xf0 || reg == 0xf1 || reg == 0xf2 || reg == 0xff) {
++            s->regs[reg] = value;
++            switch (reg) {
++            case 0x00: s->roller_output = value != 0; break;
++            case 0x01: if (value >= 1 && value <= 4) { s->roller_mode = value; } break;
++            case 0x0a: s->roller_range_protect = value != 0; break;
++            case 0x0b:
++                if (value) {
++                    s->roller_fault = 0;
++                    s->roller_system_state = s->roller_output ? 1 : 0;
++                }
++                break;
++            case 0x0e: s->roller_button_mode = value != 0; break;
++            case 0x0f: s->roller_stall_protect = value != 0; break;
++            case 0x10:
++                s->roller_family_config =
++                    (uint16_t)((s->roller_family_config & 0xff00) | value);
++                break;
++            case 0x11:
++                s->roller_family_config =
++                    (uint16_t)((s->roller_family_config & 0x00ff) | ((uint16_t)value << 8));
++                break;
++            case 0x12: if (value <= 100) { s->roller_rgb_brightness = value; } break;
++            case 0x30: s->roller_rgb[2] = value; break;
++            case 0x31: s->roller_rgb[1] = value; break;
++            case 0x32: s->roller_rgb[0] = value; break;
++            case 0x33: s->roller_rgb_mode = value ? 1 : 0; break;
++            case 0x23:
++                s->roller_position_limit_ma = (int32_t)(get_le32(s->regs + 0x20) / 100u);
++                break;
++            case 0x3f: s->roller_encoder = (int32_t)get_le32(s->regs + 0x3c); break;
++            case 0x43:
++                s->roller_target_speed_rpm = (int32_t)get_le32(s->regs + 0x40) / 100.0;
++                break;
++            case 0x53:
++                s->roller_speed_limit_ma = (int32_t)(get_le32(s->regs + 0x50) / 100u);
++                break;
++            case 0x7b: memcpy(s->roller_pid, s->regs + 0x70, 24); break;
++            case 0x83:
++                s->roller_target_position_deg = (int32_t)get_le32(s->regs + 0x80) / 100.0;
++                break;
++            case 0x8b:
++            case 0x8d: {
++                int32_t whole = (int32_t)get_le32(s->regs + 0x88);
++                unsigned part = (unsigned)s->regs[0x8c] |
++                                ((unsigned)s->regs[0x8d] << 8);
++                if (part < 36000u) {
++                    s->roller_target_position_deg = whole * 360.0 + part / 100.0;
++                }
++                break;
++            }
++            case 0xb3:
++                s->roller_current_target_ma = (int32_t)get_le32(s->regs + 0xb0) / 100.0;
++                break;
++            case 0xf0: if (value == 1) { s->roller_save_writes++; } break;
++            case 0xff: {
++                BusChild *child;
++                if (value < 0x08 || value > 0x77) { return 1; }
++                QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                    I2CSlave *other = I2C_SLAVE(child->child);
++                    if (other != I2C_SLAVE(dev) && other->address == value) { return 1; }
++                }
++                i2c_slave_set_address(dev, value);
++                break;
++            }
++            default: break;
++            }
++            s->pointer++;
++            return 0;
++        }
++        return 1;
++    }
+     if (s->kind == CONTROL_BLDC) {
+         unsigned offset = s->write_pos - 2;
+         uint8_t reg = s->pointer;
+@@ -2956,6 +3060,12 @@
+         if (s->key_count) { s->key_head = (s->key_head + 1) % KEY_FIFO_SIZE; s->key_count--; }
+         return result;
+     }
++    if (s->kind == CONTROL_ROLLER) {
++        roller_refresh(s);
++        uint8_t reg = s->pointer++;
++        s->read_pos++;
++        return s->regs[reg];
++    }
+     uint8_t reg = s->pointer++, value = s->read_snapshot[reg];
+     s->read_pos++;
+     if (s->kind == CONTROL_ENCODER8 && reg >= 0x20 && reg <= 0x3f && (reg & 3) == 3 && s->read_pos >= 4) {
+@@ -3038,6 +3148,71 @@
+     p[0] = value; p[1] = value >> 8; p[2] = value >> 16; p[3] = value >> 24;
+ }
+ 
++static uint32_t get_le32(const uint8_t *p)
++{
++    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
++           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
++}
++
++/* U182/U188 Roller family (I2C 0x64). The I2C register image is derived from
++ * explicit host fixtures; RS485/CAN frame layers, FOC current/speed loops and
++ * motor/encoder physics are NOT modeled. Protocol: M5Unit-Roller485-Internal-FW
++ * V2.2/V2.3 and M5Unit-RollerCAN-Internal-FW V3.1 (see catalog evidence). */
++static void roller_refresh(M5UnitControl *s)
++{
++    uint8_t *r = s->regs;
++    int32_t legacy, turns;
++    unsigned angle;
++    static const uint8_t uid[12] = {
++        0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
++        0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c,
++    };
++    memset(r, 0, 256);
++    r[0x00] = s->roller_output ? 1 : 0;
++    r[0x01] = (uint8_t)s->roller_mode;
++    r[0x0a] = s->roller_range_protect ? 1 : 0;
++    r[0x0c] = (uint8_t)s->roller_system_state;
++    r[0x0d] = (uint8_t)s->roller_fault;
++    r[0x0e] = s->roller_button_mode ? 1 : 0;
++    r[0x0f] = s->roller_stall_protect ? 1 : 0;
++    r[0x10] = (uint8_t)(s->roller_family_config & 0xff);
++    r[0x11] = (uint8_t)(s->roller_family_config >> 8);
++    r[0x12] = (uint8_t)s->roller_rgb_brightness;
++    put_le32(r + 0x20, (uint32_t)s->roller_position_limit_ma * 100u);
++    /* Protocol colour order is B/G/R + mode. */
++    r[0x30] = s->roller_rgb[2];
++    r[0x31] = s->roller_rgb[1];
++    r[0x32] = s->roller_rgb[0];
++    r[0x33] = s->roller_rgb_mode;
++    put_le32(r + 0x34, (uint32_t)lround(s->roller_vin_v * 100.0));
++    put_le32(r + 0x38, (uint32_t)lround(s->roller_mcu_temp_c));
++    put_le32(r + 0x3c, (uint32_t)s->roller_encoder);
++    put_le32(r + 0x40, (uint32_t)lround(s->roller_target_speed_rpm * 100.0));
++    put_le32(r + 0x50, (uint32_t)s->roller_speed_limit_ma * 100u);
++    put_le32(r + 0x60, (uint32_t)lround(s->roller_actual_speed_rpm * 100.0));
++    memcpy(r + 0x70, s->roller_pid, 24);
++    legacy = (int32_t)lround(s->roller_target_position_deg * 100.0);
++    put_le32(r + 0x80, (uint32_t)legacy);
++    turns = (int32_t)floor(s->roller_target_position_deg / 360.0);
++    angle = (unsigned)lround(fmod(s->roller_target_position_deg, 360.0) * 100.0) % 36000u;
++    put_le32(r + 0x88, (uint32_t)turns);
++    r[0x8c] = angle & 0xff;
++    r[0x8d] = angle >> 8;
++    legacy = (int32_t)lround(s->roller_actual_position_deg * 100.0);
++    put_le32(r + 0x90, (uint32_t)legacy);
++    turns = (int32_t)floor(s->roller_actual_position_deg / 360.0);
++    angle = (unsigned)lround(fmod(s->roller_actual_position_deg, 360.0) * 100.0) % 36000u;
++    put_le32(r + 0x98, (uint32_t)turns);
++    r[0x9c] = angle & 0xff;
++    r[0x9d] = angle >> 8;
++    put_le32(r + 0xb0, (uint32_t)lround(s->roller_current_target_ma * 100.0));
++    put_le32(r + 0xc0, (uint32_t)lround(s->roller_current_ma * 100.0));
++    memcpy(r + 0xe0, uid, sizeof(uid));
++    r[0xf4] = s->roller_family;
++    r[0xfe] = 3;  /* Roller485/CAN V3 firmware per protocol document */
++    r[0xff] = (uint8_t)I2C_SLAVE(s)->address;
++}
++
+ static void acssr_relay_level_get(Object *obj, Visitor *v, const char *name,
+                                   void *opaque, Error **errp)
+ {
+@@ -3070,6 +3245,7 @@
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+         "cardkb-original", "extencoder", "acssr", "dcssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
+         "oled", "mini-oled", "glass2",
++        "roller485", "roller485-lite", "rollercan", "rollercan-lite",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -3466,6 +3642,47 @@
+         add_bool(s, "selected", false); add_bool(s, "authenticated", false);
+         add_int(s, "fifo-level", false); add_int(s, "card-reads", false);
+         add_int(s, "card-writes", false); add_int(s, "command-errors", false);
++    } else if (!strcmp(unit->unit_id, "roller485") ||
++               !strcmp(unit->unit_id, "roller485-lite") ||
++               !strcmp(unit->unit_id, "rollercan") ||
++               !strcmp(unit->unit_id, "rollercan-lite")) {
++        /* U182/U188 Roller family: I2C 0x64 register-file subset only. RS485
++         * (Roller485) and CAN (RollerCAN) frame layers are NOT modeled, and
++         * motor/FOC/encoder physics stays NOT RUN. All four units default to
++         * the same 0x64 address; the attachment/runtime layer must fail closed
++         * if two of them share one bus. */
++        bool can = !strcmp(unit->unit_id, "rollercan") ||
++                   !strcmp(unit->unit_id, "rollercan-lite");
++        s->kind = CONTROL_ROLLER;
++        address = 0x64;
++        s->roller_family = can ? 0x02 : 0x01;
++        s->roller_mode = 1;
++        s->roller_vin_v = 12;
++        s->roller_mcu_temp_c = 30;
++        s->roller_rgb_brightness = 40;
++        s->roller_speed_limit_ma = 1200;
++        s->roller_position_limit_ma = 1200;
++        add_control_bool(s, "motor-output", &s->roller_output, false, true);
++        add_control_int_fixture(s, "mode", &s->roller_mode, 1, 4, true);
++        add_control_int_fixture(s, "system-state", &s->roller_system_state, 0, 2, false);
++        add_control_int_fixture(s, "fault", &s->roller_fault, 0, 255, false);
++        add_control_int_fixture(s, "encoder-pos", &s->roller_encoder,
++                                INT32_MIN, INT32_MAX, true);
++        add_control_number(s, "target-speed-rpm", &s->roller_target_speed_rpm,
++                           0.0, -2100, 2100, true, true);
++        add_control_number(s, "actual-speed-rpm", &s->roller_actual_speed_rpm,
++                           0.0, -2100, 2100, false, true);
++        add_control_number(s, "target-position-deg", &s->roller_target_position_deg,
++                           0.0, -3600, 3600, true, false);
++        add_control_number(s, "actual-position-deg", &s->roller_actual_position_deg,
++                           0.0, -3600, 3600, false, false);
++        add_control_number(s, "current-ma", &s->roller_current_ma,
++                           0.0, -12000, 12000, false, true);
++        add_control_number(s, "vin-v", &s->roller_vin_v, 12.0, 0, 24, false, false);
++        add_control_number(s, "mcu-temp-c", &s->roller_mcu_temp_c,
++                           30.0, -40, 125, false, false);
++        object_property_add(OBJECT(s->unit), "save-count", "uint64", u64_get,
++                            NULL, NULL, &s->roller_save_writes);
+     }
+     add_int(s, "i2c-address", s->kind == CONTROL_JOYSTICK2);
+     object_property_add_child(OBJECT(unit), "controller", OBJECT(s));
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -4,6 +4,7 @@
+ #include "qapi/visitor.h"
+ #include "qapi/qmp/qlist.h"
+ #include "qapi/qmp/qnum.h"
++#include "qapi/qmp/qbool.h"
+ #include "qapi/qmp/qstring.h"
+ #include "hw/char/esp32_uart.h"
+ #include "hw/gpio/esp32_gpio.h"
+@@ -114,6 +115,30 @@
+     bool can_attached;
+     uint64_t can_frames_observed, can_injected_frames;
+     char can_last_frame_hex[32];
++    /* Batch-12b Chain Units (U223 8Servos2-Chain / U212 ChainBus): AA55
++     * frame-level responder on UART 115200 8N1. Fixture arrays feed only the
++     * documented command subset; cascade topology, servo/PWM waveforms,
++     * 9-24V/INA199 electrical behavior and real downstream I2C devices are
++     * NOT modeled. */
++    uint8_t chain_buf[320];
++    size_t chain_len;
++    uint8_t chain_modes[8], chain_pull[8], chain_outputs[8], chain_pwm[8];
++    uint8_t chain_angles[8];
++    uint16_t chain_adc[8];
++    uint32_t chain_rgb[8];
++    uint16_t chain_timer[2];
++    uint16_t chain_voltage_mv[3];
++    bool chain_gpio_in[2];
++    int64_t chain_gpio_out[2], chain_work_status[2];
++    uint8_t chain_brightness;
++    uint64_t chain_frames_sent, chain_frames_injected, chain_heartbeats;
++    char *chain_uid;
++    int64_t chain_version, chain_i2c_addr;
++    double chain_current_ma;
++    /* U204 Cat1-CN (ML307R-DL): minimal AT command/response byte responder on
++     * UART 115200 8N1. Cellular RF/SIM/PDP/network/TLS behavior is NOT
++     * modeled; identity responses are synthetic placeholders, not measured
++     * module values. */
+ } GPIOUnit;
+ static GPIOUnit *gpio_units;
+ 
+@@ -703,7 +728,8 @@
+         "catm", "catm-gnss", "lorawan-cn470", "lorawan-as923", "lorawan-eu868",
+         "audioplayer", "fingerprint2", "asr", "can", "mini-can",
+         "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
+-        "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
++        "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic",
++        "8servos2-chain", "chainbus", "cat1-cn"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1011,6 +1037,9 @@
+ static void uhf_inject_response(GPIOUnit *g);
+ static void lora_respond(GPIOUnit *g);
+ static void at_arm_idle(GPIOUnit *g);
++static bool chain_is_unit(const char *unit_id);
++static void chain_process(GPIOUnit *g);
++static void cat1_respond(GPIOUnit *g);
+ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+ {
+     for (unsigned n = 0; n < 3; n++) {
+@@ -1034,11 +1063,21 @@
+                  !strcmp(g->unit->unit_id, "asr") ||
+                  !strcmp(g->unit->unit_id, "nbiot-cn") ||
+                  !strcmp(g->unit->unit_id, "lora-e220-920") ||
+-                 !strcmp(g->unit->unit_id, "lorawan-us915")) &&
++                 !strcmp(g->unit->unit_id, "lorawan-us915") ||
++                 chain_is_unit(g->unit->unit_id) ||
++                 !strcmp(g->unit->unit_id, "cat1-cn")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+-                if (!strcmp(g->unit->unit_id, "uhf-rfid")) {
++                if (chain_is_unit(g->unit->unit_id)) {
++                    if (g->chain_len < sizeof(g->chain_buf)) {
++                        g->chain_buf[g->chain_len++] = byte;
++                    }
++                    chain_process(g);
++                } else if (!strcmp(g->unit->unit_id, "cat1-cn")) {
++                    if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
++                    if (byte == '\n') { cat1_respond(g); }
++                } else if (!strcmp(g->unit->unit_id, "uhf-rfid")) {
+                     if (byte == 0xbb) { g->uhf_in_frame = true; }
+                     if (byte == 0x7e && g->uhf_in_frame) {
+                         g->uhf_in_frame = false;
+@@ -1313,6 +1352,687 @@
+     return false;
+ }
+ 
++/* --- Batch-12b Chain (U223/U212) and Cat1-CN (U204) UART responders ---- */
++
++static bool chain_is_unit(const char *unit_id)
++{
++    return !strcmp(unit_id, "8servos2-chain") || !strcmp(unit_id, "chainbus");
++}
++
++static const char *chain_uid_hex(GPIOUnit *g)
++{
++    return g->chain_uid ? g->chain_uid : "0000000000000000";
++}
++
++static void chain_uid_bytes(GPIOUnit *g, uint8_t *out, unsigned count)
++{
++    const char *hex = chain_uid_hex(g);
++    size_t len = strlen(hex);
++    memset(out, 0, count);
++    for (unsigned i = 0; i < count; i++) {
++        unsigned byte = 0;
++        for (unsigned j = 0; j < 2; j++) {
++            size_t k = i * 2 + j;
++            int digit = k < len ? g_ascii_xdigit_value(hex[k]) : -1;
++            byte = (byte << 4) | (digit >= 0 ? (unsigned)digit : 0);
++        }
++        out[i] = (uint8_t)byte;
++    }
++}
++
++static void chain_inject(GPIOUnit *g, const uint8_t *data, unsigned len)
++{
++    DeviceState *uart = NULL;
++    if (!len || !gpio_uart_rx_device_for_white(g, &uart)) { return; }
++    if (len <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++        esp32_uart_inject_rx(ESP32_UART(uart), data, len);
++        g->unit->read_bytes += len;
++        g->chain_frames_injected++;
++    }
++}
++
++static void chain_emit(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                       const uint8_t *data, unsigned len)
++{
++    uint8_t frame[300];
++    unsigned total = len + 9;
++    uint8_t crc = (uint8_t)(index + cmd);
++    if (total > sizeof(frame)) { return; }
++    frame[0] = 0xaa;
++    frame[1] = 0x55;
++    frame[2] = (uint8_t)(len + 3);
++    frame[3] = (uint8_t)((len + 3) >> 8);
++    frame[4] = index;
++    frame[5] = cmd;
++    for (unsigned i = 0; i < len; i++) {
++        frame[6 + i] = data[i];
++        crc = (uint8_t)(crc + data[i]);
++    }
++    frame[6 + len] = crc;
++    frame[7 + len] = 0x55;
++    frame[8 + len] = 0xaa;
++    chain_inject(g, frame, total);
++}
++
++static void chain_emit_status(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                              uint8_t status)
++{
++    chain_emit(g, index, cmd, &status, 1);
++}
++
++/* Common device-info commands shared by U223/U212 (0xF8-0xFE). */
++static bool chain_handle_common(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                                const uint8_t *d, unsigned len,
++                                uint16_t device_type)
++{
++    uint8_t out[16] = {0};
++    switch (cmd) {
++    case 0xf8: {
++        uint8_t uid[12];
++        unsigned count = (len && d[0] == 1) ? 12 : 4;
++        chain_uid_bytes(g, uid, 12);
++        out[0] = 1;
++        memcpy(out + 1, uid, count);
++        chain_emit(g, index, cmd, out, 1 + count);
++        return true;
++    }
++    case 0xf9:
++        out[0] = 1;  /* bootloader version fixture */
++        chain_emit(g, index, cmd, out, 1);
++        return true;
++    case 0xfa:
++        out[0] = (uint8_t)g->chain_version;
++        chain_emit(g, index, cmd, out, 1);
++        return true;
++    case 0xfb:
++        out[0] = (uint8_t)(device_type & 0xff);
++        out[1] = (uint8_t)(device_type >> 8);
++        chain_emit(g, index, cmd, out, 2);
++        return true;
++    case 0xfc:
++        return true;  /* enumeration request is device-initiated, no response */
++    case 0xfd:
++        g->chain_heartbeats++;
++        chain_emit(g, index, cmd, NULL, 0);
++        return true;
++    case 0xfe:
++        out[0] = 1;  /* one cascaded device in this model */
++        chain_emit(g, 0xff, cmd, out, 1);
++        return true;
++    default:
++        return false;
++    }
++}
++
++/* Unit 8Servos2-Chain (U223) command subset from docs protocol V1. */
++static void chain_handle_servos(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                                const uint8_t *d, unsigned len)
++{
++    uint8_t out[32] = {0};
++    switch (cmd) {
++    case 0x10:
++        if (len >= 2 && d[0] < 8 && d[1] <= 5) { g->chain_modes[d[0]] = d[1]; }
++        chain_emit_status(g, index, cmd,
++                          (len >= 2 && d[0] < 8 && d[1] <= 5) ? 1 : 0);
++        return;
++    case 0x11:
++        if (len >= 8) {
++            for (unsigned i = 0; i < 8; i++) {
++                if (d[i] <= 5) { g->chain_modes[i] = d[i]; }
++            }
++        }
++        chain_emit_status(g, index, cmd, len >= 8 ? 1 : 0);
++        return;
++    case 0x12:
++        out[0] = 1;
++        out[1] = len ? g->chain_modes[d[0] & 7] : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x13:
++        memcpy(out, g->chain_modes, 8);
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x30:
++        if (len >= 2 && d[0] < 8 && d[1] <= 2) { g->chain_pull[d[0]] = d[1]; }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x31:
++        if (len >= 8) {
++            for (unsigned i = 0; i < 8; i++) {
++                if (d[i] <= 2) { g->chain_pull[i] = d[i]; }
++            }
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x32:
++        out[0] = 1;
++        out[1] = len ? g->chain_pull[d[0] & 7] : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x33:
++        memcpy(out, g->chain_pull, 8);
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x34:
++        out[0] = 1;
++        out[1] = len ? (g->chain_gpio_in[d[0] & 1] ? 1 : 0) : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x35:
++        for (unsigned i = 0; i < 8; i++) {
++            out[i] = g->chain_gpio_in[i & 1] ? 1 : 0;
++        }
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x40:
++        if (len >= 2 && d[0] < 8) { g->chain_outputs[d[0]] = d[1] ? 1 : 0; }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x41:
++        if (len >= 8) {
++            for (unsigned i = 0; i < 8; i++) { g->chain_outputs[i] = d[i] ? 1 : 0; }
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x42:
++        out[0] = 1;
++        out[1] = len ? g->chain_outputs[d[0] & 7] : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x43:
++        memcpy(out, g->chain_outputs, 8);
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x50:
++        out[0] = 1;
++        if (len) {
++            out[1] = (uint8_t)(g->chain_adc[d[0] & 7] & 0xff);
++            out[2] = (uint8_t)(g->chain_adc[d[0] & 7] >> 8);
++        }
++        chain_emit(g, index, cmd, out, 3);
++        return;
++    case 0x51:
++        for (unsigned i = 0; i < 8; i++) {
++            out[i * 2] = (uint8_t)(g->chain_adc[i] & 0xff);
++            out[i * 2 + 1] = (uint8_t)(g->chain_adc[i] >> 8);
++        }
++        chain_emit(g, index, cmd, out, 16);
++        return;
++    case 0x60:
++        if (len >= 2 && d[0] < 8 && d[1] <= 180) { g->chain_angles[d[0]] = d[1]; }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x61:
++        if (len >= 8) {
++            for (unsigned i = 0; i < 8; i++) {
++                if (d[i] <= 180) { g->chain_angles[i] = d[i]; }
++            }
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x62:
++        out[0] = 1;
++        out[1] = len ? g->chain_angles[d[0] & 7] : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x63:
++        memcpy(out, g->chain_angles, 8);
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x70:
++    case 0x71:
++    case 0x72:
++    case 0x73:
++        /* WS2812 count/refresh configuration is accepted as device state; the
++         * LED output, timing and cascade direction are NOT modeled. */
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x74:
++        if (len >= 4 && d[0] < 8) {
++            g->chain_rgb[d[0]] = ((uint32_t)d[1] << 16) |
++                                 ((uint32_t)d[2] << 8) | d[3];
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x76:
++        out[0] = 1;
++        if (len) {
++            uint32_t color = g->chain_rgb[d[0] & 7];
++            out[1] = (uint8_t)(color >> 16);
++            out[2] = (uint8_t)(color >> 8);
++            out[3] = (uint8_t)color;
++        }
++        chain_emit(g, index, cmd, out, 4);
++        return;
++    case 0x77:
++        for (unsigned i = 0; i < 8; i++) {
++            out[i * 3] = (uint8_t)(g->chain_rgb[i] >> 16);
++            out[i * 3 + 1] = (uint8_t)(g->chain_rgb[i] >> 8);
++            out[i * 3 + 2] = (uint8_t)g->chain_rgb[i];
++        }
++        chain_emit(g, index, cmd, out, 24);
++        return;
++    case 0x80:
++        if (len >= 2 && d[0] < 8 && d[1] <= 100) { g->chain_pwm[d[0]] = d[1]; }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x81:
++        if (len >= 8) {
++            for (unsigned i = 0; i < 8; i++) {
++                if (d[i] <= 100) { g->chain_pwm[i] = d[i]; }
++            }
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x82:
++        out[0] = 1;
++        out[1] = len ? g->chain_pwm[d[0] & 7] : 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x83:
++        memcpy(out, g->chain_pwm, 8);
++        chain_emit(g, index, cmd, out, 8);
++        return;
++    case 0x90:
++        if (len >= 3 && d[0] < 2) {
++            g->chain_timer[d[0]] = (uint16_t)(d[1] | (d[2] << 8));
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x92:
++        out[0] = 1;
++        if (len) {
++            out[1] = (uint8_t)(g->chain_timer[d[0] & 1] & 0xff);
++            out[2] = (uint8_t)(g->chain_timer[d[0] & 1] >> 8);
++        }
++        chain_emit(g, index, cmd, out, 3);
++        return;
++    case 0x93:
++        out[0] = (uint8_t)(g->chain_timer[0] & 0xff);
++        out[1] = (uint8_t)(g->chain_timer[0] >> 8);
++        out[2] = (uint8_t)(g->chain_timer[1] & 0xff);
++        out[3] = (uint8_t)(g->chain_timer[1] >> 8);
++        chain_emit(g, index, cmd, out, 4);
++        return;
++    case 0xa0:
++    case 0xa1:
++    case 0xa2: {
++        unsigned channel = cmd - 0xa0;
++        out[0] = (uint8_t)(g->chain_voltage_mv[channel] & 0xff);
++        out[1] = (uint8_t)(g->chain_voltage_mv[channel] >> 8);
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    }
++    case 0xa3: {
++        uint16_t ma = (uint16_t)CLAMP(llround(g->chain_current_ma), 0, 65535);
++        out[0] = (uint8_t)(ma & 0xff);
++        out[1] = (uint8_t)(ma >> 8);
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    }
++    default:
++        return;
++    }
++}
++
++static uint8_t chainbus_work_status(int64_t status)
++{
++    return status >= 0 && status <= 5 ? (uint8_t)status : 0;
++}
++
++/* Unit ChainBus (U212) command subset from the official protocol PDF V1. */
++static void chain_handle_bus(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                             const uint8_t *d, unsigned len)
++{
++    uint8_t out[32] = {0};
++    switch (cmd) {
++    case 0x10:
++        chain_emit_status(g, index, cmd, (len && d[0] <= 1) ? 1 : 0);
++        return;
++    case 0x11:
++    case 0x12:
++    case 0x13:
++    case 0x14:
++        /* No downstream I2C device/register is modeled; fail closed instead of
++         * fabricating forwarded bytes (Operation_status 0 = failed). */
++        chain_emit_status(g, index, cmd, 0);
++        return;
++    case 0x15:
++        out[0] = 1;
++        out[1] = 0;
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x20:
++        if (len >= 4) {
++            g->chain_rgb[0] = ((uint32_t)d[1] << 16) |
++                              ((uint32_t)d[2] << 8) | d[3];
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x21:
++        out[0] = 1;
++        out[1] = (uint8_t)(g->chain_rgb[0] >> 16);
++        out[2] = (uint8_t)(g->chain_rgb[0] >> 8);
++        out[3] = (uint8_t)g->chain_rgb[0];
++        chain_emit(g, index, cmd, out, 4);
++        return;
++    case 0x22:
++        if (len && d[0] <= 100) { g->chain_brightness = d[0]; }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x23:
++        out[0] = g->chain_brightness;
++        chain_emit(g, index, cmd, out, 1);
++        return;
++    case 0x30:
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x31:
++        if (len >= 2 && d[0] >= 1 && d[0] <= 2) {
++            g->chain_gpio_out[d[0] - 1] = d[1] ? 1 : 0;
++        }
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x32:
++        out[0] = 1;
++        if (len && d[0] >= 1 && d[0] <= 2) {
++            out[1] = (uint8_t)g->chain_gpio_out[d[0] - 1];
++        }
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x40:
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x41:
++        out[0] = 1;
++        if (len && d[0] >= 1 && d[0] <= 2) {
++            out[1] = g->chain_gpio_in[d[0] - 1] ? 1 : 0;
++        }
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    case 0x50:
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x60:
++        chain_emit_status(g, index, cmd, 1);
++        return;
++    case 0x61: {
++        unsigned channel = (len && d[0] >= 1 && d[0] <= 4) ? (unsigned)d[0] - 1 : 0;
++        uint16_t value = g->chain_adc[channel];
++        out[0] = 1;
++        out[1] = (uint8_t)(value & 0xff);
++        out[2] = (uint8_t)(value >> 8);
++        chain_emit(g, index, cmd, out, 3);
++        return;
++    }
++    case 0x70:
++        out[0] = chainbus_work_status(g->chain_work_status[0]);
++        out[1] = chainbus_work_status(g->chain_work_status[1]);
++        chain_emit(g, index, cmd, out, 2);
++        return;
++    default:
++        return;
++    }
++}
++
++static void chain_handle_frame(GPIOUnit *g, uint8_t index, uint8_t cmd,
++                               const uint8_t *d, unsigned len)
++{
++    bool servos = !strcmp(g->unit->unit_id, "8servos2-chain");
++    uint16_t device_type = servos ? 0x000c : 0x0006;
++    if (chain_handle_common(g, index, cmd, d, len, device_type)) { return; }
++    if (servos) { chain_handle_servos(g, index, cmd, d, len); }
++    else { chain_handle_bus(g, index, cmd, d, len); }
++}
++
++static void chain_process(GPIOUnit *g)
++{
++    while (g->chain_len >= 9) {
++        if (g->chain_buf[0] != 0xaa || g->chain_buf[1] != 0x55) {
++            memmove(g->chain_buf, g->chain_buf + 1, --g->chain_len);
++            continue;
++        }
++        unsigned length = g->chain_buf[2] | ((unsigned)g->chain_buf[3] << 8);
++        unsigned total = length + 6;
++        if (length < 4 || total > sizeof(g->chain_buf)) {
++            g->chain_len = 0;
++            return;
++        }
++        if (g->chain_len < total) { return; }
++        if (g->chain_buf[total - 2] != 0x55 || g->chain_buf[total - 1] != 0xaa) {
++            memmove(g->chain_buf, g->chain_buf + 1, --g->chain_len);
++            continue;
++        }
++        uint8_t index = g->chain_buf[4], cmd = g->chain_buf[5];
++        unsigned dlen = length - 3;
++        uint8_t crc = (uint8_t)(index + cmd);
++        for (unsigned i = 0; i < dlen; i++) {
++            crc = (uint8_t)(crc + g->chain_buf[6 + i]);
++        }
++        if (crc == g->chain_buf[6 + dlen]) {
++            g->chain_frames_sent++;
++            chain_handle_frame(g, index, cmd, g->chain_buf + 6, dlen);
++        }
++        memmove(g->chain_buf, g->chain_buf + total, g->chain_len - total);
++        g->chain_len -= total;
++    }
++}
++
++static void cat1_inject_text(GPIOUnit *g, const char *text)
++{
++    DeviceState *uart = NULL;
++    unsigned len = strlen(text);
++    if (!len || !gpio_uart_rx_device_for_white(g, &uart)) { return; }
++    if (len <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++        esp32_uart_inject_rx(ESP32_UART(uart), (const uint8_t *)text, len);
++        g->unit->read_bytes += len;
++        g->at_frames_injected++;
++    }
++}
++
++/* U204 Cat1-CN (ML307R-DL) minimal AT responder. Only the control-plane byte
++ * layer is modeled; identity strings are synthetic fixtures and cellular
++ * RF/SIM/PDP/network/TLS behavior is NOT RUN. */
++static void cat1_respond(GPIOUnit *g)
++{
++    char cmd[128];
++    unsigned n = g->at_len < sizeof(cmd) - 1 ? (unsigned)g->at_len : sizeof(cmd) - 1;
++    memcpy(cmd, g->at_buf, n);
++    cmd[n] = 0;
++    while (n && (cmd[n - 1] == '\r' || cmd[n - 1] == '\n' || cmd[n - 1] == ' ')) {
++        cmd[--n] = 0;
++    }
++    if (!*cmd) { g->at_len = 0; return; }
++    if (!strcmp(cmd, "AT") || !strncmp(cmd, "ATE", 3)) {
++        cat1_inject_text(g, "\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CPIN?")) {
++        cat1_inject_text(g, "\r\n+CPIN: READY\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CREG?")) {
++        cat1_inject_text(g, "\r\n+CREG: 0,1\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CEREG?")) {
++        cat1_inject_text(g, "\r\n+CEREG: 0,1\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CSQ")) {
++        cat1_inject_text(g, "\r\n+CSQ: 99,99\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CGATT?")) {
++        cat1_inject_text(g, "\r\n+CGATT: 1\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CGMM")) {
++        cat1_inject_text(g, "\r\nML307R-DL\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CGMI")) {
++        cat1_inject_text(g, "\r\nOneMO\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CGSN")) {
++        cat1_inject_text(g, "\r\n862000000000000\r\n\r\nOK\r\n");
++    } else if (!strcmp(cmd, "AT+CIMI")) {
++        cat1_inject_text(g, "\r\n460000000000000\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MIPCALL", 10)) {
++        cat1_inject_text(g, "\r\n+MIPCALL: 1,1\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MIPOPEN", 10)) {
++        cat1_inject_text(g, "\r\n+MIPOPEN: 0,0\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MIPSEND", 10)) {
++        cat1_inject_text(g, "\r\n+MIPSEND: 0,0\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MIPCLOSE", 11)) {
++        cat1_inject_text(g, "\r\n+MIPCLOSE: 0,0\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MIPRD", 8)) {
++        cat1_inject_text(g, "\r\n+MIPRD: 0,0,0\r\n\r\nOK\r\n");
++    } else if (!strncmp(cmd, "AT+MDNSGIP", 10)) {
++        cat1_inject_text(g, "\r\n+MDNSGIP: 1,1,\"127.0.0.1\"\r\n\r\nOK\r\n");
++    } else {
++        cat1_inject_text(g, "\r\nERROR\r\n");
++    }
++    g->at_frames_sent++;
++    g->at_len = 0;
++}
++
++/* --- Chain/Cat1 QOM array and scalar properties ------------------------- */
++
++static void chain_array_get(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool bus = !strcmp(g->unit->unit_id, "chainbus");
++    QList *list = qlist_new();
++    if (!strcmp(name, "channel-modes")) {
++        for (unsigned i = 0; i < 8; i++) { qlist_append_int(list, g->chain_modes[i]); }
++    } else if (!strcmp(name, "servo-angles")) {
++        for (unsigned i = 0; i < 8; i++) { qlist_append_int(list, g->chain_angles[i]); }
++    } else if (!strcmp(name, "adc-values")) {
++        unsigned count = bus ? 4 : 8;
++        for (unsigned i = 0; i < count; i++) { qlist_append_int(list, g->chain_adc[i]); }
++    } else if (!strcmp(name, "rgb-leds")) {
++        for (unsigned i = 0; i < 8; i++) { qlist_append_int(list, g->chain_rgb[i]); }
++    } else if (!strcmp(name, "gpio-levels")) {
++        for (unsigned i = 0; i < 2; i++) { qlist_append_bool(list, g->chain_gpio_in[i]); }
++    } else if (!strcmp(name, "link-devices")) {
++        qlist_append_str(list, chain_uid_hex(g));
++    }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void chain_array_set(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool bus = !strcmp(g->unit->unit_id, "chainbus");
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    unsigned count = list ? qlist_size(list) : 0;
++    bool ok = list != NULL;
++    if (!strcmp(name, "channel-modes")) {
++        ok = ok && count == 8;
++        if (ok) {
++            unsigned i = 0;
++            const QListEntry *e;
++            QLIST_FOREACH_ENTRY(list, e) {
++                QNum *n = qobject_to(QNum, qlist_entry_obj(e));
++                int64_t mode;
++                if (!n || !qnum_get_try_int(n, &mode) || mode < 0 || mode > 5) {
++                    ok = false;
++                    break;
++                }
++                g->chain_modes[i++] = (uint8_t)mode;
++            }
++        }
++    } else if (!strcmp(name, "gpio-levels")) {
++        ok = ok && count == 2;
++        if (ok) {
++            const QListEntry *e;
++            unsigned i = 0;
++            QLIST_FOREACH_ENTRY(list, e) {
++                QBool *b = qobject_to(QBool, qlist_entry_obj(e));
++                if (!b) { ok = false; break; }
++                g->chain_gpio_in[i++] = qbool_get_bool(b);
++            }
++        }
++    } else if (!strcmp(name, "adc-values")) {
++        unsigned expected = bus ? 4 : 8;
++        ok = ok && count == expected;
++        if (ok) {
++            const QListEntry *e;
++            unsigned i = 0;
++            QLIST_FOREACH_ENTRY(list, e) {
++                QNum *n = qobject_to(QNum, qlist_entry_obj(e));
++                int64_t adc;
++                if (!n || !qnum_get_try_int(n, &adc) || adc < 0 || adc > 4095) {
++                    ok = false;
++                    break;
++                }
++                g->chain_adc[i] = (uint16_t)adc;
++                i++;
++            }
++        }
++    } else {
++        ok = false;
++    }
++    if (!ok) {
++        error_setg(errp, "%s has an unsupported shape or value", name);
++    } else {
++        g->unit->input_events++;
++    }
++    qobject_unref(value);
++}
++
++static void chain_current_get(Object *o, Visitor *v, const char *name,
++                              void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    double value = g->chain_current_ma;
++    visit_type_number(v, name, &value, errp);
++}
++
++static void chain_current_set(Object *o, Visitor *v, const char *name,
++                              void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    double value;
++    if (!visit_type_number(v, name, &value, errp)) { return; }
++    if (!isfinite(value) || value < 0 || value > 5000) {
++        error_setg(errp, "current-ma requires 0..5000 mA");
++        return;
++    }
++    g->chain_current_ma = value;
++    g->unit->input_events++;
++}
++
++static void chain_int_get(Object *o, Visitor *v, const char *name,
++                          void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value = !strcmp(name, "version") ? g->chain_version : g->chain_i2c_addr;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void chain_uid_get(Object *o, Visitor *v, const char *name,
++                          void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *text = g_strdup(chain_uid_hex(g));
++    visit_type_str(v, name, &text, errp);
++    g_free(text);
++}
++
++static void chain_uid_set(Object *o, Visitor *v, const char *name,
++                          void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *text = NULL;
++    if (!visit_type_str(v, name, &text, errp)) { return; }
++    size_t len = strlen(text);
++    bool valid = (len == 8 || len == 16 || len == 24);
++    for (size_t i = 0; valid && i < len; i++) {
++        valid = g_ascii_xdigit_value(text[i]) >= 0;
++    }
++    if (!valid) {
++        error_setg(errp, "chain-uid requires 8/16/24 hexadecimal digits");
++        g_free(text);
++        return;
++    }
++    g_free(g->chain_uid);
++    g->chain_uid = text;
++    g->unit->input_events++;
++}
++
+ static void hx_finish_conversion(GPIOUnit *g)
+ {
+     g->hx_conversions++;
+@@ -1804,6 +2524,8 @@
+                 !strcmp(unit->unit_id, "nbiot-cn") ||
+                 !strcmp(unit->unit_id, "lora-e220-920") ||
+                 !strcmp(unit->unit_id, "lorawan-us915") ||
++                chain_is_unit(unit->unit_id) ||
++                !strcmp(unit->unit_id, "cat1-cn") ||
+                 !strcmp(unit->unit_id, "can") || !strcmp(unit->unit_id, "mini-can"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+@@ -1995,6 +2717,47 @@
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+                             &g->incomplete_frames);
++    } else if (chain_is_unit(id)) {
++        /* U223 8Servos2-Chain / U212 ChainBus: AA55 frame-level responder.
++         * Fixture arrays cover the documented command subset; cascade
++         * topology, servo/PWM/WS2812 waveforms, 9-24V/INA199 and real
++         * downstream I2C devices are NOT modeled. */
++        g->chain_version = 1;
++        g->chain_uid = g_strdup("0000000000000000");
++        g->chain_timer[0] = g->chain_timer[1] = 50;
++        g->chain_voltage_mv[0] = 1200;
++        g->chain_voltage_mv[1] = 5000;
++        g->chain_voltage_mv[2] = 12000;
++        g->chain_brightness = 40;
++        if (!strcmp(id, "8servos2-chain")) {
++            object_property_add(o, "channel-modes", "any", chain_array_get,
++                                chain_array_set, NULL, g);
++            object_property_add(o, "servo-angles", "any", chain_array_get,
++                                NULL, NULL, g);
++            object_property_add(o, "rgb-leds", "any", chain_array_get,
++                                NULL, NULL, g);
++            object_property_add(o, "current-ma", "number", chain_current_get,
++                                chain_current_set, NULL, g);
++        } else {
++            object_property_add(o, "chain-uid", "str", chain_uid_get,
++                                chain_uid_set, NULL, g);
++            object_property_add(o, "version", "int", chain_int_get,
++                                NULL, NULL, g);
++            object_property_add(o, "link-devices", "any", chain_array_get,
++                                NULL, NULL, g);
++            object_property_add(o, "heartbeat", "uint64", count_get,
++                                NULL, NULL, &g->chain_heartbeats);
++            object_property_add(o, "i2c-address", "int", chain_int_get,
++                                NULL, NULL, g);
++            object_property_add(o, "gpio-levels", "any", chain_array_get,
++                                chain_array_set, NULL, g);
++        }
++        object_property_add(o, "adc-values", "any", chain_array_get,
++                            chain_array_set, NULL, g);
++        object_property_add(o, "frames-sent", "uint64", count_get, NULL, NULL,
++                            &g->chain_frames_sent);
++        object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
++                            &g->chain_frames_injected);
+     } else if (!strcmp(id, "lora-e220-433") || !strcmp(id, "zigbee") ||
+                !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
+                !strcmp(id, "dmx") || !strcmp(id, "finger") ||
+@@ -2002,7 +2765,7 @@
+                !strcmp(id, "lorawan-cn470") || !strcmp(id, "lorawan-as923") ||
+                !strcmp(id, "lorawan-eu868") || !strcmp(id, "audioplayer") ||
+                !strcmp(id, "fingerprint2") || !strcmp(id, "asr") ||
+-               !strcmp(id, "nbiot-cn") ||
++               !strcmp(id, "nbiot-cn") || !strcmp(id, "cat1-cn") ||
+                !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
+         g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
+         object_property_add(o, "responses-hex", "str", at_responses_get,

@@ -12204,9 +12204,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x14，但**无官方 UIFlow2 driver、无寄存器表**，CHIP_ID/OTP/数据寄存器需 Bosch datasheet；磁场/heading/校准/温度稳定性 NOT RUN；0x14 需与板级 BMM150 0x10 区分。",
+      "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅 planned 契约；无模型/无 guest 证据，BMM350 寄存器/校准/磁场物理 NOT RUN。",
+      "notes": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
       "inputs": {
         "magnetic-x": {
           "property": "magnetic-x"
@@ -12216,6 +12216,9 @@
         },
         "magnetic-z": {
           "property": "magnetic-z"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
         }
       },
       "state": {
@@ -12228,14 +12231,8 @@
         "magnetic-z": {
           "property": "magnetic-z"
         },
-        "heading-deg": {
-          "property": "heading-deg"
-        },
-        "whoami": {
-          "property": "whoami"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
+        "temperature-c": {
+          "property": "temperature-c"
         },
         "transactions": {
           "property": "transactions"
@@ -12245,6 +12242,12 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "whoami": {
+          "property": "whoami"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
         }
       }
     },
@@ -12252,9 +12255,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x41，但**无官方 UIFlow2 driver、无寄存器表**，标准 INA226 寄存器/校准需 TI datasheet SHA；0-30V/±10A/5mΩ/隔离/保险/精度 NOT RUN；0x41 与 ina226-1a 同地址。",
+      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅 planned 契约；无模型/无 guest 证据，INA226 寄存器/隔离/电气精度 NOT RUN。",
+      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
       "inputs": {
         "bus-voltage-v": {
           "property": "bus-voltage-v"
@@ -12270,12 +12273,6 @@
         "current-a": {
           "property": "current-a"
         },
-        "power-w": {
-          "property": "power-w"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
-        },
         "transactions": {
           "property": "transactions"
         },
@@ -12284,6 +12281,18 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "power-w": {
+          "property": "power-w"
+        },
+        "manufacturer-id": {
+          "property": "manufacturer-id"
+        },
+        "die-id": {
+          "property": "die-id"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
         }
       }
     },
@@ -12291,9 +12300,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x64 + 2×CAN，但**内部固件/通信协议为外部文档、无寄存器/帧表**；电机/FOC/编码器/OLED/RGB/滑环/6-16V/负载/热 NOT RUN；I2C 0x64 需检查与其它 0x64 设备冲突。",
+      "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅 planned 契约；无模型/无 guest 证据，电机/FOC/编码器/内部协议 NOT RUN。",
+      "notes": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -12309,23 +12318,11 @@
         "mode": {
           "property": "mode"
         },
-        "actual-speed-rpm": {
-          "property": "actual-speed-rpm"
+        "target-speed-rpm": {
+          "property": "target-speed-rpm"
         },
-        "actual-position-deg": {
-          "property": "actual-position-deg"
-        },
-        "encoder-pos": {
-          "property": "encoder-pos"
-        },
-        "current-ma": {
-          "property": "current-ma"
-        },
-        "fault": {
-          "property": "fault"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
+        "target-position-deg": {
+          "property": "target-position-deg"
         },
         "transactions": {
           "property": "transactions"
@@ -12335,6 +12332,39 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "motor-output": {
+          "property": "motor-output"
+        },
+        "system-state": {
+          "property": "system-state"
+        },
+        "fault": {
+          "property": "fault"
+        },
+        "encoder-pos": {
+          "property": "encoder-pos"
+        },
+        "actual-speed-rpm": {
+          "property": "actual-speed-rpm"
+        },
+        "actual-position-deg": {
+          "property": "actual-position-deg"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "vin-v": {
+          "property": "vin-v"
+        },
+        "mcu-temp-c": {
+          "property": "mcu-temp-c"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "save-count": {
+          "property": "save-count"
         }
       }
     },
@@ -12432,9 +12462,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U200-1A has a clear I2C 0x41 address and standard INA226 datasheet, but no Unit driver/register table in the product page; a planned contract is registrable, and implementation must pin the TI datasheet. Isolation/0-30V/+-1A/fuse/accuracy NOT RUN; 0x41 is shared with INA226-10A. 仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。",
+      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。",
+      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
       "inputs": {
         "bus-voltage-v": {
           "property": "bus-voltage-v"
@@ -12450,12 +12480,6 @@
         "current-a": {
           "property": "current-a"
         },
-        "power-w": {
-          "property": "power-w"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
-        },
         "transactions": {
           "property": "transactions"
         },
@@ -12464,6 +12488,18 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "power-w": {
+          "property": "power-w"
+        },
+        "manufacturer-id": {
+          "property": "manufacturer-id"
+        },
+        "die-id": {
+          "property": "die-id"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
         }
       }
     },
@@ -12995,9 +13031,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "roller485 has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13010,23 +13046,14 @@
         }
       },
       "state": {
-        "actual-speed-rpm": {
-          "property": "actual-speed-rpm"
+        "mode": {
+          "property": "mode"
         },
-        "actual-position-deg": {
-          "property": "actual-position-deg"
+        "target-speed-rpm": {
+          "property": "target-speed-rpm"
         },
-        "encoder-pos": {
-          "property": "encoder-pos"
-        },
-        "current-ma": {
-          "property": "current-ma"
-        },
-        "fault": {
-          "property": "fault"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
+        "target-position-deg": {
+          "property": "target-position-deg"
         },
         "transactions": {
           "property": "transactions"
@@ -13036,6 +13063,39 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "motor-output": {
+          "property": "motor-output"
+        },
+        "system-state": {
+          "property": "system-state"
+        },
+        "fault": {
+          "property": "fault"
+        },
+        "encoder-pos": {
+          "property": "encoder-pos"
+        },
+        "actual-speed-rpm": {
+          "property": "actual-speed-rpm"
+        },
+        "actual-position-deg": {
+          "property": "actual-position-deg"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "vin-v": {
+          "property": "vin-v"
+        },
+        "mcu-temp-c": {
+          "property": "mcu-temp-c"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "save-count": {
+          "property": "save-count"
         }
       }
     },
@@ -13043,9 +13103,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "roller485-lite has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13058,23 +13118,14 @@
         }
       },
       "state": {
-        "actual-speed-rpm": {
-          "property": "actual-speed-rpm"
+        "mode": {
+          "property": "mode"
         },
-        "actual-position-deg": {
-          "property": "actual-position-deg"
+        "target-speed-rpm": {
+          "property": "target-speed-rpm"
         },
-        "encoder-pos": {
-          "property": "encoder-pos"
-        },
-        "current-ma": {
-          "property": "current-ma"
-        },
-        "fault": {
-          "property": "fault"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
+        "target-position-deg": {
+          "property": "target-position-deg"
         },
         "transactions": {
           "property": "transactions"
@@ -13084,6 +13135,39 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "motor-output": {
+          "property": "motor-output"
+        },
+        "system-state": {
+          "property": "system-state"
+        },
+        "fault": {
+          "property": "fault"
+        },
+        "encoder-pos": {
+          "property": "encoder-pos"
+        },
+        "actual-speed-rpm": {
+          "property": "actual-speed-rpm"
+        },
+        "actual-position-deg": {
+          "property": "actual-position-deg"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "vin-v": {
+          "property": "vin-v"
+        },
+        "mcu-temp-c": {
+          "property": "mcu-temp-c"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "save-count": {
+          "property": "save-count"
         }
       }
     },
@@ -13091,9 +13175,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U188-Lite has a clear I2C 0x64 address but no public Unit driver and the CAN/internal protocol is external/unresolved; only a planned contract is registered. The CAN path can use the finite 0145 CanBusClient observation, not a full motor model. Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal are NOT RUN; 0x64 conflicts with Roller485 family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13106,23 +13190,14 @@
         }
       },
       "state": {
-        "actual-speed-rpm": {
-          "property": "actual-speed-rpm"
+        "mode": {
+          "property": "mode"
         },
-        "actual-position-deg": {
-          "property": "actual-position-deg"
+        "target-speed-rpm": {
+          "property": "target-speed-rpm"
         },
-        "encoder-pos": {
-          "property": "encoder-pos"
-        },
-        "current-ma": {
-          "property": "current-ma"
-        },
-        "fault": {
-          "property": "fault"
-        },
-        "i2c-address": {
-          "property": "i2c-address"
+        "target-position-deg": {
+          "property": "target-position-deg"
         },
         "transactions": {
           "property": "transactions"
@@ -13132,6 +13207,39 @@
         },
         "written-bytes": {
           "property": "written-bytes"
+        },
+        "motor-output": {
+          "property": "motor-output"
+        },
+        "system-state": {
+          "property": "system-state"
+        },
+        "fault": {
+          "property": "fault"
+        },
+        "encoder-pos": {
+          "property": "encoder-pos"
+        },
+        "actual-speed-rpm": {
+          "property": "actual-speed-rpm"
+        },
+        "actual-position-deg": {
+          "property": "actual-position-deg"
+        },
+        "current-ma": {
+          "property": "current-ma"
+        },
+        "vin-v": {
+          "property": "vin-v"
+        },
+        "mcu-temp-c": {
+          "property": "mcu-temp-c"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "save-count": {
+          "property": "save-count"
         }
       }
     },
@@ -13493,9 +13601,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U223 has a clear UART Chain interface but no public Unit driver and the Chain frame/register table is external; only a planned contract is registered. Servo/ADC/PWM/9-24V/INA199/cascade behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
         "channel-modes": {
           "property": "channel-modes"
@@ -13517,14 +13625,11 @@
         "current-ma": {
           "property": "current-ma"
         },
-        "transactions": {
-          "property": "transactions"
+        "frames-sent": {
+          "property": "frames-sent"
         },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
+        "frames-injected": {
+          "property": "frames-injected"
         }
       }
     },
@@ -13532,15 +13637,18 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U204 has a clear UART 115200 AT interface but no public Unit driver and the ML307R AT/URC command set is external; only a planned UART byte-layer contract with fixture responder is registered. Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN; PORT.C conflicts with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
         }
       },
       "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
         "tx-hex": {
           "property": "tx-hex"
         },
@@ -13549,15 +13657,6 @@
         },
         "frames-injected": {
           "property": "frames-injected"
-        },
-        "transactions": {
-          "property": "transactions"
-        },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
         }
       }
     },
@@ -13565,9 +13664,9 @@
       "status": "planned",
       "hosts": [],
       "model_completeness": "pending",
-      "blocker": "U212 is a Chain protocol converter with UART/I2C/GPIO/ADC expansion; it is a Unit entity with a clear UART 115200 interface but no public driver and unresolved protocol tables, so it is registered as a planned contract (not c). Chain topology/heartbeat/GPIO/ADC/NVIC behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "bindings_required": [],
-      "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "notes": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "inputs": {
         "chain-uid": {
           "property": "chain-uid"
@@ -13595,14 +13694,11 @@
         "adc-values": {
           "property": "adc-values"
         },
-        "transactions": {
-          "property": "transactions"
+        "frames-sent": {
+          "property": "frames-sent"
         },
-        "read-bytes": {
-          "property": "read-bytes"
-        },
-        "written-bytes": {
-          "property": "written-bytes"
+        "frames-injected": {
+          "property": "frames-injected"
         }
       }
     }
