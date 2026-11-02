@@ -1,0 +1,389 @@
+From 9c7e5a1d3f2b4c6d8e0f1a2b3c4d5e6f708192a3 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 01:35:00 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-7 remaining seven data planes
+
+Implement the remaining batch-7 Unit contracts on top of the 25-layer
+reconciled canonical chain (through 0144). No guest/Device Service evidence is
+recorded; all seven stay planned and the reused models keep their existing
+NOT RUN boundaries.
+
+- hex (A045): alias of the existing 37-LED RMT capture branch used by neohex;
+  public UIFlow2 has no unit/hex.py so the generic neopixel driver is the only
+  reference. SK6812 vs WS2812C timing/order stays UNRESOLVED, and PORT.B yellow
+  data conflicts with neohex/rgb-led-10cm/op90.
+- mini-pdm (U089): DEFERRED, no QEMU Unit model. Public source has no Unit
+  driver and the existing SPM1423 PDM RX path is board-level I2S, not an
+  attachment the Unit runtime can bind. The catalog/profile entry documents the
+  driver-gap and acoustic boundary; no fake PCM fixture is added.
+- catm (U128), catm-gnss (U137), lorawan-cn470 (U184-CN470): extend the shared
+  UART fixture responder (guest TX capture + idle-time response injection) by
+  unit id only. No AT decoding/protocol claim is made: SIM7080G AT/URC order,
+  cellular + GNSS concurrency and GNSS COG semantics stay UNRESOLVED; the
+  LoRaWAN product is STM32WLE5/RAK3172 while the frozen driver is ASR650x.
+- can (U085) and mini-can (U179): bind a real CanBusClient to the cores3
+  m5-canbus created by the board. Guest TWAI frames are observed
+  (frames-observed/last-frame-hex) and a QOM inject-hex fixture sends one frame
+  onto the same bus (injected-frames). Frame direction/filtering/bit timing,
+  external transceiver/isolation/termination and bus arbitration are NOT
+  modeled. QOM smoke on S3 uses M5SW_CAN_ECHO to validate the loop path.
+- mini-imu-pro (U171): new US_BMI270 primary at 0x68 plus the existing BMP280
+  secondary at 0x76 on one Grove pair. BMI270 accepts the CMD 0x7E init burst
+  and exposes synthetic accel/gyro/temperature registers; BMM150 is a
+  simplified 16-bit window at 0x04..0x09 (raw=uT*16). The full BMI270 init blob
+  execution, aux transaction semantics, range configuration, real motion and
+  magnetic/attitude physics are NOT modeled; 0x68 conflicts with mini-imu U095
+  and 0x76 with env/bps/env-ii/env-iv.
+
+Offline QOM smoke (S3 m5cores3, no guest firmware) attaches hex, catm,
+catm-gnss, lorawan-cn470, can, mini-can and mini-imu-pro and validates property
+registration, responder fixtures, CAN injection/observation and the
+BMI270+BMP280 dual attach: 7/7 attach and property checks PASS. The smoke does
+NOT cover guest byte semantics, LED timing, AT decode, CAN bit timing or IMU
+physics.
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -7,6 +7,7 @@
+ #include "qapi/qmp/qstring.h"
+ #include "hw/char/esp32_uart.h"
+ #include "hw/gpio/esp32_gpio.h"
++#include "net/can_emu.h"
+ #include "m5stopwatch.h"
+ #include "m5_unit_runtime.h"
+ #include <math.h>
+@@ -88,6 +89,14 @@
+     uint8_t uart_tx[4096];
+     size_t uart_tx_size;
+     char *last_rx;
++    /* U085 CAN / U179 Mini CAN: a client on the board's m5-canbus. Guest TWAI
++     * frames are observed, host QOM inject-hex frames are sent onto the bus.
++     * Frame direction/ID filtering is NOT modeled; the counters are bus-level
++     * observation only. */
++    CanBusClientState can_client;
++    bool can_attached;
++    uint64_t can_frames_observed, can_injected_frames;
++    char can_last_frame_hex[32];
+ } GPIOUnit;
+ static GPIOUnit *gpio_units;
+ 
+@@ -668,7 +677,8 @@
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+         "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
+         "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+-        "neohex", "lora-e220-433", "zigbee", "nbiot2",
++        "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
++        "catm", "catm-gnss", "lorawan-cn470", "can", "mini-can",
+         "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+@@ -989,7 +999,8 @@
+                  !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2") ||
+                  !strcmp(g->unit->unit_id, "synth") ||
+                  !strcmp(g->unit->unit_id, "uwb") || !strcmp(g->unit->unit_id, "dmx") ||
+-                 !strcmp(g->unit->unit_id, "finger")) &&
++                 !strcmp(g->unit->unit_id, "finger") || !strcmp(g->unit->unit_id, "catm") ||
++                 !strcmp(g->unit->unit_id, "catm-gnss") || !strcmp(g->unit->unit_id, "lorawan-cn470")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+@@ -1489,6 +1500,94 @@
+     g_free(value);
+ }
+ 
++/* U085 CAN / U179 Mini CAN: observe frames on the board's m5-canbus and expose
++ * a QOM inject-hex fixture that sends one frame onto the same bus. Frame
++ * direction/filtering/bit timing and external transceiver behavior are NOT
++ * modeled; the counters are bus-level observation only. */
++static bool m5_unit_can_can_receive(CanBusClientState *client)
++{
++    return true;
++}
++
++static void can_format_frame(char out[32], uint32_t id, const uint8_t *data, unsigned len)
++{
++    size_t used = (size_t)snprintf(out, 32, "%x#", id);
++    for (unsigned i = 0; i < len && used + 2 < 32; i++) {
++        used += (size_t)snprintf(out + used, 32 - used, "%02x", data[i]);
++    }
++}
++
++static ssize_t m5_unit_can_receive(CanBusClientState *client,
++                                   const struct qemu_can_frame *frames,
++                                   size_t frames_cnt)
++{
++    GPIOUnit *g = container_of(client, GPIOUnit, can_client);
++    if (!frames_cnt) { return 0; }
++    const struct qemu_can_frame *frame = &frames[0];
++    uint32_t id = frame->can_id & QEMU_CAN_EFF_MASK;
++    unsigned len = frame->can_dlc > 8 ? 8 : frame->can_dlc;
++    g->can_frames_observed++;
++    can_format_frame(g->can_last_frame_hex, id, frame->data, len);
++    return frames_cnt;
++}
++
++static CanBusClientInfo m5_unit_can_info = {
++    .can_receive = m5_unit_can_can_receive,
++    .receive = m5_unit_can_receive,
++};
++
++static void can_last_hex_get(Object *o, Visitor *v, const char *name,
++                             void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = g_strdup(g->can_last_frame_hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void can_inject_get(Object *o, Visitor *v, const char *name,
++                           void *op, Error **errp)
++{
++    char *value = g_strdup("");
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void can_inject_set(Object *o, Visitor *v, const char *name,
++                           void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = NULL;
++    if (!visit_type_str(v, name, &value, errp)) { return; }
++    char *sep = strchr(value, '#');
++    if (!sep) { sep = strchr(value, ':'); }
++    if (!sep) {
++        error_setg(errp, "inject-hex must be <id>#<data-hex>");
++        g_free(value); return;
++    }
++    *sep = 0;
++    char *end = NULL;
++    unsigned long id = strtoul(value, &end, 16);
++    if (end == value || *end || id > QEMU_CAN_EFF_MASK) {
++        error_setg(errp, "inject-hex has an invalid CAN id");
++        g_free(value); return;
++    }
++    const char *data_hex = sep + 1;
++    size_t n = strlen(data_hex);
++    if (n > 16 || n % 2 || strspn(data_hex, "0123456789abcdefABCDEF") != n) {
++        error_setg(errp, "inject-hex data must be 0..8 bytes of hex");
++        g_free(value); return;
++    }
++    struct qemu_can_frame frame = { .can_id = (qemu_canid_t)id, .can_dlc = (uint8_t)(n / 2) };
++    for (size_t i = 0; i < n / 2; i++) {
++        char byte[] = {data_hex[i * 2], data_hex[i * 2 + 1], 0};
++        frame.data[i] = (uint8_t)strtoul(byte, NULL, 16);
++    }
++    can_bus_client_send(&g->can_client, &frame, 1);
++    g->can_injected_frames++;
++    g_free(value);
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+     if (unit->onboard_led_count > 128) {
+@@ -1501,7 +1600,9 @@
+                 !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2") ||
+                 !strcmp(unit->unit_id, "synth") ||
+                 !strcmp(unit->unit_id, "uwb") || !strcmp(unit->unit_id, "dmx") ||
+-                !strcmp(unit->unit_id, "finger"))) {
++                !strcmp(unit->unit_id, "finger") || !strcmp(unit->unit_id, "catm") ||
++                !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
++                !strcmp(unit->unit_id, "can") || !strcmp(unit->unit_id, "mini-can"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -1658,10 +1759,12 @@
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+                             &g->incomplete_frames);
+-    } else if (!strcmp(id, "neohex")) {
+-        /* A045-B NeoHEX: 37x WS2812C on the yellow data line. The public
+-         * UIFlow2 tree has no unit/neohex.py; the generic neopixel driver is
+-         * the only reference, so this is an explicit driver-gap model. */
++    } else if (!strcmp(id, "neohex") || !strcmp(id, "hex")) {
++        /* A045-B NeoHEX: 37x WS2812C; A045 HEX: 37x SK6812. Both are 37-LED
++         * data streams on the yellow line. Public UIFlow2 has no
++         * unit/neohex.py or unit/hex.py; the generic neopixel driver is the
++         * only reference, so this is an explicit driver-gap model. SK6812 vs
++         * WS2812C timing/order differences are UNRESOLVED. */
+         g->leds = 37;
+         object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+@@ -1669,7 +1772,9 @@
+                             &g->incomplete_frames);
+     } else if (!strcmp(id, "lora-e220-433") || !strcmp(id, "zigbee") ||
+                !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
+-               !strcmp(id, "dmx") || !strcmp(id, "finger")) {
++               !strcmp(id, "dmx") || !strcmp(id, "finger") ||
++               !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
++               !strcmp(id, "lorawan-cn470")) {
+         g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
+         object_property_add(o, "responses-hex", "str", at_responses_get,
+                             at_responses_set, NULL, g);
+@@ -1681,6 +1786,26 @@
+         if (!strcmp(id, "lora-e220-433")) {
+             object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
+         }
++    } else if (!strcmp(id, "can") || !strcmp(id, "mini-can")) {
++        /* U085 / U179: bind a client to the cores3 m5-canbus created by the
++         * board. Guest TWAI frames are observed; QOM inject-hex sends a fixture
++         * frame. CAN attachment direction/filtering, transceiver isolation and
++         * bus arbitration are NOT modeled. */
++        CanBusState *bus = CAN_BUS(object_resolve_path_type("/machine/m5-canbus",
++                                                            TYPE_CAN_BUS, NULL));
++        if (!bus) {
++            error_setg(errp, "CAN Unit requires the board m5-canbus");
++            return;
++        }
++        g->can_client.info = &m5_unit_can_info;
++        can_bus_insert_client(bus, &g->can_client);
++        g->can_attached = true;
++        object_property_add(o, "frames-observed", "uint64", count_get, NULL, NULL,
++                            &g->can_frames_observed);
++        object_property_add(o, "injected-frames", "uint64", count_get, NULL, NULL,
++                            &g->can_injected_frames);
++        object_property_add(o, "last-frame-hex", "str", can_last_hex_get, NULL, NULL, g);
++        object_property_add(o, "inject-hex", "str", can_inject_get, can_inject_set, NULL, g);
+     } else if (!strcmp(id, "rgb-led-strip-50cm")) {
+         /* A093 0.5m strip: 30x SK6812 on the yellow data line; PORT.B-only. */
+         g->leds = 30;
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -27,7 +27,7 @@
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
+     US_SHT4X, US_SHT30, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
+-    US_RTC8563, US_STHS34PF80, US_MPU6886, US_BME68X,
++    US_RTC8563, US_STHS34PF80, US_MPU6886, US_BME68X, US_BMI270,
+     US_ATECC608B, US_THERMAL2, US_QRCODE,
+ } UnitSensorKind;
+ 
+@@ -39,7 +39,7 @@
+     uint16_t pointer, command;
+     uint8_t page, write_buf[32], response[32];
+     unsigned write_pos, read_pos, response_len;
+-    double values[8];
++    double values[16];
+     int64_t due, aux_due, last_sample, iaq_started;
+     bool pending, continuous, reset_asserted, iaq_initialized, command_error;
+     uint16_t baseline_co2, baseline_tvoc, absolute_humidity;
+@@ -152,6 +152,13 @@
+     double bme_temp, bme_hum, bme_press, bme_gas;
+     bool bme_ready;
+     int64_t bme_chip, bme_variant;
++    /* U171 Mini IMU-Pro (0x68 BMI270 + 0x76 BMP280 + BMM150 behind BMI270
++     * aux): primary BMI270 register file with synthetic accel/gyro/temp and a
++     * simplified aux read window for the magnetometer. The official BMI270
++     * init blob is accepted, but real motion/attitude/magnetic physics and the
++     * full aux transaction semantics are NOT modeled. */
++    double bmi_accel[3], bmi_gyro[3], bmi_mag[3], bmi_temp_c;
++    int64_t bmi_whoami;
+     /* U124 Unit ID (0x35, ATECC608B): deterministic test-vector fixtures for
+      * RANDOM/GEN_KEY/SIGN/SHA/INFO. NO real keys or certificates are stored;
+      * real ECDSA/AES/Trust&GO behavior is NOT modeled. */
+@@ -1378,6 +1385,27 @@
+     r[0x25] = hum >> 8; r[0x26] = hum;
+ }
+ 
++/* U171 Mini IMU-Pro: BMI270 data registers are synthetic fixture bytes. Accel
++ * uses 2048 LSB/g and gyro 16.4 LSB/dps as fixed demo scaling; the guest's
++ * configured ranges are NOT used by this planned model. BMM150 is exposed as a
++ * simple 16-bit aux window at 0x04..0x09 (raw = uT * 16); the full BMI270 aux
++ * command sequence is NOT modeled. */
++static void bmi270_refresh(M5UnitSensor *s)
++{
++    uint8_t *r = s->regs[0];
++    r[0x00] = 0x24;  /* BMI270 WHO_AM_I */
++    for (unsigned i = 0; i < 3; i++) {
++        int16_t a = (int16_t)CLAMP(llround(s->values[i] * 2048.0), -32768, 32767);
++        int16_t g = (int16_t)CLAMP(llround(s->values[3 + i] * 16.4), -32768, 32767);
++        int16_t m = (int16_t)CLAMP(llround(s->values[6 + i] * 16.0), -32768, 32767);
++        le16(r + 0x0c + i * 2, (uint16_t)a);
++        le16(r + 0x12 + i * 2, (uint16_t)g);
++        le16(r + 0x04 + i * 2, (uint16_t)m);
++    }
++    int16_t temp = (int16_t)CLAMP(llround((s->values[9] - 25.0) * 512.0), -32768, 32767);
++    be16(r + 0x20, (uint16_t)temp);
++}
++
+ static void mpu_accel_range_set(Object *obj, Visitor *v, const char *name,
+                                 void *opaque, Error **errp)
+ {
+@@ -1805,6 +1833,17 @@
+         if (reg <= 0x0f) { s->regs[0][reg] = data; s->pointer++; return 0; }
+         return 1;
+     }
++    if (s->kind == US_BMI270) {
++        if (pos == 0) { s->pointer = data; return 0; }
++        uint8_t reg = (uint8_t)s->pointer;
++        /* Accept the frozen IMU-Pro driver's CMD 0x7E init burst (0xB0) and
++         * soft reset (0xB6) without claiming the blob is executed. AUX
++         * config/write and init-address registers are stored. */
++        if (reg == 0x7e) { return 0; }
++        s->regs[0][reg] = data;
++        s->pointer++;
++        return 0;
++    }
+     if (s->kind == US_STHS34PF80) {
+         if (pos == 0) { s->pointer = data; return 0; }
+         uint8_t reg = (uint8_t)s->pointer;
+@@ -2046,6 +2085,11 @@
+         uint16_t reg = s->pointer + pos;
+         return reg <= 0xff ? s->regs[0][reg] : 0xff;
+     }
++    if (s->kind == US_BMI270) {
++        if (pos == 0) { bmi270_refresh(s); }
++        uint16_t reg = s->pointer + pos;
++        return reg <= 0xff ? s->regs[0][reg] : 0xff;
++    }
+     if (s->kind == US_RTC8563) {
+         /* While running, the BCD registers mirror the QEMU virtual clock; when
+          * stopped they are the guest-written alarm/config or date registers and
+@@ -2246,7 +2290,7 @@
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+         "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
+         "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
+-        "mini-imu", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode" };
++        "mini-imu", "mini-imu-pro", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -2322,6 +2366,38 @@
+         add_number(bp, "pressure-pa", 1, 101325, 30000, 110000, false);
+         sensor_attach_one(u, "bmp280", bp, 0x76);
+         return;
++    } else if (!strcmp(u->unit_id, "mini-imu-pro")) {
++        /* U171 Mini IMU-Pro: BMI270 0x68 (accel/gyro/temp + BMM150 aux) and
++         * BMP280 0x76 (pressure) on one Grove pair. 0x68 conflicts with
++         * mini-imu U095 and 0x76 with env/bps/env-ii/env-iv. */
++        M5UnitSensor *b = sensor_device(u);
++        b->kind = US_BMI270;
++        for (unsigned i = 0; i < 3; i++) {
++            b->values[i] = 0; b->values[3 + i] = 0; b->values[6 + i] = 0;
++        }
++        b->values[9] = 25;
++        add_number(b, "acceleration-x", 0, 0, -16, 16, false);
++        add_number(b, "acceleration-y", 1, 0, -16, 16, false);
++        add_number(b, "acceleration-z", 2, 0, -16, 16, false);
++        add_number(b, "gyroscope-x", 3, 0, -2000, 2000, false);
++        add_number(b, "gyroscope-y", 4, 0, -2000, 2000, false);
++        add_number(b, "gyroscope-z", 5, 0, -2000, 2000, false);
++        add_number(b, "magnetic-x", 6, 0, -2000, 2000, false);
++        add_number(b, "magnetic-y", 7, 0, -2000, 2000, false);
++        add_number(b, "magnetic-z", 8, 0, -2000, 2000, false);
++        add_number(b, "temperature-c", 9, 25, -40, 85, false);
++        b->bmi_whoami = 0x24;
++        add_i64(b, "whoami", &b->bmi_whoami);
++        sensor_attach_one(u, "bmi270", b, 0x68);
++
++        M5UnitSensor *p = sensor_device(u);
++        p->kind = US_BMP280;
++        p->values[0] = 25;
++        p->regs[0][0xd0] = 0x58;
++        bmp280_fill_calibration(p);
++        add_number(p, "pressure-pa", 1, 101325, 30000, 110000, false);
++        sensor_attach_one(u, "bmp280", p, 0x76);
++        return;
+     }
+ 
+     M5UnitSensor *s = sensor_device(u);
