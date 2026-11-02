@@ -729,7 +729,7 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 ### UI-01
 
 当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-30 款有运行登记，其余 8 款仅模型，不能提示连接服务即可运行固件。
+31 款有运行登记，其余 7 款仅模型，不能提示连接服务即可运行固件。
 2026-11-02 起 AtomS3U（`atoms3u` / `m5atoms3u`）是独立运行登记主机：
 官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过，
 IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
@@ -745,6 +745,14 @@ ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数
 模拟声学仍未覆盖。
 AtomU（`atomu` / `m5atomu`）同期接入：classic ESP32 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 解码 0x204060）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描限定通过；SPM1423 PDM 麦克风、IR G12、Grove Unit 与物理行为仍未覆盖。固件来源为固定 SHA 的官方 GitHub release 资产，不是 M5Burner firmware ID。
 Atom Echo / Atom Voice（`atom-echo` / `m5atomecho`）同期接入：classic ESP32 启动、板级识别 142、GPIO27 SK6812 RMT、QMP 注入 GPIO39 按键回读、Grove G26/G32 I2C 控制器扫描、NS4168 I2S1 非静音 PCM 捕获，以及 SPM1423 PDM RX 在宿主注入 PCM fixture 下的非零 guest 缓冲；实际硬件为无寄存器 NS4168 + PDM，板载没有 ES8311/I2C codec（任务初期假设已纠正）。模拟功放/声学、IR G12、Grove Unit、共用 G33 pad 同时录放与物理行为仍未覆盖。
+
+M5Stick（`m5stick` / `m5stick`）同期接入：官方 EasyLoader FactoryTest 4 MB
+镜像在确定性 icount 下进入 app 并输出原生串口 `mpu9250 addr: FF`，SH1107
+收到完整 64×128 初始化命令流与 4,096 字节 GDDRAM 写；但 legacy ESP-IDF
+I2C FIFO 路径未在 classic 控制器模型上完成，工厂固件的 MPU 探测/按键/UI
+绘制仍 blocked。MPU9250 0x68、IP5306 0x75 与 GPIO35 按键模型由 generic
+classic-ESP32 MicroPython fixture 在同一 machine 上取得 guest 数据面证据；
+AK8963/DMP、最终 OLED 帧、蜂鸣器/IR/LED、Grove Unit 与物理行为仍未覆盖。
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次框架见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)；
 该页是计划，不关闭任何设备或 Unit。

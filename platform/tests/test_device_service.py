@@ -407,7 +407,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         rows = {row["device_id"]: row for row in payload["devices"]}
         # The original Plus now has an exact reference; its functional status
         # remains candidate. Linux metadata cannot create a service session.
-        self.assertEqual(len(rows), 30)
+        self.assertEqual(len(rows), 31)
         self.assertIn("stickc-plus", rows)
         self.assertEqual(sum(row["creatable"] for row in rows.values()), 29)
         self.assertFalse(rows["cardputer-zero"]["creatable"])
@@ -6222,7 +6222,7 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)
         self.assertEqual(payload["api_version"], "v1")
-        self.assertEqual(len(payload["devices"]), 30)
+        self.assertEqual(len(payload["devices"]), 31)
         rows = {row["device_id"]: row for row in payload["devices"]}
         self.assertIn("stickc-plus", rows)
         self.assertFalse(rows["cardputer-zero"]["supported"])

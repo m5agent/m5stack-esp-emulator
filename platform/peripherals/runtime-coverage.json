@@ -951,6 +951,13 @@
       "matrix": [],
       "external": [],
       "models": []
+    },
+    "m5stick": {
+      "status": "candidate",
+      "blocker": "Device-local m5stick boots the official EasyLoader factory image to the native serial marker mpu9250 addr: FF in deterministic icount mode and the SH1107 model receives the full init/GDDRAM path; the factory firmware's legacy I2C FIFO path does not complete, so no factory-firmware button/IMU data plane and no final UI frame are claimed. MPU9250/IP5306/GPIO35 model data planes are exercised by the generic MicroPython fixture.",
+      "matrix": [],
+      "external": [],
+      "models": []
     }
   },
   "models": {

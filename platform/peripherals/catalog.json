@@ -70,6 +70,10 @@
       "atom-echo": {
         "reason": "Device-local console evidence covers UIFlow2 boot, board id 142, SK6812 RMT output, QMP key-driven GPIO39 input, Grove I2C controller scan, NS4168 I2S1 speaker PCM and SPM1423 PDM RX with a host PCM fixture. Analog audio, IR, Grove Unit protocols and physical behavior remain open.",
         "review_by": "2026-12-31"
+      },
+      "m5stick": {
+        "reason": "Device-local m5stick machine boots the official EasyLoader factory image deterministically to its MPU probe (mpu9250 addr: FF) and drives the SH1107 init/GDDRAM path; MPU9250/IP5306/button model data planes pass through a generic classic-ESP32 MicroPython fixture. Factory-firmware nine-axis/button path, AK8963, SH1107 final UI frame, buzzer/IR/LED, Grove Units and physical behavior remain open.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -1337,6 +1341,35 @@
       ],
       "data_plane": "ESP32 classic I2S0 in DAC mode: the linked-list TX DMA controller model consumes real IDF descriptors and captures the digital sample stream as host PCM; no analog DAC, filter, amplifier, speaker or acoustic behavior is modelled",
       "blocker": "Digital I2S0 DAC-mode PCM is captured at the DMA boundary only; the on-chip DAC, analog output stage, speaker acoustics, loudness, distortion and physical audio output are not modelled or measured."
+    },
+    "sh1107": {
+      "kind": "display",
+      "interface": "spi",
+      "capabilities": [
+        "display-output"
+      ],
+      "status": "partial",
+      "injection": [
+        "qom-gddram-dump"
+      ],
+      "data_plane": "SH1107 monochrome SPI controller: U8g2-compatible command/data stream with 128x16 page GDDRAM, lower/upper column addressing, page address, display on/off, segment remap, COM scan direction, start line/display offset, contrast, multiplex and DC-DC configuration; the model renders the 64x128 glass to a QEMU console and exposes the raw GDDRAM through a QOM dump for offline analysis",
+      "blocker": "GDDRAM/command model only: charge pump, panel timing, contrast/optics and mechanical glass are not modelled. The official factory firmware sends the complete 64x128 init sequence and GDDRAM clear/fill passes but then stalls before its menu drawing, so no final UI frame content is claimed."
+    },
+    "mpu9250": {
+      "kind": "imu",
+      "interface": "i2c",
+      "address": "0x68",
+      "capabilities": [
+        "accel",
+        "gyro"
+      ],
+      "status": "partial",
+      "injection": [
+        "qom-accel",
+        "qom-gyro"
+      ],
+      "data_plane": "MPU9250 I2C register file: WHO_AM_I 0x71, INT_STATUS raw-data-ready, PWR_MGMT/CONFIG registers, big-endian accel/temperature/gyro output registers backed by QOM accel-x/y/z and gyro-x/y/z fixtures; a guest MicroPython fixture on the m5stick machine scans 0x68, reads WHO_AM_I and the accel frame through the real ESP32 I2C controller, and a QOM accel fixture change is read back by the guest",
+      "blocker": "AK8963 magnetometer behind the MPU9250 bypass (0x0C), the DMP and hardware self-test are not modelled; the board's legacy EasyLoader factory firmware does not complete its I2C FIFO transactions against the current classic I2C model, so guest data-plane evidence comes from the generic classic-ESP32 MicroPython fixture rather than the factory firmware."
     }
   },
   "devices": {
@@ -3483,6 +3516,105 @@
         {
           "model": "ir-tx-rx",
           "reason": "IR G12 is present in the hardware inventory but is not wired or probed in this board model."
+        }
+      ]
+    },
+    "m5stick": {
+      "board_model": "m5stick",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/M5Stick"
+      ],
+      "components": [
+        {
+          "id": "button",
+          "model": "gpio-button",
+          "gpio": 35,
+          "qom_path": "/machine/m5-panel",
+          "status": "partial"
+        },
+        {
+          "id": "imu",
+          "model": "mpu9250",
+          "address": "0x68",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/mpu9250",
+          "status": "partial"
+        },
+        {
+          "id": "pmic",
+          "model": "ip5306",
+          "address": "0x75",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/ip5306",
+          "status": "partial"
+        },
+        {
+          "id": "oled",
+          "model": "sh1107",
+          "interface": "spi",
+          "pins": "cs=14,dc=27,rst=33,sclk=18,mosi=23",
+          "qom_path": "/machine/m5-panel",
+          "status": "partial"
+        },
+        {
+          "id": "buzzer",
+          "model": "buzzer",
+          "gpio": 26,
+          "status": "planned"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "gpio": 17,
+          "status": "planned"
+        },
+        {
+          "id": "led",
+          "model": "gpio-led",
+          "gpio": 19,
+          "status": "planned"
+        },
+        {
+          "id": "power-key",
+          "model": "pwr-button",
+          "source": "ip5306-key",
+          "status": "planned"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "GPIO35 is driven through the SH1107 panel input handler by QMP key injection and read back by the generic MicroPython fixture; the factory firmware stalls before its button stage and physical button feel remains open."
+        },
+        {
+          "model": "mpu9250",
+          "reason": "WHO_AM_I/accel register frame and QOM fixture readback pass through the guest I2C controller on the generic MicroPython fixture; AK8963 magnetometer/DMP and the factory-firmware nine-axis path are open."
+        },
+        {
+          "model": "ip5306",
+          "reason": "Register contract only (SYS_CTL0 reset 0xbe, READ4 0xff no-cell): no cell, charger/boost power path or voltage/current telemetry; KEY power-off does not change QEMU power state."
+        },
+        {
+          "model": "sh1107",
+          "reason": "The factory firmware sends the full init command stream and GDDRAM clear/fill passes but stalls before menu drawing; charge pump/optics/timing and a final UI frame are not validated."
+        },
+        {
+          "model": "buzzer",
+          "reason": "The G26 active buzzer has no GPIO edge/frequency capture case or acoustic model."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "The G17 IR transmitter has no RMT/symbol capture case on this board."
+        },
+        {
+          "model": "gpio-led",
+          "reason": "The G19 blue LED has no GPIO output capture case on this board."
+        },
+        {
+          "model": "pwr-button",
+          "reason": "The power/reset key is wired to the IP5306 KEY input, not an ESP32 GPIO; no QEMU power-key or power-state transition model exists."
         }
       ]
     }
