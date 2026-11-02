@@ -926,7 +926,7 @@
     },
     "atoms3r-cam": {
       "status": "candidate",
-      "blocker": "Device-local official firmware boot, board id 144, panel init, software SCCB probe and one 320x240 RGB565 frame passed (docs/evidence/2026-11-02-atoms3r-cam-sccb/summary.json). Only the default QVGA geometry and a single capture are covered; IR and Grove Units are not modeled, so the candidate group still covers no simulated component.",
+      "blocker": "Device-local official firmware boot, board id 144, panel init, software SCCB probe and multi-framesize camera frames passed (docs/evidence/2026-11-02-atoms3r-cam-geometry/summary.json): the LCD_CAM DVP geometry follows the GC0308 window/subsample registers for QQVGA/240x240/QVGA/CIF/VGA and a five-frame stream is distinct. The camera component stays partial because dynamic framesize changes while streaming and physical optics/electrical timing are not covered, and IR and Grove Units are not modeled, so the candidate group still covers no simulated component.",
       "matrix": [],
       "external": [],
       "models": []

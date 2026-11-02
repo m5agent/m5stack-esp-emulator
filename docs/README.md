@@ -81,6 +81,8 @@ Unit 仍未覆盖；固件来自固定 SHA 的官方 GitHub release 资产。
 
 [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md)记录软件 SCCB 根因（硬件 I2C hand-off 误关相机桥）与修复，官方 `camera.init()/capture()` 取得 320×240 RGB565 整帧；仅默认 QVGA 单帧、物理光学 NOT RUN。
 
+[AtomS3R-CAM 相机几何与多帧流](evidence/2026-11-02-atoms3r-cam-geometry/README.md)记录非 QVGA 几何跟随（LCD_CAM 按 GC0308 window/subsample 寄存器锁存）与 5 帧流：QQVGA/240×240/QVGA/CIF/VGA 整帧 digest 与宿主重建一致，连续 5 帧互异且无撕裂；物理光学与运行中动态改尺寸 NOT RUN。
+
 剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
@@ -169,6 +171,7 @@ Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项�
 | --- | --- | --- | --- |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick/StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |
+| [AtomS3R-CAM 相机几何与多帧流](evidence/2026-11-02-atoms3r-cam-geometry/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | LCD_CAM DVP 几何跟随 GC0308 window/subsample 寄存器（0118）：QQVGA/240×240/QVGA/CIF/VGA 帧的 guest SHA-256 与宿主重建一致；QOM auto-increment 下连续 5 帧互异、各自匹配重建 scene seed 帧、无撕裂；动态改尺寸/物理光学 NOT RUN |
 | [Unit 第一批协议研究](unit-research/2026-11-02-batch1-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的官方驱动 file:line 证据、总线/寄存器/命令表、QEMU 复用建议与 11 条 unresolved；planned，不含 runtime 声明 |
 | [Unit 第一批 A 类虚拟设备证据](evidence/2026-11-02-unit-batch1/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | `ssr`(cores3)/`earth`(atoms3r)/`hall`(sticks3)/`reflective-ir`(stopwatch)/`vibrator`(cores3) 各一个可见会话，原固件冻结驱动经真实 GPIO/ADC/LEDC 控制器产生或观测数据；`earth` 的 read_uv/humidity 与 `vibrator` 的 Haptic one-shot completion 未观测，电气/光学/机械/磁场语义均未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |

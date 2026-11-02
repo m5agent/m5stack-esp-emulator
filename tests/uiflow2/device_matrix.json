@@ -403,6 +403,14 @@
       "memory": "8",
       "efuse_pkg_version": 0,
       "serial_index": 0,
+      "qom_set_on_marker": [
+        {
+          "marker": "CAM_BASE_DONE",
+          "set": [
+            ["/machine/m5-lcd-cam", "auto-increment", true]
+          ]
+        }
+      ],
       "serial_expect": [
         "CAM_BOOT_FLAG",
         "CAM_MAIN_START",
@@ -411,10 +419,18 @@
         "CAM_PID 9b00",
         "CAM_INIT_RESULT True",
         "CAM_CAPTURE_BYTES 153600",
-        "CAM_FRAME_DIGEST fnv1a 42521dc5",
+        "CAM_FRAME_SHA256 09c8ded08e8164eb6e6fe6a2a3f54fb2d6d1eed7930ab64e0802c1371c9a0696",
+        "CAM_GEOM QQVGA 1 160 120 38400 94203cc2fa9273a07b6052e820462e15ace7421cf08ea409da536f53bae69034",
+        "CAM_GEOM 240X240 5 240 240 115200 f1c922554c4dd2c16023ded4f3c3ddc27700e271e5e03fad55be7cc3945ec698",
+        "CAM_GEOM CIF 8 400 296 236800 28cf4b4abf1c3311c24e91550b871fea83c7bc1fb95d24991ee6cd22efe508b6",
+        "CAM_GEOM VGA 10 640 480 614400 94a147ff55c5c3189eb6a9871dded374483ed7d33f1d0767889879986fa6e412",
+        "CAM_GEOMETRY_DONE 4 4",
+        "CAM_STREAM_CAPTURED 5",
+        "CAM_STREAM_BYTES_OK 5",
+        "CAM_STREAM_DISTINCT 5",
         "CAM_STATUS ok"
       ],
-      "timeout": 60
+      "timeout": 90
     },
     {
       "id": "basic-v27",

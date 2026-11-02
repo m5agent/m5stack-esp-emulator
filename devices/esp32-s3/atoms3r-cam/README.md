@@ -26,13 +26,13 @@
 
 candidate。
 
-- 验证：`native-boot-display-camera-frame-pass` (2026-11-02)
+- 验证：`native-boot-display-camera-geometry-stream-pass` (2026-11-02)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 未完成的板级数据面
 
-- Camera SCCB/DVP virtual-device path passed for the default QVGA frame only. Non-QVGA framesize geometry does not follow GC0308 window/subsample registers, multi-frame streaming is not tested, and IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open.
+- Camera virtual-device path passed for QQVGA, 240x240, QVGA, CIF and VGA geometry and five-frame streaming. Dynamic framesize changes while frames are streaming, IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open.
 
 ## 文件
 
