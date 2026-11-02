@@ -33,7 +33,7 @@ const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',imp
 const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(device=>device.id===profile.deviceId))
   .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
-async function entry({search='',pageUrl=pageRoot,isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
+async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const element=(id)=>{
     if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
@@ -52,7 +52,7 @@ async function entry({search='',pageUrl=pageRoot,isolationError,registryFailure=
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualCandidates}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:[]}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({browser_runtime_engine:'qemu-wasm',browser_board_execution:true,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:'qemu-wasm',browser_board_execution:true,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
@@ -92,14 +92,17 @@ for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavail
 const navigation=await entry({isolation:{isolated:false,reloading:true}});
 assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolation navigation must not accept firmware or start execution');
 
-const localService=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',search:'?device=cardputer-adv&autostart=0'});
+const localService=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&autostart=0'});
 assert.equal(localService.element('serviceUrl').value,'http://127.0.0.1:8787');
 assert.ok(localService.events.includes('connect-service'),'a loopback page served by its own Device Service must connect the same origin automatically');
 localService.state.browserUnavailable=true;
 assert.equal(localService.deviceRuntimeLabel(localService.state.selected),'服务可运行','connected devices must not keep the connect-service label');
-const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',search:'?device=cardputer-adv&mode=browser&autostart=0'});
+const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&mode=browser&autostart=0'});
 assert.equal(localBrowser.element('serviceUrl').value,'http://127.0.0.1:8787');
 assert.equal(localBrowser.events.includes('connect-service'),false,'an explicit browser-only link must not create a service connection');
+const staticBrowser=await entry({pageUrl:'http://127.0.0.1:8000/platform/web/',search:'?device=cardputer-adv&autostart=0'});
+assert.equal(staticBrowser.element('serviceUrl').value,'');
+assert.equal(staticBrowser.events.includes('connect-service'),false,'a static loopback export must not probe or connect a Device Service');
 
 const unavailable=await entry({registryFailure:true,search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0'});
 assert.equal(unavailable.state.browserUnavailable,true);assert.equal(unavailable.browserProfile('cores3'),null);

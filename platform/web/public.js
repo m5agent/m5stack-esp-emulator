@@ -17,13 +17,6 @@ import {createUnitPicker} from './unit-panel.js';
 
 const $ = (id) => document.getElementById(id),
   root = siteRoot();
-function localSameOriginServiceUrl() {
-  const page = new URL(location.href);
-  return page.protocol === 'http:' &&
-    ['localhost', '127.0.0.1', '[::1]'].includes(page.hostname)
-    ? page.origin
-    : '';
-}
 const state = {
   devices: [],
   units: [],
@@ -991,8 +984,7 @@ async function init() {
   $('runtimeMode').value = launch.mode;
   if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
   else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
-  const configuredServiceUrl =
-    launch.serviceUrl || config.service_url || localSameOriginServiceUrl();
+  const configuredServiceUrl = launch.serviceUrl || config.service_url || '';
   $('serviceUrl').value = configuredServiceUrl;
   if (launch.firmware) {
     $('firmwareUrl').value = launch.firmware;
