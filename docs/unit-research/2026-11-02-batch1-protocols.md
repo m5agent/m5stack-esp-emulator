@@ -768,6 +768,17 @@ docstring 偏移）。
    本报告与 catalog 草稿只到 `confirmed-contract` + `planned`，不授权任何
    `simulated`/PASS 声明。
 
+### 实现状态（2026-11-02 追加）
+
+A 类 5 款（`ssr`、`vibrator`、`earth`、`hall`、`reflective-ir`）的 QEMU 控制器级
+数据面已由
+[`0114-unit-gpio-batch1.patch`](../../patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch)
+注册（native layer 到 `0109` + `0110/0111/0112` 之上；`0113` 由 Basic v2.7 并行
+合入，两者都是 native-only、不进 `sources.lock`/WASM 构建）。catalog 与
+runtime profile 仍保持 `planned`/`unsupported`，Device Service 以
+`runtime_model_gap` 拒绝挂载；在 guest/Device Service device-local 证据取得前不
+升级状态。B/C 类 7 款仍停留在本报告的研究结论。
+
 ## 8. 官方来源清单（本批引用）
 
 产品页（均 2026-11-02 读取）：
