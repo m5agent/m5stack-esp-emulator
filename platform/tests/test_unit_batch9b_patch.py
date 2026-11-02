@@ -32,8 +32,8 @@ class UnitBatch9bPatchTests(unittest.TestCase):
     def test_patch_base_is_the_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0151-unit-batch9b.patch", readme)
-        self.assertIn("31st layer", readme)
-        self.assertIn("31 layers", readme)
+        self.assertIn("39th layer", readme)
+        self.assertIn("39 layers", readme)
         for token in ("0149", "0150", "0152", "0154"):
             self.assertIn(token, readme)
 

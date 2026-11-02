@@ -71,7 +71,7 @@ class UnitBatch11EvidenceTests(unittest.TestCase):
     def test_no_fabricated_0155_patch_or_guest_fix(self):
         self.assertFalse((ROOT / "patches/qemu-m5stack-peripherals/0155-unit-batch11-evidence-fixes.patch").exists())
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
-        self.assertIn("35 layers", readme)
+        self.assertIn("39 layers", readme)
         self.assertNotIn("0155-unit-batch11", readme)
 
     def test_visual_mappings_cover_all_seven(self):

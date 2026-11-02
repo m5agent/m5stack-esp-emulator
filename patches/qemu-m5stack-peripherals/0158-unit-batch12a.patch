@@ -1,13 +1,19 @@
-From eefeed2f70d6192c7ba69ad039dc0c412d9db0f7 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 05:00:21 +0800
+Date: Tue, 3 Nov 2026 05:45:13 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-12a driver-gap data planes
 
-Add register-file data planes for the batch-12a driver-gap Units on top of the
-36-layer canonical tree. The register tables come from the batch11 driver-gap
-protocol research (official protocol PDFs/MDs); no Unit driver is present in the
-tree and no electrical/mechanical/optical behavior is modeled.
+Add register-file data planes for the batch-12a driver-gap Units on the
+reconciled canonical chain. The register tables come from the batch11
+driver-gap protocol research (official protocol PDFs/MDs); no Unit driver is
+present in the tree and no electrical/mechanical/optical behavior is modeled.
 
+Base in the reconciled canonical order is the 37-layer chain through 0157
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0148, 0149,
+0150, 0151, 0152, 0153 and 0154, plus the 0156 ATECC wake fix and the 0157
+glass M5GFX protocol fix); this is the 38th layer after 0120 and it applies at
+the chain end. Its control-kind registration, struct fields and supported-ids
+entries were merged mechanically with the glass layer's additions.
 - byteswitch (U191 0x46) / bytebutton (U192 0x47): one shared CONTROL_BYTEUNIT
   model. State bitmap 0x00 and per-channel 0x60-0x67 (0 = pressed/closed per the
   driver convention, physical polarity UNRESOLVED), LED brightness 0x10-0x18,
@@ -44,7 +50,7 @@ mapping. It is not a functional PASS and no Unit is promoted to implemented.
  1 file changed, 551 insertions(+), 1 deletion(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
-index 9af8b1a..45be9b7 100644
+index 42e61bc..d2b5909 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_controls.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
 @@ -41,7 +41,8 @@ typedef enum {
@@ -57,9 +63,9 @@ index 9af8b1a..45be9b7 100644
  } ControlKind;
  
  typedef enum {
-@@ -247,6 +248,35 @@ typedef struct M5UnitControl {
-     int64_t glass_contrast, glass_buttons_fixture;
-     uint64_t glass_commands, glass_data_bytes;
+@@ -254,6 +255,35 @@ typedef struct M5UnitControl {
+     uint8_t glass_reg, glass_payload[4];
+     unsigned glass_payload_len;
      char glass_buzzer_hex[17];
 +
 +    /* batch12a driver-gap Units: register-file models with synthetic fixtures.
@@ -93,7 +99,7 @@ index 9af8b1a..45be9b7 100644
  } M5UnitControl;
  OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
  
-@@ -1628,6 +1658,13 @@ static void scales_fw_get(Object *obj, Visitor *v, const char *name,
+@@ -1635,6 +1665,13 @@ static void scales_fw_get(Object *obj, Visitor *v, const char *name,
      visit_type_int64(v, name, &value, errp);
  }
  
@@ -107,7 +113,7 @@ index 9af8b1a..45be9b7 100644
  static void snapshot_registers(M5UnitControl *s)
  {
      memcpy(s->read_snapshot, s->regs, 256);
-@@ -1808,6 +1845,12 @@ static void snapshot_registers(M5UnitControl *s)
+@@ -1815,6 +1852,12 @@ static void snapshot_registers(M5UnitControl *s)
          r[0xfe] = 1;
          r[0xff] = I2C_SLAVE(s)->address;
      }
@@ -120,7 +126,7 @@ index 9af8b1a..45be9b7 100644
  }
  
  /* U120 Unit LCD: minimal ST7789V2 I2C command model. The framebuffer is
-@@ -2243,6 +2286,376 @@ static void glass_buzzer_set(Object *obj, Visitor *v, const char *name, void *op
+@@ -2250,6 +2293,376 @@ static void glass_buzzer_set(Object *obj, Visitor *v, const char *name, void *op
      s->unit->input_events++;
  }
  
@@ -497,7 +503,7 @@ index 9af8b1a..45be9b7 100644
  static int control_event(I2CSlave *dev, enum i2c_event event)
  {
      M5UnitControl *s = M5_UNIT_CONTROL(dev);
-@@ -2484,6 +2897,30 @@ static int control_send(I2CSlave *dev, uint8_t value)
+@@ -2516,6 +2929,30 @@ static int control_send(I2CSlave *dev, uint8_t value)
          }
          return 1;
      }
@@ -528,7 +534,7 @@ index 9af8b1a..45be9b7 100644
      if (s->write_pos++ == 0) {
          s->pointer = s->write_base = value; s->memory_request = true;
          memset(s->led_write, 0, sizeof(s->led_write)); return 0;
-@@ -2921,6 +3358,14 @@ static uint8_t control_recv(I2CSlave *dev)
+@@ -2953,6 +3390,14 @@ static uint8_t control_recv(I2CSlave *dev)
  {
      M5UnitControl *s = M5_UNIT_CONTROL(dev);
      s->unit->read_bytes++;
@@ -543,7 +549,7 @@ index 9af8b1a..45be9b7 100644
      if (s->kind == CONTROL_UNIT_DISPLAY) {
          return 0xff;  /* the monochrome display Units are write-only on I2C */
      }
-@@ -3022,6 +3467,7 @@ static void release_control_integer(Object *obj, const char *name, void *opaque)
+@@ -3057,6 +3502,7 @@ static void release_control_integer(Object *obj, const char *name, void *opaque)
      g_free(opaque);
  }
  
@@ -551,7 +557,7 @@ index 9af8b1a..45be9b7 100644
  static void add_control_int_fixture(M5UnitControl *s, const char *name,
                                      int64_t *value, int64_t lo, int64_t hi,
                                      bool writable)
-@@ -3070,6 +3516,8 @@ bool m5_unit_controls_supported(const char *unit_id)
+@@ -3105,6 +3551,8 @@ bool m5_unit_controls_supported(const char *unit_id)
          "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
          "cardkb-original", "extencoder", "acssr", "dcssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
          "oled", "mini-oled", "glass2",
@@ -560,7 +566,7 @@ index 9af8b1a..45be9b7 100644
      };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
      return false;
-@@ -3351,6 +3799,108 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+@@ -3388,6 +3836,108 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
                              NULL, NULL, s);
          object_property_add(OBJECT(s->unit), "framebuffer-hex", "str", disp_fb_hex_get,
                              NULL, NULL, s);
@@ -671,4 +677,5 @@ index 9af8b1a..45be9b7 100644
          s->dds_fw = 1; s->dds_mode = 1;
 -- 
 2.55.0
+
 

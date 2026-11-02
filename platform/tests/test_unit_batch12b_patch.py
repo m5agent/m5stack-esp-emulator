@@ -38,7 +38,7 @@ class UnitBatch12bPatchTests(unittest.TestCase):
         self.assertIn("0157", readme)
         self.assertEqual(
             hashlib.sha256(PATCH.read_bytes()).hexdigest(),
-            "096fed5de9041bace01d9ac7d74ccd61914858a7314cbe45ca54af6b7507295a",
+            "084f34e20cf3ffdb94935e165ed5cd4462e28dbb3490f29a1853e692a1a0f547",
         )
 
     def test_patch_touches_three_model_files(self):
