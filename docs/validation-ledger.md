@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-30`
+日期：`2026-11-02`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-02
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `DOCS` / virtual-device-first validation policy | 删除 Tab5 deferred backlog 的 real-hardware production-ready 前置条件，并移除项目级 `HW-01` P0、workstream、依赖和 Task 索引。保留 `virtual-device validation`/`hardware validation` 事实分层：只有结论明确声称 RF、功耗、声学、光学、机械或电气属性时，才要求对应 physical evidence。文档契约 `50/50`、project snapshot write/check 和 diff check PASS；本轮不运行 QEMU、物理设备或固件矩阵，不改变 Tab5 外设 `partial` 状态 | [`tab5 backlog`](tab5-deferred-backlog.md)、[`project backlog`](project-backlog.md)、[`project status`](project-status.md)、[`workstreams`](workstreams.md)、[`engineering handoff`](engineering-handoff.md)、[`docs contract`](../platform/tests/test_docs_current_state_contract.py) |
 
 ## 2026-10-30
 

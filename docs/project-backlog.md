@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-30`
+日期：`2026-11-02`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -54,9 +54,8 @@ eFuse 或生产 key。
 | --- | --- | --- | --- |
 | 已完成（virtual-device） | Core2 legacy UIFlow startup | 共享 I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT 和 normal-WDT startup 已修复/验证；原厂 API Key startup UI 可稳定运行并进入真实 Wi-Fi Connect 页面 | startup PASS 不授予 setup/REPL、完整 factory application、任意用户程序或物理边界；这些更广覆盖转入 `API-01` |
 | P0 | 网络产品化 | 物理跨主机 worker、主文件系统/队列/证据跨主机复制、任意 NAT 和外部 side-effect fence | 单机 namespace/container 和单个 control-plane evidence store 不能替代物理多机或对象存储 |
-| P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、active-stop/post-reset 之外 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
+| P0 | Core2 功能容量 | 更大规模、持续吞吐和 active-stop/post-reset 之外 teardown | 物理 controller、PSRAM/cache 与实时时序只在明确声称物理属性时另验 |
 | P0 | 通用固件安全 | guest filesystem ACL、完整许可、真机安全配置和更多真实业务；service runtime ACL 已完成 | 静态声明、镜像摘要自洽、service ACL 不等于设备文件权限/trust |
-| P0 | 真机同路径 | 代表设备同固件 SHA 的 hardware validation | 当前仓库没有可继承的硬件结论 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
@@ -294,7 +293,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 完整 PWM 周期语义。初始化 route 已修复，历史d1ba完整轮曾通过；当前3f1617独立完整轮66/67、Core2 IMU仍OPEN，
 范围见当前状态页；不关闭其它原驱动或真机门禁。实现契约见
 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，精确批次与证据
-见验证台账；CoreS3 已通过的场景不替代其它主机验收或真机同路径验证。
+见验证台账；CoreS3 已通过的场景不替代其它主机的虚拟设备验收。
 
 `RUNTIME-03` 的 stock startup 已在 virtual-device scope 关闭；
 setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 按以下
@@ -307,7 +306,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
    九实例需先修复 `ble_hs_hci_process_ack` 竞态，再补持续吞吐、其他
    teardown 和物理/controller 等价性。
 3. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
-4. `RUNTIME-02`、`HW-01`：补 C6 Zigbee 生命周期和代表设备真机同路径。
+4. `RUNTIME-02`：补 C6 Zigbee 生命周期。
 5. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
 
 ## 依赖与并行原则
@@ -316,7 +315,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | --- | --- | --- | --- |
 | 立即可做 | `FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `SVC-03` 先做无语义移动并保持 API/evidence 契约 |
 | 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
-| 需要真机或外部控制面 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、串口、画面、网络和外设观测入口 | `FW-02` 还必须取得 live eFuse/生产 key 流程授权；静态镜像分析不能代填 |
+| 按需需要真机/授权 | `FW-02` | 仅当结论明确要求 live eFuse、生产 key 或物理安全属性 | 测试/生产 key 不入库；纯软件/user-path 结论继续使用 validated virtual device |
 | 后端阻塞 | `RUNTIME-02` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
 | 决策或独立后端 | `TAB5-01`、`CZ-01` | P4 backend 重建/扩展决策；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
 
@@ -328,7 +327,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `RUNTIME-03` | 已完成（virtual-device stock startup） | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争；`0086` 修正 episode 诊断的 `Bad icount read`，将热锁结构匹配到 `xTaskQueueMutex`/queue mux；`0089/0090` 完成 icount-safe phase trace 与双 vCPU fairness cap；`0093/0094` 修复 classic WiFi virtual time、station 双向数据面和 Service SSID/auth 传递；`0095` 修复 legacy task-WDT level delivery，三次 normal-WDT service 运行稳定到 guest virtual 300 秒以上 | DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联、0086 episode profile、0089/0090 IPC budget、0092 cache gate、0093/0094 classic WiFi data plane、0095 WDT level 和 Core2 设备组保持可重放；setup/REPL 与任意 legacy application 转 `API-01` |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
-| `CORE2-02` | 进行中 | post-reset teardown 已完成；当前 `origin/main` 工具 hash 的双实例回归已重绑。继续在没有宿主过载的条件下重绑八实例 cold-start；九实例两次通过、一次在 `ble_hs_hci_process_ack` panic，先修复该竞态后才可重开。随后补持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；九实例不得通过放宽 timeout/floor 或忽略单次 guest panic 准入；虚拟容量不外推为物理等价 |
+| `CORE2-02` | 进行中 | post-reset teardown 已完成；当前 `origin/main` 工具 hash 的双实例回归已重绑。继续在没有宿主过载的条件下重绑八实例 cold-start；九实例两次通过、一次在 `ble_hs_hci_process_ack` panic，先修复该竞态后才可重开。随后补持续吞吐和更复杂 teardown；物理 controller/baseband、PSRAM/cache timing 只在明确声称物理属性时另验 | 结果绑定固件/ELF/QEMU/工具哈希；九实例不得通过放宽 timeout/floor 或忽略单次 guest panic 准入；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | operator-owned runtime ACL/执行策略已完成；继续 guest filesystem 权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性、service ACL 与 guest runtime 分开；unknown 不写成 PASS |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
@@ -336,12 +335,11 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
-| `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；继续扩展 StackChan 其它 Arduino/UIFlow 固件、零位和连续转动模式；补 Plus2 浏览器 USB sleep、显式 EXT0 唤醒及 RTC CRC 等价性，并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 | 精确绑定完整 Flash SHA、runtime/profile 和单板真实输入/帧；native PASS、compiled_profiles 和正常时钟候选不能授予其它板型或 stock SDK PASS；StackChan 跳舞 `c854d3ac…` 的 app-bound div6 与 Cardputer-ADV `4faaccde…` 全键只覆盖各自 SHA，保留旧 div8 示例/分享兼容及取消/停止契约；静态构建不含凭据/固件/raw；2026-10-30 prepared-site 已更新正式 HTTPS，manifest/profile/keymap/wrapper 已回读，但 hosted macOS runner 的 CDP target graph 残留使 regular all-admitted 发布仍未通过 |
-| `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight实时Web与动态S1/PWM、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
-| `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
+| `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight实时Web与动态S1/PWM、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论 |
+| `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频和摄像头虚拟设备边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时
 
@@ -675,15 +673,6 @@ same-LMK fail-closed，`0084` 已满足 loss/retry、channel/rate 和 60 秒
 soak；`RUNTIME-06` 的 virtual-device 边界已完成。物理 RF/controller
 等价性仍按独立 gate 记录。
 
-## P0：真机同路径
-
-### HW-01
-
-当前缺口：没有与虚拟设备相同固件 SHA、测试计划和关键输入的真机记录。
-
-验收：代表设备完成 `hardware validation`，保留串口、画面、网络/外设和必要
-测量证据；不得从同 SoC 其他设备或其他固件 SHA 继承。
-
 ## P1：服务化与代码整理
 
 ### SVC-01 活动实例接管
@@ -767,7 +756,7 @@ StickT2 等异构芯片不使用 ESP32 alias。
 ### CZ-01
 
 当前缺口：完整系统回归、USB split timing、网络性能/隔离、
-摄像头/音频/电源/键盘 soak 和真机同路径。
+摄像头/音频/电源/键盘 soak。
 
 ## 发布门禁
 

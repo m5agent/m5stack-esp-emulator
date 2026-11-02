@@ -1,6 +1,6 @@
 # 工程交接总览
 
-最近核对：`2026-10-30`
+最近核对：`2026-11-02`
 
 本页用于让新接手的人快速理解“项目现在是什么、代码在哪里、哪些已经能跑、
 接下来做什么”。它是导航摘要，不维护动态数量，也不替代以下权威入口：
@@ -26,10 +26,11 @@
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed；Device Service `1.51.0` 外部 runtime ACL/执行策略 | `FW-01/02/03` 的 guest filesystem ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像、service ACL 与包内自报安全证据不能写成设备文件权限或 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
 | 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
-| 真机验证 | 已定义同固件 SHA、同输入、同关键路径的验收规则 | `HW-01` 代表设备 hardware validation | `NOT RUN`；仓库当前没有可继承的物理 RF、功耗、声学、光学或电气结论 |
+| 物理属性声明 | 默认工作流使用 validated virtual device | 只在结论明确声称 RF、功耗、声学、光学、机械或电气属性时，另行提供 hardware validation | 虚拟设备 PASS 不转授物理属性 |
 
 已完成里程碑只保留为依赖摘要，不再继续累加成“新待办”。一个工作流从
-“有功能”到“可发布”必须分别通过功能、稳定性、安全、物理边界和同路径证据；
+“有功能”到“可发布”以同路径 virtual-device 的功能、稳定性、安全和证据为主；
+只有发布内容明确声称物理属性时，才把对应 hardware validation 作为附加门禁。
 局部 PASS 不会自动升级整个平台。
 
 ## 结论
@@ -137,19 +138,18 @@ Core2 的历史排障与当前结论应分开阅读：
 
 | 工作流 | 当前可执行面 | 阶段 | 主要边界 |
 | --- | --- | --- | --- |
-| 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
+| 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 未建模控制器；物理属性仅在明确声称时另验 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、post-reset stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力和当前容量内并发 | `PILOT` | 大于当前服务容量、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和更复杂 teardown |
 | 通用固件审查 | Manifest/WebBurner 导入选择、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵和 service runtime ACL | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、guest filesystem 权限、完整许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
-| CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
-| 真机验证 | 已有测试入口和证据规则 | `NOT RUN` | 物理设备上的同固件路径验证 |
+| CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归和生产级时序 |
 
 阶段不是营销标签：
 
 - `DELIVERED`：主路径已实现，契约测试和同路径虚拟设备 evidence 通过；
-- `PILOT`：功能可执行，但生产服务、完整 controller 或真机等价仍有距离；
+- `PILOT`：功能可执行，但生产服务或完整 controller 仍有距离；
 - `PARTIAL`：存在可用子集，同时有明确的数据面或后端 blocker；
 - `NOT RUN`：所需路径没有执行，不能由 build、静态分析或其他 lease 推导 PASS。
 
@@ -278,7 +278,6 @@ API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 session/evidence 存储和连续 evidence 流 | durable claim response-loss replay、trusted-host 和单机 restart PASS 不能继承为跨主机 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |
 | `SVC-03` | 拆分 service 的存储、runtime、evidence 和 session 状态机 | 维护边界仍集中在少数大文件 |
-| `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `UI-02` | 扩展已准入板型的固件/Unit、输入延迟、长期稳定性与资源回收；C6/P4/Linux 浏览器路径分别立证 | 当前工作台、C/QEMU 浏览器执行与分享入口已有固定示例结果；registry、原生设备和视觉目录不互授准入，正式站点与 fork 预览按[Pages 指南](pages-deployment.md)分别取证 |

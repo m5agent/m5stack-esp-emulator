@@ -2324,8 +2324,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("`5x120s`", unified_core2)
         self.assertIn("`6x120s`", unified_core2)
         self.assertIn("`8x120s`", unified_core2)
-        self.assertIn("| P0 | Core2 物理/controller 等价性 |", backlog)
-        self.assertNotIn("| P1 | Core2 物理/controller 等价性 |", backlog)
+        self.assertIn("| P0 | Core2 功能容量 |", backlog)
+        self.assertNotIn("| P1 | Core2 功能容量 |", backlog)
+        self.assertNotIn("| P0 | Core2 物理/controller 等价性 |", backlog)
         self.assertIn("`CORE2-02` 仍为 P0", status)
         self.assertIn("!s->hli_valid", patch)
         self.assertIn("ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC", prealloc_patch)
@@ -2477,7 +2478,8 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         for text in (status, backlog, code_map, core2_doc, api):
             self.assertIn("8 MiB", text)
         self.assertIn("upper-bank", status.lower())
-        self.assertIn("物理 PSRAM/cache timing", backlog)
+        self.assertIn("PSRAM/cache timing", backlog)
+        self.assertIn("只在明确声称物理属性时另验", backlog)
         self.assertIn("core2_psram_himem", code_map)
 
         status = (DOCS / "project-status.md").read_text()
@@ -2532,7 +2534,8 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertNotIn("35/35/36", text)
             self.assertNotIn("106 MiB", text)
         self.assertIn("物理板载 `8 MiB`", status)
-        self.assertIn("物理 PSRAM/cache timing", backlog)
+        self.assertIn("PSRAM/cache timing", backlog)
+        self.assertIn("只在明确声称物理属性时另验", backlog)
         self.assertIn(
             "core2-psram-sustained-8m-3x120.json",
             backend,

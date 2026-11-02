@@ -639,7 +639,7 @@ class DocsIndexContractTests(DocsContractBase):
             for task in project_snapshot.parse_backlog_tasks()
         }
         self.assertIn(
-            "物理 PSRAM/cache timing",
+            "PSRAM/cache timing",
             tasks["CORE2-02"]["next"],
         )
 

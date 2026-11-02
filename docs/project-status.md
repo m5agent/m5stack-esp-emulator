@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-30`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-11-02`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
@@ -346,13 +346,12 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
 | `RUNTIME-03` Core2 legacy startup（已完成 virtual-device） | shared I2C、timer deadline、WDT level、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、classic WiFi、normal-WDT startup、API Key startup UI 与真实 Wi-Fi Connect 页面已验证；`0095` 三次稳定到 guest virtual 300 秒以上 | 保持 `0095/0065/0066` 与 Core2 设备组回归；setup/REPL 和完整 factory application 转 `API-01` 继续覆盖 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、startup UI 或 Wi-Fi Connect 页面都不能继承为任意 legacy 应用 PASS |
-| 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
+| 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 新固件/profile 的同路径 virtual-device 验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、lease-bound central evidence store、fencing、local QEMU | 物理跨主机 executor/reattach、queue/session/evidence 的跨主机复制、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；单 control-plane evidence store 不等于对象存储复制；PID 回收不等于 guest 内部 quiesce |
-| `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop；当前 `origin/main` 工具 hash 的双实例回归已重绑；九实例两次通过、一次失败 | 当前高负载宿主下的八实例 cold-start tool-hash 重绑、持续吞吐、其他更复杂 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；九实例出现 NimBLE ACK panic，默认继续为 8；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能。精确轮次、哈希和边界见[容量边界](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md)和[当前工具 hash 重绑](evidence/2026-10-30-core2-toolhash-rebind/README.md) |
+| `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop；当前 `origin/main` 工具 hash 的双实例回归已重绑；九实例两次通过、一次失败 | 当前高负载宿主下的八实例 cold-start tool-hash 重绑、持续吞吐和其他更复杂 teardown；物理 controller/PSRAM/cache 只在明确要求物理属性时另立验证 | `CORE2-02` 仍为 P0；九实例出现 NimBLE ACK panic，默认继续为 8；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能。精确轮次、哈希和边界见[容量边界](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md)和[当前工具 hash 重绑](evidence/2026-10-30-core2-toolhash-rebind/README.md) |
 | `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析；Device Service API `1.51.0` 的外部 runtime ACL/执行策略 | Guest filesystem 自身 ACL、完整许可/法律审批、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、service runtime ACL、签名数学和包内摘要自洽分别成立，均不等于 guest 文件权限、设备 trust root 或生产沙箱 |
 | `RUNTIME-02` 模型缺口 | C6 Zigbee 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP、`RUNTIME-04` ATECC608 初始化和 `RUNTIME-05` WPA2 已关闭 | commissioning/join | 观察到帧或读取地址不等于完整生命周期 |
 | `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery；`SVC-03` 已拆出 `ServiceError`、首批 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 语义，并保持 re-export | namespace-managed/Tab5/cross-host companion、warm pool、其余请求解析/runtime/evidence/session 拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
-| `HW-01` 真机同路径 | 测试入口和分层规则已定义 | 代表设备同固件 SHA、同输入、同关键路径的 hardware validation | 仓库当前没有可引用的真机安全/RF/电气结论 |
 | `TAB5-01` / `UI-01` / `CZ-01` | Tab5 与 Linux ARM64 有可用子集；StopWatch 为参考外壳 | P4 backend 决策、逐设备视觉回归、CardputerZero 收尾 | `partial` 是可运行子集，不是完整设备或全固件兼容 |
 
 ## 能力状态
@@ -374,7 +373,6 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Tab5 | `partial` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller 未闭环 |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
 | 设备视觉 | `partial`；38 主机、184 Unit | CardputerZero RJ45 共面内壁已由独立固定补丁分离，见[issue #75](https://github.com/m5agent/m5stack-esp-emulator/issues/75)与验证台账。 固定公开模型 `1373680d`，新增 Atom 12、Stick 7、Dial/Basic 共 21 款；24 个运行登记和 14 个仅模型主机分开。463 张运行贴图；Basic 两张贴位未确认图片按精确 SHA 排除。文档单独 pin `3681a648`。模型不授予固件、总线或硬件 PASS，StopWatch 仍是唯一参考质量外壳。见[本轮计划](plans/2026-10-29-expanded-host-models.md) |
-| 真机验证 | `NOT RUN` | 必须提供同固件路径的 `hardware validation` |
 
 ## 设备矩阵
 
