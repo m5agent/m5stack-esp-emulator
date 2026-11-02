@@ -1,11 +1,13 @@
-From a07fb596f3505118ba03dfc9715e175278bd5efb Mon Sep 17 00:00:00 2001
-From: m5agent <m5agent@m5agentdeMac-mini.local>
-Date: Tue, 3 Nov 2026 00:16:10 +0800
+From a96e4133f56ade96b5ca6ae4f5c9e4d0859c5f8c Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 00:53:52 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-7 first five data planes
 
-Implement the first five batch-7 Unit data planes on top of the 22-layer
-canonical chain (75f1d24 + 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135,
-0132, 0137, 0138, 0139, 0140, 0141). No guest/Device Service evidence is
+Implement the first five batch-7 Unit data planes on top of the reconciled
+canonical chain. Base in the reconciled canonical order is the 23-layer chain
+through 0142 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133,
+0135, 0132, 0137, 0138, 0139, 0140, 0141 and 0142); this is the 24th layer
+after 0120 and it applies at the chain end. No guest/Device Service evidence is
 recorded; all five stay planned and the reused register machines keep their
 existing NOT RUN boundaries.
 
@@ -39,8 +41,8 @@ byte semantics (SHT30 measure frames, VL53L0X range reads), key injection
 timing or motor current physics; those still need guest evidence.
 ---
  hw/m5stopwatch/m5_unit_i2c_controls.c | 16 ++++--
- hw/m5stopwatch/m5_unit_i2c_sensors.c  | 78 ++++++++++++++++++++++++++-
- 2 files changed, 88 insertions(+), 6 deletions(-)
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 79 ++++++++++++++++++++++++++-
+ 2 files changed, 88 insertions(+), 7 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
 index 6746773..2d31dbf 100644
@@ -84,7 +86,7 @@ index 6746773..2d31dbf 100644
          add_int(s, "keycode", true); add_array(s, "keys", true);
          add_array(s, "key-ids", false);
 diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-index 7985c45..c98cba5 100644
+index aaa73dd..2a201b3 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
 @@ -26,7 +26,7 @@ typedef enum {
@@ -94,9 +96,9 @@ index 7985c45..c98cba5 100644
 -    US_SHT4X, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
 +    US_SHT4X, US_SHT30, US_SCD40, US_VL53L1X, US_ACMEASURE, US_ADS1115_VMETER, US_ADS1100, US_ANGLE8, US_KMETER,
      US_RTC8563, US_STHS34PF80, US_MPU6886, US_BME68X,
+     US_ATECC608B, US_THERMAL2, US_QRCODE,
  } UnitSensorKind;
- 
-@@ -93,6 +93,11 @@ typedef struct M5UnitSensor {
+@@ -94,6 +94,11 @@ typedef struct M5UnitSensor {
       * driver for guest assertions. */
      uint8_t sht4x_cmd;
      int64_t sht4x_serial;
@@ -108,7 +110,7 @@ index 7985c45..c98cba5 100644
      /* U103 CO2 SCD40/SCD41 0x62: 2-byte big-endian commands; responses are
       * 2-byte words each followed by CRC8. Settable-argument commands carry a
       * 2-byte value + CRC in the same write transaction. */
-@@ -457,6 +462,41 @@ static void sht4x_build_response(M5UnitSensor *s)
+@@ -476,6 +481,41 @@ static void sht4x_build_response(M5UnitSensor *s)
      }
  }
  
@@ -150,7 +152,7 @@ index 7985c45..c98cba5 100644
  /* U103 SCD4x: 2-byte commands, response words with CRC8, and set-arg commands
   * that append a 2-byte value + CRC to the command write. */
  static bool scd40_arg_command(uint16_t cmd)
-@@ -1426,6 +1466,15 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+@@ -1542,6 +1582,15 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
          s->sht4x_cmd = data;
          return 0;
      }
@@ -166,7 +168,7 @@ index 7985c45..c98cba5 100644
      if (s->kind == US_SCD40) {
          /* 2-byte big-endian command, plus optional 2-byte value + CRC for
           * set-argument commands (0x241D/0x2427/0xE000/0x362F/0x2416). */
-@@ -1868,6 +1917,10 @@ static uint8_t sensor_recv(I2CSlave *dev)
+@@ -2042,6 +2091,10 @@ static uint8_t sensor_recv(I2CSlave *dev)
          if (pos == 0) { sht4x_build_response(s); }
          return pos < s->response_len ? s->response[pos] : 0xff;
      }
@@ -177,15 +179,16 @@ index 7985c45..c98cba5 100644
      if (s->kind == US_SCD40) {
          if (pos == 0) { scd40_build_response(s); }
          return pos < s->response_len ? s->response[pos] : 0xff;
-@@ -2007,6 +2060,7 @@ bool m5_unit_sensor_supported(const char *id)
+@@ -2181,7 +2234,7 @@ bool m5_unit_sensor_supported(const char *id)
          "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
          "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
          "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
-+        "mini-tof-90", "env-ii",
-         "mini-imu", "env-pro" };
+-        "mini-imu", "env-pro", "unit-id", "thermal2", "qrcode" };
++        "mini-imu", "env-pro", "mini-tof-90", "env-ii", "unit-id", "thermal2", "qrcode" };
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
-@@ -2065,6 +2119,24 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+     }
+@@ -2239,6 +2292,24 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
          add_number(b, "pressure-pa", 1, 101325, 30000, 110000, false);
          sensor_attach_one(u, "bmp280", b, 0x76);
          return;
@@ -210,7 +213,7 @@ index 7985c45..c98cba5 100644
      }
  
      M5UnitSensor *s = sensor_device(u);
-@@ -2076,7 +2148,9 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+@@ -2250,7 +2321,9 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
          add_number(s, "red-raw", 1, 400, 0, 65535, true);
          add_number(s, "green-raw", 2, 300, 0, 65535, true);
          add_number(s, "blue-raw", 3, 200, 0, 65535, true);

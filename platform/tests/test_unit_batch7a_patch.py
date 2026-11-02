@@ -38,11 +38,11 @@ class UnitBatch7aPatchTests(unittest.TestCase):
         self.assertNotIn('"mini-bps-v11"', self.text)
         self.assertEqual(self.units["mini-bps-v11"]["model_status"], "planned")
 
-    def test_patch_base_is_the_22_layer_canonical_chain(self):
+    def test_patch_base_is_the_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0143-unit-batch7a.patch", readme)
-        self.assertIn("23 layers", readme)
-        for token in ("0140", "0141", "0142"):
+        self.assertIn("25 layers", readme)
+        for token in ("0140", "0141", "0142", "0144"):
             self.assertIn(token, readme)
 
     def test_mini_tof_90_reuses_vl53l0x_and_0x29_conflict(self):

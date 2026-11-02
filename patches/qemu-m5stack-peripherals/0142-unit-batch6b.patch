@@ -1,9 +1,9 @@
-From eb4ce0c6c086656660f2667ed9105712d3970b3a Mon Sep 17 00:00:00 2001
+From 1e165bfc6fbb9bd442f973c97d3b9f2d6df1f460 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 00:11:11 +0800
+Date: Tue, 3 Nov 2026 00:53:44 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-6 remaining six data planes
 
-Add the remaining six batch-6 Units on top of the 22-layer canonical tree.
+Add the remaining six batch-6 Units on top of the reconciled canonical chain. Base in the reconciled canonical order is the 22-layer chain through 0141 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132, 0137, 0138, 0139, 0140 and 0141); this is the 23rd layer after 0120 and it applies at the chain end.
 No guest evidence; all six stay planned. Crypto uses deterministic test
 vectors only, and the RF/network/biometric boundaries are explicit.
 
