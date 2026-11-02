@@ -101,6 +101,9 @@ Unit 第一批 12 款的官方驱动证据、寄存器/命令表与未确认项�
 [Unit 第一批 A 类虚拟设备证据](evidence/2026-11-02-unit-batch1/README.md)，
 B 类 4 款（`dlight`/`accel`/`4relay`/`weight-i2c`）的 I2C 事务数据面证据见
 [Unit 第一批 B 类虚拟设备证据](evidence/2026-11-02-unit-bclass/README.md)。
+
+Unit 第二批 12 款（`joystick`/`dac`/`watering`/`fader`/`bps`/`env`/`adc-v11`/`extencoder`/`ain4-20ma`/`acssr`/`ameter`/`gesture`）的官方驱动证据、寄存器/命令表、QEMU 复用建议与 unresolved 见
+[Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md)；catalog 草稿见同目录 batch2 JSON，全部 planned。
 C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md)。
 
@@ -178,6 +181,7 @@ C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick 条件接入（EasyLoader 工厂镜像提取；原 `d960e57e…` 提取长度已修正）、StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |
 | [AtomS3R-CAM 相机几何与多帧流](evidence/2026-11-02-atoms3r-cam-geometry/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | LCD_CAM DVP 几何跟随 GC0308 window/subsample 寄存器（0118）：QQVGA/240×240/QVGA/CIF/VGA 帧的 guest SHA-256 与宿主重建一致；QOM auto-increment 下连续 5 帧互异、各自匹配重建 scene seed 帧、无撕裂；动态改尺寸/物理光学 NOT RUN |
