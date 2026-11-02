@@ -1,18 +1,52 @@
-From 690d645826dc8952ddc6af5ad9ca8084a5e3843e Mon Sep 17 00:00:00 2001
-From: m5agent <m5agent@m5agentdeMac-mini.local>
-Date: Tue, 3 Nov 2026 01:10:56 +0800
+From 827da2340003905af67faeaa652cb725b624f737 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 01:41:30 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-8 first five data planes
 
+Implement the first five batch-8 Unit data planes on top of the reconciled
+canonical chain. Base in the reconciled canonical order is the 26-layer chain
+through 0145 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133,
+0135, 0132, 0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144 and 0145); this is
+the 27th layer after 0120 and it applies at the chain end. No guest/Device
+Service evidence is recorded; all five stay planned and the reused register
+machines keep their existing NOT RUN boundaries.
+
+- pahub-v21 (U040-B-V21): reuses the PCA9548A mask-only PaHub model and adds a
+  0x70-0x77 DIP-address fixture; downstream bus forwarding/nested hubs are
+  NOT modeled and 0x70-0x77 conflicts with pahub/pahub-v20/env-iii.
+- gps-v11 (U032-V11) / gps-sma (U190): reuse the batch-4 GPS UART NMEA
+  injection path for AT6668 with a baud fixture (default 9600) that keeps the
+  product page 115200 vs frozen driver 9600 conflict UNRESOLVED; GNSS RF/
+  antenna/constellation/accuracy are NOT RUN and PORT.C is shared with UART
+  Units.
+- lcd (U120): new CONTROL_UNIT_LCD ST7789V2 I2C command/framebuffer slave
+  (READ_ID 0x04, READ_BUFCOUNT 0x09, FILLRECT 0x68-0x6C, CASET 0x2A/RASET
+  0x2B, WRITE_RAW 0x41-0x44, WRITE_RLE 0x49-0x4D, DRAWPIXEL, SET_COLOR,
+  BRIGHTNESS/ROTATE/POWER/SLEEP, CHANGE_ADDR 0xA0) with a 135x240 RGB565
+  framebuffer and bufcount; the page 0x3E vs frozen driver 0x3D address
+  conflict is UNRESOLVED (driver address used, CHANGE_ADDR applies) and
+  display composition/optics/backlight/ESP32-PICO firmware are NOT RUN.
+- mini-can (U179): the CAN Unit attachment/TWAI frame injection path is not
+  modeled in this Unit runtime (same gap as batch7 can), so the catalog/profile
+  entry stays planned/blocked; TJA1051 electrical/termination/arbitration
+  behavior are NOT RUN. (The batch-7 0145 layer binds the cores3 CAN model for
+  the `can`/`mini-can` ids; this batch-8 layer does not add a second path.)
+
+Offline QOM smoke (S3 m5atoms3r, no guest firmware): the pahub-v21/lcd/
+gps-v11/gps-sma attachments check property registration, fixtures, the pahub
+DIP address move and the LCD read-id/bufcount: 20/20 PASS. The smoke is not a
+functional PASS and I2C command bytes/guest NMEA decode/CAN frames still need
+guest evidence.
 ---
  hw/m5stopwatch/m5_unit_gpio.c         |  38 +++-
  hw/m5stopwatch/m5_unit_i2c_controls.c | 270 +++++++++++++++++++++++++-
  2 files changed, 300 insertions(+), 8 deletions(-)
 
 diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
-index d3547db..cfe22df 100644
+index 0f4ac53..a719b3f 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -66,6 +66,10 @@ typedef struct GPIOUnit {
+@@ -67,6 +67,10 @@ typedef struct GPIOUnit {
      char *gps_lines;
      unsigned gps_line_index;
      uint64_t gps_injected;
@@ -23,7 +57,7 @@ index d3547db..cfe22df 100644
      /* U107 UHF-RFID (JRD4035 UART frames): capture guest command frames and
       * inject fixture response frames; RF/Gen2/tag security is NOT modeled. */
      char *uhf_responses;
-@@ -661,13 +665,18 @@ static AW3641State *aw3641_new(M5Unit *unit, Error **errp)
+@@ -670,13 +674,18 @@ static AW3641State *aw3641_new(M5Unit *unit, Error **errp)
  /* END AW3641 NOMINAL DIGITAL MODEL */
  
  
@@ -40,10 +74,10 @@ index d3547db..cfe22df 100644
          "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
 -        "weight", "gps", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
 +        "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
-         "neohex", "lora-e220-433", "zigbee", "nbiot2",
+         "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
+         "catm", "catm-gnss", "lorawan-cn470", "can", "mini-can",
          "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger"};
-     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
-@@ -983,7 +992,7 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+@@ -993,7 +1002,7 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
              if ((!strcmp(g->unit->unit_id, "rs485") ||
                   !strcmp(g->unit->unit_id, "rs485-iso") ||
                   !strcmp(g->unit->unit_id, "midi") ||
@@ -52,7 +86,7 @@ index d3547db..cfe22df 100644
                   !strcmp(g->unit->unit_id, "uhf-rfid") ||
                   !strcmp(g->unit->unit_id, "lora-e220-433") ||
                   !strcmp(g->unit->unit_id, "zigbee") || !strcmp(g->unit->unit_id, "nbiot2") ||
-@@ -1317,6 +1326,23 @@ static void uhf_inject_response(GPIOUnit *g)
+@@ -1328,6 +1337,23 @@ static void uhf_inject_response(GPIOUnit *g)
      }
  }
  
@@ -76,7 +110,7 @@ index d3547db..cfe22df 100644
  static void gps_lines_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
  {
      GPIOUnit *g = op;
-@@ -1496,7 +1522,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+@@ -1595,7 +1621,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
      }
      if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485") ||
                  !strcmp(unit->unit_id, "rs485-iso") || !strcmp(unit->unit_id, "midi") ||
@@ -85,7 +119,7 @@ index d3547db..cfe22df 100644
                  !strcmp(unit->unit_id, "lora-e220-433") ||
                  !strcmp(unit->unit_id, "zigbee") || !strcmp(unit->unit_id, "nbiot2") ||
                  !strcmp(unit->unit_id, "synth") ||
-@@ -1626,13 +1652,17 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+@@ -1727,13 +1753,17 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          object_property_add(o, "weight-g", "number", hx_weight_get, NULL, NULL, g);
          object_property_add(o, "conversions", "uint64", count_get, NULL, NULL, &g->hx_conversions);
          object_property_add(o, "ready-level", "bool", hx_ready_get, NULL, NULL, g);
