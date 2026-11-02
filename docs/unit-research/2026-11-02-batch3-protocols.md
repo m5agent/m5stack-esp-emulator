@@ -849,3 +849,61 @@ done
 上表所有“仍未确认/未建模”项都同步记录在 catalog blocker 与
 `platform/web/unit-visual-mappings.js` 的 AUDIT 条目中；A+B 之外的 4 款
 （env-iv/co2/pbhub/ultrasonic-io）由并行的 0131 任务负责。
+## 11. 后 4 款（C 类）QEMU 实现状态（0131，2026-11-02）
+
+第三批 C 类 4 款（`env-iv`/`co2`/`pbhub`/`ultrasonic-io`）已由
+[`0131-unit-batch3c.patch`](../../patches/qemu-m5stack-peripherals/0131-unit-batch3c.patch)
+接入 QEMU 数据面；base 为 canonical native layer `75f1d24` + 已合入的
+`0120/0121/0122/0123/0125/0126/0127/0128/0129`（`0124` 为 StickT2 预留层，本补丁
+不依赖；`0130` 是并行 unit-protocols A+B 层，不属于本补丁 base）。**尚未采集
+guest/Device Service 证据**，因此 catalog 4 条与 runtime-profiles 4 条均保持
+`planned`、hosts 为空。离线 QOM smoke 只验证属性注册、fixture 读写、范围拒绝、
+只读拒绝与双从机结构（23/23 PASS），不构成功能 PASS。
+
+**研究草稿修正**：§4.9 曾把 PbHub 的 6 个通道基址写成了 6 个独立总线地址并建议
+`m5_unit_i2c_attach` ×7；实现时按官方驱动逐行复核，`unit/pbhub.py` 的所有
+`writeto_mem`/`read_reg` 都发往**单一 hub 地址 0x61**，`channel_base|offset`
+是**寄存器字节**而不是总线地址。因此 0131 用单个 `CONTROL_PBHUB`（0x61）实现
+256 字节命令空间，`m5_unit_i2c_attach` 只用于 `env-iv` 的双从机。catalog blocker
+已按这一修正写入，不再声称 7 个总线地址。
+
+| Unit | 0131 模型 | QOM fixtures/观测 | 仍需 guest 证据 / unresolved 边界 |
+| --- | --- | --- | --- |
+| `env-iv` U001-D (0x44 + 0x76) | 双从机：`US_SHT4X` 0x44（命令字节 + 6B T/RH 或序列号帧，每 2B 后 CRC8 poly 0x31）+ 复用 `US_BMP280` 0x76（仅 pressure-pa，自身温度槽固定 25C） | 输入 temperature-c(-40..125)/humidity-pct(0..100)/pressure-pa(30000..110000)；观测 serial-number、两地址事务计数 | **快照 driver/sht4x.py getter bug（缺 measure() 调用）→ 必须锚定 master 修正版或打补丁**；0x44 与 env-iii 冲突、0x76 与 bps/env 冲突；ENVUnit 必须显式 type=4；产品页 EOL；精度/自热 NOT RUN |
+| `co2` U103 (0x62) | `US_SCD40`：2B BE 命令 + 每 2B 数据 CRC8 词协议；0xE4B8 就绪、0xEC05 测量（9B）、0x241D/0x2318、0x2427/0x2322、0xE000、0x3682、0x3646/0x3632、0x21B1/0x3F86/0x21AC、0x219D/0x2196 等；周期/单次/复位状态转移 | 输入 co2-ppm(400..5000)/temperature-c(-10..60)/humidity-pct(0..95)/data-ready；观测 serial-number/measurement-reads | **SCD40（页面/驱动）vs SCD41（I2C 总表）冲突；快照 asyncio 实现 vs master 同步重写两套 API 必须钉 SHA；两份驱动的温度解码都从 buf[1] 而非 buf[4] 取值（既有 bug）→ guest temperature 不可断言，只有 CO2/湿度可断言**；5s 周期/CRC/精度 NOT RUN |
+| `pbhub` U041 (0x61) | `CONTROL_PBHUB`：单一 0x61 命令空间；通道 base 0x40/0x50/0x60/0x70/0x80/0xA0 × offset 0x00..0x0B；数字/模拟/RGB/servo/brightness 写更新每通道状态，0xFA RGB mode、0xFF 地址迁移（0x61..0x68） | 输入 digital-inputs[6]/analog-inputs[6]（0..1023）；观测 digital-outputs/pwm-outputs/rgb-frames[6]/rgb-mode/fw-version/i2c-address | **MCU 身份三方冲突（页面 MEGA328 vs 规格 STM32F030F4P6 vs 总表 MEGA328）；RGB 字节序快照大端 vs master GRB（实现取 master GRB，须写 SHA）；通道命令地址与 encoder/scroll/nfc/acssr/dac/env-iii 重叠只在 hub 命令空间内部暴露；hub 不支持嵌套；PWM/servo/RGB 电气与 10-bit ADC 校准 NOT RUN** |
+| `ultrasonic-io` U098-B2 (GPIO) | GPIO id `ultrasonic-io`：黄线 pad observer 观测 trigger 上升/下降沿，下降沿按 distance-mm 生成 `pulse_us=distance_mm*582/100` 白线高脉冲；越界距离不生成回波（guest 收到真实超时）；复位/超时计数 | 输入 distance-mm(20..4500)；观测 echo-pulse-us(=distance*582/100)、trigger-count、timeouts、echo-level | **页面 PinMap 把 PORT.A 标成 SDA/SCL，与 GPIO trigger/echo 事实冲突；MicroPython time_pulse_us 超时语义 unresolved（模型只覆盖有回波/无回波两条路径）；RCWL-9620 >3.5m 延迟、50ms 周期、温度补偿、±2% 精度、40kHz 声学 NOT RUN** |
+
+离线 QOM smoke 复现（无 guest 固件；`m5basic` machine，env-iv/co2/pbhub 共享
+32/33 软 I2C 总线，ultrasonic-io 用 yellow=26/white=36）：
+
+```bash
+cat > /tmp/unit-smoke-config3.json <<'JSON'
+{"schema_version":1,"attachments":[
+ {"id":"enviv1","unit_id":"env-iv","pins":{"yellow":32,"white":33}},
+ {"id":"co21","unit_id":"co2","pins":{"yellow":32,"white":33}},
+ {"id":"pbhub1","unit_id":"pbhub","pins":{"yellow":32,"white":33}},
+ {"id":"ultra1","unit_id":"ultrasonic-io","pins":{"yellow":26,"white":36}}]}
+JSON
+M5_UNIT_CONFIG=/tmp/unit-smoke-config3.json qemu-system-xtensa -M m5basic \
+  -L .work/M5StopWatch-QEMU/build/qemu/pc-bios -display none \
+  -serial null -serial null -serial null \
+  -qmp unix:/tmp/unit-smoke3.sock,server=on,wait=off
+# 另一个终端：qom-get/qom-set /machine/units/<id>/<property>
+```
+
+23 项检查全部 PASS：env-iv 7（默认值/三个 fixture 写入/范围拒绝/双从机子对象
+`sht4x`@0x44 + `bmp280`@0x76）、co2 6、pbhub 6（默认数组/输入写入/范围与长度
+拒绝/只读拒绝）、ultrasonic-io 4（默认 distance-mm=1000→echo-pulse-us=5820/
+distance 500→2910/越界拒绝）。该 smoke **不**覆盖 I2C `send/recv` 字节语义、
+SCD4x 命令/CRC 词、PbHub 通道命令写入与 ultrasonic 触发时序；这些仍需 guest 证据。
+
+**计数说明**：本分支 base `origin/main cde329f5` 的 catalog 为 58 款，加上本批 4 款
+后为 **62 款**（catalog 与 runtime-profiles 都是 62）。Lead 描述的“66→70”应指
+并行 unit-protocols A+B 8 款（0130）合并后的总数：58+8=66 → 62+8=70。本分支的
+计数测试按 worktree 实际值 62 更新；合并后由集成 PR 统一到 70。
+
+共同边界：4 款都是控制器可见的事务/时序模型，不是电气/光学/声学/气体传感器物理
+模型；地址冲突（env-iv 0x44/0x76、co2 0x62 无冲突、pbhub 通道命令地址只在 hub
+内部）与版本差异必须随 catalog 一起读。没有 guest 与 Device Service 证据前不得
+升级为 `implemented`/`simulated`。

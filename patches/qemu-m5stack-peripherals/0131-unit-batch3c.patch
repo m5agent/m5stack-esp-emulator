@@ -1,0 +1,786 @@
+From 24e7d7846d97b979f391fb4869983a8ae3b9fd36 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 20:57:14 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-3 C data planes
+
+Add the four remaining batch-3 C Units as controller-visible models,
+following docs/unit-research/2026-11-02-batch3-protocols.md. No guest
+evidence is recorded; host catalog keeps all four planned.
+
+- env-iv (U001-D): new US_SHT4X slave at 0x44 (command byte, 6-byte
+  temperature/humidity or serial frame with per-word CRC8 poly 0x31) plus the
+  existing US_BMP280 at 0x76 via the 0126 multi-slave attach. The snapshot
+  SHT4x driver getters are broken (self.measure[0/1] without call), so the
+  model returns spec-correct frames and the host must anchor the fixed master
+  driver SHA.
+- co2 (U103): new US_SCD40 slave at 0x62 implementing the SCD4x command +
+  CRC-word protocol: 2-byte BE commands, set-argument commands with value+CRC,
+  data-ready/measurement/temperature-offset/altitude/serial/self-test response
+  words, and start/stop/reinit/single-shot state transitions. The snapshot
+  asyncio driver vs master sync rewrite and SCD40-vs-SCD41 identity stay
+  UNRESOLVED. Note: both driver versions decode temperature from buf[1]
+  instead of buf[4], so guest temperature decode remains a documented driver
+  bug; CO2 and humidity are assertable.
+- pbhub (U041): CONTROL_PBHUB at 0x61. The official driver always talks to the
+  single hub address and passes channel_base|offset as the register byte, so
+  the six channels (bases 0x40/0x50/0x60/0x70/0x80/0xA0, offsets 0x00..0x0B)
+  live in one 256-byte command space rather than on separate bus addresses.
+  Digital/analog/RGB/servo/brightness writes update per-channel QOM state; the
+  0xFA RGB mode register and 0xFF address migration follow the pinned master
+  driver (wire RGB is GRB); reads return fixture inputs. MCU identity
+  (MEGA328 vs STM32F030F4P6) and channel-address overlap with registered
+  Units remain catalog blockers.
+- ultrasonic-io (U098-B2): GPIO branch that observes the guest trigger edge on
+  yellow and drives a white echo pulse of distance_mm*582/100 us; out-of-range
+  distances withhold the echo so the guest sees a real timeout instead of a
+  fabricated value. MicroPython time_pulse_us timeout semantics stay
+  UNRESOLVED.
+
+Offline QOM smoke (no guest firmware) validates property registration, fixture
+read/write, range rejection, read-only rejection and the env-iv dual-slave
+children; it is not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  95 +++++++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 233 ++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 239 +++++++++++++++++++++++++-
+ 3 files changed, 561 insertions(+), 6 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 7c84aa2..747ada7 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -29,6 +29,19 @@ typedef struct GPIOUnit {
+      * U123 Fader: white analog input + 14x SK6812 RMT capture (leds=14). */
+     bool pump_level;
+     uint64_t pump_transitions;
++    /* U098-B2 Ultrasonic-IO: observe the guest trigger on yellow and generate
++     * a white echo pulse whose width encodes the distance fixture. The
++     * MicroPython time_pulse_us timeout semantics stay UNRESOLVED; this model
++     * withholds the echo for out-of-range distances so the guest sees a
++     * timeout instead of a fabricated value. */
++    Esp32GpioState *ultra_controller;
++    Esp32GpioPadObserver *ultra_observer;
++    Esp32GpioPadSnapshot ultra_pad;
++    QEMUTimer *ultra_timer;
++    int ultra_distance_mm;
++    int ultra_pulse_us;
++    uint64_t ultra_triggers, ultra_timeouts;
++    bool ultra_echo_high;
+     uint32_t rx_pulses[192], tx_pulses[192];
+     unsigned rx_count, tx_count;
+     uint8_t uart_tx[4096];
+@@ -611,7 +624,8 @@ bool m5_unit_gpio_supported(const char *id)
+ {
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+-        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader"};
++        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
++        "ultrasonic-io"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -705,7 +719,8 @@ static void num_get(Object *o, Visitor *v, const char *name, void *op, Error **e
+ {
+     GPIOUnit *g = op;
+     double value = !strcmp(name, "frequency-hz") ? g->frequency :
+-                   !strcmp(name, "duty-pct") ? g->duty : g->voltage;
++                   !strcmp(name, "duty-pct") ? g->duty :
++                   !strcmp(name, "distance-mm") ? g->ultra_distance_mm : g->voltage;
+     if ((!strcmp(name, "frequency-hz") || !strcmp(name, "duty-pct")) &&
+         esp32_gpio_matrix_out_signal(g->unit->yellow, g->s3) != g->pwm_signal) { value = 0; }
+     visit_type_number(v, name, &value, errp);
+@@ -716,6 +731,14 @@ static void num_set(Object *o, Visitor *v, const char *name, void *op, Error **e
+     GPIOUnit *g = op;
+     double value;
+     if (!visit_type_number(v, name, &value, errp)) { return; }
++    if (!strcmp(name, "distance-mm")) {
++        if (!isfinite(value) || value < 20 || value > 4500) {
++            error_setg(errp, "distance-mm requires 20..4500 mm"); return;
++        }
++        if (g->ultra_distance_mm != (int)value) { g->ultra_distance_mm = (int)value; }
++        g->unit->input_events++;
++        return;
++    }
+     double maximum = !strcmp(g->unit->unit_id, "angle") ? 2500 : 3300;
+     if (!isfinite(value) || value < 0 || value > maximum) {
+         error_setg(errp, "%s requires 0..%g mV", name, maximum); return;
+@@ -945,6 +968,52 @@ static void hex_set(Object *o, Visitor *v, const char *name, void *op, Error **e
+     error_setg(errp, "no UART receiver is routed to the Unit white pin"); g_free(value);
+ }
+ 
++static void ultra_echo_end(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    esp32_gpio_set_input(g->unit->white, 0);
++    g->ultra_echo_high = false;
++}
++
++static void ultra_pad_event(void *opaque, const Esp32GpioPadEvent *event)
++{
++    GPIOUnit *g = opaque;
++    const Esp32GpioPadSnapshot *before = &event->before, *after = &event->after;
++    if (after->pin != (unsigned)g->unit->yellow || after->s3 != g->unit->s3) {
++        return;
++    }
++    if (!before->known || !after->known || before->conflict || after->conflict ||
++        before->controller_generation != after->controller_generation) {
++        return;
++    }
++    if (before->level == after->level) { return; }
++    if (after->level) {
++        g->ultra_triggers++;
++        return;
++    }
++    /* The guest finishes its 10us trigger pulse with a high->low edge; start the
++     * echo high now and schedule the falling edge after the round-trip width. */
++    if (g->ultra_distance_mm >= 20 && g->ultra_distance_mm <= 4500) {
++        int pulse_us = g->ultra_distance_mm * 582 / 100;
++        g->ultra_pulse_us = pulse_us;
++        esp32_gpio_set_input(g->unit->white, 1);
++        g->ultra_echo_high = true;
++        timer_mod_ns(g->ultra_timer,
++                     qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + (int64_t)pulse_us * 1000);
++    } else {
++        g->ultra_timeouts++;
++    }
++}
++
++static void ultra_pulse_get(Object *o, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    GPIOUnit *g = opaque;
++    int64_t value = g->ultra_distance_mm >= 20 && g->ultra_distance_mm <= 4500
++        ? g->ultra_distance_mm * 582 / 100 : 0;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+     if (unit->onboard_led_count > 25) {
+@@ -1019,6 +1088,28 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+     } else if (!strcmp(id, "rs485")) {
+         object_property_add(o, "rx-hex", "str", hex_get, hex_set, NULL, g);
+         object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
++    } else if (!strcmp(id, "ultrasonic-io")) {
++        g->ultra_distance_mm = 1000;
++        g->ultra_controller = esp32_gpio_get_controller(unit->s3);
++        if (!g->ultra_controller) {
++            error_setg(errp, "Ultrasonic-IO requires the matching GPIO controller");
++            return;
++        }
++        g->ultra_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, ultra_echo_end, g);
++        esp32_gpio_set_input(unit->white, 0);
++        g->ultra_observer = esp32_gpio_observe_pad(g->ultra_controller, unit->yellow,
++                                                   ultra_pad_event, g, &g->ultra_pad, errp);
++        if (!g->ultra_observer) {
++            error_setg(errp, "Ultrasonic-IO requires the GPIO pad observer");
++            return;
++        }
++        object_property_add(o, "distance-mm", "number", num_get, num_set, NULL, g);
++        object_property_add(o, "echo-pulse-us", "int", ultra_pulse_get, NULL, NULL, g);
++        object_property_add(o, "trigger-count", "uint64", count_get, NULL, NULL,
++                            &g->ultra_triggers);
++        object_property_add(o, "timeouts", "uint64", count_get, NULL, NULL,
++                            &g->ultra_timeouts);
++        object_property_add(o, "echo-level", "bool", bool_get, NULL, NULL, g);
+     }
+     if (!strcmp(id, "rgb") || !strcmp(id, "key")) {
+         g->leds = unit->onboard_led_count ? unit->onboard_led_count :
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index fad82b3..e9c2205 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -38,7 +38,7 @@ typedef enum {
+     CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
+     CONTROL_RELAY4, CONTROL_WEIGHT,
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+-    CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR,
++    CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -126,6 +126,21 @@ typedef struct M5UnitControl {
+     uint64_t acssr_transitions;
+     int64_t acssr_led_rgb;
+     int64_t acssr_fw;
++    /* U041 PbHub (0x61): six channels live in one 256-byte command space, not
++     * on separate bus addresses. The official driver always talks to 0x61 and
++     * passes channel_base|offset as the register byte; bases are
++     * 0x40/0x50/0x60/0x70/0x80/0xA0 and offsets 0x00..0x0B. RGB wire bytes are
++     * GRB because the task anchors the master driver's color_grb conversion;
++     * the snapshot's big-endian order stays UNRESOLVED. */
++    bool pb_digital_in[6], pb_digital_out[6];
++    uint16_t pb_analog_in[6];
++    uint8_t pb_pwm_out[6];
++    uint16_t pb_rgb_num[6];
++    uint8_t pb_rgb_color[6][3];   /* wire GRB */
++    uint8_t pb_rgb_brightness[6];
++    uint8_t pb_rgb_mode, pb_fw;
++    uint8_t pb_write_buf[8];
++    uint64_t pb_writes;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -773,6 +788,112 @@ out:
+     qobject_unref(value);
+ }
+ 
++static const uint8_t pbhub_bases[6] = {0x40, 0x50, 0x60, 0x70, 0x80, 0xA0};
++
++static int pbhub_channel(uint8_t reg, uint8_t *offset)
++{
++    for (unsigned i = 0; i < 6; i++) {
++        if (reg >= pbhub_bases[i] && reg <= pbhub_bases[i] + 0x0b) {
++            *offset = reg - pbhub_bases[i];
++            return (int)i;
++        }
++    }
++    return -1;
++}
++
++static QList *pbhub_bool_list(const bool values[6])
++{
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 6; i++) { qlist_append_bool(list, values[i]); }
++    return list;
++}
++
++static QList *pbhub_int_list(const int64_t values[6])
++{
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 6; i++) { qlist_append_int(list, values[i]); }
++    return list;
++}
++
++static void pbhub_any_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list;
++    if (!strcmp(name, "digital-inputs")) {
++        list = pbhub_bool_list(s->pb_digital_in);
++    } else if (!strcmp(name, "digital-outputs")) {
++        list = pbhub_bool_list(s->pb_digital_out);
++    } else if (!strcmp(name, "analog-inputs")) {
++        int64_t values[6];
++        for (unsigned i = 0; i < 6; i++) { values[i] = s->pb_analog_in[i]; }
++        list = pbhub_int_list(values);
++    } else if (!strcmp(name, "pwm-outputs")) {
++        int64_t values[6];
++        for (unsigned i = 0; i < 6; i++) { values[i] = s->pb_pwm_out[i]; }
++        list = pbhub_int_list(values);
++    } else {  /* rgb-frames: last committed RGB per channel */
++        int64_t values[6];
++        for (unsigned i = 0; i < 6; i++) {
++            const uint8_t *g = s->pb_rgb_color[i];
++            values[i] = ((int64_t)g[1] << 16) | ((int64_t)g[0] << 8) | g[2];
++        }
++        list = pbhub_int_list(values);
++    }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void pbhub_any_set(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    if (!list || qlist_size(list) != 6) {
++        error_setg(errp, "%s requires exactly 6 items", name);
++        qobject_unref(value);
++        return;
++    }
++    const QListEntry *entry;
++    unsigned i = 0;
++    bool bool_values[6];
++    int64_t int_values[6];
++    QLIST_FOREACH_ENTRY(list, entry) {
++        QObject *item = qlist_entry_obj(entry);
++        if (!strcmp(name, "digital-inputs")) {
++            QBool *b = qobject_to(QBool, item);
++            if (!b) { error_setg(errp, "digital-inputs items must be bool"); goto out; }
++            bool_values[i] = qbool_get_bool(b);
++        } else {
++            QNum *n = qobject_to(QNum, item);
++            if (!n || !qnum_get_try_int(n, &int_values[i]) ||
++                int_values[i] < 0 || int_values[i] > 1023) {
++                error_setg(errp, "analog-inputs items must be int 0..1023"); goto out;
++            }
++        }
++        i++;
++    }
++    if (!strcmp(name, "digital-inputs")) {
++        memcpy(s->pb_digital_in, bool_values, sizeof(s->pb_digital_in));
++    } else {
++        for (i = 0; i < 6; i++) { s->pb_analog_in[i] = (uint16_t)int_values[i]; }
++    }
++    input_changed(s);
++out:
++    qobject_unref(value);
++}
++
++static void pbhub_scalar_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = !strcmp(name, "rgb-mode") ? s->pb_rgb_mode : s->pb_fw;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static void string_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
+ {
+     M5UnitControl *s = opaque;
+@@ -1285,6 +1406,31 @@ static void snapshot_registers(M5UnitControl *s)
+         s->read_snapshot[0x00] = s->acssr_relay_raw;
+         s->read_snapshot[0xfe] = s->acssr_fw;
+         s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_PBHUB) {
++        uint8_t cmd_offset = 0;
++        int channel = pbhub_channel(s->pointer, &cmd_offset);
++        if (channel >= 0) {
++            unsigned index = (unsigned)channel;
++            if (cmd_offset == 0x04) {
++                s->read_snapshot[s->pointer] = s->pb_digital_in[index] ? 1 : 0;
++            } else if (cmd_offset == 0x05) {
++                s->read_snapshot[s->pointer] = s->pb_digital_in[index] ? 1 : 0;
++            } else if (cmd_offset == 0x06) {
++                s->read_snapshot[s->pointer] = s->pb_analog_in[index] & 0xff;
++                s->read_snapshot[s->pointer + 1] = s->pb_analog_in[index] >> 8;
++            } else if (cmd_offset == 0x08) {
++                s->read_snapshot[s->pointer] = s->pb_rgb_num[index] & 0xff;
++                s->read_snapshot[s->pointer + 1] = s->pb_rgb_num[index] >> 8;
++            } else if (cmd_offset == 0x0b) {
++                s->read_snapshot[s->pointer] = s->pb_rgb_brightness[index];
++            }
++        } else if (s->pointer == 0xfa) {
++            s->read_snapshot[0xfa] = s->pb_rgb_mode;
++        } else if (s->pointer == 0xfe) {
++            s->read_snapshot[0xfe] = s->pb_fw;
++        } else if (s->pointer == 0xff) {
++            s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++        }
+     }
+ }
+ 
+@@ -1378,7 +1524,63 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+     }
+     uint8_t reg = s->pointer;
+-    if (s->kind == CONTROL_EXTENCODER) {
++    if (s->kind == CONTROL_PBHUB) {
++        unsigned offset = s->write_pos - 2;  /* write_pos was incremented for this byte */
++        uint8_t cmd_offset = 0;
++        int channel = pbhub_channel(s->write_base, &cmd_offset);
++        if (channel >= 0) {
++            unsigned index = (unsigned)channel;
++            if (cmd_offset == 0x00 || cmd_offset == 0x01) {
++                if (offset) { return 1; }
++                s->pb_digital_out[index] = value != 0;
++            } else if (cmd_offset == 0x02 || cmd_offset == 0x03) {
++                if (offset) { return 1; }
++                s->pb_pwm_out[index] = value;
++            } else if (cmd_offset == 0x08) {
++                if (offset > 1) { return 1; }
++                s->pb_rgb_num[index] = offset == 0 ? value : (s->pb_rgb_num[index] & 0x00ff) | (value << 8);
++            } else if (cmd_offset == 0x09) {
++                if (offset < 5) { s->pb_write_buf[offset] = value; return 0; }
++                if (offset > 5) { return 1; }
++                uint16_t pos = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
++                if (pos < 75) {
++                    s->pb_rgb_color[index][0] = s->pb_write_buf[3];  /* G */
++                    s->pb_rgb_color[index][1] = s->pb_write_buf[2];  /* R */
++                    s->pb_rgb_color[index][2] = s->pb_write_buf[4];  /* B */
++                }
++            } else if (cmd_offset == 0x0a) {
++                if (offset < 7) { s->pb_write_buf[offset] = value; return 0; }
++                if (offset > 7) { return 1; }
++                uint16_t begin = s->pb_write_buf[0] | (s->pb_write_buf[1] << 8);
++                uint16_t count = s->pb_write_buf[2] | (s->pb_write_buf[3] << 8);
++                for (unsigned n = 0; n < count && begin + n < 75; n++) {
++                    s->pb_rgb_color[index][0] = s->pb_write_buf[5];  /* G */
++                    s->pb_rgb_color[index][1] = s->pb_write_buf[4];  /* R */
++                    s->pb_rgb_color[index][2] = s->pb_write_buf[6];  /* B */
++                }
++            } else if (cmd_offset == 0x0b) {
++                if (offset) { return 1; }
++                s->pb_rgb_brightness[index] = value;
++            } else {
++                return 1;  /* reads-only channel commands reject writes */
++            }
++        } else if (s->write_base == 0xfa) {
++            if (offset) { return 1; }
++            s->pb_rgb_mode = value;
++        } else if (s->write_base == 0xff) {
++            BusChild *child;
++            if (offset || value < 0x61 || value > 0x68) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != dev && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(dev, value);
++        } else {
++            return 1;
++        }
++        s->pb_writes++;
++        s->pointer++;
++    } else if (s->kind == CONTROL_EXTENCODER) {
+         unsigned offset = s->write_pos - 2;  /* write_pos was already incremented for this byte */
+         uint8_t base = s->write_base;
+         if (base == 0x30) {
+@@ -1719,7 +1921,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr",
++        "extencoder", "acssr", "pbhub",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1822,6 +2024,31 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         object_property_add(OBJECT(s->unit), "led-rgb", "int",
+                             acssr_led_rgb_get, NULL, NULL, s);
+         add_control_int_fixture(s, "fw-version", &s->acssr_fw, 0, 255, true);
++    } else if (!strcmp(unit->unit_id, "pbhub")) {
++        s->kind = CONTROL_PBHUB; address = 0x61;
++        s->pb_fw = 1;  /* synthetic firmware fixture */
++        for (unsigned i = 0; i < 6; i++) {
++            s->pb_digital_in[i] = false;
++            s->pb_digital_out[i] = false;
++            s->pb_analog_in[i] = 0;
++            s->pb_pwm_out[i] = 0;
++            s->pb_rgb_num[i] = 0;
++            s->pb_rgb_brightness[i] = 0;
++        }
++        object_property_add(OBJECT(s->unit), "digital-inputs", "any",
++                            pbhub_any_get, pbhub_any_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "analog-inputs", "any",
++                            pbhub_any_get, pbhub_any_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "digital-outputs", "any",
++                            pbhub_any_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "pwm-outputs", "any",
++                            pbhub_any_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "rgb-frames", "any",
++                            pbhub_any_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "rgb-mode", "int",
++                            pbhub_scalar_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "fw-version", "int",
++                            pbhub_scalar_get, NULL, NULL, s);
+     } else if (!strcmp(unit->unit_id, "ncir2")) {
+         s->kind = CONTROL_NCIR2; address = 0x5a;
+         s->regs[0x10] = 0xff; s->regs[0x11] = 0xff;  /* emissivity 1.0 default */
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index a17d0c4..79acd78 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -23,6 +23,7 @@ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
++    US_SHT4X, US_SCD40,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -81,9 +82,25 @@ typedef struct M5UnitSensor {
+     uint8_t paj_bank, paj_fw, paj_flags_lo, paj_flags_hi;
+     int64_t paj_gesture, paj_flags;
+     uint64_t paj_init_writes;
++    /* U001-D ENV-IV SHT40 0x44: command byte + 6-byte T/RH or serial frame
++     * where every 2-byte word is followed by CRC8 (poly 0x31, init 0xFF).
++     * The snapshot driver's getters are buggy (self.measure[0/1]); this model
++     * returns spec-correct frames and the host must anchor the fixed master
++     * driver for guest assertions. */
++    uint8_t sht4x_cmd;
++    int64_t sht4x_serial;
++    /* U103 CO2 SCD40/SCD41 0x62: 2-byte big-endian commands; responses are
++     * 2-byte words each followed by CRC8. Settable-argument commands carry a
++     * 2-byte value + CRC in the same write transaction. */
++    bool scd40_data_ready, scd40_periodic;
++    int64_t scd40_co2_ppm, scd40_temp, scd40_rh, scd40_temp_offset;
++    int64_t scd40_altitude, scd40_serial, scd40_pressure;
++    uint64_t scd40_reads;
+ } M5UnitSensor;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
+ 
++static void response_word(M5UnitSensor *s, unsigned word, uint16_t value);
++
+ typedef struct SensorNumber {
+     M5UnitSensor *sensor;
+     double *value, lo, hi;
+@@ -288,6 +305,152 @@ static void add_i2c_address(M5UnitSensor *s)
+                         sensor_i2c_address_get, NULL, NULL, s);
+ }
+ 
++typedef struct SensorBool {
++    M5UnitSensor *sensor;
++    bool *value;
++} SensorBool;
++
++static void sensor_bool_get(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    SensorBool *p = opaque;
++    bool value = *p->value;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void sensor_bool_set(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    SensorBool *p = opaque;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    if (*p->value != value) { p->sensor->unit->input_events++; }
++    *p->value = value;
++}
++
++static void release_sensor_bool(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_fixture_bool(M5UnitSensor *s, const char *name, bool *value)
++{
++    SensorBool *p = g_new0(SensorBool, 1);
++    *p = (SensorBool){ s, value };
++    object_property_add(OBJECT(s->unit), name, "bool", sensor_bool_get,
++                        sensor_bool_set, release_sensor_bool, p);
++}
++
++/* U001-D SHT4x: the driver writes one command byte and then reads a 6-byte
++ * frame whose two 2-byte words are each followed by a CRC8. SHT4x measure
++ * commands are 0xFD/0xF6/0xE0 (no heater) and the heated variants; 0x89 reads
++ * the 32-bit serial and 0x94 is a soft reset. The snapshot driver getters are
++ * broken, so the model returns the datasheet/driver frame layout and the host
++ * must pin the fixed master driver SHA. */
++static bool sht4x_measure_command(uint8_t cmd)
++{
++    switch (cmd) {
++    case 0xfd: case 0xf6: case 0xe0:
++    case 0x39: case 0x32: case 0x2f: case 0x24: case 0x1e: case 0x15:
++        return true;
++    default:
++        return false;
++    }
++}
++
++static void sht4x_build_response(M5UnitSensor *s)
++{
++    s->response_len = 0;
++    if (sht4x_measure_command(s->sht4x_cmd)) {
++        double humidity = CLAMP(s->values[1], 0.0, 100.0);
++        double temperature = CLAMP(s->values[0], -40.0, 125.0);
++        uint16_t t_raw = (uint16_t)CLAMP(lround((temperature + 45.0) / 175.0 * 65535.0), 0, 65535);
++        uint16_t rh_raw = (uint16_t)CLAMP(lround((humidity + 6.0) / 125.0 * 65535.0), 0, 65535);
++        response_word(s, 0, t_raw);
++        response_word(s, 1, rh_raw);
++        s->samples++;
++    } else if (s->sht4x_cmd == 0x89) {
++        response_word(s, 0, (uint16_t)((uint64_t)s->sht4x_serial >> 16));
++        response_word(s, 1, (uint16_t)s->sht4x_serial);
++    }
++}
++
++/* U103 SCD4x: 2-byte commands, response words with CRC8, and set-arg commands
++ * that append a 2-byte value + CRC to the command write. */
++static bool scd40_arg_command(uint16_t cmd)
++{
++    return cmd == 0x241d || cmd == 0x2427 || cmd == 0xe000 ||
++           cmd == 0x362f || cmd == 0x2416;
++}
++
++static void scd40_apply_command(M5UnitSensor *s)
++{
++    switch (s->command) {
++    case 0x21b1: case 0x21ac:  /* start periodic / low-power periodic */
++        s->scd40_periodic = true;
++        s->scd40_data_ready = true;
++        break;
++    case 0x3f86:              /* stop periodic */
++        s->scd40_periodic = false;
++        s->scd40_data_ready = false;
++        break;
++    case 0x3646: case 0x3632: /* reinit / factory reset -> idle */
++        s->scd40_periodic = false;
++        s->scd40_data_ready = false;
++        s->scd40_temp_offset = 0;
++        s->scd40_altitude = 0;
++        break;
++    case 0x219d: case 0x2196: /* single-shot measurement */
++        s->scd40_data_ready = true;
++        break;
++    default:
++        break;
++    }
++}
++
++static bool scd40_response_command(uint16_t cmd)
++{
++    switch (cmd) {
++    case 0xe4b8: case 0xec05: case 0x2318: case 0x2322:
++    case 0x3682: case 0x3639: case 0x2313:
++        return true;
++    default:
++        return false;
++    }
++}
++
++static void scd40_build_response(M5UnitSensor *s)
++{
++    s->response_len = 0;
++    if (!scd40_response_command(s->command)) { return; }
++    switch (s->command) {
++    case 0xe4b8:  /* data ready: low 11 bits non-zero when ready */
++        response_word(s, 0, s->scd40_data_ready ? 0x0001 : 0x0000);
++        break;
++    case 0xec05: {  /* measurement: CO2, temperature raw, humidity raw */
++        double humidity = CLAMP(s->values[2], 0.0, 100.0);
++        double temperature = CLAMP(s->values[1], -10.0, 60.0);
++        uint16_t t_raw = (uint16_t)CLAMP(lround((temperature + 45.0) / 175.0 * 65535.0), 0, 65535);
++        uint16_t rh_raw = (uint16_t)CLAMP(lround(humidity / 100.0 * 65535.0), 0, 65535);
++        response_word(s, 0, (uint16_t)CLAMP(s->values[0], 0, 65535));
++        response_word(s, 1, t_raw);
++        response_word(s, 2, rh_raw);
++        s->scd40_reads++;
++        s->samples++;
++        break;
++    }
++    case 0x2318: response_word(s, 0, (uint16_t)CLAMP(s->scd40_temp_offset, 0, 65535)); break;
++    case 0x2322: response_word(s, 0, (uint16_t)CLAMP(s->scd40_altitude, 0, 65535)); break;
++    case 0x3682:
++        response_word(s, 0, (uint16_t)((uint64_t)s->scd40_serial >> 16));
++        response_word(s, 1, (uint16_t)s->scd40_serial);
++        break;
++    case 0x3639: response_word(s, 0, 0x0000); break;
++    case 0x2313: response_word(s, 0, 0x0000); break;
++    default: break;
++    }
++}
++
+ /* U001 ENV-I DHT12 half: 5-byte frame decoded by driver/dht12.py as
+  * humidity=b0+b1*0.1, temperature=b2+(b3&0x7f)*0.1 with sign in b2 bit7 and
+  * checksum=(b0+b1+b2+b3)&0xff. Values are quantized to the driver's 0.1 units. */
+@@ -847,6 +1010,41 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         s->pointer++;
+         return 0;
+     }
++    if (s->kind == US_SHT4X) {
++        /* SHT4x accepts only a single command byte per write transaction. */
++        if (pos != 0) { return 1; }
++        s->sht4x_cmd = data;
++        return 0;
++    }
++    if (s->kind == US_SCD40) {
++        /* 2-byte big-endian command, plus optional 2-byte value + CRC for
++         * set-argument commands (0x241D/0x2427/0xE000/0x362F/0x2416). */
++        unsigned offset = pos;
++        if (offset < 2) {
++            if (offset == 0) { s->command = data << 8; }
++            else {
++                s->command = ((uint16_t)s->command & 0xff00) | data;
++                if (!scd40_arg_command(s->command)) {
++                    s->write_pos = 2;
++                    scd40_apply_command(s);
++                }
++            }
++            return 0;
++        }
++        if (!scd40_arg_command(s->command) || offset > 4) { return 1; }
++        s->write_buf[offset - 2] = data;
++        if (offset == 4) {
++            if (crc8(s->write_buf, 2, 0x31, 0xff) != s->write_buf[2]) {
++                s->command_error = true;
++                return 1;
++            }
++            uint16_t value = (uint16_t)(s->write_buf[0] << 8) | s->write_buf[1];
++            if (s->command == 0x241d) { s->scd40_temp_offset = value; }
++            else if (s->command == 0x2427) { s->scd40_altitude = value; }
++            else if (s->command == 0xe000) { s->scd40_pressure = value; }
++        }
++        return 0;
++    }
+     if (s->kind == US_DLIGHT) {
+         if (pos != 0) { return 1; }
+         if (data == 0x00) { s->dlight_power = 0; s->pending = false; return 0; }
+@@ -1029,6 +1227,14 @@ static uint8_t sensor_recv(I2CSlave *dev)
+     uint8_t value = 0xff;
+     s->read_bytes++; s->unit->read_bytes++;
+     sensor_update(s);
++    if (s->kind == US_SHT4X) {
++        if (pos == 0) { sht4x_build_response(s); }
++        return pos < s->response_len ? s->response[pos] : 0xff;
++    }
++    if (s->kind == US_SCD40) {
++        if (pos == 0) { scd40_build_response(s); }
++        return pos < s->response_len ? s->response[pos] : 0xff;
++    }
+     if (s->kind == US_TVOC || s->kind == US_SONIC) {
+         return pos < s->response_len ? s->response[pos] : 0xff;
+     }
+@@ -1138,6 +1344,7 @@ static int sensor_event(I2CSlave *dev, enum i2c_event event)
+     if (event == I2C_START_SEND || event == I2C_START_RECV) {
+         s->transactions++; s->unit->transactions++;
+         s->write_pos = s->read_pos = 0;
++        if (s->kind == US_SCD40 && event == I2C_START_SEND) { s->response_len = 0; }
+         if (s->kind == US_THERMAL && !thermal_configured(s)) { return 1; }
+         if (s->kind == US_TVOC && now_ns() < s->due) { return 1; }
+         if (event == I2C_START_RECV) {
+@@ -1155,7 +1362,7 @@ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+-        "env", "ameter", "ain4-20ma", "gesture" };
++        "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1195,6 +1402,25 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         sensor_attach_one(u, "bmp280", b, 0x76);
+         return;
+     }
++    if (!strcmp(u->unit_id, "env-iv")) {
++        /* U001-D ENV-IV: SHT40 0x44 (temperature/humidity) + BMP280 0x76. */
++        M5UnitSensor *t = sensor_device(u);
++        t->kind = US_SHT4X;
++        t->sht4x_serial = 0x12345678;  /* synthetic 32-bit serial fixture */
++        add_number(t, "temperature-c", 0, 25, -40, 125, false);
++        add_number(t, "humidity-pct", 1, 50, 0, 100, false);
++        add_i64(t, "serial-number", &t->sht4x_serial);
++        sensor_attach_one(u, "sht4x", t, 0x44);
++
++        M5UnitSensor *b = sensor_device(u);
++        b->kind = US_BMP280;
++        b->values[0] = 25;  /* BMP280's own temperature is not exposed on ENV-IV */
++        b->regs[0][0xd0] = 0x58;
++        bmp280_fill_calibration(b);
++        add_number(b, "pressure-pa", 1, 101325, 30000, 110000, false);
++        sensor_attach_one(u, "bmp280", b, 0x76);
++        return;
++    }
+ 
+     M5UnitSensor *s = sensor_device(u);
+     uint8_t address = 0;
+@@ -1290,6 +1516,17 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "co2")) {
++        s->kind = US_SCD40; address = 0x62;
++        s->scd40_serial = 0x12345678;   /* synthetic serial fixture */
++        s->scd40_data_ready = true;
++        add_number(s, "co2-ppm", 0, 400, 400, 5000, true);
++        add_number(s, "temperature-c", 1, 25, -10, 60, false);
++        add_number(s, "humidity-pct", 2, 50, 0, 95, false);
++        add_fixture_bool(s, "data-ready", &s->scd40_data_ready);
++        add_i64(s, "serial-number", &s->scd40_serial);
++        add_u64(s, "measurement-reads", &s->scd40_reads);
++        add_i2c_address(s);
+     } else {
+         error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
+         object_unref(OBJECT(s)); return;
+-- 
+2.55.0
+
