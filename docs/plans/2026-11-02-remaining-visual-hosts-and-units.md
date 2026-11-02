@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 1 | AtomS3U（`atoms3u`） | 官方 UIFlow2 v2.5.4 启动、GPIO41 按键、GPIO35 WS2812 RMT；PR #80 |
 | 2 | Atom VoiceS3R（`atom-echos3r`） | 官方 UIFlow2 v2.5.4 启动、128×128 面板、Speaker/I2S1 DMA 非静音 PCM；PR #80 |
-| 3 | AtomS3R-CAM（`atoms3r-cam`） | 启动、板级识别 144、显示初始化、GC0308 0x21/PID 0x9b；camera 捕获仍 `ESP_ERR_NOT_SUPPORTED`；PR #81 已合入 |
+| 3 | AtomS3R-CAM（`atoms3r-cam`） | 启动、板级识别 144、显示初始化、软件 SCCB 修复后官方 `camera.init()/capture()` 取得 320×240 RGB565 整帧；PR #81 已合入，相机补丁 0115 |
 | 4 | Basic v2.7（`basic-v27`） | 官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 `0x75` 寄存器模型与 I2S0 DAC 非静音 PCM；PMIC 电芯/电气、microSD、电源键、背光和 Grove Unit 仍未覆盖 |
 
 ## 剩余仅视觉主机（Basic v2.7 接入后 10 款）

@@ -1,0 +1,157 @@
+From 78a245c6834fcf103c15b2a94e357e5d6da8468b Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 16:54:50 +0800
+Subject: [PATCH] hw/m5stopwatch: AtomS3R-CAM software SCCB and PSRAM camera
+ plane
+
+The official UIFlow2 camera module on AtomS3R-CAM (BOARD_ID 144) builds
+esp32-camera with CONFIG_SCCB_SOFTWARE_SUPPORT and probes the GC0308 over a
+bit-banged SCCB bus on SDA GPIO12 / SCL GPIO9.  M5.begin() first uses the
+ESP32-S3 hardware I2C controller for the on-board sensors; the controller
+model's hardware hand-off then closed every software-I2C bridge on the
+shared QEMU I2CBus, including the camera bridge whose pads the controller
+never owned.  Every SCCB transfer was therefore decoded but dropped,
+SCCB_Probe never saw the 0x21 ACK, and camera.init() returned
+ESP_ERR_NOT_SUPPORTED.
+
+Add a dedicated-pin bridge variant that ignores the hardware-controller
+hand-off and use it for the camera SCCB port.  Bridge registration for all
+existing boards keeps the one-way hand-off semantics.
+
+Model the ESP32-S3-PICO-1-N8R8 8 MiB PSRAM on the m5atoms3rcam machine:
+esp32-camera allocates its frame buffers with MALLOC_CAP_SPIRAM and cannot
+init the data plane without it.  Attach the LCD_CAM DVP model with the
+QVGA geometry the AtomS3R-CAM camera module configures (320x240 RGB565).
+
+Verified guest path: camera.init() succeeds, camera.capture() returns a
+153600-byte QVGA RGB565 frame whose FNV-1a digest and byte sum match the
+LCD_CAM model's deterministic DVP waveform.
+---
+ hw/m5stopwatch/esp32s3_soft_i2c.c | 24 +++++++++++++++++++++++-
+ hw/m5stopwatch/m5atoms3rcam.c     | 11 ++++++++---
+ hw/m5stopwatch/m5stopwatch.h      |  6 ++++++
+ hw/xtensa/esp32s3.c               |  5 ++++-
+ 4 files changed, 41 insertions(+), 5 deletions(-)
+
+diff --git a/hw/m5stopwatch/esp32s3_soft_i2c.c b/hw/m5stopwatch/esp32s3_soft_i2c.c
+index 75f2b7d..5c0356c 100644
+--- a/hw/m5stopwatch/esp32s3_soft_i2c.c
++++ b/hw/m5stopwatch/esp32s3_soft_i2c.c
+@@ -43,6 +43,9 @@ typedef struct M5StopwatchSoftI2C {
+     int sda;
+     int scl;
+     bool sda_driven;
++    /* Pins belong only to this bit-banged bus, so a hardware I2C controller
++     * transaction on the shared I2CBus does not supersede this bridge. */
++    bool dedicated_pins;
+     bool active;
+     bool in_xfer;
+     bool read;
+@@ -307,11 +310,13 @@ static void soft_i2c_line(void *opaque, int pin, int level)
+     }
+ }
+ 
+-void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
++static void soft_i2c_bridge_init(I2CBus *bus, int sda_pin, int scl_pin,
++                                 bool dedicated_pins)
+ {
+     M5StopwatchSoftI2C *s = g_new0(M5StopwatchSoftI2C, 1);
+ 
+     s->bus = bus;
++    s->dedicated_pins = dedicated_pins;
+     s->sda_pin = sda_pin;
+     s->scl_pin = scl_pin;
+     s->sda = 1;
+@@ -350,6 +355,17 @@ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
+     soft_i2c_instance = s;
+ }
+ 
++void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
++{
++    soft_i2c_bridge_init(bus, sda_pin, scl_pin, false);
++}
++
++void m5stopwatch_soft_i2c_init_dedicated_pins(I2CBus *bus, int sda_pin,
++                                              int scl_pin)
++{
++    soft_i2c_bridge_init(bus, sda_pin, scl_pin, true);
++}
++
+ void m5stopwatch_soft_i2c_init(I2CBus *bus)
+ {
+     m5stopwatch_soft_i2c_init_pins(bus, 47, 48);
+@@ -358,6 +374,12 @@ void m5stopwatch_soft_i2c_init(I2CBus *bus)
+ void m5stopwatch_soft_i2c_set_hardware_active_on_bus(I2CBus *bus)
+ {
+     for (M5StopwatchSoftI2C *s = soft_i2c_instance; s; s = s->next) {
++        if (s->dedicated_pins) {
++            /* The controller model drives the I2CBus directly and never
++             * emits the GPIO waveform of these pads, so its transaction is
++             * not a hand-off of this bridge's pins. */
++            continue;
++        }
+         if (s->bus == bus && !s->hardware_active) {
+             i2c_end_transfer(s->bus);
+             s->in_xfer = false;
+diff --git a/hw/m5stopwatch/m5atoms3rcam.c b/hw/m5stopwatch/m5atoms3rcam.c
+index 3d570b0..3b51a79 100644
+--- a/hw/m5stopwatch/m5atoms3rcam.c
++++ b/hw/m5stopwatch/m5atoms3rcam.c
+@@ -66,8 +66,10 @@ void m5atoms3rcam_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
+     }
+     m5stopwatch_soft_i2c_init(bus);
+-    /* Camera SCCB is bit-banged on GPIO12/GPIO9. */
+-    m5stopwatch_soft_i2c_init_pins(bus, 12, 9);
++    /* Camera SCCB is bit-banged on SDA GPIO12 / SCL GPIO9 and those pads are
++     * dedicated to the GC0308 control port, so the bridge must not be closed
++     * by a hardware I2C controller transaction on the shared QEMU I2CBus. */
++    m5stopwatch_soft_i2c_init_dedicated_pins(bus, 12, 9);
+ 
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+@@ -99,7 +101,10 @@ void m5atoms3rcam_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_gpspi_set_dc_pin(spi, 42);
+ 
+     DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
+-    m5_lcd_cam_attach(cam, gdma, 128, 128);
++    /* GC0308 DVP output geometry.  The AtomS3R-CAM esp32-camera module
++     * defaults to FRAMESIZE_QVGA (320x240 RGB565), which is what the LCD_CAM
++     * DMA descriptors are sized for. */
++    m5_lcd_cam_attach(cam, gdma, 320, 240);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(cam), &error_fatal);
+     memory_region_add_subregion_overlap(
+         sys_mem, 0x60041000,
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index ef54de4..3468706 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -163,6 +163,12 @@ void m5stopwatch_fe_init(MemoryRegion *sys_mem);
+ void m5stopwatch_phy_init(MemoryRegion *sys_mem);
+ void m5stopwatch_soft_i2c_init(I2CBus *bus);
+ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin);
++/* A bit-banged bus whose pins are dedicated to that bus (e.g. a sensor SCCB
++ * port that is never routed to a hardware I2C controller).  The bridge keeps
++ * decoding after an unrelated hardware controller transaction on the shared
++ * QEMU I2CBus, because the controller's pin ownership does not cover it. */
++void m5stopwatch_soft_i2c_init_dedicated_pins(I2CBus *bus, int sda_pin,
++                                              int scl_pin);
+ void m5stopwatch_soft_i2c_set_hardware_active(void);
+ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                    struct ESPGdmaState *gdma);
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 1d34d22..59d1dad 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1532,7 +1532,10 @@ static void m5atoms3rcam_machine_class_init(ObjectClass *oc, void *data)
+     mc->init = m5atoms3rcam_machine_init;
+     mc->max_cpus = 2;
+     mc->default_cpus = 2;
+-    mc->default_ram_size = 0;
++    /* ESP32-S3-PICO-1-N8R8: 8 MiB in-package octal PSRAM.  esp32-camera
++     * allocates its frame buffers with MALLOC_CAP_SPIRAM, so the camera data
++     * plane cannot exist on this board without the PSRAM model. */
++    mc->default_ram_size = 8 * MiB;
+     mc->fixup_ram_size = esp32s3_fixup_ram_size;
+ }
+ 
