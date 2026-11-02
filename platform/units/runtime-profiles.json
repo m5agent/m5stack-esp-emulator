@@ -10272,6 +10272,89 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "glass": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0149 新增 CONTROL_UNIT_GLASS（I2C 0x3D，SSD1309 128x64 透明 OLED + STM32 双按键/蜂鸣器）：实现 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast 与 1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture（2-bit mask / hex），**页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved，不宣称**。未采集 guest/Device Service 证据 → planned。**0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度、按键/蜂鸣器物理 NOT RUN**",
+      "inputs": {
+        "button-states": {
+          "property": "button-states"
+        },
+        "buzzer-hex": {
+          "property": "buzzer-hex"
+        }
+      },
+      "state": {
+        "command-hex": {
+          "property": "command-hex"
+        },
+        "panel-framebuffer": {
+          "property": "panel-framebuffer"
+        },
+        "button-states": {
+          "property": "button-states"
+        },
+        "buzzer-hex": {
+          "property": "buzzer-hex"
+        },
+        "commands": {
+          "property": "commands"
+        },
+        "data-bytes": {
+          "property": "data-bytes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "rf433t": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0149 新增 rf433t（U114，PORT.B 黄=RF_TX，SYN115 ASK 发射器）：**无官方 UIFlow2 Unit 驱动、无 ASK 编码表** → 仅做 Unit-level GPIO 输出观测（output-level / edge-count / bit-count / bitstream），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 调制/PCB 天线/10dBm/10m 距离与 SYN115 功率电阻 NOT RUN**",
+      "inputs": {},
+      "state": {
+        "output-level": {
+          "property": "output-level"
+        },
+        "edge-count": {
+          "property": "edge-count"
+        },
+        "bit-count": {
+          "property": "bit-count"
+        },
+        "bitstream": {
+          "property": "bitstream"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "rf433r": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0149 新增 rf433r（U113，PORT.B 白=RF_RX，SYN531R ASK 接收器）：**无官方 UIFlow2 Unit 驱动、无解码表** → Unit-level GPIO 输入 fixture（input-level / sample-rate / samples），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 解调/PCB 天线/-109dBm 灵敏度/10m 距离 NOT RUN**",
+      "inputs": {
+        "input-level": {
+          "property": "input-level"
+        },
+        "sample-rate": {
+          "property": "sample-rate"
+        }
+      },
+      "state": {
+        "input-level": {
+          "property": "input-level"
+        },
+        "sample-rate": {
+          "property": "sample-rate"
+        },
+        "samples": {
+          "property": "samples"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {

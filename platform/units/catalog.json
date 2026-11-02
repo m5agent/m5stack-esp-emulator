@@ -26450,6 +26450,537 @@
         "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim."
       ]
+    },
+    {
+      "id": "glass",
+      "name": "Unit Glass",
+      "sku": "U158",
+      "visual_asset": {
+        "entry": "src/units/glass/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Glass",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "SSD1309",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          61
+        ],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-with-display-composition",
+        "summary": "1.51-inch 128x64 transparent OLED (SSD1309) with STM32F030F4P6 integrating two input buttons and one buzzer; I2C @0x3D. unit/glass.py only registers an M5Unified external display (unit_glass); the internal firmware Protocol section was not readable in the fetched page text, so button/buzzer registers are UNRESOLVED.",
+        "registers": [
+          {
+            "register": "SSD1309 command stream",
+            "length": 0,
+            "encoding": "M5Unified external display commands (display on/off, page/column address, pixel data)"
+          },
+          {
+            "register": "two input buttons",
+            "length": 0,
+            "encoding": "STM32 internal firmware; page Protocol table unreadable -> UNRESOLVED"
+          },
+          {
+            "register": "buzzer",
+            "length": 0,
+            "encoding": "STM32 internal firmware; no register table in readable page text"
+          }
+        ],
+        "gaps": [
+          "Page Protocol table unreadable; button/buzzer registers unresolved",
+          "No Unit-level QOM framebuffer; M5Unified composition only",
+          "Transparent OLED optics/buttons/buzzer physics NOT RUN"
+        ]
+      },
+      "inputs": {
+        "button-states": {
+          "type": "integer",
+          "label": "按键 mask fixture（bit0/bit1）",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "buzzer-hex": {
+          "type": "string",
+          "label": "蜂鸣器 hex fixture（内部协议 unresolved）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "command-hex": {
+          "type": "string",
+          "label": "I2C 命令字节",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "panel-framebuffer": {
+          "type": "string",
+          "label": "GDDRAM 摘要（CRC32 hex）",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "commands": {
+          "type": "integer",
+          "label": "命令计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "data-bytes": {
+          "type": "integer",
+          "label": "GDDRAM 数据字节数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "i2c-address": {
+          "type": "integer",
+          "label": "I2C 地址",
+          "default": 61,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 127
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Glass",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U158",
+            "STM32F030F4P6 + SSD1309 128x64 transparent OLED",
+            "I2C @0x3D",
+            "two input buttons + one buzzer",
+            "Port.A"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/glass.py",
+          "checked_at": "2026-11-03",
+          "sha256": "df1b9f9a2a11c8e407ba83790d8b3f711ce2402aeb973eaf0732d93b3acbd7cc",
+          "sha256_source": "local checkout HEAD 528edd8"
+        },
+        {
+          "kind": "qemu-display",
+          "url": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "MPY M5Unified unit_glass external display composition via M5.addDisplay(i2c, 0x3D, {\"unit_glass\": True})"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0149 新增 CONTROL_UNIT_GLASS（I2C 0x3D，SSD1309 128x64 透明 OLED + STM32 双按键/蜂鸣器）：实现 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast 与 1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture（2-bit mask / hex），**页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved，不宣称**。未采集 guest/Device Service 证据 → planned。**0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度、按键/蜂鸣器物理 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "command-hex": {
+            "property": "command-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "panel-framebuffer": {
+            "property": "panel-framebuffer",
+            "access": "read-only",
+            "type": "string"
+          },
+          "button-states": {
+            "property": "button-states",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "buzzer-hex": {
+            "property": "buzzer-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "commands": {
+            "property": "commands",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "data-bytes": {
+            "property": "data-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C transactions to a device-local SSD1309 command/data slave model"
+      },
+      "blocker": "0149 新增 CONTROL_UNIT_GLASS（I2C 0x3D，SSD1309 128x64 透明 OLED + STM32 双按键/蜂鸣器）：实现 control/command/data 帧（控制字节 0x00 命令流、0x40 GDDRAM 数据）、page/column 寻址、display on/off、contrast 与 1024B GDDRAM framebuffer 摘要；按键/蜂鸣器为静态 QOM fixture（2-bit mask / hex），**页面 Protocol 表不可读 → 内部固件按键/蜂鸣器语义 unresolved，不宣称**。未采集 guest/Device Service 证据 → planned。**0x3D 与 lcd/oled/mini-oled/glass2 冲突；透明 OLED 光学/亮度、按键/蜂鸣器物理 NOT RUN**",
+      "limitations": [
+        "Page Protocol table was unreadable in the fetched text; button/buzzer registers unresolved.",
+        "No Unit-level QOM data plane: M5Unified external display composition only.",
+        "0x3D conflicts with LCD/OLED/MiniOLED/Glass2; one display per bus.",
+        "Transparent OLED optics/buttons/buzzer physics NOT RUN.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "rf433t",
+      "name": "Unit RF433T",
+      "sku": "U114",
+      "visual_asset": {
+        "entry": "src/units/rf433t/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/rf433_t",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SYN115",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "RF_TX",
+            "direction": "input"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "not-connected"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-gpio-bitstream",
+        "summary": "SYN115 ASK transmitter at 433.92MHz, 10kbps, 10dBm, PCB antenna, stable 10m; PORT.B yellow=RF_TX, white=NC. No public UIFlow2 Unit driver; UIFlow examples bitbang the RF_TX GPIO. Only the host GPIO bitstream can be observed; RF modulation/antenna/range are NOT RUN.",
+        "registers": [
+          {
+            "register": "RF_TX GPIO bitstream",
+            "length": 0,
+            "encoding": "host GPIO toggling for ASK data; no host-side encoding table in page"
+          },
+          {
+            "register": "SYN115 power control",
+            "length": 0,
+            "encoding": "external resistor changes transmit power; RF physical NOT modeled"
+          }
+        ],
+        "gaps": [
+          "No public UIFlow2 Unit driver/ASK encoding table",
+          "RF 433.92MHz/antenna/10dBm/range NOT RUN",
+          "PORT.B GPIO only"
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "output-level": {
+          "type": "boolean",
+          "label": "当前 RF_TX 电平",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "edge-count": {
+          "type": "integer",
+          "label": "边沿计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "bit-count": {
+          "type": "integer",
+          "label": "采样 bit 数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        },
+        "bitstream": {
+          "type": "string",
+          "label": "最近采样 bitstream",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/rf433_t",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U114",
+            "SYN115 ASK transmitter",
+            "433.92MHz, 10kbps, 10dBm, PCB antenna, 10m",
+            "PORT.B Yellow=RF_TX White=NC"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/rf433/C105184_SYN115_2019-08-28.PDF",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SYN115 datasheet for power/ASK; UIFlow examples bitbang RF_TX; no Unit driver in tree"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0149 新增 rf433t（U114，PORT.B 黄=RF_TX，SYN115 ASK 发射器）：**无官方 UIFlow2 Unit 驱动、无 ASK 编码表** → 仅做 Unit-level GPIO 输出观测（output-level / edge-count / bit-count / bitstream），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 调制/PCB 天线/10dBm/10m 距离与 SYN115 功率电阻 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "output-level": {
+            "property": "output-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "edge-count": {
+            "property": "edge-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "bit-count": {
+            "property": "bit-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "bitstream": {
+            "property": "bitstream",
+            "access": "read-only",
+            "type": "string"
+          }
+        },
+        "required_data_plane": "SoC GPIO output observation of the RF_TX pad (no RF/ASK model)"
+      },
+      "blocker": "0149 新增 rf433t（U114，PORT.B 黄=RF_TX，SYN115 ASK 发射器）：**无官方 UIFlow2 Unit 驱动、无 ASK 编码表** → 仅做 Unit-level GPIO 输出观测（output-level / edge-count / bit-count / bitstream），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 调制/PCB 天线/10dBm/10m 距离与 SYN115 功率电阻 NOT RUN**",
+      "limitations": [
+        "No public UIFlow2 Unit driver or ASK encoding table; UIFlow examples bitbang RF_TX.",
+        "RF 433.92MHz ASK/antenna/10dBm/range and SYN115 power-resistor behavior NOT RUN.",
+        "PORT.B GPIO line shared with other PORT.B Units; one per port.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
+    },
+    {
+      "id": "rf433r",
+      "name": "Unit RF433R",
+      "sku": "U113",
+      "visual_asset": {
+        "entry": "src/units/rf433r/index.js",
+        "export": "Model"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/rf433_r",
+      "checked_at": "2026-11-03",
+      "chips": [
+        {
+          "part": "SYN531R",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "NC",
+            "direction": "not-connected"
+          },
+          "white": {
+            "signal": "RF_RX",
+            "direction": "output"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented-driver-gap-gpio-bitstream",
+        "summary": "SYN531R ASK receiver at 433.92MHz, 1kbps, -109dBm, PCB antenna, stable 10m; PORT.B yellow=NC, white=RF_RX. No public UIFlow2 Unit driver; UIFlow examples sample the RF_RX GPIO as a digital input. Only the host digital bitstream can be injected/observed; RF demodulation/antenna/range are NOT RUN.",
+        "registers": [
+          {
+            "register": "RF_RX GPIO bitstream",
+            "length": 0,
+            "encoding": "host digital input sampling; no encoding table in page"
+          },
+          {
+            "register": "SYN531R sensitivity/rate",
+            "length": 0,
+            "encoding": "-109dBm/1kbps product spec; RF physical NOT modeled"
+          }
+        ],
+        "gaps": [
+          "No public UIFlow2 Unit driver/decoding table",
+          "RF 433.92MHz/antenna/-109dBm/range NOT RUN",
+          "PORT.B GPIO only"
+        ]
+      },
+      "inputs": {
+        "input-level": {
+          "type": "boolean",
+          "label": "RF_RX 输入电平 fixture",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        },
+        "sample-rate": {
+          "type": "integer",
+          "label": "采样率 fixture",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "minimum": 300,
+          "maximum": 10000
+        }
+      },
+      "outputs": {
+        "samples": {
+          "type": "integer",
+          "label": "输入采样计数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/rf433_r",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SKU U113",
+            "SYN531R ASK receiver",
+            "433.92MHz, 1kbps, -109dBm, PCB antenna, 10m",
+            "PORT.B Yellow=NC White=RF_RX"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://docs.m5stack.com/en/unit/rf433_r",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "Page product spec only; no Unit driver/registers in tree; UIFlow examples sample RF_RX GPIO"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "blocker": "0149 新增 rf433r（U113，PORT.B 白=RF_RX，SYN531R ASK 接收器）：**无官方 UIFlow2 Unit 驱动、无解码表** → Unit-level GPIO 输入 fixture（input-level / sample-rate / samples），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 解调/PCB 天线/-109dBm 灵敏度/10m 距离 NOT RUN**",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "input-level": {
+            "property": "input-level",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "sample-rate": {
+            "property": "sample-rate",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "samples": {
+            "property": "samples",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC GPIO digital input fixture on the RF_RX pad (no RF/ASK demodulation model)"
+      },
+      "blocker": "0149 新增 rf433r（U113，PORT.B 白=RF_RX，SYN531R ASK 接收器）：**无官方 UIFlow2 Unit 驱动、无解码表** → Unit-level GPIO 输入 fixture（input-level / sample-rate / samples），标注 driver-gap。未采集 guest/Device Service 证据 → planned。**RF 433.92MHz/ASK 解调/PCB 天线/-109dBm 灵敏度/10m 距离 NOT RUN**",
+      "limitations": [
+        "No public UIFlow2 Unit driver or ASK decoding table; UIFlow examples sample RF_RX GPIO.",
+        "RF 433.92MHz ASK demodulation/antenna/-109dBm/range NOT RUN.",
+        "PORT.B GPIO line shared with other PORT.B Units; one per port.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+      ]
     }
   ],
   "model_status_values": [

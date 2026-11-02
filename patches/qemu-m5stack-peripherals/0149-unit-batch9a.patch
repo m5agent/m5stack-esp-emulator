@@ -1,0 +1,437 @@
+From 9e73b48f18bd5c881748e75cf845ad7db00a79cd Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5agentdeMac-mini.local>
+Date: Tue, 3 Nov 2026 01:59:08 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-9 first three data planes
+
+Implement the first three batch-9 Unit data planes on top of the reconciled
+canonical chain. Base in the reconciled canonical order is the 28-layer chain
+through 0147 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133,
+0135, 0132, 0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146 and
+0147); this is the 29th layer after 0120 and it applies at the chain end.
+No guest/Device Service evidence is recorded; all three stay planned.
+
+- glass (U158): new CONTROL_UNIT_GLASS I2C slave at 0x3D with the SSD1309
+  control/command/data framing (control byte 0x00 commands / 0x40 GDDRAM data),
+  a page-addressed 128x64 GDDRAM framebuffer, display on/off, contrast and
+  column/page commands. unit/glass.py only registers an M5Unified external
+  display; the product page's internal-firmware Protocol table is unreadable,
+  so the two buttons and the buzzer are only static QOM fixtures (2-bit mask /
+  hex fixture) with NO claimed semantics, and transparent-OLED optics are
+  NOT RUN. 0x3D conflicts with lcd/oled/mini-oled/glass2.
+- rf433t (U114): PORT.B yellow=RF_TX SYN115 ASK transmitter. There is no public
+  UIFlow2 Unit driver and no ASK encoding table, so only the host GPIO
+  bitstream is observed (output-level, edge-count, bit-count, bitstream); RF
+  433.92MHz/antenna/10dBm/range are NOT RUN.
+- rf433r (U113): PORT.B white=RF_RX SYN531R ASK receiver. Same driver gap: the
+  digital input is a host fixture (input-level, sample-rate, samples) and ASK
+  demodulation/RF sensitivity/range are NOT RUN.
+
+Offline QOM smoke (S3 m5atoms3r, no guest firmware) attaches glass/rf433t/
+rf433r and validates property registration, the glass display-state fixtures
+and the rf433 bitstream/input fixtures. The smoke is not a functional PASS and
+I2C command-byte semantics, button/buzzer behavior and RF physics still need
+guest/hardware evidence.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         | 112 ++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 192 +++++++++++++++++++++++++-
+ 2 files changed, 301 insertions(+), 3 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 358958f..fb68f50 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -32,6 +32,18 @@ typedef struct GPIOUnit {
+     /* U066 Laser TX: yellow DIN output observation (GPIO mode only). */
+     bool laser_level;
+     uint64_t laser_transitions;
++    /* U114 RF433T (SYN115 ASK TX, PORT.B yellow=RF_TX): host-level GPIO
++     * bitstream observation only; there is no public Unit driver and no
++     * ASK encoding table, so RF/antenna/10dBm are NOT modeled. */
++    bool rf433_tx_level;
++    uint64_t rf433_tx_edges, rf433_tx_bits;
++    char rf433_tx_bits_text[65];
++    unsigned rf433_tx_bits_len;
++    /* U113 RF433R (SYN531R ASK RX, PORT.B white=RF_RX): digital input
++     * fixture only; ASK demodulation/RF sensitivity are NOT modeled. */
++    bool rf433_rx_level;
++    int64_t rf433_rx_sample_rate;
++    uint64_t rf433_rx_samples;
+     /* U101 Watering: white analog input + yellow PUMP_EN output observation.
+      * U123 Fader: white analog input + 14x SK6812 RMT capture (leds=14). */
+     bool pump_level;
+@@ -684,7 +696,7 @@ bool m5_unit_gpio_supported(const char *id)
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+         "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
+-        "ultrasonic-io", "rs485-iso", "laser-tx", "neco", "midi",
++        "ultrasonic-io", "rs485-iso", "laser-tx", "rf433t", "rf433r", "neco", "midi",
+         "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+         "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
+         "catm", "catm-gnss", "lorawan-cn470", "can", "mini-can",
+@@ -1158,6 +1170,86 @@ static void laser_output_reset(void *opaque, int pin, int level)
+     g->laser_transitions = 0;
+ }
+ 
++/* ---- U114 RF433T / U113 RF433R (GPIO bitstream observation, driver gap) ---- */
++static void rf433_tx_output_changed(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    if (pin != g->unit->yellow) { return; }
++    level = !!level;
++    g->rf433_tx_bits++;
++    g->unit->output_transitions++;
++    if (g->rf433_tx_level != level) {
++        g->rf433_tx_edges++;
++        g->rf433_tx_level = level;
++    }
++    if (g->rf433_tx_bits_len < sizeof(g->rf433_tx_bits_text) - 1) {
++        g->rf433_tx_bits_text[g->rf433_tx_bits_len++] = level ? '1' : '0';
++        g->rf433_tx_bits_text[g->rf433_tx_bits_len] = 0;
++    }
++}
++
++static void rf433_tx_output_reset(void *opaque, int pin, int level)
++{
++    GPIOUnit *g = opaque;
++    (void)level;
++    if (pin != g->unit->yellow) { return; }
++    g->rf433_tx_level = esp32_gpio_get_line(g->unit->yellow);
++    g->rf433_tx_edges = 0;
++    g->rf433_tx_bits = 0;
++    g->rf433_tx_bits_len = 0;
++    g->rf433_tx_bits_text[0] = 0;
++}
++
++static void rf433_tx_level_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = g->rf433_tx_level;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void rf433_tx_bits_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    char *value = g_strdup(g->rf433_tx_bits_text);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void rf433_rx_level_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value = g->rf433_rx_level;
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void rf433_rx_level_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    bool value;
++    if (!visit_type_bool(v, name, &value, errp)) { return; }
++    g->rf433_rx_level = value;
++    g->rf433_rx_samples++;
++    g->unit->input_events++;
++    esp32_gpio_set_input(g->unit->white, value ? 1 : 0);
++}
++
++static void rf433_rx_rate_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value = g->rf433_rx_sample_rate;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void rf433_rx_rate_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < 300 || value > 10000) { error_setg(errp, "sample-rate must be 300..10000 Hz"); return; }
++    g->rf433_rx_sample_rate = value;
++    g->unit->input_events++;
++}
++
+ static void laser_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     GPIOUnit *g = op;
+@@ -1753,6 +1845,24 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+          * DIN state as low until the guest drives it. */
+         g->laser_level = false;
+         object_property_add(o, "output-level", "bool", laser_get, NULL, NULL, g);
++    } else if (!strcmp(id, "rf433t")) {
++        /* U114: PORT.B yellow=RF_TX. No public UIFlow2 Unit driver and no ASK
++         * encoding table; only the host GPIO/bitstream is observed. */
++        esp32_gpio_add_out_listener(unit->yellow, rf433_tx_output_changed, g);
++        esp32_gpio_add_reset_listener(unit->yellow, rf433_tx_output_reset, g);
++        g->rf433_tx_level = false;
++        object_property_add(o, "output-level", "bool", rf433_tx_level_get, NULL, NULL, g);
++        object_property_add(o, "edge-count", "uint64", count_get, NULL, NULL, &g->rf433_tx_edges);
++        object_property_add(o, "bit-count", "uint64", count_get, NULL, NULL, &g->rf433_tx_bits);
++        object_property_add(o, "bitstream", "str", rf433_tx_bits_get, NULL, NULL, g);
++    } else if (!strcmp(id, "rf433r")) {
++        /* U113: PORT.B white=RF_RX. No public UIFlow2 Unit driver; the input
++         * digital bitstream is a host fixture, ASK demodulation is NOT modeled. */
++        g->rf433_rx_sample_rate = 1000;
++        esp32_gpio_set_input(unit->white, 0);
++        object_property_add(o, "input-level", "bool", rf433_rx_level_get, rf433_rx_level_set, NULL, g);
++        object_property_add(o, "sample-rate", "int", rf433_rx_rate_get, rf433_rx_rate_set, NULL, g);
++        object_property_add(o, "samples", "uint64", count_get, NULL, NULL, &g->rf433_rx_samples);
+     } else if (!strcmp(id, "neco")) {
+         /* U163: two Grove ports are collapsed to one attachment. The product
+          * page says 35 WS2812C-2020 LEDs while the snapshot driver defaults to
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 0b3d72b..63abcb9 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -40,7 +40,7 @@ typedef enum {
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+-    CONTROL_PAHUB, CONTROL_MINISCALE, CONTROL_UNIT_LCD,
++    CONTROL_PAHUB, CONTROL_MINISCALE, CONTROL_UNIT_LCD, CONTROL_UNIT_GLASS,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -210,6 +210,19 @@ typedef struct M5UnitControl {
+     uint16_t lcd_x0, lcd_y0, lcd_x1, lcd_y1, lcd_cx, lcd_cy;
+     uint16_t lcd_color;
+     uint16_t *lcd_fb;
++    /* U158 Unit Glass (I2C 0x3D, SSD1309 128x64 transparent OLED + STM32
++     * buttons/buzzer): control/command/data slave with a page-addressed
++     * GDDRAM. The internal-firmware button/buzzer protocol table is
++     * unreadable, so only static fixtures are exposed (no semantics claimed). */
++    uint8_t glass_control, glass_cmd[32], glass_args[2];
++    unsigned glass_cmd_len, glass_arg_len, glass_arg_need;
++    uint8_t glass_pending;
++    uint8_t glass_fb[128 * 8];
++    unsigned glass_page, glass_col;
++    bool glass_display_on;
++    int64_t glass_contrast, glass_buttons_fixture;
++    uint64_t glass_commands, glass_data_bytes;
++    char glass_buzzer_hex[17];
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1934,6 +1947,128 @@ static void pahub_dip_set(Object *obj, Visitor *v, const char *name, void *opaqu
+     s->unit->input_events++;
+ }
+ 
++/* U158 Unit Glass: minimal SSD1309 control/command/data model. Only the
++ * controller-visible display register state and GDDRAM are modelled; the
++ * transparent-OLED optics and the STM32 button/buzzer behavior are NOT RUN. */
++static uint32_t glass_fb_crc(M5UnitControl *s)
++{
++    uint32_t crc = 0xffffffffu;
++    for (size_t i = 0; i < sizeof(s->glass_fb); i++) {
++        crc ^= s->glass_fb[i];
++        for (unsigned k = 0; k < 8; k++) { crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1))); }
++    }
++    return ~crc;
++}
++
++static void glass_apply(M5UnitControl *s, uint8_t cmd)
++{
++    switch (cmd) {
++    case 0xae: s->glass_display_on = false; break;
++    case 0xaf: s->glass_display_on = true; break;
++    case 0x81: if (s->glass_arg_len >= 1) { s->glass_contrast = s->glass_args[0]; } break;
++    case 0x20: break;  /* memory addressing mode: only horizontal-page mode used */
++    case 0x21: if (s->glass_arg_len >= 1) { s->glass_col = s->glass_args[0] & 0x7f; } break;
++    case 0x22: if (s->glass_arg_len >= 1) { s->glass_page = s->glass_args[0] & 0x07; } break;
++    case 0x40: case 0x41: case 0x42: case 0x43:
++    case 0x44: case 0x45: case 0x46: case 0x47:
++    case 0x48: case 0x49: case 0x4a: case 0x4b:
++    case 0x4c: case 0x4d: case 0x4e: case 0x4f:
++    case 0x50: case 0x51: case 0x52: case 0x53:
++    case 0x54: case 0x55: case 0x56: case 0x57:
++    case 0x58: case 0x59: case 0x5a: case 0x5b:
++    case 0x5c: case 0x5d: case 0x5e: case 0x5f:
++        break;  /* display start line: no optical model */
++    default:
++        if (cmd >= 0xb0 && cmd <= 0xb7) { s->glass_page = cmd & 0x07; }
++        else if (cmd <= 0x0f) { s->glass_col = (s->glass_col & 0xf0) | cmd; }
++        else if (cmd >= 0x10 && cmd <= 0x1f) { s->glass_col = ((cmd & 0x0f) << 4) | (s->glass_col & 0x0f); }
++        /* remaining SSD1309 configuration commands (MUX/offset/COM/charge pump/
++         * segment remap/contrast timing) keep their controller-visible bytes in
++         * command-hex only; no electrical/optical behavior is modeled. */
++        break;
++    }
++}
++
++static void glass_stream_command(M5UnitControl *s, uint8_t value)
++{
++    if (s->glass_cmd_len < sizeof(s->glass_cmd)) { s->glass_cmd[s->glass_cmd_len++] = value; }
++    if (s->glass_arg_len < s->glass_arg_need) {
++        if (s->glass_arg_len < sizeof(s->glass_args)) { s->glass_args[s->glass_arg_len] = value; }
++        s->glass_arg_len++;
++        if (s->glass_arg_len == s->glass_arg_need) { glass_apply(s, s->glass_pending); }
++        return;
++    }
++    s->glass_pending = value;
++    s->glass_arg_len = 0;
++    switch (value) {
++    case 0x81: s->glass_arg_need = 1; break;
++    case 0x20: s->glass_arg_need = 1; break;
++    case 0x21: case 0x22: s->glass_arg_need = 2; break;
++    default: s->glass_arg_need = 0; break;
++    }
++    s->glass_commands++;
++    if (s->glass_arg_need == 0) { glass_apply(s, value); }
++}
++
++static void glass_cmd_hex_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char hex[sizeof(s->glass_cmd) * 2 + 1];
++    for (unsigned i = 0; i < s->glass_cmd_len; i++) { g_snprintf(hex + i * 2, 3, "%02x", s->glass_cmd[i]); }
++    hex[s->glass_cmd_len * 2] = 0;
++    char *value = g_strdup(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void glass_fb_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char hex[9];
++    g_snprintf(hex, sizeof(hex), "%08x", glass_fb_crc(s));
++    char *value = g_strdup(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void glass_buttons_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->glass_buttons_fixture;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void glass_buttons_set(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value;
++    if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (value < 0 || value > 3) { error_setg(errp, "button-states must be a 2-bit mask"); return; }
++    s->glass_buttons_fixture = value;
++    s->unit->input_events++;
++}
++
++static void glass_buzzer_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char *value = g_strdup(s->glass_buzzer_hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void glass_buzzer_set(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char *value = NULL;
++    if (!visit_type_str(v, name, &value, errp)) { return; }
++    if (strlen(value) > sizeof(s->glass_buzzer_hex) - 1) {
++        g_free(value); error_setg(errp, "buzzer-hex is limited to 16 hex chars"); return;
++    }
++    g_strlcpy(s->glass_buzzer_hex, value, sizeof(s->glass_buzzer_hex));
++    g_free(value);
++    s->unit->input_events++;
++}
++
+ static int control_event(I2CSlave *dev, enum i2c_event event)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+@@ -1960,6 +2095,18 @@ static int control_event(I2CSlave *dev, enum i2c_event event)
+         }
+         return 0;
+     }
++    if (s->kind == CONTROL_UNIT_GLASS) {
++        if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC) {
++            s->unit->transactions++; s->write_pos = 0; s->reading = false;
++            s->glass_cmd_len = 0; s->glass_arg_len = 0; s->glass_arg_need = 0;
++            s->glass_control = 0xff;
++        } else if (event == I2C_START_RECV) {
++            s->unit->transactions++; s->read_pos = 0; s->reading = true;
++        } else if (event == I2C_FINISH) {
++            s->reading = false;
++        }
++        return 0;
++    }
+     if (s->kind == CONTROL_SCROLL) {
+         if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC ||
+             event == I2C_START_RECV) {
+@@ -2013,6 +2160,24 @@ static int control_send(I2CSlave *dev, uint8_t value)
+         }
+         return 0;
+     }
++    if (s->kind == CONTROL_UNIT_GLASS) {
++        /* SSD1309 I2C framing: first byte is the control byte 0x00 (commands)
++         * or 0x40 (GDDRAM data); the rest of the transaction is that stream. */
++        if (s->write_pos == 0) {
++            s->glass_control = value;
++            s->write_pos = 1;
++            return 0;
++        }
++        s->write_pos++;
++        if (s->glass_control == 0x40) {
++            s->glass_fb[s->glass_page * 128 + s->glass_col] = value;
++            s->glass_data_bytes++;
++            s->glass_col = (s->glass_col + 1) & 0x7f;
++        } else if (s->glass_control == 0x00) {
++            glass_stream_command(s, value);
++        }
++        return 0;
++    }
+     if (s->kind == CONTROL_PAHUB) {
+         /* Direct 1-byte channel-mask write; no register pointer phase. */
+         s->pahub_mask = value;
+@@ -2564,6 +2729,10 @@ static uint8_t control_recv(I2CSlave *dev)
+     if (s->kind == CONTROL_UNIT_LCD) {
+         return s->lcd_read_pos < s->lcd_read_len ? s->lcd_read_buf[s->lcd_read_pos++] : 0x00;
+     }
++    if (s->kind == CONTROL_UNIT_GLASS) {
++        /* SSD1309 is write-only on this Unit; reads return the idle ACK byte. */
++        return 0x00;
++    }
+     if (s->kind == CONTROL_PAHUB) {
+         return s->pahub_mask;
+     }
+@@ -2701,7 +2870,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+-        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd",
++        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2921,6 +3090,25 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+                             u64_get, NULL, NULL, &s->lcd_pixels_written);
+         object_property_add(OBJECT(s->unit), "rle-runs", "uint64",
+                             u64_get, NULL, NULL, &s->lcd_rle_runs);
++    } else if (!strcmp(unit->unit_id, "glass")) {
++        /* U158 Unit Glass: I2C 0x3D SSD1309 128x64 transparent OLED + STM32
++         * buttons/buzzer. The internal-firmware protocol table is UNREADABLE, so
++         * only static button/buzzer fixtures are exposed (no semantics claimed). */
++        s->kind = CONTROL_UNIT_GLASS; address = 0x3d;
++        s->glass_display_on = false; s->glass_contrast = 0x7f;
++        s->glass_page = 0; s->glass_col = 0; s->glass_buttons_fixture = 0;
++        object_property_add(OBJECT(s->unit), "command-hex", "str",
++                            glass_cmd_hex_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "panel-framebuffer", "str",
++                            glass_fb_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "button-states", "int",
++                            glass_buttons_get, glass_buttons_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "buzzer-hex", "str",
++                            glass_buzzer_get, glass_buzzer_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "commands", "uint64",
++                            u64_get, NULL, NULL, &s->glass_commands);
++        object_property_add(OBJECT(s->unit), "data-bytes", "uint64",
++                            u64_get, NULL, NULL, &s->glass_data_bytes);
+     } else if (!strcmp(unit->unit_id, "dds")) {
+         s->kind = CONTROL_DDS; address = 0x31;
+         s->dds_fw = 1; s->dds_mode = 1;
+-- 
+2.55.0
+
