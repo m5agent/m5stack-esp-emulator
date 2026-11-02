@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T16:50:07.591577+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "cores3",
+  "unit_id": "vibrator",
+  "driver_class": "VibratorUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "ledc_frequency_duty_observed": true,
+    "turn_off_returns_zero_duty": true,
+    "once_programmed_duty_observed": true,
+    "output_transitions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "a2677d0cf1212146e975603ba45231648ef89640b7dc71bf1925442c2a518005",
+  "firmware_id": "a2677d0cf1212146e975603ba45231648ef89640b7dc71bf1925442c2a518005",
+  "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "ecd7112d7b00216b2c59dfedbbdbd8df978fec4777f0d23329a552f360778379",
+    "main.py": "ee660713a9b311421fb835fa61377ec4ceef618b8d6275bcda24b33b578f2399"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "adbe5d4f57c349e18260d00f7a9d52b4",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "vibrator",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "vibrator_once": {
+      "programmed": {
+        "frequency-hz": 2000,
+        "duty-pct": 59.99755859375
+      },
+      "final": {
+        "frequency-hz": 2000,
+        "duty-pct": 59.99755859375
+      },
+      "one_shot_completion": "NOT OBSERVED",
+      "boundary": "Original Haptic/SoftTimer one-shot callback did not clear duty_u16 in this firmware; this is a known original-driver SoftTimer gap (same family as the documented Buzzer callback issue), not a controller data-plane failure. Model faithfully keeps the last programmed duty; one-shot completion is not claimed."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T16:50:09.771174+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3,
+        "frequency-hz": 4000,
+        "duty-pct": 49.98779296875
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:12.229524+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4,
+        "frequency-hz": 4000,
+        "duty-pct": 24.98779296875
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:16.529401+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 7,
+        "frequency-hz": 2000,
+        "duty-pct": 59.99755859375
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:17.140239+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 7,
+        "frequency-hz": 2000,
+        "duty-pct": 59.99755859375
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "GPIO_PROBE_READY",
+    "duty50": " vibrator\nGPIO_VIB_STATE",
+    "duty25": " 4000 50\nGPIO_VIB_STATE",
+    "off": " 4000 25\nGPIO_VIB_STATE",
+    "once": " 4000 0\nGPIO_VIB_ONCE"
+  },
+  "frame": {
+    "sha256": "ade9d0e2f9f6bec9078d1c881a2780570fc40f3f1d7b50809bcc46e832c85dc8",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "d7311177d90ad8b4443a6f6c9f22c534a1e21d61c4b989c19f4ccb61b46e5adf",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Motor vibration force, frequency optimum, eccentric mechanics and electrical behavior are NOT RUN.",
+    "Haptic.once() one-shot completion did not clear duty_u16 in this firmware (original SoftTimer callback gap, same family as the documented Buzzer risk); the model faithfully keeps the last programmed duty. One-shot completion is NOT claimed."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary.",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+}

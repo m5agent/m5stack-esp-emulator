@@ -25,8 +25,13 @@ from user_firmware_matrix import png_metrics  # noqa: E402
 
 
 class Client:
-    def __init__(self, url):
+    def __init__(self, url, token=None):
         self.url = url.rstrip("/")
+        # Optional control token for an isolated agent-owned service. Unset in
+        # the default local 8787 workflow, so that behavior is unchanged.
+        self.token = token if token is not None else (
+            os.environ.get("M5_SERVICE_API_TOKEN", "").strip() or None
+        )
         self.web_ui = None
         self.web_ui_sessions = {}
         if os.environ.get("M5_UNIT_WEB_BRIDGE") == "1":
@@ -71,6 +76,8 @@ class Client:
             self._open_web_ui(parts[1])
             self.web_ui.call("capture", session_id=parts[1], phase="observed-units", screenshot=False)
         headers = dict(headers or {})
+        if self.token and "Authorization" not in headers:
+            headers["Authorization"] = "Bearer " + self.token
         if payload is not None:
             body = json.dumps(payload, allow_nan=False).encode()
             headers["Content-Type"] = "application/json"

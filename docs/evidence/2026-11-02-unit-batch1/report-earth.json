@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T16:50:34.631167+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "earth",
+  "driver_class": "EarthUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "qom_analog_input_exact": true,
+    "qom_digital_input_matches": true,
+    "guest_raw_tracks_input": true,
+    "guest_digital_tracks_input": true,
+    "adc_samples_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "51eb8c375ac47793440496cba665b29b5cddbe88cbf882f76de2a614b9d7475e",
+  "firmware_id": "51eb8c375ac47793440496cba665b29b5cddbe88cbf882f76de2a614b9d7475e",
+  "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "720bed0e8411bb06f8f6f186f953cebd5c2be67336b1d26e2fd7fc9a75dc03ee",
+    "main.py": "ee660713a9b311421fb835fa61377ec4ceef618b8d6275bcda24b33b578f2399"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "ec2ab3ec67fb46f5a708d2a41e9f6372",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "earth",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "earth": {
+      "low_input": {
+        "raw": 21141,
+        "digital": 1
+      },
+      "high_input": {
+        "raw": 52844,
+        "digital": 0
+      },
+      "uv_low": null,
+      "uv_high": null,
+      "uv_unsupported": true,
+      "uv_boundary": "read_uv/humidity() require the esp32s3 ADC calibration fixture, which this A-class batch does not apply"
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T16:50:36.796336+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 2,
+        "output-transitions": 0,
+        "analog-mv": 1000,
+        "digital-level": true,
+        "adc-samples": 2282
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:38.410796+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 4,
+        "output-transitions": 0,
+        "analog-mv": 2500,
+        "digital-level": false,
+        "adc-samples": 2415
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "GPIO_PROBE_READY",
+    "bucket_low": "ARTH 21141 1\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nGPIO_EARTH 21141 1\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nGPIO_EARTH 21141 1\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\n",
+    "bucket_high": "ARTH 52844 0\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nGPIO_EARTH 52844 0\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\nGPIO_EARTH 52844 0\nGPIO_EARTH_UV_UNSUPPORTED OSError(95, 'ESP_ERR_NOT_SUPPORTED')\n"
+  },
+  "frame": {
+    "sha256": "245d31361c9b3d2393e131695eebe1ac4686d85002ef77fe7cde7ccc55045ab9",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "8a9551b8995bd9ec87098aec66d5b70c9f6953a253fde4f47509efdfe10c24ae",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "read_uv()/humidity() require the esp32s3 ADC calibration eFuse fixture and are NOT RUN in this batch; raw read_u16 ADC samples and comparator digital levels are covered.",
+    "Soil physics, probe chemistry, comparator threshold calibration and moisture semantics are NOT RUN."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary.",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+}

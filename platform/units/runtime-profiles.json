@@ -3,68 +3,143 @@
   "units": {
     "servo8-hat": {
       "status": "implemented",
-      "hosts": ["sticks3"],
+      "hosts": [
+        "sticks3"
+      ],
       "blocker": "Only the official UIFlow2 HAT register path and virtual-device session are covered. Servo motion, current, power switching and electrical behavior remain unvalidated.",
       "inputs": {},
       "state": {
-        "transactions": {"property": "transactions"},
-        "read-bytes": {"property": "read-bytes"},
-        "written-bytes": {"property": "written-bytes"},
-        "output-transitions": {"property": "output-transitions"},
-        "angles": {"property": "angles"},
-        "pulses": {"property": "pulses"},
-        "power-state": {"property": "power-state"}
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "angles": {
+          "property": "angles"
+        },
+        "pulses": {
+          "property": "pulses"
+        },
+        "power-state": {
+          "property": "power-state"
+        }
       }
     },
     "8servos": {
       "status": "implemented",
-      "hosts": ["cores3"],
+      "hosts": [
+        "cores3"
+      ],
       "blocker": "Only the official UIFlow2 Unit register path and virtual-device session are covered. Servo motion, ADC inputs, current and electrical behavior remain unvalidated.",
       "inputs": {},
       "state": {
-        "transactions": {"property": "transactions"},
-        "read-bytes": {"property": "read-bytes"},
-        "written-bytes": {"property": "written-bytes"},
-        "output-transitions": {"property": "output-transitions"},
-        "modes": {"property": "modes"},
-        "angles": {"property": "angles"},
-        "pulses": {"property": "pulses"},
-        "pwm-duty": {"property": "pwm-duty"}
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "modes": {
+          "property": "modes"
+        },
+        "angles": {
+          "property": "angles"
+        },
+        "pulses": {
+          "property": "pulses"
+        },
+        "pwm-duty": {
+          "property": "pwm-duty"
+        }
       }
     },
     "joystick2": {
       "status": "implemented",
-      "hosts": ["cores3"],
+      "hosts": [
+        "cores3"
+      ],
       "blocker": "Only the official UIFlow2 Unit register path and virtual-device session are covered. Analog calibration, mechanical travel and optical RGB behavior remain unvalidated.",
       "address_input": "i2c-address",
       "default_address_7bit": 99,
       "inputs": {
-        "x-position": {"property": "x-position"},
-        "y-position": {"property": "y-position"},
-        "button-pressed": {"property": "button-pressed"},
-        "i2c-address": {"property": "i2c-address", "creation_only": true}
+        "x-position": {
+          "property": "x-position"
+        },
+        "y-position": {
+          "property": "y-position"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "i2c-address": {
+          "property": "i2c-address",
+          "creation_only": true
+        }
       },
       "state": {
-        "transactions": {"property": "transactions"},
-        "read-bytes": {"property": "read-bytes"},
-        "written-bytes": {"property": "written-bytes"},
-        "input-events": {"property": "input-events"},
-        "x-position": {"property": "x-position"},
-        "y-position": {"property": "y-position"},
-        "button-pressed": {"property": "button-pressed"},
-        "i2c-address": {"property": "i2c-address"}
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "x-position": {
+          "property": "x-position"
+        },
+        "y-position": {
+          "property": "y-position"
+        },
+        "button-pressed": {
+          "property": "button-pressed"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
       }
     },
     "nfc": {
       "status": "implemented",
-      "hosts": ["cores3"],
+      "hosts": [
+        "cores3"
+      ],
       "blocker": "Uses the existing deterministic ST25R3916 I2C fixture. No RF field, antenna, physical range, electrical or secure-card behavior is modeled.",
       "inputs": {},
       "state": {
-        "transactions": {"path": "/controller", "property": "transactions"},
-        "read-bytes": {"path": "/controller", "property": "read-bytes"},
-        "written-bytes": {"path": "/controller", "property": "written-bytes"},
-        "tag-uid": {"path": "/controller", "property": "tag-uid"}
+        "transactions": {
+          "path": "/controller",
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "path": "/controller",
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "path": "/controller",
+          "property": "written-bytes"
+        },
+        "tag-uid": {
+          "path": "/controller",
+          "property": "tag-uid"
+        }
       }
     },
     "env-iii": {
@@ -4647,29 +4722,255 @@
       }
     },
     "ssr": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. SSR zero-cross switching, overcurrent protection, load isolation and contact behavior are not modeled."
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded CoreS3 guest/output-pad session is admitted. The official SSRUnit driver has no get_status(); the model exposes only guest-driven pad output. SSR zero-cross/overcurrent switching, load isolation, AC-only behavior and physical hardware remain NOT RUN. Recorded evidence: docs/evidence/2026-11-02-unit-batch1/report-ssr.json (virtual-device only).",
+      "model_completeness": "nominal-digital-only",
+      "inputs": {},
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "output-level": {
+          "property": "output-level"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch1/report-ssr.json",
+        "report_sha256": "84f4ac86d6281b5dee464f8bad1885ba5ca408367da304a5026ae19e56d7d4a9",
+        "evidence_sha256": "9f346e0cd28d03a56b05f7b2a5f44d4a6f58f41dbcc493d1a50ee997d258d86c",
+        "firmware_sha256": "5886cd5882610b40b3cf9b477b731f62b9321850f2b1c7d6ba044578dd7bd565",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "f21d6f96a9882817738c750477836f47b577db9a58f8e803ddbe3fbe31fc2f30",
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "vibrator": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Motor vibration strength, frequency optimality and electrical behavior are not modeled."
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded CoreS3 LEDC frequency/duty session is admitted. Haptic.once() one-shot completion was NOT OBSERVED due to the original SoftTimer callback gap; motor force, frequency optimum and electrical behavior remain NOT RUN. Recorded evidence: docs/evidence/2026-11-02-unit-batch1/report-vibrator.json (virtual-device only).",
+      "model_completeness": "partial",
+      "inputs": {},
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "duty-pct": {
+          "property": "duty-pct"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch1/report-vibrator.json",
+        "report_sha256": "0efd38e286890748b18f41ff79b943c036b409f94b700c6417eceafe6279bb57",
+        "evidence_sha256": "d7311177d90ad8b4443a6f6c9f22c534a1e21d61c4b989c19f4ccb61b46e5adf",
+        "firmware_sha256": "a2677d0cf1212146e975603ba45231648ef89640b7dc71bf1925442c2a518005",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "698c4158fb85bfc6f07dfdaa03c144066b15bc05c50ddf1b3622d6cb9d853a29",
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "earth": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Soil physics, probe chemistry and digital-output polarity-to-moisture semantics are unresolved."
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Only the recorded AtomS3R guest ADC/DIN session is admitted; read_uv()/humidity() require the esp32s3 ADC calibration eFuse fixture and remain NOT RUN, as do soil physics, probe chemistry and threshold calibration. Recorded evidence: docs/evidence/2026-11-02-unit-batch1/report-earth.json (virtual-device only).",
+      "model_completeness": "partial",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch1/report-earth.json",
+        "report_sha256": "b1dd78fb302ff25414ed054008d12af269a70060c70d67898c9eb43da6bc0e8d",
+        "evidence_sha256": "8a9551b8995bd9ec87098aec66d5b70c9f6953a253fde4f47509efdfe10c24ae",
+        "firmware_sha256": "51eb8c375ac47793440496cba665b29b5cddbe88cbf882f76de2a614b9d7475e",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "42f8215b86de4478cc7f79afe66762dd9dc716391ede73500968d89e1ef5593a",
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "hall": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. The three A3144E switches and 74HC08D spatial logic are modeled only as one synthetic line level."
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Only the recorded StickS3 low-active white-wire input session is admitted; the A3144E x3 / 74HC08D spatial combination logic, field strength and indicator LED remain NOT RUN. Recorded evidence: docs/evidence/2026-11-02-unit-batch1/report-hall.json (virtual-device only).",
+      "model_completeness": "partial",
+      "inputs": {
+        "magnetic-detected": {
+          "property": "magnetic-detected"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "magnetic-detected": {
+          "property": "magnetic-detected"
+        },
+        "input-level": {
+          "property": "input-level"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch1/report-hall.json",
+        "report_sha256": "ae2c4fd92d33055678f7f8cf9a9b1de72604dc24154118a6c3b87f48e28a3797",
+        "evidence_sha256": "9ad7d9e666be9fb2c59b4f892c0a87ed069446cec6ce1ea56d9a3fd903a33550",
+        "firmware_sha256": "f14458e9f7532cb6758071b6d4bdac0729a07349b78ce1e3655aae10ddf14da5",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "b9cc3aa6fa03452dec3d469ec5192f26928216c6beb29bc003db9e4c43bdc2a4",
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "reflective-ir": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU controller-level data plane is registered by patches/qemu-m5stack-peripherals/0114-unit-gpio-batch1.patch; guest/Device Service device-local evidence is NOT RUN, so this profile stays planned. Comparator polarity-to-detection semantics, threshold circuit and optical response are unresolved."
+      "status": "implemented",
+      "hosts": [
+        "stopwatch"
+      ],
+      "blocker": "Only the recorded StopWatch guest ADC/DIN + both-edge callback session is admitted; comparator polarity-to-detection mapping, the LM393 threshold circuit, optics and emitter identity remain NOT RUN. Recorded evidence: docs/evidence/2026-11-02-unit-batch1/report-reflective-ir.json (virtual-device only).",
+      "model_completeness": "partial",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-batch1/report-reflective-ir.json",
+        "report_sha256": "0933c5414e782bcfda9c1844731d7dcac29445f05785d126500f5774ff15fd35",
+        "evidence_sha256": "4c24bb8163a6af6c9b9b84a87892a9f1281a38b9964f97dda6c1f0e217e7cd73",
+        "firmware_sha256": "5015fd47b36e4811e52bb6af9f25cd59487920aabe01e157c3b731a7aaa51038",
+        "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+        "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "e675f88be9ab10781de510f00c71310d107779f3f0710f079946ca1384125d1f",
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     }
   },
   "evidence_policy": {

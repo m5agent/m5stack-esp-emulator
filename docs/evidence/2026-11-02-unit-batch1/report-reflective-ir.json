@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T16:50:03.766514+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "stopwatch",
+  "unit_id": "reflective-ir",
+  "driver_class": "ReflectiveIRUnit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "qom_analog_input_exact": true,
+    "qom_digital_input_matches": true,
+    "guest_raw_tracks_input": true,
+    "both_edge_callbacks_observed": true,
+    "adc_samples_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "5015fd47b36e4811e52bb6af9f25cd59487920aabe01e157c3b731a7aaa51038",
+  "firmware_id": "5015fd47b36e4811e52bb6af9f25cd59487920aabe01e157c3b731a7aaa51038",
+  "runtime_binary_sha256": "d837e0e6bea85fff0406979ae98acea235f14c9779d79c8617f42b2d6cd41aa5",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "bf6eb63e88b27cf41c30c5cf332d8815233d068f14fc926a29b8ee529873f796",
+    "main.py": "ee660713a9b311421fb835fa61377ec4ceef618b8d6275bcda24b33b578f2399"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 10,
+      "white": 11
+    }
+  },
+  "session_id": "2824aa6ae81a4e0c9cc4d7a6beb1d49c",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "reflective-ir",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "reflective_ir": {
+      "baseline": {
+        "raw": 26422,
+        "digital": 0
+      },
+      "raised": {
+        "raw": 42282,
+        "digital": 1
+      },
+      "fallen": {
+        "raw": 42282,
+        "digital": 0
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T16:50:05.651282+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 2,
+        "output-transitions": 0,
+        "analog-mv": 2000,
+        "digital-level": true,
+        "adc-samples": 2275
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:06.459060+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 3,
+        "output-transitions": 0,
+        "analog-mv": 2000,
+        "digital-level": false,
+        "adc-samples": 2317
+      }
+    },
+    {
+      "at": "2026-11-02T16:50:07.266975+08:00",
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 3,
+        "output-transitions": 0,
+        "analog-mv": 2000,
+        "digital-level": false,
+        "adc-samples": 2366
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "GPIO_PROBE_READY",
+    "raise": " i2c.master: this port has not been initialized, please initialize it first\r\nGPIO_PROBE_START reflective-ir\nGPIO_PROBE_READY reflective-ir\nGPIO_RIR_LOOP\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR_EVENT 1 1\n",
+    "fall": "ADY reflective-ir\nGPIO_RIR_LOOP\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR 26422 0\nGPIO_RIR_EVENT 1 1\nGPIO_RIR 42282 1\nGPIO_RIR 42282 1\nGPIO_RIR 42282 1\nGPIO_RIR 42282 1\nGPIO_RIR 42282 1\nGPIO_RIR 42282 1\nGPIO_RIR_EVENT 0 1\n"
+  },
+  "frame": {
+    "sha256": "51174895e705cff399c72f0a5757b126143f75fc08eb90033d3a3f51b0eb6102",
+    "metrics": {
+      "width": 466,
+      "height": 466,
+      "nonblack_pixels": 170499,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "4c24bb8163a6af6c9b9b84a87892a9f1281a38b9964f97dda6c1f0e217e7cd73",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Comparator polarity-to-detection semantics, the LM393 threshold circuit, optical response and emitter/receiver identity are NOT RUN; only raw ADC/digital levels and both guest edge callbacks are covered."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary.",
+  "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d"
+}
