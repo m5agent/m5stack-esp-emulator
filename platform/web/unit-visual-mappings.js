@@ -232,6 +232,12 @@ const AUDIT = {
   ncir2: {note: 'U150 temperature/chip-temperature/RGB/buzzer are QOM fixtures and register readback only; the STM32 alarm state machine and infrared optics cannot be visualized from this contract.'},
   extio2: {note: 'U011-B eight-channel mode/output/servo/RGB are register-readback values only; ADC full scale, servo units and chip-internal RGB order remain unresolved, so no motion or color binding is inferred.'},
   hbridge: {note: 'U160 direction/PWM duty/frequency are register readbacks only; motor rotation, torque, current and RZ7899 protection behavior are not modeled.'},
+  joystick: {binding: {'x-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'y-raw': 'Raw axis to tilt joint orientation/range requires calibration.'}, note: 'U024 reuses the joystick-v11 0x52 snapshot; button byte polarity stays unresolved and the 0x52 address conflicts with joystick-v11.'},
+  watering: {note: 'U101 soil analog-mv and PUMP_EN pad level are panel-only: pump flow/head and soil-moisture physics are not modeled, so no water animation binding is inferred.'},
+  fader: {note: 'U123 14-LED SK6812 frames are captured raw (G,R,B) and stay panel-only; palette/mechanical feel and optical output are not modeled and the neopixel driver SHA must be pinned.'},
+  dac: {note: 'U012 dac-raw/eeprom state is panel-only; the physical 0..3.3V analog output and EEPROM retention are not modeled.'},
+  bps: {note: 'U090 temperature/pressure fixtures are panel-only; altitude depends on the driver sea-level assumption and QMP6988 variants are not modeled.'},
+  'adc-v11': {binding: {'voltage-mv': 'Input divider/PGA mapping and ADS1100-vs-ADS1110 identity remain unresolved; no physical voltage accuracy is inferred.'}},
 };
 
 export function visualMappingCoverage(catalog) {

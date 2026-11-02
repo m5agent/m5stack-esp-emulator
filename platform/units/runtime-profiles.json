@@ -5444,6 +5444,240 @@
         ],
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
+    },
+    "joystick": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 maps the U024 'joystick' id onto the existing CONTROL_JOYSTICK 0x52 3-byte snapshot (x-raw/y-raw/button-raw) but no guest/Device Service evidence is recorded, so admission stays planned. The original U024 MCU/firmware identity and button polarity remain unresolved; 0x52 conflicts with the registered joystick-v11 (one Unit per bus); mechanical travel/potentiometer linearity are NOT RUN.",
+      "inputs": {
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        }
+      }
+    },
+    "watering": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling via the controller hook -> analog-mv/adc-samples; yellow PUMP_EN pad output listener -> pump-level/pump-transitions) but no guest/Device Service evidence is recorded, so admission stays planned. The initial PUMP_EN level is treated as low until the guest drives the pad; pump electrical/head/flow and soil-moisture physics are NOT RUN; ADC 11DB full-scale/calibration remains unresolved.",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "pump-level": {
+          "property": "pump-level"
+        },
+        "pump-transitions": {
+          "property": "pump-transitions"
+        }
+      }
+    },
+    "fader": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 adds a dual-endpoint GPIO model (white ADC sampling -> analog-mv/adc-samples; yellow RMT capture of 14 SK6812 LEDs -> led-rgb/led-frames/incomplete-frames) but no guest/Device Service evidence is recorded, so admission stays planned. The neopixel snapshot-vs-master set_brightness() divergence must be pinned to one driver SHA; RMT timing tolerance, palette mechanics, potentiometer linearity and LED optics are NOT RUN.",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        }
+      }
+    },
+    "dac": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 adds a bare-command CONTROL_DAC at 0x60 (2-byte fast-mode writes, 3-byte [ready,val>>4,(val&0xf)<<4] reads, EEPROM commands counted) but no guest/Device Service evidence is recorded, so admission stays planned. EEPROM retention/endurance and the physical 0..3.3V output range are NOT modeled; dac-voltage-v uses the driver default vdd=5.0V and remains UNRESOLVED.",
+      "inputs": {
+        "dac-raw": {
+          "property": "dac-raw"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "dac-raw": {
+          "property": "dac-raw"
+        },
+        "dac-voltage-v": {
+          "property": "dac-voltage-v"
+        },
+        "eeprom-value": {
+          "property": "eeprom-value"
+        },
+        "eeprom-writes": {
+          "property": "eeprom-writes"
+        }
+      }
+    },
+    "bps": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 adds a US_BMP280 register-file kind at 0x76 (chip id 0x58, reset/status/control/config, fixed synthetic 24-byte calibration, 0xF7 data inverse-compensated from temperature-c/pressure-pa) but no guest/Device Service evidence is recorded, so admission stays planned. The QMP6988 fallback (U090-B 0x56 / driver 0x70 vs env-iii 0x70) is NOT modeled and remains unresolved; sea-level altitude is a driver assumption, not a measurement; datasheet compensation was not independently reviewed.",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      }
+    },
+    "adc-v11": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0125 adds a US_ADS1110 slave at 0x48 (single config byte, 2-byte big-endian signed reads, raw derived from voltage-mv with the master driver's mini-code/gain/divider formula) but no guest/Device Service evidence is recorded, so admission stays planned. The official page contradicts itself (ADS1100 vs ADS1110, SPS set, internal 2.048V vs VDD reference) and those stay unresolved; 0x48 conflicts with ameter (next batch); the snapshot get_voltage() bug requires anchoring the master-fixed driver.",
+      "inputs": {
+        "voltage-mv": {
+          "property": "voltage-mv"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "voltage-mv": {
+          "property": "voltage-mv"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "config-word": {
+          "property": "config-word"
+        }
+      }
     }
   },
   "evidence_policy": {
