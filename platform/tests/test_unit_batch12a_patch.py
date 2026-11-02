@@ -1,4 +1,4 @@
-"""Static contracts for the 0157 Unit batch-12a driver-gap data planes."""
+"""Static contracts for the 0158/0160 Unit batch-12a driver-gap data planes + evidence."""
 from __future__ import annotations
 
 import json
@@ -41,9 +41,9 @@ class UnitBatch12aPatchTests(unittest.TestCase):
             for name in ("state-bitmap", "brightness", "led-mode", "rgb-hex",
                          "irq-enable", "irq-count", "save-count", "firmware-version"):
                 self.assertIn(name, props, unit_id)
-            self.assertEqual(self.profiles[unit_id]["status"], "planned")
+            self.assertEqual(self.profiles[unit_id]["status"], "implemented")
 
-    def test_register_maps_are_documented_planned_contracts(self):
+    def test_register_maps_are_documented_evidence_contracts(self):
         expected = {
             "step16": {"position", "led-config", "led-brightness", "direction",
                        "rgb", "rgb-power", "rgb-brightness"},
@@ -63,7 +63,7 @@ class UnitBatch12aPatchTests(unittest.TestCase):
         for unit_id, names in expected.items():
             props = set(self.units[unit_id]["runtime"]["properties"])
             self.assertTrue(names <= props, unit_id)
-            self.assertEqual(self.profiles[unit_id]["status"], "planned", unit_id)
+            self.assertEqual(self.profiles[unit_id]["status"], "implemented", unit_id)
 
     def test_explicit_conflicts_and_boundaries(self):
         self.assertEqual(self.units["8servos2-i2c"]["interface"]["address_7bit"],
@@ -78,16 +78,25 @@ class UnitBatch12aPatchTests(unittest.TestCase):
             self.assertIn(token, entry, (unit_id, token))
             self.assertIn("NOT RUN", entry, unit_id)
 
-    def test_all_seven_stay_planned_without_guest_evidence(self):
+    def test_all_seven_have_raw_i2c_guest_evidence(self):
+        import hashlib
         for unit_id in UNITS:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned", unit_id)
-            self.assertEqual(unit["runtime"]["status"], "planned", unit_id)
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
-            self.assertTrue(profile["blocker"], unit_id)
-            self.assertNotIn("virtual_device_evidence", profile, unit_id)
+            self.assertEqual(unit["model_status"], "partial", unit_id)
+            self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            self.assertTrue(unit["blocker"], unit_id)
+            self.assertIn("driver-gap", unit["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
+                             evidence["report_sha256"], unit_id)
+            self.assertIn("0158-unit-batch12a.patch", evidence["patches"], unit_id)
+            self.assertIn("0160-unit-batch12a-evidence-fixes.patch", evidence["patches"], unit_id)
+            self.assertIn("driver-gap", evidence["firmware_flavor"], unit_id)
 
     def test_patch_has_no_guest_claim(self):
         self.assertIn("Offline QOM smoke", self.text)
