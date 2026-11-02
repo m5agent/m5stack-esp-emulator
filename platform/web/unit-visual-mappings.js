@@ -244,6 +244,14 @@ const AUDIT = {
   'ain4-20ma': {binding: {'current-ma': '4-20mA loop accuracy, isolation and jumper wiring are not modeled; the fixture is a synthetic current source.', 'adc-raw': '12-bit vs raw16 width is unresolved; the raw fixture is not a calibrated ADC reading.'}, note: 'U162 raw/current/calibration registers are panel-only; page 0xF0 vs driver 0xFE/0xFF remains a documented conflict.'},
   acssr: {note: 'U139 relay/RGB are I2C transaction state only. AC 24-480V/10A mains switching, zero-cross, leakage and lifetime are NOT modeled; never visualize this as a mains-capable switch.'},
   gesture: {binding: {gesture: 'Gesture flag fixtures are synthetic; IR optics, recognition distance and gesture physics are not modeled.'}, note: 'U127 PAJ7620 0x43/0x44 flags are QOM fixtures; the 219-entry init sequence and bank switching are accepted transaction state only.'},
+  rfid: {note: 'U031 reuses the rfid2 MFRC522 transaction model at 0x28; UID/sector state is panel-only, RF field/antenna/range and real card data are not modeled, and 0x28 conflicts with rfid2.'},
+  'tube-pressure': {input: ['analog-mv'], readback: ['analog-mv', 'adc-samples', 'pressure-kpa'], note: 'U130 only supplies the white analog wire; pressure-kpa repeats the driver formula for observability, not a physical pressure measurement. Sensor linearity/temperature compensation are NOT RUN.'},
+  'laser-rx': {input: ['digital-level'], readback: ['input-level'], note: 'U065 white DOUT is a digital input fixture; UART mode and the optical link (beam, 140-205kHz, 900nm) are not modeled.'},
+  extio: {input: ['input-levels'], readback: ['output-levels', 'polarity', 'config'], note: 'U011 PCA9554 register transactions only; INT output, A0-A2 pad addressing and pull-up/open-drain electrical behavior are not modeled.'},
+  dac2: {readback: ['range', 'voltage-0-v', 'voltage-1-v', 'dac-0-raw', 'dac-1-raw'], note: 'U012-B stores guest-written 16-bit codes; the page 15-bit vs driver 16-bit full scale stays unresolved and no analog output/short-circuit behavior is inferred.'},
+  scales: {input: ['weight-g', 'adc-raw', 'button-status'], readback: ['led-rgb', 'led-sync'], note: 'U108 register/fixture model only; HX711 sampling, weighing mechanics and RGB optics are not modeled, and 0x26 conflicts with 4relay/weight-i2c.'},
+  vmeter: {binding: {'voltage-v': 'Divider/PGA calibration and +/-36V isolation are unresolved; no physical voltage accuracy is inferred.'}, note: 'U087 ADS1115 0x49 + synthetic factor-1.0 EEPROM at 0x53; the factory calibration is not real and 0x53 conflicts with accel.'},
+  adc: {binding: {'voltage-v': 'ADS1100 reference/PGA and the ADS1100-vs-ADS1110 identity remain unresolved; no physical voltage accuracy is inferred.'}, note: 'U013 ADS1100 transaction model distinct from adc-v11; 0x48 conflicts with adc-v11/ameter and master/snapshot get_raw_value() length differs.'},
 };
 
 export function visualMappingCoverage(catalog) {

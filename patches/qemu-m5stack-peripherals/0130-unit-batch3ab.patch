@@ -1,0 +1,599 @@
+From f138d096114edb4cde0a9d526c91777d4e3dd758 Mon Sep 17 00:00:00 2001
+From: m5agent <agent@example.invalid>
+Date: Mon, 2 Nov 2026 20:56:43 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-3 A+B data planes
+
+Map the eight A+B Units of the 2026-11-02 third Unit research batch onto
+controller-visible models, reusing existing frameworks where the protocol is
+the same and adding explicit register/GPIO models otherwise:
+
+- rfid (U031, 0x28 MFRC522): reuses CONTROL_RFID2 (same chip command set);
+  the 0x28 conflict with rfid2 is documented, one per bus.
+- tube-pressure (U130): GPIO single-ended analog white wire through the SoC
+  ADC hook (analog-mv/adc-samples); yellow is NC. The model only supplies mV;
+  the guest driver converts kPa and pressure-kpa is a read-only convenience.
+- laser-rx (U065): GPIO digital input on the white DOUT wire (pull-up idle
+  high) with digital-level/input-level observations; yellow is NC and UART
+  mode is not modeled.
+- extio (U011, 0x27 PCA9554): new CONTROL_PCA9554 with input/output/polarity/
+  config registers; input-port reads combine pin fixtures with polarity and
+  the output latch per the configuration register. INT and A0-A2 are not
+  modeled.
+- dac2 (U012-B, 0x59 GP8413): new CONTROL_DAC2 for 0x01 range, 0x02/0x04
+  little-endian channel writes; stores the guest's 16-bit codes. The page's
+  15-bit vs driver 16-bit full scale stays UNRESOLVED; 0x59 conflicts with
+  extencoder.
+- scales (U108, 0x26): new CONTROL_SCALES with 4-byte big-endian raw/weight/
+  offset registers, button/LED fixtures, RGB writes, calibration-write
+  counting and 0xFF address migration. HX711 sampling/weighing mechanics are
+  not modeled; 0x26 conflicts with 4relay/weight-i2c.
+- vmeter (U087, 0x49 ADS1115 + 0x53 EEPROM): parameterized reuse of the 0126
+  AMeter dual-slave model with the driver's 0.015918958 divider; the EEPROM
+  record is a synthetic factor-1.0 calibration and writes are rejected and
+  counted. 0x53 conflicts with accel.
+- adc (U013, 0x48 ADS1100): new US_ADS1100 distinct from US_ADS1110, with
+  1-byte config and 3-byte data/config reads inverse-derived from voltage-v.
+  The master/snapshot get_raw_value() length difference and the ADS1100 vs
+  ADS1110 identity stay UNRESOLVED; 0x48 conflicts with adc-v11/ameter.
+
+All addresses/register layouts follow the merged batch-3 research doc and the
+official driver sources. No guest PASS or profile upgrade is registered here;
+catalog stays planned and the host evidence task follows separately.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  32 ++-
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 278 +++++++++++++++++++++++++-
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  |  77 ++++++-
+ 3 files changed, 375 insertions(+), 12 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 7c84aa2..b757fe7 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -611,7 +611,8 @@ bool m5_unit_gpio_supported(const char *id)
+ {
+     static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+         "angle", "light", "buzzer", "fan", "ir", "rs485", "hub", "flashlight",
+-        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader"};
++        "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
++        "tube-pressure", "laser-rx"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -695,12 +696,27 @@ static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **
+     } else if (!strcmp(name, "magnetic-detected")) {
+         esp32_gpio_set_input(g->unit->white, !value);
+     } else if (!strcmp(name, "digital-level")) {
+-        g->digital = value; esp32_gpio_set_input(g->unit->yellow, value);
++        g->digital = value;
++        /* U065 Laser RX places DOUT on the white wire (yellow is NC); the
++         * analog light/earth/reflective-ir Units use yellow. */
++        esp32_gpio_set_input(!strcmp(g->unit->unit_id, "laser-rx") ?
++                             g->unit->white : g->unit->yellow, value);
+     } else {
+         g->blue = value; esp32_gpio_set_input(g->unit->white, !value);
+     }
+ }
+ 
++/* U130 Tube Pressure: the model only provides the white analog-mV fixture and
++ * the guest driver converts it to kPa. This read-only QOM convenience repeats
++ * the driver formula ((v-0.1)/3.0*300-100) for observability; it is not a
++ * pressure measurement and the sensor's linearity/compensation are NOT RUN. */
++static void pressure_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
++{
++    GPIOUnit *g = op;
++    double value = ((g->voltage / 1000.0) - 0.1) / 3.0 * 300.0 - 100.0;
++    visit_type_number(v, name, &value, errp);
++}
++
+ static void num_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     GPIOUnit *g = op;
+@@ -793,7 +809,8 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+                                     !strcmp(g->unit->unit_id, "earth") ||
+                                     !strcmp(g->unit->unit_id, "reflective-ir") ||
+                                     !strcmp(g->unit->unit_id, "watering") ||
+-                                    !strcmp(g->unit->unit_id, "fader"))) {
++                                    !strcmp(g->unit->unit_id, "fader") ||
++                                    !strcmp(g->unit->unit_id, "tube-pressure"))) {
+             g->adc_samples++;
+             return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
+         }
+@@ -1002,6 +1019,15 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
+                             &g->incomplete_frames);
++    } else if (!strcmp(id, "tube-pressure")) {
++        object_property_add(o, "analog-mv", "number", num_get, num_set, NULL, g);
++        object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL, &g->adc_samples);
++        object_property_add(o, "pressure-kpa", "number", pressure_get, NULL, NULL, g);
++    } else if (!strcmp(id, "laser-rx")) {
++        esp32_gpio_set_input(unit->white, 1);  /* ISO103 DOUT has a pull-up */
++        g->digital = true;
++        object_property_add(o, "digital-level", "bool", bool_get, bool_set, NULL, g);
++        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+     } else if (!strcmp(id, "angle") || !strcmp(id, "light") ||
+                !strcmp(id, "earth") || !strcmp(id, "reflective-ir")) {
+         object_property_add(o, !strcmp(id, "angle") ? "voltage-mv" : "analog-mv", "number", num_get, num_set, NULL, g);
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index fad82b3..97b5f88 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -39,6 +39,7 @@ typedef enum {
+     CONTROL_RELAY4, CONTROL_WEIGHT,
+     CONTROL_NCIR2, CONTROL_EXTIO2, CONTROL_HBRIDGE,
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR,
++    CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -126,6 +127,24 @@ typedef struct M5UnitControl {
+     uint64_t acssr_transitions;
+     int64_t acssr_led_rgb;
+     int64_t acssr_fw;
++    /* U011 EXT.IO (0x27, PCA9554): input pin fixtures, output latch, polarity
++     * inversion and configuration registers. INT/A0-A2 pads are not modeled. */
++    bool pca_inputs[8];
++    uint8_t pca_output, pca_polarity, pca_config;
++    /* U012-B DAC2 (0x59, GP8413): range 0=0-5V/1=0-10V and the two raw codes
++     * written by the guest driver. The driver writes 16-bit codes (0xFFFF full
++     * scale) while the product page says 15-bit; the stored code stays the
++     * guest's 16-bit value and the width conflict is UNRESOLVED in catalog. */
++    int64_t dac2_range;
++    uint16_t dac2_raw[2];
++    /* U108 Scales (0x26): 4-byte big-endian ADC/offset registers derived from
++     * fixtures, a weight*100 register, button/LED fixtures and calibration /
++     * RGB register writes. HX711 sampling and weighing mechanics are NOT
++     * modeled. */
++    int64_t scales_adc_raw, scales_offset, scales_button, scales_led_sync;
++    double scales_weight_g;
++    int64_t scales_led_rgb, scales_fw;
++    uint64_t scales_cal_writes;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1186,6 +1205,133 @@ static uint8_t dac_read_byte(M5UnitControl *s, unsigned pos)
+ 
+ static void put_le32(uint8_t *p, uint32_t value);
+ 
++
++static void put_be32(uint8_t *p, uint32_t value)
++{
++    p[0] = value >> 24; p[1] = value >> 16; p[2] = value >> 8; p[3] = value;
++}
++
++/* U011 EXT.IO PCA9554 (0x27): 4-register I/O expander. The input-port read
++ * combines the pin fixtures with the polarity inversion/configuration output
++ * latch semantics documented in the official PCA9554 register description.
++ * INT output and A0-A2 solder-pad addressing are NOT modeled. */
++static void pca_inputs_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 8; i++) { qlist_append_bool(list, s->pca_inputs[i]); }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void pca_inputs_set(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QObject *value = NULL;
++    if (!visit_type_any(v, name, &value, errp)) { return; }
++    QList *list = qobject_to(QList, value);
++    if (!list || qlist_size(list) != 8) {
++        error_setg(errp, "input-levels requires exactly 8 booleans");
++        qobject_unref(value); return;
++    }
++    bool next[8];
++    const QListEntry *entry = qlist_first(list);
++    for (unsigned i = 0; i < 8; i++) {
++        QBool *item = qobject_to(QBool, qlist_entry_obj(entry));
++        if (!item) { error_setg(errp, "input-levels requires booleans only"); qobject_unref(value); return; }
++        next[i] = qbool_get_bool(item);
++        entry = qlist_next(entry);
++    }
++    memcpy(s->pca_inputs, next, sizeof(next));
++    input_changed(s);
++    qobject_unref(value);
++}
++
++static void pca_output_levels_get(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    QList *list = qlist_new();
++    for (unsigned i = 0; i < 8; i++) { qlist_append_bool(list, !!(s->pca_output & (1u << i))); }
++    QObject *value = QOBJECT(list);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void pca_polarity_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->pca_polarity;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void pca_config_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->pca_config;
++    visit_type_int64(v, name, &value, errp);
++}
++
++/* U012-B DAC2 GP8413 (0x59): range plus the two guest-written raw codes.
++ * The page says 15-bit while the driver writes a 16-bit full scale; the model
++ * stores the guest's 16-bit code and keeps that width conflict UNRESOLVED. */
++static void dac2_range_get(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->dac2_range;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void dac2_raw_get(Object *obj, Visitor *v, const char *name,
++                         void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->dac2_raw[!strcmp(name, "dac-1-raw") ? 1 : 0];
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void dac2_voltage_get(Object *obj, Visitor *v, const char *name,
++                             void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    unsigned channel = !strcmp(name, "voltage-1-v") ? 1 : 0;
++    double max_voltage = s->dac2_range ? 10.0 : 5.0;
++    double value = s->dac2_raw[channel] * max_voltage / 0xffff;
++    visit_type_number(v, name, &value, errp);
++}
++
++/* U108 Scales (0x26): 4-byte big-endian ADC/offset/weight registers derived
++ * from fixtures plus button/LED/calibration write observations. */
++static void scales_led_rgb_get(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->scales_led_rgb;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void scales_led_sync_get(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->scales_led_sync;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void scales_fw_get(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = s->scales_fw;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static void snapshot_registers(M5UnitControl *s)
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+@@ -1285,6 +1431,35 @@ static void snapshot_registers(M5UnitControl *s)
+         s->read_snapshot[0x00] = s->acssr_relay_raw;
+         s->read_snapshot[0xfe] = s->acssr_fw;
+         s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_PCA9554) {
++        uint8_t inputs = 0;
++        for (unsigned i = 0; i < 8; i++) { if (s->pca_inputs[i]) { inputs |= 1u << i; } }
++        s->read_snapshot[0x00] = (uint8_t)(((inputs ^ s->pca_polarity) & ~s->pca_config) |
++                                           (s->pca_output & s->pca_config));
++        s->read_snapshot[0x01] = s->pca_output;
++        s->read_snapshot[0x02] = s->pca_polarity;
++        s->read_snapshot[0x03] = s->pca_config;
++        s->read_snapshot[0xfe] = 1;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_DAC2) {
++        s->read_snapshot[0x01] = s->dac2_range ? 0x11 : 0x00;
++        s->read_snapshot[0x02] = s->dac2_raw[0] & 0xff;
++        s->read_snapshot[0x03] = (s->dac2_raw[0] >> 8) & 0xff;
++        s->read_snapshot[0x04] = s->dac2_raw[1] & 0xff;
++        s->read_snapshot[0x05] = (s->dac2_raw[1] >> 8) & 0xff;
++        s->read_snapshot[0xfe] = 1;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    } else if (s->kind == CONTROL_SCALES) {
++        put_be32(s->read_snapshot + 0x10, (uint32_t)(int32_t)s->scales_adc_raw);
++        put_be32(s->read_snapshot + 0x14, (uint32_t)(int32_t)lround(s->scales_weight_g * 100.0));
++        put_be32(s->read_snapshot + 0x18, (uint32_t)(int32_t)s->scales_offset);
++        s->read_snapshot[0x22] = clamp_u8(s->scales_button);
++        s->read_snapshot[0x25] = clamp_u8(s->scales_led_sync);
++        s->read_snapshot[0x50] = (s->scales_led_rgb >> 16) & 0xff;
++        s->read_snapshot[0x51] = (s->scales_led_rgb >> 8) & 0xff;
++        s->read_snapshot[0x52] = s->scales_led_rgb & 0xff;
++        s->read_snapshot[0xfe] = clamp_u8(s->scales_fw);
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
+     }
+ }
+ 
+@@ -1434,6 +1609,64 @@ static int control_send(I2CSlave *dev, uint8_t value)
+             return 1;
+         }
+         s->pointer++;
++    } else if (s->kind == CONTROL_PCA9554) {
++        unsigned offset = s->write_pos - 2;
++        if (offset != 0) { return 1; }
++        if (s->write_base == 0x01) { s->pca_output = value; }
++        else if (s->write_base == 0x02) { s->pca_polarity = value; }
++        else if (s->write_base == 0x03) { s->pca_config = value; }
++        else { return 1; }
++        s->pointer++;
++    } else if (s->kind == CONTROL_DAC2) {
++        unsigned offset = s->write_pos - 2;
++        if (s->write_base == 0x01) {
++            if (offset != 0) { return 1; }
++            if (value != 0x00 && value != 0x11) { return 1; }
++            s->dac2_range = value == 0x11;
++        } else if (s->write_base == 0x02) {
++            unsigned channel, shift;
++            if (offset > 3) { return 1; }
++            channel = offset < 2 ? 0 : 1;
++            shift = (offset & 1) * 8;
++            s->dac2_raw[channel] = (s->dac2_raw[channel] & ~(0xffu << shift)) | (value << shift);
++        } else if (s->write_base == 0x04) {
++            unsigned shift;
++            if (offset > 1) { return 1; }
++            shift = offset * 8;
++            s->dac2_raw[1] = (s->dac2_raw[1] & ~(0xffu << shift)) | (value << shift);
++        } else { return 1; }
++        s->pointer++;
++    } else if (s->kind == CONTROL_SCALES) {
++        unsigned offset = s->write_pos - 2;
++        uint8_t base = s->write_base;
++        if (base == 0x10 || base == 0x18) {
++            int64_t *target = base == 0x10 ? &s->scales_adc_raw : &s->scales_offset;
++            if (offset > 3) { return 1; }
++            *target = (*target & ~((int64_t)0xff << ((3 - offset) * 8)))
++                    | ((int64_t)value << ((3 - offset) * 8));
++        } else if (base == 0x24) {
++            if (offset != 0) { return 1; }
++            s->scales_cal_writes++;
++        } else if (base == 0x25) {
++            if (offset != 0) { return 1; }
++            s->scales_led_sync = value;
++        } else if (base == 0x30 || base == 0x32) {
++            if (offset > 1) { return 1; }
++            if (offset == 1) { s->scales_cal_writes++; }
++        } else if (base >= 0x50 && base <= 0x52) {
++            unsigned shift = (0x52 - base) * 8;
++            if (offset != 0) { return 1; }
++            s->scales_led_rgb = (s->scales_led_rgb & ~((int64_t)0xff << shift)) | ((int64_t)value << shift);
++        } else if (base == 0xff) {
++            BusChild *child;
++            if (offset != 0) { return 1; }
++            QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++                I2CSlave *other = I2C_SLAVE(child->child);
++                if (other != I2C_SLAVE(dev) && other->address == value) { return 1; }
++            }
++            i2c_slave_set_address(I2C_SLAVE(dev), value);
++        } else { return 1; }
++        s->pointer++;
+     } else if (s->kind == CONTROL_RFID2) {
+         rfid_write(s, reg, value);
+         if (reg != 9) { s->pointer++; }
+@@ -1719,7 +1952,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "dac", "joystick",
+-        "extencoder", "acssr",
++        "extencoder", "acssr", "rfid", "extio", "dac2", "scales",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -1728,7 +1961,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+ {
+     M5UnitControl *s;
+-    unsigned address;
++    unsigned address = 0;
+     if (!unit->bus) { error_setg(errp, "control Unit requires a routed I2C bus"); return; }
+     if (!m5_unit_controls_supported(unit->unit_id)) { error_setg(errp, "unsupported control Unit"); return; }
+     s = M5_UNIT_CONTROL(qdev_new(TYPE_M5_UNIT_CONTROL));
+@@ -1861,7 +2094,46 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_array(s, "key-ids", false);
+         add_int(s, "queued-keys", false); add_int(s, "modifier-mode", false);
+         add_int(s, "key-overflows", false); add_int(s, "led-rgb", false);
+-    } else {
++    } else if (!strcmp(unit->unit_id, "extio")) {
++        s->kind = CONTROL_PCA9554; address = 0x27;
++        s->pca_output = 0; s->pca_polarity = 0; s->pca_config = 0xff;
++        object_property_add(OBJECT(s->unit), "input-levels", "any", pca_inputs_get,
++                            pca_inputs_set, NULL, s);
++        object_property_add(OBJECT(s->unit), "output-levels", "any",
++                            pca_output_levels_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "polarity", "int",
++                            pca_polarity_get, NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "config", "int",
++                            pca_config_get, NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "dac2")) {
++        s->kind = CONTROL_DAC2; address = 0x59;
++        object_property_add(OBJECT(s->unit), "range", "int", dac2_range_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "voltage-0-v", "number", dac2_voltage_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "voltage-1-v", "number", dac2_voltage_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "dac-0-raw", "int", dac2_raw_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "dac-1-raw", "int", dac2_raw_get,
++                            NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "scales")) {
++        s->kind = CONTROL_SCALES; address = 0x26; s->scales_fw = 2;
++        add_control_number(s, "weight-g", &s->scales_weight_g, 0.0, -20000, 20000, true, false);
++        add_control_int_fixture(s, "adc-raw", &s->scales_adc_raw,
++                                INT32_MIN, INT32_MAX, true);
++        add_control_int_fixture(s, "offset-adc", &s->scales_offset,
++                                INT32_MIN, INT32_MAX, true);
++        add_control_int_fixture(s, "button-status", &s->scales_button, 0, 255, true);
++        object_property_add(OBJECT(s->unit), "led-rgb", "int", scales_led_rgb_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "led-sync", "int", scales_led_sync_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "calibration-writes", "uint64", u64_get,
++                            NULL, NULL, &s->scales_cal_writes);
++        object_property_add(OBJECT(s->unit), "fw-version", "int", scales_fw_get,
++                            NULL, NULL, s);
++    } else if (!strcmp(unit->unit_id, "rfid") || !strcmp(unit->unit_id, "rfid2")) {
+         s->kind = CONTROL_RFID2; address = 0x28; s->uid_len = 4;
+         static const uint8_t uid[] = {4, 1, 2, 3}; memcpy(s->uid, uid, 4);
+         /* Deterministic blank synthetic card, transport keys only. No real
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index a17d0c4..7b85241 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -23,6 +23,7 @@ typedef enum {
+     US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
+     US_DLIGHT, US_ACCEL, US_ADS1110, US_BMP280,
+     US_DHT12, US_ADS1115, US_AMETER_EEPROM, US_AIN420, US_PAJ7620,
++    US_ADS1115_VMETER, US_ADS1100,
+ } UnitSensorKind;
+ 
+ typedef struct M5UnitSensor {
+@@ -232,6 +233,38 @@ static void ads_config_get(Object *obj, Visitor *v, const char *name,
+     visit_type_int64(v, name, &value, errp);
+ }
+ 
++/* U013 ADC (0x48 ADS1100): 1-byte config; 3-byte read [data_hi, data_lo,
++ * config]. The official driver converts value/(−min_code[rate]*gain)*3.3*4,
++ * so the signed-looking 16-bit value is inverse-derived from voltage-v. The
++ * master/snapshot get_raw_value() length difference stays UNRESOLVED. */
++static uint16_t ads1100_raw(M5UnitSensor *s)
++{
++    static const int min_code[4] = { -2048, -8192, -16384, -32768 };
++    unsigned index = ((unsigned)s->command >> 2) & 3;
++    unsigned gain = 1u << ((unsigned)s->command & 3);
++    double raw = s->values[0] / 13.2 * (-min_code[index]) * gain;
++    long value = lround(raw);
++    if (value < 0) { value = 0; }
++    if (value > 65535) { value = 65535; }
++    return (uint16_t)value;
++}
++
++static void ads1100_raw_get(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = ads1100_raw(s);
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void ads1100_config_get(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    int64_t value = s->command;
++    visit_type_int64(v, name, &value, errp);
++}
++
+ typedef struct SensorInteger {
+     M5UnitSensor *sensor;
+     int64_t *value, lo, hi;
+@@ -329,7 +362,8 @@ static int16_t ameter_raw(M5UnitSensor *s)
+     long raw;
+ 
+     if (gain > 5) { gain = 5; }
+-    resolution = mv_lsb[gain] / 0.05;
++    resolution = mv_lsb[gain] /
++        (s->kind == US_ADS1115_VMETER ? 0.015918958 : 0.05);
+     raw = lround(-s->values[0] / resolution);
+     if (raw < -32768) { raw = -32768; }
+     if (raw > 32767) { raw = 32767; }
+@@ -788,7 +822,7 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+     unsigned pos = s->write_pos++;
+     s->written_bytes++; s->unit->written_bytes++;
+     sensor_update(s);
+-    if (s->kind == US_ADS1110) {
++    if (s->kind == US_ADS1110 || s->kind == US_ADS1100) {
+         if (pos != 0) { return 1; }
+         s->command = data;
+         return 0;
+@@ -799,8 +833,8 @@ static int sensor_send(I2CSlave *dev, uint8_t data)
+         s->pointer = data;
+         return 0;
+     }
+-    if (s->kind == US_ADS1115) {
+-        /* AMeter ADS1115: pointer then 2-byte big-endian config write. */
++    if (s->kind == US_ADS1115 || s->kind == US_ADS1115_VMETER) {
++        /* AMeter/VMeter ADS1115: pointer then 2-byte big-endian config write. */
+         if (pos == 0) { s->pointer = data; return 0; }
+         if (s->pointer != 0x01 || pos > 2) { return 1; }
+         if (pos == 1) { s->command = data << 8; }
+@@ -1041,12 +1075,18 @@ static uint8_t sensor_recv(I2CSlave *dev)
+         int16_t raw = ads1110_raw(s);
+         return pos == 0 ? (uint8_t)(raw >> 8) : (uint8_t)(raw & 0xff);
+     }
++    if (s->kind == US_ADS1100) {
++        uint16_t raw = ads1100_raw(s);
++        if (pos == 0) { return (uint8_t)(raw >> 8); }
++        if (pos == 1) { return (uint8_t)(raw & 0xff); }
++        return pos == 2 ? (uint8_t)s->command : 0xff;
++    }
+     if (s->kind == US_DHT12) {
+         uint8_t frame[5];
+         dht12_frame(s, frame);
+         return pos < sizeof(frame) ? frame[pos] : 0xff;
+     }
+-    if (s->kind == US_ADS1115) {
++    if (s->kind == US_ADS1115 || s->kind == US_ADS1115_VMETER) {
+         uint16_t config = (uint16_t)s->command | 0x8000;
+         if (s->pointer == 0x00) {
+             int16_t raw = ameter_raw(s);
+@@ -1155,7 +1195,7 @@ bool m5_unit_sensor_supported(const char *id)
+ {
+     static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc",
+         "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
+-        "env", "ameter", "ain4-20ma", "gesture" };
++        "env", "ameter", "ain4-20ma", "gesture", "vmeter", "adc" };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -1290,6 +1330,31 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
+         add_fixture_int(s, "gesture-flags", &s->paj_flags, 0, 65535);
+         add_u64(s, "init-writes", &s->paj_init_writes);
+         add_i2c_address(s);
++    } else if (!strcmp(u->unit_id, "vmeter")) {
++        /* U087 VMeter: ADS1115 0x49 + factory-calibration EEPROM 0x53 with
++         * the driver's 0.015918958 divider. The synthetic EEPROM record keeps
++         * calibration factor 1.0; it is NOT a real factory calibration. */
++        s->kind = US_ADS1115_VMETER; address = 0x49;
++        s->command = 0x8b80;
++        add_number(s, "voltage-v", 0, 5.0, -36, 36, false);
++        object_property_add(OBJECT(u), "adc-raw", "int", ameter_raw_get, NULL, NULL, s);
++        object_property_add(OBJECT(u), "config-word", "int", ameter_config_get, NULL, NULL, s);
++        add_i2c_address(s);
++        M5UnitSensor *e = sensor_device(u);
++        e->kind = US_AMETER_EEPROM;
++        ameter_fill_eeprom(e);
++        add_u64(e, "eeprom-writes", &e->eeprom_writes);
++        sensor_attach_one(u, "ads1115", s, 0x49);
++        sensor_attach_one(u, "eeprom", e, 0x53);
++        return;
++    } else if (!strcmp(u->unit_id, "adc")) {
++        /* U013 ADC: ADS1100 (distinct from the ADS1110 adc-v11 model). */
++        s->kind = US_ADS1100; address = 0x48;
++        s->command = 0x8c;      /* driver default: continuous, 8 SPS, gain 1 */
++        add_number(s, "voltage-v", 0, 1.0, 0, 12, false);
++        object_property_add(OBJECT(u), "adc-raw", "int", ads1100_raw_get, NULL, NULL, s);
++        object_property_add(OBJECT(u), "config-word", "int", ads1100_config_get, NULL, NULL, s);
++        add_i2c_address(s);
+     } else {
+         error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
+         object_unref(OBJECT(s)); return;
+-- 
+2.55.0
+

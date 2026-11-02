@@ -6251,6 +6251,256 @@
         ],
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
+    },
+    "rfid": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "U031 与已登记 rfid2 (U031-B) 同为 MFRC522 兼容命令面：可直接复用 CONTROL_RFID2（0x28、确定性合成卡、UID/认证/FIFO 状态），不需要新 kind；与 rfid2 的 0x28 地址冲突按“一总线一个”处理。未采集 guest/Device Service 证据，保持 planned。RF 场/天线/读卡距离/真实卡片与密钥 NOT RUN。",
+      "inputs": {
+        "card-present": {
+          "property": "card-present"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "card-data-hex": {
+          "property": "card-data-hex"
+        }
+      },
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "card-reads": {
+          "property": "card-reads"
+        },
+        "card-writes": {
+          "property": "card-writes"
+        },
+        "command-errors": {
+          "property": "command-errors"
+        },
+        "fifo-level": {
+          "property": "fifo-level"
+        },
+        "selected": {
+          "property": "selected"
+        },
+        "authenticated": {
+          "property": "authenticated"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "tube-pressure": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 GPIO id 'tube-pressure'：白线模拟输入复用现有 m5_unit_adc_sample（analog-mv/adc-samples），黄线 NC；guest 按驱动公式 (v-0.1)/3*300-100 kPa 换算。未采集 guest/Device Service 证据，保持 planned。传感器线性度/温补/±1.5kPa NOT RUN；ADC 11DB 校准 unresolved。",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        }
+      },
+      "state": {
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "pressure-kpa": {
+          "property": "pressure-kpa"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "laser-rx": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 GPIO id 'laser-rx'：白线数字输入（上拉，默认高）复用现有 digital-level/input-events 观测；黄线 NC；UART 模式暂不建模。未采集 guest/Device Service 证据，保持 planned。光学链路/接收频率/灵敏度 NOT RUN；配对 TX U066 不在本批。",
+      "inputs": {
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "input-events": {
+          "property": "input-events"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "extio": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 CONTROL_PCA9554（0x27）：4 寄存器 input 0x00 / output 0x01 / polarity 0x02 / config 0x03；读 0x00 按 PCA9554 语义组合输入、输出锁存与极性。未采集 guest/Device Service 证据，保持 planned。INT 输出/A0-A2 焊盘改址/上下拉电气 NOT RUN；产品页 EOL。",
+      "inputs": {
+        "input-levels": {
+          "property": "input-levels"
+        }
+      },
+      "state": {
+        "output-levels": {
+          "property": "output-levels"
+        },
+        "polarity": {
+          "property": "polarity"
+        },
+        "config": {
+          "property": "config"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "dac2": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 CONTROL_DAC2（0x59）：0x01 写量程（0x00=0-5V/0x11=0-10V），0x02/0x04 写 2B LE 通道码，0x02 可写 4B LE 双通道。未采集 guest/Device Service 证据，保持 planned。页面写 15-bit 而驱动按 16-bit 满码（0xFFFF）编码 → 15/16-bit 未决；0x59 与 extencoder 冲突（一总线一个）；模拟输出/短路保护 NOT RUN。",
+      "inputs": {},
+      "state": {
+        "dac-0-raw": {
+          "property": "dac-0-raw"
+        },
+        "dac-1-raw": {
+          "property": "dac-1-raw"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "range": {
+          "property": "range"
+        },
+        "voltage-0-v": {
+          "property": "voltage-0-v"
+        },
+        "voltage-1-v": {
+          "property": "voltage-1-v"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "scales": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 CONTROL_SCALES 寄存器组（0x26）：0x10 raw ADC int32be、0x14 weight int32be(/100)、0x18 offset、0x20-0x25 按键/RGB 控制、0x30/0x32 校准写、0x50-0x52 RGB、0xFE/0xFF 身份/地址。未采集 guest/Device Service 证据，保持 planned。0x26 与 4relay/weight-i2c 冲突（一总线一个）；HX711 采样与称重力学 NOT RUN；master 常量重命名（值不变）需钉 SHA。",
+      "inputs": {
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "button-status": {
+          "property": "button-status"
+        }
+      },
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-sync": {
+          "property": "led-sync"
+        },
+        "calibration-writes": {
+          "property": "calibration-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "vmeter": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "参数化复用 0126 ameter 双从机模式：ADS1115 0x49 config/conversion 由 voltage-v 按驱动 gain/rate 与 0.015918958 分压系数反算；EEPROM 0x53 为合成校验合法记录（factor 1.0）且默认只读。未采集 guest/Device Service 证据，保持 planned。真实出厂校准、±36V/隔离/保险丝、1% 精度 NOT RUN；0x53 与 accel 冲突（一总线一个）。",
+      "inputs": {
+        "voltage-v": {
+          "property": "voltage-v"
+        }
+      },
+      "state": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "config-word": {
+          "property": "config-word"
+        },
+        "eeprom-writes": {
+          "property": "eeprom-writes"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "adc": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "新增 US_ADS1100（0x48，区别于已有 US_ADS1110）：配置字节 ST/BSY 0x80、SC 0x10、DR bits 0x0C、PGA bits 0x03；读事务返回 3B [data_hi,data_lo,config]；raw 由 voltage-v 按驱动公式反算。未采集 guest/Device Service 证据，保持 planned。0x48 与 adc-v11/ameter 冲突；master/snapshot get_raw_value 返回长度差异需钉 SHA；精度/参考 NOT RUN；产品页 EOL。",
+      "inputs": {
+        "voltage-v": {
+          "property": "voltage-v"
+        }
+      },
+      "state": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "config-word": {
+          "property": "config-word"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {

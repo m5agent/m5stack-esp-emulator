@@ -828,3 +828,24 @@ done
   快照一致，`sha256_master` 在差异文件中额外记录 master 哈希；
 - 所有 `inputs.*.default` 都是合成测试 fixture，不是实测值；`blocker` 写明实现
   前置条件与硬件边界。
+
+## 11. 本轮已实现的 A+B 数据面（0130，2026-11-02）
+
+`patches/qemu-m5stack-peripherals/0130-unit-batch3ab.patch` 把 §4.1–4.6/4.10/4.11 的
+8 款落到 QEMU 数据面。catalog 仍全部 `planned`，无 guest 证据、无功能 PASS；
+离线 QOM smoke 只验证属性注册、fixture 读写/范围拒绝、只读拒绝和地址接线。
+
+| Unit | QEMU 接入点 | 已实现的数据面 | 仍未确认/未建模 |
+| --- | --- | --- | --- |
+| `rfid` U031 | 复用 `CONTROL_RFID2`（0x28） | MFRC522 命令面、合成 MIFARE 卡、UID/认证/FIFO 观测 | RF 场/天线/读卡距离/真实卡片与密钥；0x28 与 rfid2 冲突 |
+| `tube-pressure` U130 | `m5_unit_gpio.c` 单端 ADC | 白线 `analog-mv`/`adc-samples`，只读 `pressure-kpa` 便利换算 | 传感器线性度/温补/±1.5kPa；ADC 11DB 校准 |
+| `laser-rx` U065 | `m5_unit_gpio.c` 数字输入 | 白线 DOUT 上拉输入、`digital-level`/`input-level` | UART 模式、光学链路/140–205kHz/900nm |
+| `extio` U011 | 新 `CONTROL_PCA9554`（0x27） | input/output/polarity/config 4 寄存器语义、数组 fixture | INT 输出、A0–A2 焊盘改址、上下拉电气 |
+| `dac2` U012-B | 新 `CONTROL_DAC2`（0x59） | 0x01 量程、0x02/0x04 LE 通道码、只读 raw/电压观测 | 15-bit vs 16-bit 满码；模拟输出/短路保护；0x59 与 extencoder 冲突 |
+| `scales` U108 | 新 `CONTROL_SCALES`（0x26） | 4B BE raw/weight/offset、按钮/LED、校准写计数、0xFF 地址迁移 | HX711 采样/称重力学/去皮物理；0x26 与 4relay/weight-i2c 冲突 |
+| `vmeter` U087 | `US_ADS1115_VMETER`+EEPROM（0x49/0x53） | 参数化 ameter 双从机、0.015918958 分压、合成 factor 1.0 校准 | 真实出厂校准/±36V/隔离/保险丝；0x53 与 accel 冲突 |
+| `adc` U013 | 新 `US_ADS1100`（0x48） | 1 字节 config、3 字节 data/config 读、voltage-v 反算 | ADS1100 vs ADS1110、master/snapshot `get_raw_value()` 长度差异、精度/参考；0x48 三方冲突 |
+
+上表所有“仍未确认/未建模”项都同步记录在 catalog blocker 与
+`platform/web/unit-visual-mappings.js` 的 AUDIT 条目中；A+B 之外的 4 款
+（env-iv/co2/pbhub/ultrasonic-io）由并行的 0131 任务负责。
