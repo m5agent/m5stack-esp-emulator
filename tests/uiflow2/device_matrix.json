@@ -362,6 +362,34 @@
       "serial_index": 0
     },
     {
+      "id": "atom-echos3r",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atomvoices3r",
+      "base": "platform/.cache/firmware/atom-echos3r/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atom_echos3r_console_test",
+      "vfs_offset": "0x651000",
+      "vfs_size": "0x1ae000",
+      "flash_size": "0x800000",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "serial_index": 0,
+      "env": {
+        "M5SW_I2S_DMA_IRQ": "1",
+        "M5SW_I2S_PCM_FILE": "/tmp/m5-atom-echos3r-speaker.pcm"
+      },
+      "serial_expect": [
+        "VOICES3R_BOOT_FLAG",
+        "VOICES3R_MAIN_START",
+        "VOICES3R_M5_BEGIN_OK",
+        "VOICES3R_SPEAKER_RUNNING 1",
+        "VOICES3R_STATUS ok",
+        "VOICES3R_AUDIO_WINDOW_DONE"
+      ],
+      "timeout": 45
+    },
+    {
       "id": "dial",
       "backend": "qemu-esp32s3",
       "network_status": "unverified",

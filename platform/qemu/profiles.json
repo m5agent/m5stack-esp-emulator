@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "23 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3U adds a device-local console boot, GPIO41 button and GPIO35 WS2812 RMT path, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "24 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3U adds a device-local console boot, GPIO41 button and GPIO35 WS2812 RMT path, and AtomS3/AtomS3 Lite/StickC Plus2/Atom Lite/Atom Matrix/StickC/StickC Plus/StickC Plus SE/Dial remain partial candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -1188,6 +1188,64 @@
         "status": "native-console-boot-rgb-pass",
         "detail": "官方 UIFlow2 v2.5.4 AtomS3U 在同一 QEMU guest 内通过 ROM/二级 bootloader、M5.begin()、M5.getBoard()=138 与原 RGB() GPIO35 RMT 输出；GPIO41 按键经 QMP 输入到达 guest 模型。",
         "evidence": "docs/evidence/2026-11-02-atoms3u-host/summary.json",
+        "category": "virtual-device"
+      }
+    },
+    {
+      "id": "atom-echos3r",
+      "name": "Atom VoiceS3R",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3-PICO-1-N8R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atomvoices3r",
+      "display_model": "spi-gc9107",
+      "display": {
+        "driver": "GC9107",
+        "width": 128,
+        "height": 128
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gc9107-panel",
+        "gpio-button",
+        "bmi270",
+        "bmm150",
+        "es8311-codec",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "pressed",
+            "input-level"
+          ]
+        },
+        "es8311": {
+          "path": "/machine/es8311",
+          "properties": [
+            "transactions",
+            "written-bytes"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.4 boot, 128x128 GC9107 init, board id 145 and Speaker.begin/tone",
+        "I2S1 TX DMA non-silent PCM capture; NS4150B enable GPIO18 and IR GPIO47 have no board model"
+      ],
+      "blockers": [
+        "NS4150B amplifier enable GPIO18 and Voice Base IR GPIO47 have no board-level model. Microphone capture, Grove Unit data planes, USB CDC console and physical acoustics/optics/electrics remain open."
+      ],
+      "validation": {
+        "date": "2026-11-02",
+        "status": "native-boot-display-speaker-pass",
+        "detail": "官方 UIFlow2 v2.5.4 Atom VoiceS3R 在同一 QEMU guest 内完成启动、M5.getBoard()=145、128x128 面板初始化与 Speaker.begin()/tone()；I2S1 TX DMA 捕获到非静音 PCM。",
+        "evidence": "docs/evidence/2026-11-02-atom-echos3r-host/summary.json",
         "category": "virtual-device"
       }
     },

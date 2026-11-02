@@ -1,0 +1,153 @@
+From 0ef254230512f48ba174b0840106d3e381eb3f8b Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 14:54:35 +0800
+Subject: [PATCH] hw/m5stopwatch: add Atom VoiceS3R board
+
+C126-ECHO is an AtomS3R controller on the Atomic Voice Base: 128x128
+GC9107 panel, BMI270+BMM150, ES8311 codec on the SYS I2C bus, NS4150B
+amplifier enable on GPIO18, IR on GPIO47, GPIO41 button and Grove on
+GPIO2/GPIO1. Reuse the AtomS3R controller init and register a separate
+machine identity.
+
+Wiring evidence: docs.m5stack.com/en/core/Atom_VoiceS3R PinMap, checked
+2026-11-02.
+---
+ hw/m5stopwatch/m5atomvoices3r.c | 32 ++++++++++++++++++++++++++++++++
+ hw/m5stopwatch/m5sticks3.c      |  3 +++
+ hw/m5stopwatch/m5stopwatch.h    |  3 +++
+ hw/xtensa/esp32s3.c             | 32 ++++++++++++++++++++++++++++++++
+ hw/xtensa/meson.build           |  1 +
+ 5 files changed, 71 insertions(+)
+ create mode 100644 hw/m5stopwatch/m5atomvoices3r.c
+
+diff --git a/hw/m5stopwatch/m5atomvoices3r.c b/hw/m5stopwatch/m5atomvoices3r.c
+new file mode 100644
+index 0000000..13b7025
+--- /dev/null
++++ b/hw/m5stopwatch/m5atomvoices3r.c
+@@ -0,0 +1,32 @@
++/*
++ * M5Stack Atom VoiceS3R (C126-ECHO) board wiring.
++ *
++ * The controller is an AtomS3R (ESP32-S3-PICO-1-N8R8, 128x128 GC9107 panel,
++ * BMI270 at 0x68 with BMM150 behind the sensor hub, GPIO41 button), mounted
++ * on the Atomic Voice Base: ES8311 codec at 0x18 on the SYS I2C bus
++ * (SDA G45 / SCL G0), NS4150B amplifier enable on GPIO18, an IR emitter on
++ * GPIO47 and the Grove port on GPIO2/GPIO1.
++ *
++ * The controller-side panel, sensor and codec wiring is shared with the
++ * AtomS3R machine, so this board reuses that init and only records its own
++ * identity.  The NS4150B enable pin (GPIO18) and the Voice Base IR pin
++ * (GPIO47) have no board-level model yet; the guest's writes are visible
++ * through the GPIO controller but are not qualified as acoustic output.
++ *
++ * Wiring evidence: docs.m5stack.com/en/core/Atom_VoiceS3R PinMap, checked
++ * 2026-11-02.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5atomvoices3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                               ESPGdmaState *gdma)
++{
++    /* Panel, I2C bus with BMI270/BMM150/ES8311 and GPIO41 button. */
++    m5atoms3r_board_init(sys_mem, intmatrix, gdma);
++}
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 444014d..71092ff 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -98,6 +98,9 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_ATOMS3U:
+         m5atoms3u_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_ATOM_VOICES3R:
++        m5atomvoices3r_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3:
+         m5atoms3_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 6f0d4be..0ff77cf 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -76,6 +76,7 @@ typedef enum {
+     M5_BOARD_ATOMS3,
+     M5_BOARD_ATOMS3_LITE,
+     M5_BOARD_ATOMS3U,
++    M5_BOARD_ATOM_VOICES3R,
+     M5_BOARD_STICKC_PLUS2,
+     M5_BOARD_STICKC,
+     M5_BOARD_STICKC_PLUS,
+@@ -173,6 +174,8 @@ void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                              struct ESPGdmaState *gdma);
+ void m5atoms3u_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
++void m5atomvoices3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                               struct ESPGdmaState *gdma);
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          struct ESPGdmaState *gdma);
+ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 806d8ef..7d3a37d 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1486,6 +1486,38 @@ static void m5atoms3u_machine_type_init(void)
+ 
+ type_init(m5atoms3u_machine_type_init);
+ 
++/* C126-ECHO Atom VoiceS3R: AtomS3R controller on the Atomic Voice Base. */
++static void m5atomvoices3r_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOM_VOICES3R;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atomvoices3r_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack Atom VoiceS3R C126-ECHO (ESP32-S3-PICO-1-N8R8, GC9107, ES8311)";
++    mc->init = m5atomvoices3r_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atomvoices3r_info = {
++    .name = MACHINE_TYPE_NAME("m5atomvoices3r"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atomvoices3r_machine_class_init,
++};
++
++static void m5atomvoices3r_machine_type_init(void)
++{
++    type_register_static(&m5atomvoices3r_info);
++}
++
++type_init(m5atomvoices3r_machine_type_init);
++
+ /* K130 M5Dial: original ESP32-S3FN8 with no PSRAM. */
+ static void m5dial_machine_init(MachineState *machine)
+ {
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index c26ca45..40aea94 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -52,6 +52,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5atoms3.c',
+   '../m5stopwatch/m5atoms3lite.c',
+   '../m5stopwatch/m5atoms3u.c',
++  '../m5stopwatch/m5atomvoices3r.c',
+   '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',
+-- 
+2.55.0
+
