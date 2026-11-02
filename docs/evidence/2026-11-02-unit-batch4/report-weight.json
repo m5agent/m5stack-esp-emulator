@@ -113,7 +113,7 @@
   },
   "boundaries": [
     "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
-    "Evidence fix 0137 adds a deferred externally-driven input update because a pad-observer callback cannot call esp32_gpio_set_input(); no pad notification/IRQ is generated for the DAT transitions.",
+    "Evidence fix 0138 adds a deferred externally-driven input update because a pad-observer callback cannot call esp32_gpio_set_input(); no pad notification/IRQ is generated for the DAT transitions.",
     "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver; QOM adc-raw is the 24-bit DAT pattern before that driver transform.",
     "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
     "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver (count is left-shifted after each of the 24 bits); the QOM adc-raw is the 24-bit DAT pattern before that driver transform."

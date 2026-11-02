@@ -17,13 +17,13 @@ hosts 为空。离线 QOM smoke（S3 board、无 guest）只验证属性注册�
 
 ## 补丁与 base
 
-- 补丁：`patches/qemu-m5stack-peripherals/0137-unit-batch5a.patch`（386 行，
-  sha256 `091e11ea…`，`git apply --reverse --check` 通过）。
-- QEMU 源锁 commit `839f634` = canonical native layer `75f1d24` + 已合入的
-  `0120/0121/0122/0123/0124/0125/0126/0127/0128/0129` + `0131`（batch3 C）+
-  `0134`（batch4 A+B）+ `0136`（batch4 C）；实现 commit `b991dd7`。
-- `0130/0132/0133/0135` 是 batch3 并行证据层，不在本树状态；它们与 0137 的
-  reconciliation 仍留给后续独立任务。
+- 补丁：`patches/qemu-m5stack-peripherals/0137-unit-batch5a.patch`（388 行，
+  sha256 `05698a1a…`，canonical 链上 `git apply --check` 通过）。
+- canonical 链（reconciliation 后，见 `patches/qemu-m5stack-peripherals/README.md`）：
+  `75f1d24` → `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132` → `0137` → `0138` → `0139`；
+  `0140` 是下一个可用补丁号。本页的 `0137` 已由 patch-chain reconciliation 重导出，并在该 canonical 链上验证 `git apply --check`。
+- 实现历史：源锁树 `839f634`（canonical + 已合入的 0120–0129 + 0131 + 0134 + 0136，reconciliation 前）与实现 commit `b991dd7` 仅作当时构建记录；
+  `0130/0132/0133/0135` 已并入 canonical 链，不再是并行层。
 
 ## 5 款实现与边界
 

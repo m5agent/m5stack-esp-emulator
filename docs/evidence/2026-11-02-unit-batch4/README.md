@@ -19,7 +19,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| QEMU 源码状态 | canonical `75f1d24` + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + **0131 + 0134 + 0136 + 0137（本轮证据修复）** |
+| QEMU 源码状态 | canonical `75f1d24` + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + **0131 + 0134 + 0136 + 0138（本轮证据修复）** |
 | QEMU 树 | `.work/native-lock-source/qemu` |
 | 运行时二进制 SHA-256（签名部署副本） | `a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2` |
 | 构建产物 SHA-256（unsigned 构建） | `1ae4d2cea473421dfc527e77a727caa51ddcc9d39ff1902bb924e8c41e99cb82` |
@@ -29,7 +29,7 @@
 ## 证据修复（本轮发现）
 
 `0138-unit-batch4-evidence-fixes.patch` 是本轮证据发现的模型修复，base 为
-`canonical + 0120…0129 + 0131 + 0134 + 0136` 树：
+canonical 链末尾（`75f1d24` → `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132` → `0137`）树，补丁在 canonical 链上 `git apply --check` 通过；`patch_sha256 = dc20597878d4de29db94a8679fc6a3958c72bbd06859d8061786655d7099bf7c`：
 
 | 根因 | 影响 | 修复 |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ PORT.C，但当前 host-port 注册表只把 `cores3/PORT.A` 作为 main-device 
 ## 复现
 
 ```bash
-# 树：canonical + 0120..0129 + 0131 + 0134 + 0136 + 0137；构建后签名部署
+# 树：canonical + 0120..0129 + 0131 + 0134 + 0136 + 0138；构建后签名部署
 # 到 .work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa
 M5_SERVICE_FLASH_MODE=host-image \
 M5_QEMU_XTENSA="$PWD/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa" \
