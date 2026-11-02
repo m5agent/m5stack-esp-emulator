@@ -1,14 +1,15 @@
-From 9c1f2e3a4b5d6f708192a3b4c5d6e7f8091a2b3c Mon Sep 17 00:00:00 2001
+From 0d865fa8e5511665a6bc432e035f8c6cc73a1a83 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 02:55:00 +0800
+Date: Tue, 3 Nov 2026 02:52:14 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-9 remaining UART byte planes
 
 Register the four batch-9 Units that have an executable UART path as
-byte-layer fixture responders, on the reconciled canonical chain. Base is the
-30-layer chain through 0149 (canonical 75f1d24 plus 0120-0149); this is the
-31st layer after 0120 and it applies at the chain end. The batch-7 evidence fix
-is 0150 and remains a separate parallel layer pending reconciliation; this
-patch does not touch its catm/lorawan-cn470 code paths.
+byte-layer fixture responders, on the reconciled canonical chain. Base in the reconciled canonical order is the
+31-layer chain through 0150 (canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136,
+0130, 0133, 0135, 0132, 0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145,
+0146, 0147, 0148, 0149 and 0150); this is the 32nd layer after 0120 and it applies
+at the chain end. The batch-7 evidence fix 0150 precedes this layer, so the
+catm/lorawan-cn470 responder ids are already present.
 
 - lorawan-as923 (U184-AS923) and lorawan-eu868 (U184-EU868): reuse the existing
   UART TX-capture + idle fixture responder for the AT byte layer. The frozen
@@ -31,9 +32,15 @@ PASS and no guest/Device Service evidence is recorded; all four catalog/profile
 entries stay planned. The five remaining batch-9 Units (cardkb2, 8servos2-i2c,
 bmm350, ina226-10a, rollercan) are registered as planned contracts only, with no
 QEMU model and no guessed registers.
+---
+ hw/m5stopwatch/m5_unit_gpio.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 25d00e6..e0b4495 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -699,7 +699,8 @@
+@@ -699,7 +699,8 @@ bool m5_unit_gpio_supported(const char *id)
          "ultrasonic-io", "rs485-iso", "laser-tx", "rf433t", "rf433r", "neco", "midi",
          "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
          "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
@@ -43,7 +50,7 @@ QEMU model and no guessed registers.
          "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
          "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
      for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
-@@ -1025,6 +1026,10 @@
+@@ -1025,6 +1026,10 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                   !strcmp(g->unit->unit_id, "uwb") || !strcmp(g->unit->unit_id, "dmx") ||
                   !strcmp(g->unit->unit_id, "finger") || !strcmp(g->unit->unit_id, "catm") ||
                   !strcmp(g->unit->unit_id, "catm-gnss") || !strcmp(g->unit->unit_id, "lorawan-cn470") ||
@@ -54,9 +61,9 @@ QEMU model and no guessed registers.
                   !strcmp(g->unit->unit_id, "nbiot-cn") ||
                   !strcmp(g->unit->unit_id, "lora-e220-920") ||
                   !strcmp(g->unit->unit_id, "lorawan-us915")) &&
-@@ -1049,7 +1054,11 @@
-                            !strcmp(g->unit->unit_id, "dmx") ||
-                            !strcmp(g->unit->unit_id, "finger") ||
+@@ -1052,7 +1057,11 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                            !strcmp(g->unit->unit_id, "catm-gnss") ||
+                            !strcmp(g->unit->unit_id, "lorawan-cn470") ||
                             !strcmp(g->unit->unit_id, "nbiot-cn") ||
 -                           !strcmp(g->unit->unit_id, "lorawan-us915")) {
 +                           !strcmp(g->unit->unit_id, "lorawan-us915") ||
@@ -64,10 +71,10 @@ QEMU model and no guessed registers.
 +                           !strcmp(g->unit->unit_id, "lorawan-eu868") ||
 +                           !strcmp(g->unit->unit_id, "audioplayer") ||
 +                           !strcmp(g->unit->unit_id, "fingerprint2")) {
-                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
-                     at_arm_idle(g);
-                 }
-@@ -1763,6 +1772,8 @@
+                     /* Batch-7 UART units use the same idle-time fixture
+                      * responder as nbiot2; the 0145 list update registered the
+                      * unit ids but this capture body was missed. */
+@@ -1779,6 +1788,8 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                  !strcmp(unit->unit_id, "uwb") || !strcmp(unit->unit_id, "dmx") ||
                  !strcmp(unit->unit_id, "finger") || !strcmp(unit->unit_id, "catm") ||
                  !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
@@ -76,7 +83,7 @@ QEMU model and no guessed registers.
                  !strcmp(unit->unit_id, "nbiot-cn") ||
                  !strcmp(unit->unit_id, "lora-e220-920") ||
                  !strcmp(unit->unit_id, "lorawan-us915") ||
-@@ -1960,7 +1971,9 @@
+@@ -1976,7 +1987,9 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                 !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
                 !strcmp(id, "dmx") || !strcmp(id, "finger") ||
                 !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
@@ -87,3 +94,6 @@ QEMU model and no guessed registers.
                 !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
          g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
          object_property_add(o, "responses-hex", "str", at_responses_get,
+-- 
+2.55.0
+
