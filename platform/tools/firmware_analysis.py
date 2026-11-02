@@ -16,6 +16,16 @@ PARTITION_TABLE_SIZE = 0x1000
 SECURE_BOOT_V2_SIGNATURE_MAGIC = 0xE7
 SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE = 0x1000
 SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE = 1216
+IMAGE_FLASH_SIZE_BYTES = {
+    0: 1 << 20,
+    1: 2 << 20,
+    2: 4 << 20,
+    3: 8 << 20,
+    4: 16 << 20,
+    5: 32 << 20,
+    6: 64 << 20,
+    7: 128 << 20,
+}
 ECDSA_CURVES = {
     1: {
         "p": int(
@@ -533,11 +543,17 @@ def analyze_esp_image(data: bytes, offset: int = 0) -> dict:
         result["errors"].append(f"segment count {segment_count} exceeds 16")
         return result
     chip_id = _u16(header, 12)
+    flash_size_code = header[3] >> 4
+    flash_size = IMAGE_FLASH_SIZE_BYTES.get(flash_size_code)
     result.update(
         {
             "valid": True,
             "segment_count": segment_count,
             "entry_addr": _u32(header, 4),
+            "flash_mode": header[2],
+            "flash_speed_code": header[3] & 0x0F,
+            "flash_size_code": flash_size_code,
+            "flash_size": flash_size,
             "chip_id": chip_id,
             "chip": CHIP_IDS.get(chip_id, f"unknown(0x{chip_id:04x})"),
             "min_chip_rev_full": _u16(header, 15),
@@ -545,6 +561,10 @@ def analyze_esp_image(data: bytes, offset: int = 0) -> dict:
             "hash_appended": bool(header[23]),
         }
     )
+    if flash_size is None:
+        result["warnings"].append(
+            f"unsupported SPI flash-size code {flash_size_code}"
+        )
     cursor = offset + 24
     for index in range(segment_count):
         if cursor + 8 > len(data):
@@ -748,6 +768,23 @@ def analyze_firmware(
         result["partition_table"],
     )
     partition_table = result["partition_table"]
+    bootloader_flash_size = result["bootloader"].get("flash_size")
+    result["bootloader_flash_contract"] = {
+        "declared_flash_size": bootloader_flash_size,
+        "partition_end": partition_end,
+        "partitions_fit": (
+            bootloader_flash_size is not None
+            and partition_end <= bootloader_flash_size
+        ),
+    }
+    if (
+        bootloader_flash_size is not None
+        and partition_end > bootloader_flash_size
+    ):
+        result["warnings"].append(
+            "partition table extends beyond the bootloader-declared "
+            f"flash size 0x{bootloader_flash_size:x}"
+        )
     if not partition_table["valid"]:
         result["warnings"].append(
             "no valid partition table; image may be app-only or non-standard"

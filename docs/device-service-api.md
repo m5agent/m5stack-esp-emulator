@@ -1240,6 +1240,13 @@ known, required capabilities, chip, flash and PSRAM are checked. The service
 returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
 must not be reported as a firmware crash.
 
+Composition also checks that the bootloader image header declares enough SPI
+flash capacity for the partition table. If the highest partition end exceeds
+that declared capacity, the request returns `409
+bootloader_flash_size_too_small` before a session is allocated. For example,
+padding a 4 MiB build to an 8 MiB device is not sufficient when its bootloader
+was compiled for 4 MiB and its partition table requires the full 8 MiB.
+
 `POST /api/v1/firmware/import` accepts up to 64 canonicalized
 `required_capabilities` and 64 `optional_capabilities`. Aliases such as
 `screen` become `display`; malformed, non-string, empty or overlong entries

@@ -112,6 +112,32 @@ def build_flash_with_nvs_partition(*, nvs_size: int = 0x6000) -> bytes:
     return bytes(image)
 
 
+def build_flash_with_bootloader_flash_size(flash_size_code: int) -> bytes:
+    image = bytearray(b"\xff" * (4 << 20))
+    base = build_flash()
+    image[: len(base)] = base
+    image[3] = (image[3] & 0x0F) | (flash_size_code << 4)
+    entries = []
+    for subtype, offset, size, label in (
+        (0x10, 0x10000, 0x330000, b"app0"),
+        (0x11, 0x340000, 0x330000, b"app1"),
+    ):
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        entry[2] = 0
+        entry[3] = subtype
+        struct.pack_into("<II", entry, 4, offset, size)
+        entry[12 : 12 + len(label)] = label
+        entries.append(entry)
+    table = b"".join(entries)
+    md5_entry = bytearray(32)
+    struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+    md5_entry[16:32] = hashlib.md5(table).digest()
+    image[0x8000 : 0x8000 + len(table)] = table
+    image[0x8000 + len(table) : 0x8000 + len(table) + 32] = md5_entry
+    return bytes(image)
+
+
 def webburner_package(image: bytes) -> bytes:
     parts = {
         "bootloader.bin": image[:0x8000],
@@ -649,6 +675,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.service.firmware.path(firmware["firmware_id"]).stat().st_size,
             8 << 20,
         )
+
+    def test_merged_firmware_rejects_partition_table_beyond_bootloader_declared_flash(self):
+        artifact = self.service.upload_artifact(
+            build_flash_with_bootloader_flash_size(2)
+        )
+        with self.assertRaises(ServiceError) as rejected:
+            self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "merged",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            )
+        self.assertEqual(
+            rejected.exception.code,
+            "bootloader_flash_size_too_small",
+        )
+        self.assertIn("0x400000", rejected.exception.message)
+        self.assertIn("0x670000", rejected.exception.message)
+        self.assertIn("8388608-byte", rejected.exception.message)
 
     def test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it(self):
         payload = {"device_id": "cores3", "files": {"main.py": "pass\n"},
