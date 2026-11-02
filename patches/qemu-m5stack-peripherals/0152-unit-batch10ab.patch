@@ -1,11 +1,13 @@
-From 7b2c9e1d4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c Mon Sep 17 00:00:00 2001
+From 1aa0ff857de7eb132fe739e8f75006fbf994a348 Mon Sep 17 00:00:00 2001
 From: m5agent <m5agent@m5stack.com>
-Date: Tue, 3 Nov 2026 03:25:00 +0800
+Date: Tue, 3 Nov 2026 03:22:59 +0800
 Subject: [PATCH] hw/m5stopwatch: add Unit batch-10 a-class model subsets
 
 Register the batch-10 a-class Units with reusable model subsets on the
-reconciled canonical chain. Base is the 32-layer chain through 0151; this is
-the 33rd layer after 0120 and applies at the chain end. All catalog/profile
+reconciled canonical chain. Base in the reconciled canonical order is the 32-layer chain through 0151
+(canonical 75f1d24 plus 0120-0129, 0131, 0134, 0136, 0130, 0133, 0135, 0132,
+0137, 0138, 0139, 0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0148, 0149,
+0150 and 0151); this is the 33rd layer after 0120 and it applies at the chain end. All catalog/profile
 entries stay planned; no guest/Device Service evidence is recorded.
 
 - dcssr (U140): alias the official unit/acssr.py register subset at I2C 0x50
@@ -28,34 +30,17 @@ ina226-1a is registered as a planned contract only (no QEMU model) because the
 page has no register table and the TI datasheet is not pinned; the 11 b-class
 Units are planned contracts only with no models or guessed registers.
 Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
---- a/hw/m5stopwatch/m5_unit_i2c_controls.c
-+++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
-@@ -3064,7 +3064,7 @@
-         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
-         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
-         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
--        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
-+        "cardkb-original", "extencoder", "acssr", "dcssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
-         "oled", "mini-oled", "glass2",
-     };
-     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
-@@ -3176,7 +3176,12 @@
-         add_control_int_fixture(s, "fw-version", &s->ext_fw, 0, 255, true);
-         object_property_add(OBJECT(s->unit), "reset-writes", "uint64", u64_get,
-                             NULL, NULL, &s->ext_reset_writes);
--    } else if (!strcmp(unit->unit_id, "acssr")) {
-+    } else if (!strcmp(unit->unit_id, "acssr") ||
-+               !strcmp(unit->unit_id, "dcssr")) {
-+        /* U139 ACSSR and U140 DCSSR share the official unit/acssr.py register
-+         * subset: 0x00 relay level, 0x10 RGB, 0xFE firmware, 0x20 address.
-+         * DCSSR also supports a separate Modbus/RS485 mode which is NOT part
-+         * of the Unit I2C attachment. */
-         s->kind = CONTROL_ACSSR; address = 0x50;
-         s->acssr_fw = 1;  /* synthetic firmware fixture */
-         object_property_add(OBJECT(s->unit), "relay-level", "bool",
+---
+ hw/m5stopwatch/m5_unit_gpio.c         | 29 +++++++++++++++++++++------
+ hw/m5stopwatch/m5_unit_i2c_controls.c |  9 +++++++--
+ hw/m5stopwatch/m5_unit_i2c_sensors.c  | 26 +++++++++++++++++++++++-
+ 3 files changed, 55 insertions(+), 9 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index e0b4495..86b80f0 100644
 --- a/hw/m5stopwatch/m5_unit_gpio.c
 +++ b/hw/m5stopwatch/m5_unit_gpio.c
-@@ -96,6 +96,7 @@
+@@ -96,6 +96,7 @@ typedef struct GPIOUnit {
      unsigned at_offset;
      QEMUTimer *at_timer;
      uint64_t at_frames_sent, at_frames_injected;
@@ -63,7 +48,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
      uint8_t at_buf[256];
      size_t at_len;
      /* U170-433 0xC0/0xC1 config mirror (8 bytes after the 3-byte header). */
-@@ -698,9 +699,9 @@
+@@ -698,9 +699,9 @@ bool m5_unit_gpio_supported(const char *id)
          "earth", "hall", "reflective-ir", "vibrator", "watering", "fader",
          "ultrasonic-io", "rs485-iso", "laser-tx", "rf433t", "rf433r", "neco", "midi",
          "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
@@ -75,7 +60,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
          "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
          "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
      for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
-@@ -1030,6 +1031,7 @@
+@@ -1030,6 +1031,7 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                   !strcmp(g->unit->unit_id, "lorawan-eu868") ||
                   !strcmp(g->unit->unit_id, "audioplayer") ||
                   !strcmp(g->unit->unit_id, "fingerprint2") ||
@@ -83,7 +68,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
                   !strcmp(g->unit->unit_id, "nbiot-cn") ||
                   !strcmp(g->unit->unit_id, "lora-e220-920") ||
                   !strcmp(g->unit->unit_id, "lorawan-us915")) &&
-@@ -1061,11 +1063,19 @@
+@@ -1061,11 +1063,19 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
                             !strcmp(g->unit->unit_id, "lorawan-as923") ||
                             !strcmp(g->unit->unit_id, "lorawan-eu868") ||
                             !strcmp(g->unit->unit_id, "audioplayer") ||
@@ -104,7 +89,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
                      at_arm_idle(g);
                  }
              }
-@@ -1790,6 +1800,7 @@
+@@ -1790,6 +1800,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                  !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
                  !strcmp(unit->unit_id, "lorawan-as923") || !strcmp(unit->unit_id, "lorawan-eu868") ||
                  !strcmp(unit->unit_id, "audioplayer") || !strcmp(unit->unit_id, "fingerprint2") ||
@@ -112,7 +97,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
                  !strcmp(unit->unit_id, "nbiot-cn") ||
                  !strcmp(unit->unit_id, "lora-e220-920") ||
                  !strcmp(unit->unit_id, "lorawan-us915") ||
-@@ -1972,13 +1983,14 @@
+@@ -1972,13 +1983,14 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
          object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
          object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
                              &g->incomplete_frames);
@@ -129,7 +114,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
          object_property_add(o, "led-rgb", "any", led_get, NULL, NULL, g);
          object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
          object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL,
-@@ -1989,7 +2001,8 @@
+@@ -1989,7 +2001,8 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                 !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
                 !strcmp(id, "lorawan-cn470") || !strcmp(id, "lorawan-as923") ||
                 !strcmp(id, "lorawan-eu868") || !strcmp(id, "audioplayer") ||
@@ -139,7 +124,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
                 !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
          g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
          object_property_add(o, "responses-hex", "str", at_responses_get,
-@@ -1999,6 +2012,10 @@
+@@ -1999,6 +2012,10 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
                              &g->at_frames_sent);
          object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
                              &g->at_frames_injected);
@@ -150,9 +135,38 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
          if (!strcmp(id, "lora-e220-433") || !strcmp(id, "lora-e220-920")) {
              object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
          }
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 0c6b81b..13c9421 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -3064,7 +3064,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+-        "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
++        "cardkb-original", "extencoder", "acssr", "dcssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd", "glass",
+         "oled", "mini-oled", "glass2",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+@@ -3176,7 +3176,12 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         add_control_int_fixture(s, "fw-version", &s->ext_fw, 0, 255, true);
+         object_property_add(OBJECT(s->unit), "reset-writes", "uint64", u64_get,
+                             NULL, NULL, &s->ext_reset_writes);
+-    } else if (!strcmp(unit->unit_id, "acssr")) {
++    } else if (!strcmp(unit->unit_id, "acssr") ||
++               !strcmp(unit->unit_id, "dcssr")) {
++        /* U139 ACSSR and U140 DCSSR share the official unit/acssr.py register
++         * subset: 0x00 relay level, 0x10 RGB, 0xFE firmware, 0x20 address.
++         * DCSSR also supports a separate Modbus/RS485 mode which is NOT part
++         * of the Unit I2C attachment. */
+         s->kind = CONTROL_ACSSR; address = 0x50;
+         s->acssr_fw = 1;  /* synthetic firmware fixture */
+         object_property_add(OBJECT(s->unit), "relay-level", "bool",
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+index e23fe61..a8d2b4b 100644
 --- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
 +++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
-@@ -2294,7 +2294,8 @@
+@@ -2294,7 +2294,8 @@ bool m5_unit_sensor_supported(const char *id)
          "ultrasonic-i2c", "thermal", "dlight", "accel", "adc-v11", "bps",
          "env", "ameter", "ain4-20ma", "gesture", "env-iv", "co2", "co2l", "tof4m",
          "ac-measure", "vmeter", "adc", "8angle", "kmeter-iso-v11", "rtc", "tmos-pir",
@@ -162,7 +176,7 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
      for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
          if (!strcmp(id, ids[i])) { return true; }
      }
-@@ -2370,6 +2371,29 @@
+@@ -2370,6 +2371,29 @@ void m5_unit_sensor_realize(M5Unit *u, Error **errp)
          add_number(bp, "pressure-pa", 1, 101325, 30000, 110000, false);
          sensor_attach_one(u, "bmp280", bp, 0x76);
          return;
@@ -192,3 +206,6 @@ Offline QOM smoke (S3 m5cores3, no guest firmware) covers the six model units.
      } else if (!strcmp(u->unit_id, "mini-imu-pro")) {
          /* U171 Mini IMU-Pro: BMI270 0x68 (accel/gyro/temp + BMM150 aux) and
           * BMP280 0x76 (pressure) on one Grove pair. 0x68 conflicts with
+-- 
+2.55.0
+

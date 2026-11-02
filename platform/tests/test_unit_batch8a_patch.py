@@ -45,7 +45,7 @@ class UnitBatch8aPatchTests(unittest.TestCase):
     def test_patch_base_is_the_25_layer_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0146-unit-batch8a.patch", readme)
-        self.assertIn("32 layers", readme)
+        self.assertIn("33 layers", readme)
         self.assertIn("0145", readme)
 
     def test_pahub_v21_reuses_mask_only_with_dip_fixture(self):
