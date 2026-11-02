@@ -154,6 +154,12 @@ Unit 第六批剩余 6 款（unit-id/thermal2/qrcode/uwb/dmx/finger）在单一 
 0145 的 Thermal2 fixture 槽位、UWB/DMX/Finger UART 应答器 idle arming 与 FPC1020A 多帧注入三个模型 bug，
 thermal2/qrcode/uwb/dmx/finger 5 款 PASS，unit-id 因 ATECC 驱动 wake 写 I2C 地址 0x00 的 harness 限制如实 BLOCKED；
 PORT.C 未准入使用 cores3 PORT.A harness；热/光/RF/生物/电气物理语义与 DMX512 电气行为全部 NOT RUN。
+Unit 第七批 8 款（mini-tof-90/hbridge-v11/cardkb-original/env-ii/hex/catm/catm-gnss/lorawan-cn470）在单一 QEMU 构建上取得虚拟设备证据，见
+[Unit 第七批虚拟设备证据](evidence/2026-11-03-unit-batch7/README.md)；证据发现并修复了
+0145 batch7 UART 应答器的 TX 捕获后未 arm idle 响应体与 ASR650x RX 注入路由两个模型 bug（0149），
+8 款 guest 会话全部 PASS 并升 profile implemented/catalog partial；`can` 因 CAN attachment/帧注入 gap 如实 BLOCKED，
+`mini-bps-v11`/`mini-pdm` 保持 DEFER，`mini-imu-pro` 不在本批范围、保持 planned；
+PORT.B/C 未准入使用 cores3 PORT.A harness 替换并记录；光学/电机/键程/传感精度/RF/蜂窝语义全部 NOT RUN。
 
 ## 首页与维护入口
 
@@ -255,6 +261,7 @@ PORT.C 未准入使用 cores3 PORT.A harness；热/光/RF/生物/电气物理语
 | [Unit 第五批 12 款虚拟设备证据](evidence/2026-11-02-unit-batch5/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | A 5 款（pbhub-v11 6 通道/RGB、op90 数字电平、rgb-led-10cm 15 灯 RMT、8angle ADC/RGB、kmeter-iso-v11 温度）与 B 7 款（pahub-v20 mask-only、rtc 虚拟时钟+停止写回、tmos-pir presence/motion/raw、neohex generic WS2812 37 灯、lora/zigbee/nbiot2 UART 帧）各一个 cores3 可见会话，单一 QEMU 构建（…0139+0141）；0141 修复 op90 digital-level 属性、RTC 停止时钟写回、TMOS 状态位/页读取、KMeter fixture 同步；PORT.B/C 使用 cores3 PORT.A harness 替换；光学/热学/RF/蜂窝/市电语义如实 NOT RUN |
 | [Unit 第六批首批虚拟设备证据](evidence/2026-11-02-unit-batch6/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-02` | mini-scales（0x26 ADC/weight/button/校准/滤波，0144 修复 readfrom_mem 指针相位与 button-pressed 别名）、rgb-led-strip-50cm（30×SK6812 RMT）、op180（白线数字输入）、synth（TX-only MIDI 31250，无 RX）、mini-imu（MPU6886 0x68 accel/gyro/temp + 2g/250→8g/1000 量程，0144 QOM 同步）、env-pro（BME688 0x77 identity + raw field bytes；guest 解码 T/RH/P NOT ASSERTED）各一个 cores3 可见会话，单一 QEMU 构建（…0141+0144）；PORT.B/C 使用 cores3 PORT.A harness 替换；物理/光学/音频/热学/气体语义如实 NOT RUN |
 | [Unit 第六批剩余虚拟设备证据](evidence/2026-11-03-unit-batch6b/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | thermal2（0x32 中位/平均/差分 + 768B/384×u16 数组，fixture 精确）、qrcode（0x21 2B-LE 地址窗口，status=1/len=15/data fixture/clear→0）、uwb（UART AT fixture 应答器，仅字节层，tx 命令字节精确）、dmx（cdriver 可执行，write_data 后 QOM 捕获 00ff… 字节流，仅字节层）、finger（FPC1020A version gate B1.10.00 + user count/capacity=150，仅 0xF5/XOR 字节层）各一个 cores3 可见会话，单一 QEMU 构建（…0143+0144+0145）；unit-id BLOCKED（ATECC wake 写 0x00 无法被 0x35 从机接收，revision/serial/random 失败，不伪造）；PORT.C 使用 cores3 PORT.A harness 替换；RF/热成像/光学/生物识别/DMX512 电气语义 NOT RUN |
+| [Unit 第七批虚拟设备证据](evidence/2026-11-03-unit-batch7/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | batch7 8 款：mini-tof-90（ToFUnit/VL53L0X 0x29，range 500/QOM distance）、hbridge-v11（HbridgeUnit 0x20 direction/PWM/freq/ADC/current）、cardkb-original（CardKBUnit 0x5F keycode 113）、env-ii（ENVUnit ENV_II SHT30 0x44+BMP280 0x76 T/RH/P 31.5/45.5/1005.0）、hex（generic RGBUnit/SK6812 37 LEDs，driver-gap）、catm/catm-gnss/lorawan-cn470（UART fixture 字节层，无 RF/蜂窝/LoRaWAN 声明）各一个 cores3 可见会话；单一 QEMU 构建（canonical 75f1d24 + 0120–0147 28 层 + 0149 证据修复）；`can` BLOCKED、mini-bps-v11/mini-pdm DEFER、mini-imu-pro 不在本批；PORT.B/C 使用 cores3 PORT.A harness 替换并记录；0149 修复 batch7 UART TX 捕获后未 arm idle 响应体与 ASR650x RX 注入路由两个模型 bug |
 | [M5Stick 主机接入](evidence/2026-11-02-m5stick-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5stick`：EasyLoader FactoryTest 4MB 镜像确定性 icount 启动到原生串口 `mpu9250 addr: FF`；SH1107 初始化命令流+4096 字节 GDDRAM；工厂固件 legacy I2C FIFO 未闭环，MPU9250/IP5306/GPIO35 模型由 generic MicroPython fixture 取证；AK8963/DMP、最终 UI 帧、buzzer/IR/LED 与物理行为未验 |
 | [Basic v2.7 主机接入](evidence/2026-11-02-basic-v27-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5basic` 的官方 UIFlow2 v2.5.4-4MB 启动、板级识别 1、ILI9342C 320×240、QMP 注入 A/B/C、IP5306 0x75 寄存器数据面（READ4 0xff 无电芯、battery-mv fixture 映射 75%）与 I2S0 DAC 非静音 PCM；PMIC 电气/电芯、microSD、电源键、背光、Grove Unit 与模拟声学未验 |
 | [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md) | 设备接入 / 虚拟设备 | `2026-11-02` | 独立 `m5atomu` 的官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060/5 帧）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验；固件为固定 SHA 官方 GitHub release 资产 |
