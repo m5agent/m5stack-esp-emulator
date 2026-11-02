@@ -514,3 +514,35 @@ batch3 A+B、batch7 A static marker）与 snapshot 已同步。
 **共同边界**：4 款是控制器可见的事务/寄存器模型（`lcd` 为新增最小命令 slave），`mini-can` 明确
 blocked；复用模型的既有 NOT RUN 边界不因新 SKU 别名升级。没有 guest 与 Device Service 证据前
 不得把任何一款升级为 `implemented`/`simulated`/`validated`。
+
+## 10. 剩余 7 款实现状态（补丁 0148，2026-11-03）
+
+batch8 剩余 7 款（`oled`/`mini-oled`/`glass2`/`nbiot-cn`/`lora-e220-920`/
+`lorawan-us915`/`mic`）已由
+[`0148-unit-batch8b.patch`](../../patches/qemu-m5stack-peripherals/0148-unit-batch8b.patch)
+接入 QEMU 数据面。**base 是 28 层 canonical 链 `81d3065`**（canonical `75f1d24`
++ `0120`-`0129` → `0131` → `0134` → `0136` → `0130` → `0133` → `0135` → `0132`
+→ `0137` → `0138` → `0139` → `0140` → `0141` → `0142` → `0143` → `0144` →
+`0145` → `0146` → `0147`），实现 commit 见补丁 body。**尚未采集 guest/Device
+Service 证据**，catalog 7 条与 runtime-profiles 7 条保持 `planned`、hosts 为空；
+离线 QOM smoke（S3 board、无 guest 固件）19/19 PASS，只验证属性注册、fixture
+读写、范围/只读拒绝与响应器默认值，不构成功能 PASS。
+
+| Unit | 0148 模型 | QOM fixtures/观测 | 显式 blocker/unresolved |
+| --- | --- | --- | --- |
+| `oled` U119 (0x3D) | 共享 OLED 显示命令 slave（SH1107 128×64）：0x00/0x40 2-wire 控制字节、列/页寻址、1024B framebuffer | contrast/display-on/inverse/start-line、display-controller、commands/data-bytes/pixels-written、framebuffer-crc、last-command-hex | **页面 0x3C vs 驱动 0x3D unresolved（建模驱动地址）；三款显示 Unit 0x3C/0x3D 互斥；M5Unified external display 组合、面板光学/亮度/寿命 NOT RUN** |
+| `mini-oled` U166 (0x3D) | 共享 kind（SSD1315 72×40，360B framebuffer） | 同上 | **页面 0x3C vs 驱动 0x3D unresolved；0x3C/0x3D 冲突；SSD1315 小屏光学 NOT RUN** |
+| `glass2` U158-B (0x3C) | 共享 kind（SSD1309 128×64） | 同上 | **页面描述默认 0x3C/可焊 0x3D vs 对比表“固定 0x3D”自相矛盾 unresolved（建模驱动 0x3C）；透明区/透过率物理 NOT RUN** |
+| `nbiot-cn` U112 (UART) | 共享 UART TX 捕获 + idle-gap fixture responder（不解析 AT） | responses-hex、tx-hex、frames-sent/injected | **SIM7020C AT 固件/URC/入网顺序 unresolved；CN 频段/运营商认证/RF/SIM/TLS/MQTT NOT RUN；PORT.C 冲突** |
+| `lora-e220-920` U170 (UART) | 复用 0xC0/C1 配置帧回显 + responder；**920 SKU 独立参数，不转授 433 证据** | responses-hex、tx-hex、config-hex、frames-* | **页面未写波特率（驱动 9600）；920 寄存器位与 433 不同；920MHz RF/天线/距离/Telec 认证 NOT RUN；PORT.C 冲突** |
+| `lorawan-us915` U184-US915 (UART) | 最小 AT fixture responder（不解析 AT/Join） | responses-hex、tx-hex、frames-* | **产品 STM32WLE5/RAK3172 vs 冻结 ASR650x 驱动错配 unresolved；US915 join/OTAA/ABP/占空比/FCC/RF NOT RUN；PORT.C 冲突** |
+| `mic` U096 (GPIO/ADC) | 白线 SAR-ADC `analog-mv` fixture；黄线 LM393 `comparator-level` GPIO 数字输入 | analog-mv、comparator-level、digital-level、adc-samples | **public UIFlow2 无 Unit MIC 驱动（显式 driver-gap，guest 只能 machine.ADC/Pin）；声学/阈值电位器/灵敏度/SNR/频率响应 NOT RUN；PORT.B 冲突** |
+
+离线 QOM smoke（S3 `m5atoms3r`，无 guest）覆盖 7 个 attachment：3 款显示的
+controller/地址默认、fixture 读写与范围拒绝；3 款 UART 的 responses-hex 读写与
+frames 默认、lora-e220-920 的 config-hex 默认；mic 的 analog-mv/comparator 联动
+与范围拒绝。smoke **不**覆盖 I2C 命令/数据字节语义（显示命令流、framebuffer
+写）、UART AT 字节语义或 guest ADC/Pin 路径；这些仍需 guest 证据。
+
+**计数**：catalog 123 → **130**、runtime-profiles 123 → 130；visual mapping
+audit 7 条 + `all-130-products` 标记；计数测试与 snapshot 已同步。

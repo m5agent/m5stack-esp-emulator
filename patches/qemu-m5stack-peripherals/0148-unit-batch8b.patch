@@ -1,0 +1,458 @@
+From 066baaa976f2f183220f7a7049632af6a53793fc Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Tue, 3 Nov 2026 01:48:38 +0800
+Subject: [PATCH] hw/m5stopwatch: add Unit batch-8 remaining seven data planes
+
+Add the remaining seven batch-8 Units on top of the 28-layer canonical tree.
+
+- oled (U119), mini-oled (U166) and glass2 (U158-B) share a new OLED display
+  command-slave kind: SH1107 128x64, SSD1315 72x40 and SSD1309 128x64 command /
+  data stream recording with 0x00/0x40 2-wire control bytes, column/page
+  addressing, a monochrome framebuffer, contrast/display-on/inverse/start-line
+  fixtures, command/data/pixel counters, framebuffer CRC and last-command hex.
+  The product page addresses and the frozen driver defaults disagree
+  (oled/mini-oled page 0x3C vs driver 0x3D, glass2 page self-contradiction), so
+  the driver address is modeled and the page address stays an explicit gap.
+  The three display Units conflict on 0x3C/0x3D and the M5Unified external
+  display composition / panel optics are NOT modeled.
+- nbiot-cn (U112, SIM7020C), lora-e220-920 (U170, E220-900T22S JP/LLCC68) and
+  lorawan-us915 (U184-US915, STM32WLE5/RAK3172) use the shared UART TX capture
+  and idle-gap fixture responder. lora-e220-920 reuses the 0xC0/C1 config-frame
+  echo and exposes config-hex; the 920MHz register bits/RF/certification are
+  NOT run and the batch5 433 evidence is not transferable. SIM7020C AT
+  firmware/URC/attach ordering and the LoRaWAN US915 product-vs-ASR650x driver
+  mismatch remain unresolved; only byte/fixture layers are modeled.
+- mic (U096): public UIFlow2 has NO Unit MIC driver (explicit driver gap), so
+  the model provides a white-pin SAR-ADC analog-mv fixture and a yellow-pin
+  LM393 comparator digital input (comparator-level/digital-level) with an
+  adc-samples counter. Acoustic response/threshold/SNR are NOT modeled.
+
+Offline QOM smoke (S3 board, no guest) validates property registration,
+fixtures, range rejection and responder defaults; it is not a functional PASS.
+---
+ hw/m5stopwatch/m5_unit_gpio.c         |  45 +++--
+ hw/m5stopwatch/m5_unit_i2c_controls.c | 233 ++++++++++++++++++++++++++
+ 2 files changed, 268 insertions(+), 10 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 358958f..12b1d71 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -688,7 +688,8 @@ bool m5_unit_gpio_supported(const char *id)
+         "weight", "gps", "gps-v11", "gps-sma", "uhf-rfid", "tube-pressure", "laser-rx", "op90", "rgb-led-10cm",
+         "neohex", "hex", "lora-e220-433", "zigbee", "nbiot2",
+         "catm", "catm-gnss", "lorawan-cn470", "can", "mini-can",
+-        "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger"};
++        "rgb-led-strip-50cm", "op180", "synth", "uwb", "dmx", "finger",
++        "nbiot-cn", "lora-e220-920", "lorawan-us915", "mic"};
+     for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+         if (!strcmp(id, ids[i])) { return true; }
+     }
+@@ -739,7 +740,7 @@ static void bool_get(Object *o, Visitor *v, const char *name, void *op, Error **
+     else if (!strcmp(name, "motion")) { value = g->motion; }
+     /* U084 spec: low-level active. The guest reads the raw white level. */
+     else if (!strcmp(name, "magnetic-detected")) { value = !esp32_gpio_get_line(g->unit->white); }
+-    else if (!strcmp(name, "digital-level")) { value = g->digital; }
++    else if (!strcmp(name, "digital-level") || !strcmp(name, "comparator-level")) { value = g->digital; }
+     else { value = esp32_gpio_get_line(g->unit->white); }
+     visit_type_bool(v, name, &value, errp);
+ }
+@@ -771,10 +772,11 @@ static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **
+         } else if (now >= g->hold_until) { esp32_gpio_set_input(g->unit->white, 0); }
+     } else if (!strcmp(name, "magnetic-detected")) {
+         esp32_gpio_set_input(g->unit->white, !value);
+-    } else if (!strcmp(name, "digital-level")) {
++    } else if (!strcmp(name, "digital-level") || !strcmp(name, "comparator-level")) {
+         g->digital = value;
+         /* U065 Laser RX places DOUT on the white wire (yellow is NC); the
+-         * analog light/earth/reflective-ir Units use yellow. */
++         * analog light/earth/reflective-ir Units and the U096 MIC comparator
++         * use the yellow digital input. */
+         esp32_gpio_set_input(!strcmp(g->unit->unit_id, "laser-rx") ?
+                              g->unit->white : g->unit->yellow, value);
+     } else {
+@@ -895,7 +897,8 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+                                     !strcmp(g->unit->unit_id, "reflective-ir") ||
+                                     !strcmp(g->unit->unit_id, "watering") ||
+                                     !strcmp(g->unit->unit_id, "fader") ||
+-                                    !strcmp(g->unit->unit_id, "tube-pressure"))) {
++                                    !strcmp(g->unit->unit_id, "tube-pressure") ||
++                                    !strcmp(g->unit->unit_id, "mic"))) {
+             g->adc_samples++;
+             return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
+         }
+@@ -1009,7 +1012,10 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                  !strcmp(g->unit->unit_id, "synth") ||
+                  !strcmp(g->unit->unit_id, "uwb") || !strcmp(g->unit->unit_id, "dmx") ||
+                  !strcmp(g->unit->unit_id, "finger") || !strcmp(g->unit->unit_id, "catm") ||
+-                 !strcmp(g->unit->unit_id, "catm-gnss") || !strcmp(g->unit->unit_id, "lorawan-cn470")) &&
++                 !strcmp(g->unit->unit_id, "catm-gnss") || !strcmp(g->unit->unit_id, "lorawan-cn470") ||
++                 !strcmp(g->unit->unit_id, "nbiot-cn") ||
++                 !strcmp(g->unit->unit_id, "lora-e220-920") ||
++                 !strcmp(g->unit->unit_id, "lorawan-us915")) &&
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+@@ -1020,7 +1026,8 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                         g->uhf_frames_sent++;
+                         uhf_inject_response(g);
+                     }
+-                } else if (!strcmp(g->unit->unit_id, "lora-e220-433")) {
++                } else if (!strcmp(g->unit->unit_id, "lora-e220-433") ||
++                           !strcmp(g->unit->unit_id, "lora-e220-920")) {
+                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
+                     lora_respond(g);
+                     if (g->at_len) { at_arm_idle(g); }
+@@ -1028,7 +1035,9 @@ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+                            !strcmp(g->unit->unit_id, "nbiot2") ||
+                            !strcmp(g->unit->unit_id, "uwb") ||
+                            !strcmp(g->unit->unit_id, "dmx") ||
+-                           !strcmp(g->unit->unit_id, "finger")) {
++                           !strcmp(g->unit->unit_id, "finger") ||
++                           !strcmp(g->unit->unit_id, "nbiot-cn") ||
++                           !strcmp(g->unit->unit_id, "lorawan-us915")) {
+                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
+                     at_arm_idle(g);
+                 }
+@@ -1662,6 +1671,9 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+                 !strcmp(unit->unit_id, "uwb") || !strcmp(unit->unit_id, "dmx") ||
+                 !strcmp(unit->unit_id, "finger") || !strcmp(unit->unit_id, "catm") ||
+                 !strcmp(unit->unit_id, "catm-gnss") || !strcmp(unit->unit_id, "lorawan-cn470") ||
++                !strcmp(unit->unit_id, "nbiot-cn") ||
++                !strcmp(unit->unit_id, "lora-e220-920") ||
++                !strcmp(unit->unit_id, "lorawan-us915") ||
+                 !strcmp(unit->unit_id, "can") || !strcmp(unit->unit_id, "mini-can"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+@@ -1838,7 +1850,8 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+                !strcmp(id, "nbiot2") || !strcmp(id, "uwb") ||
+                !strcmp(id, "dmx") || !strcmp(id, "finger") ||
+                !strcmp(id, "catm") || !strcmp(id, "catm-gnss") ||
+-               !strcmp(id, "lorawan-cn470")) {
++               !strcmp(id, "lorawan-cn470") || !strcmp(id, "nbiot-cn") ||
++               !strcmp(id, "lora-e220-920") || !strcmp(id, "lorawan-us915")) {
+         g->at_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, at_idle_cb, g);
+         object_property_add(o, "responses-hex", "str", at_responses_get,
+                             at_responses_set, NULL, g);
+@@ -1847,7 +1860,7 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+                             &g->at_frames_sent);
+         object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
+                             &g->at_frames_injected);
+-        if (!strcmp(id, "lora-e220-433")) {
++        if (!strcmp(id, "lora-e220-433") || !strcmp(id, "lora-e220-920")) {
+             object_property_add(o, "config-hex", "str", lora_config_get, NULL, NULL, g);
+         }
+     } else if (!strcmp(id, "can") || !strcmp(id, "mini-can")) {
+@@ -1870,6 +1883,18 @@ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+                             &g->can_injected_frames);
+         object_property_add(o, "last-frame-hex", "str", can_last_hex_get, NULL, NULL, g);
+         object_property_add(o, "inject-hex", "str", can_inject_get, can_inject_set, NULL, g);
++    } else if (!strcmp(id, "mic")) {
++        /* U096 MIC: MAX4466 analog output on the white wire, LM393 comparator
++         * digital output on the yellow wire. Public UIFlow2 has no Unit MIC
++         * driver (explicit driver gap): guest code uses machine.ADC on white and
++         * machine.Pin on yellow. Acoustic response/threshold/SNR are NOT RUN. */
++        g->digital = true;
++        esp32_gpio_set_input(unit->yellow, 1);
++        object_property_add(o, "analog-mv", "number", num_get, num_set, NULL, g);
++        object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL,
++                            &g->adc_samples);
++        object_property_add(o, "comparator-level", "bool", bool_get, bool_set, NULL, g);
++        object_property_add(o, "digital-level", "bool", bool_get, NULL, NULL, g);
+     } else if (!strcmp(id, "rgb-led-strip-50cm")) {
+         /* A093 0.5m strip: 30x SK6812 on the yellow data line; PORT.B-only. */
+         g->leds = 30;
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index 0b3d72b..1c4a32a 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -41,8 +41,15 @@ typedef enum {
+     CONTROL_DAC, CONTROL_EXTENCODER, CONTROL_ACSSR, CONTROL_PBHUB,
+     CONTROL_BLDC, CONTROL_DDS, CONTROL_PCA9554, CONTROL_DAC2, CONTROL_SCALES,
+     CONTROL_PAHUB, CONTROL_MINISCALE, CONTROL_UNIT_LCD,
++    CONTROL_UNIT_DISPLAY,
+ } ControlKind;
+ 
++typedef enum {
++    DISP_SH1107 = 0,
++    DISP_SSD1315,
++    DISP_SSD1309,
++} DisplayController;
++
+ typedef struct M5UnitControl {
+     I2CSlave parent_obj;
+     M5Unit *unit;
+@@ -210,6 +217,23 @@ typedef struct M5UnitControl {
+     uint16_t lcd_x0, lcd_y0, lcd_x1, lcd_y1, lcd_cx, lcd_cy;
+     uint16_t lcd_color;
+     uint16_t *lcd_fb;
++    /* U119 OLED / U166 Mini OLED / U158-B Glass2: shared SH1107/SSD1315/SSD1309
++     * 2-wire command/data slave. Only the I2C command stream, column/page
++     * addressing and the monochrome framebuffer bytes are recorded; the
++     * M5Unified external-display composition and panel optics are NOT modeled. */
++    DisplayController disp_controller;
++    uint16_t disp_width, disp_height, disp_page_bytes;
++    bool disp_ctrl_seen, disp_in_data;
++    uint8_t disp_ctrl;
++    uint8_t disp_cmd_buf[16];
++    unsigned disp_cmd_len, disp_pending, disp_param_len;
++    uint8_t disp_param[2];
++    uint8_t disp_last[8];
++    unsigned disp_last_len;
++    uint8_t disp_col, disp_page;
++    int64_t disp_contrast, disp_display_on, disp_inverse, disp_start_line;
++    uint8_t *disp_fb;
++    uint64_t disp_commands, disp_data_bytes, disp_pixels;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -1934,9 +1958,172 @@ static void pahub_dip_set(Object *obj, Visitor *v, const char *name, void *opaqu
+     s->unit->input_events++;
+ }
+ 
++
++/* ==== U119/U166/U158-B shared OLED display command slave (batch8b, 0148) ==== */
++static void disp_fb_store(M5UnitControl *s, uint8_t value)
++{
++    unsigned page_bytes = s->disp_page_bytes;
++    if (!s->disp_fb || !page_bytes || s->disp_page >= s->disp_height / 8) { return; }
++    unsigned offset = s->disp_page * page_bytes + (s->disp_col % page_bytes);
++    s->disp_fb[offset] = value;
++    s->disp_pixels++;
++    if (++s->disp_col >= page_bytes) {
++        s->disp_col = 0;
++        if (s->disp_page + 1 < s->disp_height / 8) { s->disp_page++; }
++    }
++}
++
++static void disp_apply_param(M5UnitControl *s)
++{
++    switch (s->disp_cmd_buf[0]) {
++    case 0x81: s->disp_contrast = s->disp_param[0]; break;
++    case 0xdc: s->disp_start_line = s->disp_param[0] & 0x7f; break;
++    case 0x21: s->disp_col = s->disp_param[0]; break;
++    case 0x22: s->disp_page = s->disp_param[0] & 0x07; break;
++    default: break;  /* mux/offset/clock/precharge/com/vcom/memory-mode */
++    }
++}
++
++static void disp_parse_command(M5UnitControl *s)
++{
++    if (!s->disp_cmd_len) { return; }
++    uint8_t cmd = s->disp_cmd_buf[0];
++    s->disp_commands++;
++    switch (cmd) {
++    case 0x81: case 0x20: case 0xa8: case 0xd3: case 0xd5: case 0xd9:
++    case 0xda: case 0xdb: case 0xdc:
++        s->disp_pending = 1; s->disp_param_len = 0;
++        break;
++    case 0x21: case 0x22:
++        s->disp_pending = 2; s->disp_param_len = 0;
++        break;
++    case 0xae: s->disp_display_on = 0; break;
++    case 0xaf: s->disp_display_on = 1; break;
++    case 0xa6: s->disp_inverse = 0; break;
++    case 0xa7: s->disp_inverse = 1; break;
++    case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05:
++    case 0x06: case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b:
++    case 0x0c: case 0x0d: case 0x0e: case 0x0f:
++        s->disp_col = (s->disp_col & 0xf0) | cmd;
++        break;
++    case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15:
++    case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b:
++    case 0x1c: case 0x1d: case 0x1e: case 0x1f:
++        s->disp_col = (s->disp_col & 0x0f) | ((cmd & 0x0f) << 4);
++        break;
++    case 0xb0: case 0xb1: case 0xb2: case 0xb3: case 0xb4: case 0xb5:
++    case 0xb6: case 0xb7:
++        s->disp_page = cmd & 0x07;
++        break;
++    default: break;
++    }
++    unsigned copy = MIN(s->disp_cmd_len, sizeof(s->disp_last));
++    memcpy(s->disp_last, s->disp_cmd_buf, copy);
++    s->disp_last_len = copy;
++    s->disp_cmd_len = 0;
++}
++
++static void disp_consume_command_byte(M5UnitControl *s, uint8_t value)
++{
++    if (s->disp_pending) {
++        if (s->disp_param_len < sizeof(s->disp_param)) { s->disp_param[s->disp_param_len] = value; }
++        s->disp_param_len++;
++        if (s->disp_param_len >= s->disp_pending) {
++            disp_apply_param(s);
++            s->disp_pending = 0;
++            s->disp_param_len = 0;
++        }
++        return;
++    }
++    if (s->disp_cmd_len < sizeof(s->disp_cmd_buf)) { s->disp_cmd_buf[s->disp_cmd_len] = value; }
++    s->disp_cmd_len++;
++    disp_parse_command(s);
++}
++
++static void disp_consume_byte(M5UnitControl *s, uint8_t value)
++{
++    if (!s->disp_ctrl_seen) {
++        s->disp_ctrl_seen = true;
++        s->disp_ctrl = value;
++        if (value == 0x00 || value == 0x40) { s->disp_in_data = value == 0x40; return; }
++        /* Lenient fallback for a driver that omits the control byte. */
++        s->disp_in_data = false;
++    }
++    if (s->disp_in_data) {
++        s->disp_data_bytes++;
++        disp_fb_store(s, value);
++    } else {
++        disp_consume_command_byte(s, value);
++    }
++}
++
++static uint32_t disp_fb_crc(M5UnitControl *s)
++{
++    uint32_t crc = 0xffffffffu;
++    size_t bytes = (size_t)s->disp_width * s->disp_height / 8u;
++    for (size_t i = 0; i < bytes; i++) {
++        crc ^= s->disp_fb[i];
++        for (unsigned k = 0; k < 8; k++) { crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1))); }
++    }
++    return ~crc;
++}
++
++static void disp_fb_hex_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    size_t bytes = (size_t)s->disp_width * s->disp_height / 8u;
++    char *hex = g_malloc(bytes * 2 + 1);
++    for (size_t i = 0; i < bytes; i++) { g_snprintf(hex + i * 2, 3, "%02x", s->disp_fb[i]); }
++    hex[bytes * 2] = 0;
++    char *value = g_strdup(hex);
++    g_free(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void disp_controller_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    static const char *const names[] = {"sh1107", "ssd1315", "ssd1309"};
++    char *value = g_strdup(names[s->disp_controller]);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void disp_last_hex_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    char hex[sizeof(s->disp_last) * 2 + 1];
++    for (unsigned i = 0; i < s->disp_last_len; i++) { g_snprintf(hex + i * 2, 3, "%02x", s->disp_last[i]); }
++    hex[s->disp_last_len * 2] = 0;
++    char *value = g_strdup(hex);
++    visit_type_str(v, name, &value, errp);
++    g_free(value);
++}
++
++static void disp_fb_crc_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
++{
++    M5UnitControl *s = opaque;
++    int64_t value = disp_fb_crc(s);
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static int control_event(I2CSlave *dev, enum i2c_event event)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
++    if (s->kind == CONTROL_UNIT_DISPLAY) {
++        if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC) {
++            s->unit->transactions++; s->write_pos = 0; s->reading = false;
++            s->disp_ctrl_seen = false; s->disp_in_data = false;
++            s->disp_cmd_len = 0; s->disp_pending = 0; s->disp_param_len = 0;
++            s->disp_last_len = 0;
++        } else if (event == I2C_START_RECV) {
++            s->unit->transactions++; s->read_pos = 0; s->reading = true;
++        } else if (event == I2C_FINISH) {
++            s->reading = false;
++        }
++        return 0;
++    }
+     if (s->kind == CONTROL_UNIT_LCD) {
+         if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC) {
+             s->unit->transactions++; s->write_pos = 0; s->reading = false;
+@@ -1989,6 +2176,10 @@ static int control_send(I2CSlave *dev, uint8_t value)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->written_bytes++;
++    if (s->kind == CONTROL_UNIT_DISPLAY) {
++        disp_consume_byte(s, value);
++        return 0;
++    }
+     if (s->kind == CONTROL_UNIT_LCD) {
+         /* Command byte first, then per-command payload until STOP. WRITE_RAW/
+          * DRAWPIXEL payloads can be a whole frame, so the small command log is
+@@ -2561,6 +2752,9 @@ static uint8_t control_recv(I2CSlave *dev)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->read_bytes++;
++    if (s->kind == CONTROL_UNIT_DISPLAY) {
++        return 0xff;  /* the monochrome display Units are write-only on I2C */
++    }
+     if (s->kind == CONTROL_UNIT_LCD) {
+         return s->lcd_read_pos < s->lcd_read_len ? s->lcd_read_buf[s->lcd_read_pos++] : 0x00;
+     }
+@@ -2702,6 +2896,7 @@ bool m5_unit_controls_supported(const char *unit_id)
+         "joystick2", "8servos", "servo8-hat", "4relay", "weight-i2c",
+         "ncir2", "extio2", "hbridge", "hbridge-v11", "dac", "joystick",
+         "cardkb-original", "extencoder", "acssr", "pbhub", "pbhub-v11", "bldc-driver", "dds", "rfid", "extio", "dac2", "scales", "pahub-v20", "pahub-v21", "mini-scales", "lcd",
++        "oled", "mini-oled", "glass2",
+     };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+@@ -2921,6 +3116,44 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+                             u64_get, NULL, NULL, &s->lcd_pixels_written);
+         object_property_add(OBJECT(s->unit), "rle-runs", "uint64",
+                             u64_get, NULL, NULL, &s->lcd_rle_runs);
++    } else if (!strcmp(unit->unit_id, "oled") || !strcmp(unit->unit_id, "mini-oled") ||
++               !strcmp(unit->unit_id, "glass2")) {
++        /* U119 OLED (SH1107 128x64), U166 Mini OLED (SSD1315 72x40) and U158-B
++         * Glass2 (SSD1309 128x64) share the SSD13xx/SH1107 2-wire command/data
++         * protocol. Product page addresses and frozen driver defaults disagree
++         * (UNRESOLVED); the driver address is modeled and recorded as a gap. */
++        bool disp_is_oled = !strcmp(unit->unit_id, "oled");
++        bool disp_is_mini = !strcmp(unit->unit_id, "mini-oled");
++        s->kind = CONTROL_UNIT_DISPLAY;
++        s->disp_controller = disp_is_mini ? DISP_SSD1315 :
++                             disp_is_oled ? DISP_SH1107 : DISP_SSD1309;
++        s->disp_width = disp_is_mini ? 72 : 128;
++        s->disp_height = disp_is_mini ? 40 : 64;
++        s->disp_page_bytes = s->disp_width;
++        s->disp_fb = g_new0(uint8_t, (size_t)s->disp_width * s->disp_height / 8u);
++        s->disp_contrast = 0x80;
++        s->disp_display_on = false;
++        s->disp_inverse = false;
++        s->disp_start_line = 0;
++        address = (disp_is_oled || disp_is_mini) ? 0x3d : 0x3c;
++        object_property_add(OBJECT(s->unit), "display-controller", "str",
++                            disp_controller_get, NULL, NULL, s);
++        add_control_int_fixture(s, "contrast", &s->disp_contrast, 0, 255, true);
++        add_control_bool(s, "display-on", &s->disp_display_on, false, true);
++        add_control_bool(s, "inverse", &s->disp_inverse, false, true);
++        add_control_int_fixture(s, "start-line", &s->disp_start_line, 0, 127, true);
++        object_property_add(OBJECT(s->unit), "commands", "uint64", u64_get, NULL, NULL,
++                            &s->disp_commands);
++        object_property_add(OBJECT(s->unit), "data-bytes", "uint64", u64_get, NULL, NULL,
++                            &s->disp_data_bytes);
++        object_property_add(OBJECT(s->unit), "pixels-written", "uint64", u64_get, NULL, NULL,
++                            &s->disp_pixels);
++        object_property_add(OBJECT(s->unit), "framebuffer-crc", "int", disp_fb_crc_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "last-command-hex", "str", disp_last_hex_get,
++                            NULL, NULL, s);
++        object_property_add(OBJECT(s->unit), "framebuffer-hex", "str", disp_fb_hex_get,
++                            NULL, NULL, s);
+     } else if (!strcmp(unit->unit_id, "dds")) {
+         s->kind = CONTROL_DDS; address = 0x31;
+         s->dds_fw = 1; s->dds_mode = 1;
+-- 
+2.55.0
+
