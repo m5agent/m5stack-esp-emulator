@@ -1,0 +1,464 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T19:18:18.645404+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "sticks3",
+  "unit_id": "extio2",
+  "driver_class": "EXTIO2Unit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_modes_roundtrip": true,
+    "guest_inputs_track_fixture": true,
+    "guest_adc8_tracks_fixture": true,
+    "guest_adc12_tracks_fixture": true,
+    "servo_roundtrip": true,
+    "rgb_roundtrip": true,
+    "fw_and_address": true,
+    "qom_output_registers": true,
+    "qom_fixtures_exact": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "f014fb9b53cc5c1079f0c612c592a1efef6274c92d146a037081dabc7c9d4c78",
+  "firmware_id": "f014fb9b53cc5c1079f0c612c592a1efef6274c92d146a037081dabc7c9d4c78",
+  "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "072b3d18e3e4e79170b541435c018fd65ba94d3ad394b259602ac3a157644bd7",
+    "main.py": "8af5421f10821787927dd86b327038a108e248058b3ec091ccfc2c9cc32b223f"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    }
+  },
+  "session_id": "c09fbb7f4f9346cdbbd0f017b9b6d76c",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "extio2",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "extio2": {
+      "modes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2
+      ],
+      "inputs": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "adc8": [
+        8,
+        39,
+        77,
+        116,
+        155,
+        193,
+        232,
+        255
+      ],
+      "adc12": [
+        124,
+        620,
+        1241,
+        1861,
+        2482,
+        3102,
+        3723,
+        4095
+      ],
+      "servo": [
+        "90",
+        "1500"
+      ],
+      "rgb": [
+        "1122867",
+        "4478310"
+      ],
+      "fw": [
+        "7",
+        "69"
+      ],
+      "expected_adc8": [
+        8,
+        39,
+        77,
+        116,
+        155,
+        193,
+        232,
+        255
+      ],
+      "expected_adc12": [
+        124,
+        620,
+        1241,
+        1861,
+        2482,
+        3102,
+        3723,
+        4095
+      ],
+      "qom": {
+        "modes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0,
+          1,
+          2
+        ],
+        "output-levels": [
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "servo-angles": [
+          0,
+          0,
+          0,
+          90,
+          0,
+          0,
+          0,
+          0
+        ],
+        "servo-pulses": [
+          0,
+          0,
+          0,
+          0,
+          1500,
+          0,
+          0,
+          0
+        ],
+        "rgb-leds": [
+          0,
+          0,
+          1122867,
+          0,
+          0,
+          0,
+          0,
+          4478310
+        ],
+        "fw-version": 7,
+        "transactions": 373,
+        "written-bytes": 207
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T19:18:20.514707+08:00",
+      "properties": {
+        "transactions": 1,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 3,
+        "output-transitions": 0,
+        "input-levels": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "adc-mv": [
+          100,
+          500,
+          1000,
+          1500,
+          2000,
+          2500,
+          3000,
+          3300
+        ],
+        "fw-version": 7,
+        "modes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "output-levels": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "servo-angles": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "servo-pulses": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-leds": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:20.514707+08:00",
+      "properties": {
+        "transactions": 1,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 3,
+        "output-transitions": 0,
+        "input-levels": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "adc-mv": [
+          100,
+          500,
+          1000,
+          1500,
+          2000,
+          2500,
+          3000,
+          3300
+        ],
+        "fw-version": 7,
+        "modes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "output-levels": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "servo-angles": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "servo-pulses": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb-leds": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:23.591382+08:00",
+      "properties": {
+        "transactions": 373,
+        "read-bytes": 223,
+        "written-bytes": 207,
+        "input-events": 3,
+        "output-transitions": 19,
+        "input-levels": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "adc-mv": [
+          100,
+          500,
+          1000,
+          1500,
+          2000,
+          2500,
+          3000,
+          3300
+        ],
+        "fw-version": 7,
+        "modes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0,
+          1,
+          2
+        ],
+        "output-levels": [
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "servo-angles": [
+          0,
+          0,
+          0,
+          90,
+          0,
+          0,
+          0,
+          0
+        ],
+        "servo-pulses": [
+          0,
+          0,
+          0,
+          0,
+          1500,
+          0,
+          0,
+          0
+        ],
+        "rgb-leds": [
+          0,
+          0,
+          1122867,
+          0,
+          0,
+          0,
+          0,
+          4478310
+        ]
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "CCLASS_PROBE_READY",
+    "config": "_ADC8 [8, 39, 77, 116, 155, 193, 232, 255]\nI2C_EXTIO2_ADC12 [124, 620, 1241, 1861, 2482, 3102, 3723, 4095]\nI2C_EXTIO2_FW 7 69\nI2C_EXTIO2_INPUTS [1, 0, 1, 0, 1, 0, 1, 0]\nI2C_EXTIO2_ADC8 [8, 39, 77, 116, 155, 193, 232, 255]\nI2C_EXTIO2_ADC12 [124, 620, 1241, 1861, 2482, 3102, 3723, 4095]\nI2C_EXTIO2_FW 7 69\nI2C_EXTIO2_END\n"
+  },
+  "frame": {
+    "sha256": "bcb813a825fad91c880d0a8ed9d20f840fb4e2bb05d1db1950a87ba32326fcda",
+    "metrics": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 32400,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "3de46e81b362b40979e89506b0945e3cf7d9142f6185b181b813a4bf05aafef5",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Electrical levels, NeoPixel optical output, servo motion and ADC accuracy are NOT RUN; the injected adc-mv fixture is mapped inside the model to 8/12-bit bytes, not a calibrated measurement.",
+    "Protocol v1/v3 PDFs remain unread; ADC full-scale/reference voltage, servo angle/pulse units and the chip-internal RGB byte order are UNRESOLVED.",
+    "The frozen firmware driver version is unresolved (master adds 0x90/0xA0 PWM registers); this session exercises the shared v1 register bank only.",
+    "ST IAP/upgrade mode is not modeled."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

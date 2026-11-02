@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T19:18:35.205036+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "device_id": "atoms3r",
+  "unit_id": "ncir2",
+  "driver_class": "NCIR2Unit",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_temperature_tracks_fixture": true,
+    "negative_temperature_encoded": true,
+    "int16_encode_limit_saturates": true,
+    "qom_fixture_exact": true,
+    "emissivity_roundtrip": true,
+    "thresholds_roundtrip": true,
+    "alarm_led_roundtrip": true,
+    "buzzer_roundtrip": true,
+    "rgb_led_roundtrip": true,
+    "rgb_led_qom_observed": true,
+    "buzzer_on_qom_observed": true,
+    "spec_identity": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "83a95f35d8bf21f4b46c3ac910f46393eb441b9ef700690225939feb1cc9b51d",
+  "firmware_id": "83a95f35d8bf21f4b46c3ac910f46393eb441b9ef700690225939feb1cc9b51d",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "156686c4c4a6d3b18530b8130aed042c40a635cf9af77837b1b034e92db77581",
+    "main.py": "8af5421f10821787927dd86b327038a108e248058b3ec091ccfc2c9cc32b223f"
+  },
+  "port": {
+    "id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "40c25071cb53488b892150f726da75a2",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "ncir2",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "ncir2": {
+      "normal": {
+        "temperature": 25.5,
+        "chip": 30.25,
+        "emissivity": 1.0,
+        "pressed": 1
+      },
+      "saturated": {
+        "temperature": 327.67,
+        "chip": 30.25,
+        "emissivity": 1.0,
+        "pressed": 1
+      },
+      "negative": {
+        "temperature": -20.5,
+        "chip": 30.25,
+        "emissivity": 1.0,
+        "pressed": 1
+      },
+      "emissivity": "0.5",
+      "thresholds": [
+        "5.0",
+        "40.0"
+      ],
+      "alarm_rgb": [
+        17,
+        34,
+        51
+      ],
+      "buzzer": [
+        "2000",
+        "50",
+        "1"
+      ],
+      "rgb": [
+        10,
+        11,
+        12
+      ],
+      "spec": [
+        "1",
+        "90"
+      ],
+      "saturation_boundary": "signed int16 x0.01 encode limit is +327.67C; the product-page 380C range is unresolved and NOT claimed",
+      "qom": {
+        "object-c": -20.5,
+        "chip-c": 30.25,
+        "button-pressed": true,
+        "rgb-led": 658188,
+        "buzzer-on": true,
+        "transactions": 88,
+        "written-bytes": 60
+      }
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T19:18:37.384901+08:00",
+      "properties": {
+        "transactions": 10,
+        "read-bytes": 7,
+        "written-bytes": 4,
+        "input-events": 3,
+        "output-transitions": 0,
+        "object-c": 25.5,
+        "chip-c": 30.25,
+        "button-pressed": true,
+        "rgb-led": 0,
+        "buzzer-on": false
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:38.311099+08:00",
+      "properties": {
+        "transactions": 34,
+        "read-bytes": 28,
+        "written-bytes": 16,
+        "input-events": 5,
+        "output-transitions": 0,
+        "object-c": -20.5,
+        "chip-c": 30.25,
+        "button-pressed": true,
+        "rgb-led": 0,
+        "buzzer-on": false
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:38.311099+08:00",
+      "properties": {
+        "transactions": 34,
+        "read-bytes": 28,
+        "written-bytes": 16,
+        "input-events": 5,
+        "output-transitions": 0,
+        "object-c": -20.5,
+        "chip-c": 30.25,
+        "button-pressed": true,
+        "rgb-led": 0,
+        "buzzer-on": false
+      }
+    },
+    {
+      "at": "2026-11-02T19:18:39.535334+08:00",
+      "properties": {
+        "transactions": 88,
+        "read-bytes": 60,
+        "written-bytes": 60,
+        "input-events": 5,
+        "output-transitions": 4,
+        "object-c": -20.5,
+        "chip-c": 30.25,
+        "button-pressed": true,
+        "rgb-led": 658188,
+        "buzzer-on": true
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "CCLASS_PROBE_READY",
+    "config": "0 25.0 1.0 0\nI2C_NCIR2 25.5 30.25 1.0 1\nI2C_NCIR2 327.67 30.25 1.0 1\nI2C_NCIR2 -20.5 30.25 1.0 1\nI2C_NCIR2 -20.5 30.25 1.0 1\nI2C_NCIR2 -20.5 30.25 1.0 1\nI2C_NCIR2_EMISS 0.5\nI2C_NCIR2_THRESH 5.0 40.0\nI2C_NCIR2_ALARM_RGB [17, 34, 51]\nI2C_NCIR2_BUZZER 2000 50 1\nI2C_NCIR2_RGB [10, 11, 12]\nI2C_NCIR2_SPEC 1 90\nI2C_NCIR2_END\n"
+  },
+  "frame": {
+    "sha256": "c5795726cd6808b436d8488715da06a3a5df726be71a2b05209f568c575e2eb6",
+    "metrics": {
+      "width": 128,
+      "height": 128,
+      "nonblack_pixels": 16128,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "zip_sha256": "eafd4905e76abf8e9a215914b0b528d1b0b8c56c51f98c5ea3091ecb3b70e149",
+    "required_members": [
+      "manifest.json",
+      "serial.log",
+      "units/runtime.json",
+      "units/state.json",
+      "units/contract.json"
+    ],
+    "required_members_present": true
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Infrared optics, field of view, emissivity physics and temperature accuracy are NOT RUN.",
+    "The STM32 alarm state machine (threshold-triggered RGB/buzzer/save behavior) is NOT modeled; only register readback is exercised.",
+    "Default address 0x5A collides with the registered ncir (MLX90614) unit; this evidence used a dedicated host/session and cannot be combined with ncir on one bus.",
+    "The driver reads 0x00 as signed int16 x0.01, so the encode limit is +327.67C. Injecting the product-page 380C saturates to 327.67C; the top-range encoding policy remains UNRESOLVED and 380C correctness is not claimed."
+  ],
+  "raw_evidence_note": "Full result.json, serial.log, frame.png and evidence.zip remain in local ignored .work storage; this report is the committed summary."
+}

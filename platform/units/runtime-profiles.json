@@ -5227,9 +5227,11 @@
       }
     },
     "ncir2": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU NCIR2 register-file model exists in 0122 (0x00/0x90 temperature bytes from object-c/chip-c fixtures, emissivity/threshold/alarm-LED/buzzer/RGB/button/save/0xFE/0xFF registers with strict read-only fixture regs) but no guest/Device Service evidence is recorded, so admission stays planned. The STM32 alarm state machine is NOT modeled; the NCIR-STM32 protocol PDF is unread; 0x5A conflicts with the registered ncir (MLX90614) unit; the -70..380C product range exceeds the signed int16 x0.01 encode limit (+327.67C), so top-range encoding remains unresolved. Infrared optics/emissivity physics are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "atoms3r"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen NCIR2Unit driver on AtomS3R: object/chip temperature readback from fixtures (25.5/30.25C and -20.5C), emissivity/threshold/alarm-LED/buzzer/RGB/save register round-trips and QOM rgb-led/buzzer-on. Only this dedicated host/firmware session is admitted; the 0x5A address conflicts with ncir (MLX90614) and cannot share a bus, the STM32 alarm state machine and infrared optics/emissivity physics are NOT RUN, and the signed int16 x0.01 encode limit (+327.67C) means the product-page 380C range is unresolved and saturates (no 380C correctness claim).",
       "inputs": {
         "object-c": {
           "property": "object-c"
@@ -5272,12 +5274,35 @@
         "buzzer-on": {
           "property": "buzzer-on"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-cclass/report-ncir2.json",
+        "report_sha256": "211943e78c7a003ef92aeb88d2e67e9de091c4422ad8ec113f6e376f0dc233ce",
+        "evidence_sha256": "eafd4905e76abf8e9a215914b0b528d1b0b8c56c51f98c5ea3091ecb3b70e149",
+        "firmware_sha256": "83a95f35d8bf21f4b46c3ac910f46393eb441b9ef700690225939feb1cc9b51d",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "d02eda7c99a8d4758d2973511b45351c3fe7c3b5ef6969d425067f48d7b00b00",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "extio2": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU EXTIO2 register-file model exists in 0122 (8-channel mode/output/servo-angle/servo-pulse/RGB banks, input-levels and adc-mv fixtures for 0x20/0x30/0x40 reads, fw-version and address registers) but no guest/Device Service evidence is recorded, so admission stays planned. Protocol v1/v3 PDFs are unread; 8/12-bit ADC full-scale/reference, servo angle/pulse units and the chip-internal RGB byte order remain unresolved; the v3 0x90/0xA0 PWM registers are modeled only as driver-visible bytes; ST IAP/upgrade mode is NOT modeled.",
+      "status": "implemented",
+      "hosts": [
+        "sticks3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen EXTIO2Unit driver on StickS3: 8-channel mode/output/servo-angle/servo-pulse/RGB register round-trips plus input-levels/adc-mv fixture reads (adc8/adc12 exact quantized values), fw-version/address identity and QOM register arrays. Only this host/firmware session is admitted; electrical levels, NeoPixel optics, servo motion and ADC accuracy are NOT RUN; Protocol v1/v3 PDFs, ADC full-scale/reference, servo units, chip-internal RGB order and the frozen-driver PWM version (0x90/0xA0) remain UNRESOLVED.",
       "inputs": {
         "input-levels": {
           "property": "input-levels"
@@ -5329,12 +5354,35 @@
         "rgb-leds": {
           "property": "rgb-leds"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-cclass/report-extio2.json",
+        "report_sha256": "3f980704e4a3f288ad37fa6abe51d795470fecebad6df2c1576c5a2720c48ccf",
+        "evidence_sha256": "3de46e81b362b40979e89506b0945e3cf7d9142f6185b181b813a4bf05aafef5",
+        "firmware_sha256": "f014fb9b53cc5c1079f0c612c592a1efef6274c92d146a037081dabc7c9d4c78",
+        "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "04a05e753e9df78ab5acdb4c0d14bc13201842dd1d7367457b26f89a5bd67a98",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     },
     "hbridge": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "QEMU HBridge register-file model exists in 0122 (direction/PWM8/PWM16/frequency writes, 0x10/0x20 ADC and 0x30 VIN-current reads from fixtures, 0xFE/0xFF identity, address change restricted to 0x20-0x2F) but no guest/Device Service evidence is recorded, so admission stays planned. No independent protocol PDF exists; the 0x30 VIN-current register exists only on v1.1 hardware (U160 v1.0 read semantics unresolved); direction/brake timing, RZ7899 dead-time/protection and motor electrical behavior are NOT RUN.",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest/Device Service evidence covers the frozen HbridgeUnit driver on CoreS3: direction/PWM16/frequency register round-trips, ADC8/ADC16 quantized reads from the adc-mv fixture, v1.1 VIN-current float read from its fixture, identity and final direction/PWM8 state mirrored by QOM. Only this host/firmware session is admitted; motor torque/current, direction/brake timing, RZ7899 dead-time/protection are NOT RUN, there is no independent protocol PDF, and 0x30 VIN-current semantics on U160 v1.0 remain unresolved.",
       "inputs": {
         "adc-mv": {
           "property": "adc-mv"
@@ -5374,6 +5422,27 @@
         "pwm-frequency-hz": {
           "property": "pwm-frequency-hz"
         }
+      },
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-02-unit-cclass/report-hbridge.json",
+        "report_sha256": "de8d159c74844c02570dce1620b07eecf01b6d05fc0c6ff358b8d6fd21c21c14",
+        "evidence_sha256": "6a4b19ed8ccf0bb329f47d026fa83a04def876e6ceffa766cdf1ea2e97c70d50",
+        "firmware_sha256": "14c99d35d49f848aafb3535d8bd16f503cee073f168100f756e7d4e93e2a29d1",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "8a19eb503f23a262de9a8872777599445a85d3df0e17b34a6e98b722373ab0f1",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "a979bb7dffac57747e87b4e7b379568ff9d020db4b5e57a7826abfca8fa96f0e",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
       }
     }
   },
