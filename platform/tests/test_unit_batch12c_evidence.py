@@ -39,8 +39,8 @@ class UnitBatch12cEvidenceTests(unittest.TestCase):
     def test_counts_and_chain_contracts(self):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 151)
-        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 9)
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] == "implemented"), 158)
+        self.assertEqual(sum(1 for p in self.profiles.values() if p["status"] != "implemented"), 2)
         self.assertIn("adc-values", self.units["8servos2-chain"]["inputs"])
         self.assertIn("current-ma", self.units["8servos2-chain"]["inputs"])
         self.assertIn("gpio-levels", self.units["chainbus"]["inputs"])

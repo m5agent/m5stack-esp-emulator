@@ -1,15 +1,18 @@
 # Unit batch-12b 实现状态：10 款 driver-gap 模型层（0158）
 
 日期：`2026-11-03`。范围：batch-11 官方协议研究中 10 款 driver-gap Unit 的
-**最小 QEMU 数据面模型**，作为 patch `0159-unit-batch12b.patch` 落地：
+**最小 QEMU 数据面模型**，作为 patch `0159-unit-batch12b.patch` 落地
+（reconcile11 后的 canonical 39 层链，`0159` 为第 39 层）：
 
 `bmm350`、`ina226-10a`、`ina226-1a`、`roller485`、`roller485-lite`、`rollercan`、
 `rollercan-lite`、`8servos2-chain`、`chainbus`、`cat1-cn`。
 
-本批**只实现文档已公开的寄存器/帧子集**，不升级 runtime host 验证：10 款
-catalog 为 `partial`（模型存在但无 guest/Device Service 证据），runtime profile
-全部保持 `planned` + `hosts: []`。**本页不是 functional PASS，也不是 I2C/UART
-事务级验证。**
+本批**只实现文档已公开的寄存器/帧子集**；模型初落地时 10 款 catalog 为
+`partial`、runtime profile 全部 `planned` + `hosts: []`。后续 batch12b guest 证据
+任务为其中 7 款 I2C Unit（bmm350/ina226×2/roller×4）采集了 raw `machine.I2C`
+probe PASS 并升 `implemented`（见 §8 与
+[evidence](../evidence/2026-11-03-unit-batch12b-evidence/README.md)）；Chain/Cat1
+3 款仍保持 planned。**本页主体不是 functional PASS，也不是 I2C/UART 事务级验证。**
 
 ## 1. 环境与构建
 
@@ -18,19 +21,20 @@ catalog 为 `partial`（模型存在但无 guest/Device Service 证据），runt
 - QEMU 源：本 worktree 的本地忽略目录 `.work/native-lock-source/qemu`
   （pinned `espressif/qemu` 基础 + canonical native 层 + Unit 层到 `0156`；
   `0157` 留给并行 batch-12a，本分支没有 `0157`）。
-- `0158` 是 0120 之后的第 **37** 层（`0156` 为第 36 层；本层 base 是含
-  `0156` 的 36 层链）。三文件变更：
+- `0159` 是 0120 之后的第 **39** 层（`0158` 为第 38 层；本层 base 是含
+  `0156`/`0157`/`0158` 的 38 层链）。三文件变更：
   `hw/m5stopwatch/m5_unit_i2c_sensors.c`、`hw/m5stopwatch/m5_unit_i2c_controls.c`、
   `hw/m5stopwatch/m5_unit_gpio.c`。
-- 补丁 SHA-256：`096fed5de9041bace01d9ac7d74ccd61914858a7314cbe45ca54af6b7507295a`；
-  `git apply --check` 在 36 层链末端验证通过，应用后 3 个文件与生成树逐字节一致。
+- 补丁 SHA-256：`084f34e20cf3ffdb94935e165ed5cd4462e28dbb3490f29a1853e692a1a0f547`；
+  `git apply --check` 在 38 层链末端验证通过，应用后 3 个文件与生成树逐字节一致。
 - 删除 `build/` 后重新 configure（`--target-list=xtensa-softmmu --enable-gcrypt
   --enable-slirp --disable-docs --disable-werror ...`，使用
   `esp-emulator/.work/unit-runtime-build` 的 venv 与静态 deps），
   `ninja -j8 qemu-system-xtensa`；构建后 `xattr -c` + `codesign -s - --force`。
 - 二进制：`qemu-system-xtensa`（QEMU 9.2.2），SHA-256
-  `d1984860885a618ae3aaca2f7a998cbc16b186f429817417a5b29044190f9c16`。
-- 未启动 Device Service、未使用任何网络端口（因此不涉及 8787/8799/8801/8802/8803/8831）。
+  `69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d`
+  （39 层链 + 本批证据任务重建；模型层本身的单元测试见 §7）。
+- 本页模型层工作时未启动 Device Service；后续 guest 证据任务使用独立 `127.0.0.1:8805`（见 §8），未涉及 8787/8799/8801/8802/8803/8831。
 
 ## 2. 模型实现内容
 
@@ -110,19 +114,20 @@ Chain CRC/命令响应或 AT 字节流；这些仍待 guest 证据。
 
 | Unit | 状态 | 模型内容 | 仍 NOT RUN / 边界 |
 | --- | --- | --- | --- |
-| `bmm350` | partial model / planned profile | I2C 0x14 寄存器文件 + 2 dummy 字节读 + MAG/TEMP fixture | 磁场/航向/OTP 校准/温度补偿/量程噪声；0x14 与 DoF9/DoF10 冲突 |
-| `ina226-10a` | partial / planned | I2C 0x41 8 寄存器 + 10A 校准 | 隔离/0-30V/±10A/精度/保险/热；0x41 与 1A 版冲突 |
-| `ina226-1a` | partial / planned | 同上 + 1A 校准（注释 0x811 vs 代码 0x0800 已记录） | 隔离/精度/保险/热；0x41 共用 |
-| `roller485` | partial / planned | I2C 0x64 寄存器子集（0x00-0xFF 关键块） | RS485 帧层、FOC 电机/编码器物理、6-16V/滑环/OLED/RGB/热；0x64 四款互斥 |
-| `roller485-lite` | partial / planned | 同族寄存器子集 | RS485/Lite 硬件差异/电机物理；0x64 互斥 |
-| `rollercan` | partial / planned | I2C 0x64 寄存器子集（设备 ID 0x02） | CAN 帧层/电气、FOC 电机物理、6-16V/OLED/RGB/热；0x64 互斥 |
-| `rollercan-lite` | partial / planned | 同族寄存器子集 | CAN/Lite 差异/电机物理；0x64 互斥 |
+| `bmm350` | partial model / **implemented profile（guest PASS）** | I2C 0x14 寄存器文件 + 2 dummy 字节读 + MAG/TEMP fixture | 磁场/航向/OTP 校准/温度补偿/量程噪声；0x14 与 DoF9/DoF10 冲突 |
+| `ina226-10a` | partial / **implemented（guest PASS）** | I2C 0x41 8 寄存器 + 10A 校准 | 隔离/0-30V/±10A/精度/保险/热；0x41 与 1A 版冲突 |
+| `ina226-1a` | partial / **implemented（guest PASS）** | 同上 + 1A 校准（注释 0x811 vs 代码 0x0800 已记录） | 隔离/精度/保险/热；0x41 共用 |
+| `roller485` | partial / **implemented（guest PASS）** | I2C 0x64 寄存器子集（0x00-0xFF 关键块） | RS485 帧层、FOC 电机/编码器物理、6-16V/滑环/OLED/RGB/热；0x64 四款互斥 |
+| `roller485-lite` | partial / **implemented（guest PASS）** | 同族寄存器子集 | RS485/Lite 硬件差异/电机物理；0x64 互斥 |
+| `rollercan` | partial / **implemented（guest PASS）** | I2C 0x64 寄存器子集（设备 ID 0x02） | CAN 帧层/电气、FOC 电机物理、6-16V/OLED/RGB/热；0x64 互斥 |
+| `rollercan-lite` | partial / **implemented（guest PASS）** | 同族寄存器子集（设备 ID 0x02） | CAN/Lite 差异/电机物理；0x64 互斥 |
 | `8servos2-chain` | partial / planned | AA55 帧级 responder（0x000C 子集） | 级联拓扑、舵机/PWM/WS2812 波形、9-24V/INA199/热 |
 | `chainbus` | partial / planned | AA55 帧级 responder（0x0006 子集），I2C 转发 fail-closed | 拓扑、真实转发时延/下游设备、GPIO/NVIC 电气时序 |
 | `cat1-cn` | partial / planned | 最小 AT 命令/响应字节 responder | 蜂窝 RF/频段/天线、SIM 鉴权、网络注册/PDP、TLS/HTTP/MQTT、真实 socket、URC 逐条核对 |
 
-> 没有 guest/Device Service 证据，**不升 implemented**；catalog `partial` 只表示
-> “有最小模型”，runtime profile 仍是 planned 且无 hosts。
+> 7 款 I2C Unit 已有 guest raw `machine.I2C` 证据并升 implemented（§8）；
+> `8servos2-chain`/`chainbus`/`cat1-cn` 3 款仍无 guest 证据，profile 保持
+> planned + 无 hosts。catalog 全部保持 `partial`（只表示有最小模型，不是硬件 PASS）。
 
 ## 5. 已知模型策略/未确认点
 
@@ -143,7 +148,7 @@ Chain CRC/命令响应或 AT 字节流；这些仍待 guest 证据。
 ## 6. 复现
 
 ```bash
-# 1) 源树：.work/native-lock-source/qemu（base 含 0156 的 36 层链），应用 0158
+# 1) 源树：.work/native-lock-source/qemu（base 含 0156/0157/0158 的 38 层链），应用 0159
 git apply --check patches/qemu-m5stack-peripherals/0159-unit-batch12b.patch
 # 2) 重建（本 worktree）
 V=../esp-emulator/.work/unit-runtime-build/venv
@@ -163,9 +168,33 @@ smoke 配置包含 10 个 attachments（BMM350/INA226×2 用不同引脚对避�
 
 ## 7. 验证
 
-- patch `git apply --check` 通过（36 层链末端）；应用后三文件逐字节一致。
+- patch `git apply --check` 通过（reconcile11 后 38 层链末端）；应用后三文件逐字节一致。
 - 离线 QOM smoke 152/152 property checks PASS（非 guest、非事务级）。
 - 全量测试：`Ran 1902 tests ... OK (skipped=10)`；四 check：`RUNTIME_COVERAGE_OK` /
   `PERIPHERAL_CATALOG_OK` / `QEMU_PROFILES_OK` / `PROJECT_SNAPSHOT_OK`；
   `check_pr_scope.py --base origin/main --head HEAD` 结果见同 commit 报告（本页
   不重复动态计数，以 `project-snapshot.md` 为准）。
+
+## 8. 后续：batch12b guest 证据更新（2026-11-03）
+
+后续证据任务在 `m5agent/units31`（base `7af78317`，reconciled 39 层链）上用
+独立 Device Service（`127.0.0.1:8805`，host-image，未触碰 8787/8799/8801/
+8802/8803）为 **7 款 I2C Unit** 采集 guest 证据：`bmm350`、`ina226-10a`、
+`ina226-1a`、`roller485`、`roller485-lite`、`rollercan`、`rollercan-lite`。
+
+- **无官方 Unit 驱动（driver-gap）→ guest 使用 raw `machine.I2C` 寄存器探针**；
+  BMM350 按 datasheet §9.2.3 读 `n+2` 字节并丢弃前 2 个 dummy 字节；
+- 0x41 两款、0x64 四款地址互斥 → 每款一个独立可见 session；
+- **7/7 PASS**：寄存器 raw 与 QOM fixture 精确一致，Roller 写路径（mode/
+  target speed/position/save）QOM 回读一致；未发现模型 bug，**没有创建 0160
+  修复补丁**；
+- 通过后 7 款 profile 升 `implemented` + `hosts:["cores3"]` +
+  `virtual_device_evidence`（report/evidence/firmware/runtime hashes、
+  session sha256、39 层 patch 列表）；catalog 保持 `partial`（只升模型验证，
+  不是硬件 PASS）；
+- 仍 NOT RUN：磁力/heading/OTP 校准、隔离/精度/保险/热、FOC 电机/编码器物理、
+  RS485/CAN 帧层与电气、6–16V 供电；`8servos2-chain`/`chainbus`/`cat1-cn`
+  3 款仍保持 planned（UART 链/AT 未在本批取证）。
+
+证据与复现见
+[Unit batch-12b 7 款 I2C driver-gap Unit guest 证据](../evidence/2026-11-03-unit-batch12b-evidence/README.md)。

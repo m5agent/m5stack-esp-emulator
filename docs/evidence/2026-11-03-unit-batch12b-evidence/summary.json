@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-12b seven I2C driver-gap Units with 0159 QEMU models on the reconciled 39-layer canonical Unit chain; all seven PASS through guest raw machine.I2C register probes (no official Unit driver); independent sessions for the mutually exclusive 0x41/0x64 addresses; no hardware validation.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8805,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; 8787 untouched; 8799/8801/8802/8803 unused",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 native layers + reconciled 39-layer Unit chain (0120-0159 incl 0156/0157/0158/0159); no batch12b model bug found, so no 0160 patch was created"
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "driver_gap_caveat": "No official UIFlow2 Unit driver exists for these seven products; every case runs raw machine.I2C register transactions from a reference-firmware probe. PASS covers model/register semantics only.",
+  "address_conflicts": {
+    "0x41": [
+      "ina226-10a",
+      "ina226-1a"
+    ],
+    "0x64": [
+      "roller485",
+      "roller485-lite",
+      "rollercan",
+      "rollercan-lite"
+    ]
+  },
+  "cases": [
+    {
+      "unit_id": "bmm350",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "14eeda98e5c02e9978a944b321023728781c76a0e893caead96a53475c3ff831",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "6410974c497131098ec3f5ed79bff1b381120c3abb72a9e7ef020966246d0c9e",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_chip_id": true,
+        "guest_mag_x_raw": true,
+        "guest_mag_y_raw": true,
+        "guest_mag_z_raw": true,
+        "guest_temp_raw": true,
+        "dummy_two_bytes_consistent": true,
+        "qom_fixture_matches_initial": true,
+        "qom_otp_status": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-bmm350.json",
+      "report_sha256": "a867e7676937e99b6e288f61b3bb97dd4795f088c461ac6dcc27e7a7c1b5ba95",
+      "evidence_sha256": "febae03b11bca083601afff6aa75927f381ada9e5c956c2c0d1e7ce61cb36829",
+      "evidence_bytes": 20088
+    },
+    {
+      "unit_id": "ina226-10a",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "38e69ea96898466b20a6497782cb77b3e59e9ad7ca82acfb7e8bf46d5f779a2b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "7422c83102dd0a5632be07fa5fd5e3bf30d430ae49c12c39ab2bb024314e5fd3",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_manufacturer": true,
+        "guest_die": true,
+        "guest_config": true,
+        "guest_cal": true,
+        "guest_shunt": true,
+        "guest_bus": true,
+        "guest_current": true,
+        "guest_power": true,
+        "guest_cal_readback": true,
+        "qom_fixture_matches_initial": true,
+        "qom_power_derived": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-ina226-10a.json",
+      "report_sha256": "d606a6e9555a1aa422fa9af5d1c9809cb2779815f3b20ff00ed0144abeddb895",
+      "evidence_sha256": "036e1b63d9a02231299e9cf1613f2ba592b702e868ea2d30ce79913bff33ea8d",
+      "evidence_bytes": 19498
+    },
+    {
+      "unit_id": "ina226-1a",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "cc620ec871326b86a5def53401673726789cf9db6e6627014142909c643de170",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "6aec465de54ab9bf96f6692d53610f77b3d42eb790caa97cfbebc303553bc2bd",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_manufacturer": true,
+        "guest_die": true,
+        "guest_config": true,
+        "guest_cal": true,
+        "guest_shunt": true,
+        "guest_bus": true,
+        "guest_current": true,
+        "guest_power": true,
+        "guest_cal_readback": true,
+        "qom_fixture_matches_initial": true,
+        "qom_power_derived": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-ina226-1a.json",
+      "report_sha256": "bd9b75f9991d6d14ff5e8ceec8d3d2e71eb179a92bd66cb4211ae1d7fd9dbac7",
+      "evidence_sha256": "3361c2c6a72a57ce6821193855abb8899bac167e1007a4f05df427ed069d66db",
+      "evidence_bytes": 19172
+    },
+    {
+      "unit_id": "roller485",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "c7b25f6309be26806cd919440ceb9988ee397da2d7b07e4a4e6c1c418451cb39",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "c1f6f7ef81e58a34a4a7624e0322d3841e37beeb5edd0aec56dede9f4b2e9cbc",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_product_id": true,
+        "guest_firmware": true,
+        "guest_address": true,
+        "guest_encoder": true,
+        "guest_vin": true,
+        "guest_temperature": true,
+        "guest_actual_speed": true,
+        "guest_actual_position": true,
+        "guest_current": true,
+        "guest_target_speed": true,
+        "guest_status_clean": true,
+        "guest_mode_readback": true,
+        "guest_target_speed_readback": true,
+        "guest_target_pos_readback": true,
+        "qom_mode_write": true,
+        "qom_target_speed_write": true,
+        "qom_target_position_write": true,
+        "qom_save_count": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-roller485.json",
+      "report_sha256": "0d28834b1527be25c24505c3a6bf0fcb5c364f3aa4f9b48ba5ca5cce33301842",
+      "evidence_sha256": "44b9a823bc818065939424b65f68382c5e39e534821b08691a3051f552fe7235",
+      "evidence_bytes": 22196
+    },
+    {
+      "unit_id": "roller485-lite",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "5dbc6a3bfd2b52d3ab51d41d014dbb6bcd492e6edac5e7737b510a467ecf0927",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "1a1a56df83e70450155e149671fedff1903e72eb03369d93c3b7e6998307d789",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_product_id": true,
+        "guest_firmware": true,
+        "guest_address": true,
+        "guest_encoder": true,
+        "guest_vin": true,
+        "guest_temperature": true,
+        "guest_actual_speed": true,
+        "guest_actual_position": true,
+        "guest_current": true,
+        "guest_target_speed": true,
+        "guest_status_clean": true,
+        "guest_mode_readback": true,
+        "guest_target_speed_readback": true,
+        "guest_target_pos_readback": true,
+        "qom_mode_write": true,
+        "qom_target_speed_write": true,
+        "qom_target_position_write": true,
+        "qom_save_count": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-roller485-lite.json",
+      "report_sha256": "62aab4ec1f60121236e06afe44384994a60666a29926f5e452f3c4c6788402fc",
+      "evidence_sha256": "c69d0b15355dfd9e9d8cf5fdb96661ae951326865b10fe73a33a00ecfbe00f15",
+      "evidence_bytes": 20521
+    },
+    {
+      "unit_id": "rollercan",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "6076bcebaf1d3653239d3fa25da21042e8b18c38f2ef9e8ce98f2ec7793c75f3",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "5143de5a9c6a2cab634bdb79d94c5588f830d873c2ef18129ab6db32cfb10ba1",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_product_id": true,
+        "guest_firmware": true,
+        "guest_address": true,
+        "guest_encoder": true,
+        "guest_vin": true,
+        "guest_temperature": true,
+        "guest_actual_speed": true,
+        "guest_actual_position": true,
+        "guest_current": true,
+        "guest_target_speed": true,
+        "guest_status_clean": true,
+        "guest_mode_readback": true,
+        "guest_target_speed_readback": true,
+        "guest_target_pos_readback": true,
+        "qom_mode_write": true,
+        "qom_target_speed_write": true,
+        "qom_target_position_write": true,
+        "qom_save_count": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-rollercan.json",
+      "report_sha256": "4b114021dccf475934f87477e714a2accfad4d3fba770e05e9f75ccdddbb9229",
+      "evidence_sha256": "5980eff10d3c688d29dacd27729e55a6a9f690b05ab1a7eac791ffc51af4d923",
+      "evidence_bytes": 21527
+    },
+    {
+      "unit_id": "rollercan-lite",
+      "status": "PASS",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+      "firmware_sha256": "aad9920e38392090064deab9cf2532beba63c2ded95fc2c8b362a713ebbc7c31",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+      "session_id_sha256": "20a5f596f498b55314fc8e045c3d544327b0e17341d37d6c2a56139331f6f706",
+      "checks": {
+        "driver_ready": true,
+        "live_controller_state": true,
+        "guest_scan": true,
+        "driver_gap_recorded": true,
+        "guest_product_id": true,
+        "guest_firmware": true,
+        "guest_address": true,
+        "guest_encoder": true,
+        "guest_vin": true,
+        "guest_temperature": true,
+        "guest_actual_speed": true,
+        "guest_actual_position": true,
+        "guest_current": true,
+        "guest_target_speed": true,
+        "guest_status_clean": true,
+        "guest_mode_readback": true,
+        "guest_target_speed_readback": true,
+        "guest_target_pos_readback": true,
+        "qom_mode_write": true,
+        "qom_target_speed_write": true,
+        "qom_target_position_write": true,
+        "qom_save_count": true,
+        "qom_address": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-rollercan-lite.json",
+      "report_sha256": "1e1a58db821343ea48289d4851447ace8092fd5349854d6e71536a1caa6719f9",
+      "evidence_sha256": "6703e8fa269166b338b1979ea08823609e9a234934024ecbcf76928dfd04c1de",
+      "evidence_bytes": 20225
+    }
+  ],
+  "blocked_cases": [],
+  "probes": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "5eafb0740ea451c7f83904cbfda8c4c42ad0867c110a6d1a81419e0986d9eb02",
+    "main.py": "bc042739961e3b62be9e7a2434ed08019a9f104c7da765775c97e0fdcfe100ff"
+  }
+}

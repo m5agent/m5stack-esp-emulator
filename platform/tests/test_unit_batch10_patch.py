@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0152-unit-batch10ab.patch"
 MODELED = ("dcssr", "puzzle", "dof6", "dof9", "dof10", "asr")
-PLANNED_ONLY = ("ina226-1a", "roller485", "roller485-lite", "rollercan-lite")
+PLANNED_ONLY = ()
 # 8servos2-chain/chainbus/cat1-cn got guest evidence in batch-12c (0160) and
 # are now implemented; their evidence is pinned by test_unit_batch12c_evidence.
 BATCH12C_EVIDENCE = ("8servos2-chain", "cat1-cn", "chainbus")

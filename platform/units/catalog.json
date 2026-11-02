@@ -28518,13 +28518,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads BMM350 CHIP_ID=0x33 and MAG X/Y/Z/TEMP 24-bit payloads after dropping the datasheet section 9.2.3 two dummy bytes; QOM magnetic-x/y/z/temperature-c fixtures match exactly. No official Unit driver (driver-gap). Magnetometer/heading/OTP calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10."
       },
-      "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads BMM350 CHIP_ID=0x33 and MAG X/Y/Z/TEMP 24-bit payloads after dropping the datasheet section 9.2.3 two dummy bytes; QOM magnetic-x/y/z/temperature-c fixtures match exactly. No official Unit driver (driver-gap). Magnetometer/heading/OTP calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -28769,13 +28769,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0C80 (10A, 5 mOhm) and shunt/bus/current/power registers; raw values match QOM bus-voltage-v/current-a/power-w and calibration readback. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-1A."
       },
-      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0C80 (10A, 5 mOhm) and shunt/bus/current/power registers; raw values match QOM bus-voltage-v/current-a/power-w and calibration readback. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-1A.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -29151,13 +29151,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads RollerCAN product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units."
       },
-      "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads RollerCAN product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -29572,13 +29572,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0800 (1A, 80 mOhm, the frozen driver comment 0x811 vs code 0x0800 conflict is resolved to the code path) and shunt/bus/current/power registers; raw values match QOM fixtures. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-10A."
       },
-      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0800 (1A, 80 mOhm, the frozen driver comment 0x811 vs code 0x0800 conflict is resolved to the code path) and shunt/bus/current/power registers; raw values match QOM fixtures. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-10A.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31266,13 +31266,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads Roller485 product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units."
       },
-      "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads Roller485 product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31572,13 +31572,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads Roller485-Lite product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units."
       },
-      "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads Roller485-Lite product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31877,13 +31877,13 @@
             "type": "integer"
           }
         },
-        "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
+        "blocker": "Guest raw machine.I2C probe reads RollerCAN-Lite product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units."
       },
-      "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "blocker": "Guest raw machine.I2C probe reads RollerCAN-Lite product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units.",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
-        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
-        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
+        "Guest evidence is a raw machine.I2C register probe only (no official Unit driver, driver-gap).",
+        "Magnetics/heading/OTP, isolation/accuracy/fuse/thermal, FOC motor/encoder physics and RS485/CAN frame layers remain NOT RUN.",
+        "Address conflicts: 0x41 INA226 pair and 0x64 Roller family are mutually exclusive on one bus."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -33550,9 +33550,9 @@
         },
         "blocker": "Guest evidence covers raw UART AA55 Chain frames (device type 0x000C): set/get modes, angles, ADC, RGB and current. No public Unit driver (driver-gap); cascade topology, servo PWM/mechanical, 9-24V power and INA199 electrical behavior NOT RUN; PORT.C substituted by cores3 PORT.A harness."
       },
-      "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "blocker": "0159 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "0159 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
         "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-8servos2-chain.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
@@ -33740,9 +33740,9 @@
         },
         "blocker": "Guest evidence covers ML307R-DL AT command/response bytes: AT/ATE0/CPIN?/CREG?/CSQ/CGSN/CGMM. No public Unit driver (driver-gap); cellular RF/SIM/PDP/network/TLS/HTTP/MQTT and identity authenticity NOT RUN; PORT.C substituted."
       },
-      "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "blocker": "0159 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "0159 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
         "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-cat1-cn.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."
@@ -34059,9 +34059,9 @@
         },
         "blocker": "Guest evidence covers raw UART AA55 ChainBus frames (device type 0x0006): device info, brightness, GPIO, ADC, work status and I2C-forward fail-closed status 0. No public Unit driver (driver-gap); topology/heartbeat/physical behavior NOT RUN; PORT.C substituted."
       },
-      "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
+      "blocker": "0159 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "0159 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
         "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
         "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN.",
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch12c-evidence/report-chainbus.json for cores3; see README for driver-gap/subset caveats and NOT RUN boundaries."

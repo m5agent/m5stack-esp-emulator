@@ -12471,12 +12471,14 @@
       }
     },
     "bmm350": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads BMM350 CHIP_ID=0x33 and MAG X/Y/Z/TEMP 24-bit payloads after dropping the datasheet section 9.2.3 two dummy bytes; QOM magnetic-x/y/z/temperature-c fixtures match exactly. No official Unit driver (driver-gap). Magnetometer/heading/OTP calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10.",
       "bindings_required": [],
-      "notes": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "magnetic-x": {
           "property": "magnetic-x"
@@ -12519,15 +12521,72 @@
         "i2c-address": {
           "property": "i2c-address"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-bmm350.json",
+        "report_sha256": "a867e7676937e99b6e288f61b3bb97dd4795f088c461ac6dcc27e7a7c1b5ba95",
+        "evidence_sha256": "febae03b11bca083601afff6aa75927f381ada9e5c956c2c0d1e7ce61cb36829",
+        "firmware_sha256": "14eeda98e5c02e9978a944b321023728781c76a0e893caead96a53475c3ff831",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "6410974c497131098ec3f5ed79bff1b381120c3abb72a9e7ef020966246d0c9e",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "ina226-10a": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0C80 (10A, 5 mOhm) and shunt/bus/current/power registers; raw values match QOM bus-voltage-v/current-a/power-w and calibration readback. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-1A.",
       "bindings_required": [],
-      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "bus-voltage-v": {
           "property": "bus-voltage-v"
@@ -12564,15 +12623,72 @@
         "i2c-address": {
           "property": "i2c-address"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-ina226-10a.json",
+        "report_sha256": "d606a6e9555a1aa422fa9af5d1c9809cb2779815f3b20ff00ed0144abeddb895",
+        "evidence_sha256": "036e1b63d9a02231299e9cf1613f2ba592b702e868ea2d30ce79913bff33ea8d",
+        "firmware_sha256": "38e69ea96898466b20a6497782cb77b3e59e9ad7ca82acfb7e8bf46d5f779a2b",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "7422c83102dd0a5632be07fa5fd5e3bf30d430ae49c12c39ab2bb024314e5fd3",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "rollercan": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads RollerCAN product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units.",
       "bindings_required": [],
-      "notes": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -12636,6 +12752,61 @@
         "save-count": {
           "property": "save-count"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-rollercan.json",
+        "report_sha256": "4b114021dccf475934f87477e714a2accfad4d3fba770e05e9f75ccdddbb9229",
+        "evidence_sha256": "5980eff10d3c688d29dacd27729e55a6a9f690b05ab1a7eac791ffc51af4d923",
+        "firmware_sha256": "6076bcebaf1d3653239d3fa25da21042e8b18c38f2ef9e8ce98f2ec7793c75f3",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "5143de5a9c6a2cab634bdb79d94c5588f830d873c2ef18129ab6db32cfb10ba1",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "dcssr": {
@@ -12729,12 +12900,14 @@
       }
     },
     "ina226-1a": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads INA226 manufacturer 0x5449 / die 0x2260 / config 0x4127 / calibration 0x0800 (1A, 80 mOhm, the frozen driver comment 0x811 vs code 0x0800 conflict is resolved to the code path) and shunt/bus/current/power registers; raw values match QOM fixtures. No official Unit driver (driver-gap). Isolation/accuracy/fuse/thermal NOT RUN; 0x41 conflicts with INA226-10A.",
       "bindings_required": [],
-      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "bus-voltage-v": {
           "property": "bus-voltage-v"
@@ -12771,6 +12944,61 @@
         "i2c-address": {
           "property": "i2c-address"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-ina226-1a.json",
+        "report_sha256": "bd9b75f9991d6d14ff5e8ceec8d3d2e71eb179a92bd66cb4211ae1d7fd9dbac7",
+        "evidence_sha256": "3361c2c6a72a57ce6821193855abb8899bac167e1007a4f05df427ed069d66db",
+        "firmware_sha256": "cc620ec871326b86a5def53401673726789cf9db6e6627014142909c643de170",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "6aec465de54ab9bf96f6692d53610f77b3d42eb790caa97cfbebc303553bc2bd",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "dof6": {
@@ -13298,12 +13526,14 @@
       }
     },
     "roller485": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads Roller485 product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer and FOC motor/encoder physics NOT RUN; 0x64 conflicts with the other Roller units.",
       "bindings_required": [],
-      "notes": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13367,15 +13597,72 @@
         "save-count": {
           "property": "save-count"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-roller485.json",
+        "report_sha256": "0d28834b1527be25c24505c3a6bf0fcb5c364f3aa4f9b48ba5ca5cce33301842",
+        "evidence_sha256": "44b9a823bc818065939424b65f68382c5e39e534821b08691a3051f552fe7235",
+        "firmware_sha256": "c7b25f6309be26806cd919440ceb9988ee397da2d7b07e4a4e6c1c418451cb39",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "c1f6f7ef81e58a34a4a7624e0322d3841e37beeb5edd0aec56dede9f4b2e9cbc",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "roller485-lite": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads Roller485-Lite product id 0x01 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). RS485 frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units.",
       "bindings_required": [],
-      "notes": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13439,15 +13726,72 @@
         "save-count": {
           "property": "save-count"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-roller485-lite.json",
+        "report_sha256": "62aab4ec1f60121236e06afe44384994a60666a29926f5e452f3c4c6788402fc",
+        "evidence_sha256": "c69d0b15355dfd9e9d8cf5fdb96661ae951326865b10fe73a33a00ecfbe00f15",
+        "firmware_sha256": "5dbc6a3bfd2b52d3ab51d41d014dbb6bcd492e6edac5e7737b510a467ecf0927",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "1a1a56df83e70450155e149671fedff1903e72eb03369d93c3b7e6998307d789",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "rollercan-lite": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest raw machine.I2C probe reads RollerCAN-Lite product id 0x02 / firmware 3 / address 0x64 / status / encoder / speed / position / current / VIN / temperature and writes mode=2, target speed 1500.00 rpm, target position 90.00 deg and save=1; QOM mode/target/save-count and guest readbacks match. No official Unit driver (driver-gap). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; 0x64 conflicts with the other Roller units.",
       "bindings_required": [],
-      "notes": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
+      "notes": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。 | 0159 model + batch12b guest raw machine.I2C evidence PASS.",
       "inputs": {
         "mode": {
           "property": "mode"
@@ -13511,6 +13855,61 @@
         "save-count": {
           "property": "save-count"
         }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch12b-evidence/report-rollercan-lite.json",
+        "report_sha256": "1e1a58db821343ea48289d4851447ace8092fd5349854d6e71536a1caa6719f9",
+        "evidence_sha256": "6703e8fa269166b338b1979ea08823609e9a234934024ecbcf76928dfd04c1de",
+        "firmware_sha256": "aad9920e38392090064deab9cf2532beba63c2ded95fc2c8b362a713ebbc7c31",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+        "firmware_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "20a5f596f498b55314fc8e045c3d544327b0e17341d37d6c2a56139331f6f706",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0148-unit-batch8b.patch",
+          "0149-unit-batch9a.patch",
+          "0150-unit-batch7-evidence-fixes.patch",
+          "0151-unit-batch9b.patch",
+          "0152-unit-batch10ab.patch",
+          "0153-unit-batch8-evidence-lcd-read.patch",
+          "0154-unit-batch10-evidence-fixes.patch",
+          "0156-unit-id-atecc-wake.patch",
+          "0157-unit-glass-m5gfx-protocol.patch",
+          "0158-unit-batch12a.patch",
+          "0159-unit-batch12b.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation. Guest path is a raw machine.I2C register probe because no official Unit driver exists (driver-gap)."
       }
     },
     "byteswitch": {

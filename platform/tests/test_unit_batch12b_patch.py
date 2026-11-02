@@ -88,16 +88,16 @@ class UnitBatch12bPatchTests(unittest.TestCase):
             self.assertEqual(profile["status"], "implemented", unit_id)
             self.assertEqual(profile["hosts"], ["cores3"], unit_id)
             self.assertIn("virtual_device_evidence", profile, unit_id)
+        # The batch-12b raw-I2C guest evidence promoted all ten model units.
         for unit_id in SENSOR_UNITS + ROLLER_UNITS:
             unit, profile = self.units[unit_id], self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "partial", unit_id)
             self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
             self.assertTrue(unit["runtime"]["properties"], unit_id)
-            self.assertIn("无 guest 证据", unit["blocker"], unit_id)
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
-            self.assertNotIn("virtual_device_evidence", profile, unit_id)
-            self.assertEqual(profile["model_completeness"], "pending", unit_id)
+            self.assertIn("driver-gap", unit["blocker"].lower(), unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            self.assertIn("virtual_device_evidence", profile, unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
     def test_address_conflicts_and_blockers_are_explicit(self):
@@ -109,7 +109,7 @@ class UnitBatch12bPatchTests(unittest.TestCase):
         for unit_id in ROLLER_UNITS:
             self.assertIn("0x64", self.units[unit_id]["blocker"])
         self.assertIn("0x41", self.units["ina226-1a"]["blocker"])
-        self.assertIn("0x811", self.units["ina226-1a"]["blocker"])
+        self.assertIn("0x811", json.dumps(self.units["ina226-1a"], ensure_ascii=False))
         self.assertIn("0x14", self.units["bmm350"]["blocker"])
         # Physical/RF/motor semantics always stay NOT RUN in this layer.
         for unit_id in UNITS:
@@ -147,7 +147,8 @@ class UnitBatch12bPatchTests(unittest.TestCase):
         mappings = (ROOT / "platform/web/unit-visual-mappings.js").read_text(encoding="utf-8")
         for unit_id in UNITS:
             self.assertIn(unit_id, mappings)
-        self.assertEqual(mappings.count("0158"), 10)
+        self.assertGreaterEqual(mappings.count("0159"), 7)
+        self.assertEqual(mappings.count("guest raw machine.I2C probe PASS"), 7)
         doc = ROOT / "docs/unit-research/2026-11-03-batch12b-impl-status.md"
         self.assertTrue(doc.is_file())
         text = doc.read_text(encoding="utf-8")

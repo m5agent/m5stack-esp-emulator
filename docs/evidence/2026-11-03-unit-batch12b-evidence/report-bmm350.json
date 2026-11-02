@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03T05:59:30.646323+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "2026-11-03-unit-batch12b-evidence",
+  "device_id": "cores3",
+  "unit_id": "bmm350",
+  "driver_class": "machine.I2C raw register probe (driver-gap; no official Unit driver)",
+  "driver_flavor": "reference-firmware-raw-machine-I2C-driver-gap",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "driver_ready": true,
+    "live_controller_state": true,
+    "guest_scan": true,
+    "driver_gap_recorded": true,
+    "guest_chip_id": true,
+    "guest_mag_x_raw": true,
+    "guest_mag_y_raw": true,
+    "guest_mag_z_raw": true,
+    "guest_temp_raw": true,
+    "dummy_two_bytes_consistent": true,
+    "qom_fixture_matches_initial": true,
+    "qom_otp_status": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "14eeda98e5c02e9978a944b321023728781c76a0e893caead96a53475c3ff831",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "69ebd3cb213750918869b1aa29d19fcac1fe004dba4022bccda6a2ba6610847d",
+  "qemu_source_state": "canonical 75f1d24 native layers + canonical 39-layer Unit chain (0120-0159; reconciled 0157/0158/0159); no batch12b evidence fix expected",
+  "official_port": "PORT.A",
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "initial_inputs": {
+    "magnetic-x": 100.0,
+    "magnetic-y": -50.0,
+    "magnetic-z": 25.0
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "5eafb0740ea451c7f83904cbfda8c4c42ad0867c110a6d1a81419e0986d9eb02",
+    "main.py": "bc042739961e3b62be9e7a2434ed08019a9f104c7da765775c97e0fdcfe100ff"
+  },
+  "session_id_sha256": "6410974c497131098ec3f5ed79bff1b381120c3abb72a9e7ef020966246d0c9e",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "bmm350",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "unit_state_source": "live",
+  "observations": {
+    "bmm350": {
+      "guest": {
+        "x": 14144,
+        "y": -7072,
+        "z": 3484,
+        "temp": 51453,
+        "chip": 51,
+        "otp_status": 1
+      },
+      "expected_from_qom": {
+        "chip": 51,
+        "x": 14144,
+        "y": -7072,
+        "z": 3484,
+        "temp": 51453
+      },
+      "qom_fixture": {
+        "magnetic-x": 100,
+        "magnetic-y": -50,
+        "magnetic-z": 25,
+        "temperature-c": 25
+      },
+      "boundary": "Bosch BMM350 datasheet Table 8 / section 9.2.3 two dummy bytes; raw machine.I2C only (no official Unit driver). Magnetometer/heading/OTP calibration physics NOT RUN."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-03T05:59:33.477496+08:00",
+      "properties": {
+        "magnetic-x": 100,
+        "magnetic-y": -50,
+        "magnetic-z": 25,
+        "temperature-c": 25,
+        "transactions": 13,
+        "read-bytes": 26,
+        "written-bytes": 6,
+        "whoami": 51,
+        "i2c-address": 20
+      }
+    }
+  ],
+  "serial_tail": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (938) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH12B_PROBE_START bmm350\nE (1259) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH12B_SCAN [20]\nBMM350_DRIVER machine.I2C raw driver-gap\nBATCH12B_PROBE_READY bmm350\nBMM350_CHIP_RAW 000033\nBMM350_CHIP_ID 51\nBMM350_X_RAW 14144\nBMM350_Y_RAW -7072\nBMM350_Z_RAW 3484\nBMM350_TEMP_RAW 51453\nBMM350_OTP_STATUS 1\nBMM350_END\n",
+  "frame": {
+    "sha256": "fb8b096b9d8b05a7595fa39018bb84acd7fc356b5388fa3925f3cca5095561a4",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "febae03b11bca083601afff6aa75927f381ada9e5c956c2c0d1e7ce61cb36829",
+    "bytes": 20088
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundary_driver_gap": "No official UIFlow2 Unit driver exists for this product; the guest path is a raw machine.I2C register probe. Model/register semantics only; physical/electrical semantics NOT RUN.",
+  "raw_evidence_note": "Raw execution artifacts stay in local ignored .work; only concise reports, hashes and reproduction commands are committed."
+}
