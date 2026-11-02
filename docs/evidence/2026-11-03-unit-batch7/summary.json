@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-7 eight guest/Device Service evidence Units on one QEMU build (canonical chain through 0147 + evidence fix 0149); can BLOCKED, mini-bps/mini-pdm DEFERRED; not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A": {
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 28 layers (0120-0147, incl. 0143 batch7 A and 0145 batch7 B) + 0150-unit-batch7-evidence-fixes",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0130-unit-batch3ab.patch",
+        "0131-unit-batch3c.patch",
+        "0132-unit-batch3c-fixes.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0134-unit-batch4ab.patch",
+        "0135-unit-batch3ab-fixes.patch",
+        "0136-unit-batch4c.patch",
+        "0137-unit-batch5a.patch",
+        "0138-unit-batch4-evidence-fixes.patch",
+        "0139-unit-batch5b.patch",
+        "0140-unit-batch6a.patch",
+        "0141-unit-batch5-evidence-fixes.patch",
+        "0142-unit-batch6b.patch",
+        "0143-unit-batch7a.patch",
+        "0144-unit-batch6-evidence-fixes.patch",
+        "0145-unit-batch7b.patch",
+        "0146-unit-batch8a.patch",
+        "0147-unit-batch6b-evidence-fixes.patch",
+        "0150-unit-batch7-evidence-fixes.patch"
+      ]
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "mini-tof-90",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ToFUnit (VL53L0X 0x29)",
+      "firmware_sha256": "e659f2f9442ad01a65157fb2e047c7e9baae03c0e7f3e0bda97024e621c2017d",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "4a1cdc8f5f53436aa339078d583fc753",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_range_fixture": true,
+        "guest_data_ready_observed": true,
+        "qom_distance_fixture": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-mini-tof-90.json",
+      "report_sha256": "6cbc5d266e141b7b52abf792c3fad9ccdcdb64fc3132b68fb14ecce87dfdfea6",
+      "evidence_zip_sha256": "af1884e448464500abf5507f14c9cd57763f2cee7b4a86b8c261d20fcb354457",
+      "frame_sha256": "6c4ee7935b116c5a676361fe321fe65dcfddcaa2d074a17c7bd75e1163e4a38c",
+      "observations": {
+        "mini_tof_90": {
+          "guest_range": "500",
+          "guest_data_ready": "0",
+          "qom": {
+            "distance-mm": 500,
+            "transactions": 1323,
+            "read-bytes": 531,
+            "written-bytes": 808
+          },
+          "boundary": "90-degree laser mounting only; VL53L0X optics/940nm/range accuracy and 3-200cm physics are NOT RUN; 0x29 conflicts with tof/tof4m/color and the official PORT.A connector is the only admitted port."
+        }
+      },
+      "boundaries": [
+        "90-degree laser mounting only; VL53L0X optics/940nm/FoV/range accuracy and 3-200cm physics NOT RUN.",
+        "0x29 conflicts with tof/tof4m/color; one Unit per bus; official PORT.A connector only (no substitution).",
+        "Only get_range()/data-ready observation is asserted; continuous-mode read_range() can block when the model reports no new sample."
+      ]
+    },
+    {
+      "unit_id": "hbridge-v11",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "HbridgeUnit (STM32F030 0x20)",
+      "firmware_sha256": "a1e631f924dd7937908412a69b067615c8f958c2bb23154e345ec52799a08307",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "4508285151c840df907dce7f5516a88b",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_adc_fixture": true,
+        "guest_vin_current": true,
+        "guest_identity": true,
+        "qom_direction_set": true,
+        "qom_pwm_16bit": true,
+        "qom_pwm_frequency": true,
+        "qom_fixtures": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-hbridge-v11.json",
+      "report_sha256": "79e5c2ef6a9e7df66def966e739913b355e520cd751895054caa7a127f9778a1",
+      "evidence_zip_sha256": "4955dad92ae914c4f94abfd3ce3807d58926d60841d130b1b3922d95ade738ed",
+      "frame_sha256": "391fa23fe8377b8bad3f6e28bd849404010e1e242edf42ac674e7b82b2693c3a",
+      "observations": {
+        "hbridge_v11": {
+          "guest_adc16_8": [
+            "2048",
+            "128"
+          ],
+          "guest_vin_current": "0.5",
+          "guest_status": [
+            "1",
+            "32"
+          ],
+          "qom": {
+            "adc-mv": 1650,
+            "vin-current-a": 0.5,
+            "direction": 1,
+            "pwm-duty-pct": 50.000762951094835,
+            "pwm-frequency-hz": 1000,
+            "i2c-address": null,
+            "transactions": 17
+          },
+          "boundary": "v1.1 reuses the 0x20 STM32F030 model; motor/RZ7899/INA199 electrical behavior, real load current and protection are NOT RUN; 0x20 conflicts with hbridge U160."
+        }
+      },
+      "boundaries": [
+        "v1.1 reuses the 0x20 STM32F030 HBridge model; motor/RZ7899/INA199 electrical behavior, real load current, protection and 3A limit NOT RUN.",
+        "0x20 conflicts with hbridge U160; one Unit per bus.",
+        "ADC/current are fixture-derived; 16-bit LE PWM/frequency and float32 VIN current byte order are asserted through the guest driver."
+      ]
+    },
+    {
+      "unit_id": "cardkb-original",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "CardKBUnit (0x5F)",
+      "firmware_sha256": "8ded5792928b50e8bca456b18e89966b8b743a6120cfec8af4a0f30a1b225a28",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "813e3aa2a72a42e0872837bc5578c692",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_key_fixture": true,
+        "qom_key_event": true,
+        "no_key_overflow": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-cardkb-original.json",
+      "report_sha256": "c6ecb81e85f819182bb28131b48573de325aa3bb8350685349bde7168c4c96c2",
+      "evidence_zip_sha256": "d83a129e489006789ef4e84deb9d45974d5e03060497f31a151fcda2c0b54eda",
+      "frame_sha256": "cb8b4fdcae15f4f45973178bf6d28b28318b1a731fc828ed3d864d852722e894",
+      "observations": {
+        "cardkb_original": {
+          "guest_key": "113",
+          "qom": {
+            "keycode": 0,
+            "queued-keys": 0,
+            "key-overflows": 0,
+            "modifier-mode": 0,
+            "i2c-address": null,
+            "input-events": 1
+          },
+          "boundary": "U035 original vs U035-B MEGA8A/MEGA328P difference unresolved; keyboard matrix/key travel/RGB LED are NOT RUN; 0x5F conflicts with cardkb."
+        }
+      },
+      "boundaries": [
+        "U035 original vs U035-B MEGA8A/MEGA328P difference remains unresolved.",
+        "Keyboard matrix/key travel/RGB LED and combo-key firmware mechanics NOT RUN.",
+        "0x5F conflicts with cardkb U035-B; one Unit per bus. The keycode fixture is injected after READY because the driver constructor drains the legacy FIFO."
+      ]
+    },
+    {
+      "unit_id": "env-ii",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "ENVUnit(ENV_II) SHT30 0x44 + BMP280 0x76",
+      "firmware_sha256": "371aed48d88d8ff10673dfbe7d72546cb0df5d91e34eff0b8538f660ddec2467",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "838462a6a58a4b5898c339f261124a6d",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_temperature": true,
+        "guest_humidity": true,
+        "guest_pressure": true,
+        "qom_fixtures_exact": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-env-ii.json",
+      "report_sha256": "35fd37d21f5653abed16a5f71d15c4a468b41688f4bb4a9142c18532959b6da0",
+      "evidence_zip_sha256": "12c8f78823624127635321b92cd94ab970d50667da04d4e4a465b390ec06a821",
+      "frame_sha256": "631985a8dc79d4d5f654512e9b22e73e9f5ebd38bb149824f6990bd1f8bf7db4",
+      "observations": {
+        "env_ii": {
+          "guest_temperature_humidity_pressure": [
+            "31.5",
+            "45.5",
+            "1005.0"
+          ],
+          "qom": {
+            "temperature-c": 31.5,
+            "humidity-pct": 45.5,
+            "pressure-pa": 100500,
+            "transactions": 20,
+            "read-bytes": 44,
+            "written-bytes": 14
+          },
+          "boundary": "SHT30 0x44 + BMP280 0x76 dual-slave path; sensor accuracy/self-heating and pressure physics are NOT RUN; 0x44 conflicts with env/env-iv and 0x76 with bps/env/env-iv."
+        }
+      },
+      "boundaries": [
+        "SHT30 0x44 + BMP280 0x76 dual-slave path covered; real temperature/humidity/pressure physics, self-heating and accuracy NOT RUN.",
+        "0x44 conflicts with env/env-iv and 0x76 with bps/env/env-iv; one Unit per bus.",
+        "Pressure is the guest driver's Pa/100 conversion; the two child sensor fixtures are reached through the top-level Unit properties."
+      ]
+    },
+    {
+      "unit_id": "hex",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "RGBUnit/SK6812 37 LEDs (unit driver gap)",
+      "firmware_sha256": "6835c72137a1671713c1716a82de2f8be21edfdb5043e718f411c59834adbe94",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "3339d637c291413bbb20b8e8075c9b57",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "generic_sk6812_driver_used": true,
+        "guest_frame_written": true,
+        "qom_37_leds_match": true,
+        "qom_led_frames_observed": true,
+        "no_incomplete_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-hex.json",
+      "report_sha256": "fb53b337f010f46d284ed62809da3777bfced598570738c33a4b85e1b90ea1dc",
+      "evidence_zip_sha256": "96615caf4b6c2c476465d82d9494a1a6c891cdcfc668fe195814a62f5a9ad188",
+      "frame_sha256": "816bdaead90820e7024ddeefbf8c17ee8a6900508ee25008d5a567d8148bbd24",
+      "observations": {
+        "hex": {
+          "driver_gap": "public UIFlow2 has no unit/hex.py; probe uses the generic RGBUnit/SK6812 37-LED path (explicit driver gap).",
+          "qom": {
+            "led-rgb": [
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867
+            ],
+            "led-frames": 1,
+            "incomplete-frames": 0,
+            "output-transitions": 1
+          },
+          "boundary": "SK6812 vs WS2812C timing/order unresolved; LED optics/power/cascade are NOT RUN; official PORT.B is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "Public UIFlow2 has no unit/hex.py; the probe uses the generic RGBUnit/SK6812 37-LED path (explicit driver-gap).",
+        "SK6812 vs WS2812C timing/byte-order and LED optics/power/cascade NOT RUN.",
+        "Official PORT.B is substituted by cores3 PORT.A harness wiring; the report records the substitution."
+      ]
+    },
+    {
+      "unit_id": "catm",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "CATMUnit (SIM7080G UART fixture)",
+      "firmware_sha256": "3eb63daff7a0686295789f7d9ff20f7006609b21327a1e5725461b48f664c21f",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "daa81e11e3c043b7bd14521529804a8b",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_driver_ran": true,
+        "qom_tx_bytes": true,
+        "frames_counted": true,
+        "qom_at_and_ate0": true,
+        "no_rf_claim": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-catm.json",
+      "report_sha256": "11a88f5b43243ad1f1b2b27b1f621a32557eb278c25f5dce77fd22131c1b21c2",
+      "evidence_zip_sha256": "0cf9c5e09526b2b0a3e36c777f8cf7628905cc7e94b6eca8f593ed2e4e1e3390",
+      "frame_sha256": "892ac66c40d8f76bc8d783abe66eee00f4079ebd9ae5af845b030a88112786da",
+      "observations": {
+        "catm": {
+          "guest_ready": true,
+          "guest_lorawan_sent": false,
+          "tx_hex": "41540d0a41540d0a415445300d0a41542b47534e0d0a",
+          "qom": {
+            "responses-hex": "4f4b0d0a;4f4b0d0a;3132333435363738393031323334350d0a4f4b0d0a",
+            "tx-hex": "41540d0a41540d0a415445300d0a41542b47534e0d0a",
+            "frames-sent": 4,
+            "frames-injected": 4,
+            "transactions": 0
+          },
+          "boundary": "UART fixture responder only; no AT/GNSS/LoRaWAN protocol decode, no RF/cellular/SIM/network claim. Official PORT.C is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "UART fixture responder only: no AT/GNSS/LoRaWAN protocol decode and no RF/cellular/SIM/network claim.",
+        "SIM7080G AT firmware/URC order, Cat-M/NB-IoT RF, SIM/operator registration, TLS/MQTT are NOT RUN.",
+        "Official PORT.C is substituted by cores3 PORT.A harness wiring."
+      ]
+    },
+    {
+      "unit_id": "catm-gnss",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "CATMGNSSUnit (SIM7080G GNSS UART fixture)",
+      "firmware_sha256": "ff0127b57ce407a05269d7d34922db3c5f26ce550a445614e2028a1060525f85",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "032dced1ced34d0384cc511e05312038",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_driver_ran": true,
+        "qom_tx_bytes": true,
+        "frames_counted": true,
+        "qom_at_ate0_and_gnss": true,
+        "gnss_parse_not_asserted": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-catm-gnss.json",
+      "report_sha256": "fed74437b63b7d62d970ef6da24687f7b7582cbba0d77b497d213b89d211b705",
+      "evidence_zip_sha256": "712abf918bfb0a383007002c65b674a25243fef5d30a8433e2cfc27dac9079cb",
+      "frame_sha256": "74d65ba7e0498d17898b1754804e88f3ccd093ea37b20675084b8f606ece317b",
+      "observations": {
+        "catm-gnss": {
+          "guest_ready": true,
+          "guest_lorawan_sent": false,
+          "tx_hex": "41540d0a41540d0a415445300d0a41542b43474e535057523f0d0a41542b43474e535057523d310d0a41542b43474e53494e460d0a",
+          "qom": {
+            "responses-hex": "4f4b0d0a;4f4b0d0a;2b43474e535057523a20310d0a4f4b0d0a;4f4b0d0a;2b43474e53494e463a20312c312c32303236313130333031303230332e3030302c33312e3530303030302c3132312e3530303030302c31302e302c302e302c302e302c302c302c302c302c302c302c302c300d0a4f4b0d0a",
+            "tx-hex": "41540d0a41540d0a415445300d0a41542b43474e535057523f0d0a41542b43474e535057523d310d0a41542b43474e53494e460d0a",
+            "frames-sent": 6,
+            "frames-injected": 6,
+            "transactions": 0
+          },
+          "boundary": "UART fixture responder only; no AT/GNSS/LoRaWAN protocol decode, no RF/cellular/SIM/network claim. Official PORT.C is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "UART fixture responder only: AT+CGNSINF/GNSS fields are NOT decoded/asserted; no RF/GNSS claim.",
+        "Cellular + GNSS cannot run concurrently (page FAQ); CGNSINF COG is not travel heading; GNSS RF/antenna/fix accuracy NOT RUN.",
+        "Official PORT.C is substituted by cores3 PORT.A harness wiring."
+      ]
+    },
+    {
+      "unit_id": "lorawan-cn470",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "LoRaWANUnit (ASR650x wrapper / STM32WLE5 product)",
+      "firmware_sha256": "370bf7dcf8400fcded659fdb33846c0e720fd84f53e2ad865c651ec71ba2effd",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+      "session_id": "9989f6139db448c6bd743ff6d421fa09",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_driver_ran": true,
+        "qom_tx_bytes": true,
+        "frames_counted": true,
+        "qom_workmode_bytes": true,
+        "guest_send_frame": true,
+        "guest_lorawan_sent": true,
+        "driver_product_mismatch_recorded": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-03-unit-batch7/report-lorawan-cn470.json",
+      "report_sha256": "ee8d5c5872d432ddb97ed0418d55f9129a192f0d0e98571dc2984524c8e28bbe",
+      "evidence_zip_sha256": "41abfaaf48593b24a6c9302a26144b91e18a095ac7e738341c42d287a48baa6d",
+      "frame_sha256": "1bae8deed1cb04a0eee066b30b5fe4227d4b9713d8b4fe7595edf32cdad73b7f",
+      "observations": {
+        "lorawan-cn470": {
+          "guest_ready": true,
+          "guest_lorawan_sent": true,
+          "tx_hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+          "qom": {
+            "responses-hex": "4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b0d0a;4f4b2b53454e543a0d0a4f4b0d0a;4f4b0d0a",
+            "tx-hex": "41542b43574f524b4d4f44453d320d0a41542b43574f524b4d4f44453d310d0a41542b445452583d352c343834353443344334460d0a",
+            "frames-sent": 3,
+            "frames-injected": 3,
+            "transactions": 0
+          },
+          "boundary": "UART fixture responder only; no AT/GNSS/LoRaWAN protocol decode, no RF/cellular/SIM/network claim. Official PORT.C is substituted by cores3 PORT.A harness."
+        }
+      },
+      "boundaries": [
+        "UART fixture responder only: no AT/LoRaWAN stack decode, no OTAA/ABP/Join or RF claim.",
+        "Driver/product mismatch unresolved: product STM32WLE5/RAK3172 vs frozen ASR650x LoRaWAN_470 wrapper; CN470 RF/antenna/regulatory NOT RUN.",
+        "Guest UART pre-initialized on the same pins/baud as a documented model-ordering workaround; official driver still executes CWORKMODE/DTRX frames. Official PORT.C is substituted by cores3 PORT.A harness."
+      ]
+    }
+  ],
+  "blocked_cases": [
+    {
+      "unit_id": "can",
+      "status": "BLOCKED",
+      "blocker": "Known CAN attachment/frame-injection gap: no guest-visible CAN session evidence is claimed. The 0145 model binds a CanBusClient for QOM frames-observed/inject-hex only; guest TWAI/CAN framing, direction/filtering/bit timing, external transceiver/isolation/termination and arbitration remain unmodeled. No fake CAN session or PASS is recorded.",
+      "source": "docs/unit-research/2026-11-02-batch7-protocols.md / task-49 BLOCKED boundary"
+    }
+  ],
+  "deferred_cases": [
+    {
+      "unit_id": "mini-bps-v11",
+      "reason": "DEFER: QMP6988 address 0x56 (page/index) vs 0x70 (frozen driver) unresolved; no QEMU model/guest session."
+    },
+    {
+      "unit_id": "mini-pdm",
+      "reason": "DEFER: no official Unit PDM driver; SPM1423 PDM RX is a board-level I2S path, not a Unit attachment; no fake PCM."
+    },
+    {
+      "unit_id": "mini-imu-pro",
+      "reason": "Not in this 8-unit evidence scope; remains planned with BMI270/BMM280 aux limitations."
+    }
+  ]
+}

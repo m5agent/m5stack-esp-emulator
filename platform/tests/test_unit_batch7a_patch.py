@@ -7,6 +7,7 @@ the QMP6988 address conflict and the DEFER decision visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -76,17 +77,34 @@ class UnitBatch7aPatchTests(unittest.TestCase):
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
         self.assertEqual(len(self.catalog["units"]), 133)
 
-    def test_planned_contracts_keep_blockers_and_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_guest_evidence_upgrades_four_units_and_keeps_partial(self):
+        for unit_id in IMPLEMENTED:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned")
-            self.assertEqual(unit["runtime"]["status"], "planned")
-            self.assertEqual(unit["blocker"], unit["runtime"]["blocker"])
-            self.assertTrue(unit["blocker"])
-            self.assertEqual(profile["status"], "planned")
-            self.assertEqual(profile["hosts"], [])
-            self.assertTrue(profile["blocker"])
+            self.assertEqual(unit["model_status"], "partial")
+            self.assertEqual(unit["runtime"]["status"], "implemented")
+            self.assertTrue(unit["runtime"]["blocker"])
+            self.assertEqual(profile["status"], "implemented")
+            self.assertEqual(profile["hosts"], ["cores3"])
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            self.assertIn("0143-unit-batch7a.patch", evidence["patches"])
+            self.assertIn("0150-unit-batch7-evidence-fixes.patch", evidence["patches"])
+            for field in unit["inputs"]:
+                self.assertIn(field, profile["inputs"], f"{unit_id}.{field}")
+            for field in unit["outputs"]:
+                self.assertIn(field, profile["state"], f"{unit_id}.{field}")
+
+    def test_mini_bps_stays_deferred_planned(self):
+        unit = self.units["mini-bps-v11"]
+        profile = self.profiles["mini-bps-v11"]
+        self.assertEqual(unit["model_status"], "planned")
+        self.assertEqual(unit["runtime"]["status"], "planned")
+        self.assertEqual(profile["status"], "planned")
+        self.assertEqual(profile["hosts"], [])
 
 
 if __name__ == "__main__":

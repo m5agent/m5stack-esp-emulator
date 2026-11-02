@@ -9594,9 +9594,11 @@
       }
     },
     "mini-tof-90": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0143 复用 US_TOF（VL53L0X 0x29）实现 mini-tof-90；90° 仅为激光模块安装方向，寄存器/命令路径与 tof U010 相同。未采集 guest/Device Service 证据 → planned。**0x29 与 tof/tof4m/color 冲突，一总线一 Unit；激光光学/测距精度/940nm/25° FoV NOT RUN；VL53L0X 与 tof4m 的 VL53L1X 初始化不可混用**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest evidence covers ToFUnit/VL53L0X at 0x29 on cores3: guest get_range()=500 matches distance-mm fixture and QOM transactions>0. 90-degree laser optics/940nm/FoV/range accuracy NOT RUN; 0x29 conflicts with tof/tof4m/color; continuous read_range() can block when the model has no new sample.",
       "inputs": {
         "distance-mm": {
           "property": "distance-mm"
@@ -9616,12 +9618,58 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-mini-tof-90.json",
+        "report_sha256": "6cbc5d266e141b7b52abf792c3fad9ccdcdb64fc3132b68fb14ecce87dfdfea6",
+        "evidence_sha256": "af1884e448464500abf5507f14c9cd57763f2cee7b4a86b8c261d20fcb354457",
+        "firmware_sha256": "e659f2f9442ad01a65157fb2e047c7e9baae03c0e7f3e0bda97024e621c2017d",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "ac523d59ebb16cf6fe2aee69d5c44676ae5502c2eba267b36bee9f89eeda95f6",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "hbridge-v11": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0143 复用 CONTROL_HBRIDGE（0x20）实现 hbridge-v11；v1.1 仅新增 0x30 float32 VIN 电流（vin-current-a fixture），direction/PWM/频率/ADC/身份寄存器与 U160 相同。未采集 guest/Device Service 证据 → planned。**电机/RZ7899/INA199/过流保护/真实负载电流 NOT RUN；0x20 与 hbridge U160 同地址；0x30 float 字节序与 v1.0 行为需 guest 证据**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest evidence covers HbridgeUnit at 0x20: guest ADC16/ADC8=2048/128, VIN current=0.5A; direction=1, 16-bit PWM=32768, freq=1000 observed in QOM, guest status 1/32. v1.1 reuses the U160 model; motor/RZ7899/INA199 load/protection NOT RUN; 0x20 conflicts with hbridge U160.",
       "inputs": {
         "adc-mv": {
           "property": "adc-mv"
@@ -9662,12 +9710,58 @@
           "property": "output-transitions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-hbridge-v11.json",
+        "report_sha256": "79e5c2ef6a9e7df66def966e739913b355e520cd751895054caa7a127f9778a1",
+        "evidence_sha256": "4955dad92ae914c4f94abfd3ce3807d58926d60841d130b1b3922d95ade738ed",
+        "firmware_sha256": "a1e631f924dd7937908412a69b067615c8f958c2bb23154e345ec52799a08307",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "953272c27076beb611d1c0228b78e5a0ad11bb2014cd2a140dcebf59fdd08b12",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "cardkb-original": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0143 复用 CONTROL_CARDKB（0x5F 单字节键值）实现 cardkb-original；original U035 与 v1.1 U035-B 的 MCU 版本（MEGA8A vs MEGA328P）差异写入 blocker，冻结驱动协议不变。未采集 guest/Device Service 证据 → planned。**0x5F 与 cardkb U035-B 同地址；original/v1.1 键值表与组合键差异 unresolved；键盘矩阵/RGB LED/机械手感 NOT RUN**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest evidence covers CardKBUnit at 0x5F: keycode fixture 0x71 is read by the guest as 113 with QOM input-events>=1 and no overflow. U035 original vs U035-B MEGA8A/MEGA328P remains unresolved; key matrix/key travel/RGB LED NOT RUN; 0x5F conflicts with cardkb.",
       "inputs": {
         "keycode": {
           "property": "keycode"
@@ -9714,12 +9808,58 @@
           "property": "output-transitions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-cardkb-original.json",
+        "report_sha256": "c6ecb81e85f819182bb28131b48573de325aa3bb8350685349bde7168c4c96c2",
+        "evidence_sha256": "d83a129e489006789ef4e84deb9d45974d5e03060497f31a151fcda2c0b54eda",
+        "firmware_sha256": "8ded5792928b50e8bca456b18e89966b8b743a6120cfec8af4a0f30a1b225a28",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "d254d6a54882b9bfe768c793a8743d14c91b7618869bf08eca2afbe259f6091c",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "env-ii": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0143 新增 US_SHT30（0x44：2 字节命令、0x2C10 测量 6B CRC8、0xF32D 状态、复位/heater 命令）+ 复用 BMP280 0x76，双从机 attach 与 ENV-I/IV 相同。未采集 guest/Device Service 证据 → planned。**0x44 与 env/env-iv/paper/hat SHT30 冲突；0x76 与 bps/env/env-iv 冲突；温湿度/气压精度、自热、SHT30 heater/时钟拉伸 NOT RUN**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest evidence covers ENVUnit(ENV_II) SHT30 0x44 + BMP280 0x76: guest T/RH/P=31.5/45.5/1005.0 and QOM fixtures 31.5/45.5/100500 match; I2C transactions>0. Sensor accuracy/self-heating/pressure physics NOT RUN; 0x44/0x76 conflict with env/bps/env-iv.",
       "inputs": {
         "temperature-c": {
           "property": "temperature-c"
@@ -9751,7 +9891,51 @@
           "property": "written-bytes"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-env-ii.json",
+        "report_sha256": "35fd37d21f5653abed16a5f71d15c4a468b41688f4bb4a9142c18532959b6da0",
+        "evidence_sha256": "12c8f78823624127635321b92cd94ab970d50667da04d4e4a465b390ec06a821",
+        "firmware_sha256": "371aed48d88d8ff10673dfbe7d72546cb0df5d91e34eff0b8538f660ddec2467",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "d623fb2f11154a5089344b138874d1f372632acb52912891ef7e076a72d448ac",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "mini-bps-v11": {
       "status": "planned",
@@ -9785,12 +9969,73 @@
       "model_completeness": "partial"
     },
     "hex": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers the generic RGBUnit/SK6812 37-LED path (public UIFlow2 has no unit/hex.py): fill_color(0x112233) -> QOM 37 LEDs + led-frames>=1. Driver-gap and SK6812-vs-WS2812C timing/order unresolved; LED optics/power/cascade NOT RUN; PORT.B substituted by cores3 PORT.A harness.",
       "bindings_required": [],
-      "notes": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。"
+      "notes": "0145 复用 neohex 的 37-LED RMT 捕获为 hex A045；public UIFlow2 无 unit/hex.py，generic neopixel 是唯一参考 → driver-gap。未采集 guest/Device Service 证据 → planned。**SK6812 vs WS2812C 时序/字节序 unresolved；PORT.B 黄线与 neohex/rgb-led-10cm/op90 冲突；LED 光学/功率/级联 NOT RUN。",
+      "inputs": {},
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-hex.json",
+        "report_sha256": "fb53b337f010f46d284ed62809da3777bfced598570738c33a4b85e1b90ea1dc",
+        "evidence_sha256": "96615caf4b6c2c476465d82d9494a1a6c891cdcfc668fe195814a62f5a9ad188",
+        "firmware_sha256": "6835c72137a1671713c1716a82de2f8be21edfdb5043e718f411c59834adbe94",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "36c6639efef6a466c6e7a20e0cb4ec8e035323b91a5fca3a28211dc87fafc180",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "mini-pdm": {
       "status": "planned",
@@ -9801,28 +10046,232 @@
       "notes": "0145 **DEFER 未实现**：public UIFlow2 无 Unit PDM 驱动，现有 SPM1423 PDM RX 是板级 I2S 路径，Unit attachment 无法绑定；不伪造 PCM fixture。数据面只能 machine.I2S，声学/灵敏度/SNR NOT RUN，PORT.B DATA/CLK 与其它 Unit 冲突。"
     },
     "catm": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers CATMUnit SIM7080G UART byte layer: AT/ATE0/AT+GSN frames captured, fixture responses injected, QOM frames>=2. No AT decode/RF/cellular/SIM/network claim; SIM7080G URC order unresolved; PORT.C substituted by cores3 PORT.A harness.",
       "bindings_required": [],
-      "notes": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。"
+      "notes": "0145 复用 UART fixture responder（TX 捕获 + idle 响应注入）登记 catm；不做 AT 解码。SIM7080G AT 固件/URC 顺序 unresolved；蜂窝 RF/网络/SIM/运营商认证/TLS/MQTT NOT RUN；PORT.C 与其它 UART Unit 冲突。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-catm.json",
+        "report_sha256": "11a88f5b43243ad1f1b2b27b1f621a32557eb278c25f5dce77fd22131c1b21c2",
+        "evidence_sha256": "0cf9c5e09526b2b0a3e36c777f8cf7628905cc7e94b6eca8f593ed2e4e1e3390",
+        "firmware_sha256": "3eb63daff7a0686295789f7d9ff20f7006609b21327a1e5725461b48f664c21f",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "16b52e609bf4e396c5577b12dc0d9c969eea9dd6384dd92a74ed83ee987c7431",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "catm-gnss": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers CATMGNSSUnit UART byte layer: AT/ATE0/CGNSPWR frames captured with fixture responses; GNSS parsing NOT modeled/asserted. Cellular+GNSS cannot run concurrently; CGNSINF COG is not travel heading; GNSS RF/fix accuracy NOT RUN; PORT.C substituted.",
       "bindings_required": [],
-      "notes": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。"
+      "notes": "0145 复用 UART fixture responder 登记 catm-gnss；AT+CGNSINF/GNSS 字段解析未建模，只断言字节/响应 fixture。页面 FAQ 明确蜂窝+GNSS 不能并发、CGNSINF 的 COG 不是行进方向；GNSS RF/天线/定位 NOT RUN；PORT.C 冲突。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-catm-gnss.json",
+        "report_sha256": "fed74437b63b7d62d970ef6da24687f7b7582cbba0d77b497d213b89d211b705",
+        "evidence_sha256": "712abf918bfb0a383007002c65b674a25243fef5d30a8433e2cfc27dac9079cb",
+        "firmware_sha256": "ff0127b57ce407a05269d7d34922db3c5f26ce550a445614e2028a1060525f85",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "f74871afd19fc83fffe6ffa8189757841c396aa5c2d6ea237f80d464a387d3b8",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "lorawan-cn470": {
-      "status": "planned",
-      "hosts": [],
-      "model_completeness": "pending",
-      "blocker": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Guest evidence covers LoRaWANUnit CWORKMODE=2/1 and DTRX byte frames with fixture responses; byte layer only, no LoRaWAN stack/RF claim. STM32WLE5/RAK3172 product vs frozen ASR650x wrapper mismatch unresolved; CN470 RF/antenna/regulatory NOT RUN; guest pre-init workaround documented; PORT.C substituted.",
       "bindings_required": [],
-      "notes": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。"
+      "notes": "0145 复用 UART fixture responder 登记 lorawan-cn470；不做 AT/LoRaWAN 协议解码。**产品 STM32WLE5/RAK3172 vs 冻结驱动 ASR650x 错配 unresolved**；OTAA/ABP/Join/CN470 RF/占空比/认证 NOT RUN；PORT.C 冲突。",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        },
+        "transactions": {
+          "property": "transactions"
+        }
+      },
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch7/report-lorawan-cn470.json",
+        "report_sha256": "ee8d5c5872d432ddb97ed0418d55f9129a192f0d0e98571dc2984524c8e28bbe",
+        "evidence_sha256": "41abfaaf48593b24a6c9302a26144b91e18a095ac7e738341c42d287a48baa6d",
+        "firmware_sha256": "370bf7dcf8400fcded659fdb33846c0e720fd84f53e2ad865c651ec71ba2effd",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "beb95e4c9dad67571b1a18b70021a89c321fa76ec42ef752489dc9ac885ab432",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "03865cd414cffafa9cd38ab774a020a32cec2e26994a74d762d5be6a1b402f67",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0130-unit-batch3ab.patch",
+          "0131-unit-batch3c.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0134-unit-batch4ab.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0136-unit-batch4c.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0145-unit-batch7b.patch",
+          "0146-unit-batch8a.patch",
+          "0147-unit-batch6b-evidence-fixes.patch",
+          "0150-unit-batch7-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "can": {
       "status": "planned",

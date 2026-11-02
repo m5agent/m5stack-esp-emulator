@@ -7,14 +7,15 @@ boundary, CAN attachment limitation and BMI270 aux boundary visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-m5stack-peripherals/0145-unit-batch7b.patch"
-IMPLEMENTED = ("hex", "catm", "catm-gnss", "lorawan-cn470", "can", "mini-imu-pro")
-UNITS = IMPLEMENTED + ("mini-pdm",)
+IMPLEMENTED = ("hex", "catm", "catm-gnss", "lorawan-cn470")
+UNITS = IMPLEMENTED + ("can", "mini-pdm", "mini-imu-pro")
 
 
 class UnitBatch7bPatchTests(unittest.TestCase):
@@ -77,17 +78,41 @@ class UnitBatch7bPatchTests(unittest.TestCase):
     def test_catalog_and_profiles_counts_and_visual_mappings(self):
         self.assertEqual(len(self.catalog["units"]), 133)
 
-    def test_planned_contracts_keep_blockers_and_empty_hosts(self):
-        for unit_id in UNITS:
+    def test_guest_evidence_upgrades_four_units_and_keeps_partial(self):
+        for unit_id in IMPLEMENTED:
+            unit = self.units[unit_id]
+            profile = self.profiles[unit_id]
+            self.assertEqual(unit["model_status"], "partial")
+            self.assertEqual(unit["runtime"]["status"], "implemented")
+            self.assertTrue(unit["runtime"]["blocker"])
+            self.assertEqual(profile["status"], "implemented")
+            self.assertEqual(profile["hosts"], ["cores3"])
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            self.assertIn("0145-unit-batch7b.patch", evidence["patches"])
+            self.assertIn("0150-unit-batch7-evidence-fixes.patch", evidence["patches"])
+
+    def test_blocked_and_deferred_units_keep_planned_contracts(self):
+        for unit_id in ("can", "mini-pdm", "mini-imu-pro"):
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
             self.assertEqual(unit["model_status"], "planned")
             self.assertEqual(unit["runtime"]["status"], "planned")
-            self.assertEqual(unit["blocker"], unit["runtime"]["blocker"])
-            self.assertTrue(unit["blocker"])
             self.assertEqual(profile["status"], "planned")
             self.assertEqual(profile["hosts"], [])
             self.assertTrue(profile["blocker"])
+
+    def test_0149_evidence_fixes_pin_uart_responder_gaps(self):
+        fix = (ROOT / "patches/qemu-m5stack-peripherals/0150-unit-batch7-evidence-fixes.patch").read_text(encoding="utf-8")
+        for token in ("catm-gnss", "lorawan-cn470", "at_arm_idle", "gpio_uart_rx_device_for_white"):
+            self.assertIn(token, fix)
+        evidence = (ROOT / "docs/evidence/2026-11-03-unit-batch7/README.md").read_text(encoding="utf-8")
+        self.assertIn("0150-unit-batch7-evidence-fixes.patch", evidence)
+        self.assertIn("BLOCKED", evidence)
+        self.assertIn("DEFER", evidence)
 
 
 if __name__ == "__main__":
