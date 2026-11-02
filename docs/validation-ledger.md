@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-03
+
+## 2026-11-03
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UNIT-01` / 第六批剩余 6 款 Unit 虚拟设备数据面 | 独立 Device Service（`127.0.0.1:8799`，独立 state/token，用户 `8787` 未触碰）在单一 QEMU 构建（canonical 25 层链至 0144 + `0145` 证据修复）上为 6 款各建一个可见会话，运行参考固件自带的原始冻结 UIFlow2 驱动。thermal2：device detail `0x4064`/`100.1`、alarm 0、median 31.5C、768B（384×u16）温度数组 head `12224/12256/12224/13216` 与 fixture 精确，QOM median/average/differential 精确；qrcode：status=1、len=15、data=`M5STACK-TEST-QR`、trigger mode 0、clear→status 0，QOM 回读一致；uwb：构造完整通过 UART AT 应答器，`tx-hex` 捕获 `AT`/`anchor_tag=0`/`AT+RST`/`interval=5`/`switchdis=1` 字节序列与 frame 计数；dmx：`cdriver.esp_dmx` 可执行，`write_data(1,255)` 后 QOM `tx-hex` 以 `00ff…` 开头观测 DMX start-code/channel 字节；finger：FPC1020A version gate `B1.10.00`、user count/capacity=150、frame 计数。5/5 PASS。unit-id BLOCKED：guest `IDUnit` 扫描到 0x35，但冻结 ATECC 驱动在每条命令前 wake 写 I2C 地址 `0x00`，绑定 0x35 的 Unit 从机无法接收该 wake，revision/serial/random 均失败（CRC mismatch/port error），不伪造任何 revision/serial；真实 ECDSA/AES/Trust&GO、key slot、10Kb EEPROM 与真机全部 `NOT RUN`，树内无真实密钥/证书。`0145` 修复 Thermal2 fixture 槽位、UWB/DMX/Finger UART idle arming、FPC1020A 多帧注入。PORT.C 未准入使用 cores3 PORT.A harness；UWB RF/测距、热成像光学/精度、QR 摄像头/解码、DMX512/RS485 电气、指纹采集/匹配全部 `NOT RUN` | [范围与复现](evidence/2026-11-03-unit-batch6b/README.md)、[机器摘要](evidence/2026-11-03-unit-batch6b/summary.json) |
+
 ## 2026-11-02
 
 | 工作流 | 结果 | 证据 |

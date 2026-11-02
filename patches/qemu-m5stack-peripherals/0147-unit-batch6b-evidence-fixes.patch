@@ -1,0 +1,93 @@
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -1005,7 +1005,10 @@
+                     lora_respond(g);
+                     if (g->at_len) { at_arm_idle(g); }
+                 } else if (!strcmp(g->unit->unit_id, "zigbee") ||
+-                           !strcmp(g->unit->unit_id, "nbiot2")) {
++                           !strcmp(g->unit->unit_id, "nbiot2") ||
++                           !strcmp(g->unit->unit_id, "uwb") ||
++                           !strcmp(g->unit->unit_id, "dmx") ||
++                           !strcmp(g->unit->unit_id, "finger")) {
+                     if (g->at_len < sizeof(g->at_buf)) { g->at_buf[g->at_len++] = byte; }
+                     at_arm_idle(g);
+                 }
+@@ -1413,12 +1416,43 @@
+     }
+ }
+ 
++/* FPC1020A answers one command with a multi-frame byte stream (a control frame
++ * followed by a version payload frame). The generic responder injects one
++ * fixture chunk per idle gap, which would leave the second frame missing; for
++ * finger the whole flattened fixture stream is injected at once so the guest's
++ * two consecutive reads consume it in order. */
++static void at_inject_whole(GPIOUnit *g)
++{
++    if (!g->at_responses || !*g->at_responses) { return; }
++    char *flat = g_strdup(g->at_responses);
++    char *dst = flat;
++    for (char *p = flat; *p; p++) {
++        if (*p != ';') { *dst++ = *p; }
++    }
++    *dst = 0;
++    uint8_t frame[1024];
++    unsigned count = parse_hex_bytes(flat, frame, sizeof(frame));
++    g_free(flat);
++    if (!count) { return; }
++    DeviceState *uart = NULL;
++    if (gpio_uart_rx_device_for_white(g, &uart) &&
++        count <= fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
++        esp32_uart_inject_rx(ESP32_UART(uart), frame, count);
++        g->unit->read_bytes += count;
++        g->at_frames_injected++;
++    }
++}
++
+ static void at_idle_cb(void *opaque)
+ {
+     GPIOUnit *g = opaque;
+     if (!g->at_len) { return; }
+     g->at_frames_sent++;
+-    at_inject_next(g);
++    if (!strcmp(g->unit->unit_id, "finger")) {
++        at_inject_whole(g);
++    } else {
++        at_inject_next(g);
++    }
+     g->at_len = 0;
+ }
+ 
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -1495,12 +1495,16 @@
+     s->regs[0][0x08] = I2C_SLAVE(s)->address;
+     s->regs[0][0x09] = (uint8_t)~I2C_SLAVE(s)->address;
+     s->regs[0][0x0a] = (uint8_t)s->thermal2_refresh_rate;
+-    s->regs[0][0x70] = (uint8_t)(int16_t)CLAMP(llround((s->thermal2_median_c + 64) * 128), -32768, 32767);
+-    s->regs[0][0x71] = (uint8_t)(((int16_t)CLAMP(llround((s->thermal2_median_c + 64) * 128), -32768, 32767)) >> 8);
+-    s->regs[0][0x72] = (uint8_t)(int16_t)CLAMP(llround((s->thermal2_avg_c + 64) * 128), -32768, 32767);
+-    s->regs[0][0x73] = (uint8_t)(((int16_t)CLAMP(llround((s->thermal2_avg_c + 64) * 128), -32768, 32767)) >> 8);
+-    s->regs[0][0x74] = (uint8_t)(int16_t)CLAMP(llround(s->thermal2_diff_c * 128), -32768, 32767);
+-    s->regs[0][0x75] = (uint8_t)(((int16_t)CLAMP(llround(s->thermal2_diff_c * 128), -32768, 32767)) >> 8);
++    /* QOM fixtures are bound to values[0..2] by add_number; the cached fields
++     * are only the power-on defaults. Read the live fixture slots so a
++     * session-initial Unit input reaches the guest register readback. */
++    double median_c = s->values[0], avg_c = s->values[1], diff_c = s->values[2];
++    s->regs[0][0x70] = (uint8_t)(int16_t)CLAMP(llround((median_c + 64) * 128), -32768, 32767);
++    s->regs[0][0x71] = (uint8_t)(((int16_t)CLAMP(llround((median_c + 64) * 128), -32768, 32767)) >> 8);
++    s->regs[0][0x72] = (uint8_t)(int16_t)CLAMP(llround((avg_c + 64) * 128), -32768, 32767);
++    s->regs[0][0x73] = (uint8_t)(((int16_t)CLAMP(llround((avg_c + 64) * 128), -32768, 32767)) >> 8);
++    s->regs[0][0x74] = (uint8_t)(int16_t)CLAMP(llround(diff_c * 128), -32768, 32767);
++    s->regs[0][0x75] = (uint8_t)(((int16_t)CLAMP(llround(diff_c * 128), -32768, 32767)) >> 8);
+     s->regs[0][0x6e] = 0; s->regs[0][0x6f] = 0;
+     s->regs[0][0xfe] = (uint8_t)s->thermal2_fw;
+     s->regs[0][0xff] = I2C_SLAVE(s)->address;
+@@ -2015,7 +2019,7 @@
+         if (reg >= 0x80 && reg < 0x380) {
+             unsigned index = (reg - 0x80) / 2;
+             unsigned lane = (reg - 0x80) & 1;
+-            double temp = s->thermal2_median_c + (double)(index % 32) * 0.25;
++            double temp = s->values[0] + (double)(index % 32) * 0.25;
+             int16_t raw = (int16_t)CLAMP(llround(temp * 128.0 + 8192.0), 0, 65535);
+             return lane ? (uint8_t)((uint16_t)raw >> 8) : (uint8_t)((uint16_t)raw & 0xff);
+         }

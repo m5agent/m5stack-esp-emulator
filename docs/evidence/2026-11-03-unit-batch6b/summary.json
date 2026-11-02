@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "validation": "virtual-device validation",
+  "scope": "Batch-6 second-half six Units through isolated /api/v1 Device Service sessions on one QEMU build (canonical 25-layer chain through 0144 + 0145 evidence fix); not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "single": {
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + canonical chain 25 layers through 0144 + 0147-unit-batch6b-evidence-fixes",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0124-stickt2-board.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0131-unit-batch3c.patch",
+        "0134-unit-batch4ab.patch",
+        "0136-unit-batch4c.patch",
+        "0130-unit-batch3ab.patch",
+        "0133-unit-vmeter-default-config.patch",
+        "0135-unit-batch3ab-fixes.patch",
+        "0132-unit-batch3c-fixes.patch",
+        "0137-unit-batch5a.patch",
+        "0138-unit-batch4-evidence-fixes.patch",
+        "0139-unit-batch5b.patch",
+        "0140-unit-batch6a.patch",
+        "0141-unit-batch5-evidence-fixes.patch",
+        "0142-unit-batch6b.patch",
+        "0143-unit-batch7a.patch",
+        "0144-unit-batch6-evidence-fixes.patch",
+        "0147-unit-batch6b-evidence-fixes.patch"
+      ]
+    }
+  },
+  "units": [
+    {
+      "unit_id": "unit-id",
+      "status": "BLOCKED",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-unit-id.json",
+      "report_sha256": "3dc247d7cbb28196e1798cb7314b0fd51c4edd7671e15d4d638b96a2cd2371bc",
+      "evidence_sha256": "39ccdd4a686c6cde70f0cf9b69fafaaa0efcdfa6760775d5262751225475b9c7",
+      "firmware_sha256": "c8bcf456e32116a2916afa0f2dd0288eea88225d7682b3afb488a925adcdb975",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_registered": true,
+        "wake_failure_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "wake_errors": [
+          "ID_REVISION_ERROR",
+          "ID_SERIAL_ERROR",
+          "ID_RANDOM_ERROR"
+        ],
+        "blocker": "ATECC608B wake writes to I2C address 0x00 before any command; a Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random cannot be exercised in this harness. No revision/serial value is asserted or faked."
+      },
+      "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates."
+    },
+    {
+      "unit_id": "thermal2",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-thermal2.json",
+      "report_sha256": "a43c00b193e95c95f8de13798d0d5c08a81ad6e49ed3791d49e2faf33512e601",
+      "evidence_sha256": "eb6c61ffe243c420b638dd0da0e1cfa6dacd980d533f2328329c99a8de508bbc",
+      "firmware_sha256": "cecbc5b38837f50fc26717a7f1a73a7289611abcd3da641779e03c3e58ee824f",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_median_31_5": true,
+        "guest_buffer_384_u16": true,
+        "guest_buffer_head_matches_fixture": true,
+        "qom_fixtures_exact": true,
+        "i2c_address_0x32": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "guest_measure": [
+          "31.5",
+          "-63.63",
+          "30.0"
+        ],
+        "guest_buffer": "384",
+        "guest_buffer_head": [
+          "12224",
+          "12256",
+          "12224",
+          "13216"
+        ],
+        "guest_detail": null,
+        "guest_alarm": "0"
+      },
+      "blocker": "Guest Thermal2Unit on cores3 at 0x32: device detail 0x4064/100.1, alarm 0, button 0, median 31.5C, 768-byte (384 u16) temperature buffer with fixture-exact head values, QOM median/average/differential fixtures exact. Page 0x33-vs-driver-0x32 ambiguity remains unresolved (0x33 collides with registered thermal; only 0x32 modeled). Thermal imaging optics/accuracy/refresh, ESP32 MCU alarm state machine and the 0x33 address are NOT RUN."
+    },
+    {
+      "unit_id": "qrcode",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-qrcode.json",
+      "report_sha256": "f56c6fe9a2b40efd1d70c6808421a34098f1ebc11456d82784217c426a29a06b",
+      "evidence_sha256": "d4cbb5873d04999164160c96b7334f0fb3a8ce340adb8f4114f8db47e9d1c3ce",
+      "firmware_sha256": "16eb2427876d5e7745d4c8e424830a6bc532cbc0baf1695d4ee6178c518baf54",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_status_1": true,
+        "guest_len_15": true,
+        "guest_data_fixture": true,
+        "guest_trigger_mode_0": true,
+        "guest_status_cleared": true,
+        "qom_status_cleared": true,
+        "qom_trigger_mode": true,
+        "i2c_address_0x21": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "guest_status": "1",
+        "guest_len": "15",
+        "guest_data": "M5STACK-TEST-QR",
+        "guest_mode": "0",
+        "guest_cleared": "0"
+      },
+      "blocker": "Guest QRCodeUnit (I2C mode) on cores3 at 0x21: status=1, length=15, data='M5STACK-TEST-QR', trigger mode 0, clear->status 0; QOM status/trigger exact. Camera/optics/illumination/decoding NOT RUN; the I2C/UART side switch is mutually exclusive and only the I2C side is modeled; UART command frames are not modeled on this attachment."
+    },
+    {
+      "unit_id": "uwb",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-uwb.json",
+      "report_sha256": "201f41c3339f213f72423b8e538e4998dfc3e268f2605038e37fcf909bbb3a1e",
+      "evidence_sha256": "e2febf904b5eeaeb98cc6cc0df0bf85ecab232135aec160034459a9a92935269",
+      "firmware_sha256": "5e09f306a9e3e4cd01a823605d3b194f28b00302d26cc0f1fe16cbf3f7198135",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_continuous_on": true,
+        "qom_at_bytes": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "guest_device": null,
+        "guest_continuous": "1",
+        "qom_tx_hex": "41540d0a41542b616e63686f725f7461673d302c4e6f6e650d0a41542b5253540d0a41542b696e74657276616c3d350d0a41542b7377697463686469733d310d0a"
+      },
+      "blocker": "Guest UWBUnit constructor completed through the UART AT responder on cores3 (AT/anchor_tag/RST/interval/switchdis byte sequence captured in QOM tx-hex, frames counted). Only the byte layer is asserted; the frozen UWBUnit does not expose device_id/continuous state as QOM-checkable values. UWB 3.5-6.5GHz RF/antenna/ranging/anchor network are NOT RUN; the page explicitly does not support custom data transmission; PORT.C substituted to cores3 PORT.A harness."
+    },
+    {
+      "unit_id": "dmx",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-dmx.json",
+      "report_sha256": "fe145a8d39d960c39cacd7b37a371c3487fbfd6952dc259b5a2bb99d05d6769b",
+      "evidence_sha256": "de4b206331f40fee0e54ecabbe58d872afe40a191e3f867be92345bc59c71b38",
+      "firmware_sha256": "f21d9fc2c1b5f6cd230823df1548bd1334f853aa412e5c25fc73e8b64209ce64",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_init_ok": true,
+        "guest_write_marker": true,
+        "qom_uart_dmx_frame_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "module_errors": [],
+        "qom_tx_hex": "00ff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "caveat": "The frozen driver executes through cdriver.esp_dmx. Only guest write markers and any UART bytes exposed by the model are asserted; DMX512/RS485 electrical behavior and frame decoding are NOT RUN."
+      },
+      "blocker": "Guest DMX512Unit initialised and write_data(1,255) executed on cores3; QOM observed a DMX start-code/channel byte stream beginning 00ff. cdriver.esp_dmx was importable in this reference firmware. Only the UART byte layer is asserted: DMX512 framing, RS485 differential bus, 5kVrms isolation, XLR-3, 120ohm termination and 250kbps timing are NOT RUN; PORT.C substituted to cores3 PORT.A harness."
+    },
+    {
+      "unit_id": "finger",
+      "status": "PASS",
+      "report": "docs/evidence/2026-11-03-unit-batch6b/report-finger.json",
+      "report_sha256": "46a5890e9c9c35c39049a84495a49e26b141fc9d5341aad409cea24bc3bc0e63",
+      "evidence_sha256": "d57e625eff34e174e20589324b2a7332ba1dc6c0e4f9eccd4f69ce20523227a6",
+      "firmware_sha256": "c540ddbbef96505a04afde6061e43b96af1449ba185d3edd2640b087060d8e62",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+      "checks": {
+        "official_driver_started": true,
+        "live_controller_state": true,
+        "guest_driver_ready": true,
+        "guest_version_gate": true,
+        "qom_version_frames": true,
+        "qom_frames": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "observations": {
+        "guest_version": "B1.10.00",
+        "guest_count": "150",
+        "guest_capacity": "150"
+      },
+      "blocker": "Guest FingerUnit (FPC1020A) on cores3 passed the B1.10.00 version gate and read user count/capacity 150 from the fixture responder frames; QOM frame counters observed. Only the 0xF5/XOR byte layer is asserted: fingerprint capture/matching, security levels, 150-user storage and 193B templates are NOT RUN; PORT.C substituted to cores3 PORT.A harness."
+    }
+  ],
+  "blocked": [
+    "unit-id"
+  ],
+  "note": "Raw ZIP/frame/serial artifacts stay in local ignored storage. unit-id is BLOCKED by the ATECC wake-to-address-0 requirement; the other five are byte/register-layer PASS."
+}

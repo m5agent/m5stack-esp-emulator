@@ -1,6 +1,7 @@
 """Static contracts for the 0142 Unit batch-6 remaining six data planes."""
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -33,13 +34,13 @@ class UnitBatch6bPatchTests(unittest.TestCase):
 
     def test_unit_id_uses_only_fixed_test_vectors(self):
         entry = json.dumps(self.units["unit-id"], ensure_ascii=False)
-        for token in ("0x35", "ATECC608B", "测试向量", "私钥", "NOT RUN"):
+        for token in ("0x35", "ATECC608B", "test vectors", "NO real keys", "NOT RUN"):
             self.assertIn(token, entry, token)
         self.assertIn("test vectors", self.text.lower())
 
     def test_thermal2_address_ambiguity_and_array(self):
         entry = json.dumps(self.units["thermal2"], ensure_ascii=False)
-        for token in ("0x32", "0x33", "768", "MLX90640", "二义"):
+        for token in ("0x32", "0x33", "768", "MLX90640", "ambiguity"):
             self.assertIn(token, entry, token)
 
     def test_qrcode_16bit_window_and_uart_responders(self):
@@ -51,14 +52,29 @@ class UnitBatch6bPatchTests(unittest.TestCase):
             for token in ("PORT.C", "NOT RUN", "UART"):
                 self.assertIn(token, entry, token)
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_inventory_evidence_status_matches_validation(self):
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            if unit_id == "unit-id":
+                # Blocked by the ATECC wake-to-address-0 harness requirement.
+                self.assertEqual(entry["model_status"], "planned", unit_id)
+                self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+                self.assertEqual(profile["status"], "planned", unit_id)
+                self.assertEqual(profile["hosts"], [], unit_id)
+            else:
+                self.assertEqual(entry["model_status"], "partial", unit_id)
+                self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+                self.assertEqual(profile["status"], "implemented", unit_id)
+                self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+                evidence = profile["virtual_device_evidence"]
+                report = ROOT / evidence["report"]
+                self.assertTrue(report.is_file(), unit_id)
+                self.assertEqual(
+                    hashlib.sha256(report.read_bytes()).hexdigest(),
+                    evidence["report_sha256"], unit_id)
+                self.assertIn("0142-unit-batch6b.patch", evidence["patches"], unit_id)
+                self.assertIn("0147-unit-batch6b-evidence-fixes.patch", evidence["patches"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
     def test_patch_has_no_guest_claim(self):

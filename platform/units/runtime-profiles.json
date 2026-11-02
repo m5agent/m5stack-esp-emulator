@@ -9184,7 +9184,7 @@
     "unit-id": {
       "status": "planned",
       "hosts": [],
-      "blocker": "0142 新增 US_ATECC608B（0x35）：0x03 命令帧 + CRC16(0x8005) 响应帧；INFO revision/serial、RANDOM、SHA、GEN_KEY、SIGN、NONCE 返回固定非秘密测试向量。未采集 guest/Device Service 证据 → planned。**真实 ECDSA/AES-GCM/Trust&GO 证书链/key slot 锁定/权限/10Kb EEPROM NOT RUN；wake-to-address-0/idle/sleep 未建模（需 guest 证据）；仓库与 QEMU 不含任何真实私钥/证书；0x35 无已登记冲突**",
+      "blocker": "BLOCKED: guest IDUnit finds the 0x35 slave, but the frozen ATECC608B driver wakes the chip by writing to I2C address 0x00 before any command. A Unit slave model bound to 0x35 cannot receive that wake write, so revision/serial/random fail (CRC mismatch/port errors). No revision/serial value is asserted or faked. Real ECDSA/AES-GCM/Trust&GO certificate chains, key-slot locking and the 10Kb EEPROM are NOT RUN; the tree contains NO real keys or certificates.",
       "inputs": {
         "revision": {
           "property": "revision"
@@ -9207,9 +9207,11 @@
       "model_completeness": "partial"
     },
     "thermal2": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0142 新增 US_THERMAL2（0x32）：按键/报警/设备信息/功能/刷新/阈值/蜂鸣器/RGB 寄存器、中位/平均/差分温度、768×2B 温度数组（raw=temp*128+8192）。未采集 guest/Device Service 证据 → planned。**页面 0x33 vs 协议表/驱动 0x32 二义 unresolved（0x33 与 thermal 冲突，只实现 0x32）；热成像光学/精度/刷新/报警状态机 NOT RUN；ESP32 内部缓存语义不建模**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest Thermal2Unit on cores3 at 0x32: device detail 0x4064/100.1, alarm 0, button 0, median 31.5C, 768-byte (384 u16) temperature buffer with fixture-exact head values, QOM median/average/differential fixtures exact. Page 0x33-vs-driver-0x32 ambiguity remains unresolved (0x33 collides with registered thermal; only 0x32 modeled). Thermal imaging optics/accuracy/refresh, ESP32 MCU alarm state machine and the 0x33 address are NOT RUN.",
       "inputs": {
         "median-c": {
           "property": "median-c"
@@ -9259,12 +9261,56 @@
           "property": "transactions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch6b/report-thermal2.json",
+        "report_sha256": "a43c00b193e95c95f8de13798d0d5c08a81ad6e49ed3791d49e2faf33512e601",
+        "evidence_sha256": "eb6c61ffe243c420b638dd0da0e1cfa6dacd980d533f2328329c99a8de508bbc",
+        "firmware_sha256": "cecbc5b38837f50fc26717a7f1a73a7289611abcd3da641779e03c3e58ee824f",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "26a4bac3f79d57530108f97519dac21f1e63fa54557f3074b0530c8f0d01f00e",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0147-unit-batch6b-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "qrcode": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0142 新增 US_QRCODE（0x21）：2 字节小端地址窗口 + 状态/长度/触发模式/按键/固件/地址寄存器 + 0x1000–0x11FF QR 数据窗口。未采集 guest/Device Service 证据 → planned。**摄像头/扫码光学/补光/瞄准/解码 NOT RUN；I2C/UART 侧开关物理互斥、只实现 I2C 侧；UART 命令帧未在该 attachment 建模；0x21 无已登记冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest QRCodeUnit (I2C mode) on cores3 at 0x21: status=1, length=15, data='M5STACK-TEST-QR', trigger mode 0, clear->status 0; QOM status/trigger exact. Camera/optics/illumination/decoding NOT RUN; the I2C/UART side switch is mutually exclusive and only the I2C side is modeled; UART command frames are not modeled on this attachment.",
       "inputs": {
         "data-status": {
           "property": "data-status"
@@ -9296,12 +9342,56 @@
           "property": "transactions"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch6b/report-qrcode.json",
+        "report_sha256": "f56c6fe9a2b40efd1d70c6808421a34098f1ebc11456d82784217c426a29a06b",
+        "evidence_sha256": "d4cbb5873d04999164160c96b7334f0fb3a8ce340adb8f4114f8db47e9d1c3ce",
+        "firmware_sha256": "16eb2427876d5e7745d4c8e424830a6bc532cbc0baf1695d4ee6178c518baf54",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "db3d521ac05d6f59055136cc8076d244a8510c9d1a9babe2651c382ff2988d57",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0147-unit-batch6b-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "uwb": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0142 新增 GPIO id 'uwb'：UART 捕获 + idle-time fixture 应答器，不解析 AT/UWB 语义。未采集 guest/Device Service 证据 → planned。**UWB 3.5–6.5GHz RF/天线/多径/10cm 精度/基站网络 NOT RUN；页面明确不支持自定义数据传输；固件/AT 响应格式需钉 SHA；PORT.C 端口冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest UWBUnit constructor completed through the UART AT responder on cores3 (AT/anchor_tag/RST/interval/switchdis byte sequence captured in QOM tx-hex, frames counted). Only the byte layer is asserted; the frozen UWBUnit does not expose device_id/continuous state as QOM-checkable values. UWB 3.5-6.5GHz RF/antenna/ranging/anchor network are NOT RUN; the page explicitly does not support custom data transmission; PORT.C substituted to cores3 PORT.A harness.",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
@@ -9321,12 +9411,56 @@
           "property": "frames-injected"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch6b/report-uwb.json",
+        "report_sha256": "201f41c3339f213f72423b8e538e4998dfc3e268f2605038e37fcf909bbb3a1e",
+        "evidence_sha256": "e2febf904b5eeaeb98cc6cc0df0bf85ecab232135aec160034459a9a92935269",
+        "firmware_sha256": "5e09f306a9e3e4cd01a823605d3b194f28b00302d26cc0f1fe16cbf3f7198135",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "49e78bca455aa106dc3be7d1256a1f5bde969996ec757b7a32f55fb059114eb0",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0147-unit-batch6b-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "dmx": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0142 新增 GPIO id 'dmx'：仅 UART 字节观测/注入（C 模块 esp_dmx 不可执行），不解析 DMX 帧。未采集 guest/Device Service 证据 → planned。**DMX512/RS485 差分总线/5kVrms 隔离/XLR-3/120Ω/250kbps 时序 NOT RUN；cdriver C 模块帧格式/中断不可见；master/slave 互斥未区分；PORT.C 端口冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest DMX512Unit initialised and write_data(1,255) executed on cores3; QOM observed a DMX start-code/channel byte stream beginning 00ff. cdriver.esp_dmx was importable in this reference firmware. Only the UART byte layer is asserted: DMX512 framing, RS485 differential bus, 5kVrms isolation, XLR-3, 120ohm termination and 250kbps timing are NOT RUN; PORT.C substituted to cores3 PORT.A harness.",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
@@ -9346,12 +9480,56 @@
           "property": "frames-injected"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch6b/report-dmx.json",
+        "report_sha256": "fe145a8d39d960c39cacd7b37a371c3487fbfd6952dc259b5a2bb99d05d6769b",
+        "evidence_sha256": "de4b206331f40fee0e54ecabbe58d872afe40a191e3f867be92345bc59c71b38",
+        "firmware_sha256": "f21d9fc2c1b5f6cd230823df1548bd1334f853aa412e5c25fc73e8b64209ce64",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "0360748c58c8ab50bc04172bb4c1b56b5bb64829e49ba95dcb7498c21995f529",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0147-unit-batch6b-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "finger": {
-      "status": "planned",
-      "hosts": [],
-      "blocker": "0142 新增 GPIO id 'finger'：UART 捕获 + idle-time fixture 应答器，不解析 0xF5/XOR 帧语义。未采集 guest/Device Service 证据 → planned。**指纹采集/匹配/安全等级/150 用户/193B 特征/防伪 NOT RUN；版本门 B1.10.00/B1.07.00 需 fixture 满足；XOR/ACK 语义未解码；PORT.C 端口冲突**",
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Guest FingerUnit (FPC1020A) on cores3 passed the B1.10.00 version gate and read user count/capacity 150 from the fixture responder frames; QOM frame counters observed. Only the 0xF5/XOR byte layer is asserted: fingerprint capture/matching, security levels, 150-user storage and 193B templates are NOT RUN; PORT.C substituted to cores3 PORT.A harness.",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
@@ -9371,7 +9549,49 @@
           "property": "frames-injected"
         }
       },
-      "model_completeness": "partial"
+      "model_completeness": "partial",
+      "virtual_device_evidence": {
+        "report": "docs/evidence/2026-11-03-unit-batch6b/report-finger.json",
+        "report_sha256": "46a5890e9c9c35c39049a84495a49e26b141fc9d5341aad409cea24bc3bc0e63",
+        "evidence_sha256": "d57e625eff34e174e20589324b2a7332ba1dc6c0e4f9eccd4f69ce20523227a6",
+        "firmware_sha256": "c540ddbbef96505a04afde6061e43b96af1449ba185d3edd2640b087060d8e62",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "0bea60ddb7e309b69a0d0400a1fb03b918629d0325a5253a6123d349602541f0",
+        "firmware_flavor": "reference-firmware-frozen-original-unit-driver",
+        "validation_scope": "virtual-device validation",
+        "hardware": "NOT RUN",
+        "live_browser": "NOT RUN",
+        "session_id_sha256": "d31e4e4ab9e2b1380a68270851048b54266a691b38e33bd2490cc44f874d2d03",
+        "patches": [
+          "0120-unit-i2c-dlight-command-mask.patch",
+          "0121-m5stick-board.patch",
+          "0122-atoms3r-m12-board.patch",
+          "0123-unit-i2c-batch3.patch",
+          "0124-stickt2-board.patch",
+          "0125-unit-batch2.patch",
+          "0126-unit-batch2b.patch",
+          "0127-unit-dac-fast-mode-write.patch",
+          "0128-unit-ameter-eeprom-layout.patch",
+          "0129-unit-batch2b-write-offset.patch",
+          "0131-unit-batch3c.patch",
+          "0134-unit-batch4ab.patch",
+          "0136-unit-batch4c.patch",
+          "0130-unit-batch3ab.patch",
+          "0133-unit-vmeter-default-config.patch",
+          "0135-unit-batch3ab-fixes.patch",
+          "0132-unit-batch3c-fixes.patch",
+          "0137-unit-batch5a.patch",
+          "0138-unit-batch4-evidence-fixes.patch",
+          "0139-unit-batch5b.patch",
+          "0140-unit-batch6a.patch",
+          "0141-unit-batch5-evidence-fixes.patch",
+          "0142-unit-batch6b.patch",
+          "0143-unit-batch7a.patch",
+          "0144-unit-batch6-evidence-fixes.patch",
+          "0147-unit-batch6b-evidence-fixes.patch"
+        ],
+        "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      }
     },
     "mini-tof-90": {
       "status": "planned",
