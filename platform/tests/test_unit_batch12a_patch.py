@@ -28,7 +28,7 @@ class UnitBatch12aPatchTests(unittest.TestCase):
                       "CONTROL_MQ", "CONTROL_SERVOS8V2", "CONTROL_CARDKB2"):
             self.assertIn(token, self.text)
 
-    def test_patch_base_is_the_36_layer_canonical_chain(self):
+    def test_patch_base_is_the_37_layer_canonical_chain(self):
         readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
         self.assertIn("0158-unit-batch12a.patch", readme)
         self.assertIn("0156", readme)
