@@ -7260,6 +7260,264 @@
         }
       },
       "model_completeness": "partial"
+    },
+    "weight": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 GPIO id 'weight'：黄线 pad observer 统计 guest CLK 下降沿，白线按 24-bit MSB-first 输出 fixture 位；24 个数据脉冲后按 channel（1/3/2）消费 gain 脉冲，转换完成后 DAT 拉高并按合成 100ms 就绪延迟重新拉低。未采集 guest/Device Service 证据 → planned。**HX711 电气/10SPS 时序/称重力学/载荷/温漂/量程 NOT RUN；驱动把 raw 左移一位后再 XOR 0x800000（guest get_raw_weight = (raw<<1)^0x800000），QOM adc-raw 是 DAT 位承载的 24-bit 原始码；页面 FAQ 写 I2C 与 PinMap/驱动 GPIO 位脉冲冲突 unresolved；与已登记 weight-i2c（U180，I2C 0x26）是不同协议，不得混用。**",
+      "inputs": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "channel": {
+          "property": "channel"
+        }
+      },
+      "state": {
+        "adc-raw": {
+          "property": "adc-raw"
+        },
+        "channel": {
+          "property": "channel"
+        },
+        "weight-g": {
+          "property": "weight-g"
+        },
+        "conversions": {
+          "property": "conversions"
+        },
+        "ready-level": {
+          "property": "ready-level"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "bldc-driver": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 CONTROL_BLDC（0x65）：按驱动实现 mode 0x00、int16le PWM 0x10、float/int/ASCII RPM 0x20/0x90/0xB0、float/int/ASCII 频率 0x30/0xA0/0xC0、float/int set-RPM 0x40/0xD0、12B PID 0x50、direction 0x60、motor model 0x70、pole pairs 0x71、status 0x80、flash 0xF0、fw 0xFE、address 0xFF。未采集 guest/Device Service 证据 → planned。**BLDC 电机电气/转速/失速保护/DRV11873 状态/5V 输出 NOT RUN；RPM float 按真实 IEEE754 LE；频率回读是合成 rpm/60 约定（真实极对数/电频率关系无驱动锚点，unresolved）；0xF0 flash 持久化语义 unresolved；0x65 无已登记冲突。**",
+      "inputs": {
+        "mode": {
+          "property": "mode"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "pole-pairs": {
+          "property": "pole-pairs"
+        },
+        "rpm": {
+          "property": "rpm"
+        },
+        "pwm": {
+          "property": "pwm"
+        }
+      },
+      "state": {
+        "mode": {
+          "property": "mode"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "pole-pairs": {
+          "property": "pole-pairs"
+        },
+        "rpm": {
+          "property": "rpm"
+        },
+        "pwm": {
+          "property": "pwm"
+        },
+        "rpm-readback": {
+          "property": "rpm-readback"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "motor-status": {
+          "property": "motor-status"
+        },
+        "flash-writes": {
+          "property": "flash-writes"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "ac-measure": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 US_ACMEASURE（0x42）：由同一组 fixture 派生 ASCII 字符串视图（7/7/7/7/4/11B，宽度是模型侧确定性约定）与小端 byte 视图（0x60..0xB3），并实现系数 0xC0/0xD0、保存 0xE0、data-ready 0xFC、bootloader 0xFD（只记录不跳转）、fw 0xFE、address 0xFF。未采集 guest/Device Service 证据 → planned。**安全边界：AC 100-240V@10A 是测量输入，绝不是可切换负载；模型只模拟寄存器读数，绝不宣称市电通断/隔离耐压/过流/计量精度；市电/HLW8032/隔离/校准语义 NOT RUN；页面 STM32G030 vs 官方 I2C 总表 STM32F030 冲突 unresolved；0x42 无已登记冲突。**",
+      "inputs": {
+        "voltage-v": {
+          "property": "voltage-v"
+        },
+        "current-a": {
+          "property": "current-a"
+        },
+        "active-power-w": {
+          "property": "active-power-w"
+        },
+        "apparent-power-va": {
+          "property": "apparent-power-va"
+        },
+        "power-factor": {
+          "property": "power-factor"
+        },
+        "energy-kwh": {
+          "property": "energy-kwh"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        }
+      },
+      "state": {
+        "voltage-v": {
+          "property": "voltage-v"
+        },
+        "current-a": {
+          "property": "current-a"
+        },
+        "active-power-w": {
+          "property": "active-power-w"
+        },
+        "apparent-power-va": {
+          "property": "apparent-power-va"
+        },
+        "power-factor": {
+          "property": "power-factor"
+        },
+        "energy-kwh": {
+          "property": "energy-kwh"
+        },
+        "data-ready": {
+          "property": "data-ready"
+        },
+        "coeff-voltage": {
+          "property": "coeff-voltage"
+        },
+        "coeff-current": {
+          "property": "coeff-current"
+        },
+        "save-coeff-writes": {
+          "property": "save-coeff-writes"
+        },
+        "fw-version": {
+          "property": "fw-version"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "dds": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 CONTROL_DDS（0x31）：mode 0x20 (0x80|wave 1..5)、control 0x21、frequency 0x30（4B：bit7 写、bit6 选 FREQ0/1；28-bit word=freq*2^28/10MHz）、phase 0x34（2B：bit7 写、bit6 选 PHASE0/1；11-bit word=deg*2048/360），并回读当前选中寄存器。未采集 guest/Device Service 证据 → planned。**AD9833 模拟波形/幅度/相位精度/输出阻抗/0-0.6V NOT RUN；set_ctrl bit 语义只按驱动实现；0x31 无已登记冲突。**",
+      "inputs": {
+        "waveform": {
+          "property": "waveform"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "phase-deg": {
+          "property": "phase-deg"
+        },
+        "freq-reg": {
+          "property": "freq-reg"
+        },
+        "phase-reg": {
+          "property": "phase-reg"
+        }
+      },
+      "state": {
+        "waveform": {
+          "property": "waveform"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "phase-deg": {
+          "property": "phase-deg"
+        },
+        "freq-reg": {
+          "property": "freq-reg"
+        },
+        "phase-reg": {
+          "property": "phase-reg"
+        },
+        "ctrl-word": {
+          "property": "ctrl-word"
+        },
+        "active-freq-reg": {
+          "property": "active-freq-reg"
+        },
+        "active-phase-reg": {
+          "property": "active-phase-reg"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "gps": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 GPIO id 'gps'：50ms 定时器把 ';'/'\\n' 分隔的 fixture NMEA 行按 guest UART RX 路由注入（无路由时不注入、不计数），并捕获 guest TX 字节。未采集 guest/Device Service 证据 → planned。**真实 GNSS 卫星/射频/天线/定位精度 NOT RUN；驱动不校验 NMEA checksum（unresolved）；冷/热启动与 1-10Hz 更新率不建模；PORT.C 与 midi/uhf-rfid/rs485-iso 同端口冲突；页面 EOL。**",
+      "inputs": {
+        "nmea-lines": {
+          "property": "nmea-lines"
+        }
+      },
+      "state": {
+        "nmea-lines": {
+          "property": "nmea-lines"
+        },
+        "injected-lines": {
+          "property": "injected-lines"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        }
+      },
+      "model_completeness": "partial"
+    },
+    "uhf-rfid": {
+      "status": "planned",
+      "hosts": [],
+      "blocker": "0136 新增 GPIO id 'uhf-rfid'：黄线按字节捕获 guest 命令，检测 0xBB 起始/0x7E 结束的完整命令帧后，从 ';' 分隔的 hex fixture 取下一响应帧经 guest UART RX 注入（无路由时不注入、不计数）。未采集 guest/Device Service 证据 → planned。**RF 840-960MHz/天线/Gen2 空口/1m 读取距离/区域限制 NOT RUN；kill/lock/密码只做帧层，绝不宣称真实标签能力或安全；快照 vs master NXP EAS/config-word API 差异须钉 SHA；UART PORT.C 与 gps/midi/rs485-iso 端口冲突。**",
+      "inputs": {
+        "responses-hex": {
+          "property": "responses-hex"
+        }
+      },
+      "state": {
+        "responses-hex": {
+          "property": "responses-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "rx-frames-hex": {
+          "property": "rx-frames-hex"
+        },
+        "frames-sent": {
+          "property": "frames-sent"
+        },
+        "frames-injected": {
+          "property": "frames-injected"
+        }
+      },
+      "model_completeness": "partial"
     }
   },
   "evidence_policy": {
