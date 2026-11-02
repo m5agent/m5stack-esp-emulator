@@ -91,7 +91,7 @@ class DocsCurrentStateContractTests(DocsContractBase):
         self.assertEqual(expected, {
             "atoms3r-ai-chatbot", "atoms3r-cam-ai-chatbot",
             "atoms3r-m12-volcengine-kit", "atoms3r-ext",
-            "stickv", "stickt2",
+            "stickv",
         })
         units = project_snapshot.summarize_units(devices)
         self.assertEqual(set(units["visual_source"]["visual_only_controllers"]), expected)

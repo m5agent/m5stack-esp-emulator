@@ -78,6 +78,10 @@
       "m5stick": {
         "reason": "Device-local m5stick machine boots the official EasyLoader factory image deterministically to its MPU probe (mpu9250 addr: FF) and drives the SH1107 init/GDDRAM path; MPU9250/IP5306/button model data planes pass through a generic classic-ESP32 MicroPython fixture. Factory-firmware nine-axis/button path, AK8963, SH1107 final UI frame, buzzer/IR/LED, Grove Units and physical behavior remain open.",
         "review_by": "2026-12-31"
+      },
+      "stickt2": {
+        "reason": "New StickT2 host: the Lepton VoSPI/CCI thermal data plane, ST7789 panel and I2C encoder are covered by a committed probe, but AXP192/PCF8563/MPU6886 device-local data planes, Grove Units, PDM microphone, factory UI and physical thermal/optical behaviour are not.",
+        "review_by": "2026-12-31"
       }
     }
   },
@@ -1391,6 +1395,38 @@
       ],
       "data_plane": "MPU9250 I2C register file: WHO_AM_I 0x71, INT_STATUS raw-data-ready, PWR_MGMT/CONFIG registers, big-endian accel/temperature/gyro output registers backed by QOM accel-x/y/z and gyro-x/y/z fixtures; a guest MicroPython fixture on the m5stick machine scans 0x68, reads WHO_AM_I and the accel frame through the real ESP32 I2C controller, and a QOM accel fixture change is read back by the guest",
       "blocker": "AK8963 magnetometer behind the MPU9250 bypass (0x0C), the DMP and hardware self-test are not modelled; the board's legacy EasyLoader factory firmware does not complete its I2C FIFO transactions against the current classic I2C model, so guest data-plane evidence comes from the generic classic-ESP32 MicroPython fixture rather than the factory firmware."
+    },
+    "lepton": {
+      "kind": "thermal-camera",
+      "interface": "spi+i2c",
+      "address": "0x2a",
+      "capabilities": [
+        "thermal"
+      ],
+      "status": "simulated",
+      "injection": [
+        "qom-frame"
+      ],
+      "data_plane": "classic ESP32 HSPI VoSPI: 164-byte packets (segment/line header, 80 big-endian 16-bit pixels), 4 segments x 60 packets per 160x120 frame; deterministic synthetic LWIR fixture selected by frame-seed; 16-bit CCI register interface for PING/serial/FPA+AUX temperature/OEM sync commands",
+      "tested_devices": [
+        "stickt2"
+      ]
+    },
+    "encoder": {
+      "kind": "encoder",
+      "interface": "i2c",
+      "address": "0x30",
+      "capabilities": [
+        "encoder"
+      ],
+      "status": "simulated",
+      "injection": [
+        "qom-increment"
+      ],
+      "data_plane": "I2C register protocol of the official M5-StickT example: pointer 0x10 = 1-byte switch, pointer 0x00 = 2-byte big-endian delta, pointer 0x20 write clears the delta; QOM-injected increment is read back by the guest",
+      "tested_devices": [
+        "stickt2"
+      ]
     }
   },
   "devices": {
@@ -3699,6 +3735,99 @@
         {
           "model": "pwr-button",
           "reason": "The power/reset key is wired to the IP5306 KEY input, not an ESP32 GPIO; no QEMU power-key or power-state transition model exists."
+        }
+      ]
+    },
+    "stickt2": {
+      "board_model": "m5stickt2",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/StickT2"
+      ],
+      "components": [
+        {
+          "id": "button-a",
+          "model": "gpio-button",
+          "gpio": 37,
+          "qom_path": "/machine/m5-panel",
+          "status": "partial"
+        },
+        {
+          "id": "button-b",
+          "model": "gpio-button",
+          "gpio": 39,
+          "qom_path": "/machine/m5-panel",
+          "status": "partial"
+        },
+        {
+          "id": "imu",
+          "model": "mpu6886",
+          "address": "0x68",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/mpu6886",
+          "status": "partial"
+        },
+        {
+          "id": "rtc",
+          "model": "pcf8563",
+          "address": "0x51",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/pcf8563",
+          "status": "partial"
+        },
+        {
+          "id": "pmic",
+          "model": "axp192",
+          "address": "0x34",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/axp192",
+          "status": "partial"
+        },
+        {
+          "id": "thermal",
+          "model": "lepton",
+          "address": "0x2a",
+          "interface": "spi+i2c",
+          "pins": "cci sda=21,scl=22; vospi cs=0,miso=25,sck=2; vsync=38; reset=26",
+          "qom_path": "/machine/lepton",
+          "status": "simulated"
+        },
+        {
+          "id": "microphone",
+          "model": "spm1423",
+          "pins": "clk=0,data=34",
+          "status": "partial"
+        },
+        {
+          "id": "encoder",
+          "model": "encoder",
+          "address": "0x30",
+          "pins": "sda=21,scl=22",
+          "qom_path": "/machine/encoder",
+          "status": "simulated"
+        }
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "Button A/B lines are wired as GPIO inputs but neither the probe nor the factory demo reached a guest button event; physical switch behaviour is NOT RUN."
+        },
+        {
+          "model": "mpu6886",
+          "reason": "MPU6886 0x68 is attached to the shared G21/G22 bus but the probe does not exercise its data plane; the factory demo did not reach its IMU path."
+        },
+        {
+          "model": "pcf8563",
+          "reason": "PCF8563 0x51 is attached but has no device-local time read/write evidence on this board."
+        },
+        {
+          "model": "axp192",
+          "reason": "AXP192 0x34 is attached and the factory demo starts its library, but no device-local PMIC data-plane evidence (battery/charging/power-key) is claimed; electrical behaviour is NOT RUN."
+        },
+        {
+          "model": "spm1423",
+          "reason": "SPM1423 PDM pads are wired to G0/G34 but neither the probe nor the factory run reached a microphone capture; acoustic behaviour is NOT RUN."
         }
       ]
     }

@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "scope": "virtual-device",
+  "device": "stickt2",
+  "machine": "m5stickt2",
+  "probe": {
+    "source_dir": "tests/uiflow2/stickt2_probe",
+    "runner": "tests/uiflow2/run_stickt2_probe.py",
+    "elf_sha256": "8eed52a9b86c75dbbd8fee65f614973df6ec29b61882f25f9e7801a6481ea036",
+    "markers": [
+      "STICKT2_BOOT baremetal-v1",
+      "LEPTON_CCI_PING 0000",
+      "LEPTON_CCI_SERIAL 1000:1001:1002:1003:1004:1005:1006:1007",
+      "LEPTON_CCI_TEMP 30000 29950",
+      "LEPTON_CCI_SET_OK",
+      "STICKT2_PANEL_INIT 135 240",
+      "VOPSI_FRAME 0 160 120 38400 0xeef6b214 4300 9978",
+      "VOPSI_FRAME_ERRORS 0",
+      "STICKT2_ENCODER 5 0",
+      "VOPSI_RENDERED 0",
+      "VOPSI_FRAME 1 160 120 38400 0x07861e5a 4311 10399",
+      "VOPSI_FRAME_ERRORS 0",
+      "STICKT2_ENCODER 5 0",
+      "VOPSI_RENDERED 1",
+      "VOPSI_FRAME 2 160 120 38400 0xcdea9a2b 4322 10399",
+      "VOPSI_FRAME_ERRORS 0",
+      "STICKT2_ENCODER 5 0",
+      "VOPSI_RENDERED 2",
+      "STICKT2_PANEL_OK 135 240",
+      "STICKT2_STATUS ok"
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "digest": "0xeef6b214",
+        "raw_min": 4300,
+        "raw_max": 9978
+      },
+      {
+        "index": 1,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "digest": "0x07861e5a",
+        "raw_min": 4311,
+        "raw_max": 10399
+      },
+      {
+        "index": 2,
+        "width": 160,
+        "height": 120,
+        "bytes": 38400,
+        "digest": "0xcdea9a2b",
+        "raw_min": 4322,
+        "raw_max": 10399
+      }
+    ],
+    "frame_errors": [
+      0,
+      0,
+      0
+    ],
+    "encoder": [
+      {
+        "increment": 5,
+        "switch": 0
+      },
+      {
+        "increment": 5,
+        "switch": 0
+      },
+      {
+        "increment": 5,
+        "switch": 0
+      }
+    ],
+    "qom": {
+      "lepton": {
+        "frames-started": 3,
+        "segments-served": 12,
+        "packets-served": 720,
+        "vsyncs": 88,
+        "frame-seed": 3,
+        "frame-digest": "5fc75961f781fa24ed8fd632e58b9c53963cef1b3640ea758dbc2476156d50ae",
+        "segment-interval-us": 30000,
+        "vsync-width-us": 1000
+      },
+      "lepton-cci": {
+        "commands": 6,
+        "gets": 4,
+        "sets": 2,
+        "fpa-temp-mk": 30000,
+        "aux-temp-mk": 29950
+      },
+      "encoder": {
+        "increment": 5,
+        "switch": 0
+      }
+    },
+    "panel": {
+      "width": 135,
+      "height": 240,
+      "sha256": "eb4a8e25e33cdba3e60966ca11ea44eaa6ca4b98444ed3012007395e5f73cdd9",
+      "nonblack_pixels": 32400,
+      "unique_colors": 89,
+      "mean_channel": 84.44
+    },
+    "oracle": [
+      {
+        "seed": 0,
+        "digest": "0xeef6b214",
+        "bytes": 38400,
+        "raw_min": 4300,
+        "raw_max": 9978,
+        "sha256": "02c1b5ef5560ce2369eba4b2eefe27bfa063e5881037a9d6386c8fc7a446e52b"
+      },
+      {
+        "seed": 1,
+        "digest": "0x07861e5a",
+        "bytes": 38400,
+        "raw_min": 4311,
+        "raw_max": 10399,
+        "sha256": "3668c43f66e7cacba5e3025f28cec12cc3ccc645297ff5075c360e100122bda1"
+      },
+      {
+        "seed": 2,
+        "digest": "0xcdea9a2b",
+        "bytes": 38400,
+        "raw_min": 4322,
+        "raw_max": 10399,
+        "sha256": "485e92deee1ac5dda0bca87b3f07b261fea0bbf062c5460c24ad01c8d47753a6"
+      }
+    ],
+    "status": "PASS"
+  },
+  "runs": [
+    {
+      "id": "run1",
+      "status": "PASS",
+      "panel_sha256": "eb4a8e25e33cdba3e60966ca11ea44eaa6ca4b98444ed3012007395e5f73cdd9"
+    },
+    {
+      "id": "run2",
+      "status": "PASS",
+      "panel_sha256": "eb4a8e25e33cdba3e60966ca11ea44eaa6ca4b98444ed3012007395e5f73cdd9"
+    }
+  ],
+  "not_run": [
+    "physical LWIR optics, thermal measurement and Lepton mechanical/electrical behaviour",
+    "Grove Units, PDM microphone path and encoder hardware wiring",
+    "the official M5Burner StickT2 User Demo thermal/UI path (app boot marker only)"
+  ]
+}

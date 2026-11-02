@@ -627,6 +627,94 @@ def run_firmware(
     }
 
 
+def run_kernel(
+    device: dict,
+    backend: dict,
+    out_dir: Path,
+    env: dict[str, str],
+) -> dict:
+    """Boot a directly loadable probe ELF with -kernel and check markers.
+
+    This lane covers committed bare-metal probe images (for example the
+    M5StickT2 thermal probe) that have no flash partition layout and are
+    loaded into RAM by the machine's ELF loader.
+    """
+    device_out = out_dir / device["id"]
+    device_out.mkdir(parents=True, exist_ok=True)
+    image = ROOT / device["kernel"]
+    if not image.is_file():
+        return {
+            "status": "FAIL",
+            "exit_code": 1,
+            "output": str(device_out),
+            "reason": (
+                f"missing probe ELF {image}; build it with "
+                f"{device.get('build', 'tests/uiflow2/stickt2_probe/build.sh')}"
+            ),
+        }
+    case_env = env.copy()
+    case_env.update(device.get("env", {}))
+    serial = device_out / "serial.log"
+    command = [
+        str(ROOT / backend["qemu"]),
+        "-M", device["machine"],
+        "-accel", "tcg,thread=single",
+        "-kernel", str(image),
+        "-L", str(ROOT / backend["rom_dir"]),
+        "-display", "none",
+    ]
+    for index in range(3):
+        command.extend([
+            "-serial",
+            f"file:{serial}" if index == device.get("serial_index", 0)
+            else "null",
+        ])
+    deadline = time.time() + device.get("timeout", 60)
+    proc = subprocess.Popen(
+        command, cwd=ROOT, env=case_env,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    expected = device.get("serial_expect", [])
+    if isinstance(expected, str):
+        expected = [expected]
+    matched = False
+    try:
+        while time.time() < deadline:
+            text = serial.read_text(errors="replace") if serial.exists() else ""
+            if expected and all(marker in text for marker in expected):
+                matched = True
+                break
+            if proc.poll() is not None:
+                break
+            time.sleep(0.1)
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+    text = serial.read_text(errors="replace") if serial.exists() else ""
+    missing = [marker for marker in expected if marker not in text]
+    if matched and not missing:
+        return {
+            "status": "PASS",
+            "exit_code": 0,
+            "command": command,
+            "output": str(device_out),
+            "flash": {"transport": "kernel-elf", "verified": True},
+            "serial_markers": expected,
+            "note": device.get("expected_blocked", ""),
+        }
+    return {
+        "status": "FAIL",
+        "exit_code": 1,
+        "command": command,
+        "output": str(device_out),
+        "flash": {"transport": "kernel-elf", "verified": True},
+        "reason": f"missing serial markers: {', '.join(missing)}",
+    }
+
+
 def run_blocked_smoke(device: dict, out_dir: Path,
                       env: dict[str, str]) -> dict:
     device_out = out_dir / device["id"]
@@ -797,6 +885,13 @@ def main() -> None:
                 args.out_dir,
                 env,
                 args.flash_transport,
+            )
+        elif device["mode"] == "kernel":
+            result = run_kernel(
+                device,
+                backends[device["backend"]],
+                args.out_dir,
+                env,
             )
         elif device["mode"] == "blocked-smoke":
             result = run_blocked_smoke(device, args.out_dir, env)

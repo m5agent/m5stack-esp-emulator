@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-02T20:23:35+0800",
+  "out_dir": "/tmp/st2-matrix2",
+  "results": {
+    "stickt2": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-stickt2/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "-M",
+        "m5stickt2",
+        "-accel",
+        "tcg,thread=single",
+        "-kernel",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-stickt2/platform/.cache/firmware/stickt2/probe/stickt2-probe.elf",
+        "-L",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator-stickt2/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "-display",
+        "none",
+        "-serial",
+        "file:/tmp/st2-matrix2/stickt2/serial.log",
+        "-serial",
+        "null",
+        "-serial",
+        "null"
+      ],
+      "output": "/tmp/st2-matrix2/stickt2",
+      "flash": {
+        "transport": "kernel-elf",
+        "verified": true
+      },
+      "serial_markers": [
+        "STICKT2_BOOT baremetal-v1",
+        "LEPTON_CCI_PING 0000",
+        "LEPTON_CCI_TEMP 30000 29950",
+        "VOPSI_FRAME 0 160 120 38400 0xeef6b214",
+        "VOPSI_FRAME 1 160 120 38400 0x07861e5a",
+        "VOPSI_FRAME 2 160 120 38400 0xcdea9a2b",
+        "STICKT2_PANEL_INIT 135 240",
+        "STICKT2_PANEL_OK 135 240",
+        "STICKT2_STATUS ok"
+      ],
+      "note": ""
+    }
+  }
+}

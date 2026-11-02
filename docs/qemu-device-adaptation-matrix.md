@@ -42,6 +42,7 @@
 | AtomU | ESP32-PICO-D4 | `qemu-esp32lx6` | 无屏 / GPIO39 按键、GPIO27 SK6812、SPM1423 PDM 麦克风 G5/G19、Grove G26/G32 | 是，外设 `partial` |
 | Atom Echo / Atom Voice | ESP32-PICO-D4 | `qemu-esp32lx6` | 无屏 / GPIO39 按键、GPIO27 SK6812、NS4168 I2S1 扬声器 G19/G33/G22、SPM1423 PDM 麦克风 G33/G23、Grove G26/G32 | 是，外设 `partial` |
 | M5Stick | ESP32-WROOM32 | `qemu-esp32lx6` | SH1107 64x128 / GPIO35 按键、MPU9250 0x68、IP5306 0x75、buzzer/IR/LED 仅接线 | 是，外设 `partial` |
+| M5StickT2 | ESP32-PICO-D4 | `qemu-esp32lx6` | ST7789 135x240 / FLIR Lepton 3.0 VoSPI+CCI、I2C 0x30 编码器、AXP192/PCF8563/MPU6886、Grove G32/G33 | 是，外设 `partial` |
 | Tab5 | ESP32-P4NRW32 + C6 | `esp-emulator-native` | 1280x720 / 固件 touch mailbox | 是，外设 `partial` |
 | AtomS3U | ESP32-S3FN8 | `qemu-esp32s3` | 无屏 / GPIO41 按键、GPIO35 WS2812、IR G12、PDM 麦克风 | 是，外设 `partial` |
 | Atom VoiceS3R | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | GC9107 128x128 / GPIO41、ES8311、NS4150B、IR G47 | 是，外设 `partial` |

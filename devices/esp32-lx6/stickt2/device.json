@@ -1,0 +1,104 @@
+{
+  "id": "stickt2",
+  "name": "M5StickT2",
+  "sku": "K016-T2",
+  "group": "esp32-lx6",
+  "category": "stick",
+  "hardware": {
+    "soc": "ESP32-PICO-D4",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 4194304,
+    "psram_bytes": 0,
+    "display": {
+      "type": "ips",
+      "width": 135,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ST7789",
+      "touch": false,
+      "diagonal_in": 1.14
+    },
+    "controls": [
+      {
+        "id": "a",
+        "type": "button",
+        "label": "A",
+        "gpio": 37
+      },
+      {
+        "id": "b",
+        "type": "button",
+        "label": "B",
+        "gpio": 39
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      },
+      {
+        "id": "encoder",
+        "type": "encoder",
+        "label": "Rotary Encoder",
+        "interface": "i2c",
+        "address": "0x30"
+      }
+    ],
+    "sensors": [
+      "thermal:lepton",
+      "imu:mpu6886",
+      "rtc:bm8563",
+      "microphone:spm1423",
+      "battery:axp192",
+      "charger:axp192"
+    ],
+    "dimensions_mm": null,
+    "weight_g": null,
+    "power": {
+      "pmic": "AXP192"
+    }
+  },
+  "shell": {
+    "preset": "stick",
+    "accent": "#b45309",
+    "screen_scale": 1.05,
+    "body_theme": "graphite"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-st7789",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-02",
+      "status": "native-boot-thermal-vospi-panel-probe-pass",
+      "detail": "自建 bare-metal 探针（tests/uiflow2/stickt2_probe，xtensa-esp-elf 14.2.0 编译，ELF SHA-256 记录在证据中）由 QEMU -kernel 加载到新 machine `m5stickt2`，经真实内存映射控制器完成：UART0 标记输出；GPIO bit-bang I2C 上的 FLIR Lepton CCI （PING/序列号/FPA+AUX 温度/OEM sync 设置，16-bit CCI 寄存器）；HSPI 上的 VoSPI 流（164 字节包、4 段×60 包/frame，CRC 字段本固件不校验）解出 160×120 热帧，连续 3 帧的 guest FNV-1a digest 与宿主按模型 fixture seed 0/1/2 独立重建完全一致、0 包错误；ST7789 135×240 面板经 VSPI 初始化并渲染热帧，QMP 截图 135×240、32,400 非黑像素、89 种颜色；QOM 注入 encoder increment=5 被 guest 读回。另：官方 M5Burner `StickT2 User Demo` v1.0 4 MB 镜像在确定性 icount 下经 classic UART TX_DONE latch 修复后可启动到 `M5StickC initializing...OK`，但其热成像/UI 路径未在运行窗口内到达且不可注入探针，因此不作为数据面证据。物理 LWIR 光学/热测量、Grove、PDM 麦克风、编码器实际接线（文档 PA2/PA3/PA4 与官方示例 I2C 0x30 的矛盾按官方示例取 I2C 0x30）与完整工厂 UI 未验证。",
+      "evidence": "docs/evidence/2026-11-02-stickt2-host/summary.json",
+      "category": "virtual-device"
+    },
+    "blockers": [
+      "Thermal virtual-device data plane passed with the committed bare-metal probe: Lepton CCI commands/PID-free register path, deterministic VoSPI frames matching the host fixture oracle, ST7789 panel screenshot and encoder QOM injection. The official M5Burner StickT2 User Demo (SHA-256 bb33ffd4…) reaches its app boot marker under deterministic icount but its thermal/UI path is not reached and cannot be probe-injected; physical LWIR optics/thermal measurement, Grove Units, PDM microphone, encoder hardware and full factory UI remain open."
+    ]
+  },
+  "uiflow2": {
+    "supported": false,
+    "m5ui": false,
+    "factory_test": {
+      "firmware_id": "1897200000000001879",
+      "version": "v1.0",
+      "name": "StickT2 User Demo",
+      "source_type": "OFFICIAL",
+      "bytes": 4194304,
+      "sha256": "bb33ffd41f9c6f9235b2fb44eac893b7ce6f70879f48eed9cb1ff75ef9419cd7",
+      "metadata_url": "https://burner.m5stack.com/api/v1/firmwares/1897200000000001879",
+      "segmented_repo": "https://github.com/m5stack/M5-StickT",
+      "segmented_app_sha256": "361f0d25e5ad7d5dbb8fb52a4e412dcf9fc118c7b0a3aef73fc3159bad539b40",
+      "segmented_partitions_sha256": "efba4421982bd177695a2e2091828fe3b6aa42076be3844a84f0fb08085cead4"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/stickt2",
+  "status_label": "candidate"
+}
