@@ -4,8 +4,11 @@ Date: Mon, 2 Nov 2026 22:55:00 +0800
 Subject: [PATCH] hw/m5stopwatch: fix batch-4 AC/weight data planes found by guest evidence
 
 Fix two real 0136 model bugs found by the batch-4 guest evidence collection.
-Base: canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 +
-0131 + 0134 + 0136 (the batch-3 parallel layers are not applied).
+
+Base in the reconciled canonical order is the chain end
+(75f1d24 + 0120..0129 + 0131 + 0134 + 0136 + 0130 + 0133 + 0135 + 0132 + 0137);
+this batch-4 evidence layer is the 19th layer after 0120 and was verified with
+git apply --check on that exact tree.
 
 - ac-measure (U164): the six fixtures were only stored in values[] and never
   copied into ac_voltage/ac_current/... so every guest read returned the zero
