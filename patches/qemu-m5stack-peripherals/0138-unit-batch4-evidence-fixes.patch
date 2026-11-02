@@ -1,0 +1,173 @@
+From 4c2a9d70a3f0b6e2d81c4a5b6e7f8091a2b3c4d5 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Mon, 2 Nov 2026 22:55:00 +0800
+Subject: [PATCH] hw/m5stopwatch: fix batch-4 AC/weight data planes found by guest evidence
+
+Fix two real 0136 model bugs found by the batch-4 guest evidence collection.
+Base: canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 +
+0131 + 0134 + 0136 (the batch-3 parallel layers are not applied).
+
+- ac-measure (U164): the six fixtures were only stored in values[] and never
+  copied into ac_voltage/ac_current/... so every guest read returned the zero
+  view; sensor_update() now derives both views. The ASCII read path also used
+  reg & 0x0f as the byte offset (0x00/0x40 both map to 0) and returned the
+  first character for every byte; it now uses the read position. Formatting is
+  a deterministic fixed-point formatter (no float printf dependency).
+- weight (U030): hx_pad_event() called esp32_gpio_set_input() from inside the
+  GPIO pad dispatch, tripping the controller's !g_pad_dispatch_depth assertion
+  and aborting QEMU (exit -6). A new esp32_gpio_set_input_deferred() updates
+  the externally-driven input level without re-entering pad dispatch; the
+  weight bit/gain pulses and conversion completion use it. No pad observers or
+  IRQs are generated for these DAT transitions (the guest polls Pin.value()).
+
+Still NOT fixed by this patch: the frozen DDS set_freq_phase()/quick_output()
+6-byte burst at 0x30 (phase bytes NACKed by the 0136 model) and the 0136 DDS
+read-snapshot 0x34 frequency/phase overlap; the evidence uses the separate DDS
+APIs and records both gaps unresolved.
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -103,6 +103,7 @@
+ typedef void (*esp32_gpio_out_cb)(void *opaque, int pin, int level);
+ typedef void (*esp32_gpio_reset_cb)(void *opaque, int pin, int level);
+ void esp32_gpio_set_input(int pin, int level);
++void esp32_gpio_set_input_deferred(int pin, int level);
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
+ void esp32_gpio_add_reset_listener(int pin, esp32_gpio_reset_cb cb,
+                                    void *opaque);
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -500,6 +500,19 @@
+ }
+ 
+ 
++/* Update an externally-driven input level without notifying pad observers.
++ * Only for device models that must drive a data line from inside a pad
++ * observer callback, where esp32_gpio_set_input() cannot be used because the
++ * controller asserts !g_pad_dispatch_depth. The caller owns the transition
++ * semantics; pad observers and IRQ delivery are deliberately not generated. */
++void esp32_gpio_set_input_deferred(int pin, int level)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) { return; }
++    g_external_seen |= 1ULL << pin;
++    if (level) { g_ext_in |= 1ULL << pin; }
++    else { g_ext_in &= ~(1ULL << pin); }
++}
++
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -1104,7 +1104,7 @@
+     g->hx_in_frame = false;
+     g->hx_bit = g->hx_extra = 0;
+     g->hx_ready = false;
+-    esp32_gpio_set_input(g->unit->white, 1);  /* DAT high: next conversion pending */
++    esp32_gpio_set_input_deferred(g->unit->white, 1);  /* DAT high: next conversion pending */
+     timer_mod_ns(g->hx_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INT64_C(100000000));
+ }
+ 
+@@ -1128,7 +1128,11 @@
+     if (g->hx_bit < 24) {
+         bool bit = ((uint64_t)g->hx_raw >> (23 - g->hx_bit)) & 1;
+         g->hx_bit++;
+-        esp32_gpio_set_input(g->unit->white, bit);
++        /* Called from inside the pad dispatch (guest CLK falling edge), where
++         * esp32_gpio_set_input() would assert; drive the DAT input level
++         * quietly instead. The guest polls Pin.value(), so no pad/IRQ
++         * notification is needed. */
++        esp32_gpio_set_input_deferred(g->unit->white, bit);
+     } else {
+         g->hx_extra++;
+         unsigned gain = g->hx_channel == 2 ? 3 : g->hx_channel == 3 ? 2 : 1;
+--- a/hw/m5stopwatch/m5_unit_i2c_sensors.c
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -820,6 +820,18 @@
+ static void sensor_update(M5UnitSensor *s)
+ {
+     int64_t now = now_ns();
++    if (s->kind == US_ACMEASURE) {
++        /* The 0136 model stored the six AC fixtures in values[] but never
++         * copied them into the ASCII/byte-view fields, so every guest read
++         * returned the zero-initialised view. Derive both views from the live
++         * fixture values on every access. */
++        s->ac_voltage = s->values[0];
++        s->ac_current = s->values[1];
++        s->ac_active = s->values[2];
++        s->ac_apparent = s->values[3];
++        s->ac_power_factor = s->values[4];
++        s->ac_kwh = s->values[5];
++    }
+     if (s->kind == US_VL53L1X && !s->vl_ready && s->due && now >= s->due) {
+         s->vl_ready = true;
+         s->due = 0;
+@@ -986,26 +998,45 @@
+ /* U164 AC Measure: fixed-width ASCII views. The exact formatting is a
+  * deterministic model-side convention (the page/protocol does not document
+  * the ASCII layout), so only the numeric/byte view is a protocol claim. */
+-static void ac_fixed(char *out, unsigned width, const char *fmt, double value)
++static void ac_fixed_scaled(char *out, unsigned width, long long scaled,
++                            unsigned decimals)
+ {
+-    char tmp[24];
+-    g_snprintf(tmp, sizeof(tmp), fmt, value);
+-    size_t n = strlen(tmp);
++    char body[32];
++    unsigned n = 0;
++    bool negative = scaled < 0;
++    unsigned long long v = negative ? (unsigned long long)-scaled :
++        (unsigned long long)scaled;
++    unsigned long long div = 1;
++    for (unsigned i = 0; i < decimals; i++) { div *= 10; }
++    unsigned long long ip = v / div;
++    unsigned long long fp = v % div;
++    char digits[24];
++    unsigned dn = 0;
++    do { digits[dn++] = (char)('0' + ip % 10); ip /= 10; } while (ip);
++    if (negative) { body[n++] = '-'; }
++    while (dn) { body[n++] = digits[--dn]; }
++    if (decimals) {
++        body[n++] = '.';
++        for (unsigned i = 0; i < decimals; i++) {
++            div /= 10;
++            body[n++] = (char)('0' + (fp / div) % 10);
++        }
++    }
+     if (n > width) { n = width; }
+     memset(out, ' ', width);
+-    memcpy(out + width - n, tmp, n);
++    memcpy(out + width - n, body, n);
+ }
+ 
+ static void ac_measure_ascii(M5UnitSensor *s, uint8_t reg, uint8_t *out, unsigned *len)
+ {
+     char text[16];
+     switch (reg) {
+-    case 0x00: ac_fixed(text, 7, "%.1f", s->ac_voltage); *len = 7; break;
+-    case 0x10: ac_fixed(text, 7, "%.2f", s->ac_current); *len = 7; break;
+-    case 0x20: ac_fixed(text, 7, "%.0f", s->ac_active); *len = 7; break;
+-    case 0x30: ac_fixed(text, 7, "%.0f", s->ac_apparent); *len = 7; break;
+-    case 0x40: ac_fixed(text, 4, "%.2f", s->ac_power_factor); *len = 4; break;
+-    case 0x50: ac_fixed(text, 11, "%.2f", s->ac_kwh); *len = 11; break;
++    case 0x00: ac_fixed_scaled(text, 7, llround(s->ac_voltage * 10), 1); *len = 7; break;
++    case 0x10: ac_fixed_scaled(text, 7, llround(s->ac_current * 100), 2); *len = 7; break;
++    case 0x20: ac_fixed_scaled(text, 7, llround(s->ac_active), 0); *len = 7; break;
++    case 0x30: ac_fixed_scaled(text, 7, llround(s->ac_apparent), 0); *len = 7; break;
++    case 0x40: ac_fixed_scaled(text, 4, llround(s->ac_power_factor * 100), 2); *len = 4; break;
++    case 0x50: ac_fixed_scaled(text, 11, llround(s->ac_kwh * 100), 2); *len = 11; break;
+     default: return;
+     }
+     memcpy(out, text, *len);
+@@ -1351,8 +1382,10 @@
+         unsigned len = 0;
+         if (reg <= 0x5a) {
+             ac_measure_ascii(s, reg & 0xf0, text, &len);
+-            unsigned offset = reg & 0x0f;
+-            return offset < len ? text[offset] : 0xff;
++            /* The ASCII view starts at the addressed register; the byte
++             * offset is the read position inside this transfer, not the low
++             * nibble of the register (0x00/0x40 both have nibble 0). */
++            return pos < len ? text[pos] : 0xff;
+         }
+         uint8_t raw[4] = {0};
+         unsigned width = 0;

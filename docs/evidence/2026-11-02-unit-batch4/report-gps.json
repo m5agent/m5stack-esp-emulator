@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T22:47:49.804584+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "cores3",
+  "unit_id": "gps",
+  "driver_class": "GPSUnit(NMEA)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_gga_time_position": true,
+    "guest_gga_quality_sats": true,
+    "guest_rmc_date": true,
+    "guest_vtg_course_speed": true,
+    "qom_injected_lines": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "65efcb143146fb8e3877be4125e7e233dbba8e9c5386f17a4426bf36fa48b6c1",
+  "firmware_id": "65efcb143146fb8e3877be4125e7e233dbba8e9c5386f17a4426bf36fa48b6c1",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "a52cf9176480ad5d69727afbb203b99dc81b3c6467c7cc4cb382ca00b7f9d377",
+    "main.py": "0851b75e10aee5cd06e1842865f7e42f8b83fd2031dce29541657e37f5c7e488"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "c9e27bb1fcc147479454d1abfb62fa43",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "gps",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "gps": {
+      "fixture_lines": [
+        "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48",
+        "$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00",
+        "$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00"
+      ],
+      "guest_state": [
+        "02:44:23",
+        "2242.10772N",
+        "11348.64472E",
+        "52.1",
+        "14",
+        "1",
+        "03/11/24",
+        "45.0",
+        "0.5",
+        "0.926"
+      ],
+      "qom": {
+        "nmea-lines": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48;$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00;$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00",
+        "injected-lines": 138,
+        "tx-hex": ""
+      },
+      "boundary": "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; the frozen driver does not validate NMEA checksums (unresolved), and cold/warm start/update-rate are not modeled. PORT.C conflicts with midi/uhf-rfid/rs485-iso."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T22:47:52.007894+08:00",
+      "properties": {
+        "nmea-lines": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48;$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00;$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00",
+        "injected-lines": 5,
+        "tx-hex": ""
+      }
+    },
+    {
+      "at": "2026-11-02T22:47:58.809717+08:00",
+      "properties": {
+        "nmea-lines": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48;$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00;$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00",
+        "injected-lines": 138,
+        "tx-hex": ""
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH4_PROBE_READY",
+    "gps": ".926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nGPS_STATE 02:44:23 2242.10772N 11348.64472E 52.1 14 1 03/11/24 45.0 0.5 0.926\nUART_GPS_END\n"
+  },
+  "frame": {
+    "sha256": "422da2c523445c691753e688e12e8af404847085f0415828b774c5873e110974",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "33df6609cfeda536cf5bf9b26d7e604811b454748444a3778531b0e4fdc1769a",
+    "bytes": 19447
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; cold/warm start and the 1-10Hz update rate are not modeled.",
+    "The frozen driver does not validate NMEA checksums (unresolved); the model injects fixture sentences every 50ms on the guest UART RX path.",
+    "PORT.C conflicts with midi/uhf-rfid/rs485-iso; the page is EOL.",
+    "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; the frozen driver does not validate NMEA checksums (unresolved), and cold/warm start/update-rate are not modeled. PORT.C conflicts with midi/uhf-rfid/rs485-iso."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only this concise report, hashes and reproduction commands are committed."
+}

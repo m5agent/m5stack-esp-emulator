@@ -13900,9 +13900,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "rx-hex": {
@@ -13931,7 +13931,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART controller bytes on the Grove pair: guest TX captured and host RX fixtures injected"
+        "required_data_plane": "SoC UART controller bytes on the Grove pair: guest TX captured and host RX fixtures injected",
+        "blocker": "Guest/Device Service evidence covers the frozen RS485Unit/uSerial data plane on cores3: guest write(b'HELLO') is captured as tx-hex 48454c4c4f and the injected rx-hex 4d4f44425553 is read back by the guest; isolation/ESD/fail-safe/500Kbps/256-node and physical RS485 behavior are NOT RUN. The frozen RS485Unit wrapper constructor is incompatible with the firmware uSerial signature, so evidence fell back to the same official uSerial driver's _mdbus_uart data plane and records the fallback. PORT.C official wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0134 复用已登记 rs485（U034）的 UART 数据面（tx-hex 捕获 + rx-hex 注入），零新 kind。未采集 guest/Device Service 证据 → planned。隔离耐压/ESD/fail-safe/500Kbps/256 节点 NOT RUN；快照 uSerial 继承 vs master __new__ 工厂差异须钉 SHA；Modbus 从站语义由 guest 负责；PORT.C 与 midi/gps/uhf-rfid 同端口冲突，一次只能接一个。",
       "input_semantics": "Synthetic host-to-unit serial byte fixtures and guest TX observations.",
@@ -13939,7 +13940,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-rs485-iso.json for cores3 PORT.A harness wiring (official PORT.C substituted); UART TX/RX bytes covered, isolation/500Kbps/256-node NOT RUN; frozen RS485Unit wrapper falls back to the official uSerial data plane."
       ]
     },
     {
@@ -14050,9 +14052,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "output-level": {
@@ -14066,7 +14068,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC GPIO digital output observation on the yellow DIN wire"
+        "required_data_plane": "SoC GPIO digital output observation on the yellow DIN wire",
+        "blocker": "Guest/Device Service evidence covers the frozen LaserTXUnit GPIO DIN path on cores3: on/off/on/off toggles output-level and QOM output-transitions>=3, final output-level low. Human-eye safety/optical power/wavelength/modulation bandwidth are NOT RUN and the model must never be described as an optical output; UART TX mode is not modeled. Official PORT.B wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0134 新增 GPIO id 'laser-tx'：黄线 pad 输出观测 output-level + 单元级 output-transitions；UART TX 模式未建模。未采集 guest/Device Service 证据 → planned。**激光安全：人眼/光功率/波长/调制带宽 NOT RUN，任何 catalog/README/描述都必须保留“不可直视、不可对人或动物”的安全警告；模型不得声称任何光学输出。**",
       "input_semantics": "Synthetic output-level fixture observed by the guest through the GPIO controller path.",
@@ -14075,7 +14078,8 @@
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
         "Laser safety: never aim the emitter at people or animals; the model never claims an optical output or a safe/unsafe beam state.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-laser-tx.json for cores3 PORT.A harness wiring (official PORT.B substituted); GPIO DIN on/off/on/off covered, optical output/eye-safety NOT RUN."
       ]
     },
     {
@@ -14301,9 +14305,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "co2-ppm": {
@@ -14357,7 +14361,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C controller transactions to a device-local SCD41 slave at 0x62 implementing the SCD4x command + CRC-word protocol"
+        "required_data_plane": "SoC I2C controller transactions to a device-local SCD41 slave at 0x62 implementing the SCD4x command + CRC-word protocol",
+        "blocker": "Guest/Device Service evidence covers the frozen CO2LUnit/CO2Unit SCD4x data plane on cores3: injected 1234 ppm / 60.5 %RH is read as co2=1234 and humidity=60.5, QOM chip-id=0x41 and serial-number=0x12345678; the frozen driver decodes temperature from buf[1] (known driver bug, not asserted) and get_serial_number() is blocked because this tree lacks the batch-3 0132 three-word SCD40 serial fix. SCD40-vs-SCD41 identity, 5s periodic timing/CRC/accuracy and the physical sensor are NOT RUN; 0x62 conflicts with co2 (one Unit per bus)."
       },
       "blocker": "0134 复用 0131 US_SCD40（0x62）：SCD41 量程 400..5000、单次测量（0x219D/0x2196）、只读 chip-id=0x41 身份 fixture。未采集 guest/Device Service 证据 → planned。**SCD40 vs SCD41 身份冲突 unresolved（co2 U103 页面 SCD40、co2l 页面 SCD41、官方 I2C 总表 SCD41），0x62 与已登记 co2 冲突（一总线一个）；快照 CO2LUnit(CO2Unit) vs master CO2LUnit(SCD40) 继承结构不同须钉 SHA；两份驱动温度解码都取 buf[1] 而非 buf[4]（既有 bug）→ guest temperature 不可断言，只有 CO2/湿度可断言；5s 周期/CRC/精度 NOT RUN。**",
       "input_semantics": "Synthetic CO2/temperature/humidity/readiness fixtures encoded into CRC-valid SCD4x response words.",
@@ -14365,7 +14370,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-co2l.json for cores3; CO2/RH covered, temperature driver bug recorded, serial path blocked without 0132, SCD40/SCD41/5s/accuracy NOT RUN."
       ]
     },
     {
@@ -14521,9 +14527,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "button-pressed": {
@@ -14552,7 +14558,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC RMT capture of 35 WS2812 frames on yellow plus the active-low button GPIO on white"
+        "required_data_plane": "SoC RMT capture of 35 WS2812 frames on yellow plus the active-low button GPIO on white",
+        "blocker": "Guest/Device Service evidence covers the frozen NECOUnit WS2812 RMT path on cores3: NECOUnit(...,35) writes five LEDs 0x112233 and the QOM 35-LED frame matches with led-frames>=1 and no incomplete frames; the driver-default 70 vs product-page 35 LED conflict is unresolved and the model implements 35. WS2812 timing/brightness/optics/power, cascade and button mechanics are NOT RUN. Official PORT.B wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0134 新增 GPIO id 'neco'：黄线 RMT 捕获 35 灯 WS2812 帧（RGB 缓冲从 25 扩到 128、realize 上限 128）；白线 active-low 按键。未采集 guest/Device Service 证据 → planned。**驱动默认 70 灯 vs 产品页 35 灯冲突 unresolved（本模型按 35 实现）；两 Grove 口级联/pass-through 不建模；WS2812 时序容差/亮度/光学/功耗 NOT RUN；neopixel 快照 vs master set_brightness 语义差异须钉 SHA。**",
       "input_semantics": "Synthetic button fixture delivered through the GPIO input path; LED frames are controller-captured.",
@@ -14560,7 +14567,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-neco.json for cores3 PORT.A harness wiring (official PORT.B substituted); 35-LED frame covered with NECOUnit(...,35), 70-vs-35 conflict unresolved, optics/power NOT RUN."
       ]
     },
     {
@@ -14699,9 +14707,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "rx-hex": {
@@ -14725,7 +14733,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured (MIDI commands) and optional host RX injection"
+        "required_data_plane": "SoC UART bytes on the Grove pair: guest TX captured (MIDI commands) and optional host RX injection",
+        "blocker": "Guest/Device Service evidence covers the frozen MIDIUnit/SAM2695 UART byte stream on cores3: note on/off plus program-change produce QOM tx-hex 903c64803c00b00000c005. SAM2695 synthesis/audio output are NOT RUN; 31520 vs 31250 vs driver-implicit baud is unresolved; Bypass/Separate hardware switching is not modeled. Official PORT.C wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0134 新增 GPIO id 'midi'：黄线捕获 guest→SAM2695 的 MIDI 字节流（tx-hex），白线可选注入 MIDI IN（rx-hex，Bypass 模式）；SAM2695 音频合成不建模。未采集 guest/Device Service 证据 → planned。**页面 31520bps vs 标准 MIDI 31250 vs 驱动未显式设 baud → 波特率 unresolved；SAM2695 音色/复调/音频 NOT RUN；Bypass/Separate 硬件切换不建模；PORT.C 与 gps/uhf-rfid/rs485-iso 同端口冲突。**",
       "input_semantics": "Synthetic MIDI-IN byte fixtures and guest TX observations.",
@@ -14733,7 +14742,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-midi.json for cores3 PORT.A harness wiring (official PORT.C substituted); MIDI byte stream covered, audio/synthesis NOT RUN, baud conflict unresolved."
       ]
     },
     {
@@ -14937,9 +14947,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "distance-mm": {
@@ -14988,7 +14998,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C transactions to a device-local VL53L1X slave at 0x29 with 16-bit register addresses"
+        "required_data_plane": "SoC I2C transactions to a device-local VL53L1X slave at 0x29 with 16-bit register addresses",
+        "blocker": "Guest/Device Service evidence covers the frozen TOF4MUnit/VL53L1X 16-bit register file on cores3: model id (234,204,16), data-ready=1 and distance=1000 mm are read by the guest; QOM range-status=9, timing-budget=50ms and clear-writes>=1. VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; 0x29 conflicts with tof/color (one Unit per bus)."
       },
       "blocker": "0134 新增 US_VL53L1X：16-bit 寄存器地址相位（2B BE 地址 + 数据；读自动递增）、model id 0x010F..0x0111=0xEA/0xCC/0x10、data-ready 0x0031、range status 0x0089、distance 0x0096/0x0097、start/stop 0x0087、interrupt clear 0x0086、地址迁移 0x0001、init 序列寄存器文件；fixture distance-mm/data-ready 驱动 20ms 就绪节拍。未采集 guest/Device Service 证据 → planned。**产品页 VL53L1CXV0FY/1 vs 对比表 VL53L1X 芯片命名冲突 unresolved；16-bit 地址/自增语义需逐字节核对；4m 量程/分辨率/激光安全/光学 NOT RUN；0x29 与已登记 tof（VL53L0X）和 color（TCS3472）三方冲突（一总线一个）。**",
       "input_semantics": "Synthetic distance/data-ready fixtures encoded into the VL53L1X register file.",
@@ -14996,7 +15007,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-tof4m.json for cores3; model-id/data-ready/distance covered, 4m/optics/laser safety NOT RUN, 0x29 conflicts with tof/color."
       ]
     },
     {
@@ -15137,9 +15149,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "adc-raw": {
@@ -15168,7 +15180,8 @@
             "type": "boolean"
           }
         },
-        "required_data_plane": "SoC GPIO: pad-observer on the yellow CLK counts guest clock pulses and drives the white DAT bits of the HX711 24-bit conversion"
+        "required_data_plane": "SoC GPIO: pad-observer on the yellow CLK counts guest clock pulses and drives the white DAT bits of the HX711 24-bit conversion",
+        "blocker": "Guest/Device Service evidence covers the frozen WeightUnit HX711 bit-pulse path on cores3: QOM adc-raw=123456 is read as guest get_raw_weight=8635520 after the driver's (raw<<1)^0x800000 transform, with conversions>=1 and ready-level restored. HX711 electrical/10SPS/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ I2C wording conflicts with the GPIO bit-pulse PinMap/driver and weight-i2c (U180 @0x26) is a different protocol. Evidence fix 0137 adds a deferred externally-driven input update because a pad observer cannot call esp32_gpio_set_input(); no pad/IRQ notification is generated for DAT. Official PORT.B wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0136 新增 GPIO id 'weight'：黄线 pad observer 统计 guest CLK 下降沿，白线按 24-bit MSB-first 输出 fixture 位；24 个数据脉冲后按 channel（1/3/2）消费 gain 脉冲，转换完成后 DAT 拉高并按合成 100ms 就绪延迟重新拉低。未采集 guest/Device Service 证据 → planned。**HX711 电气/10SPS 时序/称重力学/载荷/温漂/量程 NOT RUN；驱动把 raw 左移一位后再 XOR 0x800000（guest get_raw_weight = (raw<<1)^0x800000），QOM adc-raw 是 DAT 位承载的 24-bit 原始码；页面 FAQ 写 I2C 与 PinMap/驱动 GPIO 位脉冲冲突 unresolved；与已登记 weight-i2c（U180，I2C 0x26）是不同协议，不得混用。**",
       "input_semantics": "Synthetic 24-bit ADC/weight fixtures shifted out on the HX711 data line; the ready line follows conversion state.",
@@ -15176,7 +15189,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-weight.json for cores3 PORT.A harness wiring (official PORT.B substituted); HX711 bit-pulse raw path covered after 0137 deferred-input fix, electrical/weighing NOT RUN."
       ]
     },
     {
@@ -15435,9 +15449,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "mode": {
@@ -15496,7 +15510,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C controller transactions to a device-local STM32/DRV11873 register slave at 0x65"
+        "required_data_plane": "SoC I2C controller transactions to a device-local STM32/DRV11873 register slave at 0x65",
+        "blocker": "Guest/Device Service evidence covers the frozen BLDCDriverUnit register file on cores3: mode/direction/model/pole-pairs/pwm/rpm/pid writes are read back and QOM shows mode=1, direction=1, poles=11, pwm=1000, rpm=1500, frequency=25Hz, flash-writes>=1, fw=1/addr=0x65. BLDC motor electrical/rotation/stall protection/DRV11873 status/5V output are NOT RUN; the frequency readback is the model's synthetic rpm/60 convention and 0xF0 flash persistence semantics remain unresolved."
       },
       "blocker": "0136 新增 CONTROL_BLDC（0x65）：按驱动实现 mode 0x00、int16le PWM 0x10、float/int/ASCII RPM 0x20/0x90/0xB0、float/int/ASCII 频率 0x30/0xA0/0xC0、float/int set-RPM 0x40/0xD0、12B PID 0x50、direction 0x60、motor model 0x70、pole pairs 0x71、status 0x80、flash 0xF0、fw 0xFE、address 0xFF。未采集 guest/Device Service 证据 → planned。**BLDC 电机电气/转速/失速保护/DRV11873 状态/5V 输出 NOT RUN；RPM float 按真实 IEEE754 LE；频率回读是合成 rpm/60 约定（真实极对数/电频率关系无驱动锚点，unresolved）；0xF0 flash 持久化语义 unresolved；0x65 无已登记冲突。**",
       "input_semantics": "Synthetic mode/direction/rpm/pwm/pid fixtures exposed through motor-control register readbacks.",
@@ -15504,7 +15519,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-bldc-driver.json for cores3; register writes/readbacks covered, motor electrical/stall protection NOT RUN, synthetic rpm/60 frequency convention documented."
       ]
     },
     {
@@ -15767,9 +15783,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "voltage-v": {
@@ -15833,7 +15849,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C controller transactions to a device-local AC-measurement register slave at 0x42"
+        "required_data_plane": "SoC I2C controller transactions to a device-local AC-measurement register slave at 0x42",
+        "blocker": "Guest/Device Service evidence covers the frozen AC_MEASUREUnit I2C register data plane on cores3: ASCII views 230.0/1.00/230/230/1.00/0.00 and byte views 23000/1000/23000/23000/100/0 match the fixtures, coefficient writes 12/34 and save-coeff-writes>=1 are observed. AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load: AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN; HLW8032/isolation/calibration semantics and the page STM32G030 vs I2C-index STM32F030 conflict remain unresolved. Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset."
       },
       "blocker": "0136 新增 US_ACMEASURE（0x42）：由同一组 fixture 派生 ASCII 字符串视图（7/7/7/7/4/11B，宽度是模型侧确定性约定）与小端 byte 视图（0x60..0xB3），并实现系数 0xC0/0xD0、保存 0xE0、data-ready 0xFC、bootloader 0xFD（只记录不跳转）、fw 0xFE、address 0xFF。未采集 guest/Device Service 证据 → planned。**安全边界：AC 100-240V@10A 是测量输入，绝不是可切换负载；模型只模拟寄存器读数，绝不宣称市电通断/隔离耐压/过流/计量精度；市电/HLW8032/隔离/校准语义 NOT RUN；页面 STM32G030 vs 官方 I2C 总表 STM32F030 冲突 unresolved；0x42 无已登记冲突。**",
       "input_semantics": "Synthetic voltage/current/power/energy/readiness fixtures exposed as matching ASCII and little-endian byte register views.",
@@ -15841,7 +15858,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json for cores3; I2C ASCII/byte views covered after 0137, AC 100-240V@10A is a measurement input, never a switchable load; mains/isolation/accuracy NOT RUN."
       ]
     },
     {
@@ -16043,9 +16061,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "waveform": {
@@ -16094,7 +16112,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC I2C controller transactions to a device-local AD9833/STM32 bridge slave at 0x31"
+        "required_data_plane": "SoC I2C controller transactions to a device-local AD9833/STM32 bridge slave at 0x31",
+        "blocker": "Guest/Device Service evidence covers the frozen DDSUnit/AD9833 register path on cores3: separate set_freq(1000Hz)/set_phase(90deg)/set_mode(sine)/set_ctrl(0x80) reads back guest 81/800068db/8200/80 and QOM frequency~1000Hz, phase~90deg, waveform=1, ctrl-word=0x80. AD9833 analog waveform/amplitude/phase accuracy/output impedance/0-0.6V are NOT RUN. The frozen combined set_freq_phase()/quick_output() 6-byte burst at 0x30 is NACKed by the 0136 model and the 0136 read snapshot overlaps frequency reg1 with phase reg0; both remain unresolved model gaps (evidence uses the separate APIs and records the guest 0x34 readback boundary)."
       },
       "blocker": "0136 新增 CONTROL_DDS（0x31）：mode 0x20 (0x80|wave 1..5)、control 0x21、frequency 0x30（4B：bit7 写、bit6 选 FREQ0/1；28-bit word=freq*2^28/10MHz）、phase 0x34（2B：bit7 写、bit6 选 PHASE0/1；11-bit word=deg*2048/360），并回读当前选中寄存器。未采集 guest/Device Service 证据 → planned。**AD9833 模拟波形/幅度/相位精度/输出阻抗/0-0.6V NOT RUN；set_ctrl bit 语义只按驱动实现；0x31 无已登记冲突。**",
       "input_semantics": "Synthetic waveform/frequency/phase fixtures encoded into the AD9833 register words.",
@@ -16102,7 +16121,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-dds.json for cores3; separate set_freq/set_phase/set_mode/set_ctrl register path covered, analog output NOT RUN, combined burst/read-snapshot gaps unresolved."
       ]
     },
     {
@@ -16237,9 +16257,9 @@
         }
       ],
       "research_status": "confirmed-contract",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "nmea-lines": {
@@ -16258,7 +16278,8 @@
             "type": "string"
           }
         },
-        "required_data_plane": "SoC UART controller: fixture NMEA sentences injected into guest RX every 50ms when the firmware routes UART RX to the white pin"
+        "required_data_plane": "SoC UART controller: fixture NMEA sentences injected into guest RX every 50ms when the firmware routes UART RX to the white pin",
+        "blocker": "Guest/Device Service evidence covers the frozen GPSUnit NMEA path on cores3: injected GGA/RMC/VTG fixture lines are parsed into gps_time=02:44:23, latitude 2242.10772N, longitude 11348.64472E, altitude 52.1, satellites 14, date 03/11/24 and VTG course/speed; QOM injected-lines>=2. Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; the frozen driver does not validate NMEA checksums (unresolved) and cold/warm start/update rate are not modeled. Official PORT.C wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0136 新增 GPIO id 'gps'：50ms 定时器把 ';'/'\\n' 分隔的 fixture NMEA 行按 guest UART RX 路由注入（无路由时不注入、不计数），并捕获 guest TX 字节。未采集 guest/Device Service 证据 → planned。**真实 GNSS 卫星/射频/天线/定位精度 NOT RUN；驱动不校验 NMEA checksum（unresolved）；冷/热启动与 1-10Hz 更新率不建模；PORT.C 与 midi/uhf-rfid/rs485-iso 同端口冲突；页面 EOL。**",
       "input_semantics": "Synthetic NMEA GGA/RMC/VTG fixtures injected through the guest UART RX path.",
@@ -16266,7 +16287,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-gps.json for cores3 PORT.A harness wiring (official PORT.C substituted); NMEA parse covered, real GNSS/RF/antenna/accuracy NOT RUN, checksum not validated."
       ]
     },
     {
@@ -16430,9 +16452,9 @@
         }
       ],
       "research_status": "confirmed-contract-with-explicit-gaps",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
         "properties": {
           "responses-hex": {
@@ -16461,7 +16483,8 @@
             "type": "integer"
           }
         },
-        "required_data_plane": "SoC UART controller: guest JRD4035 command frames captured on TX; fixture response frames injected on RX when routed"
+        "required_data_plane": "SoC UART controller: guest JRD4035 command frames captured on TX; fixture response frames injected on RX when routed",
+        "blocker": "Guest/Device Service evidence covers the frozen UHFRFIDUnit/JRD4035 UART frame layer on cores3: two inventory commands receive the synthetic fixture EPC e200001234567890, QOM frames-sent/injected>=2. RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN; this must never be described as real tag capability and kill/lock/password paths are frame-level only. Official PORT.C wiring is substituted by cores3 PORT.A harness pins."
       },
       "blocker": "0136 新增 GPIO id 'uhf-rfid'：黄线按字节捕获 guest 命令，检测 0xBB 起始/0x7E 结束的完整命令帧后，从 ';' 分隔的 hex fixture 取下一响应帧经 guest UART RX 注入（无路由时不注入、不计数）。未采集 guest/Device Service 证据 → planned。**RF 840-960MHz/天线/Gen2 空口/1m 读取距离/区域限制 NOT RUN；kill/lock/密码只做帧层，绝不宣称真实标签能力或安全；快照 vs master NXP EAS/config-word API 差异须钉 SHA；UART PORT.C 与 gps/midi/rs485-iso 端口冲突。**",
       "input_semantics": "Synthetic module response frames injected through the guest UART RX path.",
@@ -16469,7 +16492,8 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog entry alone does not authorize a simulated or functional-PASS claim.",
-        "Fixtures are synthetic; no guest/Device Service evidence exists yet."
+        "Fixtures are synthetic; no guest/Device Service evidence exists yet.",
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch4/report-uhf-rfid.json for cores3 PORT.A harness wiring (official PORT.C substituted); JRD4035 frame layer covered with synthetic EPC, RF/Gen2/real-tag capability NOT RUN."
       ]
     },
     {

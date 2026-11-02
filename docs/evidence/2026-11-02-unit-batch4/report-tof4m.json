@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T22:47:33.821397+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "cores3",
+  "unit_id": "tof4m",
+  "driver_class": "TOF4MUnit(VL53L1X)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_model_identity": true,
+    "guest_distance_tracks_fixture": true,
+    "guest_data_ready": true,
+    "guest_timing_budget": true,
+    "qom_distance_fixture_exact": true,
+    "qom_range_status": true,
+    "qom_clear_writes_observed": true,
+    "i2c_transactions_observed": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "69449bf934bbc2d23bf1d82f54b709c9fe244b00890a7d19513a13976fa9e79e",
+  "firmware_id": "69449bf934bbc2d23bf1d82f54b709c9fe244b00890a7d19513a13976fa9e79e",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136",
+  "official_port": "PORT.A",
+  "runtime_port_substitution": null,
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "2c85a1c035bd74e1b4efbcbdc247ac06df5ecbf5f234fab227694272321e140d",
+    "main.py": "0851b75e10aee5cd06e1842865f7e42f8b83fd2031dce29541657e37f5c7e488"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "2d4562372784461e9beccefb5dd6be34",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "tof4m",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "tof4m": {
+      "fixtures": {
+        "distance-mm": 1000,
+        "data-ready": true
+      },
+      "guest_model_info": "234, 204, 16",
+      "guest_distance_mm": "1000",
+      "guest_data_ready": "1",
+      "guest_timing_budget_ms": "50",
+      "qom": {
+        "distance-mm": 1000,
+        "data-ready": true,
+        "timing-budget-ms": 50,
+        "range-status": 9,
+        "i2c-address": 41,
+        "clear-writes": 3,
+        "transactions": 46
+      },
+      "boundary": "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T22:47:36.055169+08:00",
+      "properties": {
+        "distance-mm": 1000,
+        "data-ready": true,
+        "timing-budget-ms": 50,
+        "range-status": 0,
+        "i2c-address": 41,
+        "clear-writes": 2,
+        "transactions": 32,
+        "read-bytes": 10,
+        "written-bytes": 132
+      }
+    },
+    {
+      "at": "2026-11-02T22:47:36.999946+08:00",
+      "properties": {
+        "distance-mm": 1000,
+        "data-ready": true,
+        "timing-budget-ms": 50,
+        "range-status": 9,
+        "i2c-address": 41,
+        "clear-writes": 3,
+        "transactions": 46,
+        "read-bytes": 18,
+        "written-bytes": 148
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH4_PROBE_READY",
+    "tof4m": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (894) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH4_PROBE_START tof4m\nE (1244) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH4_PROBE_READY tof4m\nI2C_TOF4M_MODEL (234, 204, 16)\nI2C_TOF4M_READY 1\nI2C_TOF4M_DIST 1000\nI2C_TOF4M_BUDGET 50\nI2C_TOF4M_END\n"
+  },
+  "frame": {
+    "sha256": "be5ae829fac90037610349a029ea65abf10253b1d960fe0b573df90e41c01cdf",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "43050dfe3bd78c7588294927022f0ba99a9493c58f4bfeaba3317d2c1156afb2",
+    "bytes": 20889
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads.",
+    "The 0134 US_VL53L1X model is covered only through this guest driver path; timing-budget semantics beyond the shown register writes are not asserted. 0x29 conflicts with tof/color (one Unit per bus).",
+    "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only this concise report, hashes and reproduction commands are committed."
+}

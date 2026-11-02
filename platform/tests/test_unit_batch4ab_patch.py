@@ -6,6 +6,7 @@ they keep the laser/AC-mains/RF/driver-boundary unresolved items visible.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -41,6 +42,7 @@ class UnitBatch4abPatchTests(unittest.TestCase):
         self.assertIn("0130", readme)
         entry = json.dumps(self.units["rs485-iso"], ensure_ascii=False)
         self.assertIn("0134", entry)
+        self.assertIn("Virtual-device guest evidence", entry)
 
     def test_laser_eye_safety_and_co2l_conflict_are_blockers(self):
         laser = json.dumps(self.units["laser-tx"], ensure_ascii=False)
@@ -68,15 +70,40 @@ class UnitBatch4abPatchTests(unittest.TestCase):
         self.assertIn("US_VL53L1X", self.text)
         self.assertIn("0x0096", self.text.lower())
 
-    def test_inventory_stays_planned_and_does_not_claim_simulated(self):
+    def test_guest_evidence_backed_upgrade_stays_partial(self):
         for unit_id in UNITS:
             entry = self.units[unit_id]
-            self.assertEqual(entry["model_status"], "planned", unit_id)
-            self.assertEqual(entry["runtime"]["status"], "planned", unit_id)
+            self.assertEqual(entry["model_status"], "partial", unit_id)
+            self.assertEqual(entry["runtime"]["status"], "implemented", unit_id)
+            self.assertNotEqual(entry["model_status"], "simulated", unit_id)
+            self.assertTrue(entry["runtime"]["blocker"], unit_id)
             profile = self.profiles[unit_id]
-            self.assertEqual(profile["status"], "planned", unit_id)
-            self.assertEqual(profile["hosts"], [], unit_id)
+            self.assertEqual(profile["status"], "implemented", unit_id)
+            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
+            evidence = profile["virtual_device_evidence"]
+            report = ROOT / evidence["report"]
+            self.assertTrue(report.is_file(), unit_id)
+            self.assertEqual(evidence["report_sha256"],
+                             hashlib.sha256(report.read_bytes()).hexdigest(), unit_id)
+            for patch in ("0134-unit-batch4ab.patch", "0138-unit-batch4-evidence-fixes.patch"):
+                self.assertIn(patch, evidence["patches"], unit_id)
+            for field in entry["inputs"]:
+                self.assertIn(field, profile["inputs"], f"{unit_id}.{field}")
+            for field in entry["outputs"]:
+                self.assertIn(field, profile["state"], f"{unit_id}.{field}")
+
+    def test_0137_evidence_fixes_pin_ac_and_weight_bugs(self):
+        fix = (ROOT / "patches/qemu-m5stack-peripherals/0138-unit-batch4-evidence-fixes.patch")
+        self.assertTrue(fix.is_file())
+        text = fix.read_text(encoding="utf-8")
+        for token in ("ac_fixed_scaled", "esp32_gpio_set_input_deferred",
+                      "hx_pad_event"):
+            self.assertIn(token, text)
+        readme = (ROOT / "patches/qemu-m5stack-peripherals/README.md").read_text(encoding="utf-8")
+        self.assertIn("0138-unit-batch4-evidence-fixes.patch", readme)
+        evidence = (ROOT / "docs/evidence/2026-11-02-unit-batch4/README.md").read_text(encoding="utf-8")
+        self.assertIn("0138-unit-batch4-evidence-fixes.patch", evidence)
 
     def test_patch_has_no_guest_claim(self):
         self.assertIn("Offline QOM smoke", self.text)
