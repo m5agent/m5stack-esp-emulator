@@ -70,8 +70,8 @@ class UnitBatch10PatchTests(unittest.TestCase):
             self.assertIn("0154-unit-batch10-evidence-fixes.patch", evidence["patches"], unit_id)
         for unit_id in PLANNED_ONLY:
             unit, profile = self.units[unit_id], self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned", unit_id)
-            self.assertEqual(unit["runtime"]["status"], "planned", unit_id)
+            self.assertIn(unit["model_status"], ("planned", "partial"), unit_id)
+            self.assertIn(unit["runtime"]["status"], ("planned", "implemented"), unit_id)
             self.assertEqual(profile["status"], "planned", unit_id)
             self.assertEqual(profile["hosts"], [], unit_id)
             self.assertTrue(unit["blocker"], unit_id)
@@ -98,16 +98,21 @@ class UnitBatch10PatchTests(unittest.TestCase):
             self.assertEqual(set(self.units[unit_id]["runtime"]["properties"]),
                              expected[unit_id], unit_id)
 
-    def test_planned_only_units_have_no_model_properties(self):
+    def test_planned_only_units_keep_planned_profiles_with_models(self):
+        # batch12b added register-file models for the remaining planned units (0159);
+        # they still have no guest evidence, so their profiles must stay planned.
         for unit_id in PLANNED_ONLY:
             unit = self.units[unit_id]
-            self.assertEqual(unit["runtime"]["properties"], {}, unit_id)
-            self.assertIn("不建 QEMU 模型", unit["blocker"], unit_id)
+            profile = self.profiles[unit_id]
+            self.assertIn(unit["model_status"], ("planned", "partial"), unit_id)
+            self.assertIn(unit["runtime"]["status"], ("planned", "implemented"), unit_id)
+            self.assertEqual(profile["status"], "planned", unit_id)
+            self.assertEqual(profile["hosts"], [], unit_id)
             self.assertIn(unit_id, self.profiles)
 
     def test_datasheet_gaps_are_explicit(self):
         for unit_id, token in (("dof9", "BMM350"), ("dof10", "SPA06"),
-                               ("ina226-1a", "TI datasheet")):
+                               ("ina226-1a", "TI SBOS547C")):
             self.assertIn(token, json.dumps(self.units[unit_id], ensure_ascii=False), unit_id)
         self.assertEqual(self.units["dcssr"]["interface"]["address_7bit"], [0x50])
         self.assertEqual(self.units["ina226-1a"]["interface"]["address_7bit"], [0x41])

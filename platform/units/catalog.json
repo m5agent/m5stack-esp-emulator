@@ -28298,29 +28298,43 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-register-unresolved",
-        "summary": "BMM350 three-axis TMR magnetometer at I2C 0x14, +/-2000uT and ~0.1uT resolution, 100/400kHz. Public UIFlow2 has no BMM350 Unit/driver and the page has no register table; CHIP_ID/OTP calibration/data registers must come from the Bosch datasheet and are UNRESOLVED here.",
+        "status": "documented-official-protocol",
+        "summary": "BMM350 三轴磁力计 I2C 0x14。Bosch BST-BMM350-DS001-27 Table 8 给出寄存器图（0x00 CHIP_ID=0x33、0x04/0x05/0x06 PMU、0x31-0x3C MAG/TEMP 24-bit、0x50/0x52/0x53/0x55 OTP、0x7E CMD），§9.2.3 要求每次读先丢弃 2 个 dummy 字节；上游 UIFlow2 master 的 unit/bmm350.py+driver/bmm350.py 实现该路径。",
         "registers": [
           {
-            "register": "CHIP_ID/WHO_AM_I",
-            "length": 0,
-            "encoding": "BMM350 datasheet; UNRESOLVED"
+            "register": "0x00",
+            "length": 1,
+            "encoding": "CHIP_ID（=0x33）"
           },
           {
-            "register": "magnetic X/Y/Z data",
-            "length": 0,
-            "encoding": "BMM350 datasheet; register/scale UNRESOLVED"
+            "register": "0x04-0x06",
+            "length": 3,
+            "encoding": "PMU_AGGR/PMU_AXIS/PMU_CMD"
           },
           {
-            "register": "OTP calibration",
+            "register": "0x31-0x3C",
+            "length": 12,
+            "encoding": "MAG X/Y/Z 24-bit LE + TEMP 24-bit LE"
+          },
+          {
+            "register": "0x50/0x52/0x53/0x55",
+            "length": 4,
+            "encoding": "OTP 命令/数据/状态"
+          },
+          {
+            "register": "0x7E",
+            "length": 1,
+            "encoding": "CMD（soft reset 0xB6）"
+          },
+          {
+            "register": "I2C read",
             "length": 0,
-            "encoding": "BMM350 datasheet; not modeled"
+            "encoding": "n 字节读实际返回 n+2 字节，前 2 字节 dummy 必须丢弃"
           }
         ],
         "gaps": [
-          "No public UIFlow2 BMM350 driver",
-          "Page gives no register map",
-          "Magnetic/heading physics and calibration NOT RUN"
+          "磁场/航向物理、OTP 校准精度、温度补偿、±2000uT 量程/噪声 NOT RUN",
+          "0x14 与 DoF9/DoF10 板上 BMM350 同地址"
         ]
       },
       "inputs": {
@@ -28432,22 +28446,84 @@
           "claims": [
             "Bosch BMM350 datasheet is the only register/OTP source; page has no register table. Local tree has no BMM350 driver."
           ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm350-ds001.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "BST-BMM350-DS001-27 Table 8 寄存器图 p.26-28",
+            "§9.2.3 p.46 读前丢弃 2 dummy 字节"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/bmm350.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/bmm350.py:14 class; :31-40 初始化"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x14，但**无官方 UIFlow2 driver、无寄存器表**，CHIP_ID/OTP/数据寄存器需 Bosch datasheet；磁场/heading/校准/温度稳定性 NOT RUN；0x14 需与板级 BMM150 0x10 区分。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "magnetic-x": {
+            "property": "magnetic-x",
+            "access": "read-write",
+            "type": "number"
+          },
+          "magnetic-y": {
+            "property": "magnetic-y",
+            "access": "read-write",
+            "type": "number"
+          },
+          "magnetic-z": {
+            "property": "magnetic-z",
+            "access": "read-write",
+            "type": "number"
+          },
+          "temperature-c": {
+            "property": "temperature-c",
+            "access": "read-write",
+            "type": "number"
+          },
+          "whoami": {
+            "property": "whoami",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。"
       },
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x14，但**无官方 UIFlow2 driver、无寄存器表**，CHIP_ID/OTP/数据寄存器需 Bosch datasheet；磁场/heading/校准/温度稳定性 NOT RUN；0x14 需与板级 BMM150 0x10 区分。",
+      "blocker": "0158 implements the BMM350 I2C 0x14 register file from Bosch Table 8, including the mandatory two dummy read bytes (datasheet 9.2.3) and fixture-derived MAG/TEMP data. No guest evidence -> profile planned. Magnetometer/heading/OTP-calibration physics NOT RUN; 0x14 conflicts with DoF9/DoF10 BMM350. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public UIFlow2 BMM350 driver and no register table on the product page.",
-        "Bosch BMM350 datasheet register/OTP addresses and scaling must be pinned before implementation.",
-        "0x14 is free but distinct from board-level BMM150 0x10; magnetic/heading physics/calibration NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，BMM350 寄存器/校准/磁场物理 NOT RUN。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -28500,39 +28576,48 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-register-unresolved",
-        "summary": "Isolated INA226 current/voltage monitor at I2C 0x41, 0-30V, +/-10A bidirectional, 5mOhm shunt, electrical isolation and self-resetting fuse. Public UIFlow2 has no INA226 Unit driver and the page has no register table; standard INA226 registers (config 0x00, shunt 0x01, bus 0x02, power 0x03, current 0x04, calibration 0x05, mask 0x06, alert 0x07) are datasheet-based and UNRESOLVED here.",
+        "status": "documented-official-protocol",
+        "summary": "隔离 INA226 电流/电压监控（0-30V，±10A，5mΩ shunt）I2C 0x41。TI SBOS547C Table 7-1 定义 8 个 16-bit big-endian 寄存器 + 0xFE/0xFF ID；上游 unit/ina226.py type='10A' 使用 shunt=0.005、cal=0x0C80，driver/ina226.py 实现校准/读数。",
         "registers": [
           {
-            "register": "config 0x00",
+            "register": "0x00",
             "length": 2,
-            "encoding": "standard INA226 register; datasheet SHA must be pinned"
+            "encoding": "Configuration R/W（POR 0x4127）"
           },
           {
-            "register": "shunt voltage 0x01",
+            "register": "0x01",
             "length": 2,
-            "encoding": "2.5uV/LSB typical; datasheet"
+            "encoding": "Shunt Voltage（2.5uV/LSB）"
           },
           {
-            "register": "bus voltage 0x02",
+            "register": "0x02",
             "length": 2,
-            "encoding": "1.25mV/LSB typical; datasheet"
+            "encoding": "Bus Voltage（1.25mV/LSB）"
           },
           {
-            "register": "power 0x03 / current 0x04 / calibration 0x05",
-            "length": 2,
-            "encoding": "datasheet scaling with shunt 5mOhm"
+            "register": "0x03/0x04",
+            "length": 4,
+            "encoding": "Power/Current"
           },
           {
-            "register": "mask/alert 0x06/0x07",
+            "register": "0x05",
             "length": 2,
-            "encoding": "datasheet; alert behavior NOT RUN"
+            "encoding": "Calibration（10A=0x0C80）"
+          },
+          {
+            "register": "0x06/0x07",
+            "length": 4,
+            "encoding": "Mask-Enable/Alert Limit"
+          },
+          {
+            "register": "0xFE/0xFF",
+            "length": 4,
+            "encoding": "Manufacturer ID 0x5449 / Die ID 0x2260"
           }
         ],
         "gaps": [
-          "No public UIFlow2 INA226 driver",
-          "Page gives no register table; datasheet register/calibration unresolved",
-          "Isolation/0-30V/+/-10A/fuse/accuracy NOT RUN"
+          "隔离/精度/保险/热 NOT RUN",
+          "0x41 与 ina226-1a 同地址，同一总线二选一"
         ]
       },
       "inputs": {
@@ -28613,23 +28698,83 @@
           "claims": [
             "TI INA226 datasheet is the register/calibration source; product page has no register table and the local tree has no INA226 driver."
           ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SBOS547C Table 7-1 寄存器集 p.22"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/ina226.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/ina226.py:30-43 type=10A shunt=0.005 cal=0x0C80"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x41，但**无官方 UIFlow2 driver、无寄存器表**，标准 INA226 寄存器/校准需 TI datasheet SHA；0-30V/±10A/5mΩ/隔离/保险/精度 NOT RUN；0x41 与 ina226-1a 同地址。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "bus-voltage-v": {
+            "property": "bus-voltage-v",
+            "access": "read-write",
+            "type": "number"
+          },
+          "current-a": {
+            "property": "current-a",
+            "access": "read-write",
+            "type": "number"
+          },
+          "power-w": {
+            "property": "power-w",
+            "access": "read-only",
+            "type": "number"
+          },
+          "manufacturer-id": {
+            "property": "manufacturer-id",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "die-id": {
+            "property": "die-id",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。"
       },
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x41，但**无官方 UIFlow2 driver、无寄存器表**，标准 INA226 寄存器/校准需 TI datasheet SHA；0-30V/±10A/5mΩ/隔离/保险/精度 NOT RUN；0x41 与 ina226-1a 同地址。",
+      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (10A: 5 mOhm shunt, calibration 0x0C80). No guest evidence -> profile planned. Isolation/0-30V/+-10A/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-1A. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public UIFlow2 INA226 driver and no register table on the product page.",
-        "TI INA226 datasheet register/calibration/shunt scaling must be pinned before implementation.",
-        "0x41 is shared with INA226-1A (80mOhm +/-1A); one per bus.",
-        "Electrical isolation, 0-30V/10A range, self-resetting fuse and accuracy NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，INA226 寄存器/隔离/电气精度 NOT RUN。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -28695,29 +28840,79 @@
         "note": "also 2x CAN (XT30) on the same product; this catalog entry models the I2C 0x64 attachment only"
       },
       "protocol": {
-        "status": "documented-driver-gap-internal-firmware",
-        "summary": "Integrated BLDC motor kit: STM32G431CBU6 + DRV8311 + D3504 200KV + TLI5012 encoder, 2x CAN (XT30) + 2x I2C (0x64), 0.66-inch 64x48 OLED, 2x WS2812, button and slip ring. Public UIFlow2 has no RollerCAN Unit driver; the internal firmware/communication-protocol document is external and the page gives no I2C register/CAN frame table, so the protocol is UNRESOLVED.",
+        "status": "documented-official-protocol",
+        "summary": "BLDC 电机套件（含滑环）I2C 0x64 + CAN。M5Unit-RollerCAN-Internal-FW V3.1 给出 I2C 0x00-0xFF 寄存器总览（产品设备 ID 0x02、FW 3）与 CAN 2.0 29-bit 扩展帧/参数索引 0x7002-0x7072；上游 unit/rollercan.py 实现。",
         "registers": [
           {
-            "register": "I2C 0x64 register map",
-            "length": 0,
-            "encoding": "internal firmware/communication protocol document; UNRESOLVED"
+            "register": "0x00/0x01",
+            "length": 2,
+            "encoding": "电机输出/控制模式"
           },
           {
-            "register": "CAN frame format",
-            "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
+            "register": "0x0A-0x0F",
+            "length": 6,
+            "encoding": "保护/状态/错误/按键/堵转"
           },
           {
-            "register": "encoder 36000 pos = 360 deg",
+            "register": "0x10-0x12",
+            "length": 3,
+            "encoding": "CAN ID/波特率档位/RGB 亮度"
+          },
+          {
+            "register": "0x20-0x23",
+            "length": 4,
+            "encoding": "位置环最大电流"
+          },
+          {
+            "register": "0x30-0x3F",
+            "length": 16,
+            "encoding": "RGB/VIN/温度/编码器"
+          },
+          {
+            "register": "0x40-0x43",
+            "length": 4,
+            "encoding": "速度目标"
+          },
+          {
+            "register": "0x60-0x63",
+            "length": 4,
+            "encoding": "实际速度"
+          },
+          {
+            "register": "0x80-0x9D",
+            "length": 30,
+            "encoding": "目标/实际位置"
+          },
+          {
+            "register": "0xB0-0xC3",
+            "length": 20,
+            "encoding": "电流目标/实际电流"
+          },
+          {
+            "register": "0xE0-0xEB",
+            "length": 12,
+            "encoding": "UID"
+          },
+          {
+            "register": "0xF0-0xF4",
+            "length": 5,
+            "encoding": "保存/校准/产品 ID=0x02"
+          },
+          {
+            "register": "0xFE/0xFF",
+            "length": 2,
+            "encoding": "固件版本=3/I2C 地址"
+          },
+          {
+            "register": "CAN frame",
             "length": 0,
-            "encoding": "page Learn; absolute position error ~2 deg, mechanical mount error"
+            "encoding": "29-bit ext ID: cmd_id<<24|cmd_para<<16|option<<8|node；0x02 状态帧 speed/position/current/voltage int16；0x11/0x12 参数索引 0x7002-0x7072"
           }
         ],
         "gaps": [
-          "No public UIFlow2 Unit driver/register map",
-          "Internal firmware/communication protocol external and unresolved",
-          "Motor/FOC/encoder/OLED/RGB/slip-ring physics NOT RUN"
+          "FOC/电机/编码器物理、6-16V、OLED/RGB/滑环/热 NOT RUN",
+          "CAN 电气/位定时/过滤 NOT RUN",
+          "I2C 0x64 冲突"
         ]
       },
       "inputs": {
@@ -28837,23 +29032,131 @@
           "claims": [
             "Internal Firmware/Communication Protocols is an external document; page has no I2C register/CAN frame table"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW/blob/20039c84b122/protocol/M5Stack-Unit-RollerCAN-I2C-Protocol.md",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "V3.1 2026-08-24 I2C 寄存器总览"
+          ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://github.com/m5stack/M5Unit-RollerCAN-Internal-FW/blob/20039c84b122/protocol/M5Stack-Unit-RollerCAN-CAN-Protocol.md",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "V3.1 CAN 帧格式/命令表/参数索引 0x7002-0x7072"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/rollercan.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/rollercan.py:17-63; :554 RollerCAN"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x64 + 2×CAN，但**内部固件/通信协议为外部文档、无寄存器/帧表**；电机/FOC/编码器/OLED/RGB/滑环/6-16V/负载/热 NOT RUN；I2C 0x64 需检查与其它 0x64 设备冲突。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "motor-output": {
+            "property": "motor-output",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "system-state": {
+            "property": "system-state",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "fault": {
+            "property": "fault",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "encoder-pos": {
+            "property": "encoder-pos",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "target-speed-rpm": {
+            "property": "target-speed-rpm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-speed-rpm": {
+            "property": "actual-speed-rpm",
+            "access": "read-only",
+            "type": "number"
+          },
+          "target-position-deg": {
+            "property": "target-position-deg",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-position-deg": {
+            "property": "actual-position-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "current-ma": {
+            "property": "current-ma",
+            "access": "read-only",
+            "type": "number"
+          },
+          "vin-v": {
+            "property": "vin-v",
+            "access": "read-only",
+            "type": "number"
+          },
+          "mcu-temp-c": {
+            "property": "mcu-temp-c",
+            "access": "read-only",
+            "type": "number"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
       },
-      "blocker": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；产品页明确 I2C 0x64 + 2×CAN，但**内部固件/通信协议为外部文档、无寄存器/帧表**；电机/FOC/编码器/OLED/RGB/滑环/6-16V/负载/热 NOT RUN；I2C 0x64 需检查与其它 0x64 设备冲突。",
+      "blocker": "0158 implements the RollerCAN I2C 0x64 register-file subset from M5Unit-RollerCAN-Internal-FW V3.1 (product device id 0x02). CAN frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public UIFlow2 RollerCAN driver; internal firmware/communication protocol external and unresolved.",
-        "I2C 0x64 register map and CAN frame format unknown; page gives only product mechanics/encoder 36000=360deg.",
-        "Motor/FOC/current-speed-position loop, encoder ~2deg mount error, 0.66 OLED, RGB and slip ring NOT RUN.",
-        "6-16V power, load/noise/thermal and the CAN attachment limits (0145) are NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，电机/FOC/编码器/内部协议 NOT RUN。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -29101,19 +29404,24 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-address-known",
-        "summary": "Isolated INA226 current/voltage/power monitor at I2C 0x41, 0-30V, +/-1A bidirectional, 80mOhm shunt, isolation/self-resetting fuse. No Unit INA226 driver exists; TI datasheet registers (config 0x00, shunt 0x01, bus 0x02, power 0x03, current 0x04, calibration 0x05, mask 0x06, alert 0x07) need a pinned datasheet SHA.",
+        "status": "documented-official-protocol",
+        "summary": "隔离 INA226（0-30V，±1A，80mΩ shunt）I2C 0x41。同一 TI SBOS547C Table 7-1；上游 unit/ina226.py type='1A' 使用 shunt=0.08、cal=0x0800（同文件注释写 0x811，与代码不一致，代码路径为准）。",
         "registers": [
           {
             "register": "0x00-0x07",
-            "length": 2,
-            "encoding": "standard INA226 config/shunt/bus/power/current/calibration/mask/alert; datasheet unresolved"
+            "length": 16,
+            "encoding": "标准 INA226 8 寄存器（16-bit big-endian）"
+          },
+          {
+            "register": "0xFE/0xFF",
+            "length": 4,
+            "encoding": "Manufacturer ID 0x5449 / Die ID 0x2260"
           }
         ],
         "gaps": [
-          "No public Unit INA226 driver",
-          "Page gives no register table; TI datasheet must be pinned",
-          "Isolation/accuracy/fuse/thermal NOT RUN"
+          "隔离/精度/保险/热 NOT RUN",
+          "驱动注释 0x811 vs 代码 0x0800 冲突待复核",
+          "0x41 与 ina226-10a 同地址"
         ]
       },
       "inputs": {
@@ -29193,22 +29501,83 @@
           "claims": [
             "TI INA226 datasheet is the only register/calibration source; local tree has no INA226 driver"
           ]
+        },
+        {
+          "kind": "datasheet-reference",
+          "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "SBOS547C Table 7-1 寄存器集 p.22"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/ina226.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/ina226.py:31-34 type=1A shunt=0.08 cal=0x0800（注释 0x811 不一致）"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U200-1A has a clear I2C 0x41 address and standard INA226 datasheet, but no Unit driver/register table in the product page; a planned contract is registrable, and implementation must pin the TI datasheet. Isolation/0-30V/+-1A/fuse/accuracy NOT RUN; 0x41 is shared with INA226-10A. 仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "bus-voltage-v": {
+            "property": "bus-voltage-v",
+            "access": "read-write",
+            "type": "number"
+          },
+          "current-a": {
+            "property": "current-a",
+            "access": "read-write",
+            "type": "number"
+          },
+          "power-w": {
+            "property": "power-w",
+            "access": "read-only",
+            "type": "number"
+          },
+          "manufacturer-id": {
+            "property": "manufacturer-id",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "die-id": {
+            "property": "die-id",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。"
       },
-      "blocker": "U200-1A has a clear I2C 0x41 address and standard INA226 datasheet, but no Unit driver/register table in the product page; a planned contract is registrable, and implementation must pin the TI datasheet. Isolation/0-30V/+-1A/fuse/accuracy NOT RUN; 0x41 is shared with INA226-10A. 仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。",
+      "blocker": "0158 implements the INA226 I2C 0x41 register file from TI SBOS547C Table 7-1 (1A: 80 mOhm shunt, calibration 0x0800; frozen driver comment says 0x811 while its code writes 0x0800, code path modeled). No guest evidence -> profile planned. Isolation/accuracy/fuse/thermal NOT RUN; 0x41 shared with INA226-10A. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit INA226 driver; register/calibration map must come from a pinned TI datasheet.",
-        "0x41 is shared with ina226-10a (5mOhm +/-10A); one per bus.",
-        "Isolation/accuracy/fuse/thermal behavior NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型（无 Unit driver/寄存器表，TI datasheet 未钉）；隔离/±1A/精度 NOT RUN；与 ina226-10a 同 0x41。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -30588,29 +30957,84 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-protocol-unresolved",
-        "summary": "Brushless motor kit (with slip ring): STM32G431 + DRV8311 + D3504 200KV + TLI5012, RS485/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit Roller485 driver; the page points to an external Internal Firmware/Communication Protocols document and gives no I2C register/RS485 frame table (only a position 123.4deg*100 4-byte example in FAQ).",
+        "status": "documented-official-protocol",
+        "summary": "BLDC 电机套件 I2C 0x64 + RS485。M5Unit-Roller485-Internal-FW V2.2/V2.3 给出 I2C 0x00-0xFF 寄存器总览（产品设备 ID 0x01、FW 3、默认地址 0x64）与 RS485 15B/17B 帧、CRC-8/MAXIM；上游 unit/roller485.py 实现 I2C/RS485 两条路径。",
         "registers": [
           {
-            "register": "I2C 0x64 register map",
-            "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
+            "register": "0x00/0x01",
+            "length": 2,
+            "encoding": "电机输出/控制模式"
+          },
+          {
+            "register": "0x0A-0x0F",
+            "length": 6,
+            "encoding": "保护/状态/错误/按键/堵转"
+          },
+          {
+            "register": "0x10-0x12",
+            "length": 3,
+            "encoding": "RS485 ID/波特率档位/RGB 亮度"
+          },
+          {
+            "register": "0x20-0x23",
+            "length": 4,
+            "encoding": "位置环最大电流 X100mA"
+          },
+          {
+            "register": "0x30-0x33",
+            "length": 4,
+            "encoding": "RGB B/G/R+模式"
+          },
+          {
+            "register": "0x34-0x3F",
+            "length": 12,
+            "encoding": "VIN X100V/MCU 温度/编码器计数"
+          },
+          {
+            "register": "0x40-0x43",
+            "length": 4,
+            "encoding": "速度目标 X100rpm"
+          },
+          {
+            "register": "0x60-0x63",
+            "length": 4,
+            "encoding": "实际速度"
+          },
+          {
+            "register": "0x80-0x9D",
+            "length": 30,
+            "encoding": "旧/扩展目标与实际位置"
+          },
+          {
+            "register": "0xB0-0xC3",
+            "length": 20,
+            "encoding": "电流目标/实际电流"
+          },
+          {
+            "register": "0xE0-0xEB",
+            "length": 12,
+            "encoding": "UID"
+          },
+          {
+            "register": "0xF0-0xF4",
+            "length": 5,
+            "encoding": "保存/编码器校准/产品 ID=0x01"
+          },
+          {
+            "register": "0xFE/0xFF",
+            "length": 2,
+            "encoding": "固件版本=3/I2C 地址"
           },
           {
             "register": "RS485 frame",
             "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
-          },
-          {
-            "register": "encoder 36000 pos = 360deg",
-            "length": 0,
-            "encoding": "page Learn; ~2deg mount error"
+            "encoding": "请求 15B: Cmd MotorID Data0..11 CRC8；响应 17B: AA 55 RespCmd MotorID Data0..11 CRC8；CRC-8/MAXIM 初值0 多项式0x8C"
           }
         ],
         "gaps": [
-          "No public Unit Roller485 driver",
-          "Internal firmware/communication protocol external and unresolved",
-          "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V NOT RUN"
+          "FOC/电机/编码器物理、6-16V/过压/堵转/温升、滑环/OLED/RGB NOT RUN",
+          "RS485 电气/终端电阻 NOT RUN；需 UART+方向控制 attachment",
+          "I2C 0x64 与 rollercan 族冲突"
         ]
       },
       "inputs": {
@@ -30723,23 +31147,131 @@
           "claims": [
             "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://github.com/m5stack/M5Unit-Roller485-Internal-FW/blob/7216b24a264e/protocol/M5Stack-Unit-Roller485-I2C-Protocol.md",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "V2.2 2026-09-02 I2C 寄存器总览/逐寄存器说明"
+          ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-RS485-Protocol-EN.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "RS485 帧格式/CRC8 官方 PDF"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/roller485.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/roller485.py:17-62; :508 Roller485; :649 _crc8"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "roller485 has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "motor-output": {
+            "property": "motor-output",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "system-state": {
+            "property": "system-state",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "fault": {
+            "property": "fault",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "encoder-pos": {
+            "property": "encoder-pos",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "target-speed-rpm": {
+            "property": "target-speed-rpm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-speed-rpm": {
+            "property": "actual-speed-rpm",
+            "access": "read-only",
+            "type": "number"
+          },
+          "target-position-deg": {
+            "property": "target-position-deg",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-position-deg": {
+            "property": "actual-position-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "current-ma": {
+            "property": "current-ma",
+            "access": "read-only",
+            "type": "number"
+          },
+          "vin-v": {
+            "property": "vin-v",
+            "access": "read-only",
+            "type": "number"
+          },
+          "mcu-temp-c": {
+            "property": "mcu-temp-c",
+            "access": "read-only",
+            "type": "number"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。"
       },
-      "blocker": "roller485 has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the Roller485 I2C 0x64 register-file subset from M5Unit-Roller485-Internal-FW V2.2 (control/status/error/encoder/speed/position/current/RGB/VIN/temperature/product id/firmware/address). RS485 frame layer and FOC motor/encoder physics NOT RUN; no guest evidence -> profile planned; 0x64 shared by the four Roller units. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit Roller485 driver; register/RS485 frame map unresolved.",
-        "0x64 conflicts with RollerCAN/RollerCAN-Lite; protocol modes are mutually exclusive.",
-        "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal NOT RUN.",
-        "Slip ring/OLED/RGB/button are NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -30804,29 +31336,19 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-protocol-unresolved",
-        "summary": "Brushless motor kit (without slip ring): STM32G431 + DRV8311 + D3504 200KV + TLI5012, RS485/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit Roller485 driver; the page points to an external Internal Firmware/Communication Protocols document and gives no I2C register/RS485 frame table (only a position 123.4deg*100 4-byte example in FAQ).",
+        "status": "documented-official-protocol",
+        "summary": "Roller485-Lite（无滑环）I2C 0x64 + RS485，官方产品页链接与 Roller485 相同的 I2C/RS485 协议 PDF 并共用 Internal-FW 仓库与上游 unit/roller485.py；协议层按同族处理。",
         "registers": [
           {
-            "register": "I2C 0x64 register map",
+            "register": "same-as-roller485",
             "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
-          },
-          {
-            "register": "RS485 frame",
-            "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
-          },
-          {
-            "register": "encoder 36000 pos = 360deg",
-            "length": 0,
-            "encoding": "page Learn; ~2deg mount error"
+            "encoding": "I2C 0x00-0xFF 寄存器总览与 RS485 15B/17B 帧、CRC-8/MAXIM 同 Roller485"
           }
         ],
         "gaps": [
-          "No public Unit Roller485 driver",
-          "Internal firmware/communication protocol external and unresolved",
-          "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V NOT RUN"
+          "Lite 与标准版硬件差异未逐项核对",
+          "FOC/电机/编码器物理、6-16V、OLED/RGB、RS485 电气 NOT RUN",
+          "I2C 0x64 冲突"
         ]
       },
       "inputs": {
@@ -30939,23 +31461,123 @@
           "claims": [
             "Internal Firmware/Communication Protocols is an external document; no I2C register/RS485 frame table on the page"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/Unit-Roller485-I2C-Protocol-EN.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "官方产品页链接 I2C 协议"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/roller485.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/roller485.py 同族协议"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "roller485-lite has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "motor-output": {
+            "property": "motor-output",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "system-state": {
+            "property": "system-state",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "fault": {
+            "property": "fault",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "encoder-pos": {
+            "property": "encoder-pos",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "target-speed-rpm": {
+            "property": "target-speed-rpm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-speed-rpm": {
+            "property": "actual-speed-rpm",
+            "access": "read-only",
+            "type": "number"
+          },
+          "target-position-deg": {
+            "property": "target-position-deg",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-position-deg": {
+            "property": "actual-position-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "current-ma": {
+            "property": "current-ma",
+            "access": "read-only",
+            "type": "number"
+          },
+          "vin-v": {
+            "property": "vin-v",
+            "access": "read-only",
+            "type": "number"
+          },
+          "mcu-temp-c": {
+            "property": "mcu-temp-c",
+            "access": "read-only",
+            "type": "number"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
       },
-      "blocker": "roller485-lite has a clear I2C 0x64 address but no public Unit driver and the internal firmware/RS485 protocol is external/unresolved; only a planned contract is registered. Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal are NOT RUN; 0x64 conflicts with RollerCAN family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the Roller485-Lite I2C 0x64 register-file subset (same protocol family). RS485 frame layer, FOC motor/encoder physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit Roller485 driver; register/RS485 frame map unresolved.",
-        "0x64 conflicts with RollerCAN/RollerCAN-Lite; protocol modes are mutually exclusive.",
-        "Motor/FOC/encoder/OLED/RGB/slip-ring/6-16V/load/thermal NOT RUN.",
-        "No slip ring/OLED? same motor path; motor not run.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -31020,29 +31642,19 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-protocol-unresolved",
-        "summary": "Brushless motor kit without slip ring: STM32G431 + DRV8311 + D3504 + TLI5012, CAN/I2C 0x64, 0.66\" 64x48 OLED, 2x WS2812, button. No public Unit driver; internal firmware/communication protocols external and unresolved; CAN path is limited to the 0145 CanBusClient observation model.",
+        "status": "documented-official-protocol",
+        "summary": "RollerCAN-Lite（无滑环）I2C 0x64 + CAN，官方产品页链接与 RollerCAN 相同的 I2C/CAN 协议 PDF 并共用 Internal-FW 仓库与上游 unit/rollercan.py；协议层按同族处理（产品设备 ID 0x02）。",
         "registers": [
           {
-            "register": "I2C 0x64 register map",
+            "register": "same-as-rollercan",
             "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
-          },
-          {
-            "register": "CAN frame format",
-            "length": 0,
-            "encoding": "external protocol document; UNRESOLVED"
-          },
-          {
-            "register": "encoder 36000 pos = 360deg",
-            "length": 0,
-            "encoding": "page Learn; ~2deg mount error"
+            "encoding": "I2C 0x00-0xFF 寄存器总览与 CAN 29-bit 帧/参数索引 0x7002-0x7072 同 RollerCAN"
           }
         ],
         "gaps": [
-          "No public Unit RollerCAN-Lite driver",
-          "Internal firmware/CAN frame table external and unresolved",
-          "Motor/FOC/encoder/OLED/RGB/6-16V NOT RUN"
+          "Lite 与标准版硬件差异未逐项核对",
+          "FOC/电机/编码器物理、CAN 电气 NOT RUN",
+          "I2C 0x64 冲突"
         ]
       },
       "inputs": {
@@ -31154,22 +31766,123 @@
           "claims": [
             "Internal Firmware/Communication Protocols is an external document; no I2C/CAN frame table on the page"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/779/Unit-RollerCAN-I2C-Protocol-EN.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "官方产品页链接 I2C 协议"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/rollercan.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/rollercan.py 同族协议"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U188-Lite has a clear I2C 0x64 address but no public Unit driver and the CAN/internal protocol is external/unresolved; only a planned contract is registered. The CAN path can use the finite 0145 CanBusClient observation, not a full motor model. Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal are NOT RUN; 0x64 conflicts with Roller485 family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "transactions": {
+            "property": "transactions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "read-bytes": {
+            "property": "read-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "written-bytes": {
+            "property": "written-bytes",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "motor-output": {
+            "property": "motor-output",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "mode": {
+            "property": "mode",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "system-state": {
+            "property": "system-state",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "fault": {
+            "property": "fault",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "encoder-pos": {
+            "property": "encoder-pos",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "target-speed-rpm": {
+            "property": "target-speed-rpm",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-speed-rpm": {
+            "property": "actual-speed-rpm",
+            "access": "read-only",
+            "type": "number"
+          },
+          "target-position-deg": {
+            "property": "target-position-deg",
+            "access": "read-write",
+            "type": "number"
+          },
+          "actual-position-deg": {
+            "property": "actual-position-deg",
+            "access": "read-only",
+            "type": "number"
+          },
+          "current-ma": {
+            "property": "current-ma",
+            "access": "read-only",
+            "type": "number"
+          },
+          "vin-v": {
+            "property": "vin-v",
+            "access": "read-only",
+            "type": "number"
+          },
+          "mcu-temp-c": {
+            "property": "mcu-temp-c",
+            "access": "read-only",
+            "type": "number"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "save-count": {
+            "property": "save-count",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。"
       },
-      "blocker": "U188-Lite has a clear I2C 0x64 address but no public Unit driver and the CAN/internal protocol is external/unresolved; only a planned contract is registered. The CAN path can use the finite 0145 CanBusClient observation, not a full motor model. Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal are NOT RUN; 0x64 conflicts with Roller485 family. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements the RollerCAN-Lite I2C 0x64 register-file subset (same protocol family; device id 0x02). CAN frame layer, FOC physics and Lite hardware deltas NOT RUN; no guest evidence -> profile planned; 0x64 shared. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit RollerCAN-Lite driver; I2C/CAN frame map unresolved.",
-        "0x64 conflicts with Roller485 family; CAN/I2C modes are mutually exclusive.",
-        "Motor/FOC/encoder/OLED/RGB/6-16V/load/thermal NOT RUN; CAN attachment is finite (0145).",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -32546,24 +33259,62 @@
         "baudrate": 115200
       },
       "protocol": {
-        "status": "documented-driver-gap-chain-protocol-unresolved",
-        "summary": "8-channel servo/digital/ADC/RGB/PWM controller, STM32G031, UART Chain-series cascade protocol (dual Grove IN/OUT), DC9-24V/5V 3A, INA199 current sense. No public Unit driver; Internal Firmware/Protocol is external and no Chain frame/register table is readable.",
+        "status": "documented-official-protocol",
+        "summary": "8 通道 servo/digital/ADC/RGB/PWM 控制器 UART Chain 115200 8N1。docs.m5stack.com/en/protocol/U223/UART 给出帧格式 AA 55 len index cmd data crc 55 AA、CRC=(index+cmd+data)&0xFF、0x10-0xFE 命令表与设备类型 0x000C；上游 chain/servos8_v2.py 实现。",
         "registers": [
           {
-            "register": "Chain UART frame format",
+            "register": "frame",
             "length": 0,
-            "encoding": "external protocol document -> UNRESOLVED"
+            "encoding": "AA 55 <len_lo> <len_hi> <index> <cmd> <data...> <crc> 55 AA；len=Index..CRC 字节数；CRC=(index+cmd+data)&0xFF"
           },
           {
-            "register": "8 channel modes/angles/ADC/RGB/PWM",
+            "register": "0x10-0x13",
             "length": 0,
-            "encoding": "external protocol document -> UNRESOLVED"
+            "encoding": "模式设置/读取（0 INPUT/1 OUTPUT/2 ADC/3 SERVO/4 RGB/5 PWM）"
+          },
+          {
+            "register": "0x30-0x43",
+            "length": 0,
+            "encoding": "上下拉/输入电平/输出电平"
+          },
+          {
+            "register": "0x50/0x51",
+            "length": 0,
+            "encoding": "ADC 8x u16 LE"
+          },
+          {
+            "register": "0x60-0x63",
+            "length": 0,
+            "encoding": "舵机角度 0-180"
+          },
+          {
+            "register": "0x70-0x77",
+            "length": 0,
+            "encoding": "RGB 配置/缓冲（16 色）"
+          },
+          {
+            "register": "0x80-0x83",
+            "length": 0,
+            "encoding": "PWM 占空比"
+          },
+          {
+            "register": "0x90-0x93",
+            "length": 0,
+            "encoding": "TIM2/TIM3 频率"
+          },
+          {
+            "register": "0xA0-0xA3",
+            "length": 0,
+            "encoding": "参考/Grove/DC 电压与电流"
+          },
+          {
+            "register": "0xF8-0xFE",
+            "length": 0,
+            "encoding": "UID/版本/设备类型=0x000C/枚举/心跳/数量"
           }
         ],
         "gaps": [
-          "No public Unit 8Servos2-Chain driver",
-          "Chain frame/register table unresolved",
-          "Servo/ADC/PWM/9-24V/INA199/cascade NOT RUN"
+          "舵机/PWM/WS2812 波形、Chain 多设备拓扑、9-24V/INA199 NOT RUN"
         ]
       },
       "inputs": {
@@ -32704,22 +33455,73 @@
           "claims": [
             "Internal Firmware/Protocol is an external document; no readable Chain frame/register table"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://docs.m5stack.com/en/protocol/U223/UART",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "UART Control Protocol V1：帧格式/CRC/0x10-0xFE 命令表/设备类型 0x000C"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/servos8_v2.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "chain/servos8_v2.py:31-58 命令/设备类型 0x000C"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U223 has a clear UART Chain interface but no public Unit driver and the Chain frame/register table is external; only a planned contract is registered. Servo/ADC/PWM/9-24V/INA199/cascade behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "channel-modes": {
+            "property": "channel-modes",
+            "access": "read-write",
+            "type": "array"
+          },
+          "servo-angles": {
+            "property": "servo-angles",
+            "access": "read-only",
+            "type": "array"
+          },
+          "adc-values": {
+            "property": "adc-values",
+            "access": "read-only",
+            "type": "array"
+          },
+          "rgb-leds": {
+            "property": "rgb-leds",
+            "access": "read-only",
+            "type": "array"
+          },
+          "current-ma": {
+            "property": "current-ma",
+            "access": "read-write",
+            "type": "number"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
       },
-      "blocker": "U223 has a clear UART Chain interface but no public Unit driver and the Chain frame/register table is external; only a planned contract is registered. Servo/ADC/PWM/9-24V/INA199/cascade behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements an AA55 Chain frame-level responder (header/length/index/cmd/CRC/tail) for the documented U223 0x10-0xFE command subset (device type 0x000C). Cascade topology, servo/PWM/WS2812 waveforms, 9-24V and INA199 electrical behavior NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit 8Servos2-Chain driver; Chain frame/register table unresolved.",
-        "UART shared with all UART Units; one per port.",
-        "Servo/ADC/PWM/9-24V/INA199/cascade NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -32771,24 +33573,35 @@
         "baudrate": 115200
       },
       "protocol": {
-        "status": "documented-driver-gap-at-unresolved",
-        "summary": "LTE Cat.1 ML307R-DL module at UART 115200 8N1 AT; bands B1/B3/B5/B8/B34/B38/B39/B40/B41; TCP/UDP/HTTP/SSL/MQTT, up to 6 sockets, Nano-SIM. No public Unit Cat1 driver; the page Protocol is an external AT manual and no complete command/URC sequence is readable.",
+        "status": "documented-partial-protocol",
+        "summary": "LTE Cat.1 ML307R-DL 模块 UART 115200 8N1 AT。官方页直链 OneMO AT Commands Reference Guide 4G Series V1.8.1（105 条命令）与 ML307R 通信流程示例；上游 unit/cat1.py+driver/simcom/ml307r.py 实现 MIPCALL/MIPOPEN/MIPSEND/MIPRD/MIPCLOSE/MDNSGIP 等。AT 控制面可建，蜂窝/网络不可建。",
         "registers": [
           {
-            "register": "AT command/URC sequence",
+            "register": "AT base",
             "length": 0,
-            "encoding": "external AT manual -> UNRESOLVED"
+            "encoding": "AT/ATE0/AT+CPIN?/AT+CREG?/AT+CEREG?/AT+CSQ/AT+CGATT?/AT+CGMM/AT+CGMI/AT+CGSN/AT+CIMI"
           },
           {
-            "register": "default UART 115200 8N1",
+            "register": "PDP",
             "length": 0,
-            "encoding": "page; up to 460800 recommended"
+            "encoding": "AT+CGDCONT/AT+MIPCALL=1,1/AT+MIPCALL?/AT+CGPADDR/AT+CGCONTRDP"
+          },
+          {
+            "register": "Socket",
+            "length": 0,
+            "encoding": "AT+MIPOPEN/AT+MIPSEND/AT+MIPRD/AT+MIPCLOSE/AT+MDNSGIP"
+          },
+          {
+            "register": "URC",
+            "length": 0,
+            "encoding": "+MIPOPEN/+MIPCLOSE/+MIPRD 等（逐条按 ML307R 手册核对）"
           }
         ],
         "gaps": [
-          "No public Unit Cat1 driver",
-          "AT/URC command set external and unresolved",
-          "Cellular RF/SIM/network/operator certification/TLS/MQTT NOT RUN"
+          "蜂窝 RF/频段/天线、SIM 鉴权/文件系统、运营商网络注册/PDP 真实性 NOT RUN",
+          "TLS/HTTP/MQTT 协议栈语义、真实链路质量/时延 NOT RUN",
+          "AT/URC 格式与超时需按手册逐条核对",
+          "PORT.C UART 与所有 UART Unit 冲突"
         ]
       },
       "inputs": {
@@ -32846,22 +33659,58 @@
           "claims": [
             "Page Protocol is an external AT manual; no complete command/URC table in page text"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1189/AT_Commands_Reference_Guide_4G_Series_V1.8.1.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "OneMO AT Commands Reference Guide V1.8.1（191 页，105 条命令）"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/cat1.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "unit/cat1.py:18 Cat1Unit(ML307R,Modem)"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U204 has a clear UART 115200 AT interface but no public Unit driver and the ML307R AT/URC command set is external; only a planned UART byte-layer contract with fixture responder is registered. Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN; PORT.C conflicts with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "responses-hex": {
+            "property": "responses-hex",
+            "access": "read-write",
+            "type": "string"
+          },
+          "tx-hex": {
+            "property": "tx-hex",
+            "access": "read-only",
+            "type": "string"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
       },
-      "blocker": "U204 has a clear UART 115200 AT interface but no public Unit driver and the ML307R AT/URC command set is external; only a planned UART byte-layer contract with fixture responder is registered. Cellular RF/SIM/network/operator certification/TLS/MQTT are NOT RUN; PORT.C conflicts with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements a minimal ML307R-DL AT command/response byte responder (ATE0/CPIN?/CREG?/CEREG?/CSQ/CGATT?/CGMM/CGMI/CGSN/CIMI/MIPCALL/MIPOPEN/MIPSEND/MIPCLOSE/MIPRD/MDNSGIP; identity values are synthetic fixtures). Cellular RF/SIM/PDP/network/TLS/MQTT and real socket semantics NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit Cat1 driver; ML307R AT/URC command set unresolved.",
-        "Cellular RF/SIM/network/operator certification/TLS/MQTT NOT RUN.",
-        "PORT.C UART shared with all UART Units.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -32913,24 +33762,58 @@
         "baudrate": 115200
       },
       "protocol": {
-        "status": "documented-driver-gap-chain-protocol-unresolved",
-        "summary": "Chain-series protocol conversion unit: STM32G031, UART 115200 8N1 daisy-chain (device UID/version/link enumeration/heartbeat), 2x Chain UART IN/OUT, top multifunction Grove for I2C/GPIO/ADC/NVIC, 1x WS2812. No public Unit driver; Chain and expansion register/frame tables are not readable.",
+        "status": "documented-official-protocol",
+        "summary": "Chain 系列协议转换单元 UART 115200 8N1，设备类型 0x0006。官方 M5Stack-Unit-ChainBus-Protocol-EN.pdf V1 给出完整 0x10-0xFE 命令（I2C 转发/GPIO/ADC/NVIC/RGB/设备信息）；上游 chain/unit_bus.py+chain/chain.py 实现。",
         "registers": [
           {
-            "register": "Chain UART frame/command",
+            "register": "frame",
             "length": 0,
-            "encoding": "Internal Firmware/Protocol external -> UNRESOLVED"
+            "encoding": "Chain AA55 帧；CRC=Index..CRC 前字节和低 8 位；设备类型 0x0006"
           },
           {
-            "register": "expansion I2C/GPIO/ADC/NVIC",
+            "register": "0x10-0x15",
             "length": 0,
-            "encoding": "external protocol doc -> UNRESOLVED"
+            "encoding": "I2C 初始化/读/写/指定寄存器读写/地址扫描"
+          },
+          {
+            "register": "0x20-0x23",
+            "length": 0,
+            "encoding": "RGB 设置/读取/亮度"
+          },
+          {
+            "register": "0x30-0x32",
+            "length": 0,
+            "encoding": "GPIO 输出模式/电平/回读（GPIO1/2）"
+          },
+          {
+            "register": "0x40/0x41",
+            "length": 0,
+            "encoding": "GPIO 输入模式/电平"
+          },
+          {
+            "register": "0x50/0xE0",
+            "length": 0,
+            "encoding": "外部中断配置/主动上报"
+          },
+          {
+            "register": "0x60/0x61",
+            "length": 0,
+            "encoding": "ADC 配置/读取（0-4095，3.3V）"
+          },
+          {
+            "register": "0x70",
+            "length": 0,
+            "encoding": "工作状态查询"
+          },
+          {
+            "register": "0xF8-0xFE",
+            "length": 0,
+            "encoding": "UID/版本/设备类型/枚举/心跳/数量"
           }
         ],
         "gaps": [
-          "No public Unit ChainBus driver",
-          "Chain/expansion frame/register table unresolved",
-          "Chain topology/heartbeat/GPIO/ADC/NVIC NOT RUN"
+          "协议转换实时转发时延、真实 I2C 下游设备、GPIO 电气、NVIC 中断时序 NOT RUN",
+          "多级 Chain 拓扑未建模"
         ]
       },
       "inputs": {
@@ -33035,22 +33918,83 @@
           "claims": [
             "Internal Firmware/Protocol is external; no readable Chain/expansion register table"
           ]
+        },
+        {
+          "kind": "official-protocol-doc",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1201/M5Stack-Unit-ChainBus-Protocol-EN.pdf",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "V1 2025-11-13 帧格式+0x10-0xFE 命令+设备类型 0x0006"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://github.com/m5stack/uiflow-micropython/blob/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/chain/unit_bus.py",
+          "checked_at": "2026-11-03",
+          "claims": [
+            "chain/unit_bus.py:32-54 CMD_BUS_*; :118-623 各命令"
+          ]
         }
       ],
       "research_status": "researched",
-      "model_status": "planned",
+      "model_status": "partial",
       "runtime": {
-        "status": "planned",
+        "status": "implemented",
         "qom_path_template": "/machine/units/{attachment_id}",
-        "properties": {},
-        "blocker": "U212 is a Chain protocol converter with UART/I2C/GPIO/ADC expansion; it is a Unit entity with a clear UART 115200 interface but no public driver and unresolved protocol tables, so it is registered as a planned contract (not c). Chain topology/heartbeat/GPIO/ADC/NVIC behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "properties": {
+          "chain-uid": {
+            "property": "chain-uid",
+            "access": "read-write",
+            "type": "string"
+          },
+          "version": {
+            "property": "version",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "link-devices": {
+            "property": "link-devices",
+            "access": "read-only",
+            "type": "array"
+          },
+          "heartbeat": {
+            "property": "heartbeat",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "i2c-address": {
+            "property": "i2c-address",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "gpio-levels": {
+            "property": "gpio-levels",
+            "access": "read-write",
+            "type": "array"
+          },
+          "adc-values": {
+            "property": "adc-values",
+            "access": "read-write",
+            "type": "array"
+          },
+          "frames-sent": {
+            "property": "frames-sent",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "frames-injected": {
+            "property": "frames-injected",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。"
       },
-      "blocker": "U212 is a Chain protocol converter with UART/I2C/GPIO/ADC expansion; it is a Unit entity with a clear UART 115200 interface but no public driver and unresolved protocol tables, so it is registered as a planned contract (not c). Chain topology/heartbeat/GPIO/ADC/NVIC behavior is NOT RUN; UART is shared with all UART Units. 仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
+      "blocker": "0158 implements an AA55 Chain frame-level responder for ChainBus device type 0x0006 (GPIO/ADC/RGB/work-status/device-info); I2C forwarding commands fail closed with Operation_status 0 because no downstream device is modeled. Topology, forwarding latency and GPIO/NVIC electrical timing NOT RUN; no guest evidence -> profile planned. 无 guest 证据不升 implemented。",
       "limitations": [
-        "No public Unit ChainBus driver; Chain/expansion frame/register tables unresolved.",
-        "UART shared with all UART Units; one per port.",
-        "Chain topology/heartbeat/GPIO/ADC/NVIC and protocol conversion NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。"
+        "0158 implements only the documented register/frame subset; see runtime blocker and protocol gaps.",
+        "No guest/Device Service evidence: catalog stays partial and the runtime profile stays planned.",
+        "Physical/electrical/RF/motor semantics listed in the protocol gaps remain NOT RUN."
       ],
       "input_semantics": null,
       "output_semantics": null

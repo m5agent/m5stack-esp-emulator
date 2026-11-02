@@ -52,12 +52,14 @@ class UnitBatch9bPatchTests(unittest.TestCase):
         self.assertEqual(len(self.catalog["units"]), 160)
         self.assertEqual(len(self.profiles), 160)
 
-    def test_five_planned_only_units_stay_planned(self):
+    def test_five_planned_only_units_keep_planned_profiles_after_later_models(self):
+        # batch12a/b added register-file models for these units (0157/0159) but they
+        # still have no guest evidence, so the profiles must stay planned.
         for unit_id in PLANNED_ONLY:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
-            self.assertEqual(unit["model_status"], "planned", unit_id)
-            self.assertEqual(unit["runtime"]["status"], "planned", unit_id)
+            self.assertIn(unit["model_status"], ("planned", "partial"), unit_id)
+            self.assertIn(unit["runtime"]["status"], ("planned", "implemented"), unit_id)
             self.assertEqual(profile["status"], "planned", unit_id)
             self.assertEqual(profile["hosts"], [], unit_id)
             self.assertTrue(unit["blocker"], unit_id)
@@ -84,11 +86,12 @@ class UnitBatch9bPatchTests(unittest.TestCase):
             report = ROOT / profile["virtual_device_evidence"]["report"]
             self.assertTrue(report.is_file(), unit_id)
 
-    def test_planned_only_contracts_have_no_model_properties(self):
+    def test_planned_only_contracts_keep_planned_profiles(self):
         for unit_id in PLANNED_ONLY:
             unit = self.units[unit_id]
-            self.assertEqual(unit["runtime"]["properties"], {}, unit_id)
-            self.assertIn("不建 QEMU 模型", unit["blocker"], unit_id)
+            self.assertEqual(self.profiles[unit_id]["status"], "planned", unit_id)
+            self.assertEqual(self.profiles[unit_id]["hosts"], [], unit_id)
+            self.assertTrue(unit["blocker"], unit_id)
             self.assertTrue(unit["interface"]["address_7bit"] or
                             unit["interface"]["bus"] in ("i2c", "uart", "gpio"), unit_id)
             self.assertIn(unit_id, self.profiles)
