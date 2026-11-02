@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-02`
+日期：`2026-11-03`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -55,7 +55,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 30 款。
+同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（129 implemented/partial + 31 planned）+ 25 c 类边界。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
@@ -87,7 +87,7 @@ Unit 仍未覆盖；固件来自固定 SHA 的官方 GitHub release 资产。
 
 [M5StickT2 热成像主机接入](evidence/2026-11-02-stickt2-host/README.md)记录 classic ESP32 热成像主机：自建 bare-metal 探针经真实 HSPI/GPIO I2C/ST7789 控制器读取 FLIR Lepton 3.0 VoSPI 与 CCI，3 帧 guest FNV-1a digest 与宿主 fixture oracle 一致、0 包错误，面板截图与 encoder QOM 注入通过；官方 `StickT2 User Demo` 只到达 app 启动标记，其热成像/UI 路径与物理 LWIR 光学 NOT RUN。
 
-剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次顺序见
+剩余视觉主机与 Unit 接入的最终状态已收口，汇总见
 [剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)。
 
 剩余 classic/异构主机的接入决策（固件 SHA、镜像格式、QEMU 复用、GO/DEFER/NO-GO）见
@@ -131,6 +131,11 @@ Batch-10 a/b 类 18 款已登记落地（catalog/profile 142→160，全部 plan
 [Batch-10 a/b 登记与最小模型状态](unit-research/2026-11-03-batch10-impl-status.md)：dcssr/puzzle/dof6/dof9/dof10/asr 建最小模型（0152），ina226-1a 与 b 类 11 款仅登记 planned 契约；无 guest 证据，离线 QOM smoke 6/6 不是 functional PASS。
 Batch-10 a 类 6 款虚拟设备证据见
 [Unit 第十批 a 类虚拟设备证据](evidence/2026-11-03-unit-batch10/README.md)：dcssr（官方 DCSSRUnit）、puzzle（generic SK6812 64 灯 driver-gap）、dof6/dof9/dof10（仅 BMI270 子集，BMM350/SPA06 BLOCKED）、asr（raw UART AA55 字节层）各一个 cores3 可见会话全部 PASS；0154 修复 BMI270 init 状态与 0x22 温度别名；物理/光学/SSR/运动/磁力/气压/语音语义 NOT RUN。
+视觉主机与 Unit 接入战役已收口，最终汇总见
+[视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md)：
+9 个独立视觉 host 完成同 guest 原厂固件路径接入，5 项 boundary-only/composition-only；
+Unit catalog 160 条（129 implemented/partial + 31 planned）+ 25 款 c 类边界，184/184 覆盖。
+
 C 类 3 款（`ncir2`/`extio2`/`hbridge`）的寄存器事务数据面证据见
 [Unit 第一批 C 类虚拟设备证据](evidence/2026-11-02-unit-cclass/README.md)。
 Unit 第二批前 6 款（`joystick`/`watering`/`fader`/`dac`/`bps`/`adc-v11`）的
@@ -263,6 +268,7 @@ PORT.B/C 未准入使用 cores3 PORT.A harness 替换并记录；光学/电机/�
 | [Unit 第十批协议研究（收口）](unit-research/2026-11-03-batch10-protocols.md) | Unit 研究 | `2026-11-03` | 剩余 43 款 unit 全部分类：a 7 款（dcssr 0x50 官方 acssr 驱动/Modbus0x04；ina226-1a 0x41 ±1A/80mΩ；dof6 BMI270 0x68/0x69；dof9 +BMM350 0x14；dof10 +BMM350+SPA06 0x76；asr UART 115200 AA55 帧表；puzzle 64×WS2812E PORT.B 单线）；b 11 款（roller485/roller485-lite RS485/I2C0x64、rollercan-lite CAN/I2C0x64、byteswitch 0x46、bytebutton 0x47、step16 0x48、timerpwr 0x56、mq 0x11、8servos2-chain Chain UART、cat1-cn ML307R 115200 AT、chainbus 115200 Chain）；c 25 款（camera/vision 14、controller/PoE 4、passive 7）只写不可接入边界；a/b 写 planned catalog 草稿（18 条），预计登记 142→160、产品覆盖 184/184；未运行 QEMU、未改 catalog/runtime/测试 |
 | [Batch-10 a/b 登记与最小模型状态](unit-research/2026-11-03-batch10-impl-status.md) | Unit 研究 / 实现状态 | `2026-11-03` | batch-10 a/b 18 款登记：catalog/profile 142→160，全部 planned；0152 建 6 款最小模型（dcssr=ACSSR 0x50 子集、puzzle=64×WS2812E RMT、dof6/dof9/dof10=BMI270 0x68 子集、asr=UART115200 AA55 command-id fixture responder）；ina226-1a（0x41 无 datasheet）+ b 类 11 款（roller485/roller485-lite/rollercan-lite 0x64、byteswitch 0x46、bytebutton 0x47、step16 0x48、timerpwr 0x56、mq 0x11、8servos2-chain/cat1-cn/chainbus UART）只登记 planned 契约、不建模型；无 guest 证据，QOM smoke 6/6 不是 functional PASS |
 | [Unit 第十批 a 类虚拟设备证据](evidence/2026-11-03-unit-batch10/README.md) | Unit 数据面 / 虚拟设备 | `2026-11-03` | batch10 a 类 6 款：dcssr（官方 DCSSRUnit/ACSSR 0x50 relay/RGB/fw）、puzzle（generic RGBUnit/SK6812 64×WS2812E，driver-gap）、dof6/dof9/dof10（frozen generic BMI270 0x68 accel/gyro/temp/whoami；BMM350 0x14/SPA06 0x76 未建模 BLOCKED，不伪造磁力/气压）、asr（raw UART 115200 AA55 0x45 字节层）各一个 cores3 可见会话全 PASS；单一 QEMU 构建 canonical 75f1d24+0120–0152 33 层+0154 证据修复，运行时 bin `7e608233…`；puzzle PORT.B/asr PORT.C 用 cores3 PORT.A harness；0154 修复 BMI270 init 状态与 TEMP 0x22 小端别名；SSR 电气/LED 光学/IMU 运动/磁力/气压/语音声学 NOT RUN |
+| [视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md) | 战役汇总 | `2026-11-03` | 9 个独立视觉 host 完成同 guest 原厂固件路径接入，5 项 boundary-only/composition-only；Unit 160 登记（129 implemented/partial + 31 planned）+ 25 c 类边界，184/184 覆盖；10 个研究批与实现/证据 PR #80–#146；列出真实模型 bug、DEFER/BLOCKED/planned-only 与 virtual-device/硬件边界 |
 | [Unit 第七批剩余 7 款实现状态](unit-research/2026-11-03-batch7-impl-status.md) | Unit 实现状态 | `2026-11-03` | 0145 在 canonical 链 0144 后实现 batch7 剩余 7 款：hex 复用 37-LED RMT（driver-gap/SK6812 unresolved）、catm/catm-gnss/lorawan-cn470 UART fixture responder（不做 AT 解码；LoRaWAN STM32WLE5 vs ASR650x 错配）、can/mini-can 绑定 cores3 m5-canbus 的 CanBusClient+inject-hex（方向/过滤/位定时/电气 NOT modeled）、mini-imu-pro BMI270 0x68+BMP280 0x76 最小复合模型（init blob 接受但不执行、aux 简化）；mini-pdm DEFER 无 Unit 模型；catalog/profile 111→118，7 条全部 planned、离线 QOM smoke 7/7 attach；不含 guest/runtime 声明 |
 | [classic 主机可行性研究](plans/2026-11-02-classic-hosts.md) | 计划 | `2026-11-02` | AtomU/Atom Echo GO（官方 GitHub release UIFlow2 精确镜像）、M5Stick 条件接入（EasyLoader 工厂镜像提取；原 `d960e57e…` 提取长度已修正）、StickT2 DEFER、StickV K210 NO-GO；含固件 SHA/分区与 QEMU 复用证据 |
 | [AtomS3R-CAM 相机数据面闭环](evidence/2026-11-02-atoms3r-cam-sccb/README.md) | 设备数据面 / 虚拟设备 | `2026-11-02` | 软件 SCCB 桥 dedicated-pin 修复 + N8R8 PSRAM + QVGA DVP：camera.init True、153,600 B RGB565 帧（fnv1a 42521dc5）；非 QVGA/多帧/光学 NOT RUN |

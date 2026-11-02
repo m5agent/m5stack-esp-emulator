@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-11-02`
+日期：`2026-11-03`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -20,6 +20,17 @@
 - 安全状态未知时保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
 
 ## 已完成，不再作为待办
+
+2026-11-03 收口：**视觉主机接入**与**Unit 批次接入**两条工作流已完成（剩余
+边界/planned 项另列），汇总见
+[视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md)。
+
+- 视觉主机：9 个独立 host 完成原厂固件路径接入；5 项 boundary-only/
+  composition-only 决策收口，不再作为待接入队列（M5Stick 工厂固件路径
+  仍是 blocked/partial，按 evidence 限定引用）。
+- Unit：catalog 160 条（129 implemented/partial + 31 planned），184 个
+  unit 产品全部有登记或 c 类边界结论；10 个研究批与实现/证据 PR 收口。
+  剩余 DEFER/BLOCKED/planned-only 项见下方 `UNIT-DEFER-01`。
 
 以下里程碑已经进入当前状态和验证台账，只作为后续工作的依赖，不再重复列入
 任务板：
@@ -59,7 +70,7 @@ eFuse 或生产 key。
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
-| P1 | Unit 外设集成 | 固定版本主机外壳、官方芯片协议、主机总线接线和 Web 双向状态 | 视觉模型和寄存器实现不能替代同 guest 的数据面证据 |
+| 已完成（virtual-device） | 视觉主机与 Unit 接入战役 | 9 个独立视觉 host 接入、5 项边界决策；Unit 160 登记（129 implemented/partial + 31 planned）+ 25 c 类边界，184/184 覆盖 | 剩余 31 planned 见 `UNIT-DEFER-01`；visual/Unit 结果不授予硬件、RF、光学或电气 PASS |
 | P2 | CardputerZero | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 ## 当前执行顺序
@@ -726,72 +737,61 @@ HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何�
 USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络。
 先决定重建或扩展 P4 backend，不能从 QEMU S3/C6/LX6 继承完成度。
 
-### UI-01
+### UI-01（已完成收口；5 款仅视觉边界保留）
 
-当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-33 款有运行登记，其余 5 款仅模型，不能提示连接服务即可运行固件。
-2026-11-02 起 AtomS3U（`atoms3u` / `m5atoms3u`）是独立运行登记主机：
-官方 UIFlow2 v2.5.4 启动、GPIO41 按键与 GPIO35 WS2812 RMT 限定通过，
-IR GPIO12、SPM1423 PDM 麦克风、Grove Unit 和 USB CDC 仍未覆盖。
-Atom VoiceS3R（`atom-echos3r` / `m5atomvoices3r`）同期接入：原厂固件启动、
-128×128 面板、Speaker/I2S1 DMA 非静音 PCM 限定通过，功放使能 GPIO18、
-Voice Base IR、麦克风与 Grove Unit 仍未覆盖。
-AtomS3R-CAM（`atoms3r-cam` / `m5atoms3rcam`）已完成启动、板级识别 144、显示初始化与
-软件 SCCB/DVP 相机数据面：原厂 `camera.init()/capture()` 取得 320×240 RGB565 整帧
-（153,600 B，摘要与模型 DVP 波形一致）。剩余：非 QVGA framesize、多帧流、IR/Grove、物理光学。
-AtomS3R-M12（`atoms3r-m12` / `m5atoms3rm12`）接入 OV3660 M12 相机主机：复用 AtomS3R 控制器、
-GC9107 面板与 N8R8 PSRAM，新增 OV3660 16-bit SCCB 从设备模型；官方 M5Burner「UIFlow2.0
-AtomS3R-CAM」条目描述覆盖 AtomS3R-M12，共享镜像在同一 guest 内自动探测 0x3c/PID 0x3660，
-`camera.init()` True，QQVGA/QVGA/VGA/HD 帧摘要与模型 DVP 波形一致，5 帧流互异。
-M5Burner `AtomS3R-CAM M12 User Demo`（usb_webcam, IDF v5.1.4）黑盒启动并由其自带
-esp32-camera 识别/初始化 OV3660，但其 MJPEG/UVC 帧路径未建模（NO-SOI）且应用周期性软复位。
-剩余：MJPEG/UVC 数据面、动态改尺寸、IR/Grove/USB、物理光学与电气时序；无 M12 专属 UIFlow2 条目。
-M5StickT2（`stickt2` / `m5stickt2`）接入 FLIR Lepton 3.0 热成像主机：新 machine 复用 classic
-ESP32 SoC、ST7789 135×240 面板与 G21/G22 soft-I2C 桥，新增传输驱动的 VoSPI 包流模型、
-16-bit CCI 从设备（PING/序列号/FPA+AUX 温度/OEM sync）、I2C 0x30 编码器与 classic SPI
-slave 挂载；修复 classic UART TX_DONE 电平位后官方 demo 可启动到 app 标记。自建 bare-metal
-探针（源码入库，ELF SHA 固定）经真实控制器取得 3 帧 160×120 热帧，guest FNV-1a digest 与
-宿主 fixture oracle 一致、0 包错误，ST7789 135×240 截图 32,400 非黑像素/89 色，QOM 注入
-encoder delta=5 被 guest 读回；设备矩阵新增 `kernel` lane PASS。剩余：官方 demo 热成像/UI
-路径、物理 LWIR 光学/热测量、PDM 麦克风、Grove、编码器实际接线（文档 PA2/PA3/PA4 与官方
-示例 I2C 0x30 矛盾按示例建模）与 AXP192/PCF8563/MPU6886 板级数据面。
-Basic v2.7（`basic-v27` / `m5basic`）同期接入：classic ESP32 启动、320×240
-ILI9342C、A/B/C 按键注入、IP5306 `0x75` 寄存器数据面与 I2S0 DAC 数字 PCM
-限定通过；IP5306 电芯/电气、microSD、电源键、背光 PWM、Grove Unit 与
-模拟声学仍未覆盖。
-AtomU（`atomu` / `m5atomu`）同期接入：classic ESP32 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 解码 0x204060）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描限定通过；SPM1423 PDM 麦克风、IR G12、Grove Unit 与物理行为仍未覆盖。固件来源为固定 SHA 的官方 GitHub release 资产，不是 M5Burner firmware ID。
-Atom Echo / Atom Voice（`atom-echo` / `m5atomecho`）同期接入：classic ESP32 启动、板级识别 142、GPIO27 SK6812 RMT、QMP 注入 GPIO39 按键回读、Grove G26/G32 I2C 控制器扫描、NS4168 I2S1 非静音 PCM 捕获，以及 SPM1423 PDM RX 在宿主注入 PCM fixture 下的非零 guest 缓冲；实际硬件为无寄存器 NS4168 + PDM，板载没有 ES8311/I2C codec（任务初期假设已纠正）。模拟功放/声学、IR G12、Grove Unit、共用 G33 pad 同时录放与物理行为仍未覆盖。
+状态：**host 接入工作流已收口**（2026-11-03）。视觉库存 38 款主机中 33 台有
+运行登记，剩余 5 款仅视觉全部是 boundary-only/composition-only，不再有
+“待接入”主机。
 
-M5Stick（`m5stick` / `m5stick`）同期接入：官方 EasyLoader FactoryTest 4 MB
-镜像在确定性 icount 下进入 app 并输出原生串口 `mpu9250 addr: FF`，SH1107
-收到完整 64×128 初始化命令流与 4,096 字节 GDDRAM 写；但 legacy ESP-IDF
-I2C FIFO 路径未在 classic 控制器模型上完成，工厂固件的 MPU 探测/按键/UI
-绘制仍 blocked。MPU9250 0x68、IP5306 0x75 与 GPIO35 按键模型由 generic
-classic-ESP32 MicroPython fixture 在同一 machine 上取得 guest 数据面证据；
-AK8963/DMP、最终 OLED 帧、蜂鸣器/IR/LED、Grove Unit 与物理行为仍未覆盖。
-剩余仅视觉主机与 150 款未登记 Unit 的逐型号事实、所需模型和批次框架见
-[剩余主机与 Unit 接入计划](plans/2026-11-02-remaining-visual-hosts-and-units.md)；
-该页是计划，不关闭任何设备或 Unit。
-固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
-本轮 AtomS3/Lite、StickC/SE/Plus2 的原生显示或 LED、输入及选定外设已有
-[限定验证](evidence/2026-10-29-expanded-hosts/README.md)，浏览器逐板准入独立维护。
-经典 Atom 三板官方固件启动与原 StickC Plus 准确镜像已有独立原生和浏览器上传
-固定示例证据，见[后续验证](evidence/2026-10-29-motion-command-followup/README.md)。
-StackChan 正常长按已到 guest SHUTDOWN/exit0，但最终自然关机仍有一个 engine
-CDP target 残留；需补 owner 最终回收兜底，并在关闭浏览器上下文前独立验证
-全部 Worker 归零。本轮 Arduino 屏幕/舵机并行的普通 Stop 也有预算内 engine
-target 未消失，后续 case 累计归零不能关闭首次失败。一次原样 Dance 启动出现 PSRAM/OOB，后续通过不能关闭
-该偶发问题。原 StickC Plus 默认入口的首次超时虽有同镜像后续通过，
-仍需定位启动时序并验证稳定性。还需用实际短间隔命令验证中途改目标，不能用超过原动作时长的
-两次目标变化替代。
-继续绑定 Matrix stock 固件的 IMU 轴向语义、非均色灯阵链序、Dial 旋钮稳定投送，
-以及已启动设备未覆盖的音频/IR/电源/网络等数据面；不能以编译或另一板 PASS 关闭。
-其它 14 款视觉主机按实际芯片、板修订和准确固件逐个接入，StickV 的 K210、
-StickT2 等异构芯片不使用 ESP32 alias。
+已完成接入的 9 个独立 host 与证据入口：AtomS3U、Atom VoiceS3R、
+AtomS3R-CAM、AtomS3R-M12、AtomU、Atom Echo、Basic v2.7、M5Stick、
+M5StickT2。逐型号的通过范围、partial 边界和证据链接见
+[视觉主机与 Unit 接入战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md)；
+动态登记数以快照为准。注意：M5Stick 的官方 EasyLoader FactoryTest 仍受
+classic legacy I2C FIFO 路径限制（MPU 探测/按键/最终 UI blocked），只保留
+同 machine generic fixture 与已记录限定结论；不能写成完整 PASS。
 
-加载失败时保留原 renderer 回退；StopWatch 仍是唯一参考质量外壳。
-模型接入不替代逐设备结构尺寸、
-面板开孔、材质、hitbox 和截图阈值的保真验收。
+剩余 5 款仅视觉对象的最终决策（详见
+[主机边界决策](plans/2026-11-02-host-boundary-decisions.md)）：
+
+- AtomS3R-Ext（C126-Ext）：**boundary-only**，无 Ext 专属固件/board
+  profile，不能用 AtomS3R 身份或结果冒充；
+- AtomS3R-AI Chatbot（K147）/**composition-only**：AtomS3R + A149 组合件，
+  无独立 host alias；
+- AtomS3R-CAM AI Chatbot（K147-CAM）/**composition-only**：AtomS3R-CAM +
+  A149；
+- AtomS3R-M12 Volcengine Kit（D062-M12）/**composition-only**：AtomS3R-M12
+  + A149，Volcengine 固件是应用/测试固件；
+- StickV（K027）：**boundary-only**，K210/MaixPy 非 ESP32 后端。
+
+上述边界只在出现官方准确该板固件/新后端时重开；视觉模型、组合件与
+“同 SoC”不等于独立 host 或硬件 PASS。视觉保真（结构/材质/hitbox）仍按
+`P1 设备视觉保真` 独立跟踪。
+
+### UNIT-DEFER-01：Unit 剩余 planned/DEFER/BLOCKED（收口后保留）
+
+状态：**余量跟踪**，不是未接入战役。31 个 planned 条目分三类：
+
+1. **DEFER/BLOCKED（7）**：`unit-id`（ATECC wake 写 0x00，0x35 从机收不到，
+   不伪造 revision/serial）、`mini-bps-v11`（QMP6988 0x56 vs 0x70）、
+   `mini-pdm`（无 Unit PDM 驱动，板级 I2S，不伪造 PCM）、`mini-can`
+   （CANN attachment/frame lane 缺失）、`lorawan-us915`（STM32WLE5 vs
+   ASR650x 驱动错配）、`can`（仅 CanBusClient QOM 观测，guest CAN 帧语义
+   未建模）、`mini-imu-pro`（BMI270 init 不执行/BMM150 简化 aux，无 guest
+   证据）。
+2. **已有模型、无 guest 证据（7）**：`glass`、`rf433t`、`rf433r`、
+   `lorawan-as923`、`lorawan-eu868`、`audioplayer`、`fingerprint2`；不得因
+   QOM smoke 升 implemented。
+3. **planned-only driver-gap（17）**：`cardkb2`、`8servos2-i2c`、`bmm350`、
+   `ina226-10a`、`ina226-1a`、`rollercan`、`roller485`、`roller485-lite`、
+   `rollercan-lite`、`byteswitch`、`bytebutton`、`step16`、`timerpwr`、`mq`、
+   `8servos2-chain`、`cat1-cn`、`chainbus`；只保留地址/接口元数据与 blocker，
+   不建模型、不猜寄存器。
+
+关闭条件：取得官方驱动/寄存器表/帧格式或 datasheet 后按 batch1-10 证据
+gate 采集同 guest 证据；DEFER 地址/驱动错配必须先解决；`can`/`mini-can`
+需要真实 Unit CAN attachment 语义。汇总页、catalog blocker 与各 research
+页是唯一依据，不能把视觉模型或主机 PASS 转授 Unit。
 
 ## P2：CardputerZero
 
