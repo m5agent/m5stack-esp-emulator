@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T22:47:59.106681+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "C",
+  "device_id": "cores3",
+  "unit_id": "uhf-rfid",
+  "driver_class": "UHFRFIDUnit(JRD4035)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_inventory_epc": true,
+    "qom_frames_sent": true,
+    "qom_frames_injected": true,
+    "qom_tx_command_frames": true,
+    "qom_fixture_preserved": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "896de8935535a322cc278696e2f87fa458c0c5e5658215142f12cd88feaaf535",
+  "firmware_id": "896de8935535a322cc278696e2f87fa458c0c5e5658215142f12cd88feaaf535",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "8fefa8e42ce9b57690100fc396b6589a7fe70836460153894065f89e95892724",
+    "main.py": "0851b75e10aee5cd06e1842865f7e42f8b83fd2031dce29541657e37f5c7e488"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "200cc367f53144e8b0d44453ce20046a",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "uhf-rfid",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "uhf_rfid": {
+      "expected_epc": "e200001234567890",
+      "guest_epcs": [
+        "e200001234567890",
+        "e200001234567890"
+      ],
+      "qom": {
+        "responses-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "tx-hex": "bb00220000227ebb00220000227e",
+        "rx-frames-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "frames-sent": 2,
+        "frames-injected": 2
+      },
+      "boundary": "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and the fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T22:48:01.323346+08:00",
+      "properties": {
+        "responses-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "tx-hex": "",
+        "rx-frames-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "frames-sent": 0,
+        "frames-injected": 0
+      }
+    },
+    {
+      "at": "2026-11-02T22:48:03.205754+08:00",
+      "properties": {
+        "responses-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "tx-hex": "bb00220000227ebb00220000227e",
+        "rx-frames-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+        "frames-sent": 2,
+        "frames-injected": 2
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH4_PROBE_READY",
+    "uhf-rfid": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (885) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH4_PROBE_START uhf-rfid\nBATCH4_PROBE_READY uhf-rfid\nUART_UHF_EPC e200001234567890\nUART_UHF_EPC e200001234567890\nUART_UHF_END\n"
+  },
+  "frame": {
+    "sha256": "971543307d2656eec75e596cfee23681787caa3d8cc20ba3fb56ed57fc58ca7f",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "13687a258172073895551e636f598963f96113dcda216e62a8f29f6cb7304103",
+    "bytes": 20450
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and a synthetic fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only.",
+    "The fixture EPC is synthetic; no real tag/Gen2 inventory, RSSI/read-rate, region or antenna behavior is asserted.",
+    "Snapshot vs master NXP EAS/config-word API differences remain SHA-sensitive; PORT.C conflicts with gps/midi/rs485-iso.",
+    "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and the fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only this concise report, hashes and reproduction commands are committed."
+}

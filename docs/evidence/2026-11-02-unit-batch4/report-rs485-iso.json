@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T22:47:15.336145+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "cores3",
+  "unit_id": "rs485-iso",
+  "driver_class": "RS485Unit(uSerial/Modbus master)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_tx_captured": true,
+    "guest_rx_matches_injected": true,
+    "qom_rx_fixture_exact": true,
+    "uart_bytes_counted": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "1f8ecd9bd4a37092d080b75fbf9fc7affeb376e9fca2f63f751cbe045e14abdd",
+  "firmware_id": "1f8ecd9bd4a37092d080b75fbf9fc7affeb376e9fca2f63f751cbe045e14abdd",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136",
+  "official_port": "PORT.C",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.C and is not the admitted runtime host port on cores3",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "83176ab50aa05a59fc2308babaf6fde67a130c43dd02e226c732083e978735bb",
+    "main.py": "0851b75e10aee5cd06e1842865f7e42f8b83fd2031dce29541657e37f5c7e488"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "78d8c805dbee49048e8bf97480d223a5",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "rs485-iso",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "rs485_iso": {
+      "guest_rx_hex": "4d4f44425553",
+      "injected_rx_hex": "4d4f44425553",
+      "qom": {
+        "rx-hex": "4d4f44425553",
+        "tx-hex": "48454c4c4f",
+        "transactions": 0,
+        "read-bytes": 6,
+        "written-bytes": 5
+      },
+      "boundary": "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior NOT RUN; the frozen uSerial driver owns Modbus framing."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T22:47:17.884707+08:00",
+      "properties": {
+        "rx-hex": "",
+        "tx-hex": "48454c4c4f",
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 5
+      }
+    },
+    {
+      "at": "2026-11-02T22:47:18.213989+08:00",
+      "properties": {
+        "rx-hex": "4d4f44425553",
+        "tx-hex": "48454c4c4f",
+        "transactions": 0,
+        "read-bytes": 6,
+        "written-bytes": 5
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH4_PROBE_READY",
+    "rs485-iso": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (925) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH4_PROBE_START rs485-iso\nUART_RS485_WRAPPER_FALLBACK Traceback (most recent call last): |   File \"main.py\", line 98, in <module> | TypeError: function takes 3 positional arguments but 4 were given | \nUART_RS485_DRIVER uSerial._mdbus_uart\nBATCH4_PROBE_READY rs485-iso\nUART_RS485_TX 48454c4c4f\nUART_RS485_RX 4d4f44425553\nUART_RS485_RX_TOTAL 4d4f44425553\nUART_RS485_END\n"
+  },
+  "frame": {
+    "sha256": "05547e8d1b59c5b24f2255ddb67bde9ba66df8978b476d5ea0efc77871fbc13c",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "bdf4d9dfdf6a0518ed3f6bb1a1d37ed0c30f4fd9257f83937969f60d092321bd",
+    "bytes": 19620
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior are NOT RUN; the frozen uSerial driver owns Modbus framing.",
+    "The frozen RS485Unit wrapper's constructor calls its uSerial base with an argument list the firmware's uSerial rejects (TypeError); the evidence falls back to the same official uSerial driver's _mdbus_uart data plane on the same pins, and records UART_RS485_WRAPPER_FALLBACK.",
+    "An empty RW/RE control pin is not modeled; the transceiver direction and differential bus are NOT RUN.",
+    "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior NOT RUN; the frozen uSerial driver owns Modbus framing."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only this concise report, hashes and reproduction commands are committed."
+}

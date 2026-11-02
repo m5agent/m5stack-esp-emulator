@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02T22:47:27.229191+08:00",
+  "validation": "virtual-device validation",
+  "scope": "device-local Unit data plane through a visible Device Service session; not hardware",
+  "batch": "A+B",
+  "device_id": "cores3",
+  "unit_id": "neco",
+  "driver_class": "NECOUnit(WS2812 + Button)",
+  "driver_flavor": "reference-firmware-frozen-original-unit-driver",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "live_controller_state": true,
+    "guest_rgb_write_completed": true,
+    "qom_led_count_35": true,
+    "qom_led_rgb_matches_wire": true,
+    "qom_led_frames_observed": true,
+    "no_incomplete_frames": true,
+    "no_i2c_transactions_fabricated": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "bced0b050427c9a3980b60845e88e752e64a3ca808290e4c73c0fb99967c5c2b",
+  "firmware_id": "bced0b050427c9a3980b60845e88e752e64a3ca808290e4c73c0fb99967c5c2b",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+  "qemu_source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136",
+  "official_port": "PORT.B",
+  "runtime_port_substitution": "cores3 PORT.A harness wiring; the official product PinMap connector is PORT.B and is not the admitted runtime host port on cores3",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "bb141726bdb3aa11585904d63fc83f233be3f346af996a45469161f27974f6c2",
+    "main.py": "0851b75e10aee5cd06e1842865f7e42f8b83fd2031dce29541657e37f5c7e488"
+  },
+  "port": {
+    "id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    }
+  },
+  "session_id": "f54693a14f7f4b9b826cfdd34e03f7fe",
+  "attached_unit": {
+    "id": "external1",
+    "unit_id": "neco",
+    "available": true,
+    "source": "guest-qom"
+  },
+  "observations": {
+    "neco": {
+      "guest_marker": true,
+      "qom": {
+        "led-rgb": [
+          1122867,
+          1122867,
+          1122867,
+          1122867,
+          1122867,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "led-frames": 5,
+        "incomplete-frames": 0,
+        "button-pressed": false,
+        "input-events": 0
+      },
+      "boundary": "The product page says 35 WS2812C LEDs while the frozen driver defaults to 70; the model implements the page count (35) and this evidence constructs NECOUnit(...,35). WS2812 timing tolerance, brightness/optics/power and the two-Grove-port pass-through are NOT RUN; the RGB frame is the last committed GRB wire value."
+    }
+  },
+  "qom_samples": [
+    {
+      "at": "2026-11-02T22:47:30.398988+08:00",
+      "properties": {
+        "button-pressed": false,
+        "led-rgb": [
+          1122867,
+          1122867,
+          1122867,
+          1122867,
+          1122867,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "led-frames": 5,
+        "incomplete-frames": 0,
+        "input-events": 0
+      }
+    }
+  ],
+  "serial_markers": {
+    "ready": "BATCH4_PROBE_READY",
+    "neco": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (862) i2c.master: this port has not been initialized, please initialize it first\r\nBATCH4_PROBE_START neco\nBATCH4_PROBE_READY neco\nGPIO_NECO_RGB 1122867\nGPIO_NECO_END\n"
+  },
+  "frame": {
+    "sha256": "b18f0a1567c9420d4bb6d124d7960dd5f7b4131e3e84d809a01ff139b0a1b241",
+    "metrics": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    }
+  },
+  "evidence": {
+    "sha256": "1f96942429b67e7b30f65c782cc6a40d3f76effc4fb151d58bc5f81d5de83d87",
+    "bytes": 19709
+  },
+  "stop": {
+    "stop_state": "stopped",
+    "history_state": "stopped",
+    "history_retained": true
+  },
+  "boundaries": [
+    "The product page documents 35 WS2812C LEDs while the frozen driver defaults to 70; the 0134 model implements the page count (35) and this evidence constructs NECOUnit(..., 35). LED count conflict unresolved.",
+    "WS2812 timing tolerance, brightness/optics/power, the two-Grove-port pass-through/cascade and the active-low button mechanics are NOT RUN; only the last committed GRB wire frame is asserted.",
+    "The model exposes the button as QOM 'pressed'; the catalog field 'button-pressed' is mapped to it by the runtime profile.",
+    "The product page says 35 WS2812C LEDs while the frozen driver defaults to 70; the model implements the page count (35) and this evidence constructs NECOUnit(...,35). WS2812 timing tolerance, brightness/optics/power and the two-Grove-port pass-through are NOT RUN; the RGB frame is the last committed GRB wire value."
+  ],
+  "raw_evidence_note": "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local ignored .work directory; only this concise report, hashes and reproduction commands are committed."
+}

@@ -1,0 +1,838 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "validation": "virtual-device validation",
+  "scope": "All twelve Units of the fourth research batch through isolated /api/v1 Device Service sessions on one QEMU build (canonical + 0120..0129 + 0131 + 0134 + 0136 + evidence fix 0137); not hardware.",
+  "device_service": {
+    "api": "/api/v1",
+    "port": 8799,
+    "bind": "127.0.0.1",
+    "isolation": "dedicated agent-owned port/state/token; user 8787 untouched",
+    "flash_mode": "host-image"
+  },
+  "qemu_builds": {
+    "A+B+C": {
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "tree": ".work/native-lock-source/qemu",
+      "source_state": "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136 + 0137",
+      "patches": [
+        "0120-unit-i2c-dlight-command-mask.patch",
+        "0121-m5stick-board.patch",
+        "0122-atoms3r-m12-board.patch",
+        "0123-unit-i2c-batch3.patch",
+        "0125-unit-batch2.patch",
+        "0126-unit-batch2b.patch",
+        "0127-unit-dac-fast-mode-write.patch",
+        "0128-unit-ameter-eeprom-layout.patch",
+        "0129-unit-batch2b-write-offset.patch",
+        "0131-unit-batch3c.patch",
+        "0134-unit-batch4ab.patch",
+        "0136-unit-batch4c.patch",
+        "0138-unit-batch4-evidence-fixes.patch"
+      ]
+    }
+  },
+  "firmware_cache": {
+    "cores3": {
+      "path": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "rs485-iso",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "RS485Unit(uSerial/Modbus master)",
+      "firmware_sha256": "1f8ecd9bd4a37092d080b75fbf9fc7affeb376e9fca2f63f751cbe045e14abdd",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "78d8c805dbee49048e8bf97480d223a5",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_tx_captured": true,
+        "guest_rx_matches_injected": true,
+        "qom_rx_fixture_exact": true,
+        "uart_bytes_counted": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-rs485-iso.json",
+      "report_sha256": "67c875d102a4d9a2d13357d61685c888d2fa32b5bbc0ae170be226cf38a76c60",
+      "evidence_zip_sha256": "bdf4d9dfdf6a0518ed3f6bb1a1d37ed0c30f4fd9257f83937969f60d092321bd",
+      "frame_sha256": "05547e8d1b59c5b24f2255ddb67bde9ba66df8978b476d5ea0efc77871fbc13c",
+      "observations": {
+        "rs485_iso": {
+          "guest_rx_hex": "4d4f44425553",
+          "injected_rx_hex": "4d4f44425553",
+          "qom": {
+            "rx-hex": "4d4f44425553",
+            "tx-hex": "48454c4c4f",
+            "transactions": 0,
+            "read-bytes": 6,
+            "written-bytes": 5
+          },
+          "boundary": "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior NOT RUN; the frozen uSerial driver owns Modbus framing."
+        }
+      },
+      "boundaries": [
+        "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior are NOT RUN; the frozen uSerial driver owns Modbus framing.",
+        "The frozen RS485Unit wrapper's constructor calls its uSerial base with an argument list the firmware's uSerial rejects (TypeError); the evidence falls back to the same official uSerial driver's _mdbus_uart data plane on the same pins, and records UART_RS485_WRAPPER_FALLBACK.",
+        "An empty RW/RE control pin is not modeled; the transceiver direction and differential bus are NOT RUN.",
+        "RS485 isolation/ESD/fail-safe/500Kbps/256-node and physical bus behavior NOT RUN; the frozen uSerial driver owns Modbus framing."
+      ]
+    },
+    {
+      "unit_id": "laser-tx",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "LaserTXUnit (GPIO DIN)",
+      "firmware_sha256": "843b2c591f7498682c4a10b29d871343f00b13d7d8879d7ba42b21cd5b3513b3",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "a5b324f8dab34ddc97305f9ce193ac5b",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_levels_driven": true,
+        "qom_final_level_low": true,
+        "qom_transitions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-laser-tx.json",
+      "report_sha256": "cf2a0d2bc2c83f7c1da56756e0dc39670965a14ec1f7185ae4a7e0c28a31023f",
+      "evidence_zip_sha256": "49b265dc4ac5fa5df88e3c90cca58e9955461b22744a08d25fc17ca29abddf78",
+      "frame_sha256": "7b9f7426f28facfcee73ea7ac89cc5dc8e419ddaa19e63d0a6e260d37dc0fc8c",
+      "observations": {
+        "laser_tx": {
+          "guest_levels": [
+            "1",
+            "0",
+            "1",
+            "0"
+          ],
+          "qom": {
+            "output-level": false,
+            "output-transitions": 5
+          },
+          "boundary": "Human-eye safety / optical power / wavelength / modulation bandwidth NOT RUN. The model observes the GPIO DIN line only and must never be described as an optical output."
+        }
+      },
+      "boundaries": [
+        "Human-eye safety / optical power / wavelength / modulation bandwidth are NOT RUN. The model observes the GPIO DIN line only and must never be described as an optical output.",
+        "The evidence drives the frozen LaserTXUnit's GPIO mode (on/off); UART TX mode and the LASER.RX optical pairing are NOT RUN.",
+        "Human-eye safety / optical power / wavelength / modulation bandwidth NOT RUN. The model observes the GPIO DIN line only and must never be described as an optical output."
+      ]
+    },
+    {
+      "unit_id": "co2l",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "CO2LUnit(CO2Unit/SCD41)",
+      "firmware_sha256": "e6af00a110c04a5e2f32a25f6ce54ea6e416259700b0273c0bda0cc99d5a77dc",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "d4fb678d530f46adad641b72c8cd4b7e",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_co2_tracks_fixture": true,
+        "guest_humidity_tracks_fixture": true,
+        "guest_temperature_driver_bug_recorded": true,
+        "guest_serial_path_recorded": true,
+        "qom_scd41_chip_id": true,
+        "qom_serial_number": true,
+        "measurement_reads_observed": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-co2l.json",
+      "report_sha256": "04e5d08444b4c2da9e0d9fff2f4153f8ad260a3d4423e315e592d205ff10ec5c",
+      "evidence_zip_sha256": "e7de7648036cf5e62b4b0540061cafb5fc41ca90f295e0d964cf6fafb98ea303",
+      "frame_sha256": "989689dca5a912bed7926dee14558401ec9f02087ce0c6e9ba8ed524bbd9516a",
+      "observations": {
+        "co2l": {
+          "fixtures": {
+            "co2-ppm": 1234,
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "data-ready": true
+          },
+          "guest_co2": "1234",
+          "guest_humidity": "60.5",
+          "guest_temperature": "25.97",
+          "guest_serial_tuple": null,
+          "qom": {
+            "co2-ppm": 1234,
+            "temperature-c": 25.5,
+            "humidity-pct": 60.5,
+            "data-ready": false,
+            "serial-number": 305419896,
+            "chip-id": 65,
+            "measurement-reads": 6,
+            "transactions": 22,
+            "read-bytes": 72,
+            "written-bytes": 22
+          },
+          "driver_bug_boundary": "The frozen SCD4x driver decodes temperature from buf[1] instead of buf[4]; CO2/humidity are assertable and temperature is deliberately recorded as a known driver bug. SCD40-vs-SCD41 identity is unresolved. get_serial_number() is recorded as a boundary: the frozen driver raises and this QEMU tree does not carry the 0132 3-word SCD40 serial fix (not required for co2l's CO2/RH data plane).",
+          "safety_boundary": "The model only observes I2C register words; CO2/RH accuracy, the 5s periodic timing and the physical sensor are NOT RUN."
+        }
+      },
+      "boundaries": [
+        "CO2/RH accuracy, the 5s periodic measurement timing, CRC field behavior, single-shot paths and the physical SCD41 sensor are NOT RUN; the model only moves SCD4x command words and CRC words.",
+        "The frozen SCD4x driver decodes temperature from buf[1] instead of buf[4]; CO2/humidity are asserted and temperature is recorded as a known driver bug, not asserted against the fixture.",
+        "get_serial_number() is recorded as a boundary: the frozen driver raises and this QEMU tree does not carry the batch-3 0132 3-word SCD40 serial fix; it is not required for co2l's CO2/RH data plane.",
+        "SCD40-vs-SCD41 identity conflict (co2 page SCD40, co2l page SCD41, official I2C index SCD41) remains unresolved; 0x62 conflicts with co2 (one Unit per bus).",
+        "The model only observes I2C register words; CO2/RH accuracy, the 5s periodic timing and the physical sensor are NOT RUN.",
+        "The frozen SCD4x driver decodes temperature from buf[1] instead of buf[4]; CO2/humidity are assertable and temperature is deliberately recorded as a known driver bug. SCD40-vs-SCD41 identity is unresolved. get_serial_number() is recorded as a boundary: the frozen driver raises and this QEMU tree does not carry the 0132 3-word SCD40 serial fix (not required for co2l's CO2/RH data plane)."
+      ]
+    },
+    {
+      "unit_id": "neco",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "NECOUnit(WS2812 + Button)",
+      "firmware_sha256": "bced0b050427c9a3980b60845e88e752e64a3ca808290e4c73c0fb99967c5c2b",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "f54693a14f7f4b9b826cfdd34e03f7fe",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_rgb_write_completed": true,
+        "qom_led_count_35": true,
+        "qom_led_rgb_matches_wire": true,
+        "qom_led_frames_observed": true,
+        "no_incomplete_frames": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-neco.json",
+      "report_sha256": "6bbdeeabba74b539efa26c4fc1ce0825127fc482b68fefc8aef0b5efdc38d64d",
+      "evidence_zip_sha256": "1f96942429b67e7b30f65c782cc6a40d3f76effc4fb151d58bc5f81d5de83d87",
+      "frame_sha256": "b18f0a1567c9420d4bb6d124d7960dd5f7b4131e3e84d809a01ff139b0a1b241",
+      "observations": {
+        "neco": {
+          "guest_marker": true,
+          "qom": {
+            "led-rgb": [
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              1122867,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "led-frames": 5,
+            "incomplete-frames": 0,
+            "button-pressed": false,
+            "input-events": 0
+          },
+          "boundary": "The product page says 35 WS2812C LEDs while the frozen driver defaults to 70; the model implements the page count (35) and this evidence constructs NECOUnit(...,35). WS2812 timing tolerance, brightness/optics/power and the two-Grove-port pass-through are NOT RUN; the RGB frame is the last committed GRB wire value."
+        }
+      },
+      "boundaries": [
+        "The product page documents 35 WS2812C LEDs while the frozen driver defaults to 70; the 0134 model implements the page count (35) and this evidence constructs NECOUnit(..., 35). LED count conflict unresolved.",
+        "WS2812 timing tolerance, brightness/optics/power, the two-Grove-port pass-through/cascade and the active-low button mechanics are NOT RUN; only the last committed GRB wire frame is asserted.",
+        "The model exposes the button as QOM 'pressed'; the catalog field 'button-pressed' is mapped to it by the runtime profile.",
+        "The product page says 35 WS2812C LEDs while the frozen driver defaults to 70; the model implements the page count (35) and this evidence constructs NECOUnit(...,35). WS2812 timing tolerance, brightness/optics/power and the two-Grove-port pass-through are NOT RUN; the RGB frame is the last committed GRB wire value."
+      ]
+    },
+    {
+      "unit_id": "midi",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "MIDIUnit(SAM2695)",
+      "firmware_sha256": "8f8005c8b0621d6631d66bdaf8de4f014ec48f95902bf36d7e875c737715b96c",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "9e1adad13b82444bba209f40f4e60308",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_note_on_off_stream": true,
+        "written_bytes_counted": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-midi.json",
+      "report_sha256": "b316d142c75540d8d4ba9fb995d1d33687463f58c17958138f0a032716cda751",
+      "evidence_zip_sha256": "802a90254179b46b8809d532b3d1e4a594bf4b98948cfc61fa27b8d7ddff08a4",
+      "frame_sha256": "f731663310ebb2fd00c7e0c8f8c3bbd17c37d5602e1a8b3dab8526c57f6e2733",
+      "observations": {
+        "midi": {
+          "expected_midi_hex": "903c64803c00b00000c005",
+          "qom": {
+            "rx-hex": "",
+            "tx-hex": "903c64803c00b00000c005",
+            "transactions": 0,
+            "written-bytes": 11
+          },
+          "boundary": "SAM2695 synthesis sound/instruments/polyphony and audio output are NOT RUN; the page 31520bps vs standard MIDI 31250 vs the driver's implicit UART baud remains unresolved. Only the guest->SAM2695 byte stream is asserted."
+        }
+      },
+      "boundaries": [
+        "SAM2695 synthesis sound/instruments/polyphony and audio output are NOT RUN; only the guest->SAM2695 MIDI byte stream is asserted.",
+        "The page's 31520bps vs standard MIDI 31250 vs the driver's implicit UART baud remains unresolved; the model captures the byte stream regardless of baud.",
+        "Bypass/Separate hardware switch and the left/right ports are not modeled; PORT.C conflicts with gps/uhf-rfid/rs485-iso.",
+        "SAM2695 synthesis sound/instruments/polyphony and audio output are NOT RUN; the page 31520bps vs standard MIDI 31250 vs the driver's implicit UART baud remains unresolved. Only the guest->SAM2695 byte stream is asserted."
+      ]
+    },
+    {
+      "unit_id": "tof4m",
+      "batch": "A+B",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "TOF4MUnit(VL53L1X)",
+      "firmware_sha256": "69449bf934bbc2d23bf1d82f54b709c9fe244b00890a7d19513a13976fa9e79e",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "2d4562372784461e9beccefb5dd6be34",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_model_identity": true,
+        "guest_distance_tracks_fixture": true,
+        "guest_data_ready": true,
+        "guest_timing_budget": true,
+        "qom_distance_fixture_exact": true,
+        "qom_range_status": true,
+        "qom_clear_writes_observed": true,
+        "i2c_transactions_observed": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-tof4m.json",
+      "report_sha256": "63fc2627a3319b289d2e9a0e7ef56cd882408e82421ff2914575831a1f6ddd9e",
+      "evidence_zip_sha256": "43050dfe3bd78c7588294927022f0ba99a9493c58f4bfeaba3317d2c1156afb2",
+      "frame_sha256": "be5ae829fac90037610349a029ea65abf10253b1d960fe0b573df90e41c01cdf",
+      "observations": {
+        "tof4m": {
+          "fixtures": {
+            "distance-mm": 1000,
+            "data-ready": true
+          },
+          "guest_model_info": "234, 204, 16",
+          "guest_distance_mm": "1000",
+          "guest_data_ready": "1",
+          "guest_timing_budget_ms": "50",
+          "qom": {
+            "distance-mm": 1000,
+            "data-ready": true,
+            "timing-budget-ms": 50,
+            "range-status": 9,
+            "i2c-address": 41,
+            "clear-writes": 3,
+            "transactions": 46
+          },
+          "boundary": "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads."
+        }
+      },
+      "boundaries": [
+        "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads.",
+        "The 0134 US_VL53L1X model is covered only through this guest driver path; timing-budget semantics beyond the shown register writes are not asserted. 0x29 conflicts with tof/color (one Unit per bus).",
+        "VL53L1CXV0FY/1 vs VL53L1X naming, 4m range/resolution, laser safety and optics are NOT RUN; the covered path is the 16-bit register file and the driver's own model-id/data-ready/distance reads."
+      ]
+    },
+    {
+      "unit_id": "weight",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "WeightUnit(HX711 bit-pulse)",
+      "firmware_sha256": "33898a929c802ef281376ffa1e450f9210c8dcb0a4efb62d5da760fdc4347e73",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "57703ee9f2a14e2a8f2cb1cb1285c09e",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_raw_matches_driver_transform": true,
+        "qom_adc_fixture_exact": true,
+        "qom_conversions_observed": true,
+        "qom_ready_level": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-weight.json",
+      "report_sha256": "7aef1f0b6be068180035a75425c5533630a6ecfabe825d763adff4c0cac4067e",
+      "evidence_zip_sha256": "9bbc76e759b9e5f0e8277acf963958db8a0ea1adb9e6584a8cdfca6414cf21fc",
+      "frame_sha256": "6f4048d06790c82ba4a4f708a4c778a8d2b3adf7c06781bc76867eb6d99bffb7",
+      "observations": {
+        "weight": {
+          "fixtures": {
+            "adc-raw": 123456,
+            "channel": 1
+          },
+          "expected_guest_raw": 8635520,
+          "guest_raw": "8635520",
+          "qom": {
+            "adc-raw": 123456,
+            "channel": 1,
+            "weight-g": 123456,
+            "conversions": 1,
+            "ready-level": true
+          },
+          "driver_transform": "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver (count is left-shifted after each of the 24 bits); the QOM adc-raw is the 24-bit DAT pattern before that driver transform.",
+          "boundary": "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol."
+        }
+      },
+      "boundaries": [
+        "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
+        "Evidence fix 0137 adds a deferred externally-driven input update because a pad-observer callback cannot call esp32_gpio_set_input(); no pad notification/IRQ is generated for the DAT transitions.",
+        "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver; QOM adc-raw is the 24-bit DAT pattern before that driver transform.",
+        "HX711 electrical/10SPS timing/load-cell mechanics/calibration/temperature drift are NOT RUN; the page FAQ's I2C wording conflicts with the GPIO bit-pulse PinMap and driver, and weight-i2c (U180 @0x26) is a different protocol.",
+        "guest get_raw_weight = (raw << 1) ^ 0x800000 by the frozen driver (count is left-shifted after each of the 24 bits); the QOM adc-raw is the 24-bit DAT pattern before that driver transform."
+      ]
+    },
+    {
+      "unit_id": "bldc-driver",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "BLDCDriverUnit",
+      "firmware_sha256": "80b193b942603622507d4be56bf4a83f2b95793cdf94f7a4a2b5dabd9889b2a4",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "6dd61779927f4f63bdf52da9434c6da1",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_mode_roundtrip": true,
+        "guest_direction_model_poles": true,
+        "guest_pwm_roundtrip": true,
+        "guest_rpm_float_roundtrip": true,
+        "guest_pid_roundtrip": true,
+        "qom_writes_landed": true,
+        "qom_frequency_and_flash": true,
+        "qom_identity": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-bldc-driver.json",
+      "report_sha256": "02ff211df7819eab2390ae61ab88444f89abdd9ef9915ac81814eeb17c10c281",
+      "evidence_zip_sha256": "022b068d579c28d2339598983d283e96feacb4f85aaa6fa2d1a6c6ff3ed5bb47",
+      "frame_sha256": "c27a51af157b49fb1b66b2842e5792c865f3e28c36a9fbcf685a71d286998b83",
+      "observations": {
+        "bldc_driver": {
+          "guest": {
+            "mode": "1",
+            "direction": "1",
+            "model": "1",
+            "pole_pairs": "11",
+            "pwm": "1000",
+            "rpm": [
+              "1500.0",
+              "1500.0"
+            ],
+            "pid": "10, 20, 30",
+            "status": "0"
+          },
+          "qom": {
+            "mode": 1,
+            "direction": 1,
+            "pole-pairs": 11,
+            "pwm": 1000,
+            "rpm": 1500,
+            "rpm-readback": 1500,
+            "frequency-hz": 25,
+            "motor-status": 0,
+            "flash-writes": 1,
+            "fw-version": 1,
+            "i2c-address": 101
+          },
+          "boundary": "BLDC motor electrical/rotation/stall protection/DRV11873 status/5V output are NOT RUN; RPM float uses real IEEE754 LE encoding and the frequency readback is the model's synthetic rpm/60 convention (real pole-pair/electrical relation unresolved); 0xF0 flash persistence semantics unresolved."
+        }
+      },
+      "boundaries": [
+        "BLDC motor electrical/rotation/stall protection/DRV11873 status/5V output are NOT RUN; RPM float uses real IEEE754 LE encoding and the frequency readback is the model's synthetic rpm/60 convention (real pole-pair/electrical relation unresolved).",
+        "0xF0 flash persistence semantics unresolved; the motor spin/current waveform and DRV11873 protection behavior are NOT RUN; 0x65 has no registered address conflict.",
+        "BLDC motor electrical/rotation/stall protection/DRV11873 status/5V output are NOT RUN; RPM float uses real IEEE754 LE encoding and the frequency readback is the model's synthetic rpm/60 convention (real pole-pair/electrical relation unresolved); 0xF0 flash persistence semantics unresolved."
+      ]
+    },
+    {
+      "unit_id": "ac-measure",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "AC_MEASUREUnit",
+      "firmware_sha256": "63bea16399d07f844659f1efb304f59bd8a0f135dc6dc9666df9df526b77732e",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "66c1997c641c4618bca191c7a4746bff",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_ascii_views": true,
+        "guest_byte_views": true,
+        "guest_coeff_and_ready": true,
+        "qom_fixtures_exact": true,
+        "qom_coeff_writes": true,
+        "qom_identity": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-ac-measure.json",
+      "report_sha256": "69591422dd4d1bb4b2f19acc2c44c34a0f66d5898678ad93f6f63ba7600d6274",
+      "evidence_zip_sha256": "2710daadbeb9474755576df02d3344c78ce905ed60f89962c7a16aeffd7e507c",
+      "frame_sha256": "ba4fdaeb06cfc59dfe5c164b5511cf76a4363df2c8cc0f72588b1dd45ce10744",
+      "observations": {
+        "ac_measure": {
+          "fixtures": {
+            "voltage-v": 230.0,
+            "current-a": 1.0,
+            "active-power-w": 230.0,
+            "apparent-power-va": 230.0,
+            "power-factor": 1.0,
+            "energy-kwh": 0.0,
+            "data-ready": true
+          },
+          "guest_strings": {
+            "voltage": "  230.0",
+            "current": "   1.00",
+            "active_power": "    230",
+            "apparent_power": "    230",
+            "power_factor": "1.00",
+            "kwh": "       0.00"
+          },
+          "guest_bytes": [
+            "23000",
+            "1000",
+            "23000",
+            "23000",
+            "100",
+            "0"
+          ],
+          "guest_coeff": [
+            "12",
+            "34"
+          ],
+          "guest_ready": "1",
+          "qom": {
+            "voltage-v": 230,
+            "current-a": 1,
+            "active-power-w": 230,
+            "apparent-power-va": 230,
+            "power-factor": 1,
+            "energy-kwh": 0,
+            "data-ready": true,
+            "coeff-voltage": 12,
+            "coeff-current": 34,
+            "save-coeff-writes": 1,
+            "fw-version": 1,
+            "i2c-address": 66
+          },
+          "safety_boundary": "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. The model only simulates I2C register readings and must never be described as mains on/off, isolation withstand, overcurrent protection or metering accuracy. AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page protocol.",
+          "identity_conflict": "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved."
+        }
+      },
+      "boundaries": [
+        "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. This evidence only covers I2C register readings; AC mains on/off, isolation withstand, overcurrent protection and metering accuracy are NOT RUN and must never be implied.",
+        "AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page-documented protocol.",
+        "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved. 0x42 has no registered address conflict.",
+        "Evidence fix 0137 derives the ASCII/byte views from the live fixtures and fixes the ASCII read offset; without it every guest read returned the zero view.",
+        "AC 100-240V@10A is a MEASUREMENT INPUT, never a switchable load. The model only simulates I2C register readings and must never be described as mains on/off, isolation withstand, overcurrent protection or metering accuracy. AC mains/HLW8032/isolation/calibration semantics are NOT RUN; the ASCII view widths are a deterministic model-side convention, not a page protocol.",
+        "Product page says STM32G030 while the official I2C address index says STM32F030; unresolved."
+      ]
+    },
+    {
+      "unit_id": "dds",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "DDSUnit(AD9833)",
+      "firmware_sha256": "8ed597d1d2d7f2fa37e8c0e8af441d9a5252395d605915b95e643912c33d3866",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "190dfad90a384907af45bc31d6262834",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_mode_and_freq_words": true,
+        "guest_ctrl_word": true,
+        "qom_frequency_phase": true,
+        "qom_ctrl_word_and_regs": true,
+        "qom_identity": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-dds.json",
+      "report_sha256": "0cf58a19e0f5a013ac83a2d21de247c96bc4c7eb27b194d60306dd6bde66fb86",
+      "evidence_zip_sha256": "55f134c7e7c2923c198858ed5a46b7c93c7dacb62f2b01a00cefbdac11feda48",
+      "frame_sha256": "b674adacd1ea089c1f58aacf09036e881a88d0a167934b1650384091f8d0ec00",
+      "observations": {
+        "dds": {
+          "guest_mode": "81",
+          "guest_freq": "800068db",
+          "guest_phase": "c000",
+          "guest_wave": "80",
+          "qom": {
+            "waveform": 1,
+            "frequency-hz": 999.9796748161316,
+            "phase-deg": 90,
+            "freq-reg": 0,
+            "phase-reg": 0,
+            "ctrl-word": 128,
+            "active-freq-reg": 0,
+            "active-phase-reg": 0,
+            "i2c-address": 49
+          },
+          "boundary": "AD9833 analog waveform/amplitude/phase accuracy/output impedance/0-0.6V are NOT RUN; only the register writes and the selected regs are asserted. The frozen driver's combined set_freq_phase()/quick_output() writes frequency+phase as a contiguous 6-byte burst at 0x30; the 0136 model only accepts a 4-byte frequency write at 0x30 and NACKs the trailing phase bytes, so this evidence uses the driver's separate set_freq()/set_phase()/set_mode()/set_ctrl() APIs and records the burst gap unresolved. The 0136 read-snapshot also overlaps frequency-register 1 at 0x34 with phase-register 0, so the guest 0x34 readback is recorded as a model-snapshot boundary; QOM phase-deg is still asserted from the accepted phase write."
+        }
+      },
+      "boundaries": [
+        "AD9833 analog waveform/amplitude/phase accuracy/output impedance/0-0.6V are NOT RUN; only the register writes and selected register readback are asserted.",
+        "The frozen driver's combined set_freq_phase()/quick_output() writes frequency+phase as a contiguous 6-byte burst at 0x30; the 0136 model only accepts the 4-byte frequency write and NACKs the trailing phase bytes, so the evidence uses the separate set_freq()/set_phase()/set_mode()/set_ctrl() APIs. Burst support remains an unresolved model gap.",
+        "The 0136 read snapshot overlaps frequency-register 1 at 0x34 with phase-register 0; the guest 0x34 readback is recorded as a model-snapshot boundary while QOM phase-deg is asserted from the accepted phase write. 0x31 has no registered address conflict.",
+        "AD9833 analog waveform/amplitude/phase accuracy/output impedance/0-0.6V are NOT RUN; only the register writes and the selected regs are asserted. The frozen driver's combined set_freq_phase()/quick_output() writes frequency+phase as a contiguous 6-byte burst at 0x30; the 0136 model only accepts a 4-byte frequency write at 0x30 and NACKs the trailing phase bytes, so this evidence uses the driver's separate set_freq()/set_phase()/set_mode()/set_ctrl() APIs and records the burst gap unresolved. The 0136 read-snapshot also overlaps frequency-register 1 at 0x34 with phase-register 0, so the guest 0x34 readback is recorded as a model-snapshot boundary; QOM phase-deg is still asserted from the accepted phase write."
+      ]
+    },
+    {
+      "unit_id": "gps",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "GPSUnit(NMEA)",
+      "firmware_sha256": "65efcb143146fb8e3877be4125e7e233dbba8e9c5386f17a4426bf36fa48b6c1",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "c9e27bb1fcc147479454d1abfb62fa43",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_gga_time_position": true,
+        "guest_gga_quality_sats": true,
+        "guest_rmc_date": true,
+        "guest_vtg_course_speed": true,
+        "qom_injected_lines": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-gps.json",
+      "report_sha256": "fa993e64f6dffb886c20b99d7f53f0a9f2c43f09834600980fb0aadb5eb8091d",
+      "evidence_zip_sha256": "33df6609cfeda536cf5bf9b26d7e604811b454748444a3778531b0e4fdc1769a",
+      "frame_sha256": "422da2c523445c691753e688e12e8af404847085f0415828b774c5873e110974",
+      "observations": {
+        "gps": {
+          "fixture_lines": [
+            "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48",
+            "$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00",
+            "$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00"
+          ],
+          "guest_state": [
+            "02:44:23",
+            "2242.10772N",
+            "11348.64472E",
+            "52.1",
+            "14",
+            "1",
+            "03/11/24",
+            "45.0",
+            "0.5",
+            "0.926"
+          ],
+          "qom": {
+            "nmea-lines": "$GNGGA,024423.000,2242.10772,N,11348.64472,E,1,14,1.2,52.1,M,0.0,M,,*48;$GNRMC,024423.000,A,2242.10772,N,11348.64472,E,0.0,0.0,031124,,,A*00;$GNVTG,45.0,T,,M,0.5,N,0.926,K,A*00",
+            "injected-lines": 138,
+            "tx-hex": ""
+          },
+          "boundary": "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; the frozen driver does not validate NMEA checksums (unresolved), and cold/warm start/update-rate are not modeled. PORT.C conflicts with midi/uhf-rfid/rs485-iso."
+        }
+      },
+      "boundaries": [
+        "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; cold/warm start and the 1-10Hz update rate are not modeled.",
+        "The frozen driver does not validate NMEA checksums (unresolved); the model injects fixture sentences every 50ms on the guest UART RX path.",
+        "PORT.C conflicts with midi/uhf-rfid/rs485-iso; the page is EOL.",
+        "Real GNSS satellites/RF/antenna/position accuracy are NOT RUN; the frozen driver does not validate NMEA checksums (unresolved), and cold/warm start/update-rate are not modeled. PORT.C conflicts with midi/uhf-rfid/rs485-iso."
+      ]
+    },
+    {
+      "unit_id": "uhf-rfid",
+      "batch": "C",
+      "device_id": "cores3",
+      "port": {
+        "id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        }
+      },
+      "status": "PASS",
+      "driver_class": "UHFRFIDUnit(JRD4035)",
+      "firmware_sha256": "896de8935535a322cc278696e2f87fa458c0c5e5658215142f12cd88feaaf535",
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime_binary_sha256": "a06eb87ce1bb6f1171a18144e6db9c769b63a6b026e3ed680a25eaaa4f9421d2",
+      "session_id": "200cc367f53144e8b0d44453ce20046a",
+      "checks": {
+        "official_driver_ready": true,
+        "live_controller_state": true,
+        "guest_inventory_epc": true,
+        "qom_frames_sent": true,
+        "qom_frames_injected": true,
+        "qom_tx_command_frames": true,
+        "qom_fixture_preserved": true,
+        "no_i2c_transactions_fabricated": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "report": "docs/evidence/2026-11-02-unit-batch4/report-uhf-rfid.json",
+      "report_sha256": "593dd58d30b9d9125adde998125f098d20d3201b1a6b47e3af14edf9c1bfa3af",
+      "evidence_zip_sha256": "13687a258172073895551e636f598963f96113dcda216e62a8f29f6cb7304103",
+      "frame_sha256": "971543307d2656eec75e596cfee23681787caa3d8cc20ba3fb56ed57fc58ca7f",
+      "observations": {
+        "uhf_rfid": {
+          "expected_epc": "e200001234567890",
+          "guest_epcs": [
+            "e200001234567890",
+            "e200001234567890"
+          ],
+          "qom": {
+            "responses-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+            "tx-hex": "bb00220000227ebb00220000227e",
+            "rx-frames-hex": "bb0122000d323000e20000123456789012345e7e;bb0122000d323000e20000123456789012345e7e",
+            "frames-sent": 2,
+            "frames-injected": 2
+          },
+          "boundary": "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and the fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only."
+        }
+      },
+      "boundaries": [
+        "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and a synthetic fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only.",
+        "The fixture EPC is synthetic; no real tag/Gen2 inventory, RSSI/read-rate, region or antenna behavior is asserted.",
+        "Snapshot vs master NXP EAS/config-word API differences remain SHA-sensitive; PORT.C conflicts with gps/midi/rs485-iso.",
+        "RF 840-960MHz/antenna/Gen2 air interface/read-range/region limits are NOT RUN. The model only moves JRD4035 frames and the fixture EPC; this evidence must never be described as a real tag capability, and kill/lock/password paths are frame-level only."
+      ]
+    }
+  ]
+}
