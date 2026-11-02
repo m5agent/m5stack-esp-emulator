@@ -649,3 +649,20 @@ ESP image（提取位置 `0x527b41`）、分区表 `aa50`（`0x52eb41`）、app 
 每一批都必须：设备本地 probe、`runtime-coverage.json`/`qemu_profiles.json`
 登记、targeted matrix、证据 SHA、状态/台账更新；不能用 Atom Lite 或 StickC
 的 PASS 继承。
+
+## 最终状态（2026-11-03 收口）
+
+本页研究的 classic/异构主机全部有结论：
+
+| 主机 | 最终状态 | 证据 |
+| --- | --- | --- |
+| AtomU | 已接入（UIFlow2 启动/RGB/按键/Grove I2C 限定） | [atomu-host](../evidence/2026-11-02-atomu-host/README.md) |
+| Atom Echo | 已接入（UIFlow2 启动/RGB/按键/Grove I2C/NS4168 PCM/PDM RX） | [atom-echo-host](../evidence/2026-11-02-atom-echo-host/README.md) |
+| M5Stick | host 已登记但工厂固件 legacy I2C FIFO/MPU/最终 UI **blocked/partial** | [m5stick-host](../evidence/2026-11-02-m5stick-host/README.md) |
+| StickT2 | host 已接入；自建 Lepton VoSPI/CCI 探针 PASS，官方 demo 热成像/UI 路径未完成 | [stickt2-host](../evidence/2026-11-02-stickt2-host/README.md) |
+| StickV | **boundary-only**（K210，非 ESP32；无官方骨架） | [host-boundary-decisions](2026-11-02-host-boundary-decisions.md) |
+
+classic 主机的接入范围、未覆盖项与口径以各 evidence 页为准；本页的“GO/
+DEFER/NO-GO”只是接入决策，不构成能力或硬件 PASS。剩 5 款视觉主机全部
+boundary-only/composition-only，见
+[战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)。

@@ -54,3 +54,25 @@
 - 本页是计划，不构成能力声明；任何 PASS 必须绑定固件 SHA、device、profile
   和可复现证据。
 - 视觉库存里的“模型”和“装配组合件”不等于可独立运行的 host 或 Unit。
+
+## 最终状态（2026-11-03 收口）
+
+- 视觉主机：计划中的剩余主机已全部收口。**9 个独立 host** 已完成同 guest
+  原厂固件路径接入（AtomS3U、Atom VoiceS3R、AtomS3R-CAM、AtomS3R-M12、
+  AtomU、Atom Echo、Basic v2.7、M5Stick、M5StickT2；每款的范围/未覆盖项见
+  [战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)）。
+  M5Stick 工厂固件路径仍 blocked/partial，只能按 evidence 的限定范围引用。
+- 其余 5 项按最终边界决策处理：AtomS3R-Ext / StickV 为 **boundary-only**，
+  AtomS3R-AI Chatbot / AtomS3R-CAM AI Chatbot / AtomS3R-M12 Volcengine Kit
+  为 **composition-only**（复用已接入控制器 + Atomic Voice Base 数据面，
+  不新增 host alias）。详见
+  [host-boundary-decisions](2026-11-02-host-boundary-decisions.md)。
+- 视觉库存 38 款主机中，33 台有运行登记；余 5 款仅视觉且全部有明确边界，
+  不再作为“待接入”队列。
+- Unit：原计划“150 款未登记”已收口为 catalog **160 条**（159 个产品 +
+  servo8-hat）+ **25 款 c 类边界**，184/184 全覆盖；10 个研究批、对应
+  实现/证据 PR #80-#146 与剩余 DEFER/BLOCKED 清单见
+  [视觉与 Unit 战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)。
+- 本页不再是待办队列；后续若出现官方 Ext/kit 固件或新 Unit 驱动，按新任务
+  重开，不自动继承既有 evidence。
+
