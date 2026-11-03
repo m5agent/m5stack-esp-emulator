@@ -5,7 +5,11 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import shlex
+import shutil
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -21,7 +25,7 @@ class RuntimeDistributionTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.lock = builder.load_lock()
 
     def manifest(self):
@@ -48,6 +52,201 @@ class RuntimeDistributionTests(unittest.TestCase):
         return value
 
     def write(self, value): (self.root / "runtime.json").write_text(json.dumps(value))
+
+    def owned_builder(self):
+        sdk = self.root / "sdk"
+        (sdk / "upstream/emscripten").mkdir(parents=True, exist_ok=True)
+        (sdk / "upstream/emscripten/emscripten-version.txt").write_text('"3.1.50"')
+        (sdk / ".emscripten").write_text("# isolated test config\n")
+        value = builder.Builder(self.root / "cache", sdk=sdk)
+        (value.venv / "bin").mkdir(parents=True)
+        (value.venv / "bin/python").touch()
+        value.run = mock.Mock(return_value="")
+        return value
+
+    def staged_glib(self, stage):
+        installed = stage / "usr"
+        values = {"lib/libglib-2.0.a": b"!<arch>\n/usr/share/locale\0/usr/lib\0",
+                  "include/glib-2.0/glib.h": b"/* public GLib header */\n",
+                  "lib/glib-2.0/include/glibconfig.h": b"#define GLIB_SIZEOF_VOID_P 4\n",
+                  "lib/pkgconfig/glib-2.0.pc": b"prefix=/usr\nlibdir=${prefix}/lib\nincludedir=${prefix}/include\nName: GLib\nDescription: staged test\nVersion: 2.84.0\nLibs: -L${libdir} -lglib-2.0\nCflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include\n"}
+        for name, data in values.items():
+            path = installed / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+        return values
+
+    def test_native_c_and_cpp_prefix_mapping_preserves_assertions(self):
+        compilers = [shutil.which("cc"), shutil.which("c++")]
+        if not all(compilers): self.skipTest("native C/C++ compilers unavailable")
+        project = self.root / "private project"
+        roots = {"project": project, "cache": project / "owned cache",
+                 "sdk": project / "owned cache/sdk", "dependencies": project / "prior dependencies"}
+        headers = []
+        for name, path in roots.items():
+            path.mkdir(parents=True, exist_ok=True)
+            header = path / (name + ".h")
+            header.write_text(f"static const char *file_{name} = __FILE__;\n")
+            headers.append('#include "' + str(header) + '"\n')
+        source = project / "contract.c"
+        source.write_text('#include <stdio.h>\n#include <assert.h>\n' + ''.join(headers)
+                          + 'int main(int argc, char **argv) { (void)argv; '
+                          + ''.join(f'puts(file_{name}); ' for name in roots)
+                          + 'if (argc > 1) assert(argc == 1); return 0; }\n')
+        flags = builder.source_prefix_flags(roots)
+        self.assertEqual(shlex.split(shlex.join(flags)), flags)
+        for compiler in compilers:
+            with self.subTest(compiler=Path(compiler).name):
+                binary = self.root / "path-contract"
+                language = "c++" if compiler == compilers[1] else "c"
+                subprocess.run([compiler, "-x", language, str(source), "-o", str(binary)], check=True, capture_output=True)
+                old = subprocess.run(["producer-path-contract"], executable=binary, capture_output=True, check=True)
+                with self.assertRaisesRegex(ValueError, "private build path"):
+                    builder.require_public_bytes(old.stdout, list(roots.values()), "unmapped-control")
+                subprocess.run([compiler, "-x", language, *flags, str(source), "-o", str(binary)], check=True, capture_output=True)
+                new = subprocess.run(["producer-path-contract"], executable=binary, capture_output=True, check=True)
+                for name in roots:
+                    self.assertIn((builder.PATH_POLICY["public_source_roots"][name] + '/' + name + '.h').encode(), new.stdout)
+                builder.require_public_bytes(new.stdout + binary.read_bytes(), list(roots.values()), "mapped-control")
+                assertion = subprocess.run(["producer-path-contract", "assert"], executable=binary, capture_output=True)
+                self.assertNotEqual(assertion.returncode, 0)
+                self.assertIn(b"argc == 1", assertion.stderr)
+                # Darwin's assert.h uses __FILE_NAME__; glibc uses __FILE__.
+                # Both must still abort and identify the same expression/file.
+                self.assertIn(b"contract.c", assertion.stderr)
+                builder.require_public_bytes(assertion.stderr, list(roots.values()), "preserved-assertion")
+
+    def test_tools_and_qemu_configure_propagate_c_and_cpp_prefix_maps(self):
+        value = self.owned_builder()
+        env = value.tools()
+        for key in ["CFLAGS", "CXXFLAGS"]:
+            self.assertTrue(set(value.prefix_flags()).issubset(shlex.split(env[key])))
+            self.assertNotIn("-DNDEBUG", shlex.split(env[key]))
+        value.verify_source = mock.Mock()
+        cross = value.source / "configs/meson/emscripten.txt"
+        cross.parent.mkdir(parents=True)
+        cross.write_text("c_args = ['-pthread']\nc_link_args = ['-pthread']\ncpp_link_args = ['-pthread']\n")
+        value.build.mkdir()
+        for key in ["javascript", "wasm", "worker"]:
+            (value.build / builder.ASSET_NAMES[key]).write_bytes(b"\0asm\x01\0\0\0" if key == "wasm" else key.encode())
+        value.run.side_effect = lambda *args, **kwargs: builder.write_json(value.cache / "commands.json", []) or ""
+        link = shlex.join(["emcc", *value.lock["link_flags"]])
+        with mock.patch.object(builder.subprocess, "check_output", return_value=link):
+            report = value.compile(env)
+        configure = next(list(map(str, call.args[0])) for call in value.run.call_args_list if str(call.args[0][0]).endswith("/configure"))
+        for key in ["c", "cpp"]:
+            option = next(arg for arg in configure if arg.startswith(f"-D{key}_args="))
+            actual = builder.ast.literal_eval(option.split("=", 1)[1])
+            self.assertTrue(set(value.prefix_flags()).issubset(actual))
+        self.assertEqual(report["path_policy"], builder.PATH_POLICY)
+        self.assertNotIn(str(value.cache), json.dumps(report))
+
+    def test_glib_staging_preserves_payload_and_relocates_only_pkg_config(self):
+        stage, target = self.root / "stage", self.root / "target"
+        values = self.staged_glib(stage)
+        builder.install_staged_glib(stage, target)
+        for name, data in values.items():
+            self.assertEqual((stage / "usr" / name).read_bytes(), data)
+            if not name.endswith(".pc"): self.assertEqual((target / name).read_bytes(), data)
+        pc = (target / "lib/pkgconfig/glib-2.0.pc").read_text()
+        self.assertIn("prefix=" + str(target) + "\n", pc)
+        self.assertIn("libdir=${prefix}/lib\n", pc)
+        command = shutil.which("pkg-config") or shutil.which("pkgconf")
+        if command:
+            env = {**os.environ, "PKG_CONFIG_PATH": "", "PKG_CONFIG_LIBDIR": str(target / "lib/pkgconfig")}
+            for variable, suffix in [("libdir", "lib"), ("includedir", "include")]:
+                result = subprocess.check_output([command, "--variable=" + variable, "glib-2.0"], env=env, text=True).strip()
+                self.assertEqual(result, str(target / suffix))
+        builder.install_staged_glib(stage, target)
+        (stage / "usr/lib/pkgconfig/glib-2.0.pc").write_text(pc)
+        with self.assertRaisesRegex(ValueError, "unexpected staged pkg-config prefix"):
+            builder.install_staged_glib(stage, target)
+        (stage / "usr/include/glib-2.0/glib.h").unlink()
+        with self.assertRaisesRegex(ValueError, "incomplete staged GLib"):
+            builder.install_staged_glib(stage, target)
+
+    def test_dependency_reuse_requires_public_path_producer_policy(self):
+        previous = self.root / "previous"
+        previous.mkdir()
+        builder.write_json(previous / builder.OWNER, {"lock_sha256": builder.sha(builder.LOCK_PATH)})
+        builder.write_json(previous / "dependencies.json", {"lock_sha256": builder.sha(builder.LOCK_PATH), "files": {}})
+        with self.assertRaisesRegex(ValueError, "lacks the public producer path policy"):
+            builder.Builder(self.root / "new-cache", reuse_dependencies=previous)
+        receipt = {"lock_sha256": builder.sha(builder.LOCK_PATH), "files": {}, "path_policy": builder.PATH_POLICY}
+        builder.write_json(previous / "dependencies.json", receipt)
+        value = builder.Builder(self.root / "new-cache", reuse_dependencies=previous)
+        self.assertEqual(value.prefix, previous / "target")
+        self.assertIn("dependencies", value.path_roots())
+        stale = copy.deepcopy(receipt); stale["path_policy"]["version"] = 0
+        builder.write_json(previous / "dependencies.json", stale)
+        with self.assertRaisesRegex(ValueError, "lock/path policy mismatch"):
+            value.dependencies({})
+
+    def test_dependency_plan_keeps_glib_logical_paths_out_of_host_prefix(self):
+        value = self.owned_builder()
+        env = value.tools()
+        value.downloads_all = mock.Mock()
+        value.downloads.mkdir()
+        for row in value.lock["archives"]:
+            if row["name"].startswith("pcre2"):
+                (value.downloads / row["filename"]).write_bytes(b"reviewed-download-fixture")
+        sources = {}
+        for name in ["pkgconf", "zlib", "libffi", "pixman", "glib", "libgpg-error", "libgcrypt"]:
+            source = value.cache / "deps-source" / name
+            (source / "subprojects").mkdir(parents=True)
+            sources[name] = source
+        value.dep_source = lambda name: sources[name]
+        (value.native / "bin").mkdir(parents=True)
+        (value.native / "bin/pkgconf").touch()
+        (value.prefix / "lib").mkdir(parents=True)
+        for name in ["libz.a", "libffi.a", "libpixman-1.a", "libglib-2.0.a", "libpcre2-8.a", "libgpg-error.a", "libgcrypt.a", "libresolv.a"]:
+            (value.prefix / "lib" / name).write_bytes(b"static-contract-fixture")
+        glib_build = value.cache / "deps-build/glib"
+        glib_build.mkdir(parents=True)
+        (glib_build / "config.h").write_text("#define HAVE_POSIX_SPAWN 1\n#define HAVE_PTHREAD_GETNAME_NP 1\n")
+        def execute(args, **kwargs):
+            args = list(map(str, args))
+            if args[1:2] == ["install"] and str(glib_build) in args:
+                self.assertEqual(args[-2], "--destdir")
+                self.staged_glib(Path(args[-1]))
+            return ""
+        value.run.side_effect = execute
+        with mock.patch.object(builder.subprocess, "check_output", return_value="test-build-triplet"):
+            value.dependencies(env)
+        setup = next(list(map(str, call.args[0])) for call in value.run.call_args_list
+                     if len(call.args[0]) > 2 and str(call.args[0][1]) == "setup" and str(glib_build) in map(str, call.args[0]))
+        self.assertIn("--prefix=/usr", setup)
+        self.assertIn("--libdir=lib", setup)
+        self.assertNotIn("--prefix=" + str(value.prefix), setup)
+        cross = (value.cache / "deps-cross.ini").read_text()
+        for language in ["c", "cpp"]:
+            line = next(line for line in cross.splitlines() if line.startswith(language + "_args="))
+            self.assertTrue(set(value.prefix_flags()).issubset(builder.ast.literal_eval(line.split("=", 1)[1])))
+        receipt = json.loads((value.cache / "dependencies.json").read_text())
+        self.assertEqual(receipt["path_policy"], builder.PATH_POLICY)
+        self.assertNotIn(str(value.cache), json.dumps(receipt))
+        self.assertIn(b"/usr/share/locale\0/usr/lib", (value.prefix / "lib/libglib-2.0.a").read_bytes())
+        self.assertIn("prefix=" + str(value.prefix) + "\n", (value.prefix / "lib/pkgconfig/glib-2.0.pc").read_text())
+
+    def test_distributable_path_guard_checks_binary_and_source_bytes(self):
+        value = self.owned_builder()
+        for root in [*value.path_roots().values(), Path.home()]:
+            with self.subTest(root_role="private-root"):
+                with self.assertRaisesRegex(ValueError, "private build path") as error:
+                    value.require_public(b"\0asm\x01\0\0\0" + str(root).encode() + b"/source.c\0", "fixture.wasm")
+                self.assertNotIn(str(root), str(error.exception))
+        value.require_public(b"\0asm\x01\0\0\0/m5stack-build/cache/qemu/source.c\0/usr/share/locale\0/usr/lib", "public.wasm")
+        value.source.mkdir()
+        value.sdk.mkdir(exist_ok=True)
+        (value.cache / "unsupported-resolver.c").write_text("/* supported packaging fixture */\n")
+        value.verify_source = mock.Mock()
+        value.lock = {"archives": [], "patches": [], "dependency_patches": []}
+        (value.source / "fixture.c").write_text("const char *source = __FILE__;\n")
+        archive = self.root / "public-source.tar.xz"
+        value.source_bundle(archive)
+        with tarfile.open(archive) as package:
+            self.assertEqual(package.extractfile("qemu/fixture.c").read(), b"const char *source = __FILE__;\n")
+        (value.source / "fixture.c").write_text(str(value.cache) + "/private-source.c")
+        with self.assertRaisesRegex(ValueError, "private build path in distributable: qemu/fixture.c"):
+            value.source_bundle(self.root / "private-source.tar.xz")
 
     def test_fixed_patch_order_and_runtime_source_boundary(self):
         native_count = self.lock["native_patch_count"]

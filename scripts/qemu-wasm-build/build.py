@@ -30,6 +30,48 @@ ASSET_NAMES = {
     "source": "corresponding-source.tar.xz",
     "notice": "NOTICE",
 }
+PATH_POLICY = {
+    "version": 1,
+    "public_source_roots": {
+        "project": "/m5stack-build/project", "cache": "/m5stack-build/cache",
+        "sdk": "/m5stack-build/sdk", "dependencies": "/m5stack-build/dependencies",
+    },
+    "glib_prefix": "/usr",
+}
+
+
+def source_prefix_flags(roots: dict[str, Path]) -> list[str]:
+    # Clang applies the last matching map. Put nested roots after their parents;
+    # keep each flag one argument even when an owned directory contains spaces.
+    return [f"-ffile-prefix-map={path.resolve()}={PATH_POLICY['public_source_roots'][name]}"
+            for name, path in sorted(roots.items(), key=lambda row: len(str(row[1].resolve())))]
+
+
+def require_public_bytes(data: bytes, roots: list[Path], context: str) -> None:
+    # Only report the public member/asset name, never the private path we found.
+    if any(str(path.resolve()).encode() in data for path in roots):
+        raise ValueError("private build path in distributable: " + context)
+
+
+def install_staged_glib(staged: Path, prefix: Path) -> None:
+    """Relocate installation files for host lookup, not compiled GLib strings."""
+    installed = staged / "usr"
+    required = ["lib/libglib-2.0.a", "include/glib-2.0/glib.h",
+                "lib/glib-2.0/include/glibconfig.h", "lib/pkgconfig/glib-2.0.pc"]
+    if any(not (installed / name).is_file() for name in required):
+        raise ValueError("incomplete staged GLib installation")
+    # Relocate only pkg-config's logical prefix. Headers/libraries keep their
+    # producer bytes, including public /usr locale/module/charset paths.
+    relocated = {}
+    for path in (installed / "lib/pkgconfig").glob("*.pc"):
+        lines = path.read_text().splitlines()
+        if lines.count("prefix=/usr") != 1:
+            raise ValueError("unexpected staged pkg-config prefix: " + path.name)
+        lines[lines.index("prefix=/usr")] = "prefix=" + str(prefix)
+        relocated[path.relative_to(installed)] = "\n".join(lines) + "\n"
+    shutil.copytree(installed, prefix, dirs_exist_ok=True, symlinks=True)
+    for name, text in relocated.items():
+        (prefix / name).write_text(text)
 
 
 def sha(path: Path) -> str:
@@ -168,6 +210,8 @@ class Builder:
             previous = json.loads((self.reuse_dependencies / OWNER).read_text())
             if previous.get("lock_sha256") != self.lock_sha or not (self.reuse_dependencies / "dependencies.json").is_file():
                 raise ValueError("dependency cache is not a completed source build of this exact lock")
+            if json.loads((self.reuse_dependencies / "dependencies.json").read_text()).get("path_policy") != PATH_POLICY:
+                raise ValueError("dependency cache lacks the public producer path policy; rebuild dependencies")
             self.prefix = self.reuse_dependencies / "target"
             self.native = self.reuse_dependencies / "native"
         self.venv = self.cache / "tools"
@@ -177,6 +221,18 @@ class Builder:
         self.logs.mkdir(exist_ok=True)
         command_file = self.cache / "commands.json"
         self.commands: list[dict] = json.loads(command_file.read_text()) if command_file.is_file() else []
+
+    def path_roots(self) -> dict[str, Path]:
+        roots = {"project": ROOT, "cache": self.cache, "sdk": self.sdk}
+        if self.reuse_dependencies:
+            roots["dependencies"] = self.reuse_dependencies
+        return roots
+
+    def prefix_flags(self) -> list[str]:
+        return source_prefix_flags(self.path_roots())
+
+    def require_public(self, data: bytes, context: str) -> None:
+        require_public_bytes(data, [*self.path_roots().values(), Path.home()], context)
 
     def run(self, args, *, cwd: Path | None = None, env: dict | None = None) -> str:
         args = list(map(str, args))
@@ -258,8 +314,10 @@ class Builder:
         env.update({"EM_CONFIG": str(self.sdk / ".emscripten"), "EM_CACHE": str(self.cache / "em-cache"),
             "PATH": os.pathsep.join(map(str, [self.sdk / "upstream/emscripten", self.sdk / "upstream/bin", self.venv / "bin", self.native / "bin"])) + os.pathsep + env.get("PATH", ""),
             "CC": "emcc", "CXX": "em++", "AR": "emar", "RANLIB": "emranlib", "NM": "emnm", "CC_FOR_BUILD": shutil.which("cc") or "/usr/bin/cc", "CFLAGS_FOR_BUILD": "", "LDFLAGS_FOR_BUILD": "",
-            "CFLAGS": "-O2 -pthread -DWASM_BIGINT", "CXXFLAGS": "-O2 -pthread -DWASM_BIGINT", "CPPFLAGS": f"-I{self.prefix}/include",
-            "LDFLAGS": f"-pthread -sWASM_BIGINT -sASYNCIFY=1 -L{self.prefix}/lib", "PKG_CONFIG": str(self.native / "bin/pkgconf"),
+            "CFLAGS": shlex.join(["-O2", "-pthread", "-DWASM_BIGINT", *self.prefix_flags()]),
+            "CXXFLAGS": shlex.join(["-O2", "-pthread", "-DWASM_BIGINT", *self.prefix_flags()]),
+            "CPPFLAGS": shlex.join([f"-I{self.prefix}/include"]),
+            "LDFLAGS": shlex.join(["-pthread", "-sWASM_BIGINT", "-sASYNCIFY=1", f"-L{self.prefix}/lib"]), "PKG_CONFIG": str(self.native / "bin/pkgconf"),
             "PKG_CONFIG_LIBDIR": str(self.prefix / "lib/pkgconfig"), "PKG_CONFIG_PATH": "", "EM_PKG_CONFIG_PATH": str(self.prefix / "lib/pkgconfig")})
         self.run([self.sdk / "upstream/emscripten/emcc", "--version"], env=env)
         return env
@@ -286,19 +344,22 @@ class Builder:
         if self.reuse_dependencies:
             previous = self.reuse_dependencies / "dependencies.json"
             receipt = json.loads(previous.read_text())
-            if receipt.get("lock_sha256") != self.lock_sha:
-                raise ValueError("dependency receipt lock mismatch")
+            if receipt.get("lock_sha256") != self.lock_sha or receipt.get("path_policy") != PATH_POLICY:
+                raise ValueError("dependency receipt lock/path policy mismatch")
             for path, expected in receipt["files"].items():
                 if sha(self.reuse_dependencies / path) != expected:
                     raise ValueError("reused dependency changed")
             self.downloads_all()
             stub = self.cache / "unsupported-resolver.c"
             stub.write_bytes((self.reuse_dependencies / stub.name).read_bytes())
-            write_json(self.cache / "dependencies.json", {"lock_sha256": self.lock_sha, "reused_source_build_receipt_sha256": sha(previous), "files": receipt["files"]})
+            write_json(self.cache / "dependencies.json", {"lock_sha256": self.lock_sha, "path_policy": PATH_POLICY, "reused_source_build_receipt_sha256": sha(previous), "files": receipt["files"]})
             return
         stamp = self.cache / "dependencies.json"
         if stamp.exists():
-            for path, expected in json.loads(stamp.read_text())["files"].items():
+            receipt = json.loads(stamp.read_text())
+            if receipt.get("path_policy") != PATH_POLICY:
+                raise ValueError("dependency receipt lacks the public producer path policy")
+            for path, expected in receipt["files"].items():
                 if sha(self.cache / path) != expected:
                     raise ValueError("dependency changed; use a new cache")
             return
@@ -340,7 +401,9 @@ class Builder:
                 self.run(["emmake", "make", *(["-C", "src"] if name == "libgcrypt" else []), "install"], cwd=build, env=env)
             else:
                 cross = self.cache / "deps-cross.ini"
-                cross.write_text("[host_machine]\nsystem='emscripten'\ncpu_family='wasm32'\ncpu='wasm32'\nendian='little'\n[binaries]\n" + "\n".join(f"{key}='{value}'" for key, value in {"c": self.sdk / "upstream/emscripten/emcc", "cpp": self.sdk / "upstream/emscripten/em++", "ar": self.sdk / "upstream/emscripten/emar", "ranlib": self.sdk / "upstream/emscripten/emranlib"}.items()) + f"\npkg-config=['{self.native}/bin/pkgconf','--static']\n[properties]\nneeds_exe_wrapper=true\n[built-in options]\nc_args=['-O2','-pthread','-DWASM_BIGINT','-Wno-incompatible-function-pointer-types']\nc_link_args=['-pthread','-sWASM_BIGINT','-sASYNCIFY=1','-L{self.prefix}/lib']\n")
+                cross.write_text("[host_machine]\nsystem='emscripten'\ncpu_family='wasm32'\ncpu='wasm32'\nendian='little'\n[binaries]\n" + "\n".join(f"{key}='{value}'" for key, value in {"c": self.sdk / "upstream/emscripten/emcc", "cpp": self.sdk / "upstream/emscripten/em++", "ar": self.sdk / "upstream/emscripten/emar", "ranlib": self.sdk / "upstream/emscripten/emranlib"}.items()) + f"\npkg-config=['{self.native}/bin/pkgconf','--static']\n[properties]\nneeds_exe_wrapper=true\n[built-in options]\n" + "\n".join(
+                    f"{language}_args={shlex.split(env[variable]) + ['-Wno-incompatible-function-pointer-types']!r}\n{language}_link_args={shlex.split(env['LDFLAGS'])!r}"
+                    for language, variable in [("c", "CFLAGS"), ("cpp", "CXXFLAGS")]) + "\n")
                 build = self.cache / "deps-build" / name
                 options = ["-Dtests=disabled", "-Ddemos=disabled"] if name == "pixman" else ["--force-fallback-for=pcre2", "-Dselinux=disabled", "-Dxattr=false", "-Dlibmount=disabled", "-Dnls=disabled", "-Dtests=false", "-Dglib_debug=disabled", "-Dglib_assert=false", "-Dglib_checks=false"]
                 if name == "glib":
@@ -349,17 +412,23 @@ class Builder:
                         if row["name"].startswith("pcre2"): shutil.copy2(self.downloads / row["filename"], packages / row["filename"])
                     stub = self.cache / "unsupported-resolver.c"
                     stub.write_text("#include <netdb.h>\nint res_query(const char*n,int c,int t,unsigned char*d,int l){h_errno=HOST_NOT_FOUND;return -1;}\n")
-                    self.run(["emcc", "-O2", "-pthread", "-c", stub, "-o", self.cache / "unsupported-resolver.o"], env=env)
+                    self.run(["emcc", "-O2", "-pthread", *self.prefix_flags(), "-c", stub, "-o", self.cache / "unsupported-resolver.o"], env=env)
                     self.run(["emar", "rcs", self.prefix / "lib/libresolv.a", self.cache / "unsupported-resolver.o"], env=env)
-                if not (build / "build.ninja").exists(): self.run([self.venv / "bin/meson", "setup", build, source, f"--prefix={self.prefix}", f"--cross-file={cross}", "--default-library=static", "--buildtype=release", "--wrap-mode=nodownload", *options], env=env)
+                prefix_options = ["--prefix=/usr", "--libdir=lib"] if name == "glib" else [f"--prefix={self.prefix}"]
+                if not (build / "build.ninja").exists(): self.run([self.venv / "bin/meson", "setup", build, source, *prefix_options, f"--cross-file={cross}", "--default-library=static", "--buildtype=release", "--wrap-mode=nodownload", *options], env=env)
                 if name == "glib":
                     config = build / "config.h"; text = config.read_text()
                     for macro in ["HAVE_POSIX_SPAWN", "HAVE_PTHREAD_GETNAME_NP"]: text = text.replace(f"#define {macro} 1", f"/* {macro} unavailable in Emscripten */")
                     config.write_text(text)
                 self.run([self.venv / "bin/ninja", "-C", build, f"-j{self.jobs}"], env=env)
-                self.run([self.venv / "bin/meson", "install", "-C", build], env=env)
+                if name == "glib":
+                    staged = self.cache / "glib-install"
+                    self.run([self.venv / "bin/meson", "install", "-C", build, "--destdir", staged], env=env)
+                    install_staged_glib(staged, self.prefix)
+                else:
+                    self.run([self.venv / "bin/meson", "install", "-C", build], env=env)
         libraries = ["libz.a", "libffi.a", "libpixman-1.a", "libglib-2.0.a", "libpcre2-8.a", "libgpg-error.a", "libgcrypt.a", "libresolv.a"]
-        write_json(stamp, {"lock_sha256": self.lock_sha, "files": {str((self.prefix / "lib" / name).relative_to(self.cache)): sha(self.prefix / "lib" / name) for name in libraries}})
+        write_json(stamp, {"lock_sha256": self.lock_sha, "path_policy": PATH_POLICY, "files": {str((self.prefix / "lib" / name).relative_to(self.cache)): sha(self.prefix / "lib" / name) for name in libraries}})
 
     def compile(self, env: dict) -> dict:
         self.verify_source()
@@ -374,9 +443,10 @@ class Builder:
         # reviewed host glue list plus explicit settings through that layer.
         cross_options = {}
         for line in (self.source / "configs/meson/emscripten.txt").read_text().splitlines():
-            if line.startswith(("c_args =", "c_link_args =", "cpp_link_args =")):
+            if line.startswith(("c_args =", "cpp_args =", "c_link_args =", "cpp_link_args =")):
                 key, value = line.split("=", 1); cross_options[key.strip()] = ast.literal_eval(value)
         options += ["-Dc_args=" + repr(cross_options["c_args"] + shlex.split(env["CFLAGS"]) + [f"-I{self.prefix}/include"])]
+        options += ["-Dcpp_args=" + repr(cross_options.get("cpp_args", []) + shlex.split(env["CXXFLAGS"]) + [f"-I{self.prefix}/include"])]
         for language in ["c", "cpp"]:
             options += [f"-D{language}_link_args=" + repr(cross_options[language + "_link_args"] + self.lock["link_flags"])]
         if not (self.build / "build.ninja").exists(): self.run([self.source / "configure", *options], cwd=self.build, env=env)
@@ -391,7 +461,9 @@ class Builder:
         files = {key: self.build / name for key, name in ASSET_NAMES.items() if key in ["javascript", "wasm", "worker"]}
         if not files["wasm"].read_bytes().startswith(b"\0asm\x01\0\0\0"):
             raise ValueError("QEMU output is not WASM")
-        report = {"status": "PASS", "lock_sha256": self.lock_sha, "kind": "source-build", "all_objects_rebuilt": True, "link_audit": link_audit, "guest_execution": "NOT RUN", "artifacts": {key: {"path": name.name, "bytes": name.stat().st_size, "sha256": sha(name)} for key, name in files.items()}}
+        for path in files.values():
+            self.require_public(path.read_bytes(), path.name)
+        report = {"status": "PASS", "lock_sha256": self.lock_sha, "path_policy": PATH_POLICY, "kind": "source-build", "all_objects_rebuilt": True, "link_audit": link_audit, "guest_execution": "NOT RUN", "artifacts": {key: {"path": name.name, "bytes": name.stat().st_size, "sha256": sha(name)} for key, name in files.items()}}
         write_json(self.cache / "build-receipt.json", report)
         return report
 
@@ -403,11 +475,16 @@ class Builder:
                 raise ValueError("dependency source archive drift before export: " + row["name"])
         with tarfile.open(output, "w:xz") as package:
             def add(path: Path, name: str):
+                self.require_public(name.encode(), name)
                 info = package.gettarinfo(str(path), arcname=name)
                 info.uid = info.gid = 0; info.uname = info.gname = ""; info.mtime = 0
                 if info.isfile():
-                    with path.open("rb") as stream: package.addfile(info, stream)
-                elif info.issym(): package.addfile(info)
+                    data = path.read_bytes()
+                    self.require_public(data, name)
+                    package.addfile(info, io.BytesIO(data))
+                elif info.issym():
+                    self.require_public(info.linkname.encode(), name)
+                    package.addfile(info)
             for base, dirs, files in os.walk(self.source):
                 dirs[:] = [name for name in dirs if name not in [".git", "__pycache__", "roms"]]
                 for name in sorted(files):
@@ -502,15 +579,18 @@ def export_runtime(builder: Builder, output: Path, report: dict, *, runtime_dire
         raise ValueError("runtime output already contains files; preserve it and choose a new --output")
     output.mkdir(parents=True, exist_ok=True)
     for key in ["javascript", "wasm", "worker"]:
-        shutil.copy2((runtime_directory or builder.build) / ASSET_NAMES[key], output / ASSET_NAMES[key])
+        source = (runtime_directory or builder.build) / ASSET_NAMES[key]
+        builder.require_public(source.read_bytes(), ASSET_NAMES[key])
+        shutil.copy2(source, output / ASSET_NAMES[key])
     builder.source_bundle(output / ASSET_NAMES["source"])
     (output / "NOTICE").write_text("M5Stack browser QEMU source build\n\nQEMU is GPL-2.0; its COPYING and per-file licenses, the complete modified host source, linked dependencies, dependency patches and build recipe are in corresponding-source.tar.xz served beside this executable. This archive is part of the runtime export and must be preserved on redistribution. Individual libraries retain their own licenses (GLib/libgcrypt/libgpg-error LGPL, libffi/pixman/zlib/PCRE2 permissive terms); source archives include their exact license texts. Emscripten linked support/library sources and license texts are also included.\n\nROM and UIFlow2 firmware are not bundled. Their public availability is not treated as redistribution permission. Obtain the exact required ROM and firmware separately from authoritative upstream or user files; verify SHA-256 in the browser. The reviewed offline CoreS3 vm-div8 fixture does not establish physical timing, other firmware/device coverage or full hardware equivalence.\n", encoding="utf-8")
     lock = builder.lock
     manifest = {"schema_version": 1, "kind": RUNTIME_KIND, "engine": "qemu-wasm", "source": {**lock["qemu"], "native_patch_count": lock["native_patch_count"], "patches": lock["patches"], "patched_files_sha256": lock["patched_files"]},
-        "build": {"kind": "source-build", "all_objects_rebuilt": report["all_objects_rebuilt"], "emscripten": "3.1.50", "recipe_sha256": builder.recipe_sha, "lock_sha256": builder.lock_sha, "commands_sha256": sha(builder.cache / "commands.json"), "guest_execution": "NOT RUN by builder", **({"link_audit": report["link_audit"]} if "link_audit" in report else {}), **({"reference_build_receipt_sha256": report["reference_build_receipt_sha256"], "reference_note": "Reviewed incremental source build; inherited object/library identities are in its original receipt. This is not a fresh full-object build."} if "reference_build_receipt_sha256" in report else {})},
+        "build": {"kind": "source-build", "all_objects_rebuilt": report["all_objects_rebuilt"], "emscripten": "3.1.50", "recipe_sha256": builder.recipe_sha, "lock_sha256": builder.lock_sha, "commands_sha256": sha(builder.cache / "commands.json"), "guest_execution": "NOT RUN by builder", **({"path_policy": report["path_policy"]} if "path_policy" in report else {}), **({"link_audit": report["link_audit"]} if "link_audit" in report else {}), **({"reference_build_receipt_sha256": report["reference_build_receipt_sha256"], "reference_note": "Reviewed incremental source build; inherited object/library identities are in its original receipt. This is not a fresh full-object build."} if "reference_build_receipt_sha256" in report else {})},
         "profiles": ["cores3"], "compiled_profiles": lock.get("compiled_profiles", ["cores3"]), "frame_transport": lock.get("frame_transport"), "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in ASSET_NAMES.items()},
         "required_rom": lock["required_rom"], "firmware_bundled": False}
     write_json(output / "runtime.json", manifest)
+    builder.require_public((output / "runtime.json").read_bytes(), "runtime.json")
     runtime_files(output, allow_incremental=not report["all_objects_rebuilt"])
     return manifest
 

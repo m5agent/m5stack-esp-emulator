@@ -24,6 +24,26 @@ completed, hash-verified library outputs from this exact source lock. QEMU still
 gets a new source/build directory and every QEMU object is compiled there. CI
 does not need this option and builds the dependency sources itself.
 
+Distributable builds map project, cache, SDK and reused-dependency source paths
+to stable `/m5stack-build/` roots with compiler `-ffile-prefix-map` flags. Existing
+assertion settings are preserved, and assertion diagnostics retain a readable
+source location; only the file prefix changes. GLib is configured with logical
+`/usr` paths and installed through an owned `DESTDIR` staging directory. Its
+headers and libraries move unchanged to
+the local target directory; only installed `.pc` prefixes are relocated for
+host-side dependency lookup. Compiled locale/module/charset paths therefore do
+not contain the builder's installation directory.
+
+Dependency receipts carry the public producer path-policy version, so caches
+from before this policy cannot be reused. Private project/cache/SDK/dependency
+and home-directory prefixes are rejected in compiled outputs, source-package
+members and the runtime manifest before distribution. The manifest stores only
+the public policy and hashes; exact command paths remain in local build logs.
+This is a producer change, with no WASM rewriting or assertion suppression.
+Use a new build cache and repeat guest acceptance for the new runtime hash;
+neither earlier guest results nor the host controls in
+`platform/tests/test_bootstrap_qemu_browser_runtime.py` establish that result.
+
 `sources.lock.json` freezes the Espressif QEMU commit, explicit native
 layers, the independent QEMU WASM patches, dependency patches/archives, subprojects,
 Emscripten 3.1.50 and host tool versions. It never imports the mutable native
