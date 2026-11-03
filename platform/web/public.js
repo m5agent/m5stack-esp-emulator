@@ -4,7 +4,7 @@ import {PublicDeviceService} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
-import {loadQemuBrowserProfiles,getQemuBrowserProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
 import {qemuOnboardVisualCommands} from './public-qemu-frame.js';
 import {qemuServoVisualCommands,qemuServoDiagnostic} from './public-qemu-servo.js';
@@ -71,7 +71,7 @@ function reference(device = state.selected) {
     if (state.config.browser_wallclock_example && $('referenceExample').value !== 'stock-div8')
       return {name:'CoreS3 LVGL + PIR（正常速度，候选修复）',composed:true,wallclockCandidate:true,
         sha256:WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256};
-    return {name:'CoreS3 LVGL + PIR（原始基线，1/8 速度）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
+    return {name:'CoreS3 LVGL + PIR（原始程序，正常时钟）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
   }
   return (
     device?.browser?.reference ||
@@ -168,9 +168,14 @@ function updateCapability() {
             ? '本型号尚未接入固件运行。可旋转、缩放并探索模型。'
             : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
   if (selectedLane === 'browser' && state.config.browser_runtime_engine==='qemu-wasm') {
-    const p=browserProfile(device?.id);
-    const wallclock=source()==='reference'&&reference()?.wallclockCandidate;
-    $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor===8?'虚拟时间与看门狗按 1/8 慢放。':'采用正常虚拟时钟。'}刷新不保存 Flash。`;
+    let p=browserProfile(device?.id);
+    const runningProfile=active(state.run)&&state.run.controller instanceof PublicQemuRuntime
+      ?state.run.controller.profile:null;
+    const referenceHash=source()==='reference'?reference(device)?.sha256:null;
+    if (runningProfile?.deviceId===device?.id) p=runningProfile;
+    else if (p&&referenceHash) p=resolveQemuFirmwareProfile(p,referenceHash);
+    const wallclock=p?.firmwareVariant?.schedulerCandidate==='sdk-python-single-schedule-v1';
+    $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor>1?`虚拟时间与看门狗按 1/${p.clockDivisor} 慢放。`:'采用正常虚拟时钟。'}刷新不保存 Flash。`;
     if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
   if ($('runtimeMode').value === 'browser' && selectedAttachments().length) {

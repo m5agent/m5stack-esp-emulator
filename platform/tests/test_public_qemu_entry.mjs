@@ -73,7 +73,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
     connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
     startRun=async()=>events.push('start:'+lane());
-    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,firmware};
+    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,firmware,updateCapability};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -165,6 +165,26 @@ assert.equal(disabledCandidate.reference().sha256,fixtureSha);assert.equal(disab
 const unknownCandidate=await entry({wallclockExample:true,search:wallclockLink.search.replace(wallclockSha,'0'.repeat(64))});
 assert.equal(unknownCandidate.events.some(item=>item.startsWith('start:')),false);
 wallclock.element('referenceExample').value='stock-div8';assert.equal(wallclock.reference().sha256,fixtureSha);
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/正常虚拟时钟/,
+  'the exact stock reference resolves its normal-clock execution before display');
+assert.doesNotMatch(wallclock.element('capabilityText').textContent,/1\/8|调度候选/);
+assert.match(wallclock.reference().name,/原始程序，正常时钟/);
+wallclock.radios.get('reference').checked=false;wallclock.radios.get('local').checked=true;
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/1\/8/,
+  'an unidentified local image keeps the base clock explanation');
+const runningStock=new PublicQemuRuntime({root:pageRoot,profiles:registry});
+runningStock.profile=qemuProfiles.resolveQemuFirmwareProfile(qemuProfiles.getQemuBrowserProfile('cores3',registry),fixtureSha);
+wallclock.state.run={controller:runningStock,generation:wallclock.state.runGeneration};
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/正常虚拟时钟/,
+  'an active uploaded image reports its actual resolved execution profile');
+wallclock.state.run.stopping=true;wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/1\/8/,
+  'a stopping run cannot override the next unidentified upload');
+wallclock.state.run=null;
+wallclock.radios.get('local').checked=false;wallclock.radios.get('reference').checked=true;
 for(const search of [share.search+'&autostart=0',share.search.replace(fixtureSha,'0'.repeat(64)),share.search.replace('cores3','core2'),share.search.replace('mode=browser','mode=model')]){
   const app=await entry({search});assert.equal(app.events.some(item=>item.startsWith('start:')),false,'wrong device/hash, disabled autostart and model mode cannot run the reference');
 }

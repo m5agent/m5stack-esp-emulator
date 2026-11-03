@@ -582,7 +582,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2102696305989775362/bin/2102696305989775363.bin",
         "bytes": 16121856,
         "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
-        "browserValidation": "The stock/base profile and composed div8 baseline remain separate from the exact-firmware normal-clock SDK candidate; each browser claim requires its own fixture evidence, and stock-menu acceptance is not inherited."
+        "browserValidation": "The base profile remains div8. Exact composed stock-reference and SDK-candidate firmware identities select their separately bound execution profiles; arbitrary stock-menu acceptance is not inherited."
       },
       "fixture": {
         "vfsOffset": 11141120,
@@ -593,8 +593,8 @@
       },
       "limitations": [
         "Browser acceptance is scoped to the fixed CoreS3 LVGL/touch/PIR fixture and execution profile recorded in each result.",
-        "The base profile uses virtual time at 1/8 wall-clock speed. Only the exact firmware SHA in firmwareProfiles selects the normal-clock SDK scheduler candidate; other firmware keeps the base profile.",
-        "The normal-clock example and the stock/div8 baseline have separate validation evidence; neither establishes physical timing or arbitrary stock-menu compatibility.",
+        "The base profile uses virtual time at 1/8 wall-clock speed. Only complete firmware SHAs listed in firmwareProfiles select their normal-clock execution variants; unknown firmware keeps the base profile.",
+        "The exact stock-reference one-insn variant, historical div8 baseline and SDK scheduler candidate have separate validation evidence; none establishes physical timing or arbitrary stock-menu compatibility.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
       "readyFirmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
@@ -607,6 +607,20 @@
           "fixture": "cores3-wasm-lvgl-wallclock-v1",
           "sourceSHA256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf",
           "schedulerCandidate": "sdk-python-single-schedule-v1"
+        },
+        {
+          "clockDivisor": 1,
+          "firmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "fixture": "cores3-wasm-lvgl-pir-v1",
+          "oneInsnPerTb": true,
+          "profile": "cores3-wasm-stock-wallclock",
+          "readyMarker": "\"kind\": \"ready\"",
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          },
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
         }
       ]
     },

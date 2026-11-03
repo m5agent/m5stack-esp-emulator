@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "kind": "same-stock-cores3-clock1-oneinsn-functional-candidate-summary",
+  "result": "CONTROLLER_CALLBACK_AND_TWO_20S_WINDOWS_PASS_WARM_COMPLETE_PIXELS_PENDING",
+  "publication_eligible": false,
+  "validation": "virtual-device candidate validation",
+  "hardware_validation": "NOT RUN",
+  "admission": "PENDING final public-source test with coherent Clicks/Count pixel completion in both VMs",
+  "performance_acceptance": "NOT GRANTED; the values below are UI-wait upper bounds, not exact runtime ready timestamps",
+  "source_and_runtime": {
+    "base_source_commit": "551ef279d37f56dd7766201f4053446e5e4a87a9",
+    "site_manifest_sha256": "176050fe33aeee70e4a0e0183dfce874d4b8a825542467b8f9144aa1ead0af5c",
+    "runtime_manifest_sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+    "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "source_main_sha256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb",
+    "registry_sha256": "c89db7afa5fb53603b38e2df3ea18f2bb57377a7568548d152d97bbf5deb7ba5",
+    "canonical_registry_sha256": "b883bcba02e8ede302887f54e3ca6b35659a94839ccca21dddb1e97ab9c086ec",
+    "private_registry_patch_sha256": "58f83a9d4e2df53e5a2ed2694fb8f6a37fc9154e296da17b3f56f372fd8a9176",
+    "executed_harness_sha256": "81a9a1182ed06deba2ba5993b32a7c2f0218af205a184a15389377cd8cc0d70c",
+    "raw_report_sha256": "941e1b89e10862cd164ca66b9f43354fc951b124fcc864e52abbc3d67a33803b",
+    "r3_test_precondition_delta_sha256": "049b5c07e26bc52164a1b8795974c22fadc1229e0fd6ec7a958d5703e5394114",
+    "firmware_changed": false,
+    "stack_or_watchdog_changed": false,
+    "candidate_firmware_variant": {
+      "clockDivisor": 1,
+      "firmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "fixture": "cores3-wasm-lvgl-pir-v1",
+      "oneInsnPerTb": true,
+      "profile": "cores3-wasm-stock-clock1-one-insn-candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "requiredRuntimePatch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+      "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+    }
+  },
+  "ui_ready_observation_upper_bounds_ms": {
+    "cold": 12730.263292,
+    "reopened": 12363.617332999995,
+    "limit": "Node timing from UI action/navigation through waitGuest return; do not label these exact app-ready times or mix with the benchmark algorithm"
+  },
+  "functional_checks": {
+    "all_original_checks_passed": true,
+    "checks": [
+      {
+        "name": "pages-service-worker-shared-memory",
+        "ok": true
+      },
+      {
+        "name": "explicit-public-reference-example",
+        "ok": true
+      },
+      {
+        "name": "actual-cores3-lvgl-ready",
+        "ok": true
+      },
+      {
+        "name": "c-qemu-runtime-and-exact-fixture",
+        "ok": true
+      },
+      {
+        "name": "real-frame-pixels",
+        "ok": true
+      },
+      {
+        "name": "cold-20s-exact-guest",
+        "ok": true
+      },
+      {
+        "name": "actual-raw-canvas-input-target-visible",
+        "ok": true
+      },
+      {
+        "name": "negative-touch-does-not-click",
+        "ok": true
+      },
+      {
+        "name": "actual-raw-canvas-input-target-visible",
+        "ok": true
+      },
+      {
+        "name": "actual-dom-touch-lvgl-callback",
+        "ok": true
+      },
+      {
+        "name": "pir-qom-readback",
+        "ok": true
+      },
+      {
+        "name": "pir-guest-both-transitions",
+        "ok": true
+      },
+      {
+        "name": "qmp-pause-stops-guest-progress",
+        "ok": true
+      },
+      {
+        "name": "qmp-resume",
+        "ok": true
+      },
+      {
+        "name": "layout-1440",
+        "ok": true
+      },
+      {
+        "name": "layout-1024",
+        "ok": true
+      },
+      {
+        "name": "layout-768",
+        "ok": true
+      },
+      {
+        "name": "layout-390",
+        "ok": true
+      },
+      {
+        "name": "quit-and-container-cleanup",
+        "ok": true
+      },
+      {
+        "name": "first-engine-and-five-pthreads-close-before-iframe-removal-pthreads-before-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "first-engine-and-five-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "no-instance-frame-after-stop",
+        "ok": true
+      },
+      {
+        "name": "dedicated-engine-closing-notification-without-owner-fallback",
+        "ok": true
+      },
+      {
+        "name": "local-history-retains-hash",
+        "ok": true
+      },
+      {
+        "name": "shared-reference-restores-example",
+        "ok": true
+      },
+      {
+        "name": "fresh-guest-reopen-from-shared-reference",
+        "ok": true
+      },
+      {
+        "name": "shared-reference-exact-runtime-variant",
+        "ok": true
+      },
+      {
+        "name": "reopened-20s-exact-guest",
+        "ok": true
+      },
+      {
+        "name": "actual-raw-canvas-input-target-visible",
+        "ok": true
+      },
+      {
+        "name": "reopened-real-touch-clicks1",
+        "ok": true
+      },
+      {
+        "name": "reopen-cleanup",
+        "ok": true
+      },
+      {
+        "name": "both-engines-and-ten-pthreads-close-before-iframe-removal-pthreads-before-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "both-engines-and-ten-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "reopened-engine-notification-without-owner-fallback",
+        "ok": true
+      },
+      {
+        "name": "no-service-or-local-emulator-requests",
+        "ok": true
+      },
+      {
+        "name": "no-javascript-errors",
+        "ok": true
+      }
+    ],
+    "negative_touch_did_not_click": true,
+    "pir_both_guest_transitions": true,
+    "pause_and_resume": true,
+    "layout_and_fresh_shared_reference_reopen": true,
+    "real_dom_hits": [
+      {
+        "id": "rawFrameCanvas",
+        "x": 834.1875,
+        "y": 535.3489583333333,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "id": "rawFrameCanvas",
+        "x": 672,
+        "y": 480.09895833333337,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "id": "rawFrameCanvas",
+        "x": 672,
+        "y": 939.0989583333334,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  "vms": [
+    {
+      "name": "cold",
+      "steady_duration_ms": 20159.843042,
+      "same_fixture_actual_receipt": {
+        "profile": "cores3-wasm-stock-clock1-one-insn-candidate",
+        "clockDivisor": 1,
+        "oneInsnPerTb": true,
+        "firmwareSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "firmwareVariant": {
+          "clockDivisor": 1,
+          "firmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "fixture": "cores3-wasm-lvgl-pir-v1",
+          "oneInsnPerTb": true,
+          "profile": "cores3-wasm-stock-clock1-one-insn-candidate",
+          "readyMarker": "\"kind\": \"ready\"",
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          },
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+        },
+        "requiredRuntimePatch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "wasmSha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+        "actualArguments": [
+          "./this.program",
+          "-M",
+          "m5cores3",
+          "-drive",
+          "file=/flash.bin,if=mtd,format=raw",
+          "-L",
+          "/rom",
+          "-display",
+          "none",
+          "-serial",
+          "file:/bridge/uart.out",
+          "-serial",
+          "file:/bridge/serial1",
+          "-qmp",
+          "stdio",
+          "-drive",
+          "if=none,id=efuse,file=/efuse.bin,format=raw",
+          "-global",
+          "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+          "-accel",
+          "tcg,thread=multi,one-insn-per-tb=on"
+        ]
+      },
+      "guest_clicks1_callback": "PASS",
+      "actual_controller_down_up": [
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 184,
+          "down": true,
+          "result": {}
+        },
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 184,
+          "down": false,
+          "result": {}
+        }
+      ],
+      "actual_controller_hold_ms": 653.0,
+      "requested_native_xy": [
+        160,
+        184
+      ],
+      "requested_hold_ms": 650,
+      "pixel_floor_note": "public.js uses floor for CSS-to-native mapping; actual warm y183 is preserved and not rewritten to184.",
+      "steady_evidence_sha256": "b4d7a55a7fc5150eca3bbd4b88cc2994959597df54bf95aa4584311886c6f059",
+      "input_evidence_sha256": "2ceef008727541a67d9905d2031f0fcffe1e02704eb6abdcb8db1ca3516b72ad",
+      "before_full_framebuffer_sha256": "fe4d5e4183a858d3b9992898f7934b0ef6c0e4a68fcd51b1133f4d116850c678",
+      "immediate_after_full_framebuffer_sha256": "88969b0a37c16023e2201355a45e7101a751c08dbff532f44b08ca57bc608bd6",
+      "input_screenshot_sha256": "572e280fea3bb068a0afd4931d2e62c1f7771483b38a111b3bd31458977d7724",
+      "visual_completion": "PASS observed later in layout-1440.png/stopped-first.json, not immediate callback frame"
+    },
+    {
+      "name": "reopened",
+      "steady_duration_ms": 20145.73724999999,
+      "same_fixture_actual_receipt": {
+        "profile": "cores3-wasm-stock-clock1-one-insn-candidate",
+        "clockDivisor": 1,
+        "oneInsnPerTb": true,
+        "firmwareSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "firmwareVariant": {
+          "clockDivisor": 1,
+          "firmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "fixture": "cores3-wasm-lvgl-pir-v1",
+          "oneInsnPerTb": true,
+          "profile": "cores3-wasm-stock-clock1-one-insn-candidate",
+          "readyMarker": "\"kind\": \"ready\"",
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          },
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+        },
+        "requiredRuntimePatch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "wasmSha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+        "actualArguments": [
+          "./this.program",
+          "-M",
+          "m5cores3",
+          "-drive",
+          "file=/flash.bin,if=mtd,format=raw",
+          "-L",
+          "/rom",
+          "-display",
+          "none",
+          "-serial",
+          "file:/bridge/uart.out",
+          "-serial",
+          "file:/bridge/serial1",
+          "-qmp",
+          "stdio",
+          "-drive",
+          "if=none,id=efuse,file=/efuse.bin,format=raw",
+          "-global",
+          "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+          "-accel",
+          "tcg,thread=multi,one-insn-per-tb=on"
+        ]
+      },
+      "guest_clicks1_callback": "PASS",
+      "actual_controller_down_up": [
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 183,
+          "down": true,
+          "result": {}
+        },
+        {
+          "type": "touch",
+          "x": 160,
+          "y": 183,
+          "down": false,
+          "result": {}
+        }
+      ],
+      "actual_controller_hold_ms": 652.0,
+      "requested_native_xy": [
+        160,
+        184
+      ],
+      "requested_hold_ms": 650,
+      "pixel_floor_note": "public.js uses floor for CSS-to-native mapping; actual warm y183 is preserved and not rewritten to184.",
+      "steady_evidence_sha256": "7a9217a76ddc98f1ead6d1ab7f86a4032f9c71554785e0c52cb30dca51f01b48",
+      "input_evidence_sha256": "6742eb2552c39653b85c0b18ddf9e8061fe1747e1c864844854eeba0ad1ed43c",
+      "before_full_framebuffer_sha256": "fe4d5e4183a858d3b9992898f7934b0ef6c0e4a68fcd51b1133f4d116850c678",
+      "immediate_after_full_framebuffer_sha256": "88969b0a37c16023e2201355a45e7101a751c08dbff532f44b08ca57bc608bd6",
+      "input_screenshot_sha256": "e9b4f2fac7d46a736699834a02b225d56a250134797593bb173a49eda96f3cc9",
+      "visual_completion": "NOT MEASURED: immediate screenshot still0 and VM was stopped before a completed1 frame was captured"
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "first-engine-and-five-pthreads-close-before-iframe-removal",
+      "nested_closed_before_iframe_removal": true,
+      "all_observed_targets_closed_after_iframe_removal": true,
+      "cumulative_observed_target_count": 6
+    },
+    {
+      "name": "both-engines-and-ten-pthreads-close-before-iframe-removal",
+      "nested_closed_before_iframe_removal": true,
+      "all_observed_targets_closed_after_iframe_removal": true,
+      "cumulative_observed_target_count": 12
+    }
+  ],
+  "visual_oracle": {
+    "oracle_sha256": "b7632b2e7adeebe76cf22f9f90c508f5da6d1924a6358e886d1341c76eb183e5",
+    "later_cold_visible_clicks1_layout_png_sha256": "b122ab18eccd1f4e7bc5a3bbae13628595423159d4d27c9302e5d7d96c67710d",
+    "later_cold_stopped_evidence_sha256": "f31ab64d5b03f1dd3f6b25c5e8ad04ea0aff0e466916628ca43270ca1df10822",
+    "warm_completed_pixels": "NOT MEASURED; callback and controller receipts do not substitute for complete displayed labels"
+  },
+  "historical_precondition_failures_retained": [
+    {
+      "revision": "r1",
+      "raw_report_sha256": "058750e240930a6fe6c5632096ee559e49f6cd10365a183cebb8f89c32c79c31",
+      "acquisition_result": "FAIL",
+      "cold_input": "PASS",
+      "warm_input": "NOT RUN; no warm controller input reached guest",
+      "test_failure": "Hidden raw canvas produced null bbox before touch",
+      "classification": "Test infrastructure/precondition failure, not a retained guest fault; no firmware admission is assigned"
+    },
+    {
+      "revision": "r2",
+      "raw_report_sha256": "f852b5188e092b0d55ad5696948ded948225c98b897621bba7abf82eb999a528",
+      "acquisition_result": "FAIL",
+      "cold_input": "PASS",
+      "warm_input": "NOT RUN; no warm controller input reached guest",
+      "test_failure": "Warm input had no controller receipts; scroll/real-DOM-hit precondition was missing and callback timed out",
+      "classification": "Test infrastructure/precondition failure, not a retained guest fault; no firmware admission is assigned"
+    }
+  ],
+  "limits": [
+    "No private script or fixture/source edit is promoted to current product by this summary.",
+    "r1/r2 missing warm inputs remain NOT RUN. r3 warm controller/callback success is not retroactively a completed-pixel PASS.",
+    "Trusted DOM isTrusted flags were not captured in r3. Input used real Playwright mouse dispatch; the proposed formal test adds passive event timing/flags and coherent actual pixel gates.",
+    "Formal exact startup measurements and the final public admission gate remain separate pending executions."
+  ]
+}
