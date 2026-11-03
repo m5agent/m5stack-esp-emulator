@@ -1,11 +1,12 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对：`2026-10-30`。本页说明部署流程；当前能力以
+最近核对：`2026-11-03`。本页说明部署流程；当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
+当前 inventory：设备 33 台、Unit catalog 160（158 implemented/partial + 2 DEFER）、canonical 41 层链；动态数量以快照为准。
 逐设备准入由 `platform/web/qemu-browser-profiles.json` 的 `admission` 定义，
 并与本次 runtime 的 `compiled_profiles` 取交集。已编入二进制的 machine、
 候选预览或原生验证均不能自动获得公开准入。已有运行登记但未获浏览器准入的

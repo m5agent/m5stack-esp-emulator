@@ -7,6 +7,13 @@ planned 契约，依据 **batch11 driver-gap 协议研究**（PR #150 分支
 协议 PDF 出处见该文 §4.1-§4.6、§5.1）。**本批无 guest/Device Service 证据，
 7 款全部保持 planned，不升级 implemented。**
 
+> **历史时点页**：本页记录 batch-12a 模型初落地时点（canonical 36/37 层、7 款
+> 全部 planned、无 guest 证据）。后续 [batch-12a evidence](../evidence/2026-11-03-unit-batch12a-evidence/README.md)
+> 已取得 7/7 PASS 并升 implemented；最终 canonical 为 **41 层**（0120–0161）。
+> 当前能力以[项目状态](../project-status.md)和[战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)
+> 为准，正文保留初落地时点的设计/边界记录。
+
+
 ## 补丁与 base
 
 - 补丁：`patches/qemu-m5stack-peripherals/0158-unit-batch12a.patch`
