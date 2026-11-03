@@ -123,13 +123,22 @@ def source_member_allowed(relative: Path) -> bool:
 
 
 def audit_link_arguments(argv: list[str], flags: list[str]) -> dict:
+    effective = {}
     for expected in flags:
-        setting = expected.split("=", 1)[0] + "="
-        actual = [arg for arg in argv if arg.startswith(setting)]
+        if expected in ("-O0", "-O1", "-O2", "-O3", "-Os", "-Oz"):
+            # Emscripten optimizes the linked Wasm/Asyncify output separately
+            # from C object compilation. CFLAGS=-O2 alone leaves that pass off.
+            actual = [arg for arg in argv if arg in
+                      ("-O0", "-O1", "-O2", "-O3", "-Os", "-Oz")]
+            effective["optimization"] = expected[1:]
+        else:
+            setting = expected.split("=", 1)[0] + "="
+            actual = [arg for arg in argv if arg.startswith(setting)]
+            effective[expected.split("=", 1)[0][2:]] = expected.split("=", 1)[1]
         if not actual or any(arg != expected for arg in actual):
             raise ValueError("effective QEMU link setting mismatch: " + expected)
     return {"verified": True, "source": "ninja-link-command", "required_flags": flags,
-            "effective": {flag.split("=", 1)[0][2:]: flag.split("=", 1)[1] for flag in flags},
+            "effective": effective,
             "argv_sha256": hashlib.sha256(json.dumps(argv, separators=(",", ":")).encode()).hexdigest()}
 
 
@@ -447,7 +456,7 @@ def runtime_files(directory: Path, *, allow_incremental: bool = False) -> tuple[
         raise ValueError("runtime compiled boards or framebuffer ABI mismatch")
     if rebuilt is True:
         audit = build.get("link_audit", {})
-        effective = {flag.split("=", 1)[0][2:]: flag.split("=", 1)[1] for flag in lock["link_flags"]}
+        effective = audit_link_arguments(lock["link_flags"], lock["link_flags"])["effective"]
         if audit.get("verified") is not True or audit.get("source") != "ninja-link-command" or audit.get("required_flags") != lock["link_flags"] or audit.get("effective") != effective or not isinstance(audit.get("argv_sha256"), str) or len(audit["argv_sha256"]) != 64:
             raise ValueError("runtime lacks the verified effective link settings")
     if manifest.get("profiles") != ["cores3"] or manifest.get("required_rom") != lock["required_rom"] or manifest.get("firmware_bundled") is not False:

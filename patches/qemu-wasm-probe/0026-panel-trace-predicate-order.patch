@@ -1,0 +1,238 @@
+Subject: [PATCH] Check panel trace pixel predicates before environment lookup
+
+Only the selected coordinate or primary-color pixels can emit these traces.
+Check those inexpensive predicates before getenv, retaining the trace-count
+increment position and the post-frame environment lookup. Pixel conversion,
+window progression, dirty state and display notifications remain unchanged.
+
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -100,113 +100,112 @@
+     case 0xFC:
+         return true;
+     default:
+         return false;
+     }
+ }
+ 
+ static uint32_t m5_panel_dcs_param_count(uint8_t cmd)
+ {
+     switch (cmd) {
+     case 0x2A:
+     case 0x2B:
+         return 4;
+     case 0xB1:
+     case 0xB2:
+     case 0xC0:
+         return 3;
+     case 0xB3:
+         return 6;
+     case 0xB4:
+     case 0xC1:
+     case 0xC5:
+         return 1;
+     case 0xB6:
+     case 0xC2:
+     case 0xC3:
+     case 0xC4:
+     case 0xFC:
+         return 2;
+     case 0xE0:
+     case 0xE1:
+         return 16;
+     case 0x36:
+     case 0x3A:
+         return 1;
+     default:
+         return 0;
+     }
+ }
+ 
+ static void m5_panel_reset_window(M5SpiPanelState *s)
+ {
+     s->cx = s->xs;
+     s->cy = s->ys;
+ }
+ 
+ static void m5_panel_put_pixel(M5SpiPanelState *s, uint16_t px)
+ {
+     static unsigned pixel_trace_count;
+     int x = s->cx, y = s->cy;
+     if (s->apply_madctl) {
+         if (s->madctl & 0x20) { int t = x; x = y; y = t; }
+         if (s->madctl & 0x40) { x = s->mem_w - 1 - x; }
+         if (s->madctl & 0x80) { y = s->mem_h - 1 - y; }
+     }
+-    if (getenv("M5SW_PANEL_PIXEL_TRACE") &&
+-        (px == 0xf800 || px == 0x001f || px == 0x07e0)
+-        && pixel_trace_count++ < 500) {
++    if ((px == 0xf800 || px == 0x001f || px == 0x07e0) &&
++        getenv("M5SW_PANEL_PIXEL_TRACE") && pixel_trace_count++ < 500) {
+         fprintf(stderr, "[m5panel-pixel] (%d,%d)=%04x window=(%u,%u)-(%u,%u)\n",
+                 x, y, px, s->xs, s->ys, s->xe, s->ye);
+     }
+     if (x >= 0 && x < (int)s->mem_w && y >= 0 && y < (int)s->mem_h) {
+         s->mem[y * s->mem_w + x] = px;
+     }
+     if (++s->cx > s->xe) {
+         s->cx = s->xs;
+         if (++s->cy > s->ye) {
+             s->cy = s->ys;
+         }
+     }
+ }
+ 
+ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase)
+ {
+     static unsigned stream_trace_count;
+     static unsigned stream_trace_group;
+     static unsigned dc_trace_count;
+     if (!command_phase && s->infer_command && len == 1
+         && s->infer_params_left == 0 && s->pending_pixel_bytes == 0
+         && m5_panel_is_dcs_command(buf[0])) {
+         command_phase = true;
+     }
+     if (getenv("M5SW_PANEL_DC_TRACE") && len && dc_trace_count++ < 1000) {
+         fprintf(stderr, "[m5panel-dc] phase=%d len=%u first=%02x\n",
+                 command_phase, len, buf[0]);
+     }
+     if (getenv("M5SW_SPI_TRACE") && m5_panel_trace_count < 10000) {
+         for (uint32_t i = 0; i < len && m5_panel_trace_count < 10000; i++) {
+             fprintf(stderr, "[m5panel] %c %02x\n",
+                     command_phase ? 'C' : 'D', buf[i]);
+             m5_panel_trace_count++;
+         }
+     }
+     if (!command_phase && s->cmd == 0x2c && getenv("M5SW_PANEL_STREAM_TRACE")
+         && stream_trace_count < 6000) {
+         for (uint32_t i = 0; i < len && stream_trace_count < 6000; i++) {
+             fprintf(stderr, "[m5panel-stream] %02x\n", buf[i]);
+             stream_trace_count++;
+         }
+     }
+     for (uint32_t i = 0; i < len; i++) {
+         uint8_t b = buf[i];
+         if (command_phase) {
+             s->infer_params_left = m5_panel_dcs_param_count(b);
+             s->pending_pixel_bytes = 0;
+             if (b == 0x2c) {
+                 stream_trace_count = 0;
+                 if (getenv("M5SW_PANEL_STREAM_TRACE")) {
+                     fprintf(stderr, "[m5panel-stream-group] %u\n",
+                             stream_trace_group++);
+                 }
+             }
+@@ -304,111 +303,111 @@
+ 
+ uint32_t m5_spi_panel_read_id(M5SpiPanelState *s)
+ {
+     return s->read_id;
+ }
+ 
+ static void m5_panel_update(void *opaque)
+ {
+     M5SpiPanelState *s = opaque;
+     DisplaySurface *surf = qemu_console_surface(s->con);
+     if (!surf || surface_bits_per_pixel(surf) != 32 ||
+         surface_width(surf) != s->vis_w || surface_height(surf) != s->vis_h) {
+         surf = qemu_create_displaysurface(s->vis_w, s->vis_h);
+         dpy_gfx_replace_surface(s->con, surf);
+         s->dirty = true;
+     }
+     if (!s->dirty) {
+         return;
+     }
+     s->dirty = false;
+     uint32_t *dst = (uint32_t *)surface_data(surf);
+     int stride = surface_stride(surf) / 4;
+     bool on = s->disp_on && !s->sleep;
+     bool invert = s->physical_invert ^ s->controller_invert;
+     for (uint32_t y = 0; y < s->vis_h; y++) {
+         uint32_t *d = dst + y * stride;
+         for (uint32_t x = 0; x < s->vis_w; x++) {
+             uint32_t mx = x + s->off_x;
+             uint32_t my = y + s->off_y;
+             switch (s->glass_rotation & 3) {
+             case 1:
+                 mx = s->off_x + y;
+                 my = s->off_y + s->vis_w - 1 - x;
+                 break;
+             case 2:
+                 mx = s->off_x + s->vis_w - 1 - x;
+                 my = s->off_y + s->vis_h - 1 - y;
+                 break;
+             case 3:
+                 mx = s->off_x + s->vis_h - 1 - y;
+                 my = s->off_y + x;
+                 break;
+             default:
+                 break;
+             }
+             uint16_t p = s->mem[my * s->mem_w + mx];
+             if (invert) {
+                 p = ~p;
+             }
+             uint32_t r = ((p >> 11) & 0x1f) * 255 / 31;
+             uint32_t g = ((p >> 5) & 0x3f) * 255 / 63;
+             uint32_t b = (p & 0x1f) * 255 / 31;
+             if (!on) {
+                 r = g = b = 0;
+             }
+-            if (getenv("M5SW_PANEL_REFRESH_TRACE") && x == 20 && y == 20) {
++            if (x == 20 && y == 20 && getenv("M5SW_PANEL_REFRESH_TRACE")) {
+                 fprintf(stderr,
+                         "[m5panel-pixel-render] mx=%u my=%u p=%04x on=%d inv=%d\n",
+                         mx, my, p, on, invert);
+             }
+             d[x] = 0xff000000u | (r << 16) | (g << 8) | b;
+         }
+     }
+     if (getenv("M5SW_PANEL_REFRESH_TRACE")) {
+         int stride_dbg = surface_stride(surf) / 4;
+         uint32_t *dbg = (uint32_t *)surface_data(surf);
+         fprintf(stderr, "[m5panel-render] surface=%p sample=%08x size=%ux%u\n",
+                 (void *)surf, dbg[20 * stride_dbg + 20],
+                 surface_width(surf), surface_height(surf));
+     }
+     dpy_gfx_update(s->con, 0, 0, s->vis_w, s->vis_h);
+ }
+ 
+ static void m5_panel_invalidate(void *opaque)
+ {
+     ((M5SpiPanelState *)opaque)->dirty = true;
+ }
+ 
+ static const GraphicHwOps m5_panel_ops = {
+     .invalidate = m5_panel_invalidate,
+     .gfx_update = m5_panel_update,
+ };
+ 
+ static uint32_t m5_panel_pixel_rgb(M5SpiPanelState *s, uint32_t x, uint32_t y)
+ {
+     uint32_t mx = x + s->off_x;
+     uint32_t my = y + s->off_y;
+ 
+     switch (s->glass_rotation & 3) {
+     case 1:
+         mx = s->off_x + y;
+         my = s->off_y + s->vis_w - 1 - x;
+         break;
+     case 2:
+         mx = s->off_x + s->vis_w - 1 - x;
+         my = s->off_y + s->vis_h - 1 - y;
+         break;
+     case 3:
+         mx = s->off_x + s->vis_h - 1 - y;
+         my = s->off_y + x;
+         break;
+     default:
+         break;
+     }
+ 
+     uint16_t p = s->mem[my * s->mem_w + mx];
+     bool on = s->disp_on && !s->sleep;
+     bool invert = s->physical_invert ^ s->controller_invert;
+     if (invert) {
+         p = ~p;
+     }

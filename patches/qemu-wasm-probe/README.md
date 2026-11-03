@@ -382,3 +382,32 @@ address windows. They do not replace a browser guest result. The separate
 [original keyboard/display probe](../../tests/firmware/cardputer_input_orientation/README.md)
 uses the normal TCA8418 GPIO IRQ reader, real key edges, four corner markers,
 and a partial update held between keyboard-driven stages.
+
+## Disabled-icount Xtensa helper overhead (`0024`)
+
+`0024-xtensa-skip-disabled-icount-yield.patch` omits the `memw` and `retw`
+cooperative IRQ yield helper calls when the global icount mode is disabled.
+Those helpers return without side effects in that mode. Memory barriers,
+register-window updates, the actual `retw` helper and jumps remain intact.
+Precise/adaptive icount retain the original sequence, including replay TBs
+which temporarily clear `CF_USE_ICOUNT`. This relies on the current startup-only
+icount mode configuration; a future dynamic mode switch needs TB invalidation.
+
+`platform/tests/test_xtensa_wallclock_noop_yield_patch.py` compiles both actual
+translator function images from the patch's complete context. System and
+user-only controls compare their emitted operations across all icount modes
+and both TB-flag states. These are host translation contracts; a rebuilt
+runtime still requires separate browser guest and cleanup validation.
+
+## Panel trace predicate order (`0026`)
+
+`0026-panel-trace-predicate-order.patch` checks the selected framebuffer
+coordinate or primary-color pixel before looking up its trace environment
+variable. The post-frame lookup, trace-count increment, blitter, controller
+memory and window progression remain unchanged; it introduces no cached state.
+
+`platform/tests/test_panel_trace_predicate_patch.py` extracts the actual before
+and after functions from the patch and compares pixels, trace text, counter
+limits, dirty state and window progression across display, inversion, rotation
+and MADCTL cases. Its environment-lookup counts are a host contract, not guest
+frame rate or physical display performance.

@@ -1,0 +1,143 @@
+Subject: [PATCH] Skip Xtensa cooperative yield helpers when icount is disabled
+
+The cooperative high-priority IRQ helper returns without side effects when
+icount is disabled. Avoid emitting its memw/retw calls in that mode, retaining
+the memory barrier, register-window operations, retw helper and jump. Precise
+and adaptive icount modes emit the original helper sequence, including replay
+TBs which temporarily clear CF_USE_ICOUNT. The global icount mode is configured
+before CPU execution; this does not add dynamic mode switching.
+
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -20,40 +20,41 @@
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+ #include "qemu/osdep.h"
+ 
+ #include "cpu.h"
+ #include "exec/exec-all.h"
+ #include "tcg/tcg-op.h"
+ #include "qemu/log.h"
+ #include "qemu/qemu-print.h"
+ #include "semihosting/semihost.h"
+ #include "exec/translator.h"
++#include "sysemu/cpu-timers.h"
+ 
+ #include "exec/helper-proto.h"
+ #include "exec/helper-gen.h"
+ 
+ #include "exec/log.h"
+ 
+ #define HELPER_H "helper.h"
+ #include "exec/helper-info.c.inc"
+ #undef  HELPER_H
+ 
+ #include "translate.h"
+ 
+ static TCGv_i32 cpu_pc;
+ static TCGv_i32 cpu_R[16];
+ static TCGv_i32 cpu_FR[16];
+ static TCGv_i64 cpu_FRD[16];
+ static TCGv_i32 cpu_MR[4];
+ static TCGv_i32 cpu_BR[16];
+ static TCGv_i32 cpu_BR4[4];
+ static TCGv_i32 cpu_BR8[2];
+@@ -1803,41 +1804,43 @@
+                 tcg_gen_add2_i32(cpu_SR[ACCLO], cpu_SR[ACCHI],
+                                  cpu_SR[ACCLO], cpu_SR[ACCHI],
+                                  lo, hi);
+             } else {
+                 tcg_gen_sub2_i32(cpu_SR[ACCLO], cpu_SR[ACCHI],
+                                  cpu_SR[ACCLO], cpu_SR[ACCHI],
+                                  lo, hi);
+             }
+             tcg_gen_ext8s_i32(cpu_SR[ACCHI], cpu_SR[ACCHI]);
+         }
+     }
+     if (ld_offset) {
+         tcg_gen_mov_i32(arg[1].out, vaddr);
+         tcg_gen_mov_i32(cpu_SR[MR + arg[0].imm], mem32);
+     }
+ }
+ 
+ static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+-    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
++    if (icount_enabled()) {
++        gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
++    }
+     tcg_gen_mb(TCG_BAR_SC | TCG_MO_ALL);
+ }
+ 
+ static void translate_smin(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_smin_i32(arg[0].out, arg[1].in, arg[2].in);
+ }
+ 
+ static void translate_umin(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_umin_i32(arg[0].out, arg[1].in, arg[2].in);
+ }
+ 
+ static void translate_smax(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_smax_i32(arg[0].out, arg[1].in, arg[2].in);
+ }
+@@ -2034,41 +2037,43 @@
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "Illegal retw instruction(pc = %08x)\n", dc->pc);
+         return XTENSA_OP_ILL;
+     } else {
+         TCGv_i32 pc = tcg_constant_i32(dc->pc);
+ 
+         gen_helper_test_ill_retw(tcg_env, pc);
+         return 0;
+     }
+ }
+ 
+ static void translate_retw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     TCGv_i32 tmp = tcg_temp_new();
+     tcg_gen_shl_i32(tmp, tcg_constant_i32(1), cpu_SR[WINDOW_BASE]);
+     tcg_gen_andc_i32(cpu_SR[WINDOW_START],
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
+-    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
++    if (icount_enabled()) {
++        gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
++    }
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }
+ 
+ static void translate_rfde(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     gen_jump(dc, cpu_SR[dc->config->ndepc ? DEPC : EPC1]);
+ }
+ 
+ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+     gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_EXCM);
+     gen_jump(dc, cpu_SR[EPC1]);
+ }
+ 
+ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])

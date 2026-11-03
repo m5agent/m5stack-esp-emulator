@@ -114,6 +114,7 @@
     "pycotap": "1.3.1"
   },
   "link_flags": [
+    "-O3",
     "-sSTACK_SIZE=64KB",
     "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
     "-sSTACK_OVERFLOW_CHECK=2"
@@ -174,7 +175,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
-    "hw/m5stopwatch/m5_spi_panel.c": "100d14f4b310e7ddd522fcd3e63875c5e4534770b8d589da373e07dacec7668f",
+    "hw/m5stopwatch/m5_spi_panel.c": "838695ca92b319b516ad43bd22ea4fe0be8b23dce6ba046bd542b7d5577ed26c",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -286,7 +287,9 @@
     "target/xtensa/exc_helper.c": "a286df37066556758783c0a5189671f14f305d2879648d3ae176380e82a8b5f2",
     "target/xtensa/helper.h": "fc79394413882c1fc160230a7bf1405a29c40f28e8132a03767bac2796284ac5",
     "target/xtensa/op_helper.c": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
-    "target/xtensa/translate.c": "7a5ca44bd4d351dde6b42526926bd74434d8b0c8221aa5cfa5a9d54c42fd656e",
+    "target/xtensa/translate.c": "335c6ad3b2aee8721769ef8415ccf0a14b8f320903cde23482e212541712514f",
+    "tcg/tci-wasm-call.h": "3ea36afa67ea2d26f0f2a6f6a102eb85f6b96667fe434231cc64d4ea69e8da58",
+    "tcg/tci.c": "2e7eac135e1384e866203f2ce3977cdac85bf87551fa2f0bade94b2f7aecf126",
     "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
     "ui/ui-qmp-cmds.c": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
     "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
@@ -563,6 +566,18 @@
     {
       "path": "patches/qemu-wasm-probe/0023-cardputer-adv-glass-mount.patch",
       "sha256": "9f5fb8bcec6179fff6525404fb08b651c53eeff6bd6ad4f2c9a2cc83b4114bd7"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0024-xtensa-skip-disabled-icount-yield.patch",
+      "sha256": "cefa27934f22fc9fec4bc089a2e4b34aad51f516c59d7021a0e4f8aff989a7a0"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0025-wasm-tci-typed-helper-calls.patch",
+      "sha256": "df29bedf7c77a71649c3757909782d08f00c8c3c50779e0a6ff1e011b3968b36"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0026-panel-trace-predicate-order.patch",
+      "sha256": "903197388e742c42071b9c37868c0333ba2c2349809fb4cd6171c89d5554e27b"
     }
   ],
   "qemu": {

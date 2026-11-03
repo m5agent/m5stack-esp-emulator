@@ -24,18 +24,20 @@ completed, hash-verified library outputs from this exact source lock. QEMU still
 gets a new source/build directory and every QEMU object is compiled there. CI
 does not need this option and builds the dependency sources itself.
 
-`sources.lock.json` freezes the Espressif QEMU commit, **36 explicit native
-layers**, 15 QEMU WASM patches, dependency patches/archives, subprojects,
+`sources.lock.json` freezes the Espressif QEMU commit, explicit native
+layers, the independent QEMU WASM patches, dependency patches/archives, subprojects,
 Emscripten 3.1.50 and host tool versions. It never imports the mutable native
 bootstrap patch list. Patches 0065/0066 are context-ported through 0011;
 0008 instrumentation is included in the reviewed source sequence; 0007's
 historical 2 MiB stack expansion is excluded. Link flags explicitly select
-64 KiB main/pthread stacks and stack checking. Meson's command-line options
+64 KiB main/pthread stacks, stack checking and final-link `-O3`. Object-level
+`CFLAGS=-O2` does not optimize the linked Wasm/Asyncify output; the link audit
+rejects a missing or conflicting optimization level. Meson's command-line options
 preserve the complete Emscripten link list and take precedence over QEMU's
 later cross file. Before compiling, the builder checks the actual Ninja link
 command for missing or conflicting stack settings and records its argument
-hash in the build receipt and runtime manifest. The 153 affected source-file
-hashes bind this recipe to the final reviewed source.
+hash in the build receipt and runtime manifest. The locked source-file hashes
+bind this recipe to the final reviewed source.
 
 Native layers `0085` through `0089` register separate AtomS3, AtomS3 Lite,
 StickC, StickC Plus, StickC Plus SE, StickC Plus2, Dial, Atom Lite, Atom Matrix
@@ -113,6 +115,22 @@ pinned SDK's `poll` implementation. Build PASS alone proves neither frame
 rate nor reduced CPU: use the browser benchmark and same-guest input/frame/
 cleanup receipts, and keep compiler/background-load and GPU renderer details
 with resource measurements.
+
+Patches `0024`/`0025` reduce host work without replacing guest/controller paths.
+`0024` omits the cooperative `memw`/`retw` yield helpers only when the global
+icount mode is disabled, where those helpers return without side effects.
+Precise/adaptive icount, including replay TBs whose `CF_USE_ICOUNT` flag is
+temporarily clear, retain the original sequence. Memory barriers, register-window
+updates and the real retw helper remain intact. Actual-function C controls are in
+`platform/tests/test_xtensa_wallclock_noop_yield_patch.py`.
+
+`0025` calls the same TCI helpers through exact WASM32 lowered signatures for
+zero to seven i32/pointer arguments and void/i32 results. Unsupported signatures
+and variadic calls keep the original libffi route. It preserves `tci_tb_ptr`,
+return extraction, Asyncify, fibers and the CPU-loop longjmp stack restoration;
+native hosts keep libffi. The real-libffi ABI comparison is
+`tests/browser-qemu/typed_helpers/`. These host controls do not grant firmware
+PASS; a rebuilt runtime still needs the affected same-image browser acceptance.
 
 Patch `0017` coalesces expired positive-period SYSTIMER host callbacks in WASM
 while retaining the next alarm's phase. The elapsed counter, pending interrupt
