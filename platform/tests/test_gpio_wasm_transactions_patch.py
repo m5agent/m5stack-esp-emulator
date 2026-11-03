@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import test_unit_flashlight_cold_pad_patch as replay
 
@@ -130,12 +131,50 @@ class GpioWasmTransactionPatchTests(unittest.TestCase):
         return binary
 
     def execute(self, name, case):
-        p = subprocess.run([str(self.binaries[name]), case], capture_output=True, text=True, timeout=15)
+        # glibc prefixes assertion failures with argv[0]. Keep that diagnostic
+        # identity equal while executing the two distinct real binaries.
+        p = subprocess.run(["gpio-transaction-contract", case], executable=str(self.binaries[name]),
+                           capture_output=True, text=True, timeout=15)
         err = p.stderr.replace(str(self.binaries[name]) + ".c", "actual-source.c")
         err = err.replace(str(self.binaries[name]), "actual-source")
         err = re.sub(r"file [^,\n]+\.c, line \d+", "file actual-source.c, line OMITTED", err)
         err = re.sub(r"actual-source\.c:\d+", "actual-source.c:LINE", err)
         return p.returncode, p.stdout, err
+
+    def test_glibc_assert_diagnostics_preserve_meaningful_differences(self):
+        # Captured Linux CI assertion shape, without depending on its raw log
+        # or changing the full stderr comparison used by the actual C cases.
+        expression = "aw->reset_at_ns == -1 && aw->settle_at_ns == -1 && aw->timeout_at_ns == -1"
+        calls = []
+        difference = None
+
+        def captured_glibc(args, *, executable, **options):
+            calls.append((args, executable))
+            stderr = (f"{Path(args[0]).name}: {executable}.c:73: assert_lost: "
+                      f"Assertion `{expression}' failed.\n")
+            result = (-6, "IRQ 0 status0=00000000 status1=00000000\n", stderr)
+            if Path(executable).name == "candidate" and difference:
+                result = difference(result)
+            return subprocess.CompletedProcess(args, *result)
+
+        with patch.object(subprocess, "run", side_effect=captured_glibc):
+            reference = self.execute("reference", "writer-pull-conflict")
+            self.assertEqual(reference, self.execute("candidate", "writer-pull-conflict"))
+            self.assertEqual(calls[0][0], calls[1][0])
+            self.assertEqual(calls[0][0][1], "writer-pull-conflict")
+            self.assertEqual([call[1] for call in calls],
+                             [str(self.binaries[name]) for name in ("reference", "candidate")])
+            self.assertIn("assert_lost: Assertion `" + expression + "' failed.", reference[2])
+            differences = {
+                "assert-expression": lambda r: (r[0], r[1], r[2].replace("timeout_at_ns == -1", "timeout_at_ns == 0")),
+                "assert-function": lambda r: (r[0], r[1], r[2].replace("assert_lost:", "other_assert:")),
+                "other-stderr": lambda r: (r[0], r[1], r[2] + "additional controller diagnostic\n"),
+                "signal": lambda r: (-11, r[1], r[2]),
+                "stdout-tape": lambda r: (r[0], r[1].replace("IRQ 0", "IRQ 1"), r[2]),
+            }
+            for name, difference in differences.items():
+                with self.subTest(difference=name):
+                    self.assertNotEqual(reference, self.execute("candidate", "writer-pull-conflict"))
 
     def test_fixed_clock_original_cases_and_explicit_oracle_limits(self):
         for case in replay.CASES:
