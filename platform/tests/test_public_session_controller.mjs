@@ -4,6 +4,13 @@ import {PublicSessionController} from '../web/public-session-controller.js';
 
 const deferred = () => {let resolve, reject; const promise = new Promise((yes, no) => {resolve = yes; reject = no;}); return {promise, resolve, reject};};
 const tick = () => new Promise(resolve => setImmediate(resolve));
+async function until(predicate) {
+  const deadline = performance.now() + 2000;
+  while (!predicate()) {
+    assert.ok(performance.now() < deadline, 'Polling contract did not reach its next phase');
+    await new Promise(resolve => setTimeout(resolve, 1));
+  }
+}
 const result = session_id => ({session_id, device_id: 'cores3', state: 'running', display: {width: 320, height: 240}});
 const stopped = session_id => ({...result(session_id), state: 'stopped', worker: {lease_active: false}});
 function fakeService() {
@@ -344,4 +351,378 @@ for (const phase of ['delete','confirmation']) {
   oldInput.resolve({session_id:'own1'});
   await tick();
 }
-console.log('PUBLIC_SESSION_CONTROLLER_OK: stable create recovery, definite rejections, cancellation, bounded terminal stop, strict lease confirmation, stale-frame fencing and retained evidence');
+
+// Slow session metadata no longer holds display delivery behind a serial GET
+// and the 350ms metadata cadence. Every frame still comes from the owned guest.
+{
+  const service = fakeService(), frames = [], requests = [];
+  let fetches = 0;
+  service.fetch = async (path, options) => {
+    requests.push({path, options});
+    return new Response(new Blob([String(++fetches)]), {headers: {ETag: `frame-${fetches}`}});
+  };
+  const controller = new PublicSessionController({service, shell: {setImage: async () => true}, onFrame: value => frames.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  await until(() => frames.length >= 3);
+  assert.equal(controller.metadataFlight?.generation, controller.generation, 'the original session GET is still pending');
+  assert.equal(controller.serialOffset, 0);
+  assert.ok(requests.every(row => row.path === '/api/v1/sessions/own1/frame.png?max_age_ms=1'));
+  assert.ok(requests.every(row => row.options.cache === 'no-store'));
+  assert.equal(requests[1].options.headers['If-None-Match'], 'frame-1');
+  assert.deepEqual(frames.slice(0, 3).map(frame => frame.sequence), [1, 2, 3]);
+  await controller.stop();
+  const count = fetches;
+  service.pendingSession.resolve(result('own1'));
+  await new Promise(resolve => setTimeout(resolve, 45));
+  assert.equal(fetches, count, 'stop clears both loops, including a scheduled display read');
+}
+
+// A stalled frame fetch neither delays serial/state progress nor starts more
+// frame requests. Stop aborts that fetch and a late response cannot regain UI.
+{
+  const service = fakeService(), pending = deferred(), painted = [], states = [], serial = [];
+  let fetches = 0, frameSignal, sessions = 0;
+  service.session = async id => {sessions++; return result(id);};
+  service.serial = async () => ({next_offset: sessions, data: String(sessions)});
+  service.fetch = (path, {signal}) => {fetches++; frameSignal = signal; return pending.promise;};
+  const controller = new PublicSessionController({service, pollIntervalMs: 1, frameIntervalMs: 1,
+    shell: {setImage: async () => {painted.push('paint'); return true;}}, onSerial: value => serial.push(value), onState: value => states.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  await until(() => serial.length >= 3);
+  await controller.pollFrames(controller.generation, 'own1');
+  assert.equal(fetches, 1, 'one display request remains in flight');
+  assert.ok(states.length >= 3);
+  await controller.stop();
+  assert.equal(frameSignal.aborted, true);
+  pending.resolve(new Response(new Blob(['late']), {headers: {ETag: 'late'}}));
+  await tick();
+  assert.deepEqual(painted, []);
+  assert.equal(controller.etag, null);
+}
+
+// Slow image decoding is part of the display lane's single in-flight work.
+// Switching away and back to the same shell still fences that old decoder.
+{
+  const service = fakeService(), decode = deferred(), observations = [], guards = [];
+  let fetches = 0, paints = 0;
+  const shell = {async setImage(blob, sequence, current) {
+    guards.push(current);
+    if (sequence === 1) await decode.promise;
+    if (!current()) return false;
+    paints++; return true;
+  }};
+  service.fetch = async () => {fetches++; return new Response(new Blob(['frame']), {headers: {ETag: `etag-${fetches}`}});};
+  const controller = new PublicSessionController({service, shell, frameIntervalMs: 1, onFrame: value => observations.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  await until(() => guards.length === 1);
+  await controller.pollFrames(controller.generation, 'own1');
+  assert.equal(fetches, 1, 'decode cannot queue another capture');
+  controller.setShell({setImage: async () => true});
+  controller.setShell(shell);
+  assert.equal(guards[0](), false, 'shell epoch fences a swap back to the same object');
+  decode.resolve();
+  await until(() => observations.length >= 1);
+  assert.equal(observations[0].sequence, 2, 'the old decode is never published');
+  assert.equal(paints, observations.length);
+  assert.notEqual(controller.etag, 'etag-1');
+  await controller.stop();
+}
+
+// Conditional responses keep the current texture, while a failed image commit
+// must not cache an ETag that would suppress the missing texture on retry.
+{
+  const service = fakeService(), requests = [], frames = [];
+  let attempt = 0;
+  service.fetch = async (path, options) => {
+    requests.push(options.headers);
+    if (++attempt === 3) return new Response(null, {status: 304});
+    return new Response(new Blob(['frame']), {headers: {ETag: 'same-frame'}});
+  };
+  const controller = new PublicSessionController({service, frameIntervalMs: 60000,
+    shell: {setImage: async () => attempt !== 1}, onFrame: value => frames.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  await until(() => frames.length === 1);
+  assert.equal(controller.frameReady, false);
+  assert.equal(controller.etag, null);
+  clearTimeout(controller.frameTimer);
+  await controller.pollFrames(controller.generation, 'own1');
+  clearTimeout(controller.frameTimer);
+  assert.equal(requests[1]['If-None-Match'], undefined);
+  assert.equal(controller.frameReady, true);
+  await controller.pollFrames(controller.generation, 'own1');
+  clearTimeout(controller.frameTimer);
+  assert.equal(requests[2]['If-None-Match'], 'same-frame');
+  assert.equal(frames.length, 2, '304 never decodes or republishes a stale frame');
+  assert.equal(controller.frameReady, true);
+  await controller.stop();
+}
+
+// Reset aborts both old lanes and discards a pre-reset image even when a
+// noncompliant transport resolves it after the new generation is displaying.
+{
+  const service = fakeService(), beforeReset = deferred(), reset = deferred(), frames = [];
+  let fetches = 0, oldSignal;
+  service.fetch = (path, {signal}) => {
+    if (++fetches === 1) {oldSignal = signal; return beforeReset.promise;}
+    return Promise.resolve(new Response(new Blob(['new']), {headers: {ETag: 'after-reset'}}));
+  };
+  service.request = () => reset.promise;
+  const controller = new PublicSessionController({service, shell: {setImage: async () => true}, onFrame: value => frames.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  const resetting = controller.reset();
+  await tick();
+  assert.equal(oldSignal.aborted, true);
+  assert.equal(fetches, 1, 'polling stays paused until reset acknowledges');
+  reset.resolve({});
+  await resetting;
+  await until(() => frames.length === 1);
+  beforeReset.resolve(new Response(new Blob(['old']), {headers: {ETag: 'before-reset'}}));
+  await tick();
+  assert.equal(frames.length, 1);
+  assert.equal(controller.etag, 'after-reset');
+  await controller.stop();
+}
+
+// A terminal session update fences an already decoding image and ends both
+// polling lanes without waiting for the display response to finish.
+{
+  const service = fakeService(), decode = deferred(), guards = [], frames = [];
+  const controller = new PublicSessionController({service, shell: {async setImage(blob, sequence, current) {
+    guards.push(current); await decode.promise; return current();
+  }}, onFrame: value => frames.push(value)});
+  await controller.start({deviceId: 'cores3'});
+  await until(() => guards.length === 1);
+  service.pendingSession.resolve(stopped('own1'));
+  await tick();
+  assert.equal(controller.current.state, 'stopped');
+  assert.equal(guards[0](), false);
+  decode.resolve();
+  await tick();
+  assert.deepEqual(frames, []);
+  assert.equal(controller.frameFlight, null);
+  assert.equal(controller.metadataFlight, null);
+  await controller.stop();
+}
+
+const servoProfile = {deviceId: 'stackchan', board: 'm5stackchan', firmwareSHA256: 'a'.repeat(64), outputs: {kind: 'stackchan-scs-qom-v1', path: '/machine/scs_servo', property: 'state',
+  calibration: {yawZeroTicks: 460, pitchZeroTicks: 620, tickDegrees: 5 / 16, yawDirection: 1, pitchDirection: 1}}};
+const servoState = (packets = 1) => ({schema_version: 1, source: 'qemu-uart1-scs-controller', powered: true, packets, rejected_packets: 0,
+  motion_model: 'command-time-position-v1', pwm_motion_modelled: false,
+  servos: [470, 650].map((position, index) => ({id: index + 1, present_position: position, goal_position: position + 10,
+    torque: 1, mode: 'position', moving: true, goal_time_ms: 100, goal_speed: 0, pwm: 0}))});
+const servoReceipt = (packets = 1) => ({session_id: 'own1', path: '/machine/scs_servo', property: 'state', value: servoState(packets)});
+const servoCapability = () => ({session_id: 'own1', path: '/machine/scs_servo', properties: [{name: 'state', type: 'any'}]});
+function servoService() {
+  const service = fakeService();
+  service.create = async () => ({...result('own1'), device_id: 'stackchan', firmware_sha256: 'a'.repeat(64)});
+  service.stop = async id => ({...stopped(id), device_id: 'stackchan'});
+  return service;
+}
+
+// Native output is the same owned guest's validated controller readback.
+// It progresses independently of metadata and never turns goal into present.
+{
+  const service = servoService(), outputs = [], availability = [], requests = [];
+  let packets = 0;
+  service.request = async (path, options) => {
+    requests.push({path, options});
+    return path.includes('/qom/list?') ? servoCapability() : servoReceipt(++packets);
+  };
+  const controller = new PublicSessionController({service, outputProfile: servoProfile, outputIntervalMs: 1,
+    onDeviceState: value => outputs.push(value), onOutputState: value => availability.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => outputs.length >= 3);
+  assert.ok(controller.metadataFlight, 'the native QOM lane does not await session polling');
+  assert.equal(requests.filter(row => row.path.includes('/qom/list?')).length, 1);
+  assert.ok(requests.every(row => row.path.startsWith('/api/v1/sessions/own1/qom') && row.path.includes('path=%2Fmachine%2Fscs_servo')));
+  assert.ok(requests.every(row => row.options.signal instanceof AbortSignal));
+  assert.equal(outputs[0].device_id, 'stackchan');
+  assert.equal(outputs[0].servos[0].present_position, 470);
+  assert.equal(outputs[0].servos[0].goal_position, 480);
+  assert.equal(controller.outputObservation.transport, 'native-service-qom-v1');
+  assert.equal(controller.outputObservation.session_id, 'own1');
+  assert.equal(controller.outputObservation.firmware_sha256, 'a'.repeat(64));
+  assert.deepEqual(availability.map(row => row.status), ['available']);
+  assert.equal(controller.profile, undefined, 'native readback does not invent a browser runtime receipt/profile');
+  await controller.stop();
+}
+
+// Unsupported old backends stay explicitly unknown after one capability read.
+// Display delivery remains live, with no repeated QOM request or error spam.
+{
+  const service = servoService(), outputs = [], availability = [], errors = [];
+  let requests = 0, frames = 0;
+  service.request = async () => {requests++; return {...servoCapability(), properties: []};};
+  const controller = new PublicSessionController({service, outputProfile: servoProfile, outputIntervalMs: 1, frameIntervalMs: 1,
+    shell: {setImage: async () => true}, onFrame: () => frames++, onDeviceState: value => outputs.push(value),
+    onOutputState: value => availability.push(value), onError: value => errors.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => availability.length === 1 && frames >= 3);
+  await controller.pollOutputs(controller.generation, 'own1');
+  assert.equal(requests, 1);
+  assert.equal(controller.outputStatus, 'unavailable');
+  assert.deepEqual(outputs, []);
+  assert.deepEqual(errors, []);
+  assert.equal(availability[0].transport, 'native-service-qom-v1');
+  await controller.stop();
+}
+
+// Cross-session, wrong-path, wrong-property and untrusted controller payloads
+// all fail closed before any angle reaches the model callback.
+for (const corrupt of [
+  receipt => {receipt.session_id = 'other';}, receipt => {receipt.path = '/machine/other';},
+  receipt => {receipt.property = 'goal';}, receipt => {receipt.value.source = 'host-fake';},
+  receipt => {receipt.value.servos[0].present_position = NaN;},
+]) {
+  const service = servoService(), outputs = [], availability = [];
+  service.request = async path => {
+    if (path.includes('/qom/list?')) return servoCapability();
+    const receipt = servoReceipt(); corrupt(receipt); return receipt;
+  };
+  const controller = new PublicSessionController({service, outputProfile: servoProfile,
+    onDeviceState: value => outputs.push(value), onOutputState: value => availability.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => availability.length === 1);
+  assert.equal(availability[0].status, 'unavailable');
+  assert.deepEqual(outputs, []);
+  assert.equal(controller.lastDeviceState, null);
+  await controller.stop();
+}
+
+// Legacy QMP errors and restricted native APIs disable the optional output
+// lane once, preserving frame/session control and explicit unknown state.
+for (const [status, code] of [[404, 'not_found'], [500, 'qmp_error'], [403, 'runtime_acl_denied']]) {
+  const service = servoService(), availability = [], errors = [];
+  let requests = 0;
+  service.request = async () => {requests++; throw Object.assign(new Error('Unavailable controller fixture'), {status, code});};
+  const controller = new PublicSessionController({service, outputProfile: servoProfile,
+    onOutputState: value => availability.push(value), onError: error => errors.push(error)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => availability.length === 1);
+  await controller.pollOutputs(controller.generation, 'own1');
+  assert.equal(requests, 1);
+  assert.equal(availability[0].status, 'unavailable');
+  assert.deepEqual(errors, []);
+  await controller.stop();
+}
+
+// A hung capability response cannot block frames, queue more probes, or begin
+// reading controller state after its session has already stopped.
+{
+  const service = servoService(), capability = deferred(), outputs = [];
+  let requests = 0, signal, frames = 0;
+  service.request = (path, options) => {requests++; signal = options.signal; return capability.promise;};
+  const controller = new PublicSessionController({service, outputProfile: servoProfile, frameIntervalMs: 1,
+    shell: {setImage: async () => true}, onFrame: () => frames++, onDeviceState: value => outputs.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => frames >= 3);
+  await controller.pollOutputs(controller.generation, 'own1');
+  assert.equal(requests, 1);
+  await controller.stop();
+  assert.equal(signal.aborted, true);
+  capability.resolve(servoCapability());
+  await tick();
+  assert.equal(requests, 1);
+  assert.deepEqual(outputs, []);
+}
+
+// Reset invalidates an in-flight state reply, repeats capability discovery,
+// and publishes only the new native generation's controller observation.
+{
+  const service = servoService(), oldState = deferred(), outputs = [];
+  let capabilities = 0, reads = 0;
+  service.request = async path => {
+    if (path.endsWith('/reset')) return {};
+    if (path.includes('/qom/list?')) {capabilities++; return servoCapability();}
+    return ++reads === 1 ? oldState.promise : servoReceipt(20);
+  };
+  const controller = new PublicSessionController({service, outputProfile: servoProfile,
+    onDeviceState: value => outputs.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => reads === 1);
+  await controller.reset();
+  await until(() => outputs.length === 1);
+  oldState.resolve(servoReceipt(2));
+  await tick();
+  assert.equal(capabilities, 2);
+  assert.equal(outputs.length, 1);
+  assert.equal(outputs[0].packets, 20);
+  await controller.stop();
+}
+
+// Replacing the shell forces a fresh application of even an unchanged state;
+// the old in-flight reply cannot paint a shell swapped away and back.
+{
+  const service = servoService(), oldState = deferred(), outputs = [], shell = {};
+  let reads = 0;
+  service.request = async path => path.includes('/qom/list?') ? servoCapability() : ++reads === 1 ? oldState.promise : servoReceipt(5);
+  const controller = new PublicSessionController({service, shell, outputProfile: servoProfile, outputIntervalMs: 1,
+    onDeviceState: value => outputs.push(value)});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => reads === 1);
+  controller.setShell({}); controller.setShell(shell);
+  oldState.resolve(servoReceipt(1));
+  await until(() => outputs.length === 1);
+  assert.equal(outputs[0].packets, 5);
+  controller.setShell({});
+  await until(() => outputs.length === 2);
+  assert.equal(outputs[1].packets, 5);
+  await controller.stop();
+}
+
+// Pending reset and a failed post-reset capability read cannot expose the
+// previous generation's validated position/timestamp as a current observation.
+{
+  const service = servoService(), resetAck = deferred();
+  let afterReset = false;
+  service.request = async path => {
+    if (path.endsWith('/reset')) return resetAck.promise;
+    if (path.includes('/qom/list?')) {
+      if (afterReset) throw Object.assign(new Error('post-reset QMP unavailable'), {code: 'qmp_error'});
+      return servoCapability();
+    }
+    return servoReceipt(7);
+  };
+  const controller = new PublicSessionController({service, outputProfile: servoProfile});
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => controller.lastDeviceState !== null);
+  assert.ok(controller.outputObservation.observed_at);
+  afterReset = true;
+  const resetting = controller.reset();
+  await tick();
+  assert.equal(controller.outputStatus, 'pending');
+  assert.equal(controller.lastDeviceState, null);
+  assert.equal(controller.outputObservation, null);
+  resetAck.resolve({});
+  await resetting;
+  await until(() => controller.outputStatus === 'unavailable');
+  assert.equal(controller.lastDeviceState, null);
+  assert.equal(controller.outputObservation, null);
+  await controller.stop();
+}
+
+// Output metadata cannot point at another device/controller or bypass its
+// explicit firmware binding. Devices without a profile never probe SCS.
+{
+  const invalid = structuredClone(servoProfile); invalid.outputs.path = '/machine/other';
+  assert.throws(() => new PublicSessionController({service: servoService(), outputProfile: invalid}), /output profile/);
+  for (const firmwareSHA256 of [undefined, null, '', 'short', 'A'.repeat(64), 'g'.repeat(64), 123]) {
+    assert.throws(() => new PublicSessionController({service: servoService(), outputProfile: {...servoProfile, firmwareSHA256}}), /explicit firmware SHA-256/);
+  }
+  const service = servoService(), availability = []; let reads = 0;
+  service.request = async () => {reads++; return servoCapability();};
+  const controller = new PublicSessionController({service, outputProfile: {...servoProfile, firmwareSHA256: 'b'.repeat(64)}, onOutputState: value => availability.push(value)});
+  await assert.rejects(controller.start({deviceId: 'cores3'}), /不属于/);
+  await controller.start({deviceId: 'stackchan'});
+  await until(() => availability.length === 1);
+  assert.equal(availability[0].status, 'unavailable');
+  assert.equal(reads, 0, 'wrong firmware cannot use the declared geometry/readback binding');
+  await controller.stop();
+  const plain = new PublicSessionController({service});
+  await plain.start({deviceId: 'stackchan'});
+  await plain.pollOutputs(plain.generation, 'own1');
+  assert.equal(reads, 0, 'unbound outputs never probe an arbitrary native backend');
+  await plain.stop();
+}
+
+console.log('PUBLIC_SESSION_CONTROLLER_OK: independent single-flight frame/metadata/native-SCS lanes, fresh conditional frames, validated capability/receipt/firmware binding, unknown unsupported outputs, generation/shell/reset/stop fences and create recovery');

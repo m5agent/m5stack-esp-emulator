@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 
@@ -25,8 +25,8 @@ class TestURL extends URL {
 }
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
-const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
+const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
+  validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
   self:{postMessage:value=>lifecycle.push(value.type),close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
 vm.runInContext(executableSource,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
@@ -48,11 +48,21 @@ const fakeFactory=`export default async function(options){
   const files=new Map();const module={ENV:{},arguments:options.arguments,HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,files,mkdirTree(){},writeFile:(name,value)=>files.set(name,value),makedev:(a,b)=>b,
     registerDevice:(id,ops)=>devices[id]=ops,mkdev(){},getStream:()=>stream,
     ErrnoError:class extends Error{}}};
+  if(options.instantiateWasm){
+    // Emscripten's synchronous createWasm result becomes wasmExports. Preserve
+    // the callback's instrumented exports instead of overwriting them with {}.
+    const callbackExports={asyncifyWrapped:true};
+    const returned=options.instantiateWasm({},(instance,compiled)=>{module.compiledInstance=instance;module.compiledModule=compiled;return callbackExports;});
+    if(returned!==callbackExports)throw new Error('instantiate hook replaced the Emscripten callback exports');
+  }
   for(const callback of options.preRun)callback(module);
   options.onRuntimeInitialized();return module;
 }`;
-await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
+const compiledModule=await WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0]));
+await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',wasmModule:compiledModule,worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
 assert.equal(one.messages.at(-1).id,4);assert.equal(one.messages.at(-1).error,undefined);
+assert.ok(vm.runInContext('module.compiledInstance',context) instanceof WebAssembly.Instance,'a reused compilation creates a fresh engine instance');
+assert.equal(vm.runInContext('module.compiledModule',context),compiledModule,'the Emscripten callback receives the Module needed to initialize pthreads');
 await one.onmessage({data:{id:5,op:'start',value:{}}});assert.match(one.messages.at(-1).error,/already initialized/);
 assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(module.arguments)',context)),buildQemuArguments(profile));
 assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8');
@@ -70,6 +80,10 @@ assert.equal(one.messages.some(item=>item.type==='ready'),false,'a nonrunning ma
 await new Promise(resolve=>setTimeout(resolve,120));
 const running=commands();assert.equal(running.length,1);assert.equal(running[0].execute,'query-status');respond(running[0],{running:true,status:'running'});await tick();
 const ready=one.messages.filter(item=>item.type==='ready');assert.equal(ready.length,1);assert.equal(ready[0].value.shared,true);assert.equal(ready[0].value.memoryBytes,65536);
+assert.deepEqual(JSON.parse(JSON.stringify(ready[0].value.arguments)),JSON.parse(vm.runInContext('JSON.stringify(module.arguments)',context)),
+  'ready reports the actual array passed to the Emscripten factory');
+vm.runInContext("module.arguments.push('contract-after-ready')",context);
+assert.equal(ready[0].value.arguments.includes('contract-after-ready'),false,'ready arguments are a snapshot independent of the factory array');
 vm.runInContext(`
   const serialBytes=new Uint8Array(new SharedArrayBuffer(3));serialBytes.set([0xe4,0xb8,0xad]);
   module.FS.devices[0].write(null,serialBytes,0,2);
@@ -192,7 +206,7 @@ process.on('unhandledRejection',onRaceUnhandled);
 try {
   const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-    validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
+    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});

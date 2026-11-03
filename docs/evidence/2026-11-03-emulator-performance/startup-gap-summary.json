@@ -1,0 +1,263 @@
+{
+  "kind": "R6-same-firmware-startup-gap-public-summary",
+  "validation": "virtual-device validation",
+  "input_report_sha256": "73579b7d07edf6e6e09078cf7187b77036d35756e21ed74ea622d9d79b302724",
+  "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+  "firmware_source_sha256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+  "harness_sha256": "1410d09938221bce90296f1e1d69bbd9c92660f96cb0332bea141de30eca72a3",
+  "viewer_source_sha256": "df0d46fcfeffbca672949147d8e36cc391223d2010de81cb94c2374f9f44ea95",
+  "derivation_sha256": "2e433d420141d9083e917deb8c42c1edaf3e88a5f81806e44276cf032d817773",
+  "source_facts": {
+    "firmware_boot_card_hold_ms": 1250,
+    "firmware_initial_dance_delay_ms": 1500,
+    "viewer_emits_render_only_when_animating_or_needs_render": true,
+    "harness_screenshot_and_full_evidence_snapshot_are_after_sampling_end": true
+  },
+  "runs": [
+    {
+      "run": 1,
+      "sampling_starts_after_ready_ms": 31.544999957084656,
+      "sampling_ends_after_ready_ms": 20033.40499997139,
+      "largest_raw_frame_interval": {
+        "gap_ms": 1297.0950000286102,
+        "before_after_ready_ms": 12.865000009536743,
+        "after_after_ready_ms": 1309.960000038147,
+        "before_relative_to_window_start_ms": -18.679999947547913,
+        "after_relative_to_window_start_ms": 1278.4150000810623,
+        "both_endpoints_inside_sampling_window": false,
+        "before": {
+          "sequence": 1,
+          "width": 320,
+          "height": 240,
+          "digest": "9b850d4c"
+        },
+        "after": {
+          "sequence": 2,
+          "width": 320,
+          "height": 240,
+          "digest": "83b270b4"
+        }
+      },
+      "largest_raw_render_event_interval": {
+        "gap_ms": 1262.3799999952316,
+        "before_after_ready_ms": 67.42499995231628,
+        "after_after_ready_ms": 1329.804999947548,
+        "before_relative_to_window_start_ms": 35.87999999523163,
+        "after_relative_to_window_start_ms": 1298.2599999904633,
+        "both_endpoints_inside_sampling_window": true,
+        "before": {
+          "yaw": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "transitioning": false
+          },
+          "pitch": {
+            "angleDeg": 45,
+            "targetAngleDeg": 45,
+            "transitioning": false
+          },
+          "observed_packets": "8"
+        },
+        "after": {
+          "yaw": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "transitioning": false
+          },
+          "pitch": {
+            "angleDeg": 45,
+            "targetAngleDeg": 45,
+            "transitioning": false
+          },
+          "observed_packets": "8"
+        }
+      },
+      "published_summary_render_max_ms": 1262.3799999952316,
+      "first_two_controller_states": [
+        {
+          "after_ready_ms": 51.5349999666214,
+          "packets": 8,
+          "positions": [
+            {
+              "id": 1,
+              "present_position": 460,
+              "goal_position": 460
+            },
+            {
+              "id": 2,
+              "present_position": 764,
+              "goal_position": 764
+            }
+          ]
+        },
+        {
+          "after_ready_ms": 2127.4349999427795,
+          "packets": 9,
+          "positions": [
+            {
+              "id": 1,
+              "present_position": 405,
+              "goal_position": 405
+            },
+            {
+              "id": 2,
+              "present_position": 764,
+              "goal_position": 764
+            }
+          ]
+        }
+      ],
+      "observed_boot_markers": [
+        {
+          "after_ready_ms": -1.9550000429153442,
+          "line": "DANCE restart in 1500 ms"
+        },
+        {
+          "after_ready_ms": 0.5499999523162842,
+          "line": "StackChan auto-dance started"
+        },
+        {
+          "after_ready_ms": 1518.0900000333786,
+          "line": "DANCE cue=0 expr=HAPPY yaw=0 pitch=450"
+        }
+      ],
+      "source_and_observation_meaning": "Source constants are behavioral facts, without source-code excerpts; logged cue markers are actual serial observations."
+    },
+    {
+      "run": 2,
+      "sampling_starts_after_ready_ms": 56.825000047683716,
+      "sampling_ends_after_ready_ms": 20058.525000095367,
+      "largest_raw_frame_interval": {
+        "gap_ms": 1265.4349999427795,
+        "before_after_ready_ms": 33.90000009536743,
+        "after_after_ready_ms": 1299.335000038147,
+        "before_relative_to_window_start_ms": -22.924999952316284,
+        "after_relative_to_window_start_ms": 1242.5099999904633,
+        "both_endpoints_inside_sampling_window": false,
+        "before": {
+          "sequence": 1,
+          "width": 320,
+          "height": 240,
+          "digest": "9b850d4c"
+        },
+        "after": {
+          "sequence": 2,
+          "width": 320,
+          "height": 240,
+          "digest": "a68af295"
+        }
+      },
+      "largest_raw_render_event_interval": {
+        "gap_ms": 1262.2799999713898,
+        "before_after_ready_ms": 54.15500009059906,
+        "after_after_ready_ms": 1316.4350000619888,
+        "before_relative_to_window_start_ms": -2.6699999570846558,
+        "after_relative_to_window_start_ms": 1259.6100000143051,
+        "both_endpoints_inside_sampling_window": false,
+        "before": {
+          "yaw": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "transitioning": false
+          },
+          "pitch": {
+            "angleDeg": 45,
+            "targetAngleDeg": 45,
+            "transitioning": false
+          },
+          "observed_packets": "8"
+        },
+        "after": {
+          "yaw": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "transitioning": false
+          },
+          "pitch": {
+            "angleDeg": 45,
+            "targetAngleDeg": 45,
+            "transitioning": false
+          },
+          "observed_packets": "8"
+        }
+      },
+      "published_summary_render_max_ms": 70.74500000476837,
+      "first_two_controller_states": [
+        {
+          "after_ready_ms": 42.230000019073486,
+          "packets": 8,
+          "positions": [
+            {
+              "id": 1,
+              "present_position": 460,
+              "goal_position": 460
+            },
+            {
+              "id": 2,
+              "present_position": 764,
+              "goal_position": 764
+            }
+          ]
+        },
+        {
+          "after_ready_ms": 2007.670000076294,
+          "packets": 9,
+          "positions": [
+            {
+              "id": 1,
+              "present_position": 458,
+              "goal_position": 458
+            },
+            {
+              "id": 2,
+              "present_position": 764,
+              "goal_position": 764
+            }
+          ]
+        }
+      ],
+      "observed_boot_markers": [
+        {
+          "after_ready_ms": -2.134999990463257,
+          "line": "DANCE restart in 1500 ms"
+        },
+        {
+          "after_ready_ms": 0.45500004291534424,
+          "line": "StackChan auto-dance started"
+        },
+        {
+          "after_ready_ms": 1519.9250000715256,
+          "line": "DANCE cue=0 expr=HAPPY yaw=0 pitch=450"
+        }
+      ],
+      "source_and_observation_meaning": "Source constants are behavioral facts, without source-code excerpts; logged cue markers are actual serial observations."
+    }
+  ],
+  "interpretation": [
+    "Both largest raw frame intervals are the initial frame 1 to frame 2 transition, ending about 1.30 seconds after the application-ready marker. This matches the source's intentional 1250 ms boot-card hold.",
+    "Both largest raw render-event intervals are in that same initial hold, before cue 0 and before a position change; the observed before/after joints and packet count are identical.",
+    "The viewer's render event is emitted on demand, not for every requestAnimationFrame loop. An absence of render events while the screen and joints are static does not establish a blocked main thread.",
+    "The cold render interval lies fully inside the sampling window; the warm interval starts 2.67 ms before its window, so the existing within-window render summary excludes it. Both raw intervals remain reported here; do not claim the warm run has no early 1.26 second interval.",
+    "No screenshot or full evidence extraction occurs inside these early gaps. No browser CPU profile was captured in these uninstrumented performance runs, so scheduler/CPU residence is not inferred.",
+    "Original report and all summary metrics are unchanged. This context is not a replacement score or a claim of uniform timing for all firmware."
+  ],
+  "hardware_validation": "NOT RUN",
+  "source_audit_sha256": "59ebac2ff68ad80bdf209982211c01a69869eaf49da7f1f744df9dcba2638e29",
+  "runtime": {
+    "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "javascript_sha256": "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b",
+    "worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+    "runtime_manifest_sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+    "site_manifest_sha256": "d716a3de85713baf46acae91113781895817c9377d48578ee70a9dd0a4f068ff",
+    "profile": "stackchan-wasm-dance-wallclock",
+    "clock_divisor": 1,
+    "one_instruction_per_tb": true
+  },
+  "privacy_review": {
+    "source_code_excerpts_included": false,
+    "absolute_paths_urls_session_ids_included": false,
+    "raw_process_identifiers_included": false,
+    "raw_firmware_or_rom_bytes_included": false
+  }
+}

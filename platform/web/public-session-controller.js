@@ -1,4 +1,5 @@
 import { createUnitPanel } from './unit-panel.js';
+import {validateQemuServoOutputProfile, validateQemuServoState} from './public-qemu-servo.js';
 
 const ACTIVE = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const abortError = () => new DOMException('已取消启动。', 'AbortError');
@@ -17,15 +18,23 @@ const PRECREATE_REJECTIONS = {
 
 /** Owns only the session it creates, never another user's Live session. */
 export class PublicSessionController {
-  constructor({service, shell = null, unitContainer = null, onSerial = () => {}, onState = () => {}, onError = () => {}, onFrame = () => {}, pollIntervalMs = 350,
+  constructor({service, shell = null, unitContainer = null, onSerial = () => {}, onState = () => {}, onError = () => {}, onFrame = () => {}, onDeviceState = () => {}, onOutputState = () => {}, outputProfile = null, pollIntervalMs = 350, frameIntervalMs = 33, outputIntervalMs = 50,
     createKey = () => `public-${globalThis.crypto.randomUUID()}`, createTimeoutMs = 30000, stopConfirmAttempts = 30, stopPollIntervalMs = 350, stopRequestTimeoutMs = 10000}) {
-    Object.assign(this, {service, shell, unitContainer, onSerial, onState, onError, onFrame, pollIntervalMs,
+    Object.assign(this, {service, shell, unitContainer, onSerial, onState, onError, onFrame, onDeviceState, onOutputState, pollIntervalMs, frameIntervalMs, outputIntervalMs,
       createKey, createTimeoutMs, stopConfirmAttempts, stopPollIntervalMs, stopRequestTimeoutMs});
+    if (outputProfile) {
+      validateQemuServoOutputProfile(outputProfile);
+      if (typeof outputProfile.firmwareSHA256 !== 'string' || !/^[a-f0-9]{64}$/.test(outputProfile.firmwareSHA256)) throw new Error('Native servo output requires an explicit firmware SHA-256');
+    }
+    // Geometry/readback metadata only. Native execution never borrows a
+    // browser clock profile, admission or runtime receipt.
+    this.outputProfile = outputProfile ? structuredClone(outputProfile) : null;
     this.generation = 0;
     this.current = null;
     this.held = new Set();
     this.inputQueues = new Map();
     this.disposed = false;
+    this.frameEpoch = 0;
     this.api = (path, options = {}) => service.request(path, {...options,
       ...(typeof options.body === 'string' ? {body: JSON.parse(options.body)} : {})});
   }
@@ -34,6 +43,7 @@ export class PublicSessionController {
 
   async start({deviceId, firmwareId, units = [], signal}) {
     if (this.disposed) throw new Error('会话控制器已关闭。');
+    if (this.outputProfile && this.outputProfile.deviceId !== deviceId) throw new Error('舵机输出配置不属于当前设备。');
     if (this.pendingCreate) throw new Error('正在创建虚拟设备，请等待或取消。');
     if (this.stopOperation) await this.stopOperation;
     if (this.pendingCreate) throw new Error('正在创建虚拟设备，请等待或取消。');
@@ -44,10 +54,16 @@ export class PublicSessionController {
     this.frameReady = false;
     this.frameSequence = 0;
     this.etag = null;
+    this.outputStatus = null;
+    this.outputUnavailable = false;
+    this.outputCapabilityChecked = false;
+    this.lastDeviceState = null;
+    this.outputObservation = null;
+    this.previousOutputs = null;
     this.pollAbort = new AbortController();
     // Keep the create response observable even when the UI cancels. Aborting
     // a POST after dispatch can lose the identity of a lease already created.
-    const cancel = () => { if (generation === this.generation) {this.generation++; this.pollAbort.abort();} };
+    const cancel = () => { if (generation === this.generation) {this.generation++; this.stopPolling();} };
     signal?.addEventListener('abort', cancel, {once: true});
     // Store bytes, not the caller's mutable Unit selection. Recovery must replay
     // exactly the same body and key, even after cancellation or UI edits.
@@ -72,6 +88,8 @@ export class PublicSessionController {
         this.unitPanel = panel;
       }
       void this.poll(generation, session.session_id);
+      void this.pollFrames(generation, session.session_id);
+      void this.pollOutputs(generation, session.session_id);
       return session;
     } finally {
       if (this.pendingCreate === pending) this.pendingCreate = null;
@@ -107,7 +125,8 @@ export class PublicSessionController {
   }
 
   async poll(generation, id) {
-    if (!this.matches(generation, id)) return;
+    if (!this.matches(generation, id) || this.metadataFlight?.generation === generation) return;
+    const flight = this.metadataFlight = {generation};
     const signal = this.pollAbort.signal;
     try {
       const session = await this.service.session(id, {signal});
@@ -115,38 +134,109 @@ export class PublicSessionController {
       if (session.session_id !== id || session.device_id !== this.current.device_id) throw new Error('服务返回了其他设备的会话数据。');
       this.current = session;
       this.unitPanel?.updateSession(session);
+      this.onState({status: session.state, sessionId: id, session, frameReady: this.frameReady});
       const serial = await this.service.serial(id, this.serialOffset, {signal});
       if (!this.matches(generation, id)) return;
       if (!Number.isSafeInteger(serial.next_offset) || typeof serial.data !== 'string') throw new Error('串口收据无效。');
       if (serial.next_offset < this.serialOffset) this.onSerial('\n[串口已重置]\n');
       this.serialOffset = serial.next_offset;
       if (serial.data) this.onSerial(serial.data);
-      if (session.state === 'running' && session.display?.width) await this.readFrame(generation, id, signal);
-      if (!this.matches(generation, id)) return;
-      this.onState({status: session.state, sessionId: id, session, frameReady: this.frameReady});
     } catch (error) {
       if (this.matches(generation, id) && error.name !== 'AbortError') this.onError(error);
     } finally {
+      if (this.metadataFlight === flight) this.metadataFlight = null;
       if (this.matches(generation, id) && ACTIVE.has(this.current.state)) this.timer = setTimeout(() => void this.poll(generation, id), this.pollIntervalMs);
     }
   }
 
+  async pollFrames(generation, id) {
+    if (!this.matches(generation, id) || this.frameFlight?.generation === generation) return;
+    const flight = this.frameFlight = {generation}, started = performance.now();
+    const signal = this.pollAbort.signal;
+    try {
+      if (this.current.state === 'running' && this.current.display?.width) await this.readFrame(generation, id, signal);
+    } catch (error) {
+      if (this.matches(generation, id) && error.name !== 'AbortError') this.onError(error);
+    } finally {
+      if (this.frameFlight === flight) this.frameFlight = null;
+      // One capture/decode at a time: slow frames reduce this lane's rate,
+      // without queuing stale images or delaying session/serial observations.
+      if (this.matches(generation, id) && ACTIVE.has(this.current.state)) {
+        this.frameTimer = setTimeout(() => void this.pollFrames(generation, id), Math.max(0, this.frameIntervalMs - (performance.now() - started)));
+      }
+    }
+  }
+
+  stopPolling() {
+    clearTimeout(this.timer);
+    clearTimeout(this.frameTimer);
+    clearTimeout(this.outputTimer);
+    this.pollAbort?.abort();
+  }
+
+  async pollOutputs(generation, id) {
+    if (!this.outputProfile || this.outputUnavailable || !this.matches(generation, id) || this.outputFlight?.generation === generation) return;
+    const flight = this.outputFlight = {generation}, started = performance.now();
+    const signal = this.pollAbort.signal, shell = this.shell, epoch = this.frameEpoch;
+    const current = () => !signal.aborted && this.matches(generation, id) && this.current.state === 'running' && this.shell === shell && this.frameEpoch === epoch;
+    try {
+      if (this.current.state !== 'running') return;
+      const profile = this.outputProfile, output = profile.outputs;
+      if (this.current.firmware_sha256 !== profile.firmwareSHA256) throw new Error('Native servo firmware binding differs');
+      if (!this.outputCapabilityChecked) {
+        const capability = await this.api(`/api/v1/sessions/${encodeURIComponent(id)}/qom/list?path=${encodeURIComponent(output.path)}`, {signal});
+        if (!current()) return;
+        if (capability.session_id !== id || capability.path !== output.path || !Array.isArray(capability.properties)
+          || !capability.properties.some(property => property.name === output.property && typeof property.type === 'string')) throw new Error('Native servo state capability is unavailable');
+        this.outputCapabilityChecked = true;
+      }
+      const receipt = await this.api(`/api/v1/sessions/${encodeURIComponent(id)}/qom?path=${encodeURIComponent(output.path)}&property=${output.property}`, {signal});
+      if (!current()) return;
+      if (receipt.session_id !== id || receipt.path !== output.path || receipt.property !== output.property) throw new Error('Native servo receipt does not belong to this session');
+      const value = validateQemuServoState(profile, {...receipt.value, device_id: profile.deviceId, path: output.path});
+      this.lastDeviceState = structuredClone(value);
+      this.outputObservation = {transport: 'native-service-qom-v1', session_id: id, firmware_sha256: this.current.firmware_sha256,
+        observed_at: new Date().toISOString(), path: output.path, property: output.property};
+      if (this.outputStatus !== 'available') {this.outputStatus = 'available'; this.onOutputState({status: 'available', ...this.outputObservation});}
+      const identity = JSON.stringify(value);
+      if (identity !== this.previousOutputs) {this.previousOutputs = identity; this.onDeviceState(this.lastDeviceState);}
+    } catch (error) {
+      if (current() && error.name !== 'AbortError') {
+        // Unsupported or unverified readback stays unknown. Disable only this
+        // optional lane, once, instead of spamming errors or fabricating motion.
+        this.outputUnavailable = true;
+        this.outputStatus = 'unavailable';
+        this.onOutputState({status: 'unavailable', session_id: id, transport: 'native-service-qom-v1', reason: error.message});
+      }
+    } finally {
+      if (this.outputFlight === flight) this.outputFlight = null;
+      if (this.matches(generation, id) && !this.outputUnavailable && ACTIVE.has(this.current.state)) {
+        this.outputTimer = setTimeout(() => void this.pollOutputs(generation, id), Math.max(0, this.outputIntervalMs - (performance.now() - started)));
+      }
+    }
+  }
+
   async readFrame(generation, id, signal) {
-    const response = await this.service.fetch(`/api/v1/sessions/${encodeURIComponent(id)}/frame.png?max_age_ms=500`, {
-      signal, headers: this.etag ? {'If-None-Match': this.etag} : {},
+    const shell = this.shell, epoch = this.frameEpoch;
+    const current = () => !signal.aborted && this.matches(generation, id) && this.current.state === 'running' && this.shell === shell && this.frameEpoch === epoch;
+    // A positive bound selects the service's conditional frame API. Keep it
+    // below the display cadence so a 500ms preview never throttles animation.
+    const response = await this.service.fetch(`/api/v1/sessions/${encodeURIComponent(id)}/frame.png?max_age_ms=1`, {
+      signal, cache: 'no-store', headers: this.etag ? {'If-None-Match': this.etag} : {},
     });
+    if (!current()) return;
     if (response.status === 304) return;
     if (!response.ok) {if (response.status >= 500 || response.status === 409) return; throw new Error(`画面读取失败（${response.status}）`);}
     const image = await response.blob();
-    if (!this.matches(generation, id)) return;
-    const shell = this.shell;
-    const current = () => this.matches(generation, id) && this.shell === shell;
+    if (!current()) return;
     const sequence = ++this.frameSequence;
     const applied = shell?.setImage ? await shell.setImage(image, sequence, current) : false;
     if (!current()) return;
-    this.etag = response.headers.get('ETag');
+    this.etag = applied === false ? null : response.headers.get('ETag');
+    const wasReady = this.frameReady;
     this.frameReady = applied !== false;
     this.onFrame({blob: image, sequence, sessionId: id, applied: this.frameReady});
+    if (this.frameReady !== wasReady) this.onState({status: this.current.state, sessionId: id, session: this.current, frameReady: this.frameReady});
   }
 
   input(command) {
@@ -173,14 +263,26 @@ export class PublicSessionController {
     const id = this.current?.session_id;
     if (!id) return;
     const generation = ++this.generation;
-    clearTimeout(this.timer);
-    this.pollAbort?.abort();
+    this.stopPolling();
     await this.releaseInputs(id);
+    if (!this.matches(generation, id)) return;
     this.etag = null;
     this.frameReady = false;
+    this.outputCapabilityChecked = false;
+    this.outputUnavailable = false;
+    this.outputStatus = this.outputProfile ? 'pending' : null;
+    this.lastDeviceState = null;
+    this.outputObservation = null;
+    this.previousOutputs = null;
+    if (this.outputProfile) this.onOutputState({status: 'pending', session_id: id, transport: 'native-service-qom-v1'});
     try {return await this.api(`/api/v1/sessions/${encodeURIComponent(id)}/reset`, {method: 'POST', body: {}});}
     finally {
-      if (this.matches(generation, id)) {this.pollAbort = new AbortController(); void this.poll(generation, id);}
+      if (this.matches(generation, id)) {
+        this.pollAbort = new AbortController();
+        void this.poll(generation, id);
+        void this.pollFrames(generation, id);
+        void this.pollOutputs(generation, id);
+      }
     }
   }
 
@@ -227,8 +329,7 @@ export class PublicSessionController {
   stop() {
     if (this.stopOperation) return this.stopOperation;
     this.generation++;
-    clearTimeout(this.timer);
-    this.pollAbort?.abort();
+    this.stopPolling();
     const operation = (async () => {
       if (this.pendingCreate) await this.pendingCreate.catch(() => {});
       if (this.stopPromise) return this.stopPromise;
@@ -269,7 +370,15 @@ export class PublicSessionController {
     return this.stopPromise;
   }
 
-  setShell(shell) {this.shell = shell; this.etag = null; this.unitPanel?.setShell(shell);}
+  setShell(shell) {
+    this.shell = shell; this.frameEpoch++; this.etag = null; this.frameReady = false;
+    this.previousOutputs = null; this.lastDeviceState = null; this.outputObservation = null;
+    if (this.outputProfile && !this.outputUnavailable && this.current && !this.closing) {
+      this.outputStatus = 'pending';
+      this.onOutputState({status: 'pending', session_id: this.current.session_id, transport: 'native-service-qom-v1'});
+    }
+    this.unitPanel?.setShell(shell);
+  }
 
   async dispose() {await this.stop(); this.disposed = true;}
 }

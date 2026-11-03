@@ -354,6 +354,29 @@ try {
     await page.waitForFunction(modelShell => Number(document.querySelector('#deviceMount').dataset.frameSequence) > 0
       && (!modelShell || globalThis.boardUiShell?.frameSeq > 0), report.public_shell.model_shell, {timeout:30000});
     if(await page.locator('#rawFramePanel').evaluate(panel=>panel.hidden))await page.locator('#nativeScreenBtn').click();
+    if(device==='cardputer-adv'){
+      // Ready dimensions are the guest's logical orientation. Observe fresh
+      // QOM and let the normal display lane converge; never assign its state.
+      const expected={orientation:ready.width>ready.height?'landscape':'portrait',width:ready.width,height:ready.height,
+        model_rotation:ready.width>ready.height?0:270};
+      const deadline=performance.now()+10000;report.display_sync_samples=[];let settled=false;
+      while(performance.now()<deadline){
+        const sample=await page.evaluate(async()=>{
+          const r=boardRun.runtime,begin=performance.now(),cached_before=r.display?{...r.display}:null;
+          const fresh=await r.ask('display'),canvas=document.querySelector('#rawFrameCanvas');
+          return {begin_ms:begin,end_ms:performance.now(),fresh,cached_before,cached_after:r.display?{...r.display}:null,
+            native:{width:boardRun.frame.width,height:boardRun.frame.height,sequence:boardRun.frame.sequence,
+              sourceSequence:boardRun.frame.sourceSequence},canvas:{width:canvas.width,height:canvas.height},
+            model_rotation:globalThis.boardUiShell?.presentationRotationDeg??null};
+        });
+        report.display_sync_samples.push(sample);
+        if(sample.fresh?.orientation===expected.orientation&&sample.cached_after?.orientation===expected.orientation
+          &&sample.canvas.width===expected.width&&sample.canvas.height===expected.height
+          &&(!report.public_shell.model_shell||sample.model_rotation===expected.model_rotation)){settled=true;break;}
+        await page.waitForTimeout(100);
+      }
+      check('cardputer-presentation-converges-to-guest-logical-orientation',settled,{expected,samples:report.display_sync_samples});
+    }
     check(report.public_shell.model_shell?'public-ui-3d-and-visible-native-frame':'public-ui-generic-and-visible-native-frame', await page.evaluate(modelShell => {
       const canvas = document.querySelector('#rawFrameCanvas');
       return (!modelShell || boardUiShell.model && boardUiShell.frameSeq > 0) && !document.querySelector('#rawFramePanel').hidden
@@ -522,17 +545,28 @@ try {
       const released=await guest('button-released',event=>event.button===item.button&&event.count===1,30000);
       check('plus2-'+item.button+'-original-driver-down-and-up',pressed.pressed===true&&released.pressed===false
         &&pressed.gpio===item.gpio&&released.gpio===item.gpio,{pressed,count,released});
-      const changed=await page.waitForFunction(async({index,before})=>{
-        const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;const pixels=[];
-        for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
-          const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
-        }
-        const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
-        const sha256=[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('');
-        return sha256!==before.sha256?{sequence:frame.sequence,sha256}:false;
-      },{index:item.index,before},{timeout:30000,polling:100});
-      const after=await changed.jsonValue();await changed.dispose();
-      check('plus2-'+item.button+'-changes-own-native-counter-pixels',true);
+      const deadline=performance.now()+30000;let after=null,lastCounterObservation=null;
+      while(performance.now()<deadline){
+        // Explicitly await async hashing. An async waitForFunction predicate
+        // can itself be truthy while its eventual result is false.
+        lastCounterObservation=await page.evaluate(async({index,before})=>{
+          const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;
+          const sequence=frame.sequence,pixels=[];
+          for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
+            const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
+          }
+          const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
+          const sha256=[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('');
+          return {sequence,sha256};
+        },{index:item.index,before});
+        if(lastCounterObservation&&typeof lastCounterObservation==='object'
+          &&Number.isInteger(lastCounterObservation.sequence)&&lastCounterObservation.sequence>before.sequence
+          &&/^[a-f0-9]{64}$/.test(lastCounterObservation.sha256)
+          &&lastCounterObservation.sha256!==before.sha256){after=lastCounterObservation;break;}
+        await page.waitForTimeout(100);
+      }
+      check('plus2-'+item.button+'-changes-own-native-counter-pixels',after!==null,
+        {before,after,last_observation:lastCounterObservation});
       report.multi_button_cases.push({...item,keyboard:key,dom_key:domKey,pressed,count,released,before_counter:before,after_counter:after,
         texture:await textureReadback()});
     }
@@ -634,9 +668,25 @@ try {
 }
 finally {
   if (page) {
+    if(report.status==='FAIL')await page.evaluate(()=>{
+      const frame=globalThis.boardRun?.runtime?.iframe;
+      if(frame?.isConnected&&!globalThis.boardDeferredRemoval){const remove=frame.remove;
+        globalThis.boardDeferredRemoval={frame,remove,requests:0};frame.remove=()=>{boardDeferredRemoval.requests++;};}
+    }).catch(()=>{});
     report.final_cleanup = await page.evaluate(async () => {
       await globalThis.boardRun?.runtime?.stop(); return globalThis.boardRun?.runtime?.cleanupResult || null;
     }).catch(() => null);
+    if(report.status==='FAIL'&&workerTargets){
+      const created=report.final_cleanup?.workersCreated,minimumObserved=Number.isInteger(created)?created+1:1;
+      const before=await workerTargets.waitUntilOnly({minimumObserved,allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000})
+        .catch(error=>({ok:false,error:String(error.message)}));
+      const held=await page.evaluate(()=>{const h=globalThis.boardDeferredRemoval;
+        return h?{iframe_present:h.frame.isConnected,removal_requests:h.requests}:null;}).catch(()=>null);
+      await page.evaluate(()=>{const h=globalThis.boardDeferredRemoval;if(h){h.remove.call(h.frame);delete globalThis.boardDeferredRemoval;}}).catch(()=>{});
+      const after=await workerTargets.waitUntilClosed({minimumObserved,timeoutMs:30000})
+        .catch(error=>({ok:false,error:String(error.message)}));
+      report.failure_worker_targets={before_removal:before,iframe_removal:held,after_removal:after};
+    }
   }
   await browser?.close(); if (server) await new Promise(resolve => server.close(resolve));
   report.finished_at = new Date().toISOString(); await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));

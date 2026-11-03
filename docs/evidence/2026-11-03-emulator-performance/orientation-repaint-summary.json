@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "kind": "orientation-retained-frame-repaint-summary",
+  "validation_category": "host contract plus virtual-device validation, separately labeled",
+  "created_at": "2026-11-03T08:48:49.372609+00:00",
+  "status": "PASS_SCOPED",
+  "problem": {
+    "earlier_case_report_sha256": "892955a5ff73ed6efa941d1cd9f1b5fb02177e3154298b1fa127fc685ba13df3",
+    "failure_state_sha256": "d872ca3120f1e01d5ea9f02f2c94b88ccc007de54e17f1d3e3f6d5d33f64ac67",
+    "guest_logical_dimensions": {
+      "width": 240,
+      "height": 135
+    },
+    "cached_display_at_failure": {
+      "orientation": "portrait",
+      "deviceRotationDeg": -90
+    },
+    "native_frame": {
+      "width": 240,
+      "height": 135
+    },
+    "fresh_qom_at_failure": "NOT CAPTURED",
+    "earlier_failure_two_phase_CDP": "NOT CAPTURED; only retained final cleanup metadata is available"
+  },
+  "fix": {
+    "source_commit": "8dd39cac835f6325a3f0aa815ca0d8471b025e6b",
+    "public_js_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c",
+    "behavior": "An active owned browser presentation update reuses its current retained real frame when canvas dimensions need to change; physical bytes and guest frame sequence are retained.",
+    "new_guest_frame_or_model_state_injected": false,
+    "native_pipeline_change": "None; presentation callback is browser-only and native functions retain their actual prior bytes."
+  },
+  "host_contract": {
+    "before_source_sha256": "7cddc7d62f59a809eda96c5826a510aa78363830873f34eebb0541f7e21e270c",
+    "before_source_identity": "Derived from the unchanged prior production commit; failing stdout itself did not print its source hash.",
+    "before_log_sha256": "6ae9e0829427276a2df7d6433147564bf23a19a35c288758690f28fb3271b366",
+    "observed_before": "Same frame remained2x3 after orientation changed to landscape; expected3x2.",
+    "after_log_sha256": "6e01e06cece2e1db1a1d1fa8ef833cd5f4dc1d800ea99cf2f3e1bda5198b24db",
+    "after": "PASS: asymmetric raster, direction-only repaint, same guest sequence, stale owner rejection and pointer mapping"
+  },
+  "virtual_device": {
+    "firmware_full_sha256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+    "fixture_rotation": 1,
+    "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "site_manifest_sha256": "d716a3de85713baf46acae91113781895817c9377d48578ee70a9dd0a4f068ff",
+    "successful_report_sha256": "7a5d6cb023c81cb234052aebb215a42e82dbbbfb3a2f3fac9ef2d683d4fcd0a3",
+    "successful_report_bytes": 95919,
+    "display_samples": [
+      {
+        "begin_ms": 18252.329999923706,
+        "end_ms": 18266.50499999523,
+        "fresh": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "cached_before": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "cached_after": {
+          "orientation": "landscape",
+          "deviceRotationDeg": 0
+        },
+        "native": {
+          "width": 240,
+          "height": 135,
+          "sequence": 1,
+          "sourceSequence": 98
+        },
+        "canvas": {
+          "width": 240,
+          "height": 135
+        },
+        "model_rotation": 0
+      }
+    ],
+    "checks": [
+      {
+        "name": "pages-service-worker-isolation",
+        "ok": true
+      },
+      {
+        "name": "public-ui-selected-board-reference",
+        "ok": true
+      },
+      {
+        "name": "same-guest-ready-and-display",
+        "ok": true
+      },
+      {
+        "name": "model-rendering-paused-until-guest-ready",
+        "ok": true
+      },
+      {
+        "name": "complete-native-red-marker",
+        "ok": true
+      },
+      {
+        "name": "cardputer-presentation-converges-to-guest-logical-orientation",
+        "ok": true
+      },
+      {
+        "name": "public-ui-3d-and-visible-native-frame",
+        "ok": true
+      },
+      {
+        "name": "public-ui-native-to-rendered-model-texture-before-input",
+        "ok": true
+      },
+      {
+        "name": "non-touch-screen-click-does-not-send-touch-or-show-error",
+        "ok": true
+      },
+      {
+        "name": "hash-pinned-composed-firmware",
+        "ok": true
+      },
+      {
+        "name": "exported-default-clock-profile",
+        "ok": true
+      },
+      {
+        "name": "actual-physical-frame-dimensions",
+        "ok": true
+      },
+      {
+        "name": "guest-button-counter",
+        "ok": true
+      },
+      {
+        "name": "keyboard-original-driver-first-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-first-press-counter-and-state-pixels",
+        "ok": true
+      },
+      {
+        "name": "guest-button-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-first-release-state-pixels",
+        "ok": true
+      },
+      {
+        "name": "controller-input-changes-native-frame-marker",
+        "ok": true
+      },
+      {
+        "name": "keyboard-z-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-z-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-z-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-z-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-q-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-q-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-q-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-q-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-b-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-b-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-b-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-b-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-n-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-n-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-n-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-n-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-m-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-m-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-m-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-m-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-1-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-1-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-1-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-1-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-0-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-0-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-0-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-0-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-ret-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-ret-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-ret-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-ret-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-spc-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-spc-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-spc-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-spc-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-backspace-real-fifo-press",
+        "ok": true
+      },
+      {
+        "name": "keyboard-backspace-counter-and-press-pixels",
+        "ok": true
+      },
+      {
+        "name": "keyboard-backspace-original-driver-release",
+        "ok": true
+      },
+      {
+        "name": "keyboard-backspace-release-pixels",
+        "ok": true
+      },
+      {
+        "name": "public-ui-native-to-rendered-model-texture-after-input",
+        "ok": true
+      },
+      {
+        "name": "unsupported-button-fails-closed",
+        "ok": true
+      },
+      {
+        "name": "qmp-pause-freezes-guest",
+        "ok": true
+      },
+      {
+        "name": "qmp-resume-fresh-guest-heartbeat",
+        "ok": true
+      },
+      {
+        "name": "guest-remains-free-of-panic-or-python-traceback",
+        "ok": true
+      },
+      {
+        "name": "clean-guest-stop-and-worker-disposal",
+        "ok": true
+      },
+      {
+        "name": "created-pthreads-close-before-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "engine-and-created-pthreads-close-after-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "no-leftover-guest-iframe",
+        "ok": true
+      },
+      {
+        "name": "no-page-errors",
+        "ok": true
+      },
+      {
+        "name": "no-device-service-requests",
+        "ok": true
+      }
+    ],
+    "cleanup": "Normal exit and two-stage observed target cleanup passed as recorded in the original successful report"
+  },
+  "limits": [
+    "The successful virtual run first observed an already-converged display. It did not directly observe the same-sequence portrait-to-landscape transition.",
+    "The earlier failure has no fresh-QOM capture, so this result does not establish a unique historical cause.",
+    "Physical display timing is not measured."
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "kind": "portable actual-C CSTACK opt-in host-contract summary",
+  "date": "2026-11-03",
+  "status": "HOST CONTRACT PASS",
+  "publication_eligible": false,
+  "virtual_device_validation": "NOT RUN by this contract",
+  "hardware_validation": "NOT RUN",
+  "product_admission": "Pending exact formal rebuild and firmware gates; host contract alone is insufficient",
+  "option": {
+    "name": "M5_WASM_CSTACK_TRACE",
+    "enabled_value": "1",
+    "default": "off",
+    "parse": "Exact literal1, cached once per source translation unit per host thread; all other values disabled.",
+    "shared_state": "No new shared option/counter state."
+  },
+  "portable_files": [
+    {
+      "path": "patches/qemu-wasm-probe/0028-cstack-diagnostics-opt-in.patch",
+      "sha256": "5a51069320d0a07756d2c887fa6cac762beebee4fa450c98ebe0b6f28025c911",
+      "bytes": 26920
+    },
+    {
+      "path": "platform/tests/test_cstack_diagnostics_opt_in_patch.py",
+      "sha256": "7a44f16beaa3cef6925dc4a674b727fa94c4465a651a75df838ef6be20d5ef9c",
+      "bytes": 12138
+    },
+    {
+      "path": "platform/tests/fixtures/cstack_diagnostics_harness.c",
+      "sha256": "a982fa6ca76f768fc400457edd53f2b644794206e7725150f2e3d837373b7a22",
+      "bytes": 7210
+    }
+  ],
+  "source_changes": {
+    "hw/misc/esp32s3_cache.c": {
+      "preimage_sha256": "5c1ceb02e40056580d95f6b2df76330292c4475a892bbabe9a9497a533b4749a",
+      "postimage_sha256": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a"
+    },
+    "util/coroutine-wasm.c": {
+      "preimage_sha256": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
+      "postimage_sha256": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b"
+    }
+  },
+  "actual_execution": {
+    "location": "Temporary directory containing only the three proposed files; no checkout cache, ignored artifacts or network dependency.",
+    "tests": 3,
+    "exit_code": 0,
+    "elapsed_seconds": 4.520035458030179,
+    "record_sha256": "99157a3bcef5436db27f9922362266537321363b3475ef189df26ad8dcc7f964",
+    "unittest_log_sha256": "94203b299eac0ddeaa13206cfe8e3db8f367289a9777094bccc408c0928d7353",
+    "reproduction": "Copy the three listed files preserving relative paths; run python3 -m unittest discover -s platform/tests -p test_cstack_diagnostics_opt_in_patch.py -v",
+    "requirements": [
+      "Python3",
+      "host C compiler",
+      "git",
+      "POSIX host threads"
+    ],
+    "methods": [
+      "test_explicit_one_preserves_actual_behavior_and_original_trace",
+      "test_default_off_and_all_other_values_skip_preparation_in_each_thread",
+      "test_real_source_negative_controls_are_detected"
+    ]
+  },
+  "differential_oracle": {
+    "extraction": "Full-function patch context reconstructs both exact preimage and postimage with SHA verification; forward/reverse patch checks precede real C extraction and host execution.",
+    "real_controller_functions": "MMU invalidation/MMU-table write and coroutine switch implementations are extracted, not reimplemented as a separate optimized algorithm.",
+    "behavior_compared": "Block read and IOMMU effects, invalid/unchanged writes and flash/PSRAM/no-backend boundaries, coroutine current/action and fiber-call observations remain equal to the original implementation.",
+    "fixtures": "Block I/O, IOMMU, fiber, stack/heap/thread getters and getenv are instrumented host fixtures. This does not execute real Asyncify fibers or a QEMU guest."
+  },
+  "controls": {
+    "environment_values": [
+      "unset",
+      "0",
+      "",
+      "true",
+      "01",
+      "1 ",
+      "1"
+    ],
+    "actual_threads": [
+      "main",
+      "worker"
+    ],
+    "thread_count": 2,
+    "trace_on": "Literal1 preserves original trace phases, IDs, skipped/invalid ID gaps,256-line per-category budgets and original getter counts in both threads. Trace pointer identity is normalized for host process ASLR only.",
+    "trace_off": "All six disabled modes preserve controller/fiber observations and produce zero trace, zero ID/counter advancement and zero stack/heap/base/end/thread-ID output preparation. The one-time option lookup remains.",
+    "late_option_change": "Each per-file/thread cache retains its initial decision after the fixture changes its supplied value.",
+    "per_thread_expected_enabled_metrics": {
+      "getenv": 2,
+      "stack_pointer": 966,
+      "heap": 512,
+      "stack_base": 512,
+      "stack_end": 512,
+      "thread_id": 512,
+      "log_lines": 512,
+      "cache_id": 173,
+      "cache_logs": 256,
+      "swap_id": 151,
+      "swap_logs": 256
+    },
+    "negative_controls": [
+      {
+        "mutation": "eager-counter",
+        "detected": true
+      },
+      {
+        "mutation": "eager-sp",
+        "detected": true
+      },
+      {
+        "mutation": "missing-pread",
+        "detected": true
+      },
+      {
+        "mutation": "missing-fiber-swap",
+        "detected": true
+      }
+    ],
+    "negative_control_execution": "Portable test compiles the four mutations of the actual postimage source and rejects missing zero-preparation or behavior equality."
+  },
+  "earlier_attempt": {
+    "status": "HOST FIXTURE COMPILER WARNING FAILURE PRESERVED",
+    "record_sha256": "b71912d0a21b1502b131bc9fbf3760f71d4eab5c0e4bdd17c7855ac4f296b7c7",
+    "test_source_sha256": "bbc660193a543e74172e8384b64800192cfa0ae7191b732362ac6f054ed74d2c",
+    "generated_before_source_sha256": "c88cb51d042e202703173afa4ac060a7ab5135d0271919dcd829b1bbba7f2d10",
+    "cause": "The unchanged legacy controller loop triggered signed-versus-size_t warning under fixture-Werror. The fixture compiler policy was aligned with existing GPIO contracts using-Wno-sign-compare; compiler diagnostics were exposed.",
+    "production_patch_changed_for_warning": false,
+    "fixture_changed_for_warning": false,
+    "failure_was_overwritten": false
+  },
+  "related_original_host_result": {
+    "record": "contract-results.json",
+    "sha256": "27bc844e5087a170e0024f303a8ff5eca2bbc462520f88cbecad7fdeb01b57e4",
+    "status": "PASS",
+    "scope": "Earlier ignored host-C oracle result; final portable three-file test above is the ordinary-checkout proof."
+  },
+  "limits": [
+    "Host fixtures do not prove actual SDK fiber, nested Asyncify, SjLj, browser memory or firmware timing correctness.",
+    "No Factory stability, watchdog, Double-exception, frame-rate or startup improvement is granted by these tests.",
+    "The initial preparation manifest remains a historical PREPARED record; the later portable execution record provides the actual3-method result.",
+    "No external publication or source-lock admission is authorized by this summary."
+  ],
+  "redaction": "No host absolute paths, credentials, private endpoints, firmware bytes, session IDs or raw pointer values."
+}

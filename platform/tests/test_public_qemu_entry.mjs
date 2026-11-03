@@ -19,7 +19,7 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,16,'review the harness if the entry module dependency boundary changes');
+assert.equal(imports.length,15,'local-file hashing reuses the firmware module; no separate synchronous sha256Blob import is required');
 assert.deepEqual(imports.filter(match=>match[2]==='./public-qemu-servo.js')
   .flatMap(match=>match[1].split(',').map(name=>name.trim())),
 ['qemuServoVisualCommands','qemuServoDiagnostic']);
@@ -33,7 +33,8 @@ const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',imp
 const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(device=>device.id===profile.deviceId))
   .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
-async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
+async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
+  browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const element=(id)=>{
     if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
@@ -52,14 +53,14 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualCandidates}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:[]}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:'qemu-wasm',browser_board_execution:true,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
   Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
-    getBrowserProfile:()=>null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
+    getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
   const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
@@ -72,7 +73,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
     connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
     startRun=async()=>events.push('start:'+lane());
-    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation};
+    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,firmware,updateCapability};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -95,6 +96,15 @@ assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolat
 const localService=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&autostart=0'});
 assert.equal(localService.element('serviceUrl').value,'http://127.0.0.1:8787');
 assert.ok(localService.events.includes('connect-service'),'a loopback page served by its own Device Service must connect the same origin automatically');
+assert.equal(localService.lane(),'service','auto uses a connected device service even when browser QEMU is available');
+localService.element('runtimeMode').value='browser';assert.equal(localService.lane(),'browser','an explicit browser choice is preserved');
+localService.element('runtimeMode').value='auto';
+localService.state.serviceDevices=[{device_id:'stackchan',creatable:true}];assert.equal(localService.lane(),'browser','another device cannot authorize native execution');
+localService.state.serviceDevices=[{device_id:'cardputer-adv',creatable:false}];assert.equal(localService.lane(),'browser','an unavailable native backend does not win auto selection');
+localService.state.serviceDevices=[{device_id:'cardputer-adv',creatable:true}];
+localService.state.picker={attachments:()=>[{id:'service-unit'}]};assert.equal(localService.lane(),'service');
+localService.element('runtimeMode').value='browser';assert.equal(localService.lane(),null,'Unit routing remains fail-closed in browser mode');
+localService.state.picker=null;localService.element('runtimeMode').value='auto';
 localService.state.browserUnavailable=true;
 assert.equal(localService.deviceRuntimeLabel(localService.state.selected),'服务可运行','connected devices must not keep the connect-service label');
 const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&mode=browser&autostart=0'});
@@ -103,6 +113,27 @@ assert.equal(localBrowser.events.includes('connect-service'),false,'an explicit 
 const staticBrowser=await entry({pageUrl:'http://127.0.0.1:8000/platform/web/',search:'?device=cardputer-adv&autostart=0'});
 assert.equal(staticBrowser.element('serviceUrl').value,'');
 assert.equal(staticBrowser.events.includes('connect-service'),false,'a static loopback export must not probe or connect a Device Service');
+assert.equal(staticBrowser.lane(),'browser');
+const disabledBrowser=await entry({browserEnabled:false,search:'?device=stopwatch&autostart=0'});
+assert.equal(disabledBrowser.browserProfile('stopwatch'),null);assert.equal(disabledBrowser.lane(),null);
+const legacy={deviceId:'stopwatch',board:'stopwatch',display:{width:468,height:466}};
+const disabledLegacy=await entry({browserEnabled:false,runtimeEngine:null,legacyProfile:legacy,
+  siteServiceUrl:'https://service.example.test',search:'?device=stopwatch&autostart=0'});
+assert.equal(disabledLegacy.browserProfile('stopwatch'),null,'a hardcoded legacy profile cannot bypass the site runtime switch');
+assert.equal(disabledLegacy.lane(),'service');
+disabledLegacy.element('runtimeMode').value='browser';assert.equal(disabledLegacy.lane(),null);
+
+// Execute the production local-file path: WebCrypto hashes the same buffer
+// handed to the runtime, with one File read and the existing SHA rejection.
+const localFile=await entry({search:'?device=stackchan&autostart=0'});
+for(const [name,radio] of localFile.radios)radio.checked=name==='local';
+const localBytes=new Uint8Array([0xe9,1,2,3,4,5]).buffer;let fileReads=0;
+localFile.element('firmwareFile').files=[{size:localBytes.byteLength,name:'fixture.bin',arrayBuffer:async()=>{fileReads++;return localBytes;}}];
+const loadedLocal=await localFile.firmware(new AbortController().signal,localFile.state.runGeneration);
+assert.equal(loadedLocal.bytes,localBytes);assert.equal(fileReads,1,'local Flash is read once and the hashed buffer is reused');
+assert.equal(loadedLocal.sha256,createHash('sha256').update(new Uint8Array(localBytes)).digest('hex'));
+localFile.element('firmwareSha').value='0'.repeat(64);
+await assert.rejects(localFile.firmware(new AbortController().signal,localFile.state.runGeneration),/SHA-256/);
 
 const unavailable=await entry({registryFailure:true,search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0'});
 assert.equal(unavailable.state.browserUnavailable,true);assert.equal(unavailable.browserProfile('cores3'),null);
@@ -134,6 +165,26 @@ assert.equal(disabledCandidate.reference().sha256,fixtureSha);assert.equal(disab
 const unknownCandidate=await entry({wallclockExample:true,search:wallclockLink.search.replace(wallclockSha,'0'.repeat(64))});
 assert.equal(unknownCandidate.events.some(item=>item.startsWith('start:')),false);
 wallclock.element('referenceExample').value='stock-div8';assert.equal(wallclock.reference().sha256,fixtureSha);
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/正常虚拟时钟/,
+  'the exact stock reference resolves its normal-clock execution before display');
+assert.doesNotMatch(wallclock.element('capabilityText').textContent,/1\/8|调度候选/);
+assert.match(wallclock.reference().name,/原始程序，正常时钟/);
+wallclock.radios.get('reference').checked=false;wallclock.radios.get('local').checked=true;
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/1\/8/,
+  'an unidentified local image keeps the base clock explanation');
+const runningStock=new PublicQemuRuntime({root:pageRoot,profiles:registry});
+runningStock.profile=qemuProfiles.resolveQemuFirmwareProfile(qemuProfiles.getQemuBrowserProfile('cores3',registry),fixtureSha);
+wallclock.state.run={controller:runningStock,generation:wallclock.state.runGeneration};
+wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/正常虚拟时钟/,
+  'an active uploaded image reports its actual resolved execution profile');
+wallclock.state.run.stopping=true;wallclock.updateCapability();
+assert.match(wallclock.element('capabilityText').textContent,/1\/8/,
+  'a stopping run cannot override the next unidentified upload');
+wallclock.state.run=null;
+wallclock.radios.get('local').checked=false;wallclock.radios.get('reference').checked=true;
 for(const search of [share.search+'&autostart=0',share.search.replace(fixtureSha,'0'.repeat(64)),share.search.replace('cores3','core2'),share.search.replace('mode=browser','mode=model')]){
   const app=await entry({search});assert.equal(app.events.some(item=>item.startsWith('start:')),false,'wrong device/hash, disabled autostart and model mode cannot run the reference');
 }
@@ -177,6 +228,7 @@ raster.state.run=run;raster.state.shell={setFrameLE:()=>true,setDeviceRotation:(
 const frame={width:3,height:2,sequence:1,pixels:new Uint8Array(packed.flatMap(v=>[v&255,v>>8]))};
 controller.display={orientation:'portrait',deviceRotationDeg:-90};
 raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+controller.lastFrame=frame;
 assert.deepEqual([canvas.width,canvas.height],[2,3]);
 assert.deepEqual(Array.from(painted.data),[rgba[3],rgba[0],rgba[4],rgba[1],rgba[5],rgba[2]].flat(),
   'portrait canvas must rotate the native glass clockwise without mirroring');
@@ -184,8 +236,14 @@ canvas.listeners.get('pointerdown')({clientX:1.5,clientY:2.5,pointerId:1});
 assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,0,true],
   'portrait pointer mapping must invert the displayed rotation');
 controller.display={orientation:'landscape',deviceRotationDeg:0};
-raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+raster.applyBrowserPresentation({display:controller.display});
 assert.deepEqual([canvas.width,canvas.height],[3,2]);assert.deepEqual(Array.from(painted.data),rgba.flat());
+assert.equal(Number(raster.element('deviceMount').dataset.frameSequence),frame.sequence,
+  'presentation-only repaint must retain the real guest frame sequence');
+const paintedBeforeStale=painted;
+raster.applyBrowserPresentation({display:{orientation:'portrait',deviceRotationDeg:-90}},{...run});
+assert.equal(painted,paintedBeforeStale,'an unowned presentation event cannot repaint the active run');
+assert.deepEqual([canvas.width,canvas.height],[3,2]);
 canvas.listeners.get('pointerup')({clientX:2.5,clientY:1.5,pointerId:1});
 assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,1,false]);
 console.log('public QEMU entry, exact reference sharing and asymmetric portrait/frame pointer contracts passed; no guest executed');

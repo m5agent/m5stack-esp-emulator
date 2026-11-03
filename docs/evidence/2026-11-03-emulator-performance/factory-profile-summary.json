@@ -1,0 +1,1203 @@
+{
+  "schema_version": 1,
+  "kind": "factory-c942-six-worker-host-profile-audit",
+  "status": "REVIEW",
+  "validation": "instrumented virtual-device diagnosis",
+  "performance_comparison": false,
+  "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+  "wasm_sha256": "c942f9fe9eab49f8d92e2fdbc8b9901551660c23fa6ca1391f738941b95f8ef7",
+  "symbol_map_sha256": "685c5d27c841d94d1c17795d99a7a05470f6abc08c03d81081cce93b2597f18b",
+  "raw_profile_sha256": "617951ad1d283a4cf9de0b867d96d1307ffdc14e4839c36a0a1d4045315de491",
+  "raw_report_sha256": "de563914cf0994bde9b30a4249a4a39b2dced5457607c463325df1b9cc5db05b",
+  "limits": [
+    "Actual mapped c942 diagnostic with CPU profiler and observers, not an uninstrumented performance comparison. This window did not reproduce WDT/Double and cannot establish stability or their cause.",
+    "Only the single common main WASM module observed in this run uses this exact symbol map. Its URL/large-index/coherent-callchain identity is inferred, not Debugger byte-attested. No other WASM module was observed.",
+    "Sample counts are stack observations, not instructions or helper calls. timeDelta weighting is approximate wall-residence and includes blocking/idle; it is not OS CPU time or exact lock-wait duration.",
+    "Inclusive categories overlap and must not be added. Leaf categories below are disjoint. cpu_tb_exec can contain inlined TCI dispatch/helper code and cannot be split precisely from this symbol map alone.",
+    "Worker roles follow host call chains; no exact guest CPU0/CPU1 identity is asserted. Per-process CPU snapshots are separate aggregate measurements, not per-Worker attribution.",
+    "Raw CDP columnNumber is retained without interpreting it as a source line or a function-relative offset.",
+    "No new build or guest was executed for this offline analysis. Previous 5aabc/code-different profiles must not use the c942 symbol map."
+  ],
+  "coverage": {
+    "receipted_workers": 6,
+    "observed_workers": 6,
+    "profiled_workers": 6,
+    "all_observed_workers_gone": true,
+    "all_nonempty_profiles": true,
+    "cleanup_graceful": true,
+    "forced_terminations": 0
+  },
+  "module_partition": {
+    "observed_wasm_module_count": 1,
+    "unmapped_other_modules": 0,
+    "mapping_scope": "one common main module in this actual c942 run; inferred, not Debugger-byte-attested"
+  },
+  "workers": [
+    {
+      "ordinal": 0,
+      "role_inferred": "RCU thread",
+      "samples": 8067,
+      "duration_us": 10048381,
+      "sum_timeDeltas_us": 10047779,
+      "categories_inclusive": {
+        "futex_leaf": {
+          "samples": 8063,
+          "weighted_residence_us": 10042796,
+          "sample_share_percent": 99.95,
+          "weighted_residence_share_percent": 99.95
+        },
+        "RCU_wait_futex_leaf": {
+          "samples": 8063,
+          "weighted_residence_us": 10042796,
+          "sample_share_percent": 99.95,
+          "weighted_residence_share_percent": 99.95
+        }
+      },
+      "leaf_partition": {
+        "other_futex_leaf": {
+          "samples": 8063,
+          "weighted_residence_us": 10042796,
+          "sample_share_percent": 99.95,
+          "weighted_residence_share_percent": 99.95
+        },
+        "other_leaf": {
+          "samples": 4,
+          "weighted_residence_us": 4983,
+          "sample_share_percent": 0.05,
+          "weighted_residence_share_percent": 0.05
+        }
+      },
+      "longjmp_leaf_reasons": {},
+      "top_self": [
+        {
+          "frame": {
+            "name": "emscripten_futex_wait",
+            "scope": "main-WASM-inferred",
+            "function_index": 2263,
+            "columnNumber": 1143064
+          },
+          "samples": 8063,
+          "weighted_residence_us": 10042796
+        },
+        {
+          "frame": {
+            "name": "_emscripten_get_now",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 126014
+          },
+          "samples": 3,
+          "weighted_residence_us": 3765
+        },
+        {
+          "frame": {
+            "name": "wasm-to-js",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 0
+          },
+          "samples": 1,
+          "weighted_residence_us": 1218
+        }
+      ],
+      "top_relevant_inclusive": []
+    },
+    {
+      "ordinal": 1,
+      "role_inferred": "vCPU thread",
+      "samples": 8065,
+      "duration_us": 10044633,
+      "sum_timeDeltas_us": 10043818,
+      "categories_inclusive": {
+        "futex_leaf": {
+          "samples": 7049,
+          "weighted_residence_us": 8772981,
+          "sample_share_percent": 87.402,
+          "weighted_residence_share_percent": 87.347
+        },
+        "vcpu_idle_wait_futex_leaf": {
+          "samples": 6742,
+          "weighted_residence_us": 8389395,
+          "sample_share_percent": 83.596,
+          "weighted_residence_share_percent": 83.528
+        },
+        "translation_inclusive": {
+          "samples": 38,
+          "weighted_residence_us": 46478,
+          "sample_share_percent": 0.471,
+          "weighted_residence_share_percent": 0.463
+        },
+        "cpu_tb_exec_inclusive": {
+          "samples": 852,
+          "weighted_residence_us": 1066348,
+          "sample_share_percent": 10.564,
+          "weighted_residence_share_percent": 10.617
+        },
+        "JS_throw_longjmp_leaf": {
+          "samples": 80,
+          "weighted_residence_us": 100519,
+          "sample_share_percent": 0.992,
+          "weighted_residence_share_percent": 1.001
+        },
+        "BQL_inclusive": {
+          "samples": 275,
+          "weighted_residence_us": 343815,
+          "sample_share_percent": 3.41,
+          "weighted_residence_share_percent": 3.423
+        },
+        "BQL_futex_leaf": {
+          "samples": 274,
+          "weighted_residence_us": 342593,
+          "sample_share_percent": 3.397,
+          "weighted_residence_share_percent": 3.411
+        },
+        "TB_lookup_inclusive": {
+          "samples": 222,
+          "weighted_residence_us": 276973,
+          "sample_share_percent": 2.753,
+          "weighted_residence_share_percent": 2.758
+        },
+        "GPIO_or_soft_I2C_inclusive": {
+          "samples": 1,
+          "weighted_residence_us": 1114,
+          "sample_share_percent": 0.012,
+          "weighted_residence_share_percent": 0.011
+        },
+        "systimer_model_inclusive": {
+          "samples": 4,
+          "weighted_residence_us": 5163,
+          "sample_share_percent": 0.05,
+          "weighted_residence_share_percent": 0.051
+        }
+      },
+      "leaf_partition": {
+        "other_futex_leaf": {
+          "samples": 6775,
+          "weighted_residence_us": 8430388,
+          "sample_share_percent": 84.005,
+          "weighted_residence_share_percent": 83.936
+        },
+        "other_leaf": {
+          "samples": 199,
+          "weighted_residence_us": 248865,
+          "sample_share_percent": 2.467,
+          "weighted_residence_share_percent": 2.478
+        },
+        "cpu_exec_loop_leaf": {
+          "samples": 92,
+          "weighted_residence_us": 114827,
+          "sample_share_percent": 1.141,
+          "weighted_residence_share_percent": 1.143
+        },
+        "cpu_tb_exec_TCI_or_inlined_helpers_leaf": {
+          "samples": 447,
+          "weighted_residence_us": 559580,
+          "sample_share_percent": 5.542,
+          "weighted_residence_share_percent": 5.571
+        },
+        "JS_longjmp_leaf": {
+          "samples": 80,
+          "weighted_residence_us": 100519,
+          "sample_share_percent": 0.992,
+          "weighted_residence_share_percent": 1.001
+        },
+        "BQL_futex_leaf": {
+          "samples": 274,
+          "weighted_residence_us": 342593,
+          "sample_share_percent": 3.397,
+          "weighted_residence_share_percent": 3.411
+        },
+        "TB_lookup_leaf": {
+          "samples": 196,
+          "weighted_residence_us": 244559,
+          "sample_share_percent": 2.43,
+          "weighted_residence_share_percent": 2.435
+        },
+        "idle_or_program_leaf": {
+          "samples": 2,
+          "weighted_residence_us": 2487,
+          "sample_share_percent": 0.025,
+          "weighted_residence_share_percent": 0.025
+        }
+      },
+      "longjmp_leaf_reasons": {
+        "guest exception via helper_window_check": 45,
+        "guest exception via helper_test_underflow_retw": 34,
+        "guest exception via helper_waiti": 1
+      },
+      "top_self": [
+        {
+          "frame": {
+            "name": "emscripten_futex_wait",
+            "scope": "main-WASM-inferred",
+            "function_index": 2263,
+            "columnNumber": 1143064
+          },
+          "samples": 7049,
+          "weighted_residence_us": 8772981
+        },
+        {
+          "frame": {
+            "name": "cpu_tb_exec",
+            "scope": "main-WASM-inferred",
+            "function_index": 6312,
+            "columnNumber": 4501474
+          },
+          "samples": 447,
+          "weighted_residence_us": 559580
+        },
+        {
+          "frame": {
+            "name": "qht_lookup_custom",
+            "scope": "main-WASM-inferred",
+            "function_index": 5389,
+            "columnNumber": 3557789
+          },
+          "samples": 105,
+          "weighted_residence_us": 131940
+        },
+        {
+          "frame": {
+            "name": "cpu_exec_loop",
+            "scope": "main-WASM-inferred",
+            "function_index": 12713,
+            "columnNumber": 8579317
+          },
+          "samples": 92,
+          "weighted_residence_us": 114827
+        },
+        {
+          "frame": {
+            "name": "__emscripten_throw_longjmp",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 113787
+          },
+          "samples": 80,
+          "weighted_residence_us": 100519
+        },
+        {
+          "frame": {
+            "name": "get_page_addr_code_hostp",
+            "scope": "main-WASM-inferred",
+            "function_index": 2681,
+            "columnNumber": 1392001
+          },
+          "samples": 41,
+          "weighted_residence_us": 50512
+        },
+        {
+          "frame": {
+            "name": "cpu_get_tb_cpu_state",
+            "scope": "main-WASM-inferred",
+            "function_index": 4209,
+            "columnNumber": 2616887
+          },
+          "samples": 38,
+          "weighted_residence_us": 47397
+        },
+        {
+          "frame": {
+            "name": "GROWABLE_HEAP_U32",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 519
+          },
+          "samples": 16,
+          "weighted_residence_us": 19900
+        },
+        {
+          "frame": {
+            "name": "probe_access_internal",
+            "scope": "main-WASM-inferred",
+            "function_index": 5640,
+            "columnNumber": 3760017
+          },
+          "samples": 15,
+          "weighted_residence_us": 18657
+        },
+        {
+          "frame": {
+            "name": "tcg_gen_code",
+            "scope": "main-WASM-inferred",
+            "function_index": 8479,
+            "columnNumber": 5671273
+          },
+          "samples": 14,
+          "weighted_residence_us": 17190
+        }
+      ],
+      "top_relevant_inclusive": [
+        {
+          "name": "cpu_tb_exec",
+          "samples": 852,
+          "weighted_residence_us": 1066348
+        },
+        {
+          "name": "bql_lock_impl",
+          "samples": 275,
+          "weighted_residence_us": 343815
+        },
+        {
+          "name": "tb_htable_lookup",
+          "samples": 177,
+          "weighted_residence_us": 221129
+        },
+        {
+          "name": "qht_lookup_custom",
+          "samples": 117,
+          "weighted_residence_us": 146936
+        },
+        {
+          "name": "get_page_addr_code_hostp",
+          "samples": 52,
+          "weighted_residence_us": 64083
+        },
+        {
+          "name": "cpu_get_tb_cpu_state",
+          "samples": 38,
+          "weighted_residence_us": 47397
+        },
+        {
+          "name": "mmu_lookup",
+          "samples": 20,
+          "weighted_residence_us": 25044
+        },
+        {
+          "name": "mmu_lookup1",
+          "samples": 14,
+          "weighted_residence_us": 17524
+        },
+        {
+          "name": "esp_systimer_write",
+          "samples": 2,
+          "weighted_residence_us": 2509
+        },
+        {
+          "name": "esp32c3_systimer_write",
+          "samples": 2,
+          "weighted_residence_us": 2509
+        },
+        {
+          "name": "esp_systimer_read",
+          "samples": 2,
+          "weighted_residence_us": 2654
+        },
+        {
+          "name": "esp32_gpio_write",
+          "samples": 1,
+          "weighted_residence_us": 1114
+        },
+        {
+          "name": "gpio_notify_pads_mask",
+          "samples": 1,
+          "weighted_residence_us": 1114
+        },
+        {
+          "name": "do_ld2_mmu",
+          "samples": 1,
+          "weighted_residence_us": 1258
+        },
+        {
+          "name": "bql_unlock",
+          "samples": 1,
+          "weighted_residence_us": 1294
+        }
+      ]
+    },
+    {
+      "ordinal": 2,
+      "role_inferred": "vCPU thread",
+      "samples": 8061,
+      "duration_us": 10041695,
+      "sum_timeDeltas_us": 10040859,
+      "categories_inclusive": {
+        "cpu_tb_exec_inclusive": {
+          "samples": 4251,
+          "weighted_residence_us": 5298632,
+          "sample_share_percent": 52.735,
+          "weighted_residence_share_percent": 52.771
+        },
+        "translation_inclusive": {
+          "samples": 96,
+          "weighted_residence_us": 118559,
+          "sample_share_percent": 1.191,
+          "weighted_residence_share_percent": 1.181
+        },
+        "TB_lookup_inclusive": {
+          "samples": 1179,
+          "weighted_residence_us": 1464621,
+          "sample_share_percent": 14.626,
+          "weighted_residence_share_percent": 14.587
+        },
+        "futex_leaf": {
+          "samples": 3049,
+          "weighted_residence_us": 3808435,
+          "sample_share_percent": 37.824,
+          "weighted_residence_share_percent": 37.929
+        },
+        "main_thread_proxy_inclusive": {
+          "samples": 93,
+          "weighted_residence_us": 115866,
+          "sample_share_percent": 1.154,
+          "weighted_residence_share_percent": 1.154
+        },
+        "vcpu_idle_wait_futex_leaf": {
+          "samples": 1841,
+          "weighted_residence_us": 2296751,
+          "sample_share_percent": 22.838,
+          "weighted_residence_share_percent": 22.874
+        },
+        "systimer_model_inclusive": {
+          "samples": 22,
+          "weighted_residence_us": 27532,
+          "sample_share_percent": 0.273,
+          "weighted_residence_share_percent": 0.274
+        },
+        "BQL_inclusive": {
+          "samples": 839,
+          "weighted_residence_us": 1043814,
+          "sample_share_percent": 10.408,
+          "weighted_residence_share_percent": 10.396
+        },
+        "BQL_futex_leaf": {
+          "samples": 816,
+          "weighted_residence_us": 1015700,
+          "sample_share_percent": 10.123,
+          "weighted_residence_share_percent": 10.116
+        },
+        "JS_throw_longjmp_leaf": {
+          "samples": 415,
+          "weighted_residence_us": 517063,
+          "sample_share_percent": 5.148,
+          "weighted_residence_share_percent": 5.15
+        },
+        "coroutine_or_fiber_inclusive": {
+          "samples": 4,
+          "weighted_residence_us": 5021,
+          "sample_share_percent": 0.05,
+          "weighted_residence_share_percent": 0.05
+        },
+        "cache_MMU_or_TIMG_controller_inclusive": {
+          "samples": 158,
+          "weighted_residence_us": 204102,
+          "sample_share_percent": 1.96,
+          "weighted_residence_share_percent": 2.033
+        },
+        "cache_MMU_controller_inclusive": {
+          "samples": 156,
+          "weighted_residence_us": 201594,
+          "sample_share_percent": 1.935,
+          "weighted_residence_share_percent": 2.008
+        },
+        "blk_pread_inclusive": {
+          "samples": 156,
+          "weighted_residence_us": 201594,
+          "sample_share_percent": 1.935,
+          "weighted_residence_share_percent": 2.008
+        }
+      },
+      "leaf_partition": {
+        "cpu_tb_exec_TCI_or_inlined_helpers_leaf": {
+          "samples": 2308,
+          "weighted_residence_us": 2870893,
+          "sample_share_percent": 28.632,
+          "weighted_residence_share_percent": 28.592
+        },
+        "other_leaf": {
+          "samples": 773,
+          "weighted_residence_us": 959229,
+          "sample_share_percent": 9.589,
+          "weighted_residence_share_percent": 9.553
+        },
+        "TB_lookup_leaf": {
+          "samples": 1052,
+          "weighted_residence_us": 1307890,
+          "sample_share_percent": 13.05,
+          "weighted_residence_share_percent": 13.026
+        },
+        "cpu_exec_loop_leaf": {
+          "samples": 459,
+          "weighted_residence_us": 571310,
+          "sample_share_percent": 5.694,
+          "weighted_residence_share_percent": 5.69
+        },
+        "other_futex_leaf": {
+          "samples": 2233,
+          "weighted_residence_us": 2792735,
+          "sample_share_percent": 27.701,
+          "weighted_residence_share_percent": 27.814
+        },
+        "BQL_futex_leaf": {
+          "samples": 816,
+          "weighted_residence_us": 1015700,
+          "sample_share_percent": 10.123,
+          "weighted_residence_share_percent": 10.116
+        },
+        "JS_longjmp_leaf": {
+          "samples": 415,
+          "weighted_residence_us": 517063,
+          "sample_share_percent": 5.148,
+          "weighted_residence_share_percent": 5.15
+        },
+        "idle_or_program_leaf": {
+          "samples": 4,
+          "weighted_residence_us": 4815,
+          "sample_share_percent": 0.05,
+          "weighted_residence_share_percent": 0.048
+        },
+        "MMU_block_fiber_named_leaf": {
+          "samples": 1,
+          "weighted_residence_us": 1224,
+          "sample_share_percent": 0.012,
+          "weighted_residence_share_percent": 0.012
+        }
+      },
+      "longjmp_leaf_reasons": {
+        "guest exception via helper_window_check": 199,
+        "guest exception via helper_test_underflow_retw": 214,
+        "guest exception via helper_waiti": 2
+      },
+      "top_self": [
+        {
+          "frame": {
+            "name": "emscripten_futex_wait",
+            "scope": "main-WASM-inferred",
+            "function_index": 2263,
+            "columnNumber": 1143064
+          },
+          "samples": 3049,
+          "weighted_residence_us": 3808435
+        },
+        {
+          "frame": {
+            "name": "cpu_tb_exec",
+            "scope": "main-WASM-inferred",
+            "function_index": 6312,
+            "columnNumber": 4501474
+          },
+          "samples": 2308,
+          "weighted_residence_us": 2870893
+        },
+        {
+          "frame": {
+            "name": "qht_lookup_custom",
+            "scope": "main-WASM-inferred",
+            "function_index": 5389,
+            "columnNumber": 3557789
+          },
+          "samples": 518,
+          "weighted_residence_us": 644251
+        },
+        {
+          "frame": {
+            "name": "cpu_exec_loop",
+            "scope": "main-WASM-inferred",
+            "function_index": 12713,
+            "columnNumber": 8579317
+          },
+          "samples": 459,
+          "weighted_residence_us": 571310
+        },
+        {
+          "frame": {
+            "name": "__emscripten_throw_longjmp",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 113787
+          },
+          "samples": 415,
+          "weighted_residence_us": 517063
+        },
+        {
+          "frame": {
+            "name": "get_page_addr_code_hostp",
+            "scope": "main-WASM-inferred",
+            "function_index": 2681,
+            "columnNumber": 1392001
+          },
+          "samples": 214,
+          "weighted_residence_us": 265799
+        },
+        {
+          "frame": {
+            "name": "cpu_get_tb_cpu_state",
+            "scope": "main-WASM-inferred",
+            "function_index": 4209,
+            "columnNumber": 2616887
+          },
+          "samples": 199,
+          "weighted_residence_us": 247524
+        },
+        {
+          "frame": {
+            "name": "tb_htable_lookup",
+            "scope": "main-WASM-inferred",
+            "function_index": 5098,
+            "columnNumber": 3287491
+          },
+          "samples": 121,
+          "weighted_residence_us": 150316
+        },
+        {
+          "frame": {
+            "name": "probe_access_internal",
+            "scope": "main-WASM-inferred",
+            "function_index": 5640,
+            "columnNumber": 3760017
+          },
+          "samples": 67,
+          "weighted_residence_us": 83091
+        },
+        {
+          "frame": {
+            "name": "tb_lookup_cmp",
+            "scope": "main-WASM-inferred",
+            "function_index": 8495,
+            "columnNumber": 5716253
+          },
+          "samples": 63,
+          "weighted_residence_us": 77413
+        }
+      ],
+      "top_relevant_inclusive": [
+        {
+          "name": "cpu_tb_exec",
+          "samples": 4251,
+          "weighted_residence_us": 5298632
+        },
+        {
+          "name": "tb_htable_lookup",
+          "samples": 962,
+          "weighted_residence_us": 1195254
+        },
+        {
+          "name": "bql_lock_impl",
+          "samples": 839,
+          "weighted_residence_us": 1043814
+        },
+        {
+          "name": "qht_lookup_custom",
+          "samples": 578,
+          "weighted_residence_us": 717897
+        },
+        {
+          "name": "get_page_addr_code_hostp",
+          "samples": 274,
+          "weighted_residence_us": 340099
+        },
+        {
+          "name": "cpu_get_tb_cpu_state",
+          "samples": 199,
+          "weighted_residence_us": 247524
+        },
+        {
+          "name": "esp32s3_cache_write",
+          "samples": 156,
+          "weighted_residence_us": 201594
+        },
+        {
+          "name": "blk_pread",
+          "samples": 156,
+          "weighted_residence_us": 201594
+        },
+        {
+          "name": "mmu_lookup",
+          "samples": 91,
+          "weighted_residence_us": 114045
+        },
+        {
+          "name": "mmu_lookup1",
+          "samples": 48,
+          "weighted_residence_us": 60846
+        },
+        {
+          "name": "esp_systimer_write",
+          "samples": 22,
+          "weighted_residence_us": 27532
+        },
+        {
+          "name": "esp32c3_systimer_write",
+          "samples": 22,
+          "weighted_residence_us": 27532
+        },
+        {
+          "name": "esp_systimer_comparator_reprogram",
+          "samples": 9,
+          "weighted_residence_us": 11327
+        },
+        {
+          "name": "coroutine_trampoline",
+          "samples": 3,
+          "weighted_residence_us": 3771
+        },
+        {
+          "name": "qemu_coroutine_create",
+          "samples": 1,
+          "weighted_residence_us": 1250
+        },
+        {
+          "name": "qemu_coroutine_yield",
+          "samples": 1,
+          "weighted_residence_us": 1224
+        },
+        {
+          "name": "esp_timg_write",
+          "samples": 1,
+          "weighted_residence_us": 1251
+        },
+        {
+          "name": "esp_timg_read",
+          "samples": 1,
+          "weighted_residence_us": 1257
+        },
+        {
+          "name": "bql_unlock",
+          "samples": 1,
+          "weighted_residence_us": 1234
+        }
+      ]
+    },
+    {
+      "ordinal": 3,
+      "role_inferred": "block worker thread",
+      "samples": 8059,
+      "duration_us": 10037028,
+      "sum_timeDeltas_us": 10036940,
+      "categories_inclusive": {
+        "futex_leaf": {
+          "samples": 8054,
+          "weighted_residence_us": 10031111,
+          "sample_share_percent": 99.938,
+          "weighted_residence_share_percent": 99.942
+        },
+        "block_worker_wait_futex_leaf": {
+          "samples": 8054,
+          "weighted_residence_us": 10031111,
+          "sample_share_percent": 99.938,
+          "weighted_residence_share_percent": 99.942
+        },
+        "main_thread_proxy_inclusive": {
+          "samples": 2,
+          "weighted_residence_us": 2468,
+          "sample_share_percent": 0.025,
+          "weighted_residence_share_percent": 0.025
+        }
+      },
+      "leaf_partition": {
+        "other_futex_leaf": {
+          "samples": 8054,
+          "weighted_residence_us": 10031111,
+          "sample_share_percent": 99.938,
+          "weighted_residence_share_percent": 99.942
+        },
+        "other_leaf": {
+          "samples": 5,
+          "weighted_residence_us": 5829,
+          "sample_share_percent": 0.062,
+          "weighted_residence_share_percent": 0.058
+        }
+      },
+      "longjmp_leaf_reasons": {},
+      "top_self": [
+        {
+          "frame": {
+            "name": "emscripten_futex_wait",
+            "scope": "main-WASM-inferred",
+            "function_index": 2263,
+            "columnNumber": 1143064
+          },
+          "samples": 8054,
+          "weighted_residence_us": 10031111
+        },
+        {
+          "frame": {
+            "name": "_emscripten_get_now",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 126014
+          },
+          "samples": 4,
+          "weighted_residence_us": 4610
+        },
+        {
+          "frame": {
+            "name": "now",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 1,
+          "weighted_residence_us": 1219
+        }
+      ],
+      "top_relevant_inclusive": []
+    },
+    {
+      "ordinal": 4,
+      "role_inferred": "QEMU main I/O thread",
+      "samples": 8058,
+      "duration_us": 10034211,
+      "sum_timeDeltas_us": 10034166,
+      "categories_inclusive": {
+        "futex_leaf": {
+          "samples": 7501,
+          "weighted_residence_us": 9345071,
+          "sample_share_percent": 93.088,
+          "weighted_residence_share_percent": 93.133
+        },
+        "main_thread_proxy_inclusive": {
+          "samples": 1310,
+          "weighted_residence_us": 1624025,
+          "sample_share_percent": 16.257,
+          "weighted_residence_share_percent": 16.185
+        },
+        "BQL_inclusive": {
+          "samples": 160,
+          "weighted_residence_us": 205351,
+          "sample_share_percent": 1.986,
+          "weighted_residence_share_percent": 2.047
+        },
+        "BQL_futex_leaf": {
+          "samples": 160,
+          "weighted_residence_us": 205351,
+          "sample_share_percent": 1.986,
+          "weighted_residence_share_percent": 2.047
+        },
+        "systimer_model_inclusive": {
+          "samples": 16,
+          "weighted_residence_us": 19941,
+          "sample_share_percent": 0.199,
+          "weighted_residence_share_percent": 0.199
+        },
+        "coroutine_or_fiber_inclusive": {
+          "samples": 11,
+          "weighted_residence_us": 13306,
+          "sample_share_percent": 0.137,
+          "weighted_residence_share_percent": 0.133
+        }
+      },
+      "leaf_partition": {
+        "other_futex_leaf": {
+          "samples": 7341,
+          "weighted_residence_us": 9139720,
+          "sample_share_percent": 91.102,
+          "weighted_residence_share_percent": 91.086
+        },
+        "other_leaf": {
+          "samples": 555,
+          "weighted_residence_us": 686593,
+          "sample_share_percent": 6.888,
+          "weighted_residence_share_percent": 6.843
+        },
+        "BQL_futex_leaf": {
+          "samples": 160,
+          "weighted_residence_us": 205351,
+          "sample_share_percent": 1.986,
+          "weighted_residence_share_percent": 2.047
+        },
+        "MMU_block_fiber_named_leaf": {
+          "samples": 2,
+          "weighted_residence_us": 2502,
+          "sample_share_percent": 0.025,
+          "weighted_residence_share_percent": 0.025
+        }
+      },
+      "longjmp_leaf_reasons": {},
+      "top_self": [
+        {
+          "frame": {
+            "name": "emscripten_futex_wait",
+            "scope": "main-WASM-inferred",
+            "function_index": 2263,
+            "columnNumber": 1143064
+          },
+          "samples": 7501,
+          "weighted_residence_us": 9345071
+        },
+        {
+          "frame": {
+            "name": "do_proxy",
+            "scope": "main-WASM-inferred",
+            "function_index": 3250,
+            "columnNumber": 1808874
+          },
+          "samples": 225,
+          "weighted_residence_us": 278861
+        },
+        {
+          "frame": {
+            "name": "_emscripten_get_now",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 126014
+          },
+          "samples": 109,
+          "weighted_residence_us": 136126
+        },
+        {
+          "frame": {
+            "name": "emscripten_futex_wake",
+            "scope": "main-WASM-inferred",
+            "function_index": 2016,
+            "columnNumber": 1000789
+          },
+          "samples": 15,
+          "weighted_residence_us": 18433
+        },
+        {
+          "frame": {
+            "name": "now",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 15,
+          "weighted_residence_us": 18762
+        },
+        {
+          "frame": {
+            "name": "GROWABLE_HEAP_F64",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 719
+          },
+          "samples": 13,
+          "weighted_residence_us": 15557
+        },
+        {
+          "frame": {
+            "name": "g_main_context_check_unlocked",
+            "scope": "main-WASM-inferred",
+            "function_index": 6104,
+            "columnNumber": 4286211
+          },
+          "samples": 10,
+          "weighted_residence_us": 12405
+        },
+        {
+          "frame": {
+            "name": "wasm-to-js",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 0
+          },
+          "samples": 9,
+          "weighted_residence_us": 11117
+        },
+        {
+          "frame": {
+            "name": "m5_panel_update",
+            "scope": "main-WASM-inferred",
+            "function_index": 3157,
+            "columnNumber": 1739982
+          },
+          "samples": 6,
+          "weighted_residence_us": 7338
+        },
+        {
+          "frame": {
+            "name": "main",
+            "scope": "main-WASM-inferred",
+            "function_index": 5887,
+            "columnNumber": 4076970
+          },
+          "samples": 6,
+          "weighted_residence_us": 7316
+        }
+      ],
+      "top_relevant_inclusive": [
+        {
+          "name": "bql_lock_impl",
+          "samples": 160,
+          "weighted_residence_us": 205351
+        },
+        {
+          "name": "esp_systimer_cb",
+          "samples": 16,
+          "weighted_residence_us": 19941
+        },
+        {
+          "name": "esp_systimer_notify",
+          "samples": 16,
+          "weighted_residence_us": 19941
+        },
+        {
+          "name": "coroutine_trampoline",
+          "samples": 9,
+          "weighted_residence_us": 10922
+        },
+        {
+          "name": "qemu_aio_coroutine_enter",
+          "samples": 2,
+          "weighted_residence_us": 2384
+        },
+        {
+          "name": "qemu_coroutine_switch",
+          "samples": 2,
+          "weighted_residence_us": 2384
+        },
+        {
+          "name": "_emscripten_fiber_swap",
+          "samples": 2,
+          "weighted_residence_us": 2384
+        },
+        {
+          "name": "qemu_coroutine_yield",
+          "samples": 2,
+          "weighted_residence_us": 2502
+        }
+      ]
+    },
+    {
+      "ordinal": 5,
+      "role_inferred": "engine/main JS thread",
+      "samples": 8055,
+      "duration_us": 10030618,
+      "sum_timeDeltas_us": 10030101,
+      "categories_inclusive": {},
+      "leaf_partition": {
+        "idle_or_program_leaf": {
+          "samples": 7530,
+          "weighted_residence_us": 9381872,
+          "sample_share_percent": 93.482,
+          "weighted_residence_share_percent": 93.537
+        },
+        "other_leaf": {
+          "samples": 525,
+          "weighted_residence_us": 648229,
+          "sample_share_percent": 6.518,
+          "weighted_residence_share_percent": 6.463
+        }
+      },
+      "longjmp_leaf_reasons": {},
+      "top_self": [
+        {
+          "frame": {
+            "name": "(idle)",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 7516,
+          "weighted_residence_us": 9366205
+        },
+        {
+          "frame": {
+            "name": "__private_cond_signal",
+            "scope": "main-WASM-inferred",
+            "function_index": 6641,
+            "columnNumber": 4779928
+          },
+          "samples": 213,
+          "weighted_residence_us": 263489
+        },
+        {
+          "frame": {
+            "name": "__emscripten_thread_mailbox_await",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 112097
+          },
+          "samples": 92,
+          "weighted_residence_us": 112770
+        },
+        {
+          "frame": {
+            "name": "GROWABLE_HEAP_I32",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 420
+          },
+          "samples": 26,
+          "weighted_residence_us": 32679
+        },
+        {
+          "frame": {
+            "name": "__emscripten_receive_on_main_thread_js",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 113056
+          },
+          "samples": 21,
+          "weighted_residence_us": 26106
+        },
+        {
+          "frame": {
+            "name": "get buffer",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 21,
+          "weighted_residence_us": 25496
+        },
+        {
+          "frame": {
+            "name": "(program)",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 14,
+          "weighted_residence_us": 15667
+        },
+        {
+          "frame": {
+            "name": "GROWABLE_HEAP_F64",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": 719
+          },
+          "samples": 12,
+          "weighted_residence_us": 14615
+        },
+        {
+          "frame": {
+            "name": "postMessage",
+            "scope": "JS/host",
+            "function_index": null,
+            "columnNumber": -1
+          },
+          "samples": 11,
+          "weighted_residence_us": 13539
+        },
+        {
+          "frame": {
+            "name": "em_task_queue_execute",
+            "scope": "main-WASM-inferred",
+            "function_index": 4159,
+            "columnNumber": 2560919
+          },
+          "samples": 10,
+          "weighted_residence_us": 12414
+        }
+      ],
+      "top_relevant_inclusive": []
+    }
+  ],
+  "process_CPU": {
+    "raw_sha256": "092abe5c574b071bb53a0ab3265a7c399bae1ba2871b976638760429a5436a07",
+    "source": "owned-browser-CDP-SystemInfo.getProcessInfo",
+    "wall_seconds": 10.07176225,
+    "cpu_seconds_by_type": {
+      "browser": 0.027537000000000034,
+      "renderer": 11.403866,
+      "GPU": 0.431597,
+      "network.mojom.NetworkService": 0.0009039999999999881,
+      "storage.mojom.StorageService": 1.5000000000001124e-05
+    },
+    "matched_processes": 8,
+    "new_processes": 0,
+    "vanished_processes": 0,
+    "meaning": "Measured process cpuTime deltas for matched IDs; renderer includes all relevant threads/UI. Not per-Worker CPU attribution."
+  },
+  "failure_in_this_window": {
+    "panic_or_watchdog_markers": [],
+    "guest_reset_count": 0,
+    "meaning": "No failure during this observed window is not a stability PASS."
+  },
+  "conclusion": "The active vCPU sampled stacks are dominated by cpu_tb_exec (TCI dispatch or inlined helpers), TB lookup/loop overhead and some guest-exception longjmps, with substantial BQL/futex residence. Most other workers wait or idle. Named MMU/cache/blk_pread/fiber paths are a small sampled fraction of this post-first-frame window. This does not prove absence of a short pre-first-frame MMU critical stall or explain rare WDT. No JIT requirement or expected speedup can be established from these samples; JIT would not itself repair IRQ/window/WDT semantics.",
+  "next_evidence": "To establish WDT-before-Double order, observe actual esp_wdt_cb stage fire and source52/55 matrix rise with captured virtual timestamp/route, plus the same timestamp at first Double. Existing reports did not capture those events. Do not infer ordering only from EPC4 or final panic.",
+  "detailed_analysis_sha256": "072bcf3f559c5be2900f9735b0249ef64b20bdab713a94f6a32c2b7bc3c50d38"
+}

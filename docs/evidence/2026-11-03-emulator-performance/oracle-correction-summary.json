@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "kind": "canvas-observation-oracle-correction-summary",
+  "created_at": "2026-11-03T08:19:10.947479+00:00",
+  "status": "PASS_SCOPED_HOST_CONTROLS; new complete guest gate separate",
+  "problem": {
+    "old_report_sha256": "ffe9c3c6cd00dabcd3ad8be1bab34e4a635aa50ef969359ab5cd3f7de62bd37e",
+    "old_report_bytes": 149494,
+    "reported_result": "PASS",
+    "unacceptable_actual_samples": [
+      {
+        "name": "cold-clicks1",
+        "state": 1,
+        "actual": false
+      },
+      {
+        "name": "reopened-clicks1",
+        "state": 1,
+        "actual": false
+      }
+    ],
+    "old_complete_gate_accepted": false,
+    "interrupted_dispatch_audit_sha256": "293dc39f1d1ad73c6864e58cd33f5035d13525cbcfe3ad5471793bdf358c1102",
+    "partial_case_count": 5,
+    "owned_dispatcher_ended_only_after_current_child_exit": true
+  },
+  "cause": {
+    "playwright_version": "1.64.1",
+    "installed_core_bundle_sha256": "829521b67ed7be90c7d6d6098ff39f2241562d47e4ad7ccab13710924a56001d",
+    "installed_source_line": 25707,
+    "description": "The async predicate returns a truthy Promise before its final false value is adopted; the caller also hardcoded a successful check without validating that final value.",
+    "official_API_reference": "https://playwright.dev/docs/api/class-page#page-wait-for-function"
+  },
+  "fix": {
+    "helper_sha256": "9cf552f4034eeeb5c2d94663ddba7383df973d3035518ad8665e1673e816abc1",
+    "guest_runner_sha256": "60dd91681b8cc85b10468becd028faa2a1702e180590ab23344613429372dbe9",
+    "plus2_runner_sha256": "d12a5c7dd518de8d4460b7b708df5dba61e2078ad56a13ea2ae255037008f460",
+    "strategy": "Explicit Node deadline loop awaits each page.evaluate snapshot/hash; strict typed new sequence/time and two measured digest matches. First valid plain object retained. Plus2 likewise requires an actual changed counter digest.",
+    "guest_values_or_time_injected": false
+  },
+  "host_controls": {
+    "node_contracts_sha256": "9a137a9977e6fe7db766dae22dc07ffc43d4e5c5be694943737b68a8188c0f59",
+    "value_contracts": 40,
+    "real_browser_report_sha256": "6bacd150cda422ab74b5001f713234d1308e189817ac9aa8b5ff152b412fcb42",
+    "real_browser_report_bytes": 2845,
+    "helper_identity_at_control": "9cf552f4034eeeb5c2d94663ddba7383df973d3035518ad8665e1673e816abc1",
+    "test_identity_at_control": "959863d2b17a5ef41763af2259cd0a71222302c1a5017a2724c879637ca008be",
+    "checks": [
+      {
+        "name": "old-async-predicate-resolved-with-actual-false",
+        "result": "PASS",
+        "evidence": {
+          "actual": false,
+          "meaning": "Promise truthiness allowed false to resolve; not pixel evidence"
+        }
+      },
+      {
+        "name": "delayed-actual-canvas-zero-to-one",
+        "result": "PASS",
+        "evidence": {
+          "observation": {
+            "frame_sequence": 1,
+            "captured_ms": 99.79999995231628,
+            "width": 320,
+            "height": 240,
+            "regions": [
+              {
+                "name": "primary",
+                "rgba_sha256": "fb3a6a641bbce9b762a240d320a72e963ebbfd6d38cf17e86f37f165574bdbe0"
+              },
+              {
+                "name": "secondary",
+                "rgba_sha256": "92473e976b82a7533986f1b8aa449430293f8d8bc65d72157440abbaa543daa2"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "async-hash-live-frame-race-single-snapshot",
+        "result": "PASS",
+        "evidence": {
+          "observation": {
+            "frame_sequence": 1,
+            "captured_ms": 101,
+            "width": 320,
+            "height": 240,
+            "regions": [
+              {
+                "name": "primary",
+                "rgba_sha256": "fb3a6a641bbce9b762a240d320a72e963ebbfd6d38cf17e86f37f165574bdbe0"
+              },
+              {
+                "name": "secondary",
+                "rgba_sha256": "92473e976b82a7533986f1b8aa449430293f8d8bc65d72157440abbaa543daa2"
+              }
+            ]
+          },
+          "calls": 2,
+          "live_sequence": 2,
+          "scope": "Synthetic fixture digest hook only; no guest or product data modified"
+        }
+      },
+      {
+        "name": "real-wrong-hashes-timeout",
+        "result": "PASS",
+        "evidence": {
+          "last_observation": {
+            "frame_sequence": 3,
+            "captured_ms": 242.79999995231628,
+            "width": 320,
+            "height": 240,
+            "regions": [
+              {
+                "name": "primary",
+                "rgba_sha256": "d37a4c2900bb85dfd24592c0b52e8dcd72e0ea45c47fa2db0cf1c4c132c80c66"
+              },
+              {
+                "name": "secondary",
+                "rgba_sha256": "deccb13da5e68b39fd85c559eb10a8e1706951e8ae9d2c32a1f9a3783bfdc58c"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "browser_closed": true,
+    "scope": "host-only browser control; not virtual-device validation"
+  },
+  "preserved_performance": {
+    "status": "R5 compose performance is independent of this pixel-completion assertion",
+    "successful_raw_sha256": "100855d8f77ba5cfb16a18e9162db49545b7747ec210e4fd0faf4ef18da0a176"
+  },
+  "limits": [
+    "Synthetic Canvas controls are host tests, not virtual-device or physical measurements.",
+    "Old interrupted cases are not reused to satisfy the new full admitted-board gate.",
+    "No device pixel completion is granted by this host-only summary."
+  ]
+}

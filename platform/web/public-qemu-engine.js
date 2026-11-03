@@ -1,5 +1,5 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
-import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 // One dedicated engine Worker owns the Emscripten module, MEMFS and pthreads.
 // The iframe transfers one private port; no window control channel is used.
@@ -12,6 +12,7 @@ let resetEpoch = 0;
 let panelPath;
 let workersCreated = 0;
 let relocatedGlueSha256;
+let runtimeArguments;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
 const encoder = new TextEncoder(), decoder = new TextDecoder();
 const NativeWorker = globalThis.Worker;
@@ -50,7 +51,7 @@ function output(text) {
           await new Promise(resolve=>setTimeout(resolve,100));
         }
         if (!closed) emit('ready', {shared:module.HEAPU8.buffer instanceof SharedArrayBuffer,
-          memoryBytes:module.HEAPU8.buffer.byteLength, crossOriginIsolated, relocatedGlueSha256});
+          memoryBytes:module.HEAPU8.buffer.byteLength, crossOriginIsolated, relocatedGlueSha256,arguments:runtimeArguments.slice()});
       })().catch(fail);
     }
     if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
@@ -113,6 +114,7 @@ async function start(config) {
   const {default:createQemu} = await import(script);
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
+  validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
   frameTransport=config.frameTransport;
   const options = {
     arguments:buildQemuArguments(boardProfile),
@@ -170,6 +172,17 @@ async function start(config) {
       stream.stream_ops = {...stream.stream_ops,poll:() => 4 | (qmpInput.length ? 1 : 0)};
     },
   };
+  if (config.wasmModule) {
+    if (!(config.wasmModule instanceof WebAssembly.Module)) throw new Error('Invalid compiled QEMU module');
+    // Emscripten must receive the Module as well as its fresh Instance: it
+    // forwards the compiled code to every pthread with the new guest memory.
+    options.instantiateWasm=(imports,receiveInstance)=>{
+      return receiveInstance(new WebAssembly.Instance(config.wasmModule,imports),config.wasmModule);
+    };
+  }
+  // Retain the very array handed to the factory; ready reports a copy rather
+  // than reconstructing arguments from the profile after startup.
+  runtimeArguments=options.arguments;
   module = await createQemu(options);
   if (disposeRequested) { cleanup(); throw new Error('Instance disposed during start'); }
 }

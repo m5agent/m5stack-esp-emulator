@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "kind": "qemu-host-backend-integration-cost-review",
+  "status": "STATIC_REVIEW_ONLY",
+  "formal_integration": "NOT RUN",
+  "publication_eligible": false,
+  "product_modified_by_this_review": false,
+  "decision": "No adoption implied. Compare same-firmware candidate execution and maintenance gates before deciding.",
+  "source": {
+    "qemu_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "host_backend_upstream_commit": "24b5ff124d70043aff97dc30aa45f8a502676989",
+    "sub2_fix_commit": "5a65998d47d78723115d1478a8a40f8d6d497f37",
+    "reviewed_private_host_patch_sha256": "8c798d87d871bc87e5756b4f34f692637a04e6ea7b0101cb36be8870be09d117",
+    "current_product_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "private_patch_not_product_lock": true,
+    "diagnostic_observers": "The executed private candidate retains first-Double/atomic observers. Those observations are not included in the proposed formal host-only patch cost and must not be silently promoted."
+  },
+  "architecture": {
+    "engine": "QEMU",
+    "same_soc_board_controller_models": true,
+    "second_soc_model_required": false,
+    "host_target": "alternative wasm32 TCG emitter plus paired forked TCI",
+    "product_tcg_register_bits": 32,
+    "candidate_tcg_register_bits": 64,
+    "wasm_pointer_bits": 32,
+    "jit_off": "Forked64-register TCI including direct-TLB RAM fastpath, not the original product32-register TCI.",
+    "single_env_toggle_preserves_original_default_or_unknown_firmware_path": false
+  },
+  "observed_patch_cost": {
+    "files": 16,
+    "added_lines": 6167,
+    "deleted_lines": 15,
+    "new_files": 10,
+    "new_file_lines": 6135,
+    "files_detail": [
+      {
+        "path": "include/exec/exec-all.h",
+        "added_lines": 1,
+        "deleted_lines": 1,
+        "new_file": false
+      },
+      {
+        "path": "include/tcg/helper-info.h",
+        "added_lines": 2,
+        "deleted_lines": 2,
+        "new_file": false
+      },
+      {
+        "path": "include/tcg/tcg.h",
+        "added_lines": 1,
+        "deleted_lines": 1,
+        "new_file": false
+      },
+      {
+        "path": "meson.build",
+        "added_lines": 2,
+        "deleted_lines": 4,
+        "new_file": false
+      },
+      {
+        "path": "tcg/meson.build",
+        "added_lines": 5,
+        "deleted_lines": 0,
+        "new_file": false
+      },
+      {
+        "path": "tcg/tcg.c",
+        "added_lines": 21,
+        "deleted_lines": 7,
+        "new_file": false
+      },
+      {
+        "path": "tcg/wasm32.c",
+        "added_lines": 1357,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32.h",
+        "added_lines": 41,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-con-set.h",
+        "added_lines": 18,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-con-str.h",
+        "added_lines": 8,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-has.h",
+        "added_lines": 102,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-mo.h",
+        "added_lines": 12,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-opc.h.inc",
+        "added_lines": 4,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-reg-bits.h",
+        "added_lines": 12,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target.c.inc",
+        "added_lines": 4504,
+        "deleted_lines": 0,
+        "new_file": true
+      },
+      {
+        "path": "tcg/wasm32/tcg-target.h",
+        "added_lines": 77,
+        "deleted_lines": 0,
+        "new_file": true
+      }
+    ],
+    "scope": "Measured on the private reviewed host patch; guard narrowing or another integration design may change these numbers."
+  },
+  "proposed_conditional_lock_impact": {
+    "applied": false,
+    "condition": "Only if appending this16-file host-only delta as one isolated WASM-layer patch after0028, with no further source files.",
+    "current_patch_count": 72,
+    "proposed_patch_count": 73,
+    "current_source_postimages": 160,
+    "proposed_source_postimages": 175,
+    "additional_source_keys": [
+      "include/exec/exec-all.h",
+      "include/tcg/helper-info.h",
+      "include/tcg/tcg.h",
+      "tcg/meson.build",
+      "tcg/tcg.c",
+      "tcg/wasm32.c",
+      "tcg/wasm32.h",
+      "tcg/wasm32/tcg-target-con-set.h",
+      "tcg/wasm32/tcg-target-con-str.h",
+      "tcg/wasm32/tcg-target-has.h",
+      "tcg/wasm32/tcg-target-mo.h",
+      "tcg/wasm32/tcg-target-opc.h.inc",
+      "tcg/wasm32/tcg-target-reg-bits.h",
+      "tcg/wasm32/tcg-target.c.inc",
+      "tcg/wasm32/tcg-target.h"
+    ],
+    "native_prefix_count": 47,
+    "native_prefix_changes_required": false,
+    "native_prefix_policy": "Retain every existing native-layer patch and hash byte-for-byte; append host changes only in the WASM layer.",
+    "existing_soc_board_gpio_reset_cstack_sources": "Preserve current product source identities. No new controller implementation or native patch is proposed."
+  },
+  "required_change_list": [
+    {
+      "path": "scripts/qemu-wasm-build/build.py",
+      "current": "compile() hardcodes --enable-tcg-interpreter; strict runtime reader requires exact source/recipe/toolchain identity.",
+      "proposed": "Explicit strict build-level host-target choice selects --disable-tcg-interpreter --cpu=wasm32 for this backend; rebuild every QEMU object, preserve exact manifest checks and record actual host target.",
+      "required": true
+    },
+    {
+      "path": "QEMU meson.build and tcg/meson.build",
+      "current": "WASM host is forced to the original TCI; that branch builds tcg/tci.c.",
+      "proposed": "Narrow explicit wasm32 host-backend branch selects tcg/wasm32.c and existing libffi while retaining original TCI branch.",
+      "required": true
+    },
+    {
+      "path": "QEMU tcg/tcg.c, include/exec/exec-all.h, include/tcg/helper-info.h, include/tcg/tcg.h",
+      "current": "Prototype broad EMSCRIPTEN guards enable new emitter callbacks and special helper/GETPC handling.",
+      "proposed": "Use a backend-specific build macro if both old TCI and alternative builds must remain supported. Current generic guards call tcg_out_label_cb/tcg_out_tb_end even in the old TCI build, which does not define them. Keep native guards false.",
+      "required": true
+    },
+    {
+      "path": "scripts/qemu-wasm-build/sources.lock.json",
+      "proposed": "Pin reviewed host patch and all added/modified source postimages; preserve current native prefix, shared GPIO/reset/CSTACK and SDK/dependency identities.",
+      "required": true
+    },
+    {
+      "path": "platform/tests/test_bootstrap_qemu_browser_runtime.py and backend contracts",
+      "proposed": "Update exact lock boundary only with adopted source; verify both build choices, actual emitted operations, helper ABI, memory growth, and backend execution receipts. Existing product acceptance cannot be inherited.",
+      "required": true
+    },
+    {
+      "path": "Runtime/source/site export",
+      "proposed": "Fresh complete source build, corresponding source/licenses/recipe and new actual artifact/site hashes. Keep engine qemu-wasm and reject diagnostic/incremental candidates from normal source-lock admission.",
+      "required": true
+    }
+  ],
+  "typed_helper_0025": {
+    "active_in_original_tci": true,
+    "active_in_candidate_host_target": false,
+    "reason": "0025 patches tcg/tci.c and adds tcg/tci-wasm-call.h; alternative Meson branch does not build that interpreter. Cold tcg/wasm32.c calls libffi, and hot code uses generated helper imports/wrappers.",
+    "automatic_conflict_due_to_tcg64": false,
+    "abi_note": "Pointer and ffi_arg remain32-bit. Adapter reuse requires new actual64-register call-slot and return/fallback verification; it is not a measured drop-in optimization.",
+    "existing_typed_helper_tests_grant_candidate_acceptance": false
+  },
+  "sdk_dependencies": {
+    "required_emscripten": "3.1.50",
+    "additional_external_dependency_demonstrated": false,
+    "existing_requirements": [
+      "libffi",
+      "Asyncify",
+      "Emscripten fibers",
+      "existing CPU-loop longjmp stack restoration"
+    ],
+    "preserve_settings_for_control": [
+      "clock",
+      "WDT",
+      "stack sizes",
+      "JIT threshold"
+    ]
+  },
+  "fallback_and_scope_choices": [
+    "Adopting this target globally requires fresh firmware/profile regression; JIT0 does not recover the old interpreter.",
+    "Keeping the original interpreter as an artifact fallback requires two build outputs and resource selection.",
+    "Embedding compilation behind the original32-bit TCI requires a different integration design."
+  ],
+  "minimum_unresolved_gates": [
+    "stable same-image boot/input/display/output across fresh and warm VMs",
+    "actual generated operation semantics beyond repaired ctpop",
+    "mixed and wide/i128 helper ABI, GETPC and longjmp",
+    "Asyncify nested/cross-thread coroutine behavior and stack guards",
+    "direct-TLB RAM hit versus I/O/exception/unaligned/cross-page fallback",
+    "TB invalidation/remap/self-modifying code and instance-GC lifetime",
+    "concurrent memory growth and bounded memory budgeting",
+    "fresh reproducible SDK/source build and unchanged native source boundary",
+    "iframe/Worker/process cleanup"
+  ],
+  "measurement_limits": [
+    "Static cost review is not firmware, hardware, performance or production acceptance.",
+    "Actual compilation/hit counters prove host-backend execution, not application correctness or guest instruction counts.",
+    "Existing c854 results do not establish Factory or unknown-firmware behavior.",
+    "This static cost review preceded the queued default-multi-instruction Factory controls. Those controls subsequently ran and failed; see jit-four-lane-summary.json. No formal integration was performed."
+  ]
+}

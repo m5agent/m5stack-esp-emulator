@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "category": "old-cstack-diagnostics-timeline-readonly-audit",
+  "raw_report_sha256": "b8eb6fda156e2116997f6a6fbd9eaae2ce033883cb55950c976a1783c831cbaf",
+  "runtime_wasm_sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+  "old_patch": {
+    "path": "patches/qemu-wasm-probe/0008-qemu-cstack-diagnostics.patch",
+    "sha256": "ca2c1d175c797d1fe024d205c93cb1ce24c9a6298f75d3b2daa55c971103e841"
+  },
+  "result": "DIAGNOSTIC OVERHEAD CONFIRMED; CAUSALITY AND EXHAUSTION TIME NOT MEASURED",
+  "source_findings": [
+    "Old 0008 has no environment gate and permits up to 256 cache and 256 coroutine fprintf calls per host thread.",
+    "After a logging budget is exhausted, its fprintf/heap/stack-base work returns early inside the logging helper, but call sites still evaluate stack-current getters and increment transaction IDs. The old budget does not remove hot-path diagnostic overhead.",
+    "Cache write IDs advance for all MMU writes before bounds/invalid checks, whereas cache log budget advances only for printed calls. Turning diagnostics off must not change actual MMU behavior; opt-in trace-on retains this ID/invalid-write distinction.",
+    "Coroutine log phases surround fiber swap. A caller-side budget check after fiber return must be fresh because intervening coroutine activity can exhaust the shared per-thread log budget."
+  ],
+  "timeline_limit": "Formal harness records UART at_ms, but diagnostics are only the final rolling 32768-character buffer with no per-line at_ms or guest timestamp. Therefore log256 proves exhaustion by evidence snapshot, not exhaustion before the first panic character.",
+  "runs": [
+    {
+      "run": 1,
+      "diagnostic_tail_sha256": "d5502c6060e68fe6be2fd5482b90b19fd4cfb73b8212bbca9480dc63195326ba",
+      "diagnostic_tail_characters": 32768,
+      "diagnostic_tail_utf8_bytes": 32768,
+      "tail_starts_with_partial_line": true,
+      "complete_cstack_lines": 155,
+      "complete_cstack_line_bytes": 32605,
+      "budget_observations": [
+        {
+          "category": "CACHE",
+          "min_retained_log": 164,
+          "max_retained_log": 256,
+          "complete_lines": 93,
+          "complete_line_bytes": 15155,
+          "phases": {
+            "mmu_exit": 24,
+            "mmu_entry": 23,
+            "before_blk_pread": 23,
+            "after_blk_pread": 23
+          },
+          "observed_thread_alias": "thread-1",
+          "min_transaction_id": 7736,
+          "max_transaction_id": 7759
+        },
+        {
+          "category": "SWAP",
+          "min_retained_log": 195,
+          "max_retained_log": 256,
+          "complete_lines": 62,
+          "complete_line_bytes": 17450,
+          "phases": {
+            "before_swap": 31,
+            "after_swap": 31
+          },
+          "observed_thread_alias": "thread-2",
+          "min_transaction_id": 98,
+          "max_transaction_id": 129
+        }
+      ],
+      "fprintf_invocation_lower_bound": 512,
+      "sample_end_from_run_start_ms": 24997.78500008583,
+      "uart_markers": [
+        {
+          "marker": "ESP-ROM:",
+          "first_character_from_run_start_ms": 1252.085000038147,
+          "complete_marker_from_run_start_ms": 1252.3650000095367,
+          "transport_span_ms": 0.2799999713897705
+        }
+      ],
+      "budget_exhaustion_before_panic": "NOT MEASURED"
+    },
+    {
+      "run": 2,
+      "diagnostic_tail_sha256": "2c7a20d040082267dd8fb1616025f9c843e7f327f1b6c695b052da29cc227fcb",
+      "diagnostic_tail_characters": 32768,
+      "diagnostic_tail_utf8_bytes": 32768,
+      "tail_starts_with_partial_line": true,
+      "complete_cstack_lines": 161,
+      "complete_cstack_line_bytes": 32645,
+      "budget_observations": [
+        {
+          "category": "CACHE",
+          "min_retained_log": 150,
+          "max_retained_log": 256,
+          "complete_lines": 107,
+          "complete_line_bytes": 17444,
+          "phases": {
+            "before_blk_pread": 27,
+            "after_blk_pread": 27,
+            "mmu_exit": 27,
+            "mmu_entry": 26
+          },
+          "observed_thread_alias": "thread-1",
+          "min_transaction_id": 7733,
+          "max_transaction_id": 7759
+        },
+        {
+          "category": "SWAP",
+          "min_retained_log": 203,
+          "max_retained_log": 256,
+          "complete_lines": 54,
+          "complete_line_bytes": 15201,
+          "phases": {
+            "before_swap": 27,
+            "after_swap": 27
+          },
+          "observed_thread_alias": "thread-2",
+          "min_transaction_id": 102,
+          "max_transaction_id": 129
+        }
+      ],
+      "fprintf_invocation_lower_bound": 512,
+      "sample_end_from_run_start_ms": 24031.304999947548,
+      "uart_markers": [
+        {
+          "marker": "ESP-ROM:",
+          "first_character_from_run_start_ms": 187.12000000476837,
+          "complete_marker_from_run_start_ms": 187.49000000953674,
+          "transport_span_ms": 0.3700000047683716
+        },
+        {
+          "marker": "ESP-ROM:",
+          "first_character_from_run_start_ms": 7166.495000004768,
+          "complete_marker_from_run_start_ms": 7166.804999947548,
+          "transport_span_ms": 0.309999942779541
+        },
+        {
+          "marker": "Guru Meditation Error",
+          "first_character_from_run_start_ms": 6784.5650000572205,
+          "complete_marker_from_run_start_ms": 7090.139999985695,
+          "transport_span_ms": 305.5749999284744
+        },
+        {
+          "marker": "BREAK instr",
+          "first_character_from_run_start_ms": 7097.615000009537,
+          "complete_marker_from_run_start_ms": 7098.539999961853,
+          "transport_span_ms": 0.9249999523162842
+        }
+      ],
+      "budget_exhaustion_before_panic": "NOT MEASURED"
+    }
+  ],
+  "interpretation": [
+    "At least 512 fprintf invocations occurred per run across the two identified category/thread counters; additional thread/category prefixes may have been truncated. This is a lower bound, not a total emitted line count.",
+    "Retained complete diagnostic-line bytes are exact within the tail. Total original output bytes/calls and time spent logging cannot be recovered from the truncated final tail.",
+    "Existing final samples do not identify whether logging budgets were exhausted before warm panic. Do not attribute BREAK/RESET to logging on this evidence."
+  ]
+}

@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "kind": "read-only QEMU wasm32 host-backend review",
+  "retrieval_date": "2026-11-03",
+  "review_status": "REVIEW ONLY; no definite source-level blocker found for an isolated diagnostic pair",
+  "product_admission": "NOT APPROVED; substantial unclosed backend semantics and maintenance gates",
+  "publication_eligible": false,
+  "evidence_boundary": {
+    "reviewer_execution": "No compilation, build, firmware execution, or browser run performed for this review.",
+    "build_record_status": "PRIVATE_DIAGNOSTIC_LINK_COMPLETED",
+    "build_record_guest_execution": "NOT RUN by builder",
+    "host_controls_are_guest_pass": false,
+    "one_factory_run_sufficient_for_product_pass": false,
+    "factory_outcomes": "Not evaluated or inherited here; candidate builder record was the reviewed snapshot."
+  },
+  "identity": {
+    "qemu_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "backend_upstream_commit": "24b5ff124d70043aff97dc30aa45f8a502676989",
+    "retained_sub2_fix_commit": "5a65998d47d78723115d1478a8a40f8d6d497f37",
+    "candidate_wasm_sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+    "build_result_sha256": "b1437263d61601294f11805f362dd0b0319b1cfcc6e0b364c4fe2d95c5c99782",
+    "build_plan_sha256": "cf98161910466d7b87fe773e6a689813b8985a1bae167153168a8adc186b4ea7",
+    "source_identities_sha256": "51e6c3c4d7f1be04b9097456f3f4c802e790f77e0c711538c1ed7895c0908ed4",
+    "host_backend_patch_sha256": "8c798d87d871bc87e5756b4f34f692637a04e6ea7b0101cb36be8870be09d117",
+    "overlay_patch_sha256": "49f43065d3939ec41c60d9b365ff263726250f3db1fbc81e6d562b76bc326216",
+    "fresh_complete_source_build": "NOT RUN; reused SDK/dependencies/objects with seven separately compiled replacements"
+  },
+  "upstream_primary_sources": [
+    {
+      "url": "https://github.com/ktock/qemu-wasm/issues/48",
+      "retrieved": "2026-11-03",
+      "state_at_retrieval": "open",
+      "scope": "Reported aarch64-softmmu raspi3ap SD-read reproduction on SDK 3.1.50, trapping in fiber rewind. Raising Asyncify/per-fiber buffers did not solve that reproduction. This is a different guest/board from Xtensa StackChan."
+    },
+    {
+      "url": "https://github.com/ktock/qemu-wasm/pull/50",
+      "retrieved": "2026-11-03",
+      "state_at_retrieval": "open",
+      "scope": "The reporter attributes issue48 to a 64KiB pthread shadow stack overflowing into its coroutine-current TLS, and proposes 2MiB QEMU thread stacks plus 4MiB main stack. This author diagnosis is not an accepted proof of universal JIT/Asyncify incompatibility, nor a StackChan validation result. The stack-size changes are not included in this candidate."
+    }
+  ],
+  "maintenance_delta": {
+    "earlier_feasibility_inventory_approx_added_lines": 6166,
+    "observed_current_patch_added_lines": 6167,
+    "observed_current_patch_deleted_lines": 15,
+    "files": 16,
+    "new_files": 10,
+    "existing_files": 6,
+    "measurement": "git apply --numstat on the exact candidate host-backend patch; current snapshot includes diagnostic fixes beyond the earlier approximate inventory.",
+    "classification": "Substantial new QEMU host CPU backend; same Xtensa frontend/SoC model, but not a small patch to production TCI.",
+    "file_changes": [
+      {
+        "path": "include/exec/exec-all.h",
+        "added": 1,
+        "deleted": 1,
+        "kind": "existing"
+      },
+      {
+        "path": "include/tcg/helper-info.h",
+        "added": 2,
+        "deleted": 2,
+        "kind": "existing"
+      },
+      {
+        "path": "include/tcg/tcg.h",
+        "added": 1,
+        "deleted": 1,
+        "kind": "existing"
+      },
+      {
+        "path": "meson.build",
+        "added": 2,
+        "deleted": 4,
+        "kind": "existing"
+      },
+      {
+        "path": "tcg/meson.build",
+        "added": 5,
+        "deleted": 0,
+        "kind": "existing"
+      },
+      {
+        "path": "tcg/tcg.c",
+        "added": 21,
+        "deleted": 7,
+        "kind": "existing"
+      },
+      {
+        "path": "tcg/wasm32.c",
+        "added": 1357,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32.h",
+        "added": 41,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-con-set.h",
+        "added": 18,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-con-str.h",
+        "added": 8,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-has.h",
+        "added": 102,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-mo.h",
+        "added": 12,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-opc.h.inc",
+        "added": 4,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target-reg-bits.h",
+        "added": 12,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target.c.inc",
+        "added": 4504,
+        "deleted": 0,
+        "kind": "new"
+      },
+      {
+        "path": "tcg/wasm32/tcg-target.h",
+        "added": 77,
+        "deleted": 0,
+        "kind": "new"
+      }
+    ]
+  },
+  "execution_differences": [
+    "The wasm32 host backend fixes TCG_TARGET_REG_BITS at 64. Production TCI selects 32 on the wasm32 host.",
+    "JIT0 executes the backend fork of the TCI interpreter and its direct-TLB RAM load/store path. It is not the production 32-bit TCI control.",
+    "JIT1 compiles hot TCG blocks into additional Worker-local WebAssembly modules importing the actual QEMU helper functions and the shared linear memory.",
+    "A same-artifact JIT0/JIT1 pair can isolate hot-block compilation within this candidate. A comparison against production also contains register-width, interpreter, direct-TLB, host-backend, and build differences.",
+    "The shared-source comparison covers 160 recorded files and found only meson.build different in that set. It does not cover away the explicitly added/changed CPU-backend files or prove their semantics."
+  ],
+  "asyncify_source_observations": [
+    {
+      "path": "tcg/wasm32.c",
+      "lines": [
+        121,
+        146
+      ],
+      "finding": "instantiate_wasm imports wasmTable helper entries and reads this Worker Asyncify.state via helper.u. Fresh wasmMemory.buffer views are used for module/import reads."
+    },
+    {
+      "path": "tcg/wasm32/tcg-target.c.inc",
+      "lines": [
+        2029,
+        2040
+      ],
+      "finding": "Generated continuation blocks use a module-global block index so rewind can resume the helper-containing block."
+    },
+    {
+      "path": "tcg/wasm32/tcg-target.c.inc",
+      "lines": [
+        2508,
+        2542
+      ],
+      "finding": "General helpers record helper return-PC and continuation block, call the imported helper, then return early when Asyncify reports Unwinding."
+    },
+    {
+      "path": "tcg/wasm32/tcg-target.c.inc",
+      "lines": [
+        2749,
+        2766
+      ],
+      "finding": "The slow qemu_ld helper path records its block boundary and checks Unwinding after the imported load helper."
+    },
+    {
+      "path": "tcg/wasm32/tcg-target.c.inc",
+      "lines": [
+        2863,
+        2889
+      ],
+      "finding": "The slow qemu_st helper path likewise records a block boundary and checks Unwinding."
+    },
+    {
+      "path": "util/coroutine-wasm.c",
+      "lines": [
+        144,
+        168
+      ],
+      "finding": "The shared existing coroutine switch updates current/action and calls the SDK emscripten_fiber_swap; the new gate only controls diagnostics."
+    },
+    {
+      "path": "accel/tcg/cpu-exec.c",
+      "lines": [
+        1076,
+        1087
+      ],
+      "finding": "The inherited main cpu_exec_setjmp restores the saved C shadow stack after SjLj before normal cleanup. This does not prove every alternate atomic or nested longjmp path."
+    },
+    {
+      "path": "src/library_async.js",
+      "scope": "SDK3.1.50",
+      "lines": [
+        570,
+        646
+      ],
+      "finding": "Fiber switching restores stack limits/pointer and drives the Unwinding/Rewinding state machine. Level2 stack checking updates current fiber limits."
+    },
+    {
+      "path": "tools/js_manipulation.py",
+      "scope": "SDK3.1.50",
+      "lines": [
+        127,
+        156
+      ],
+      "finding": "Generated invoke wrappers save/restore the shadow stack around the numeric SjLj exception. Dynamic generated modules are not automatically a proof of arbitrary exception or rewind correctness."
+    }
+  ],
+  "diagnostic_decision": {
+    "allowed_scope": "Read-only review found no definite condition requiring cancellation of the isolated same-candidate JIT0/JIT1 Factory diagnostic. This is not a guarantee of safety, correctness, speed, or stability.",
+    "stack_policy": "Candidate retains inherited main/default pthread64KiB and STACK_OVERFLOW_CHECK=2, without PR50 or SDK changes. An actual stack trap is a failed diagnostic, not grounds to suppress checks.",
+    "failure_policy": "Preserve CompileError, Asyncify trap, stack guard, watchdog timeout, Double exception, reset, and cleanup failure as failures. Do not inherit an older firmware, board, backend, or native PASS.",
+    "remaining_specific_risks": [
+      "Actual shadow-stack demand can exceed64KiB, especially nested synchronous block I/O and coroutine completion.",
+      "Nested helper/fiber/rewind paths, complex and i128 helper ABI, and longjmp through generated modules have not been exhaustively executed.",
+      "A coroutine resumed on a different Worker has thread-local SDK/continuation hazards; migration/re-entry requires explicit support or a clear rejection boundary.",
+      "Direct-TLB page, alignment, permission, MMIO, and exception-PC behavior differs from production helper-only access paths and needs equivalence evidence.",
+      "Concurrent memory growth, generated-module GC, TB invalidation/remap/SMC, and Worker-slot lifecycle remain stress gates."
+    ]
+  },
+  "actual_host_controls": {
+    "ctpop": {
+      "record": "ctpop-results.json",
+      "record_sha256": "9d8a689bc6bb184ce5ef42d9a238eb6c5aec9a7acdd538f95f9478f18ff4e3fd",
+      "reported_status": "PASS",
+      "method": "host C emitter and actual WebAssembly.Module/Instance execution",
+      "positive": "Corrected actual dispatch/emitter code produces valid Wasm and all8vectors pass for both32/64bit cases.",
+      "negative": "Original64bit path reads the wrong operands; original and operand-only32bit paths fail Wasm type validation until unsigned i32-to-i64 extension is added.",
+      "limits": [
+        "Subset extraction uses stub TCG context/opcode enum and output buffer; actual dispatcher cases, paired TCI/Wasm ctpop functions and Wasm opcode emitters are retained.",
+        "This validates ctpop operand/type corrections, not the complete backend instruction set or Xtensa firmware."
+      ],
+      "guest_execution": "NOT RUN by this control"
+    },
+    "memory_growth": {
+      "record": "memory-grow-results.json",
+      "record_sha256": "1301e2b5feaecb3aeba721160f68a8993393f6ba3b899554291d7c881ccf8dfd",
+      "reported_status": "PASS",
+      "method": "actual extracted EM_JS bodies with real WebAssembly.Memory.grow and Module/Instance execution",
+      "positive": "Three fresh-view cases pass after real shared WebAssembly.Memory.grow and module/instance execution.",
+      "negative": "Three old-view cases fail: byte buffer empty, import DataView range, and post-grow registered callback range.",
+      "limits": [
+        "addFunction and finalization registration are host fixtures; actual module compilation/instantiation and memory growth run in Node WebAssembly.",
+        "GC callback is invoked explicitly after real growth; browser GC scheduling and concurrent growth remain separate stress gates."
+      ],
+      "guest_execution": "NOT RUN by this control"
+    }
+  },
+  "minimum_additional_product_gates": [
+    {
+      "area": "CPU and helper ABI",
+      "required": "Execute generated-Wasm versus a reference oracle for all enabled operations and both register widths, including high bits, zero, signed extrema, shifts/rotates, carry/borrow/sub2, ctpop and division edges. Exercise helper argument/return types, register spill boundary, pointer/i32/i64/i128 packing and signedness."
+    },
+    {
+      "area": "MMU, direct TLB and ordering",
+      "required": "Same-guest differential tests for signed/unsigned endian loads/stores, aligned/unaligned and cross-page accesses, RAM/ROM/MMIO, permissions and fault addresses/PCs, TLB flush/remap and aliases. Exercise real memory barriers, atomic paths and two-vCPU message passing, retaining the I/O can_do_io guard."
+    },
+    {
+      "area": "SMC, invalidation and lifecycle",
+      "required": "Run self-modifying code and executable mapping changes on both vCPUs; invalidate/regenerate shared TBs while each Worker owns its compiled instance and jump links. Stress eviction/GC, slot bounds, fresh VM/module-cache restarts and stop with zero owned live Workers."
+    },
+    {
+      "area": "Exceptions and interrupts",
+      "required": "Verify precise IO recompile counts1/2, atomic fallback, replay/watchpoint/SMC exact-next flags, helper longjmp fault-PC recovery, Xtensa window overflow/underflow and nested interrupt levels. Repeat timer/WDT and Factory faults without changing guest clocks, IRQ priority, watchdog or reset semantics."
+    },
+    {
+      "area": "Actual SDK Asyncify and fibers",
+      "required": "With real SDK3.1.50 and inherited guards, execute C-to-generated-module-to-C helper-to-block-I/O/fiber unwind/rewind, void/nonvoid returns and longjmp at nested points. Check state, arguments and shadow-stack limits after resume; cover repeated switches, same-Worker re-entry and explicitly supported/rejected cross-Worker migration."
+    },
+    {
+      "area": "Build and full firmware admission",
+      "required": "A reproducible fresh source/SDK build with locked CPU-backend patches and artifacts, bounded memory/compile/GC behavior, samecandidate JIT0/JIT1 stability pairs, and all admitted firmware/board/controller/input/frame/serial/cleanup gates on the exact final artifact. Include unknown/default firmware compatibility and longer stability runs; a single Factory success cannot establish overall product stability."
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "tcg/wasm32.c",
+      "scope": "candidate",
+      "sha256": "dfa167fbe050283355440631a63cd09bcb256c262e8a040304baa00c87ef17cb"
+    },
+    {
+      "path": "tcg/wasm32/tcg-target.c.inc",
+      "scope": "candidate",
+      "sha256": "d44abd298fd3756f279e6a685273e273f92d4a1cccb70a5706a1d0d303d00719"
+    },
+    {
+      "path": "util/coroutine-wasm.c",
+      "scope": "candidate",
+      "sha256": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b"
+    },
+    {
+      "path": "accel/tcg/cpu-exec.c",
+      "scope": "candidate",
+      "sha256": "264daa62aa509b6ffb910f7756aea18e14948779600cfca42349c1a33134ee0b"
+    },
+    {
+      "path": "src/library_async.js",
+      "scope": "Emscripten 3.1.50 SDK source",
+      "sha256": "3c8c7449a82201606e9213dabcc0de465791e1b568a374fab79d6e793b258b24"
+    },
+    {
+      "path": "src/library.js",
+      "scope": "Emscripten 3.1.50 SDK source",
+      "sha256": "c5c53ac53e91f07fcbba4bdc512c53a23456097e7ee96fd94952bcd587ac22bc"
+    },
+    {
+      "path": "tools/js_manipulation.py",
+      "scope": "Emscripten 3.1.50 SDK source",
+      "sha256": "f02522f773075fe7ba4c0af5fab0dea0f068f19da65594ff17d3ea0605c8f9d5"
+    }
+  ],
+  "redaction": "No firmware/ROM bytes, credentials, private endpoints, host paths, target/session identifiers, raw heap/stack addresses or raw logs are included."
+}

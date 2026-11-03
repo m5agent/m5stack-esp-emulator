@@ -61,6 +61,21 @@ function aborted(signal) {
   if (signal?.aborted) throw signal.reason || new DOMException('下载已取消。', 'AbortError');
 }
 
+// Native SHA-256 avoids walking large firmware/WASM buffers on the UI thread.
+// The deterministic implementation remains available to older/test runtimes.
+export async function sha256Buffer(value, {signal, subtle = globalThis.crypto?.subtle} = {}) {
+  aborted(signal);
+  const bytes = value instanceof ArrayBuffer ? new Uint8Array(value) : value;
+  let digest;
+  if (subtle) {
+    try { digest = await subtle.digest('SHA-256', bytes); }
+    catch { aborted(signal); }
+  }
+  aborted(signal);
+  return digest ? Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
+    : new Sha256().update(bytes).hex();
+}
+
 function firmwareName(url) {
   let name = new URL(url).pathname.split('/').pop() || 'firmware.bin';
   try { name = decodeURIComponent(name); } catch { /* Retain escaped name. */ }
@@ -105,7 +120,6 @@ export async function downloadFirmware(value, {
     throw new PublicFirmwareError('firmware_too_large', '固件超过下载大小上限（64 MiB 或当前设置）。');
   }
   const chunks = [];
-  const hasher = new Sha256();
   let received = 0;
   const reader = response.body?.getReader();
   function accept(chunk) {
@@ -113,7 +127,6 @@ export async function downloadFirmware(value, {
     received += chunk.byteLength;
     if (received > maxBytes) throw new PublicFirmwareError('firmware_too_large', '固件超过下载大小上限（64 MiB 或当前设置）。');
     chunks.push(chunk);
-    hasher.update(chunk);
     onProgress({ received, total: declared, phase: 'downloading' });
   }
   try {
@@ -135,11 +148,11 @@ export async function downloadFirmware(value, {
   }
   aborted(signal);
   if (!received) throw new PublicFirmwareError('empty_firmware', '下载的固件为空。');
-  const sha256 = hasher.hex();
-  if (expected && sha256 !== expected) throw new PublicFirmwareError('sha256_mismatch', '固件 SHA-256 与预期不一致，未加载固件。');
   const bytes = new Uint8Array(received);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  const sha256 = await sha256Buffer(bytes, {signal});
+  if (expected && sha256 !== expected) throw new PublicFirmwareError('sha256_mismatch', '固件 SHA-256 与预期不一致，未加载固件。');
   onProgress({ received, total: received, phase: 'downloaded' });
   return { bytes: bytes.buffer, name: firmwareName(finalUrl), size: received, sha256, url: finalUrl };
 }

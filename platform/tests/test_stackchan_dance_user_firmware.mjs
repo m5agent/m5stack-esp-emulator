@@ -209,7 +209,15 @@ try {
   assert.equal(receipt.firmwareSha256, imageSHA);
   assert.equal(receipt.wasmSha256, process.env.M5_STACKCHAN_WASM_SHA256);
   assert.equal(receipt.outputTransport, 'stackchan-scs-qom-v1');
-  assert.equal(receipt.clockDivisor, 6);
+  assert.equal(receipt.clockDivisor, 1);
+  assert.equal(receipt.clockOverride, null);
+  assert.equal(receipt.oneInsnPerTb, true);
+  assert.deepEqual(receipt.requiredRuntimePatch, {
+    path:'patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch',
+    sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf',
+  });
+  assert.equal(receipt.actualArguments.filter(arg => arg === '-accel').length, 1);
+  assert.ok(receipt.actualArguments.includes('tcg,thread=multi,one-insn-per-tb=on'));
   check('exact-image-runtime-and-output-transport', true, receipt);
 
   await page.waitForFunction(() => {

@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "category": "native-factory-related-source-comparison",
+  "validation": "read-only artifact/source comparison; no new compilation or guest",
+  "native_binary_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d",
+  "browser_wasm_sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+  "full_native_build_receipt": "NOT FOUND for this exact binary SHA; other nearby native manifests identify different executable hashes and are not substituted.",
+  "native_source_identification": "Mach-O linked-object debug-map timestamps and object DWARF5 source checksums, where present. Current checkout location alone is not treated as build provenance.",
+  "private_debug_map_sha256": "5bb10d069098d9b8a249f563f294333a96b37e2e59631d852956d7f7698858c3",
+  "private_debug_map_not_for_public_copy": true,
+  "files": [
+    {
+      "path": "hw/misc/esp32s3_cache.c",
+      "native_source_sha256": "f9951a01874df1cebc31b588896152d0e510a3461926117b7d3c6aed0abdc3b6",
+      "browser_source_sha256": "5c1ceb02e40056580d95f6b2df76330292c4475a892bbabe9a9497a533b4749a",
+      "byte_identical": false,
+      "native_object_sha256": "35e91c1a069de8b5b151f440318a41c0e47deaa17df9162864c9c50d368ecf93",
+      "linked_object_timestamp_matches": true,
+      "native_dwarf_source_md5": "a7d9d5aaa14c1cd48c925ef7338c718a",
+      "native_source_md5_matches_object": true,
+      "native_source_identity": "DWARF checksum plus linked-object timestamp",
+      "browser_runtime_manifest_patched_file_sha256_matches": true,
+      "native_browser_diff_sha256": "842165737d26c420778d4c326d82ace772e9e23fb13e582f328795cc66d0a0ee"
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "native_source_sha256": "4b8960564bc16b0620039e140bf45ad0a45207feccd80e6ce938cd5b1c02261c",
+      "browser_source_sha256": "a286df37066556758783c0a5189671f14f305d2879648d3ae176380e82a8b5f2",
+      "byte_identical": false,
+      "native_object_sha256": "028f10acb90096f0940431d0d87b423f478a7bf195834ab3bf071f36378fe7fb",
+      "linked_object_timestamp_matches": true,
+      "native_dwarf_source_md5": "28e8e12dd727bd400f78e2c66f311f83",
+      "native_source_md5_matches_object": true,
+      "native_source_identity": "DWARF checksum plus linked-object timestamp",
+      "browser_runtime_manifest_patched_file_sha256_matches": true,
+      "native_browser_diff_sha256": "6c75cb86e4dc88ecd7b5176e853c7c12ceacf2ffea191749eb1cda096ab202ed"
+    },
+    {
+      "path": "target/xtensa/helper.c",
+      "native_source_sha256": "34e68186b1f055f4d57dc5f4d010c49a0318ec9f62a9d45b829b963621910684",
+      "browser_source_sha256": "34e68186b1f055f4d57dc5f4d010c49a0318ec9f62a9d45b829b963621910684",
+      "byte_identical": true,
+      "native_object_sha256": "ae61e0366e806457774da87d339e7ec8509866a309e73f1560eb400a2fa661ef",
+      "linked_object_timestamp_matches": true,
+      "native_dwarf_source_md5": "4ec170c48f29bc07fce1579547639608",
+      "native_source_md5_matches_object": true,
+      "native_source_identity": "DWARF checksum plus linked-object timestamp",
+      "browser_runtime_manifest_patched_file_sha256_matches": null,
+      "native_browser_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/xtensa/op_helper.c",
+      "native_source_sha256": "81819ab78140b0ac6982e3d65e985b1d9c5a91fcd60942130ed543b9b387d874",
+      "browser_source_sha256": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
+      "byte_identical": false,
+      "native_object_sha256": "5da9ed26307e56e2948567253b6e3b178f9a009938a549444efeb6a8a35edb7a",
+      "linked_object_timestamp_matches": true,
+      "native_dwarf_source_md5": "99117180a715a7b0a00215689606406e",
+      "native_source_md5_matches_object": true,
+      "native_source_identity": "DWARF checksum plus linked-object timestamp",
+      "browser_runtime_manifest_patched_file_sha256_matches": true,
+      "native_browser_diff_sha256": "cd0659c35968c7d9a5b3f5f608f5824a1935234b98642a14a80f5359d25215d8"
+    },
+    {
+      "path": "accel/tcg/cpu-exec.c",
+      "native_source_sha256": "fdffa53cce0a7aa6305ae1b02f76166512ff4b2baf5ae643800e84f20b8b4f3e",
+      "browser_source_sha256": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
+      "byte_identical": false,
+      "native_object_sha256": "1629ea3538f921a6900bd71057fc298cc124bff32fba4860c9d0c57e83b68e8d",
+      "linked_object_timestamp_matches": true,
+      "native_dwarf_source_md5": null,
+      "native_source_md5_matches_object": null,
+      "native_source_identity": "LIMITED: linked-object path/timestamp; no source checksum in DWARF",
+      "browser_runtime_manifest_patched_file_sha256_matches": true,
+      "native_browser_diff_sha256": "822c556c8ab47963b845c5acf4d8c6c61b43a2f9919f16e91b54d6069222b507"
+    }
+  ],
+  "findings": [
+    "target/xtensa/helper.c is byte-identical in the identified native compile source and frozen browser source: TLB fill, unaligned and transaction failure paths have the same C text.",
+    "hw/misc/esp32s3_cache.c differs only by browser cache-stack diagnostics and calls around MMU/block reads; the actual cache/MMU state-operation text is preserved. Diagnostics can affect timing, so this is not native/WASM runtime equivalence.",
+    "target/xtensa/exc_helper.c differs by the browser cpu-timers include and high-priority IRQ-entry note. Exception, cause/vaddr, debug, waiti, relocated-vector, handle_interrupt and cpu_exec_interrupt function bodies are unchanged.",
+    "target/xtensa/op_helper.c adds browser high_priority_irq_return and high_priority_irq_yield helpers plus cpu-timers include. Existing native helper bodies are unchanged.",
+    "accel/tcg/cpu-exec.c current native/browser text differs only by browser C-stack restore around cpu_exec_setjmp. cpu_exec_step_atomic text is identical and lacks that browser-specific restore. The native object has no source MD5 in its line table, so this file remains a weaker source association, not exact-byte provenance."
+  ],
+  "limits": [
+    "The native executable uses native host TCG; browser execution uses Emscripten TCI/Asyncify/fibers. Equal C text does not establish equal generated code, exception/stack semantics or scheduling.",
+    "The present native-lock build executable has a different hash from the copied tested binary. Only the matching linked objects are used for this scoped source identification.",
+    "No causal claim follows from two stable native runs. The browser warm BREAK/RESET remains an unresolved separate failure."
+  ],
+  "unchanged_function_checks": [
+    {
+      "path": "hw/misc/esp32s3_cache.c",
+      "signature": "static inline uint32_t esp32s3_read_mmu_value",
+      "sha256": "087f18a9fefa20edb7e9850e643015b4d6edde6ba729ee2e27321d5a106a1417",
+      "byte_identical": true
+    },
+    {
+      "path": "hw/misc/esp32s3_cache.c",
+      "signature": "static void esp32s3_mmu_invalidate_page",
+      "sha256": "e9633f37caeacca2f3f9beb2d8a7cfa7607ceb94912351ccc3850f5426b16c11",
+      "byte_identical": true
+    },
+    {
+      "path": "hw/misc/esp32s3_cache.c",
+      "signature": "static IOMMUTLBEntry esp32s3_mmu_region_translate",
+      "sha256": "61899bccd2e44b477f0ed8ee3798a6f060e651c068aaa3a5205593128b681761",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void HELPER(exception)(",
+      "sha256": "e874bfe7d270c3407e0beeb2669acaf1a1d982360c8f66701d97578c26ea45f8",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void HELPER(exception_cause)(",
+      "sha256": "d264c6a6202ecf428f7a334adc06cc4c3120b36251cf0c207042b01ff1284a25",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void HELPER(exception_cause_vaddr)(",
+      "sha256": "f9c073de3493d84afc4721affceabbf457cd1702f83aab3e9c4e5c83251bd8bf",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void debug_exception_env(",
+      "sha256": "9d5f5ac82e6c4b36fa34bfe02ec969fec6c2383ce399a09882c17ebff349dfed",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void HELPER(debug_exception)(",
+      "sha256": "b27240f45d596ca2c14cb2c2e04bd62e5542ff1c7397e3d24029264d07abf5c3",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "void HELPER(waiti)(",
+      "sha256": "e37812bcf13cf767b7783a408e7f65c4029d8760b55bf4b6d2f1ab0098a67001",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "static uint32_t relocated_vector(",
+      "sha256": "d992d671c417e4d3a7c6c6e461dd919a4e8eb832f779ebefd08fd51089ce79dc",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "static void handle_interrupt(",
+      "sha256": "affc65fad9450e12ec1a7e115da3357ef9f141ed5af72a40342b049177b593e7",
+      "byte_identical": true
+    },
+    {
+      "path": "target/xtensa/exc_helper.c",
+      "signature": "bool xtensa_cpu_exec_interrupt(",
+      "sha256": "78ba45187aa82ffa1dd43304a221db2314a3eb9f5098c634ef888563c71c9b78",
+      "byte_identical": true
+    },
+    {
+      "path": "accel/tcg/cpu-exec.c",
+      "signature": "void cpu_exec_step_atomic(",
+      "sha256": "909f97c9a3c518d8242f6426a5ab2c6af4293b40331452614acbedbd9eab81e9",
+      "byte_identical": true
+    }
+  ]
+}

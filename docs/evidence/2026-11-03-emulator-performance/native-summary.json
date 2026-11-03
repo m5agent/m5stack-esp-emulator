@@ -1,0 +1,625 @@
+{
+  "schema_version": 1,
+  "kind": "native-device-service-performance-public-summary",
+  "date": "2026-11-03",
+  "validation_category": "virtual-device validation",
+  "execution_report_status": "PASS",
+  "raw_report_sha256": "63b0c51cd86066ccba707fef59ea9598425c84b51afcd807c494789409b66b35",
+  "baseline_commit": "3691870c27b028dde76202e42ecddba31d1547c1",
+  "sources": {
+    "platform/web/public-session-controller.js": {
+      "before": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba",
+      "after": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250"
+    },
+    "platform/tests/test_public_native_performance.mjs": "478fb3cf97cd7bbdbca1dc69cbda31a8a5cb76e11e614848f295659b68b1e491",
+    "platform/web/public.js": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+    "platform/web/public-config.js": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+    "platform/web/public-firmware.js": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+    "platform/web/public-qemu-profiles.js": "54f2e8c00714bf4666177ad0bb217e657dc81883938fa71c0b00ac9752e774ad",
+    "platform/web/qemu-browser-profiles.json": "a09af4cbf25da01678d0bdf081b4c21097d760af5b8171aed1df6af7c8419a20",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+    "platform/tools/device_service.py": "857eb0d046815d80d63f45a95a69bfd92a7dd54e9c0efd58ae8a7d9512b55998",
+    "platform/tools/serve.py": "77a55c03c8ac1045018c9e255f52b849ff71159b7f117b6719f4d3be8d28f4e4"
+  },
+  "scope": {
+    "lane": "Native QEMU through dedicated Device Service and actual public workbench/model",
+    "changed_layers": [
+      "PublicSessionController independent polling/fresh conditional frames",
+      "Public workbench native SCS-to-model wiring",
+      "Auto prefers a connected compatible Device Service; explicit browser mode remains available",
+      "Local firmware uses WebCrypto and reuses the hashed File buffer"
+    ],
+    "unchanged": "Native runtime binary, controller models and exact firmware bytes are identical per before/after pair.",
+    "experiment": "Both sides use the current public.js. Only the controller module is swapped. StackChan before selects service explicitly and after selects auto with both browser and native capabilities available; both are asserted to own PublicSessionController. CoreS3 selects service on both sides. No browser QEMU runtime is downloaded or started.",
+    "fps_meaning": "Applied changed PNG updates per wall-clock second, including guest drawing in progress; not completed logical application frames or physical display refresh.",
+    "startup": "NOT RUN as a speedup comparison: first-side Flash preparation is cold and second-side immutable Flash cache is warm; first-frame times excluded."
+  },
+  "runtime": {
+    "engine": "native QEMU",
+    "binary_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d",
+    "clock_policy": "Native default, with no browser clock divisor applied",
+    "boards": {
+      "StackChan": "m5stackchan",
+      "CoreS3": "m5cores3"
+    },
+    "flash_bytes": 16777216,
+    "browser": "156.0.8078.80",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+    "renderer_scope": "actual workbench model canvas",
+    "software_fallback": "rejected"
+  },
+  "calibration": {
+    "yaw_zero_ticks": 460,
+    "pitch_zero_ticks": 620,
+    "degrees_per_tick": 0.3125,
+    "directions": [
+      1,
+      1
+    ],
+    "pitch_visual_limit_degrees": [
+      0,
+      90
+    ]
+  },
+  "validation_layers": {
+    "native_auto_routing": {
+      "status": "PASS",
+      "scope": "With browser QEMU available, StackChan auto selects the connected compatible service. All four runs own PublicSessionController, use the exact native executable and no clock/icount override, and fetch no browser-QEMU runtime assets. Explicit browser selection remains a browser lane."
+    },
+    "native_screen_delivery": {
+      "status": "PASS",
+      "scope": "Four sequential real guest runs; about 12 seconds of steady observation each."
+    },
+    "native_scs_dom_actual_render": {
+      "status": "PASS",
+      "scope": "Same guest UART1/SCS controller, fixed QOM, exact firmware/session, raw DOM and rendered joint geometry."
+    },
+    "cores3_touch": {
+      "status": "PASS",
+      "scope": "Actual controller longpress reaches the guest callback; captured application shows Clicks:1."
+    },
+    "stackchan_touch_effect": {
+      "status": "NOT RUN",
+      "scope": "Touch protocol accepted; no touch-response assertion in this dance application."
+    },
+    "evidence_and_cleanup": {
+      "status": "PASS",
+      "scope": "ZIP before purge=0 stop, all contained file hashes/sizes verified, retained history/frame and four runtime processes reaped."
+    },
+    "frame_fidelity": {
+      "status": "REVIEW",
+      "scope": "Selected snapshots include partial guest redraws; other retained same-runtime samples show complete expressions. No atomic application-frame or pixel-fidelity oracle was executed."
+    },
+    "browser_wasm_cpu": {
+      "status": "NOT RUN",
+      "scope": "Separate execution lane; native UI evidence does not validate the changed browser CPU/runtime."
+    },
+    "hardware": {
+      "status": "NOT RUN",
+      "scope": "No physical servo speed, torque, mechanics, acoustic, RF, optical, electrical or memory-timing conclusion."
+    },
+    "long_soak_other_images_hosts_capacity": {
+      "status": "NOT RUN",
+      "scope": "No other image, long soak, multi-device, remote latency, mobile or other host performance claim."
+    }
+  },
+  "runs": [
+    {
+      "device": "StackChan",
+      "phase": "before",
+      "status": "PASS",
+      "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+      "firmware_family": "Arduino user dance",
+      "controller_sha256": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba",
+      "selected_mode": "service",
+      "routing": {
+        "mode": "service",
+        "selected_lane": "service",
+        "browser_available": true,
+        "explicit_browser_lane": "browser",
+        "cross_origin_isolated": true,
+        "service_connected": true
+      },
+      "actual_controller": {
+        "run_kind": "service",
+        "constructor": "PublicSessionController",
+        "is_public_session_controller": true,
+        "is_instrumented_owner": true
+      },
+      "browser_runtime_requests": [],
+      "checks": {
+        "passed": 11,
+        "total": 11,
+        "results": {
+          "native_route_with_browser_available": true,
+          "same_native_controller_path": true,
+          "native_qemu_normal_launch": true,
+          "exact_firmware_sha": true,
+          "application_serial_and_frame": true,
+          "display_updates": true,
+          "baseline_missing_servo_bridge_reproduced": true,
+          "servo_packets": true,
+          "evidence_before_stop": true,
+          "guest_reaped_history_retained": true,
+          "no_browser_qemu_boot": true
+        }
+      },
+      "sample": {
+        "seconds": 12.00175,
+        "applied_png_updates": 15,
+        "updates_per_second": 1.249818,
+        "payload_bytes": 30974,
+        "requests": 33,
+        "http_304": 18
+      },
+      "host_cpu": {
+        "unit": "100 percent equals one logical core",
+        "guest_percent": 105.6089,
+        "service_percent": 0.9162
+      },
+      "input": {
+        "kind": "longpress",
+        "coordinates": [
+          160,
+          184
+        ],
+        "hold_seconds": 0.4,
+        "protocol_accepted": true,
+        "application_callback": "NOT RUN"
+      },
+      "readiness_marker": "StackChan auto-dance started",
+      "serial_sha256": "2a727c2024767ca9595066cc7fe66153e93877083d3e8ebb6f937cd8fffbe4d7",
+      "servo_model": {
+        "controller_observations": 0,
+        "rendered_pose_samples": 16,
+        "distinct_raw_yaw_positions": 0,
+        "distinct_raw_pitch_positions": 0,
+        "raw_yaw_range": null,
+        "raw_pitch_range": null,
+        "distinct_yaw_poses": 1,
+        "distinct_pitch_poses": 1,
+        "actual_intermediate_rendered_poses": 0,
+        "yaw_visual_range": [
+          0,
+          0
+        ],
+        "pitch_visual_range": [
+          0,
+          0
+        ],
+        "source": null
+      },
+      "artifacts": {
+        "frame_png_sha256": "16cd9fba9e34122d0ebe7711bba9555133ec95880b4d591e4978429a5c135f13",
+        "retained-frame_png_sha256": "19e7aed459f01c0a6e646e93a0116da3a45e34837ddd11b0a5c51dd79757411d",
+        "workbench_png_sha256": "e704a045701662a7535727ac55457f1ba9ed146d77a0fa5152f967acc25f2ac8",
+        "history_json_sha256": "ae0203b3b28c56a310d0091c7fd31cf3a6356e1597bc30b4a34e39bf5bf8b7a7",
+        "observations_json_sha256": "3b836a060833fdd039442ad9371b959b7352cad8aeb26fce60ad0086cfbb0261",
+        "evidence_zip_sha256": "437325ff708d804446ab52456725a90d0000df4ca67263545567fb0e8139c6d7"
+      },
+      "evidence": {
+        "verified_files": 6,
+        "contained_file_hashes_and_sizes_verified": true,
+        "same_guest_identity_verified": true
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "purge": 0,
+        "history_and_frame_retained": true,
+        "runtime_process_reaped": true
+      }
+    },
+    {
+      "device": "StackChan",
+      "phase": "after",
+      "status": "PASS",
+      "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+      "firmware_family": "Arduino user dance",
+      "controller_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "selected_mode": "auto",
+      "routing": {
+        "mode": "auto",
+        "selected_lane": "service",
+        "browser_available": true,
+        "explicit_browser_lane": "browser",
+        "cross_origin_isolated": true,
+        "service_connected": true
+      },
+      "actual_controller": {
+        "run_kind": "service",
+        "constructor": "PublicSessionController",
+        "is_public_session_controller": true,
+        "is_instrumented_owner": true
+      },
+      "browser_runtime_requests": [],
+      "checks": {
+        "passed": 15,
+        "total": 15,
+        "results": {
+          "native_route_with_browser_available": true,
+          "same_native_controller_path": true,
+          "native_qemu_normal_launch": true,
+          "exact_firmware_sha": true,
+          "application_serial_and_frame": true,
+          "display_updates": true,
+          "native_servo_readback": true,
+          "real_controller_positions_change": true,
+          "raw_dom_matches_controller": true,
+          "model_targets_match_present": true,
+          "actual_rendered_joint_motion": true,
+          "servo_packets": true,
+          "evidence_before_stop": true,
+          "guest_reaped_history_retained": true,
+          "no_browser_qemu_boot": true
+        }
+      },
+      "sample": {
+        "seconds": 12.000505,
+        "applied_png_updates": 326,
+        "updates_per_second": 27.165523,
+        "payload_bytes": 590587,
+        "requests": 358,
+        "http_304": 32
+      },
+      "host_cpu": {
+        "unit": "100 percent equals one logical core",
+        "guest_percent": 107.7205,
+        "service_percent": 13.6303
+      },
+      "input": {
+        "kind": "longpress",
+        "coordinates": [
+          160,
+          184
+        ],
+        "hold_seconds": 0.4,
+        "protocol_accepted": true,
+        "application_callback": "NOT RUN"
+      },
+      "readiness_marker": "StackChan auto-dance started",
+      "serial_sha256": "2a727c2024767ca9595066cc7fe66153e93877083d3e8ebb6f937cd8fffbe4d7",
+      "servo_model": {
+        "controller_observations": 70,
+        "rendered_pose_samples": 527,
+        "distinct_raw_yaw_positions": 47,
+        "distinct_raw_pitch_positions": 32,
+        "raw_yaw_range": [
+          307,
+          613
+        ],
+        "raw_pitch_range": [
+          677,
+          850
+        ],
+        "distinct_yaw_poses": 355,
+        "distinct_pitch_poses": 249,
+        "actual_intermediate_rendered_poses": 366,
+        "yaw_visual_range": [
+          -47.8125,
+          47.8125
+        ],
+        "pitch_visual_range": [
+          17.8125,
+          71.875
+        ],
+        "source": "native-service-qom-v1"
+      },
+      "artifacts": {
+        "frame_png_sha256": "e0943839fbed4a809f2f2cff2787d8f2dced86de711e563de6be956deaaa7304",
+        "retained-frame_png_sha256": "af55f94a9d995270b26f909551e93bc5ac7a3f706d5f7f293676a5c12fb8818f",
+        "workbench_png_sha256": "4d97492d96bacf7a88b40f17e22f423245f80b8a7079fabafcbcf7c0eeab4953",
+        "history_json_sha256": "f3efaee2d4e1131b0b73c0780026f69ce2a2b84df4ea8356a7250ad3a858e5eb",
+        "observations_json_sha256": "1f168fde3e604231797ae85691a6ce115348e79bdad2eb18acc82809e5958930",
+        "evidence_zip_sha256": "b36d24507c885314dfcad71f0c1359ae5679d34314390cdc84f3b4f866085374"
+      },
+      "evidence": {
+        "verified_files": 6,
+        "contained_file_hashes_and_sizes_verified": true,
+        "same_guest_identity_verified": true
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "purge": 0,
+        "history_and_frame_retained": true,
+        "runtime_process_reaped": true
+      }
+    },
+    {
+      "device": "CoreS3",
+      "phase": "before",
+      "status": "PASS",
+      "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "firmware_family": "UIFlow2 LVGL elapsed-time scheduler candidate; not stock scheduling",
+      "controller_sha256": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba",
+      "selected_mode": "service",
+      "routing": {
+        "mode": "service",
+        "selected_lane": "service",
+        "browser_available": true,
+        "explicit_browser_lane": "browser",
+        "cross_origin_isolated": true,
+        "service_connected": true
+      },
+      "actual_controller": {
+        "run_kind": "service",
+        "constructor": "PublicSessionController",
+        "is_public_session_controller": true,
+        "is_instrumented_owner": true
+      },
+      "browser_runtime_requests": [],
+      "checks": {
+        "passed": 10,
+        "total": 10,
+        "results": {
+          "native_route_with_browser_available": true,
+          "same_native_controller_path": true,
+          "native_qemu_normal_launch": true,
+          "exact_firmware_sha": true,
+          "application_serial_and_frame": true,
+          "display_updates": true,
+          "guest_touch_callback": true,
+          "evidence_before_stop": true,
+          "guest_reaped_history_retained": true,
+          "no_browser_qemu_boot": true
+        }
+      },
+      "sample": {
+        "seconds": 12.00137,
+        "applied_png_updates": 17,
+        "updates_per_second": 1.416505,
+        "payload_bytes": 65908,
+        "requests": 33,
+        "http_304": 16
+      },
+      "host_cpu": {
+        "unit": "100 percent equals one logical core",
+        "guest_percent": 34.7342,
+        "service_percent": 1.5826
+      },
+      "input": {
+        "kind": "longpress",
+        "coordinates": [
+          160,
+          184
+        ],
+        "hold_seconds": 0.4,
+        "protocol_accepted": true,
+        "application_callback": "PASS"
+      },
+      "readiness_marker": "CORES3_WASM with kind=ready",
+      "serial_sha256": "a5e14c831fff51a84348f37ac871b44555090b9cfe1578a9a6b79177d6b14f14",
+      "servo_model": null,
+      "artifacts": {
+        "frame_png_sha256": "5b563aab77ec8218ac077f0c55aa7d273731a1047836af3c41237e2c54e319e9",
+        "retained-frame_png_sha256": "785e843c56c591ec9d960dcd5e9165803b294fd8c4b1d5ba1b19d8451b844a0d",
+        "workbench_png_sha256": "df6d08c49a25398c2ce81e744f4757901e4a03f15896f945224f94c169f4c29c",
+        "history_json_sha256": "0b8976f3cc8782c371dd651f30bcfca41ac2543108e23d02ac11ad88dc19534b",
+        "observations_json_sha256": "8659318a3ebb7b54dc04c7885e5fdd1bddd5a2ffde5a32ef51925d0b25ec3cf8",
+        "evidence_zip_sha256": "eb8ecb2a7e0ae370f60d2a9f89edfd143f3bf62b53865b26bf817d77f236c56e"
+      },
+      "evidence": {
+        "verified_files": 7,
+        "contained_file_hashes_and_sizes_verified": true,
+        "same_guest_identity_verified": true
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "purge": 0,
+        "history_and_frame_retained": true,
+        "runtime_process_reaped": true
+      }
+    },
+    {
+      "device": "CoreS3",
+      "phase": "after",
+      "status": "PASS",
+      "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "firmware_family": "UIFlow2 LVGL elapsed-time scheduler candidate; not stock scheduling",
+      "controller_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "selected_mode": "service",
+      "routing": {
+        "mode": "service",
+        "selected_lane": "service",
+        "browser_available": true,
+        "explicit_browser_lane": "browser",
+        "cross_origin_isolated": true,
+        "service_connected": true
+      },
+      "actual_controller": {
+        "run_kind": "service",
+        "constructor": "PublicSessionController",
+        "is_public_session_controller": true,
+        "is_instrumented_owner": true
+      },
+      "browser_runtime_requests": [],
+      "checks": {
+        "passed": 10,
+        "total": 10,
+        "results": {
+          "native_route_with_browser_available": true,
+          "same_native_controller_path": true,
+          "native_qemu_normal_launch": true,
+          "exact_firmware_sha": true,
+          "application_serial_and_frame": true,
+          "display_updates": true,
+          "guest_touch_callback": true,
+          "evidence_before_stop": true,
+          "guest_reaped_history_retained": true,
+          "no_browser_qemu_boot": true
+        }
+      },
+      "sample": {
+        "seconds": 12.001175,
+        "applied_png_updates": 101,
+        "updates_per_second": 8.415843,
+        "payload_bytes": 395381,
+        "requests": 361,
+        "http_304": 259
+      },
+      "host_cpu": {
+        "unit": "100 percent equals one logical core",
+        "guest_percent": 29.153,
+        "service_percent": 13.8269
+      },
+      "input": {
+        "kind": "longpress",
+        "coordinates": [
+          160,
+          184
+        ],
+        "hold_seconds": 0.4,
+        "protocol_accepted": true,
+        "application_callback": "PASS"
+      },
+      "readiness_marker": "CORES3_WASM with kind=ready",
+      "serial_sha256": "0f52ffd06157c205c6bce677dc80846addc1914bb2b180e03ebc1604506e2890",
+      "servo_model": null,
+      "artifacts": {
+        "frame_png_sha256": "785e843c56c591ec9d960dcd5e9165803b294fd8c4b1d5ba1b19d8451b844a0d",
+        "retained-frame_png_sha256": "5117365101ff562c3cde04122171f1ecb99354e071afed787f5b5fe343126c40",
+        "workbench_png_sha256": "568e3cf46fe5194e82d8a19b3bc70fb1d23a93f88d8e8b24d828a7717fb15e42",
+        "history_json_sha256": "74880d7e72bb2abf946f2eee6ec06b7779fac4433fa43c56f34aa438286e8918",
+        "observations_json_sha256": "be70fe2ce1f9ba8b6907408c46ae53283a6067ef0ad6dd45703578450678cc0c",
+        "evidence_zip_sha256": "bd83bef83e9221c6613ed732d48a1b174174b0f1430b52d81305bc07ec9f3501"
+      },
+      "evidence": {
+        "verified_files": 7,
+        "contained_file_hashes_and_sizes_verified": true,
+        "same_guest_identity_verified": true
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "purge": 0,
+        "history_and_frame_retained": true,
+        "runtime_process_reaped": true
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "device": "StackChan",
+      "identical_firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+      "before_updates_per_second": 1.249818,
+      "after_updates_per_second": 27.165523,
+      "ratio": 21.7356,
+      "before_payload_bytes": 30974,
+      "after_payload_bytes": 590587,
+      "service_cpu_percentage_point_delta": 12.7141,
+      "meaning": "Native UI delivery/readback improvement; no native CPU runtime change."
+    },
+    {
+      "device": "CoreS3",
+      "identical_firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "before_updates_per_second": 1.416505,
+      "after_updates_per_second": 8.415843,
+      "ratio": 5.9413,
+      "before_payload_bytes": 65908,
+      "after_payload_bytes": 395381,
+      "service_cpu_percentage_point_delta": 12.2443,
+      "meaning": "Native UI delivery/readback improvement; no native CPU runtime change."
+    }
+  ],
+  "history": [
+    {
+      "round": "r1",
+      "execution_report_status": "FAIL",
+      "report_sha256": "b569e325abe656bd1807e736973e87c23a6b2d36eb514e2c4c56befc06ced636",
+      "scope": "Harness failed to expand the optional SHA field before any guest allocation; preserved."
+    },
+    {
+      "round": "r2",
+      "execution_report_status": "PASS",
+      "report_sha256": "fdc8b1d0c2cc9dc8a70660aa616737735f3c918fe0b34fd02a192e046cd2127b",
+      "scope": "Bounded LCD/input/cleanup result, followed by diagnosis of the absent native body bridge; preserved."
+    },
+    {
+      "round": "r3",
+      "execution_report_status": "PASS",
+      "report_sha256": "9dd9358f574e630e29cb1ca22ee1c397fa1ff74284d227599a06e71b208ac2ac",
+      "scope": "Scoped native display/readback/DOM/render closure, with the original static-body negative control retained."
+    },
+    {
+      "round": "r4",
+      "execution_report_status": "PASS",
+      "report_sha256": "63b0c51cd86066ccba707fef59ea9598425c84b51afcd807c494789409b66b35",
+      "scope": "Native auto-route, exact firmware, display/QOM/DOM/render/input and retained evidence/cleanup revalidation; no browser CPU claim."
+    }
+  ],
+  "canonical_apis": [
+    "/api/v1/sessions",
+    "/api/v1/sessions/{id}/serial",
+    "/api/v1/sessions/{id}/frame.png",
+    "/api/v1/sessions/{id}/qom/list",
+    "/api/v1/sessions/{id}/qom",
+    "/api/v1/sessions/{id}/input",
+    "/api/v1/sessions/{id}/evidence",
+    "DELETE /api/v1/sessions/{id}?purge=0"
+  ],
+  "known_boundaries": [
+    "Interpolation adds display poses only; raw guest/controller positions, packet counts and DOM ticks remain actual samples.",
+    "Any unsupported capability, malformed receipt, missing identity or read failure disables the optional native servo lane once and keeps it unknown. Reset/new session retries; no network retry mechanism added.",
+    "More PNG capture/encoding and payload is the measured cost; guest and service CPU are listed separately."
+  ],
+  "reproduce": {
+    "command": [
+      "node",
+      "platform/tests/test_public_native_performance.mjs",
+      "--execute"
+    ],
+    "required_environment": [
+      "M5_NATIVE_QEMU",
+      "M5_NATIVE_ROMS",
+      "M5_NATIVE_ESP_EMU",
+      "M5_NATIVE_DANCE",
+      "M5_NATIVE_CORES3"
+    ],
+    "optional_environment": [
+      "M5_NATIVE_PYTHON",
+      "M5_NATIVE_NODE_MODULES",
+      "PYTHONPATH",
+      "M5_NATIVE_OUT"
+    ],
+    "archive_rule": "A fresh absent output directory is required; existing archives are rejected.",
+    "resources": "Sequential guest execution on an otherwise idle host; actual hardware renderer checked; user testing services never used."
+  },
+  "host_contracts": {
+    "status": "PASS",
+    "category": "Host contracts, no guest execution",
+    "commands": [
+      "node --unhandled-rejections=strict platform/tests/test_public_config.mjs",
+      "node --unhandled-rejections=strict platform/tests/test_public_session_controller.mjs",
+      "node --unhandled-rejections=strict platform/tests/test_public_qemu_polling.mjs",
+      "node --unhandled-rejections=strict platform/tests/test_public_qemu_entry.mjs",
+      "node --unhandled-rejections=strict platform/tests/test_public_qemu_servo.mjs"
+    ],
+    "unhandled_rejections": "None; listed strict-mode processes exited zero",
+    "coverage": [
+      "independent single-inflight capture/decode/readback",
+      "slow metadata/QOM does not block frames",
+      "ETag/freshness and failed-image retry",
+      "capability/session/path/property/source/firmware negative controls",
+      "legacy 404/500 and permission 403 unknown once without spam",
+      "late reply, shell swap, reset/pending-reset failure and stop fences",
+      "present position rather than requested goal"
+    ]
+  },
+  "visual_forensics": {
+    "category": "read-only inspection of existing captures and exact guest source; no new guest",
+    "firmware_source_sha256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+    "confirmed_guest_design": "Exact source drawFace lines 424-430 explicitly draw seven diagonal gradient triangles behind the face; the diagonal background is intentional.",
+    "draw_order": "startWrite; clear animated area; left eye; right eye; mouth; beat bars; endWrite. Source lines 420, 447-451, 465-480 and 538-539. Next draw is scheduled every 66 guest milliseconds.",
+    "native_surface_observation": "Inspected SPI panel code updates pixel memory as data arrives, refreshes every 16666667 virtual nanoseconds, and exposes a gfx_update hook for screendump. No application drawFace-end atomic snapshot contract exists.",
+    "partial_snapshot_interpretation": "Inference: missing-eye/text/mouth samples can capture guest primitive drawing in progress. Existing captures do not establish a stable SPI/controller pixel corruption.",
+    "complete_expression_sample": {
+      "history_round": "r2",
+      "phase": "after",
+      "same_native_runtime_and_firmware_verified": true,
+      "zip_sha256": "4a93996015d681d692d6479b6774ab74b42f09023b2071a2a2afc2a64fc08d63",
+      "zip_member": "frames/current.png",
+      "png_sha256": "47366738928debd0616aa274b1a5dde6615d51a7df2f123a3f43a13da6ecedc4",
+      "observed": "Complete two open eyes, mouth, cheeks and beat bars; intentional diagonal ambience."
+    },
+    "same_execution_claim_limit": "The r2 visual sample explains the historical drawing path; it is not substituted for r4 joint/session evidence.",
+    "full_frame_stability": "NOT RUN: per-frame pixels were not retained for the whole steady window, only hashes/observations. A stable completed-frame sequence cannot be reconstructed or fabricated."
+  }
+}

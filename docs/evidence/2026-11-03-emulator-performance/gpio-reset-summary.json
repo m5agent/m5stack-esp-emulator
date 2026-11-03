@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "GPIO reset callback stale-level regression",
+  "validation": "host C logic validation; no guest or hardware execution in this contract",
+  "original_result_sha256": "296ac473c4adcf89a5e5eb119392c611130d4ddc66b120eddb5968f3db549ec0",
+  "harness_source_sha256": "1895677f9a4131f988ac7e36e9f64783c212f1dc77926c763c80277e3d391dcb",
+  "ordinary_test_source_sha256": "a59b292849cf6d270c0ef80fd466c47c28ade908cea93e7a97b542c5a1936fb0",
+  "fixture_source_sha256": "246b9e2f187a5dd296a1d258cea8934f75dc2a79cefd7a2941eb069fd9b28122",
+  "fixed_patch_sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf",
+  "rejected_patch_sha256": "ea11a87766497936541ce42b1aa3370f19c107f2f9341070d62a0e73505485cb",
+  "trigger": "Actual reset_hold runs a reset listener that enables high-level IRQ3, then an ordinary legacy output listener drives input3 low and clears STATUS. The following level refresh must sample the current line.",
+  "fix": "Transition tail calls the existing lazy gpio_update_irq instead of trusting a line sampled before possible legacy callbacks. STATUS propagation and call count remain intact.",
+  "variants": {
+    "original-c6": {
+      "source_sha256": "0158efd8e6dade72c68a6fd9bf0086fcba1fe4b39c8816ab2d30e19d0bb18c8f",
+      "result": "PASS",
+      "exit_code": 0,
+      "setup_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        }
+      ],
+      "reset_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        }
+      ],
+      "final_observation": {
+        "pending": "0",
+        "irq_calls": "7",
+        "last_irq": "0",
+        "status0": "00000000",
+        "status1": "00000000"
+      }
+    },
+    "rejected-first-71": {
+      "source_sha256": "6ca5e912238955f2069a61567aed9a6ba7a8e1e6cc355ffb8f685b0a1c972b46",
+      "result": "EXPECTED FAIL",
+      "exit_code": -6,
+      "setup_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        }
+      ],
+      "reset_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        }
+      ],
+      "final_observation": {
+        "pending": "1",
+        "irq_calls": "7",
+        "last_irq": "1",
+        "status0": "00000008",
+        "status1": "00000000"
+      }
+    },
+    "fixed-overlay": {
+      "source_sha256": "afb956b4b6b01989ca538fa2a1bddcd74bae7e08391fb498f475e585741bd576",
+      "result": "PASS",
+      "exit_code": 0,
+      "setup_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        }
+      ],
+      "reset_irq_tape": [
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 1,
+          "status0": "00000008",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        },
+        {
+          "level": 0,
+          "status0": "00000000",
+          "status1": "00000000"
+        }
+      ],
+      "final_observation": {
+        "pending": "0",
+        "irq_calls": "7",
+        "last_irq": "0",
+        "status0": "00000000",
+        "status1": "00000000"
+      }
+    }
+  },
+  "irq_tape_original_equals_fix": true,
+  "ordinary_contracts": {
+    "result": "PASS",
+    "methods": 6,
+    "existing_oracle_limits": "37 successes and3 identical existing native-oracle failures preserved",
+    "negative_controls": [
+      "FUN_IE substituted for raw IRQ line rejected",
+      "stale post-listener edge IRQ rejected",
+      "dropped IRQ calls rejected",
+      "former71 stale reset level refresh rejected"
+    ],
+    "coverage": "Native+0021 exact replay; apply/reverse overlay; full IRQ/STATUS tape, pin/bank/unknown/classic/guard/legacy reentry cases; advancing-clock policy and AW exact boundaries.",
+    "total_three_way_plus_contract_seconds": 6.284
+  },
+  "limits": [
+    "Standard C environment shims exercise actual source; this is not physical hardware evidence.",
+    "The rejected runtime/source/patch identities remain preserved; passing fix results do not overwrite that failure.",
+    "Formal fresh WASM build and same-firmware browser gate are separate and must record the updated runtime identity."
+  ]
+}

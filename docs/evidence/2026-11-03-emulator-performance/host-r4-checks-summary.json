@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "kind": "final-r4-host-checks-summary",
+  "status": "PASS",
+  "scope": "host contracts and generated validators; guest acceptance separate",
+  "python": {
+    "total": 1942,
+    "skipped": 10,
+    "followup_log_sha256": "1f8341c2a2668bfa930a539a013c86495af543f646b44ace49ef9d2eadd7a718"
+  },
+  "checks": [
+    {
+      "name": "snapshot-generate",
+      "exit_code": 0,
+      "log_sha256": "3b72fd2d08b4b210ff970f4e637901e1ca851fd3f7f9431d9f17b09086383a8e",
+      "log_bytes": 31
+    },
+    {
+      "name": "platform-unittest",
+      "exit_code": 0,
+      "log_sha256": "1f8341c2a2668bfa930a539a013c86495af543f646b44ace49ef9d2eadd7a718",
+      "log_bytes": 51370
+    },
+    {
+      "name": "node-contracts",
+      "exit_code": 0,
+      "log_sha256": "d0830faabeacf934d2e03b1a11af66d2923da42f3621a1d74a1691310d6de44e",
+      "log_bytes": 17874
+    },
+    {
+      "name": "node-probe-composer",
+      "exit_code": 0,
+      "log_sha256": "3bcc8accc1dda007f831e17d77b23b11049c17fa07e28fed7e6a91d977a5f216",
+      "log_bytes": 55
+    },
+    {
+      "name": "benchmark-derive-selftest",
+      "exit_code": 0,
+      "log_sha256": "6c6167407fdfc49fa891c44d4fd9e75f24394083dfdead4cd5d316d6053397ef",
+      "log_bytes": 134
+    },
+    {
+      "name": "typed-helper-wasm32",
+      "exit_code": 0,
+      "log_sha256": "6a136c2c404bf6454198dc6aea88c7ff70694ffbc7ff365a2a2b5a062c0e3da1",
+      "log_bytes": 710
+    },
+    {
+      "name": "runtime-coverage",
+      "exit_code": 0,
+      "log_sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "log_bytes": 20
+    },
+    {
+      "name": "peripheral-catalog",
+      "exit_code": 0,
+      "log_sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "log_bytes": 22
+    },
+    {
+      "name": "qemu-profiles",
+      "exit_code": 0,
+      "log_sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "log_bytes": 17
+    },
+    {
+      "name": "source-lock",
+      "exit_code": 0,
+      "log_sha256": "920e353789e0ccc2e45cc2b3aa3aa3640248bda3f27bda2b0c94c407b510ff77",
+      "log_bytes": 135
+    },
+    {
+      "name": "project-snapshot",
+      "exit_code": 0,
+      "log_sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "log_bytes": 20
+    }
+  ],
+  "preserved_initial_failure": {
+    "report_sha256": "5eb38b57b6f651968f9c1a462c10ac9832734fa01de1879819a529a83b4ba973",
+    "cause": "One StackChan profile-count assertion still expected the withdrawn Factory row; the profile test was corrected to assert the exact dance-only SHA list, then the complete Python suite and Node contracts were rerun successfully."
+  },
+  "wasm_typed_helper_control": "original r4 step PASS; unchanged adapter/libffi identity; not rerun after metadata-test-only correction",
+  "source_commit": "551ef279d37f56dd7766201f4053446e5e4a87a9"
+}

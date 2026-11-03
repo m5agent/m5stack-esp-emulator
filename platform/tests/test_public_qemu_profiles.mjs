@@ -1,7 +1,7 @@
 // Host admission/layout/input contracts. No QEMU guest or service is started.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {validateQemuBrowserProfiles, getQemuBrowserProfile, validateQemuFirmware,
+import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile, validateQemuFirmware,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
@@ -153,10 +153,12 @@ for(const profile of registry.profiles) {
 const stack=pick('stackchan');
 const stackDanceSHA='c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542';
 assert.equal(stack.clockDivisor,1);
-assert.equal(stack.firmwareProfiles.length,1);
+assert.deepEqual(stack.firmwareProfiles.map(row=>row.firmwareSHA256),[stackDanceSHA],
+  'only the validated dance image has a StackChan execution variant; Factory remains withdrawn');
 const stackDance=resolveQemuFirmwareProfile(stack,stackDanceSHA);
-assert.equal(stackDance.profile,'stackchan-wasm-dance-div6');
-assert.equal(stackDance.clockDivisor,6);
+assert.equal(stackDance.profile,'stackchan-wasm-dance-wallclock');
+assert.equal(stackDance.clockDivisor,1);
+assert.equal(stackDance.oneInsnPerTb,true);
 assert.equal(stackDance.readyMarker,'StackChan auto-dance started');
 assert.equal(stackDance.readyFirmwareSHA256,stackDanceSHA);
 assert.equal(stackDance.firmwareVariant.sourceSHA256,'7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e');
@@ -185,6 +187,39 @@ const variantProfile = resolveQemuFirmwareProfile(s3, variantSHA);
 assert.equal(variantProfile.clockDivisor, 1); assert.equal(variantProfile.profile, 'cores3-wasm-wallclock-sdk-candidate');
 assert.equal(variantProfile.readyFirmwareSHA256, variantSHA); assert.equal(variantProfile.firmwareVariant.schedulerCandidate, 'sdk-python-single-schedule-v1');
 for (const key of ['board','chip','imageChipId','flashMb','psramMb','display','roms','inputs','units','efuse']) assert.deepEqual(variantProfile[key], s3[key], 'firmware metadata cannot change hardware');
+const stockSHA = '78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
+const stockProfile = resolveQemuFirmwareProfile(s3, stockSHA);
+assert.equal(s3.firmwareProfiles[0].firmwareSHA256, variantSHA, 'the existing SDK candidate remains the first independent firmware variant');
+assert.equal(stockProfile.profile, 'cores3-wasm-stock-wallclock');
+assert.equal(stockProfile.clockDivisor, 1);
+assert.equal(stockProfile.readyFirmwareSHA256, stockSHA);
+assert.equal(stockProfile.oneInsnPerTb, true);
+assert.equal(stockProfile.accelerator, undefined, 'the stock firmware variant adds no icount or alternate accelerator');
+assert.deepEqual(stockProfile.firmwareVariant, {
+  clockDivisor: 1,
+  firmwareSHA256: stockSHA,
+  fixture: 'cores3-wasm-lvgl-pir-v1',
+  oneInsnPerTb: true,
+  profile: 'cores3-wasm-stock-wallclock',
+  readyMarker: '\"kind\": \"ready\"',
+  requiredRuntimePatch: {path:'patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch',
+    sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf'},
+  schedulerCandidate: 'qemu-tci-mmio-blocks-v1',
+  sourceSHA256: '7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb',
+});
+const stockArguments = buildQemuArguments(stockProfile);
+assert.deepEqual(stockArguments.filter(value => value === '-accel'), ['-accel']);
+assert.equal(stockArguments[stockArguments.indexOf('-accel') + 1], 'tcg,thread=multi,one-insn-per-tb=on');
+assert.ok(!stockArguments.includes('-icount'));
+for (const key of ['board','chip','imageChipId','flashMb','psramMb','display','roms','inputs','units','efuse']) assert.deepEqual(stockProfile[key], s3[key], 'the stock execution variant cannot alter the board hardware');
+const unknownCoreS3 = resolveQemuFirmwareProfile(s3, '0'.repeat(64));
+assert.equal(unknownCoreS3.profile, 'cores3-wasm-vm-div8');
+assert.equal(unknownCoreS3.clockDivisor, 8);
+assert.equal(unknownCoreS3.firmwareVariant, undefined);
+assert.equal(unknownCoreS3.oneInsnPerTb, undefined);
+assert.equal(unknownCoreS3.requiredRuntimePatch, undefined);
+assert.equal(unknownCoreS3.accelerator, undefined);
+assert.deepEqual(buildQemuArguments(unknownCoreS3), buildQemuArguments(s3), 'unknown firmware retains the complete base argument list');
 assert.equal(s3.clockDivisor, 8, 'variant resolution must not mutate the base profile');
 assert.equal(resolveQemuFirmwareProfile(s3, '0'.repeat(64)).clockDivisor, 8);
 assert.equal(resolveQemuFirmwareProfile(s3, '0'.repeat(64)).firmwareVariant, undefined);

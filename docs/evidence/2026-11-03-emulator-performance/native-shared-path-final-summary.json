@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "kind": "native-r4-final-shared-output-source-equivalence-summary",
+  "status": "SOURCE_DATA_EQUIVALENCE_ASSERTIONS_PASS",
+  "date": "2026-11-03",
+  "validation_category": "Read-only source/data comparison; no new guest execution",
+  "guest_rerun": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "historical_evidence": {
+    "raw_report_sha256": "63b0c51cd86066ccba707fef59ea9598425c84b51afcd807c494789409b66b35",
+    "recorded_status": "PASS",
+    "recorded_guest_runs": 4,
+    "recorded_scope_checks": 46,
+    "recorded_scope_checks_passed": 46,
+    "boundary": "The actual native r4 four runs and46 checks remain bound to their original sources; source equivalence neither creates a new guest PASS nor admits browser execution."
+  },
+  "retained_snapshot_verification": {
+    "registry_snapshot_matches_r4_complete_file_pin": true,
+    "profile_module_snapshot_matches_r4_complete_file_pin": true,
+    "scope": "Independently retained snapshots selected by the original r4 complete-file hashes. No claim is made that the two snapshots form one retained served-site directory."
+  },
+  "registry_identity": {
+    "r4_recorded_sha256": "a09af4cbf25da01678d0bdf081b4c21097d760af5b8171aed1df6af7c8419a20",
+    "current_sha256": "5550adbf6fa3cd0c097d45c6575d9dd3bddaa1bb70754ade3a1c34116bdc8b33",
+    "whole_files_equal": false,
+    "difference_scope": "firmwareProfiles execution/provenance variants only; every other field of the entire registry compares equal after removing that property from each profile"
+  },
+  "profile_module_identity": {
+    "r4_recorded_sha256": "54f2e8c00714bf4666177ad0bb217e657dc81883938fa71c0b00ac9752e774ad",
+    "current_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+    "whole_files_equal": false,
+    "difference_scope": "Execution/variant schema, validation, binding and argument generation differ; the two output functions below remain byte-identical"
+  },
+  "non_variant_registry_projection": {
+    "canonical_encoding": "UTF-8 JSON, recursively sorted keys, compact separators",
+    "r4_sha256": "88d7b7eac24e9a7649cee8d138d4d666a9bc7e3d7efe785328442fdd1a338c29",
+    "current_sha256": "88d7b7eac24e9a7649cee8d138d4d666a9bc7e3d7efe785328442fdd1a338c29",
+    "equal": true
+  },
+  "native_output_projection": {
+    "fields": [
+      "deviceId",
+      "board",
+      "outputs"
+    ],
+    "canonical_encoding": "UTF-8 JSON, recursively sorted keys, compact separators",
+    "r4_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "current_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "equal": true,
+    "value": {
+      "deviceId": "stackchan",
+      "board": "m5stackchan",
+      "outputs": {
+        "kind": "stackchan-scs-qom-v1",
+        "path": "/machine/scs_servo",
+        "property": "state",
+        "calibration": {
+          "yawZeroTicks": 460,
+          "pitchZeroTicks": 620,
+          "tickDegrees": 0.3125,
+          "yawDirection": 1,
+          "pitchDirection": 1
+        }
+      }
+    }
+  },
+  "functions": {
+    "validateQemuOnboardState": {
+      "r4_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "current_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "byte_identity": true
+    },
+    "qemuOnboardOutputQueries": {
+      "r4_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "current_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "byte_identity": true
+    }
+  },
+  "shared_modules": {
+    "platform/web/public.js": {
+      "r4_recorded_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "current_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "byte_identity": true
+    },
+    "platform/web/public-session-controller.js": {
+      "r4_recorded_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "current_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "byte_identity": true
+    },
+    "platform/web/public-config.js": {
+      "r4_recorded_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "current_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "byte_identity": true
+    },
+    "platform/web/public-qemu-servo.js": {
+      "current_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "saved_export_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "byte_identity": true,
+      "r4_digest_recorded_separately": false,
+      "scope": "Historical export/current bytes agree; no new source hash is attributed to r4's original inventory."
+    }
+  },
+  "actual_native_call_path": [
+    "public.js selects StackChan deviceId/board/outputs and the actual service-imported full-Flash SHA",
+    "PublicSessionController validates calibration and firmware/session/QOM receipt identity",
+    "public-qemu-servo.js validates raw source/registers and maps observed present_position to viewer commands"
+  ],
+  "call_path_note": "Native SCS polling imports validateQemuServoState directly. Its StackChan validateQemuOnboardState branch delegates to the same validator without calling the changed full execution-profile validator. The complete public.js/controller/config bytes remain at the actual r4 pins.",
+  "withdrawn_factory_variant": "No Factory execution metadata is inherited into native output projection or the unchanged delivery path. Changed whole-file hashes are recorded without rewriting r4's historical source pins.",
+  "derivation": {
+    "script_sha256": "f9e397384d8b4ad4a27bdcef8c6b2de5033cb0b05dc9d2d9c86bc05718405171",
+    "previous_summary_sha256": "b5ce649cbf301d7396307835e5bf4e7d9cf972dd002d23df16597dcdcf5d4916",
+    "checks": [
+      "actual historical snapshot hashes",
+      "whole registry minus firmwareProfiles equality",
+      "StackChan output canonical equality",
+      "two exact function byte comparisons",
+      "public.js/controller/config actual r4 pin equality",
+      "saved/current servo module bytes",
+      "raw r4 status and46 boolean checks"
+    ]
+  },
+  "limits": [
+    "No new native guest, browser runtime, whole-profile-module equivalence or product stability PASS.",
+    "Original r4 inputs, raw logs, runtime, source pins and results are preserved; current hashes are not substituted into that execution.",
+    "Source/data comparison covers the native delivery path above, not browser scheduler/variant admission or a fresh runtime."
+  ],
+  "redaction": "No credentials, endpoints, host paths, raw session/target/device identifiers, binaries or raw observations."
+}

@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "native-r4-final-served-output-path-equivalence-summary",
+  "date": "2026-11-03",
+  "status": "SOURCE_DATA_EQUIVALENCE_ASSERTIONS_PASS",
+  "validation_category": "Read-only final-served source/data equivalence",
+  "guest_rerun": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "historical_native_evidence": {
+    "report_sha256": "63b0c51cd86066ccba707fef59ea9598425c84b51afcd807c494789409b66b35",
+    "recorded_status": "PASS",
+    "guest_runs": 4,
+    "recorded_scope_checks": 46,
+    "recorded_scope_checks_passed": 46,
+    "boundary": "Actual r4 evidence remains at its original source/runtime/firmware pins. This comparison creates no new native or browser guest PASS."
+  },
+  "final_site": {
+    "manifest_sha256": "ac5796682ee222b5a2ecb07ccc47e020260c86dea238098a5a2280910d38888f",
+    "publication_eligible": true,
+    "firmware_bundled": false,
+    "public_boards": 19,
+    "selected_served_files_rehashed_against_manifest": 6,
+    "scope": "Only the six named native-bridge/registry source files and site manifest were read. No model traversal, server, browser or firmware execution."
+  },
+  "registry_chain": {
+    "r4_recorded_sha256": "a09af4cbf25da01678d0bdf081b4c21097d760af5b8171aed1df6af7c8419a20",
+    "current_source_sha256": "5550adbf6fa3cd0c097d45c6575d9dd3bddaa1bb70754ade3a1c34116bdc8b33",
+    "final_served_sha256": "a94e3a8593c5afe0546cdc2dcc5cd41c7aa2f611b58087b560c3451607073530",
+    "whole_three_files_equal": false,
+    "r4_to_current_source": {
+      "equal_after_removing_each_firmwareProfiles": true,
+      "non_variant_canonical_sha256": "88d7b7eac24e9a7649cee8d138d4d666a9bc7e3d7efe785328442fdd1a338c29",
+      "difference_scope": "Firmware execution/provenance variants only; native geometry/readback data and every other registry field compare equal."
+    },
+    "current_source_to_served": {
+      "exact_public_projection_equal": true,
+      "source_profiles": 20,
+      "served_profiles": 19,
+      "removed_profiles": [
+        {
+          "deviceId": "dial",
+          "admission": "candidate"
+        }
+      ],
+      "all_other_fields_equal": true,
+      "core2_remains_public": true,
+      "difference_scope": "Exporter prunes the Dial candidate row. Core2 remains publicly exported. No other parsed registry field differs."
+    }
+  },
+  "profile_module_chain": {
+    "r4_recorded_sha256": "54f2e8c00714bf4666177ad0bb217e657dc81883938fa71c0b00ac9752e774ad",
+    "current_source_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+    "served_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+    "current_source_and_served_byte_identity": true,
+    "r4_whole_module_identity": false,
+    "r4_difference_scope": "Execution/variant validation, binding and argument generation; exact output functions below remain unchanged."
+  },
+  "native_stackchan_output_projection": {
+    "fields": [
+      "deviceId",
+      "board",
+      "outputs"
+    ],
+    "canonical_encoding": "UTF-8 JSON, recursively sorted keys, compact separators",
+    "r4_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "source_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "served_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "equal": true,
+    "value": {
+      "deviceId": "stackchan",
+      "board": "m5stackchan",
+      "outputs": {
+        "calibration": {
+          "pitchDirection": 1,
+          "pitchZeroTicks": 620,
+          "tickDegrees": 0.3125,
+          "yawDirection": 1,
+          "yawZeroTicks": 460
+        },
+        "kind": "stackchan-scs-qom-v1",
+        "path": "/machine/scs_servo",
+        "property": "state"
+      }
+    }
+  },
+  "functions": {
+    "validateQemuOnboardState": {
+      "r4_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "source_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "served_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "byte_identity": true
+    },
+    "qemuOnboardOutputQueries": {
+      "r4_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "source_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "served_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "byte_identity": true
+    }
+  },
+  "shared_modules": {
+    "platform/web/public.js": {
+      "r4_recorded_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "source_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "served_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "byte_identity": true
+    },
+    "platform/web/public-session-controller.js": {
+      "r4_recorded_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "source_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "served_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "byte_identity": true
+    },
+    "platform/web/public-config.js": {
+      "r4_recorded_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "source_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "served_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "byte_identity": true
+    },
+    "platform/web/public-qemu-servo.js": {
+      "historical_export_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "served_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "byte_identity": true,
+      "r4_separate_hash_recorded": false,
+      "scope": "Saved historical export/current/final-served bytes match; no missing hash is backfilled into the original r4 execution inventory."
+    }
+  },
+  "native_call_path": [
+    "public.js extracts geometry/readback metadata and the actual imported full-Flash SHA.",
+    "PublicSessionController checks actual firmware/session identity and fixed QOM capability/receipt.",
+    "The unchanged servo validator maps observed present_position through the unchanged calibration to viewer commands."
+  ],
+  "derivation": {
+    "script_sha256": "4631f1bef208e2425c11e26d7e4441166ba59ef16d5c512067e856718255f6ab",
+    "previous_final_source_equivalence_sha256": "3f1b1df6e2d80f8108c658563d7f6b0b551f0720150ec1d70bae1f1d0c302051",
+    "all_read_inputs_unchanged": true,
+    "retained_snapshot_note": "Historical registry and profile-module snapshots independently match the complete-file hashes in the r4 report; they are not falsely described as one retained served-site directory."
+  },
+  "limits": [
+    "No new native guest, browser guest, all-admitted-board or final72-runtime functional/stability acceptance.",
+    "The served whole registry is not claimed identical to the source or historical registry. Execution variants and public-export pruning are separate comparisons.",
+    "Runtime/firmware execution remains the separately recorded gate; the six-file manifest check is not a complete site-asset verification."
+  ],
+  "redaction": "No host paths, endpoints, credentials, raw session/target/device identifiers or firmware/ROM bytes."
+}

@@ -1,0 +1,1302 @@
+{
+  "schema_version": 1,
+  "kind": "preserved-intermediate-performance-observations",
+  "validation_category": "virtual-device validation",
+  "status": "HISTORICAL: not the final delivery acceptance",
+  "derived_from": {
+    "sha256": "3194ba5752f27add75995e9306ef729c7be28ea976988b5232f8f90d8941139f",
+    "bytes": 63135
+  },
+  "algorithm_at_capture": {
+    "source": "platform/tests/emulator_performance_summary.mjs",
+    "sha256": "054536678d8a0fc236022fa37a6c5863938359a447c185d51b176590507a8579",
+    "self_test": "PASS",
+    "native_adapter": "Native applied PNG callbacks become frame observations keyed by their actual ETag; real native output callbacks become states. Same shared summary function is called. Native serial per-event timestamps are absent, so serial cue/startup metrics remain unavailable.",
+    "meaning": "Pixel updates are not completed application-frame FPS. Position changes compare successive same-lane position vectors with a prior-window baseline; ticks and degrees are never numerically compared across engines. Different observation cadences also affect counts. Null packet delta is unknown, never zero."
+  },
+  "browser_reports": [
+    {
+      "id": "browser-baseline-dance",
+      "scope": "formal",
+      "raw_report_sha256": "09640a6a948bcac208a462705e2306883a317d991dda492626efad6cc84f1ffd",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 937.7749999761581,
+              "ready_marker": 11674.174999952316,
+              "first_nonblack_frame": 11700.735000014305,
+              "runtime_preparation": 120.79499995708466
+            },
+            "steady": {
+              "sample_seconds": 20.002745,
+              "delivered_callbacks": 339,
+              "pixel_change_observations": 339,
+              "pixel_updates_per_second": 16.947674,
+              "frame_gap_ms": {
+                "samples": 339,
+                "p50": 33.34999990463257,
+                "p95": 37.12099997997276,
+                "max": 7533.27999997139
+              },
+              "controller_observations": 3,
+              "position_change_observations": 2,
+              "packet_delta": 2,
+              "packet_baseline": "first-in-window",
+              "dance_cue_count": 5
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "OBSERVED",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-peer-dance",
+      "scope": "formal",
+      "raw_report_sha256": "468a291f90db2ba820e67dfc8fb207ca365f470f445273a0321514f3fec23ae2",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1538,
+              "ready_marker": 2684.5,
+              "first_nonblack_frame": 2683.100000023842,
+              "runtime_preparation": null
+            },
+            "steady": {
+              "sample_seconds": 20.0022,
+              "delivered_callbacks": 299,
+              "pixel_change_observations": 291,
+              "pixel_updates_per_second": 14.5484,
+              "frame_gap_ms": {
+                "samples": 299,
+                "p50": 61.60000002384186,
+                "p95": 87.01000000238419,
+                "max": 1203.8999999761581
+              },
+              "controller_observations": 262,
+              "position_change_observations": 262,
+              "packet_delta": null,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 30
+            },
+            "guest_speed": {
+              "samples": 1029,
+              "p50": 1.0010905166242994,
+              "p95": 1.0056924134105187,
+              "max": 1.0075329567093085
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "usb": 1,
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "OBSERVED",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-o3-dance-div6",
+      "scope": "formal",
+      "raw_report_sha256": "c8a8773498306dbc263ae6572d6f0241a0e92dc45c29554b787a022c37a5c0d8",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 2,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 743.3799999952316,
+              "ready_marker": 10435.930000066757,
+              "first_nonblack_frame": 10465.425000071526,
+              "runtime_preparation": 108.41000008583069
+            },
+            "steady": {
+              "sample_seconds": 20.00268,
+              "delivered_callbacks": 336,
+              "pixel_change_observations": 334,
+              "pixel_updates_per_second": 16.697762,
+              "frame_gap_ms": {
+                "samples": 336,
+                "p50": 33.48499995470047,
+                "p95": 66.11125001311302,
+                "max": 7535.350000023842
+              },
+              "controller_observations": 5,
+              "position_change_observations": 5,
+              "packet_delta": 5,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 5
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "OBSERVED",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        },
+        {
+          "run": 2,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 295.15499997138977,
+              "ready_marker": 10196.620000004768,
+              "first_nonblack_frame": 10228.80999994278,
+              "runtime_preparation": 117.93499994277954
+            },
+            "steady": {
+              "sample_seconds": 20.00237,
+              "delivered_callbacks": 333,
+              "pixel_change_observations": 333,
+              "pixel_updates_per_second": 16.648027,
+              "frame_gap_ms": {
+                "samples": 333,
+                "p50": 33.49500000476837,
+                "p95": 66.66500000953674,
+                "max": 7546.3150000572205
+              },
+              "controller_observations": 5,
+              "position_change_observations": 5,
+              "packet_delta": 5,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 5
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "memory",
+            "repeat_in_same_page": true,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "OBSERVED",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-o3-dance-div1",
+      "scope": "formal",
+      "raw_report_sha256": "341cbda79fa179cd41433eee629e00ebe0396b138b65c94212715069d77a096b",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 2,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": 1,
+        "publication_eligible": false
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 789.8600000143051,
+              "ready_marker": 6371.554999947548,
+              "first_nonblack_frame": 6404.549999952316,
+              "runtime_preparation": 106.67499995231628
+            },
+            "steady": {
+              "sample_seconds": 20.002645,
+              "delivered_callbacks": 533,
+              "pixel_change_observations": 533,
+              "pixel_updates_per_second": 26.646476,
+              "frame_gap_ms": {
+                "samples": 533,
+                "p50": 33.449999928474426,
+                "p95": 34.45199999809265,
+                "max": 1360.9350000619888
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 29
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        },
+        {
+          "run": 2,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 248.7300000190735,
+              "ready_marker": 5750.870000004768,
+              "first_nonblack_frame": 5786.259999990463,
+              "runtime_preparation": 115.91999995708466
+            },
+            "steady": {
+              "sample_seconds": 20.002115,
+              "delivered_callbacks": 534,
+              "pixel_change_observations": 533,
+              "pixel_updates_per_second": 26.647182,
+              "frame_gap_ms": {
+                "samples": 534,
+                "p50": 33.405000030994415,
+                "p95": 34.346250069141384,
+                "max": 1351.0699999332428
+              },
+              "controller_observations": 1,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "first-in-window",
+              "dance_cue_count": 25
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "memory",
+            "repeat_in_same_page": true,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-c6-dance-div1",
+      "scope": "formal",
+      "raw_report_sha256": "90418a304f7a678669912a5da4ea516e23bf1831f799e8f4c73e7e4f9350d15d",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 2,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": false,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": 1,
+        "publication_eligible": false
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 883.1999999284744,
+              "ready_marker": 5645.419999957085,
+              "first_nonblack_frame": 5671.475000023842,
+              "runtime_preparation": 105.96999990940094
+            },
+            "steady": {
+              "sample_seconds": 20.00133,
+              "delivered_callbacks": 531,
+              "pixel_change_observations": 531,
+              "pixel_updates_per_second": 26.548235,
+              "frame_gap_ms": {
+                "samples": 531,
+                "p50": 33.355000019073486,
+                "p95": 34.105000019073486,
+                "max": 1359.3799999952316
+              },
+              "controller_observations": 1,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "first-in-window",
+              "dance_cue_count": 28
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        },
+        {
+          "run": 2,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 241.45999991893768,
+              "ready_marker": 4998.379999995232,
+              "first_nonblack_frame": 5002.8949999809265,
+              "runtime_preparation": 122.64499998092651
+            },
+            "steady": {
+              "sample_seconds": 20.00179,
+              "delivered_callbacks": 536,
+              "pixel_change_observations": 536,
+              "pixel_updates_per_second": 26.797602,
+              "frame_gap_ms": {
+                "samples": 536,
+                "p50": 33.34500002861023,
+                "p95": 34.27625000476837,
+                "max": 1425.9649999141693
+              },
+              "controller_observations": 1,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "first-in-window",
+              "dance_cue_count": 25
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "memory",
+            "repeat_in_same_page": true,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-baseline-stackchan-factory",
+      "scope": "formal",
+      "raw_report_sha256": "f8e8186d1738aa28c21219d502bf221ae85ce4c29c4aba37dcf73ba90db78c01",
+      "execution_report_result": "PARTIAL",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1240.25,
+              "ready_marker": null,
+              "first_nonblack_frame": 18402.600000023842,
+              "runtime_preparation": 105.06500005722046
+            },
+            "steady": {
+              "sample_seconds": 20.00257,
+              "delivered_callbacks": 23,
+              "pixel_change_observations": 21,
+              "pixel_updates_per_second": 1.049865,
+              "frame_gap_ms": {
+                "samples": 23,
+                "p50": 33.30999994277954,
+                "p95": 193.95449999570837,
+                "max": 5079.384999990463
+              },
+              "controller_observations": 8,
+              "position_change_observations": 0,
+              "packet_delta": 7,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [
+              "Guru Meditation Error",
+              "Interrupt wdt timeout"
+            ],
+            "reset_count": 1,
+            "rom_boot_counts": {
+              "uart0": 2
+            }
+          },
+          "input": {
+            "scope": "Front body capacitive pad through actual keyboard/model/controller; application response is not asserted",
+            "requested_hold_ms": 500,
+            "actual_controller_receipts": 0,
+            "frame_digest_changed": false,
+            "observation_window_ms": 2513,
+            "alarmclock_or_launcher_marker_after_input": false
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": false,
+            "note": "Factory can leave torque disabled: zero movement is not a dance test. Controller touch delivery and application response are separate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-peer-stackchan-factory",
+      "scope": "formal",
+      "raw_report_sha256": "81c759fb3801286d456c13c391ac9abbf2b6deba7d821dfc88dbe31bb6cf7519",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1265.6000000238419,
+              "ready_marker": null,
+              "first_nonblack_frame": 2100,
+              "runtime_preparation": null
+            },
+            "steady": {
+              "sample_seconds": 20.0025,
+              "delivered_callbacks": 4,
+              "pixel_change_observations": 4,
+              "pixel_updates_per_second": 0.199975,
+              "frame_gap_ms": {
+                "samples": 4,
+                "p50": 48.55000001192093,
+                "p95": 1064.0399999082083,
+                "max": 1236.5999999046326
+              },
+              "controller_observations": 2,
+              "position_change_observations": 1,
+              "packet_delta": null,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 1014,
+              "p50": 0.999900149775337,
+              "p95": 1.0458036365999057,
+              "max": 1.1212421539478032
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "usb": 1,
+              "uart0": 1
+            }
+          },
+          "input": {
+            "scope": "Front body capacitive pad through actual keyboard/model/controller; application response is not asserted",
+            "requested_hold_ms": 500,
+            "actual_controller_receipts": 2,
+            "frame_digest_changed": false,
+            "observation_window_ms": 2512.7,
+            "alarmclock_or_launcher_marker_after_input": false
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": true,
+            "note": "Factory can leave torque disabled: zero movement is not a dance test. Controller touch delivery and application response are separate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-c6-stackchan-factory-failed-attempt",
+      "scope": "preserved-failure",
+      "raw_report_sha256": "cfbcd780bf3e15e77ea501106a9baa01f08239e0739f3e95348e3b0887468497",
+      "execution_report_result": "FAIL",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 991.079999923706,
+              "ready_marker": null,
+              "first_nonblack_frame": 11956.289999961853,
+              "runtime_preparation": 104.53999996185303
+            },
+            "steady": {
+              "sample_seconds": 20.002155,
+              "delivered_callbacks": 10,
+              "pixel_change_observations": 8,
+              "pixel_updates_per_second": 0.399957,
+              "frame_gap_ms": {
+                "samples": 10,
+                "p50": 33.85999995470047,
+                "p95": 1378.847499930856,
+                "max": 2452.344999909401
+              },
+              "controller_observations": 5,
+              "position_change_observations": 0,
+              "packet_delta": 7,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [
+              "Guru Meditation Error",
+              "Interrupt wdt timeout"
+            ],
+            "reset_count": null,
+            "rom_boot_counts": {
+              "uart0": 2
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": false,
+            "note": "Factory can leave torque disabled: zero movement is not a dance test. Controller touch delivery and application response are separate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-c6-stackchan-factory-retry",
+      "scope": "formal-retry",
+      "raw_report_sha256": "3f3b6390de427807f58bd484c44f68a868fcd25b1c813348d5a2cf61ad95f8ea",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 787.6749999523163,
+              "ready_marker": null,
+              "first_nonblack_frame": 11901.965000033379,
+              "runtime_preparation": 120.43999993801117
+            },
+            "steady": {
+              "sample_seconds": 20.002705,
+              "delivered_callbacks": 14,
+              "pixel_change_observations": 14,
+              "pixel_updates_per_second": 0.699905,
+              "frame_gap_ms": {
+                "samples": 14,
+                "p50": 34.1875,
+                "p95": 849.3465000331394,
+                "max": 2300.789999961853
+              },
+              "controller_observations": 347,
+              "position_change_observations": 0,
+              "packet_delta": 1412,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": {
+            "scope": "Front body capacitive pad through actual keyboard/model/controller; application response is not asserted",
+            "requested_hold_ms": 500,
+            "actual_controller_receipts": 2,
+            "frame_digest_changed": false,
+            "observation_window_ms": 2550.12,
+            "alarmclock_or_launcher_marker_after_input": false
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": true,
+            "note": "Factory can leave torque disabled: zero movement is not a dance test. Controller touch delivery and application response are separate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-baseline-stopwatch-factory",
+      "scope": "formal",
+      "raw_report_sha256": "e07fa0e4d3a712cd06ff9116841902a1f7ae91cd6033d02b1210a6c7eb5282e1",
+      "execution_report_result": "PASS",
+      "device": "stopwatch",
+      "firmware": {
+        "sha256": "d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1117.8150000572205,
+              "ready_marker": null,
+              "first_nonblack_frame": 15734.700000047684,
+              "runtime_preparation": 117.31500005722046
+            },
+            "steady": {
+              "sample_seconds": 20.00371,
+              "delivered_callbacks": 15,
+              "pixel_change_observations": 11,
+              "pixel_updates_per_second": 0.549898,
+              "frame_gap_ms": {
+                "samples": 15,
+                "p50": 33.610000014305115,
+                "p95": 3645.5789999723306,
+                "max": 11997.299999952316
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": null,
+              "packet_baseline": null,
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": {
+            "scope": "Official A+B hold for menu; inspect same-guest framebuffer outcome",
+            "requested_hold_ms": 1000,
+            "actual_controller_receipts": 4,
+            "frame_digest_changed": false,
+            "observation_window_ms": 3015.115,
+            "alarmclock_or_launcher_marker_after_input": true
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": true,
+            "note": "A+B controller receipts, changed framebuffer and menu markers are distinct evidence layers."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-peer-stopwatch-factory",
+      "scope": "formal",
+      "raw_report_sha256": "e9e99c79a260a5985fd22be1748e6d944b781c130482145f3b9d537dae428327",
+      "execution_report_result": "PASS",
+      "device": "stopwatch",
+      "firmware": {
+        "sha256": "d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1379.1000000238419,
+              "ready_marker": null,
+              "first_nonblack_frame": 2209.600000023842,
+              "runtime_preparation": null
+            },
+            "steady": {
+              "sample_seconds": 20.0031,
+              "delivered_callbacks": 1,
+              "pixel_change_observations": 1,
+              "pixel_updates_per_second": 0.049992,
+              "frame_gap_ms": {
+                "samples": 1,
+                "p50": 1290.6000000238419,
+                "p95": 1290.6000000238419,
+                "max": 1290.6000000238419
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": null,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 1013,
+              "p50": 0.9999999957630789,
+              "p95": 1.0715391194826316,
+              "max": 1.1767540798631195
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "NOT RECORDED",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "usb": 1,
+              "uart0": 1
+            }
+          },
+          "input": {
+            "scope": "Official A+B hold for menu; inspect same-guest framebuffer outcome",
+            "requested_hold_ms": 1000,
+            "actual_controller_receipts": 4,
+            "frame_digest_changed": true,
+            "observation_window_ms": 3015.9,
+            "alarmclock_or_launcher_marker_after_input": true
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": true,
+            "note": "A+B controller receipts, changed framebuffer and menu markers are distinct evidence layers."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-c6-stopwatch-factory",
+      "scope": "formal",
+      "raw_report_sha256": "b7e5e59718497fc016514521c6f496087e05863d16714b130f11aa26a1e6aeda",
+      "execution_report_result": "PASS",
+      "device": "stopwatch",
+      "firmware": {
+        "sha256": "d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 1,
+        "ready_marker": "",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": true,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": null,
+        "publication_eligible": true
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 624.5099999904633,
+              "ready_marker": null,
+              "first_nonblack_frame": 10152.56500005722,
+              "runtime_preparation": 102.26999998092651
+            },
+            "steady": {
+              "sample_seconds": 20.002385,
+              "delivered_callbacks": 5,
+              "pixel_change_observations": 5,
+              "pixel_updates_per_second": 0.24997,
+              "frame_gap_ms": {
+                "samples": 5,
+                "p50": 34.22000002861023,
+                "p95": 3495.067000007629,
+                "max": 4360.235000014305
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": null,
+              "packet_baseline": null,
+              "dance_cue_count": 0
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": {
+            "scope": "Official A+B hold for menu; inspect same-guest framebuffer outcome",
+            "requested_hold_ms": 1000,
+            "actual_controller_receipts": 4,
+            "frame_digest_changed": true,
+            "observation_window_ms": 3014.405,
+            "alarmclock_or_launcher_marker_after_input": true
+          },
+          "functional_scope": {
+            "dance_motion": "NOT ASSERTED",
+            "no_observed_panic": true,
+            "note": "A+B controller receipts, changed framebuffer and menu markers are distinct evidence layers."
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-c6-dance-round-robin-diagnostic",
+      "scope": "diagnostic-separate-scheduler",
+      "raw_report_sha256": "60c574cf8c4e2d705a684fd71693a63aa021b8f5cbe0541b15ad9eb18784f891",
+      "execution_report_result": "PASS",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "configuration": {
+        "sample_ms": 20000,
+        "runs": 2,
+        "ready_marker": "StackChan auto-dance started",
+        "gpu_mode": "verified-hardware",
+        "known_device_input": false,
+        "profile_ms": 0,
+        "profiled_runs_are_not_uninstrumented_performance_samples": false,
+        "candidate_clock": 1,
+        "candidate_accelerator": "tcg-wallclock",
+        "publication_eligible": false
+      },
+      "runs": [
+        {
+          "run": 1,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 698.2249999046326,
+              "ready_marker": 14194.169999957085,
+              "first_nonblack_frame": 14204.80999994278,
+              "runtime_preparation": 103.65499997138977
+            },
+            "steady": {
+              "sample_seconds": 20.00208,
+              "delivered_callbacks": 409,
+              "pixel_change_observations": 408,
+              "pixel_updates_per_second": 20.397879,
+              "frame_gap_ms": {
+                "samples": 409,
+                "p50": 33.36500000953674,
+                "p95": 66.2870000362396,
+                "max": 1926
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 25
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "compiled",
+            "repeat_in_same_page": false,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        },
+        {
+          "run": 2,
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 245.60000002384186,
+              "ready_marker": 12979.69000005722,
+              "first_nonblack_frame": 13005.735000014305,
+              "runtime_preparation": 121.22500002384186
+            },
+            "steady": {
+              "sample_seconds": 20.00122,
+              "delivered_callbacks": 430,
+              "pixel_change_observations": 430,
+              "pixel_updates_per_second": 21.498689,
+              "frame_gap_ms": {
+                "samples": 430,
+                "p50": 33.36500000953674,
+                "p95": 65.86900001764296,
+                "max": 1522.6050000190735
+              },
+              "controller_observations": 0,
+              "position_change_observations": 0,
+              "packet_delta": 0,
+              "packet_baseline": "at-or-before-window",
+              "dance_cue_count": 25
+            },
+            "guest_speed": {
+              "samples": 0,
+              "p50": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "cache_scope": {
+            "wasm_compilation": "memory",
+            "repeat_in_same_page": true,
+            "whole_startup_cold_warm": "Not controlled: compiler, HTTP/asset, browser, firmware preparation and guest initialization are separate caches. Do not call the second run a fully warm boot."
+          },
+          "failures": {
+            "panic_or_watchdog_markers": [],
+            "reset_count": 0,
+            "rom_boot_counts": {
+              "uart0": 1
+            }
+          },
+          "input": null,
+          "functional_scope": {
+            "dance_motion": "FAIL",
+            "no_observed_panic": true,
+            "note": "Ready marker, rendered pixels and harness PASS do not establish a moving dance. Normal-clock delivery requires nonzero actual position changes."
+          }
+        }
+      ]
+    }
+  ],
+  "preserved_failures_and_controls": [
+    {
+      "id": "native-r1",
+      "raw_report_sha256": "b569e325abe656bd1807e736973e87c23a6b2d36eb514e2c4c56befc06ced636",
+      "original_result": "FAIL",
+      "note": "Harness SHA-field expansion failed before guest allocation."
+    },
+    {
+      "id": "native-r2",
+      "raw_report_sha256": "fdc8b1d0c2cc9dc8a70660aa616737735f3c918fe0b34fd02a192e046cd2127b",
+      "original_result": "PASS",
+      "note": "Scoped LCD/input/cleanup result; missing body bridge then diagnosed."
+    },
+    {
+      "id": "native-r3",
+      "raw_report_sha256": "9dd9358f574e630e29cb1ca22ee1c397fa1ff74284d227599a06e71b208ac2ac",
+      "original_result": "PASS",
+      "note": "Earlier native bridge closure, preserved independently of r4."
+    },
+    {
+      "id": "o3-div6-initial-failure",
+      "raw_report_sha256": "e7e303a5724869f8439eb970f170b26cc0268a7ffa9b2c8fca0135a1c8d6c1b3",
+      "original_result": "FAIL",
+      "note": "Initial _emscripten_stack_init is not a function error before a recorded guest result; preserved."
+    },
+    {
+      "id": "o3-div1-initial-failure",
+      "raw_report_sha256": "0d4911c81f4976997809de444a5c9c2e8c7470a9cf53424a371c473065e3284a",
+      "original_result": "FAIL",
+      "note": "Initial Invalid resolved QEMU firmware variant configuration error before a recorded guest result; preserved."
+    },
+    {
+      "id": "6846-profile-diagnostic",
+      "raw_report_sha256": "e48ce77bea3be6b4a11615d0d666c0000b390cc5cb65732bfb746457e34530f1",
+      "original_result": "PASS",
+      "note": "Instrumented relink binary differs from c6; diagnostic CPU profile is not a c6 or uninstrumented timing sample."
+    }
+  ],
+  "note": "Intermediate zero-motion, watchdog and infrastructure failures remain explicit. Final source-build acceptance is recorded in the separate final browser summary. Timing counts are observations with different per-engine sampling cadences; neither observed positions nor display updates are physical servo/display FPS."
+}

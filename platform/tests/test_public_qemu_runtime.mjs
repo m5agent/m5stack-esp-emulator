@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
-import {getQemuBrowserProfile,validateQemuFirmware} from '../web/public-qemu-profiles.js';
+import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {sha256Bytes} from '../web/sha256.js';
 
 const root='https://example.test/showcase/';
@@ -39,7 +39,7 @@ const mockDocument={
       port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
         :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true}:{})}:undefined});
-      if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456}}));
+      if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile)}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
       if(data.op==='outputs')port.postMessage({type:'device-state',value:config.outputState||{schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x204060,led_frames:1,pressed:false}});
@@ -58,7 +58,8 @@ function create(overrides={}){
   const downloads=[],states=[],errors=[],outputs=[];
   const runtime=new PublicQemuRuntime({root,profiles,storage:storage(),requestTimeout:100,onState:value=>states.push(value.status),onError:error=>errors.push(error.message),onDeviceState:value=>outputs.push(value),
     fetchImpl:async function(url){assert.equal(this,undefined,'native fetch receiver must stay unbound');assert.ok([root+'platform/runtime/qemu/runtime.json',root+'platform/web/qemu-browser-profiles.json'].includes(url));return new Response(JSON.stringify(url.endsWith('qemu-browser-profiles.json')?profiles:manifest));},
-    downloadImpl:async(url,config)=>{downloads.push({url,...config});const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};},...overrides});
+    downloadImpl:async(url,config)=>{downloads.push({url,...config});const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};},
+    compileImpl:async()=>WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0])),...overrides});
   runtimes.push(runtime);return {runtime,downloads,states,errors,outputs};
 }
 try {
@@ -67,6 +68,7 @@ try {
   assert.equal(normal.runtime.display,null);
   assert.equal(frames.at(-1).calls.some(row=>row.op==='display'),false);
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
+  assert.deepEqual(normal.runtime.receipt.actualArguments,buildQemuArguments(coreProfile));
   assert.equal(normal.runtime.receipt.firmwareVariant,null,'an unknown complete Flash hash stays on the baseline clock profile');
   const startMessage=frames.at(-1).calls.find(row=>row.op==='start');
   assert.equal(startMessage.value.profile.deviceId,'cores3');assert.deepEqual(startMessage.value.roms.map(({name,sha256})=>({name,sha256})),coreProfile.roms.map(({name,sha256})=>({name,sha256})));
@@ -82,6 +84,12 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  for(const extra of [{cpuExecution:'jit'},{accelerator:{kind:'tcg-wallclock',thread:'single',tbSizeMb:128}},{oneInsnPerTb:true}]) {
+    const removed=create({allowCandidateProfiles:true});
+    await assert.rejects(removed.runtime.start({device:'cores3',firmware:firmware(),...extra}),/Unsupported QEMU execution option/);
+    assert.equal(removed.downloads.length,0,'removed/unbound execution options fail before resource loading');
+  }
 
   for(const device of ['papercolor','papermono','cardputer-adv']){
     const profile=getQemuBrowserProfile(device,profiles),panel=create();
@@ -218,6 +226,71 @@ try {
   assert.equal(frames.at(-1).profile.readyFirmwareSHA256,variant.firmwareSHA256);await matched.runtime.stop();
   const override=create();await assert.rejects(override.runtime.start({device:'cores3',firmware:firmware(),clockDivisor:1}),/候选/);
   assert.equal(override.downloads.length,0,'public callers cannot override the clock for an unknown firmware hash');
+  const danceProfiles=structuredClone(profiles),danceProfile=danceProfiles.profiles.find(profile=>profile.deviceId==='stackchan');
+  const danceVariant=danceProfile.firmwareProfiles[0];
+  // Preserve the historical div6 override regression using a synthetic row.
+  danceVariant.clockDivisor=6;danceVariant.profile='stackchan-wasm-dance-div6';
+  delete danceVariant.oneInsnPerTb;delete danceVariant.requiredRuntimePatch;
+  const danceFlash=firmware(stackProfile);danceVariant.firmwareSHA256=sha256Bytes(validateQemuFirmware(danceFlash,stackProfile));
+  const clockCandidate=create({profiles:danceProfiles,allowCandidateProfiles:true});
+  await clockCandidate.runtime.start({device:'stackchan',firmware:danceFlash,clockDivisor:1});
+  const candidateClockProfile=frames.at(-1).profile;
+  assert.doesNotThrow(()=>validateQemuProfile(candidateClockProfile),'an overridden clock must still pass the unchanged engine profile validator');
+  assert.equal(candidateClockProfile.profile,'stackchan-wasm-wallclock-candidate');assert.equal(candidateClockProfile.clockDivisor,1);
+  assert.equal(candidateClockProfile.firmwareVariant,undefined,'a candidate clock cannot carry the published div6 variant binding');
+  assert.equal(clockCandidate.runtime.receipt.firmwareVariant,null);
+  assert.deepEqual(clockCandidate.runtime.receipt.clockOverride,{fromProfile:danceVariant.profile,fromClockDivisor:6,toClockDivisor:1,candidate:true});
+  assert.equal(candidateClockProfile.readyFirmwareSHA256,danceVariant.firmwareSHA256);assert.equal(candidateClockProfile.readyMarker,danceVariant.readyMarker);
+  assert.deepEqual(candidateClockProfile.firmwareProfiles,danceProfile.firmwareProfiles,'the catalog variants remain reference metadata');
+  assert.equal(clockCandidate.runtime.guestReady(),false,'a candidate must wait for the real matching-firmware readiness marker');
+  await clockCandidate.runtime.stop();
+  const fastProfiles=structuredClone(profiles),fastProfile=fastProfiles.profiles.find(p=>p.deviceId==='stackchan');
+  const fastVariant=fastProfile.firmwareProfiles[0];
+  Object.assign(fastVariant,{firmwareSHA256:sha256Bytes(validateQemuFirmware(danceFlash,stackProfile)),
+    profile:'stackchan-wasm-contract-wallclock',clockDivisor:1,oneInsnPerTb:true,requiredRuntimePatch:{...QEMU_ONE_INSN_RUNTIME_PATCH}});
+  const supportedManifest={...manifest,source:{...manifest.source,patches:[{...QEMU_ONE_INSN_RUNTIME_PATCH}]}};
+  const fast=create({profiles:fastProfiles,fetchImpl:async()=>new Response(JSON.stringify(supportedManifest))});
+  await fast.runtime.start({device:'stackchan',firmware:danceFlash});
+  assert.equal(fast.runtime.receipt.oneInsnPerTb,true);
+  assert.deepEqual(fast.runtime.receipt.requiredRuntimePatch,QEMU_ONE_INSN_RUNTIME_PATCH);
+  assert.deepEqual(fast.runtime.receipt.firmwareVariant,fastVariant);
+  assert.deepEqual(fast.runtime.receipt.actualArguments.slice(-2),['-accel','tcg,thread=multi,one-insn-per-tb=on']);
+  assert.deepEqual(frames.at(-1).calls.find(row=>row.op==='start').value.runtimePatches,supportedManifest.source.patches);
+  assert.equal(fast.runtime.receipt.actualArguments.filter(arg=>arg==='-accel').length,1);
+  const fastGeneration=fast.runtime.generation;await fast.runtime.stop();
+  assert.equal(fast.runtime.pollLanes.size,0);assert.equal(fast.runtime.pending.size,0);
+  fast.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},fastGeneration);
+  assert.equal(fast.runtime.lastFrame,null,'stop fences an old one-instruction engine exactly like the default engine');
+  assert.equal(fast.runtime.evidence().receipt.oneInsnPerTb,true,'stopped evidence retains the actual execution binding');
+  for(const patches of [undefined,[],[{...QEMU_ONE_INSN_RUNTIME_PATCH,sha256:'0'.repeat(64)}],
+    [{...QEMU_ONE_INSN_RUNTIME_PATCH},{...QEMU_ONE_INSN_RUNTIME_PATCH}]]){
+    const old=create({profiles:fastProfiles,fetchImpl:async()=>new Response(JSON.stringify({...manifest,source:{...manifest.source,patches}}))});
+    const frameCount=frames.length;
+    await assert.rejects(old.runtime.start({device:'stackchan',firmware:danceFlash}),/required source patch/);
+    assert.equal(old.downloads.length,0,'old/mismatched manifests fail before verified asset cache/download/compilation');
+    assert.equal(frames.length,frameCount,'an old runtime cannot initialize a new firmware execution variant');
+    assert.equal(old.runtime.pending.size,0);
+  }
+  const changedFlash=new Uint8Array(danceFlash.slice(0));changedFlash[changedFlash.length-1]^=1;
+  const unknownFast=create({profiles:fastProfiles});
+  await unknownFast.runtime.start({device:'stackchan',firmware:changedFlash});
+  assert.equal(unknownFast.runtime.receipt.oneInsnPerTb,false);
+  assert.equal(unknownFast.runtime.receipt.requiredRuntimePatch,null);
+  assert.equal(unknownFast.runtime.receipt.actualArguments.includes('-accel'),false,'a different complete Flash hash keeps default arguments even with a newer variant registry');
+  await unknownFast.runtime.stop();
+  for(const clockDivisor of [1,8]){
+    const clock=create({profiles:fastProfiles,allowCandidateProfiles:true});
+    await clock.runtime.start({device:'stackchan',firmware:danceFlash,clockDivisor});
+    assert.equal(clock.runtime.profile.firmwareVariant,undefined);
+    assert.equal(clock.runtime.profile.oneInsnPerTb,undefined);assert.equal(clock.runtime.profile.requiredRuntimePatch,undefined);
+    assert.equal(clock.runtime.receipt.oneInsnPerTb,false);assert.equal(clock.runtime.receipt.requiredRuntimePatch,null);
+    assert.equal(clock.runtime.receipt.actualArguments.includes('-accel'),false,'an override cannot borrow the admitted variant execution flags');
+    await clock.runtime.stop();
+  }
+  options={actualArguments:['contract-actual-factory-arguments']};
+  const actualReceipt=create();await actualReceipt.runtime.start({device:'cores3',firmware:firmware()});
+  assert.deepEqual(actualReceipt.runtime.receipt.actualArguments,['contract-actual-factory-arguments'],'receipt must retain the engine observation instead of recalculating arguments');
+  await actualReceipt.runtime.stop();options={};
   const core2=getQemuBrowserProfile('core2',profiles,{allowCandidateProfiles:true});
   const candidateProfiles=structuredClone(profiles);candidateProfiles.profiles.find(profile=>profile.deviceId==='core2').admission='candidate';
   const candidate=create({profiles:candidateProfiles,allowCandidateProfiles:true});await candidate.runtime.start({device:'core2',firmware:firmware(core2)});
@@ -282,6 +355,23 @@ try {
   assert.equal(crashed.runtime.cleanupResult.exitCode,7);assert.equal(crashed.runtime.cleanupResult.gracefulExit,false,'a nonzero spontaneous exit must not be reported as normal cleanup');
   options={exitCode:9};const failedQuit=create();await failedQuit.runtime.start({device:'cores3',firmware:firmware()});await failedQuit.runtime.stop();
   assert.equal(failedQuit.runtime.cleanupResult.exitCode,9);assert.equal(failedQuit.runtime.cleanupResult.gracefulExit,false,'a nonzero quit exit must not be reported as normal cleanup');
+
+  options={};const assetGate=deferred(),parallelDownloads=[];
+  const parallel=create({downloadImpl:async(url,config)=>{parallelDownloads.push(url);await assetGate.promise;const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};}});
+  const parallelStart=parallel.runtime.start({device:'cores3',firmware:firmware()});
+  await until(()=>parallelDownloads.length===4);
+  assert.ok(parallelDownloads.some(url=>roms.has(url)),'ROM download starts before the runtime downloads complete');
+  assetGate.resolve();await parallelStart;await parallel.runtime.stop();
+  await parallel.runtime.start({device:'cores3',firmware:firmware()});
+  assert.equal(parallelDownloads.length,4,'a fresh engine can reuse verified static assets without re-downloading');
+  assert.equal(parallel.runtime.receipt.wasmCompilation,'memory');
+  assert.equal(frames.at(-1).calls.find(row=>row.op==='start').value.wasm.byteLength,8,'transferring the previous engine buffer must not detach the cached copy');
+  await parallel.runtime.stop();
+
+  const compileFailure=create({compileImpl:async()=>{throw new WebAssembly.CompileError('contract compilation failed');}});
+  await assert.rejects(compileFailure.runtime.start({device:'cores3',firmware:firmware()}),/contract compilation failed/);
+  assert.equal(compileFailure.runtime.iframe,null,'an explicit compile error disposes the partially loaded iframe');
+  assert.equal(compileFailure.runtime.pending.size,0);
 
   options={};const reused=create();await reused.runtime.start({device:'cores3',firmware:firmware()});await reused.runtime.stop();
   assert.equal(browserQemuHistory(reused.runtime.storage).length,1);

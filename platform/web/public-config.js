@@ -26,6 +26,22 @@ export function assetUrl(path, root = siteRoot()) {
   return result.href;
 }
 
+// Select only among already established capabilities. This function does not
+// connect a service, transfer credentials or replace an owned running session.
+export function selectExecutionLane({mode='auto',browserAvailable=false,serviceReady=false,hasAttachments=false}={}) {
+  if (!['auto','browser','service','model'].includes(mode)) {
+    throw new PublicConfigError('invalid_mode', '不支持的运行模式。');
+  }
+  if (mode === 'model') return 'model';
+  if (hasAttachments) return mode !== 'browser' && serviceReady ? 'service' : null;
+  if (mode === 'browser') return browserAvailable ? 'browser' : null;
+  if (mode === 'service') return serviceReady ? 'service' : null;
+  // Prefer the established service for this device. Explicit browser mode
+  // remains an independent choice and never silently changes execution lanes.
+  if (serviceReady) return 'service';
+  return browserAvailable ? 'browser' : null;
+}
+
 const ALIASES = Object.freeze({
   'm5cores3': 'cores3', 'core-s3': 'cores3', 'm5core2': 'core2', 'core-2': 'core2',
   'm5sticks3': 'sticks3', 'stick-s3': 'sticks3', 'm5atoms3r': 'atoms3r', 'atom-s3r': 'atoms3r',

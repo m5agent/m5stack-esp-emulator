@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-30`
+日期：`2026-11-03`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -165,9 +165,15 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/browser-qemu/board_display/`、`platform/web/public-qemu-probe-firmware.js` | 各板固定 boot/main 与实际 VFS 的本地组合、逐文件读回、原文件/VFS 外保留和完整 Flash SHA；源码与官方 API pins 见目录 README | `test_public_qemu_probe_firmware.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/tests/fixtures/browser_epd_quality_oracles.json`、`tests/browser-qemu/board_display/epd_oracle.py` | 原 QUALITY 驱动产生的 palette/marker/count bit 空间抖色规则，绑定 guest/驱动/编译控制器源 SHA | `epd_oracle.py --check` 只验推导；实际 EPD 帧与输入由 `test_public_qemu_board_guest.mjs` 另验 |
 | `platform/tests/test_public_qemu_admitted_boards.mjs` | 串行执行本次导出中每个公开板型与 CoreS3 两种示例，失败阻止 Pages 发布 | `.github/workflows/public-site.yml`；性能另由 `test_public_qemu_performance.mjs` 量测 |
-| `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径 | `test_public_config.mjs`、`test_public_workbench_browser.mjs` |
+| `platform/tests/public_qemu_pixel_observer.mjs` | 显式 await 实际 canvas 观察；先取单份完整 RGBA，再异步计算两个 ROI SHA，并核对输入后的序号与时间边界 | `test_public_qemu_pixel_observer.mjs` 与 `test_public_qemu_pixel_observer_browser.mjs` 只验证 host oracle；真实固件画面由 `test_public_qemu_guest.mjs` 独立验证 |
+| `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径；浏览器方向更新按 owner 重绘保留的真实帧，不生成新帧或序号 | `test_public_config.mjs`、`test_public_workbench_browser.mjs`、`test_public_qemu_entry.mjs` |
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
+| `platform/web/public-verified-assets.js` | 按显式 SHA/长度缓存不可变运行资源，独立 buffer 所有权及有界编译 Module 复用；不复用客体内存或运行中 Flash | `test_public_verified_assets.mjs`、`test_public_qemu_instance.mjs` |
+| `platform/tests/benchmark_emulator_firmware.mjs`、`emulator_performance_summary.mjs`、`derive_emulator_benchmark.mjs` | 同完整 BIN、浏览器与输入的本项目/对照性能观测及统一派生统计；原始状态与展示插值分开 | 调用和边界见 [基准说明](../platform/tests/benchmark_emulator_firmware.md)；采集/退出成功不等于动作目标通过 |
+| `platform/tests/test_public_native_performance.mjs` | 独立 Device Service 的同固件页面取帧前后对照、真实输入和停止历史 | 显式 `--execute` 与独立 runtime/ROM 路径；原始材料写入 ignored storage |
+| `platform/tests/test_gpio_wasm_transactions_patch.py`、WASM `0027` | 锁定源重放、真实 GPIO C 的 IRQ/callback/计时边界及负控 | 不依赖本地构建缓存；实际浏览器准入独立运行 |
+| `tests/browser-qemu/typed_helpers/`、WASM `0024`/`0025` | 全局 icount no-op 消除与 WASM32 typed helper ABI 控制；不替代真实 guest 验收 | `test_xtensa_wallclock_noop_yield_patch.py`、该目录的真实 Emscripten/libffi 对照 |
 
 `patches/qemu-wasm-probe/`保存独立于原生 bootstrap 的 C/QEMU 宿主回移及依赖适配，
 公开浏览器构建只使用源码 lock 明确选择的补丁；
@@ -202,7 +208,7 @@ dispose 确认、端口关闭和 owner closing 通知；浏览器实际观察到
 
 | 板型 | `tests/browser-qemu/` 下源码 | 输入与画面门禁 |
 | --- | --- | --- |
-| CoreS3 | `cores3_lvgl_pir/`；`cores3_lvgl_wallclock/candidate_lvgl_loop.py` | stock-div8 与正常时钟调度候选分别验证 LVGL、触摸与 PIR |
+| CoreS3 | `cores3_lvgl_pir/`；`cores3_lvgl_wallclock/candidate_lvgl_loop.py` | 原始程序 `stock-reference` 与独立 SDK 调度候选分别验证 LVGL、触摸与 PIR；`stock-div8` 仅保留为旧 UI selector |
 | Core2 | `board_display/main.py`、`core2_boot.py` | 原 console 和 `M5.Touch`，S3 UART boot 不适用 |
 | AtomS3R、StickS3 | `board_display/main.py`、`boot.py` | 原 `M5.BtnA`、完整 8×8 红/绿标记；AtomS3R 两行偏移另列校准边界 |
 | StopWatch | `board_display/stopwatch_main.py` | 原触摸、圆屏内标记；逻辑 468×468、可见 466×466 与 offset/crop 分别核对 |
@@ -223,16 +229,37 @@ PC 直接 code、左右 modifier、Esc/Delete 与四方向 Fn 和弦分别断言
 count bit 的固定空间规则，直方图不能替代；计数字符 ROI 变化不证明精确字形。
 StackChan 用户跳舞 Flash 使用
 `platform/tests/test_stackchan_dance_user_firmware.mjs`，要求真实 UART1
-SCS present/goal 位移、QOM、3D 与 DOM 同源；该 SHA 的 div6 是渲染时序兼容
-profile，不是实时性能结论。
+SCS present/goal 位移、QOM、3D 与 DOM 同源；当前该 SHA 使用 normal-clock、
+原 TCI 的 one-insn-per-tb 模式，并强制校验 `0027` runtime patch 身份。
+旧 div6 的历史结果不能替代[本轮验证](evidence/2026-11-03-emulator-performance/README.md)。
 完整固定源码与边界见
 [逐板说明](../tests/browser-qemu/board_display/README.md)。
+
+CoreS3 原始参考 Flash
+`78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f`
+由精确 firmware variant 选择正常时钟 divisor `1`、原 TCI 的 one-insn-per-tb
+及 `0027` patch 约束；它没有替换原始 main.py。`stock-div8` 是兼容的 UI
+选项值，正式 case 名为 `stock-reference`，不能据旧名字推断慢时钟。
+未知 CoreS3 固件仍走原 base divisor `8`，独立 SDK 调度候选不被合并为原始程序。
+逐次导出的完整浏览器门禁需独立结束并审核，不能由此入口说明预授 PASS。
 
 `public.js` 将 native RGB565 同时送入原始屏幕与 `model-shell.js` 纹理。
 `test_public_qemu_board_guest.mjs` 在输入前后等待模型 frame sequence 与 native
 frame 相等，并由 viewer render 事件观察对应序列，再全像素核对转换后的
 纹理缓冲区（含声明的 native raster rotation）。这比只看到 frameSeq 递增多一层
 render 顺序证据，仍不等同于 GPU 像素或光学/硬件验证。
+
+方向 QOM 与共享帧分别轮询；browser-only `applyBrowserPresentation` 在 active
+owner 下可重绘 `controller.lastFrame` 的原像素，保留原 frame sequence，避免
+静止画面等待不存在的下一帧。它不写控制器、不 emit 新 guest frame，native
+service 不调用该呈现回调。Cardputer 门禁只读 fresh QOM、cached orientation、
+native/canvas 尺寸与模型角度，要求自然收敛到 guest ready 的逻辑方向；不通过
+赋值方向、额外 screendump 或放宽尺寸 oracle 使断言通过。
+
+CoreS3 的像素完成门禁由 `public_qemu_pixel_observer.mjs` 显式等待实际异步
+观察结果，两个 ROI 必须来自同一次完整 canvas snapshot，并满足真实输入后的
+sequence/time 边界。首次匹配对象直接保留；Promise truthiness、回调或固定
+`check(true)` 均不能替代实际像素。host 正负控不构成设备画面完成证据。
 
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、

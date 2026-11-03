@@ -1,0 +1,142 @@
+Subject: [WASM] call common TCI helpers without the JavaScript FFI bridge
+
+Use the exact WASM32 lowered signature for zero to seven i32/pointer arguments
+and void/i32 results. Preserve tci_tb_ptr, result extraction and the original
+helper functions; unsupported types, wide arguments/results and varargs retain
+libffi. Keep Asyncify, fiber handling and the cpu_exec longjmp stack restore.
+This target-specific ABI optimization is not enabled for native host builds.
+
+diff --git a/tcg/tci.c b/tcg/tci.c
+--- a/tcg/tci.c
++++ b/tcg/tci.c
+@@ -23,6 +23,10 @@
+ #include "tcg/tcg-ldst.h"
+ #include <ffi.h>
+ 
++#ifdef __EMSCRIPTEN__
++#include "tci-wasm-call.h"
++#endif
++
+ 
+ /*
+  * Enable TCI assertions only when debugging TCG (and without NDEBUG defined).
+@@ -407,7 +411,13 @@
+ 
+                 /* Helper functions may need to access the "return address" */
+                 tci_tb_ptr = (uintptr_t)tb_ptr;
++#ifdef __EMSCRIPTEN__
++                if (!m5_wasm_tci_call(cif, func, stack, call_slots)) {
++                    ffi_call(cif, func, stack, call_slots);
++                }
++#else
+                 ffi_call(cif, func, stack, call_slots);
++#endif
+             }
+ 
+             switch (len) {
+diff --git a/tcg/tci-wasm-call.h b/tcg/tci-wasm-call.h
+new file mode 100644
+--- /dev/null
++++ b/tcg/tci-wasm-call.h
+@@ -0,0 +1,101 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef TCG_TCI_WASM_CALL_H
++#define TCG_TCI_WASM_CALL_H
++
++/*
++ * WASM32 TCI helper dispatch using the exact lowered i32 call signatures.
++ * Signed i32 and 32-bit pointers retain the same argument/result bits.
++ * Unsupported CIFs must use libffi; native hosts do not include this header.
++ */
++_Static_assert(sizeof(void *) == 4, "TCI WASM calls require wasm32 pointers");
++_Static_assert(sizeof(ffi_arg) == 4, "TCI WASM calls require 32-bit ffi_arg");
++
++/* WASM32 TCI helper ABI fast path; unsupported CIFs stay in libffi. */
++static bool QEMU_DISABLE_CFI m5_wasm_tci_call(ffi_cif *cif, void *func,
++                                           void *result, void **values)
++{
++    uint32_t args[7];
++    bool returns_void;
++
++    if (cif->abi != FFI_DEFAULT_ABI || cif->flags != 0 ||
++        cif->nfixedargs != cif->nargs || cif->nargs > 7) {
++        return false;
++    }
++    returns_void = cif->rtype->type == FFI_TYPE_VOID;
++    if (!returns_void && (cif->rtype->size != 4 ||
++        (cif->rtype->type != FFI_TYPE_UINT32 &&
++         cif->rtype->type != FFI_TYPE_SINT32 &&
++         cif->rtype->type != FFI_TYPE_POINTER))) {
++        return false;
++    }
++    for (unsigned i = 0; i < cif->nargs; i++) {
++        const ffi_type *type = cif->arg_types[i];
++        if (type->size != 4 || (type->type != FFI_TYPE_UINT32 &&
++            type->type != FFI_TYPE_SINT32 && type->type != FFI_TYPE_POINTER)) {
++            return false;
++        }
++        memcpy(&args[i], values[i], sizeof(args[i]));
++    }
++    switch (cif->nargs) {
++    case 0:
++        if (returns_void) {
++            ((void (*)(void))func)();
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(void))func)();
++        }
++        return true;
++    case 1:
++        if (returns_void) {
++            ((void (*)(uint32_t))func)(args[0]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t))func)(args[0]);
++        }
++        return true;
++    case 2:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t))func)(args[0], args[1]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t))func)(args[0], args[1]);
++        }
++        return true;
++    case 3:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2]);
++        }
++        return true;
++    case 4:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3]);
++        }
++        return true;
++    case 5:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4]);
++        }
++        return true;
++    case 6:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4], args[5]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4], args[5]);
++        }
++        return true;
++    case 7:
++        if (returns_void) {
++            ((void (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
++        } else {
++            *(ffi_arg *)result = ((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))func)(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
++        }
++        return true;
++    default:
++        return false;
++    }
++}
++
++#endif /* TCG_TCI_WASM_CALL_H */

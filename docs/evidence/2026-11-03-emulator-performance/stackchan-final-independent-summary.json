@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "scope": "Independent readonly derivation/identity/calibration audit of supplied R6 raw reports; no new guest",
+  "summary_sha256": "6cd35f6996813a3e8c2068401f4e1ff30c1fe7370aebc771f6c9c0ae67980c55",
+  "summary_bytes": 42654,
+  "runs": [
+    {
+      "case": "dance",
+      "ordinal": 1,
+      "ready_ms": 3558.9650000333786,
+      "first_nonblack_frame_ms": 3571.8300000429153,
+      "sample_seconds": 20.001860000014304,
+      "packet_delta": 168,
+      "position_change_observations": 165,
+      "pixel_updates_per_second": 26.197563626563994,
+      "max_frame_gap_ms": 1297.0950000286102,
+      "max_controller_gap_ms": 2903.649999976158,
+      "rendered_changes": 712,
+      "intermediate_poses": 637,
+      "max_render_gap_ms": 1262.3799999952316,
+      "normal_exit_and_all_targets_closed": true
+    },
+    {
+      "case": "dance",
+      "ordinal": 2,
+      "ready_ms": 2745.9599999189377,
+      "first_nonblack_frame_ms": 2779.860000014305,
+      "sample_seconds": 20.001700000047684,
+      "packet_delta": 166,
+      "position_change_observations": 163,
+      "pixel_updates_per_second": 26.447751941021956,
+      "max_frame_gap_ms": 1265.4349999427795,
+      "max_controller_gap_ms": 2895.695000052452,
+      "rendered_changes": 701,
+      "intermediate_poses": 632,
+      "max_render_gap_ms": 70.74500000476837,
+      "normal_exit_and_all_targets_closed": true
+    },
+    {
+      "case": "touch",
+      "ordinal": 1,
+      "ready_ms": 3428.680000066757,
+      "first_nonblack_frame_ms": 3439.5650000572205,
+      "sample_seconds": 8.000509999990463,
+      "packet_delta": 67,
+      "position_change_observations": 67,
+      "pixel_updates_per_second": 23.248517907011145,
+      "max_frame_gap_ms": 1297.3149999380112,
+      "max_controller_gap_ms": 1977.954999923706,
+      "rendered_changes": 288,
+      "intermediate_poses": 257,
+      "max_render_gap_ms": 1262.195000052452,
+      "normal_exit_and_all_targets_closed": true
+    }
+  ],
+  "calibration_targets_independently_recomputed_observations": 398,
+  "calibration_scope": "Read-only use of the recorded raw positions and current byte-pinned profile calibration formula; no physical calibration or new guest was performed.",
+  "servo_mapping_source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+  "touch_proof_sha256": "447ae5d581a6a474a08052593e87abc2e326163f777bb7f7ab71baa2001fa06e",
+  "untrimmed_stalls_preserved": true,
+  "R4_data_substituted": false,
+  "guest_execution": "NOT RUN by this audit"
+}

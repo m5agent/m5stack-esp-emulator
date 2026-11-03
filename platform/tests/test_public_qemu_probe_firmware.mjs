@@ -20,7 +20,7 @@ const server = http.createServer(async (request, response) => {
     const pathname = new URL(request.url, 'http://localhost').pathname;
     if (pathname === '/') { response.setHeader('content-type', 'text/html'); response.end('<!doctype html><title>QEMU probe composition</title>'); return; }
     if (pathname === '/base.bin') { response.end(base); return; }
-    const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-servo|public-qemu-profiles|public-config|public-firmware|sha256)\.js$/.exec(pathname);
+    const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-servo|public-qemu-profiles|public-config|public-firmware|public-verified-assets|sha256)\.js$/.exec(pathname);
     if (web) { response.setHeader('content-type', 'text/javascript'); response.end(await fs.readFile(path.join(root, 'platform/web', web[1] + '.js'))); return; }
     const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(main_stackchan|boot|main|core2_boot|atoms3_lite_main|atom_lite_main|atom_matrix_main|stickc_plus2_main|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
     if (source) { response.end(await fs.readFile(path.join(root, 'tests/browser-qemu/board_display', source[1] + '.py'))); return; }
@@ -42,6 +42,10 @@ try {
     const {composeQemuProbeFirmware} = await import('/platform/web/public-qemu-probe-firmware.js');
     const base = new Uint8Array(await (await fetch('/base.bin')).arrayBuffer());
     const composed = await composeQemuProbeFirmware({profile, root:origin + '/', baseBytes:base});
+    const originalByte = composed.bytes[0]; composed.bytes[0] ^= 255;
+    const warmProgress = [];
+    const warm = await composeQemuProbeFirmware({profile, root:origin + '/', baseBytes:base, onProgress:event=>warmProgress.push(event.phase)});
+    if(warm.bytes[0]!==originalByte || warm.sha256!==profile.fixture.firmwareSHA256 || warmProgress.includes('compose'))throw new Error('Warm composition did not reuse an isolated, verified immutable copy');
     const failures = [];
     for (const kind of ['wrong-base', 'changed-layout', 'changed-source', 'changed-boot', 'cancelled']) {
       const settings = {profile:structuredClone(profile), root:origin + '/', baseBytes:base.slice()};
@@ -53,7 +57,7 @@ try {
       try { await composeQemuProbeFirmware(settings); failures.push({kind,rejected:false}); }
       catch (error) { failures.push({kind,rejected:true,error:error.message}); }
     }
-    return {sha256:composed.sha256, size:composed.bytes.length, provenance:composed.provenance, failures};
+    return {sha256:warm.sha256, size:warm.bytes.length, provenance:warm.provenance, warmCompositionReused:true, failures};
   }, {profile, origin});
   assert.equal(result.sha256, profile.fixture.firmwareSHA256); assert.equal(result.size, profile.flashMb * 1048576);
   assert.ok(Number.isSafeInteger(result.provenance.preserved_file_count) && result.provenance.preserved_file_count >= 0, 'preserved file count must be explicit');

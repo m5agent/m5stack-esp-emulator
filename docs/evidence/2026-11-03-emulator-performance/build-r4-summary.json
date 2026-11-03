@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "kind": "fresh-qemu-wasm-source-build-summary",
+  "validation_category": "build validation; guest validation recorded separately",
+  "status": "PASS",
+  "build_iteration": "cstack-r4",
+  "source_build": {
+    "all_objects_rebuilt": true,
+    "artifacts": {
+      "javascript": {
+        "bytes": 157200,
+        "path": "qemu-system-xtensa.js",
+        "sha256": "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b"
+      },
+      "wasm": {
+        "bytes": 12759914,
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea"
+      },
+      "worker": {
+        "bytes": 2776,
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "guest_execution": "NOT RUN",
+    "kind": "source-build",
+    "link_audit": {
+      "argv_sha256": "9222b9631846b7d564a03c88e923c7b12255f717ce576bb27966b6391cec48e9",
+      "effective": {
+        "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+        "STACK_OVERFLOW_CHECK": "2",
+        "STACK_SIZE": "64KB",
+        "optimization": "O3"
+      },
+      "required_flags": [
+        "-O3",
+        "-sSTACK_SIZE=64KB",
+        "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+        "-sSTACK_OVERFLOW_CHECK=2"
+      ],
+      "source": "ninja-link-command",
+      "verified": true
+    },
+    "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "status": "PASS"
+  },
+  "closed_set_validation": {
+    "status": "PASS",
+    "kind": "fresh-source-runtime-closed-set-validation",
+    "build_kind": "source-build",
+    "all_objects_rebuilt": true,
+    "dependencies_reused": false,
+    "dependency_libraries": 8,
+    "patch_count": 72,
+    "native_patch_count": 47,
+    "verified_source_postimages": 160,
+    "source_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "source_gpio_sha256": "afb956b4b6b01989ca538fa2a1bddcd74bae7e08391fb498f475e585741bd576",
+    "source_cache_sha256": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a",
+    "source_coroutine_sha256": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b",
+    "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "recipe_sha256": "231871ffb186dce1631d035a454730b7c49ceb1571666f632cc44b3474c04057",
+    "runtime_manifest_sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+    "closed_asset_set": {
+      "runtime.json": {
+        "bytes": 33329,
+        "sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c"
+      },
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35239996,
+        "sha256": "8faf5ec50cc3f5709bc0f1311f221ede8a180eb11ecd1fb9218c367cbbb09ecf"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12759914,
+        "sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "source_verifier": "actual pinned recipe source verifier executed during independent replay; postimages rehashed by summary generator",
+    "link_argument_verifier": "actual pinned recipe audit_link_arguments on captured effective link argv",
+    "validator_sha256": "231871ffb186dce1631d035a454730b7c49ceb1571666f632cc44b3474c04057",
+    "archived_recipe_lock_validation": "Performed by normal exporter runtime_files; archive hash rechecked, archive decompression not repeated by summary generator.",
+    "guest_execution": "NOT RUN by builder or summary generator",
+    "completed_at": "2026-11-03T07:11:39.944654+00:00"
+  },
+  "compilation_settings": {
+    "object_optimization": "O2",
+    "configured_compile_commands": 1888,
+    "configured_effective_optimization_counts": {
+      "-O2": 1888
+    },
+    "actual_target_ninja_steps": 1446,
+    "actual_target_C_compilation_steps": 1154,
+    "configured_commands_count_is_not_executed_object_count": true,
+    "final_link_optimization": "O3",
+    "final_link_flags": [
+      "-O3",
+      "-sSTACK_SIZE=64KB",
+      "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+      "-sSTACK_OVERFLOW_CHECK=2"
+    ],
+    "effective_link_argv_sha256": "9222b9631846b7d564a03c88e923c7b12255f717ce576bb27966b6391cec48e9",
+    "effective_link_receipt_sha256": "0c1ca604fe5c674524f43b39c98e614407fb333a09b1c5000cbc91cddfd4c518",
+    "target": "xtensa-softmmu",
+    "host_cpu": "wasm32",
+    "host_backend": "original QEMU TCI; --enable-tcg-interpreter",
+    "JIT_or_TBcap_candidate_included": false
+  },
+  "toolchain": {
+    "emsdk": {
+      "commit": "e2627e265d940db5ea58dffa63e490375bfc92e5",
+      "repository": "https://github.com/emscripten-core/emsdk.git",
+      "version": "3.1.50"
+    },
+    "actual_sdk_commit": "e2627e265d940db5ea58dffa63e490375bfc92e5",
+    "actual_emscripten_version": "3.1.50",
+    "sdk_reused": true,
+    "sdk_local_config_sha256": "a4757779ba7699c124240dc72e5ef8b91971208b83bf861d8174fdcc344518db",
+    "host_tools": {
+      "meson": "1.5.0",
+      "ninja": "1.13.2",
+      "pycotap": "1.3.1"
+    },
+    "download_archives_reused": true,
+    "dependency_archives": [
+      {
+        "name": "pkgconf",
+        "version": "2.4.3",
+        "filename": "pkgconf-2.4.3.tar.xz",
+        "sha256": "51203d99ed573fa7344bf07ca626f10c7cc094e0846ac4aa0023bd0c83c25a41"
+      },
+      {
+        "name": "zlib",
+        "version": "1.3.1",
+        "filename": "zlib-1.3.1.tar.gz",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23"
+      },
+      {
+        "name": "libffi",
+        "version": "3.4.7",
+        "filename": "libffi-3.4.7.tar.gz",
+        "sha256": "138607dee268bdecf374adf9144c00e839e38541f75f24a1fcf18b78fda48b2d"
+      },
+      {
+        "name": "pixman",
+        "version": "0.44.2",
+        "filename": "pixman-0.44.2.tar.gz",
+        "sha256": "6349061ce1a338ab6952b92194d1b0377472244208d47ff25bef86fc71973466"
+      },
+      {
+        "name": "glib",
+        "version": "2.84.0",
+        "filename": "glib-2.84.0.tar.xz",
+        "sha256": "f8823600cb85425e2815cfad82ea20fdaa538482ab74e7293d58b3f64a5aff6a"
+      },
+      {
+        "name": "libgpg-error",
+        "version": "1.51",
+        "filename": "libgpg-error-1.51.tar.bz2",
+        "sha256": "be0f1b2db6b93eed55369cdf79f19f72750c8c7c39fc20b577e724545427e6b2"
+      },
+      {
+        "name": "libgcrypt",
+        "version": "1.11.0",
+        "filename": "libgcrypt-1.11.0.tar.bz2",
+        "sha256": "09120c9867ce7f2081d6aaa1775386b98c2f2f246135761aae47d81f58685b9c"
+      },
+      {
+        "name": "pcre2",
+        "version": "10.44",
+        "filename": "pcre2-10.44.tar.bz2",
+        "sha256": "d34f02e113cf7193a1ebf2770d3ac527088d485d4e047ed10e5d217c6ef5de96"
+      },
+      {
+        "name": "pcre2-wrap",
+        "version": "10.44-2",
+        "filename": "pcre2_10.44-2_patch.zip",
+        "sha256": "4336d422ee9043847e5e10dbbbd01940d4c9e5027f31ccdc33a7898a1ca94009"
+      }
+    ],
+    "dependency_libraries_reused": false,
+    "QEMU_objects_reused": false,
+    "Emscripten_writable_cache_reused": false
+  },
+  "fresh_dependencies": {
+    "files": {
+      "target/lib/libffi.a": "6b092edf9b0104041b73ed3d36d5516c76e34f39d8ea81e49067f30035fad82e",
+      "target/lib/libgcrypt.a": "201de9b26caebb56f9e8af5b31ea08a7ebae9c573560ac0ebcbb500f518d9798",
+      "target/lib/libglib-2.0.a": "9f328390ad6f2cbabb633781c5bc926c33f80362d3e1118423821d3dd9c4e49e",
+      "target/lib/libgpg-error.a": "37f0de47e7259732cc369a48f4fac36fc000a7319f35aa8cea85e49a89270c98",
+      "target/lib/libpcre2-8.a": "f5e809b6b04e7121bf51d164e020029c644793fd6134eaba67cb64211ed31405",
+      "target/lib/libpixman-1.a": "8f5bff8dafdf1e1d06f03f34296a95ba3aa1f29339780225cc4eb54e7a2133f1",
+      "target/lib/libresolv.a": "29fd928cab31adafd647fbe18b33eed20294bbdecf7a79506a7756bcf9367178",
+      "target/lib/libz.a": "613648a70bcdae4899bcb827ebc588da99b5aa7de2488fb0bf4137374b3f7b25"
+    },
+    "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b"
+  },
+  "source_replay": {
+    "status": "PASS",
+    "scope": "Independent full source copy; original completed build/source/export remain read-only.",
+    "reverse_check_and_apply": 72,
+    "forward_check_and_apply": 72,
+    "clean_base_verified": "40edccac415693c5130f91c01d84176ae6008566",
+    "verified_postimages": 160,
+    "original_source_and_build_outputs_unchanged": true,
+    "original_files_verified": 170,
+    "duration_seconds": 3.389654624974355,
+    "replay_script_sha256": "7ac06524cc46b7e0b881f5908971726aca5e6d31f8a78cff42f230194c9fa5e7",
+    "report": {
+      "sha256": "f53825a15de28c3e74216bdc45284641a580b5ae2a54249dd647db5cda2a547a",
+      "bytes": 17207
+    }
+  },
+  "source_preflight_report": {
+    "sha256": "f53825a15de28c3e74216bdc45284641a580b5ae2a54249dd647db5cda2a547a",
+    "bytes": 17207
+  },
+  "build_receipt_report": {
+    "sha256": "0024e2708e09abdd66074ce03560c5b1280b483534dbc5ce7b673b595c4989fb",
+    "bytes": 1207
+  },
+  "dependency_receipt_report": {
+    "sha256": "a0c05a702e2398d854ee3f58e2cc0de78f49e20a85d5f945677ceabcd463ef52",
+    "bytes": 889
+  },
+  "raw_command_receipt": {
+    "sha256": "27d3c203c80a839211c69c72de6f5a8ea2f8fb201045454a39b799bb7d4ed476",
+    "command_count": 188,
+    "payload_included": false
+  },
+  "actual_target_build_log": {
+    "sha256": "10046d2c4bb56589f2ccf9f03bc7bb2340e9fd4d81ec879741ebb0895a787741",
+    "bytes": 138151
+  },
+  "build_launch_command_sha256": "e0a76fd38cbad1fabf843574ee7673a85ef83141072f6bfa465a016666ac0401",
+  "cstack_trace_policy": {
+    "patch": "patches/qemu-wasm-probe/0028-cstack-diagnostics-opt-in.patch",
+    "sha256": "5a51069320d0a07756d2c887fa6cac762beebee4fa450c98ebe0b6f28025c911",
+    "default": "off",
+    "opt_in": "M5_WASM_CSTACK_TRACE=1",
+    "scope": "Skip disabled diagnostic IDs/SP/heap/stack/log preparation; explicit-on retains original trace behavior.",
+    "firmware_failure_fix_claim": false
+  },
+  "limits": [
+    "Build/source PASS does not admit any firmware or device runtime behavior.",
+    "No Factory, dance, StopWatch or other firmware result is inherited from previous runtime artifacts.",
+    "No hardware, electrical, timing-equivalence or physical-performance claim.",
+    "Only final Emscripten link is O3; actual configured C object commands are O2.",
+    "Runtime binaries, raw command arguments, host paths, endpoints and credentials are excluded."
+  ],
+  "note": "Final72-patch original-TCI build includes reset-safe GPIO and explicit-opt-in CSTACK diagnostics. All8 dependency libraries and all QEMU target objects were freshly built in a new cache. Candidate JIT/TBcap and older71-patch artifacts remain separate. Same-image guest acceptance is pending for this exact runtime."
+}

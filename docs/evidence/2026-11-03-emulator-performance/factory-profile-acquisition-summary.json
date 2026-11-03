@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "kind": "factory-owned-worker-cpu-profile-acquisition-summary",
+  "result": "PROFILE_ACQUIRED_NO_FAULT_IN_THIS_INSTRUMENTED_SAMPLE",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "runtime_and_map": {
+    "traceoff_base_wasm_sha256": "5aabc1825364d2a02a23a13c750e8c13ade9479e724a6c9ccc7e6e3fd2467c19",
+    "actual_profiled_wasm_sha256": "c942f9fe9eab49f8d92e2fdbc8b9901551660c23fa6ca1391f738941b95f8ef7",
+    "diagnostic_assets": {
+      "javascript": {
+        "path": "qemu-system-xtensa.js",
+        "sha256": "096c287005edfa8e649685f641e494632b8ba861c8517bfe786b0978cf69fc9e",
+        "bytes": 157200
+      },
+      "wasm": {
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "c942f9fe9eab49f8d92e2fdbc8b9901551660c23fa6ca1391f738941b95f8ef7",
+        "bytes": 12764212
+      },
+      "worker": {
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "bytes": 2776
+      }
+    },
+    "runtime_manifest_sha256": "756f580293935fc957bee1c3541df188ba91034846e9534f2e26b568f19aead8",
+    "site_manifest_sha256": "512693f723cabb233091c7d44f497984467b94a3b2657c2f7048e6e6a2915f0f",
+    "symbol_map_sha256": "685c5d27c841d94d1c17795d99a7a05470f6abc08c03d81081cce93b2597f18b",
+    "whole_wasm_identical_to_base": false,
+    "noncustom_sections_identical_to_base": false,
+    "code_section_identical_to_base": false,
+    "mapping_rule": "This map is always bound to output_wasm_sha256. It may map base indices/offsets only if all non-custom sections match; otherwise profile only the actual new mapped diagnostic runtime.",
+    "relink_plan_sha256": "e8eea0446f88f0a3d646d33564d9c382cab738c9f827887624aa856e91a7268a",
+    "relink_result_sha256": "4e88e6b2f9d85ea60a9d3f3f5b21d47ed2c76c85a55ef6820fe0a1a50699f7d6",
+    "original_inputs_verified": 4585,
+    "original_inputs_unchanged": true,
+    "original_outputs_unchanged": true,
+    "fresh_source_build": "NOT RUN; the exact traceoff diagnostic objects and dependencies were reused with emit-symbol-map added."
+  },
+  "reproduction": {
+    "effective_firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "clock_divisor": 1,
+    "actual_arguments": [
+      "./this.program",
+      "-M",
+      "m5stackchan",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "file:/bridge/uart.out",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "application_ready_marker": null,
+    "prior_inputs": [],
+    "fresh_vms_observed": 1,
+    "first_nonblack_frame_ms": 4988.379999995232,
+    "observed_sample_seconds": 20.00143500006199,
+    "first_frame_limit": "Instrumented startup observation only; not app readiness or a performance score.",
+    "raw_report_sha256": "de563914cf0994bde9b30a4249a4a39b2dced5457607c463325df1b9cc5db05b",
+    "executed_harness_sha256": "0fbd55d46d3e4d57269bcb99cec7a0da72767cac2cd13b651ca481936f1b905b",
+    "worker_profiles_sha256": "617951ad1d283a4cf9de0b867d96d1307ffdc14e4839c36a0a1d4045315de491",
+    "worker_profiles_bytes": 661069,
+    "process_cpu_snapshots_sha256": "092abe5c574b071bb53a0ab3265a7c399bae1ba2871b976638760429a5436a07",
+    "process_cpu_snapshots_bytes": 1490,
+    "complete_diagnostics_sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+    "complete_diagnostics_bytes": 132,
+    "diagnostic_events": 2,
+    "cstack_messages": 0,
+    "double_messages": 0,
+    "atomic_messages": 0,
+    "actual_canvas_renderer": [
+      {
+        "scope": "actual-workbench-model-canvas",
+        "canvas_id": "",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmasked_vendor": "Google Inc. (Apple)",
+        "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+      }
+    ]
+  },
+  "worker_profile_coverage": {
+    "result": "PASS",
+    "expected_receipted_workers": 6,
+    "observed_workers": 6,
+    "sampled_workers": 6,
+    "scope": "Every actually observed run-owned Worker must have a nonempty raw profile; aborted fault captures retain their actual shorter duration."
+  },
+  "workers": [
+    {
+      "ordinal": 1,
+      "kind": "nested-pthread",
+      "nodes": 28,
+      "samples": 8067,
+      "profile_interval_microseconds": 10048381,
+      "requested_ms": 10000,
+      "stopped_early": false
+    },
+    {
+      "ordinal": 2,
+      "kind": "nested-pthread",
+      "nodes": 303,
+      "samples": 8065,
+      "profile_interval_microseconds": 10044633,
+      "requested_ms": 10000,
+      "stopped_early": false
+    },
+    {
+      "ordinal": 3,
+      "kind": "nested-pthread",
+      "nodes": 499,
+      "samples": 8061,
+      "profile_interval_microseconds": 10041695,
+      "requested_ms": 10000,
+      "stopped_early": false
+    },
+    {
+      "ordinal": 4,
+      "kind": "nested-pthread",
+      "nodes": 37,
+      "samples": 8059,
+      "profile_interval_microseconds": 10037028,
+      "requested_ms": 10000,
+      "stopped_early": false
+    },
+    {
+      "ordinal": 5,
+      "kind": "nested-pthread",
+      "nodes": 442,
+      "samples": 8058,
+      "profile_interval_microseconds": 10034211,
+      "requested_ms": 10000,
+      "stopped_early": false
+    },
+    {
+      "ordinal": 6,
+      "kind": "dedicated-engine",
+      "nodes": 85,
+      "samples": 8055,
+      "profile_interval_microseconds": 10030618,
+      "requested_ms": 10000,
+      "stopped_early": false
+    }
+  ],
+  "actual_process_cpu_observation": {
+    "source": "owned-browser-CDP-SystemInfo.getProcessInfo",
+    "wall_seconds": 10.07176225,
+    "matched_process_cpu_seconds_by_type": {
+      "browser": 0.027537000000000034,
+      "renderer": 11.403866,
+      "GPU": 0.431597,
+      "network.mojom.NetworkService": 0.0009039999999999881,
+      "storage.mojom.StorageService": 1.5000000000001124e-05
+    },
+    "matched_processes": 8,
+    "new_processes": 0,
+    "vanished_processes": 0,
+    "scope": "Process cpuTime differences for IDs present at both snapshots; excludes unmatched processes and is not per-Worker CPU attribution. Raw IDs remain private."
+  },
+  "guest_failure": {
+    "panic_or_watchdog_markers": [],
+    "reset_events": [],
+    "rom_boot_markers_per_port": {
+      "uart0": 1
+    }
+  },
+  "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "all_observed_workers_closed": true,
+    "observed_workers": 6,
+    "nested_workers_at_exit": 0,
+    "remaining_workers_after_dispose": 0,
+    "engine_fallback_terminations": 0,
+    "iframe_removed": true
+  },
+  "limits": [
+    "The absence of a fault in this instrumented sample does not supersede the retained traceoff watchdog or all-libffi first-double failures.",
+    "Profiler samples and timeDelta residence can include waiting; they are not CPU time.",
+    "Actual process cpuTime deltas are CPU seconds across all threads of matched browser-owned processes, not per-Worker attribution. Multiple CPU seconds can accrue during one wall-clock second.",
+    "Only the actual mapped WASM may use this symbol map; other dynamic modules keep their own URL/function-index identity.",
+    "No repeated ordinary runs were used to replace a retained failure with a pass."
+  ]
+}
