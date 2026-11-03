@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "kind": "native-r4-to-final-r6-served-source-equivalence-summary",
+  "date": "2026-11-03",
+  "status": "NATIVE_PATH_SOURCE_DATA_EQUIVALENCE_ASSERTIONS_PASS",
+  "guest_rerun": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "validation_category": "Bounded read-only byte/data proof; not new virtual-device execution",
+  "r4_evidence": {
+    "raw_report_sha256": "63b0c51cd86066ccba707fef59ea9598425c84b51afcd807c494789409b66b35",
+    "actual_runs": 4,
+    "recorded_scope_checks": 46,
+    "recorded_scope_checks_passed": 46,
+    "recorded_status": "PASS",
+    "historical_pins_unchanged": true
+  },
+  "final_r6_site": {
+    "manifest_sha256": "d716a3de85713baf46acae91113781895817c9377d48578ee70a9dd0a4f068ff",
+    "source_git_head_checked": "8dd39cac835f6325a3f0aa815ca0d8471b025e6b",
+    "public_boards": 19,
+    "publication_eligible": true,
+    "firmware_bundled": false,
+    "runtime_manifest_sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+    "wasm_identity_from_verified_runtime_manifest": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "wasm_bytes_rehashed_by_this_review": false,
+    "scope": "Six selected served native bridge/registry modules plus runtime/site manifests; their actual bytes/lengths match manifest entries. No model traversal or runtime start."
+  },
+  "public_js": {
+    "r4_recorded_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+    "current_source_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c",
+    "final_served_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c",
+    "whole_file_equal_to_r4": false,
+    "source_served_byte_identity": true,
+    "exact_four_hunk_allowlist_verified": true,
+    "normalizing_only_these_changes_restores_entire_r4_bytes": true,
+    "allowed_changes": [
+      "Add resolveQemuFirmwareProfile named binding from an already-loaded module; no new module/import evaluation.",
+      "Change the fixed stock-reference display name to original program/normal clock; no firmware byte or native execution setting changes.",
+      "Replace only the selectedLane===browser capability-text branch. It prefers active same-generation/same-device actual profile, otherwise resolves a known reference hash, while unknown local firmware retains the base explanation.",
+      "Add active-owner guarding and a dimension-change repaint to applyBrowserPresentation. Its sole production caller remains the browser runtime onState callback. Repaint uses that runtime's retained real lastFrame pixels and original sequence; no new frame event, guest input or source bytes are generated."
+    ],
+    "native_service_branch_unchanged": true,
+    "native_function_byte_proofs": {
+      "lane": {
+        "r4_sha256": "d4cf96e5cc52f25212ac29be58b3b4ce67d08167366d45dd661aa37ae604a6ad",
+        "source_sha256": "d4cf96e5cc52f25212ac29be58b3b4ce67d08167366d45dd661aa37ae604a6ad",
+        "served_sha256": "d4cf96e5cc52f25212ac29be58b3b4ce67d08167366d45dd661aa37ae604a6ad",
+        "byte_identity": true
+      },
+      "clearBrowserOutputs": {
+        "r4_sha256": "42a8d9aa694ec31f51c2dc33f19a0b51e76da70ae1e421c111981ef927cfdc0a",
+        "source_sha256": "42a8d9aa694ec31f51c2dc33f19a0b51e76da70ae1e421c111981ef927cfdc0a",
+        "served_sha256": "42a8d9aa694ec31f51c2dc33f19a0b51e76da70ae1e421c111981ef927cfdc0a",
+        "byte_identity": true
+      },
+      "applyBrowserDeviceState": {
+        "r4_sha256": "430ef1ff876017a1617d2a934b709d3e579168b3e294d087a0bc863ef07527d5",
+        "source_sha256": "430ef1ff876017a1617d2a934b709d3e579168b3e294d087a0bc863ef07527d5",
+        "served_sha256": "430ef1ff876017a1617d2a934b709d3e579168b3e294d087a0bc863ef07527d5",
+        "byte_identity": true
+      },
+      "applyBrowserFrame": {
+        "r4_sha256": "79c3f52516bdcac3215f10e093c964429b03d4cbbf5dad6351fd53ec2f007831",
+        "source_sha256": "79c3f52516bdcac3215f10e093c964429b03d4cbbf5dad6351fd53ec2f007831",
+        "served_sha256": "79c3f52516bdcac3215f10e093c964429b03d4cbbf5dad6351fd53ec2f007831",
+        "byte_identity": true
+      },
+      "startRun": {
+        "r4_sha256": "9588c75b808ddf8f1ca900402a2937d7cfae94445778972e0789054e62b5be2c",
+        "source_sha256": "9588c75b808ddf8f1ca900402a2937d7cfae94445778972e0789054e62b5be2c",
+        "served_sha256": "9588c75b808ddf8f1ca900402a2937d7cfae94445778972e0789054e62b5be2c",
+        "byte_identity": true
+      },
+      "stopRun": {
+        "r4_sha256": "554c5b651c2e3966ef2cd589bd94fe4edda7839c428ab3c25499a4c770137014",
+        "source_sha256": "554c5b651c2e3966ef2cd589bd94fe4edda7839c428ab3c25499a4c770137014",
+        "served_sha256": "554c5b651c2e3966ef2cd589bd94fe4edda7839c428ab3c25499a4c770137014",
+        "byte_identity": true
+      },
+      "releaseInputs": {
+        "r4_sha256": "534a672e28d11bd57183e4a69720f0e18b91ed2f81f9175ce5f2b45dfb00093f",
+        "source_sha256": "534a672e28d11bd57183e4a69720f0e18b91ed2f81f9175ce5f2b45dfb00093f",
+        "served_sha256": "534a672e28d11bd57183e4a69720f0e18b91ed2f81f9175ce5f2b45dfb00093f",
+        "byte_identity": true
+      },
+      "firmware": {
+        "r4_sha256": "81e82cf2741c8a4d5ca16d46e1bb5094a481aeb53a1d588fe7f85609c114fe75",
+        "source_sha256": "81e82cf2741c8a4d5ca16d46e1bb5094a481aeb53a1d588fe7f85609c114fe75",
+        "served_sha256": "81e82cf2741c8a4d5ca16d46e1bb5094a481aeb53a1d588fe7f85609c114fe75",
+        "byte_identity": true
+      }
+    },
+    "browser_presentation_change": {
+      "r4_function_sha256": "dd5b6a149b3e8352d7c2a229be94d95440fa5316ba1e45a4dc12a4435573945a",
+      "current_source_function_sha256": "ed957a81a4599ccc2869137ffe095207cd8bf1583e1d867696f949c8ac746fc5",
+      "served_function_sha256": "ed957a81a4599ccc2869137ffe095207cd8bf1583e1d867696f949c8ac746fc5",
+      "sole_production_callsite_inside_existing_browser_start_branch": true,
+      "native_service_branch_does_not_call_presentation_hook": true,
+      "repaint_runtime_guard": "PublicQemuRuntime instance only",
+      "retained_input": "Current owned runtime.lastFrame, preserving real pixels, dimensions and frame sequence",
+      "new_guest_or_native_execution_evidence": "NOT RUN by this static proof"
+    }
+  },
+  "shared_modules": {
+    "platform/web/public-session-controller.js": {
+      "r4_recorded_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "source_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "served_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "byte_identity": true
+    },
+    "platform/web/public-config.js": {
+      "r4_recorded_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "source_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "served_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "byte_identity": true
+    },
+    "platform/web/public-qemu-servo.js": {
+      "historical_export_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "served_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "byte_identity": true,
+      "r4_separate_hash_recorded": false
+    }
+  },
+  "registry_chain": {
+    "r4_recorded_sha256": "a09af4cbf25da01678d0bdf081b4c21097d760af5b8171aed1df6af7c8419a20",
+    "pre_stock_admission_source_sha256": "5550adbf6fa3cd0c097d45c6575d9dd3bddaa1bb70754ade3a1c34116bdc8b33",
+    "current_source_sha256": "bf1bcb324e9dc419f98aa6c63c6fae296ec684e3cc85ca9780ae7a0815806ac4",
+    "served_sha256": "c83bea5affa5259b6645dc9bfbd0cd50b9cc29e82572006b360b66f997998a84",
+    "whole_registry_equal_to_r4": false,
+    "r4_to_pre_stock": "Entire registry equals after removing firmwareProfiles from each row.",
+    "pre_stock_to_current": {
+      "only_cores3_row_changed": true,
+      "only_execution_change": "Append the exact stock-reference variant below; existing e950 first row is unchanged.",
+      "descriptive_only_changes": [
+        "cores3.reference.browserValidation",
+        "cores3.limitations[1]",
+        "cores3.limitations[2]"
+      ],
+      "hardware_and_every_other_field_unchanged": true,
+      "stock_reference_variant": {
+        "clockDivisor": 1,
+        "firmwareSHA256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "fixture": "cores3-wasm-lvgl-pir-v1",
+        "oneInsnPerTb": true,
+        "profile": "cores3-wasm-stock-wallclock",
+        "readyMarker": "\"kind\": \"ready\"",
+        "requiredRuntimePatch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+        "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+      },
+      "e950_first_row_preserved": true,
+      "unknown_firmware_has_no_matching_variant_and_base_clock_is_8": true
+    },
+    "current_source_to_served": {
+      "strict_public_filter_projection_equal": true,
+      "source_rows": 20,
+      "served_rows": 19,
+      "only_removed_row": {
+        "deviceId": "dial",
+        "admission": "candidate"
+      },
+      "all_other_parsed_fields_equal": true
+    }
+  },
+  "stackchan_native_output_projection": {
+    "fields": [
+      "deviceId",
+      "board",
+      "outputs"
+    ],
+    "canonical_encoding": "UTF-8 JSON with recursively sorted keys and compact separators",
+    "r4_pre_stock_current_served_all_equal": true,
+    "sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "value": {
+      "deviceId": "stackchan",
+      "board": "m5stackchan",
+      "outputs": {
+        "kind": "stackchan-scs-qom-v1",
+        "path": "/machine/scs_servo",
+        "property": "state",
+        "calibration": {
+          "yawZeroTicks": 460,
+          "pitchZeroTicks": 620,
+          "tickDegrees": 0.3125,
+          "yawDirection": 1,
+          "pitchDirection": 1
+        }
+      }
+    }
+  },
+  "profile_module": {
+    "r4_recorded_sha256": "54f2e8c00714bf4666177ad0bb217e657dc81883938fa71c0b00ac9752e774ad",
+    "current_source_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+    "served_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+    "whole_module_equal_to_r4": false,
+    "source_served_byte_identity": true,
+    "two_onboard_function_byte_proofs": {
+      "validateQemuOnboardState": {
+        "r4_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+        "source_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+        "served_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+        "byte_identity": true
+      },
+      "qemuOnboardOutputQueries": {
+        "r4_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+        "source_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+        "served_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+        "byte_identity": true
+      }
+    }
+  },
+  "derivation": {
+    "script_sha256": "61b39bd0aad8fe45cfcfbb26b815fd46beca681c66301cfda69de9ffbe46ae75",
+    "all_read_input_bytes_unchanged_at_end": true,
+    "historical_snapshot_scope": "Saved public.js and independently retained registry/profile modules match the r4 complete-file source pins. No missing historical module hash or new current source is substituted into the original execution."
+  },
+  "limits": [
+    "This source proof retains the existing native46-check evidence boundary; it creates no new native guest, browser guest, all-board, timing or stability PASS.",
+    "Whole public.js, whole profile module and whole registry differ from r4 and are expressly not claimed byte-identical.",
+    "The stock browser variant, coherent pixel oracle and orientation-repaint change require their own exact-runtime browser execution; native data equivalence cannot admit them or establish final all-board success.",
+    "Runtime WASM identity is checked in the byte-verified runtime manifest; no full binary/archive/complete-site scan was repeated while the guest slot was in use."
+  ],
+  "redaction": "No host paths, endpoints, raw session/target/device IDs, credentials, firmware/ROM bytes or raw guest observations."
+}

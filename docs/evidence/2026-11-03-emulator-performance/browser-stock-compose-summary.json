@@ -1,0 +1,727 @@
+{
+  "schema_version": 1,
+  "kind": "final-r5-stock-compose-safe-summary",
+  "status": "PASS_SCOPED",
+  "validation_category": "virtual-device validation; hardware validation NOT RUN",
+  "created_at": "2026-11-03T08:02:24.893Z",
+  "generator_sha256": "8ba31e440dd49d72496fa3de92f3101108d228dfe3844f6f7081a05a19617dbb",
+  "algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+  "algorithm_dependency_sha256": "d552c30287e2f20e0d9349f75be8b6efd417140c961b98e3ad53c158c912ad79",
+  "source_reports_modified": false,
+  "cases": [
+    {
+      "label": "stock-compose-r5",
+      "raw_report": {
+        "sha256": "100855d8f77ba5cfb16a18e9162db49545b7747ec210e4fd0faf4ef18da0a176",
+        "bytes": 5957185
+      },
+      "raw_result": "PASS",
+      "device": "cores3",
+      "engine": "qemu",
+      "firmware": {
+        "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "bytes": 16777216
+      },
+      "harness_sha256": "1410d09938221bce90296f1e1d69bbd9c92660f96cb0332bea141de30eca72a3",
+      "recorded_summary_algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+      "algorithm_identity_matches": true,
+      "issues": [],
+      "configuration": {
+        "sample_ms": 20000,
+        "requested_runs": 2,
+        "ready_marker": "\"kind\": \"ready\"",
+        "gpu_mode": "verified-hardware",
+        "profile_ms": 0,
+        "require_rendered_motion": false
+      },
+      "errors": [],
+      "blocked": [],
+      "runs": [
+        {
+          "ordinal": 1,
+          "raw_run_ordinal": 1,
+          "identity_sha256": "6ed97eb43afaa7545880eb8321364a609e4966addffc742c50b64dc30f95c203",
+          "raw_status": "running",
+          "issues": [],
+          "metric_validation": {
+            "status": "PASS",
+            "recorded_summary_present": true,
+            "recomputed_metrics_sha256": "3de7bd64e10e729d3e8edfe2084615f27d298d0ae4fbf7d495d0bcebada18e4e",
+            "recorded_metrics_sha256": "3de7bd64e10e729d3e8edfe2084615f27d298d0ae4fbf7d495d0bcebada18e4e"
+          },
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 2424.0899999141693,
+              "ready_marker": 13150.83999991417,
+              "first_nonblack_frame": 13184.789999961853,
+              "runtime_preparation": 1361.8999999761581
+            },
+            "steady": {
+              "duration_seconds": 20.001549999952317,
+              "delivered_frames": 17,
+              "delivered_fps": 0.8499341301069431,
+              "pixel_change_frames": 17,
+              "pixel_change_fps": 0.8499341301069431,
+              "state_updates": 0,
+              "dance_cue_count": 0,
+              "packet_delta": null,
+              "position_change_observations": 0
+            },
+            "frame_gap_ms": {
+              "samples": 17,
+              "min": 32.949999928474426,
+              "p50": 33.3400000333786,
+              "p90": 46.894000005722056,
+              "p95": 73.02199995517728,
+              "max": 98.31000006198883,
+              "mean": 39.123823530533734
+            },
+            "state_gap_ms": {
+              "samples": 0,
+              "min": null,
+              "p50": null,
+              "p90": null,
+              "p95": null,
+              "max": null,
+              "mean": null
+            },
+            "frame_observer_ms": {
+              "samples": 17,
+              "min": 0.13999998569488525,
+              "p50": 0.1549999713897705,
+              "p90": 0.16500000953674315,
+              "p95": 0.1650000810623169,
+              "max": 0.1650000810623169,
+              "mean": 0.15323529523961685
+            },
+            "packet_window": {
+              "baseline_source": null,
+              "first_observed_at_ms": null,
+              "initial_packets": null,
+              "final_packets": null
+            },
+            "rendered_joint_trace": null,
+            "guest_speed": {
+              "samples": 0,
+              "min": null,
+              "p50": null,
+              "p90": null,
+              "p95": null,
+              "max": null,
+              "mean": null
+            }
+          },
+          "position_units": [],
+          "rendered_presentation": {
+            "trace_installed": false,
+            "raw_trace_observations": 0,
+            "raw_trace_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "binding_validation": null
+          },
+          "serial_faults": {
+            "capture": "CAPTURED",
+            "panic_or_watchdog_markers": [],
+            "reset_events": [],
+            "rom_boot_markers_per_port": {
+              "uart0": 1
+            }
+          },
+          "input": {
+            "capture": "NOTCAPTURED"
+          },
+          "cache_and_fresh_guest": {
+            "input_firmware_buffer_seen_before": false,
+            "input_firmware_bytes": 16777216,
+            "persistent_flash": false,
+            "compiled_module_cache": "compiled",
+            "memory_bytes": 268435456,
+            "new_session_identity_within_report": true,
+            "asset_loads": {
+              "observations": 4,
+              "record_sha256": "879aa94a58605a0aa6766c27fa92d558f725f5cbfa13797be124430375412f47",
+              "by_cache": [
+                {
+                  "cache": "download",
+                  "observations": 4,
+                  "observed_bytes": 13313106
+                }
+              ],
+              "asset_sha256": [
+                "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+                "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b",
+                "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+                "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+              ]
+            },
+            "compile_or_execution_counters": {
+              "capture": "NOTCAPTURED",
+              "meaning": "No execution counters are synthesized for the production TCI runtime."
+            }
+          },
+          "cleanup": {
+            "capture": "CAPTURED",
+            "graceful_exit": true,
+            "exit_code": 0,
+            "pthread_workers_created": 5,
+            "pthread_workers_at_exit": 0,
+            "workers_remaining": 0,
+            "pthread_forced_terminations": 0,
+            "engine_workers_created": 1,
+            "engine_owner_live": false,
+            "engine_close_notification": true,
+            "engine_normal_terminations": 1,
+            "engine_fallback_terminations": 0,
+            "iframe_removed": true,
+            "all_observed_workers_closed": true,
+            "observed_worker_count": 6,
+            "live_worker_count": 0,
+            "worker_observation_sha256": "e8b02af74b52a6554274ce319920c83a6aa4b62ab02d1c6cb415d13d70287d53"
+          },
+          "errors": [],
+          "raw_observation_hashes": {
+            "frames": "9d3dd5490277e139d810d583ec15c84368c642b8b4b47519e7b3a3d349f9f1a9",
+            "states": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "serial_events": "4c6912a65752557247626c727be0c5820a81eebd7629e96bbba095cdcbb4984f"
+          },
+          "receipt_identity_sha256": "88a1807def6b97242e840562b3edeb32f25aabb0617490753f9ede8a137b2fef"
+        },
+        {
+          "ordinal": 2,
+          "raw_run_ordinal": 2,
+          "identity_sha256": "bcfbec66aa9db869d62f533e5f65737866fac9864070e497d493ccd899033901",
+          "raw_status": "running",
+          "issues": [],
+          "metric_validation": {
+            "status": "PASS",
+            "recorded_summary_present": true,
+            "recomputed_metrics_sha256": "7217cc413a742e7e57753471f364e246c68cecea748de2e12b8723c1d74c4d92",
+            "recorded_metrics_sha256": "7217cc413a742e7e57753471f364e246c68cecea748de2e12b8723c1d74c4d92"
+          },
+          "metrics": {
+            "startup_ms": {
+              "first_serial": 1323.0250000953674,
+              "ready_marker": 11876.465000033379,
+              "first_nonblack_frame": 11904.205000042915,
+              "runtime_preparation": 1194.0100001096725
+            },
+            "steady": {
+              "duration_seconds": 20.002354999899865,
+              "delivered_frames": 19,
+              "delivered_fps": 0.9498881506750139,
+              "pixel_change_frames": 19,
+              "pixel_change_fps": 0.9498881506750139,
+              "state_updates": 0,
+              "dance_cue_count": 0,
+              "packet_delta": null,
+              "position_change_observations": 0
+            },
+            "frame_gap_ms": {
+              "samples": 19,
+              "min": 32.78999996185303,
+              "p50": 33.36500000953674,
+              "p90": 66.65799992084503,
+              "p95": 70.13799990415566,
+              "max": 98.47000002861023,
+              "mean": 40.24473684085043
+            },
+            "state_gap_ms": {
+              "samples": 0,
+              "min": null,
+              "p50": null,
+              "p90": null,
+              "p95": null,
+              "max": null,
+              "mean": null
+            },
+            "frame_observer_ms": {
+              "samples": 19,
+              "min": 0.13499999046325684,
+              "p50": 0.1499999761581421,
+              "p90": 0.16499996185302734,
+              "p95": 0.16699995994567868,
+              "max": 0.18499994277954102,
+              "mean": 0.15052631654237447
+            },
+            "packet_window": {
+              "baseline_source": null,
+              "first_observed_at_ms": null,
+              "initial_packets": null,
+              "final_packets": null
+            },
+            "rendered_joint_trace": null,
+            "guest_speed": {
+              "samples": 0,
+              "min": null,
+              "p50": null,
+              "p90": null,
+              "p95": null,
+              "max": null,
+              "mean": null
+            }
+          },
+          "position_units": [],
+          "rendered_presentation": {
+            "trace_installed": false,
+            "raw_trace_observations": 0,
+            "raw_trace_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "binding_validation": null
+          },
+          "serial_faults": {
+            "capture": "CAPTURED",
+            "panic_or_watchdog_markers": [],
+            "reset_events": [],
+            "rom_boot_markers_per_port": {
+              "uart0": 1
+            }
+          },
+          "input": {
+            "capture": "NOTCAPTURED"
+          },
+          "cache_and_fresh_guest": {
+            "input_firmware_buffer_seen_before": false,
+            "input_firmware_bytes": 16777216,
+            "persistent_flash": false,
+            "compiled_module_cache": "memory",
+            "memory_bytes": 268435456,
+            "new_session_identity_within_report": true,
+            "asset_loads": {
+              "observations": 4,
+              "record_sha256": "2ef803baeebc4f1acd44fd25f8db64f5306a9ddfdd24a8caaf1ccdfb0f220295",
+              "by_cache": [
+                {
+                  "cache": "memory",
+                  "observations": 4,
+                  "observed_bytes": 13313106
+                }
+              ],
+              "asset_sha256": [
+                "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+                "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b",
+                "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+                "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+              ]
+            },
+            "compile_or_execution_counters": {
+              "capture": "NOTCAPTURED",
+              "meaning": "No execution counters are synthesized for the production TCI runtime."
+            }
+          },
+          "cleanup": {
+            "capture": "CAPTURED",
+            "graceful_exit": true,
+            "exit_code": 0,
+            "pthread_workers_created": 5,
+            "pthread_workers_at_exit": 0,
+            "workers_remaining": 0,
+            "pthread_forced_terminations": 0,
+            "engine_workers_created": 1,
+            "engine_owner_live": false,
+            "engine_close_notification": true,
+            "engine_normal_terminations": 1,
+            "engine_fallback_terminations": 0,
+            "iframe_removed": true,
+            "all_observed_workers_closed": true,
+            "observed_worker_count": 12,
+            "live_worker_count": 0,
+            "worker_observation_sha256": "b9935160b17f8cf98f72e79f525886ad2e6240cc9aa025f5516dc635f1eeda37"
+          },
+          "errors": [],
+          "raw_observation_hashes": {
+            "frames": "0bd6d8e8ae03279e3388cd90c3b93a9e51806dcf86942fa14945c715a0b4f3d2",
+            "states": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "serial_events": "038d9db95c917db07d02f84ca131e94b588180ba8c0064324845a2bd95966980"
+          },
+          "receipt_identity_sha256": "88a1807def6b97242e840562b3edeb32f25aabb0617490753f9ede8a137b2fef"
+        }
+      ],
+      "provenance_identity_sha256": "48ed8259b88a5a18080cbded3b62c7f2953bfdd9f0c34068ddaf7289c95685ce",
+      "host_gpu_identity_sha256": "5220b89f470f23ec42a01a59763a5be45ba29cb0579b1ef9d21b2a02276ebb53"
+    }
+  ],
+  "identity_tables": {
+    "provenance": [
+      {
+        "identity_sha256": "48ed8259b88a5a18080cbded3b62c7f2953bfdd9f0c34068ddaf7289c95685ce",
+        "data": {
+          "site_manifest_sha256": "b1d1c6ca8dee3943edd9136c5f39da24f23a8ec444d5e410a6e6fccc9090e58c",
+          "runtime_manifest_sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+          "site_source_assets": {
+            "platform/runtime/qemu/runtime.json": {
+              "sha256": "c441473d53dbdd47450c14ae5eafbc04f995f8a210eebdc0447b38a5d844bd9c",
+              "bytes": 33329
+            },
+            "platform/web/model-shell.js": {
+              "sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9",
+              "bytes": 33015
+            },
+            "platform/web/public-config.js": {
+              "sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+              "bytes": 6670
+            },
+            "platform/web/public-firmware.js": {
+              "sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+              "bytes": 7158
+            },
+            "platform/web/public-qemu-engine.js": {
+              "sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e",
+              "bytes": 17030
+            },
+            "platform/web/public-qemu-frame.js": {
+              "sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172",
+              "bytes": 3676
+            },
+            "platform/web/public-qemu-instance.js": {
+              "sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c",
+              "bytes": 3419
+            },
+            "platform/web/public-qemu-profiles.js": {
+              "sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+              "bytes": 29186
+            },
+            "platform/web/public-qemu-runtime.js": {
+              "sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a",
+              "bytes": 22958
+            },
+            "platform/web/public-verified-assets.js": {
+              "sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4",
+              "bytes": 6117
+            },
+            "platform/web/public.js": {
+              "sha256": "7cddc7d62f59a809eda96c5826a510aa78363830873f34eebb0541f7e21e270c",
+              "bytes": 55170
+            },
+            "platform/web/qemu-browser-profiles.json": {
+              "sha256": "c83bea5affa5259b6645dc9bfbd0cd50b9cc29e82572006b360b66f997998a84",
+              "bytes": 85293
+            }
+          },
+          "runtime_assets": {
+            "javascript": {
+              "sha256": "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b",
+              "bytes": 157200
+            },
+            "wasm": {
+              "sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+              "bytes": 12759914
+            },
+            "worker": {
+              "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+              "bytes": 2776
+            },
+            "source": {
+              "sha256": "8faf5ec50cc3f5709bc0f1311f221ede8a180eb11ecd1fb9218c367cbbb09ecf",
+              "bytes": 35239996
+            },
+            "notice": {
+              "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76",
+              "bytes": 968
+            }
+          },
+          "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+          "patch_count": 72,
+          "patch_list_sha256": "9575e53a35eb8b402348cc335034c345b0b03a51a05ef372b8ab546c154eb028",
+          "source_postimages_count": 160,
+          "source_postimages_sha256": "d422289bd3787a0a265c87302ac3575582f964806435b6f19fa3a531133f132c",
+          "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+          "recipe_sha256": "231871ffb186dce1631d035a454730b7c49ceb1571666f632cc44b3474c04057",
+          "build_commands_sha256": "27d3c203c80a839211c69c72de6f5a8ea2f8fb201045454a39b799bb7d4ed476",
+          "all_objects_rebuilt": true
+        }
+      }
+    ],
+    "host_and_gpu": [
+      {
+        "identity_sha256": "5220b89f470f23ec42a01a59763a5be45ba29cb0579b1ef9d21b2a02276ebb53",
+        "data": {
+          "host": {
+            "platform": "darwin",
+            "arch": "arm64",
+            "cpu_model": "Apple M4",
+            "logical_cpus": 10
+          },
+          "webgl": [
+            {
+              "scope": "actual-workbench-model-canvas",
+              "unmasked_vendor": "Google Inc. (Apple)",
+              "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+            }
+          ],
+          "gpu_devices": [
+            {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Version 26.5.1 (Build 25F80))",
+              "driver_vendor": "Apple",
+              "driver_version": "26.5.1"
+            }
+          ]
+        }
+      }
+    ],
+    "receipt": [
+      {
+        "identity_sha256": "88a1807def6b97242e840562b3edeb32f25aabb0617490753f9ede8a137b2fef",
+        "data": {
+          "capture": "CAPTURED",
+          "engine": "qemu-wasm",
+          "device": "cores3",
+          "board": "m5cores3",
+          "profile": "cores3-wasm-stock-wallclock",
+          "clock_divisor": 1,
+          "clock_override": null,
+          "one_insn_per_tb": true,
+          "firmware_variant": {
+            "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+            "source_sha256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb",
+            "source_kind": "source-code",
+            "fixture": "cores3-wasm-lvgl-pir-v1",
+            "profile": "cores3-wasm-stock-wallclock",
+            "scheduler_candidate": "qemu-tci-mmio-blocks-v1",
+            "clock_divisor": 1,
+            "one_insn_per_tb": true,
+            "ready_marker": "\"kind\": \"ready\"",
+            "required_runtime_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+            }
+          },
+          "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+          "javascript_sha256": "b485aa257ddd36dbd5943900123416ad6e692641614c257f2c619bdbf7b28f9b",
+          "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+          "worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+          "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "relocated_glue_sha256": "07f84a6d54c6e9755494b72c7eaa5f9cd2192659e0c21151cf16f5eee9c85a6a",
+          "frame_transport": "shared-rgb565-v1",
+          "output_transport": null,
+          "actual_arguments": {
+            "capture": "CAPTURED",
+            "sha256": "c6c47198213dae38cc84c262444a634559026ad647302bbdb766344fda90b641",
+            "count": 21,
+            "values": [
+              "./this.program",
+              "-M",
+              "m5cores3",
+              "-drive",
+              "file=/flash.bin,if=mtd,format=raw",
+              "-L",
+              "/rom",
+              "-display",
+              "none",
+              "-serial",
+              "file:/bridge/uart.out",
+              "-serial",
+              "file:/bridge/serial1",
+              "-qmp",
+              "stdio",
+              "-drive",
+              "if=none,id=efuse,file=/efuse.bin,format=raw",
+              "-global",
+              "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+              "-accel",
+              "tcg,thread=multi,one-insn-per-tb=on"
+            ],
+            "redacted_values": 0
+          }
+        }
+      }
+    ]
+  },
+  "composition_identity": {
+    "path": "normal-product-reference-composer",
+    "fixture": "cores3-wasm-lvgl-pir-v1",
+    "raw_base": {
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "bytes": 16121856
+    },
+    "normalized_base": {
+      "sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73",
+      "bytes": 16777216
+    },
+    "composed_firmware": {
+      "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "bytes": 16777216
+    },
+    "source_files": {
+      "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+      "main.py": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+    },
+    "source_group_sha256": "cd8cf040b91a824111aba8eead93ffaec8a1ae2969d1fde1a740fd27f3385f60",
+    "vfs": {
+      "offset": 11141120,
+      "size": 4980736
+    },
+    "composer_source": {
+      "commit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+      "tag": "v2.11.3",
+      "license": "BSD-3-Clause",
+      "files": {
+        "LICENSE.md": "0cb4ff1daf5fdc1359c6a6ee3116092f08fc100c9d58b1b77ab17bfd801f856d",
+        "lfs.c": "a36d6a095785ddea9571d541d68d3e4ef01d5b255a99d17d3f07fb6ea60ea132",
+        "lfs.h": "b1befd7288d08815accc8f9af744c55686c0b9e3ac0061c32ceee38a1b3eb96d",
+        "lfs_util.c": "f2fbde533670560434bd9f5a547174cc7c5a4670a02c47b4bd85180dced8b2ec",
+        "lfs_util.h": "548d46aa524dc7449e16739286c1a422a52f9de727ff0be0c2ffc5593f5ca981"
+      }
+    },
+    "composer_build": {
+      "kind": "source-build",
+      "emscripten": "3.1.50",
+      "optimization": "O2"
+    },
+    "composer_assets": {
+      "boot.py": {
+        "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "bytes": 214
+      },
+      "composer_license": {
+        "sha256": "46e054dd27254243fa431abe8b3aa5a28e353e0ee71d5633833723afee83e5cb",
+        "bytes": 1077
+      },
+      "emscripten_license": {
+        "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86",
+        "bytes": 5093
+      },
+      "license": {
+        "sha256": "0cb4ff1daf5fdc1359c6a6ee3116092f08fc100c9d58b1b77ab17bfd801f856d",
+        "bytes": 1523
+      },
+      "main.py": {
+        "sha256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb",
+        "bytes": 2301
+      },
+      "module": {
+        "sha256": "9ba8b6475eb8ae81e665b0e6cddc120cd5aa1af3818e102e2e0f3b1d73d9446d",
+        "bytes": 12513
+      },
+      "musl_license": {
+        "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
+        "bytes": 6204
+      },
+      "source": {
+        "sha256": "78766b956ee53e22f8fa606215d1baabf3c1d41b57ea8b8c17164a3406c42f46",
+        "bytes": 68884
+      },
+      "wallclock.boot.py": {
+        "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "bytes": 214
+      },
+      "wallclock.candidate_lvgl_loop.py": {
+        "sha256": "0a460dbbd04838811238dd9022044f4b5e85f76629e44f8b7ba8fb057710363e",
+        "bytes": 3055
+      },
+      "wallclock.main.py": {
+        "sha256": "e793b5ded4dc81510022723b8e10696a93d0cc4122c6cb5e58000a8ce9b84858",
+        "bytes": 3491
+      },
+      "wasm": {
+        "sha256": "f19358bc10b65156aadb1f02c874a1ceb0b64e63dfd1deb1b1d097491bfd6377",
+        "bytes": 32804
+      }
+    }
+  },
+  "composition_validation": [
+    {
+      "ordinal": 1,
+      "result": "PASS",
+      "firmware_source": "default-compose",
+      "fresh_flash_input": true,
+      "new_session": true,
+      "compiled_module_cache": "compiled",
+      "normal_ui_reference": true,
+      "fixture": "cores3-wasm-lvgl-pir-v1",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f"
+    },
+    {
+      "ordinal": 2,
+      "result": "PASS",
+      "firmware_source": "default-compose",
+      "fresh_flash_input": true,
+      "new_session": true,
+      "compiled_module_cache": "memory",
+      "normal_ui_reference": true,
+      "fixture": "cores3-wasm-lvgl-pir-v1",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f"
+    }
+  ],
+  "preserved_first_attempt": {
+    "raw_report": {
+      "sha256": "5ffaa6436e8f9c4160b5566c52c4a5dab1362bc8bd4352b49a1bcd0f87316b6d",
+      "bytes": 2426629
+    },
+    "result": "FAIL",
+    "completed_benchmark_runs": 0,
+    "classification": "Harness expectation mismatch after the product profile changed; not a guest-fault result.",
+    "failure_text_sha256": "8e77c8be449b127a6b5d469ac1b1c9b8b1d5e112a73b60d53fb586abb246f9fe",
+    "expected_profile": "cores3-wasm-vm-div8",
+    "actual_profile": "cores3-wasm-stock-wallclock",
+    "actual_clock_divisor": 1,
+    "actual_one_insn_per_tb": true,
+    "observed_guest_fault_markers": [],
+    "serial_observation_sha256": "47dee38e4974bbb55971d864f1a57b5f8ad26ae19db6ed195469167d23c2ff51",
+    "serial_event_count": 2127,
+    "machine_reset_capture": "NOTCAPTURED separately in this failure snapshot; no reset absence is synthesized.",
+    "cleanup": {
+      "scope": "Actual cleanup before browser/context teardown",
+      "graceful_exit": true,
+      "exit_code": 0,
+      "pthread_workers_created": 5,
+      "pthread_workers_at_exit": 0,
+      "workers_remaining": 0,
+      "pthread_forced_terminations": 0,
+      "engine_workers_created": 1,
+      "engine_normal_terminations": 1,
+      "engine_fallback_terminations": 0,
+      "iframe_removed": true,
+      "all_observed_workers_closed": true,
+      "observed_workers": 6,
+      "live_workers": 0,
+      "worker_observation_sha256": "53e23cd56dd1d105176b4bba36f8bff68bddccf9bb524a567832d9e1ed37f1a9"
+    }
+  },
+  "harness_expectation_correction": {
+    "old_harness_sha256": "4837dfc9ed641d0b8e30ae540b65628b327d6abf0336a718b1eea04ac8b2cd20",
+    "new_harness_sha256": "1410d09938221bce90296f1e1d69bbd9c92660f96cb0332bea141de30eca72a3",
+    "removed_expectation_lines": 1,
+    "added_expectation_lines": 3,
+    "only_change": "Expected new stock profile/clock1 plus explicit oneInsn and original main.py SHA; no other harness behavior changed.",
+    "algorithm_unchanged": true,
+    "served_source_provenance_unchanged": true,
+    "site_manifest_sha256": "b1d1c6ca8dee3943edd9136c5f39da24f23a8ec444d5e410a6e6fccc9090e58c",
+    "runtime_manifest_unchanged": true
+  },
+  "prior_r4_reference": {
+    "safe_summary_sha256": "68fde64c9a968fa18883f8166f2c68f61877b2b6d58b8c6a9ebaa8d0384f9a7e",
+    "case_label": "compose",
+    "case_raw_report_sha256": "1090807c065dd63a1ec81b3c70f0c4011917eec94ac85f733aef57851c8ae27f",
+    "case_result": "PASS",
+    "parent_summary_status": "PARTIAL",
+    "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+    "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "clock_divisor": 8,
+    "runs": [
+      {
+        "ordinal": 1,
+        "ready_marker_ms": 27576.75,
+        "first_nonblack_frame_ms": 27607.34000003338
+      },
+      {
+        "ordinal": 2,
+        "ready_marker_ms": 26808.40499997139,
+        "first_nonblack_frame_ms": 26836.674999952316
+      }
+    ],
+    "recomputed": false,
+    "comparison_scope": "Same full firmware and compiled WASM, but execution profile/clock/TB setting, site source identities and observed cache preparation differ. These are end-to-end product path observations, not a pure-CPU or normalized-cache benchmark."
+  },
+  "limits": [
+    "This summary covers the fixed composer/reference path, accurate serial ready markers, first pixel observations and two20-second post-ready windows; it does not grant arbitrary firmware compatibility.",
+    "The earlier candidate approximately13-second visible-UI upper bound is separate from the measured serial ready-marker latency and is not substituted here.",
+    "No trusted touch/PIR action is claimed by these timing runs; independent functional input acceptance has its own evidence.",
+    "Warm reuse is compiled immutable code/assets with a fresh Flash buffer, session and guest; it is not retained mutable guest state.",
+    "Production TCI has no JIT compile/hit counters here; compiled-to-memory refers only to outer WASM module compilation caching.",
+    "Frame pixel updates are observations, not physical or complete display FPS.",
+    "The preserved first harness failure is not erased or promoted to a successful guest sample.",
+    "No source files, binaries, raw host arguments, endpoints, session IDs or Worker unique IDs are copied."
+  ]
+}

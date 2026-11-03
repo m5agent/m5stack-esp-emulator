@@ -9,7 +9,8 @@ The [ADR](../adr/0001-qemu-browser-hot-block-jit.md) records the decision bounda
 Current capability and the only execution queue remain
 [project status](../project-status.md) and [project backlog](../project-backlog.md).
 
-The revised GPIO-reset source build has exact-firmware dance validation.
+The fresh 72-patch source build has exact-firmware dance validation; final-site
+measurements and the complete admitted-board gate are recorded separately.
 The official Factory sample still has intermittent watchdog/double-exception
 failures in the browser TCI lane. Its native control remains a separate result.
 No host-backend prototype timing or motion count admits a product runtime.
@@ -51,7 +52,12 @@ SHA-256 `c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542`:
 
 The exact publisher StopWatch Flash has a separate provenance-bound row and
 normal-clock single-instruction policy. Its null ready marker does not invent
-an application-ready event. The Factory-specific row was withdrawn after its
+an application-ready event. The original CoreS3 fixed reference Flash
+`78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f`
+also uses normal clock and single-instruction blocks, preserving its original
+`main.py` SHA `7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb`.
+The old `stock-div8` selector remains a compatibility alias; unknown uploads keep
+the base profile. The Factory-specific row was withdrawn after its
 intermittent faults; its diagnostic results do not admit a product variant.
 
 Startup work includes native SHA-256, parallel runtime/ROM fetching and module
@@ -83,6 +89,12 @@ joint angles and intermediate poses, and normal Worker disappearance. Record
 the factory's actual arguments and runtime source/asset hashes. Verify the real
 WASM stack guards, including the configured small vCPU stacks. Source-level
 array accounting and host C execution are not a stack-safety PASS.
+
+Pixel acceptance explicitly awaits each browser evaluation and retains the first
+coherent typed frame observation. Both expected counter ROIs must match pixels
+from the same owned snapshot at a fresh sequence; an async Promise, a claimed
+matched flag or serial ACK alone cannot pass. Synthetic browser controls expose
+the prior async-predicate false-positive and remain host-only evidence.
 
 Changed framebuffer snapshots measure pixel updates, not completed application
 frames or physical display FPS. Interpolated 3D motion alone does not prove

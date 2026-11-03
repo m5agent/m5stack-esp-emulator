@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "kind": "final-r6-host-checks-summary",
+  "status": "PASS",
+  "scope": "Host contracts and generated validators; separate from virtual-device execution.",
+  "python_version": "3.12.14",
+  "production_commit": "8dd39cac835f6325a3f0aa815ca0d8471b025e6b",
+  "tracked_worktree_diff_sha256": "eb4d305893ce4083d15a3812e438e5b539677191888ad0cf9f4821ebc200c006",
+  "checks": [
+    {
+      "name": "python",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "platform/tests",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "seconds": 141.735,
+      "log_sha256": "63a50e79de7a8289aa50f83ab25ac6d61df10d1e8ed3133697d18fe1fa1d48b0",
+      "bytes": 11992,
+      "tests": 1942,
+      "skipped": 10
+    },
+    {
+      "name": "node_contracts",
+      "command": [
+        "npm",
+        "run",
+        "--prefix",
+        "platform/tests",
+        "test:contracts"
+      ],
+      "exit_code": 0,
+      "seconds": 5.762,
+      "log_sha256": "fd8efa01c60b15803592333affe192b819fd16164bf331c3b1cafb3443361672",
+      "bytes": 18073
+    },
+    {
+      "name": "runtime_coverage",
+      "command": [
+        "python3",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.033,
+      "log_sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "bytes": 20
+    },
+    {
+      "name": "peripheral_catalog",
+      "command": [
+        "python3",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.021,
+      "log_sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "bytes": 22
+    },
+    {
+      "name": "qemu_profiles",
+      "command": [
+        "python3",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.02,
+      "log_sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "bytes": 17
+    },
+    {
+      "name": "project_snapshot",
+      "command": [
+        "python3",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.588,
+      "log_sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "bytes": 20
+    },
+    {
+      "name": "source_lock",
+      "command": [
+        "python3",
+        "platform/tools/bootstrap_qemu_browser_runtime.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "log_sha256": "920e353789e0ccc2e45cc2b3aa3aa3640248bda3f27bda2b0c94c407b510ff77",
+      "bytes": 135
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.012,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "preserved_preflight_failure": {
+    "scope": "Python 3.12 initially loaded a Python 3.13 Pillow extension from the old cache; interrupted after 20.126 seconds before host acceptance.",
+    "log_sha256": "8829edb4f944ad04dbd7b9ab9ceeebcb7100e15236e8a8eb485fd1f6461e54d8",
+    "replacement": "Isolated pinned Python 3.12 Pillow/littlefs/CFFI/cryptography wheels. First complete attempt still mixed an incompatible littlefs extension: 1942 tests, 1 failure, 6 errors, 43 skips, log e8e7321e36f11adc2151caa620d814b5b4da22e247e3b59da324c1e6f8835698. Full rerun required after dependency preflight."
+  },
+  "limits": [
+    "Physical hardware NOT RUN.",
+    "WASM helper ABI execution retained from R4; exact same 0bd947 runtime, helper and libffi.",
+    "Earlier Python assertion failure and false async-pixel gate are preserved in separate summaries, not overwritten."
+  ]
+}

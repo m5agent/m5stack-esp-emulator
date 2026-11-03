@@ -59,6 +59,10 @@ paths. The selected changes are:
   saved guest session; corrupted assets never become an unverified fallback.
 - Independent, bounded frame, output and orientation polling. Preserve private
   ports, owner/generation fences, cancellation and normal-exit verification.
+  An owned browser presentation update may repaint its retained real RGB565
+  frame when the canvas dimensions change. It keeps the original frame sequence
+  and pixels; it does not emit a new guest frame or change controller state.
+  This presentation callback is outside the native-service path.
 - Independent native-service frame/output delivery, with actual StackChan QOM
   observations feeding the existing 3D bridge. Automatic mode prefers a
   connected compatible native service; explicit browser mode remains browser.
@@ -75,10 +79,17 @@ The independently tested StopWatch publisher image
 `d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898`
 also selects this normal-clock policy. Its provenance identifies the original
 published BIN, and its null ready marker does not claim application readiness.
-The unstable Factory variant is withdrawn. Unknown hashes keep their existing
-execution configuration.
+The unchanged CoreS3 stock-reference Flash
+`78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f`
+also selects divisor `1` and `oneInsnPerTb: true`. Its original main.py SHA is
+`7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb`.
+The UI retains `stock-div8` as a legacy selector value, while the test case is
+`stock-reference`; the legacy name does not set its execution clock. The
+separate SDK scheduler candidate remains independent. Unknown CoreS3 hashes
+retain the base divisor `8`. The unstable Factory variant is withdrawn, and
+other unknown hashes keep their existing execution configuration.
 
-This variant requires
+These exact-firmware variants require
 `patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch`, SHA-256
 `43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf`.
 Both the public runtime and engine validate that source-patch identity against
@@ -103,6 +114,14 @@ guest validation. Prototype results cannot admit the fresh runtime. Its final
 browser gate must bind the exact runtime/firmware/configuration to serial,
 framebuffer, real input, raw SCS state, actual rendered joints, stack guards and
 Worker cleanup. Native-service results remain a separate validation lane.
+
+Canvas completion uses an explicit awaited Node polling loop. Each observation
+captures one complete RGBA snapshot before asynchronous hashing, requires both
+fixed ROI digests from that snapshot, and checks its typed sequence and capture
+time against the input boundary. A callback, a truthy Promise or a recorded
+check flag cannot replace measured pixels. The final complete browser gate independently passes 19 boards / 20 fixed
+cases and 552 checks, including actual cleanup. The host pixel controls do not
+grant device validation; the separate official Factory path remains PARTIAL.
 
 ## References
 

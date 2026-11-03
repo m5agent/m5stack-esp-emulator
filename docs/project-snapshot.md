@@ -131,7 +131,7 @@
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；继续扩展 StackChan 其它 Arduino/UIFlow 固件、零位和连续转动模式；补 Plus2 浏览器 USB sleep、显式 EXT0 唤醒及 RTC CRC 等价性，并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 |
+| `UI-02` | 进行中 | 2026-11-03 完成现有 C/QEMU 加载、执行热点与输出链路优化，以及原始 CoreS3 固定 SHA 正常时钟；继续归因官方 Factory 浏览器 WDT/异常、其它固件的 CPU/触摸延迟、stock SDK C Timer coalescing、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；继续扩展 StackChan 其它 Arduino/UIFlow 固件、零位和连续转动模式；补 Plus2 浏览器 USB sleep、显式 EXT0 唤醒及 RTC CRC 等价性，经典 Atom/Stick 固定示例已纳入本轮本地 19 板 20 例完整门禁，继续扩展应用范围；扩展固件/Unit，Rust 演示保持研究原型 |
 | `UNIT-01` | 已完成（virtual-device） | 视觉主机接入与 Unit 数据面战役 2026-11-03 收口：9 host 接入 + 5 boundary-only/composition-only；Unit 160 = 158 implemented/partial + 2 DEFER（`mini-bps-v11`/`mini-pdm`）+ 25 c 类边界，184/184；canonical 41 层（0120–0161，41/41 replay），PR #80–#161。 仅 `UNIT-DEFER-01` 保留 2 项 DEFER 的关闭条件；其余历史 UNIT-HOST 问题与逐型号边界保留在证据/研究页 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
@@ -150,7 +150,7 @@
 
 - `tests/`：`154` 个可执行 Python 测试文件，分布在 `62` 个目录；`228` 个 evidence JSON。
 - `patches/`：`16` 个补丁组，`265` 个 patch 文件。
-- 文档：`590` 个 Markdown 页面；除本生成页外共 `65505` 行。
+- 文档：`590` 个 Markdown 页面；除本生成页外共 `65611` 行。
 
 ## 文档与测试
 
