@@ -1,6 +1,7 @@
 import {assetUrl, siteRoot} from './public-config.js';
 import {validateQemuProfile, validateQemuFirmware} from './public-qemu-profiles.js';
-import {sha256Bytes} from './sha256.js';
+import {sha256Buffer} from './public-firmware.js';
+import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCES = Object.freeze({
@@ -84,6 +85,20 @@ const SOURCE_NAMES = Object.freeze({
   }
 });
 const CONFIG = {block_size:4096, read_size:128, prog_size:32, lookahead_size:128, block_cycles:100, cache_size:128, name_max:255, disk_version:0};
+const composedReferences = new Map();
+const COMPOSITION_CACHE_BYTES = 32 * 1024 * 1024;
+let composedReferenceBytes = 0;
+const copyComposition = result => ({...result, bytes:result.bytes.slice(), provenance:structuredClone(result.provenance)});
+function rememberComposition(key, result) {
+  if (result.bytes.byteLength > COMPOSITION_CACHE_BYTES) return;
+  if (composedReferences.has(key)) composedReferenceBytes -= composedReferences.get(key).bytes.byteLength;
+  composedReferences.delete(key); composedReferences.set(key, copyComposition(result));
+  composedReferenceBytes += result.bytes.byteLength;
+  while (composedReferences.size > 2 || composedReferenceBytes > COMPOSITION_CACHE_BYTES) {
+    const oldest = composedReferences.keys().next().value;
+    composedReferenceBytes -= composedReferences.get(oldest).bytes.byteLength; composedReferences.delete(oldest);
+  }
+}
 function check(ok, message) { if (!ok) throw new Error(message); }
 function abort(signal) { if (signal?.aborted) throw signal.reason || new DOMException('Cancelled', 'AbortError'); }
 function localURL(path, root) {
@@ -141,24 +156,37 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
   const asset = async key => {
     const row = manifest.assets?.[key], name = key === 'module' ? 'littlefs.mjs' : 'littlefs.wasm';
     check(row?.path === name && Number.isSafeInteger(row.bytes) && row.bytes > 0 && row.bytes <= 1048576 && /^[a-f0-9]{64}$/.test(row.sha256), 'Invalid probe composer asset');
-    const bytes = await download(localURL(name, location), row.bytes, options);
-    check(bytes.length === row.bytes && sha256Bytes(bytes) === row.sha256, 'Probe composer asset hash mismatch'); return bytes;
+    const result = await loadVerifiedRuntimeAsset(localURL(name, location).href, {...options,
+      expectedSha256:row.sha256, expectedBytes:row.bytes, maxBytes:row.bytes});
+    return new Uint8Array(result.bytes);
   };
   const source = async name => {
     const sourceName = SOURCE_NAMES[profile.deviceId]?.[name] || name;
     const row = fixture.sources?.[name], pinned = SOURCES[sourceName];
     const path = `platform/runtime/qemu-probe/fixture/${sourceName}`;
     check(row?.path === path && row.bytes === pinned.bytes && row.sha256 === pinned.sha256, 'Probe source identity mismatch');
-    const bytes = await download(localURL(assetUrl(path, new URL(root)), root), row.bytes, options);
-    check(bytes.length === row.bytes && sha256Bytes(bytes) === row.sha256, 'Probe source asset hash mismatch'); return bytes;
+    const result = await loadVerifiedRuntimeAsset(localURL(assetUrl(path, new URL(root)), root).href, {...options,
+      expectedSha256:row.sha256, expectedBytes:row.bytes, maxBytes:row.bytes});
+    return new Uint8Array(result.bytes);
   };
   const [moduleBytes, wasm, boot, main, raw] = await Promise.all([asset('module'), asset('wasm'), source('boot.py'), source('main.py'),
-    baseBytes === undefined ? download(profile.reference.url, profile.reference.bytes, options) : Promise.resolve(baseBytes instanceof ArrayBuffer ? new Uint8Array(baseBytes).slice() : new Uint8Array(baseBytes).slice())]);
-  check(raw.length === profile.reference.bytes && sha256Bytes(raw) === profile.reference.sha256, 'Probe official base hash or size mismatch');
+    baseBytes === undefined ? loadVerifiedRuntimeAsset(profile.reference.url, {...options,
+      expectedSha256:profile.reference.sha256, expectedBytes:profile.reference.bytes, maxBytes:profile.reference.bytes}).then(result=>new Uint8Array(result.bytes))
+      : Promise.resolve(baseBytes instanceof ArrayBuffer ? new Uint8Array(baseBytes).slice() : new Uint8Array(baseBytes).slice())]);
+  check(raw.length === profile.reference.bytes && await sha256Buffer(raw, {signal}) === profile.reference.sha256, 'Probe official base hash or size mismatch');
   const image = validateQemuFirmware(raw, profile), vfs = qemuProbeVfs(image, profile);
   const config = new TextEncoder().encode(`DEVICE_ID = ${JSON.stringify(profile.deviceId)}\nROTATION = ${fixture.uiRotation}\nINPUT_MODE = ${JSON.stringify(fixture.inputMode)}\n`);
-  check(sha256Bytes(config) === fixture.configSHA256, 'Probe board configuration hash mismatch');
+  check(await sha256Buffer(config, {signal}) === fixture.configSHA256, 'Probe board configuration hash mismatch');
   const files = [['boot.py', boot], ['browser_probe_config.py', config], ['main.py', main]];
+  // Cache only a completed, readback-verified official reference composition.
+  // Every fixture/profile/source/composer/configuration identity participates;
+  // caller-supplied base bytes were rehashed above before a cache hit is used.
+  const compositionKey = await sha256Buffer(new TextEncoder().encode(JSON.stringify({profile, manifest, fsConfig:CONFIG})), {signal});
+  const cached = composedReferences.get(compositionKey);
+  if (cached) {
+    composedReferences.delete(compositionKey); composedReferences.set(compositionKey, cached);
+    abort(signal); return copyComposition(cached);
+  }
   const blob = URL.createObjectURL(new Blob([moduleBytes], {type:'text/javascript'})), allocations = [];
   let engine, mounted = false;
   const call = (name, ...args) => { const result = engine[name](...args); check(result >= 0, `Probe LittleFS ${name} failed (${result}); image was not formatted`); return result; };
@@ -182,11 +210,13 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
     check(call('_m5_lfs_scan') === beforeCount + 1 && call('_m5_lfs_disk_version') === fixture.derivedDiskVersion, 'Probe derived filesystem membership/version mismatch');
     call('_m5_lfs_unmount'); mounted = false;
     image.set(engine.HEAPU8.subarray(region, region + vfs.size), vfs.offset);
-    const digest = sha256Bytes(image); check(digest === fixture.firmwareSHA256, 'Probe composed firmware SHA256 mismatch'); abort(signal);
-    return {bytes:image, sha256:digest, fileName:`${profile.deviceId}-browser-${profile.display===null?'led':'display'}-probe.bin`, provenance:{kind:'browser-local-littlefs-composition', fixture:fixture.id,
+    const digest = await sha256Buffer(image, {signal}); check(digest === fixture.firmwareSHA256, 'Probe composed firmware SHA256 mismatch'); abort(signal);
+    const fileDigests = await Promise.all(files.map(async([name, bytes])=>[name, await sha256Buffer(bytes, {signal})]));
+    const result = {bytes:image, sha256:digest, fileName:`${profile.deviceId}-browser-${profile.display===null?'led':'display'}-probe.bin`, provenance:{kind:'browser-local-littlefs-composition', fixture:fixture.id,
       base_sha256:profile.reference.sha256, firmware_sha256:digest, composer_commit:SOURCE_COMMIT, composer_wasm_sha256:manifest.assets.wasm.sha256,
-      files:Object.fromEntries(files.map(([name, bytes]) => [name, sha256Bytes(bytes)])), source_readback_verified:true,
+      files:Object.fromEntries(fileDigests), source_readback_verified:true,
       preserved_file_count:fixture.preservedFileCount, outside_vfs_unchanged:true, disk_version_before:beforeVersion, disk_version_after:fixture.derivedDiskVersion}};
+    abort(signal); rememberComposition(compositionKey, result); return result;
   } finally {
     if (mounted) engine._m5_lfs_unmount(); for (const ptr of allocations) engine._free(ptr); URL.revokeObjectURL(blob);
   }

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "category": "factory-browser-warm-cache-isolation-audit",
+  "validation": "read-only source audit plus existing virtual-device lifecycle evidence",
+  "result": "NO OBSERVED CROSS-VM MUTABLE CACHE PATH; ROOT CAUSE UNRESOLVED",
+  "raw_report_sha256": "b8eb6fda156e2116997f6a6fbd9eaae2ce033883cb55950c976a1783c831cbaf",
+  "provenance": {
+    "platform/web/public-verified-assets.js": {
+      "sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4",
+      "matches_executed_r3_provenance": true
+    },
+    "platform/web/public-qemu-runtime.js": {
+      "sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a",
+      "matches_executed_r3_provenance": true
+    },
+    "platform/web/public-qemu-engine.js": {
+      "sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e",
+      "matches_executed_r3_provenance": true
+    },
+    "platform/web/public-qemu-profiles.js": {
+      "sha256": "164bcb22d2b22c793e72ad2569e9eb14db64cc6ec36cc7152bf4be122a9198af",
+      "matches_executed_r3_provenance": true
+    },
+    "qemu-system-xtensa.js": {
+      "sha256": "380a2265508eb69058829628bcebd183c0db244240311473337b55aeffd0f1fb",
+      "matches_executed_r3_receipt": true
+    }
+  },
+  "source_findings": [
+    {
+      "path": "platform/web/public-verified-assets.js",
+      "lines": [
+        17,
+        20,
+        51,
+        68,
+        81,
+        91
+      ],
+      "finding": "Immutable runtime/ROM cache retains private byte copies. Memory hits return a slice; storage hits allocate a verified ArrayBuffer. Firmware/virtual Flash are not passed to this asset cache."
+    },
+    {
+      "path": "platform/web/public-verified-assets.js",
+      "lines": [
+        101,
+        111,
+        116,
+        120
+      ],
+      "finding": "Compilation cache retains only WebAssembly.Module and a byte-length number, never an Instance, Memory, filesystem, eFuse or mutable Flash."
+    },
+    {
+      "path": "platform/web/public-qemu-runtime.js",
+      "lines": [
+        82,
+        84,
+        89,
+        106,
+        124,
+        153,
+        167,
+        175
+      ],
+      "finding": "Each start awaits prior stop, advances generation, creates a new UUID/abort controller, normalizes full Flash into a new byte array, retains a separate saved copy and creates a fresh iframe/MessageChannel. Transfer includes immutable resource copies plus that new Flash, not a previous Memory."
+    },
+    {
+      "path": "platform/web/public-qemu-engine.js",
+      "lines": [
+        114,
+        119,
+        128,
+        132,
+        137,
+        139,
+        179,
+        180,
+        186
+      ],
+      "finding": "Each dedicated engine imports a fresh blob factory, uses a new WebAssembly.Instance when compiled code is cached, writes fresh Flash/ROM/eFuse into the per-factory FS, and does not supply wasmMemory to the main factory."
+    },
+    {
+      "artifact": "qemu-system-xtensa.js",
+      "finding": "Actual SHA-bound Emscripten factory allocates a new shared WebAssembly.Memory when main Module.wasmMemory is absent, and initializes its own FS/MEMFS. Pthreads share memory within one guest only. Existing code and compiled Module caching do not retain that guest Memory."
+    }
+  ],
+  "actual_lifecycle": {
+    "two_distinct_runtime_sessions": true,
+    "input_firmware_buffer_seen_before": [
+      false,
+      false
+    ],
+    "input_firmware_bytes": [
+      16777216,
+      16777216
+    ],
+    "persistent_flash": [
+      false,
+      false
+    ],
+    "wasm_compilation": [
+      "compiled",
+      "memory"
+    ],
+    "asset_cache_states": [
+      [
+        {
+          "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+          "cache": "download",
+          "bytes": 2776
+        },
+        {
+          "sha256": "380a2265508eb69058829628bcebd183c0db244240311473337b55aeffd0f1fb",
+          "cache": "download",
+          "bytes": 157200
+        },
+        {
+          "sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+          "cache": "download",
+          "bytes": 12760672
+        },
+        {
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "cache": "download",
+          "bytes": 393216
+        }
+      ],
+      [
+        {
+          "sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+          "cache": "memory",
+          "bytes": 12760672
+        },
+        {
+          "sha256": "380a2265508eb69058829628bcebd183c0db244240311473337b55aeffd0f1fb",
+          "cache": "memory",
+          "bytes": 157200
+        },
+        {
+          "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+          "cache": "memory",
+          "bytes": 2776
+        },
+        {
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "cache": "memory",
+          "bytes": 393216
+        }
+      ]
+    ],
+    "same_runtime_sha256": true,
+    "same_firmware_sha256": true,
+    "cold_workers": 6,
+    "new_warm_workers": 6,
+    "all_cold_workers_destroyed_before_first_warm_worker": true,
+    "live_workers_after_cleanup": [
+      0,
+      0
+    ],
+    "graceful_exit": [
+      true,
+      true
+    ],
+    "engine_normal_terminations": [
+      1,
+      1
+    ],
+    "engine_fallback_terminations": [
+      0,
+      0
+    ],
+    "iframe_removed": [
+      true,
+      true
+    ]
+  },
+  "limits": [
+    "No new guest/build was run for this audit.",
+    "No direct host object-identity instrumentation compared dead-realm HEAP objects; freshness is established from executed source structure and recorded lifecycle, not a cross-realm pointer measurement.",
+    "A cached compile changes startup duration and host scheduling. This audit does not exclude a timing-sensitive QEMU/WASM CPU bug or prove why the warm guest entered BREAK/RESET.",
+    "Factory cold run and warm failure are preserved separately; no retry replaced the failure."
+  ]
+}

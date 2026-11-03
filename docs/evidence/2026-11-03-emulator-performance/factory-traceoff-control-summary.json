@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "kind": "factory-cstack-traceoff-controlled-instrumented-diagnostic-summary",
+  "result": "GUEST_WATCHDOG_REPRODUCED_WITH_CSTACK_DISABLED",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "fresh_source_build": "NOT RUN; existing exact objects/dependencies reused, four source objects differ from formal and two gating objects differ from v2",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "controlled_change": {
+    "base_observation": "The same v2 first-double/stub and bounded atomic-step observers are retained.",
+    "new_change": "Caller-side old CSTACK preparation/logging is disabled unless M5_WASM_CSTACK_TRACE is exactly 1.",
+    "option": {
+      "name": "M5_WASM_CSTACK_TRACE",
+      "default": "off",
+      "engine_setting": "unset"
+    },
+    "firmware_changed": false,
+    "clock_changed": false,
+    "watchdog_disabled": false,
+    "scope": "This is an instrumented control, not a formal performance sample or a Factory fix."
+  },
+  "source_and_build": {
+    "formal_base_wasm_sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+    "v2_base_wasm_sha256": "c272238168138574d3d2d66936a6250405e54dc1708b58fd82d42e9e2c80715f",
+    "diagnostic_runtime_assets": {
+      "javascript": {
+        "path": "qemu-system-xtensa.js",
+        "sha256": "a668e116922dc8a65efcad52f6406fee352bae5c74d92fe907b7496aec53ece7",
+        "bytes": 157200
+      },
+      "wasm": {
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "5aabc1825364d2a02a23a13c750e8c13ade9479e724a6c9ccc7e6e3fd2467c19",
+        "bytes": 12764208
+      },
+      "worker": {
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "bytes": 2776
+      }
+    },
+    "runtime_manifest_sha256": "20d7250569119ca284fe3e279eab6244906266308796bb627aa488ce111d91e1",
+    "site_manifest_sha256": "3724592f47c1dc0f04d0387a256551c2e9e60d13bd1bde5f082538162007e4cb",
+    "gate_patch_sha256": "5a51069320d0a07756d2c887fa6cac762beebee4fa450c98ebe0b6f28025c911",
+    "gate_contract_result_sha256": "27bc844e5087a170e0024f303a8ff5eca2bbc462520f88cbecad7fdeb01b57e4",
+    "retained_observer_sources": {
+      "target/xtensa/exc_helper.c": "e106dea8c2b2fe2713dcef9f54e6c11e6875b488753db4a17161d6b71282f578",
+      "accel/tcg/cpu-exec.c": "264daa62aa509b6ffb910f7756aea18e14948779600cfca42349c1a33134ee0b"
+    },
+    "compile_objects": [
+      {
+        "source_path": "hw/misc/esp32s3_cache.c",
+        "preimage_sha256": "5c1ceb02e40056580d95f6b2df76330292c4475a892bbabe9a9497a533b4749a",
+        "postimage_sha256": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a",
+        "compile_argv_sha256": "9060cfbcf9938f155ecdf04874915f04c43565e93c01df07dd991e99080253d3",
+        "diagnostic_object_sha256": "c48d0287d5cc33e36eddfbb1c03fedecdb9dea6070218c895247b656de7f6d8b"
+      },
+      {
+        "source_path": "util/coroutine-wasm.c",
+        "preimage_sha256": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
+        "postimage_sha256": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b",
+        "compile_argv_sha256": "f149d403f96dde1dde1db7b580bf1881285dcaa903063a4f999de2d50146feee",
+        "diagnostic_object_sha256": "1139548f111f1838ecedd5f5572f7c2f8aecc932fef6883fcd2fe38cc54cf1cd"
+      }
+    ],
+    "formal_link_argv_sha256": "4395aabfeb1653683eb55091b622445f1587134f693b2f25737574a66cf3eaad",
+    "diagnostic_link_argv_sha256": "e23ce510c493baa40cc69ede47b1af0504ef33039d382058c54923d24eb2da56",
+    "full_private_plan_sha256": "e2ff5d65e5501455b2ff0c58e2696eaaec4441c474ba3c459285e9748f389675",
+    "build_result_sha256": "efeac28b166b90b75e2edd5b3cd5d3524eb19b4d4600cbd2502390237e5a078f",
+    "build_script_sha256": "bb365915e9688e3dbdb276219288381805c29bb460d4a95d23b5ee50761cbca7",
+    "original_inputs_verified": 4602,
+    "original_inputs_unchanged": true,
+    "original_formal_and_v2_outputs_unchanged": true,
+    "thin_archive_members": 452,
+    "thin_archive_replacement_member": "util_coroutine-wasm.c.o"
+  },
+  "reproduction": {
+    "effective_firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "raw_report_sha256": "a775ce275ddc7d93fed823f49506b534c6d59b5d8bf8926639cc3dc6757954bf",
+    "executed_harness_sha256": "9623acdfaacfeb7a7349a92a14f2942260a2b411d5e2eb55d93279e396b6a833",
+    "planned_fresh_vms": 4,
+    "observed_fresh_vms": 1,
+    "remaining_vms_skipped_after_first_panic": true,
+    "prior_inputs": [],
+    "clock_divisor": 1,
+    "actual_arguments": [
+      "./this.program",
+      "-M",
+      "m5stackchan",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "file:/bridge/uart.out",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "application_ready_marker": null,
+    "first_nonblack_frame_ms": 5186.054999947548,
+    "first_frame_limit": "An instrumented startup observation, not application readiness or a performance score.",
+    "sample_duration_seconds": 20.00475499999523,
+    "diagnostic_capture_bytes": 132,
+    "diagnostic_event_count": 2,
+    "complete_diagnostics_sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+    "diagnostic_events_json_sha256": "122ce02caf33b3fbc3cb3880c4305ef40c2578fa3bef2f9f3582098dc3a25833",
+    "diagnostic_prefix_counts": {
+      "M5_CSTACK_SWAP": 0,
+      "M5_CSTACK_CACHE": 0,
+      "M5_DOUBLE_ORIGIN": 0,
+      "M5_DOUBLE_ORIGIN_SAVED": 0,
+      "M5_DOUBLE_STUB": 0,
+      "M5_DOUBLE_STUB_SAVED": 0,
+      "M5_ATOMIC_ENTER": 0,
+      "M5_ATOMIC_EXIT": 0,
+      "M5_ATOMIC_LONGJMP": 0
+    },
+    "actual_canvas_renderer": [
+      {
+        "scope": "actual-workbench-model-canvas",
+        "canvas_id": "",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmasked_vendor": "Google Inc. (Apple)",
+        "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+      }
+    ]
+  },
+  "guest_failure": {
+    "panic": "Guru Meditation Error: Core  0 panic'ed (Interrupt wdt timeout on CPU0). ",
+    "guest_register_dumps": {
+      "cpu0": {
+        "PC": "40383c94",
+        "PS": "00060d34",
+        "A0": "82178635",
+        "A1": "3fcc0090",
+        "A2": "00000001",
+        "A3": "3cb80000",
+        "A4": "00a00000",
+        "A5": "00400000",
+        "A6": "00000001",
+        "A7": "02000000",
+        "A8": "ffffffff",
+        "A9": "3cf7ffff",
+        "A10": "41ffffff",
+        "A11": "00000000",
+        "A12": "3cf80000",
+        "A13": "000000e0",
+        "A14": "3cf80000",
+        "A15": "3fcc0090",
+        "SAR": "0000001e",
+        "EXCCAUSE": "00000005",
+        "EXCVADDR": "00000000",
+        "LBEG": "400570e8",
+        "LEND": "400570f3",
+        "LCOUNT": "00000000"
+      },
+      "cpu1": {
+        "PC": "4205141e",
+        "PS": "00060d34",
+        "A0": "82051fb4",
+        "A1": "3c3d04b0",
+        "A2": "00000000",
+        "A3": "3fcd51f0",
+        "A4": "00000028",
+        "A5": "3c3d0518",
+        "A6": "3fcb2ff0",
+        "A7": "3c3d04f0",
+        "A8": "8205141c",
+        "A9": "3c3d0490",
+        "A10": "00000000",
+        "A11": "3c3d04f0",
+        "A12": "3fcd51f0",
+        "A13": "3fcd51f0",
+        "A14": "01ffffff",
+        "A15": "0000001c",
+        "SAR": "00000004",
+        "EXCCAUSE": "00000005",
+        "EXCVADDR": "00000000",
+        "LBEG": "4205131d",
+        "LEND": "42051329",
+        "LCOUNT": "00000000"
+      }
+    },
+    "cpu0_backtrace": "0x40383c91:0x3fcc0090 0x42178632:0x3fcc00c0 0x421788e3:0x3fcc0110 0x42177423:0x3fcc0150 0x4201d3b1:0x3fcc0170 0x4222de6b:0x3fcc01e0 0x4201c2cb:0x3fcc0200 0x420493f3:0x3fcc0220 0x4201fef5:0x3fcc0290 0x4206c785:0x3fcc02c0 0x4225c123:0x3fcc0300",
+    "reset_count": 1,
+    "rom_boot_markers_per_port": {
+      "uart0": 2
+    },
+    "first_double_observer": "NOT OBSERVED in this capture; the preceding v2 STORE_PROHIBITED cause must not be assigned to this watchdog case."
+  },
+  "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "all_observed_workers_closed": true,
+    "observed_worker_count": 6,
+    "nested_workers_at_exit": 0,
+    "remaining_workers_after_dispose": 0,
+    "engine_fallback_terminations": 0,
+    "iframe_removed": true
+  },
+  "interpretation": [
+    "Zero CSTACK messages confirms the default-off control reached the observed guest execution.",
+    "Factory still panicked/reset with CSTACK disabled; unconditional trace overhead alone does not explain or repair the known failures.",
+    "Different failures in two instrumented samples do not establish a common root cause, causality, stability, or a performance effect.",
+    "All remaining planned VMs were skipped after this retained failure; no ordinary retry was used to replace it with a pass."
+  ]
+}

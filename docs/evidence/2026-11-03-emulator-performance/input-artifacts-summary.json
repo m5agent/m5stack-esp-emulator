@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "published-firmware-input-artifacts-summary",
+  "source_kind": "published-firmware-binary; not a claim of firmware source-code correspondence",
+  "original_descriptor_sha256": "d21d3c1eb875e24056d13e2f72b0b1e136748caee0e5593dd24c5c3720c9a3ff",
+  "images": [
+    {
+      "id": "m5stack-stopwatch-official",
+      "source_url": "https://m5burner-cdn.m5stack.com/firmware/6ea670900726398df06ab72c2915db3e.bin",
+      "source_sha256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe",
+      "source_bytes": 3854192,
+      "image_sha256": "d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898",
+      "image_bytes": 16777216,
+      "transformation": "FF padding only to declared16MiB capacity, original bytes preserved"
+    },
+    {
+      "id": "m5stack-k151-official-factory",
+      "source_url": "https://m5burner-cdn.m5stack.com/firmware/746f9662f48ac465cccf49bcad941414.bin",
+      "source_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+      "source_bytes": 12783789,
+      "image_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+      "image_bytes": 16777216,
+      "transformation": "FF padding only to declared16MiB capacity, original bytes preserved"
+    }
+  ],
+  "validation": "Original-source prefix and full 0xff tail independently checked; runtime variant selection remains bound to each full effective Flash SHA.",
+  "binary_included": false
+}

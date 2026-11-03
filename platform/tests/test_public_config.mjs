@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { assetUrl, siteRoot, resolveDevice, parseLaunchConfig, buildShareUrl, normalizeServiceUrl } from '../web/public-config.js';
+import { assetUrl, siteRoot, resolveDevice, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane } from '../web/public-config.js';
 import { downloadFirmware, normalizeFirmwareUrl } from '../web/public-firmware.js';
 import { sha256Bytes } from '../web/sha256.js';
 
@@ -7,6 +7,21 @@ const pageUrl = 'https://m5agent.github.io/m5stack-esp-emulator/';
 const catalog = { devices: [{id:'cores3',path:'esp32-s3/cores3'}, {id:'papermono',path:'esp32-s3/papermono'}] };
 const root = siteRoot(new URL('platform/web/public-config.js', pageUrl));
 assert.equal(root.href, pageUrl);
+for (const [options, expected, reason] of [
+  [{browserAvailable:true,serviceReady:true},'service','auto prefers the connected native model'],
+  [{browserAvailable:true,serviceReady:false},'browser','static browser export remains usable without a service'],
+  [{browserAvailable:false,serviceReady:true},'service','browser availability is independent of native availability'],
+  [{browserAvailable:false,serviceReady:false},null,'missing capabilities do not authorize execution'],
+  [{mode:'browser',browserAvailable:true,serviceReady:true},'browser','explicit browser choice wins over a connected service'],
+  [{mode:'browser',browserAvailable:false,serviceReady:true},null,'explicit browser choice cannot silently switch engines'],
+  [{mode:'service',browserAvailable:true,serviceReady:false},null,'explicit service choice cannot silently switch engines'],
+  [{mode:'service',browserAvailable:true,serviceReady:true},'service','explicit connected service is preserved'],
+  [{hasAttachments:true,browserAvailable:true,serviceReady:true},'service','Units require their service path'],
+  [{hasAttachments:true,browserAvailable:true,serviceReady:false},null,'browser admission does not include attached Units'],
+  [{mode:'browser',hasAttachments:true,browserAvailable:true,serviceReady:true},null,'explicit browser rejects unsupported Units'],
+  [{mode:'model',hasAttachments:true,browserAvailable:true,serviceReady:true},'model','model-only mode never executes firmware'],
+]) assert.equal(selectExecutionLane(options),expected,reason);
+assert.throws(()=>selectExecutionLane({mode:'unknown',browserAvailable:true,serviceReady:true}),{code:'invalid_mode'});
 for (const path of ['/platform/web/app.css', 'platform/web/app.css', '/m5stack-esp-emulator/platform/web/app.css']) {
   assert.equal(assetUrl(path, root), `${pageUrl}platform/web/app.css`);
 }

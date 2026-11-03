@@ -168,6 +168,11 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径 | `test_public_config.mjs`、`test_public_workbench_browser.mjs` |
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
+| `platform/web/public-verified-assets.js` | 按显式 SHA/长度缓存不可变运行资源，独立 buffer 所有权及有界编译 Module 复用；不复用客体内存或运行中 Flash | `test_public_verified_assets.mjs`、`test_public_qemu_instance.mjs` |
+| `platform/tests/benchmark_emulator_firmware.mjs`、`emulator_performance_summary.mjs`、`derive_emulator_benchmark.mjs` | 同完整 BIN、浏览器与输入的本项目/对照性能观测及统一派生统计；原始状态与展示插值分开 | 调用和边界见 [基准说明](../platform/tests/benchmark_emulator_firmware.md)；采集/退出成功不等于动作目标通过 |
+| `platform/tests/test_public_native_performance.mjs` | 独立 Device Service 的同固件页面取帧前后对照、真实输入和停止历史 | 显式 `--execute` 与独立 runtime/ROM 路径；原始材料写入 ignored storage |
+| `platform/tests/test_gpio_wasm_transactions_patch.py`、WASM `0027` | 锁定源重放、真实 GPIO C 的 IRQ/callback/计时边界及负控 | 不依赖本地构建缓存；实际浏览器准入独立运行 |
+| `tests/browser-qemu/typed_helpers/`、WASM `0024`/`0025` | 全局 icount no-op 消除与 WASM32 typed helper ABI 控制；不替代真实 guest 验收 | `test_xtensa_wallclock_noop_yield_patch.py`、该目录的真实 Emscripten/libffi 对照 |
 
 `patches/qemu-wasm-probe/`保存独立于原生 bootstrap 的 C/QEMU 宿主回移及依赖适配，
 公开浏览器构建只使用源码 lock 明确选择的补丁；
@@ -223,8 +228,9 @@ PC 直接 code、左右 modifier、Esc/Delete 与四方向 Fn 和弦分别断言
 count bit 的固定空间规则，直方图不能替代；计数字符 ROI 变化不证明精确字形。
 StackChan 用户跳舞 Flash 使用
 `platform/tests/test_stackchan_dance_user_firmware.mjs`，要求真实 UART1
-SCS present/goal 位移、QOM、3D 与 DOM 同源；该 SHA 的 div6 是渲染时序兼容
-profile，不是实时性能结论。
+SCS present/goal 位移、QOM、3D 与 DOM 同源；当前该 SHA 使用 normal-clock、
+原 TCI 的 one-insn-per-tb 模式，并强制校验 `0027` runtime patch 身份。
+旧 div6 的历史结果不能替代[本轮验证](evidence/2026-11-03-emulator-performance/README.md)。
 完整固定源码与边界见
 [逐板说明](../tests/browser-qemu/board_display/README.md)。
 

@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "kind": "factory-first-double-origin-instrumented-diagnostic-summary",
+  "result": "TARGET_CAPTURED",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "fresh_source_build": "NOT RUN; exact original objects and dependencies reused except two observer objects",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "observer_scope": "Read-only first double origin/saved EPC/EPS, first double stub and bounded atomic-step host-SP observation; no repair, firmware modification, input, clock change or WDT disable.",
+  "source_and_build": {
+    "base_formal_wasm_sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+    "diagnostic_runtime_assets": {
+      "javascript": {
+        "path": "qemu-system-xtensa.js",
+        "sha256": "d4572fc424a1d70a056f8f2ea8a1bb48d1faaf5fa1965f6608aa44b1b47a52ec",
+        "bytes": 157200
+      },
+      "wasm": {
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "c272238168138574d3d2d66936a6250405e54dc1708b58fd82d42e9e2c80715f",
+        "bytes": 12763969
+      },
+      "worker": {
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "bytes": 2776
+      }
+    },
+    "runtime_manifest_sha256": "bf7a0e8b27cd6cddcb60462f36b400de462511b087a06f80a18035698759dd28",
+    "site_manifest_sha256": "f0398b60672ca17acbcf6dbb9f0f8cdc45efe1dc8e43deb8a3a159a091caa09d",
+    "observer_delta_patch_sha256": "25c16a8aa284ef46155864bb44f0e52a4838585abf7f58aaefe8fd20724264ac",
+    "compile_objects": [
+      {
+        "source_path": "target/xtensa/exc_helper.c",
+        "base_source_sha256": "a286df37066556758783c0a5189671f14f305d2879648d3ae176380e82a8b5f2",
+        "observer_source_sha256": "e106dea8c2b2fe2713dcef9f54e6c11e6875b488753db4a17161d6b71282f578",
+        "compile_argv_sha256": "dc669e7078d44ce3fd8c59086ec67a4d4a9396687a86ac10924e087368c2f5e5",
+        "observer_object_sha256": "522fd454134053aeec2f5ed773f2212e16b5ae12c8feda5ec1d91bd593262f95"
+      },
+      {
+        "source_path": "accel/tcg/cpu-exec.c",
+        "base_source_sha256": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
+        "observer_source_sha256": "264daa62aa509b6ffb910f7756aea18e14948779600cfca42349c1a33134ee0b",
+        "compile_argv_sha256": "7ff76d50c28e2ba0204c7014f5a815616748153fc030ceec85c1b754349a0398",
+        "observer_object_sha256": "e2d425211c06b1a548822a534097dbb7fe2b5ff7246c63c191256e29adff88e0"
+      }
+    ],
+    "base_link_argv_sha256": "4395aabfeb1653683eb55091b622445f1587134f693b2f25737574a66cf3eaad",
+    "diagnostic_link_argv_sha256": "efee28d9e8dd7ad7650454eb610190cac50052c73821b889abccff1d1189b4e4",
+    "full_private_plan_sha256": "b2f9d78e7ab4406ddc5d3ed223e6599e35b5b88f455189c4adcad99a81b5cd24",
+    "private_build_result_sha256": "f83df4fa402c4ac907b4c0dfd039318e92e61e1189794dabfc71577bc0cfd9c5",
+    "observer_build_script_sha256": "8f5354bb06e9ea2366d6ebd7adc9164cf6e1846d9508a17d052f87a9728e2b81",
+    "original_inputs_verified": 4149,
+    "original_inputs_unchanged": true,
+    "original_three_runtime_outputs_unchanged": true,
+    "corresponding_source_scope": "Base complete source archive plus the actual observer delta patch; no formal source-build label is inherited."
+  },
+  "reproduction": {
+    "effective_firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "raw_report_sha256": "93f271672c30a5732787297b39836ab205d84c094351108850aeb9984e60ca76",
+    "executed_harness_sha256": "9623acdfaacfeb7a7349a92a14f2942260a2b411d5e2eb55d93279e396b6a833",
+    "planned_fresh_vms": 4,
+    "observed_fresh_vms": 1,
+    "remaining_vms_skipped_after_first_fault": true,
+    "prior_inputs": [],
+    "clock_divisor": 1,
+    "actual_arguments": [
+      "./this.program",
+      "-M",
+      "m5stackchan",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "file:/bridge/uart.out",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "diagnostic_capture_bytes": 189328,
+    "diagnostic_event_count": 774,
+    "complete_diagnostics_sha256": "f7b1fd8ebf8236d4dedcf9992151a268c243850996e214dd18ff9bd687e18af8",
+    "diagnostic_events_json_sha256": "2a697b828febde4b3691ba2f2e1a9cfd8845f6db537ec70db1c5cdf9f3a2d858",
+    "old_unconditional_cstack_messages": 768,
+    "cstack_swap_messages": 512,
+    "cstack_cache_messages": 256,
+    "atomic_observer_messages": 0,
+    "capture_limit_note": "Independent receive-event capture preserves all chunks; the production evidence tail alone truncates at32768 bytes."
+  },
+  "first_double": {
+    "actual_exception_cause_hex": "0x1d",
+    "actual_exception_name": "STORE_PROHIBITED",
+    "definition": "QEMU target/xtensa/cpu.h: LOAD_PROHIBITED=28 followed by STORE_PROHIBITED=29",
+    "guest_register_snapshots": {
+      "M5_DOUBLE_ORIGIN": {
+        "cpu": "1",
+        "pc": "40378100",
+        "envpc": "40378100",
+        "cause": "0000001d",
+        "vaddr": "fffffff0",
+        "ps": "00040e34",
+        "depc": "40378100",
+        "vecbase": "40378000",
+        "intset": "01000002",
+        "intenable": "13000003",
+        "pending": "0",
+        "windowbase": "0000000f",
+        "windowstart": "00008000",
+        "ccount": "0f7b754f",
+        "origin_seen": "2",
+        "a0": "4038c2ba",
+        "a1": "3fcc11a0",
+        "a2": "00060d30",
+        "a3": "00040023"
+      },
+      "M5_DOUBLE_ORIGIN_SAVED": {
+        "cpu": "1",
+        "epc1": "403999aa",
+        "epc2": "00000000",
+        "epc3": "00000000",
+        "epc4": "403999b0",
+        "epc5": "00000000",
+        "epc6": "00000000",
+        "epc7": "00000000",
+        "eps2": "00000000",
+        "eps3": "00000000",
+        "eps4": "00040823",
+        "eps5": "00000000",
+        "eps6": "00000000",
+        "eps7": "00000000",
+        "debugcause": "00000000"
+      },
+      "M5_DOUBLE_STUB": {
+        "cpu": "1",
+        "pc": "403783c0",
+        "envpc": "403783c0",
+        "cause": "0000001d",
+        "vaddr": "fffffff0",
+        "ps": "00040e34",
+        "depc": "40378100",
+        "vecbase": "40378000",
+        "intset": "01000002",
+        "intenable": "13000003",
+        "pending": "0",
+        "windowbase": "0000000f",
+        "windowstart": "00008000",
+        "ccount": "0f7b754f",
+        "origin_seen": "2",
+        "a0": "4038c2ba",
+        "a1": "3fcc11a0",
+        "a2": "00060d30",
+        "a3": "00040023"
+      },
+      "M5_DOUBLE_STUB_SAVED": {
+        "cpu": "1",
+        "epc1": "403999aa",
+        "epc2": "00000000",
+        "epc3": "00000000",
+        "epc4": "403999b0",
+        "epc5": "00000000",
+        "epc6": "00000000",
+        "epc7": "00000000",
+        "eps2": "00000000",
+        "eps3": "00000000",
+        "eps4": "00040823",
+        "eps5": "00000000",
+        "eps6": "00000000",
+        "eps7": "00000000",
+        "debugcause": "00000000"
+      }
+    },
+    "instruction": {
+      "guest_pc": "0x40378100",
+      "vecbase": "0x40378000",
+      "vector_offset": "0x100",
+      "flash_file_offset": "0x13d7d0",
+      "bytes_hex": "00cd49",
+      "decoded_instruction": "s32e a0, a13, -16",
+      "routine": "_WindowOverflow12",
+      "segment_vma": "0x40378000",
+      "segment_flash_offset": "0x13d6d0",
+      "segment_bytes": 10568,
+      "segment_sha256": "be2333b4304852856a9d8a7447639823532ed9c2eaef72c84e2b7fea740ece56",
+      "saved_disassembly_sha256": "e78da485597ca02a3f3c1803bfc1d26f47bd417a24bb304931806cb85ec9b30d",
+      "official_layout_reference": "https://github.com/espressif/esp-idf/blob/v5.5.4/components/xtensa/xtensa_vectors.S#L2169-L2178",
+      "official_source_file_sha256": "3a0f58fbcb47dda8992e7972df28a76cd4939b743c5a5a6d9d6e523bffd6b631",
+      "reference_limit": "The actual BIN bytes and decoded instruction are verified directly. The official source is a matching vector-layout reference, not a claim of exact vendor source provenance."
+    }
+  },
+  "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "all_observed_workers_closed": true,
+    "nested_workers_at_exit": 0,
+    "remaining_workers_after_dispose": 0
+  },
+  "limitations": [
+    "Instrumentation can alter timing; this is not an uninstrumented performance sample.",
+    "Zero atomic observer messages describes this captured window only.",
+    "The raw first cause is saved; it does not establish a repaired Factory path or whole-firmware stability."
+  ]
+}

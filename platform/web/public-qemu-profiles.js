@@ -13,6 +13,63 @@ const S3_ADC_CALIBRATION_FIELDS = Object.freeze([
 ].map(row => Object.freeze(row)));
 function check(ok, message) { if (!ok) throw new Error(message); }
 
+export const QEMU_ONE_INSN_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch',
+  sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf',
+});
+const variantFields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];
+const variantOptions = ['oneInsnPerTb', 'requiredRuntimePatch', 'sourceKind'];
+// Published BIN provenance is distinct from a matching source-code revision.
+// Full Flash hashes admit execution; sourceSHA256 identifies the unpadded BIN.
+const publishedFirmwareVariants = Object.freeze([
+  {deviceId:'stopwatch',board:'m5stopwatch',fixture:'stopwatch-vendor-factory-ff-pad-v1',
+    firmwareSHA256:'d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898',
+    sourceSHA256:'6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe'},
+]);
+function validateRuntimePatch(patch) {
+  check(patch && Object.keys(patch).length === 2
+    && patch.path === QEMU_ONE_INSN_RUNTIME_PATCH.path && patch.sha256 === QEMU_ONE_INSN_RUNTIME_PATCH.sha256,
+    'Invalid QEMU required runtime patch');
+}
+function validateFirmwareVariant(variant, profile) {
+  check(variant && variantFields.every(key => Object.hasOwn(variant,key))
+    && Object.keys(variant).every(key => variantFields.includes(key) || variantOptions.includes(key))
+    && identity.test(variant.firmwareSHA256) && identity.test(variant.sourceSHA256)
+    && /^[a-z0-9-]+$/.test(variant.profile) && [1,6,8].includes(variant.clockDivisor)
+    && /^[a-z0-9-]+$/.test(variant.fixture) && /^[a-z0-9-]+$/.test(variant.schedulerCandidate), 'Invalid QEMU firmware execution variant');
+  const published = Object.hasOwn(variant,'sourceKind');
+  if (published) {
+    check(variant.sourceKind === 'published-firmware-binary' && variant.readyMarker === null
+      && variant.oneInsnPerTb === true && variant.clockDivisor === 1
+      && variant.schedulerCandidate === 'qemu-tci-mmio-blocks-v1'
+      && profile.chip === 'esp32s3' && profile.flashMb === 16 && profile.psramMb === 8
+      && publishedFirmwareVariants.some(row => row.deviceId === profile.deviceId && row.board === profile.board
+        && ['firmwareSHA256','sourceSHA256','fixture'].every(key => row[key] === variant[key])),
+      'Invalid QEMU published firmware binary provenance');
+  } else {
+    check(typeof variant.readyMarker === 'string' && variant.readyMarker.length > 0 && variant.readyMarker.length <= 128
+      && !/[\x00-\x1f]/.test(variant.readyMarker)
+      && !publishedFirmwareVariants.some(row => row.firmwareSHA256 === variant.firmwareSHA256 || row.fixture === variant.fixture),
+      'Invalid QEMU source-code firmware ready marker or provenance');
+  }
+  const oneInsn = Object.hasOwn(variant,'oneInsnPerTb'), requiredPatch = Object.hasOwn(variant,'requiredRuntimePatch');
+  check(oneInsn === requiredPatch && (!oneInsn || variant.oneInsnPerTb === true && variant.clockDivisor === 1),
+    'Invalid QEMU one-instruction firmware variant');
+  if (requiredPatch) validateRuntimePatch(variant.requiredRuntimePatch);
+}
+
+/** Execution metadata may require a source patch absent from an older cache. */
+export function validateQemuRuntimeRequirements(profile, manifest) {
+  validateQemuProfile(profile);
+  if (profile.oneInsnPerTb === true) {
+    const patches = manifest?.source?.patches;
+    const matches = Array.isArray(patches) ? patches.filter(row => row?.path === profile.requiredRuntimePatch.path) : [];
+    check(matches.length === 1 && matches[0].sha256 === profile.requiredRuntimePatch.sha256,
+      'QEMU runtime lacks the firmware variant required source patch');
+  }
+  return profile;
+}
+
 /** Validate the narrow browser bridge contract, including iframe messages. */
 export function validateQemuProfile(profile) {
   check(profile && /^[a-z0-9-]+$/.test(profile.deviceId) && /^m5[a-z0-9]+$/.test(profile.board), 'Invalid QEMU browser board');
@@ -42,17 +99,33 @@ export function validateQemuProfile(profile) {
   const clockDivisors = profile.firmwareVariant ? [1, 6, 8] : [1, 8];
   check(clockDivisors.includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
   if (profile.firmwareVariant) {
+    validateFirmwareVariant(profile.firmwareVariant,profile);
+    const variant = profile.firmwareVariant, known = profile.firmwareProfiles?.find(row => row.firmwareSHA256 === variant.firmwareSHA256);
     check(profile.firmwareVariant.profile === profile.profile
       && profile.firmwareVariant.clockDivisor === profile.clockDivisor
-      && profile.readyFirmwareSHA256 === profile.firmwareVariant.firmwareSHA256,
+      && profile.firmwareVariant.readyMarker === profile.readyMarker
+      && profile.readyFirmwareSHA256 === profile.firmwareVariant.firmwareSHA256
+      && known && [...variantFields,...variantOptions].every(key => Object.hasOwn(known,key) === Object.hasOwn(variant,key)
+        && (key === 'requiredRuntimePatch' || known[key] === variant[key])),
       'Invalid resolved QEMU firmware variant');
   }
+  const oneInsn = Object.hasOwn(profile,'oneInsnPerTb'), requiredPatch = Object.hasOwn(profile,'requiredRuntimePatch');
+  check(oneInsn === requiredPatch && (!oneInsn || profile.oneInsnPerTb === true
+    && profile.clockDivisor === 1 && profile.accelerator === undefined
+    && profile.firmwareVariant?.oneInsnPerTb === true && identity.test(profile.readyFirmwareSHA256)),
+    'Invalid QEMU one-instruction execution binding');
+  check(profile.firmwareVariant?.oneInsnPerTb !== true || oneInsn, 'Missing QEMU one-instruction execution binding');
+  if (requiredPatch) validateRuntimePatch(profile.requiredRuntimePatch);
   if (profile.accelerator !== undefined) {
-    check(profile.clockDivisor === 1 && profile.accelerator?.kind === 'tcg-icount'
-      && profile.accelerator.thread === 'single' && profile.accelerator.tbSizeMb === 128
-      && profile.accelerator.icountShift === 5, 'Invalid QEMU deterministic accelerator profile');
+      check(profile.clockDivisor === 1 && profile.accelerator && Object.keys(profile.accelerator).length === 4
+        && profile.accelerator.kind === 'tcg-icount'
+        && profile.accelerator.thread === 'single' && profile.accelerator.tbSizeMb === 128
+        && profile.accelerator.icountShift === 5, 'Invalid QEMU deterministic accelerator profile');
   }
-  check(profile.readyMarker === null && profile.readyFirmwareSHA256 === null || typeof profile.readyMarker === 'string' && profile.readyMarker.length > 0 && profile.readyMarker.length <= 128
+  const publishedWithoutMarker = profile.firmwareVariant?.sourceKind === 'published-firmware-binary'
+    && profile.readyMarker === null && profile.readyFirmwareSHA256 === profile.firmwareVariant.firmwareSHA256;
+  check(profile.readyMarker === null && profile.readyFirmwareSHA256 === null || publishedWithoutMarker
+    || typeof profile.readyMarker === 'string' && profile.readyMarker.length > 0 && profile.readyMarker.length <= 128
     && !/[\x00-\x1f]/.test(profile.readyMarker) && identity.test(profile.readyFirmwareSHA256), 'Invalid QEMU ready marker');
   const names = profile.chip === 'esp32s3' ? ['esp32s3_rev0_rom.bin'] : ['esp32-v3-rom.bin', 'esp32-v3-rom-app.bin'];
   check(Array.isArray(profile.roms) && profile.roms.length === names.length, 'Invalid QEMU ROM profile');
@@ -134,13 +207,11 @@ export function validateQemuProfile(profile) {
   }
   if (profile.firmwareProfiles !== undefined) {
     check(Array.isArray(profile.firmwareProfiles) && profile.firmwareProfiles.length <= 16, 'Invalid QEMU firmware execution variants');
-    const hashes = new Set(), fields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];
+    const hashes = new Set();
     for (const variant of profile.firmwareProfiles) {
-      check(variant && Object.keys(variant).length === fields.length && fields.every(key => Object.hasOwn(variant, key))
-        && identity.test(variant.firmwareSHA256) && !hashes.has(variant.firmwareSHA256) && identity.test(variant.sourceSHA256)
-        && /^[a-z0-9-]+$/.test(variant.profile) && [1, 6, 8].includes(variant.clockDivisor)
-        && typeof variant.readyMarker === 'string' && variant.readyMarker.length > 0 && variant.readyMarker.length <= 128 && !/[\x00-\x1f]/.test(variant.readyMarker)
-        && /^[a-z0-9-]+$/.test(variant.fixture) && /^[a-z0-9-]+$/.test(variant.schedulerCandidate), 'Invalid or duplicate QEMU firmware execution variant');
+      validateFirmwareVariant(variant,profile);
+      check(!hashes.has(variant.firmwareSHA256) && (!variant.oneInsnPerTb || profile.accelerator === undefined),
+        'Invalid or duplicate QEMU firmware execution variant');
       hashes.add(variant.firmwareSHA256);
     }
   }
@@ -177,13 +248,26 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
   check(identity.test(firmwareSHA256), 'Invalid QEMU firmware SHA256');
   const resolved = structuredClone(profile);
   delete resolved.firmwareVariant;
+  delete resolved.oneInsnPerTb; delete resolved.requiredRuntimePatch;
   const variant = profile.firmwareProfiles?.find(row => row.firmwareSHA256 === firmwareSHA256);
   if (variant) {
     resolved.profile = variant.profile; resolved.clockDivisor = variant.clockDivisor;
     resolved.readyMarker = variant.readyMarker; resolved.readyFirmwareSHA256 = firmwareSHA256;
     resolved.firmwareVariant = structuredClone(variant);
+    if (variant.oneInsnPerTb === true) {
+      resolved.oneInsnPerTb = true; resolved.requiredRuntimePatch = structuredClone(variant.requiredRuntimePatch);
+    }
   }
-  return resolved;
+  return validateQemuProfile(resolved);
+}
+
+/** A diagnostic override cannot inherit an admitted variant's execution flags. */
+export function clearQemuFirmwareExecutionBinding(profile) {
+  delete profile.firmwareVariant; delete profile.oneInsnPerTb; delete profile.requiredRuntimePatch;
+  // A publisher BIN with no app-ready marker must not retain a ready identity
+  // outside its explicit provenance branch. Real source-code markers remain.
+  if (profile.readyMarker === null) profile.readyFirmwareSHA256 = null;
+  return profile;
 }
 
 /** Validate a full merged image and return a private, FF-padded Flash copy. */
@@ -223,9 +307,12 @@ export function buildQemuArguments(profile) {
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
     '-serial', 'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
-  if (profile.accelerator) args.push('-accel',
-    `tcg,thread=${profile.accelerator.thread},tb-size=${profile.accelerator.tbSizeMb}`,
-    '-icount', `shift=${profile.accelerator.icountShift},align=off,sleep=off`);
+  if (profile.oneInsnPerTb === true) {
+    args.push('-accel', 'tcg,thread=multi,one-insn-per-tb=on');
+  } else if (profile.accelerator) {
+    args.push('-accel', `tcg,thread=${profile.accelerator.thread},tb-size=${profile.accelerator.tbSizeMb}`);
+    if (profile.accelerator.kind === 'tcg-icount') args.push('-icount', `shift=${profile.accelerator.icountShift},align=off,sleep=off`);
+  }
   return args;
 }
 

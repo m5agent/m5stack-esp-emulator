@@ -1,7 +1,7 @@
 // Host admission/layout/input contracts. No QEMU guest or service is started.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {validateQemuBrowserProfiles, getQemuBrowserProfile, validateQemuFirmware,
+import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile, validateQemuFirmware,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
@@ -153,10 +153,12 @@ for(const profile of registry.profiles) {
 const stack=pick('stackchan');
 const stackDanceSHA='c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542';
 assert.equal(stack.clockDivisor,1);
-assert.equal(stack.firmwareProfiles.length,1);
+assert.deepEqual(stack.firmwareProfiles.map(row=>row.firmwareSHA256),[stackDanceSHA],
+  'only the validated dance image has a StackChan execution variant; Factory remains withdrawn');
 const stackDance=resolveQemuFirmwareProfile(stack,stackDanceSHA);
-assert.equal(stackDance.profile,'stackchan-wasm-dance-div6');
-assert.equal(stackDance.clockDivisor,6);
+assert.equal(stackDance.profile,'stackchan-wasm-dance-wallclock');
+assert.equal(stackDance.clockDivisor,1);
+assert.equal(stackDance.oneInsnPerTb,true);
 assert.equal(stackDance.readyMarker,'StackChan auto-dance started');
 assert.equal(stackDance.readyFirmwareSHA256,stackDanceSHA);
 assert.equal(stackDance.firmwareVariant.sourceSHA256,'7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e');

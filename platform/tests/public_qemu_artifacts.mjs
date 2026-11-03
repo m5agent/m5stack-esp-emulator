@@ -10,7 +10,7 @@ import {isDeepStrictEqual} from 'node:util';
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
   'platform/web/index.html','platform/web/public.js','platform/web/public.css','platform/web/public-config.js',
-  'platform/web/public-firmware.js','platform/web/sha256.js','platform/web/public-demo-firmware.js',
+  'platform/web/public-firmware.js','platform/web/public-verified-assets.js','platform/web/sha256.js','platform/web/public-demo-firmware.js',
   'platform/web/public-coi.js','platform/web/public-coi-serviceworker.js',
   'platform/web/vendor/coi-serviceworker/coi-serviceworker.js',
   'platform/web/public-qemu-runtime.js','platform/web/public-qemu-instance.js','platform/web/public-qemu-engine.js',

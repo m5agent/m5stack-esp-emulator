@@ -1,6 +1,5 @@
-import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl} from './public-config.js';
-import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES} from './public-firmware.js';
-import {sha256Blob} from './sha256.js';
+import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
+import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
 import {PublicDeviceService} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
@@ -60,7 +59,7 @@ function error(error) {
   if (error?.name !== 'AbortError') message('errorBanner', error?.message || String(error));
 }
 function browserProfile(id) {
-  if (state.browserUnavailable) return null;
+  if (state.config.browser_board_execution !== true || state.browserUnavailable) return null;
   if (state.config.browser_runtime_engine === 'qemu-wasm') return state.qemuProfiles ? getQemuBrowserProfile(id,state.qemuProfiles,{allowCandidateProfiles:state.config.publication_eligible===false}) : null;
   return getBrowserProfile(id);
 }
@@ -91,14 +90,8 @@ function selectedAttachments() {
 function lane(device = state.selected) {
   const mode = $('runtimeMode').value;
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
-  if (mode === 'model') return 'model';
-  if (selectedAttachments().length) {
-    if (mode === 'browser') return null;
-    return serviceReady ? 'service' : null;
-  }
-  if (mode !== 'service' && browserProfile(device?.id)) return 'browser';
-  if (mode !== 'browser' && serviceReady) return 'service';
-  return null;
+  return selectExecutionLane({mode,serviceReady,browserAvailable:!!browserProfile(device?.id),
+    hasAttachments:selectedAttachments().length>0});
 }
 function deviceRuntimeLabel(device) {
   if (browserProfile(device?.id)) return '浏览器运行';
@@ -436,7 +429,7 @@ async function stopRun() {
       if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
-      clearBrowserOutputs(run.controller.profile);
+      clearBrowserOutputs(run.controller.outputProfile || run.controller.profile);
       status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录':'保留最后显示帧');
       message('runProgress');
     } catch (cause) {
@@ -490,13 +483,15 @@ async function firmware(signal, runGeneration) {
   if (!file?.size) throw new Error('请先选择非空的 .bin 固件文件。');
   if (file.size > (state.config.max_firmware_bytes || DEFAULT_MAX_FIRMWARE_BYTES))
     throw new Error('固件文件超过 64 MiB 上限。');
-  const sha256 = await sha256Blob(file);
+  const buffer = await file.arrayBuffer();
+  const sha256 = await sha256Buffer(buffer, {signal});
   if (signal.aborted) throw new DOMException('已取消加载', 'AbortError');
   if (expected && expected !== sha256) throw new Error('固件 SHA-256 与预期不一致，未加载固件。');
-  return {bytes: await file.arrayBuffer(), name: file.name, size: file.size, sha256};
+  return {bytes: buffer, name: file.name, size: file.size, sha256};
 }
 function clearBrowserOutputs(profile) {
   message('actuatorStatus');
+  $('deviceMount').dataset.outputKnown='false';
   if (!profile?.outputs) return;
   const commands=profile.outputs.kind==='stackchan-scs-qom-v1'
     ? ['yaw','pitch'].map(target=>({type:'joint',target,known:false}))
@@ -505,9 +500,9 @@ function clearBrowserOutputs(profile) {
   state.shell?.applyVisualState?.(commands);
   $('deviceMount').dataset.outputKnown='false';
 }
-function applyBrowserDeviceState(value, run) {
+function applyBrowserDeviceState(value, run, profile = run.controller.profile) {
   if (!active(run)) return;
-  const servo=run.controller.profile.outputs?.kind==='stackchan-scs-qom-v1';
+  const servo=profile.outputs?.kind==='stackchan-scs-qom-v1';
   let transitionMs=0;
   if(servo){
     // QOM updates are discrete present-position samples. Smooth only the 3D
@@ -519,19 +514,20 @@ function applyBrowserDeviceState(value, run) {
     }
     run.servoPresentation={observedAt:now,packets:value.packets};
   }
-  const commands=servo?qemuServoVisualCommands(run.controller.profile,value,transitionMs)
-    :qemuOnboardVisualCommands(run.controller.profile,value);
+  const commands=servo?qemuServoVisualCommands(profile,value,transitionMs)
+    :qemuOnboardVisualCommands(profile,value);
   state.shell.applyVisualState(commands);
   state.shell.viewer?.requestRender();
   const mount=$('deviceMount');
   mount.dataset.outputKnown='true';
+  mount.dataset.outputSource=run.kind==='service'?'native-service-qom-v1':'browser-qemu-qom';
   if (servo) {
     const [yaw,pitch]=commands;
     mount.dataset.servoYawTicks=String(value.servos[0].present_position);
     mount.dataset.servoPitchTicks=String(value.servos[1].present_position);
     mount.dataset.servoPowered=String(value.powered);
     mount.dataset.servoPackets=String(value.packets);
-    const diagnostic=qemuServoDiagnostic(run.controller.profile,value);
+    const diagnostic=qemuServoDiagnostic(profile,value);
     $('actuatorStatus').dataset.code=diagnostic.code;
     message('actuatorStatus',diagnostic.message);
     mount.dataset.outputLabel=`舵机 · 左右 ${yaw.angleDeg.toFixed(1)}° · 抬头 ${pitch.angleDeg.toFixed(1)}°${value.powered?'':' · 未供电'}`;
@@ -691,13 +687,38 @@ async function startRun() {
       );
       if (generation !== state.runGeneration) return;
       const units = state.picker?.attachments(state.selected.id) || [];
+      let outputProfile = null;
+      if (state.selected.id === 'stackchan') {
+        try {
+          const registry = state.qemuProfiles || await loadQemuBrowserProfiles({root, signal: abort.signal});
+          const board = registry.profiles.find(profile => profile.deviceId === 'stackchan');
+          if (board?.outputs?.kind === 'stackchan-scs-qom-v1' && typeof imported.sha256 === 'string' && /^[a-f0-9]{64}$/.test(imported.sha256)) outputProfile = {
+            deviceId: board.deviceId, board: board.board, outputs: structuredClone(board.outputs), firmwareSHA256: imported.sha256,
+          };
+        } catch (cause) {
+          if (abort.signal.aborted) throw cause;
+        }
+      }
+      if (generation !== state.runGeneration) return;
+      clearBrowserOutputs(outputProfile);
+      if (state.selected.id === 'stackchan' && !outputProfile) message('actuatorStatus', '当前服务的舵机状态尚未绑定。');
       run.controller = new PublicSessionController({
         ...callbacks,
         service: state.service,
         shell: state.shell,
+        outputProfile,
+        onDeviceState: value => applyBrowserDeviceState(value, run, outputProfile),
+        onOutputState: value => {
+          if (!active(run) || value.status === 'available') return;
+          clearBrowserOutputs(outputProfile);
+          message('actuatorStatus', value.status === 'pending' ? '正在等候新的舵机状态。' : '暂未取得可验证的舵机状态，可重置会话后重试。');
+        },
         unitContainer: $('runtimeUnitPanel'),
         onState: (value) => {
-          if (active(run)) status(value.status, value.frameReady ? '实际会话屏幕已更新' : '等待应用显示帧');
+          if (active(run)) {
+            if (['stopped', 'failed'].includes(value.status)) clearBrowserOutputs(outputProfile);
+            status(value.status, value.frameReady ? '实际会话屏幕已更新' : '等待应用显示帧');
+          }
         },
       });
       state.run = run;

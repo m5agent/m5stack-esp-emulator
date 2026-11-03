@@ -132,6 +132,27 @@ native hosts keep libffi. The real-libffi ABI comparison is
 `tests/browser-qemu/typed_helpers/`. These host controls do not grant firmware
 PASS; a rebuilt runtime still needs the affected same-image browser acceptance.
 
+`0027` bounds repeated GPIO transaction capture/notification and S3 OUT/ENABLE
+work while preserving controller, IRQ and callback paths. Cohorts use an actual
+before/after virtual-clock sample, with no slow clock or watchdog suppression.
+The exact dance Flash SHA in `qemu-browser-profiles.json` additionally selects
+QEMU's existing `one-insn-per-tb=on` mode at normal clock. Its profile requires
+the exact `0027` patch identity in both host and engine validation; older runtime
+manifests fail before startup. Defaults and unknown images keep their previous
+execution settings. This remains the original QEMU TCI backend, with no separate
+JIT engine. See [patch semantics](../../patches/qemu-wasm-probe/README.md#bounded-gpio-transactions-0027)
+and [executable evidence](../../docs/evidence/2026-11-03-emulator-performance/README.md).
+
+`0028` makes the inherited CSTACK diagnostics explicitly opt-in. With the
+startup environment unset, cache/fiber callers skip diagnostic counters, C-SP,
+heap/stack queries and logging; exact `M5_WASM_CSTACK_TRACE=1` retains the original
+per-thread trace phases, ID gaps and budgets. Other values keep tracing off.
+The actual-source host controls are
+`platform/tests/test_cstack_diagnostics_opt_in_patch.py`; their fiber shim does
+not establish Emscripten fiber execution or resolve a firmware watchdog fault.
+A new locked runtime requires a fresh source build and same-image acceptance;
+previous runtime hashes and diagnostic samples remain historical evidence.
+
 Patch `0017` coalesces expired positive-period SYSTIMER host callbacks in WASM
 while retaining the next alarm's phase. The elapsed counter, pending interrupt
 level and guest tick accounting remain unchanged. Its `__EMSCRIPTEN__` guard

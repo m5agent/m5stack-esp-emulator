@@ -1,0 +1,728 @@
+{
+  "schema_version": 1,
+  "kind": "concise-browser-performance-and-function-summary",
+  "status": "SUPERSEDED_CANDIDATE_R1",
+  "publication_eligible": false,
+  "limitation": "These exact firmware paths passed performance, render, touch and cleanup observations. A later actual-C reset-listener boundary regression was found in this runtime; corrected runtime r2 and its new guest gates are pending. Do not transfer these gates to another WASM hash.",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "metrics_algorithm_sha256": "4e49e3edf3df670aa2399e706d0beaaab900cd1809a006d24c3489ea736df7dd",
+  "trace_hash_encoding": "SHA-256 of UTF-8 JSON.stringify of the corresponding array in the original report; missing render traces remain null.",
+  "comparison_scope": "Cold/warm and controller position counts are observed browser/model behavior. Counts do not numerically compare tick units with degrees or establish physical servo FPS. Default composition and local input are separate paths.",
+  "input_config_sha256": "2892d5e35ed850129a3eede39b39262ce10fd86984fbfd95f0a51bcef20e114b",
+  "reports": [
+    {
+      "role": "baseline-dance",
+      "firmware_path": "local-bin",
+      "raw_report_sha256": "09640a6a948bcac208a462705e2306883a317d991dda492626efad6cc84f1ffd",
+      "result": "PASS",
+      "engine": "qemu",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "browser": "156.0.8078.80",
+      "actual_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+          "unmasked_vendor": "Google Inc. (Apple)"
+        }
+      ],
+      "instrumented": false,
+      "executed_harness_sha256": "f5fc0ce9752e4a4ec98d048ff07ae0fe55fdcbc81a6fecd441c86dd3fcf2c2b9",
+      "raw_summary_algorithm_sha256": "8a914868d95df905e8705e72a1c072cebd96ccdf977efc6f653744b59e92789d",
+      "runtime_wasm_sha256": "5d6c36bdafc1129c2652b5ba9422f3deb5ab170475748cea96fdc4cf9520a993",
+      "composition_identity": null,
+      "runs": [
+        {
+          "run": 1,
+          "summary": {
+            "startup_ms": {
+              "first_serial": 937.7749999761581,
+              "ready_marker": 11674.174999952316,
+              "first_nonblack_frame": 11700.735000014305,
+              "runtime_preparation": 120.79499995708466
+            },
+            "steady": {
+              "duration_seconds": 20.00274500000477,
+              "delivered_frames": 339,
+              "delivered_fps": 16.947673931748827,
+              "pixel_change_frames": 339,
+              "pixel_change_fps": 16.947673931748827,
+              "frame_gap_ms": {
+                "samples": 339,
+                "min": 30.59999990463257,
+                "p50": 33.34999990463257,
+                "p90": 34.14599997997284,
+                "p95": 37.12099997997276,
+                "max": 7533.27999997139,
+                "mean": 58.94339233021469
+              },
+              "state_updates": 3,
+              "state_gap_ms": {
+                "samples": 2,
+                "min": 2544.930000066757,
+                "p50": 9118.574999988079,
+                "p90": 14377.490999925138,
+                "p95": 15034.855499917268,
+                "max": 15692.219999909401,
+                "mean": 9118.574999988079
+              },
+              "frame_observer_ms": {
+                "samples": 339,
+                "min": 0.13499999046325684,
+                "p50": 0.15500009059906006,
+                "p90": 0.1650000810623169,
+                "p95": 0.16999995708465576,
+                "max": 0.5649999380111694,
+                "mean": 0.15823008810172742
+              },
+              "dance_cue_count": 5,
+              "packet_delta": 2,
+              "packet_window": {
+                "baseline_source": "first-in-window",
+                "first_observed_at_ms": 12406.080000042915,
+                "initial_packets": 8,
+                "final_packets": 10
+              },
+              "position_change_observations": 2,
+              "rendered_joint_trace": null
+            }
+          },
+          "actual_arguments": null,
+          "execution": {
+            "profile": "stackchan-wasm-dance-div6",
+            "clock_divisor": 6,
+            "one_insn_per_tb": null,
+            "required_runtime_patch": null,
+            "wasm_compilation": null,
+            "persistent_flash": false
+          },
+          "cleanup": {
+            "all_observed_workers_closed": true,
+            "graceful_exit": true,
+            "exit_code": 0,
+            "disposal_workers_remaining": 0
+          },
+          "guest_failure_observations": null,
+          "rendered_motion_validation": null,
+          "trace_sha256": {
+            "serial_events": "4f056b0ede64d8c77d1e49a04d010d5e95dacced50186cecef6b83e891fcd6a8",
+            "controller_states": "634417130c8bbb46b741efe10468777da27a87b313961e9b4b729503a00a404b",
+            "rendered_poses": null
+          },
+          "composition": null
+        }
+      ]
+    },
+    {
+      "role": "peer-dance",
+      "firmware_path": "local-bin",
+      "raw_report_sha256": "468a291f90db2ba820e67dfc8fb207ca365f470f445273a0321514f3fec23ae2",
+      "result": "PASS",
+      "engine": "esp32sim",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "browser": "156.0.8078.80",
+      "actual_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+          "unmasked_vendor": "Google Inc. (Apple)"
+        }
+      ],
+      "instrumented": false,
+      "executed_harness_sha256": "f5fc0ce9752e4a4ec98d048ff07ae0fe55fdcbc81a6fecd441c86dd3fcf2c2b9",
+      "raw_summary_algorithm_sha256": "8a914868d95df905e8705e72a1c072cebd96ccdf977efc6f653744b59e92789d",
+      "runtime_wasm_sha256": "2f9960cbca949c2a58e6acac82d790a34db980d7da0ad00f31af1d9e177f72e8",
+      "composition_identity": null,
+      "runs": [
+        {
+          "run": 1,
+          "summary": {
+            "startup_ms": {
+              "first_serial": 1538,
+              "ready_marker": 2684.5,
+              "first_nonblack_frame": 2683.100000023842,
+              "runtime_preparation": null
+            },
+            "steady": {
+              "duration_seconds": 20.002199999928475,
+              "delivered_frames": 299,
+              "delivered_fps": 14.948355680928557,
+              "pixel_change_frames": 291,
+              "pixel_change_fps": 14.548399676087659,
+              "frame_gap_ms": {
+                "samples": 299,
+                "min": 12,
+                "p50": 61.60000002384186,
+                "p90": 81.78000004291533,
+                "p95": 87.01000000238419,
+                "max": 1203.8999999761581,
+                "mean": 66.88595317717778
+              },
+              "state_updates": 262,
+              "state_gap_ms": {
+                "samples": 261,
+                "min": 20.300000071525574,
+                "p50": 49.5,
+                "p90": 83.19999992847443,
+                "p95": 168.20000004768372,
+                "max": 2791.3000000715256,
+                "mean": 69.45363984665195
+              },
+              "frame_observer_ms": {
+                "samples": 299,
+                "min": 0.19999992847442627,
+                "p50": 0.30000007152557373,
+                "p90": 0.3999999761581421,
+                "p95": 0.40000009536743164,
+                "max": 0.5,
+                "mean": 0.322408023486568
+              },
+              "dance_cue_count": 30,
+              "packet_delta": null,
+              "packet_window": {
+                "baseline_source": "at-or-before-window",
+                "first_observed_at_ms": 7392,
+                "initial_packets": null,
+                "final_packets": null
+              },
+              "position_change_observations": 262,
+              "rendered_joint_trace": null
+            }
+          },
+          "actual_arguments": null,
+          "execution": {
+            "profile": null,
+            "clock_divisor": null,
+            "one_insn_per_tb": null,
+            "required_runtime_patch": null,
+            "wasm_compilation": null,
+            "persistent_flash": null
+          },
+          "cleanup": {
+            "all_observed_workers_closed": true,
+            "graceful_exit": null,
+            "exit_code": null,
+            "disposal_workers_remaining": null
+          },
+          "guest_failure_observations": null,
+          "rendered_motion_validation": null,
+          "trace_sha256": {
+            "serial_events": "51d5743149d77ca7f032951a4a6f472e6eadfd26214cafc4dae102834e0a08d7",
+            "controller_states": "8cecff24d37adc6b1ae3e0017373597c315e403e65c240df266ba56a406f231a",
+            "rendered_poses": null
+          },
+          "composition": null
+        }
+      ]
+    },
+    {
+      "role": "formal-candidate-r1-dance",
+      "firmware_path": "local-bin",
+      "raw_report_sha256": "c9a7b9243c2515b32aa13e0ddd3416008a64ad7bb5d4d63b9e0c0961d884a1bb",
+      "result": "PASS",
+      "engine": "qemu",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "browser": "156.0.8078.80",
+      "actual_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+          "unmasked_vendor": "Google Inc. (Apple)"
+        }
+      ],
+      "instrumented": false,
+      "executed_harness_sha256": "59a834a3e4e9dc33b2ea1c604127b209eacf5c716deb2b51cc66f96642e36577",
+      "raw_summary_algorithm_sha256": "4e49e3edf3df670aa2399e706d0beaaab900cd1809a006d24c3489ea736df7dd",
+      "runtime_wasm_sha256": "1f4f0be8fe66917bf72df77597e0e1c3bebfa89a569c167ab7b10d238b08ffa4",
+      "composition_identity": null,
+      "runs": [
+        {
+          "run": 1,
+          "summary": {
+            "startup_ms": {
+              "first_serial": 784.6950000524521,
+              "ready_marker": 3114.5349999666214,
+              "first_nonblack_frame": 3138.960000038147,
+              "runtime_preparation": 52.985000014305115
+            },
+            "steady": {
+              "duration_seconds": 20.00149500000477,
+              "delivered_frames": 520,
+              "delivered_fps": 25.998056645259567,
+              "pixel_change_frames": 520,
+              "pixel_change_fps": 25.998056645259567,
+              "frame_gap_ms": {
+                "samples": 520,
+                "min": 27.09500002861023,
+                "p50": 33.842500030994415,
+                "p90": 38.12000000476837,
+                "p95": 66.34350003004074,
+                "max": 1264.679999947548,
+                "mean": 38.4345769231136
+              },
+              "state_updates": 159,
+              "state_gap_ms": {
+                "samples": 158,
+                "min": 47.43999993801117,
+                "p50": 96.81249994039536,
+                "p90": 201.91400003433228,
+                "p95": 252.80724999904632,
+                "max": 2851.5349999666214,
+                "mean": 113.99737341796296
+              },
+              "frame_observer_ms": {
+                "samples": 520,
+                "min": 0.13499999046325684,
+                "p50": 0.1549999713897705,
+                "p90": 0.1799999475479126,
+                "p95": 0.18999993801116943,
+                "max": 0.5099999904632568,
+                "mean": 0.15712499779004316
+              },
+              "dance_cue_count": 30,
+              "packet_delta": 163,
+              "packet_window": {
+                "baseline_source": "at-or-before-window",
+                "first_observed_at_ms": 3820.649999976158,
+                "initial_packets": 8,
+                "final_packets": 171
+              },
+              "position_change_observations": 159,
+              "rendered_joint_trace": {
+                "source": "actual-workbench-viewer-render",
+                "observations": 884,
+                "actual_angle_changes": 671,
+                "intermediate_observations": 600,
+                "render_gap_ms": {
+                  "samples": 883,
+                  "min": 9.694999933242798,
+                  "p50": 17.140000104904175,
+                  "p90": 33.60199999809265,
+                  "p95": 34.887999987602235,
+                  "max": 66.76499998569489,
+                  "mean": 21.216562853934136
+                },
+                "observer_ms": {
+                  "samples": 884,
+                  "min": 0,
+                  "p50": 0.009999990463256836,
+                  "p90": 0.014999985694885254,
+                  "p95": 0.014999985694885254,
+                  "max": 0.02500009536743164,
+                  "mean": 0.008229638791192172
+                },
+                "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+              }
+            }
+          },
+          "actual_arguments": [
+            "./this.program",
+            "-M",
+            "m5stackchan",
+            "-drive",
+            "file=/flash.bin,if=mtd,format=raw",
+            "-L",
+            "/rom",
+            "-display",
+            "none",
+            "-serial",
+            "file:/bridge/uart.out",
+            "-serial",
+            "file:/bridge/serial1",
+            "-qmp",
+            "stdio",
+            "-drive",
+            "if=none,id=efuse,file=/efuse.bin,format=raw",
+            "-global",
+            "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+            "-accel",
+            "tcg,thread=multi,one-insn-per-tb=on"
+          ],
+          "execution": {
+            "profile": "stackchan-wasm-dance-wallclock",
+            "clock_divisor": 1,
+            "one_insn_per_tb": true,
+            "required_runtime_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "ea11a87766497936541ce42b1aa3370f19c107f2f9341070d62a0e73505485cb"
+            },
+            "wasm_compilation": "compiled",
+            "persistent_flash": false
+          },
+          "cleanup": {
+            "all_observed_workers_closed": true,
+            "graceful_exit": true,
+            "exit_code": 0,
+            "disposal_workers_remaining": 0
+          },
+          "guest_failure_observations": {
+            "panic_or_watchdog_markers": [],
+            "reset_events": [],
+            "rom_boot_markers_per_port": {
+              "uart0": 1
+            }
+          },
+          "rendered_motion_validation": {
+            "result": "PASS",
+            "source": "actual-workbench-viewer-render",
+            "observations": 884,
+            "actual_angle_changes": 671,
+            "intermediate_observations": 600,
+            "controller_bindings_checked": 159,
+            "session_and_firmware_bound": true,
+            "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+          },
+          "trace_sha256": {
+            "serial_events": "88426ec0a23ac0a7e39d53b90982e469c67f1765afc52e099dfdad65d02ab11f",
+            "controller_states": "ef7fc57275bde4bdcd5b40b89d60a5448b40f78a8fa3436e655d6746996cb9b5",
+            "rendered_poses": "d84abdd80d32695fba958663e38da993c3f2fe60203be323c04551d3e0272454"
+          },
+          "composition": null
+        },
+        {
+          "run": 2,
+          "summary": {
+            "startup_ms": {
+              "first_serial": 201.07999992370605,
+              "ready_marker": 2526.7549999952316,
+              "first_nonblack_frame": 2559.7699999809265,
+              "runtime_preparation": 70.92499995231628
+            },
+            "steady": {
+              "duration_seconds": 20.00177999997139,
+              "delivered_frames": 526,
+              "delivered_fps": 26.297659508341376,
+              "pixel_change_frames": 526,
+              "pixel_change_fps": 26.297659508341376,
+              "frame_gap_ms": {
+                "samples": 526,
+                "min": 27.235000014305115,
+                "p50": 33.8924999833107,
+                "p90": 35.660000026226044,
+                "p95": 41.3537500500679,
+                "max": 1263.7949999570847,
+                "mean": 38.01302281373354
+              },
+              "state_updates": 162,
+              "state_gap_ms": {
+                "samples": 161,
+                "min": 46.05999994277954,
+                "p50": 97.70999991893768,
+                "p90": 153.69000005722046,
+                "p95": 206.45000004768372,
+                "max": 2848.0500000715256,
+                "mean": 111.9750931677611
+              },
+              "frame_observer_ms": {
+                "samples": 526,
+                "min": 0.13499999046325684,
+                "p50": 0.1549999713897705,
+                "p90": 0.18000006675720215,
+                "p95": 0.18999993801116943,
+                "max": 0.20000004768371582,
+                "mean": 0.1579942968408418
+              },
+              "dance_cue_count": 30,
+              "packet_delta": 166,
+              "packet_window": {
+                "baseline_source": "at-or-before-window",
+                "first_observed_at_ms": 29130.50499999523,
+                "initial_packets": 8,
+                "final_packets": 174
+              },
+              "position_change_observations": 162,
+              "rendered_joint_trace": {
+                "source": "actual-workbench-viewer-render",
+                "observations": 914,
+                "actual_angle_changes": 722,
+                "intermediate_observations": 650,
+                "render_gap_ms": {
+                  "samples": 913,
+                  "min": 10.454999923706055,
+                  "p50": 17.00499999523163,
+                  "p90": 33.42000005245209,
+                  "p95": 34.7809999704361,
+                  "max": 51.730000019073486,
+                  "mean": 20.540076670354193
+                },
+                "observer_ms": {
+                  "samples": 914,
+                  "min": 0,
+                  "p50": 0.004999995231628418,
+                  "p90": 0.009999990463256836,
+                  "p95": 0.010000109672546387,
+                  "max": 0.015000104904174805,
+                  "mean": 0.007324945091940381
+                },
+                "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+              }
+            }
+          },
+          "actual_arguments": [
+            "./this.program",
+            "-M",
+            "m5stackchan",
+            "-drive",
+            "file=/flash.bin,if=mtd,format=raw",
+            "-L",
+            "/rom",
+            "-display",
+            "none",
+            "-serial",
+            "file:/bridge/uart.out",
+            "-serial",
+            "file:/bridge/serial1",
+            "-qmp",
+            "stdio",
+            "-drive",
+            "if=none,id=efuse,file=/efuse.bin,format=raw",
+            "-global",
+            "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+            "-accel",
+            "tcg,thread=multi,one-insn-per-tb=on"
+          ],
+          "execution": {
+            "profile": "stackchan-wasm-dance-wallclock",
+            "clock_divisor": 1,
+            "one_insn_per_tb": true,
+            "required_runtime_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "ea11a87766497936541ce42b1aa3370f19c107f2f9341070d62a0e73505485cb"
+            },
+            "wasm_compilation": "memory",
+            "persistent_flash": false
+          },
+          "cleanup": {
+            "all_observed_workers_closed": true,
+            "graceful_exit": true,
+            "exit_code": 0,
+            "disposal_workers_remaining": 0
+          },
+          "guest_failure_observations": {
+            "panic_or_watchdog_markers": [],
+            "reset_events": [],
+            "rom_boot_markers_per_port": {
+              "uart0": 1
+            }
+          },
+          "rendered_motion_validation": {
+            "result": "PASS",
+            "source": "actual-workbench-viewer-render",
+            "observations": 914,
+            "actual_angle_changes": 722,
+            "intermediate_observations": 650,
+            "controller_bindings_checked": 162,
+            "session_and_firmware_bound": true,
+            "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+          },
+          "trace_sha256": {
+            "serial_events": "0238f3c0413993958b5e917cd0773220779b2cac20aa469223a83b218c4978d2",
+            "controller_states": "91778e88d12cf6e4a46300c7e7cb4f983a3592c8020fb422da2f4076359b6bf4",
+            "rendered_poses": "2e17bcbea336f9e370248b36ca7451b8a13cdb56f8d13b9e32f50bf9eae1f7fd"
+          },
+          "composition": null
+        }
+      ]
+    },
+    {
+      "role": "formal-candidate-r1-touch-window",
+      "firmware_path": "isolated-8s-application-touch",
+      "raw_report_sha256": "cf869ff4e3173478f34d18c3cc598b137785f9874f7e03cf0a99c25a6c580945",
+      "result": "PASS",
+      "engine": "qemu",
+      "device": "stackchan",
+      "firmware": {
+        "sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "bytes": 16777216
+      },
+      "browser": "156.0.8078.80",
+      "actual_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+          "unmasked_vendor": "Google Inc. (Apple)"
+        }
+      ],
+      "instrumented": false,
+      "executed_harness_sha256": "59a834a3e4e9dc33b2ea1c604127b209eacf5c716deb2b51cc66f96642e36577",
+      "raw_summary_algorithm_sha256": "4e49e3edf3df670aa2399e706d0beaaab900cd1809a006d24c3489ea736df7dd",
+      "runtime_wasm_sha256": "1f4f0be8fe66917bf72df77597e0e1c3bebfa89a569c167ab7b10d238b08ffa4",
+      "composition_identity": null,
+      "runs": [
+        {
+          "run": 1,
+          "summary": {
+            "startup_ms": {
+              "first_serial": 696.2549999952316,
+              "ready_marker": 3016.6299999952316,
+              "first_nonblack_frame": 3052.7450000047684,
+              "runtime_preparation": 48.855000019073486
+            },
+            "steady": {
+              "duration_seconds": 8.002804999947548,
+              "delivered_frames": 185,
+              "delivered_fps": 23.116894638968777,
+              "pixel_change_frames": 185,
+              "pixel_change_fps": 23.116894638968777,
+              "frame_gap_ms": {
+                "samples": 185,
+                "min": 27.06500005722046,
+                "p50": 33.949999928474426,
+                "p90": 39.62400002479553,
+                "p95": 66.81300001144409,
+                "max": 1267.1050000190735,
+                "mean": 43.1962972976066
+              },
+              "state_updates": 73,
+              "state_gap_ms": {
+                "samples": 72,
+                "min": 44.394999980926514,
+                "p50": 56.61750000715256,
+                "p90": 151.0540000796318,
+                "p95": 177.01025005579007,
+                "max": 2019.4850000143051,
+                "mean": 109.94402777817514
+              },
+              "frame_observer_ms": {
+                "samples": 185,
+                "min": 0.13499999046325684,
+                "p50": 0.1549999713897705,
+                "p90": 0.17799999713897702,
+                "p95": 0.18500006198883057,
+                "max": 0.19999992847442627,
+                "mean": 0.15556756483541953
+              },
+              "dance_cue_count": 12,
+              "packet_delta": 72,
+              "packet_window": {
+                "baseline_source": "first-in-window",
+                "first_observed_at_ms": 3766.569999933243,
+                "initial_packets": 8,
+                "final_packets": 80
+              },
+              "position_change_observations": 72,
+              "rendered_joint_trace": {
+                "source": "actual-workbench-viewer-render",
+                "observations": 351,
+                "actual_angle_changes": 298,
+                "intermediate_observations": 268,
+                "render_gap_ms": {
+                  "samples": 350,
+                  "min": 11.125,
+                  "p50": 16.88749998807907,
+                  "p90": 33.125499999523164,
+                  "p95": 33.79824995398521,
+                  "max": 1262.0599999427795,
+                  "mean": 22.7963428572246
+                },
+                "observer_ms": {
+                  "samples": 351,
+                  "min": 0,
+                  "p50": 0.009999990463256836,
+                  "p90": 0.014999985694885254,
+                  "p95": 0.015000104904174805,
+                  "max": 0.034999966621398926,
+                  "mean": 0.009529915969935578
+                },
+                "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+              }
+            }
+          },
+          "actual_arguments": [
+            "./this.program",
+            "-M",
+            "m5stackchan",
+            "-drive",
+            "file=/flash.bin,if=mtd,format=raw",
+            "-L",
+            "/rom",
+            "-display",
+            "none",
+            "-serial",
+            "file:/bridge/uart.out",
+            "-serial",
+            "file:/bridge/serial1",
+            "-qmp",
+            "stdio",
+            "-drive",
+            "if=none,id=efuse,file=/efuse.bin,format=raw",
+            "-global",
+            "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+            "-accel",
+            "tcg,thread=multi,one-insn-per-tb=on"
+          ],
+          "execution": {
+            "profile": "stackchan-wasm-dance-wallclock",
+            "clock_divisor": 1,
+            "one_insn_per_tb": true,
+            "required_runtime_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "ea11a87766497936541ce42b1aa3370f19c107f2f9341070d62a0e73505485cb"
+            },
+            "wasm_compilation": "compiled",
+            "persistent_flash": false
+          },
+          "cleanup": {
+            "all_observed_workers_closed": true,
+            "graceful_exit": true,
+            "exit_code": 0,
+            "disposal_workers_remaining": 0
+          },
+          "guest_failure_observations": {
+            "panic_or_watchdog_markers": [],
+            "reset_events": [],
+            "rom_boot_markers_per_port": {
+              "uart0": 1
+            }
+          },
+          "rendered_motion_validation": null,
+          "trace_sha256": {
+            "serial_events": "d539e779c938442c0ef695565bd92d68145c542d8455e56b75131560d4fba7ad",
+            "controller_states": "5a76c1a6adbc5954567e05847b8bdfbd79f9b54f3564f8c7b2bde3132306a66f",
+            "rendered_poses": "dea1003da1623b1e230d48fee713c40938d645dfc3d35c2ff94c31108cf15767"
+          },
+          "composition": null
+        }
+      ]
+    }
+  ],
+  "touch": {
+    "result": "PASS",
+    "validation": "virtual-device validation",
+    "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+    "firmware_source_sha256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+    "validation_sha256": "1f4d0e0aeb973b28e3065f566f1600a4f79c6b7208efee2b0755fa935ff352e7",
+    "raw_report_sha256": "cf869ff4e3173478f34d18c3cc598b137785f9874f7e03cf0a99c25a6c580945",
+    "actual_hold_ms": 508.90499997138977,
+    "marker_latency_from_down_ms": 97.32499992847443,
+    "automatic_routine_ms": 16000,
+    "response_window_ends_after_ready_ms": 10538.465000033379,
+    "pre_input_restart_markers": 0,
+    "trusted_pointer_down": true,
+    "trusted_pointer_up": true,
+    "observed_marker": "DANCE restart in 650 ms",
+    "controller_touch_readbacks": [
+      {
+        "touch_bits": 48,
+        "source": "qemu-qom-readback"
+      },
+      {
+        "touch_bits": 0,
+        "source": "qemu-qom-readback"
+      }
+    ],
+    "cleanup_verified": true
+  }
+}

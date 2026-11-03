@@ -65,6 +65,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Verify the WASM32 helper ABI against the pinned libffi
+        run: python3 tests/browser-qemu/typed_helpers/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc --ffi-prefix .work/qemu-browser-runtime-build/target --out-dir .work/wasm-typed-helper-control
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
       - name: Run every admitted board and CoreS3 example in the exported static site
@@ -81,7 +83,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: browser-qemu-acceptance
-          path: .work/public-qemu-admitted
+          path: |
+            .work/public-qemu-admitted
+            .work/wasm-typed-helper-control
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

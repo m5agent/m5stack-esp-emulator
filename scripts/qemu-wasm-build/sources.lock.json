@@ -150,7 +150,7 @@
     "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
     "hw/dma/esp32s3_gdma.c": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
     "hw/dma/esp_gdma.c": "2737ef4c3fb95cd3ef5d316f56f7c4c0092b980baa1de62eb46d7345486446a9",
-    "hw/gpio/esp32_gpio.c": "0158efd8e6dade72c68a6fd9bf0086fcba1fe4b39c8816ab2d30e19d0bb18c8f",
+    "hw/gpio/esp32_gpio.c": "afb956b4b6b01989ca538fa2a1bddcd74bae7e08391fb498f475e585741bd576",
     "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
     "hw/gpio/meson.build": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83",
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
@@ -215,7 +215,7 @@
     "hw/misc/esp32_wlan.h": "a0bb3330d548b516be619f408fa51f288cd2fd597b978bb54edb005531bac1c3",
     "hw/misc/esp32_wlan_packet.c": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
     "hw/misc/esp32_wlan_packet.h": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
-    "hw/misc/esp32s3_cache.c": "5c1ceb02e40056580d95f6b2df76330292c4475a892bbabe9a9497a533b4749a",
+    "hw/misc/esp32s3_cache.c": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a",
     "hw/misc/esp32s3_rtc_cntl.c": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b",
     "hw/misc/esp32s3_wifi.c": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
     "hw/misc/esp_sha.c": "28e57226512099c4642366ce24bef013eed0509d9de55bb53f19cc6d9ae42401",
@@ -293,7 +293,7 @@
     "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
     "ui/ui-qmp-cmds.c": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
     "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
-    "util/coroutine-wasm.c": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
+    "util/coroutine-wasm.c": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b",
     "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
     "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
     "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0"
@@ -578,6 +578,14 @@
     {
       "path": "patches/qemu-wasm-probe/0026-panel-trace-predicate-order.patch",
       "sha256": "903197388e742c42071b9c37868c0333ba2c2349809fb4cd6171c89d5554e27b"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0028-cstack-diagnostics-opt-in.patch",
+      "sha256": "5a51069320d0a07756d2c887fa6cac762beebee4fa450c98ebe0b6f28025c911"
     }
   ],
   "qemu": {

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "kind": "fresh-qemu-wasm-source-build-summary",
+  "validation_category": "build validation; guest validation recorded separately",
+  "status": "PASS",
+  "source_build": {
+    "all_objects_rebuilt": true,
+    "artifacts": {
+      "javascript": {
+        "bytes": 157200,
+        "path": "qemu-system-xtensa.js",
+        "sha256": "008efcb6d7719420b30ada8589727bc8ae9a9aa2ce11c0e43cd7cfd0b3d7af15"
+      },
+      "wasm": {
+        "bytes": 12760250,
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "1f4f0be8fe66917bf72df77597e0e1c3bebfa89a569c167ab7b10d238b08ffa4"
+      },
+      "worker": {
+        "bytes": 2776,
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "guest_execution": "NOT RUN",
+    "kind": "source-build",
+    "link_audit": {
+      "argv_sha256": "3e31c365b439c72be2ecddddad061944008ef22c972aab80e9672f9c41042211",
+      "effective": {
+        "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+        "STACK_OVERFLOW_CHECK": "2",
+        "STACK_SIZE": "64KB",
+        "optimization": "O3"
+      },
+      "required_flags": [
+        "-O3",
+        "-sSTACK_SIZE=64KB",
+        "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+        "-sSTACK_OVERFLOW_CHECK=2"
+      ],
+      "source": "ninja-link-command",
+      "verified": true
+    },
+    "lock_sha256": "ccb795bff9004c6aec399984e3c917e045617d0f6ce13b810b37160b59b81ae0",
+    "status": "PASS"
+  },
+  "closed_set_validation": {
+    "status": "PASS",
+    "kind": "fresh-source-runtime-closed-set-validation",
+    "build_kind": "source-build",
+    "all_objects_rebuilt": true,
+    "dependencies_reused": false,
+    "dependency_libraries": 8,
+    "patch_count": 71,
+    "verified_source_postimages": 160,
+    "source_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "source_gpio_sha256": "6ca5e912238955f2069a61567aed9a6ba7a8e1e6cc355ffb8f685b0a1c972b46",
+    "lock_sha256": "ccb795bff9004c6aec399984e3c917e045617d0f6ce13b810b37160b59b81ae0",
+    "recipe_sha256": "231871ffb186dce1631d035a454730b7c49ceb1571666f632cc44b3474c04057",
+    "runtime_manifest_sha256": "30ecce0eabae76676985b06d3ad80dfe075155f190383759824a4fe03f7ef079",
+    "closed_asset_set": {
+      "runtime.json": {
+        "bytes": 33147,
+        "sha256": "30ecce0eabae76676985b06d3ad80dfe075155f190383759824a4fe03f7ef079"
+      },
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "008efcb6d7719420b30ada8589727bc8ae9a9aa2ce11c0e43cd7cfd0b3d7af15"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12760250,
+        "sha256": "1f4f0be8fe66917bf72df77597e0e1c3bebfa89a569c167ab7b10d238b08ffa4"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35235036,
+        "sha256": "1fae135bb8f7f53ffbb5e922d75dd2aedaee92cb4555401002e54f1a39834723"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      }
+    },
+    "guest_execution": "NOT RUN by builder",
+    "completed_at": "2026-11-03T05:08:10.762709+00:00"
+  },
+  "fresh_dependencies": {
+    "files": {
+      "target/lib/libffi.a": "6b092edf9b0104041b73ed3d36d5516c76e34f39d8ea81e49067f30035fad82e",
+      "target/lib/libgcrypt.a": "8f3528bbb544f6a3bb0f7d4effe7327b946788f3f2b5fe0bcd9153b2f573ba93",
+      "target/lib/libglib-2.0.a": "913d973bb7de67efb2f219dafef5535ba54279cad14f3a845a9e940250b4898c",
+      "target/lib/libgpg-error.a": "d5ae705d9c30befb4fef061c5e2147d7d62ebb0b7b82897a076714ad9e79d470",
+      "target/lib/libpcre2-8.a": "f5e809b6b04e7121bf51d164e020029c644793fd6134eaba67cb64211ed31405",
+      "target/lib/libpixman-1.a": "8f5bff8dafdf1e1d06f03f34296a95ba3aa1f29339780225cc4eb54e7a2133f1",
+      "target/lib/libresolv.a": "29fd928cab31adafd647fbe18b33eed20294bbdecf7a79506a7756bcf9367178",
+      "target/lib/libz.a": "613648a70bcdae4899bcb827ebc588da99b5aa7de2488fb0bf4137374b3f7b25"
+    },
+    "lock_sha256": "ccb795bff9004c6aec399984e3c917e045617d0f6ce13b810b37160b59b81ae0"
+  },
+  "source_preflight_report": {
+    "sha256": "80f27146867c5c90bf8d6c225eed8a26f5b336e5afca5cb31fe16a55e20065b6",
+    "bytes": 16662
+  },
+  "build_receipt_report": {
+    "sha256": "cb295f68efe31ef8f1bbdee0c005a6faedca09623b033c89fa1956a4aab59ecf",
+    "bytes": 1207
+  },
+  "closed_set_report": {
+    "sha256": "e0b48868e6741b7435eb3f22e9a7a7874a54fc224d4a8affac41dfe9b00fc468",
+    "bytes": 1668
+  },
+  "note": "No local paths, binary payloads or raw build commands are included. All dependency libraries and QEMU objects were freshly rebuilt; this is not the diagnostic object-reuse runtime."
+}

@@ -48,6 +48,10 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 
 浏览器低帧率、正常时钟候选与逐设备准入按
 [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md)推进；
+2026-11-03 的本地/浏览器同固件性能修复按
+[性能修复与对照计划](plans/2026-11-03-emulator-performance.md)执行，
+[性能修复与对照证据](evidence/2026-11-03-emulator-performance/README.md)分别记录浏览器与原生结果，
+[QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
 SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
@@ -295,6 +299,10 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [性能修复与对照](evidence/2026-11-03-emulator-performance/README.md) | 验证证据 | `2026-11-03` | native 同固件取帧与动作桥已验；最终 browser r2 guest 与准入门禁独立记录 |
+| [原生页面性能验证](evidence/2026-11-03-emulator-performance/native-validation.md) | 验证证据 | `2026-11-03` | 四次同固件对照及实际帧、SCS、输入、历史和停止；不授予 browser 或物理性能 |
+| [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
+| [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |
 | [Unit 第四批协议研究](unit-research/2026-11-02-batch4-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rs485-iso→rs485、co2l→co2、tof4m→tof 同族复用、HX711 位脉冲、MIDI/NMEA/JRD4035 UART 帧、SCD41/AC 市电/激光安全边界、WS2812 35-vs-70 灯冲突）；planned，不含 runtime 声明 |

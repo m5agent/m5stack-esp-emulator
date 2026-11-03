@@ -6,18 +6,13 @@
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。设备登记 33 台；视觉主机 38 款中 33 台有运行登记、5 款仍仅视觉（全部 boundary-only/composition-only）；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
+2026-11-03 [性能修复](evidence/2026-11-03-emulator-performance/README.md)已独立验证 公众工作台的原生 QEMU 取帧和 StackChan 舵机桥：同固件前后对照中，StackChan 实际 PNG 更新约 `1.25→27.17/s`，CoreS3 约 `1.42→8.42/s`；自动模式优先已连接且 支持当前设备的原生服务，显式浏览器模式独立保留。帧、同 guest 原始 SCS、模型姿态、 输入和停止历史检查通过。此处统计不是完整应用帧率、浏览器 CPU 或物理性能结论； 本轮浏览器正常时钟性能仍为 `PARTIAL`，不可从原生结果继承。
+
 此前[舵机、电源与复位预览](evidence/2026-10-29-motion-power-preview/README.md)已部署到 fork Pages：StackChan 同 guest UART1 SCS → QOM → 3D 关节、同实例复位与外壳 PWR 长按 6 秒自然关机通过。结果只绑定该次导出；新 WASM 的逐板验证独立追加。Plus2 浏览器睡眠/唤醒、PM1 ROM 下载和未覆盖的电源路径继续开放。
 
 [Arduino 与 NVS 补充复测](evidence/2026-10-29-stackchan-arduino-nvs/README.md)已修复旧 S3 Flash 读取错位，新 native/WASM 同固件各 8 项 NVS/复位检查通过；Arduino 原样 torque=0 与显式开启的 29 项对照、默认示例 9 项及最终 Arduino 复位/关机/松开提示 10 项检查通过。Plus2 USB 睡眠和电池 HOLD 关断仅授予同 native 13 项结果；本轮 fork 发布状态以该 evidence 的部署条目为准。
 
-此前[追加验证](evidence/2026-10-29-motion-command-followup/README.md)完成独立新
-native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严格测试。
-自然关机的固件行为通过，但 engine Worker 的 CDP target 未完全消失，资源
-回收仍为 PARTIAL。保留早先一次原样 Dance 的 PSRAM/OOB 启动失败，不将
-后续成功视为已根治；原用户 Arduino 镜像和物理硬件均未验证。
-该历史 v12 曾部署到[预览网页](https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=88a41651)，公网关键文件与完整 WASM/源码包已核对一致；部署不关闭以上功能限制。
-三款经典 Atom 默认入口首轮通过，原 Plus 首轮超时后仅一次独立复核在
-189 秒通过；其首次超时原因和启动稳定性继续开放。
+此前[追加验证](evidence/2026-10-29-motion-command-followup/README.md)完成独立新 native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严格测试。 自然关机的固件行为通过，但 engine Worker 的 CDP target 未完全消失，资源 回收仍为 PARTIAL。保留早先一次原样 Dance 的 PSRAM/OOB 启动失败，不将 后续成功视为已根治；原用户 Arduino 镜像和物理硬件均未验证。 该历史 v12 曾部署到[预览网页](https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=88a41651)，公网关键文件与完整 WASM/源码包已核对一致；部署不关闭以上功能限制。 三款经典 Atom 默认入口首轮通过，原 Plus 首轮超时后仅一次独立复核在 189 秒通过；其首次超时原因和启动稳定性继续开放。
 
 本轮[Cardputer / StackChan 输入修复](evidence/2026-10-30-cardputer-stackchan-input/README.md)在新 67-patch WASM 上修复 ADV PC 按键、玻璃方向和局部绘图横竖屏；原 IRQ reader、四旋转及 StackChan 默认 UART 后台线程与运动中屏幕点按均有同 guest 证据。独立 Arduino 并行/阻塞负控的功能通过，但首次普通 Stop 的 engine target 未及时消失，资源回收仍为 PARTIAL。短按无普遍响应上界；用户原镜像、硬件和本轮完整 native 矩阵未测，该版已部署到 fork 预览，精确身份、时间、失败、main 资源等价和发布状态见该 evidence。
 ## 2026-11-03 战役收口

@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "kind": "factory-normal-tb-nochain-controlled-diagnostic-summary",
+  "result": "WATCHDOG_REPRODUCED_WITH_NORMAL_TB_COUNT_AND_NOCHAIN",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "fresh_source_build": "NOT RUN; no C/WASM/dependency was rebuilt for this fixed-source JS/registry overlay.",
+  "control": {
+    "base": "Traceoff diagnostic with the same first-double/stub and bounded atomic-step observers, original typed helper, same firmware and normal clock.",
+    "change": "Use -d nochain with normal TB instruction-count policy instead of one-insn-per-tb=on; both set CF_NO_GOTO_TB.",
+    "normal_tcg_instruction_limit": 512,
+    "limit_scope": "512 is the source default maximum; actual TB sizes were not counted and may be shorter for branches, MMIO or other exits.",
+    "one_insn_base_flag": "CF_NO_GOTO_TB | 1",
+    "normal_nochain_flag": "CF_NO_GOTO_TB",
+    "source_evidence": {
+      "accel/tcg/cpu-exec.c": {
+        "sha256": "264daa62aa509b6ffb910f7756aea18e14948779600cfca42349c1a33134ee0b",
+        "function": "curr_cflags; one_insn_per_tb and CPU_LOG_TB_NOCHAIN branches"
+      },
+      "accel/tcg/translate-all.c": {
+        "sha256": "934a22b5355c2a3593f72e1223fa260e1d8817b88d7708c0cd791742ef2e4360",
+        "function": "max_insns = cflags & CF_COUNT_MASK; zero selects TCG_MAX_INSNS"
+      },
+      "include/tcg/tcg.h": {
+        "sha256": "503974e16061d31b446587e7333b03ceb1b11965763d1a9638244894733dd344",
+        "definition": "TCG_MAX_INSNS 512"
+      }
+    },
+    "firmware_changed": false,
+    "watchdog_disabled": false,
+    "clock_changed": false,
+    "formal_profile_not_impersonated": true
+  },
+  "source_and_assets": {
+    "base_site_manifest_sha256": "3724592f47c1dc0f04d0387a256551c2e9e60d13bd1bde5f082538162007e4cb",
+    "site_manifest_sha256": "ac39be421a1aa2b1996be80667725303f977e62ce2914f898e3241de4c10adc5",
+    "runtime_manifest_sha256": "20d7250569119ca284fe3e279eab6244906266308796bb627aa488ce111d91e1",
+    "wasm_sha256": "5aabc1825364d2a02a23a13c750e8c13ade9479e724a6c9ccc7e6e3fd2467c19",
+    "base_asset_count_verified": 2129,
+    "runtime_manifest_and_assets_unchanged": true,
+    "source_changes": {
+      "platform/web/public-qemu-engine.js": {
+        "postimage_sha256": "fe1451bb5b08c9b5e749991bc3bb1096bf75d8281f31d2977cb8d8bbfc653b40",
+        "preimage_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e"
+      },
+      "platform/web/qemu-browser-profiles.json": {
+        "postimage_sha256": "22bfa7dd797bfa8b7cc8659ebbe7f2853d75264395be8c03243f2a8d5694befa",
+        "preimage_sha256": "41ec19889e90b2e834c24f2422a34b075ce3d552977b2bf34b9de483ca5f6f27"
+      }
+    },
+    "overlay_patch_sha256": "78fe2ca8ae34bc32aa3e4f87fe5fce3f564b6f50c7dccba2b601a7580a819570",
+    "packager_sha256": "25bd0cd7c2b988ca4b9a8c7fcb743e07f90c6ce495253abc1e423b6533da1668",
+    "private_harness_sha256": "b36a95c1a7fb5bb95cb3dd04370d32419867a44dfe8cbe014e026c7eda04ab8c",
+    "baseline_harness_sha256": "0fbd55d46d3e4d57269bcb99cec7a0da72767cac2cd13b651ca481936f1b905b",
+    "private_harness_scope": "Standard oneInsn receipt assertions are retained. A separate fixed diagnostic assertion requires the exact complete actual argv and false/null oneInsn metadata.",
+    "production_helpers_modified": false,
+    "production_acceptance_assertions_removed": false
+  },
+  "reproduction": {
+    "effective_firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "raw_report_sha256": "9d520f40cb1b7390be673d7c56657bdcf3fce30cc7115308c194a7d6081230f0",
+    "executed_harness_sha256": "b36a95c1a7fb5bb95cb3dd04370d32419867a44dfe8cbe014e026c7eda04ab8c",
+    "planned_fresh_vms": 4,
+    "observed_fresh_vms": 2,
+    "remaining_vms_skipped_after_first_fault": true,
+    "actual_canvas_renderer": [
+      {
+        "scope": "actual-workbench-model-canvas",
+        "canvas_id": "",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmasked_vendor": "Google Inc. (Apple)",
+        "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+      }
+    ],
+    "cpu_profiling": "OFF for this control"
+  },
+  "runs": [
+    {
+      "run": 1,
+      "first_nonblack_frame_ms": 11870.490000009537,
+      "observed_window_seconds": 20.002644999980927,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi",
+        "-d",
+        "nochain"
+      ],
+      "receipt": {
+        "profile": "stackchan-diag-factory-normal-tb-nochain",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "oneInsnPerTb": false,
+        "firmwareVariant": null,
+        "requiredRuntimePatch": null,
+        "persistentFlash": false,
+        "wasmCompilation": "compiled"
+      },
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "diagnostics": {
+        "bytes": 132,
+        "sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+        "events": 2,
+        "cstack_messages": 0,
+        "double_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "2d66a1700c8a8b47692c153a4c0ab26cc46bbcc2549c73fce58823f8df175f7a",
+      "faults": {
+        "panic": null,
+        "observations": {
+          "panic_or_watchdog_markers": [],
+          "rom_boot_markers_per_port": {
+            "uart0": 1
+          }
+        },
+        "guest_reset_count": 0,
+        "guest_register_dumps": {},
+        "backtraces": []
+      },
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "cumulative_observed_workers": 6,
+        "nested_workers_created_this_vm": 5,
+        "engine_workers_created_this_vm": 1,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      }
+    },
+    {
+      "run": 2,
+      "first_nonblack_frame_ms": 11067.509999990463,
+      "observed_window_seconds": 2.9669300000667573,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi",
+        "-d",
+        "nochain"
+      ],
+      "receipt": {
+        "profile": "stackchan-diag-factory-normal-tb-nochain",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "oneInsnPerTb": false,
+        "firmwareVariant": null,
+        "requiredRuntimePatch": null,
+        "persistentFlash": false,
+        "wasmCompilation": "memory"
+      },
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "diagnostics": {
+        "bytes": 132,
+        "sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+        "events": 2,
+        "cstack_messages": 0,
+        "double_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "60fd25639f210a2b62135a55e2ffb6fd5ad236ce50faec3c4d0f898611714146",
+      "faults": {
+        "panic": "Guru Meditation Error: Core  0 panic'ed (Interrupt wdt timeout on CPU0). ",
+        "observations": {
+          "panic_or_watchdog_markers": [
+            {
+              "source": "uart0",
+              "marker": "Guru Meditation Error"
+            },
+            {
+              "source": "uart0",
+              "marker": "Interrupt wdt timeout"
+            }
+          ],
+          "rom_boot_markers_per_port": {
+            "uart0": 2
+          }
+        },
+        "guest_reset_count": 1,
+        "guest_register_dumps": {
+          "cpu0": {
+            "PC": "40393504",
+            "PS": "00060d34",
+            "A0": "80383c85",
+            "A1": "3fcc0070",
+            "A2": "00000000",
+            "A3": "00000000",
+            "A4": "3ce60000",
+            "A5": "000000ce",
+            "A6": "3cf80000",
+            "A7": "3fcc0090",
+            "A8": "00000000",
+            "A9": "600c5398",
+            "A10": "18031400",
+            "A11": "00010000",
+            "A12": "000000ce",
+            "A13": "00000003",
+            "A14": "3fcea680",
+            "A15": "00000002",
+            "SAR": "0000001e",
+            "EXCCAUSE": "00000005",
+            "EXCVADDR": "00000000",
+            "LBEG": "400570e8",
+            "LEND": "400570f3",
+            "LCOUNT": "00000000"
+          },
+          "cpu1": {
+            "PC": "4038fc92",
+            "PS": "00060034",
+            "A0": "803929d8",
+            "A1": "3fcaff80",
+            "A2": "3fca9dc8",
+            "A3": "ffffffff",
+            "A4": "03cadf4c",
+            "A5": "00060023",
+            "A6": "3fcb2a70",
+            "A7": "0000abab",
+            "A8": "8038fcbe",
+            "A9": "00000001",
+            "A10": "00000001",
+            "A11": "00000000",
+            "A12": "b33fffff",
+            "A13": "3c3cf520",
+            "A14": "3fceedf0",
+            "A15": "00000000",
+            "SAR": "00000012",
+            "EXCCAUSE": "00000005",
+            "EXCVADDR": "00000000",
+            "LBEG": "00000000",
+            "LEND": "00000000",
+            "LCOUNT": "00000000"
+          }
+        },
+        "backtraces": [
+          "0x40393501:0x3fcc0070 0x40383c82:0x3fcc0090 0x42178632:0x3fcc00c0 0x421788e3:0x3fcc0110 0x42177423:0x3fcc0150 0x4201d3b1:0x3fcc0170 0x4222de6b:0x3fcc01e0 0x4201c2cb:0x3fcc0200 0x420493f3:0x3fcc0220 0x4201fef5:0x3fcc0290 0x4206c785:0x3fcc02c0 0x4225c123:0x3fcc0300",
+          "0x4038fc8f:0x3fcaff80 0x403929d5:0x3fcaffb0 0x40390348:0x3fcaffd0 0x403903b8:0x3fcafff0 0x40383761:0x3fcb0010 0x4038c2b7:0x3fcc11a0 0x4225bb79:0x3fcc11c0 0x40390f2f:0x3fcc11e0"
+        ]
+      },
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "cumulative_observed_workers": 12,
+        "nested_workers_created_this_vm": 5,
+        "engine_workers_created_this_vm": 1,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      }
+    }
+  ],
+  "interpretation": [
+    "A CPU0 interrupt watchdog recurred with normal TB count and no chaining; one-instruction TBs are not a necessary condition for this captured watchdog symptom.",
+    "The two runs are retained sequential fresh-VM diagnostic observations, not ordinary retries to substitute a pass for a known failure.",
+    "No first-double or atomic observer messages were captured here. The STORE_PROHIBITED cause from a different diagnostic must not be assigned to this watchdog.",
+    "First nonblack frames are instrumented startup observations, not application-readiness or strict performance-comparison results."
+  ]
+}

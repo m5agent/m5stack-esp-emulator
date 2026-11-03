@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "kind": "factory-warm-double-exception-diagnosis",
+  "status": "REVIEW",
+  "validation": "read-only exact-BIN and retained virtual-device evidence analysis; no new guest execution",
+  "firmware": {
+    "raw_bytes": 12783789,
+    "raw_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "full_flash_bytes": 16777216,
+    "full_flash_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "project": "stack-chan",
+    "version": "1.5.1",
+    "build_date": "Jul 31 2026",
+    "build_time": "10:38:34",
+    "idf": "v5.5.4",
+    "app_elf_sha256": "1de1c42f616a4841f8324faf50fd6a6e68b57e14fd82b949d34daa6f6e10415b"
+  },
+  "evidence": {
+    "report_sha256": "b8eb6fda156e2116997f6a6fbd9eaae2ce033883cb55950c976a1783c831cbaf",
+    "warm_serial_sha256": "e168a8e903c2004729cebc30072da63fc2c704bb3c108faa1b1835c1e17858e1",
+    "runtime_wasm_sha256": "437c854e359386febfe56a90532aae41a261f1e4da32a516c928dc2b9ca6e7a7",
+    "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "lock_sha256": "acff14b1be0695f09d1f3bca7ac25747d79a902920fc412ed5c63abd2e4870eb",
+    "warm_module_cache": "memory",
+    "cold_module_cache": "compiled",
+    "clock_divisor": 1,
+    "one_insn_per_tb": true,
+    "icount": false,
+    "smp_override": false
+  },
+  "observed": {
+    "cold_first_nonblack_frame_ms": 4989.4800000190735,
+    "warm_first_nonblack_frame_ms": 4021.7799999713898,
+    "warm_first_panic_text_ms": 7090.14,
+    "warm_input_begin_ms": 24578.18,
+    "ready_marker_ms": null,
+    "warm_core1_pc": "0x403783c0",
+    "warm_core1_backtrace": [
+      "0x403783bd",
+      "0x4038c2b7",
+      "0x40390f2f"
+    ],
+    "warm_core0_pc": "0x40383cd0",
+    "warm_core0_backtrace": [
+      "0x40383ccd",
+      "0x42178632",
+      "0x421788e3",
+      "0x42177423",
+      "0x4201d3b1",
+      "0x4222de6b",
+      "0x4201c2cb",
+      "0x420493f3",
+      "0x4201fef5",
+      "0x4206c785",
+      "0x4225c123"
+    ],
+    "rom_boots_warm_uart0": 2,
+    "guest_reset_observed": true,
+    "panic_precedes_known_body_input": true
+  },
+  "exact_bin_findings": [
+    {
+      "pc": "0x403783c0",
+      "bytes": "404100",
+      "instruction": "break 1,4",
+      "role": "Exact first instruction of the double-exception vector at vector base 0x40378000 + 0x3c0; confirmed against official v5.5.4 vector and linker layout."
+    },
+    {
+      "pc": "0x4038c2b7",
+      "bytes": "007000",
+      "instruction": "waiti 0",
+      "context": "entry at 0x4038c2b4, retw.n at 0x4038c2ba; no matching ELF symbol assigned."
+    },
+    {
+      "pc": "0x40390f2f",
+      "bytes": "e00800",
+      "instruction": "callx8 a8",
+      "context": "A8 literal from 0x40379130 is 0x4225bb4c. That function iterates per-core callback slots and calls exact 0x4038c2b4 waiti function; structurally consistent with idle-hook flow."
+    },
+    {
+      "pc": "0x40383cd0",
+      "instruction": "extui a11,a8,0,1",
+      "context": "IRAM function entry 0x40383c6c has exact cache_ll_l1_get_bus/file-name string literals and reads/modifies ICACHE/DCACHE bus controls 0x600c4064/0x600c4004. Dump arguments include vaddr 0x3cb80000, Flash paddr 0x00a00000, size 0x00400000, consistent with Assets mmap. This is concurrent context, not proof of a cache-model defect."
+    },
+    {
+      "pc": "0x40383308..0x40383319",
+      "instructions": [
+        "movi.n a0,1",
+        "wsr.exccause a0",
+        "rsr.epc6 a0",
+        "wsr.epc1 a0",
+        "rsr.excsave6 a0",
+        "wsr.excsave1 a0",
+        "call0 0x40384230"
+      ],
+      "context": "Exact debug-vector target: 0x40378280 saves EXCSAVE6 then jumps here. This independently confirms that EXCCAUSE=1 and EPC1=BREAK PC in the panic are overwritten debug state, not the original double-exception cause/EPC."
+    }
+  ],
+  "why_panic_cause_is_insufficient": "Official debug handler overwrites EXCCAUSE with PANIC_RSN_DEBUGEXCEPTION and copies debug EPC into EPC1. The printed EXCCAUSE=1 and final BREAK PC cannot identify the original exception that entered the double vector. EXCVADDR may also be stale unless the original cause was a memory fault.",
+  "segments": [
+    {
+      "index": 0,
+      "file_offset": "0x20020",
+      "address": "0x3c260020",
+      "size": 1132652,
+      "end": "0x3c37488c",
+      "sha256": "4f7333752b4399b993042d8734e62fc51772d738962f3991555a07e5d301284f"
+    },
+    {
+      "index": 1,
+      "file_offset": "0x134894",
+      "address": "0x3fca9c00",
+      "size": 36404,
+      "end": "0x3fcb2a34",
+      "sha256": "b989f0e25476d4dcf7257fd2e94cf9350144d5574eec6914dbee18a7afc5a883"
+    },
+    {
+      "index": 2,
+      "file_offset": "0x13d6d0",
+      "address": "0x40378000",
+      "size": 10568,
+      "end": "0x4037a948",
+      "sha256": "be2333b4304852856a9d8a7447639823532ed9c2eaef72c84e2b7fea740ece56"
+    },
+    {
+      "index": 3,
+      "file_offset": "0x140020",
+      "address": "0x42000020",
+      "size": 2483104,
+      "end": "0x4225e3c0",
+      "sha256": "21b6b7cb75fff9597c7845163e9eacf6640c6c06799a0eee5e3d2d7759831a5b"
+    },
+    {
+      "index": 4,
+      "file_offset": "0x39e3c8",
+      "address": "0x4037a948",
+      "size": 127412,
+      "end": "0x40399afc",
+      "sha256": "b04c7b8ce4af0bceb5b5638acdaa5179700edd415be611e885f74f486e993541"
+    },
+    {
+      "index": 5,
+      "file_offset": "0x3bd584",
+      "address": "0x50000000",
+      "size": 32,
+      "end": "0x50000020",
+      "sha256": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+    }
+  ],
+  "public_source_search": {
+    "matching_elf": "NOT FOUND in queried official repository tree or releases",
+    "official_releases_count": 0,
+    "official_tags_count": 0,
+    "official_tree_contains_elf_or_map": false,
+    "public_v151_source_reference_commit": "8743e2b960c1adc34568f47ad6964fecdc4a594a",
+    "reference_commit_date": "2026-08-19",
+    "limit": "This is later than the BIN build date and does not establish matching sources or symbols. The dance firmware ELF must not be applied."
+  },
+  "sources": [
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/xtensa/xtensa_vectors.S#L469-L477",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/xtensa/xtensa_vectors.S#L561-L570",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/esp_system/ld/esp32s3/sections.ld.in#L166-L186",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/esp_app_format/include/esp_app_desc.h",
+    "https://github.com/m5stack/StackChan/blob/8743e2b960c1adc34568f47ad6964fecdc4a594a/firmware/CMakeLists.txt",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/esp_mm/esp_mmu_map.c#L437-L457"
+  ],
+  "minimal_next_observation": {
+    "change": "Ignored diagnostic source only: first EXC_DOUBLE per CPU at xtensa_cpu_do_interrupt before assigning the double vector. Do not change exception handling, timing, firmware or clock.",
+    "fields": [
+      "cpu_index",
+      "pc",
+      "PS",
+      "EXCCAUSE",
+      "EXCVADDR",
+      "DEPC",
+      "EPC1..7",
+      "EPS2..7",
+      "VECBASE",
+      "INTSET",
+      "INTENABLE",
+      "WINDOW_BASE",
+      "WINDOW_START",
+      "A0..A3"
+    ],
+    "why": "Captures original exception state before BREAK/debug panic overwrites it. Emit at most once per CPU. Capture only the current CPU; do not race-read the other CPU state.",
+    "optional_control": "Only after original-cause capture, a separate same-BIN comparison can disable compiled Module reuse while preserving new Instance/Memory/FS each run. A single cold/warm difference does not establish module-cache causality."
+  },
+  "limits": [
+    "This is not a new virtual-device PASS or performance comparison.",
+    "Only static instructions and data were decoded from the exact BIN; ELF symbols are unavailable.",
+    "No first-fault EPC/DEPC/cause was retained in the current evidence.",
+    "No C fix is justified until the original exception is observed.",
+    "The warm panic occurs before known pointer input; the Factory image exercises more SoC paths than the simple dance sample.",
+    "WebAssembly.Module is immutable compiled code; current evidence does not establish reuse of a VM, Memory, Instance or mutable Flash."
+  ]
+}

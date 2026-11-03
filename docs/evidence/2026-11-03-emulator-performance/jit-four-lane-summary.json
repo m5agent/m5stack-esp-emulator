@@ -1,0 +1,895 @@
+{
+  "schema_version": 1,
+  "kind": "same-qemu-candidate-factory-four-lane-jit-diagnostic-summary",
+  "result": "ACTUAL_CPU_CONTROLS_DEMONSTRATED_ALL_FOUR_FIRMWARE_LANES_FAILED",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "source_and_build": {
+    "candidate_assets": {
+      "javascript": {
+        "path": "qemu-system-xtensa.js",
+        "sha256": "37782861f8f76aa6b5b4721f96b9e08cfad5149c784a642511280f1b1b2444af",
+        "bytes": 159394
+      },
+      "wasm": {
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+        "bytes": 12897057
+      },
+      "worker": {
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "bytes": 2776
+      }
+    },
+    "fresh_source_build": "NOT RUN; seven independent objects replace exact prototype objects; existing SDK/dependencies reused",
+    "candidate_build_result_sha256": "b1437263d61601294f11805f362dd0b0319b1cfcc6e0b364c4fe2d95c5c99782",
+    "candidate_plan_sha256": "cf98161910466d7b87fe773e6a689813b8985a1bae167153168a8adc186b4ea7",
+    "candidate_build_overlay_patch_sha256": "49f43065d3939ec41c60d9b365ff263726250f3db1fbc81e6d562b76bc326216",
+    "host_backend_complete_patch_sha256": "8c798d87d871bc87e5756b4f34f692637a04e6ea7b0101cb36be8870be09d117",
+    "runtime_manifest_sha256": "f60c99317fca48d01af159e9628f3c6e34d8c6377dd8b13f217f1f07edeb7854",
+    "candidate_common_source_files_compared": 160,
+    "candidate_common_source_differences": [
+      {
+        "path": "meson.build",
+        "product_traceoff_sha256": "8856b48c88f77e0ed880ffeec1368b2cf05782e1041e2f21176d1493e8c1737a",
+        "candidate_sha256": "ec15ec7b78fc681e9fd3c933eb1e88be6e57488442ec1478a005fbcf2ba35a9f"
+      }
+    ],
+    "compiled_objects": [
+      {
+        "source_path": "hw/gpio/esp32_gpio.c",
+        "sha256": "5621d474296eb128a5baa9a759a5f505bc059931d4cca69d0dbeece8cb9ef35f",
+        "source_sha256": "afb956b4b6b01989ca538fa2a1bddcd74bae7e08391fb498f475e585741bd576",
+        "argv_sha256": "3cf4aca240ca17520e24ca9ba264cf9a387978700ee056ce3d98b7e22d284069",
+        "dependency_sha256": "3954a0711241e2ddc5f4624413259cafb8d89c1dc04ecd9138b623ce3a467938",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source_path": "hw/misc/esp32s3_cache.c",
+        "sha256": "f7f7298065e66b8b1ea3c71dc5468181919511e96a54e5f1b127c6ec7474a001",
+        "source_sha256": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a",
+        "argv_sha256": "4796d89e27711f714e509cabefd087871d0d377f78e3141a2895439c49c481fb",
+        "dependency_sha256": "1b1ef0b7c988276be369776eb64791a3166e037f3aa6bdffa3d391ac03ab25c1",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source_path": "util/coroutine-wasm.c",
+        "sha256": "f77445a75fe3ada06651a06190409adb20a4d57b0e02a0c38975a04396c70150",
+        "source_sha256": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b",
+        "argv_sha256": "6e44248492d2649b04a29a9cb985e9491875a666bba0e0fd217a9884ff93a0f5",
+        "dependency_sha256": "bd83a82b10280bf4d1e85706a8951e742687737886caaa6ae2303dfc673605ea",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source_path": "tcg/wasm32.c",
+        "sha256": "fe8aeb80355859e1ffb61fa23e4b917c93219524b0f64137eea5ae233ddd2847",
+        "source_sha256": "dfa167fbe050283355440631a63cd09bcb256c262e8a040304baa00c87ef17cb",
+        "argv_sha256": "96c571c4f21eced6358e1df7bafbf49be0203fd5ab423e7277469f144ac0373e",
+        "dependency_sha256": "b5b61cdcd26a08aa4ba1c830825408ea113bc2c8960b141b4abc1e57d251d21d",
+        "log_sha256": "c264d5b2efc6e86222eb8aceceb33774cf2182e87003511b469099c94f90d650"
+      },
+      {
+        "source_path": "tcg/tcg.c",
+        "sha256": "ec9553fd48a7e8cd145ac62a1dd401d7fc3c7059c17f220e0436851f2226af25",
+        "source_sha256": "466684cdc678fcaf1c9143f85e63afaa7692a357e573060cd4333de3f0d3aa17",
+        "argv_sha256": "bf5dea46d8239fb7ef29604166875f4e3c89fb57153ed3fc2c9daec20af5e180",
+        "dependency_sha256": "4e0f2a72b0350cf9aea0e0d048cd3db3c7b39a4e8894c6ca887fead8280a0478",
+        "log_sha256": "4e7617e7b613f082f699d8dc3ace1ef7b0a777b4ab494fbd00a9141841e89ed6"
+      },
+      {
+        "source_path": "target/xtensa/exc_helper.c",
+        "sha256": "d72f6e3ae218185f5eb6f84c6c71d2afb44e4ead8b71ce1ce49266c6cfab5d83",
+        "source_sha256": "e106dea8c2b2fe2713dcef9f54e6c11e6875b488753db4a17161d6b71282f578",
+        "argv_sha256": "46e27758c6a34b35a39da1109c53ffd21623f81a780bd5133ce17857d1e6c9cd",
+        "dependency_sha256": "2765eeda0a99aecfb059b8d09f4bdee2b83b37a46ce9ffc28ec99e521b67bac8",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source_path": "accel/tcg/cpu-exec.c",
+        "sha256": "9333671cd0fe2eeea29f081c48d8f063b5329ce5c984fcbce82d140723cfdb2e",
+        "source_sha256": "264daa62aa509b6ffb910f7756aea18e14948779600cfca42349c1a33134ee0b",
+        "argv_sha256": "8df8cc49624c1ad2df27bf2b772209efe46bb8c91a815e169327726ca204dc83",
+        "dependency_sha256": "54619849ab41543ed736bab123ee3655101821147f44d8191b1d445f5685a3df",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "candidate_archive_sha256": "686f03c39d4857c5d1509198620e55c84e2118ed76f0eed302d728aac2154a81",
+    "candidate_link_argv_sha256": "21b2970137fa26be71f7add9abf966688e786c2c68ad3e86b7c2c5d007ad6e7a",
+    "original_inputs_verified": 1184,
+    "original_inputs_unchanged": true,
+    "original_outputs_unchanged": true,
+    "ctpop_actual_emitter_controls_sha256": "9d8a689bc6bb184ce5ef42d9a238eb6c5aec9a7acdd538f95f9478f18ff4e3fd",
+    "fresh_memory_grow_controls_sha256": "1301e2b5feaecb3aeba721160f68a8993393f6ba3b899554291d7c881ccf8dfd",
+    "prepared_overlay_metadata_sha256": "e4cc41728ecb52ea3569b3a845904feed1a8934cc95b2411bc5b62afc1ed49db",
+    "engine_difference": "Exactly one fixed ENV character: 0 versus 1. No caller-controlled public CPU option was added.",
+    "runtime_and_registry_bytes_identical_between_modes": true,
+    "formal_tci_baseline_inherited": false,
+    "production_api_modified": false,
+    "one_insn_pair_summary_sha256": "3dcef3f34bd0113c199ee8f8d57ed6c5fc5b234466ef3095c7438f1dc7a0207d",
+    "default_tb_overlay_prepared_sha256": "c1ede48745ba9e45afa1b9f718561f84f46f695fce94115c028816896b1e4a94",
+    "private_harnesses_sha256": {
+      "one-insn-per-tb": "84f002f72d9058ac894e6ad909f8161cd1c2cb90e283e348352a8bbfb7072cbd",
+      "default-tb": "8a443af9fef347a2fcaa6e66aa6c103ff165c4f9a5c8d859cf3053348e939309"
+    },
+    "one_insn_mode_engine_sha256": {
+      "interpreter": "baf058c9dbdcf53770ec44fcb881f6992984bcde8a4e75a0e16363e23ae35ae5",
+      "jit": "b0c37bf6ad1e87326a652ae9e14edb798fa32ba02976abc14fdeba3976520792"
+    },
+    "default_tb_mode_engine_sha256": {
+      "jit": "e78b4075854d8c42dc964ef91c5361e26a73171d180498e0f5d622af684b978d",
+      "interpreter": "7fea2773f0ef3905a0e6915a6cfbe93d2044446c37e7c4d7985fccf703169f0b"
+    }
+  },
+  "shared_configuration": {
+    "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "clock_divisor": 1,
+    "stack_sizes": "64KiB main and default pthread; STACK_OVERFLOW_CHECK=2 retained from candidate build plan",
+    "prior_inputs": [],
+    "firmware_changed": false,
+    "watchdog_disabled": false,
+    "first_frame_scope": "Instrumented first nonblack observation, not app-ready or a strict performance-comparison score.",
+    "block_policies": [
+      "one-insn-per-tb=on with its standard no-direct-chain behavior",
+      "default TB and chaining policy; no -d/cap/icount override"
+    ]
+  },
+  "runs": [
+    {
+      "mode": "interpreter",
+      "fixed_environment": {
+        "M5_QEMU_WASM_JIT": "0"
+      },
+      "raw_report_sha256": "5456f514ad7a91130937dbce0e695c3b0de186a531b7214783bf7eda0c55dfed",
+      "executed_harness_sha256": "84f002f72d9058ac894e6ad909f8161cd1c2cb90e283e348352a8bbfb7072cbd",
+      "site_manifest_sha256": "27264fe383b9cee0c042ecdc051d4be0431baf12b2e5f75a98db4e2876004c09",
+      "planned_fresh_vms": 2,
+      "observed_fresh_vms": 1,
+      "remaining_skipped_after_first_fault": true,
+      "first_serial_ms": 1261.5950000286102,
+      "first_nonblack_frame_ms": 6151.164999961853,
+      "observed_window_seconds": 4.327689999938011,
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "actual_cpu_execution": {
+        "source": "qemu-wasm-jit-counters-v1",
+        "status": "available",
+        "backend": "tci",
+        "enabled": false,
+        "counters": {
+          "compiled": 0,
+          "compiled_entries": 0,
+          "tci_entries": 85140148
+        },
+        "counter_scope": "process aggregate; independent atomic u32 reads; counters can wrap"
+      },
+      "actual_cpu_control_validation": "PASS",
+      "actual_cpu_series_observations": 40,
+      "actual_cpu_series_json_sha256": "9bae751be0ddb989479c95cbf49a49dcb358af1df1de806fb5ebdb8c0e565a0a",
+      "actual_cpu_observer_errors": [],
+      "diagnostics": {
+        "bytes": 132,
+        "events": 2,
+        "sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+        "cstack_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "5adf6d3240d0182c7aa670455093f4f8f9415571db8c97111751a081f549b1f9",
+      "fault": {
+        "panic": "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1). ",
+        "guest_register_dumps": {
+          "cpu1": {
+            "PC": "40383742",
+            "PS": "00040034",
+            "A0": "4038c2ba",
+            "A1": "3fcb0010",
+            "A2": "00000000",
+            "A3": "3fcc11a0",
+            "A4": "00000002",
+            "A5": "3fcadf44",
+            "A6": "01ffffff",
+            "A7": "3fcb2b00",
+            "A8": "821790e2",
+            "A9": "4038ff06",
+            "A10": "00000000",
+            "A11": "40000000",
+            "A12": "40383701",
+            "A13": "00000000",
+            "A14": "3fca9dc8",
+            "A15": "3fcb2ff0",
+            "SAR": "00000000",
+            "EXCCAUSE": "00000006",
+            "EXCVADDR": "00000000",
+            "LBEG": "00000000",
+            "LEND": "00000000",
+            "LCOUNT": "00000000",
+            "EPC1": "403957b3",
+            "EPC2": "00000000",
+            "EPC3": "00000000",
+            "EPC4": "40383742"
+          },
+          "cpu0": {
+            "PC": "40393504",
+            "PS": "00060d34",
+            "A0": "80383c85",
+            "A1": "3fcc0070",
+            "A2": "00000000",
+            "A3": "00000000",
+            "A4": "3cf40000",
+            "A5": "000000dc",
+            "A6": "3cf80000",
+            "A7": "3fcc0090",
+            "A8": "00000000",
+            "A9": "600c53d0",
+            "A10": "18031400",
+            "A11": "00010000",
+            "A12": "000000dc",
+            "A13": "00000003",
+            "A14": "07fb29a5",
+            "A15": "00000002",
+            "SAR": "0000001e",
+            "EXCCAUSE": "00000006",
+            "EXCVADDR": "00000000",
+            "LBEG": "400570e8",
+            "LEND": "400570f3",
+            "LCOUNT": "00000000"
+          }
+        },
+        "first_double_registers": {},
+        "backtraces": [
+          "0x4038373f:0x3fcb0010 0x4038c2b7:0x3fcc11a0 0x4225bb79:0x3fcc11c0 0x40390f2f:0x3fcc11e0",
+          "0x40393501:0x3fcc0070 0x40383c82:0x3fcc0090 0x42178632:0x3fcc00c0 0x421788e3:0x3fcc0110 0x42177423:0x3fcc0150 0x4201d3b1:0x3fcc0170 0x4222de6b:0x3fcc01e0 0x4201c2cb:0x3fcc0200 0x420493f3:0x3fcc0220 0x4201fef5:0x3fcc0290 0x4206c785:0x3fcc02c0 0x4225c123:0x3fcc0300"
+        ],
+        "reset_notification_count": 2,
+        "rom_boot_markers_per_port": {
+          "uart0": 2
+        },
+        "runtime_onerror": [],
+        "page_errors": []
+      },
+      "actual_canvas_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "canvas_id": "",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "WebKit",
+          "renderer": "WebKit WebGL",
+          "unmasked_vendor": "Google Inc. (Apple)",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+        }
+      ],
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "observed_workers": 6,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      },
+      "lane": "one-insn-per-tb/interpreter",
+      "block_policy": "one-insn-per-tb",
+      "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+      "wasm_sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+      "registry_sha256": "41ec19889e90b2e834c24f2422a34b075ce3d552977b2bf34b9de483ca5f6f27",
+      "runtime_javascript_sha256": "37782861f8f76aa6b5b4721f96b9e08cfad5149c784a642511280f1b1b2444af",
+      "runtime_worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ],
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "required_runtime_patch_binding": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "configuration_status": "frozen private/withdrawn diagnostic configuration; not current product registry",
+      "input_navigation_validation": "NOT RUN"
+    },
+    {
+      "mode": "jit",
+      "fixed_environment": {
+        "M5_QEMU_WASM_JIT": "1"
+      },
+      "raw_report_sha256": "bd39fcc6f82869085032d31848b765805617a71ba9126f54d84a028f2f01407c",
+      "executed_harness_sha256": "84f002f72d9058ac894e6ad909f8161cd1c2cb90e283e348352a8bbfb7072cbd",
+      "site_manifest_sha256": "9322c9df3018f93843fccab1ed282a616e65fb7ff3cc31bae8c384e909290546",
+      "planned_fresh_vms": 2,
+      "observed_fresh_vms": 1,
+      "remaining_skipped_after_first_fault": true,
+      "first_serial_ms": 822.8700000047684,
+      "first_nonblack_frame_ms": 4919.534999966621,
+      "observed_window_seconds": 3.0874649999141695,
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "actual_cpu_execution": {
+        "source": "qemu-wasm-jit-counters-v1",
+        "status": "available",
+        "backend": "wasm32-tcg-jit",
+        "enabled": true,
+        "counters": {
+          "compiled": 2999,
+          "compiled_entries": 61664282,
+          "tci_entries": 11364209
+        },
+        "counter_scope": "process aggregate; independent atomic u32 reads; counters can wrap"
+      },
+      "actual_cpu_control_validation": "PASS",
+      "actual_cpu_series_observations": 32,
+      "actual_cpu_series_json_sha256": "96e85356c0c7951ddd366550665fa161607aea73e706c86357b25d7a01ddf27d",
+      "actual_cpu_observer_errors": [],
+      "diagnostics": {
+        "bytes": 1202,
+        "events": 6,
+        "sha256": "5320685d8c7639664ae4bff88b8da74fdeab730bad3903eee04aa7a0419b6fb3",
+        "cstack_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "07c3881349e7936da790699fd6014362f49751059db09073acff6166c7f58122",
+      "fault": {
+        "panic": "Guru Meditation Error: Cuorreu  M e0di tpaanitci'oend ( IEntrerrorr:u pCto wrdte  t i1me opuatn ioc'ned  C(PUUn0h)a. nd",
+        "guest_register_dumps": {},
+        "first_double_registers": {
+          "M5_DOUBLE_ORIGIN": {
+            "cpu": "1",
+            "pc": "40378100",
+            "envpc": "40378100",
+            "cause": "0000001d",
+            "vaddr": "fffffff0",
+            "ps": "00040e34",
+            "depc": "40378100",
+            "vecbase": "40378000",
+            "intset": "01000002",
+            "intenable": "13000003",
+            "pending": "0",
+            "windowbase": "0000000f",
+            "windowstart": "00008000",
+            "ccount": "10dd7e21",
+            "origin_seen": "2",
+            "a0": "4038c2ba",
+            "a1": "3fcc11a0",
+            "a2": "00060d30",
+            "a3": "00040023"
+          },
+          "M5_DOUBLE_ORIGIN_SAVED": {
+            "cpu": "1",
+            "epc1": "403999a4",
+            "epc2": "00000000",
+            "epc3": "00000000",
+            "epc4": "403999b6",
+            "epc5": "00000000",
+            "epc6": "00000000",
+            "epc7": "00000000",
+            "eps2": "00000000",
+            "eps3": "00000000",
+            "eps4": "00040b23",
+            "eps5": "00000000",
+            "eps6": "00000000",
+            "eps7": "00000000",
+            "debugcause": "00000000"
+          },
+          "M5_DOUBLE_STUB": {
+            "cpu": "1",
+            "pc": "403783c0",
+            "envpc": "403783c0",
+            "cause": "0000001d",
+            "vaddr": "fffffff0",
+            "ps": "00040e34",
+            "depc": "40378100",
+            "vecbase": "40378000",
+            "intset": "01000002",
+            "intenable": "13000003",
+            "pending": "0",
+            "windowbase": "0000000f",
+            "windowstart": "00008000",
+            "ccount": "10dd7e21",
+            "origin_seen": "2",
+            "a0": "4038c2ba",
+            "a1": "3fcc11a0",
+            "a2": "00060d30",
+            "a3": "00040023"
+          },
+          "M5_DOUBLE_STUB_SAVED": {
+            "cpu": "1",
+            "epc1": "403999a4",
+            "epc2": "00000000",
+            "epc3": "00000000",
+            "epc4": "403999b6",
+            "epc5": "00000000",
+            "epc6": "00000000",
+            "epc7": "00000000",
+            "eps2": "00000000",
+            "eps3": "00000000",
+            "eps4": "00040b23",
+            "eps5": "00000000",
+            "eps6": "00000000",
+            "eps7": "00000000",
+            "debugcause": "00000000"
+          }
+        },
+        "backtraces": [],
+        "reset_notification_count": 2,
+        "rom_boot_markers_per_port": {
+          "uart0": 2
+        },
+        "runtime_onerror": [],
+        "page_errors": []
+      },
+      "actual_canvas_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "canvas_id": "",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "WebKit",
+          "renderer": "WebKit WebGL",
+          "unmasked_vendor": "Google Inc. (Apple)",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+        }
+      ],
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "observed_workers": 6,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      },
+      "lane": "one-insn-per-tb/jit",
+      "block_policy": "one-insn-per-tb",
+      "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+      "wasm_sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+      "registry_sha256": "41ec19889e90b2e834c24f2422a34b075ce3d552977b2bf34b9de483ca5f6f27",
+      "runtime_javascript_sha256": "37782861f8f76aa6b5b4721f96b9e08cfad5149c784a642511280f1b1b2444af",
+      "runtime_worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ],
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "required_runtime_patch_binding": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "configuration_status": "frozen private/withdrawn diagnostic configuration; not current product registry",
+      "input_navigation_validation": "NOT RUN"
+    },
+    {
+      "mode": "jit",
+      "fixed_environment": {
+        "M5_QEMU_WASM_JIT": "1"
+      },
+      "raw_report_sha256": "980098d8053df81e1f5061efe9f3d254b8d8a71f545a031aa8e0560fdedb3151",
+      "executed_harness_sha256": "8a443af9fef347a2fcaa6e66aa6c103ff165c4f9a5c8d859cf3053348e939309",
+      "site_manifest_sha256": "573e9a585b58a807984d3e1c18a78d2a0d59ed4064166a36b367f0d7dce35a8d",
+      "planned_fresh_vms": 2,
+      "observed_fresh_vms": 1,
+      "remaining_skipped_after_first_fault": true,
+      "first_serial_ms": 925.7149999141693,
+      "first_nonblack_frame_ms": 11203.284999966621,
+      "observed_window_seconds": 17.830615000009537,
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "actual_cpu_execution": {
+        "source": "qemu-wasm-jit-counters-v1",
+        "status": "available",
+        "backend": "wasm32-tcg-jit",
+        "enabled": true,
+        "counters": {
+          "compiled": 2716,
+          "compiled_entries": 58343719,
+          "tci_entries": 3663826
+        },
+        "counter_scope": "process aggregate; independent atomic u32 reads; counters can wrap"
+      },
+      "actual_cpu_control_validation": "PASS",
+      "actual_cpu_series_observations": 116,
+      "actual_cpu_series_json_sha256": "251d3ca0b30a52877f3f2fb9c938a5c59fc77a25927cd1c70a0cd9c96f57d6ad",
+      "actual_cpu_observer_errors": [],
+      "diagnostics": {
+        "bytes": 1202,
+        "events": 6,
+        "sha256": "c15167fa4e31126351b02bdc45ae289ed15757aba8d081c59b1507773dbff40f",
+        "cstack_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "59f86cf80ca3440ef04c717daf973fb512d5323140d567f2ebc7d0fb725fe6c3",
+      "fault": {
+        "panic": "Guru Meditation Error: Core  1 panic'ed (Unhandled debug exception). ",
+        "guest_register_dumps": {
+          "cpu1": {
+            "PC": "403783c0",
+            "PS": "00060f36",
+            "A0": "00000000",
+            "A1": "3c3d0420",
+            "A2": "8038420c",
+            "A3": "00060f30",
+            "A4": "4038ff93",
+            "A5": "3fced6c0",
+            "A6": "3fcb2ff4",
+            "A7": "00000000",
+            "A8": "3fcd5cb0",
+            "A9": "00000001",
+            "A10": "3fcd5b50",
+            "A11": "3fcb2ff0",
+            "A12": "8039138e",
+            "A13": "3fced6a0",
+            "A14": "3fca9dc8",
+            "A15": "3fcb2e24",
+            "SAR": "00000004",
+            "EXCCAUSE": "00000001",
+            "EXCVADDR": "00000000",
+            "LBEG": "400570e8",
+            "LEND": "400570f3",
+            "LCOUNT": "00000000"
+          }
+        },
+        "first_double_registers": {
+          "M5_DOUBLE_ORIGIN": {
+            "cpu": "1",
+            "pc": "4038ffbb",
+            "envpc": "4038ffbb",
+            "cause": "00000000",
+            "vaddr": "00000000",
+            "ps": "00060f30",
+            "depc": "4038ffbb",
+            "vecbase": "40378000",
+            "intset": "00000000",
+            "intenable": "13000003",
+            "pending": "0",
+            "windowbase": "00000003",
+            "windowstart": "00000008",
+            "ccount": "42c3f17d",
+            "origin_seen": "2",
+            "a0": "00000000",
+            "a1": "3c3d0420",
+            "a2": "8038420c",
+            "a3": "00060f30"
+          },
+          "M5_DOUBLE_ORIGIN_SAVED": {
+            "cpu": "1",
+            "epc1": "400559e0",
+            "epc2": "00000000",
+            "epc3": "00000000",
+            "epc4": "00000000",
+            "epc5": "00000000",
+            "epc6": "00000000",
+            "epc7": "00000000",
+            "eps2": "00000000",
+            "eps3": "00000000",
+            "eps4": "00000000",
+            "eps5": "00000000",
+            "eps6": "00000000",
+            "eps7": "00000000",
+            "debugcause": "00000000"
+          },
+          "M5_DOUBLE_STUB": {
+            "cpu": "1",
+            "pc": "403783c0",
+            "envpc": "403783c0",
+            "cause": "00000000",
+            "vaddr": "00000000",
+            "ps": "00060f30",
+            "depc": "4038ffbb",
+            "vecbase": "40378000",
+            "intset": "00000000",
+            "intenable": "13000003",
+            "pending": "0",
+            "windowbase": "00000003",
+            "windowstart": "00000008",
+            "ccount": "42c3f17d",
+            "origin_seen": "2",
+            "a0": "00000000",
+            "a1": "3c3d0420",
+            "a2": "8038420c",
+            "a3": "00060f30"
+          },
+          "M5_DOUBLE_STUB_SAVED": {
+            "cpu": "1",
+            "epc1": "400559e0",
+            "epc2": "00000000",
+            "epc3": "00000000",
+            "epc4": "00000000",
+            "epc5": "00000000",
+            "epc6": "00000000",
+            "epc7": "00000000",
+            "eps2": "00000000",
+            "eps3": "00000000",
+            "eps4": "00000000",
+            "eps5": "00000000",
+            "eps6": "00000000",
+            "eps7": "00000000",
+            "debugcause": "00000000"
+          }
+        },
+        "backtraces": [
+          "0x403783bd:0x3c3d0420"
+        ],
+        "reset_notification_count": 2,
+        "rom_boot_markers_per_port": {
+          "uart0": 2
+        },
+        "runtime_onerror": [],
+        "page_errors": []
+      },
+      "actual_canvas_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "canvas_id": "",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "WebKit",
+          "renderer": "WebKit WebGL",
+          "unmasked_vendor": "Google Inc. (Apple)",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+        }
+      ],
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "observed_workers": 6,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      },
+      "lane": "default-tb/jit",
+      "block_policy": "default-tb",
+      "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+      "wasm_sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+      "registry_sha256": "ea6ff6930df09e6d00790dcf8b52ef8cc5800633fad4f82622a1741f8a358a8c",
+      "runtime_javascript_sha256": "37782861f8f76aa6b5b4721f96b9e08cfad5149c784a642511280f1b1b2444af",
+      "runtime_worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi"
+      ],
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "required_runtime_patch_binding": null,
+      "configuration_status": "frozen private/withdrawn diagnostic configuration; not current product registry",
+      "input_navigation_validation": "NOT RUN"
+    },
+    {
+      "mode": "interpreter",
+      "fixed_environment": {
+        "M5_QEMU_WASM_JIT": "0"
+      },
+      "raw_report_sha256": "60f490991ba78c16bbad45d040cdb62ae862b00f0f9cc1eefe3063e2c86a4858",
+      "executed_harness_sha256": "8a443af9fef347a2fcaa6e66aa6c103ff165c4f9a5c8d859cf3053348e939309",
+      "site_manifest_sha256": "060f59dbd8e7d319523d50ee78e5620845c2c861aa67a214120fc4cf25b007a3",
+      "planned_fresh_vms": 2,
+      "observed_fresh_vms": 1,
+      "remaining_skipped_after_first_fault": true,
+      "first_serial_ms": 1125.6899999380112,
+      "first_nonblack_frame_ms": 13128.230000019073,
+      "observed_window_seconds": 3.811825000047684,
+      "application_ready_marker": null,
+      "prior_inputs": [],
+      "actual_cpu_execution": {
+        "source": "qemu-wasm-jit-counters-v1",
+        "status": "available",
+        "backend": "tci",
+        "enabled": false,
+        "counters": {
+          "compiled": 0,
+          "compiled_entries": 0,
+          "tci_entries": 95085802
+        },
+        "counter_scope": "process aggregate; independent atomic u32 reads; counters can wrap"
+      },
+      "actual_cpu_control_validation": "PASS",
+      "actual_cpu_series_observations": 67,
+      "actual_cpu_series_json_sha256": "46880208a1850d49a2add7c1f05b2447ea775a506566b1a0c721f8f80c354c08",
+      "actual_cpu_observer_errors": [],
+      "diagnostics": {
+        "bytes": 132,
+        "events": 2,
+        "sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+        "cstack_messages": 0,
+        "atomic_messages": 0
+      },
+      "exit_serial_sha256": "fa150d4c4fbdc3ac5844416ae9845638461ccf7bbe7d0db3b04f8bdb1cc3966a",
+      "fault": {
+        "panic": "Guru Meditation Error: Core  0 panic'ed (Interrupt wdt timeout on CPU0). ",
+        "guest_register_dumps": {
+          "cpu0": {
+            "PC": "40393504",
+            "PS": "00060d34",
+            "A0": "80383c85",
+            "A1": "3fcc0070",
+            "A2": "00000000",
+            "A3": "00000000",
+            "A4": "3ce30000",
+            "A5": "000000cb",
+            "A6": "3cf80000",
+            "A7": "3fcc0090",
+            "A8": "00000000",
+            "A9": "600c538c",
+            "A10": "18031400",
+            "A11": "00010000",
+            "A12": "000000cb",
+            "A13": "00000003",
+            "A14": "3fcea680",
+            "A15": "00000002",
+            "SAR": "0000001e",
+            "EXCCAUSE": "00000005",
+            "EXCVADDR": "00000000",
+            "LBEG": "400570e8",
+            "LEND": "400570f3",
+            "LCOUNT": "00000000"
+          },
+          "cpu1": {
+            "PC": "4038fc92",
+            "PS": "00060034",
+            "A0": "803929d8",
+            "A1": "3fcaff80",
+            "A2": "3fca9dc8",
+            "A3": "ffffffff",
+            "A4": "03cadf4c",
+            "A5": "00060023",
+            "A6": "3fcb2a70",
+            "A7": "0000abab",
+            "A8": "8038fcbe",
+            "A9": "00000001",
+            "A10": "00000001",
+            "A11": "00000000",
+            "A12": "b33fffff",
+            "A13": "3c3cf520",
+            "A14": "3fceedf0",
+            "A15": "00000000",
+            "SAR": "00000012",
+            "EXCCAUSE": "00000005",
+            "EXCVADDR": "00000000",
+            "LBEG": "00000000",
+            "LEND": "00000000",
+            "LCOUNT": "00000000"
+          }
+        },
+        "first_double_registers": {},
+        "backtraces": [
+          "0x40393501:0x3fcc0070 0x40383c82:0x3fcc0090 0x42178632:0x3fcc00c0 0x421788e3:0x3fcc0110 0x42177423:0x3fcc0150 0x4201d3b1:0x3fcc0170 0x4222de6b:0x3fcc01e0 0x4201c2cb:0x3fcc0200 0x420493f3:0x3fcc0220 0x4201fef5:0x3fcc0290 0x4206c785:0x3fcc02c0 0x4225c123:0x3fcc0300",
+          "0x4038fc8f:0x3fcaff80 0x403929d5:0x3fcaffb0 0x40390348:0x3fcaffd0 0x403903b8:0x3fcafff0 0x40383761:0x3fcb0010 0x4038c2b7:0x3fcc11a0 0x4225bb79:0x3fcc11c0 0x40390f2f:0x3fcc11e0"
+        ],
+        "reset_notification_count": 1,
+        "rom_boot_markers_per_port": {
+          "uart0": 2
+        },
+        "runtime_onerror": [],
+        "page_errors": []
+      },
+      "actual_canvas_renderer": [
+        {
+          "scope": "actual-workbench-model-canvas",
+          "canvas_id": "",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "WebKit",
+          "renderer": "WebKit WebGL",
+          "unmasked_vendor": "Google Inc. (Apple)",
+          "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+        }
+      ],
+      "cleanup": {
+        "graceful_exit": true,
+        "exit_code": 0,
+        "all_observed_workers_closed": true,
+        "observed_workers": 6,
+        "nested_workers_at_exit": 0,
+        "remaining_workers_after_dispose": 0,
+        "engine_fallback_terminations": 0,
+        "iframe_removed": true
+      },
+      "lane": "default-tb/interpreter",
+      "block_policy": "default-tb",
+      "firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+      "wasm_sha256": "bb9a59c5d101a6ab8689f6ecedb3e39476331890bcb79117281a0870197763c2",
+      "registry_sha256": "ea6ff6930df09e6d00790dcf8b52ef8cc5800633fad4f82622a1741f8a358a8c",
+      "runtime_javascript_sha256": "37782861f8f76aa6b5b4721f96b9e08cfad5149c784a642511280f1b1b2444af",
+      "runtime_worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi"
+      ],
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "required_runtime_patch_binding": null,
+      "configuration_status": "frozen private/withdrawn diagnostic configuration; not current product registry",
+      "input_navigation_validation": "NOT RUN"
+    }
+  ],
+  "interpretation": [
+    "All four lanes use the same bb9a candidate, complete Factory Flash, normal clock, 64KiB/overflow-guard settings and observers. Each mode pair changes only the fixed JIT ENV byte.",
+    "Both disabled lanes demonstrate zero compilations/compiled entries and positive forked TCI entries. Both enabled lanes demonstrate positive successful compilations and compiled entries.",
+    "Restoring the normal TB/chaining strategy did not eliminate Factory faults. These diagnostic results do not justify promoting this JIT candidate.",
+    "The one-instruction enabled first-double has raw cause0x1d at40378100. The default-TB enabled first-double has raw cause0 at4038ffbb. They are different captured causes and must not be conflated.",
+    "Different fault types/timing across four first-fault samples do not attribute every failure to JIT or identify one common root cause.",
+    "First nonblack observations are not application readiness or strict performance scores. Dispatch counters are not guest instructions, unique TBs or cross-runtime speed ratios.",
+    "All four planned second VMs were skipped after first fault. No input or Start navigation was attempted, and no ordinary retry replaced a failure with a pass.",
+    "These frozen registries include withdrawn/private metadata; none is relabeled as the later current product source or production admission."
+  ],
+  "configuration_status": "WITHDRAWN_OR_PRIVATE_ONLY; no lane inherits current product admission or a production TCI benchmark result."
+}

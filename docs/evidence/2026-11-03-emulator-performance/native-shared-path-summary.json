@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "kind": "native-r4-shared-output-source-equivalence-summary",
+  "status": "PASS",
+  "validation_category": "read-only source/data equivalence; no guest rerun",
+  "historical_evidence": "Native r4 remains bound to its original recorded source hashes.",
+  "registry_identity": {
+    "r4_recorded_sha256": "a09af4cbf25da01678d0bdf081b4c21097d760af5b8171aed1df6af7c8419a20",
+    "current_sha256": "f98446024040c9aead62c25f883b338e53ffd7ea31143831018e21dee953138a",
+    "snapshot_matches_r4_record": true,
+    "whole_files_equal": false,
+    "difference_scope": "firmwareProfiles execution/provenance variants only; all other registry fields identical"
+  },
+  "profile_module_identity": {
+    "r4_recorded_sha256": "54f2e8c00714bf4666177ad0bb217e657dc81883938fa71c0b00ac9752e774ad",
+    "current_sha256": "164bcb22d2b22c793e72ad2569e9eb14db64cc6ec36cc7152bf4be122a9198af",
+    "snapshot_matches_r4_record": true,
+    "whole_files_equal": false,
+    "difference_scope": "Execution/variant validation, binding and argument generation changed; output functions below remain byte-identical"
+  },
+  "native_output_projection": {
+    "fields": [
+      "deviceId",
+      "board",
+      "outputs"
+    ],
+    "canonical_encoding": "UTF-8 JSON, recursively sorted keys, compact separators",
+    "r4_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "current_sha256": "a23342c2d99bd6acf85f4c3435e3e703cf58a11ff64062bc1c9da7e314176bcb",
+    "equal": true,
+    "value": {
+      "deviceId": "stackchan",
+      "board": "m5stackchan",
+      "outputs": {
+        "kind": "stackchan-scs-qom-v1",
+        "path": "/machine/scs_servo",
+        "property": "state",
+        "calibration": {
+          "yawZeroTicks": 460,
+          "pitchZeroTicks": 620,
+          "tickDegrees": 0.3125,
+          "yawDirection": 1,
+          "pitchDirection": 1
+        }
+      }
+    }
+  },
+  "non_variant_registry_projection": {
+    "r4_sha256": "88d7b7eac24e9a7649cee8d138d4d666a9bc7e3d7efe785328442fdd1a338c29",
+    "current_sha256": "88d7b7eac24e9a7649cee8d138d4d666a9bc7e3d7efe785328442fdd1a338c29",
+    "equal": true
+  },
+  "functions": {
+    "validateQemuOnboardState": {
+      "r4_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "current_sha256": "ec1713cb84adbfc0f553cb33bf2c555dbcd70c20c13f1008796caf457504a4cb",
+      "byte_identity": true
+    },
+    "qemuOnboardOutputQueries": {
+      "r4_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "current_sha256": "6bc94c02541a1d70c286fc93ab8c5587123eddcf14e9ba63680d2a8c661dbb10",
+      "byte_identity": true
+    }
+  },
+  "shared_modules": {
+    "platform/web/public.js": {
+      "r4_recorded_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "current_sha256": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+      "byte_identity": true
+    },
+    "platform/web/public-session-controller.js": {
+      "r4_recorded_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "current_sha256": "8e845070de279746a3930adec7ca0a58c77bad308d2470f465494e7e1d15b250",
+      "byte_identity": true
+    },
+    "platform/web/public-qemu-servo.js": {
+      "current_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "saved_export_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "base_git_blob_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "byte_identity": true,
+      "r4_digest_recorded_separately": false,
+      "scope": "Saved historical export and base/current module match; no new hash is attributed to the old r4 source inventory."
+    }
+  },
+  "actual_native_call_path": [
+    "public.js extracts deviceId/board/outputs plus actual imported firmware SHA",
+    "PublicSessionController validates calibration and firmware binding, then actual session/QOM receipt",
+    "public-qemu-servo.js validates raw SCS source/registers and maps present_position to model commands"
+  ],
+  "call_path_note": "Native SCS polling imports validateQemuServoState directly; unchanged validateQemuOnboardState StackChan branch delegates to the same validator without the changed full execution-profile validator. Public.js and PublicSessionController exactly match r4 source pins.",
+  "limits": [
+    "This is not a new native guest run, browser PASS or whole-module byte identity.",
+    "Old profile/registry hashes remain historical pins, never substituted for current hashes.",
+    "No credentials, endpoints, host paths or raw session/device identifiers included."
+  ]
+}

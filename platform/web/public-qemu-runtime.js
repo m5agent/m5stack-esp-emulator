@@ -1,7 +1,8 @@
 import {assetUrl, siteRoot} from './public-config.js';
-import {downloadFirmware} from './public-firmware.js';
+import {downloadFirmware, sha256Buffer} from './public-firmware.js';
+import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, validateQemuFirmware, qemuInputCommand, validateQemuOnboardState} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState} from './public-qemu-profiles.js';
 
 const QEMU_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
 const ROM_SHA = 'b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913';
@@ -16,9 +17,11 @@ export function browserQemuHistory(storage) {
 }
 export class PublicQemuRuntime {
   constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
-    requestTimeout=20000,storage,downloadImpl=downloadFirmware,profiles,allowCandidateProfiles=false}={}) {
+    requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
     Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,allowCandidateProfiles});
+    this.loadAsset=downloadImpl===downloadFirmware?loadVerifiedRuntimeAsset:createVerifiedAssetLoader({downloadImpl,cacheStorage:null});
+    this.compileWasm=compileImpl?createVerifiedModuleCompiler({compile:compileImpl}):compileVerifiedRuntimeModule;
     this.fetchImpl=(...args)=>fetchImpl(...args);
     this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
   }
@@ -80,7 +83,8 @@ export class PublicQemuRuntime {
       void this.stop();
     }
   }
-  async start({device,firmware,signal,clockDivisor}={}) {
+  async start(options={}) {
+    const {device,firmware,signal,clockDivisor}=options;
     await this.stop();
     const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
@@ -94,37 +98,53 @@ export class PublicQemuRuntime {
     this.state('loading');
     try {
       active();
+      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor'].includes(key)),'Unsupported QEMU execution option');
       const deviceId=typeof device==='string'?device:device?.id;
       const registry=this.profiles||await loadQemuBrowserProfiles({root:this.root,fetchImpl:this.fetchImpl,signal:bootAbort.signal});
       active();
       let profile=getQemuBrowserProfile(deviceId,registry,{allowCandidateProfiles:this.allowCandidateProfiles});
       check(profile,'该设备尚未取得浏览器运行准入。');
       check(globalThis.crossOriginIsolated&&typeof SharedArrayBuffer!=='undefined','浏览器共享内存尚未启用。请在 HTTPS 下刷新，允许本站 Service Worker；推荐桌面 Chromium。');
-      const flash=validateQemuFirmware(firmware,profile),firmwareSHA256=sha256Bytes(flash);
+      const flash=validateQemuFirmware(firmware,profile),firmwareSHA256=await sha256Buffer(flash,{signal:bootAbort.signal});
+      active();
       profile=resolveQemuFirmwareProfile(profile,firmwareSHA256);
+      let clockOverride=null;
       if(clockDivisor!==undefined){
         check(this.allowCandidateProfiles&&[1,8].includes(clockDivisor),'时钟覆盖仅用于明确的候选预览。');
-        profile.clockDivisor=clockDivisor;profile.profile=`${deviceId}-wasm-${clockDivisor===1?'wallclock-candidate':'vm-div8'}`;
+        clockOverride={fromProfile:profile.profile,fromClockDivisor:profile.clockDivisor,toClockDivisor:clockDivisor,candidate:true};
+        // A clock experiment is no longer the catalog's validated variant.
+        // Keep its SHA-bound ready marker, but do not carry published execution
+        // metadata into a different clock profile.
+        clearQemuFirmwareExecutionBinding(profile);
+        profile.admission='candidate';profile.clockDivisor=clockDivisor;profile.profile=`${deviceId}-wasm-${clockDivisor===1?'wallclock-candidate':'vm-div8'}`;
       }
+      validateQemuProfile(profile);
       this.profile=profile;
       active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor};
       const manifestUrl=assetUrl('platform/runtime/qemu/runtime.json',this.root);
       const response=await this.fetchImpl(manifestUrl,{signal:bootAbort.signal});
       check(response.ok,'站点未包含 C/QEMU WASM，请先运行 Pages 构建。');const manifest=await response.json();
       check(manifest.schema_version===1&&manifest.engine==='qemu-wasm'&&manifest.source?.commit===QEMU_COMMIT&&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
+      validateQemuRuntimeRequirements(profile,manifest);
       const resource=async(row,maxBytes)=>{
         check(row&&/^[a-zA-Z0-9_.-]+$/.test(row.path)&&/^[a-f0-9]{64}$/.test(row.sha256),'C/QEMU 资源清单无效。');
-        const result=await this.downloadImpl(new URL(row.path,manifestUrl).href,{signal:bootAbort.signal,expectedSha256:row.sha256,maxBytes,fetchImpl:this.fetchImpl});
+        const result=await this.loadAsset(new URL(row.path,manifestUrl).href,{signal:bootAbort.signal,expectedSha256:row.sha256,expectedBytes:row.bytes,maxBytes,fetchImpl:this.fetchImpl});
         check(result.size===row.bytes,'C/QEMU 资源长度不匹配。');return result.bytes;
       };
-      const [javascript,wasm,worker]=await Promise.all([resource(manifest.assets.javascript,2*1048576),resource(manifest.assets.wasm,64*1048576),resource(manifest.assets.worker,1048576)]);
-      const roms=await Promise.all(profile.roms.map(async(row)=>{
-        const result=await this.downloadImpl(row.url,{signal:bootAbort.signal,expectedSha256:row.sha256,maxBytes:row.bytes,fetchImpl:this.fetchImpl});
+      const wasmTask=resource(manifest.assets.wasm,64*1048576).then(bytes=>{
+        const compiled=this.compileWasm(bytes,{sha256:manifest.assets.wasm.sha256,
+          engineKey:[QEMU_COMMIT,manifest.assets.javascript.sha256,manifest.assets.worker.sha256].join(':'),signal:bootAbort.signal});
+        compiled.catch(()=>{}); // Observed below, after the iframe loads in parallel.
+        return {bytes,compiled};
+      });
+      const [javascript,wasmAsset,worker,roms]=await Promise.all([resource(manifest.assets.javascript,2*1048576),wasmTask,resource(manifest.assets.worker,1048576),Promise.all(profile.roms.map(async(row)=>{
+        const result=await this.loadAsset(row.url,{signal:bootAbort.signal,expectedSha256:row.sha256,expectedBytes:row.bytes,maxBytes:row.bytes,fetchImpl:this.fetchImpl});
         check(result.size===row.bytes,'ROM 长度错误。');return {name:row.name,bytes:result.bytes,sha256:row.sha256};
-      }));active();
+      }))]);active();
+      const wasm=wasmAsset.bytes;
       this.frameTransport=profile.display===null?null:manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
-      this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,
-        accelerator:profile.accelerator||null,sourceCommit:QEMU_COMMIT,
+      this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,clockOverride,
+        accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,sourceCommit:QEMU_COMMIT,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
@@ -145,11 +165,14 @@ export class PublicQemuRuntime {
       const channel=new MessageChannel();this.port=channel.port1;
       this.port.onmessage=({data})=>this.receive(data,generation);this.port.start();
       const connected=this.waitFor('connected');connected.catch(()=>{});
-      iframe.contentWindow.postMessage({type:'m5-qemu-connect'},this.root.origin,[channel.port2]);await connected;active();
+      iframe.contentWindow.postMessage({type:'m5-qemu-connect'},this.root.origin,[channel.port2]);
+      const [,compiledWasm]=await Promise.all([connected,wasmAsset.compiled]);active();
+      const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
       const ready=this.waitFor('ready',90000);ready.catch(()=>{});this.state('booting');
-      const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
+      const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,runtimePatches:manifest.source.patches},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
+      this.receipt.actualArguments=Array.isArray(runtime.arguments)?runtime.arguments.slice():null;
       this.display=this.profile.deviceId === 'cardputer-adv' ? await this.ask('display') : null;
       this.state(!this.guestReady()?'booting':'running');
       this.poll(generation);return this.observe();
@@ -168,28 +191,47 @@ export class PublicQemuRuntime {
   engineOwnerFailed(ownership) {
     return ownership?.engineOwnerLive===false&&ownership.engineFallbackTerminations>0;
   }
-  async poll(generation) {
-    if(generation!==this.generation||!this.port||this.stopping)return;
-    const begin=performance.now();
-    try{
-      // This read-only owner status also runs while paused, when no frame
-      // request could otherwise reveal a fatally terminated engine.
-      if(this.engineOwnerFailed(this.readEngineOwnership()))throw new Error('浏览器 QEMU 执行线程异常停止。');
-      if(this.status==='running'&&this.guestReady()){
-        if(this.profile.display!==null)await this.ask('frame');
-        if(this.profile.outputs&&!this.stopping&&!this.exit)await this.ask('outputs');
-        if(this.profile.deviceId==='cardputer-adv'&&performance.now()>=this.displayPollAt) {
-          this.displayPollAt=performance.now()+250;
-          const display=await this.ask('display');
-          if(display.orientation!==this.display?.orientation||display.deviceRotationDeg!==this.display?.deviceRotationDeg) {
-            this.display=display;this.onState(this.observe());
+  poll(generation) {
+    const headless=this.profile?.display===null;
+    // Shared framebuffer reads do not need QMP. Keep them independent of
+    // slower controller/orientation round trips, with one request per lane.
+    this.pollLane(generation,'frame',headless?250:33);
+    if(this.profile?.outputs)this.pollLane(generation,'outputs',headless?250:50);
+    if(this.profile?.deviceId==='cardputer-adv')this.pollLane(generation,'display',250);
+  }
+  pollLane(generation,op,intervalMs) {
+    if(generation!==this.generation||!this.port||this.stopping||this.exit)return;
+    this.pollLanes ||= new Map();
+    const port=this.port, previous=this.pollLanes.get(op);
+    if(previous?.generation===generation&&previous.port===port)return;
+    const lane={generation,port,timer:null};this.pollLanes.set(op,lane);
+    const owns=()=>generation===this.generation&&this.port===port&&!this.stopping&&!this.exit&&this.pollLanes.get(op)===lane;
+    const run=async()=>{
+      if(!owns())return;
+      const begin=performance.now();
+      try{
+        // The frame lane also monitors owner failure while paused/headless.
+        if(this.engineOwnerFailed(this.readEngineOwnership()))throw new Error('浏览器 QEMU 执行线程异常停止。');
+        if(this.status==='running'&&this.guestReady()){
+          if(op!=='frame'||this.profile.display!==null){
+            const value=await this.ask(op);
+            if(op==='display'&&owns()&&this.status==='running'
+              &&(value.orientation!==this.display?.orientation||value.deviceRotationDeg!==this.display?.deviceRotationDeg)){
+              this.display=value;this.onState(this.observe());
+            }
           }
         }
+      }catch(error){
+        if(owns()){this.state('error');this.onError(error);await this.stop();}
+        return;
       }
-    }
-    catch(error){if(generation===this.generation&&!this.stopping&&!this.exit){this.state('error');this.onError(error);await this.stop();}return;}
-    // One request in flight. Shared snapshots emit only actual display updates.
-    if(generation===this.generation)this.frameTimer=setTimeout(()=>this.poll(generation),Math.max(0,(this.profile?.display===null?250:33)-(performance.now()-begin)));
+      if(owns())lane.timer=setTimeout(run,Math.max(0,intervalMs-(performance.now()-begin)));
+    };
+    void run();
+  }
+  stopPolling() {
+    for(const lane of this.pollLanes?.values()||[])clearTimeout(lane.timer);
+    this.pollLanes?.clear();
   }
   async pause(){check(this.status==='running','设备未运行。');await this.ask('pause');this.state('paused');return this.observe();}
   async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state(this.guestReady()?'running':'booting');return this.observe();}
@@ -210,9 +252,10 @@ export class PublicQemuRuntime {
     cleanup:this.cleanupResult,machine_events:this.machineEvents||[],limits:this.profile?.limitations||[]};}
   stop(){
     if(this.stopping)return this.stopping;
+    this.stopPolling();
     if(!this.iframe&&!this.abort)return Promise.resolve(this.observe());
     this.stopping=(async()=>{
-      clearTimeout(this.frameTimer);this.abort?.abort();this.signalCleanup?.();this.signalCleanup=null;
+      this.abort?.abort();this.signalCleanup?.();this.signalCleanup=null;
       let graceful=this.exit?.code===0,disposed=false,disposal=null;
       let engineOwnership=this.readEngineOwnership();
       if(this.port&&!this.engineOwnerFailed(engineOwnership)){

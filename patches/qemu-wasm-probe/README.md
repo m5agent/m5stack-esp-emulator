@@ -100,7 +100,8 @@ small, declared additional C ABI correction.
 For the 64KiB configuration, apply QEMU research patches in this order:
 `0001`, `0004`, `0005`, `0006`, `0009`, `0010`. Do **not** apply historical
 `0007`. Library patches `0002` and `0003` still apply to their own sources.
-Use optional `0008` only for the diagnostic receipt. The latest-main context
+Historically `0008` was applied only for the diagnostic receipt. The current
+source lock includes it and applies `0028` below to keep its tracing off by default. The latest-main context
 port, when used, is declared separately below and in the execution summary. Each new patch passed
 forward/reverse checks in an independent Git root, including byte-for-byte
 comparison with the C sources used by the candidate objects. Do not run a
@@ -117,8 +118,9 @@ replay under a parent repository and accept a successful `Skipped patch` result.
   checks. This is a historical negative diagnostic: it delayed overflow but did
   not stop MMU-entry SP descent. It is excluded from the final 64 KiB profile.
 - `0008` adds bounded Flash/fiber stack and heap diagnostics to the WASM source;
-  it does not modify controller state or skip operations. It is opt-in research
-  instrumentation and is not part of the native bootstrap.
+  it does not modify controller state or skip operations. Its original source
+  logs by default; current locked builds apply `0028` to require explicit opt-in.
+  It is not part of the native bootstrap.
 - `0009` saves a const C SP before the main `cpu_exec_setjmp` and restores it
   through Emscripten `stackRestore` on the nonzero return, before original QEMU
   cleanup. The SDK 3.1.50 Asyncify Fiber/SjLj interaction reproduces without
@@ -411,3 +413,48 @@ and after functions from the patch and compares pixels, trace text, counter
 limits, dirty state and window progression across display, inversion, rotation
 and MADCTL cases. Its environment-lookup counts are a host contract, not guest
 frame rate or physical display performance.
+
+## Bounded GPIO transactions (`0027`)
+
+`0027-gpio-bounded-transactions.patch` reduces repeated work inside the original
+GPIO controller. Level-only reads no longer sample time. A capture or notification
+cohort shares one real virtual-clock sample; capture is before the commit and
+notification is after it. Single-pin observations still take a fresh sample.
+This deliberately gives a transaction a common timestamp rather than advancing
+time separately for every pin; it does not scale or synthesize the guest clock.
+
+ESP32-S3 aligned OUT/ENABLE writes can inspect the raw changed-bit mask instead
+of all 49 pins. Selected legacy listeners and enabled level interrupts force
+the full path. Reserved register bits, edge/status accumulation, IRQ calls,
+pad-commit callbacks and a listener registered during a callback retain their
+original ordering. Level IRQ refreshes read current lines lazily after callbacks,
+including reset listeners that change GPIO configuration. Other controllers, addresses and write sizes use the full
+path. No state or GPIO output is fabricated or cached across transactions.
+
+`platform/tests/test_gpio_wasm_transactions_patch.py` reconstructs the actual
+locked source without local build caches and compiles the C harness. It checks
+IRQ/status equivalence, callback mutation, untouched pins, classic/S3 input
+reads and AW3641 pulse/reset boundaries, including deliberately wrong negative
+controls. The browser source build separately checks all 72 patches in both
+directions and all 160 source postimages. Executable browser evidence belongs
+in [the performance record](../../docs/evidence/2026-11-03-emulator-performance/README.md).
+
+## Explicit CSTACK diagnostic opt-in (`0028`)
+
+`0028-cstack-diagnostics-opt-in.patch` applies after the current WASM patch
+sequence. It leaves the original `0008` trace code available and caches only
+whether the startup environment is exactly `M5_WASM_CSTACK_TRACE=1`, separately
+in each translation unit and host thread. With tracing off, callers do not
+prepare diagnostic IDs, C-SP/heap/stack values or `fprintf` calls. With tracing
+on, the original per-thread IDs, invalid/unchanged-write gaps, phase ordering,
+256-call budgets and SP getter counts remain unchanged. MMU invalidation,
+reads/writes and coroutine switching retain their data and callback paths.
+
+`platform/tests/test_cstack_diagnostics_opt_in_patch.py` reconstructs complete
+pre/post sources from this patch, verifies exact hashes and forward/reverse
+application, then compiles the actual functions with a host shim. Seven
+startup values across main/worker TLS and four deliberately wrong mutations
+check both trace policies and unchanged behavior. The coroutine shim is host C
+logic evidence; actual Emscripten fiber execution remains a separate guest gate.
+Disabling this diagnostic overhead alone is not evidence of a firmware WDT,
+Double exception, or application-completion fix.

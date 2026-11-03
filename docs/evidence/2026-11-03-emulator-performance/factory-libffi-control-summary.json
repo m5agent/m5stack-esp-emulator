@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "kind": "factory-all-libffi-controlled-first-double-diagnostic-summary",
+  "result": "FIRST_DOUBLE_REPRODUCED_WITH_TYPED_HELPER_PATH_BYPASSED",
+  "publication_eligible": false,
+  "validation": "virtual-device diagnostic observation",
+  "hardware_validation": "NOT RUN",
+  "performance_acceptance": "NOT GRANTED",
+  "firmware_stability_acceptance": "NOT GRANTED",
+  "fresh_source_build": "NOT RUN; single TCI object changed over traceoff diagnostic",
+  "controlled_change": "Only the system TCI typed-call fastpath is bypassed; all original helper bodies, argument/return layouts, clocks, SoC models, trace gating and observers remain.",
+  "source_and_build": {
+    "base_traceoff_wasm_sha256": "5aabc1825364d2a02a23a13c750e8c13ade9479e724a6c9ccc7e6e3fd2467c19",
+    "diagnostic_runtime_assets": {
+      "javascript": {
+        "path": "qemu-system-xtensa.js",
+        "sha256": "46ce12402e218f71ddb0c4878d1727d19e8e5431fe901d29e569746fb9a4ae13",
+        "bytes": 157200
+      },
+      "wasm": {
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "8eaf9177d34f79d2b8b44fb3643c5da040dbd295af0765dee2201baa6f8afea9",
+        "bytes": 12762749
+      },
+      "worker": {
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "bytes": 2776
+      }
+    },
+    "runtime_manifest_sha256": "6467a7f513f77e3cb52ef425b00ad744d30c9ab0d747c03319cd3f183460461e",
+    "site_manifest_sha256": "ee660b0a348f5680fac6aee132ed81ae723d1173423c38e214de6e7ff94171c0",
+    "source_path": "tcg/tci.c",
+    "source_before_sha256": "2e7eac135e1384e866203f2ce3977cdac85bf87551fa2f0bade94b2f7aecf126",
+    "source_after_sha256": "6e2b1c5e6553a36db1f763fd5f0a1236e960272653997f2a2ea54b2760fdbece",
+    "control_patch_sha256": "7c0541aeacfbd29c5006ab5c80ff843ecd899cab6b8dfcbd12bde81c0d065834",
+    "compile_argv_sha256": "d2cc7d2b26aaa0f4cb844a102d39c87c6fd1f4556eab6ed183b30a75a49ac7de",
+    "link_argv_sha256": "8c177d06d3227a2089f8d463488918b392890239361be1cb58a404a38cb597f3",
+    "control_object_sha256": "b5b235303a583f56d2edf490554b830249fb6a2ef1505d59b727c57eec562249",
+    "plan_sha256": "6bd79db86513c174a018ec697085f3f52f1ecad4bd23b190c68c4d94c7778abd",
+    "build_result_sha256": "41a0ac3a9e67d61ec11457909608d43b503eddbb6b9017a04ebd008cec1df862",
+    "build_script_sha256": "3ff63af594f11382b511c64390915e3acc172f013b192b9854cf3cf678c18352",
+    "original_inputs_verified": 4585,
+    "original_inputs_unchanged": true,
+    "original_formal_and_diagnostic_outputs_unchanged": true
+  },
+  "reproduction": {
+    "effective_firmware_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "raw_publisher_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "raw_report_sha256": "5d45913f43c13324a98ad5e8c92b859decfc866f37961d58b639189687aa85cd",
+    "executed_harness_sha256": "8c533d25d20e008ac94bb49f59f53ad55f8a8a80be5691c92282e1fe6c6b6b40",
+    "planned_fresh_vms": 4,
+    "observed_fresh_vms": 1,
+    "remaining_vms_skipped_after_first_fault": true,
+    "prior_inputs": [],
+    "clock_divisor": 1,
+    "actual_arguments": [
+      "./this.program",
+      "-M",
+      "m5stackchan",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "file:/bridge/uart.out",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "application_ready_marker": null,
+    "first_nonblack_frame_ms": 5653.475000023842,
+    "observed_window_seconds": 3.8265900000333786,
+    "first_frame_limit": "Instrumented startup observation only; not app readiness or an uninstrumented performance score.",
+    "diagnostic_capture_bytes": 1200,
+    "diagnostic_event_count": 6,
+    "complete_diagnostics_sha256": "d0943f8d4c19f323b880963a97566dc04ebe9c16bcb14fb6e4369ba00e6392b3",
+    "diagnostic_events_json_sha256": "2c16a83b82a9431ab56e79282baadc065e39df33c46d2ba9cd28988033a2f06a",
+    "cstack_messages": 0,
+    "atomic_messages": 0,
+    "actual_canvas_renderer": [
+      {
+        "scope": "actual-workbench-model-canvas",
+        "canvas_id": "",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmasked_vendor": "Google Inc. (Apple)",
+        "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+      }
+    ]
+  },
+  "first_double": {
+    "actual_exception_cause_hex": "0x1d",
+    "actual_exception_name": "STORE_PROHIBITED",
+    "guest_register_snapshots": {
+      "M5_DOUBLE_ORIGIN": {
+        "cpu": "1",
+        "pc": "40378100",
+        "envpc": "40378100",
+        "cause": "0000001d",
+        "vaddr": "fffffff0",
+        "ps": "00040d34",
+        "depc": "40378100",
+        "vecbase": "40378000",
+        "intset": "01000002",
+        "intenable": "13000003",
+        "pending": "0",
+        "windowbase": "0000000f",
+        "windowstart": "0000a000",
+        "ccount": "140cae68",
+        "origin_seen": "2",
+        "a0": "4038c2ba",
+        "a1": "3fcc11a0",
+        "a2": "00060d30",
+        "a3": "00040023"
+      },
+      "M5_DOUBLE_ORIGIN_SAVED": {
+        "cpu": "1",
+        "epc1": "4039999e",
+        "epc2": "00000000",
+        "epc3": "00000000",
+        "epc4": "40378080",
+        "epc5": "00000000",
+        "epc6": "00000000",
+        "epc7": "00000000",
+        "eps2": "00000000",
+        "eps3": "00000000",
+        "eps4": "00040b33",
+        "eps5": "00000000",
+        "eps6": "00000000",
+        "eps7": "00000000",
+        "debugcause": "00000000"
+      },
+      "M5_DOUBLE_STUB": {
+        "cpu": "1",
+        "pc": "403783c0",
+        "envpc": "403783c0",
+        "cause": "0000001d",
+        "vaddr": "fffffff0",
+        "ps": "00040d34",
+        "depc": "40378100",
+        "vecbase": "40378000",
+        "intset": "01000002",
+        "intenable": "13000003",
+        "pending": "0",
+        "windowbase": "0000000f",
+        "windowstart": "0000a000",
+        "ccount": "140cae68",
+        "origin_seen": "2",
+        "a0": "4038c2ba",
+        "a1": "3fcc11a0",
+        "a2": "00060d30",
+        "a3": "00040023"
+      },
+      "M5_DOUBLE_STUB_SAVED": {
+        "cpu": "1",
+        "epc1": "4039999e",
+        "epc2": "00000000",
+        "epc3": "00000000",
+        "epc4": "40378080",
+        "epc5": "00000000",
+        "epc6": "00000000",
+        "epc7": "00000000",
+        "eps2": "00000000",
+        "eps3": "00000000",
+        "eps4": "00040b33",
+        "eps5": "00000000",
+        "eps6": "00000000",
+        "eps7": "00000000",
+        "debugcause": "00000000"
+      }
+    },
+    "instruction_reference": {
+      "guest_pc": "0x40378100",
+      "flash_file_offset": "0x13d7d0",
+      "bytes_hex": "00cd49",
+      "decoded_instruction": "s32e a0, a13, -16",
+      "routine": "_WindowOverflow12",
+      "same_firmware_instruction_audit_summary_sha256": "efebf2258e911a1670135407d119e767b6154e35a11722ddeac5f7d161cfc259"
+    }
+  },
+  "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "all_observed_workers_closed": true,
+    "observed_workers": 6,
+    "nested_workers_at_exit": 0,
+    "remaining_workers_after_dispose": 0,
+    "engine_fallback_terminations": 0,
+    "iframe_removed": true
+  },
+  "limitations": [
+    "The same first-double cause recurs without the typed helper path; this excludes a typed-fastpath-only explanation for this captured symptom, not every possible helper ABI defect.",
+    "The raw report PASS label describes requested diagnostic acquisition and cleanup only; the guest fault is retained and is not firmware stability acceptance.",
+    "The real-time late-fault field saw Guru Meditation after the sampled serial snapshot; that raw report is preserved. Later harness revisions separately retain exit-time serial events.",
+    "No atomic observer messages were seen in this capture; that observation does not prove the atomic path is never used."
+  ]
+}

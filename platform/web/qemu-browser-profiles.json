@@ -111,7 +111,24 @@
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
         "The SDK logical display is 468x468 while the QEMU panel is 466x466. Stock touch calibration remains offset: physical (233,233) was observed as logical (239,239)."
       ],
-      "readyFirmwareSHA256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc"
+      "readyFirmwareSHA256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "d231d8523c8b448e8b920777d298c575989dbafc57fc3f432851bcaeb61b1898",
+          "profile": "stopwatch-wasm-vendor-factory-wallclock",
+          "clockDivisor": 1,
+          "readyMarker": null,
+          "fixture": "stopwatch-vendor-factory-ff-pad-v1",
+          "sourceSHA256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe",
+          "sourceKind": "published-firmware-binary",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "sticks3",
@@ -967,12 +984,17 @@
       "firmwareProfiles": [
         {
           "firmwareSHA256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
-          "profile": "stackchan-wasm-dance-div6",
-          "clockDivisor": 6,
+          "profile": "stackchan-wasm-dance-wallclock",
+          "clockDivisor": 1,
           "readyMarker": "StackChan auto-dance started",
           "fixture": "xtensa-board-display-v1",
           "sourceSHA256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
-          "schedulerCandidate": "arduino-stackchan-dance-render-throttled-v1"
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ],
       "profile": "stackchan-wasm-wallclock",

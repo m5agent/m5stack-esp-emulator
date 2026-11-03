@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "category": "native-factory-control",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "overall": "PARTIAL",
+  "raw_acquisition": "PASS",
+  "native_stability": "PASS: two 20-second observation windows, no panic/watchdog/reset markers, one ROM boot each",
+  "application_navigation": "NOT VALIDATED: accepted LCD longpress at (160,184) lies between Skip and Start; no visible or serial application response",
+  "first_frame_timing": "NOT COMPARABLE: any-frame readiness, not first non-black or application-ready; preparation and cache state were not controlled",
+  "raw_report_sha256": "f22d0284d635481191b4e004a40c38dfa2db0ec80900e4bb90d4fda750ca9c96",
+  "executed_harness_sha256": "d252230e3ae2f76b82c0b247a18fc7eff9bbfcb8f0815e52af58d38b80b9c03f",
+  "harness_source_note": "Raw report retains the generic native harness source hash; this separate hash identifies the exact executed ignored Factory adaptation.",
+  "firmware": {
+    "effective_full_flash_sha256": "39910815a732530b95a0fc3a7cd251b26cc818b2a94e6a6a9b2abd94c75e97da",
+    "bytes": 16777216,
+    "publisher_binary_sha256": "411578a2ebca2cfe3541fdc32aeddbc4703cf912a5daa7e1253f69306d6e1d87",
+    "publisher_binary_bytes": 12783789,
+    "transformation": "prefix unchanged, remaining bytes FF"
+  },
+  "runtime": {
+    "engine": "native QEMU TCG",
+    "board": "m5stackchan",
+    "sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d",
+    "clock_override": false,
+    "icount_override": false,
+    "watchdog_override": false,
+    "wasm_requests": 0
+  },
+  "sources": {
+    "platform/tests/test_public_native_performance.mjs": "478fb3cf97cd7bbdbca1dc69cbda31a8a5cb76e11e614848f295659b68b1e491",
+    "platform/web/public.js": "a30b1125ef74e3539a3c64d16ff246cbc4ae67e0f9dda8936bc48477b7a22e31",
+    "platform/web/public-config.js": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+    "platform/web/public-firmware.js": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+    "platform/web/public-qemu-profiles.js": "164bcb22d2b22c793e72ad2569e9eb14db64cc6ec36cc7152bf4be122a9198af",
+    "platform/web/qemu-browser-profiles.json": "f98446024040c9aead62c25f883b338e53ffd7ea31143831018e21dee953138a",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+    "platform/tools/device_service.py": "857eb0d046815d80d63f45a95a69bfd92a7dd54e9c0efd58ae8a7d9512b55998",
+    "platform/tools/serve.py": "77a55c03c8ac1045018c9e255f52b849ff71159b7f117b6719f4d3be8d28f4e4"
+  },
+  "gpu": {
+    "scope": "actual-workbench-model-canvas",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+    "vendor": "Google Inc. (Apple)",
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  },
+  "session_identity": {
+    "two_distinct_sessions": true,
+    "two_distinct_guest_processes": true
+  },
+  "runs": [
+    {
+      "run": 1,
+      "checks": {
+        "native_route_with_browser_available": true,
+        "same_native_controller_path": true,
+        "native_qemu_normal_launch": true,
+        "exact_firmware_sha": true,
+        "display_updates": true,
+        "evidence_before_stop": true,
+        "guest_reaped_history_retained": true,
+        "no_guest_panic_or_watchdog": true,
+        "single_rom_boot": true,
+        "factory_application_waypoint": true,
+        "no_browser_qemu_boot": true
+      },
+      "sample_seconds": 20.004795000076292,
+      "changed_pixel_frames": 5,
+      "frame_payload_bytes": 11953,
+      "guest_percent_one_core": 30.35341455144926,
+      "service_percent_one_core": 13.936780210714444,
+      "failure_markers": [],
+      "app_center_create": true,
+      "input": {
+        "kind": "longpress",
+        "x": 160,
+        "y": 184,
+        "hold_seconds": 0.4,
+        "accepted": true,
+        "visible_application_effect": false,
+        "serial_application_effect": false
+      },
+      "scs_packets_at_final_observation": 1801,
+      "torque": [
+        0,
+        0
+      ],
+      "evidence_zip_sha256": "e30a6b9e82bcd6941ca4f9d72120b0afec3e0ded47c86b738f8ae287fe3d72c9",
+      "evidence_verified_files": 6,
+      "serial_sha256": "df24953b7703475e0c4d1aa331e1e2bee6317d2a8f42210db102eaab133736af",
+      "frames": {
+        "before-input-frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        },
+        "frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        },
+        "retained-frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        }
+      },
+      "visual_review": "Complete Welcome / Skip / Start before and after input; all four images identical.",
+      "observation_trace_sha256": "005854c0fbd041cd19f8ca24e86af9fe8fad02e22b340ed8bdb6502963f4a918",
+      "pre_input_serial_sha256": "df24953b7703475e0c4d1aa331e1e2bee6317d2a8f42210db102eaab133736af",
+      "page_screenshot_sha256": "12ce61e9159fd3ab3041f7ab4f95bcf05faa737bf46ce7b7ab5b264e1a1b4a4f"
+    },
+    {
+      "run": 2,
+      "checks": {
+        "native_route_with_browser_available": true,
+        "same_native_controller_path": true,
+        "native_qemu_normal_launch": true,
+        "exact_firmware_sha": true,
+        "display_updates": true,
+        "evidence_before_stop": true,
+        "guest_reaped_history_retained": true,
+        "no_guest_panic_or_watchdog": true,
+        "single_rom_boot": true,
+        "factory_application_waypoint": true,
+        "no_browser_qemu_boot": true
+      },
+      "sample_seconds": 20.001,
+      "changed_pixel_frames": 5,
+      "frame_payload_bytes": 7370,
+      "guest_percent_one_core": 29.326260428158925,
+      "service_percent_one_core": 13.348162529906519,
+      "failure_markers": [],
+      "app_center_create": true,
+      "input": {
+        "kind": "longpress",
+        "x": 160,
+        "y": 184,
+        "hold_seconds": 0.4,
+        "accepted": true,
+        "visible_application_effect": false,
+        "serial_application_effect": false
+      },
+      "scs_packets_at_final_observation": 1792,
+      "torque": [
+        0,
+        0
+      ],
+      "evidence_zip_sha256": "43514580d9e5d98003440731751fa27d4801a220f4d4e950f14848a55860ee0f",
+      "evidence_verified_files": 6,
+      "serial_sha256": "c4f0a96a7a1ff4ba8c3ea43d1890a7dd1407d2319f8edcdd2499a6cfa44af111",
+      "frames": {
+        "before-input-frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        },
+        "frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        },
+        "retained-frame.png": {
+          "sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+          "bytes": 3575
+        }
+      },
+      "visual_review": "Complete Welcome / Skip / Start before and after input; all four images identical.",
+      "observation_trace_sha256": "a83449d964c81624aab96950d2a6891e5e82de3af465819de54c32340871a62a",
+      "pre_input_serial_sha256": "c4f0a96a7a1ff4ba8c3ea43d1890a7dd1407d2319f8edcdd2499a6cfa44af111",
+      "page_screenshot_sha256": "12ce61e9159fd3ab3041f7ab4f95bcf05faa737bf46ce7b7ab5b264e1a1b4a4f"
+    }
+  ],
+  "limits": [
+    "No physical hardware or electrical measurement.",
+    "The native executable is a separate build from browser WASM; stability narrows the symptom but does not establish its cause.",
+    "Frame update counts reflect changed pixels on a mostly static Welcome page, not complete animation FPS.",
+    "Factory SCS torque remains zero; packet counts do not establish mechanical motion."
+  ],
+  "native_source_comparison_sha256": "8b841b4cda8cbb504d86d749b6d2bc166c2f1cf750b4a9bae8cbd0b73504a7fe",
+  "raw_report_correction_note": "The raw report source map names the tracked generic harness; the executed-harness SHA identifies the Factory-specific adaptation. Raw data is unchanged."
+}
