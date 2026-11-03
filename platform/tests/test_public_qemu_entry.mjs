@@ -228,6 +228,7 @@ raster.state.run=run;raster.state.shell={setFrameLE:()=>true,setDeviceRotation:(
 const frame={width:3,height:2,sequence:1,pixels:new Uint8Array(packed.flatMap(v=>[v&255,v>>8]))};
 controller.display={orientation:'portrait',deviceRotationDeg:-90};
 raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+controller.lastFrame=frame;
 assert.deepEqual([canvas.width,canvas.height],[2,3]);
 assert.deepEqual(Array.from(painted.data),[rgba[3],rgba[0],rgba[4],rgba[1],rgba[5],rgba[2]].flat(),
   'portrait canvas must rotate the native glass clockwise without mirroring');
@@ -235,8 +236,14 @@ canvas.listeners.get('pointerdown')({clientX:1.5,clientY:2.5,pointerId:1});
 assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,0,true],
   'portrait pointer mapping must invert the displayed rotation');
 controller.display={orientation:'landscape',deviceRotationDeg:0};
-raster.applyBrowserPresentation({display:controller.display});raster.applyBrowserFrame(frame,run);
+raster.applyBrowserPresentation({display:controller.display});
 assert.deepEqual([canvas.width,canvas.height],[3,2]);assert.deepEqual(Array.from(painted.data),rgba.flat());
+assert.equal(Number(raster.element('deviceMount').dataset.frameSequence),frame.sequence,
+  'presentation-only repaint must retain the real guest frame sequence');
+const paintedBeforeStale=painted;
+raster.applyBrowserPresentation({display:{orientation:'portrait',deviceRotationDeg:-90}},{...run});
+assert.equal(painted,paintedBeforeStale,'an unowned presentation event cannot repaint the active run');
+assert.deepEqual([canvas.width,canvas.height],[3,2]);
 canvas.listeners.get('pointerup')({clientX:2.5,clientY:1.5,pointerId:1});
 assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,1,false]);
 console.log('public QEMU entry, exact reference sharing and asymmetric portrait/frame pointer contracts passed; no guest executed');

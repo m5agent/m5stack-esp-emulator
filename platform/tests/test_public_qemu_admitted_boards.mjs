@@ -26,8 +26,9 @@ assert.deepEqual(config.browser_candidate_profiles,[]);
 assert.ok(registry.profiles.some(profile=>profile.deviceId==='cores3'));
 assert.ok(registry.profiles.every(profile=>profile.admission==='public'
   && (runtime.compiled_profiles||runtime.profiles).includes(profile.deviceId)));
-// Exercise the changed CoreS3 reference first, then the remaining board gate.
-const profiles=[...registry.profiles].sort((a,b)=>Number(b.deviceId==='cores3')-Number(a.deviceId==='cores3'));
+// Exercise affected presentation/input paths first, then the other boards.
+const priority={'cardputer-adv':0,cores3:1,'stickc-plus2':2};
+const profiles=[...registry.profiles].sort((a,b)=>(priority[a.deviceId]??3)-(priority[b.deviceId]??3));
 const cases=profiles.flatMap(profile=>profile.deviceId==='cores3'
   ? ['stock-reference',...(config.browser_wallclock_example?['wallclock-candidate']:[])].map(example=>({device:'cores3',example,script:'test_public_qemu_guest.mjs'}))
   : [{device:profile.deviceId,script:profile.display===null

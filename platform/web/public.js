@@ -545,12 +545,21 @@ function applyBrowserDeviceState(value, run, profile = run.controller.profile) {
     mount.dataset.outputFrames=String(value.led_frames);
   }
 }
-function applyBrowserPresentation(value) {
+function applyBrowserPresentation(value, run = state.run) {
+  if (!active(run)) return;
   const display = value?.display || null;
   state.shell?.setDeviceRotation?.(display?.deviceRotationDeg || 0);
   const panel = $('rawFramePanel');
   if (display?.orientation === 'portrait') panel.dataset.orientation = 'portrait';
   else delete panel.dataset.orientation;
+  // Orientation arrives through QMP independently of shared-frame updates.
+  // Repaint retained real pixels when static glass needs a new presentation.
+  const frame = run.controller instanceof PublicQemuRuntime ? run.controller.lastFrame : null;
+  if (frame) {
+    const portrait=display?.orientation==='portrait',canvas=$('rawFrameCanvas');
+    if (canvas.width!==(portrait?frame.height:frame.width)||canvas.height!==(portrait?frame.width:frame.height))
+      applyBrowserFrame(frame,run);
+  }
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;

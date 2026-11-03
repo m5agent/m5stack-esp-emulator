@@ -354,6 +354,29 @@ try {
     await page.waitForFunction(modelShell => Number(document.querySelector('#deviceMount').dataset.frameSequence) > 0
       && (!modelShell || globalThis.boardUiShell?.frameSeq > 0), report.public_shell.model_shell, {timeout:30000});
     if(await page.locator('#rawFramePanel').evaluate(panel=>panel.hidden))await page.locator('#nativeScreenBtn').click();
+    if(device==='cardputer-adv'){
+      // Ready dimensions are the guest's logical orientation. Observe fresh
+      // QOM and let the normal display lane converge; never assign its state.
+      const expected={orientation:ready.width>ready.height?'landscape':'portrait',width:ready.width,height:ready.height,
+        model_rotation:ready.width>ready.height?0:270};
+      const deadline=performance.now()+10000;report.display_sync_samples=[];let settled=false;
+      while(performance.now()<deadline){
+        const sample=await page.evaluate(async()=>{
+          const r=boardRun.runtime,begin=performance.now(),cached_before=r.display?{...r.display}:null;
+          const fresh=await r.ask('display'),canvas=document.querySelector('#rawFrameCanvas');
+          return {begin_ms:begin,end_ms:performance.now(),fresh,cached_before,cached_after:r.display?{...r.display}:null,
+            native:{width:boardRun.frame.width,height:boardRun.frame.height,sequence:boardRun.frame.sequence,
+              sourceSequence:boardRun.frame.sourceSequence},canvas:{width:canvas.width,height:canvas.height},
+            model_rotation:globalThis.boardUiShell?.presentationRotationDeg??null};
+        });
+        report.display_sync_samples.push(sample);
+        if(sample.fresh?.orientation===expected.orientation&&sample.cached_after?.orientation===expected.orientation
+          &&sample.canvas.width===expected.width&&sample.canvas.height===expected.height
+          &&(!report.public_shell.model_shell||sample.model_rotation===expected.model_rotation)){settled=true;break;}
+        await page.waitForTimeout(100);
+      }
+      check('cardputer-presentation-converges-to-guest-logical-orientation',settled,{expected,samples:report.display_sync_samples});
+    }
     check(report.public_shell.model_shell?'public-ui-3d-and-visible-native-frame':'public-ui-generic-and-visible-native-frame', await page.evaluate(modelShell => {
       const canvas = document.querySelector('#rawFrameCanvas');
       return (!modelShell || boardUiShell.model && boardUiShell.frameSeq > 0) && !document.querySelector('#rawFramePanel').hidden
@@ -645,9 +668,25 @@ try {
 }
 finally {
   if (page) {
+    if(report.status==='FAIL')await page.evaluate(()=>{
+      const frame=globalThis.boardRun?.runtime?.iframe;
+      if(frame?.isConnected&&!globalThis.boardDeferredRemoval){const remove=frame.remove;
+        globalThis.boardDeferredRemoval={frame,remove,requests:0};frame.remove=()=>{boardDeferredRemoval.requests++;};}
+    }).catch(()=>{});
     report.final_cleanup = await page.evaluate(async () => {
       await globalThis.boardRun?.runtime?.stop(); return globalThis.boardRun?.runtime?.cleanupResult || null;
     }).catch(() => null);
+    if(report.status==='FAIL'&&workerTargets){
+      const created=report.final_cleanup?.workersCreated,minimumObserved=Number.isInteger(created)?created+1:1;
+      const before=await workerTargets.waitUntilOnly({minimumObserved,allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000})
+        .catch(error=>({ok:false,error:String(error.message)}));
+      const held=await page.evaluate(()=>{const h=globalThis.boardDeferredRemoval;
+        return h?{iframe_present:h.frame.isConnected,removal_requests:h.requests}:null;}).catch(()=>null);
+      await page.evaluate(()=>{const h=globalThis.boardDeferredRemoval;if(h){h.remove.call(h.frame);delete globalThis.boardDeferredRemoval;}}).catch(()=>{});
+      const after=await workerTargets.waitUntilClosed({minimumObserved,timeoutMs:30000})
+        .catch(error=>({ok:false,error:String(error.message)}));
+      report.failure_worker_targets={before_removal:before,iframe_removal:held,after_removal:after};
+    }
   }
   await browser?.close(); if (server) await new Promise(resolve => server.close(resolve));
   report.finished_at = new Date().toISOString(); await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
