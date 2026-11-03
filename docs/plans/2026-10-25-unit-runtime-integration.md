@@ -1,7 +1,10 @@
 # Unit 外设与视觉模型集成
 
-日期：2026-10-26。状态：进行中。执行任务登记在 `docs/project-backlog.md` 的
-`UNIT-01`；本页维护实现契约与验收证据，不建立独立任务队列。
+日期：2026-10-26（历史计划页，正文保留时点记录）。状态：**已完成
+（virtual-device，2026-11-03 收口）**。最终结果：视觉主机 9 接入 + 5 边界；
+Unit 160 = 158 implemented/partial + 2 DEFER；canonical 41 层；当前能力以
+[项目状态](../project-status.md)、[战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)
+和[项目 Backlog](../project-backlog.md) 为准；本页不再维护活动任务队列。
 
 ## 用户目标
 

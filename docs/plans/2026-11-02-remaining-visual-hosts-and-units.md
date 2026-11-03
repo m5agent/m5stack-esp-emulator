@@ -4,6 +4,13 @@
 无运行登记”的剩余主机，以及未登记的 Unit。动态计数以自动快照为准；本页只
 维护逐型号的接入事实、所需模型和边界取舍。
 
+> **历史计划页**：正文的逐型号表格与 Unit 缺口记录保留 2026-11-02/03 接入
+> 过程时点；最终收口状态见页尾“最终状态（2026-11-03 收口）”：**9 host 接入
+> + 5 边界决策**、视觉库存 38=33 登记+5 仅视觉、Unit **160=158 implemented
+> +2 DEFER**、25 c 类边界、canonical **41 层**、PR #80–#161。当前能力以
+> [项目状态](../project-status.md)与[战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)
+> 为准。
+
 ## 已完成批次
 
 | 批次 | 设备 | 结论 |
@@ -15,7 +22,7 @@
 | 5 | AtomU（`atomu`） | 官方 UIFlow2 v2.5.4 启动、板级识别 130、GPIO27 SK6812 RMT（QOM 0x204060）、QMP 注入 GPIO39 按键回读与 Grove G26/G32 I2C 控制器扫描；SPM1423 PDM 麦克风、IR 与 Grove Unit 仍未覆盖；固件为固定 SHA 官方 GitHub release 资产（非 M5Burner ID） |
 | 6 | Atom Echo（`atom-echo`） | 官方 UIFlow2 v2.5.4 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无 ES8311/I2C codec；模拟声学/IR/Grove Unit 仍未覆盖；固件为固定 SHA 官方 GitHub release 资产 |
 
-## 剩余仅视觉主机（Atom Echo 接入后 8 款）
+## 剩余仅视觉主机（历史时点：Atom Echo 接入后 8 款；最终 5 款仅视觉）
 
 固件可用性按 `burner.m5stack.com` 公开列表核对（`2026-11-02`）。只有
 “官方 UIFlow2 可用”才走同 guest 参考固件路径；“仅 UIFlow1/社区固件”必须
@@ -34,8 +41,9 @@
 
 ## Unit 缺口与方法
 
-- 视觉库存 `184` 款 Unit，已有 runtime profile `34` 款，其余 `150` 款没有
-  协议契约或数据面登记。
+- 视觉库存 `184` 款 Unit：最终 catalog `160`（`159` 产品 + `servo8-hat`）
+  = **158 implemented/partial + 2 DEFER**，另 25 款 c 类边界，184/184 覆盖；
+  本段下方“34/150”是 2026-11-02 计划时点值，已由最终收口取代。
 - 接入单位不是“注册一行 JSON”：每款要（1）固定官方协议/寄存器证据，
   （2）在 QEMU 内实现控制器级数据面，（3）提供 fixture 或输入注入，
   （4）用同 guest 的官方驱动探针拿到读写/事件证据，（5）在

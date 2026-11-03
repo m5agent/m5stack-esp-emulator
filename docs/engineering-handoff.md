@@ -25,7 +25,7 @@
 | ESP-NOW | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/new-LMK rekey 和 `0084` loss/retry/channel/rate/60 秒 soak 已通过 | bit-exact controller/baseband、RF/antenna、实测 channel/rate 和电气时序 | `FIXED`（virtual-device validation）；link metadata、loss proxy 与长稳 PASS 不能写成物理 controller/RF 结论 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed；Device Service `1.51.0` 外部 runtime ACL/执行策略 | `FW-01/02/03` 的 guest filesystem ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像、service ACL 与包内自报安全证据不能写成设备文件权限或 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
-| 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
+| 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳；视觉主机接入已完成 9 host + 5 边界决策 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 外壳保真（接入/保真分离） | 均为独立边界，不能继承 S3/C6/Core2 的功能结论；视觉模型与主机接入不授予 Unit 或物理 PASS |
 | 物理属性声明 | 默认工作流使用 validated virtual device | 只在结论明确声称 RF、功耗、声学、光学、机械或电气属性时，另行提供 hardware validation | 虚拟设备 PASS 不转授物理属性 |
 
 已完成里程碑只保留为依赖摘要，不再继续累加成“新待办”。一个工作流从
@@ -248,18 +248,18 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 ## 接下来做什么
 
-`UNIT-01` 在独立工作树推进公开视觉模型与 Unit 控制器集成。实现契约见
+`UNIT-01` 与视觉主机接入战役已于 2026-11-03 收口：视觉库存 38 款主机中
+**9 款独立 host** 完成同 guest 原厂固件路径接入，其余 **5 款**为明确的
+boundary-only/composition-only 决策；Unit catalog **160 = 158 implemented/partial
++ 2 planned DEFER**（`mini-bps-v11`、`mini-pdm`），25 款 c 类边界，184/184 覆盖；
+canonical QEMU 链 **41 层**（0120–0161，41/41 replay），PR #80–#161。实现契约见
 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，官方芯片/协议
 和接线登记在 `platform/units/`；接入期间的主机问题另见
-[Unit 接入问题](unit-integration-host-issues.md)。视觉与协议目录不代表 guest
-数据面已验收，具体运行能力仍由状态页和同路径 evidence 决定。
-`UNIT-HOST-36` 已关闭 Relay/Relay2 的数字 hard-reset 基线/计数边界，但不关闭
-FlashLight reset、其它 Unit 或机械/电气状态；实现和 A/B 入口见
-[本块证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)。
-`UNIT-HOST-37` 已关闭 FlashLight cold constructor/低基线；四台 S3 主机的原厂
-API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
-实时轮询、动态 S1/PWM 和物理光电/热仍独立，见
-[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)。
+[Unit 接入问题](unit-integration-host-issues.md)。最终状态与证据入口以
+[战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md) 和
+[项目状态](project-status.md) 为准；剩余 2 项 DEFER 与关闭条件在
+[项目 Backlog](project-backlog.md)。虚拟设备 PASS 不转授硬件、RF、光学、电气、
+声学或机械结论。
 
 执行顺序和验收只由[项目 Backlog](project-backlog.md)维护。当前 P0 的最小
 交付可以概括为：
@@ -286,6 +286,25 @@ API 与同 PID Run 替换通过，mounted Web 为 actual-QOM snapshot replay，
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、
 worker 未拥有外部 side effect 的 ownership 契约或跨主机
 idempotency/recovery，不应把单机 namespace/subnet 结果改写成跨主机完成。
+
+## 本轮收口（2026-11-03）
+
+- 视觉主机：38 款 = **33 台有运行登记** + **5 款仅视觉**；9 个独立 host 完成
+  同 guest 原厂固件路径接入，5 项 boundary-only/composition-only。M5Stick 工厂
+  固件路径仍 blocked/partial，按 evidence 限定引用。
+- Unit：catalog **160 条 = 158 implemented/partial + 2 planned DEFER**
+  （`mini-bps-v11` QMP6988 `0x56`/`0x70` 二义；`mini-pdm` 无 Unit PDM 驱动）
+  + **25 款 c 类边界**，184/184 产品全覆盖；150 款 Unit 目标已由 158
+  implemented 覆盖。
+- QEMU：canonical **41 层链**（`0120`–`0161`，`0155` 未用，next free `0162`），
+  人工实测 41/41 replay 可复现。
+- 本轮证据发现的真实模型 bug 与修复入口：unit-id ATECC wake/CRC（`0156`）、
+  glass M5GFX REG_INDEX 协议（`0157`）、MQ ADC12 QOM 截断（`0160`）、
+  AA55 Chain `length=3` 帧被清缓冲（`0161`）；另有 CAN/LoRaWAN 契约边界。完整
+  清单指向[战役汇总 §2.1](evidence/2026-11-03-visual-campaign-summary/README.md)。
+- 所有结论均为 **virtual-device validation**；PORT.B/C 使用 cores3 PORT.A
+  harness，光学/RF/电气/声学/机械/蜂窝语义 NOT RUN；剩余 2 项 DEFER 不是
+  未接入战役。
 
 ## 文档怎么维护
 

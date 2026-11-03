@@ -14,6 +14,13 @@ probe PASS 并升 `implemented`（见 §8 与
 [evidence](../evidence/2026-11-03-unit-batch12b-evidence/README.md)）；Chain/Cat1
 3 款仍保持 planned。**本页主体不是 functional PASS，也不是 I2C/UART 事务级验证。**
 
+> **历史时点页**：本页记录 batch-12b 模型初落地时点（canonical 39 层、Chain/Cat1
+> 仍 planned、7 款 I2C 待证据）。后续 batch-12b 证据已升 7 款 I2C、batch-12c
+> 证据已升 Chain/Cat1；最终 canonical 为 **41 层**（0120–0161）。当前能力以
+> [项目状态](../project-status.md)和[战役汇总](../evidence/2026-11-03-visual-campaign-summary/README.md)
+> 为准，正文保留初落地时点的设计/边界记录。
+
+
 ## 1. 环境与构建
 
 - worktree：`/Users/m5agent/Documents/ChatGPT/esp-emulator-units29`

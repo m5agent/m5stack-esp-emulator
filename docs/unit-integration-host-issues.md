@@ -1,7 +1,10 @@
 # Unit 接入期间发现的主机问题
 
-最近核对：2026-10-29。归属 `UNIT-01`，待办仍以 `project-backlog.md` 为准。
-本页保留现象、证据和影响，不把外设接入调查扩展成主机全量整改。
+最近核对：`2026-11-03`。归属 `UNIT-01`（视觉主机与 Unit 接入战役已于
+2026-11-03 收口为 9 host + 5 边界 / Unit 158 implemented + 2 DEFER / 41 层链）。
+本页保留历史现象、证据和影响，不把外设接入调查扩展成主机全量整改；当前能力
+以[项目状态](project-status.md)、[战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md)
+和[项目 Backlog](project-backlog.md) 为准。
 
 | ID | 状态 | 现象与证据 | 对接入的影响 / 处理 |
 | --- | --- | --- | --- |

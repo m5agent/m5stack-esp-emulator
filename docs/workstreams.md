@@ -32,7 +32,7 @@
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`device_service_runtime.py`、`storage_policy.py`、docs contract tests | lease、history、artifact upload、QEMU/QMP 与 companion recovery、控制面/本地 runtime API 分离、无状态 runtime 参数/脱敏边界可执行 | `SVC-01`、`SVC-02`、`SVC-03` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | 烧录、画面、触摸、RS-485、ESP-Hosted 和部分 I2C 可用，外设仍为 `partial` | `TAB5-01` |
 | 设备视觉保真 | `platform/web/device-shell*`、设备 renderer | 功能验证与视觉保真分开；StopWatch 是参考质量外壳 | `UI-01` |
-| 外接 Unit 与新外壳 | `platform/units/`、`unit_runtime.py`、`platform/web/model-shell.js`、Unit panel | 固定公开视觉源、官方芯片/接线目录与会话接口正在集成；guest 数据面单独验收 | `UNIT-01` |
+| 外接 Unit 与新外壳 | `platform/units/`、`unit_runtime.py`、`platform/web/model-shell.js`、Unit panel | 视觉主机接入与 Unit 数据面战役已收口（9 host 接入 + 5 边界；Unit 160=158 implemented+2 DEFER；41 层链）；guest 数据面单独验收，物理语义 NOT RUN | `UNIT-01` |
 | CardputerZero | `patches/qemu-linux-arm64-cardputerzero/`、`tests/cardputer_zero/` | 独立 Linux ARM64 后端有显示、输入、音频、USB、摄像头和 Ethernet 子集 | `CZ-01` |
 
 ## 历史证据索引
@@ -73,9 +73,9 @@
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
 | `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME、设备规格/profile、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 边界已拆出；继续拆分 `device_service.py` 编排热区 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
-| `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归 |
+| `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归；视觉主机接入已完成 9+5，保真仍开放 |
 | `UI-02` | 进行中 | 公众工作台、Pages 分享与浏览器执行可行性；边界见[调研](browser-runtime-feasibility.md)，范围见 Backlog |
-| `UNIT-01` | 进行中 | 外壳固定版本、Unit 控制器与主机端口、Web 双向状态及逐型号证据；Relay/Relay2 数字 hard-reset 由 `0087` 闭合，FlashLight cold constructor 由 `0047/e318` 四host原厂API与actual-QOM Web replay闭合 |
+| `UNIT-01` | 已完成（virtual-device） | 视觉主机 9 接入 + 5 边界；Unit 160 = 158 implemented/partial + 2 DEFER（mini-bps-v11/mini-pdm），25 c 类边界、184/184；canonical 41 层（0120–0161，41/41 replay）；PR #80–#161；剩余 DEFER 与物理边界只在 Backlog/战役汇总跟踪 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 Task 的依赖、下一项最小交付和验收条件只在

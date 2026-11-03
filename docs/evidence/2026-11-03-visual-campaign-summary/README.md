@@ -80,6 +80,9 @@ batch11–12 解锁与证据 PR（最终收口）：
 | #158 | batch12c 四款 guest 证据（`0161` AA55 Chain 帧长修复） |
 | #159 | batch12b 七款 I2C Unit guest 证据（7 PASS） |
 
+PR #80–#161 已全部合入；其中 #160 为本轮最终文档刷新（158/2/41 层），
+#161 为 canonical replay order 补充 `0160/0161`。
+
 配套 patch 链与 recon PR 不在本表重复，见
 [`patches/qemu-m5stack-peripherals/README.md`](../../../patches/qemu-m5stack-peripherals/README.md)
 与验证台账。各批 evidence 页入口：

@@ -28,7 +28,7 @@
 - 视觉主机：9 个独立 host 完成原厂固件路径接入；5 项 boundary-only/
   composition-only 决策收口，不再作为待接入队列（M5Stick 工厂固件路径
   仍是 blocked/partial，按 evidence 限定引用）。
-- Unit：catalog 160 条（133 implemented/partial + 27 planned），184 个
+- Unit：catalog 160 条（**158 implemented/partial + 2 planned DEFER**），184 个
   unit 产品全部有登记或 c 类边界结论；10 个研究批与实现/证据 PR 收口。
   剩余 2 项 DEFER 见下方 `UNIT-DEFER-01`（其余 batch11/12 planned 已取得 guest 证据并升 implemented）。
 
@@ -349,7 +349,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；继续扩展 StackChan 其它 Arduino/UIFlow 固件、零位和连续转动模式；补 Plus2 浏览器 USB sleep、显式 EXT0 唤醒及 RTC CRC 等价性，并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 | 精确绑定完整 Flash SHA、runtime/profile 和单板真实输入/帧；native PASS、compiled_profiles 和正常时钟候选不能授予其它板型或 stock SDK PASS；StackChan 跳舞 `c854d3ac…` 的 app-bound div6 与 Cardputer-ADV `4faaccde…` 全键只覆盖各自 SHA，保留旧 div8 示例/分享兼容及取消/停止契约；静态构建不含凭据/固件/raw；2026-10-30 prepared-site 已更新正式 HTTPS，manifest/profile/keymap/wrapper 已回读，但 hosted macOS runner 的 CDP target graph 残留使 regular all-admitted 发布仍未通过 |
-| `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight实时Web与动态S1/PWM、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论 |
+| `UNIT-01` | 已完成（virtual-device） | 视觉主机接入与 Unit 数据面战役 2026-11-03 收口：9 host 接入 + 5 boundary-only/composition-only；Unit 160 = 158 implemented/partial + 2 DEFER（`mini-bps-v11`/`mini-pdm`）+ 25 c 类边界，184/184；canonical 41 层（0120–0161，41/41 replay），PR #80–#161。 仅 `UNIT-DEFER-01` 保留 2 项 DEFER 的关闭条件；其余历史 UNIT-HOST 问题与逐型号边界保留在证据/研究页 | 仅剩 2 项 DEFER；所有 implemented 均为限定 virtual-device 证据，物理 RF/光学/电气/声学/机械语义 NOT RUN；DEFER 关闭前不升 implemented |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频和摄像头虚拟设备边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

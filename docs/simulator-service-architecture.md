@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-29`
+Date: `2026-10-29`（最近核对 `2026-11-03`：`serve.py` 入口/默认端口 `8787`、CLI/环境变量与本页示例一致；动态设备/Unit 计数见快照）
 
 For the one-page product, code and task overview, start with
 [`engineering-handoff.md`](engineering-handoff.md). This page describes the
