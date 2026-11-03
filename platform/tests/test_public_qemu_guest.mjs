@@ -2,12 +2,14 @@
 // Device Service, Node QEMU wrapper or native emulator. ROM/base go upstream.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
+import {createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {isMatchingCanvasObservation,waitForCanvasPixels} from './public_qemu_pixel_observer.mjs';
 import {DEMO_FIRMWARE,WALLCLOCK_DEMO_FIRMWARE} from '../web/public-demo-firmware.js';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
@@ -31,6 +33,8 @@ const requests=[],errors=[],checks=[],workers=[];
 let server,browser,context,page,workerTargetObserver;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2'};
 const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),example,requested_example:requestedExample,ui_example:uiExample,checks,requests,errors};
+report.pixel_observer_sha256=createHash('sha256').update(await readFile(new URL('./public_qemu_pixel_observer.mjs',import.meta.url))).digest('hex');
+report.pixel_observer_wait_strategy='awaited-evaluate-poll';
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
 async function deferIframeRemoval() {
   await page.evaluate(() => {
@@ -128,22 +132,9 @@ async function waitStockClickPixels(name,one){
   const regions=STOCK_CLICK_PIXELS.regions.map(row=>({...row,expected:one?row.one:row.zero}));
   if(one)assert.ok(lastStockTap&&Number.isFinite(lastStockTap.callback_observed_ms));
   const boundary={minimumSequence:one?lastStockTap.frame_sequence:-1,notBeforeMs:one?lastStockTap.callback_observed_ms:0};
-  const matched=await page.waitForFunction(async({regions,boundary})=>{
-    const canvas=document.querySelector('#rawFrameCanvas');if(canvas?.width!==320||canvas?.height!==240)return false;
-    const context=canvas.getContext('2d'),captured_ms=performance.now();
-    const frame_sequence=Number(document.querySelector('#deviceMount')?.dataset.frameSequence||0);
-    if(frame_sequence<=boundary.minimumSequence||captured_ms<boundary.notBeforeMs)return false;
-    // One synchronous full-canvas snapshot; async hashes cannot mix frames.
-    const snapshot=context.getImageData(0,0,320,240).data,observed=[];
-    for(const row of regions){
-      const pixels=new Uint8Array(row.width*row.height*4);
-      for(let y=0;y<row.height;y++)pixels.set(snapshot.subarray(((row.y+y)*320+row.x)*4,((row.y+y)*320+row.x+row.width)*4),y*row.width*4);
-      const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',pixels)),b=>b.toString(16).padStart(2,'0')).join('');
-      if(hash!==row.expected)return false;observed.push({name:row.name,rgba_sha256:hash});
-    }return {frame_sequence,captured_ms,regions:observed};
-  },{regions,boundary},{timeout:15000,polling:100});
-  const actual=await matched.jsonValue();await matched.dispose();
-  check(name+'-actual-clicks-and-count-pixels',true,{state:one?1:0,firmware:STOCK_CLICK_PIXELS.firmware,source:STOCK_CLICK_PIXELS.source,boundary,actual});
+  const actual=await waitForCanvasPixels(page,{regions,boundary,timeoutMs:15000,pollingMs:100});
+  assert.ok(isMatchingCanvasObservation(actual,{regions,boundary}),'Returned canvas observation must pass the full measured predicate');
+  check(name+'-actual-clicks-and-count-pixels',isMatchingCanvasObservation(actual,{regions,boundary}),{state:one?1:0,firmware:STOCK_CLICK_PIXELS.firmware,source:STOCK_CLICK_PIXELS.source,boundary,actual});
   (report.stock_visual_samples||=[]).push({name,state:one?1:0,boundary,actual,
     timing_scope:'First matching coherent canvas observed after callback; observation latency is an upper bound, not physical response time.'});
   await page.screenshot({path:resolve(out,name+'-visible.png'),fullPage:true});

@@ -522,17 +522,28 @@ try {
       const released=await guest('button-released',event=>event.button===item.button&&event.count===1,30000);
       check('plus2-'+item.button+'-original-driver-down-and-up',pressed.pressed===true&&released.pressed===false
         &&pressed.gpio===item.gpio&&released.gpio===item.gpio,{pressed,count,released});
-      const changed=await page.waitForFunction(async({index,before})=>{
-        const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;const pixels=[];
-        for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
-          const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
-        }
-        const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
-        const sha256=[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('');
-        return sha256!==before.sha256?{sequence:frame.sequence,sha256}:false;
-      },{index:item.index,before},{timeout:30000,polling:100});
-      const after=await changed.jsonValue();await changed.dispose();
-      check('plus2-'+item.button+'-changes-own-native-counter-pixels',true);
+      const deadline=performance.now()+30000;let after=null,lastCounterObservation=null;
+      while(performance.now()<deadline){
+        // Explicitly await async hashing. An async waitForFunction predicate
+        // can itself be truthy while its eventual result is false.
+        lastCounterObservation=await page.evaluate(async({index,before})=>{
+          const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;
+          const sequence=frame.sequence,pixels=[];
+          for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
+            const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
+          }
+          const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
+          const sha256=[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('');
+          return {sequence,sha256};
+        },{index:item.index,before});
+        if(lastCounterObservation&&typeof lastCounterObservation==='object'
+          &&Number.isInteger(lastCounterObservation.sequence)&&lastCounterObservation.sequence>before.sequence
+          &&/^[a-f0-9]{64}$/.test(lastCounterObservation.sha256)
+          &&lastCounterObservation.sha256!==before.sha256){after=lastCounterObservation;break;}
+        await page.waitForTimeout(100);
+      }
+      check('plus2-'+item.button+'-changes-own-native-counter-pixels',after!==null,
+        {before,after,last_observation:lastCounterObservation});
       report.multi_button_cases.push({...item,keyboard:key,dom_key:domKey,pressed,count,released,before_counter:before,after_counter:after,
         texture:await textureReadback()});
     }

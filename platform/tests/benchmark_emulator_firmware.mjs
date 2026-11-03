@@ -357,7 +357,9 @@ try{
     assert.ok(row.frames.length>0||row.stopped_on_diagnostic||row.stopped_on_guest_failure,'Require real framebuffer observations or an explicitly captured diagnostic/failure stop');if(engine==='qemu'){
       assert.equal(row.receipt.firmwareSha256,firmwareSHA);
       if(firmwareSource==='default-compose'){
-        assert.equal(row.receipt.profile,'cores3-wasm-vm-div8');assert.equal(row.receipt.clockDivisor,8);
+        assert.equal(row.receipt.profile,'cores3-wasm-stock-wallclock');assert.equal(row.receipt.clockDivisor,1);
+        assert.equal(row.receipt.oneInsnPerTb,true);
+        assert.equal(row.receipt.firmwareVariant?.sourceSHA256,'7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb');
         assert.equal(row.input_firmware_bytes,DEMO_FIRMWARE.flashSize);assert.equal(row.input_firmware_buffer_seen_before,false,'Every composition must supply a fresh Flash input buffer');
         assert.equal(row.firmware_source_selection.source,'reference');assert.equal(row.firmware_source_selection.example,'stock-div8');
         assert.equal(row.receipt.persistentFlash,false);
