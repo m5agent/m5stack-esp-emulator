@@ -1,0 +1,76 @@
+{
+  "kind": "actual-HTTPS-first-attempt-touch-startup-failure",
+  "result": "FAIL",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "report_sha256": "5975563a8689fc427ccaede5c9a18a2d695fab6118470b9edcbaff6894918650",
+  "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+  "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+  "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+  "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+  "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+  "harness_sha256": "8128326134725687e799e7b2639233b75b648eba24ab0edf4f816a26f1c4d5b6",
+  "metric_algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+  "adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+  "clock_divisor": 1,
+  "actual_arguments": [
+    "./this.program",
+    "-M",
+    "m5stackchan",
+    "-drive",
+    "file=/flash.bin,if=mtd,format=raw",
+    "-L",
+    "/rom",
+    "-display",
+    "none",
+    "-serial",
+    "file:/bridge/uart.out",
+    "-serial",
+    "file:/bridge/serial1",
+    "-qmp",
+    "stdio",
+    "-drive",
+    "if=none,id=efuse,file=/efuse.bin,format=raw",
+    "-global",
+    "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+    "-accel",
+    "tcg,thread=multi,one-insn-per-tb=on"
+  ],
+  "required_patch": {
+    "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+    "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+  },
+  "startup_observation": {
+    "application_ready": false,
+    "ready_ms": null,
+    "observed_frames": 0,
+    "input_events": 0,
+    "touch_validation": "NOT RUN: startup fault preceded the8s sampling window and every input",
+    "wait_timeout_ms": 120000,
+    "runtime_status": "booting"
+  },
+  "observed_fault": {
+    "cpu": 1,
+    "exception": "LoadStorePIFAddrError",
+    "pc": "0x40001c38",
+    "exccause": "0x0000000f",
+    "excvaddr": "0x40001c34",
+    "guest_reset_events": 2
+  },
+  "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "nested_pthreads_at_exit": 0,
+    "owner_fallback_terminations": 0,
+    "all_observed_targets": 6,
+    "actual_targets_live_before_context_close": 0
+  },
+  "limits": [
+    "No ordinary retry replaced this failed first attempt.",
+    "Two preceding same-firmware20s dance samples passed; they do not prove startup stability or replace the missing independent touch response.",
+    "Local R6 touch results remain under their original runtime identity and are not copied into this result.",
+    "Runtime reset event count is retained exactly as observed; serial shows one reboot and the event count must not be equated to independent reboot count.",
+    "Root cause is not established; no firmware/clock/WDT change was made."
+  ]
+}

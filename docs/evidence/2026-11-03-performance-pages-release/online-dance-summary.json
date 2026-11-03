@@ -1,0 +1,310 @@
+{
+  "kind": "actual-HTTPS-same-c854-dance-performance",
+  "result": "PASS",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "report_sha256": "f97d908b4a81f080cc51fc65a39d7af38b6ca09528ca53409cdae288f428faf2",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+  "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+  "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+  "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+  "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+  "harness_sha256": "8128326134725687e799e7b2639233b75b648eba24ab0edf4f816a26f1c4d5b6",
+  "metric_algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+  "adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+  "renderer": [
+    {
+      "scope": "actual-workbench-model-canvas",
+      "canvas_id": "",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "vendor": "WebKit",
+      "renderer": "WebKit WebGL",
+      "unmasked_vendor": "Google Inc. (Apple)",
+      "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+    }
+  ],
+  "runs": [
+    {
+      "run": 1,
+      "startup_ms": {
+        "first_serial": 2748.3400000333786,
+        "ready_marker": 5320.070000052452,
+        "first_nonblack_frame": 5337.945000052452,
+        "runtime_preparation": 65.63499999046326
+      },
+      "steady": {
+        "duration_seconds": 20.002865000009535,
+        "delivered_frames": 534,
+        "delivered_fps": 26.696175772807816,
+        "pixel_change_frames": 534,
+        "pixel_change_fps": 26.696175772807816,
+        "frame_gap_ms": {
+          "samples": 534,
+          "min": 27.700000047683716,
+          "p50": 33.85250002145767,
+          "p90": 35.22500002384186,
+          "p95": 39.289000004529946,
+          "max": 1280.1749999523163,
+          "mean": 37.457228464356966
+        },
+        "state_updates": 164,
+        "state_gap_ms": {
+          "samples": 163,
+          "min": 43.825000047683716,
+          "p50": 96.10000002384186,
+          "p90": 201.99899990558626,
+          "p95": 255.99200005531313,
+          "max": 2855.274999976158,
+          "mean": 122.46368098185837
+        },
+        "frame_observer_ms": {
+          "samples": 534,
+          "min": 0.13499999046325684,
+          "p50": 0.1549999713897705,
+          "p90": 0.17500003576278686,
+          "p95": 0.18500006198883057,
+          "max": 0.7099999189376831,
+          "mean": 0.15597378247686094
+        },
+        "dance_cue_count": 30,
+        "packet_delta": 169,
+        "packet_window": {
+          "baseline_source": "first-in-window",
+          "first_observed_at_ms": 12002.460000038147,
+          "initial_packets": 8,
+          "final_packets": 177
+        },
+        "position_change_observations": 163,
+        "rendered_joint_trace": {
+          "source": "actual-workbench-viewer-render",
+          "observations": 907,
+          "actual_angle_changes": 697,
+          "intermediate_observations": 624,
+          "render_gap_ms": {
+            "samples": 906,
+            "min": 8.985000014305115,
+            "p50": 17.12000000476837,
+            "p90": 33.394999980926514,
+            "p95": 34.29500004649162,
+            "max": 1245.6399999856949,
+            "mean": 22.054619205313802
+          },
+          "observer_ms": {
+            "samples": 907,
+            "min": 0,
+            "p50": 0.004999995231628418,
+            "p90": 0.009999990463256836,
+            "p95": 0.014999985694885254,
+            "max": 0.03500008583068848,
+            "mean": 0.007464166907254759
+          },
+          "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+        }
+      },
+      "rendered_motion_validation": {
+        "result": "PASS",
+        "source": "actual-workbench-viewer-render",
+        "observations": 907,
+        "actual_angle_changes": 697,
+        "intermediate_observations": 624,
+        "controller_bindings_checked": 164,
+        "session_and_firmware_bound": true,
+        "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+      },
+      "actual_frame_dimensions": [
+        [
+          320,
+          240
+        ]
+      ],
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ],
+      "clock_divisor": 1,
+      "required_patch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "guest_faults": {
+        "panic_or_watchdog_markers": [],
+        "reset_events": [],
+        "rom_boot_markers_per_port": {
+          "uart0": 1
+        }
+      },
+      "normal_cleanup": true,
+      "output_metadata_actual": {
+        "source": "qemu-uart1-scs-controller",
+        "motion_model": "command-time-position-v1",
+        "pwm_motion_modelled": false
+      },
+      "cumulative_context_worker_targets_closed": 6
+    },
+    {
+      "run": 2,
+      "startup_ms": {
+        "first_serial": 1477.5500000715256,
+        "ready_marker": 3982.515000104904,
+        "first_nonblack_frame": 3998.710000038147,
+        "runtime_preparation": 63.125
+      },
+      "steady": {
+        "duration_seconds": 20.001709999918937,
+        "delivered_frames": 527,
+        "delivered_fps": 26.347747267715402,
+        "pixel_change_frames": 527,
+        "pixel_change_fps": 26.347747267715402,
+        "frame_gap_ms": {
+          "samples": 527,
+          "min": 27.384999990463257,
+          "p50": 33.825000047683716,
+          "p90": 35.56699998378754,
+          "p95": 39.998499965667726,
+          "max": 1263.8050000667572,
+          "mean": 37.956034155679156
+        },
+        "state_updates": 162,
+        "state_gap_ms": {
+          "samples": 161,
+          "min": 47.1599999666214,
+          "p50": 90.32000005245209,
+          "p90": 202.09500002861023,
+          "p95": 255.22000002861023,
+          "max": 2845.929999947548,
+          "mean": 124.14267080763112
+        },
+        "frame_observer_ms": {
+          "samples": 527,
+          "min": 0.13499999046325684,
+          "p50": 0.1549999713897705,
+          "p90": 0.1799999475479126,
+          "p95": 0.18500006198883057,
+          "max": 0.20000004768371582,
+          "mean": 0.15638519939480516
+        },
+        "dance_cue_count": 30,
+        "packet_delta": 166,
+        "packet_window": {
+          "baseline_source": "first-in-window",
+          "first_observed_at_ms": 38816.200000047684,
+          "initial_packets": 8,
+          "final_packets": 174
+        },
+        "position_change_observations": 161,
+        "rendered_joint_trace": {
+          "source": "actual-workbench-viewer-render",
+          "observations": 892,
+          "actual_angle_changes": 682,
+          "intermediate_observations": 613,
+          "render_gap_ms": {
+            "samples": 891,
+            "min": 8.97000002861023,
+            "p50": 17.110000014305115,
+            "p90": 33.44500005245209,
+            "p95": 34.62999999523163,
+            "max": 1244.5099999904633,
+            "mean": 22.42586980925666
+          },
+          "observer_ms": {
+            "samples": 892,
+            "min": 0,
+            "p50": 0.004999995231628418,
+            "p90": 0.009999990463256836,
+            "p95": 0.010000109672546387,
+            "max": 0.019999980926513672,
+            "mean": 0.006844170692255679
+          },
+          "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+        }
+      },
+      "rendered_motion_validation": {
+        "result": "PASS",
+        "source": "actual-workbench-viewer-render",
+        "observations": 892,
+        "actual_angle_changes": 682,
+        "intermediate_observations": 613,
+        "controller_bindings_checked": 162,
+        "session_and_firmware_bound": true,
+        "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+      },
+      "actual_frame_dimensions": [
+        [
+          320,
+          240
+        ]
+      ],
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stackchan",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ],
+      "clock_divisor": 1,
+      "required_patch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "guest_faults": {
+        "panic_or_watchdog_markers": [],
+        "reset_events": [],
+        "rom_boot_markers_per_port": {
+          "uart0": 1
+        }
+      },
+      "normal_cleanup": true,
+      "output_metadata_actual": {
+        "source": "qemu-uart1-scs-controller",
+        "motion_model": "command-time-position-v1",
+        "pwm_motion_modelled": false
+      },
+      "cumulative_context_worker_targets_closed": 12
+    }
+  ],
+  "limits": [
+    "First means fresh browser/guest/module, not cold network. Artifact preflight warms CDN edge.",
+    "HTTPS delivery timing is not the same network condition as the local R6 static site.",
+    "All original maximum frame/render/state intervals are retained. The matching source specifies1250ms boot-card hold and1500ms initial cue delay; causal attribution of each observed maximum has not been independently established.",
+    "Pixel-change callbacks and observed QOM/3D positions are virtual observations, not physical screen/servo measurements."
+  ],
+  "actual_VM_count": 2,
+  "unique_actual_context_worker_targets_closed": 12,
+  "target_count_scope": "Per-run counts are cumulative within this browser context, not additive; final unique total is12."
+}

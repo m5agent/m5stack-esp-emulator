@@ -2388,3 +2388,35 @@ PASS。物理舵机、机械、电气、LCD 光学和 RF 均 `NOT RUN`。见
 同步工具 16 项契约检查通过；完整检查见本次工作归档。原始截图和报告保留在
 本机 ignored evidence。本结果仅为 browser visual geometry，固件、Linux 后端、
 Ethernet 协议和物理尺寸均 `NOT RUN`，不继承为硬件 PASS。
+
+## 2026-11-03：性能优化合 main 与正式 Pages 预构建更新
+
+性能 PR #163 合入 `189dc01a5ee42a23ac7e246f8390c2acfe471ffa`，producer
+路径修复 PR #164 合入 `10788607feefb9e532c2dd1fe4679adcd6aa0fc2`；后者与
+实际构建 head `1b86ed6f…` tree 相同，main CI `41627233963` 两检查通过，
+平台 1949 tests、10 skipped。C/QEMU/TCI 保持单一后端，没有合入实验 JIT。
+
+新 runtime `897114f0…` / WASM `3c6b2490…` / site `c5991d73…` 的本地
+19 板 20 固定示例、552 检查通过；22 VM、124 个实际 QEMU Worker target
+正常归零。旧 `0bd94787…` 产物因本机路径撤回，部分四例不作新包准入；新
+producer 重建全部依赖和 QEMU，并重新完成完整门禁。
+
+已审包 `d4be9186…` 上传并独立下载字节一致；prepared-preview
+[41629045946](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946)
+部署成功，实际 HTTPS 的 48 个关键路径全 200、无重定向、与冻结出口一致。
+该结果不等于线上逐项下载全部 2127 个资产，也不授予 regular publication PASS；
+正式 `41617152984` 的第三个 CoreS3 e950 engine 回收失败仍保留。
+
+随后直接从正式 HTTPS 验证：CoreS3 原始 `78961297…` 49/49，StackChan 默认
+`407f6260…` 24/24；原始跳舞 `c854d3ac…` 两次 20 秒通过，ready
+`5.320070/3.982515 s`，像素更新 `26.696/26.348 /s`，UART 包增量 `169/166`、
+位置变化 `163/161`、cue `30/30`，实际渲染绑定与正常退出通过。独立 8 秒触摸阶段
+首次启动在 ready 前遇到 Core1 `LoadStorePIFAddrError`，没有帧或输入，触摸和
+strict derive 为 NOT RUN；等待 120 秒不是网络加载耗时，没有普通重试或旧结果替代。
+六次 VM 尝试、36 个 QEMU Worker target 清理通过，失败启动的资源 PASS 不转功能 PASS。
+
+本轮源码合并、网页部署与关键资源回读完成；线上稳定性仍 PARTIAL，新的启动异常、
+正式 hosted engine 清理、Factory/任意固件及长期稳定性继续开放。所有指标为虚拟
+设备观察，first 是新 browser/guest/module、非冷网络，像素更新不是完整应用或
+物理 FPS，较长 frame/render/state 间隔完整保留。完整 SHA、原件绑定和复现见
+[交付证据](evidence/2026-11-03-performance-pages-release/README.md)。

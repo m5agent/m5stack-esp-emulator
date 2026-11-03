@@ -1,0 +1,620 @@
+{
+  "schema_version": 1,
+  "kind": "actual-HTTPS-reviewed-prepared-artifact-readback",
+  "status": "PASS — fetched-path bytes/source closure only",
+  "artifact_provenance": "prepared-preview-export",
+  "runtime_origin": "fresh-full-source-build-public-path-policy-v1",
+  "artifact_producer_commit": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+  "main_merge_commit": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+  "canonical_url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "started_at": "2026-11-03T11:38:49.776Z",
+  "finished_at": "2026-11-03T11:39:14.253Z",
+  "expected_hashes": {
+    "manifest": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "runtime": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+    "wasm": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+    "source": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0",
+    "lock": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "recipe": "f69cd135c8d5bb6c1efe920eb2ec54070798267b304c1333b9397fbde18770fc",
+    "runtimeAudit": "4f30155b321d909e3c3ba556a26cec505f79ad105bf0a2965b80e4540936c88a",
+    "fullGate": "947ae11865a4659e7bd6453ba2ba7e6e130f5f766501a9139efca484d625f054"
+  },
+  "actual_get_count": 48,
+  "actual_get_bytes": 49173223,
+  "gets": [
+    {
+      "path": "public-site-manifest.json",
+      "compared_asset": "public-site-manifest.json",
+      "status": 200,
+      "bytes": 429386,
+      "sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323"
+    },
+    {
+      "path": "platform/runtime/qemu/runtime.json",
+      "compared_asset": "platform/runtime/qemu/runtime.json",
+      "status": 200,
+      "bytes": 33622,
+      "sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c"
+    },
+    {
+      "path": "platform/web/index.html",
+      "compared_asset": "platform/web/index.html",
+      "status": 200,
+      "bytes": 15328,
+      "sha256": "1cc51c001aa4d6d5cefd49d8fdd7be419391b125bdc2aaafcac661f5d2cf2b3e"
+    },
+    {
+      "path": "platform/web/public.js",
+      "compared_asset": "platform/web/public.js",
+      "status": 200,
+      "bytes": 55713,
+      "sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c"
+    },
+    {
+      "path": "platform/web/public.css",
+      "compared_asset": "platform/web/public.css",
+      "status": 200,
+      "bytes": 23721,
+      "sha256": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6"
+    },
+    {
+      "path": "platform/web/public-config.js",
+      "compared_asset": "platform/web/public-config.js",
+      "status": 200,
+      "bytes": 6670,
+      "sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18"
+    },
+    {
+      "path": "platform/web/public-firmware.js",
+      "compared_asset": "platform/web/public-firmware.js",
+      "status": 200,
+      "bytes": 7158,
+      "sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274"
+    },
+    {
+      "path": "platform/web/public-verified-assets.js",
+      "compared_asset": "platform/web/public-verified-assets.js",
+      "status": 200,
+      "bytes": 6117,
+      "sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4"
+    },
+    {
+      "path": "platform/web/sha256.js",
+      "compared_asset": "platform/web/sha256.js",
+      "status": 200,
+      "bytes": 6009,
+      "sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413"
+    },
+    {
+      "path": "platform/web/public-demo-firmware.js",
+      "compared_asset": "platform/web/public-demo-firmware.js",
+      "status": 200,
+      "bytes": 13724,
+      "sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+    },
+    {
+      "path": "platform/web/public-coi.js",
+      "compared_asset": "platform/web/public-coi.js",
+      "status": 200,
+      "bytes": 6225,
+      "sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3"
+    },
+    {
+      "path": "platform/web/public-coi-serviceworker.js",
+      "compared_asset": "platform/web/public-coi-serviceworker.js",
+      "status": 200,
+      "bytes": 419,
+      "sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+    },
+    {
+      "path": "platform/web/vendor/coi-serviceworker/coi-serviceworker.js",
+      "compared_asset": "platform/web/vendor/coi-serviceworker/coi-serviceworker.js",
+      "status": 200,
+      "bytes": 6028,
+      "sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e"
+    },
+    {
+      "path": "platform/web/public-qemu-runtime.js",
+      "compared_asset": "platform/web/public-qemu-runtime.js",
+      "status": 200,
+      "bytes": 22958,
+      "sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a"
+    },
+    {
+      "path": "platform/web/public-qemu-instance.js",
+      "compared_asset": "platform/web/public-qemu-instance.js",
+      "status": 200,
+      "bytes": 3419,
+      "sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+    },
+    {
+      "path": "platform/web/public-qemu-engine.js",
+      "compared_asset": "platform/web/public-qemu-engine.js",
+      "status": 200,
+      "bytes": 17030,
+      "sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e"
+    },
+    {
+      "path": "platform/web/public-qemu-instance.html",
+      "compared_asset": "platform/web/public-qemu-instance.html",
+      "status": 200,
+      "bytes": 160,
+      "sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b"
+    },
+    {
+      "path": "platform/web/public-qemu-profiles.js",
+      "compared_asset": "platform/web/public-qemu-profiles.js",
+      "status": 200,
+      "bytes": 29186,
+      "sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078"
+    },
+    {
+      "path": "platform/web/qemu-browser-profiles.json",
+      "compared_asset": "platform/web/qemu-browser-profiles.json",
+      "status": 200,
+      "bytes": 85293,
+      "sha256": "c83bea5affa5259b6645dc9bfbd0cd50b9cc29e82572006b360b66f997998a84"
+    },
+    {
+      "path": "platform/web/public-qemu-frame.js",
+      "compared_asset": "platform/web/public-qemu-frame.js",
+      "status": 200,
+      "bytes": 3676,
+      "sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172"
+    },
+    {
+      "path": "platform/web/public-qemu-probe-firmware.js",
+      "compared_asset": "platform/web/public-qemu-probe-firmware.js",
+      "status": 200,
+      "bytes": 13943,
+      "sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a"
+    },
+    {
+      "path": "platform/web/public-qemu-servo.js",
+      "compared_asset": "platform/web/public-qemu-servo.js",
+      "status": 200,
+      "bytes": 6092,
+      "sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca"
+    },
+    {
+      "path": "platform/web/model-shell.js",
+      "compared_asset": "platform/web/model-shell.js",
+      "status": 200,
+      "bytes": 33015,
+      "sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9"
+    },
+    {
+      "path": "platform/web/device-shell-factory.js",
+      "compared_asset": "platform/web/device-shell-factory.js",
+      "status": 200,
+      "bytes": 3036,
+      "sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2"
+    },
+    {
+      "path": "index.html",
+      "compared_asset": "index.html",
+      "status": 200,
+      "bytes": 15328,
+      "sha256": "1cc51c001aa4d6d5cefd49d8fdd7be419391b125bdc2aaafcac661f5d2cf2b3e"
+    },
+    {
+      "path": "coi-serviceworker.js",
+      "compared_asset": "coi-serviceworker.js",
+      "status": 200,
+      "bytes": 419,
+      "sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+    },
+    {
+      "path": "platform/runtime/qemu/qemu-system-xtensa.js",
+      "compared_asset": "platform/runtime/qemu/qemu-system-xtensa.js",
+      "status": 200,
+      "bytes": 157200,
+      "sha256": "5d306019d5ecc8eab9aa2d582f2e1f3c34a9bcc1d24dd6a463391eac94564a4e"
+    },
+    {
+      "path": "platform/runtime/qemu/NOTICE",
+      "compared_asset": "platform/runtime/qemu/NOTICE",
+      "status": 200,
+      "bytes": 968,
+      "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+    },
+    {
+      "path": "platform/runtime/qemu/corresponding-source.tar.xz",
+      "compared_asset": "platform/runtime/qemu/corresponding-source.tar.xz",
+      "status": 200,
+      "bytes": 35241880,
+      "sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0"
+    },
+    {
+      "path": "platform/runtime/qemu/qemu-system-xtensa.wasm",
+      "compared_asset": "platform/runtime/qemu/qemu-system-xtensa.wasm",
+      "status": 200,
+      "bytes": 12745460,
+      "sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567"
+    },
+    {
+      "path": "platform/runtime/qemu/qemu-system-xtensa.worker.js",
+      "compared_asset": "platform/runtime/qemu/qemu-system-xtensa.worker.js",
+      "status": 200,
+      "bytes": 2776,
+      "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+    },
+    {
+      "path": "platform/runtime/littlefs/LICENSE.composer",
+      "compared_asset": "platform/runtime/littlefs/LICENSE.composer",
+      "status": 200,
+      "bytes": 1077,
+      "sha256": "46e054dd27254243fa431abe8b3aa5a28e353e0ee71d5633833723afee83e5cb"
+    },
+    {
+      "path": "platform/runtime/littlefs/LICENSE.emscripten",
+      "compared_asset": "platform/runtime/littlefs/LICENSE.emscripten",
+      "status": 200,
+      "bytes": 5093,
+      "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86"
+    },
+    {
+      "path": "platform/runtime/littlefs/LICENSE.littlefs",
+      "compared_asset": "platform/runtime/littlefs/LICENSE.littlefs",
+      "status": 200,
+      "bytes": 1523,
+      "sha256": "0cb4ff1daf5fdc1359c6a6ee3116092f08fc100c9d58b1b77ab17bfd801f856d"
+    },
+    {
+      "path": "platform/runtime/littlefs/LICENSE.musl",
+      "compared_asset": "platform/runtime/littlefs/LICENSE.musl",
+      "status": 200,
+      "bytes": 6204,
+      "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af"
+    },
+    {
+      "path": "platform/runtime/littlefs/fixture/boot.py",
+      "compared_asset": "platform/runtime/littlefs/fixture/boot.py",
+      "status": 200,
+      "bytes": 214,
+      "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+    },
+    {
+      "path": "platform/runtime/littlefs/fixture/main.py",
+      "compared_asset": "platform/runtime/littlefs/fixture/main.py",
+      "status": 200,
+      "bytes": 2301,
+      "sha256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+    },
+    {
+      "path": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/boot.py",
+      "compared_asset": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/boot.py",
+      "status": 200,
+      "bytes": 214,
+      "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+    },
+    {
+      "path": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/candidate_lvgl_loop.py",
+      "compared_asset": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/candidate_lvgl_loop.py",
+      "status": 200,
+      "bytes": 3055,
+      "sha256": "0a460dbbd04838811238dd9022044f4b5e85f76629e44f8b7ba8fb057710363e"
+    },
+    {
+      "path": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/main.py",
+      "compared_asset": "platform/runtime/littlefs/fixtures/cores3-lvgl-wallclock/main.py",
+      "status": 200,
+      "bytes": 3491,
+      "sha256": "e793b5ded4dc81510022723b8e10696a93d0cc4122c6cb5e58000a8ce9b84858"
+    },
+    {
+      "path": "platform/runtime/littlefs/littlefs.mjs",
+      "compared_asset": "platform/runtime/littlefs/littlefs.mjs",
+      "status": 200,
+      "bytes": 12513,
+      "sha256": "9ba8b6475eb8ae81e665b0e6cddc120cd5aa1af3818e102e2e0f3b1d73d9446d"
+    },
+    {
+      "path": "platform/runtime/littlefs/littlefs.wasm",
+      "compared_asset": "platform/runtime/littlefs/littlefs.wasm",
+      "status": 200,
+      "bytes": 32804,
+      "sha256": "f19358bc10b65156aadb1f02c874a1ceb0b64e63dfd1deb1b1d097491bfd6377"
+    },
+    {
+      "path": "platform/runtime/littlefs/manifest.json",
+      "compared_asset": "platform/runtime/littlefs/manifest.json",
+      "status": 200,
+      "bytes": 5821,
+      "sha256": "121ded5bf82539bfc6fca2681fae0a6a708491f8dff706bc4411bd01ce74dd89"
+    },
+    {
+      "path": "platform/runtime/littlefs/source.zip",
+      "compared_asset": "platform/runtime/littlefs/source.zip",
+      "status": 200,
+      "bytes": 68884,
+      "sha256": "78766b956ee53e22f8fa606215d1baabf3c1d41b57ea8b8c17164a3406c42f46"
+    },
+    {
+      "path": "(canonical project root)",
+      "compared_asset": "index.html",
+      "status": 200,
+      "bytes": 15328,
+      "sha256": "1cc51c001aa4d6d5cefd49d8fdd7be419391b125bdc2aaafcac661f5d2cf2b3e"
+    },
+    {
+      "path": "platform/web/site-config.json",
+      "compared_asset": "platform/web/site-config.json",
+      "status": 200,
+      "bytes": 305,
+      "sha256": "cce1ffa762bce51f65bb921d3a211b2d8428b0322432e6edbb67f814dcd6d8df"
+    },
+    {
+      "path": "site-config.json",
+      "compared_asset": "site-config.json",
+      "status": 200,
+      "bytes": 305,
+      "sha256": "cce1ffa762bce51f65bb921d3a211b2d8428b0322432e6edbb67f814dcd6d8df"
+    },
+    {
+      "path": "platform/web/browser-profiles.json",
+      "compared_asset": "platform/web/browser-profiles.json",
+      "status": 200,
+      "bytes": 22132,
+      "sha256": "608783a6923ef43a6d7ff484a4dc82201ff8dd6f7fc78d3e0c430d5e2475f1f8"
+    }
+  ],
+  "closure": {
+    "executed_web_paths": 22,
+    "qemu_runtime_files": 6,
+    "littlefs_files": 13,
+    "manifest": 1,
+    "extra_entry_isolation_and_config_paths": 6,
+    "all_actual_HTTP_bytes_equal_frozen_export": true,
+    "redirects_allowed": false,
+    "public_boards": 19,
+    "explicit_candidate_boards": [],
+    "service_url": ""
+  },
+  "source_and_license": {
+    "actual_downloaded_corresponding_source_sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0",
+    "actual_downloaded_notice_sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76",
+    "actual_HTTP_archive_bytes_equal_independently_audited_archive": true,
+    "independent_archive_audit_sha256": "4f30155b321d909e3c3ba556a26cec505f79ad105bf0a2965b80e4540936c88a",
+    "reused_audit_scope": {
+      "source_postimages": 160,
+      "ordered_qemu_patches": 72,
+      "dependency_patches": 2,
+      "recipe_and_lock": 2,
+      "official_dependency_input_archives": 9
+    },
+    "archive_rebuilt_or_reextracted_by_HTTP_check": false,
+    "independent_recipe_sha256": "f69cd135c8d5bb6c1efe920eb2ec54070798267b304c1333b9397fbde18770fc",
+    "independent_source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b"
+  },
+  "source_provenance": {
+    "kind": "public-qemu-static-artifact-provenance",
+    "location": "remote-static-host",
+    "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "base_path": "/m5stack-esp-emulator/",
+    "web": {
+      "platform/web/index.html": {
+        "source_sha256": "3a5433c5b7d29583ef9488b43bd23e6f23c52bb9b63bc11eaa73c69728179ff2",
+        "exported_sha256": "1cc51c001aa4d6d5cefd49d8fdd7be419391b125bdc2aaafcac661f5d2cf2b3e"
+      },
+      "platform/web/public.js": {
+        "source_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c",
+        "exported_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c"
+      },
+      "platform/web/public.css": {
+        "source_sha256": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6",
+        "exported_sha256": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6"
+      },
+      "platform/web/public-config.js": {
+        "source_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+        "exported_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18"
+      },
+      "platform/web/public-firmware.js": {
+        "source_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+        "exported_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274"
+      },
+      "platform/web/public-verified-assets.js": {
+        "source_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4",
+        "exported_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4"
+      },
+      "platform/web/sha256.js": {
+        "source_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+        "exported_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413"
+      },
+      "platform/web/public-demo-firmware.js": {
+        "source_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9",
+        "exported_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+      },
+      "platform/web/public-coi.js": {
+        "source_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3",
+        "exported_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3"
+      },
+      "platform/web/public-coi-serviceworker.js": {
+        "source_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3",
+        "exported_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+      },
+      "platform/web/vendor/coi-serviceworker/coi-serviceworker.js": {
+        "source_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+        "exported_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e"
+      },
+      "platform/web/public-qemu-runtime.js": {
+        "source_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a",
+        "exported_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a"
+      },
+      "platform/web/public-qemu-instance.js": {
+        "source_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c",
+        "exported_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+      },
+      "platform/web/public-qemu-engine.js": {
+        "source_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e",
+        "exported_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e"
+      },
+      "platform/web/public-qemu-instance.html": {
+        "source_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b",
+        "exported_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b"
+      },
+      "platform/web/public-qemu-profiles.js": {
+        "source_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+        "exported_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078"
+      },
+      "platform/web/qemu-browser-profiles.json": {
+        "source_sha256": "bf1bcb324e9dc419f98aa6c63c6fae296ec684e3cc85ca9780ae7a0815806ac4",
+        "exported_sha256": "c83bea5affa5259b6645dc9bfbd0cd50b9cc29e82572006b360b66f997998a84",
+        "transform": {
+          "identity": "build_public_site.qemu_site_profiles-v1",
+          "builder_path": "platform/tools/build_public_site.py",
+          "builder_sha256": "f4293e3e2a7a072c06b24670bf2ee560119bab8b57f06477c3d8136f1fb7eaae",
+          "public_profiles": [
+            "stopwatch",
+            "sticks3",
+            "atoms3",
+            "atoms3-lite",
+            "atoms3r",
+            "cores3",
+            "cardputer-adv",
+            "stamplc",
+            "stackchan",
+            "papercolor",
+            "papermono",
+            "core2",
+            "stickc-plus2",
+            "stickc",
+            "stickc-plus",
+            "stickc-plus-se",
+            "atom-lite",
+            "atom-matrix",
+            "atom-matrix-v11"
+          ],
+          "explicit_candidates": [],
+          "selected_profiles": [
+            "stopwatch",
+            "sticks3",
+            "atoms3",
+            "atoms3-lite",
+            "atoms3r",
+            "cores3",
+            "cardputer-adv",
+            "stamplc",
+            "stackchan",
+            "papercolor",
+            "papermono",
+            "core2",
+            "stickc-plus2",
+            "stickc",
+            "stickc-plus",
+            "stickc-plus-se",
+            "atom-lite",
+            "atom-matrix",
+            "atom-matrix-v11"
+          ]
+        }
+      },
+      "platform/web/public-qemu-frame.js": {
+        "source_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172",
+        "exported_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172"
+      },
+      "platform/web/public-qemu-probe-firmware.js": {
+        "source_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a",
+        "exported_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a"
+      },
+      "platform/web/public-qemu-servo.js": {
+        "source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+        "exported_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca"
+      },
+      "platform/web/model-shell.js": {
+        "source_sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9",
+        "exported_sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9"
+      },
+      "platform/web/device-shell-factory.js": {
+        "source_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+        "exported_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2"
+      }
+    },
+    "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+    "runtime_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "runtime_build": {
+      "all_objects_rebuilt": true,
+      "commands_sha256": "8a8ab7d36b78b7499aea20c5ed6592039e49284b6147478333e87bc44858377a",
+      "emscripten": "3.1.50",
+      "guest_execution": "NOT RUN by builder",
+      "kind": "source-build",
+      "link_audit": {
+        "argv_sha256": "d02481da1724016b13dc408b23158633c4f73ff1c60c56a771e83c8523d8e62e",
+        "effective": {
+          "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+          "STACK_OVERFLOW_CHECK": "2",
+          "STACK_SIZE": "64KB",
+          "optimization": "O3"
+        },
+        "required_flags": [
+          "-O3",
+          "-sSTACK_SIZE=64KB",
+          "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+          "-sSTACK_OVERFLOW_CHECK=2"
+        ],
+        "source": "ninja-link-command",
+        "verified": true
+      },
+      "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+      "path_policy": {
+        "glib_prefix": "/usr",
+        "public_source_roots": {
+          "cache": "/m5stack-build/cache",
+          "dependencies": "/m5stack-build/dependencies",
+          "project": "/m5stack-build/project",
+          "sdk": "/m5stack-build/sdk"
+        },
+        "version": 1
+      },
+      "recipe_sha256": "f69cd135c8d5bb6c1efe920eb2ec54070798267b304c1333b9397fbde18770fc"
+    },
+    "required_rom": {
+      "bundled": false,
+      "bytes": 393216,
+      "distribution": "user-supplied-or-upstream-fetch",
+      "license_status": "not-confirmed",
+      "name": "esp32s3_rev0_rom.bin",
+      "path": null,
+      "required": true,
+      "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "source": "https://github.com/espressif/qemu/blob/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+      "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin"
+    },
+    "runtime_assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "5d306019d5ecc8eab9aa2d582f2e1f3c34a9bcc1d24dd6a463391eac94564a4e"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35241880,
+        "sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12745460,
+        "sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "test_script": {
+      "path": ".work/readback_prepared_pages_https.mjs",
+      "sha256": "8af4350d0aeb0cbde6193a40e2712f7e0d646730fcbaa1e104e0e63fac8cd0ff"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935"
+  },
+  "local_full_gate_summary_sha256": "947ae11865a4659e7bd6453ba2ba7e6e130f5f766501a9139efca484d625f054",
+  "script_sha256": "8af4350d0aeb0cbde6193a40e2712f7e0d646730fcbaa1e104e0e63fac8cd0ff",
+  "limitations": [
+    "Only the 48 explicitly listed GET paths were verified online; the other declared static assets were not fetched by this check.",
+    "No browser, guest, server, build, official firmware/ROM download or deployment was started by this readback.",
+    "This HTTP/static-source PASS does not grant online functional, performance, Worker-cleanup or physical-hardware PASS.",
+    "The source-archive semantic closure is reused only because actual HTTP bytes equal the already independently audited archive; no new build or source-member audit is claimed.",
+    "Regular workflow 41617152984 remains FAIL; this is the prepared-preview artifact delivery path."
+  ]
+}

@@ -1,0 +1,899 @@
+{
+  "kind": "actual-HTTPS-prepared-preview-four-stage-validation",
+  "result": "PARTIAL",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "finalized_utc": "2026-11-03T11:52:54.659094+00:00",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "artifact_source": "reviewed prepared-preview export, not the failed regular CI artifact",
+  "export_source_commit": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+  "main_product_equivalent_commit": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+  "release_pins": {
+    "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+    "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+    "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "source_archive_sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0",
+    "build_recipe_sha256": "f69cd135c8d5bb6c1efe920eb2ec54070798267b304c1333b9397fbde18770fc"
+  },
+  "same_user_firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+  "stage1_actual_runner": {
+    "kind": "tracked test_public_qemu_guest.mjs; no ignored adapter executed this stage",
+    "source_sha256": "60dd91681b8cc85b10468becd028faa2a1702e180590ab23344613429372dbe9",
+    "pixel_observer_sha256": "9cf552f4034eeeb5c2d94663ddba7383df973d3035518ad8665e1673e816abc1",
+    "preflight_context_adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87"
+  },
+  "stages2_to4_actual_adapter": {
+    "identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+    "parents": {
+      "emulator_performance_summary.mjs": {
+        "path": "platform/tests/emulator_performance_summary.mjs",
+        "sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+        "copied_unchanged": true
+      },
+      "public_qemu_worker_targets.mjs": {
+        "path": "platform/tests/public_qemu_worker_targets.mjs",
+        "sha256": "343b8a290f0283661157a1287aed1c79e908a1703cde44c9d601fa488f1f3ada",
+        "copied_unchanged": true
+      },
+      "public_qemu_performance.mjs": {
+        "path": "platform/tests/public_qemu_performance.mjs",
+        "sha256": "d552c30287e2f20e0d9349f75be8b6efd417140c961b98e3ad53c158c912ad79",
+        "copied_unchanged": true
+      },
+      "public_qemu_artifacts.mjs": {
+        "path": "platform/tests/public_qemu_artifacts.mjs",
+        "sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+        "copied_unchanged": true
+      },
+      "benchmark.mjs": {
+        "path": "platform/tests/benchmark_emulator_firmware.mjs",
+        "sha256": "1410d09938221bce90296f1e1d69bbd9c92660f96cb0332bea141de30eca72a3",
+        "copied_unchanged": false
+      },
+      "board_guest.mjs": {
+        "path": "platform/tests/test_public_qemu_board_guest.mjs",
+        "sha256": "eb9841b3cbcaab37b2f49e487c077d96b8020db5621f277eb15b32b0b96d5a91",
+        "copied_unchanged": false
+      }
+    },
+    "actual_files": {
+      "benchmark-remote-only.patch": {
+        "name": "benchmark-remote-only.patch",
+        "bytes": 10690,
+        "sha256": "c877db4b3873d60b368deca42b78bc9a1d6f03a817c6bc238f46e3bd3c6abaed"
+      },
+      "benchmark.mjs": {
+        "name": "benchmark.mjs",
+        "bytes": 44793,
+        "sha256": "8128326134725687e799e7b2639233b75b648eba24ab0edf4f816a26f1c4d5b6"
+      },
+      "board-remote-only.patch": {
+        "name": "board-remote-only.patch",
+        "bytes": 5680,
+        "sha256": "96137654251d1715b334c68d14121d1fc996a39240adb578272fea9f6702243c"
+      },
+      "board_guest.mjs": {
+        "name": "board_guest.mjs",
+        "bytes": 51543,
+        "sha256": "aa828dab6c8148720be1b68c97328eef51d59cb829b310f9fb09b7789b325bdd"
+      },
+      "emulator_performance_summary.mjs": {
+        "name": "emulator_performance_summary.mjs",
+        "bytes": 5491,
+        "sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de"
+      },
+      "pages_remote_release.mjs": {
+        "name": "pages_remote_release.mjs",
+        "bytes": 9387,
+        "sha256": "abec000373d52d463e4ed24aaff1d84f7804db376815b9f82364afef3f246dea"
+      },
+      "preflight.mjs": {
+        "name": "preflight.mjs",
+        "bytes": 1142,
+        "sha256": "420e4589fe9805214275497bb7345ff9cd9c9059b1608f5e7647b5a266d0141e"
+      },
+      "prepare.py": {
+        "name": "prepare.py",
+        "bytes": 6788,
+        "sha256": "97bd6d64e7f9aac5b572b0355ffa2f89091a72297c1966ce031a0ba5a83b6c62"
+      },
+      "prepared-provenance-label-only.patch": {
+        "name": "prepared-provenance-label-only.patch",
+        "bytes": 6323,
+        "sha256": "5550d1d9b53f6b7e9d26fbed0b887cd58521cc89768f30d8443d15c3c2abe046"
+      },
+      "public_qemu_artifacts.mjs": {
+        "name": "public_qemu_artifacts.mjs",
+        "bytes": 7270,
+        "sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935"
+      },
+      "public_qemu_performance.mjs": {
+        "name": "public_qemu_performance.mjs",
+        "bytes": 14523,
+        "sha256": "d552c30287e2f20e0d9349f75be8b6efd417140c961b98e3ad53c158c912ad79"
+      },
+      "public_qemu_worker_targets.mjs": {
+        "name": "public_qemu_worker_targets.mjs",
+        "bytes": 3315,
+        "sha256": "343b8a290f0283661157a1287aed1c79e908a1703cde44c9d601fa488f1f3ada"
+      },
+      "test_archive_controls.py": {
+        "name": "test_archive_controls.py",
+        "bytes": 1783,
+        "sha256": "3e6660be3b616f6571a1a504463a65c7c8fac8c9a86649fc39f280f53344f593"
+      },
+      "test_remote_release.mjs": {
+        "name": "test_remote_release.mjs",
+        "bytes": 9570,
+        "sha256": "bf092a60ab2482c4743a8119a3e08e848a525c142e773f4848144fe8b38692b7"
+      },
+      "verify_runtime_archive.py": {
+        "name": "verify_runtime_archive.py",
+        "bytes": 2483,
+        "sha256": "6aaee8a820cb6b44e2570f1baf242d60cf8cf874b5d78cebeca15e6c8c63ff42"
+      }
+    }
+  },
+  "all4_executed_web_source_closure": {
+    "platform/web/index.html": {
+      "source_sha256": "3a5433c5b7d29583ef9488b43bd23e6f23c52bb9b63bc11eaa73c69728179ff2",
+      "exported_sha256": "1cc51c001aa4d6d5cefd49d8fdd7be419391b125bdc2aaafcac661f5d2cf2b3e"
+    },
+    "platform/web/public.js": {
+      "source_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c",
+      "exported_sha256": "0d4fd744477c2221853416ade231a84800ae75b229202a1ea039b79069e8277c"
+    },
+    "platform/web/public.css": {
+      "source_sha256": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6",
+      "exported_sha256": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6"
+    },
+    "platform/web/public-config.js": {
+      "source_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+      "exported_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18"
+    },
+    "platform/web/public-firmware.js": {
+      "source_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+      "exported_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274"
+    },
+    "platform/web/public-verified-assets.js": {
+      "source_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4",
+      "exported_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4"
+    },
+    "platform/web/sha256.js": {
+      "source_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+      "exported_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413"
+    },
+    "platform/web/public-demo-firmware.js": {
+      "source_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9",
+      "exported_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+    },
+    "platform/web/public-coi.js": {
+      "source_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3",
+      "exported_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3"
+    },
+    "platform/web/public-coi-serviceworker.js": {
+      "source_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3",
+      "exported_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+    },
+    "platform/web/vendor/coi-serviceworker/coi-serviceworker.js": {
+      "source_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+      "exported_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e"
+    },
+    "platform/web/public-qemu-runtime.js": {
+      "source_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a",
+      "exported_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a"
+    },
+    "platform/web/public-qemu-instance.js": {
+      "source_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c",
+      "exported_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+    },
+    "platform/web/public-qemu-engine.js": {
+      "source_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e",
+      "exported_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e"
+    },
+    "platform/web/public-qemu-instance.html": {
+      "source_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b",
+      "exported_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b"
+    },
+    "platform/web/public-qemu-profiles.js": {
+      "source_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078",
+      "exported_sha256": "871564a6db5641e0512b1a76eb7768eace414a0ce23dfc7ddf6dea872df51078"
+    },
+    "platform/web/qemu-browser-profiles.json": {
+      "source_sha256": "bf1bcb324e9dc419f98aa6c63c6fae296ec684e3cc85ca9780ae7a0815806ac4",
+      "exported_sha256": "c83bea5affa5259b6645dc9bfbd0cd50b9cc29e82572006b360b66f997998a84"
+    },
+    "platform/web/public-qemu-frame.js": {
+      "source_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172",
+      "exported_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172"
+    },
+    "platform/web/public-qemu-probe-firmware.js": {
+      "source_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a",
+      "exported_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a"
+    },
+    "platform/web/public-qemu-servo.js": {
+      "source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+      "exported_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca"
+    },
+    "platform/web/model-shell.js": {
+      "source_sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9",
+      "exported_sha256": "983e7ac07ae68992fc4f061fc7ec83202ef736d18229f6a06f1234227ed6cca9"
+    },
+    "platform/web/device-shell-factory.js": {
+      "source_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+      "exported_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2"
+    }
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "scope": "cores3-stock",
+      "raw_report_sha256": "0bfefa1ba079c968f9da50eed24599b05ff6472f5f208232f0b20e89cd1483b7",
+      "safe_summary_sha256": "74bfb1870598a1fc335430449c283d446f20ff2c0c47e7e9c095b663ee9edc59",
+      "result": "PASS",
+      "observations": {
+        "kind": "actual-HTTPS-CoreS3-original-stock-acceptance",
+        "result": "PASS",
+        "validation": "virtual-device validation",
+        "hardware_validation": "NOT RUN",
+        "report_sha256": "0bfefa1ba079c968f9da50eed24599b05ff6472f5f208232f0b20e89cd1483b7",
+        "deployment": "remote-static-host",
+        "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+        "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+        "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+        "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+        "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+        "profile": "cores3-wasm-stock-wallclock",
+        "clock_divisor": 1,
+        "actual_arguments": [
+          "./this.program",
+          "-M",
+          "m5cores3",
+          "-drive",
+          "file=/flash.bin,if=mtd,format=raw",
+          "-L",
+          "/rom",
+          "-display",
+          "none",
+          "-serial",
+          "file:/bridge/uart.out",
+          "-serial",
+          "file:/bridge/serial1",
+          "-qmp",
+          "stdio",
+          "-drive",
+          "if=none,id=efuse,file=/efuse.bin,format=raw",
+          "-global",
+          "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+          "-accel",
+          "tcg,thread=multi,one-insn-per-tb=on"
+        ],
+        "required_patch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "checks": 49,
+        "actual_VMs": 2,
+        "all12_worker_targets_closed_before_browser_teardown": true,
+        "pixel_observer_sha256": "9cf552f4034eeeb5c2d94663ddba7383df973d3035518ad8665e1673e816abc1",
+        "pixel_observer_wait_strategy": "awaited-evaluate-poll",
+        "pixels": [
+          {
+            "name": "cold-before-input",
+            "state": 0,
+            "boundary": {
+              "minimumSequence": -1,
+              "notBeforeMs": 0
+            },
+            "actual": {
+              "frame_sequence": 18,
+              "captured_ms": 41348.65499997139,
+              "width": 320,
+              "height": 240,
+              "regions": [
+                {
+                  "name": "Clicks label",
+                  "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+                },
+                {
+                  "name": "Count button text",
+                  "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+                }
+              ]
+            },
+            "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+            "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": null
+          },
+          {
+            "name": "cold-clicks1",
+            "state": 1,
+            "boundary": {
+              "minimumSequence": 18,
+              "notBeforeMs": 44234.639999985695
+            },
+            "actual": {
+              "frame_sequence": 48,
+              "captured_ms": 44792.139999985695,
+              "width": 320,
+              "height": 240,
+              "regions": [
+                {
+                  "name": "Clicks label",
+                  "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+                },
+                {
+                  "name": "Count button text",
+                  "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+                }
+              ]
+            },
+            "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+            "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": 557.5
+          },
+          {
+            "name": "reopened-before-input",
+            "state": 0,
+            "boundary": {
+              "minimumSequence": -1,
+              "notBeforeMs": 0
+            },
+            "actual": {
+              "frame_sequence": 19,
+              "captured_ms": 40443.9050000906,
+              "width": 320,
+              "height": 240,
+              "regions": [
+                {
+                  "name": "Clicks label",
+                  "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+                },
+                {
+                  "name": "Count button text",
+                  "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+                }
+              ]
+            },
+            "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+            "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": null
+          },
+          {
+            "name": "reopened-clicks1",
+            "state": 1,
+            "boundary": {
+              "minimumSequence": 19,
+              "notBeforeMs": 41415.264999985695
+            },
+            "actual": {
+              "frame_sequence": 50,
+              "captured_ms": 41977.735000014305,
+              "width": 320,
+              "height": 240,
+              "regions": [
+                {
+                  "name": "Clicks label",
+                  "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+                },
+                {
+                  "name": "Count button text",
+                  "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+                }
+              ]
+            },
+            "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+            "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": 562.4700000286102
+          }
+        ],
+        "ready_timing": "NOT MEASURED by this functional gate; no startup-duration claim",
+        "validation_suite_preflight_adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+        "actual_runner_kind": "Tracked test_public_qemu_guest.mjs; the ignored remote adapter did not execute this stage",
+        "actual_runner_sha256": "60dd91681b8cc85b10468becd028faa2a1702e180590ab23344613429372dbe9",
+        "gesture_protocol_hold_ms": 650
+      }
+    },
+    {
+      "stage": 2,
+      "scope": "stackchan-reference",
+      "raw_report_sha256": "765dfae7aebf92183c2d5c335722b4d6e5c857f094ef42ea22bc029d92d14c53",
+      "safe_summary_sha256": "94ad6efa929bf2fa882eaa78fd645d8230f86c7815b9587df4b7946c532cfcdb",
+      "result": "PASS",
+      "observations": {
+        "kind": "actual-HTTPS-StackChan-default-reference-acceptance",
+        "result": "PASS",
+        "validation": "virtual-device validation",
+        "hardware_validation": "NOT RUN",
+        "report_sha256": "765dfae7aebf92183c2d5c335722b4d6e5c857f094ef42ea22bc029d92d14c53",
+        "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+        "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+        "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+        "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+        "firmware_sha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+        "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+        "profile": "stackchan-wasm-wallclock",
+        "clock_divisor": 1,
+        "actual_arguments": [
+          "./this.program",
+          "-M",
+          "m5stackchan",
+          "-drive",
+          "file=/flash.bin,if=mtd,format=raw",
+          "-L",
+          "/rom",
+          "-display",
+          "none",
+          "-serial",
+          "file:/bridge/uart.out",
+          "-serial",
+          "file:/bridge/serial1",
+          "-qmp",
+          "stdio",
+          "-drive",
+          "if=none,id=efuse,file=/efuse.bin,format=raw",
+          "-global",
+          "driver=nvram.esp32s3.efuse,property=drive,value=efuse"
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "checks_passed": 24,
+        "source_archive_proof": {
+          "result": "PASS",
+          "runtime_assets": 6,
+          "actual_archived_members_verified": 236,
+          "actual_qemu_source_postimages": 160,
+          "actual_ordered_patch_files": 72,
+          "actual_dependency_patch_files": 2,
+          "source_archive_sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0",
+          "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+          "source_build_all_objects_rebuilt": true,
+          "guest_execution": "NOT RUN by this verifier"
+        },
+        "actual_VM_count": 1,
+        "all6_worker_targets_closed_before_browser_teardown": true,
+        "harness_sha256": "aa828dab6c8148720be1b68c97328eef51d59cb829b310f9fb09b7789b325bdd",
+        "adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+        "ready_timing": "NOT MEASURED by this functional gate; no startup-duration claim"
+      }
+    },
+    {
+      "stage": 3,
+      "scope": "dance",
+      "raw_report_sha256": "f97d908b4a81f080cc51fc65a39d7af38b6ca09528ca53409cdae288f428faf2",
+      "safe_summary_sha256": "3968e814ce8d6d8e7ab71e6d32cee40d7a02d7491f79a70cd38efc076186285b",
+      "result": "PASS",
+      "observations": {
+        "kind": "actual-HTTPS-same-c854-dance-performance",
+        "result": "PASS",
+        "validation": "virtual-device validation",
+        "hardware_validation": "NOT RUN",
+        "report_sha256": "f97d908b4a81f080cc51fc65a39d7af38b6ca09528ca53409cdae288f428faf2",
+        "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+        "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+        "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+        "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+        "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+        "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "harness_sha256": "8128326134725687e799e7b2639233b75b648eba24ab0edf4f816a26f1c4d5b6",
+        "metric_algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+        "adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+        "renderer": [
+          {
+            "scope": "actual-workbench-model-canvas",
+            "canvas_id": "",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "WebKit",
+            "renderer": "WebKit WebGL",
+            "unmasked_vendor": "Google Inc. (Apple)",
+            "unmasked_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+          }
+        ],
+        "runs": [
+          {
+            "run": 1,
+            "startup_ms": {
+              "first_serial": 2748.3400000333786,
+              "ready_marker": 5320.070000052452,
+              "first_nonblack_frame": 5337.945000052452,
+              "runtime_preparation": 65.63499999046326
+            },
+            "steady": {
+              "duration_seconds": 20.002865000009535,
+              "delivered_frames": 534,
+              "delivered_fps": 26.696175772807816,
+              "pixel_change_frames": 534,
+              "pixel_change_fps": 26.696175772807816,
+              "frame_gap_ms": {
+                "samples": 534,
+                "min": 27.700000047683716,
+                "p50": 33.85250002145767,
+                "p90": 35.22500002384186,
+                "p95": 39.289000004529946,
+                "max": 1280.1749999523163,
+                "mean": 37.457228464356966
+              },
+              "state_updates": 164,
+              "state_gap_ms": {
+                "samples": 163,
+                "min": 43.825000047683716,
+                "p50": 96.10000002384186,
+                "p90": 201.99899990558626,
+                "p95": 255.99200005531313,
+                "max": 2855.274999976158,
+                "mean": 122.46368098185837
+              },
+              "frame_observer_ms": {
+                "samples": 534,
+                "min": 0.13499999046325684,
+                "p50": 0.1549999713897705,
+                "p90": 0.17500003576278686,
+                "p95": 0.18500006198883057,
+                "max": 0.7099999189376831,
+                "mean": 0.15597378247686094
+              },
+              "dance_cue_count": 30,
+              "packet_delta": 169,
+              "packet_window": {
+                "baseline_source": "first-in-window",
+                "first_observed_at_ms": 12002.460000038147,
+                "initial_packets": 8,
+                "final_packets": 177
+              },
+              "position_change_observations": 163,
+              "rendered_joint_trace": {
+                "source": "actual-workbench-viewer-render",
+                "observations": 907,
+                "actual_angle_changes": 697,
+                "intermediate_observations": 624,
+                "render_gap_ms": {
+                  "samples": 906,
+                  "min": 8.985000014305115,
+                  "p50": 17.12000000476837,
+                  "p90": 33.394999980926514,
+                  "p95": 34.29500004649162,
+                  "max": 1245.6399999856949,
+                  "mean": 22.054619205313802
+                },
+                "observer_ms": {
+                  "samples": 907,
+                  "min": 0,
+                  "p50": 0.004999995231628418,
+                  "p90": 0.009999990463256836,
+                  "p95": 0.014999985694885254,
+                  "max": 0.03500008583068848,
+                  "mean": 0.007464166907254759
+                },
+                "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+              }
+            },
+            "rendered_motion_validation": {
+              "result": "PASS",
+              "source": "actual-workbench-viewer-render",
+              "observations": 907,
+              "actual_angle_changes": 697,
+              "intermediate_observations": 624,
+              "controller_bindings_checked": 164,
+              "session_and_firmware_bound": true,
+              "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+            },
+            "actual_frame_dimensions": [
+              [
+                320,
+                240
+              ]
+            ],
+            "actual_arguments": [
+              "./this.program",
+              "-M",
+              "m5stackchan",
+              "-drive",
+              "file=/flash.bin,if=mtd,format=raw",
+              "-L",
+              "/rom",
+              "-display",
+              "none",
+              "-serial",
+              "file:/bridge/uart.out",
+              "-serial",
+              "file:/bridge/serial1",
+              "-qmp",
+              "stdio",
+              "-drive",
+              "if=none,id=efuse,file=/efuse.bin,format=raw",
+              "-global",
+              "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+              "-accel",
+              "tcg,thread=multi,one-insn-per-tb=on"
+            ],
+            "clock_divisor": 1,
+            "required_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+            },
+            "guest_faults": {
+              "panic_or_watchdog_markers": [],
+              "reset_events": [],
+              "rom_boot_markers_per_port": {
+                "uart0": 1
+              }
+            },
+            "normal_cleanup": true,
+            "output_metadata_actual": {
+              "source": "qemu-uart1-scs-controller",
+              "motion_model": "command-time-position-v1",
+              "pwm_motion_modelled": false
+            },
+            "cumulative_context_worker_targets_closed": 6
+          },
+          {
+            "run": 2,
+            "startup_ms": {
+              "first_serial": 1477.5500000715256,
+              "ready_marker": 3982.515000104904,
+              "first_nonblack_frame": 3998.710000038147,
+              "runtime_preparation": 63.125
+            },
+            "steady": {
+              "duration_seconds": 20.001709999918937,
+              "delivered_frames": 527,
+              "delivered_fps": 26.347747267715402,
+              "pixel_change_frames": 527,
+              "pixel_change_fps": 26.347747267715402,
+              "frame_gap_ms": {
+                "samples": 527,
+                "min": 27.384999990463257,
+                "p50": 33.825000047683716,
+                "p90": 35.56699998378754,
+                "p95": 39.998499965667726,
+                "max": 1263.8050000667572,
+                "mean": 37.956034155679156
+              },
+              "state_updates": 162,
+              "state_gap_ms": {
+                "samples": 161,
+                "min": 47.1599999666214,
+                "p50": 90.32000005245209,
+                "p90": 202.09500002861023,
+                "p95": 255.22000002861023,
+                "max": 2845.929999947548,
+                "mean": 124.14267080763112
+              },
+              "frame_observer_ms": {
+                "samples": 527,
+                "min": 0.13499999046325684,
+                "p50": 0.1549999713897705,
+                "p90": 0.1799999475479126,
+                "p95": 0.18500006198883057,
+                "max": 0.20000004768371582,
+                "mean": 0.15638519939480516
+              },
+              "dance_cue_count": 30,
+              "packet_delta": 166,
+              "packet_window": {
+                "baseline_source": "first-in-window",
+                "first_observed_at_ms": 38816.200000047684,
+                "initial_packets": 8,
+                "final_packets": 174
+              },
+              "position_change_observations": 161,
+              "rendered_joint_trace": {
+                "source": "actual-workbench-viewer-render",
+                "observations": 892,
+                "actual_angle_changes": 682,
+                "intermediate_observations": 613,
+                "render_gap_ms": {
+                  "samples": 891,
+                  "min": 8.97000002861023,
+                  "p50": 17.110000014305115,
+                  "p90": 33.44500005245209,
+                  "p95": 34.62999999523163,
+                  "max": 1244.5099999904633,
+                  "mean": 22.42586980925666
+                },
+                "observer_ms": {
+                  "samples": 892,
+                  "min": 0,
+                  "p50": 0.004999995231628418,
+                  "p90": 0.009999990463256836,
+                  "p95": 0.010000109672546387,
+                  "max": 0.019999980926513672,
+                  "mean": 0.006844170692255679
+                },
+                "meaning": "Angles are read from real joint getState() in the actual viewer render callback. Targets are not substituted for rendered poses. This is a visual model trace, not mechanical or physical servo evidence."
+              }
+            },
+            "rendered_motion_validation": {
+              "result": "PASS",
+              "source": "actual-workbench-viewer-render",
+              "observations": 892,
+              "actual_angle_changes": 682,
+              "intermediate_observations": 613,
+              "controller_bindings_checked": 162,
+              "session_and_firmware_bound": true,
+              "meaning": "Observed 3D presentation follows real QOM positions. This is virtual-device visual evidence, not physical servo behavior."
+            },
+            "actual_frame_dimensions": [
+              [
+                320,
+                240
+              ]
+            ],
+            "actual_arguments": [
+              "./this.program",
+              "-M",
+              "m5stackchan",
+              "-drive",
+              "file=/flash.bin,if=mtd,format=raw",
+              "-L",
+              "/rom",
+              "-display",
+              "none",
+              "-serial",
+              "file:/bridge/uart.out",
+              "-serial",
+              "file:/bridge/serial1",
+              "-qmp",
+              "stdio",
+              "-drive",
+              "if=none,id=efuse,file=/efuse.bin,format=raw",
+              "-global",
+              "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+              "-accel",
+              "tcg,thread=multi,one-insn-per-tb=on"
+            ],
+            "clock_divisor": 1,
+            "required_patch": {
+              "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+              "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+            },
+            "guest_faults": {
+              "panic_or_watchdog_markers": [],
+              "reset_events": [],
+              "rom_boot_markers_per_port": {
+                "uart0": 1
+              }
+            },
+            "normal_cleanup": true,
+            "output_metadata_actual": {
+              "source": "qemu-uart1-scs-controller",
+              "motion_model": "command-time-position-v1",
+              "pwm_motion_modelled": false
+            },
+            "cumulative_context_worker_targets_closed": 12
+          }
+        ],
+        "limits": [
+          "First means fresh browser/guest/module, not cold network. Artifact preflight warms CDN edge.",
+          "HTTPS delivery timing is not the same network condition as the local R6 static site.",
+          "All original maximum frame/render/state intervals are retained. The matching source specifies1250ms boot-card hold and1500ms initial cue delay; causal attribution of each observed maximum has not been independently established.",
+          "Pixel-change callbacks and observed QOM/3D positions are virtual observations, not physical screen/servo measurements."
+        ],
+        "actual_VM_count": 2,
+        "unique_actual_context_worker_targets_closed": 12,
+        "target_count_scope": "Per-run counts are cumulative within this browser context, not additive; final unique total is12."
+      }
+    },
+    {
+      "stage": 4,
+      "scope": "touch",
+      "raw_report_sha256": "5975563a8689fc427ccaede5c9a18a2d695fab6118470b9edcbaff6894918650",
+      "safe_summary_sha256": "fb91169887cca2d83ce2101436eb3b31e5a87efbb8c249efe41db03253a95615",
+      "result": "FAIL",
+      "observations": {
+        "kind": "actual-HTTPS-first-attempt-touch-startup-failure",
+        "result": "FAIL",
+        "validation": "virtual-device validation",
+        "hardware_validation": "NOT RUN",
+        "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+        "report_sha256": "5975563a8689fc427ccaede5c9a18a2d695fab6118470b9edcbaff6894918650",
+        "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+        "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+        "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+        "firmware_sha256": "c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542",
+        "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+        "harness_sha256": "8128326134725687e799e7b2639233b75b648eba24ab0edf4f816a26f1c4d5b6",
+        "metric_algorithm_sha256": "9849f95183ba64bbcf6395dea4e5e85054058e6584ee56d6ef72b07e626144de",
+        "adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+        "clock_divisor": 1,
+        "actual_arguments": [
+          "./this.program",
+          "-M",
+          "m5stackchan",
+          "-drive",
+          "file=/flash.bin,if=mtd,format=raw",
+          "-L",
+          "/rom",
+          "-display",
+          "none",
+          "-serial",
+          "file:/bridge/uart.out",
+          "-serial",
+          "file:/bridge/serial1",
+          "-qmp",
+          "stdio",
+          "-drive",
+          "if=none,id=efuse,file=/efuse.bin,format=raw",
+          "-global",
+          "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+          "-accel",
+          "tcg,thread=multi,one-insn-per-tb=on"
+        ],
+        "required_patch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "startup_observation": {
+          "application_ready": false,
+          "ready_ms": null,
+          "observed_frames": 0,
+          "input_events": 0,
+          "touch_validation": "NOT RUN: startup fault preceded the8s sampling window and every input",
+          "wait_timeout_ms": 120000,
+          "runtime_status": "booting"
+        },
+        "observed_fault": {
+          "cpu": 1,
+          "exception": "LoadStorePIFAddrError",
+          "pc": "0x40001c38",
+          "exccause": "0x0000000f",
+          "excvaddr": "0x40001c34",
+          "guest_reset_events": 2
+        },
+        "cleanup": {
+          "graceful_exit": true,
+          "exit_code": 0,
+          "nested_pthreads_at_exit": 0,
+          "owner_fallback_terminations": 0,
+          "all_observed_targets": 6,
+          "actual_targets_live_before_context_close": 0
+        },
+        "limits": [
+          "No ordinary retry replaced this failed first attempt.",
+          "Two preceding same-firmware20s dance samples passed; they do not prove startup stability or replace the missing independent touch response.",
+          "Local R6 touch results remain under their original runtime identity and are not copied into this result.",
+          "Runtime reset event count is retained exactly as observed; serial shows one reboot and the event count must not be equated to independent reboot count.",
+          "Root cause is not established; no firmware/clock/WDT change was made."
+        ]
+      }
+    }
+  ],
+  "resource_cleanup_only": {
+    "result": "PASS",
+    "VMs": 6,
+    "actual_target_counts_per_stage_final_context": [
+      12,
+      6,
+      12,
+      6
+    ],
+    "total_distinct_actual_QEMU_targets": 36,
+    "final_live_targets": 0,
+    "scope": "CoreS3 and default-reference check both nested-before-iframe and all-after-iframe phases; performance/failure runners check actual receipted target disappearance after stop before browser teardown. A failed guest startup gets resource-cleanup PASS only."
+  },
+  "failed_stage4_timing": {
+    "first_panic_serial_observation": {
+      "line": "Guru Meditation Error: Core  1 panic'ed (LoadStorePIFAddrError). Exception was unhandled.",
+      "at_page_ms": 9712.829999923706,
+      "observed_ms_after_start_click": 3728.8700000047684
+    },
+    "reset_events_utc": [
+      "2026-11-03T11:47:15.858Z",
+      "2026-11-03T11:47:15.869Z"
+    ],
+    "ready_wait_timeout_ms": 120000,
+    "input_and8s_touch_window": "NOT RUN",
+    "strict_touch_response_derivation": "NOT RUN: no response-validation PASS file generated"
+  },
+  "measurement_scope": [
+    "CoreS3 pixel latency557.5/562.47ms is a post-callback checkpoint-to-coherent-ROI observation upper bound. The checkpoint is recorded after waitGuest returns; it is not exact callback/input-down response time. Its gesture protocol is650ms.",
+    "Stage3 ready and pixel rates are actual real-HTTPS observations. Fresh means browser/guest/module, not cold network; preflight warms CDN edge. Local R6 values are a different delivery condition.",
+    "Original frame/render/state maximum intervals remain visible. Firmware1250ms boot-card and1500ms initial-cue constants are independent source facts, not an independently proven attribution for every observed maximum.",
+    "Target counts within each multi-run browser context are cumulative, not additive. The final stage totals12+6+12+6=36 are distinct actual targets.",
+    "Stage4 panic occurred before readiness, frame or input. Its ready-wait later expired at120s; the interval must not be described as a network-download delay."
+  ],
+  "limits": [
+    "No ordinary retry replaced the failed first attempt.",
+    "The first three stages passed, but that does not establish c854 startup stability or replace the missing independent touch response.",
+    "Root cause of LoadStorePIFAddrError is unresolved. Similar historical symptoms do not establish an identical cause or prove non-regression.",
+    "Old local0bd results and the failed regular CIe9 result retain their own identities; neither is relabeled or used to overwrite this3c6 failure."
+  ]
+}

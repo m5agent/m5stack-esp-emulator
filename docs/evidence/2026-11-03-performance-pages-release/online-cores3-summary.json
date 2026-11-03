@@ -1,0 +1,160 @@
+{
+  "kind": "actual-HTTPS-CoreS3-original-stock-acceptance",
+  "result": "PASS",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "report_sha256": "0bfefa1ba079c968f9da50eed24599b05ff6472f5f208232f0b20e89cd1483b7",
+  "deployment": "remote-static-host",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+  "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+  "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+  "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+  "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+  "profile": "cores3-wasm-stock-wallclock",
+  "clock_divisor": 1,
+  "actual_arguments": [
+    "./this.program",
+    "-M",
+    "m5cores3",
+    "-drive",
+    "file=/flash.bin,if=mtd,format=raw",
+    "-L",
+    "/rom",
+    "-display",
+    "none",
+    "-serial",
+    "file:/bridge/uart.out",
+    "-serial",
+    "file:/bridge/serial1",
+    "-qmp",
+    "stdio",
+    "-drive",
+    "if=none,id=efuse,file=/efuse.bin,format=raw",
+    "-global",
+    "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+    "-accel",
+    "tcg,thread=multi,one-insn-per-tb=on"
+  ],
+  "required_patch": {
+    "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+    "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+  },
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+  "checks": 49,
+  "actual_VMs": 2,
+  "all12_worker_targets_closed_before_browser_teardown": true,
+  "pixel_observer_sha256": "9cf552f4034eeeb5c2d94663ddba7383df973d3035518ad8665e1673e816abc1",
+  "pixel_observer_wait_strategy": "awaited-evaluate-poll",
+  "pixels": [
+    {
+      "name": "cold-before-input",
+      "state": 0,
+      "boundary": {
+        "minimumSequence": -1,
+        "notBeforeMs": 0
+      },
+      "actual": {
+        "frame_sequence": 18,
+        "captured_ms": 41348.65499997139,
+        "width": 320,
+        "height": 240,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+          }
+        ]
+      },
+      "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+      "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": null
+    },
+    {
+      "name": "cold-clicks1",
+      "state": 1,
+      "boundary": {
+        "minimumSequence": 18,
+        "notBeforeMs": 44234.639999985695
+      },
+      "actual": {
+        "frame_sequence": 48,
+        "captured_ms": 44792.139999985695,
+        "width": 320,
+        "height": 240,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+          }
+        ]
+      },
+      "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+      "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": 557.5
+    },
+    {
+      "name": "reopened-before-input",
+      "state": 0,
+      "boundary": {
+        "minimumSequence": -1,
+        "notBeforeMs": 0
+      },
+      "actual": {
+        "frame_sequence": 19,
+        "captured_ms": 40443.9050000906,
+        "width": 320,
+        "height": 240,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+          }
+        ]
+      },
+      "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+      "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": null
+    },
+    {
+      "name": "reopened-clicks1",
+      "state": 1,
+      "boundary": {
+        "minimumSequence": 19,
+        "notBeforeMs": 41415.264999985695
+      },
+      "actual": {
+        "frame_sequence": 50,
+        "captured_ms": 41977.735000014305,
+        "width": 320,
+        "height": 240,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+          }
+        ]
+      },
+      "timing_scope": "The checkpoint is page.performance.now recorded after waitGuest observed and returned the callback. This is checkpoint-to-coherent-ROI observation, not exact guest callback time or input-down response time.",
+      "post_callback_checkpoint_to_first_complete_roi_observed_upper_bound_ms": 562.4700000286102
+    }
+  ],
+  "ready_timing": "NOT MEASURED by this functional gate; no startup-duration claim",
+  "validation_suite_preflight_adapter_identity_sha256": "ecc887184178b99656bdada419502355940ee6cec7ec45a405c2259a822efa87",
+  "actual_runner_kind": "Tracked test_public_qemu_guest.mjs; the ignored remote adapter did not execute this stage",
+  "actual_runner_sha256": "60dd91681b8cc85b10468becd028faa2a1702e180590ab23344613429372dbe9",
+  "gesture_protocol_hold_ms": 650
+}

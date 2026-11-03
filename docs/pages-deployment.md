@@ -39,7 +39,8 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
 5. 部署 job 完成后打开其 `page_url`。首次访问会注册项目范围内的
    Service Worker 并刷新一次，以启用 QEMU pthread 所需的共享内存。
    选择已准入设备，点击“开始运行”，等待示例画面，再测试相应按键或触摸。
-   CoreS3 可选择正常速度的 LVGL 调度候选修复示例，或保留的原始慢放基线。
+   CoreS3 可选择原始固定示例或独立的 LVGL 调度候选；两者的精确 Flash SHA
+   分别绑定正常时钟配置，未知固件保留基础慢放配置。
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
 公开板型的真实客体验收成功，包括 CoreS3 两种示例。候选预览导出明确标为
@@ -63,6 +64,13 @@ Core2 另按仓库已有的稳定路径使用
 不要只复制 `index.html`：模型、字体、WASM、Worker、固件组合器和对应源码包
 都必须按 artifact 中的目录结构保留。
 
+仓库另有 `public-site-prepared-preview.yml` 应急预构建流程：只接受已有 release
+中的 `public-site-preview-live.tar.gz`，不重建运行时。使用前须对同一导出执行完整
+逐板浏览器门禁，记录源码、运行时、站点及压缩包 SHA；上传后读回校验，再部署并
+从实际 HTTPS 地址独立验证客体。该流程不替代 regular publication，不能把
+本机通过写成托管 runner 全板型 PASS。发布包须保留对应源码与许可，且不得含
+固件、ROM 或本机路径；构建配方的路径映射在生产者端执行，不能事后修改 WASM。
+
 ## 访问者流程与浏览器要求
 
 默认打开网页即可使用，不要求登录。静态入口不包含账号、OAuth、后端数据库或
@@ -72,13 +80,15 @@ Core2 另按仓库已有的稳定路径使用
 推荐桌面 Chromium，使用 HTTPS、允许本站 Service Worker 和共享内存。
 浏览器至少需要约 256 MiB 共享 WASM 初始内存，允许增长；最大配置为 2 GiB。
 停止会请求客体退出并回收 Worker；页面刷新或关闭后的浏览器资源生命周期
-不能替代正常 Stop 验收。已有 StackChan 运行仍观察到 engine target 延迟
-消失，清理保持 `PARTIAL`，见[输入与清理证据](evidence/2026-10-30-cardputer-stackchan-input/README.md)。
+不能替代正常 Stop 验收。历史 StackChan 的 engine target 延迟消失保留为
+独立 `PARTIAL`，见[输入与清理证据](evidence/2026-10-30-cardputer-stackchan-input/README.md)；
+每次新运行都须重新证明全部 target 自然消失，不能用本地成功覆盖或关闭 hosted runner 的失败。
 低内存设备、其它浏览器和后台标签页调度没有相同的验收结论。
 
 参考固件由浏览器直接从固定官方 CDN 下载，校验 SHA256 后，用源码构建的
 LittleFS WASM 在本地组合固定源码，重新挂载逐文件读回并核对完整 Flash。
-CoreS3 原始示例仍精确匹配 `78961297…bd3f`；正常速度示例另加入
+CoreS3 原始示例仍精确匹配 `78961297…bd3f`，以独立的
+`cores3-wasm-stock-wallclock`、clock divisor 1 和 one-insn-per-TB 运行；候选示例另加入
 `candidate_lvgl_loop.py`，精确匹配 `e9500994…9554`，包含明确的 Python
 LVGL 调度候选修复。其他板型的显示/输入 probe 使用各自基底、分区布局和
 源码配置；完整 SHA、原文件保留数量及执行身份写入组合收据。
@@ -107,8 +117,9 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 dispose。engine 依次回复私有端口确认、关闭端口、发送 owner closing 通知并
 调用 `self.close()`；owner 收到该通知后显式 finalize 自己的 Worker handle，
 用于避免 engine target 被保留到 iframe 移除。该通知本身不是回收证明；真实客体验收通过
-Chrome CDP `Target.getTargets` 分两阶段核对：iframe 保留时五个嵌套 pthread
-target 必须消失；正常移除 iframe 后 engine 与全部 Worker target 也必须消失。
+Chrome CDP `Target.getTargets` 分两阶段核对：iframe 保留时，本次实际创建的
+全部嵌套 pthread target 必须消失（不同板型为四或五个）；正常移除 iframe 后
+engine 与全部 Worker target 也必须消失。
 后一阶段允许最多 120 秒的有界关闭回执，以容纳 macOS Chrome 超过 60 秒的
 CDP target 延迟；预算结束时仍必须为零 target，不能把超时或强制回收写成 PASS。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
@@ -129,9 +140,10 @@ StackChan 的 SCS `present_position` 来自稀疏 QOM 快照。页面会按相�
 
 ## 时间、功能与许可边界
 
-- CoreS3 原始基线保留 `cores3-wasm-vm-div8`：虚拟时间与看门狗到期均
-  相对墙钟慢放八倍。只有完整 Flash SHA 匹配的正常速度候选示例才选择
-  `cores3-wasm-wallclock-sdk-candidate`、clock divisor 1；未知固件保留原配置。
+- CoreS3 基础配置保留 `cores3-wasm-vm-div8`：虚拟时间与看门狗到期均
+  相对墙钟慢放八倍。只有完整 Flash SHA 匹配的原始 `78961297…bd3f` 或
+  候选 `e9500994…9554`，才分别选择 `cores3-wasm-stock-wallclock` 或
+  `cores3-wasm-wallclock-sdk-candidate`、clock divisor 1；未知固件保留基础配置。
   Python 调度候选不修复 C timer 第一层的重复入队，也不授予 stock SDK 或
   其他应用稳定性结论。新板型的时钟、ROM 和输入按各自 profile 验证。
 - 共享帧来自真实 QEMU display surface，带序列校验，普通采帧不再使用
@@ -176,8 +188,9 @@ Service Worker 首控流程。聚合器为每个公开板型启动独立 guest�
 执行下载/组合、LCD、DOM 触摸正反例、PIR、暂停/继续、停止/重开与四档宽度；
 其他板型检查完整标记像素、原驱动输入与清理。原始报告在 ignored
 `.work/public-qemu-admitted`。只验 CoreS3 时可显式设置
-`M5_QEMU_EXAMPLE=stock-div8` 或 `wallclock-candidate`，运行
+`M5_QEMU_EXAMPLE=stock-reference` 或 `wallclock-candidate`，运行
 `platform/tests/test_public_qemu_guest.mjs`。
+`stock-div8` 仍是兼容选择名，已映射到相同的 `stock-reference`，不代表实际慢放。
 对已部署站点可设置 `M5_PUBLIC_URL=https://<owner>.github.io/<repository>/`
 复用同一验收器。不得把本地子路径测试写成公开部署测试；实际 URL 和结果写入验证台账。
 
@@ -190,7 +203,7 @@ StopWatch、StamPLC、StackChan、PaperColor、PaperMono 和 Cardputer-ADV
 
 | 板型 | 源码入口 | 同 guest 验收路径 |
 | --- | --- | --- |
-| CoreS3 | `tests/browser-qemu/cores3_lvgl_pir/`；正常时钟另用 `tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py` | LVGL、屏幕触摸正反例与 PIR；stock-div8 与 wallclock-candidate 分别取证 |
+| CoreS3 | `tests/browser-qemu/cores3_lvgl_pir/`；候选另用 `tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py` | LVGL、屏幕触摸正反例与 PIR；stock-reference 与 wallclock-candidate 分别取证 |
 | Core2 | `tests/browser-qemu/board_display/main.py` + `core2_boot.py` | 保留固件 console，原 `M5.Touch`；不能继承 S3 UART boot |
 | AtomS3R、StickS3 | `tests/browser-qemu/board_display/main.py` + `boot.py` | 各板原 `M5.BtnA`、完整 8×8 红到绿标记及按下/松开 |
 | StopWatch | `tests/browser-qemu/board_display/stopwatch_main.py` | 原 `M5.Touch`、圆屏内 `(120,88,8,8)` 标记；分别核对 SDK 468×468 与 QEMU 可见 466×466 |
@@ -233,8 +246,21 @@ PaperMono 的 Bayer 四灰和 PaperColor 的 QUALITY pair quantizer 都要按
 
 ## 部署记录与适用范围
 
-正式站点已部署到
-<https://m5agent.github.io/m5stack-esp-emulator/>。原仓库
+2026-11-03 的 [prepared-preview 部署](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946)
+已成功，release `pages-performance-20261103-10788607` 绑定 main
+`10788607feefb9e532c2dd1fe4679adcd6aa0fc2`。正式 HTTPS 已回读到新 manifest
+`c5991d73…`、runtime `897114f0…`、WASM `3c6b2490…` 与对应源码包；实际请求的
+48 个关键路径全部与已审导出字节一致，不宣称其余资产均已逐项线上下载。
+同一新导出的本地 19 板 20 例、552 检查及 124 个实际 Worker target 正常关闭通过。
+线上 CoreS3/默认 StackChan 及原始跳舞两次观测通过；独立跳舞触摸阶段在 ready 前
+发生 Core1 ROM 读取异常，输入未执行，线上整体仍为 PARTIAL，不用其它固件或旧结果补齐。
+这是应急预构建发布，正式工作流 `41617152984` 的 CoreS3 e950 engine 回收失败仍
+保留为独立缺口；完整身份、线上固件验证与边界见
+[本轮交付证据](evidence/2026-11-03-performance-pages-release/README.md)。
+
+正式站点地址为
+[公开模拟器](https://m5agent.github.io/m5stack-esp-emulator/)。以下旧轮次保留各自身份，
+不代表当前部署产物。2026-10-29 原仓库
 [Pages 工作流](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40719197233)
 绑定 main 提交 `8e47c6ba`，完成固定源码构建、真实 CoreS3 guest 验收和
 GitHub Pages 部署；部署后从正式 HTTPS 地址独立复验 21 项检查全部通过。
@@ -244,7 +270,7 @@ GitHub Pages 部署；部署后从正式 HTTPS 地址独立复验 21 项检查�
 
 2026-10-30 又通过 prepared-site 流程把当前网页更新到 manifest
 `3c3cdb2f…`，线上 StackChan 跳舞 profile、Cardputer keymap、Worker
-finalize wrapper 和完整 WASM 已逐一回读。最新 regular all-admitted 运行
+finalize wrapper 和完整 WASM 已逐一回读。该轮 regular all-admitted 运行
 在 macOS hosted runner 的 Sticks3 CDP target graph 残留失败，因此这次是
 可访问的应急部署，不是远端全板型正式 PASS。当前限制、精确哈希和本机真实
 浏览器证据见

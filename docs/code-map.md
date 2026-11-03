@@ -157,7 +157,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
 | `platform/tools/build_public_site.py` | 显式白名单导出 Pages 静态资源、项目子路径、站点配置及纯视觉目录；不自动部署 | 公众入口与 URL/下载契约测试；架构边界见[浏览器调研](browser-runtime-feasibility.md) |
 | `platform/tools/bootstrap_browser_runtime.py` | 固定 esp32sim 源码与 lockfile 构建 WASM，校验 ROM 来源、许可和 SHA，生成可审计 runtime manifest | `test_bootstrap_browser_runtime.py`；构建产物仅存 ignored cache / 静态导出 |
-| `platform/tools/bootstrap_qemu_browser_runtime.py`、`scripts/qemu-wasm-build/` | 固定 C/QEMU、Emscripten 及依赖完整源码构建和对应源码归档；默认不打包 ROM/固件 | `test_bootstrap_qemu_browser_runtime.py`；[Pages 部署](pages-deployment.md) |
+| `platform/tools/bootstrap_qemu_browser_runtime.py`、`scripts/qemu-wasm-build/` | 固定 C/QEMU、Emscripten 及依赖完整源码构建和对应源码归档；生产者路径映射、依赖策略与分发扫描，默认不打包 ROM/固件 | `test_bootstrap_qemu_browser_runtime.py`；[Pages 部署](pages-deployment.md) |
 | `scripts/browser-littlefs/`、`platform/web/public-demo-firmware.js` | 浏览器下载官方基底后本地组合固定 LVGL/PIR 示例，精确 SHA 和原文件保留校验 | `test_browser_littlefs_build.py`、`test_browser_littlefs.mjs` |
 | `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-qemu-engine.js`、`public-coi.js` | 工作台生命周期与本地记录、同源 iframe 首次 one-port gate、module engine Worker 持有原 factory/MEMFS/直接 UART/QMP/嵌套 pthread，以及 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_wrapper.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/web/qemu-browser-profiles.json`、`public-qemu-profiles.js` | 逐板 ROM、Flash/eFuse、物理帧坐标、输入与公开/候选准入；完整固件 SHA 绑定执行时钟，不能从 compiled 或原生结果继承公开准入 | `test_public_qemu_profiles.mjs`、`test_public_qemu_board_guest.mjs` |

@@ -1,0 +1,651 @@
+{
+  "schema_version": 1,
+  "kind": "ci-browser-worker-cleanup-failure-analysis",
+  "status": "FAIL — release gate remains closed",
+  "validation_category": "virtual-device validation; read-only analysis of retained execution evidence",
+  "workflow": {
+    "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41617152984",
+    "repository_source_commit": "189dc01a5ee42a23ac7e246f8390c2acfe471ffa",
+    "publish_requested": true,
+    "deployment_status": "SKIPPED after acceptance failure"
+  },
+  "gate_scope": {
+    "required_cases": 20,
+    "required_boards": 19,
+    "completed_case_reports": 3,
+    "completed_case_pass": 2,
+    "completed_case_fail": 1,
+    "remaining_cases_not_run": 17,
+    "complete_gate_pass": false,
+    "prior_cases_in_same_gate": [
+      {
+        "case": "cardputer-adv",
+        "raw_report_sha256": "6d1a76da4f248c81ab92d1833b4ca9649c663470c34ca2f10ca926e319d3d151",
+        "status": "PASS",
+        "checks": 69,
+        "engine_worker_events": [],
+        "all_targets_closed_phase_results": []
+      },
+      {
+        "case": "cores3-stock-reference",
+        "raw_report_sha256": "14f63e05207c9100f6e174a163b1bde689c6b44dda076c872fdfd6342380149d",
+        "status": "PASS",
+        "checks": 49,
+        "engine_worker_events": [
+          {
+            "created_at": "2026-11-03T10:28:18.529Z",
+            "closed_at": "2026-11-03T10:29:20.044Z"
+          },
+          {
+            "created_at": "2026-11-03T10:29:21.689Z",
+            "closed_at": "2026-11-03T10:30:11.259Z"
+          }
+        ],
+        "all_targets_closed_phase_results": [
+          true,
+          true
+        ]
+      }
+    ]
+  },
+  "identity": {
+    "site_manifest_sha256": "ad8d51f34f84d70c15a54f90e7cb0d40c95d8b13d9ceeac244f9c7654ef0d0ee",
+    "runtime_manifest_sha256": "2ca8fe0bf6712fbcc0e5ed57cd80c5031da178546c1154fb0adb577373aecd66",
+    "runtime_upstream_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "runtime_assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "e34b796ac387e2c0d21aebc136930e09ac2707a1b57656e4cabc38f4cc203c21"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35239996,
+        "sha256": "8faf5ec50cc3f5709bc0f1311f221ede8a180eb11ecd1fb9218c367cbbb09ecf"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12757499,
+        "sha256": "e9d10ae8f2d56c5bd2f3ba38fe45f50e5e835fe60f8df697a4e7fb2e8d2aea58"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "source_lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+    "recipe_sha256": "231871ffb186dce1631d035a454730b7c49ceb1571666f632cc44b3474c04057",
+    "compile_commands_sha256": "a37702c18fbbee82bf60f70bc4d7b07522947a5f677d82191837c91eba62b7dd",
+    "effective_link_argv_sha256": "12c658ec407444c5345449d0d7d186f492469d2afe12be43273f7d970543797a",
+    "web_sources": {
+      "platform/web/public-qemu-runtime.js": {
+        "source_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a",
+        "exported_sha256": "c2ad1a4b8ac7a45bcce9ae1b4fe729e78da05009390be3d6fb1cf5865e0cd09a"
+      },
+      "platform/web/public-qemu-instance.js": {
+        "source_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c",
+        "exported_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+      },
+      "platform/web/public-qemu-engine.js": {
+        "source_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e",
+        "exported_sha256": "dab716638e00554696300ded26fb3b5e35f30602d46a719f09f807597a2cff5e"
+      }
+    },
+    "test_script": {
+      "path": "platform/tests/test_public_qemu_guest.mjs",
+      "sha256": "60dd91681b8cc85b10468becd028faa2a1702e180590ab23344613429372dbe9"
+    },
+    "worker_target_observer_sha256": "343b8a290f0283661157a1287aed1c79e908a1703cde44c9d601fa488f1f3ada",
+    "receipt": {
+      "engine": "qemu-wasm",
+      "deviceId": "cores3",
+      "board": "m5cores3",
+      "profile": "cores3-wasm-wallclock-sdk-candidate",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "requiredRuntimePatch": null,
+      "javascriptSha256": "e34b796ac387e2c0d21aebc136930e09ac2707a1b57656e4cabc38f4cc203c21",
+      "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "wasmSha256": "e9d10ae8f2d56c5bd2f3ba38fe45f50e5e835fe60f8df697a4e7fb2e8d2aea58",
+      "firmwareSha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "firmwareVariant": {
+        "clockDivisor": 1,
+        "firmwareSHA256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "fixture": "cores3-wasm-lvgl-wallclock-v1",
+        "profile": "cores3-wasm-wallclock-sdk-candidate",
+        "readyMarker": "\"kind\": \"ready\"",
+        "schedulerCandidate": "sdk-python-single-schedule-v1",
+        "sourceSHA256": "4d60594952ef5af609084fc519e85b7064349b0782da35836b8c1673cdd73ecf"
+      },
+      "relocatedGlueSha256": "27031155764c963f67f70e57b4ee1d1314a8a6fb7dc6471e78a58cef9aa92205",
+      "actualArguments": [
+        "./this.program",
+        "-M",
+        "m5cores3",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32s3.efuse,property=drive,value=efuse"
+      ]
+    },
+    "engine_url_sha256": "db03e3ffbfdd2ad65fa949b95a7c86a3213a4316b72f66af373c77795b394aaa",
+    "engine_url_kind": "same-origin public-qemu-engine.js module",
+    "live_cdp_url_equals_playwright_engine_url": true,
+    "engine_cdp_target_id_sha256": "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5",
+    "identity_limit": "Hashes are extracted from retained, guest-validated CI provenance. No site preview artifact was uploaded after this failure, so the complete exported archive was not independently rehashed here."
+  },
+  "case": {
+    "name": "cores3-wallclock-candidate",
+    "example": "wallclock-candidate",
+    "status": "FAIL",
+    "started_at": "2026-11-03T10:30:11.767Z",
+    "finished_at": "2026-11-03T10:33:53.928Z",
+    "checks_total": 22,
+    "checks_pass": 21,
+    "checks_fail": 1,
+    "checks": [
+      {
+        "name": "pages-service-worker-shared-memory",
+        "ok": true
+      },
+      {
+        "name": "explicit-public-reference-example",
+        "ok": true
+      },
+      {
+        "name": "actual-cores3-lvgl-ready",
+        "ok": true
+      },
+      {
+        "name": "c-qemu-runtime-and-exact-fixture",
+        "ok": true
+      },
+      {
+        "name": "real-frame-pixels",
+        "ok": true
+      },
+      {
+        "name": "actual-raw-canvas-input-target-visible",
+        "ok": true
+      },
+      {
+        "name": "actual-trusted-native-pointer-down-up",
+        "ok": true
+      },
+      {
+        "name": "negative-touch-does-not-click",
+        "ok": true
+      },
+      {
+        "name": "actual-raw-canvas-input-target-visible",
+        "ok": true
+      },
+      {
+        "name": "actual-trusted-native-pointer-down-up",
+        "ok": true
+      },
+      {
+        "name": "actual-dom-touch-lvgl-callback",
+        "ok": true
+      },
+      {
+        "name": "pir-qom-readback",
+        "ok": true
+      },
+      {
+        "name": "pir-guest-both-transitions",
+        "ok": true
+      },
+      {
+        "name": "qmp-pause-stops-guest-progress",
+        "ok": true
+      },
+      {
+        "name": "qmp-resume",
+        "ok": true
+      },
+      {
+        "name": "layout-1440",
+        "ok": true
+      },
+      {
+        "name": "layout-1024",
+        "ok": true
+      },
+      {
+        "name": "layout-768",
+        "ok": true
+      },
+      {
+        "name": "layout-390",
+        "ok": true
+      },
+      {
+        "name": "quit-and-container-cleanup",
+        "ok": true
+      },
+      {
+        "name": "first-engine-and-five-pthreads-close-before-iframe-removal-pthreads-before-iframe-finalization",
+        "ok": true
+      },
+      {
+        "name": "first-engine-and-five-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+        "ok": false
+      }
+    ],
+    "javascript_errors": [],
+    "first_run_only": true,
+    "shared-reference-reopen": "NOT RUN because first cleanup gate failed"
+  },
+  "runtime_exit_receipt": {
+    "runtime_started_at": "2026-11-03T10:30:14.971Z",
+    "runtime_stopped_at": "2026-11-03T10:31:19.466Z",
+    "machine_events": [
+      {
+        "event": "STOP",
+        "reason": null,
+        "guest": false,
+        "at": "2026-11-03T10:31:14.861Z"
+      },
+      {
+        "event": "RESUME",
+        "reason": null,
+        "guest": false,
+        "at": "2026-11-03T10:31:16.732Z"
+      },
+      {
+        "event": "SHUTDOWN",
+        "reason": "host-qmp-quit",
+        "guest": false,
+        "at": "2026-11-03T10:31:19.126Z"
+      }
+    ],
+    "cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersCreated": 5,
+      "workersAtExit": 0,
+      "disposal": {
+        "workersRemaining": 0,
+        "workersTerminatedByDispose": 0,
+        "workerCountScope": "nested-pthreads",
+        "enginePlacement": "dedicated-worker-v1",
+        "engineWorkersAtAcknowledgement": 1,
+        "selfCloseAfterAcknowledgement": true
+      },
+      "engineOwnership": {
+        "engineWorkersCreated": 1,
+        "engineOwnerLive": false,
+        "engineCloseNotificationReceived": true,
+        "engineSelfCloseNotifications": 1,
+        "engineNormalTerminations": 1,
+        "engineFallbackTerminations": 0,
+        "enginePortTransferred": true
+      },
+      "engineOwnershipStage": "before-iframe-removal",
+      "explicitWorkerDisposal": true,
+      "iframeRemoved": true
+    },
+    "notification_at": "NOT CAPTURED",
+    "dispose_ack_at": "NOT CAPTURED",
+    "owner_terminate_calls_at": "NOT CAPTURED",
+    "guest_exit_event_at": "NOT CAPTURED",
+    "interpretation": "QMP host-quit led to exitCode 0; disposal and owner notifications were acknowledged. These counters record requested teardown, not browser-observed engine exit."
+  },
+  "iframe": {
+    "harness_controls": [
+      {
+        "iframe_present": true,
+        "removal_requests": 1,
+        "iframe_count": 1,
+        "removal_deferred_by_harness": true
+      }
+    ],
+    "runtime_receipt_removed_flag_is_only_removal_request_while_harness_defers": true,
+    "actual_dom_remove_timestamp": "NOT CAPTURED",
+    "actual_dom_remove_order": "After nested-before-removal PASS and before the 120000 ms all-target closure wait.",
+    "actual_dom_remove_order_basis": "platform/tests/test_public_qemu_guest.mjs:46-60",
+    "log_phase_markers_utc": {
+      "nested_check_print_at": "2026-11-03T10:31:21.3488090Z",
+      "all_target_wait_failure_print_at": "2026-11-03T10:33:21.4568830Z"
+    },
+    "log_time_limit": "CI console timestamps mark received output, not instrumented DOM-removal or wait-return calls; use source order, not these log stamps, for strict event ordering.",
+    "context_close_timestamp": "NOT CAPTURED",
+    "context_close_order": "After failed initial 120000 ms all-target wait, failure evidence capture, and extra 30000 ms failed cleanup wait; before engine close/destroy events and final report write."
+  },
+  "cdp_phases": {
+    "nested_before_removal": {
+      "ok": true,
+      "source": "Chrome DevTools Target.getTargets",
+      "minimum_observed": 6,
+      "observed_count": 6,
+      "destroyed_count_in_observed_records": 5,
+      "live_count_at_query_return": 1,
+      "live_target_id_sha256": [
+        "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5"
+      ],
+      "snapshot_return_timestamp": "NOT CAPTURED"
+    },
+    "all_after_removal": {
+      "ok": false,
+      "source": "Chrome DevTools Target.getTargets",
+      "minimum_observed": 6,
+      "observed_count": 6,
+      "destroyed_count_in_observed_records": 5,
+      "live_count_at_query_return": 1,
+      "live_target_id_sha256": [
+        "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5"
+      ],
+      "snapshot_return_timestamp": "NOT CAPTURED"
+    },
+    "failure_cleanup_before_context_close": {
+      "ok": false,
+      "source": "Chrome DevTools Target.getTargets",
+      "minimum_observed": 6,
+      "observed_count": 6,
+      "destroyed_count_in_observed_records": 5,
+      "live_count_at_query_return": 1,
+      "live_target_id_sha256": [
+        "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5"
+      ],
+      "snapshot_return_timestamp": "NOT CAPTURED"
+    },
+    "targets": [
+      {
+        "target_id_sha256": "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5",
+        "role": "engine",
+        "url_sha256": "db03e3ffbfdd2ad65fa949b95a7c86a3213a4316b72f66af373c77795b394aaa",
+        "url_kind": "verified-same-origin-engine-module",
+        "created_at": "2026-11-03T10:30:15.196Z",
+        "destroyed_at_in_observed_record": null
+      },
+      {
+        "target_id_sha256": "cc1667808bbe5856421b0f6a1a2de5526c6392670d24a60976690e1ca74d1db0",
+        "role": "nested-pthread",
+        "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+        "url_kind": "blob-pthread-script",
+        "created_at": "2026-11-03T10:30:15.233Z",
+        "destroyed_at_in_observed_record": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "target_id_sha256": "4a74deee149e2b45886171dc64e95608c4a11d7f67b722db62fa2f337d6540ef",
+        "role": "nested-pthread",
+        "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+        "url_kind": "blob-pthread-script",
+        "created_at": "2026-11-03T10:30:15.234Z",
+        "destroyed_at_in_observed_record": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "target_id_sha256": "7127c6bf4c470bfd2e72577211b1806dc113f626e51b9c68d8202d94827b1b19",
+        "role": "nested-pthread",
+        "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+        "url_kind": "blob-pthread-script",
+        "created_at": "2026-11-03T10:30:15.235Z",
+        "destroyed_at_in_observed_record": "2026-11-03T10:31:19.136Z"
+      },
+      {
+        "target_id_sha256": "6c6b1ab4c541f2a4a878b5be6325740443da15a3f5a605c59387d21d8d015ecc",
+        "role": "nested-pthread",
+        "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+        "url_kind": "blob-pthread-script",
+        "created_at": "2026-11-03T10:30:15.236Z",
+        "destroyed_at_in_observed_record": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "target_id_sha256": "a8f081671dc74d0ac6f75bc8a0a7b8a429ecde88bd93407f57b3dca9626147bf",
+        "role": "nested-pthread",
+        "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+        "url_kind": "blob-pthread-script",
+        "created_at": "2026-11-03T10:30:15.348Z",
+        "destroyed_at_in_observed_record": "2026-11-03T10:31:19.136Z"
+      }
+    ],
+    "events_as_serialized_after_context_teardown": [
+      {
+        "kind": "created",
+        "target_id_sha256": "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5",
+        "at": "2026-11-03T10:30:15.196Z"
+      },
+      {
+        "kind": "created",
+        "target_id_sha256": "cc1667808bbe5856421b0f6a1a2de5526c6392670d24a60976690e1ca74d1db0",
+        "at": "2026-11-03T10:30:15.233Z"
+      },
+      {
+        "kind": "created",
+        "target_id_sha256": "4a74deee149e2b45886171dc64e95608c4a11d7f67b722db62fa2f337d6540ef",
+        "at": "2026-11-03T10:30:15.234Z"
+      },
+      {
+        "kind": "created",
+        "target_id_sha256": "7127c6bf4c470bfd2e72577211b1806dc113f626e51b9c68d8202d94827b1b19",
+        "at": "2026-11-03T10:30:15.235Z"
+      },
+      {
+        "kind": "created",
+        "target_id_sha256": "6c6b1ab4c541f2a4a878b5be6325740443da15a3f5a605c59387d21d8d015ecc",
+        "at": "2026-11-03T10:30:15.236Z"
+      },
+      {
+        "kind": "created",
+        "target_id_sha256": "a8f081671dc74d0ac6f75bc8a0a7b8a429ecde88bd93407f57b3dca9626147bf",
+        "at": "2026-11-03T10:30:15.348Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "7127c6bf4c470bfd2e72577211b1806dc113f626e51b9c68d8202d94827b1b19",
+        "at": "2026-11-03T10:31:19.136Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "a8f081671dc74d0ac6f75bc8a0a7b8a429ecde88bd93407f57b3dca9626147bf",
+        "at": "2026-11-03T10:31:19.136Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "6c6b1ab4c541f2a4a878b5be6325740443da15a3f5a605c59387d21d8d015ecc",
+        "at": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "cc1667808bbe5856421b0f6a1a2de5526c6392670d24a60976690e1ca74d1db0",
+        "at": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "4a74deee149e2b45886171dc64e95608c4a11d7f67b722db62fa2f337d6540ef",
+        "at": "2026-11-03T10:31:21.240Z"
+      },
+      {
+        "kind": "destroyed",
+        "target_id_sha256": "4cab2d8ff14e598fdd637cfe9d6ae103fa10bc32d0c5d75ae9241c4e116e90c5",
+        "at": "2026-11-03T10:33:53.840Z"
+      }
+    ],
+    "events_temporal_limit": "The observer returns one shared mutable events array. Context-teardown destroy events were appended after earlier phases returned; their later presence does not change those phases ok/live values. Observed records may also refer to earlier target-info objects. Use explicit live-at-return and event timestamps separately."
+  },
+  "playwright_worker_events": [
+    {
+      "role": "engine",
+      "url_sha256": "db03e3ffbfdd2ad65fa949b95a7c86a3213a4316b72f66af373c77795b394aaa",
+      "created_at": "2026-11-03T10:30:15.200Z",
+      "closed_at": "2026-11-03T10:33:53.826Z"
+    },
+    {
+      "role": "nested-pthread",
+      "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+      "created_at": "2026-11-03T10:30:15.256Z",
+      "closed_at": "2026-11-03T10:31:21.240Z"
+    },
+    {
+      "role": "nested-pthread",
+      "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+      "created_at": "2026-11-03T10:30:15.256Z",
+      "closed_at": "2026-11-03T10:31:21.240Z"
+    },
+    {
+      "role": "nested-pthread",
+      "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+      "created_at": "2026-11-03T10:30:15.258Z",
+      "closed_at": "2026-11-03T10:31:19.136Z"
+    },
+    {
+      "role": "nested-pthread",
+      "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+      "created_at": "2026-11-03T10:30:15.259Z",
+      "closed_at": "2026-11-03T10:31:21.240Z"
+    },
+    {
+      "role": "nested-pthread",
+      "url_sha256": "f7b24b0c79d1919f34eb41719dc7ad8d9e4a895c4e17bdfe5b34d19db36e4f79",
+      "created_at": "2026-11-03T10:30:15.349Z",
+      "closed_at": "2026-11-03T10:31:19.136Z"
+    }
+  ],
+  "timeline": [
+    {
+      "event": "case-start",
+      "at": "2026-11-03T10:30:11.767Z",
+      "source": "case report"
+    },
+    {
+      "event": "runtime-start",
+      "at": "2026-11-03T10:30:14.971Z",
+      "source": "runtime evidence"
+    },
+    {
+      "event": "engine-target-created",
+      "at": "2026-11-03T10:30:15.196Z",
+      "source": "CDP"
+    },
+    {
+      "event": "host-qmp-quit-shutdown",
+      "at": "2026-11-03T10:31:19.126Z",
+      "source": "runtime machine event"
+    },
+    {
+      "event": "two-pthread-targets-destroyed",
+      "at": "2026-11-03T10:31:19.136Z",
+      "source": "CDP"
+    },
+    {
+      "event": "runtime-stopped-receipt",
+      "at": "2026-11-03T10:31:19.466Z",
+      "source": "runtime evidence"
+    },
+    {
+      "event": "quit-and-container-cleanup-check-printed",
+      "at": "2026-11-03T10:31:19.7843210Z"
+    },
+    {
+      "event": "remaining-three-pthread-targets-destroyed",
+      "at": "2026-11-03T10:31:21.240Z",
+      "source": "CDP"
+    },
+    {
+      "event": "nested-before-removal-check-printed",
+      "at": "2026-11-03T10:31:21.3488090Z"
+    },
+    {
+      "event": "all-targets-after-removal-failure-printed",
+      "at": "2026-11-03T10:33:21.4568830Z"
+    },
+    {
+      "event": "engine-playwright-close-during-final-context-teardown",
+      "at": "2026-11-03T10:33:53.826Z",
+      "source": "Playwright close event and finally ordering"
+    },
+    {
+      "event": "engine-cdp-target-destroyed-during-final-context-teardown",
+      "at": "2026-11-03T10:33:53.840Z",
+      "source": "CDP and finally ordering"
+    },
+    {
+      "event": "case-final-report-finished",
+      "at": "2026-11-03T10:33:53.928Z",
+      "source": "case report"
+    }
+  ],
+  "measured_intervals_ms": {
+    "runtime_stopped_to_last_pthread_target_destroyed": 1774.0,
+    "runtime_stopped_to_engine_playwright_close": 154360.0,
+    "runtime_stopped_to_engine_cdp_destroy": 154374.0,
+    "last_pthread_target_destroyed_to_engine_cdp_destroy": 152600.0,
+    "initial_all_target_wait_configured": 120000,
+    "extra_failure_cleanup_wait_configured": 30000
+  },
+  "analysis": {
+    "observed_boundary": "Normal guest exit and nested-pthread disposal completed; the one dedicated engine Worker target remained live in both pre-context-close CDP queries. Full browser-context teardown then removed it.",
+    "most_likely_chain_scoped_inference": "The remaining fault boundary is final engine-owner/Worker endpoint teardown after the dispose acknowledgement and owner closing notification. The owner clears its engine reference and marks normal termination requested without an externally observed exit handshake. Current evidence does not identify whether an active task, a Worker endpoint, or Chrome target retention kept that target present.",
+    "specific_source_order_to_test": [
+      {
+        "path": "platform/web/public-qemu-engine.js",
+        "line": 284,
+        "note": "Dispose reply is posted, private port closed, owner notified, then self.close requested in the same async message continuation."
+      },
+      {
+        "path": "platform/web/public-qemu-instance.js",
+        "line": 11,
+        "note": "Normal notification handler clears engine ownership, calls Worker.terminate immediately inside its message callback, then schedules another terminate on a fresh task. The immediate call does not match the accompanying fresh-task-only comment; causality is unproven."
+      },
+      {
+        "path": "platform/web/public-qemu-runtime.js",
+        "line": 270,
+        "note": "Runtime waits for notification intent and 250 ms, snapshots owner counters, then requests iframe removal; no browser target-close observation is available to product code."
+      },
+      {
+        "path": "platform/tests/public_qemu_worker_targets.mjs",
+        "line": 46,
+        "note": "Phase live/ok values are authoritative for each returned CDP query; serialized events include later context teardown."
+      }
+    ],
+    "not_established": [
+      "Runtime CPU crash or trap",
+      "Guest panic/WDT/reset",
+      "Continued CPU consumption by the retained target",
+      "Exact instant each terminate or self.close call executed",
+      "A causal race between immediate terminate and self.close",
+      "A retained MessagePort as the concrete cause",
+      "Successful cleanup merely because the context finally closed",
+      "A need to increase cleanup timeout"
+    ],
+    "next_control": "Keep the failed artifact and unchanged gate. Add narrowly scoped timestamps/acknowledgements around the existing engine disposal and owner-finalization path, and compare one concrete ownership change against this exact failing boundary; require all engine and pthread CDP targets gone before context teardown. No control was executed by this analysis."
+  },
+  "evidence": {
+    "wrapper_report_sha256": "032764cb3e22d856dd070d4f4e648be6bff3a8de866a75a8003d4c4d75c02497",
+    "case_report_sha256": "607b28211826415d9d983479946c5143c58a105b0236199b5c924111008da374",
+    "running_boot_sha256": "04ccfb50e43650badcbf018e4eba86db4d70523b0aa1db415e9626b6ae921d89",
+    "stopped_first_sha256": "b60730beec6610dbc3b07a7cac256e7c72b88572cc0c04e6850072646a263186",
+    "failure_evidence_sha256": "b60730beec6610dbc3b07a7cac256e7c72b88572cc0c04e6850072646a263186",
+    "failure_evidence_equals_stopped_first_bytes": true,
+    "failure_serial_file_sha256": "98379e7ce907174ad3ae0487e682067ae78d8544e4364abd3c0e1658811fae7d",
+    "captured_runtime_serial_utf8_sha256": "98379e7ce907174ad3ae0487e682067ae78d8544e4364abd3c0e1658811fae7d",
+    "runtime_diagnostics_utf8_sha256": "4beb171b1f8b4e2b8aed799473b9241e03ebece59ca6fcab284530fe37d6488b",
+    "runtime_diagnostics_bytes": 132,
+    "workflow_failed_log_sha256": "dd3196d7df8dddca75fc8456d149e41f9f90119781d984ce2a75ca1f6fbb30cb",
+    "generator_sha256": "0559e9e5cf0dd32c859740bb4cbcd7942bf97bb4596390df8fb098bb916e6c8b",
+    "raw_files_modified": false
+  },
+  "publication_limits": [
+    "This is one failed CI virtual-device case, not a production release or all-board PASS.",
+    "The local R6 all-20 result uses a different compiled runtime and cannot fill the 17 unrun CI cases.",
+    "The other two CI cases passed their own scopes; they do not prove cleanup for the failed SDK case.",
+    "All target identifiers and ephemeral Worker URLs are represented only by SHA-256; private host paths and endpoints are omitted.",
+    "Physical hardware, electrical behavior and performance comparisons were not exercised by this read-only analysis."
+  ]
+}

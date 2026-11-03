@@ -299,7 +299,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [性能修复与对照](evidence/2026-11-03-emulator-performance/README.md) | 验证证据 | `2026-11-03` | native 同固件取帧与动作桥已验；最终 browser r2 guest 与准入门禁独立记录 |
+| [性能修复与对照](evidence/2026-11-03-emulator-performance/README.md) | 验证证据 | `2026-11-03` | 历史 native 同固件取帧/动作与 browser R6 完整本地门禁；新部署另行绑定运行时 |
+| [性能优化合 main 与 Pages 更新](evidence/2026-11-03-performance-pages-release/README.md) | 部署与虚拟设备证据 | `2026-11-03` | 两 PR 合并、新 producer 路径策略、19 板 20 例完整本地门禁、prepared-preview 部署与独立 HTTPS 验证；保留 regular CI engine 清理失败 |
 | [原生页面性能验证](evidence/2026-11-03-emulator-performance/native-validation.md) | 验证证据 | `2026-11-03` | 四次同固件对照及实际帧、SCS、输入、历史和停止；不授予 browser 或物理性能 |
 | [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |

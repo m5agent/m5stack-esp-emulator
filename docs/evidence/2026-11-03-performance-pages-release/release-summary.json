@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "kind": "qemu-performance-pages-delivery",
+  "validation_category": "layered source delivery, artifact transport and virtual-device validation",
+  "source": {
+    "performance_pr": 163,
+    "performance_merge": "189dc01a5ee42a23ac7e246f8390c2acfe471ffa",
+    "producer_pr": 164,
+    "producer_head": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+    "producer_main_merge": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+    "head_and_main_tree": "9158da43530d82d0eaf5472eff15f831e82666e8",
+    "single_qemu_tci": true,
+    "experimental_jit_integrated": false
+  },
+  "local_full_gate": {
+    "status": "PASS",
+    "boards": 19,
+    "cases": 20,
+    "checks": 552,
+    "vms": 22,
+    "actual_closed_targets": 124,
+    "fallback_terminations": 0,
+    "summary": {
+      "sha256": "947ae11865a4659e7bd6453ba2ba7e6e130f5f766501a9139efca484d625f054",
+      "bytes": 58307
+    },
+    "raw_wrapper_sha256": "8281af8207f2b036eb33f0269e28adc880a5a650d7968e592c974c1a47617d95"
+  },
+  "package": {
+    "schema_version": 1,
+    "kind": "prepared-pages-immutable-package",
+    "validation_category": "artifact packaging and closure audit",
+    "status": "PASS",
+    "source_main_commit": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+    "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "archive": {
+      "name": "public-site-preview-live.tar.gz",
+      "bytes": 146747803,
+      "sha256": "d4be918692aa7d63cdf6f6360da2cfc2c3337b2f07ad96fce011f1d3bfe2fe4a"
+    },
+    "entries": 2128,
+    "asset_entries": 2127,
+    "checks": {
+      "all_exported_files_exactly_manifested": true,
+      "all_payload_bytes_and_hashes_verified_before_and_after_pack": true,
+      "only_regular_files": true,
+      "safe_relative_member_paths": true,
+      "owner_identifiers_and_timestamps_normalized": true,
+      "no_firmware_rom_or_elf_entries": true,
+      "only_exact_admitted_littlefs_source_zip": true
+    },
+    "limits": [
+      "Packaging verifies artifact closure; browser execution is recorded separately.",
+      "Prepared-preview publication does not close the failed regular hosted-runner cleanup gate."
+    ]
+  },
+  "uploaded_release_readback": {
+    "kind": "github-release-upload-download-readback",
+    "validation_category": "artifact transport verification",
+    "status": "PASS",
+    "tag": "pages-performance-20261103-10788607",
+    "source_commit": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+    "published_at": "2026-11-03T11:36:57Z",
+    "url": "https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-performance-20261103-10788607",
+    "assets": [
+      {
+        "name": "public-site-preview-live.tar.gz",
+        "bytes": 146747803,
+        "sha256": "d4be918692aa7d63cdf6f6360da2cfc2c3337b2f07ad96fce011f1d3bfe2fe4a",
+        "downloaded_bytes_equal": true
+      },
+      {
+        "name": "public-site-validation-summary.json",
+        "bytes": 58307,
+        "sha256": "947ae11865a4659e7bd6453ba2ba7e6e130f5f766501a9139efca484d625f054",
+        "downloaded_bytes_equal": true
+      },
+      {
+        "name": "prepared-package-summary.json",
+        "bytes": 1105,
+        "sha256": "e45f708fa6d4e9869142e6b119930c470e1e223dca4ebb07d982fb585106c463",
+        "downloaded_bytes_equal": true
+      }
+    ],
+    "limits": [
+      "Deployment and actual HTTPS browser guest execution are separate evidence."
+    ]
+  },
+  "deployment": {
+    "schema_version": 1,
+    "kind": "prepared-pages-actions-deployment",
+    "validation_category": "deployment control plane",
+    "status": "PASS",
+    "run_id": 41629045946,
+    "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946",
+    "head_sha": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+    "created_at": "2026-11-03T11:37:39Z",
+    "updated_at": "2026-11-03T11:38:17Z",
+    "jobs": [
+      {
+        "name": "prepare",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-03T11:37:42Z",
+        "completedAt": "2026-11-03T11:37:55Z",
+        "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946/job/125893620931"
+      },
+      {
+        "name": "deploy",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-03T11:38:00Z",
+        "completedAt": "2026-11-03T11:38:16Z",
+        "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946/job/125893736639"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 13226524508,
+        "name": "github-pages",
+        "size_in_bytes": 147277136,
+        "digest": "sha256:94279190a0431edeb0d7eec5a091f0b0169414fa8bd2d5d3e9a599a48281708d",
+        "created_at": "2026-11-03T11:37:54Z",
+        "expired": false
+      }
+    ],
+    "release_tag": "pages-performance-20261103-10788607",
+    "site_url": "https://m5agent.github.io/m5stack-esp-emulator/",
+    "regular_workflow_result": "FAIL retained separately; this prepared-preview run is not regular publication CI PASS",
+    "limits": [
+      "Live HTTPS bytes and actual guest execution are separate evidence."
+    ]
+  },
+  "critical_https_readback": {
+    "status": "PASS",
+    "summary": {
+      "sha256": "a58659a37ab2f3b6f27dcbb9f8b160f0e954926401fcf5e123f5354533600c24",
+      "bytes": 25864
+    },
+    "actual_gets": 48,
+    "bytes": 49173223,
+    "all_status_200": true,
+    "all_bytes_equal_export": true,
+    "all_redirects_absent": true,
+    "all_2127_assets_downloaded": false
+  },
+  "producer_ci": {
+    "kind": "producer-pr-and-main-ci-summary",
+    "status": "PASS",
+    "runs": [
+      {
+        "run_id": 41625517780,
+        "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41625517780",
+        "head_sha": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "checks": [
+          {
+            "name": "network-namespace-policy",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:11:50Z",
+            "completedAt": "2026-11-03T11:12:37Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41625517780/job/125881748191"
+          },
+          {
+            "name": "platform-contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:11:50Z",
+            "completedAt": "2026-11-03T11:14:41Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41625517780/job/125881748487"
+          }
+        ],
+        "raw_receipt_sha256": "041e5dea35d3554f5b5cc2d84be5ba46bcce672a91659f045ed8c5c7a4cf1320"
+      },
+      {
+        "run_id": 41626388927,
+        "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41626388927",
+        "head_sha": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "checks": [
+          {
+            "name": "network-namespace-policy",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:18:08Z",
+            "completedAt": "2026-11-03T11:19:06Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41626388927/job/125884698034"
+          },
+          {
+            "name": "platform-contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:18:18Z",
+            "completedAt": "2026-11-03T11:21:41Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41626388927/job/125884698637"
+          }
+        ],
+        "raw_receipt_sha256": "334a6d4cbcb9e35caf884ae3d10855bf49e3a53758c2d9e6890c45a04fb9927d"
+      },
+      {
+        "run_id": 41627233963,
+        "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41627233963",
+        "head_sha": "10788607feefb9e532c2dd1fe4679adcd6aa0fc2",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "checks": [
+          {
+            "name": "network-namespace-policy",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:24:16Z",
+            "completedAt": "2026-11-03T11:25:02Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41627233963/job/125887517296"
+          },
+          {
+            "name": "platform-contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "startedAt": "2026-11-03T11:24:16Z",
+            "completedAt": "2026-11-03T11:27:52Z",
+            "url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41627233963/job/125887517330"
+          }
+        ],
+        "raw_receipt_sha256": "17240466ca028d3240eefc70b1ec2593acc42293f719ca39142582e00f3a37d7"
+      }
+    ],
+    "main_platform_log": {
+      "sha256": "897fc99ee92be4c3bf07fc2d13cdd585647fda512a68e45289ad233efd0602e4",
+      "bytes": 299112,
+      "platform_tests": 1949,
+      "skipped": 10,
+      "elapsed_seconds": 152.154
+    },
+    "validation_category": "host CI, not a virtual-device functional result",
+    "limits": [
+      "Guest acceptance is recorded separately."
+    ]
+  },
+  "limits": [
+    "Actual online firmware execution is recorded separately; asset delivery is not a guest result.",
+    "Nineteen-board reference functionality is not nineteen independent speed measurements.",
+    "Prepared-preview emergency deployment does not close the failed regular hosted-runner engine cleanup gate.",
+    "Factory firmware, arbitrary applications, long-duration stability and physical device properties retain their existing limits."
+  ],
+  "online_validation": {
+    "status": "PARTIAL",
+    "core3_stock": "PASS: 49 checks; tracked runner",
+    "stackchan_default": "PASS: 24 checks; separate reference firmware",
+    "stackchan_c854_dance": "PASS: two separate 20-second windows",
+    "stackchan_c854_independent_touch": "STARTUP FAIL; application input and touch derivation NOT RUN",
+    "guest_attempts": 6,
+    "actual_qemu_targets_closed": 36,
+    "ordinary_retries": 0,
+    "summaries": [
+      {
+        "file": "online-cores3-summary.json",
+        "bytes": 6230,
+        "sha256": "74bfb1870598a1fc335430449c283d446f20ff2c0c47e7e9c095b663ee9edc59"
+      },
+      {
+        "file": "online-stackchan-reference-summary.json",
+        "bytes": 2268,
+        "sha256": "94ad6efa929bf2fa882eaa78fd645d8230f86c7815b9587df4b7946c532cfcdb"
+      },
+      {
+        "file": "online-dance-summary.json",
+        "bytes": 11216,
+        "sha256": "3968e814ce8d6d8e7ab71e6d32cee40d7a02d7491f79a70cd38efc076186285b"
+      },
+      {
+        "file": "online-touch-startup-failure-summary.json",
+        "bytes": 3036,
+        "sha256": "fb91169887cca2d83ce2101436eb3b31e5a87efbb8c249efe41db03253a95615"
+      }
+    ],
+    "scope": "Normal cleanup after a failed startup is a resource result, not firmware functionality. The two passing dance runs do not replace the failed independent startup."
+  }
+}
