@@ -78,7 +78,7 @@
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归；视觉主机接入已完成 9+5，保真仍开放 |
 | `UI-02` | 进行中 | 公众工作台、Pages 分享与浏览器执行可行性；边界见[调研](browser-runtime-feasibility.md)，范围见 Backlog |
-| `UI-03` | 进行中 | 已准入浏览器设备的启动、全部物理按键及默认UIFlow源码工作台；验收以Backlog与独立guest evidence为准 |
+| `UI-03` | 进行中 | [全19默认工作台与声明输入的本地门禁](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)已验；继续逐板启动性能、长期稳定性和正式HTTPS，原策略07/08/09根因不由功能策略通过关闭 |
 | `UNIT-01` | 已完成（virtual-device） | 视觉主机 9 接入 + 5 边界；Unit 160 = 158 implemented/partial + 2 DEFER（mini-bps-v11/mini-pdm），25 c 类边界、184/184；canonical 41 层（0120–0161，41/41 replay）；PR #80–#161；剩余 DEFER 与物理边界只在 Backlog/战役汇总跟踪 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 

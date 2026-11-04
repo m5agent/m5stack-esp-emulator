@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "kind": "r8-all19-functional-readiness-observations",
+  "status": "OBSERVED19",
+  "evidence_level": "virtual-device validation",
+  "measurement_scope": "Start click to observed initial workbench-ready during the completed max2 functional gate; includes startup work and host contention.",
+  "performance_validation": "NOT MEASURED: not exclusive benchmarks; no cross-board ranking or same-firmware before/after speed inference.",
+  "hardware_validation": "NOT RUN",
+  "workers": 2,
+  "max_active_children": 2,
+  "site_manifest_sha256": "e597ce3c4465f582928042d4a36be684454a9cb4f8910f80720ad027cf1da898",
+  "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+  "strict_acceptance_summary_sha256": "9703b94a23025b75be4c8464e32ac835cc75fffa10f5fcc9d88bc144de841151",
+  "parent_report": {
+    "sha256": "4265d32ff912502cb000d6795f1fbd52bcb3795fc54ccb3f83d522db863a343a",
+    "bytes": 35220
+  },
+  "editor_script_sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2",
+  "devices": [
+    {
+      "device": "atom-matrix",
+      "firmware_sha256": "f553ad2c9d84e22591d8da8d32a7517c9e378eb5439214a9e0b2075bf31844ed",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "policy_key": "8a8e148d8513",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "0fe89bc2a61d29ee8e80b2d3cbb9b403df4f2a434d09a3dc8f6113684ef1ab38",
+      "raw_report_bytes": 95633,
+      "initial_click_to_ready_ms": 41780.067458
+    },
+    {
+      "device": "stickc-plus",
+      "firmware_sha256": "42d6318333c7812a75c2072c1cc0e9f13c6e54edb6929198a5a3b3f7b592e36d",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "policy_key": "78ce4461c44b",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "051a7b50e28e3e0d078c262c378a9784d522efe0ef45ca2d5d21bfbf8c309770",
+      "raw_report_bytes": 2238201,
+      "initial_click_to_ready_ms": 35794.274417
+    },
+    {
+      "device": "cardputer-adv",
+      "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+      "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "e05c3d2f8f35",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "02de22335dfc1b10561ded0fe7bb553493b2d250eb8e75b06b6211c154dcf107",
+      "raw_report_bytes": 2240503,
+      "initial_click_to_ready_ms": 5875.204875000001
+    },
+    {
+      "device": "cores3",
+      "firmware_sha256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+      "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+      "policy_key": "51666cada256",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "7f2470c7bcd2a6bc9bc465365e342cb7f0ecea256784e71a22f0bbaf30bc7af3",
+      "raw_report_bytes": 5169523,
+      "initial_click_to_ready_ms": 9481.953333000001
+    },
+    {
+      "device": "stopwatch",
+      "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "profile": "stopwatch-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "1e8b864e8ad2",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "c3345eaa40925bf9b666389fbd70abad790b715ea0ce7dd4ce61081399594c91",
+      "raw_report_bytes": 14435723,
+      "initial_click_to_ready_ms": 7895.794333999999
+    },
+    {
+      "device": "sticks3",
+      "firmware_sha256": "43855f0144edec8fafc4525ac6c8e30b01e2386d7b7f282ddb92833d792932fc",
+      "profile": "sticks3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "fbd0458a0a74",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "58e8706d6340330a7490de750ab4d6a30c045f130871b21199fd0a1ac1401335",
+      "raw_report_bytes": 2238613,
+      "initial_click_to_ready_ms": 6157.9805
+    },
+    {
+      "device": "atoms3",
+      "firmware_sha256": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
+      "profile": "atoms3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "48564b5d0deb",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "e07c2ac54ea5f657f56e4d784bc7dbf463b96a7c22ddc78f85e26e45266d5c3a",
+      "raw_report_bytes": 1183088,
+      "initial_click_to_ready_ms": 5232.4676660000005
+    },
+    {
+      "device": "atoms3-lite",
+      "firmware_sha256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+      "profile": "atoms3-lite-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "258488c9c70c",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "f2f7a141a2701e563ae8888f285eb0ee67debedda3986dbd287fb1e91969f417",
+      "raw_report_bytes": 97494,
+      "initial_click_to_ready_ms": 5653.312583000001
+    },
+    {
+      "device": "atoms3r",
+      "firmware_sha256": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
+      "profile": "atoms3r-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "fa7c05bd554e",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "f495e4b1b283258737d362ea906528d7b60e8e96e67afd3bf859a48001bb7efe",
+      "raw_report_bytes": 1182081,
+      "initial_click_to_ready_ms": 6570.203875
+    },
+    {
+      "device": "stamplc",
+      "firmware_sha256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+      "profile": "stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "56fb3f7f72af",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "1951b91a3ea13cadb09496f555ad09aba6bc9c1e27f14d59c837fe0c128cf5a8",
+      "raw_report_bytes": 1525350,
+      "initial_click_to_ready_ms": 5939.981208
+    },
+    {
+      "device": "stackchan",
+      "firmware_sha256": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
+      "profile": "stackchan-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "00de991d0116",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "cece7497f67bac25debc51f62572c65760af37cdf912473a456a0114110c5477",
+      "raw_report_bytes": 5171948,
+      "initial_click_to_ready_ms": 9540.681666
+    },
+    {
+      "device": "papercolor",
+      "firmware_sha256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+      "profile": "papercolor-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "ab19782b62de",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "1d24d6e9d9900f091913693edb70be28c170cecda2481c25e1de4214aded9c80",
+      "raw_report_bytes": 18822722,
+      "initial_click_to_ready_ms": 35840.732916999994
+    },
+    {
+      "device": "papermono",
+      "firmware_sha256": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+      "profile": "papermono-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "policy_key": "0f073ec58c55",
+      "clock_divisor": 1,
+      "one_insn_per_tb": true,
+      "raw_report_sha256": "aa22b22b5cb36598446e48a58f8c86ca71450fefd5988d1d7f2c45d76ff9551b",
+      "raw_report_bytes": 30054210,
+      "initial_click_to_ready_ms": 9306.579583
+    },
+    {
+      "device": "core2",
+      "firmware_sha256": "783b784df1e9ba1ea3896afcc845c6a26eb02f65dc35d9e33ebc4b000db7bce5",
+      "profile": "core2-wasm-deterministic-icount",
+      "policy_key": "035507f56146",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "8b7ec52f19f6d2399792cfbdf0af61814c99d3edd60b59d4fc4843e0317f2428",
+      "raw_report_bytes": 5165744,
+      "initial_click_to_ready_ms": 64750.09708299999
+    },
+    {
+      "device": "stickc-plus2",
+      "firmware_sha256": "760a2e284df8c6cfca1c0d964ccf026f7ab005203afe99e9724262924eda8fcc",
+      "profile": "stickc-plus2-wasm-deterministic-icount",
+      "policy_key": "bb51f4bc5a63",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "8d385843b906e9537e9fdc33712556a7ef88327497c069b3f795b6805b44c666",
+      "raw_report_bytes": 2236616,
+      "initial_click_to_ready_ms": 52543.127541
+    },
+    {
+      "device": "stickc",
+      "firmware_sha256": "b3cb4a78abc0d463f87fc6f4c1853d6c962dc291f1961e6c83f0638b844a750c",
+      "profile": "stickc-wasm-deterministic-icount",
+      "policy_key": "d59f166ace8a",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "a44173ef51205d9cea0ce0b317b2c923a701a1cfe78cb7cd73eaf50d6ad8e519",
+      "raw_report_bytes": 942694,
+      "initial_click_to_ready_ms": 48432.66225
+    },
+    {
+      "device": "stickc-plus-se",
+      "firmware_sha256": "df46b9dafb2180b130de04fedc0d969f0615f3eb5454e8132cbba96a559aec91",
+      "profile": "stickc-plus-se-wasm-deterministic-icount",
+      "policy_key": "731fc502934d",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "8ef773dd9f7437c88c25e10bccbeeaad79ea616dad8f9f981a053163ad549809",
+      "raw_report_bytes": 2236629,
+      "initial_click_to_ready_ms": 45623.618040999994
+    },
+    {
+      "device": "atom-lite",
+      "firmware_sha256": "e92aaf7b98529ceb3f1ccca509c427347911eb4cb79fbd843a99b6675fbc3f17",
+      "profile": "atom-lite-wasm-deterministic-icount",
+      "policy_key": "de30ee440fb4",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "6174956a9c8795026538b8cd05202d03363faf3b6ceb10c13ed035e2a53a8e10",
+      "raw_report_bytes": 93716,
+      "initial_click_to_ready_ms": 42138.451792
+    },
+    {
+      "device": "atom-matrix-v11",
+      "firmware_sha256": "f553ad2c9d84e22591d8da8d32a7517c9e378eb5439214a9e0b2075bf31844ed",
+      "profile": "atom-matrix-v11-wasm-deterministic-icount",
+      "policy_key": "ed6945aca2ab",
+      "clock_divisor": 1,
+      "one_insn_per_tb": false,
+      "raw_report_sha256": "68ce30be6d2c53904765ba388313f897dbc143c3be19cf0218ac7c2587936259",
+      "raw_report_bytes": 95713,
+      "initial_click_to_ready_ms": 41466.296375
+    }
+  ],
+  "limits": [
+    "These are the19 first-start observations of R8, not repeats or cold/warm performance comparisons.",
+    "The source observer polls readiness; elapsed wall time is not a CPU clock measurement.",
+    "Each value remains bound to its own exact firmware/profile/export and raw report."
+  ]
+}

@@ -1,0 +1,335 @@
+{
+  "kind": "v5-model-only-browser-layout-and-boundary-followup",
+  "result": "SCOPED_CHECKS_PASS_WITH_RETAINED_OBSERVER_FAIL",
+  "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+  "source": {
+    "platform/web/public.js": {
+      "source_sha256": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+      "exported_sha256": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2"
+    },
+    "platform/web/public.css": {
+      "source_sha256": "618fd25fc12ca24a24a3d3610d04e091aea8ee16e20ad10d69fd92ad674080a0",
+      "exported_sha256": "618fd25fc12ca24a24a3d3610d04e091aea8ee16e20ad10d69fd92ad674080a0"
+    },
+    "platform/web/index.html": {
+      "source_sha256": "fa92c6abb17fca8703bac86cc9d30a10a2769bd8c30bd1c5ed82912f456e9211",
+      "exported_sha256": "a8727d0487cacb966de6b1c8c9a31e8adc72eac11fc61a0488f2130a80f6e46e"
+    },
+    "platform/web/model-shell.js": {
+      "source_sha256": "b383b226601f9707cc0c201298bd21eef8f00d6bd5331dac00fac09d46eb47c0",
+      "exported_sha256": "b383b226601f9707cc0c201298bd21eef8f00d6bd5331dac00fac09d46eb47c0"
+    },
+    "platform/web/public-micropython.js": {
+      "source_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+      "exported_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "platform/web/public-uiflow-firmware.js": {
+      "source_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6",
+      "exported_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6"
+    },
+    "platform/web/uiflow-workbench-profiles.json": {
+      "source_sha256": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "exported_sha256": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    }
+  },
+  "guest_execution": "NOT RUN",
+  "initial_observer_failure": {
+    "kind": "legacy-only PaperS3 selected but absent from strictQEMU picker",
+    "status": "RETAINED",
+    "public_picker_contains_papers3": false
+  },
+  "actual_picker_count": 38,
+  "observations": [
+    {
+      "device": "cores3",
+      "width": 1440,
+      "document_width": 1440,
+      "body_width": 1440,
+      "editor": {
+        "x": 281,
+        "width": 782,
+        "right": 1063
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 830,
+        "height": 510
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cores3-1440.png",
+        "bytes": 223597,
+        "sha256": "d3b273cb2e1d9c3d6bd4eb29a90ae7d2b22d7a6e05d31c46815621a0c8c232a9"
+      }
+    },
+    {
+      "device": "cores3",
+      "width": 1024,
+      "document_width": 1024,
+      "body_width": 1024,
+      "editor": {
+        "x": 49,
+        "width": 622,
+        "right": 671
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 670,
+        "height": 480
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cores3-1024.png",
+        "bytes": 220521,
+        "sha256": "1a59b7859d0818459837a6e3060e465840eb0fdd5c54a0537fac9ab2b25e0ae3"
+      }
+    },
+    {
+      "device": "cores3",
+      "width": 768,
+      "document_width": 768,
+      "body_width": 768,
+      "editor": {
+        "x": 41,
+        "width": 686,
+        "right": 727
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 734,
+        "height": 440
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cores3-768.png",
+        "bytes": 203645,
+        "sha256": "68de7866d9d0a196fddf82c528671b6552830b628050e6d6e9977a3882cb6954"
+      }
+    },
+    {
+      "device": "cores3",
+      "width": 390,
+      "document_width": 390,
+      "body_width": 390,
+      "editor": {
+        "x": 41,
+        "width": 308,
+        "right": 349
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 356,
+        "height": 340
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cores3-390.png",
+        "bytes": 173630,
+        "sha256": "3c4485cc520a9baa00d7caa4d665e3326acc3f65e9758f7baa0b58e20d0d63b2"
+      }
+    },
+    {
+      "device": "cardputer-zero",
+      "width": 1440,
+      "document_width": 1440,
+      "body_width": 1440,
+      "editor": {
+        "x": 281,
+        "width": 782,
+        "right": 1063
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 830,
+        "height": 510
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cardputer-zero-1440.png",
+        "bytes": 324287,
+        "sha256": "750922a9c712523f9d09769585a56819cf89ad722a5f7666e0412885b5386adf"
+      }
+    },
+    {
+      "device": "cardputer-zero",
+      "width": 390,
+      "document_width": 390,
+      "body_width": 390,
+      "editor": {
+        "x": 41,
+        "width": 308,
+        "right": 349
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 356,
+        "height": 340
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "cardputer-zero-390.png",
+        "bytes": 195997,
+        "sha256": "f903c195bf0e7fb9cc64e8bface5e225bce2a521903bfc13c91f8a02c2022962"
+      }
+    },
+    {
+      "device": "stopwatch",
+      "width": 1440,
+      "document_width": 1440,
+      "body_width": 1440,
+      "editor": {
+        "x": 281,
+        "width": 782,
+        "right": 1063
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 830,
+        "height": 510
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "stopwatch-1440.png",
+        "bytes": 235010,
+        "sha256": "d37747809adcbb446b7360130b313bec765547dbdcb40225d81b9b67d12940f3"
+      }
+    },
+    {
+      "device": "stopwatch",
+      "width": 390,
+      "document_width": 390,
+      "body_width": 390,
+      "editor": {
+        "x": 41,
+        "width": 308,
+        "right": 349
+      },
+      "run_disabled": true,
+      "interrupt_disabled": true,
+      "iframe_count": 0,
+      "webgl": {
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "lost": false,
+        "width": 356,
+        "height": 340
+      },
+      "forward_focus": {
+        "id": "pythonFile",
+        "tag": "INPUT",
+        "outline": "solid",
+        "outline_width": "2px"
+      },
+      "backward_focus": "",
+      "screenshot": {
+        "path": "stopwatch-390.png",
+        "bytes": 181990,
+        "sha256": "d532936e5ff88259d4e72cfe8fc0db3dd5a25c198da1c94c2f4f39e6bc175164"
+      }
+    }
+  ],
+  "raw_reports": [
+    {
+      "name": "uiflow-v5-dom-boundary-qa-v1/report.json",
+      "sha256": "25aacf3efce1c68637fea0442838cd24719d3996c42dbd9410b8ecb06942ea65",
+      "bytes": 6582,
+      "status": "FAIL",
+      "script_sha256": "581f5a88bbdd249af0c3890810c734024cef258376abce4e5c09a5ee8ac772f9",
+      "browser_closed": true,
+      "server_closed": true,
+      "dedicated_worker_events": 0,
+      "final_cdp_worker_targets": "NOT CAPTURED; observer failed before final scan"
+    },
+    {
+      "name": "uiflow-v5-dom-boundary-qa-v2/report.json",
+      "sha256": "fbd11247f4b7857802b7bebb564297f4a77f482cfc928904960dbf64d7cb3270",
+      "bytes": 8131,
+      "status": "PASS",
+      "script_sha256": "2eb7dbd05c96d4bf4ddc1380e08619210b918209e35b57807f6cfd7c1d3e2c81",
+      "browser_closed": true,
+      "server_closed": true,
+      "dedicated_worker_events": 0,
+      "final_cdp_worker_targets": 0
+    }
+  ],
+  "visual_inspection": [
+    "CoreS3 390: model/editor fit, disabled buttons and visible import focus.",
+    "CardputerZero390: actual3D model, noUIFlow/Linux reason and disabled Start/Run.",
+    "StopWatch1440: actual3D model and visible PM1 application-mode boundary."
+  ],
+  "limits": [
+    "No firmware or QEMU VM started; this is DOM/model-only validation, not guest acceptance.",
+    "CoreS3 four widths and two boundary devices at1440/390 only; other mappings remain host-contract coverage.",
+    "PaperS3 legacy metadata source exists, but strictQEMU export replaces it; absence is expected, not an added product model.",
+    "The initial observer FAIL remains separate; no assertion was weakened and its raw/screenshots were not overwritten."
+  ]
+}

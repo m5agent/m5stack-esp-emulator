@@ -1,9 +1,9 @@
 # 项目当前状态
 
-2026-11-04 的[当前发布包启动调查](evidence/2026-11-04-browser-startup-investigation/README.md)确认原 Atom Matrix / StickC Plus 固定示例仍有慢启动，所试 oneInsn 配置未获采用。
-CoreS3 精确 Flash / fresh 74-patch WASM 的[完整编辑器验收](evidence/2026-11-04-browser-uiflow-workbench/README.md)保留首次 signed-array FAIL；同 Flash/WASM 的[正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md)为 54/54。
-单次 ready `10.971 s` 对此前 div8 的 `27.483 s`，不是重复性能基准。`UI-03` 保持 `PARTIAL`：其余 18 款新默认 guest、完整按键、新 C 复验与新部署仍未完成。
-19 组包装成功、host 合同和 CoreS3 结果不转授为全设备能力。
+2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。
+19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。
+11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，StamPLC/Cardputer/AtomS3Lite原策略的`RUNTIME-07/08/09`根因仍OPEN。
+`UI-03`保持`PARTIAL`：本地既定功能门禁已验，逐板性能、长期稳定性、其它固件与正式HTTPS仍独立；V6未在本记录部署，功能并发不作性能样本。
 
 日期：`2026-11-04`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 

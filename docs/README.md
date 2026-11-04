@@ -52,9 +52,9 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 [性能修复与对照计划](plans/2026-11-03-emulator-performance.md)执行，
 [性能修复与对照证据](evidence/2026-11-03-emulator-performance/README.md)分别记录浏览器与原生结果，
 [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
-2026-11-04 的逐设备启动、完整按键与网页 MicroPython 工作台按
-[UIFlow 浏览器工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md)推进，
-新默认镜像与新的输入路由仍需各自的完整浏览器验收。
+2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地独立完成60例，
+覆盖编辑器、声明按键/键盘/机身触摸输入与原固定示例；[设计](plans/2026-11-04-uiflow-browser-workbench-design.md)保留范围与路径。
+逐板性能、长期稳定性及正式HTTPS仍独立验收，本地功能结果不关闭原策略C根因。
 [当前发布包启动调查](evidence/2026-11-04-browser-startup-investigation/README.md)
 保留 Atom Matrix / StickC Plus 基线、未采用候选和早启 CDP 诊断，不授予新默认固件或全设备提速。
 [host poll 唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md)
@@ -71,7 +71,7 @@ warm 与 pthread cancellation 尚未建立，不授予全型号、新默认镜�
 [PaperColor 帧观察器证据](evidence/2026-11-04-papercolor-frame-oracle/README.md)保留 LCD 红色假设的失败；按 Spectra6 调色板与新帧序列独立验收。
 [Paper PM1 应用配置](evidence/2026-11-04-paper-pm1-application/README.md)保留缺失 Python helper 的准备失败，分开公开 I2C 配置与原生按键事件结果。
 [S3 工作台执行策略](evidence/2026-11-04-s3-workbench-execution-policy/README.md)保留 AtomS3 Lite 首启 PIF，并记录八款精确镜像的独立候选验收；`RUNTIME-09` 根因仍开放。
-其余 18 款新默认 guest、完整按键和新部署仍未完成。
+本地全19的最终范围见新独立记录；上述各历史记录仍只授予当时的限定结果，不改写原FAIL。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
 SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
@@ -323,7 +323,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [性能优化合 main 与 Pages 更新](evidence/2026-11-03-performance-pages-release/README.md) | 部署与虚拟设备证据 | `2026-11-03` | 两 PR 合并、新 producer 路径策略、19 板 20 例完整本地门禁、prepared-preview 部署与独立 HTTPS 验证；保留 regular CI engine 清理失败 |
 | [原生页面性能验证](evidence/2026-11-03-emulator-performance/native-validation.md) | 验证证据 | `2026-11-03` | 四次同固件对照及实际帧、SCS、输入、历史和停止；不授予 browser 或物理性能 |
 | [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
-| [浏览器启动与UIFlow工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md) | 实施计划 | `2026-11-04` | 全部19款可运行设备的启动/按键、新默认镜像与源码编辑器；逐板身份、行为和清场仍需实际验收 |
+| [浏览器启动与UIFlow工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md) | 实施计划 | `2026-11-04` | 全部19款设备的默认工作台/声明输入本地验收另见R8；本设计保留身份与行为门禁，性能、长期稳定性和正式HTTPS仍独立 |
 | [Atom Matrix / StickC Plus启动调查](evidence/2026-11-04-browser-startup-investigation/README.md) | 浏览器诊断证据 | `2026-11-04` | 原正式3c两板基线、未采用的oneInsn候选与20秒早启CDP；不授予新默认工作台、全设备提速或部署 |
 | [WASM host poll唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md) | 构建、SDK与两板cold证据 | `2026-11-04` | fresh75原Flash Matrix15/Plus26与正常5CDP；独立cold批次未测warm；[后续Matrix75 V1首组](evidence/2026-11-04-wasm-wakeable-poll/warm-summary.json)53.491→76.480s更慢，余3组NOT RUN，纯cache收益与取消未建立；不授予新默认、全型号或线上提速 |
 | [UIFlow工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md) | 浏览器与组合分层证据 | `2026-11-04` | 首次signed-array FAIL保留、旧3c smoke20、新2c72 CoreS3 div8完整54；19组包装与四宽度model-only检查不授予其余18板guest或全按键 |
@@ -334,6 +334,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [PaperColor帧观察器修正](evidence/2026-11-04-papercolor-frame-oracle/README.md) | 观察器与限定虚拟设备证据 | `2026-11-04` | 同V5/96ea，首轮LCD F800假设失败保留；Spectra6全帧B800/双新鲜序列、未修改默认源码两次Run及64项窄复验；后续报告控制脚本与完整矩阵另验 |
 | [Paper PM1应用配置](evidence/2026-11-04-paper-pm1-application/README.md) | 精确固件输入证据 | `2026-11-04` | R6 PaperColor准备ImportError/零输入保留；两Paper显式公开I2C配置后23/19项、8/6次250ms输入与原BtnPWR通过；Mono编辑器63项独立通过，模块/物理pinmux与清场范围分开 |
 | [S3工作台执行策略](evidence/2026-11-04-s3-workbench-execution-policy/README.md) | 精确镜像候选与源审查证据 | `2026-11-04` | 原AtomS3 Lite首启INT_CLR读PIF保留/09OPEN；八板各自editor+buttons及Stackbody共17候选/656检查/40输入通过，真实argv与清场逐项绑定；仅功能行推广到V6，完整60/线上另验 |
+| [全19板UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md) | 完整本地浏览器功能证据 | `2026-11-04` | canonical V6独立60/2564、224次raw-paste/38次默认样例、200组输入与真实清场；逐板ready仅功能观察、11S3精确argv，原FAIL及07/08/09 OPEN；不授逐板性能或线上 |
+| [V5 DOM/model-only边界检查](evidence/2026-11-04-browser-uiflow-all19-acceptance/dom-qa-summary.json) | 独立布局与能力边界证据 | `2026-11-04` | CoreS3四宽及两个边界型号两宽，无guest；PaperS3观察器首FAIL保留，不转授为V6新布局或guest结果 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |
