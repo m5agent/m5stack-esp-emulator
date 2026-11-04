@@ -1,3 +1,4 @@
+import {resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
@@ -17,16 +18,16 @@ export function browserQemuHistory(storage) {
 }
 export class PublicQemuRuntime {
   constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
-    requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,allowCandidateProfiles=false}={}) {
+    requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,workbenchProfiles,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
-    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,allowCandidateProfiles});
+    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,allowCandidateProfiles});
     this.loadAsset=downloadImpl===downloadFirmware?loadVerifiedRuntimeAsset:createVerifiedAssetLoader({downloadImpl,cacheStorage:null});
     this.compileWasm=compileImpl?createVerifiedModuleCompiler({compile:compileImpl}):compileVerifiedRuntimeModule;
     this.fetchImpl=(...args)=>fetchImpl(...args);
-    this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
+    this.uartListeners=new Set();this.uartOwner=null;this.consoleEpoch=0;this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
-    runtime:this.receipt||null,display:this.display,sessionId:this.sessionId,persistentStorage:false,cleanup:this.cleanupResult||null,
+    runtime:this.receipt||null,display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
     resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
   state(status) { this.status=status;this.onState(this.observe()); }
   ask(op,value={},transfer=[]) {
@@ -53,6 +54,9 @@ export class PublicQemuRuntime {
       data.error?item.reject(new Error(data.error)):item.resolve(data.value);return;
     }
     this.waiters.get(data.type)?.resolve(data.value);this.waiters.delete(data.type);
+    if(data.type==='uart-bytes'&&data.value instanceof Uint8Array) {
+      for(const listener of this.uartListeners)listener(data.value);
+    }
     if(data.type==='serial') {
       const serial=this.serial+data.value;this.readySerialOffset=Math.max(0,(this.readySerialOffset||0)-Math.max(0,serial.length-65536));
       this.serial=serial.slice(-65536);this.onSerial(data.value);
@@ -63,7 +67,11 @@ export class PublicQemuRuntime {
       this.machineEvents.push({...data.value,at:new Date().toISOString()});if(this.machineEvents.length>50)this.machineEvents.shift();
       if(data.value.event==='SUSPEND')this.state('sleeping');
       if(data.value.event==='WAKEUP'&&this.status==='sleeping')this.state(this.guestReady()?'running':'booting');
-      if(data.value.event==='RESET'){this.readySerialOffset=this.serial.length;this.lastDeviceState=null;if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');}
+      if(data.value.event==='RESET'){
+        this.consoleEpoch=Number.isSafeInteger(data.value.consoleEpoch)?data.value.consoleEpoch:this.consoleEpoch+1;
+        this.uartOwner=null;this.readySerialOffset=this.serial.length;this.lastDeviceState=null;
+        if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');
+      }
     }
     if(data.type==='diagnostic') { this.diagnostics=(this.diagnostics+data.value+'\n').slice(-32768); }
     if(data.type==='frame') {
@@ -86,7 +94,7 @@ export class PublicQemuRuntime {
   async start(options={}) {
     const {device,firmware,signal,clockDivisor}=options;
     await this.stop();
-    const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
+    const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.display=null;this.displayPollAt=0;
     this.receipt=null;this.profile=null;this.stoppedAt=null;
@@ -108,6 +116,7 @@ export class PublicQemuRuntime {
       const flash=validateQemuFirmware(firmware,profile),firmwareSHA256=await sha256Buffer(flash,{signal:bootAbort.signal});
       active();
       profile=resolveQemuFirmwareProfile(profile,firmwareSHA256);
+      if(this.workbenchProfiles)profile=resolveUIFlowWorkbenchProfile(profile,firmwareSHA256,this.workbenchProfiles);
       let clockOverride=null;
       if(clockDivisor!==undefined){
         check(this.allowCandidateProfiles&&[1,8].includes(clockDivisor),'时钟覆盖仅用于明确的候选预览。');
@@ -143,8 +152,11 @@ export class PublicQemuRuntime {
       }))]);active();
       const wasm=wasmAsset.bytes;
       this.frameTransport=profile.display===null?null:manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
+      const workbench=this.workbenchProfiles?.profiles.find(row=>row.deviceId===deviceId&&row.firmwareSHA256===firmwareSHA256);
       this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,clockOverride,
-        accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,sourceCommit:QEMU_COMMIT,
+        accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,requiredInputPatch:profile.requiredInputPatch||null,
+        uiflowWorkbench:workbench?{baseSha256:workbench.baseSHA256,composerCommit:this.workbenchProfiles.composer_commit,
+          startupSources:Object.fromEntries(Object.entries(workbench.files).map(([name,row])=>[name,row.sha256]))}:null,sourceCommit:QEMU_COMMIT,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
@@ -243,7 +255,34 @@ export class PublicQemuRuntime {
     const result=await this.ask('input',event);
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};
   }
-  evidence(){return {schema_version:1,kind:'browser-local-qemu-evidence',session_id:this.sessionId,started_at:this.startedAt,
+  subscribeUart(listener){this.uartListeners.add(listener);return ()=>this.uartListeners.delete(listener);}
+  acquireUart(){
+    check(['booting','running','paused'].includes(this.status)&&!this.stopping,'请先启动或继续设备。');
+    check(this.profile?.inputs.uart===true,'该设备不支持串口输入。');
+    check(!this.uartOwner,'串口正由另一项操作使用，请等待其完成。');
+    const owner=Object.freeze({generation:this.generation,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch});
+    this.uartOwner=owner;return owner;
+  }
+  releaseUart(owner){if(this.uartOwner===owner)this.uartOwner=null;}
+  requireUartOwner(owner){
+    if(!owner||this.uartOwner!==owner||owner.generation!==this.generation
+      ||owner.sessionId!==this.sessionId||owner.consoleEpoch!==this.consoleEpoch||this.stopping)
+      throw new DOMException('串口所属设备或程序已改变。','AbortError');
+  }
+  async writeUart(bytes,owner){
+    check(['booting','running'].includes(this.status)&&!this.stopping,'请先启动或继续设备。');
+    check(this.profile?.inputs.uart===true,'该设备不支持串口输入。');
+    check(bytes instanceof Uint8Array&&bytes.length>0&&bytes.length<=1024,'串口输入应为 1–1024 字节。');
+    const temporary=owner===undefined;
+    if(temporary)owner=this.acquireUart();
+    try{
+      this.requireUartOwner(owner);
+      const result=await this.ask('uart',{bytes:Array.from(bytes),consoleEpoch:owner.consoleEpoch});
+      this.requireUartOwner(owner);return result;
+    }catch(error){this.requireUartOwner(owner);throw error;}
+    finally{if(temporary)this.releaseUart(owner);}
+  }
+  evidence(){return {schema_version:1,kind:'browser-local-qemu-evidence',session_id:this.sessionId,console_epoch:this.consoleEpoch,started_at:this.startedAt,
     stopped_at:this.stoppedAt||null,receipt:this.receipt,serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,display:this.display,
     last_frame:this.lastFrame?{width:this.lastFrame.width,height:this.lastFrame.height,sequence:this.lastFrame.sequence,
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
@@ -252,6 +291,7 @@ export class PublicQemuRuntime {
     cleanup:this.cleanupResult,machine_events:this.machineEvents||[],limits:this.profile?.limitations||[]};}
   stop(){
     if(this.stopping)return this.stopping;
+    this.uartOwner=null;
     this.stopPolling();
     if(!this.iframe&&!this.abort)return Promise.resolve(this.observe());
     this.stopping=(async()=>{

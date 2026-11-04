@@ -1,0 +1,772 @@
+{
+  "schema_version": 1,
+  "kind": "browser-startup-investigation",
+  "date": "2026-11-04",
+  "validation": "browser virtual-device validation",
+  "overall": "PARTIAL: baseline reproduced; optimization not accepted",
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "web_source_commit": "b41eba70eb61f7ddc5c41e0b981341064f9d1d1f",
+    "producer_source_commit": "1b86ed6f7edcc36deafc4834b45a28c6a6017c79",
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "web_export_paths_verified": 22,
+    "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+    "runtime_assets": {
+      "javascript": {
+        "bytes": 157200,
+        "path": "qemu-system-xtensa.js",
+        "sha256": "5d306019d5ecc8eab9aa2d582f2e1f3c34a9bcc1d24dd6a463391eac94564a4e"
+      },
+      "notice": {
+        "bytes": 968,
+        "path": "NOTICE",
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "source": {
+        "bytes": 35241880,
+        "path": "corresponding-source.tar.xz",
+        "sha256": "3bf6ee4fe907aff960ace53ae4622356345960055e0cb1cc1dee964ff6fc09b0"
+      },
+      "wasm": {
+        "bytes": 12745460,
+        "path": "qemu-system-xtensa.wasm",
+        "sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567"
+      },
+      "worker": {
+        "bytes": 2776,
+        "path": "qemu-system-xtensa.worker.js",
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "runtime_build": {
+      "kind": "source-build",
+      "all_objects_rebuilt": true,
+      "emscripten": "3.1.50",
+      "lock_sha256": "b9b137e52e77078cc67cb5b25433622f62d70cc3cbed8f92ee6699eed3389a1b",
+      "recipe_sha256": "f69cd135c8d5bb6c1efe920eb2ec54070798267b304c1333b9397fbde18770fc",
+      "commands_sha256": "8a8ab7d36b78b7499aea20c5ed6592039e49284b6147478333e87bc44858377a"
+    },
+    "compiled_source_paths": {
+      "accel/tcg/cpu-exec.c": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
+      "target/xtensa/op_helper.c": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
+      "target/xtensa/translate.c": "335c6ad3b2aee8721769ef8415ccf0a14b8f320903cde23482e212541712514f",
+      "util/coroutine-wasm.c": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b"
+    }
+  },
+  "environment": {
+    "host": "Apple M4; macOS arm64",
+    "browser": "157.0.8103.38",
+    "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+    "serving": "owned loopback static server with project prefix and Pages Service Worker isolation; not a new HTTPS latency measurement",
+    "base_path": "/m5stack-esp-emulator/",
+    "execution": "one owned guest at a time; fresh Chromium context per independent case; no firmware/controller/clock/watchdog bypass"
+  },
+  "firmware": {
+    "atom-matrix": {
+      "name": "UIFlow2 v2.5.3 Atom Matrix C008-B composed public RGB/USER fixture",
+      "official_base_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+      "full_flash_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "fixture_main_sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"
+    },
+    "stickc-plus": {
+      "name": "UIFlow2 v2.5.2 original StickC Plus K016-P composed public display/BtnA fixture",
+      "official_base_sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+      "full_flash_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "fixture_main_sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+    }
+  },
+  "cases": [
+    {
+      "device": "atom-matrix",
+      "execution": "published-icount5-baseline",
+      "raw_status": "PASS",
+      "assessment": "Scoped original fixture functional PASS; one startup measurement only, no optimization claim",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "clock_divisor": 1,
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "one_insn_per_tb": false,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "startup_ms": {
+        "click_to_runtime_start": 567.75,
+        "runtime_to_first_serial": 18762.835000038147,
+        "click_to_ready": 109457.6399999857,
+        "runtime_to_ready": 108889.8899999857
+      },
+      "checks": {
+        "passed": 15,
+        "total": 15
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 4,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "actual_worker_targets_closed": true
+    },
+    {
+      "device": "stickc-plus",
+      "execution": "published-icount5-baseline",
+      "raw_status": "PASS",
+      "assessment": "Scoped original fixture functional PASS; one startup measurement only, no optimization claim",
+      "firmware_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "clock_divisor": 1,
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "one_insn_per_tb": false,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stickcplus",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "startup_ms": {
+        "click_to_runtime_start": 181.27500009536743,
+        "runtime_to_first_serial": 18285.889999985695,
+        "click_to_ready": 90687.35500001907,
+        "runtime_to_ready": 90506.0799999237
+      },
+      "checks": {
+        "passed": 26,
+        "total": 26
+      },
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 4,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "actual_worker_targets_closed": true
+    },
+    {
+      "device": "atom-matrix",
+      "execution": "diagnostic-mttcg-one-insn",
+      "raw_status": "FAIL",
+      "assessment": "Guest cache panic before ready; input/steady/warm phases NOT RUN; no admission",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "profile": "atom-matrix-wasm-one-insn-candidate",
+      "clock_divisor": 1,
+      "accelerator": null,
+      "one_insn_per_tb": true,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ],
+      "startup_ms": {
+        "click_to_runtime_start": 417.835000038147,
+        "runtime_to_first_serial": 900.7250000238419,
+        "click_to_ready": null,
+        "runtime_to_ready": null
+      },
+      "checks": {
+        "passed": 3,
+        "total": 3
+      },
+      "cleanup": "NOT CAPTURED",
+      "actual_worker_targets_closed": "NOT CAPTURED",
+      "raw_error": "Guest panic or Python traceback",
+      "fault": {
+        "kind": "Cache disabled but cached memory region accessed",
+        "core": 0,
+        "pc": "0x40009a6e",
+        "exccause": "0x07",
+        "excvaddr": "0x00000000",
+        "firmware_reported_elf_prefix": "939bab2ec"
+      }
+    },
+    {
+      "device": "atom-matrix",
+      "execution": "diagnostic-original-icount5-plus-one-insn",
+      "raw_status": "FAIL",
+      "assessment": "Observer timing assertion FAIL after real BtnA edge/count/RMT/model checks passed; candidate slower than baseline in observed run; no admission",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "profile": "atom-matrix-wasm-icount-one-insn-candidate",
+      "clock_divisor": 1,
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      },
+      "one_insn_per_tb": true,
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128,one-insn-per-tb=on",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "startup_ms": {
+        "click_to_runtime_start": 268.9100000858307,
+        "runtime_to_first_serial": 1601.8600000143051,
+        "click_to_ready": 126619.58000004292,
+        "runtime_to_ready": 126350.66999995708
+      },
+      "checks": {
+        "passed": 10,
+        "total": 11
+      },
+      "cleanup": "NOT CAPTURED",
+      "actual_worker_targets_closed": "NOT CAPTURED",
+      "raw_error": "candidate-steady-no-watchdog-panic-or-restart",
+      "observer_failure": {
+        "required_heartbeat_markers_in_8_wall_seconds": 2,
+        "actual_heartbeat_markers": 0,
+        "actual_ready_markers": 1,
+        "panic_or_traceback_observed": false,
+        "classification": "observer timing assumption; not proof of a guest panic or deadlock",
+        "raw_report_retained": true,
+        "rerun": "NOT RUN"
+      }
+    }
+  ],
+  "startup_phase_ms_from_runtime_start": {
+    "atom-matrix-baseline": {
+      "rom_entry": 21761.01,
+      "first_i2c_log": 84218.35,
+      "uiflow_banner": 92554.49,
+      "python_main_begin": 108040.175,
+      "ready": 108889.875
+    },
+    "stickc-plus-baseline": {
+      "rom_entry": 21376.635,
+      "first_i2c_log": 76177.57,
+      "uiflow_banner": 81783.17,
+      "python_main_begin": 89508.9,
+      "ready": 90506.05
+    },
+    "atom-matrix-icount-one-insn": {
+      "rom_entry": 4293.675,
+      "first_i2c_log": 57033.63,
+      "uiflow_banner": 84487.175,
+      "python_main_begin": 125516.61,
+      "ready": 126350.67
+    }
+  },
+  "cpu_profiler": {
+    "result": "DIAGNOSTIC",
+    "requested_ms": 20000,
+    "window": "startup after QMP running acknowledgement; before app-ready requirement",
+    "profiled_workers": 5,
+    "all_actual_created_workers_covered": true,
+    "firmware_application_result": "NOT ASSESSED; no input injected",
+    "threads": [
+      {
+        "role": "engine",
+        "samples": 15994,
+        "sample_delta_sum_us": 20037559,
+        "top_leaf_frames": [
+          {
+            "function": "(idle)",
+            "samples": 15847,
+            "fraction_of_this_thread_samples": 0.9908090533950231,
+            "sample_delta_us": 19855738
+          },
+          {
+            "function": "wasm-function[1986]",
+            "samples": 35,
+            "fraction_of_this_thread_samples": 0.002188320620232587,
+            "sample_delta_us": 43551
+          },
+          {
+            "function": "__emscripten_thread_mailbox_await",
+            "samples": 28,
+            "fraction_of_this_thread_samples": 0.0017506564961860698,
+            "sample_delta_us": 34853
+          },
+          {
+            "function": "__emscripten_receive_on_main_thread_js",
+            "samples": 13,
+            "fraction_of_this_thread_samples": 0.0008128048018006752,
+            "sample_delta_us": 15164
+          }
+        ]
+      },
+      {
+        "role": "pthread-1",
+        "samples": 15999,
+        "sample_delta_sum_us": 20040656,
+        "top_leaf_frames": [
+          {
+            "function": "wasm-function[2326]",
+            "samples": 15987,
+            "fraction_of_this_thread_samples": 0.9992499531220701,
+            "sample_delta_us": 20025849
+          },
+          {
+            "function": "_emscripten_get_now",
+            "samples": 3,
+            "fraction_of_this_thread_samples": 0.00018751171948246765,
+            "sample_delta_us": 3596
+          },
+          {
+            "function": "wasm-to-js",
+            "samples": 2,
+            "fraction_of_this_thread_samples": 0.00012500781298831177,
+            "sample_delta_us": 2467
+          },
+          {
+            "function": "wasm-function[100]",
+            "samples": 2,
+            "fraction_of_this_thread_samples": 0.00012500781298831177,
+            "sample_delta_us": 2519
+          }
+        ]
+      },
+      {
+        "role": "pthread-2",
+        "samples": 16002,
+        "sample_delta_sum_us": 20043540,
+        "top_leaf_frames": [
+          {
+            "function": "wasm-function[2326]",
+            "samples": 15980,
+            "fraction_of_this_thread_samples": 0.9986251718535183,
+            "sample_delta_us": 20016810
+          },
+          {
+            "function": "_emscripten_get_now",
+            "samples": 9,
+            "fraction_of_this_thread_samples": 0.0005624296962879641,
+            "sample_delta_us": 11165
+          },
+          {
+            "function": "wasm-to-js",
+            "samples": 3,
+            "fraction_of_this_thread_samples": 0.00018747656542932134,
+            "sample_delta_us": 3710
+          },
+          {
+            "function": "wasm-function[5817]",
+            "samples": 2,
+            "fraction_of_this_thread_samples": 0.00012498437695288088,
+            "sample_delta_us": 2383
+          }
+        ]
+      },
+      {
+        "role": "pthread-3",
+        "samples": 16001,
+        "sample_delta_sum_us": 20043121,
+        "top_leaf_frames": [
+          {
+            "function": "wasm-function[2326]",
+            "samples": 15896,
+            "fraction_of_this_thread_samples": 0.9934379101306169,
+            "sample_delta_us": 19913591
+          },
+          {
+            "function": "wasm-function[3157]",
+            "samples": 45,
+            "fraction_of_this_thread_samples": 0.0028123242297356417,
+            "sample_delta_us": 54570
+          },
+          {
+            "function": "_emscripten_get_now",
+            "samples": 16,
+            "fraction_of_this_thread_samples": 0.000999937503906006,
+            "sample_delta_us": 20122
+          },
+          {
+            "function": "proxyToMainThread",
+            "samples": 8,
+            "fraction_of_this_thread_samples": 0.000499968751953003,
+            "sample_delta_us": 10044
+          }
+        ]
+      },
+      {
+        "role": "pthread-4",
+        "samples": 16002,
+        "sample_delta_sum_us": 20045504,
+        "top_leaf_frames": [
+          {
+            "function": "__emscripten_throw_longjmp",
+            "samples": 12806,
+            "fraction_of_this_thread_samples": 0.8002749656292963,
+            "sample_delta_us": 16048412
+          },
+          {
+            "function": "wasm-function[2326]",
+            "samples": 1696,
+            "fraction_of_this_thread_samples": 0.10598675165604299,
+            "sample_delta_us": 2115891
+          },
+          {
+            "function": "wasm-function[7145]",
+            "samples": 263,
+            "fraction_of_this_thread_samples": 0.016435445569303837,
+            "sample_delta_us": 330237
+          },
+          {
+            "function": "ret.<computed>",
+            "samples": 137,
+            "fraction_of_this_thread_samples": 0.00856142982127234,
+            "sample_delta_us": 175398
+          }
+        ]
+      }
+    ],
+    "interpretation": "Leaf sample fractions and summed sample timeDeltas describe profiler observations, not CPU utilization or per-thread CPU time. C function indices are unresolved; no helper/ffi/futex source attribution is granted. Named JS longjmp and Asyncify frames give a diagnostic lead only.",
+    "normal_cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersCreated": 4,
+      "workersAtExit": 0,
+      "disposal": {
+        "workersRemaining": 0,
+        "workersTerminatedByDispose": 0,
+        "workerCountScope": "nested-pthreads",
+        "enginePlacement": "dedicated-worker-v1",
+        "engineWorkersAtAcknowledgement": 1,
+        "selfCloseAfterAcknowledgement": true
+      },
+      "engineOwnership": {
+        "engineWorkersCreated": 1,
+        "engineOwnerLive": false,
+        "engineCloseNotificationReceived": true,
+        "engineSelfCloseNotifications": 1,
+        "engineNormalTerminations": 1,
+        "engineFallbackTerminations": 0,
+        "enginePortTransferred": true
+      },
+      "engineOwnershipStage": "before-iframe-removal",
+      "explicitWorkerDisposal": true,
+      "iframeRemoved": true
+    },
+    "all_cdp_targets_closed": true
+  },
+  "symbol_relink": {
+    "result": "REJECTED_FOR_3C_SYMBOL_ATTRIBUTION",
+    "runtime_executed": "NOT RUN",
+    "method": "read existing producer objects; change only output destination and append --emit-symbol-map in owned diagnostic output/cache; original source/build/SDK unchanged",
+    "emitted_filename": "qemu-system-xtensa.js.symbols",
+    "format": "function_index:function_name, one entry per line",
+    "symbol_map_sha256": "462962160f827eefb00eea3909192e10c022c901f66717bb56c1baef5c666fd5",
+    "new_wasm_sha256": "c60dc0a8a662a67ba5961fa6a80291af2b4ad72661ff83057a2cabe871b81a12",
+    "new_wasm_bytes": 12745464,
+    "original_wasm_bytes": 12745460,
+    "exact_match": false,
+    "reason": "Type/import/function/export/element/code sections differ; the four-byte size difference does not preserve function indices. The map was not applied to 3c samples."
+  },
+  "cstack_static_feasibility": {
+    "executed": "NOT RUN",
+    "option": "M5_WASM_CSTACK_TRACE=1",
+    "compiled_markers": [
+      "M5_CSTACK_CACHE",
+      "M5_CSTACK_SWAP"
+    ],
+    "scope": "Existing source traces S3 cache before/after writes and fiber before/after swap, with per-thread 256-log budgets; it does not classify cpu_io_recompile, cooperative-yield or cpu_loop_exit reasons. Classic AtomMatrix does not use the S3 cache implementation."
+  },
+  "withdrawn_runtime_diagnostics": {
+    "wasm_sha256": "0bd9478743d640484cad4762b9d7f7ae57a222f83ebf12a2114eb764a05194ea",
+    "status": "DIAGNOSTIC_OLD_RUNTIME_SUPERSEDED",
+    "reason": "Old pre-path-normalization package was withdrawn from distribution; its three measurements cannot establish current Pages or a new runtime result. Raw reports remain unchanged.",
+    "cases": [
+      {
+        "device": "atom-matrix",
+        "execution": "baseline",
+        "raw_result": "PASS",
+        "click_to_ready_ms": 102000.76999998093,
+        "status": "DIAGNOSTIC_OLD_RUNTIME_SUPERSEDED",
+        "raw_report": {
+          "bytes": 145945,
+          "sha256": "80e0a6559935fedb05fcae413289d29330dff22212fe913296d76a04d968db91"
+        }
+      },
+      {
+        "device": "stickc-plus",
+        "execution": "baseline",
+        "raw_result": "PASS",
+        "click_to_ready_ms": 87903.77999997139,
+        "status": "DIAGNOSTIC_OLD_RUNTIME_SUPERSEDED",
+        "raw_report": {
+          "bytes": 179578,
+          "sha256": "8a655f9d66909bd2196471b8df8e7bae7eafeeaed79c216df9a9bcbdea9af522"
+        }
+      },
+      {
+        "device": "atom-matrix",
+        "execution": "plain-mttcg",
+        "raw_result": "PASS",
+        "click_to_ready_ms": 62502.62000000477,
+        "status": "DIAGNOSTIC_OLD_RUNTIME_SUPERSEDED",
+        "raw_report": {
+          "bytes": 148422,
+          "sha256": "803b4c7d4d8c0a082da8f067c0c13dc0f13cc8dd0d64a0dd1111383c28fdbf58"
+        }
+      }
+    ]
+  },
+  "not_run": [
+    "StickC Plus MTTCG or icount-plus-one-insn candidates after AtomMatrix first failure/no benefit",
+    "Candidate same-page warm repetitions after first failure/no benefit",
+    "All-device startup improvement, all-device full-button coverage, new default UIFlow workbench acceptance",
+    "New 0030 guard runtime performance, new 74-patch build and deployment acceptance",
+    "Physical hardware or physical timing equivalence"
+  ],
+  "reproduction": {
+    "baseline_functional_entrypoints": [
+      "platform/tests/test_public_qemu_headless_guest.mjs",
+      "platform/tests/test_public_qemu_board_guest.mjs"
+    ],
+    "observer_scripts": "Ignored local snapshots; immutable hashes and sizes below. Baseline stock entrypoints reproduce guest/controller/input/cleanup paths, but do not emit the added startup/CDP measurements without those observers.",
+    "requirements": "Use fixed b41 web sources and the exact 3c runtime and official-base hashes; source builds with another WASM hash need separate acceptance. Candidate transforms stay diagnostic/publication_eligible=false."
+  },
+  "raw_artifacts": [
+    {
+      "label": "atom-matrix/published-icount5-baseline/report.json",
+      "bytes": 150310,
+      "sha256": "df631c7d5320c2e0089a3690765113d8611645e13775a0e8e6f72e1efb1da162"
+    },
+    {
+      "label": "atom-matrix/published-icount5-baseline/harness-executed.mjs",
+      "bytes": 21136,
+      "sha256": "b313b82728186f2457424f4c1f5ad83f7eaed13f6544c5e8ac473ceac81b7fab"
+    },
+    {
+      "label": "atom-matrix/published-icount5-baseline/running.json",
+      "bytes": 6921,
+      "sha256": "352ac9f0402bf555017561b0c2a628326dea795add8ecbb2fc17be8751b8ec55"
+    },
+    {
+      "label": "atom-matrix/published-icount5-baseline/stopped.json",
+      "bytes": 7859,
+      "sha256": "17110bb523eb5535684d53f3b099119eadc05331346bb6cc9fc333ab4a4e3bcc"
+    },
+    {
+      "label": "stickc-plus/published-icount5-baseline/report.json",
+      "bytes": 184398,
+      "sha256": "05391985d274adb6b75074c11985549e5f6e09483323bf75aba46c62a43dbf0a"
+    },
+    {
+      "label": "stickc-plus/published-icount5-baseline/harness-executed.mjs",
+      "bytes": 54722,
+      "sha256": "c6556e8d9097777ec655f6ad770cb857b6169de78f89016d96aa51658aeb8919"
+    },
+    {
+      "label": "stickc-plus/published-icount5-baseline/running-after-input.json",
+      "bytes": 623974,
+      "sha256": "323855f598864b7f940ab3c29696936e64d3eafa480a2fdcaefa0af38b02eed8"
+    },
+    {
+      "label": "stickc-plus/published-icount5-baseline/stopped.json",
+      "bytes": 624910,
+      "sha256": "f24e0d740357636d33b989062a3efc55d4930293ca5cca1dde0e213a56b2e75e"
+    },
+    {
+      "label": "atom-matrix/diagnostic-mttcg-one-insn/report.json",
+      "bytes": 188048,
+      "sha256": "6a80c95199bd3470328ce43ad6ebdb896640615ebf2e199a5a4379d70559df3a"
+    },
+    {
+      "label": "atom-matrix/diagnostic-mttcg-one-insn/harness-executed.mjs",
+      "bytes": 22935,
+      "sha256": "36d72d688e2364f072af187eaf25280e2d5b574d336d33a04a5c7ba810a7b22f"
+    },
+    {
+      "label": "atom-matrix/diagnostic-mttcg-one-insn/failure-state.json",
+      "bytes": 7765,
+      "sha256": "cf48bfdfb931eac99b476b4cfc7022bcd03c395fa8abaef79dccc274b44b2c50"
+    },
+    {
+      "label": "atom-matrix/diagnostic-original-icount5-plus-one-insn/report.json",
+      "bytes": 144538,
+      "sha256": "49296370275f8044aae6a31b5817d45fcd916ab18383b6ea139ffcc1144ecd59"
+    },
+    {
+      "label": "atom-matrix/diagnostic-original-icount5-plus-one-insn/harness-executed.mjs",
+      "bytes": 22970,
+      "sha256": "883260d300e56f701f99731f0c6df7955a2689a2a79964d98b79e3e7ca22b271"
+    },
+    {
+      "label": "atom-matrix/diagnostic-original-icount5-plus-one-insn/failure-state.json",
+      "bytes": 7767,
+      "sha256": "d364f286223685c943c5edb051f7eca38c9bc42d1d7718030e21554b92477c7f"
+    },
+    {
+      "label": "atom-matrix/diagnostic-original-icount5-plus-one-insn/observer-failure-attribution.json",
+      "bytes": 800,
+      "sha256": "178a6912d9be072697feba90f8348f8068224b6b1522e90f3030c27af4791cbe"
+    },
+    {
+      "label": "startup-cdp/report.json",
+      "bytes": 123772,
+      "sha256": "318297ff331f3663c47a2989acbdb50db5b1d1ebb7e6cebb6ebc356a81d0f716"
+    },
+    {
+      "label": "startup-cdp/worker-profiles.json",
+      "bytes": 2821787,
+      "sha256": "2900fb02bdb36949446aea70746bfc430cc40f989208a121ebfd37190ea4a8f3"
+    },
+    {
+      "label": "startup-cdp/harness-executed.mjs",
+      "bytes": 23540,
+      "sha256": "fc9393dbfcf927083f8a70f6addb3b6e61cf6b9cc601873ab3acdafdb9b5bc77"
+    },
+    {
+      "label": "startup-cdp/stopped.json",
+      "bytes": 6163,
+      "sha256": "3490fed14cd9f94f6543bc0900cbc3ac3ff9b2bac2f8c3aad6a5b1b1e9368e19"
+    },
+    {
+      "label": "startup-cdp/profiled-guest.json",
+      "bytes": 5225,
+      "sha256": "6bd591f930d4ee85f88fadb981fdd34e1fd2ada7f380d814f1a7e82be694314b"
+    },
+    {
+      "label": "symbol-relink/receipt.json",
+      "bytes": 71685,
+      "sha256": "b8ffaf6073c61e32b3d602fd4f611b27e17099dcc926101751494c2aa864fbe2"
+    },
+    {
+      "label": "symbol-relink/section-comparison.json",
+      "bytes": 3898,
+      "sha256": "f2834e88ca22046c26cd1239c6bcf06a1b598aed1a4e288c30e45b63c5b7e161"
+    },
+    {
+      "label": "symbol-relink/new-binary-symbol-map",
+      "bytes": 545530,
+      "sha256": "462962160f827eefb00eea3909192e10c022c901f66717bb56c1baef5c666fd5"
+    }
+  ],
+  "limits": [
+    "Two exact composed public fixtures only; no stock-menu, arbitrary firmware or other-device acceptance transferred.",
+    "One uninstrumented baseline per device; no distribution, guaranteed latency or causal speed ratio.",
+    "The profiling run is instrumented and separate from the uninstrumented timing samples.",
+    "A normal successful baseline cleanup does not replace missing cleanup observations from failed candidates.",
+    "The investigation does not establish a new optimization or close the user goal."
+  ]
+}

@@ -13,7 +13,7 @@ Arduino, ESP-IDF and MicroPython images are also supported when their compatibil
 
 ![CoreS3 firmware and interaction in the browser workbench](docs/images/browser-workbench.png)
 
-*Captured from an actual browser run for this documentation update; see [image provenance and reproduction](docs/images/README.md). The deployed site can differ from main. See the [Pages guide](docs/pages-deployment.md) for deployment and version details.*
+*An earlier recorded browser run; see [image provenance, version and reproduction](docs/images/README.md). The deployed site can differ from main. See the [Pages guide](docs/pages-deployment.md) for deployment and version details.*
 
 ## Choose a runtime
 
@@ -34,15 +34,18 @@ for exact test conditions.
 
 ## Try it online
 
+These steps describe the source reviewed on `2026-11-04`. The deployed version may differ and may not yet include the editor.
+
 1. Open the [website](https://m5agent.github.io/m5stack-esp-emulator/) in desktop Chromium.
-2. Select a device marked “浏览器运行” (runs in browser) and its reference firmware. Start it and wait for the application display or ready marker.
-3. Use the device's buttons, touch surface or supported inputs, inspect serial output and the display, then stop the instance.
+2. Select a device marked “浏览器运行” (runs in browser). In the source version, “UIFlow / 示例” defaults to “UIFlow2 编程环境”: an official UIFlow2 base with a programming startup script that initializes the device and waits for code, rather than a factory menu. Select “屏幕与按键示例” under “启动环境” to run the original fixed example instead.
+3. In the programming environment, start the device and wait until ready. Paste source into the MicroPython editor or use “导入 .py”, select “运行代码”, and read output from the current guest. Use “中断” to interrupt a program that keeps running.
+4. Use the device's buttons, touch surface or supported inputs, inspect serial output and the display, then stop the instance.
 
 The first run downloads WASM, ROMs and firmware. Some devices have a slow cold start. HTTPS,
 Service Workers and shared memory are required. ROMs and firmware are downloaded and verified
 in the visitor's browser; they are not bundled with the site. Local `.bin` files and firmware URLs
 must still match the selected device's chip, board configuration and partition layout.
-See [browser requirements and firmware scope](docs/pages-deployment.md).
+See [browser requirements and firmware scope](docs/pages-deployment.md) and the [workbench composition tools and acceptance entry points](tests/browser-qemu/uiflow_workbench/README.md).
 
 ## Run locally
 

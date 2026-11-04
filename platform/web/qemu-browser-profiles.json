@@ -53,7 +53,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -127,6 +127,20 @@
             "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
             "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
           }
+        },
+        {
+          "firmwareSHA256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+          "profile": "stopwatch-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ]
     },
@@ -175,7 +189,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -222,7 +236,23 @@
         "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632"
+      "readyFirmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "43855f0144edec8fafc4525ac6c8e30b01e2386d7b7f282ddb92833d792932fc",
+          "profile": "sticks3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3",
@@ -267,7 +297,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -315,7 +345,23 @@
         "Native MPU6886, explicit GPIO35 RGB/RMT and other peripherals require their own device-local evidence and do not inherit browser display/input acceptance.",
         "Networking, BLE, audio, Units, physical timing and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319"
+      "readyFirmwareSHA256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
+          "profile": "atoms3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3-lite",
@@ -355,7 +401,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -414,7 +460,23 @@
         ],
         "ledTarget": "rgb",
         "buttonTarget": "button"
-      }
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+          "profile": "atoms3-lite-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3r",
@@ -459,7 +521,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -507,7 +569,23 @@
         "The AtomS3R display model has an observed +2 physical-row offset for the 8x8 probe marker; input/frame acceptance does not establish pixel-coordinate calibration.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80"
+      "readyFirmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
+          "profile": "atoms3r-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "cores3",
@@ -555,7 +633,7 @@
           "path": "/machine/units/pir",
           "property": "motion"
         },
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -621,6 +699,20 @@
           },
           "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
           "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+        },
+        {
+          "firmwareSHA256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+          "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ]
     },
@@ -661,7 +753,9 @@
       },
       "inputs": {
         "touch": false,
-        "buttons": {},
+        "buttons": {
+          "boot": "f12"
+        },
         "keyboard": [
           "a",
           "b",
@@ -731,7 +825,7 @@
           "compose"
         ],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -880,7 +974,27 @@
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
         "The TCA8418 interrupt fix covers default INT_CFG=0 FIFO/W1C semantics. INT_CFG=1 50us timing, KEY_IEN gating and other interrupt sources are unvalidated."
       ],
-      "readyFirmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b"
+      "readyFirmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+      "requiredInputPatch": {
+        "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+        "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+          "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "stamplc",
@@ -929,7 +1043,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -976,7 +1090,23 @@
         "Normal simulation clock is used for the fixed display/input probe; no physical timing or arbitrary firmware claim.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc"
+      "readyFirmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+          "profile": "stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "stackchan",
@@ -1003,6 +1133,20 @@
           "readyMarker": "StackChan auto-dance started",
           "fixture": "xtensa-board-display-v1",
           "sourceSHA256": "7ee22ca570acd7f105d8205b3bc67ecc19e60ce11b1533f3481fc1288081bb9e",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        },
+        {
+          "firmwareSHA256": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
+          "profile": "stackchan-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
           "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
           "oneInsnPerTb": true,
           "requiredRuntimePatch": {
@@ -1037,7 +1181,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true,
         "capacitiveTouch": {
           "path": "/machine/si12t",
@@ -1156,7 +1300,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1215,7 +1359,23 @@
         "Low-frequency full-page EPD quality refresh uses original guest driver; other refresh modes and partial-window semantics are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc"
+      "readyFirmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+          "profile": "papercolor-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "papermono",
@@ -1264,7 +1424,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1335,7 +1495,23 @@
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
         "The fixed fixture uses the official read-only M5.Touch.getTouchPointRaw(0) portrait FT point for hit-testing after M5.update; it records original logical getX/getY and does not repair or grant PASS to their stock calibration. Release coordinates explicitly retain the last pressed raw point."
       ],
-      "readyFirmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70"
+      "readyFirmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+          "profile": "papermono-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "core2",
@@ -1384,12 +1560,15 @@
       "inputs": {
         "touch": true,
         "buttons": {
+          "a": "a",
+          "b": "b",
+          "c": "c",
           "power": "p",
           "p": "p"
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1496,7 +1675,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1588,7 +1767,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "encoder": {
           "path": "/machine/encoder",
           "property": "detents",
@@ -1701,7 +1880,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1802,11 +1981,14 @@
       "inputs": {
         "touch": false,
         "buttons": {
-          "a": "a"
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1912,7 +2094,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2006,7 +2188,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2117,7 +2299,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2257,7 +2439,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {

@@ -1,0 +1,686 @@
+{
+  "schema_version": 1,
+  "kind": "paper-PM1-explicit-public-I2C-application",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "status": "SCOPED_PAPER_CONFIGURED_BUTTONS_AND_MONO_EDITOR_PASS_RETAINING_R6_SETUP_FAIL",
+  "source_commit": "1f69290976a139cd7ca666581b744b3544526b96",
+  "product_site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+  "product_C_Flash_clock_changes": false,
+  "runtime": {
+    "manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35244932,
+        "sha256": "1de631cd82597f6477ebc1bb700274e44aeb2f1c093e8122dae07dcbb88683c6"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12746345,
+        "sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566"
+  },
+  "firmwares": {
+    "papercolor": {
+      "deviceId": "papercolor",
+      "board": "m5papercolor",
+      "chip": "esp32s3",
+      "baseSHA256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "firmwareSHA256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "startup_sources": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    "papermono": {
+      "deviceId": "papermono",
+      "board": "m5papermono",
+      "chip": "esp32s3",
+      "baseSHA256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "firmwareSHA256": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "startup_sources": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    }
+  },
+  "first_R6_setup_failure": {
+    "raw": {
+      "bytes": 7232025,
+      "sha256": "73d40cb1448bb369a2556338082eee7830d783348294eacd0ae35a87d25a08c9"
+    },
+    "status": "FAIL",
+    "completed_checks": 1,
+    "input_trials": 0,
+    "failure_stage": "Python helper import during fixture setup, before I2C construction/readback/ready and before input.",
+    "exception": "ImportError: no module named driver.m5pm1",
+    "interpretation": "Exact PaperColor image lacks this Python helper; not a PWR controller/route failure. Native M5.update/BtnPWR availability is a separate original path.",
+    "fixture_observer": {
+      "path": "tests/browser-qemu/uiflow_workbench/button_observer.py",
+      "sha256": "7c12da319f25aecbd27a0f09b7306f08b339ccd3c07e0638062616bc9f3829e2",
+      "executed_sha256": "154a2e6f860f6f18fac11fe617e14f8ee1bfce5f50559bc47cec22fc57249057"
+    },
+    "test_script": {
+      "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+      "sha256": "24b640b4ed6b48e1115e7e92225984b18f363d5c83d5da658c19eeff1d3afc91"
+    },
+    "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+    "firmware_sha256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+    "runtime_ref": "#/runtime",
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "parent_scope": "R6terminalFAIL26started25PASS; no complete60claim."
+  },
+  "explicit_application_contract": {
+    "PaperColor": {
+      "api": "machine-i2c-register-rmw",
+      "i2c": 1,
+      "scl": 2,
+      "sda": 3,
+      "addr": "0x6e"
+    },
+    "PaperMono": {
+      "api": "machine-i2c-register-rmw",
+      "i2c": 1,
+      "scl": 48,
+      "sda": 47,
+      "addr": "0x6e"
+    },
+    "retained_other_APIs": "StopWatch/StickS3 keep separately observed original m5pm1-python-driver branch. Nonregistered/nonPM1 boards do not get this configuration.",
+    "automatic_fallback": false,
+    "configuration_only": "No import attempt of driver.m5pm1 in the explicit Paper branches.",
+    "real_public_bus_calls": [
+      "machine.I2C.readfrom_mem",
+      "machine.I2C.writeto_mem"
+    ],
+    "cfg49": {
+      "disable_single_click_reset_mask": "0x01",
+      "disable_value": "0x01",
+      "CLICK500_mask": "0x06",
+      "CLICK500_value": "0x04",
+      "target": "(before49 &0xf8)|0x05",
+      "before": "0x2a",
+      "after": "0x2d",
+      "high5bits_preserved": true
+    },
+    "cfg4a": "Read and require unchanged; actual0before/after.",
+    "recognition_window_ms": 500,
+    "requested_input_ms": 250,
+    "IRQ_consumer": "Only original native M5.update/Power/BtnPWR consumes IRQ42; fixture does not read IRQ42/48 or call private ISR.",
+    "readback_gate": "No ready/input acceptance before exact49and unchanged4areadback."
+  },
+  "official_register_source": {
+    "repository": "https://github.com/m5stack/uiflow-micropython",
+    "commit": "3404a0667985334393af05f53f27006ac954579a",
+    "path": "m5stack/libs/driver/m5pm1.py",
+    "sha256": "021b3632c6583118ac3eb23b0d2addb7a16e0bb116a0b4ae5c728af5e4ff31b3",
+    "semantics": "REG_BTN_CFG_1=0x49;disable_single_click_reset usesmask1/value1;CLICK event0 uses shift1/options125,250,500,1000;500index2givesmask6/value4. Source semantics do not prove helper inclusion/version in any BIN."
+  },
+  "actual_configured_button_runs": {
+    "papercolor": {
+      "raw": {
+        "bytes": 12593087,
+        "sha256": "924e84ea26cd67a0af581a48521581cc99720f70ebe8e9e5dd69ef1a96fde35f"
+      },
+      "status": "PASS",
+      "checks": 23,
+      "all_checks_true": true,
+      "subject_trials": 8,
+      "firmware_ref": "#/firmwares/papercolor",
+      "runtime_ref": "#/runtime",
+      "provenance": {
+        "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+          "sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989"
+        },
+        "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+        "profile": {
+          "board": "m5papercolor",
+          "profile": "papercolor-wasm-wallclock-epaper-probe",
+          "clockDivisor": 1,
+          "clockOverride": null,
+          "accelerator": null,
+          "oneInsnPerTb": false,
+          "persistentFlash": false
+        },
+        "actual_icount": false,
+        "actual_args_canonical_json_sha256": "0475c023f0901b6b231ef9d54bc25ad5e1a9e334e15ab2fb6a271c51c94d6d4b",
+        "affected_web_sha256": {
+          "public.js": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+          "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+          "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+          "qemu-browser-profiles.json": "02fffa77082c8bd3f43fecc09a8fb4ff17e40c0e7105fd461e70b5495ef08200",
+          "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+          "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+        }
+      },
+      "observer": {
+        "path": "tests/browser-qemu/uiflow_workbench/button_observer.py",
+        "sha256": "889b00d77edd0f076815b9e3a0a05fbd48ead181e62922f77988630d541bd7d4",
+        "executed_sha256": "101f83d39a017af3431098f72462db7b6cb303bd46b3513ae2999ab0a711492e"
+      },
+      "input_registry": {
+        "path": "platform/tests/public_qemu_button_cases.mjs",
+        "sha256": "cd76af0b1b904498bdbf8bdb77e524c71b908753447a053b0635cec80d1075ca"
+      },
+      "pointer_helper": {
+        "path": "platform/tests/public_qemu_button_pointer.mjs",
+        "sha256": "bba9b2c798b91cf100b98203fcc5d2f4ab79fd1150c668354846f31d4ff728b5"
+      },
+      "actual_guest_setup": {
+        "applied": true,
+        "cfg4a_before": 0,
+        "scl": 2,
+        "sda": 3,
+        "addr": 110,
+        "cfg4a_after": 0,
+        "configuration_api": "machine-i2c-register-rmw",
+        "i2c": 1,
+        "cfg49_before": 42,
+        "api": "machine.I2C.readfrom_mem+writeto_mem",
+        "cfg49_after": 45,
+        "click_window_ms": 500
+      },
+      "trials": [
+        {
+          "id": "key1",
+          "component": "key1",
+          "owner": "BtnA",
+          "mode": "driver-edges",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.4860000000008,
+          "model_hold_ms": 252.22500002384186,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key1",
+          "component": "key1",
+          "owner": "BtnA",
+          "mode": "driver-edges",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.1164170000011,
+          "model_hold_ms": 252.5,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key2",
+          "component": "key2",
+          "owner": "BtnB",
+          "mode": "driver-edges",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 252.78933400000096,
+          "model_hold_ms": 252.06000006198883,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key2",
+          "component": "key2",
+          "owner": "BtnB",
+          "mode": "driver-edges",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.34920799999963,
+          "model_hold_ms": 251.87000000476837,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key3",
+          "component": "key3",
+          "owner": "BtnC",
+          "mode": "driver-edges",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 252.83374999999796,
+          "model_hold_ms": 252.28999996185303,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key3",
+          "component": "key3",
+          "owner": "BtnC",
+          "mode": "driver-edges",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.38441700000112,
+          "model_hold_ms": 253.57499992847443,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "power",
+          "component": "power",
+          "owner": "BtnPWR",
+          "mode": "pmic-event",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 251.55295800000022,
+          "model_hold_ms": 251.04999995231628,
+          "guest_press": null,
+          "guest_release": null,
+          "guest_event": "wasClicked"
+        },
+        {
+          "id": "power",
+          "component": "power",
+          "owner": "BtnPWR",
+          "mode": "pmic-event",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.0184999999983,
+          "model_hold_ms": 252.63999998569489,
+          "guest_press": null,
+          "guest_release": null,
+          "guest_event": "wasClicked"
+        }
+      ],
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "scope": "Explicit configured applicationIRQ mode,250ms keyboard/pointer; not factory default behavior or physical electrical validation."
+    },
+    "papermono": {
+      "raw": {
+        "bytes": 20061822,
+        "sha256": "5778c802dded1584656be3b6ea55dea09bce3b6ac48de085389a9eb05361e93f"
+      },
+      "status": "PASS",
+      "checks": 19,
+      "all_checks_true": true,
+      "subject_trials": 6,
+      "firmware_ref": "#/firmwares/papermono",
+      "runtime_ref": "#/runtime",
+      "provenance": {
+        "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+        "test_script": {
+          "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+          "sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989"
+        },
+        "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+        "profile": {
+          "board": "m5papermono",
+          "profile": "papermono-wasm-wallclock-epaper-probe",
+          "clockDivisor": 1,
+          "clockOverride": null,
+          "accelerator": null,
+          "oneInsnPerTb": false,
+          "persistentFlash": false
+        },
+        "actual_icount": false,
+        "actual_args_canonical_json_sha256": "dd292a0ef294b3e04422c0838a5f382efa6c99b0b746ae4d17aee25e525326bf",
+        "affected_web_sha256": {
+          "public.js": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+          "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+          "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+          "qemu-browser-profiles.json": "02fffa77082c8bd3f43fecc09a8fb4ff17e40c0e7105fd461e70b5495ef08200",
+          "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+          "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+        }
+      },
+      "observer": {
+        "path": "tests/browser-qemu/uiflow_workbench/button_observer.py",
+        "sha256": "889b00d77edd0f076815b9e3a0a05fbd48ead181e62922f77988630d541bd7d4",
+        "executed_sha256": "95f00933b64684cc1fe47d6c7b755f1ac7c44c4a79470985bde7e4c344376d8d"
+      },
+      "input_registry": {
+        "path": "platform/tests/public_qemu_button_cases.mjs",
+        "sha256": "cd76af0b1b904498bdbf8bdb77e524c71b908753447a053b0635cec80d1075ca"
+      },
+      "pointer_helper": {
+        "path": "platform/tests/public_qemu_button_pointer.mjs",
+        "sha256": "bba9b2c798b91cf100b98203fcc5d2f4ab79fd1150c668354846f31d4ff728b5"
+      },
+      "actual_guest_setup": {
+        "applied": true,
+        "cfg4a_before": 0,
+        "scl": 48,
+        "sda": 47,
+        "addr": 110,
+        "cfg4a_after": 0,
+        "configuration_api": "machine-i2c-register-rmw",
+        "i2c": 1,
+        "cfg49_before": 42,
+        "api": "machine.I2C.readfrom_mem+writeto_mem",
+        "cfg49_after": 45,
+        "click_window_ms": 500
+      },
+      "trials": [
+        {
+          "id": "key1",
+          "component": "key1",
+          "owner": "BtnA",
+          "mode": "driver-edges",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.32312500000262,
+          "model_hold_ms": 252.4299999475479,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key1",
+          "component": "key1",
+          "owner": "BtnA",
+          "mode": "driver-edges",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.66316599999845,
+          "model_hold_ms": 252.5550000667572,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key2",
+          "component": "key2",
+          "owner": "BtnB",
+          "mode": "driver-edges",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 251.58083400000032,
+          "model_hold_ms": 250.9800000190735,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "key2",
+          "component": "key2",
+          "owner": "BtnB",
+          "mode": "driver-edges",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.9523339999978,
+          "model_hold_ms": 253.24500000476837,
+          "guest_press": true,
+          "guest_release": false,
+          "guest_event": null
+        },
+        {
+          "id": "power",
+          "component": "power",
+          "owner": "BtnPWR",
+          "mode": "pmic-event",
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 252.4260000000031,
+          "model_hold_ms": 251.9449999332428,
+          "guest_press": null,
+          "guest_release": null,
+          "guest_event": "wasClicked"
+        },
+        {
+          "id": "power",
+          "component": "power",
+          "owner": "BtnPWR",
+          "mode": "pmic-event",
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 251.916792,
+          "model_hold_ms": 251.24500000476837,
+          "guest_press": null,
+          "guest_release": null,
+          "guest_event": "wasClicked"
+        }
+      ],
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "scope": "Explicit configured applicationIRQ mode,250ms keyboard/pointer; not factory default behavior or physical electrical validation."
+    }
+  },
+  "actual_Mono_editor": {
+    "raw": {
+      "bytes": 20066031,
+      "sha256": "e3b4d3bf6a1b434c178de4894fc34b75838e2eaaebe717f87b31001d4649c0b6"
+    },
+    "status": "PASS",
+    "checks": 63,
+    "all_checks_true": true,
+    "firmware_ref": "#/firmwares/papermono",
+    "runtime_ref": "#/runtime",
+    "provenance": {
+      "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+      "test_script": {
+        "path": "platform/tests/test_public_uiflow_guest.mjs",
+        "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+      },
+      "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "profile": {
+        "board": "m5papermono",
+        "profile": "papermono-wasm-wallclock-epaper-probe",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false
+      },
+      "actual_icount": false,
+      "actual_args_canonical_json_sha256": "dd292a0ef294b3e04422c0838a5f382efa6c99b0b746ae4d17aee25e525326bf",
+      "affected_web_sha256": {
+        "public.js": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+        "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "qemu-browser-profiles.json": "02fffa77082c8bd3f43fecc09a8fb4ff17e40c0e7105fd461e70b5495ef08200",
+        "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+        "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+      }
+    },
+    "initial_default_source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+    "default_programs": [
+      {
+        "name": "default-editor-first-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "stdout": "Hello, UIFlow!\r\n",
+        "stderr": "",
+        "same_session": true,
+        "same_console": true
+      },
+      {
+        "name": "default-editor-repeat-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "stdout": "Hello, UIFlow!\r\n",
+        "stderr": "",
+        "same_session": true,
+        "same_console": true
+      }
+    ],
+    "frame": {
+      "width": 480,
+      "height": 800,
+      "sequence": 6,
+      "pattern": "mono-half-black-white-v1",
+      "pixels": 384000,
+      "black_pixels": 192000,
+      "white_pixels": 192000,
+      "red_pixels": 0,
+      "sha256": "362211ea15a8ea592bce4cab143bfd7ac0722c2e22cb9c9ad483ffe0c6a88c21"
+    },
+    "frame_scope": "Original M5.Display rotation0 EPD_QUALITY startWrite/fill/endWrite;480x800exact left black/right white. No red expectation; no physical optical claim.",
+    "hardware_reset": {
+      "before_console_epoch": 0,
+      "after_console_epoch": 1,
+      "source_sha256": "788c6316784e091a656c50e2eb25b274469721a230e321ceba868f27b41ba9c6"
+    },
+    "old_console_error_name": "AbortError",
+    "post_reset_source_completed": true,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      }
+    },
+    "scope": "Actual8f9controller Mono63guest only; do not transfer this to another image or complete matrix."
+  },
+  "host_contracts": {
+    "status": "PASS reported by root; not rerun by evidence writer",
+    "Python_tests": 6,
+    "before49_preservation_cases": 256,
+    "Node_contracts": 28,
+    "review": "PeerGO reported by root; source review is not guest execution.",
+    "source": {
+      "path": "platform/tests/test_public_pm1_button_fixture.py",
+      "bytes": 5551,
+      "sha256": "e8c14b95ac9d7f719a6167f35093121ce06afcdc03a205bcef16522d712afffa"
+    },
+    "controls": [
+      "Driver branch missing module fails with no fallback",
+      "Explicit Paper I2C branch succeeds without helper import",
+      "All256initial49values preserve high bits and set low3to5",
+      "Unknown API,wrong board/window/readback/unrelated4achange fail closed",
+      "Nonregistered boards leave PM1 untouched"
+    ]
+  },
+  "module_and_model_boundaries": {
+    "PaperColor_python_helper": "Unavailable on exact c448...image as actualR6ImportError; this is separate from native M5UnifiedPM1 support.",
+    "PaperMono_python_helper": "Runtime importUNKNOWN/NOT RUN. Static string absence is not proof; current real I2C success makes no helper-availability claim.",
+    "helper_version_transfer": "No class/helper compatibility or version inference across firmware BINs.",
+    "bus_pinmux": "The model aliases I2C0/1onto one slave bus. Passing publicI2C transactions plus reviewed pins do not establish physical GPIO pinmux enforcement.",
+    "mode": "Both Paper results are configured applicationIRQ/500ms-window; default PM1-mode250ms behavior is not granted."
+  },
+  "source_files": {
+    "platform/tests/public_qemu_button_cases.mjs": {
+      "bytes": 2683,
+      "sha256": "cd76af0b1b904498bdbf8bdb77e524c71b908753447a053b0635cec80d1075ca"
+    },
+    "platform/tests/test_public_qemu_buttons_guest.mjs": {
+      "bytes": 15664,
+      "sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989"
+    },
+    "tests/browser-qemu/uiflow_workbench/button_observer.py": {
+      "bytes": 3469,
+      "sha256": "889b00d77edd0f076815b9e3a0a05fbd48ead181e62922f77988630d541bd7d4"
+    },
+    "platform/tests/test_public_pm1_button_fixture.py": {
+      "bytes": 5551,
+      "sha256": "e8c14b95ac9d7f719a6167f35093121ce06afcdc03a205bcef16522d712afffa"
+    },
+    "platform/tests/test_public_uiflow_guest.mjs": {
+      "bytes": 26009,
+      "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+    }
+  },
+  "pending_full_gate": {
+    "identity": "R7 fresh full60",
+    "status": "RUNNING / PENDING",
+    "active_raw_read": false,
+    "no_partial_case_inheritance": true,
+    "final_hostchecks_PR_deployment": "PENDING / NOT RUN; separate evidence required."
+  },
+  "limits": [
+    "Original R6ImportError is retained as fixture preparation failure with zero input, not PWRrouteFAIL.",
+    "Later configured Paper23/19 and Monoeditor63 are independent runs, not a replacement/retroactive repair of original report.",
+    "Buttons actualCDP captured only before context close; held-iframeCDP NOT CAPTURED. Monoeditor has its own actual two-stage cleanup.",
+    "No defaultFlash,C/runtime,clock,WDT,hostfake or privateISR change. The500ms PM1recognition window is an explicit application setting; formal250ms input and event assertions remain.",
+    "Physical electrical/optical/RF/power properties, arbitrary firmware and complete60/online publication do not inherit these results."
+  ],
+  "reproduction": {
+    "button_command": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=\"$PAPER_DEVICE\" M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_qemu_buttons_guest.mjs",
+    "editor_command": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=papermono M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_uiflow_guest.mjs",
+    "requirements": "Exact fixed runtime/default registry and new ignored output for eachrun; keep original failed source identity for historical reproduction. No active gate result is consumed by this evidence."
+  }
+}

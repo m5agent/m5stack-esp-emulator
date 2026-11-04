@@ -35,7 +35,11 @@ jobs:
     # macOS runner rather than slowing the deployed profiles or weakening the
     # guest assertions.
     runs-on: macos-14
-    timeout-minutes: 90
+    # Default admission now runs 60 sequential guest cases (at least 79 boots,
+    # including editor hardware resets) beside the fresh source build/setup.
+    # The old 90-minute ceiling left no margin at a 60-second boot budget;
+    # this is a job limit, not a startup-performance guarantee.
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -73,7 +77,7 @@ jobs:
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
-      - name: Run every admitted board and CoreS3 example in the exported static site
+      - name: Run every public UIFlow editor, model button and fixed example
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
@@ -81,6 +85,11 @@ jobs:
           M5_WASM_GPU: hardware
           M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
           M5_QEMU_READY_TIMEOUT_MS: "600000"
+          M5_QEMU_GATE_REQUIRE_ALL: "1"
+          # Local opt-in 2 is functional-only; CI stays serial and explicit.
+          M5_QEMU_GATE_WORKERS: "1"
+          M5_QEMU_GATE_PHASE: all
+          M5_QEMU_GATE_DEVICES: ""
         run: node platform/tests/test_public_qemu_admitted_boards.mjs
       - name: Retain browser acceptance evidence
         if: always()

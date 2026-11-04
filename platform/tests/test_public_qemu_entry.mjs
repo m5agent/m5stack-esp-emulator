@@ -7,6 +7,8 @@ import {createHash} from 'node:crypto';
 import * as config from '../web/public-config.js';
 import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
+import * as uiflowFirmware from '../web/public-uiflow-firmware.js';
+import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
 import * as qemuServo from '../web/public-qemu-servo.js';
@@ -19,7 +21,7 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,15,'local-file hashing reuses the firmware module; no separate synchronous sha256Blob import is required');
+assert.equal(imports.length,17,'UIFlow composer and guest MicroPython runner join the existing firmware imports');
 assert.deepEqual(imports.filter(match=>match[2]==='./public-qemu-servo.js')
   .flatMap(match=>match[1].split(',').map(name=>name.trim())),
 ['qemuServoVisualCommands','qemuServoDiagnostic']);
@@ -27,19 +29,24 @@ assert.ok(source.endsWith('void init().catch(error);\n'));
 const body=source.replace(/^import \{[^}]+\} from '[^']+';\n/gm,'').replace(/void init\(\)\.catch\(error\);\n$/,'');
 const required=imports.flatMap(match=>match[1].split(',').map(name=>name.trim()));
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
+const workbenchRegistry=JSON.parse(await readFile(new URL('../web/uiflow-workbench-profiles.json',import.meta.url),'utf8'));
 const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',import.meta.url),'utf8'));
+const legacyBrowserDevices=JSON.parse(await readFile(new URL('../web/browser-profiles.json',import.meta.url),'utf8')).devices;
 // A candidate may precede native catalog admission; the real entry also merges
 // these hosts from the pinned visual catalog. Keep that boundary in this mock.
 const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(device=>device.id===profile.deviceId))
   .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
-  browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,isolation={isolated:true,reloading:false}}={}){
+  browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
+  isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
+  const makeElement=id=>({id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],children:[],
+    listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},
+    replaceChildren(...children){this.children=children;},append(...children){this.children.push(...children);},focus(){},scrollIntoView(){},
+    classList:{add(){},remove(){},toggle(){}}});
   const element=(id)=>{
-    if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
-      listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},replaceChildren(){},append(){},focus(){},scrollIntoView(){},
-      classList:{add(){},remove(){},toggle(){}}});
+    if(!elements.has(id))elements.set(id,makeElement(id));
     return elements.get(id);
   };
   element('referenceExample').value=defaultExample;
@@ -47,19 +54,22 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   const document={getElementById:element,querySelectorAll:()=>[],
     querySelector(selector){if(selector.includes(':checked'))return [...radios.values()].find(item=>item.checked);
       const match=selector.match(/\[value="([^"]+)"\]/);return match?radios.get(match[1]):null;},
-    createElement:element,createTextNode:text=>({textContent:text})};
+    createElement:makeElement,createTextNode:text=>({textContent:text})};
   const fetchFixture=async url=>{
+    if(url.endsWith('uiflow-workbench-profiles.json'))return new Response(JSON.stringify(workbenchRegistry));
     if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
-    if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualCandidates}));
-    if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:[]}));
+    if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
+    if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
     if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,qemuServo,{
+  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
+    PublicMicroPythonRunner,
+    loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
     getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
@@ -123,6 +133,58 @@ assert.equal(disabledLegacy.browserProfile('stopwatch'),null,'a hardcoded legacy
 assert.equal(disabledLegacy.lane(),'service');
 disabledLegacy.element('runtimeMode').value='browser';assert.equal(disabledLegacy.lane(),null);
 
+const textOf=node=>[node.textContent||'',...(node.children||[]).map(textOf)].join(' ');
+const papers=await entry({browserDevices:legacyBrowserDevices,search:'?device=papers3&mode=browser&autostart=0'});
+papers.status('model');
+assert.equal(papers.browserProfile('papers3'),null);assert.equal(papers.lane(),null);assert.equal(papers.element('startBtn').disabled,true);
+assert.equal(papers.deviceRuntimeLabel(papers.state.selected),'仅模型');
+assert.equal(papers.reference(),null,'the legacy PaperS3 BIN cannot become this QEMU site reference');
+assert.match(textOf(papers.element('deviceDetails')),/旧浏览器演示不属于当前运行内核/);
+assert.doesNotMatch(textOf(papers.element('deviceDetails')),/浏览器运行 · 黑白显示与单点触摸/);
+assert.match(papers.element('pythonStatus').textContent,/模型预览/);assert.equal(papers.element('pythonRunBtn').disabled,true);
+const legacyPapers=await entry({runtimeEngine:null,legacyProfile:{deviceId:'papers3'},browserDevices:legacyBrowserDevices,
+  search:'?device=papers3&mode=browser&autostart=0'});
+assert.equal(legacyPapers.reference().sha256,legacyBrowserDevices.find(row=>row.id==='papers3').browser.reference.sha256,
+  'engine-specific metadata selection preserves the separate legacy reference path');
+assert.match(textOf(legacyPapers.element('deviceDetails')),/浏览器运行 · 黑白显示与单点触摸/);
+const stopwatchScope=await entry({browserDevices:legacyBrowserDevices,search:'?device=stopwatch&mode=browser&autostart=0'});
+assert.match(textOf(stopwatchScope.element('deviceDetails')),/PM1 应用配置/);
+assert.match(textOf(stopwatchScope.element('deviceDetails')),/BtnPWR.*应用中配置/);
+assert.doesNotMatch(textOf(stopwatchScope.element('deviceDetails')),/RTC、音频与物理电源键未接入/);
+assert.equal(stopwatchScope.reference().composedWorkbench,true);
+for(const id of ['cardputer-zero','m5stick','stickt2']){
+  const app=await entry({search:`?device=${id}&mode=browser&autostart=0`});app.status('model');
+  assert.equal(app.lane(),null);assert.equal(app.element('startBtn').disabled,true);assert.equal(app.element('pythonRunBtn').disabled,true);
+  assert.match(app.element('pythonStatus').textContent,/不支持 UIFlow2.*网页编程不可用/);
+  assert.match(textOf(app.element('deviceDetails')),/不支持 UIFlow2/);
+  if(id==='cardputer-zero')assert.match(textOf(app.element('deviceDetails')),/Raspberry Pi CM0\/Linux/);
+  app.state.serviceDevices=[{device_id:id,creatable:true}];app.element('runtimeMode').value='service';
+  assert.equal(app.lane(),'service','an explicit compatible service remains available for non-UIFlow firmware');
+}
+const visualOnly=await entry({visualProducts:[{id:'stickv',name:'StickV',category:'controller'}],
+  search:'?device=stickv&mode=browser&autostart=0'});visualOnly.status('model');
+assert.equal(visualOnly.lane(),null);assert.equal(visualOnly.element('startBtn').disabled,true);
+assert.equal(visualOnly.element('pythonRunBtn').disabled,true);assert.match(visualOnly.element('pythonStatus').textContent,/仅提供.*模型预览/);
+visualOnly.element('runtimeMode').value='model';visualOnly.updateCapability();
+assert.equal(visualOnly.element('startBtn').textContent,'浏览设备模型 →');assert.equal(visualOnly.element('pythonRunBtn').disabled,true);
+const uploadedUart=await entry({search:'?device=cores3&mode=browser&autostart=0'});
+const uploadController=new PublicQemuRuntime({root:pageRoot,profiles:registry});uploadController.profile=uploadedUart.browserProfile('cores3');
+uploadController.receipt={deviceId:'cores3',firmwareSha256:'f'.repeat(64),uiflowWorkbench:null};
+uploadedUart.state.run={kind:'browser',generation:uploadedUart.state.runGeneration,controller:uploadController};uploadedUart.status('running');
+assert.equal(uploadedUart.element('pythonRunBtn').disabled,false,'compatible UART still permits the existing REPL handshake attempt');
+assert.match(uploadedUart.element('pythonStatus').textContent,/串口已连接，MicroPython 待确认/);
+assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*就绪/);
+uploadController.receipt.uiflowWorkbench={};uploadedUart.status('running');
+assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*就绪/,'stale workbench metadata cannot label an unknown Flash ready');
+const uploadedWorkbench=workbenchRegistry.profiles.find(row=>row.deviceId==='cores3');
+uploadController.receipt.firmwareSha256=uploadedWorkbench.firmwareSHA256;
+uploadedUart.status('booting');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);assert.match(uploadedUart.element('pythonStatus').textContent,/正在启动 UIFlow/);
+uploadedUart.status('running');assert.equal(uploadedUart.element('pythonStatus').textContent,'UIFlow 已就绪');
+uploadedUart.status('error');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);
+assert.match(uploadedUart.element('pythonStatus').textContent,/运行未完成/);
+uploadedUart.status('sleeping');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);
+assert.match(uploadedUart.element('pythonStatus').textContent,/已休眠/);
+
 // Execute the production local-file path: WebCrypto hashes the same buffer
 // handed to the runtime, with one File read and the existing SHA rejection.
 const localFile=await entry({search:'?device=stackchan&autostart=0'});
@@ -141,6 +203,9 @@ assert.ok(unavailable.events.includes('render-devices')&&unavailable.events.incl
 unavailable.element('runtimeMode').value='model';assert.equal(unavailable.lane(),'model');assert.match(unavailable.element('errorBanner').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
 
 const original=await entry();assert.equal(original.events.some(item=>item.startsWith('start:')),false);
+assert.equal(original.reference().composedWorkbench,true,'official UIFlow programming firmware is the default');
+assert.equal(original.reference().sha256,workbenchRegistry.profiles.find(row=>row.deviceId==='cores3').firmwareSHA256);
+original.element('referenceExample').value='stock-div8';
 original.element('runtimeMode').value='browser';await original.share();
 const share=new URL(original.clipboard[0]);
 assert.equal(share.searchParams.get('device'),'cores3');assert.equal(share.searchParams.get('sha256'),fixtureSha);
@@ -149,7 +214,7 @@ const reopened=await entry({search:share.search});
 assert.ok(reopened.events.includes('start:browser'),'an exact composed-reference SHA authorizes reference autostart');
 assert.equal(reopened.element('firmwareSha').value,fixtureSha);
 assert.equal(reopened.element('referenceExample').value,'stock-div8');
-const wallclock=await entry({wallclockExample:true});
+const wallclock=await entry({wallclockExample:true});wallclock.element('referenceExample').value='wallclock-candidate';
 assert.equal(wallclock.reference().sha256,wallclockSha);assert.equal(wallclock.reference().wallclockCandidate,true);
 wallclock.element('runtimeMode').value='browser';await wallclock.share();
 const wallclockLink=new URL(wallclock.clipboard[0]);assert.equal(wallclockLink.searchParams.get('sha256'),wallclockSha);
@@ -191,12 +256,17 @@ for(const search of [share.search+'&autostart=0',share.search.replace(fixtureSha
 for(const profile of registry.profiles){
   const app=await entry({publicationEligible:false,search:`?device=${profile.deviceId}&mode=browser&autostart=0`});
   assert.equal(app.browserProfile(profile.deviceId).board,profile.board);assert.equal(app.lane(),'browser');
-  assert.equal(app.browserProfile(profile.deviceId).inputs.uart,false);
+  assert.equal(app.browserProfile(profile.deviceId).inputs.uart,true);
   const controller=new PublicQemuRuntime({root:pageRoot,profiles:registry,allowCandidateProfiles:true});controller.profile=app.browserProfile(profile.deviceId);
   app.state.run={kind:'browser',generation:app.state.runGeneration,controller};app.status('running');
-  assert.equal(app.element('serialInput').disabled,true,'QEMU output-only UART cannot become a send UI');
+  assert.equal(app.element('serialInput').disabled,false,'an active UART-capable QEMU run exposes its real serial input');
   assert.equal(app.element('browserPirPanel').hidden,!profile.inputs.pir,'PIR controls must follow the selected actual profile');
   assert.equal(app.element('nativeScreenBtn').hidden,profile.display===null,'headless devices cannot offer a fabricated flat screen');
+  if(workbenchRegistry.profiles.some(row=>row.deviceId===profile.deviceId)){
+    assert.equal(app.reference().composedWorkbench,true);
+    assert.equal(app.element('referenceExampleFields').hidden,false,'all19 retain the default UIFlow startup selector');
+  }else assert.equal(app.element('referenceExampleFields').hidden,true,'a preview without a workbench identity cannot advertise the UIFlow selector');
+  app.element('referenceExample').value='probe';
   const reference=app.reference();
   if(['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile.fixture?.id)){
     assert.equal(reference.composedProbe,true);assert.equal(reference.sha256,profile.fixture.firmwareSHA256);

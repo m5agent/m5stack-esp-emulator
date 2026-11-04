@@ -1,0 +1,1003 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-wasm-wakeable-poll-evidence",
+  "date": "2026-11-04",
+  "status": "SCOPED_TWO_ORIGINAL_FLASH_COLD_PASS_WARM_NOT_RUN",
+  "evidence_level": "virtual-device validation",
+  "publication_scope": "Local exported-site fixed-probe results only; no new deployment or all-device/default-workbench performance acceptance.",
+  "runtimes": {
+    "3c": {
+      "role": "original_published_baseline",
+      "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+      "runtime_manifest_sha256": "897114f09d5e0c695e44e665611fec4fa98aa62856cddce6eb1cbb906d21071c",
+      "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+      "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566"
+    },
+    "74": {
+      "role": "intermediate_baseline",
+      "wasm_sha256": "2c72cda0858521b47e730f4d19ae4ba9de9d800d9568fa25d20d41dbd8de5d14",
+      "runtime_manifest_sha256": "80307d4f7710518d2cbda4dd308206a1c5d4b5bfcfc70257dbf2f89fece739bf",
+      "site_manifest_sha256": "b28b9f89bd85f4e20a3336b6a7703afee76a9046c271a3ed378bbf2e3462dae4",
+      "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566"
+    },
+    "75": {
+      "role": "fresh75_candidate",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+      "site_manifest_sha256": "f012e1b344536c44bc97472688e49aedbb3f51f594fa1ea8637549996fc6a4d1",
+      "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "locally_committed_runtime_source": "e0d0d7dde13fa582d5c27c85cce25ef62aeaf2f8",
+      "v1_web_and_fixed_runner_source": "4a2de458776396bac8c3a1aa8d98c22bf910f7fe",
+      "v1_executed_web_files_match_commit": 22,
+      "v1_web_later_alias_changes_excluded": true,
+      "wasm_bytes": 12746345,
+      "artifacts": {
+        "javascript": {
+          "bytes": 157200,
+          "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+        },
+        "notice": {
+          "bytes": 968,
+          "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+        },
+        "source": {
+          "bytes": 35244932,
+          "sha256": "1de631cd82597f6477ebc1bb700274e44aeb2f1c093e8122dae07dcbb88683c6"
+        },
+        "wasm": {
+          "bytes": 12746345,
+          "sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+        },
+        "worker": {
+          "bytes": 2776,
+          "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+        }
+      },
+      "build": {
+        "kind": "source-build",
+        "all_objects_rebuilt": true,
+        "emscripten": "3.1.50",
+        "commands_sha256": "1384c0b32608bd06322a31cd660ad7f920eaf04fe6ecd849f2bbc3cf85a35dfe",
+        "lock_sha256": "68f9696628ca9ba30484a2c57487e41f11fe9ce5a51a273e573434b932f2f2c1",
+        "recipe_sha256": "e1bc8875a591e03f656db09d93fec7eba56b51dabff99aca63664ddbcce8291d"
+      },
+      "link_audit": {
+        "argv_sha256": "580b76954d33ec9e471d18c446ae788b7dc63c3d6c5dc99e305615a942c1dfc2",
+        "effective": {
+          "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+          "STACK_OVERFLOW_CHECK": "2",
+          "STACK_SIZE": "64KB",
+          "emit_symbol_map": true,
+          "optimization": "O3"
+        },
+        "required_flags": [
+          "-O3",
+          "-sSTACK_SIZE=64KB",
+          "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+          "-sSTACK_OVERFLOW_CHECK=2",
+          "--emit-symbol-map"
+        ],
+        "source": "ninja-link-command",
+        "verified": true
+      },
+      "patch_count": 75,
+      "native_patch_count": 47,
+      "patch0032_sha256": "5a43ac91491e1d8637f0147e7165066940dc78a245ad3a6c733ba12968f30e7c",
+      "compiled_source_postimages": {
+        "include/qemu/timer.h": "dd57255e9a10dfed370573636fde996bb79aedb842abbb27313e93f900655365",
+        "util/event_notifier-posix.c": "d3d3207171b3f1e929c6870a38049bd9d88c8a3faf79f459c406d35aa19ef36d",
+        "util/qemu-timer.c": "826348b1f908855849738834af68a21738901950e1765d71c5ce5249e73796a9"
+      }
+    }
+  },
+  "devices": {
+    "atom-matrix": {
+      "board": "m5atommatrix",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "official_base_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+      "fixture_main_source_sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1",
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "clock_divisor": 1,
+      "clock_override": null,
+      "one_insn_per_tb": false,
+      "persistent_flash": false,
+      "execution_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "pipe:/bridge/uart",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "runs": {
+        "3c": {
+          "status": "PASS",
+          "checks": 15,
+          "click_to_ready_ms": 109457.6399999857,
+          "runtime_to_ready_ms": 108889.8899999857,
+          "first_uart_ms": 18762.835000038147,
+          "markers_runtime_ms": {
+            "rom_text": 18764.914999961853,
+            "rom_entry": 21761.009999990463,
+            "first_i2c": 84218.35000002384,
+            "banner": 92554.49000000954
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "atom-matrix-3c-report.json",
+              "bytes": 150310,
+              "sha256": "df631c7d5320c2e0089a3690765113d8611645e13775a0e8e6f72e1efb1da162"
+            },
+            {
+              "label": "atom-matrix-3c-harness-executed.mjs",
+              "bytes": 21136,
+              "sha256": "b313b82728186f2457424f4c1f5ad83f7eaed13f6544c5e8ac473ceac81b7fab"
+            },
+            {
+              "label": "atom-matrix-3c-stopped.json",
+              "bytes": 7859,
+              "sha256": "17110bb523eb5535684d53f3b099119eadc05331346bb6cc9fc333ab4a4e3bcc"
+            }
+          ]
+        },
+        "74": {
+          "status": "PASS",
+          "checks": 15,
+          "click_to_ready_ms": 113164.46000003815,
+          "runtime_to_ready_ms": 110824.78499996662,
+          "first_uart_ms": 17665.704999923706,
+          "markers_runtime_ms": {
+            "rom_text": 17667.24500000477,
+            "rom_entry": 20753.9699999094,
+            "first_i2c": 83422.08499991894,
+            "banner": 93045.91999995708
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "atom-matrix-74-report.json",
+              "bytes": 149263,
+              "sha256": "612050d076eca65c502834e6ec634375e34294d3317612516648cf54fcc2e3c8"
+            },
+            {
+              "label": "atom-matrix-74-harness-executed.mjs",
+              "bytes": 21135,
+              "sha256": "d56f4efedf16b125b90fa714412979827cd608994c2e3d17df300272ca93a894"
+            },
+            {
+              "label": "atom-matrix-74-stopped.json",
+              "bytes": 8004,
+              "sha256": "c5ffc98578f26411d94b5295b03588f875dacbea08a8fd59fa8bfb4a5762dd4a"
+            }
+          ]
+        },
+        "75": {
+          "status": "PASS",
+          "checks": 15,
+          "click_to_ready_ms": 54775.4050000906,
+          "runtime_to_ready_ms": 54189.93500006199,
+          "first_uart_ms": 18266.62000000477,
+          "markers_runtime_ms": {
+            "rom_text": 18268.139999985695,
+            "rom_entry": 18424.03499996662,
+            "first_i2c": 26636.680000066757,
+            "banner": 35993.85500001907
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "atom-matrix-75-report.json",
+              "bytes": 149949,
+              "sha256": "ef5cfca010b2976eacc0690d9e38dcd501f307cc3fb639ee8d7cc235d6a8f792"
+            },
+            {
+              "label": "atom-matrix-75-harness-executed.mjs",
+              "bytes": 22491,
+              "sha256": "e4b4393462aa39aa1936299349f12d710bad12dfa17546bbb4e8cefe087f870f"
+            },
+            {
+              "label": "atom-matrix-75-stopped.json",
+              "bytes": 8004,
+              "sha256": "9e7464632f5ce4c95cc2a66f4316d82ccac8fd16d0d8a2c7e86fd923b61066f2"
+            },
+            {
+              "label": "atom-matrix-75-runtime75-identity-gate.json",
+              "bytes": 81603,
+              "sha256": "88bfe3d0377ebd3e99a8a66b9c36229a08ef51897a46f4c256fcbb23a1716ffb"
+            }
+          ]
+        }
+      },
+      "observed_comparison": {
+        "3c": {
+          "click_to_ready_saved_ms": 54682.234999895096,
+          "click_to_ready_reduction_percent": 49.95744015666905,
+          "rom_entry_to_i2c_old_ms": 62457.34000003338,
+          "rom_entry_to_i2c_new_ms": 8212.645000100136
+        },
+        "74": {
+          "click_to_ready_saved_ms": 58389.05499994755,
+          "click_to_ready_reduction_percent": 51.5966364350856,
+          "rom_entry_to_i2c_old_ms": 62668.11500000954,
+          "rom_entry_to_i2c_new_ms": 8212.645000100136
+        }
+      },
+      "fresh75_check_names": [
+        {
+          "name": "pages-service-worker-isolation",
+          "ok": true
+        },
+        {
+          "name": "public-headless-reference-label",
+          "ok": true
+        },
+        {
+          "name": "public-headless-reference-instructions",
+          "ok": true
+        },
+        {
+          "name": "original-firmware-board-and-output-route",
+          "ok": true
+        },
+        {
+          "name": "no-lcd-or-frame-transport",
+          "ok": true
+        },
+        {
+          "name": "same-guest-rmt-output-and-qmp-button-loop",
+          "ok": true
+        },
+        {
+          "name": "read-only-output-and-no-display-negative-controls",
+          "ok": true
+        },
+        {
+          "name": "exact-model-button-edges-and-no-output-echo",
+          "ok": true
+        },
+        {
+          "name": "automatic-poll-never-requests-a-frame",
+          "ok": true
+        },
+        {
+          "name": "clean-guest-and-worker-stop",
+          "ok": true
+        },
+        {
+          "name": "created-pthreads-close-before-iframe-finalization",
+          "ok": true
+        },
+        {
+          "name": "engine-and-created-pthreads-close-after-iframe-finalization",
+          "ok": true
+        },
+        {
+          "name": "no-leftover-iframe",
+          "ok": true
+        },
+        {
+          "name": "no-device-service-or-page-errors",
+          "ok": true
+        },
+        {
+          "name": "stopped-model-output-unknown",
+          "ok": true
+        }
+      ],
+      "actual_input_output": {
+        "input": {
+          "public_keyboard": "Space",
+          "event": "button a down, then up"
+        },
+        "guest_serial": {
+          "board": 141,
+          "ready_output": "ws2812-rmt-gpio27",
+          "pressed": {
+            "seq": 3,
+            "device": "atom-matrix",
+            "count": 0,
+            "kind": "pressed"
+          },
+          "count": {
+            "seq": 4,
+            "device": "atom-matrix",
+            "count": 1,
+            "kind": "count"
+          },
+          "released": {
+            "seq": 5,
+            "device": "atom-matrix",
+            "count": 1,
+            "kind": "released"
+          }
+        },
+        "qom_path": "/machine/onboard_io",
+        "rmt_gpio": 27,
+        "uniform_led_count": 25,
+        "idle_rgb": "#204060",
+        "pressed_rgb": "#40a020",
+        "released_rgb": "#204060",
+        "down_pressed": true,
+        "up_pressed": false,
+        "down_led_frames": 3,
+        "up_led_frames": 4,
+        "model_colors_match_actual_qom": true,
+        "negative_controls": [
+          "No LCD/frame route",
+          "Unsupported touch/read-only output mutation rejected",
+          "No automatic frame request or input echo"
+        ],
+        "limits": [
+          "Only uniform RGB spatial mapping",
+          "No IMU/IR/physical optical evidence"
+        ]
+      }
+    },
+    "stickc-plus": {
+      "board": "m5stickcplus",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "firmware_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "official_base_sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+      "fixture_main_source_sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0",
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "clock_divisor": 1,
+      "clock_override": null,
+      "one_insn_per_tb": false,
+      "persistent_flash": false,
+      "execution_arguments": [
+        "./this.program",
+        "-M",
+        "m5stickcplus",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "pipe:/bridge/uart",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "runs": {
+        "3c": {
+          "status": "PASS",
+          "checks": 26,
+          "click_to_ready_ms": 90687.35500001907,
+          "runtime_to_ready_ms": 90506.0799999237,
+          "first_uart_ms": 18285.889999985695,
+          "markers_runtime_ms": {
+            "rom_text": 18288.27999997139,
+            "rom_entry": 21376.634999990463,
+            "first_i2c": 76177.56999993324,
+            "banner": 81783.16999995708
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "stickc-plus-3c-report.json",
+              "bytes": 184398,
+              "sha256": "05391985d274adb6b75074c11985549e5f6e09483323bf75aba46c62a43dbf0a"
+            },
+            {
+              "label": "stickc-plus-3c-harness-executed.mjs",
+              "bytes": 54722,
+              "sha256": "c6556e8d9097777ec655f6ad770cb857b6169de78f89016d96aa51658aeb8919"
+            },
+            {
+              "label": "stickc-plus-3c-stopped.json",
+              "bytes": 624910,
+              "sha256": "f24e0d740357636d33b989062a3efc55d4930293ca5cca1dde0e213a56b2e75e"
+            }
+          ]
+        },
+        "74": {
+          "status": "PASS",
+          "checks": 26,
+          "click_to_ready_ms": 96755.48000001907,
+          "runtime_to_ready_ms": 95961.47000002861,
+          "first_uart_ms": 17847.389999985695,
+          "markers_runtime_ms": {
+            "rom_text": 17849.014999985695,
+            "rom_entry": 20904.384999990463,
+            "first_i2c": 79714.68999993801,
+            "banner": 86144.625
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "stickc-plus-74-report.json",
+              "bytes": 183648,
+              "sha256": "ff7663236803ce86cdc4b862a2d92fa3b0f4041d284c3047ffe2d8a04aef1443"
+            },
+            {
+              "label": "stickc-plus-74-harness-executed.mjs",
+              "bytes": 54740,
+              "sha256": "fbf497e740c02856f750987e9ac4c40dc40206e9770ada798733bb09dad6fe5e"
+            },
+            {
+              "label": "stickc-plus-74-stopped.json",
+              "bytes": 625055,
+              "sha256": "e741274a7cfe151d0856e47e5bdc8137e7b0e061ab981bbfd2639b709f47dd93"
+            }
+          ]
+        },
+        "75": {
+          "status": "PASS",
+          "checks": 26,
+          "click_to_ready_ms": 39143.84500002861,
+          "runtime_to_ready_ms": 38701.330000042915,
+          "first_uart_ms": 17372.795000076294,
+          "markers_runtime_ms": {
+            "rom_text": 17374.09500002861,
+            "rom_entry": 17522.87000000477,
+            "first_i2c": 25607.450000047684,
+            "banner": 28953.240000009537
+          },
+          "cleanup": {
+            "graceful_exit": true,
+            "exit_code": 0,
+            "engine_fallback_terminations": 0,
+            "cdp_targets_observed": 5,
+            "cdp_targets_live": 0
+          },
+          "raw_artifacts": [
+            {
+              "label": "stickc-plus-75-report.json",
+              "bytes": 184204,
+              "sha256": "949a65d150a688b4b9ca2bb8ff8c94a4aaa56fb0997b495e7519205eeeb9388a"
+            },
+            {
+              "label": "stickc-plus-75-harness-executed.mjs",
+              "bytes": 54740,
+              "sha256": "cd1ad0ef104b5c09879c147bf33b112108b05055405e0eb189cf62600476342b"
+            },
+            {
+              "label": "stickc-plus-75-stopped.json",
+              "bytes": 625057,
+              "sha256": "3b08733b00a525b03aa219f3aa5c01ccb50afc45981a96cab277fc63607e057f"
+            },
+            {
+              "label": "stickc-plus-75-runtime75-identity-gate.json",
+              "bytes": 115917,
+              "sha256": "7295380c55cf8172f4d8be1a0de2a92542a7564a20375b19ac424b148769dd00"
+            }
+          ]
+        }
+      },
+      "observed_comparison": {
+        "3c": {
+          "click_to_ready_saved_ms": 51543.50999999046,
+          "click_to_ready_reduction_percent": 56.83649060001763,
+          "rom_entry_to_i2c_old_ms": 54800.93499994278,
+          "rom_entry_to_i2c_new_ms": 8084.580000042915
+        },
+        "74": {
+          "click_to_ready_saved_ms": 57611.63499999046,
+          "click_to_ready_reduction_percent": 59.54353696553323,
+          "rom_entry_to_i2c_old_ms": 58810.30499994755,
+          "rom_entry_to_i2c_new_ms": 8084.580000042915
+        }
+      },
+      "fresh75_check_names": [
+        {
+          "name": "pages-service-worker-isolation",
+          "ok": true
+        },
+        {
+          "name": "public-ui-selected-board-reference",
+          "ok": true
+        },
+        {
+          "name": "original-stickc-plus-board",
+          "ok": true
+        },
+        {
+          "name": "same-guest-ready-and-display",
+          "ok": true
+        },
+        {
+          "name": "model-rendering-paused-until-guest-ready",
+          "ok": true
+        },
+        {
+          "name": "complete-native-red-marker",
+          "ok": true
+        },
+        {
+          "name": "public-ui-3d-and-visible-native-frame",
+          "ok": true
+        },
+        {
+          "name": "public-ui-native-to-rendered-model-texture-before-input",
+          "ok": true
+        },
+        {
+          "name": "non-touch-screen-click-does-not-send-touch-or-show-error",
+          "ok": true
+        },
+        {
+          "name": "hash-pinned-composed-firmware",
+          "ok": true
+        },
+        {
+          "name": "exported-default-clock-profile",
+          "ok": true
+        },
+        {
+          "name": "actual-physical-frame-dimensions",
+          "ok": true
+        },
+        {
+          "name": "guest-button-counter",
+          "ok": true
+        },
+        {
+          "name": "guest-button-release",
+          "ok": true
+        },
+        {
+          "name": "controller-input-changes-native-frame-marker",
+          "ok": true
+        },
+        {
+          "name": "public-ui-native-to-rendered-model-texture-after-input",
+          "ok": true
+        },
+        {
+          "name": "unsupported-button-fails-closed",
+          "ok": true
+        },
+        {
+          "name": "qmp-pause-freezes-guest",
+          "ok": true
+        },
+        {
+          "name": "qmp-resume-fresh-guest-heartbeat",
+          "ok": true
+        },
+        {
+          "name": "guest-remains-free-of-panic-or-python-traceback",
+          "ok": true
+        },
+        {
+          "name": "clean-guest-stop-and-worker-disposal",
+          "ok": true
+        },
+        {
+          "name": "created-pthreads-close-before-iframe-finalization",
+          "ok": true
+        },
+        {
+          "name": "engine-and-created-pthreads-close-after-iframe-finalization",
+          "ok": true
+        },
+        {
+          "name": "no-leftover-guest-iframe",
+          "ok": true
+        },
+        {
+          "name": "no-page-errors",
+          "ok": true
+        },
+        {
+          "name": "no-device-service-requests",
+          "ok": true
+        }
+      ],
+      "actual_input_output": {
+        "input": {
+          "public_keyboard": "Space",
+          "event": "BtnA down, then up"
+        },
+        "guest_serial": {
+          "pressed": {
+            "count": 0,
+            "device": "stickc-plus",
+            "y": -1,
+            "x": -1,
+            "kind": "pressed",
+            "seq": 3
+          },
+          "count": {
+            "seq": 4,
+            "device": "stickc-plus",
+            "count": 1,
+            "kind": "count"
+          },
+          "released": {
+            "count": 1,
+            "device": "stickc-plus",
+            "y": -1,
+            "x": -1,
+            "kind": "released",
+            "seq": 5
+          }
+        },
+        "native_frame": {
+          "width": 135,
+          "height": 240,
+          "marker": "red to green after controller input",
+          "model_texture_pixels_compared": 32400
+        },
+        "pause_resume": {
+          "guest_clock_freezes": true,
+          "fresh_heartbeat_after_resume": true
+        },
+        "negative_controls": [
+          "Non-touch screen does not send touch",
+          "Unsupported button fails closed",
+          "No panic or Python traceback"
+        ],
+        "limits": [
+          "BtnB/Power not exercised by this fixed case",
+          "No physical display/timing evidence"
+        ]
+      }
+    }
+  },
+  "sdk_host_controls": {
+    "sdk_version": "3.1.50",
+    "sdk_commit": "047b82506d6b471873300a5e4d1e690420b582d0",
+    "status": "PARTIAL",
+    "positive_status": "PASS",
+    "cancel_status": "NOT RUN: positive-only",
+    "patch_sha256": "5a43ac91491e1d8637f0147e7165066940dc78a245ad3a6c733ba12968f30e7c",
+    "fixture_sha256": "7c06701e2b62204bb9260b0824118bc292233bca0a006b5eab4f8b436e259dd6",
+    "probe_sha256": "91baf40e89114444aa9c981ef78df5f6ca058a264065f9cbc9dd0ef15f194e2b",
+    "builder_sha256": "6ef9f2963cee778bb18e15c4526f4b42b8758e6cb153333072cba498f9da581e",
+    "compiled_function_include_sha256": "8e7c8ae41a1c087f54d376fc47295b1f43204ba708d0bc5ab17bc8fe3c197953",
+    "runs": [
+      {
+        "proxy_to_pthread": 1,
+        "mode": "original",
+        "exit_code": 0,
+        "artifact_sha256": "7599be4fd1145852d82343e3e032e54a0501334a26122dd2c3f5b4fd0964d14d",
+        "result": {
+          "mode": "original",
+          "main_runtime": 0,
+          "rounds": 24,
+          "finite_ms": 3.841,
+          "notified_median_ms": 6.222,
+          "notified_p95_ms": 6.359,
+          "js_only_median_ms": 6.178,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      },
+      {
+        "proxy_to_pthread": 1,
+        "mode": "legacy",
+        "exit_code": 0,
+        "artifact_sha256": "7599be4fd1145852d82343e3e032e54a0501334a26122dd2c3f5b4fd0964d14d",
+        "result": {
+          "mode": "legacy",
+          "main_runtime": 0,
+          "rounds": 24,
+          "finite_ms": 3.848,
+          "notified_median_ms": 6.205,
+          "notified_p95_ms": 6.305,
+          "js_only_median_ms": 6.199,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      },
+      {
+        "proxy_to_pthread": 1,
+        "mode": "wake",
+        "exit_code": 0,
+        "artifact_sha256": "7599be4fd1145852d82343e3e032e54a0501334a26122dd2c3f5b4fd0964d14d",
+        "result": {
+          "mode": "wake",
+          "main_runtime": 0,
+          "rounds": 24,
+          "finite_ms": 3.811,
+          "notified_median_ms": 0.036,
+          "notified_p95_ms": 0.045,
+          "js_only_median_ms": 6.225,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      },
+      {
+        "proxy_to_pthread": 0,
+        "mode": "original",
+        "exit_code": 0,
+        "artifact_sha256": "4d278bc66cb051e445e3202c08b465049bc78ae39ea3a3e8e4605e7cd45c8d2b",
+        "result": {
+          "mode": "original",
+          "main_runtime": 1,
+          "rounds": 24,
+          "finite_ms": 3.021,
+          "notified_median_ms": 3.895,
+          "notified_p95_ms": 3.968,
+          "js_only_median_ms": 3.939,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      },
+      {
+        "proxy_to_pthread": 0,
+        "mode": "legacy",
+        "exit_code": 0,
+        "artifact_sha256": "4d278bc66cb051e445e3202c08b465049bc78ae39ea3a3e8e4605e7cd45c8d2b",
+        "result": {
+          "mode": "legacy",
+          "main_runtime": 1,
+          "rounds": 24,
+          "finite_ms": 3.042,
+          "notified_median_ms": 3.885,
+          "notified_p95_ms": 3.958,
+          "js_only_median_ms": 3.924,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      },
+      {
+        "proxy_to_pthread": 0,
+        "mode": "wake",
+        "exit_code": 0,
+        "artifact_sha256": "4d278bc66cb051e445e3202c08b465049bc78ae39ea3a3e8e4605e7cd45c8d2b",
+        "result": {
+          "mode": "wake",
+          "main_runtime": 1,
+          "rounds": 24,
+          "finite_ms": 2.962,
+          "notified_median_ms": 0.007,
+          "notified_p95_ms": 0.027,
+          "js_only_median_ms": 1.132,
+          "cancel_join": "separate lane",
+          "unrelated_waiter": true
+        }
+      }
+    ],
+    "limits": [
+      "Host SDK program, no QEMU or guest.",
+      "Per topology all three modes use one compiled artifact; original means original poll function, not the entire old QEMU binary. All modes share final candidate notifier atomic/wake.",
+      "Probe atomic read uses SEQ_CST while QEMU qatomic_read is RELAXED; no failing race established.",
+      "Real SDK pipes/proxy/futex, not a native OS disk or physical Flash benchmark.",
+      "Latency starts after write returns; not full I/O latency, CPU use or guest speed.",
+      "PROXY0 covers Node main-runtime, not browser Window busy-wait fallback."
+    ]
+  },
+  "cancellation_boundary": {
+    "status": "NOT ESTABLISHED",
+    "v6_tested_patch_sha256": "139271003cf1aef66532bf06701eea8f31b21f5685df0ec363b7439cb5a84295",
+    "v6_status": "FAIL",
+    "runs": [
+      {
+        "proxy": 1,
+        "mode": "original",
+        "status": "FAIL",
+        "error": "bounded 5s cancellation lane timeout"
+      },
+      {
+        "proxy": 1,
+        "mode": "wake",
+        "status": "FAIL",
+        "error": "bounded 5s cancellation lane timeout"
+      },
+      {
+        "proxy": 0,
+        "mode": "original",
+        "status": "FAIL",
+        "exit_code": 1,
+        "result": {
+          "cleanup_before_fallback": 0,
+          "cleanup_after_fallback": 1,
+          "cooperative_return": 0,
+          "joined": true,
+          "canceled_status": true
+        }
+      },
+      {
+        "proxy": 0,
+        "mode": "wake",
+        "status": "FAIL",
+        "exit_code": 1,
+        "result": {
+          "cleanup_before_fallback": 0,
+          "cleanup_after_fallback": 1,
+          "cooperative_return": 0,
+          "joined": true,
+          "canceled_status": true
+        }
+      }
+    ],
+    "attribution": "v5 stale post-fallback observer snapshot was corrected in v6. Both original/wake proxy0 still missed pre-fallback cancellation; after real pipe fallback cleanup, join and canceled status were observed. Both proxy1 runs timed out. Earlier FAIL evidence stays retained. Final-patch v7 positive-only controls do not establish cancellation.",
+    "qmp_quit_and_cdp": "Separately passed in both fresh75 original-Flash browser cases."
+  },
+  "preserved_failed_candidates": {
+    "reference": "../2026-11-04-browser-startup-investigation/README.md",
+    "matrix_mttcg_one_insn": "FAIL before ready, cache-disabled access panic; normal failure CDP cleanup NOT CAPTURED.",
+    "matrix_single_icount_one_insn": "126619.58ms ready, no improvement; later observer heartbeat assumption FAIL retained; failure cleanup NOT CAPTURED.",
+    "old_0bd_scope": "Superseded diagnostic runtime; excluded from formal3c/74/75 comparison.",
+    "later_pass_does_not_erase_failures": true
+  },
+  "measurement_method": {
+    "case_count_per_runtime_device": 1,
+    "context": "Fresh browser process/context per cold run, no profiler; system Chrome hardware ANGLE.",
+    "ready": "Call-through performance.now timestamps at real Start click/runtime start and first ready marker receipt; parsed guest ready plus functional assertions separately required.",
+    "phase_times": "Observed UART marker arrival relative to runtime start; not instruction counts or guest milliseconds.",
+    "raw_retention": "Only labels/bytes/SHA are published here. Raw reports/harnesses remain outside the source evidence tree.",
+    "timing_harness": "Original fixed15/26 assertions retained; added call-through asset/compile/state/serial/input timing observers. Actual executed harness SHA is in each raw artifact list.",
+    "no_transfer": [
+      "No repeated statistical performance promise",
+      "No all-model speed claim",
+      "No new default UIFlow firmware result",
+      "No live Pages or network-latency result",
+      "No physical hardware timing",
+      "No operation count inferred from CDP samples or zero blockstats"
+    ]
+  },
+  "warm": {
+    "status": "NOT RUN",
+    "definition": "Same-page normal stop plus actual old Worker closure, then a fresh guest Start with observed asset/compiled-Module cache hits. Hardware reset is a separate operation.",
+    "follow_up_file": "A later warm-summary.json may be added after independent execution; this cold record remains unchanged."
+  },
+  "raw_artifacts": [
+    {
+      "label": "fresh75-build-receipt",
+      "bytes": 1538,
+      "sha256": "6491cbb3c1945c3de40b407c8ab74be0c7519ea46d71a9799cd9a894b399ddcf"
+    },
+    {
+      "label": "fresh75-command-record",
+      "bytes": 76368,
+      "sha256": "1384c0b32608bd06322a31cd660ad7f920eaf04fe6ecd849f2bbc3cf85a35dfe"
+    },
+    {
+      "label": "fresh75-first-link-symbol-map-not-distributed",
+      "bytes": 545653,
+      "sha256": "1360ae84b93e998f1fe1fb0721a28b9a6fcd4f04c48a37ec4f2d3006845fd4b3"
+    },
+    {
+      "label": "sdk-v7-positive-report",
+      "bytes": 6833,
+      "sha256": "3a7bddbfcbf39afe1cbb0ff08f961f7c0794b8e6d46e2ce0f1bec8c2f3e4d436"
+    },
+    {
+      "label": "sdk-v7-compiled-function-include",
+      "bytes": 5295,
+      "sha256": "8e7c8ae41a1c087f54d376fc47295b1f43204ba708d0bc5ab17bc8fe3c197953"
+    },
+    {
+      "label": "sdk-v6-cancellation-report",
+      "bytes": 4391,
+      "sha256": "5170fdffd76825539ce29222d376bc5fe2a9b5ce623c0655e6dbc7616bfbd83f"
+    },
+    {
+      "label": "sdk-v5-positive-and-cancellation-report",
+      "bytes": 8454,
+      "sha256": "7180892b946f786808bbe5da5a5a69226e851d63450bf4b58b4c63c357e3b4dd"
+    },
+    {
+      "label": "final-source-forward-reverse-replay",
+      "bytes": 913,
+      "sha256": "08d68bf8930f4d80608be04aaeabe9b75ff704f2b4feb29bc8427336eaa2ebb2"
+    },
+    {
+      "label": "independent-final-source-review",
+      "bytes": 11634,
+      "sha256": "95b82bde9580656ba330638e4bdd6d8d848237842e88a8cfaedd951b26c7ff91"
+    },
+    {
+      "label": "curation-source-cold-comparison",
+      "bytes": 38923,
+      "sha256": "4ef3b9b007f2d3e9a2ad720966ef82db15b38aaca5f5dcb127edc9818772eef9"
+    },
+    {
+      "label": "v1-frozen-source-receipt",
+      "bytes": 5799,
+      "sha256": "f6cc8469bb4c3ae2ee632decaf8df488c02eb40038bc0496f41fdd7f82f30041"
+    }
+  ],
+  "source_references": [
+    {
+      "commit": "e0d0d7dde13fa582d5c27c85cce25ef62aeaf2f8",
+      "paths": [
+        "patches/qemu-wasm-probe/0032-wasm-wakeable-host-poll.patch",
+        "scripts/qemu-wasm-build/sources.lock.json",
+        "scripts/qemu-wasm-build/build.py",
+        "tests/browser-qemu/poll_wake/build.py",
+        "tests/browser-qemu/poll_wake/probe.c"
+      ]
+    },
+    {
+      "commit": "4a2de458776396bac8c3a1aa8d98c22bf910f7fe",
+      "paths": [
+        "platform/tests/test_public_qemu_headless_guest.mjs",
+        "platform/tests/test_public_qemu_board_guest.mjs"
+      ]
+    }
+  ],
+  "reproduction": {
+    "source_build": "python3 platform/tools/bootstrap_qemu_browser_runtime.py --cache \"$BUILD_CACHE\" --output \"$RUNTIME_OUT\" --jobs 2",
+    "sdk_control": "python3 tests/browser-qemu/poll_wake/build.py --emcc \"$SDK_EMCC\" --node node --out-dir \"$SDK_CONTROL_OUT\"",
+    "functional_cases": {
+      "common_env": [
+        "M5_PUBLIC_SITE=\"$SITE\"",
+        "M5_PUBLIC_BASE_PATH=\"$BASE\"",
+        "M5_PUBLIC_UI=1",
+        "M5_WASM_GPU=hardware",
+        "M5_WASM_CHROME=\"$CHROME\""
+      ],
+      "matrix": "M5_QEMU_DEVICE=atom-matrix M5_PUBLIC_QEMU_OUT=\"$MATRIX_OUT\" node platform/tests/test_public_qemu_headless_guest.mjs",
+      "plus": "M5_QEMU_DEVICE=stickc-plus M5_PUBLIC_QEMU_OUT=\"$PLUS_OUT\" node platform/tests/test_public_qemu_board_guest.mjs"
+    },
+    "limits": "Use fresh owned directories, pinned source/lock/Flash and an explicitly verified exported runtime. Canonical cases reproduce functional gates; additional timestamp observers generated the recorded timings. Rebuild hashes and timings must be verified rather than assumed identical."
+  }
+}

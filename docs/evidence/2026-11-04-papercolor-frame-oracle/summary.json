@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "kind": "PaperColor-Spectra6-frame-observer-repair",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "status": "SCOPED_PAPERCOLOR64_PASS_FIRSTFAIL_RETAINED_FINAL_CONTROLLER_GUEST_PENDING",
+  "scope": "Test observer and acceptance coverage only; no productV5/C/runtime/defaultFlash/guest-clock change. No complete19/60 or deployment claim.",
+  "runtime": {
+    "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "manifest": {
+      "bytes": 34437,
+      "sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51"
+    },
+    "assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35244932,
+        "sha256": "1de631cd82597f6477ebc1bb700274e44aeb2f1c093e8122dae07dcbb88683c6"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12746345,
+        "sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    }
+  },
+  "firmware": {
+    "deviceId": "papercolor",
+    "board": "m5papercolor",
+    "chip": "esp32s3",
+    "baseSHA256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+    "baseBytes": 16773120,
+    "flashBytes": 16777216,
+    "firmwareSHA256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+    "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+    "startup_sources": {
+      "boot.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+        "bytes": 214,
+        "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+      },
+      "main.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/main.py",
+        "bytes": 57,
+        "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    }
+  },
+  "profile": {
+    "board": "m5papercolor",
+    "profile": "papercolor-wasm-wallclock-epaper-probe",
+    "clockDivisor": 1,
+    "clockOverride": null,
+    "accelerator": null,
+    "oneInsnPerTb": false,
+    "persistentFlash": false
+  },
+  "actual_args_canonical_json_sha256": "0475c023f0901b6b231ef9d54bc25ad5e1a9e334e15ab2fb6a271c51c94d6d4b",
+  "first_R5_failure": {
+    "raw": {
+      "bytes": 13041559,
+      "sha256": "782a369e083ff304a860ed13dd152457a4f9f5fdab3a8820ea51876c1359b2a6"
+    },
+    "status": "FAIL",
+    "completed_checks": 41,
+    "all_completed_checks_true": true,
+    "phase": "Generic LCD-frame wait timed out after41code/editor checks; no failed check row was appended for the timeout.",
+    "actual_frame": {
+      "width": 400,
+      "height": 600,
+      "sequence": 2,
+      "format": "rgb565le",
+      "source": "qemu-display-surface-shared",
+      "source_sequence": 12,
+      "source_updates": 6,
+      "sha256": "302109d862954d082040aa86344563144a1cd571a03502d2e39b381f3e8fc900"
+    },
+    "observed_RGB565_counts": {
+      "0xb800": 240000
+    },
+    "generic_expectation": "More than95percent of full frame RGB5650xf800.",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010"
+    },
+    "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "02fffa77082c8bd3f43fecc09a8fb4ff17e40c0e7105fd461e70b5495ef08200",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "executed_display_programs": [
+      {
+        "name": "guest-display-output",
+        "source_sha256": "a4a4521665ed2303e896604d8059547aba94ac31c6b86a205b69c23f490ef645",
+        "runner_error": false,
+        "stderr_empty": true
+      }
+    ],
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "R5_parent_scope": "TerminalFAIL,24started23PASS; remaining matrix not accepted."
+  },
+  "source_chain": [
+    {
+      "path": "hw/m5stopwatch/m5_epd_panel.c",
+      "bytes": 9747,
+      "sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+      "matches_runtime_manifest_postimage": true,
+      "purpose": "Spectra6 command0x10 packed nibbles; index3 returns ARGB0xffbf0000."
+    },
+    {
+      "path": "ui/console.c",
+      "bytes": 48913,
+      "sha256": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
+      "matches_runtime_manifest_postimage": true,
+      "purpose": "Shared frame uses PIXMAN_r5g6b5 plus PIXMAN_OP_SRC conversion."
+    },
+    {
+      "path": "hw/m5stopwatch/m5papercolor.c",
+      "bytes": 3684,
+      "sha256": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
+      "matches_runtime_manifest_postimage": true,
+      "purpose": "Native and output400x600; color=true."
+    }
+  ],
+  "fixed_palette_math": {
+    "input_public_RGB888": "0xff0000",
+    "Spectra6_index": 3,
+    "controller_ARGB8888": "0xffbf0000",
+    "red8": 191,
+    "RGB565_formula": "(0xbf >>3)<<11 =23<<11 =0xb800",
+    "expected_physical_dimensions": [
+      400,
+      600
+    ],
+    "expected_RGB565": "0xb800",
+    "expected_pixels": 240000,
+    "expected_byte_length": 480000,
+    "frame_format": "rgb565le",
+    "purpose": "Strict original Spectra6 model output; not optical color accuracy or generic LCD red."
+  },
+  "legacy_fixed_oracle": {
+    "path": "platform/tests/fixtures/browser_epd_quality_oracles.json",
+    "bytes": 15921,
+    "sha256": "2957661990130249d17b2250e6962f0cfd86210c09fad54f637d85af3db4e3aa",
+    "red_input_RGB888": 16711680,
+    "red_primary_RGB565": 47104,
+    "ROI": {
+      "x": 200,
+      "y": 110,
+      "width": 8,
+      "height": 8
+    },
+    "expected_histogram": {
+      "47104": 64
+    },
+    "exception_count": 0,
+    "scope": "Reviewed source fixture expects64/64redROI samples B800. Source/old fixed case only; no transfer to the new default workbench guest."
+  },
+  "new_observer": {
+    "path": "platform/tests/public_qemu_papercolor_frame_oracle.mjs",
+    "bytes": 1515,
+    "sha256": "47074556aec371cd7808cf8123cc004c6ece62417d937cb48e476c6e1f58b78e",
+    "requirements": [
+      "Exactly400x600,RGB565LE,480000bytes",
+      "Every240000pixel exactly0xb800; one wrong pixel fails",
+      "Integer transport sequence strictly newer than pre-draw snapshot",
+      "Integer sourceSequence strictly newer than pre-draw snapshot; no stale source frame"
+    ],
+    "changes_pixels": false,
+    "learns_expected_color_from_output": false,
+    "lowers_threshold": false
+  },
+  "host_controls": {
+    "path": "platform/tests/test_public_qemu_papercolor_frame_oracle.mjs",
+    "bytes": 1878,
+    "sha256": "5653f079213182ab5286bf7d367334972392dbfea9390c5de801fa98cbeed98a",
+    "source_review": "REVIEW; implementation and16negative cases inspected",
+    "execution_by_this_evidence_writer": "NOT RUN; do not rerun during root-owned guest",
+    "negative_count": 16,
+    "positive": "Independent Uint16 red fixture plus browser-function serialization control",
+    "negative_examples": [
+      "LCD0xf800",
+      "White/black/blue and byte-swapped0x00b8",
+      "400x600 orientation/height/format/buffer errors",
+      "Stale sequence or sourceSequence",
+      "NaN/missing freshness data",
+      "Missing frame",
+      "One wrong pixel",
+      "Negative pre-draw bound"
+    ],
+    "guest_execution": "NOT RUN by host controls",
+    "root_reported_final_contracts": {
+      "status": "PASS",
+      "count": 28,
+      "source_phase": "After report-layer8f9revision; host-only, not guest evidence."
+    }
+  },
+  "planned_runner_coverage": {
+    "path": "platform/tests/test_public_uiflow_guest.mjs",
+    "prepared_source": {
+      "bytes": 25172,
+      "sha256": "a8aec2e14e5010900bbcae9dfbfa9551b1f5b7bb2cddfe336a88fa5c5434a32f"
+    },
+    "changes": [
+      "PaperColor-specific strict Spectra6 oracle with pre-draw transport/source freshness bounds",
+      "Leave current textarea untouched and compare original default source",
+      "Directly run unchanged initial editor source, then run it again in same VM",
+      "Preserve original programs/reset/pause/interruption and normal cleanup"
+    ],
+    "new_extra_VM_start": false,
+    "untouched_default_source": "import M5\nM5.begin()\nprint(\"Hello, UIFlow!\")\n",
+    "historical_prepared_source_role": "This A8source was the actual narrow64controller. Later8f9report-only source is recorded separately."
+  },
+  "targeted_guest": {
+    "status": "PASS",
+    "raw": {
+      "bytes": 18818790,
+      "sha256": "5e0d22bf082d6d031222791a666856b954562c028eca65dbc77b2cd97c818c04"
+    },
+    "checks": 64,
+    "all_checks_true": true,
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "a8aec2e14e5010900bbcae9dfbfa9551b1f5b7bb2cddfe336a88fa5c5434a32f"
+    },
+    "executed_controller_artifact": {
+      "bytes": 25172,
+      "sha256": "a8aec2e14e5010900bbcae9dfbfa9551b1f5b7bb2cddfe336a88fa5c5434a32f"
+    },
+    "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "firmware_ref": "#/firmware",
+    "runtime_ref": "#/runtime",
+    "profile_ref": "#/profile",
+    "affected_web_exported_sha256": {
+      "public.js": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "02fffa77082c8bd3f43fecc09a8fb4ff17e40c0e7105fd461e70b5495ef08200",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "default_source_untouched_check": true,
+    "default_source_first_repeat": [
+      {
+        "name": "default-editor-first-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "stdout": "Hello, UIFlow!\r\n",
+        "stderr": "",
+        "runner_error": null,
+        "same_browser_session": true,
+        "same_console_epoch": true,
+        "source_reached_same_guest_check": true
+      },
+      {
+        "name": "default-editor-repeat-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "stdout": "Hello, UIFlow!\r\n",
+        "stderr": "",
+        "runner_error": null,
+        "same_browser_session": true,
+        "same_console_epoch": true,
+        "source_reached_same_guest_check": true
+      }
+    ],
+    "actual_frame": {
+      "width": 400,
+      "height": 600,
+      "sequence": 6,
+      "pattern": "papercolor-spectra6-red-v1",
+      "pixels": 240000,
+      "black_pixels": 0,
+      "white_pixels": 0,
+      "red_pixels": 240000,
+      "expected_red_rgb565": 47104,
+      "sha256": "302109d862954d082040aa86344563144a1cd571a03502d2e39b381f3e8fc900",
+      "before_draw": {
+        "afterSequence": 5,
+        "afterSourceSequence": 18
+      },
+      "oracle": {
+        "pattern": "papercolor-spectra6-red-v1",
+        "matches": true,
+        "expected": {
+          "width": 400,
+          "height": 600,
+          "rgb888": 12517376,
+          "rgb565": 47104,
+          "pixels": 240000
+        },
+        "after_sequence": 5,
+        "after_source_sequence": 18,
+        "sequence": 6,
+        "source_sequence": 20,
+        "red_pixels": 240000,
+        "unexpected_pixels": 0
+      },
+      "oracle_source": {
+        "path": "platform/tests/public_qemu_papercolor_frame_oracle.mjs",
+        "sha256": "47074556aec371cd7808cf8123cc004c6ece62417d937cb48e476c6e1f58b78e"
+      }
+    },
+    "frame_top_source_sequence": "NOT CAPTURED in this historical narrow report; oracle separately retained20. Do not retroactively fill new field.",
+    "hardware_reset": {
+      "before_console_epoch": 0,
+      "after_console_epoch": 1,
+      "source_sha256": "f786f171a305d2dca1f6ddef0f944970f054566feba0f545294538c446c54fe4"
+    },
+    "old_console_after_reset_error_name": "AbortError",
+    "post_reset_program_completed": true,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_self_close_notifications": 1,
+      "actual_CDP_while_iframe_held": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      }
+    },
+    "scope": "One exact defaultPaperColor/V5/runtime75 full64 run only. FirstFAIL remains; no full60/production or newer-controller guest inheritance."
+  },
+  "limits": [
+    "First41codechecksPASS followed by frame observerFAIL remains retained.",
+    "Source palette/conversion plus the exact A8narrow64run establishes that scoped observer/default Run result. The later8f9report revision still needs its own full guest gate.",
+    "Legacy fixed64sample oracle is not a new default Flash execution receipt.",
+    "The new observer must check all240000pixels plus both freshness counters; no percentage/color relaxation or output-derived palette.",
+    "Physical optical/color/electrical properties and arbitrary firmware remain outside this model result.",
+    "Complete60, final hostchecks, PR and online deployment remain separate."
+  ],
+  "reproduction": {
+    "command": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=papercolor M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_uiflow_guest.mjs",
+    "historical_failure": "Use first recorded V5 and originalb417runner; new observer run cannot replace the first failure.",
+    "raw_policy": "Raw reports, frames, binaries and private identities remain outside source Git; only curated byte/SHA references are retained."
+  },
+  "subsequent_report_layer_revision": {
+    "path": "platform/tests/test_public_uiflow_guest.mjs",
+    "source": {
+      "bytes": 26009,
+      "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+    },
+    "product_V5_or_guest_source_changed": false,
+    "changes": [
+      "PaperMono report no longer emits irrelevant expected-red metadata.",
+      "PaperColor captures one immutable actual frame snapshot for counts/hash/oracle.",
+      "PaperColor report adds top-level source_sequence from that same actual snapshot."
+    ],
+    "host_validation": {
+      "status": "PASS reported by root",
+      "Node_contract_count": 28,
+      "execution_by_evidence_writer": "NOT RUN"
+    },
+    "guest_execution": "PENDING next complete60run; narrow64 actual source is A8, not this8f9 source.",
+    "retroactive_attribution": false
+  }
+}

@@ -173,6 +173,11 @@ def audit_link_arguments(argv: list[str], flags: list[str]) -> dict:
             actual = [arg for arg in argv if arg in
                       ("-O0", "-O1", "-O2", "-O3", "-Os", "-Oz")]
             effective["optimization"] = expected[1:]
+        elif expected == "--emit-symbol-map":
+            actual = [arg for arg in argv if arg == expected or arg.startswith(expected + "=")]
+            if len(actual) != 1:
+                raise ValueError("effective QEMU link setting mismatch: " + expected)
+            effective["emit_symbol_map"] = True
         else:
             setting = expected.split("=", 1)[0] + "="
             actual = [arg for arg in argv if arg.startswith(setting)]

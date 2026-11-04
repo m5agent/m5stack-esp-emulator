@@ -41,6 +41,7 @@ jobs:
         run: |
           python3 -m unittest discover \
             -s platform/tests -p 'test_*.py'
+          python3 tests/browser-qemu/startup_timing/test_prepare.py
           python3 platform/tools/qemu_profiles.py --check
           python3 platform/tools/peripheral_catalog.py --check
           python3 platform/tools/runtime_coverage.py --check

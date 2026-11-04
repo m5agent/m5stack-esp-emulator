@@ -1,6 +1,6 @@
 # 运行时模型缺口登记
 
-日期：`2026-10-30`
+日期：`2026-11-04`
 
 本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
 运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
@@ -127,6 +127,63 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 错误和未全验的后续 tab 保持 `PARTIAL`，但不阻塞本模型缺口关闭。
 
 ## 当前缺口
+
+### RUNTIME-09：AtomS3 Lite 工作台首次启动的 SYSTIMER PIF
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / under investigation`，根因未确定 |
+| 影响 | browser runtime75、AtomS3 Lite 精确工作台 Flash、div1/无icount/原多指令TB首次启动 |
+| 首次异常 | 到达工作台ready前，Core1 PC `0x403864c3` 触发PIF，EXCVADDR `0x6002306c`，随后guest复位 |
+| 真实指令 | 同Flash IRAM解码为 `l32i a8,a7,108`，A7=`0x60023000`；普通、对齐32位读已映射的 `SYSTIMER_INT_CLR` |
+| 模型依据 | 当前read显式返回INT_CLR初值0，write清raw状态并更新IRQ；缺少实际故障事务/region/TLB/TB恢复元数据，不能定为缺控制器或固件缺陷 |
+| 清理 | 该次normal QMP exit0、零fallback、五pthread归零，六实际CDP关闭；held-iframe独立CDP围栏未捕获 |
+| 证据 | [工作台执行策略调查](evidence/2026-11-04-s3-workbench-execution-policy/README.md) |
+
+关闭条件：在原精确固件/多指令策略下定位实际MMIO transaction、MemTxResult、
+命中region、TLB、TB恢复元数据及双核中断时序，给出同异常路径的修复/回归。
+原策略曾独立通过不能覆盖首次FAIL；其它型号的PIF/OOB不自动归为同一根因。
+精确镜像的另一执行策略必须逐板实跑，它通过也不关闭原C/事务根因。
+
+### RUNTIME-08：Cardputer 工作台硬件复位后 WASM 越界
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / under investigation`，根因未确定 |
+| 影响 | browser runtime75、精确 Cardputer-ADV 工作台镜像、原 div1 多指令 TB 的复位路径 |
+| 首次异常 | 完成44项编辑器检查、真实红帧和旧执行取消后，第二次 ROM/application 启动触发 pthread `memory access out of bounds` |
+| 清理 | normal QMP exit 未完成，engine fallback 为1；实际六个 CDP Worker 消失只证明失败后清场，不是正常退出 |
+| 证据边界 | 原始报告未捕获 WASM function/offset 栈；不能套用 StamPLC 的 guest PIF 或直接归因为并发负载 |
+| 证据 | [复位调查](evidence/2026-11-04-cardputer-workbench-reset/README.md) |
+
+关闭条件：在原精确固件/策略上捕获实际 WASM trap 栈、对应二进制符号与复位
+状态，再给出同一路径的受控失败/修复和受影响回归。独立诊断暂未复现、
+连续复位通过或另一执行策略通过均不关闭原内存安全缺口；不以普通重试覆盖
+首次 FAIL，不把失败后 Worker 消失写成正常 QMP 退出。
+
+### RUNTIME-07：StamPLC 浏览器多指令 TB 下硬件复位后 PIF 异常
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / exact execution-policy workaround validated`，根因未确定 |
+| 影响 | browser QEMU runtime75下精确StamPLC UIFlow工作台镜像的原多指令TB复位路径；不泛化其它固件 |
+| 固件 / runtime | Flash `0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d`；WASM `96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1` |
+| 首次异常 | 首启/九段程序/红帧及44项已完成检查通过后，QMP hardware reset第二boot在Core1 PC `0x4038a83a`触发`LoadStorePIFAddrError`，EXCVADDR `0x60023008` |
+| 地址与指令 | 已实现的SYSTIMER UNIT1_OP；同Flash字节解码为对齐32位`l32i.n a8,a9,4`，不是atomic、错大小或缺控制器证据 |
+| 精确策略结果 | 同Flash/runtime、div1、无icount，绑定startup源/required0027后显式`tcg,thread=multi,one-insn-per-tb=on`，首次实际完整编辑器/reset/新epoch源码执行54/54通过；普通QMP与实际6CDP清场通过 |
+| 当前边界 | 原多指令TB失败保留；精确策略PASS不证明C/controller/TCI根因修复，不授未知Flash/源/profile或全矩阵/线上 |
+| 证据 | [工作台复位策略与未关闭缺口](evidence/2026-11-04-stamplc-workbench-reset/README.md)、[有界summary](evidence/2026-11-04-stamplc-workbench-reset/summary.json) |
+
+关闭条件：
+
+1. 保留精确旧profile的首次失败，完成同Flash/runtime下reset-before-program与
+   reset-after-program等有界对照，不能跳过硬件reset或降低原检查；
+2. 采集实际MMIO事务的命中region、物理/虚拟地址、访问类型/大小、MemTxResult，
+   并关联TB restore元数据、TLB和两核reset/IRQ状态，定位多指令路径的实际偏差；
+3. 若修C/复位/事务语义，必须有原多指令策略下同一路径的失败/通过对照及受影响
+   设备回归；仅oneInsn策略通过不能关闭本缺口；
+4. 每个其它固件SHA、startup main.py和profile单独校验与guest验证，不继承本次
+   精确策略准入；物理硬件与线上行为保持独立边界。
 
 ### CORE2-02：九实例 native-HCI ACK delivery 未稳定
 

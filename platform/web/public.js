@@ -1,3 +1,5 @@
+import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './public-uiflow-firmware.js';
+import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
 import {PublicDeviceService} from './public-service.js';
@@ -65,16 +67,18 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
+  const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
+  if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
-    if (state.config.browser_wallclock_example && $('referenceExample').value !== 'stock-div8')
+    if (state.config.browser_wallclock_example && $('referenceExample').value === 'wallclock-candidate')
       return {name:'CoreS3 LVGL + PIR（正常速度，候选修复）',composed:true,wallclockCandidate:true,
         sha256:WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256};
     return {name:'CoreS3 LVGL + PIR（原始程序，正常时钟）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
   }
   return (
-    device?.browser?.reference ||
+    (state.config.browser_runtime_engine !== 'qemu-wasm' && device?.browser?.reference) ||
     (device?.uiflow2?.firmware?.download_url
       ? {url: device.uiflow2.firmware.download_url, name: `UIFlow2 ${device.uiflow2.firmware.version}`}
       : null)
@@ -95,13 +99,13 @@ function lane(device = state.selected) {
 }
 function deviceRuntimeLabel(device) {
   if (browserProfile(device?.id)) return '浏览器运行';
-  if (device?.visual_only) return '仅模型';
   if (
     state.serviceDevices.some(
       (item) => item.device_id === device?.id && item.creatable,
     )
   )
     return '服务可运行';
+  if (device?.visual_only || (state.config.browser_runtime_engine === 'qemu-wasm' && device?.browser_only)) return '仅模型';
   return '连接服务';
 }
 function appendSerial(text) {
@@ -130,8 +134,7 @@ function status(status, detail) {
   $('runtimeStatus').replaceChildren(node('i'), document.createTextNode(labels[status] || status));
   $('runtimeStatus').dataset.status = status;
   if (detail) $('frameStatus').textContent = detail;
-  $('serialInput').disabled = $('serialSendBtn').disabled =
-    !state.run || state.run.kind !== 'browser' || state.run.controller instanceof PublicQemuRuntime || !['running', 'paused'].includes(status);
+  updatePythonControls(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
   $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
@@ -141,10 +144,56 @@ function status(status, detail) {
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : '停止';
 }
+const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成'};
+function pythonUnavailableReason() {
+  const device=state.selected;
+  if(device?.uiflow2?.supported===false)return '此型号不支持 UIFlow2，当前网页编程不可用';
+  if(device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!browserProfile(device.id)))
+    return '当前浏览器仅提供此型号的模型预览，不能运行网页代码';
+  if(state.browserUnavailable||state.config.browser_board_execution!==true)return '本站浏览器运行暂不可用，可浏览模型或连接仿真服务';
+  if(!browserProfile(device?.id))return '此型号尚未取得浏览器运行准入，网页编程不可用';
+  if(state.config.browser_runtime_engine!=='qemu-wasm')return '当前运行内核不提供网页 MicroPython 编程';
+  if(state.run?.kind==='service')return '网页编程需选择浏览器本地运行';
+  return '启动浏览器中的 UIFlow 后即可运行';
+}
+function updatePythonControls(currentStatus=state.run?.controller?.status) {
+  const run=state.run, supported=active(run)&&run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart;
+  const programming=!!run?.controller?.receipt?.uiflowWorkbench&&state.workbenchProfiles?.profiles.some(row=>
+    row.deviceId===state.selected?.id&&row.deviceId===run.controller.receipt.deviceId
+      &&row.firmwareSHA256===run.controller.receipt.firmwareSha256);
+  const pythonBusy=!!run?.python?.busy,busy=pythonBusy||!!run?.serialSending;
+  $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy;
+  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running';
+  $('pauseBtn').disabled=!!run?.serialSending||pythonBusy&&run.pythonPhase!=='running';
+  $('serialInput').disabled=$('serialSendBtn').disabled=!supported||currentStatus!=='running'||busy;
+  if(!supported)$('pythonStatus').textContent=pythonUnavailableReason();
+  else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
+  else if(currentStatus==='error')$('pythonStatus').textContent='设备运行未完成，请停止或重新启动';
+  else if(currentStatus==='sleeping')$('pythonStatus').textContent='设备已休眠，请唤醒后运行代码';
+  else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 UIFlow…':'正在启动固件…';
+  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(programming?'UIFlow 已就绪':'串口已连接，MicroPython 待确认');
+}
+async function runPython() {
+  const run=state.run;
+  if(!active(run)||!(run.controller instanceof PublicQemuRuntime))return;
+  run.python ||= new PublicMicroPythonRunner(run.controller);
+  if(run.python.busy||run.serialSending)return;
+  $('pythonOutput').textContent='';
+  try {
+    await run.python.run($('pythonSource').value,{
+      onPhase:phase=>{if(active(run)){run.pythonPhase=phase;$('pythonStatus').textContent=pythonPhases[phase];updatePythonControls();}},
+      onOutput:text=>{if(active(run)){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
+    });
+  }catch(cause){if(active(run)){
+    run.pythonPhase='failed';$('pythonStatus').textContent='运行未完成';
+    $('pythonOutput').textContent+=`\n${cause.message}`;
+  }}finally{if(active(run))updatePythonControls();}
+}
 function updateCapability() {
   const device = state.selected,
     selectedLane = lane(),
-    supported = !!browserProfile(device?.id);
+    supported = !!browserProfile(device?.id),
+    modelOnly = device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!supported);
   $('capabilityTitle').textContent =
     selectedLane === 'browser'
       ? '浏览器本地运行'
@@ -152,7 +201,7 @@ function updateCapability() {
         ? '通过仿真服务运行'
         : selectedLane === 'model'
           ? '仅浏览模型'
-          : device?.visual_only
+          : modelOnly
             ? '仅浏览模型'
             : supported
               ? '请选择浏览器运行'
@@ -164,8 +213,8 @@ function updateCapability() {
         ? '固件运行在你连接的原生设备服务中，画面与输入绑定本次会话。'
         : selectedLane === 'model'
           ? '可旋转、缩放并探索模型；本模式不执行固件。'
-          : device?.visual_only
-            ? '本型号尚未接入固件运行。可旋转、缩放并探索模型。'
+          : modelOnly
+            ? '当前浏览器尚未接入本型号的固件运行。可旋转、缩放并探索模型。'
             : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
   if (selectedLane === 'browser' && state.config.browser_runtime_engine==='qemu-wasm') {
     let p=browserProfile(device?.id);
@@ -182,7 +231,7 @@ function updateCapability() {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
   }
-  $('openServiceBtn').hidden = !!selectedLane || !!device?.visual_only || $('runtimeMode').value === 'browser';
+  $('openServiceBtn').hidden = !!selectedLane || !!modelOnly || $('runtimeMode').value === 'browser';
   $('startBtn').disabled = state.busy || state.stopUnconfirmed || !device || !state.shell || !selectedLane;
   $('startBtn').textContent =
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
@@ -219,6 +268,20 @@ function renderDevices() {
 function renderDetails() {
   const device = state.selected,
     list = node('dl');
+  const qemu=state.config.browser_runtime_engine==='qemu-wasm',profile=browserProfile(device?.id);
+  const legacy=qemu?null:device.browser;
+  const workbench=state.workbenchProfiles?.profiles.some(row=>row.deviceId===device.id);
+  const range=qemu
+    ? profile?(workbench?'浏览器本地运行 · UIFlow2 编程环境':'浏览器候选预览 · 屏幕与按键示例')
+      : device.visual_only||device.browser_only?'当前浏览器仅供模型预览':'浏览器尚未准入；需连接支持本型号的仿真服务'
+    : legacy?.description||device.runtime?.execution||'独立视觉模型';
+  const limits=[...(legacy?.limitations||[]),...(device.runtime?.blockers||[])];
+  if(qemu&&device.browser_only&&!profile)limits.unshift('此型号的旧浏览器演示不属于当前运行内核，当前站点不提供其固件运行。');
+  if(qemu&&profile)limits.unshift('完整 UIFlow2 API、任意固件及物理硬件行为未验证。');
+  if(qemu&&profile&&['stopwatch','sticks3','papercolor','papermono'].includes(device.id))
+    limits.unshift('模型电源键遵循 PM1 应用配置；接收 BtnPWR 事件需在应用中配置按键事件模式。');
+  if(device.uiflow2?.supported===false)limits.unshift('此型号不支持 UIFlow2，当前网页编程不可用。');
+  if(device.runtime?.reason)limits.push(device.runtime.reason);
   const display = device.hardware?.display || device.display;
   for (const [label, value] of [
     ['芯片', device.hardware?.soc || device.group_label],
@@ -226,16 +289,19 @@ function renderDetails() {
       '屏幕',
       display ? `${display.width} × ${display.height} · ${display.driver || display.type || ''}` : '无板载显示屏',
     ],
-    ['运行范围', device.browser?.description || device.runtime?.execution || '独立视觉模型'],
+    ['运行范围', range],
   ])
     if (value) list.append(node('dt', '', label), node('dd', '', value));
   $('deviceDetails').replaceChildren(list);
-  for (const text of [...(device.browser?.limitations || []), ...(device.runtime?.blockers || [])])
+  for (const text of limits)
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
-  $('referenceExampleFields').hidden = !(device?.id==='cores3' && state.config.browser_runtime_engine==='qemu-wasm' && state.config.browser_wallclock_example);
+  $('referenceExampleFields').hidden = !profile || !qemu || !workbench;
+  for(const option of $('referenceExample').options)option.hidden=['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.wallclockCandidate
+  $('referenceDescription').textContent = ref?.composedWorkbench
+    ? '官方 UIFlow2 运行时配网页编程启动脚本。就绪后可在下方运行 MicroPython。'
+    : ref?.wallclockCandidate
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
     : ref?.composedProbe
     ? ({'cardputer-adv':'点击模型键盘，或先点击模型再用电脑键盘输入；屏幕显示按键状态和累计次数。',
@@ -290,6 +356,8 @@ async function selectDevice(id) {
   state.picker?.dispose();
   state.picker = null;
   $('unitConnectionPicker').replaceChildren();
+  if(state.selected?.id!==row.id)$('firmwareSha').value='';
+  $('referenceExample').value='uiflow';
   state.selected = row;
   renderDevices();
   $('stageTitle').textContent = row.name;
@@ -459,6 +527,12 @@ async function firmware(signal, runGeneration) {
     expected = normalizeFirmwareSha256(
       $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
     );
+  if (selectedSource === 'reference' && ref?.composedWorkbench) {
+    const result=await composeUIFlowWorkbenchFirmware({profile:browserProfile(state.selected.id),registry:state.workbenchProfiles,root,signal,
+      onProgress:progress=>{if(runGeneration===state.runGeneration)message('runProgress',progress.phase==='compose'?'正在准备 UIFlow 编程环境…':'正在校验 UIFlow 固件…');}});
+    if(expected&&expected!==result.sha256)throw new Error('UIFlow 固件 SHA-256 与预期不一致。');
+    return {bytes:result.bytes,sha256:result.sha256,name:result.fileName,size:result.bytes.byteLength,provenance:result.provenance};
+  }
   if (selectedSource === 'reference' && ref?.composedProbe) {
     const result=await composeQemuProbeFirmware({profile:browserProfile(state.selected.id),root,signal,onProgress:()=>message('runProgress','正在本地组合设备示例')});
     if(expected&&expected!==result.sha256)throw new Error('设备示例 SHA-256 与预期不一致。');
@@ -673,7 +747,7 @@ async function startRun() {
       const BrowserRuntime = state.config.browser_runtime_engine==='qemu-wasm' ? PublicQemuRuntime : PublicBrowserRuntime;
       run.controller = new BrowserRuntime({
         ...callbacks,
-        root,profiles:state.qemuProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
+        root,profiles:state.qemuProfiles,workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onDeviceState: (value) => applyBrowserDeviceState(value, run),
         onState: (value) => {
@@ -979,7 +1053,7 @@ async function init() {
   state.config = config;
   if (config.browser_runtime_engine === 'qemu-wasm') {
     try {
-      state.qemuProfiles=await loadQemuBrowserProfiles({root});
+      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
@@ -1017,8 +1091,6 @@ async function init() {
     launch = {device: null, warnings: [], mode: 'auto', serviceUrl: '', firmware: null};
   }
   $('runtimeMode').value = launch.mode;
-  if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
-  else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
   const configuredServiceUrl = launch.serviceUrl || config.service_url || '';
   $('serviceUrl').value = configuredServiceUrl;
   if (launch.firmware) {
@@ -1029,7 +1101,14 @@ async function init() {
   if (launch.warnings.length) message('launchNotice', launch.warnings.join(' '));
   renderDevices();
   renderUnits();
-  if (launch.device) await selectDevice(launch.device.id);
+  if (launch.device) {
+    await selectDevice(launch.device.id);
+    if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
+    else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
+    else if(state.qemuProfiles?.profiles.some(row=>row.deviceId===launch.device.id&&row.fixture?.firmwareSHA256===launch.sha256))$('referenceExample').value='probe';
+    if(launch.sha256)$('firmwareSha').value=launch.sha256;
+    renderDetails();updateCapability();
+  }
   else {
     $('stageTitle').textContent = '请选择设备';
     $('deviceMount').replaceChildren(node('p', 'stage-loading', '链接中的设备无法确认，请从设备列表选择。'));
@@ -1040,7 +1119,7 @@ async function init() {
     !['browser', 'model'].includes(launch.mode)
   )
     await connectService();
-  const sharedReference = (reference()?.composed || reference()?.composedProbe) && launch.sha256 === reference().sha256;
+  const sharedReference = (reference()?.composed || reference()?.composedProbe || reference()?.composedWorkbench) && launch.sha256 === reference().sha256;
   if ((launch.firmware || sharedReference) && launch.autostart && launch.device) {
     if (lane()) await startRun();
     else message('launchNotice', '已读取链接中的设备与固件。此设备需要仿真服务，连接后点击开始运行。');
@@ -1113,6 +1192,25 @@ $('pauseBtn').addEventListener('click', async () => {
 $('firmwareFile').addEventListener('change', () => {
   $('localFileName').textContent = $('firmwareFile').files[0]?.name || '选择 .bin 固件';
 });
+$('pythonRunBtn').addEventListener('click',()=>void runPython());
+$('pythonInterruptBtn').addEventListener('click',async()=>{
+  const run=state.run;
+  try{await run?.python?.interrupt();if(active(run))$('pythonStatus').textContent='正在中断…';}catch(cause){error(cause);}
+});
+$('pythonClearBtn').addEventListener('click',()=>{$('pythonOutput').textContent='';});
+$('pythonFile').addEventListener('change',async()=>{
+  const file=$('pythonFile').files[0];if(!file)return;
+  try{
+    if(file.size>65536)throw new Error('Python 文件超过 64 KiB。');
+    if(!file.name.toLowerCase().endsWith('.py'))throw new Error('请导入 .py 源码文件。');
+    $('pythonSource').value=await file.text();$('pythonSource').focus();
+  }catch(cause){$('pythonStatus').textContent=cause.message;}
+  $('pythonFile').value='';
+});
+$('pythonSource').addEventListener('keydown',event=>{
+  event.stopPropagation();
+  if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();if(!$('pythonRunBtn').disabled)void runPython();}
+});
 $('serialForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const run = state.run,
@@ -1122,11 +1220,27 @@ $('serialForm').addEventListener('submit', async (event) => {
     error(new Error('当前服务未开放串口文本输入。'));
     return;
   }
+  if(run.serialSending)return;
+  let owner;
+  const controller=run.controller,generation=controller.generation,sessionId=controller.sessionId,consoleEpoch=controller.consoleEpoch;
   try {
-    await run.controller.input({type: 'uart', text: text + '\n'});
+    if(run.python?.busy)throw new Error('代码运行期间请使用中断按钮。');
+    run.serialSending=true;updatePythonControls();
+    if(controller instanceof PublicQemuRuntime){
+      owner=controller.acquireUart();
+      const encoded=new TextEncoder().encode(text+'\r\n');
+      for(let i=0;i<encoded.length;i+=1024){
+        if(!active(run)||controller.generation!==generation||controller.sessionId!==sessionId||controller.consoleEpoch!==consoleEpoch)
+          throw new DOMException('串口所属设备已改变。','AbortError');
+        await controller.writeUart(encoded.subarray(i,i+1024),owner);
+      }
+    }else await controller.input({type: 'uart', text: text + '\n'});
     if (active(run)) $('serialInput').value = '';
   } catch (cause) {
-    error(cause);
+    if(active(run))error(cause);
+  } finally {
+    if(owner)controller.releaseUart(owner);
+    run.serialSending=false;if(active(run))updatePythonControls();
   }
 });
 $('browserPir').addEventListener('change', async (event) => {

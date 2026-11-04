@@ -1,0 +1,1505 @@
+{
+  "kind": "deidentified-four-original-flash-samepage-stop-start-warm-groups",
+  "schema_version": 2,
+  "date": "2026-11-04",
+  "status": "PARTIAL",
+  "completed_group_execution_status": "PASS",
+  "evidence_level": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "group_count": 4,
+  "completed_phases": 8,
+  "original_functional_checks_total": 164,
+  "scope": "Two original fixed probes on source-pinned3c and75V1 only, one completed cold-prime/warm pair per runtime/device. This completes these four transparent method groups, not a pure-cache or general performance guarantee.",
+  "common_policy": {
+    "clock_divisor": 1,
+    "clock_override": null,
+    "accelerator": {
+      "kind": "tcg-icount",
+      "thread": "single",
+      "tbSizeMb": 128,
+      "icountShift": 5
+    },
+    "one_insn_per_tb": false,
+    "persistent_flash": false,
+    "profiler": false
+  },
+  "sources": {
+    "3c": {
+      "web_source_commit": "b41eba70eb61f7ddc5c41e0b981341064f9d1d1f",
+      "source_snapshot_sha256": "798c09038cf5c0719dcf45760de0077993024401dbff9d0a574ae677dc58a1cf",
+      "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+      "runtime_wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567"
+    },
+    "75V1": {
+      "web_source_commit": "4a2de458776396bac8c3a1aa8d98c22bf910f7fe",
+      "source_snapshot_sha256": "f6cc8469bb4c3ae2ee632decaf8df488c02eb40038bc0496f41fdd7f82f30041",
+      "site_manifest_sha256": "f012e1b344536c44bc97472688e49aedbb3f51f594fa1ea8637549996fc6a4d1",
+      "runtime_wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+    }
+  },
+  "groups": [
+    {
+      "runtime": "75V1",
+      "device": "atom-matrix",
+      "status": "PASS",
+      "source_snapshot_sha256": "f6cc8469bb4c3ae2ee632decaf8df488c02eb40038bc0496f41fdd7f82f30041",
+      "site_manifest_sha256": "f012e1b344536c44bc97472688e49aedbb3f51f594fa1ea8637549996fc6a4d1",
+      "actual_harness_sha256": "5c3a9e293f12a57c4208eff611ef19e346c392159e6477cee0ad72dd9eacc2ab",
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "board": "m5atommatrix",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "pipe:/bridge/uart",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "both_phases_same_arguments": true,
+      "samepage_proof": {
+        "same_url": true,
+        "same_time_origin": true,
+        "new_guest_session": true,
+        "disjoint_five_targets": true,
+        "no_iframe_after_each_stop": true
+      },
+      "runs": [
+        {
+          "phase": "cold-prime",
+          "started_at": "2026-11-04T03:50:29.638Z",
+          "finished_at": "2026-11-04T03:51:27.339Z",
+          "status": "PASS",
+          "original_checks": 15,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 53491.28499996662,
+          "runtime_to_ready_ms": 53185.93500006199,
+          "marker_complete_runtime_ms": {
+            "first_uart": 18006.5300000906,
+            "rom_text_prefix": 18007.540000081062,
+            "rom_entry_address": 18157.84500002861,
+            "first_i2c_text": 26241.5300000906,
+            "first_probe_prefix": 53094.375
+          },
+          "entry_to_first_i2c_ms": 8083.685000061989,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "download",
+              "duration_ms": 46.355000019073486
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "download",
+              "duration_ms": 4.264999985694885
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "download",
+              "duration_ms": 3.9700000286102295
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "download",
+              "duration_ms": 783.7400000095367
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "download",
+              "duration_ms": 788.4500000476837
+            }
+          ],
+          "compile": [
+            {
+              "cache": "compiled",
+              "duration_ms": 7.84499990940094
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "seq": 3,
+              "device": "atom-matrix",
+              "count": 0,
+              "kind": "pressed"
+            },
+            "guest_release": {
+              "seq": 5,
+              "device": "atom-matrix",
+              "count": 1,
+              "kind": "released"
+            },
+            "rmt_readback_and_model": {
+              "idle": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 2,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              },
+              "down": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#40a020",
+                "frames": 3,
+                "pressed": true,
+                "model_colors": [
+                  "#40a020"
+                ]
+              },
+              "up": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 4,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              }
+            },
+            "no_lcd_or_frame_transport": true
+          }
+        },
+        {
+          "phase": "warm-stop-start",
+          "started_at": "2026-11-04T03:51:27.342Z",
+          "finished_at": "2026-11-04T03:52:46.952Z",
+          "status": "PASS",
+          "original_checks": 15,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 76480.09000003338,
+          "runtime_to_ready_ms": 76460.80500006676,
+          "marker_complete_runtime_ms": {
+            "first_uart": 40961.56000006199,
+            "rom_text_prefix": 40962.19500005245,
+            "rom_entry_address": 41108.175000071526,
+            "first_i2c_text": 49227.34500002861,
+            "first_probe_prefix": 76365.6100000143
+          },
+          "entry_to_first_i2c_ms": 8119.169999957085,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "memory",
+              "duration_ms": 0.934999942779541
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "memory",
+              "duration_ms": 0.0849999189376831
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "memory",
+              "duration_ms": 0.04999995231628418
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "memory",
+              "duration_ms": 0.039999961853027344
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "memory",
+              "duration_ms": 0.019999980926513672
+            }
+          ],
+          "compile": [
+            {
+              "cache": "memory",
+              "duration_ms": 0.004999995231628418
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "seq": 3,
+              "device": "atom-matrix",
+              "count": 0,
+              "kind": "pressed"
+            },
+            "guest_release": {
+              "seq": 5,
+              "device": "atom-matrix",
+              "count": 1,
+              "kind": "released"
+            },
+            "rmt_readback_and_model": {
+              "idle": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 2,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              },
+              "down": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#40a020",
+                "frames": 3,
+                "pressed": true,
+                "model_colors": [
+                  "#40a020"
+                ]
+              },
+              "up": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 4,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              }
+            },
+            "no_lcd_or_frame_transport": true
+          }
+        }
+      ],
+      "comparison": {
+        "warm_minus_cold_click_ms": 22988.805000066757,
+        "warm_minus_cold_runtime_ms": 23274.87000000477,
+        "warm_minus_cold_first_uart_ms": 22955.02999997139
+      },
+      "raw_artifacts": [
+        {
+          "label": "report.json",
+          "bytes": 332753,
+          "sha256": "4ce1ace9a38134a9d7bcde0aa04200f6f624367dfd5adbb356593aa4e96fafe4"
+        },
+        {
+          "label": "summary.json",
+          "bytes": 3465,
+          "sha256": "9455c3c833c23a9179ca20f1b1ecac3e6a3023b4651967d5b73304b83b0107f6"
+        },
+        {
+          "label": "cold-prime/report.json",
+          "bytes": 149941,
+          "sha256": "722bae16781a517f25b3f39164f3dadabafddcff4ed36b365c0c468f43b3536a"
+        },
+        {
+          "label": "warm-stop-start/report.json",
+          "bytes": 131430,
+          "sha256": "360d277ecb3848358c530b78fcfe9ed4bb67bd02e640cde1dc65f4ca3e9a1c97"
+        }
+      ]
+    },
+    {
+      "runtime": "75V1",
+      "device": "stickc-plus",
+      "status": "PASS",
+      "source_snapshot_sha256": "f6cc8469bb4c3ae2ee632decaf8df488c02eb40038bc0496f41fdd7f82f30041",
+      "site_manifest_sha256": "f012e1b344536c44bc97472688e49aedbb3f51f594fa1ea8637549996fc6a4d1",
+      "actual_harness_sha256": "67783a51ed8f123f836c1948ac796fcd5151179db4d482d34f72d52c26a5fbd8",
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "firmware_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "board": "m5stickcplus",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stickcplus",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "pipe:/bridge/uart",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "both_phases_same_arguments": true,
+      "samepage_proof": {
+        "same_url": true,
+        "same_time_origin": true,
+        "new_guest_session": true,
+        "disjoint_five_targets": true,
+        "no_iframe_after_each_stop": true
+      },
+      "runs": [
+        {
+          "phase": "cold-prime",
+          "started_at": "2026-11-04T07:22:09.273Z",
+          "finished_at": "2026-11-04T07:22:57.348Z",
+          "status": "PASS",
+          "original_checks": 26,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 39378.169999957085,
+          "runtime_to_ready_ms": 39253.00499999523,
+          "marker_complete_runtime_ms": {
+            "first_uart": 17914.290000081062,
+            "rom_text_prefix": 17915.350000023842,
+            "rom_entry_address": 18066.62999999523,
+            "first_i2c_text": 26109.580000042915,
+            "first_probe_prefix": 38163.360000014305
+          },
+          "entry_to_first_i2c_ms": 8042.950000047684,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "download",
+              "duration_ms": 46.15499997138977
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "download",
+              "duration_ms": 3.1950000524520874
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "download",
+              "duration_ms": 2.9700000286102295
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "download",
+              "duration_ms": 588.3500000238419
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "download",
+              "duration_ms": 589.414999961853
+            }
+          ],
+          "compile": [
+            {
+              "cache": "compiled",
+              "duration_ms": 6.765000104904175
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "count": 0,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "pressed",
+              "seq": 3
+            },
+            "guest_release": {
+              "count": 1,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "released",
+              "seq": 5
+            },
+            "physical_display": {
+              "coordinateSpace": "qemu-physical-frame",
+              "height": 240,
+              "hostRotation": 0,
+              "width": 135
+            },
+            "exact_guest_coordinates": true,
+            "model_texture_readback": {
+              "frame_sequence": 8,
+              "rendered_sequence": 8,
+              "pixels_compared": 32400,
+              "model_rotation": 0,
+              "scope": "Exact native RGB565 to model texture buffer after the viewer render event; no optical or hardware claim."
+            }
+          }
+        },
+        {
+          "phase": "warm-stop-start",
+          "started_at": "2026-11-04T07:22:57.350Z",
+          "finished_at": "2026-11-04T07:24:08.499Z",
+          "status": "PASS",
+          "original_checks": 26,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 63626.62000000477,
+          "runtime_to_ready_ms": 63608.360000014305,
+          "marker_complete_runtime_ms": {
+            "first_uart": 42094.80499994755,
+            "rom_text_prefix": 42095.330000042915,
+            "rom_entry_address": 42241.65499997139,
+            "first_i2c_text": 50374.700000047684,
+            "first_probe_prefix": 62513.60000002384
+          },
+          "entry_to_first_i2c_ms": 8133.045000076294,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "memory",
+              "duration_ms": 1.1799999475479126
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "memory",
+              "duration_ms": 0.16999995708465576
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "memory",
+              "duration_ms": 0.13499999046325684
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "memory",
+              "duration_ms": 0.125
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "memory",
+              "duration_ms": 0.059999942779541016
+            }
+          ],
+          "compile": [
+            {
+              "cache": "memory",
+              "duration_ms": 0.004999995231628418
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "count": 0,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "pressed",
+              "seq": 3
+            },
+            "guest_release": {
+              "count": 1,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "released",
+              "seq": 5
+            },
+            "physical_display": {
+              "coordinateSpace": "qemu-physical-frame",
+              "height": 240,
+              "hostRotation": 0,
+              "width": 135
+            },
+            "exact_guest_coordinates": true,
+            "model_texture_readback": {
+              "frame_sequence": 5,
+              "rendered_sequence": 5,
+              "pixels_compared": 32400,
+              "model_rotation": 0,
+              "scope": "Exact native RGB565 to model texture buffer after the viewer render event; no optical or hardware claim."
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "warm_minus_cold_click_ms": 24248.450000047684,
+        "warm_minus_cold_runtime_ms": 24355.355000019073,
+        "warm_minus_cold_first_uart_ms": 24180.514999866486
+      },
+      "raw_artifacts": [
+        {
+          "label": "report.json",
+          "bytes": 414911,
+          "sha256": "96db76469d75238e912abb4146749999916ab097169bf683b8a560366634db50"
+        },
+        {
+          "label": "summary.json",
+          "bytes": 3467,
+          "sha256": "f96f7a909e05f435ef15761df0bc82a81f343891cd4b961cb9744b642af3d709"
+        },
+        {
+          "label": "cold-prime/report.json",
+          "bytes": 184283,
+          "sha256": "c2c3dabf62008a7b0dc2051b999eef10721db43e14e2488fc5525111b02801cc"
+        },
+        {
+          "label": "warm-stop-start/report.json",
+          "bytes": 165948,
+          "sha256": "5fa9d27c99cc48b7252b9786265b20c0c86c7f6121fb50575199d061433c0d7d"
+        }
+      ]
+    },
+    {
+      "runtime": "3c",
+      "device": "atom-matrix",
+      "status": "PASS",
+      "source_snapshot_sha256": "798c09038cf5c0719dcf45760de0077993024401dbff9d0a574ae677dc58a1cf",
+      "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+      "actual_harness_sha256": "1706edde0f1618e3264912d74ed0d664ef11a295efaf556df84e844ce8b39ef3",
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+      "board": "m5atommatrix",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5atommatrix",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "both_phases_same_arguments": true,
+      "samepage_proof": {
+        "same_url": true,
+        "same_time_origin": true,
+        "new_guest_session": true,
+        "disjoint_five_targets": true,
+        "no_iframe_after_each_stop": true
+      },
+      "runs": [
+        {
+          "phase": "cold-prime",
+          "started_at": "2026-11-04T07:37:33.520Z",
+          "finished_at": "2026-11-04T07:39:28.423Z",
+          "status": "PASS",
+          "original_checks": 15,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 109448.02499997616,
+          "runtime_to_ready_ms": 109206.22000002861,
+          "marker_complete_runtime_ms": {
+            "first_uart": 18410.509999990463,
+            "rom_text_prefix": 18412.15999996662,
+            "rom_entry_address": 21508.570000052452,
+            "first_i2c_text": 84285.82500004768,
+            "first_probe_prefix": 108358.15499997139
+          },
+          "entry_to_first_i2c_ms": 62777.25499999523,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "download",
+              "duration_ms": 46.02999997138977
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "download",
+              "duration_ms": 3.565000057220459
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "download",
+              "duration_ms": 3.28000009059906
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "download",
+              "duration_ms": 619.3050000667572
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "download",
+              "duration_ms": 730.0849999189377
+            }
+          ],
+          "compile": [
+            {
+              "cache": "compiled",
+              "duration_ms": 6.5950000286102295
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "prestart_selection": {
+            "mount_device": "atom-matrix",
+            "shell_device": "atom-matrix",
+            "fresh_shell": true,
+            "reference_title": "Atom Matrix RGB 与按键示例"
+          },
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "seq": 3,
+              "device": "atom-matrix",
+              "count": 0,
+              "kind": "pressed"
+            },
+            "guest_release": {
+              "seq": 5,
+              "device": "atom-matrix",
+              "count": 1,
+              "kind": "released"
+            },
+            "rmt_readback_and_model": {
+              "idle": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 2,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              },
+              "down": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#40a020",
+                "frames": 3,
+                "pressed": true,
+                "model_colors": [
+                  "#40a020"
+                ]
+              },
+              "up": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 4,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              }
+            },
+            "no_lcd_or_frame_transport": true
+          }
+        },
+        {
+          "phase": "warm-stop-start",
+          "started_at": "2026-11-04T07:39:28.426Z",
+          "finished_at": "2026-11-04T07:41:21.190Z",
+          "status": "PASS",
+          "original_checks": 15,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 108710.39999997616,
+          "runtime_to_ready_ms": 108690.8299999237,
+          "marker_complete_runtime_ms": {
+            "first_uart": 17856.569999933243,
+            "rom_text_prefix": 17857.115000009537,
+            "rom_entry_address": 20623.93999993801,
+            "first_i2c_text": 83851.43499994278,
+            "first_probe_prefix": 107830.91499996185
+          },
+          "entry_to_first_i2c_ms": 63227.49500000477,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "memory",
+              "duration_ms": 1.3199999332427979
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "memory",
+              "duration_ms": 0.1549999713897705
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "memory",
+              "duration_ms": 0.09500002861022949
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "memory",
+              "duration_ms": 0.0849999189376831
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "memory",
+              "duration_ms": 0.029999971389770508
+            }
+          ],
+          "compile": [
+            {
+              "cache": "memory",
+              "duration_ms": 0.009999990463256836
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "prestart_selection": {
+            "mount_device": "atom-matrix",
+            "shell_device": "atom-matrix",
+            "fresh_shell": true,
+            "reference_title": "Atom Matrix RGB 与按键示例"
+          },
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "seq": 3,
+              "device": "atom-matrix",
+              "count": 0,
+              "kind": "pressed"
+            },
+            "guest_release": {
+              "seq": 5,
+              "device": "atom-matrix",
+              "count": 1,
+              "kind": "released"
+            },
+            "rmt_readback_and_model": {
+              "idle": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 2,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              },
+              "down": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#40a020",
+                "frames": 3,
+                "pressed": true,
+                "model_colors": [
+                  "#40a020"
+                ]
+              },
+              "up": {
+                "source": "qemu-rmt-qom-readback",
+                "leds": 25,
+                "uniform_rgb": "#204060",
+                "frames": 4,
+                "pressed": false,
+                "model_colors": [
+                  "#204060"
+                ]
+              }
+            },
+            "no_lcd_or_frame_transport": true
+          }
+        }
+      ],
+      "comparison": {
+        "warm_minus_cold_click_ms": -737.625,
+        "warm_minus_cold_runtime_ms": -515.3900001049042,
+        "warm_minus_cold_first_uart_ms": -553.9400000572205
+      },
+      "raw_artifacts": [
+        {
+          "label": "report.json",
+          "bytes": 334814,
+          "sha256": "25733466120b81edb7b0a9923854fe660aeac0f257edfbc10ed238eeffae288a"
+        },
+        {
+          "label": "summary.json",
+          "bytes": 3466,
+          "sha256": "9b46657e972c16c55992fd5a7379277f5edb8d06fe4da2f702f4ff1d25776317"
+        },
+        {
+          "label": "cold-prime/report.json",
+          "bytes": 151488,
+          "sha256": "e3ee44635a5eff58dd1027a9e117b169d52247e8bebf0b86ebf980ba8fe2b3e4"
+        },
+        {
+          "label": "warm-stop-start/report.json",
+          "bytes": 132018,
+          "sha256": "c177b7b5605fcb5ec1c29b062a9f4bb74467ae2469925e7202fa8876b6a3007a"
+        }
+      ]
+    },
+    {
+      "runtime": "3c",
+      "device": "stickc-plus",
+      "status": "PASS",
+      "source_snapshot_sha256": "798c09038cf5c0719dcf45760de0077993024401dbff9d0a574ae677dc58a1cf",
+      "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+      "actual_harness_sha256": "b9033ebf38188ef9583435a45293d20bb2cf6ea4b3121abb9120e3f1b5cd3dd7",
+      "browser": "157.0.8103.38",
+      "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "firmware_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+      "board": "m5stickcplus",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "actual_arguments": [
+        "./this.program",
+        "-M",
+        "m5stickcplus",
+        "-drive",
+        "file=/flash.bin,if=mtd,format=raw",
+        "-L",
+        "/rom",
+        "-display",
+        "none",
+        "-serial",
+        "file:/bridge/uart.out",
+        "-serial",
+        "file:/bridge/serial1",
+        "-qmp",
+        "stdio",
+        "-drive",
+        "if=none,id=efuse,file=/efuse.bin,format=raw",
+        "-global",
+        "driver=nvram.esp32.efuse,property=drive,value=efuse",
+        "-accel",
+        "tcg,thread=single,tb-size=128",
+        "-icount",
+        "shift=5,align=off,sleep=off"
+      ],
+      "both_phases_same_arguments": true,
+      "samepage_proof": {
+        "same_url": true,
+        "same_time_origin": true,
+        "new_guest_session": true,
+        "disjoint_five_targets": true,
+        "no_iframe_after_each_stop": true
+      },
+      "runs": [
+        {
+          "phase": "cold-prime",
+          "started_at": "2026-11-04T07:42:13.333Z",
+          "finished_at": "2026-11-04T07:44:25.279Z",
+          "status": "PASS",
+          "original_checks": 26,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 96703.41499996185,
+          "runtime_to_ready_ms": 96581.28999996185,
+          "marker_complete_runtime_ms": {
+            "first_uart": 19074.37999999523,
+            "rom_text_prefix": 19075.875,
+            "rom_entry_address": 22158.100000023842,
+            "first_i2c_text": 81734.3899999857,
+            "first_probe_prefix": 95558.26999998093
+          },
+          "entry_to_first_i2c_ms": 59576.28999996185,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "download",
+              "duration_ms": 56.674999952316284
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "download",
+              "duration_ms": 4.134999990463257
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "download",
+              "duration_ms": 3.7350000143051147
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "download",
+              "duration_ms": 597.7699999809265
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "download",
+              "duration_ms": 614.4950000047684
+            }
+          ],
+          "compile": [
+            {
+              "cache": "compiled",
+              "duration_ms": 7.855000019073486
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "prestart_selection": {
+            "mount_device": "stickc-plus",
+            "shell_device": "stickc-plus",
+            "fresh_shell": true,
+            "reference_title": "StickC Plus 屏幕与输入示例"
+          },
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "count": 0,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "pressed",
+              "seq": 3
+            },
+            "guest_release": {
+              "count": 1,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "released",
+              "seq": 5
+            },
+            "physical_display": {
+              "coordinateSpace": "qemu-physical-frame",
+              "height": 240,
+              "hostRotation": 0,
+              "width": 135
+            },
+            "exact_guest_coordinates": true,
+            "model_texture_readback": {
+              "frame_sequence": 8,
+              "rendered_sequence": 8,
+              "pixels_compared": 32400,
+              "model_rotation": 0,
+              "scope": "Exact native RGB565 to model texture buffer after the viewer render event; no optical or hardware claim."
+            }
+          }
+        },
+        {
+          "phase": "warm-stop-start",
+          "started_at": "2026-11-04T07:44:25.281Z",
+          "finished_at": "2026-11-04T07:46:47.995Z",
+          "status": "PASS",
+          "original_checks": 26,
+          "all_original_checks_pass": true,
+          "click_to_ready_ms": 111456.18000006676,
+          "runtime_to_ready_ms": 111436.30500006676,
+          "marker_complete_runtime_ms": {
+            "first_uart": 40905.59000003338,
+            "rom_text_prefix": 40906.175000071526,
+            "rom_entry_address": 43642.66500008106,
+            "first_i2c_text": 97212.45500004292,
+            "first_probe_prefix": 110432.05500006676
+          },
+          "entry_to_first_i2c_ms": 53569.78999996185,
+          "assets": [
+            {
+              "asset": "qemu-system-xtensa.wasm",
+              "cache": "memory",
+              "duration_ms": 1.1500000953674316
+            },
+            {
+              "asset": "qemu-system-xtensa.js",
+              "cache": "memory",
+              "duration_ms": 0.15000009536743164
+            },
+            {
+              "asset": "qemu-system-xtensa.worker.js",
+              "cache": "memory",
+              "duration_ms": 0.11000001430511475
+            },
+            {
+              "asset": "esp32-v3-rom.bin",
+              "cache": "memory",
+              "duration_ms": 0.10500001907348633
+            },
+            {
+              "asset": "esp32-v3-rom-app.bin",
+              "cache": "memory",
+              "duration_ms": 0.03500008583068848
+            }
+          ],
+          "compile": [
+            {
+              "cache": "memory",
+              "duration_ms": 0.009999990463256836
+            }
+          ],
+          "two_stage_cdp": {
+            "before_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            },
+            "after_removal": {
+              "ok": true,
+              "observed": 5,
+              "destroyed": 5,
+              "live": 0
+            }
+          },
+          "held_iframe_connected": true,
+          "iframe_removal_requests": 1,
+          "normal_cleanup_matches_common_receipt": true,
+          "prestart_selection": {
+            "mount_device": "stickc-plus",
+            "shell_device": "stickc-plus",
+            "fresh_shell": true,
+            "reference_title": "StickC Plus 屏幕与输入示例"
+          },
+          "functional": {
+            "public_keyboard": "Space",
+            "guest_press": {
+              "count": 0,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "pressed",
+              "seq": 3
+            },
+            "guest_release": {
+              "count": 1,
+              "device": "stickc-plus",
+              "y": -1,
+              "x": -1,
+              "kind": "released",
+              "seq": 5
+            },
+            "physical_display": {
+              "coordinateSpace": "qemu-physical-frame",
+              "height": 240,
+              "hostRotation": 0,
+              "width": 135
+            },
+            "exact_guest_coordinates": true,
+            "model_texture_readback": {
+              "frame_sequence": 7,
+              "rendered_sequence": 7,
+              "pixels_compared": 32400,
+              "model_rotation": 0,
+              "scope": "Exact native RGB565 to model texture buffer after the viewer render event; no optical or hardware claim."
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "warm_minus_cold_click_ms": 14752.765000104904,
+        "warm_minus_cold_runtime_ms": 14855.015000104904,
+        "warm_minus_cold_first_uart_ms": 21831.210000038147
+      },
+      "raw_artifacts": [
+        {
+          "label": "report.json",
+          "bytes": 415772,
+          "sha256": "4a0690a28d572e1427b615508516c453d32f9de4e4bbcd29adedf0988da671c6"
+        },
+        {
+          "label": "summary.json",
+          "bytes": 3465,
+          "sha256": "a764be3322393212ee40b56bca8434b52189dff7c6c01f549479bb649c6c7170"
+        },
+        {
+          "label": "cold-prime/report.json",
+          "bytes": 184620,
+          "sha256": "4a77cc10f8faaa2328f30099e87f433334ced32d8000b1548d68895fbeb123f6"
+        },
+        {
+          "label": "warm-stop-start/report.json",
+          "bytes": 166636,
+          "sha256": "ddf4d01f6ff2986cd571fdf8c41d7b8672bc7155ccaa9b1c958e52754b3eaa95"
+        }
+      ]
+    }
+  ],
+  "common_normal_cleanup_receipt": {
+    "gracefulExit": true,
+    "exitCode": 0,
+    "workersCreated": 4,
+    "workersAtExit": 0,
+    "disposal": {
+      "workersRemaining": 0,
+      "workersTerminatedByDispose": 0,
+      "workerCountScope": "nested-pthreads",
+      "enginePlacement": "dedicated-worker-v1",
+      "engineWorkersAtAcknowledgement": 1,
+      "selfCloseAfterAcknowledgement": true
+    },
+    "engineOwnership": {
+      "engineWorkersCreated": 1,
+      "engineOwnerLive": false,
+      "engineCloseNotificationReceived": true,
+      "engineSelfCloseNotifications": 1,
+      "engineNormalTerminations": 1,
+      "engineFallbackTerminations": 0,
+      "enginePortTransferred": true
+    },
+    "engineOwnershipStage": "before-iframe-removal",
+    "explicitWorkerDisposal": true,
+    "iframeRemoved": true
+  },
+  "historical_initial_status": {
+    "date": "2026-11-04",
+    "group_count": 1,
+    "other_groups_status_at_that_time": {
+      "runtime75_stickc_plus": "NOT RUN",
+      "runtime3c_atom_matrix": "NOT RUN",
+      "runtime3c_stickc_plus": "NOT RUN"
+    },
+    "original_public_summary": {
+      "bytes": 10795,
+      "sha256": "77790b9afb5b867132d5850bb211ea94745282843641f7f725b89a03547114bd"
+    },
+    "retained_original75_matrix_values_ms": [
+      53491.28499996662,
+      76480.09000003338
+    ],
+    "note": "Those NOT RUN states were historical at the one-group checkpoint. All four requested groups are now completed separately; original75Matrix slower pair was never repeated.",
+    "original_stage_values_as_reported": [
+      {
+        "phase": "cold-prime",
+        "runtime_to_first_uart_ms": 18006.5300000906,
+        "stages_runtime_ms": {
+          "first_rom_text": 18008.025000095367,
+          "rom_entry": 18157.84500002861,
+          "first_i2c": 26241.5300000906,
+          "banner": 35553.43500006199,
+          "probe_main": 53094.34500002861
+        }
+      },
+      {
+        "phase": "warm-stop-start",
+        "runtime_to_first_uart_ms": 40961.56000006199,
+        "stages_runtime_ms": {
+          "first_rom_text": 40962.94000005722,
+          "rom_entry": 41108.175000071526,
+          "first_i2c": 49227.34500002861,
+          "banner": 58617.81000006199,
+          "probe_main": 76365.60500001907
+        }
+      }
+    ]
+  },
+  "first_matrix3c_observer_failure": {
+    "kind": "bounded-first-original3c-matrix-warm-observer-failure",
+    "status": "FAIL",
+    "classification": "pre-Start observer precondition race; no second guest execution",
+    "evidence_level": "virtual-device validation for cold phase only",
+    "runtime": "3c",
+    "device": "atom-matrix",
+    "firmware_sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+    "wasm_sha256": "3c6b249002d83118e0ddcbd82e4ee6336223293b98566fc7709d5087d9df4567",
+    "source_snapshot_sha256": "798c09038cf5c0719dcf45760de0077993024401dbff9d0a574ae677dc58a1cf",
+    "site_manifest_sha256": "c5991d737d4b20c4b1ae96b71587cec907a1e72f3c57fe2fee63c08e23daf323",
+    "harness_sha256": "5c3a9e293f12a57c4208eff611ef19e346c392159e6477cee0ad72dd9eacc2ab",
+    "cold_prime": {
+      "status": "PASS",
+      "checks": 15,
+      "click_to_ready_ms": 109624.77999997139,
+      "runtime_to_ready_ms": 109461.10500001907,
+      "all_checks_pass": true,
+      "normal_qmp_exit": true,
+      "five_targets_closed_before_and_after_iframe": true
+    },
+    "warm": {
+      "status": "FAIL",
+      "error": "public-headless-reference-label",
+      "checks": [
+        {
+          "name": "pages-service-worker-isolation",
+          "ok": true
+        },
+        {
+          "name": "public-headless-reference-label",
+          "ok": false
+        }
+      ],
+      "runtime_start_observed": false,
+      "guest_session_observed": false,
+      "workers_observed": 0,
+      "click_to_ready_ms": null,
+      "runtime_to_ready_ms": null,
+      "timing_metadata_valid": false,
+      "timing_note": "Raw warm timing equals retained cold timing because Runtime.start never ran. It is invalid as warm timing and excluded.",
+      "actual_label_at_assertion": "NOT CAPTURED",
+      "later_screenshot": "Correct Atom Matrix RGB/button example shown after catch; this does not identify the prior transient label.",
+      "failure_state_file": "undefined newline, no usable state snapshot.",
+      "normal_guest_cleanup": "NOT APPLICABLE; no warm guest existed. Browser/context closed by group finally."
+    },
+    "source_diagnosis": [
+      "Warm reset retained previous disposed headlessShell; id-only wait accepted it.",
+      "Public selectDevice awaits target device metadata before renderDetails, so old public reference can remain transiently.",
+      "Independent host source-extracted controls show old predicate accepts stale model during delayed metadata; new predicate requires fresh identity, target mount and correct current reference."
+    ],
+    "limits": [
+      "First failure and its raw output remain preserved.",
+      "No old3c warm measurement established by this first group.",
+      "Corrected observer followup requires a fresh group and separate evidence; it does not erase first failure.",
+      "Pure-cache timing and strict-only-rerun behavior remain NOT ESTABLISHED."
+    ],
+    "raw_artifacts": [
+      {
+        "label": "report.json",
+        "bytes": 293381,
+        "sha256": "ba04655637461b57912dd3a91fa99023d566cdb961499e8d43f80c0ecf969fda"
+      },
+      {
+        "label": "summary.json",
+        "bytes": 2508,
+        "sha256": "9e4917fd653d6a106aae64b2797c1a810219216fa2832ba4b14ae2f203c634d3"
+      },
+      {
+        "label": "warm-stop-start/report.json",
+        "bytes": 96211,
+        "sha256": "2b1a0e9ee4ebc85950087b6f1a1d7ce080cdc443497a079ae55ece85e1711f67"
+      },
+      {
+        "label": "warm-stop-start/failure.png",
+        "bytes": 193524,
+        "sha256": "c8e581cd1df2f642db1c9350bca8264000e603ab21122d6bf070cb68eddb3875"
+      },
+      {
+        "label": "warm-stop-start/failure-state.json",
+        "bytes": 10,
+        "sha256": "770c2d18aa4ec3159f46da461ef452972949942ff4f6a9771044485faa146398"
+      }
+    ]
+  },
+  "observer_correction": {
+    "kind": "pre-Start stale disposed model reference race and independently stale timing metadata",
+    "product_source_changed": false,
+    "runtime_or_flash_changed": false,
+    "original_functional_assertions_changed": false,
+    "Runtime_start_timing_hooks_changed": false,
+    "reason": "The original headless wait tested only target id on retained previous shell. Public selection awaits device metadata before reference render. The new observer clears shell/run/timing state, then requires fresh target shell identity, target mounted device and current public reference; it releases previous references before Start. Board observer has the same fresh identity/title guards.",
+    "controlled_host_checks": 18,
+    "host_controls": {
+      "label": "selectionfix-v1-host-controls.json",
+      "bytes": 3092,
+      "sha256": "526ab7820b4fcae974b31a2c375b2df2dc8be1a6e125094caff979c6545a14cb"
+    },
+    "both_observer_node_syntax": "PASS",
+    "artifacts": [
+      {
+        "label": "samepage-warm-headless-selectionfix-v1.mjs",
+        "bytes": 31938,
+        "sha256": "1706edde0f1618e3264912d74ed0d664ef11a295efaf556df84e844ce8b39ef3"
+      },
+      {
+        "label": "samepage-warm-board-selectionfix-v1.mjs",
+        "bytes": 64272,
+        "sha256": "b9033ebf38188ef9583435a45293d20bb2cf6ea4b3121abb9120e3f1b5cd3dd7"
+      },
+      {
+        "label": "samepage-warm-headless-selectionfix-v1.patch",
+        "bytes": 3336,
+        "sha256": "031b0cf9da580e8bc37b2e66c745fb97f64d2e3b86127b1847e28dec0376dbc7"
+      },
+      {
+        "label": "samepage-warm-board-selectionfix-v1.patch",
+        "bytes": 3418,
+        "sha256": "98f527175955d25c16e7169137430d16bfdeac07f07267c13603b5a609f44fe5"
+      }
+    ],
+    "preserved_non_guest_tool_failures": [
+      {
+        "classification": "Host control strict false expectation rejected legitimate null falsy predicate return",
+        "artifact": {
+          "label": "selectionfix-v1-host-expectation-first.json",
+          "bytes": 406,
+          "sha256": "054bab03ff8436fb699ece0b7e9cb88b91b42f536423da8100d1c56f10acb078"
+        },
+        "correction": "Truthiness adapter matches Playwright wait; observer unchanged."
+      },
+      {
+        "classification": "Postprocessing KeyError: destroyed array does not exist",
+        "artifact": {
+          "label": "summarize-selectionfix-warm-first-keyerror.json",
+          "bytes": 334,
+          "sha256": "739fdd27af602cb9df30ce57d3240f2cbc4ddd321204b5f8ede032e0fdcb6dc9"
+        },
+        "correction": "Count actual observed.destroyedAt; raw and guest unchanged."
+      }
+    ]
+  },
+  "method": [
+    "Exclusive guest slot per group; no other guests, build, host suite or profiler during timing.",
+    "New browser process/context/page per group; cold-prime on source-pinned site and original fixed Flash.",
+    "Finish original15/26 assertions, normal QMP quit, actual nested-before-iframe and all-after-removal CDP closure.",
+    "Restore observer hooks and publicly select CoreS3 then target to reconstruct the model on the retained page. This setup is outside measured click timing.",
+    "New Start creates fresh Memory/Flash/session/Workers on the same page URL/timeOrigin; observed five asset memory hits and compiled Module memory hit.",
+    "Repeat original assertions and normal cleanup. Hardware reset is not the warm operation."
+  ],
+  "reproduction": {
+    "ordinary_checkout_requires_retained_artifacts": true,
+    "requirements": [
+      "Restore exact frozen source snapshot and exported site identified above; retain source/snapshot hash validation.",
+      "Use the corresponding original or corrected observer by its SHA, system hardware Chrome and Playwright executor. The checked-in startup_timing portable generator reconstructs cold collectors only; it does not reconstruct this same-page lifecycle collector.",
+      "Explicitly select runtime3c/75V1 and device; use fresh output, original fixed Flash, no overrides or profiler.",
+      "Serialize the groups and retain the first outcome. A valid followup can correct a proved observer precondition; it cannot erase prior failure or rerun a completed slower group."
+    ],
+    "command_template": [
+      "M5_PERF_RUNTIME=3c M5_QEMU_DEVICE=atom-matrix M5_PUBLIC_UI=1 M5_WASM_GPU=hardware M5_WASM_CHROME=\"$CHROME\" M5_WASM_NODE_MODULES=\"$NODE_MODULES\" M5_QEMU_READY_TIMEOUT_MS=600000 M5_PERF_OUTPUT_GROUP=\"$FRESH_OUTPUT\" node \"$FROZEN_WARM_HEADLESS_COLLECTOR\"",
+      "M5_PERF_RUNTIME=3c M5_QEMU_DEVICE=stickc-plus M5_PUBLIC_UI=1 M5_WASM_GPU=hardware M5_WASM_CHROME=\"$CHROME\" M5_WASM_NODE_MODULES=\"$NODE_MODULES\" M5_QEMU_READY_TIMEOUT_MS=600000 M5_PERF_OUTPUT_GROUP=\"$FRESH_OUTPUT\" node \"$FROZEN_WARM_BOARD_COLLECTOR\""
+    ],
+    "unset_environment": [
+      "M5_PUBLIC_SITE",
+      "M5_PUBLIC_BASE_PATH",
+      "M5_PUBLIC_QEMU_OUT",
+      "M5_PROVENANCE_REPO",
+      "M5_QEMU_UPLOAD",
+      "M5_QEMU_CLOCK_DIVISOR",
+      "M5_QEMU_FRAME_DIAGNOSTIC"
+    ]
+  },
+  "remaining_warm_groups": "NONE of these four groups; all completed after the initial checkpoint",
+  "earlier_independent_cold_record": {
+    "path": "summary.json",
+    "sha256": "7c3c336490b63ac1f98b82732d5ba3b842c8a0fff7d439ad092e1d3f0d32a067",
+    "matrix75_click_to_ready_ms": 54775.4050000906,
+    "relation": "The new53.491s cold-prime is not a replacement for the earlier independent54.775s cold run."
+  },
+  "limits": [
+    "Both75V1 warm observations are slower despite memory cache hits; both first completed pairs remain unchanged.",
+    "This is one pair per device/runtime, not repeated performance statistics or a latency guarantee.",
+    "Warm includes model reconstruction and retained-page/background effects; pure-cache timing and strict-only-rerun behavior remain NOT ESTABLISHED.",
+    "The two current3c groups use a corrected observer precondition and explicit timing reset. Measured start hooks, functional assertions, source/runtime/Flash/policy and public action method are unchanged.",
+    "3c→75 includes intervening stack/link/UART changes, so differences cannot be assigned entirely to0032 or one C line.",
+    "SDK v7 six positive controls PASS, but pthread cancellation remains NOT ESTABLISHED; final v7 cancellation NOT RUN. Browser normal guest cleanup does not prove SDK cancellation.",
+    "Original first3cMatrix pre-Start observer failure and invalid copied timing remain separate. Corrected PASS does not erase it.",
+    "No default workbench firmware, all-device speed, online deployment, physical timing or long-term stability is established by these groups.",
+    "Prior independent cold-only results remain54.775s Matrix and39.144s Plus for75; these new cold-prime values do not replace them."
+  ],
+  "marker_definitions": {
+    "measurement": "Host receipt time of the first serial chunk completing each literal/regex, relative to actual Runtime.start. Not guest time, CPU usage or I/O count.",
+    "first_uart": "First nonempty serial chunk",
+    "rom_text_prefix": "ets Jul",
+    "rom_entry_address": "entry 0x followed by eight hexadecimal digits",
+    "first_i2c_text": "i2c.master",
+    "first_probe_prefix": "M5_BROWSER_PROBE including the following space",
+    "historical_relation": "These common prefix definitions are explicitly recomputed from raw chunks. Historical initial75Matrix stage labels used their original prefix completion boundaries; retain those exact reported values below rather than silently replacing them."
+  }
+}

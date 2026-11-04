@@ -17,6 +17,10 @@ export const QEMU_ONE_INSN_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch',
   sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf',
 });
+export const QEMU_CARDPUTER_BOOT_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch',
+  sha256:'04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85',
+});
 const variantFields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];
 const variantOptions = ['oneInsnPerTb', 'requiredRuntimePatch', 'sourceKind'];
 // Published BIN provenance is distinct from a matching source-code revision.
@@ -66,6 +70,12 @@ export function validateQemuRuntimeRequirements(profile, manifest) {
     const matches = Array.isArray(patches) ? patches.filter(row => row?.path === profile.requiredRuntimePatch.path) : [];
     check(matches.length === 1 && matches[0].sha256 === profile.requiredRuntimePatch.sha256,
       'QEMU runtime lacks the firmware variant required source patch');
+  }
+  if (profile.requiredInputPatch !== undefined) {
+    const patches=manifest?.source?.patches;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===profile.requiredInputPatch.path):[];
+    check(matches.length===1&&matches[0].sha256===profile.requiredInputPatch.sha256,
+      'QEMU runtime lacks the physical input required source patch');
   }
   return profile;
 }
@@ -157,9 +167,18 @@ export function validateQemuProfile(profile) {
     && input.capacitiveTouch.path === '/machine/si12t' && input.capacitiveTouch.property === 'touch-bits'
     && Array.isArray(input.capacitiveTouch.masks) && input.capacitiveTouch.masks.length === 3
     && input.capacitiveTouch.masks.every((mask,index) => mask === [48,12,3][index]), 'Invalid StackChan body touch route');
-  check(input && typeof input.touch === 'boolean' && input.uart === false && input.buttons && typeof input.buttons === 'object'
+  check(input && typeof input.touch === 'boolean' && typeof input.uart === 'boolean' && input.buttons && typeof input.buttons === 'object'
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
     && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
+  const bootInput=Object.hasOwn(input.buttons,'boot');
+  if(bootInput||profile.requiredInputPatch!==undefined){
+    const patch=profile.requiredInputPatch;
+    check(profile.deviceId==='cardputer-adv'&&profile.board==='m5cardputeradv'&&bootInput
+      &&input.buttons.boot==='f12'&&!input.keyboard.includes('f12')
+      &&patch&&Object.keys(patch).length===2
+      &&patch.path===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.path&&patch.sha256===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.sha256,
+      'Invalid QEMU physical input patch binding');
+  }
   if (display === null) check(!input.touch && input.pir === null && input.keyboard.length === 0
     && Object.keys(input.buttons).sort().join(',') === 'a,button' && Object.values(input.buttons).every(code => code === 'a'), 'Invalid QEMU headless input profile');
   if (input.encoder !== undefined) {
@@ -305,7 +324,7 @@ export function validateQemuFirmware(firmware, profile) {
 export function buildQemuArguments(profile) {
   validateQemuProfile(profile);
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
-    '-serial', 'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
+    '-serial', profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
   if (profile.oneInsnPerTb === true) {
     args.push('-accel', 'tcg,thread=multi,one-insn-per-tb=on');

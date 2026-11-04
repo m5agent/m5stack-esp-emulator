@@ -1,0 +1,81 @@
+// Prepared only. Run one allocated guest at a time after root supplies the strict export and hash.
+import assert from 'node:assert/strict';
+import {readFile, writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {spawn} from 'node:child_process';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const here=dirname(fileURLToPath(import.meta.url)),repo=@REPO_JSON@;
+const hashes={
+  'atom-matrix':'f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b',
+  'stickc-plus':'69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a',
+};
+const device=process.env.M5_QEMU_DEVICE;
+assert.ok(Object.hasOwn(hashes,device),'explicit original Matrix or Plus case required');
+assert.equal(process.env.M5_PUBLIC_UI,'1');
+assert.equal(process.env.M5_WASM_GPU,'hardware');
+assert.ok(process.env.M5_WASM_CHROME,'explicit system Chrome executable required');
+assert.ok(process.env.M5_PUBLIC_SITE&&process.env.M5_PUBLIC_QEMU_OUT,'root export and fresh output required');
+assert.ok(/^[0-9a-f]{64}$/.test(process.env.M5_EXPECT_WASM_SHA256||''),'root-verified runtime75 WASM hash required');
+for(const key of ['M5_QEMU_UPLOAD','M5_QEMU_CLOCK_DIVISOR','M5_QEMU_FRAME_DIAGNOSTIC','M5_PROVENANCE_REPO'])
+  assert.ok(!process.env[key],`${key} must not alter the fixed original public case`);
+const site=resolve(process.env.M5_PUBLIC_SITE),output=resolve(process.env.M5_PUBLIC_QEMU_OUT);
+assert.ok(site.startsWith(repo+'/.work/')&&output.startsWith(repo+'/.work/'),'owned ignored export/output required');
+const parse=async path=>JSON.parse(await readFile(path,'utf8'));
+const runtime=await parse(resolve(site,'platform/runtime/qemu/runtime.json'));
+const manifest=await parse(resolve(site,'public-site-manifest.json'));
+const config=await parse(resolve(site,'platform/web/site-config.json'));
+const registry=await parse(resolve(site,'platform/web/qemu-browser-profiles.json'));
+assert.equal(manifest.publication_eligible,true,'strict export required');
+assert.equal(config.publication_eligible,true);
+assert.deepEqual(manifest.candidate_profiles,[]);
+assert.deepEqual(config.browser_candidate_profiles,[]);
+const profile=registry.profiles.find(row=>row.deviceId===device);
+assert.ok(profile);assert.equal(profile.admission,'public');
+assert.equal(profile.fixture.firmwareSHA256,hashes[device]);
+assert.equal(profile.readyFirmwareSHA256,hashes[device]);
+assert.equal(profile.clockDivisor,1);
+assert.deepEqual(profile.accelerator,{icountShift:5,kind:'tcg-icount',tbSizeMb:128,thread:'single'});
+assert.ok(!profile.oneInsnPerTb);
+const wasm=runtime.assets.wasm;
+assert.equal(wasm.sha256,process.env.M5_EXPECT_WASM_SHA256);
+const actualWasm=await readFile(resolve(site,'platform/runtime/qemu',wasm.path));
+assert.equal(createHash('sha256').update(actualWasm).digest('hex'),wasm.sha256);
+assert.equal(actualWasm.length,wasm.bytes);
+const started=new Date().toISOString();
+const harness=resolve(here,device==='atom-matrix'?'runtime75-headless-startup.mjs':'runtime75-board-startup.mjs');
+const code=await new Promise((done,reject)=>{
+  const child=spawn(process.execPath,[harness],{cwd:repo,env:process.env,stdio:'inherit'});
+  child.on('error',reject);child.on('exit',value=>done(value));
+});
+const receipt={kind:'runtime75-fixed-original-identity-gate',device,started_at:started,
+  finished_at:new Date().toISOString(),expected_wasm:wasm.sha256,expected_firmware:hashes[device],
+  child_exit_code:code,status:'FAIL',profiler:false};
+try{
+  assert.equal(code,0,'original functional runner failed; preserve its evidence');
+  const result=await parse(resolve(output,'report.json'));
+  assert.equal(result.status,'PASS');
+  assert.equal(result.runtime.wasmSha256,wasm.sha256);
+  assert.equal(result.runtime.firmwareSha256,hashes[device]);
+  assert.equal(result.runtime.clockDivisor,1);
+  assert.equal(result.runtime.clockOverride,null);
+  assert.equal(result.runtime.oneInsnPerTb,false);
+  assert.deepEqual(result.runtime.accelerator,profile.accelerator);
+  const args=result.runtime.actualArguments;
+  assert.ok(args.includes('tcg,thread=single,tb-size=128'));
+  assert.ok(args.includes('shift=5,align=off,sleep=off'));
+  assert.ok(!args.some(arg=>String(arg).includes('one-insn-per-tb')));
+  assert.equal(result.checks.length,device==='atom-matrix'?15:26,'original assertion count changed');
+  assert.ok(result.checks.every(row=>row.ok));
+  assert.equal(result.worker_targets.after_removal.live.length,0);
+  assert.equal(result.worker_targets.after_removal.ok,true);
+  const cleanup=result.cleanup||result.final_cleanup;
+  assert.equal(cleanup.gracefulExit,true);
+  assert.equal(cleanup.exitCode,0);
+  assert.equal(cleanup.engineOwnership.engineFallbackTerminations,0);
+  receipt.status='PASS';receipt.actual_runtime=result.runtime;
+  receipt.checks=result.checks.length;receipt.timing=result.timing;
+}catch(error){receipt.error=error.message;process.exitCode=1;}
+await writeFile(resolve(output,'runtime75-identity-gate.json'),JSON.stringify(receipt,null,2)+'\n',{flag:'wx'});
+if(code!==0)process.exitCode=1;

@@ -110,6 +110,22 @@
             <p>输入经原生 Unit / GPIO 控制器送入当前固件；屏幕与串口显示客体读回。</p>
           </div>
           <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
+          <section class="python-workbench" aria-labelledby="pythonHeading">
+            <div class="python-heading"><h2 id="pythonHeading">MicroPython</h2><span id="pythonStatus" role="status" aria-live="polite">启动 UIFlow 后即可运行</span></div>
+            <label class="public-label" for="pythonSource">在当前设备上运行代码</label>
+            <textarea class="public-field python-source" id="pythonSource" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="pythonHelp">import M5
+M5.begin()
+print("Hello, UIFlow!")
+</textarea>
+            <p class="field-help" id="pythonHelp">粘贴 MicroPython 源码或导入 .py 文件。输出来自当前虚拟设备；重新启动会还原默认固件。</p>
+            <div class="python-actions">
+              <button id="pythonRunBtn" class="primary-button" type="button" disabled>运行代码</button>
+              <button id="pythonInterruptBtn" class="secondary-button" type="button" disabled>中断</button>
+              <label class="text-button python-file">导入 .py<input id="pythonFile" type="file" accept=".py,text/x-python,text/plain" /></label>
+              <button id="pythonClearBtn" class="text-button" type="button">清空输出</button>
+            </div>
+            <pre id="pythonOutput" class="python-output" tabindex="0" aria-label="MicroPython 输出">代码输出会显示在这里。</pre>
+          </section>
           <details id="browserHistory" class="console-drawer" hidden>
             <summary>本机最近的运行记录</summary><pre id="browserHistoryText" class="console-content"></pre>
           </details>
@@ -135,14 +151,16 @@
           <h2 id="firmwareHeading">加载固件</h2>
           <fieldset class="source-picker">
             <legend class="sr-only">选择固件来源</legend>
-            <label><input type="radio" name="firmwareSource" value="reference" checked /><span>参考固件</span></label
+            <label><input type="radio" name="firmwareSource" value="reference" checked /><span>UIFlow / 示例</span></label
             ><label><input type="radio" name="firmwareSource" value="url" /><span>链接</span></label
             ><label><input type="radio" name="firmwareSource" value="local" /><span>本地文件</span></label>
           </fieldset>
           <div id="referenceFields" class="firmware-source-fields">
             <div id="referenceExampleFields" hidden>
-              <label class="public-label" for="referenceExample">交互示例</label>
+              <label class="public-label" for="referenceExample">启动环境</label>
               <select class="public-field" id="referenceExample">
+                <option value="uiflow" selected>UIFlow2 编程环境</option>
+                <option value="probe">屏幕与按键示例</option>
                 <option value="wallclock-candidate">正常速度（LVGL 调度候选修复）</option>
                 <option value="stock-div8">原始程序（正常时钟）</option>
               </select>

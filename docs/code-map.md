@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-11-03`
+日期：`2026-11-04`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -735,3 +735,21 @@ CFG0 锁存/W1C 分别由实际 C 控制验证；最终 46 层完整构建另做
 `tests/uiflow2/atoms3_peripherals`、`stickc_plus2_peripherals` 和各独立 UI probe。
 无屏浏览器输出由 `test_public_qemu_headless_guest.mjs` 检查真实 RMT QOM 读回，
 Dial 转环输入由 `test_public_qemu_encoder.mjs` 检查固定路径和不回声。
+
+## 浏览器 UIFlow 源码工作台（实施中）
+
+`platform/web/public-uiflow-firmware.js` 与 `uiflow-workbench-profiles.json`
+组合官方板级 UIFlow2 基底和明确的编程启动源码；不在宿主解释 Python。
+`public-micropython.js` 通过同 guest UART0 raw-paste 执行源码，
+`public-qemu-runtime.js`/`public-qemu-engine.js` 保持 UART owner、reset epoch、
+字节队列、实例取消与真实串口输出。`public.js` 提供编辑、导入、运行、中断和输出。
+
+`platform/tests/test_public_uiflow_firmware.mjs` 核组合/来源合同；
+`test_public_micropython.mjs` 与 `test_public_micropython_ui.mjs` 核协议和 UI 所有权边界。
+真实浏览器功能分别由 `test_public_uiflow_guest.mjs` 和
+`test_public_qemu_buttons_guest.mjs`（含 `public_qemu_button_pointer.mjs`）取证，
+源码位于 `tests/browser-qemu/uiflow_workbench/`。默认静态检查不启动 guest，
+所有逐板实际行为、性能与清场结论仍需独立运行，不从 host 合同继承。
+
+`tests/browser-qemu/startup_timing/prepare.py` 为原固定示例生成只读启动时戳观测器。
+源码锁、完整脚本等价与路径合同用于复现已有计时方法；生成与语法检查不授予 guest PASS。

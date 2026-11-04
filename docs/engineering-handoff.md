@@ -1,6 +1,6 @@
 # 工程交接总览
 
-最近核对：`2026-11-02`
+最近核对：`2026-11-04`
 
 本页用于让新接手的人快速理解“项目现在是什么、代码在哪里、哪些已经能跑、
 接下来做什么”。它是导航摘要，不维护动态数量，也不替代以下权威入口：
@@ -83,6 +83,9 @@ Unit 和 Device Service；原厂失败、候选修正与模型阻塞分开记录
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
 - 当前单机 namespace/container 路径不是恶意多租户固件的最终 VM 沙箱。
+- 浏览器原多指令策略的 StamPLC 复位 PIF 与 Cardputer 复位 WASM 越界
+  以及 AtomS3 Lite 首启PIF分别按 `RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09` 保持开放；精确工作台策略或诊断通过不关闭原
+  C/复位事务根因，见[缺口登记](runtime-model-gap-register.md)。
 
 ## 当前代码盘点
 
@@ -281,6 +284,7 @@ canonical QEMU 链 **41 层**（0120–0161，41/41 replay），PR #80–#161。
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `UI-02` | 扩展已准入板型的固件/Unit、输入延迟、长期稳定性与资源回收；C6/P4/Linux 浏览器路径分别立证 | 当前工作台、C/QEMU 浏览器执行与分享入口已有固定示例结果；registry、原生设备和视觉目录不互授准入，正式站点与 fork 预览按[Pages 指南](pages-deployment.md)分别取证 |
+| `UI-03` | 逐设备启动性能、cold/warm、长期稳定性和正式HTTPS；原策略缺口独立定位 | [V6本地全19验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)已完成默认UIFlow网页代码/声明输入/正常清场，虚拟设备功能不授物理行为、逐板提速或新部署；07/08/09仍OPEN |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、

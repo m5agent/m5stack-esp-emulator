@@ -196,6 +196,8 @@ try {
     await page.locator('.advanced-options > summary').click();
     await page.locator('#runtimeMode').selectOption('browser');
     await page.locator('input[name="firmwareSource"][value="reference"]').check();
+    // The product defaults to UIFlow programming; this regression selects its fixed probe explicitly.
+    await page.locator('#referenceExample').selectOption('probe');
     check('public-ui-selected-board-reference', await page.locator('#referenceTitle').textContent().then(text => text.includes('屏幕与输入示例')));
     if (uploadPath) {
       const bytes = await readFile(uploadPath), hash = createHash('sha256').update(bytes).digest('hex');
