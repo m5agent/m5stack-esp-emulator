@@ -268,6 +268,7 @@
     "include/hw/xtensa/esp32s3_intc.h": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
     "include/qemu/cacheflush.h": "55c1b4adb31e6433f734b2431800d648ce1283ae300a10b6a6828eae992d0a40",
     "include/qemu/osdep.h": "86dff28366bd4667bf7d188f64bfe0c72135935044b16c0d21d94c39d74ccf2b",
+    "include/qemu/timer.h": "dd57255e9a10dfed370573636fde996bb79aedb842abbb27313e93f900655365",
     "include/sysemu/cpu-timers.h": "6631e9985af402e0658af8e15773a37c5d6365aa5ade8e7831ba423f13414faa",
     "include/sysemu/os-wasm.h": "d76f0a6e8fc5199742fbe31a8dd386363ad0f2a89b2c7977a61ce1954be39a41",
     "meson.build": "8856b48c88f77e0ed880ffeec1368b2cf05782e1041e2f21176d1493e8c1737a",
@@ -295,9 +296,10 @@
     "ui/ui-qmp-cmds.c": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
     "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
     "util/coroutine-wasm.c": "93a0857d7213ce5325bf4367028408a2a3ca19d72628ba285e257aa1c746eb1b",
+    "util/event_notifier-posix.c": "d3d3207171b3f1e929c6870a38049bd9d88c8a3faf79f459c406d35aa19ef36d",
     "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
     "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
-    "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0"
+    "util/qemu-timer.c": "826348b1f908855849738834af68a21738901950e1765d71c5ce5249e73796a9"
   },
   "patches": [
     {
@@ -595,6 +597,10 @@
     {
       "path": "patches/qemu-wasm-probe/0030-xtensa-inactive-irq-yield-guard.patch",
       "sha256": "3dd57ecaa90d0c0d7d3139b83323564173a626a3e5882d628b6a72560a2a5415"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0032-wasm-wakeable-host-poll.patch",
+      "sha256": "5a43ac91491e1d8637f0147e7165066940dc78a245ad3a6c733ba12968f30e7c"
     }
   ],
   "qemu": {
