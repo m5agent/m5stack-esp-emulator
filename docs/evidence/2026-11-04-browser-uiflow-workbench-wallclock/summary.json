@@ -1,0 +1,720 @@
+{
+  "kind": "browser-uiflow-workbench-cores3-wallclock-candidate-result",
+  "status": "PASS",
+  "admission": "EXECUTED_AS_CANDIDATE_PREVIEW_NOT_PUBLISHED",
+  "evidence_level": "virtual-device validation",
+  "device": "cores3",
+  "started_at": "2026-11-04T02:30:56.281Z",
+  "finished_at": "2026-11-04T02:31:28.255Z",
+  "first_candidate_attempt": true,
+  "checks": [
+    {
+      "name": "pages-service-worker-isolation",
+      "ok": true
+    },
+    {
+      "name": "hardware-angle-renderer",
+      "ok": true
+    },
+    {
+      "name": "uiflow-is-default-firmware",
+      "ok": true
+    },
+    {
+      "name": "programming-startup-described-accurately",
+      "ok": true
+    },
+    {
+      "name": "actual-programming-startup-marker",
+      "ok": true
+    },
+    {
+      "name": "exact-uiflow-firmware-and-ready-binding",
+      "ok": true
+    },
+    {
+      "name": "utf8-print-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "utf8-print-stdout",
+      "ok": true
+    },
+    {
+      "name": "utf8-print-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "utf8-print-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "multiline-loop-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "multiline-loop-stdout",
+      "ok": true
+    },
+    {
+      "name": "multiline-loop-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "multiline-loop-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "long-utf8-source-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "long-utf8-source-stdout",
+      "ok": true
+    },
+    {
+      "name": "long-utf8-source-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "long-utf8-source-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "syntax-error-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "syntax-error-stderr",
+      "ok": true
+    },
+    {
+      "name": "syntax-error-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "runtime-error-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "runtime-error-stdout",
+      "ok": true
+    },
+    {
+      "name": "runtime-error-stderr",
+      "ok": true
+    },
+    {
+      "name": "runtime-error-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "file-import-recovery-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "file-import-recovery-stdout",
+      "ok": true
+    },
+    {
+      "name": "file-import-recovery-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "file-import-recovery-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "infinite-program-has-interrupt-control",
+      "ok": true
+    },
+    {
+      "name": "pause-retains-program-owner",
+      "ok": true
+    },
+    {
+      "name": "resume-retains-interrupt-control",
+      "ok": true
+    },
+    {
+      "name": "guest-acknowledged-interruption",
+      "ok": true
+    },
+    {
+      "name": "same-vm-after-interrupt-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "same-vm-after-interrupt-stdout",
+      "ok": true
+    },
+    {
+      "name": "same-vm-after-interrupt-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "same-vm-after-interrupt-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "guest-display-output-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "guest-display-output-stdout",
+      "ok": true
+    },
+    {
+      "name": "guest-display-output-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "guest-display-output-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "source-drew-actual-guest-framebuffer",
+      "ok": true
+    },
+    {
+      "name": "same-console-through-pre-reset-programs",
+      "ok": true
+    },
+    {
+      "name": "hardware-reset-cancels-old-console-program",
+      "ok": true
+    },
+    {
+      "name": "hardware-reset-keeps-browser-session-with-new-console",
+      "ok": true
+    },
+    {
+      "name": "after-hardware-reset-source-reached-same-guest",
+      "ok": true
+    },
+    {
+      "name": "after-hardware-reset-stdout",
+      "ok": true
+    },
+    {
+      "name": "after-hardware-reset-no-stderr",
+      "ok": true
+    },
+    {
+      "name": "after-hardware-reset-run-reenabled",
+      "ok": true
+    },
+    {
+      "name": "normal-guest-exit-no-forced-termination",
+      "ok": true
+    },
+    {
+      "name": "pthreads-closed-before-iframe-removal",
+      "ok": true
+    },
+    {
+      "name": "all-cdp-workers-closed-before-context",
+      "ok": true
+    },
+    {
+      "name": "no-device-service-requests",
+      "ok": true
+    },
+    {
+      "name": "no-page-errors",
+      "ok": true
+    }
+  ],
+  "raw_report": {
+    "path": "source-root/.work/cores3-full-fast-v1/report.json",
+    "bytes": 5163477,
+    "sha256": "bc8c26c6515194d5f28aa583f5ddfc980b9cb9ae95327822c8ea039ee2e30efd"
+  },
+  "source_chain": {
+    "canonical_commit": "dd9ae2a08bec4263a22b0e49c0507f9ae22ec4a3",
+    "plan_sha256": "860e6d3e99aaeae24fa8cfb9c42a3ff00f9e081f026f7ababc255d9ad4a6f596",
+    "functional_patch_sha256": "7649d6ed2a3b1c898e91c1a9e23bf37b5e1938a739193669f1fb8a6ca2aa7898",
+    "preview_admission_transform": {
+      "path": "platform/web/qemu-browser-profiles.json",
+      "change": "cores3.admission: public -> candidate",
+      "functional_source_sha256": "6b37e3c0f2702584383240a3e88b017fc197a2c3b9142952f5cdc1d58dada877",
+      "preview_source_sha256": "62f5e1ece41345668c6b5dd38e9aa2b1e7306a5574e0fe1afe674a0bd2eca350",
+      "patch_sha256": "aa13380684b8f06e5b83723bc203087059cc1552af7f561e15b37a6fb293f7a5"
+    },
+    "full_source_export_receipt": {
+      "bytes": 701048,
+      "sha256": "cc2c79cb1ec4ce1b1584c4eda38a30198f1f574c132cab0d65dcf9f4e0132c26"
+    },
+    "static_provenance_sha256": "333b11ebfba98436a8e4a6c5bf77b49c034b0cdb85d4b21f3de7f238e98e6d09",
+    "site_manifest_sha256": "2ea44afce4ee0682ac74c487083fd67dbd9e5fa8d16680bdde30898d4074a67b",
+    "publication_eligible": false,
+    "candidate_profiles": [
+      "cores3"
+    ],
+    "web_sources_and_exports": {
+      "platform/web/index.html": {
+        "source_sha256": "fa92c6abb17fca8703bac86cc9d30a10a2769bd8c30bd1c5ed82912f456e9211",
+        "exported_sha256": "a8727d0487cacb966de6b1c8c9a31e8adc72eac11fc61a0488f2130a80f6e46e"
+      },
+      "platform/web/public.js": {
+        "source_sha256": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+        "exported_sha256": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02"
+      },
+      "platform/web/public.css": {
+        "source_sha256": "618fd25fc12ca24a24a3d3610d04e091aea8ee16e20ad10d69fd92ad674080a0",
+        "exported_sha256": "618fd25fc12ca24a24a3d3610d04e091aea8ee16e20ad10d69fd92ad674080a0"
+      },
+      "platform/web/public-config.js": {
+        "source_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18",
+        "exported_sha256": "e9284ed2da76b66d3d930398a6c23104118b804c74ebeb8f2cbc39f93f998c18"
+      },
+      "platform/web/public-firmware.js": {
+        "source_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274",
+        "exported_sha256": "ae89f14218d8ebf8b4d4f5dbeb4f1d15b4969886e012858dda72053a544ce274"
+      },
+      "platform/web/public-verified-assets.js": {
+        "source_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4",
+        "exported_sha256": "d40acdbab6f674505a14cbec63fba9e9057227b1699db7a2f75a8ec517c900e4"
+      },
+      "platform/web/sha256.js": {
+        "source_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+        "exported_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413"
+      },
+      "platform/web/public-demo-firmware.js": {
+        "source_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9",
+        "exported_sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+      },
+      "platform/web/public-coi.js": {
+        "source_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3",
+        "exported_sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3"
+      },
+      "platform/web/public-coi-serviceworker.js": {
+        "source_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3",
+        "exported_sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+      },
+      "platform/web/vendor/coi-serviceworker/coi-serviceworker.js": {
+        "source_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+        "exported_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e"
+      },
+      "platform/web/public-qemu-runtime.js": {
+        "source_sha256": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "exported_sha256": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3"
+      },
+      "platform/web/public-qemu-instance.js": {
+        "source_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c",
+        "exported_sha256": "04d360cfeb299bab3eaf7adb6f16e3f6f39832306cc2fdbb1e29de808e13d00c"
+      },
+      "platform/web/public-qemu-engine.js": {
+        "source_sha256": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "exported_sha256": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6"
+      },
+      "platform/web/public-qemu-instance.html": {
+        "source_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b",
+        "exported_sha256": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b"
+      },
+      "platform/web/public-qemu-profiles.js": {
+        "source_sha256": "ef749918cdc7db0bef9af0b78eec5c363e150a71efab129b55312075bc38529c",
+        "exported_sha256": "ef749918cdc7db0bef9af0b78eec5c363e150a71efab129b55312075bc38529c"
+      },
+      "platform/web/qemu-browser-profiles.json": {
+        "source_sha256": "62f5e1ece41345668c6b5dd38e9aa2b1e7306a5574e0fe1afe674a0bd2eca350",
+        "exported_sha256": "f3d7405256a8bf2769064cd6b3223c018f2aeedd14755d5bc0258fc53e24966a",
+        "transform": {
+          "identity": "build_public_site.qemu_site_profiles-v1",
+          "builder_path": "platform/tools/build_public_site.py",
+          "builder_sha256": "f4293e3e2a7a072c06b24670bf2ee560119bab8b57f06477c3d8136f1fb7eaae",
+          "public_profiles": [
+            "stopwatch",
+            "sticks3",
+            "atoms3",
+            "atoms3-lite",
+            "atoms3r",
+            "cardputer-adv",
+            "stamplc",
+            "stackchan",
+            "papercolor",
+            "papermono",
+            "core2",
+            "stickc-plus2",
+            "stickc",
+            "stickc-plus",
+            "stickc-plus-se",
+            "atom-lite",
+            "atom-matrix",
+            "atom-matrix-v11"
+          ],
+          "explicit_candidates": [
+            "cores3"
+          ],
+          "selected_profiles": [
+            "stopwatch",
+            "sticks3",
+            "atoms3",
+            "atoms3-lite",
+            "atoms3r",
+            "cores3",
+            "cardputer-adv",
+            "stamplc",
+            "stackchan",
+            "papercolor",
+            "papermono",
+            "core2",
+            "stickc-plus2",
+            "stickc",
+            "stickc-plus",
+            "stickc-plus-se",
+            "atom-lite",
+            "atom-matrix",
+            "atom-matrix-v11"
+          ]
+        }
+      },
+      "platform/web/public-qemu-frame.js": {
+        "source_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172",
+        "exported_sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172"
+      },
+      "platform/web/public-qemu-probe-firmware.js": {
+        "source_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a",
+        "exported_sha256": "1f2de89cbf2b33dd32491608a9b5c493a212878ebde6c1644371230fbddb427a"
+      },
+      "platform/web/public-qemu-servo.js": {
+        "source_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca",
+        "exported_sha256": "250e7229509a2a8f844087ad218e4b508def7af9e002b427336cbc0b903020ca"
+      },
+      "platform/web/model-shell.js": {
+        "source_sha256": "a7af724376277bddd5869eb0507aeaeaab120d1e5f3a9521f5e2710fa41a3f7f",
+        "exported_sha256": "a7af724376277bddd5869eb0507aeaeaab120d1e5f3a9521f5e2710fa41a3f7f"
+      },
+      "platform/web/device-shell-factory.js": {
+        "source_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+        "exported_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2"
+      },
+      "platform/web/public-uiflow-firmware.js": {
+        "source_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6",
+        "exported_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6"
+      },
+      "platform/web/uiflow-workbench-profiles.json": {
+        "source_sha256": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+        "exported_sha256": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+      },
+      "platform/web/public-micropython.js": {
+        "source_sha256": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+        "exported_sha256": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9"
+      }
+    },
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "f15a2888f77b4a651ce9251086e04ce1373b1a37ac6ea95502f0e3b36953294b"
+    },
+    "unchanged_provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935"
+  },
+  "execution": {
+    "board": "m5cores3",
+    "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+    "clockDivisor": 1,
+    "clockOverride": null,
+    "accelerator": null,
+    "oneInsnPerTb": true,
+    "requiredRuntimePatch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "uiflowWorkbench": {
+      "baseSha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "composerCommit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+      "startupSources": {
+        "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "main.py": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    },
+    "firmwareSha256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+    "firmwareVariant": {
+      "clockDivisor": 1,
+      "firmwareSHA256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+      "fixture": "uiflow-workbench-v1",
+      "oneInsnPerTb": true,
+      "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "requiredRuntimePatch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+      "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+    },
+    "wasmSha256": "2c72cda0858521b47e730f4d19ae4ba9de9d800d9568fa25d20d41dbd8de5d14",
+    "javascriptSha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+    "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+    "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "frameTransport": "shared-rgb565-v1",
+    "actualArguments": [
+      "./this.program",
+      "-M",
+      "m5cores3",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "pipe:/bridge/uart",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ]
+  },
+  "runtime_manifest_sha256": "80307d4f7710518d2cbda4dd308206a1c5d4b5bfcfc70257dbf2f89fece739bf",
+  "runtime_assets": {
+    "qemu-system-xtensa.js": {
+      "bytes": 157200,
+      "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+    },
+    "NOTICE": {
+      "bytes": 968,
+      "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+    },
+    "corresponding-source.tar.xz": {
+      "bytes": 35241976,
+      "sha256": "48587b045b748ffc394ac6846e5043d50d8ab318a6687ceaa7592182351a9f58"
+    },
+    "qemu-system-xtensa.wasm": {
+      "bytes": 12745923,
+      "sha256": "2c72cda0858521b47e730f4d19ae4ba9de9d800d9568fa25d20d41dbd8de5d14"
+    },
+    "qemu-system-xtensa.worker.js": {
+      "bytes": 2776,
+      "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+    }
+  },
+  "click_to_ready_ms": 10970.561625,
+  "single_run_comparison": {
+    "baseline_clock_divisor": 8,
+    "baseline_click_to_ready_ms": 27482.902665999998,
+    "baseline_raw_report_sha256": "8f06fb929b4bd883ccf67a68e6213b2400b350d75d8aa3faeba436d0c8bf7c5f",
+    "baseline_test_sha256": "f15a2888f77b4a651ce9251086e04ce1373b1a37ac6ea95502f0e3b36953294b",
+    "ratio_baseline_over_candidate": 2.5051500192452543,
+    "reduction_percent": 60.082230911613124,
+    "scope": "One full editor acceptance run per configuration on the same firmware and WASM; includes loading/composition/startup. This is not a repeated performance benchmark."
+  },
+  "programs": [
+    {
+      "name": "utf8-print",
+      "source_sha256": "996eea6d6212a27b435e1f7fe24d7f261763ec96e5c3420c1e3fcb09394ea4b7",
+      "source_utf8_bytes": 73,
+      "console_epoch": 0,
+      "stdout_sha256": "cf8a38c9fef62f5ad79a303d3e1f4e27866fddb0e8becf58c7354cd2ee525c10",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "multiline-loop",
+      "source_sha256": "e66367bb8b1d6e54b9fbc0798ebb6a6ad396b08e1c74f3f12e4cdc0bf9dba2dd",
+      "source_utf8_bytes": 109,
+      "console_epoch": 0,
+      "stdout_sha256": "f33d2fc305920ca8cfa04df1e646fec2d7ae345e1cabd89a426348bafd01b1ac",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "long-utf8-source",
+      "source_sha256": "c4abfcce472b8fd06bbf82b31a4696be8d5683b21f67046755bacb32fd3700a0",
+      "source_utf8_bytes": 4571,
+      "console_epoch": 0,
+      "stdout_sha256": "00afeefc428205a8e19224827b23741b9c3bdec132c11ef5c781cd392a44d6d2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "syntax-error",
+      "source_sha256": "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+      "source_utf8_bytes": 25,
+      "console_epoch": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f4fa8a8ee09e987a34b754c9769e3614c535c75586ae934b80f368e93848a3fe",
+      "result_error": null
+    },
+    {
+      "name": "runtime-error",
+      "source_sha256": "fe26dac81983692ef8c763cfd24141ca9a85f684df7e8a2396c56cc6abbd4511",
+      "source_utf8_bytes": 131,
+      "console_epoch": 0,
+      "stdout_sha256": "4fa1f80800d2cc241a019f6a8bf872025dfbcdc4671cd83957918381c8499b02",
+      "stderr_sha256": "217a6e6c447180e3f6290e04e01e331c2d4b3eea338f296c39e414ee3383c14e",
+      "result_error": null
+    },
+    {
+      "name": "file-import-recovery",
+      "source_sha256": "fd4a9e07154c317980656ad7d43e7df1e641a4ed54b255174ee93e635c4e2d54",
+      "source_utf8_bytes": 54,
+      "console_epoch": 0,
+      "stdout_sha256": "6e88002c2887eda3a3650a7af43222859ebcd53fdfc16b98c71b5bf60185b814",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "infinite-program-interrupt",
+      "source_sha256": "609e877b4d69e9642745903011155c335e47021082d5b109ae90d7a9c0c350db",
+      "source_utf8_bytes": 96,
+      "console_epoch": 0,
+      "stdout_sha256": "f386137fe9c2e071acfcfe28c734dd614fb5df55fdbe306c3a585acd4b717b1c",
+      "stderr_sha256": "998c4ae58701afca2a623f6cf0797e060481ed2042f4f3fa8292ddaf361de933",
+      "result_error": null
+    },
+    {
+      "name": "same-vm-after-interrupt",
+      "source_sha256": "89848585451c1388cce9ad8fe368ab4ec48a05c65cb2d496941f0910accbe416",
+      "source_utf8_bytes": 55,
+      "console_epoch": 0,
+      "stdout_sha256": "7e3c2576e2b2c1d7803d93286c4604604975b0e10136d0735debc3775ba70423",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "guest-display-output",
+      "source_sha256": "706d39573dbbff0b46bca6e0a886034abea374d40d219b4d08ada013f2bd015a",
+      "source_utf8_bytes": 93,
+      "console_epoch": 0,
+      "stdout_sha256": "9e7b40234e917961ddf224566e53e213af7d1b93a9d3ea68ee13f02ad70ad280",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    },
+    {
+      "name": "after-hardware-reset",
+      "source_sha256": "2e4bd6d0bcd72ec002639adc19ad2bc35e269bbfae6faff1f0a6da4a5b45cbb0",
+      "source_utf8_bytes": 62,
+      "console_epoch": 1,
+      "stdout_sha256": "765cb3f83420355a9340895c55d51ad6e7876d83ad0900a73aa8b1cb49b3a27a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_error": null
+    }
+  ],
+  "reset": {
+    "before_console_epoch": 0,
+    "after_console_epoch": 1,
+    "old_program_error_name": "AbortError",
+    "old_program_source_sha256": "28729d7deea9c1c576aaf62bdbf17917152457b5665357ed7aa63ca6eb9ba845",
+    "browser_session_sha256": "4555866a5e892174dac5ea55389918c23dbefafd132a2b369c5a91c0ea72da99",
+    "generation": 1,
+    "same_browser_session": true
+  },
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "sequence": 2,
+    "sha256": "6c3c796f317b1dedac4e04e377080d92154b3f28f4e8d5252a3f2d083245cc86"
+  },
+  "cleanup": {
+    "gracefulExit": true,
+    "exitCode": 0,
+    "workersCreated": 5,
+    "workersAtExit": 0,
+    "disposal": {
+      "workersRemaining": 0,
+      "workersTerminatedByDispose": 0,
+      "workerCountScope": "nested-pthreads",
+      "enginePlacement": "dedicated-worker-v1",
+      "engineWorkersAtAcknowledgement": 1,
+      "selfCloseAfterAcknowledgement": true
+    },
+    "engineOwnership": {
+      "engineWorkersCreated": 1,
+      "engineOwnerLive": false,
+      "engineCloseNotificationReceived": true,
+      "engineSelfCloseNotifications": 1,
+      "engineNormalTerminations": 1,
+      "engineFallbackTerminations": 0,
+      "enginePortTransferred": true
+    },
+    "engineOwnershipStage": "before-iframe-removal",
+    "explicitWorkerDisposal": true,
+    "iframeRemoved": true
+  },
+  "cdp": {
+    "source": "Chrome DevTools Target.getTargets",
+    "observed": 6,
+    "destroyed": 6,
+    "live": 0,
+    "closed_before_browser_context": true,
+    "nested_closed_while_iframe_held": true
+  },
+  "screenshots": [
+    {
+      "path": "program-red-frame.png",
+      "bytes": 238423,
+      "sha256": "50a768fa06130b6bce478e43f2ff481a087824db520cedbebf9cbbddc9f1605c",
+      "visual_review": "PASS; red actual framebuffer, then black after hardware reset with recovered output as applicable"
+    },
+    {
+      "path": "workbench.png",
+      "bytes": 235481,
+      "sha256": "30c80fcc6023849f3950ad2ed116a3047c6f307700252984545f8376fa9e3b51",
+      "visual_review": "PASS; red actual framebuffer, then black after hardware reset with recovered output as applicable"
+    }
+  ],
+  "limits": [
+    "The execution used the declared candidate source/export. Later functional-source integration is identified separately and does not establish acceptance of a new C runtime or a public deployment.",
+    "Only exact CoreS3 workbench Flash 52f38... was executed under this candidate; the remaining 18 boards do not inherit this result.",
+    "Full button/input matrix and repeated startup performance measurements were not run by this acceptance.",
+    "No physical-hardware or physical-timing claims."
+  ],
+  "date": "2026-11-04",
+  "canonical_integration": {
+    "status": "FUNCTIONAL_SOURCE_APPLIED_HOST_CONTRACTS_PASS",
+    "source_commit": "NOT YET ASSIGNED; these exact functional file identities were applied after the candidate guest run",
+    "functional_sources": {
+      "platform/web/public-uiflow-firmware.js": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6",
+      "platform/web/qemu-browser-profiles.json": "6b37e3c0f2702584383240a3e88b017fc197a2c3b9142952f5cdc1d58dada877"
+    },
+    "preview_admission_transform_applied": false,
+    "existing_host_test": {
+      "path": "platform/tests/test_public_uiflow_firmware.mjs",
+      "sha256": "1d875dc8b2569a1824885d0466ee3ecceca163c24b773377de08ba88aa9864c5",
+      "status": "PASS"
+    },
+    "narrow_node_contracts": [
+      {
+        "path": "platform/tests/test_public_uiflow_firmware.mjs",
+        "sha256": "1d875dc8b2569a1824885d0466ee3ecceca163c24b773377de08ba88aa9864c5",
+        "status": "PASS"
+      },
+      {
+        "path": "platform/tests/test_public_qemu_profiles.mjs",
+        "sha256": "671a0f8b1c19778240621041cfac54310ffd356dff25b95e607ea9a6d126309c",
+        "status": "PASS"
+      },
+      {
+        "path": "platform/tests/test_public_qemu_runtime.mjs",
+        "sha256": "01d0655b9df02a5f1e89f29a6836a1f3c9d8d537d3f97840fa2ee4b0a746511d",
+        "status": "PASS"
+      },
+      {
+        "path": "platform/tests/test_public_qemu_entry.mjs",
+        "sha256": "356fdb0aed14d2a70c5ab7a20bd9ccdc294494a9dbfa8177da4bbaff60feb304",
+        "status": "PASS"
+      },
+      {
+        "path": "platform/tests/test_public_qemu_artifacts.mjs",
+        "sha256": "86586e21e4fe6c08ce961383d434c994df020b4d2fd4784518630b5ef6185a96",
+        "status": "PASS"
+      }
+    ],
+    "checks": "Exact main/source/ready/fixture/Flash and required 0027 schema/runtime binding; unknown CoreS3 Flash keeps div8; other 18 workbench images acquire no CoreS3 variant.",
+    "next_c_runtime_guest_acceptance": "NOT RUN by this result; exact new WASM must be independently validated",
+    "deployment": "NOT RUN"
+  },
+  "historical_controls": {
+    "path": "../2026-11-04-browser-uiflow-workbench/summary.json",
+    "sha256": "4b55d0dc3537b097b1a987554fff78e0920e672ff58d34d5cbb794b65bcec922",
+    "first_signed_array_failure_retained": true,
+    "old_runtime_smoke_20_pass_retained": true,
+    "div8_full54_pass_retained": true
+  }
+}

@@ -55,6 +55,13 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 2026-11-04 的逐设备启动、完整按键与网页 MicroPython 工作台按
 [UIFlow 浏览器工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md)推进，
 新默认镜像与新的输入路由仍需各自的完整浏览器验收。
+[当前发布包启动调查](evidence/2026-11-04-browser-startup-investigation/README.md)
+保留 Atom Matrix / StickC Plus 基线、未采用候选和早启 CDP 诊断，不授予新默认固件或全设备提速。
+[UIFlow 工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md)
+保留首次 UART signed-array 失败、修复后的 smoke、CoreS3 完整编辑器以及独立组合/布局证据；
+[CoreS3 正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md)
+记录同 Flash/WASM 的 exact-SHA 候选 54/54 与单次 `10.971 s` ready。
+其余 18 款新默认 guest、完整按键和新部署仍未完成。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
 SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
@@ -306,6 +313,10 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [性能优化合 main 与 Pages 更新](evidence/2026-11-03-performance-pages-release/README.md) | 部署与虚拟设备证据 | `2026-11-03` | 两 PR 合并、新 producer 路径策略、19 板 20 例完整本地门禁、prepared-preview 部署与独立 HTTPS 验证；保留 regular CI engine 清理失败 |
 | [原生页面性能验证](evidence/2026-11-03-emulator-performance/native-validation.md) | 验证证据 | `2026-11-03` | 四次同固件对照及实际帧、SCS、输入、历史和停止；不授予 browser 或物理性能 |
 | [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
+| [浏览器启动与UIFlow工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md) | 实施计划 | `2026-11-04` | 全部19款可运行设备的启动/按键、新默认镜像与源码编辑器；逐板身份、行为和清场仍需实际验收 |
+| [Atom Matrix / StickC Plus启动调查](evidence/2026-11-04-browser-startup-investigation/README.md) | 浏览器诊断证据 | `2026-11-04` | 原正式3c两板基线、未采用的oneInsn候选与20秒早启CDP；不授予新默认工作台、全设备提速或部署 |
+| [UIFlow工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md) | 浏览器与组合分层证据 | `2026-11-04` | 首次signed-array FAIL保留、旧3c smoke20、新2c72 CoreS3 div8完整54；19组包装与四宽度model-only检查不授予其余18板guest或全按键 |
+| [CoreS3工作台正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md) | 精确固件浏览器证据 | `2026-11-04` | 同52f Flash/2c72 WASM的div1+oneInsn完整54与正常6CDP清理；单次10.971对27.483秒，不是重复基准，未授予其余18板或新部署 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |

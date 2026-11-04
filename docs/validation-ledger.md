@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-03`
+日期：`2026-11-04`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-04
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UI-03` / 经典 ESP32 浏览器慢启动复现 | 正式 `3c6b2490…` WASM，原固定 Flash 与原 icount5：Atom Matrix ready 109.458 s、15/15；原 StickC Plus ready 90.687 s、26/26，分别验证真实输入/输出与正常两阶段 CDP 清理。Matrix MT+oneInsn 在 ready 前 cache panic；single/icount+oneInsn ready 126.620 s 未改善，后续观察器心跳假设 FAIL 保留，失败轮正常清场未捕获。另一个独立早启 guest 的 20 秒全 Worker CDP 只授诊断，不是 CPU 利用率或 C 根因。旧 `0bd…` 测量已撤回范围；新默认工作台、全部按键、0030 guest 收益和新部署均 NOT RUN by this record | [身份与范围](evidence/2026-11-04-browser-startup-investigation/README.md)、[摘要](evidence/2026-11-04-browser-startup-investigation/summary.json) |
+| `UI-03` / CoreS3 UIFlow 网页编程工作台 | 同完整 Flash `52f38f56…`：首次旧3c signed-array UART adapter FAIL保留；unsigned修复后20项smoke PASS；fresh74 WASM `2c72cda0…` div8完整54/54，实际10次raw-paste、UTF-8/长源码、异常恢复、导入、暂停/继续/中断、红帧、硬reset epoch0→1与正常6CDP Worker回收。19组LittleFS包装与四宽度model-only布局分层记录，不授予其余18款新默认guest、全按键、提速或新部署 | [限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md)、[摘要](evidence/2026-11-04-browser-uiflow-workbench/summary.json) |
+| `UI-03` / CoreS3 exact-workbench 正常钟后续 | 同52f Flash、同2c72 WASM、同guest控制脚本：div1+oneInsn+0027精确绑定候选54/54 PASS，正常exit0、零fallback、全部6个实际CDP Worker在context前关闭；单次ready10.971 s，对div8完整轮次27.483 s，约2.51倍观测比值，非重复基准。候选显式preview导出、未发布；双文件功能源码随后按相同SHA应用canonical，五个窄Node合同PASS，新C运行时仍待独立guest复验。其余18板、完整按键与新部署NOT RUN，UI-03仍PARTIAL | [后续证据](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md)、[摘要](evidence/2026-11-04-browser-uiflow-workbench-wallclock/summary.json) |
 
 ## 2026-11-03
 

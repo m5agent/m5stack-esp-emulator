@@ -1,6 +1,6 @@
 # 工程交接总览
 
-最近核对：`2026-11-02`
+最近核对：`2026-11-04`
 
 本页用于让新接手的人快速理解“项目现在是什么、代码在哪里、哪些已经能跑、
 接下来做什么”。它是导航摘要，不维护动态数量，也不替代以下权威入口：
@@ -281,6 +281,7 @@ canonical QEMU 链 **41 层**（0120–0161，41/41 replay），PR #80–#161。
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `UI-02` | 扩展已准入板型的固件/Unit、输入延迟、长期稳定性与资源回收；C6/P4/Linux 浏览器路径分别立证 | 当前工作台、C/QEMU 浏览器执行与分享入口已有固定示例结果；registry、原生设备和视觉目录不互授准入，正式站点与 fork 预览按[Pages 指南](pages-deployment.md)分别取证 |
+| `UI-03` | 全部19款可运行浏览器设备的启动/物理按键、默认UIFlow与MicroPython网页执行 | 新74层运行时、新默认Flash、逐板功能/性能/清场和正式部署分别验收；[当前慢启动调查](evidence/2026-11-04-browser-startup-investigation/README.md)不授予优化完成 |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、
