@@ -41,10 +41,18 @@ node platform/tests/test_public_uiflow_guest.mjs
 
 It uses a random-port static server and the exported Service Worker, requires
 hardware ANGLE rendering, and rejects Device Service requests. The cases use
-the actual editor for UTF-8, multiline and larger raw-paste transfers, syntax
+the actual editor first to run its untouched default source twice, checking
+the original source, `Hello, UIFlow!`, empty stderr and the same guest console.
+They then cover UTF-8, multiline and larger raw-paste transfers, syntax
 and runtime exceptions, file import, infinite-loop interruption and subsequent
 execution in the same VM. Color display boards retain the real guest red-frame
-check. PaperMono uses the original `M5.Display` API at rotation 0, verifies its
+check. PaperColor uses its Spectra6 palette: RGB888 `0xBF0000` becomes RGB565
+`0xB800`, with all 400x600 pixels matching exactly and both display and native
+source sequences newer than the pre-draw observation. The
+[PaperColor oracle](../../../platform/tests/public_qemu_papercolor_frame_oracle.mjs)
+rejects LCD red, a single wrong pixel and stale frames; the
+[dated evidence](../../../docs/evidence/2026-11-04-papercolor-frame-oracle/README.md)
+preserves the earlier LCD-assumption failure. PaperMono uses the original `M5.Display` API at rotation 0, verifies its
 480x800 EPD identity, and draws a black left half and white right half inside
 `startWrite()` / `endWrite()` so the real driver flushes. Every observed RGB565
 pixel must match that pattern; reports retain actual color counts, dimensions,
@@ -54,7 +62,8 @@ The full run also pauses/resumes an active program and performs a hardware
 reset: the old UART console owner must be cancelled before code can execute in
 the newly booted console epoch. This reset keeps the browser session identity;
 it does not claim Python state survives a hardware reset.
-`M5_UIFLOW_SMOKE_ONLY=1` limits the run to startup and two source executions;
+`M5_UIFLOW_SMOKE_ONLY=1` limits the run to startup, two untouched default-source
+runs, UTF-8 printing and the multiline sum;
 the report preserves that narrower scope. Both modes require normal guest exit
 and independent CDP Worker disappearance before closing the browser context.
 
