@@ -621,6 +621,20 @@
           },
           "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
           "sourceSHA256": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+        },
+        {
+          "firmwareSHA256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+          "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ]
     },

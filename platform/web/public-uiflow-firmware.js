@@ -66,18 +66,21 @@ function boundWorkbench(profile, registry) {
   return row;
 }
 
-/** Bind readiness only to the exact composed programming image. Keep the
- * board's conservative execution clock; fixed-example optimizations do not
- * transfer to this different Flash identity. Unknown firmware is unchanged. */
+/** Bind readiness to the exact composed programming image. An explicitly
+ * registered source-code variant must also match this workbench's main source,
+ * ready marker and fixture. Other images do not inherit its execution policy. */
 export function resolveUIFlowWorkbenchProfile(profile, firmwareSHA256, registry) {
   validateQemuProfile(profile); validateUIFlowWorkbenchRegistry(registry);
   if (!registry.profiles.some(row => row.deviceId === profile.deviceId)) return structuredClone(profile);
   const row = boundWorkbench(profile, registry);
   if (firmwareSHA256 !== row.firmwareSHA256) return structuredClone(profile);
-  check(profile.firmwareVariant === undefined && profile.oneInsnPerTb === undefined && profile.requiredRuntimePatch === undefined,
-    'UIFlow programming firmware requires the conservative base execution profile');
+  const variant = profile.firmwareVariant;
+  check(variant ? variant.firmwareSHA256 === row.firmwareSHA256
+    && variant.sourceSHA256 === row.files['main.py'].sha256 && variant.readyMarker === row.readyMarker
+    && variant.fixture === 'uiflow-workbench-v1' && variant.sourceKind === undefined
+    : profile.oneInsnPerTb === undefined && profile.requiredRuntimePatch === undefined,
+  'UIFlow programming firmware requires its exact workbench source, fixture and ready binding');
   const result = structuredClone(profile);
-  delete result.firmwareVariant; delete result.oneInsnPerTb; delete result.requiredRuntimePatch;
   result.readyMarker = UIFLOW_WORKBENCH_READY; result.readyFirmwareSHA256 = row.firmwareSHA256;
   validateQemuProfile(result); return result;
 }
