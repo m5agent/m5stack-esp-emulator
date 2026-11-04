@@ -3,7 +3,7 @@ import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import {PublicQemuRuntime} from '../web/public-qemu-runtime.js';
 
 const encode=value=>new TextEncoder().encode(value);
-function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',forever=false,silent=false}={}){
+function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',forever=false,silent=false,onInterrupt}={}){
   const writes=[],sources=[];
   let phase='connect';
   // Use the actual runtime UART lease and epoch implementation. Only the
@@ -17,7 +17,11 @@ function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',fore
       const bytes=Uint8Array.from(value.bytes);
       writes.push(Array.from(bytes));
       const equal=values=>bytes.length===values.length&&values.every((v,i)=>bytes[i]===v);
-      if(phase==='execute'&&equal([3,3])){runtime.feed('\x04KeyboardInterrupt\r\n\x04>');phase='done';return;}
+      if(phase==='execute'&&bytes.includes(3)){
+        if(onInterrupt)return onInterrupt({bytes,feed:runtime.feed,finish:()=>{phase='done';}});
+        assert.deepEqual(Array.from(bytes),[3],'running interruption sends exactly one Ctrl-C');
+        runtime.feed('\x04KeyboardInterrupt\r\n\x04>');phase='done';return;
+      }
       if(equal([13,1])){if(!silent)runtime.feed('raw REPL; CTRL-B to exit\r\n>');phase='negotiate';return;}
       if(equal([5,65,1])){
         if(legacy)runtime.feed('raw REPL; CTRL-B to exit\r\n>');
@@ -58,6 +62,93 @@ for(const legacy of [false,true]){
   const execution=runner.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
   await started;await assert.rejects(runner.run('print(2)'),/仍在运行/);await runner.interrupt();
   const result=await execution;assert.equal(result.interrupted,true);assert.match(result.stderr,/KeyboardInterrupt/);
+  assert.deepEqual(runtime.writes[0],[13,3,3],'initial connection retains its separate REPL synchronization handshake');
+  assert.equal(runtime.writes.filter(bytes=>bytes.length===1&&bytes[0]===3).length,1);
+}
+function finallyGuest(){
+  let controls=0,ack,complete,entered;
+  const finallyEntered=new Promise(resolve=>entered=resolve),acknowledgement=new Promise(resolve=>ack=resolve);
+  const runtime=guest({forever:true,onInterrupt:({bytes,feed,finish})=>{
+    // Deliberately process every byte. The old coalesced-EOF fake could not
+    // distinguish a second exception interrupting an unfinished finally.
+    assert.ok(Array.from(bytes).every(byte=>byte===3));controls+=bytes.length;
+    if(!complete){
+      feed('FINALLY_BEGIN\r\n');entered();
+      complete=()=>{feed(controls===1?'DEINIT_DONE\r\n\x04KeyboardInterrupt\r\n\x04>'
+        :'\x04KeyboardInterrupt in finally\r\n\x04>');finish();};
+    }
+    return acknowledgement;
+  }});
+  return {runtime,finallyEntered,ack:()=>ack(),complete:()=>complete(),controls:()=>controls};
+}
+{
+  const fixture=finallyGuest(),runner=new PublicMicroPythonRunner(fixture.runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=runner.run('try:\n while True: pass\nfinally:\n driver.deinit()',{
+    onPhase:phase=>{if(phase==='running')running();}});
+  await started;
+  const first=runner.interrupt(),second=runner.interrupt();
+  await fixture.finallyEntered;
+  const deadline=runner.current.interruptDeadline;
+  assert.equal(fixture.controls(),1,'concurrent interruption requests inject one exception before UART ACK');
+  await new Promise(resolve=>setTimeout(resolve,15));fixture.ack();await Promise.all([first,second]);
+  await runner.interrupt();
+  assert.equal(fixture.controls(),1,'a repeat after ACK cannot interrupt the guest finally');
+  assert.equal(runner.current.interruptDeadline,deadline,'repeated interruption cannot extend its deadline');
+  fixture.complete();const result=await execution;
+  assert.match(result.stdout,/FINALLY_BEGIN\r\nDEINIT_DONE/);assert.equal(result.stderr,'KeyboardInterrupt\r\n');
+  assert.equal(result.interrupted,true);assert.equal(fixture.runtime.uartOwner,null);
+  await runner.interrupt();assert.equal(fixture.controls(),1,'a completed run is an interruption no-op');
+}
+{
+  const fixture=finallyGuest(),runtime=fixture.runtime,runner=new PublicMicroPythonRunner(runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=runner.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
+  await started;const first=runner.interrupt();await fixture.finallyEntered;
+  runtime.status='paused';await assert.rejects(runner.interrupt(),/设备已暂停/);runtime.status='running';
+  runner.current.phase='uploading';await assert.rejects(runner.interrupt(),/代码正在传输/);runner.current.phase='running';
+  runtime.stopping=true;await assert.rejects(runner.interrupt(),error=>error.name==='AbortError');runtime.stopping=false;
+  assert.equal(fixture.controls(),1,'pause, transfer and stop guards still run before the interruption latch');
+  fixture.ack();await first;fixture.complete();assert.equal((await execution).interrupted,true);
+}
+for(const reset of [false,true]){
+  const fixture=finallyGuest(),runtime=fixture.runtime,runner=new PublicMicroPythonRunner(runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=runner.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
+  await started;const first=runner.interrupt(),oldAck=assert.rejects(first,error=>error.name==='AbortError');
+  await fixture.finallyEntered;const writes=runtime.writes.length;
+  if(reset)runtime.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},runtime.generation);
+  else runtime.releaseUart(runner.current.owner);
+  const nextOwner=runtime.acquireUart();
+  await assert.rejects(runner.interrupt(),error=>error.name==='AbortError');
+  fixture.ack();await oldAck;await assert.rejects(execution,error=>error.name==='AbortError');
+  assert.equal(runtime.writes.length,writes,'a latched stale run cannot send another interruption');
+  assert.equal(runtime.uartOwner,nextOwner,'the old run cannot release the replacement UART owner');
+  runtime.releaseUart(nextOwner);
+}
+{
+  const fixture=finallyGuest(),runner=new PublicMicroPythonRunner(fixture.runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=runner.run('try:\n while True: pass\nfinally:\n driver.deinit()',{
+    onPhase:phase=>{if(phase==='running')running();}});
+  await started;
+  // Negative control of the transport oracle, preserving the old two-byte
+  // request. It must not be mistaken for completed guest cleanup.
+  const oldTransport=fixture.runtime.writeUart(new Uint8Array([3,3]),runner.current.owner);
+  await fixture.finallyEntered;fixture.ack();await oldTransport;fixture.complete();
+  const result=await execution;
+  assert.equal(fixture.controls(),2);assert.doesNotMatch(result.stdout,/DEINIT_DONE/);
+  assert.match(result.stderr,/KeyboardInterrupt in finally/);
+}
+{
+  const runtime=guest({forever:true}),runner=new PublicMicroPythonRunner(runtime);
+  for(let index=0;index<2;index++){
+    let running;const started=new Promise(resolve=>running=resolve);
+    const execution=runner.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
+    await started;await runner.interrupt();assert.equal((await execution).interrupted,true);
+  }
+  assert.equal(runtime.writes.filter(bytes=>bytes.length===1&&bytes[0]===3).length,2,
+    'the interruption latch belongs to one run and is fresh for the next program');
 }
 {
   const runtime=guest({forever:true}),runner=new PublicMicroPythonRunner(runtime);
@@ -74,12 +165,15 @@ for(const legacy of [false,true]){
   assert.equal(runtime.writes.length,count,'a stale runner cannot inject Ctrl-C into a new guest');
 }
 {
-  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime);let rejection;
+  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime);let rejection,writesBefore,writesAfter;
   await runner.run('print(1)',{onPhase:phase=>{
-    if(phase==='uploading')rejection=assert.rejects(runner.interrupt(),/代码正在传输/);
+    if(phase==='uploading'){
+      writesBefore=runtime.writes.length;rejection=assert.rejects(runner.interrupt(),/代码正在传输/);
+      writesAfter=runtime.writes.length;
+    }
   }});
   await rejection;
-  assert.equal(runtime.writes.some(bytes=>bytes.length===2&&bytes.every(byte=>byte===3)),false,
+  assert.equal(writesAfter,writesBefore,
     'interrupt cannot corrupt raw-paste source transfer');
 }
 {

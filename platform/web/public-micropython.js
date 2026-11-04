@@ -14,8 +14,12 @@ export class PublicMicroPythonRunner {
     this.runtime.requireUartOwner(current.owner);
     if(current.phase!=='running')throw new Error('代码正在传输，请稍后中断或停止设备。');
     if(this.runtime.status==='paused')throw new Error('设备已暂停，请先继续后再中断。');
+    if(current.interruptPromise)return current.interruptPromise;
     this.interrupted=true;current.interruptDeadline=Date.now()+5000;
-    await this.runtime.writeUart(new Uint8Array([3,3]),current.owner);
+    // One exception must leave the guest's finally/deinit code free to run.
+    // Latch before transport so repeat requests cannot inject another one.
+    current.interruptPromise=Promise.resolve().then(()=>this.runtime.writeUart(new Uint8Array([3]),current.owner));
+    await current.interruptPromise;
   }
   async run(source, {onOutput=()=>{},onPhase=()=>{},signal,timeoutMs=30000}={}) {
     if(this.busy)throw new Error('代码仍在运行，请先中断。');

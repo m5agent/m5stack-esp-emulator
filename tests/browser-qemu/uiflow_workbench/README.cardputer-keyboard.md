@@ -73,6 +73,14 @@ CDP Worker disappearance before browser-context closure. Earlier FAIL remains
 visible if a later run passes. Host contracts and skipped opt-in runs are
 **NOT RUN** for guest acceptance, speed and physical-hardware behavior.
 
-This lane is prepared independently and is not added to the existing gate by
-these files. Its first actual run must establish whether the official default
-image exposes and successfully executes this public IRQ path.
+An interrupt of a running editor program sends one Ctrl-C. Requests repeated
+within that same execution share the original UART operation and cannot inject
+another exception into its `finally` or public driver `deinit()`. Session,
+console epoch, UART ownership, transfer and pause checks still apply to repeat
+requests. The separate initial REPL connection handshake retains CR/Ctrl-C/
+Ctrl-C; it is not the running-program interrupt. The observer's `finally`,
+public `deinit()` call and required deinit marker remain mandatory.
+
+The complete admitted-board gate includes this independent lane. Each runtime
+and exact default image must establish its own public IRQ, cleanup and input
+results; a preparation receipt cannot replace that execution.
