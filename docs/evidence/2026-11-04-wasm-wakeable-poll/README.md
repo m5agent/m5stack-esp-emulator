@@ -9,9 +9,10 @@ fresh75 在两个原固定示例上完成独立本地冷启动：Atom Matrix `15
 与 `39.144 s`。这些结果只覆盖下列两组固定示例。新默认 UIFlow 镜像、
 其他型号、线上 Pages、重复性能分布与物理硬件不从本记录继承。
 
-**本独立 cold 批次未测 warm。** [后续 Matrix75 V1 首组](warm-summary.json)
-另有 cold-prime `53.491 s` → warm `76.480 s`，warm 更慢；余下三组仍为
-`NOT RUN`，纯 cache 暖启动收益未建立。这不改写本轮 cold 事实。硬件 reset
+**本独立 cold 批次未测 warm。** [后续四组同页 stop/start](warm-summary.json)
+已分别完成 3c / 75 V1 的两板原 Flash 对照；75 的 Matrix `53.491 → 76.480 s`
+与 Plus `39.378 → 63.627 s` 均为 warm 更慢。四组功能、缓存与清理事实见下节，
+纯 cache 暖启动收益仍未建立。这不改写本轮独立 cold 事实。硬件 reset
 保留当前 guest，不能代替新建 guest 的 stop/start 资产缓存实验。
 
 ## 来源与构建身份
@@ -139,6 +140,58 @@ resume 新 heartbeat、非触摸屏负控及无 panic/traceback 通过。
 Worker targets** 全部关闭、live=0、零 forced disposal/fallback。保留了 iframe
 移除前的 nested-worker 围栏和移除后的全部 target 围栏；没有以 browser context
 关闭替代 guest 正常清理。
+
+## 后续同页 stop/start 四组
+
+[同页对照摘要](warm-summary.json)另记四组、八个 guest；各组独占运行，
+不与其他 guest、构建、host suite 或 Profiler 并行。3c 保留 `b41eba70…`
+web 源码，75 保留前述 V1 源码；原 Flash、TCG single/icount5/div1 与无
+oneInsn 均不变。每组新建 browser/context/page，先完成 cold-prime 的原
+15/26 项断言和正常清理，再在同一页面建立新的 guest。
+
+| runtime / 原固定示例 | cold-prime | 同页 warm | warm − cold |
+| --- | ---: | ---: | ---: |
+| 75 V1 / Matrix | 53.491 s | 76.480 s | +22.989 s |
+| 75 V1 / Plus | 39.378 s | 63.627 s | +24.248 s |
+| 3c / Matrix，修正观察器后 | 109.448 s | 108.710 s | −0.738 s |
+| 3c / Plus | 96.703 s | 111.456 s | +14.753 s |
+
+这四组的八轮原断言均 PASS，共 164 项；每组五资产都为 download → memory，
+Module 为 compiled → memory。URL 与 `performance.timeOrigin` 保持相同，
+guest session 和五个实际 CDP targets 均全新。每轮 normal QMP exit 0、
+零 forced disposal/fallback；iframe 保留时先记录实际 targets 全关，移除后
+再记录全部 targets 关闭/live=0。Matrix 保留真实 USER 双边沿和 25 灯 RMT/QOM/
+模型一致，Plus 保留真实 BtnA 双边沿、135×240 帧及 32,400 点纹理比较；
+仍不增加 Matrix IMU/非均匀映射或 Plus BtnB/Power 的证据。
+
+**方法包含模型重建。** 正常 stop 后，观察器恢复 hooks，并公开选择
+CoreS3 → 目标设备，再 Start；这些选择在 click 计时之前。同页保留效应和
+可能的后台工作没有排除，不能称为纯 cache 因素或严格只点重新运行。
+75 两组 warm 的额外时间主要出现在首 UART 前，分别约 +22.955 / +24.181 s；
+3c Plus 的 warm 也更慢。缓存命中不构成提速保证；单组差值不建立性能分布，
+也不能单独归因到 `0032`。
+
+3c Matrix 的首次组保留了一个 **warm Start 前观察器 FAIL**：已完成的 cold
+为 `109.625 s` / 15 PASS；第二轮仅 reference-label 断言失败，没有创建第二个
+VM。原观察器保留了已 dispose 的 Matrix shell，按设备 id 等待会过早通过；
+页面选择在取得设备 metadata 后才更新参考标题。断言当刻的标题未捕获，稍后
+截图已显示正确 Matrix 示例，故不把推测的中间标题当作实际记录。原 warm
+字段沿用了 cold timing，明确无效并排除。随后仅修正观察器就绪条件：清理旧
+shell/run/timing，要求新 shell 身份、目标 mount 和当前正确参考标题，再释放
+旧引用并 Start。Plus 也使用该防护；18 项源函数异步控制及语法检查通过。
+原功能断言和 Runtime.start 时间 hooks 逐字不变，前表的两组 3c 由独立新组完成；
+首次 FAIL 不被后续 PASS 擦除。控制脚本的 falsy/null 断言错误及汇总器的
+`destroyed` KeyError 另保留，均未修改 raw 或重跑 guest。
+
+初始仅一组时“余三组 NOT RUN”的日期、状态和数值保留在摘要的历史检查点；
+本次四组完成后不再是当前待测状态。最初独立 cold 批次的 `54.775 / 39.144 s`
+仍保持原值，不能用新的 cold-prime 替换。pthread cancellation 仍未建立，
+最终 SDK v7 没有重跑取消；浏览器正常 QMP/Worker 清理不转授取消语义。
+
+同页 collector 按 SHA 留存，复验需恢复对应冻结 source/site 与 collector，
+使用摘要中的新输出/无 override 命令模板。上述已提交便携生成器只重建 cold
+计时 collector，普通 checkout 不自动包含这些历史同页工件。未复验历史资产
+时，不能把当前源码或当前默认镜像当作本记录的执行身份。
 
 ## 历史失败与复验边界
 
