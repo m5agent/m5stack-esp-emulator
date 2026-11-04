@@ -68,7 +68,7 @@ The publication gate runs the exported public registry in full by default:
 ```sh
 M5_PUBLIC_SITE="$PWD/.work/public-site" \
 M5_WASM_CHROME="/path/to/chrome" M5_WASM_GPU=hardware \
-M5_QEMU_GATE_REQUIRE_ALL=1 \
+M5_QEMU_GATE_REQUIRE_ALL=1 M5_QEMU_GATE_WORKERS=1 \
 node platform/tests/test_public_qemu_admitted_boards.mjs
 ```
 
@@ -88,8 +88,28 @@ Outputs live in separate `uiflow-editor/<device>`, `uiflow-buttons/<device>` and
 `fixed/<device>[-example]` directories below a new ignored output root; the two
 additional input lanes use `cardputer-keyboard/cardputer-adv` and
 `stackchan-body-touch/stackchan`. The
-bounded gate report records each child status and report/source SHA, and stops
-at the first failure. It clears inherited smoke-only, remote URL, upload,
+bounded gate report records each child status and report/source SHA. The default
+is one functional guest. `M5_QEMU_GATE_WORKERS` accepts exactly `1` or `2`;
+unset means `1`, and CI requires `1` and sets it explicitly. An adequately
+provisioned local host may opt into `2`: each child retains its independent
+Chrome/VM, ephemeral HTTP port and output directory. The scheduler groups by
+device, keeps editor then buttons then any extra case serial within that group,
+and waits for every UIFlow group before starting any fixed example. At most two
+children run at once. This is functional acceptance; concurrent ready times are
+not performance samples.
+
+The first observed failure stops new case dispatch. Any already-running child
+finishes its own report and cleanup before the parent report is written; it is
+not killed to make the gate finish early. Unstarted rows are retained as
+`NOT RUN`, the first failure stays explicit, and every planned case must actually
+pass for publication eligibility. A watchdog/resource failure during a dual run
+remains a failure. Preserve it and arrange an explicit single-guest diagnostic
+of the affected case; an ordinary retry cannot erase the failed run.
+Node/stdio `close` only fences the child process. Normal QMP/CDP cleanup still
+requires that runner's source-bound report; a fatal exit or missing report
+cannot be described as normal Chrome or guest shutdown.
+
+The gate clears inherited smoke-only, remote URL, upload,
 clock-override and frame-diagnostic options, pins button pulses to 250 ms, and
 uses the same explicit Chrome executable for every runner. It
 requires the exact default workbench Flash, WASM and export identity for the
@@ -107,7 +127,7 @@ comma-separated public-device subset. Such a reduced run reports
 `DIAGNOSTIC_PASS` with `publication_eligible=false`, never full publication PASS.
 The workflow sets `M5_QEMU_GATE_REQUIRE_ALL=1`, which rejects reduced selections
 before starting a guest. Its 240-minute ceiling includes source build/setup and
-the sequential matrix, including at least 79 boots for the current full plan;
+the single-worker matrix, including at least 79 boots for the current full plan;
 it is not a measured startup guarantee. Actual guest execution is still required.
 
 Source transfer preserves ordinary tabs/newlines/CR/form-feed and backslash

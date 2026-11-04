@@ -996,7 +996,23 @@
         "Normal simulation clock is used for the fixed display/input probe; no physical timing or arbitrary firmware claim.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc"
+      "readyFirmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+          "profile": "stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "stackchan",

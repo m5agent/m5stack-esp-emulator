@@ -7,7 +7,8 @@ import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, resolveUIF
   UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
 import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements,
   QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
-import {planPublicQemuGate, publicQemuGateChildEnvironment, validatePublicQemuGateResult, PUBLIC_QEMU_GATE_PHASES} from './test_public_qemu_admitted_boards.mjs';
+import {planPublicQemuGate, publicQemuGateChildEnvironment, validatePublicQemuGateResult, PUBLIC_QEMU_GATE_PHASES,
+  publicQemuGateWorkers, schedulePublicQemuGate} from './test_public_qemu_admitted_boards.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -25,9 +26,10 @@ for (const row of registry.profiles) {
   assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
-  if (row.deviceId === 'cores3') {
+  if (['cores3','stamplc'].includes(row.deviceId)) {
     assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, true);
-    assert.equal(resolved.profile, 'cores3-wasm-uiflow-workbench-wallclock-candidate');
+    assert.equal(resolved.profile, row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+      :'stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate');
     assert.deepEqual(resolved.requiredRuntimePatch, QEMU_ONE_INSN_RUNTIME_PATCH);
     assert.equal(resolved.firmwareVariant.firmwareSHA256, row.firmwareSHA256);
     assert.equal(resolved.firmwareVariant.sourceSHA256, row.files['main.py'].sha256);
@@ -35,7 +37,7 @@ for (const row of registry.profiles) {
     assert.equal(resolved.firmwareVariant.schedulerCandidate, 'qemu-tci-mmio-blocks-v1');
     assert.equal(resolved.accelerator, undefined);
   } else {
-    assert.equal(resolved.clockDivisor, profile.clockDivisor, `${row.deviceId} cannot inherit the CoreS3 execution policy`);
+    assert.equal(resolved.clockDivisor, profile.clockDivisor, `${row.deviceId} cannot inherit another board's exact execution policy`);
     assert.deepEqual(resolved.accelerator, profile.accelerator);
     assert.equal(resolved.oneInsnPerTb, undefined); assert.equal(resolved.firmwareVariant, undefined);
   }
@@ -92,6 +94,45 @@ for (const change of [variant => delete variant.requiredRuntimePatch, variant =>
   const copy = structuredClone(cores3);
   change(copy.firmwareProfiles.find(row => row.firmwareSHA256 === workbench.firmwareSHA256));
   assert.throws(() => resolveWorkbench(copy), /runtime patch|one-instruction/, 'invalid patch identity fails before execution');
+}
+const stamplc=qemu.profiles.find(profile=>profile.deviceId==='stamplc');
+const stamplcWorkbench=registry.profiles.find(row=>row.deviceId==='stamplc');
+const stamplcVariant=stamplc.firmwareProfiles.find(row=>row.firmwareSHA256===stamplcWorkbench.firmwareSHA256);
+const resolveStamPLC=(profile=stamplc,workbenchRegistry=registry)=>resolveUIFlowWorkbenchProfile(
+  resolveQemuFirmwareProfile(profile,stamplcWorkbench.firmwareSHA256),stamplcWorkbench.firmwareSHA256,workbenchRegistry);
+assert.deepEqual(stamplcVariant,{
+  firmwareSHA256:'0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d',
+  profile:'stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate',clockDivisor:1,
+  readyMarker:UIFLOW_WORKBENCH_READY,fixture:'uiflow-workbench-v1',
+  sourceSHA256:'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0',
+  schedulerCandidate:'qemu-tci-mmio-blocks-v1',oneInsnPerTb:true,requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH,
+});
+for(const [field,value] of [['sourceSHA256','0'.repeat(64)],['fixture','unrelated-fixture-v1'],['readyMarker','UNRELATED_READY']]){
+  const copy=structuredClone(stamplc);
+  copy.firmwareProfiles.find(row=>row.firmwareSHA256===stamplcWorkbench.firmwareSHA256)[field]=value;
+  assert.throws(()=>resolveStamPLC(copy),/exact workbench source, fixture and ready binding/,`StamPLC rejects ${field} mismatch`);
+}
+const changedStamPLCMain=structuredClone(registry);
+changedStamPLCMain.profiles.find(row=>row.deviceId==='stamplc').files['main.py'].sha256='0'.repeat(64);
+assert.throws(()=>resolveStamPLC(stamplc,changedStamPLCMain),/exact workbench source, fixture and ready binding/);
+const unknownStamPLC=resolveQemuFirmwareProfile(stamplc,'f'.repeat(64));
+assert.deepEqual(resolveUIFlowWorkbenchProfile(unknownStamPLC,'f'.repeat(64),registry),unknownStamPLC);
+assert.equal(unknownStamPLC.clockDivisor,1);assert.equal(unknownStamPLC.oneInsnPerTb,undefined);
+assert.equal(unknownStamPLC.firmwareVariant,undefined);
+const conservativeStamPLC=resolveUIFlowWorkbenchProfile(stamplc,stamplcWorkbench.firmwareSHA256,registry);
+assert.equal(conservativeStamPLC.clockDivisor,1);assert.equal(conservativeStamPLC.oneInsnPerTb,undefined);
+validateQemuRuntimeRequirements(resolveStamPLC(),requiredRuntime);
+for(const kind of ['missing','wrong','duplicate']){
+  const copy=structuredClone(requiredRuntime);
+  if(kind==='missing')copy.source.patches=[];
+  if(kind==='wrong')copy.source.patches[0].sha256='0'.repeat(64);
+  if(kind==='duplicate')copy.source.patches.push(structuredClone(QEMU_ONE_INSN_RUNTIME_PATCH));
+  assert.throws(()=>validateQemuRuntimeRequirements(resolveStamPLC(),copy),/required source patch/,`StamPLC rejects ${kind} runtime patch`);
+}
+for(const change of [variant=>delete variant.requiredRuntimePatch,variant=>variant.requiredRuntimePatch.sha256='0'.repeat(64),
+  variant=>variant.requiredRuntimePatch.path='patches/qemu-wasm-probe/unrelated.patch']){
+  const copy=structuredClone(stamplc);change(copy.firmwareProfiles.find(row=>row.firmwareSHA256===stamplcWorkbench.firmwareSHA256));
+  assert.throws(()=>resolveStamPLC(copy),/runtime patch|one-instruction/);
 }
 assert.deepEqual(qemu, originalQemu, 'resolving exact, unknown or invalid firmware must not mutate the registry');
 const candidate = qemu.profiles.find(row => row.admission === 'candidate');
@@ -150,6 +191,83 @@ for(const change of [
   copy=>copy.workbenchRegistry.profiles.pop(),
 ]){const copy=structuredClone(gateInputs);change(copy);assert.throws(()=>planPublicQemuGate(copy));}
 assert.deepEqual(qemu,originalQemu,'gate planning cannot mutate the canonical registry');
+
+// Callback-only scheduler simulations. No browser, firmware or child process.
+assert.equal(publicQemuGateWorkers(),1);assert.equal(publicQemuGateWorkers('1'),1);assert.equal(publicQemuGateWorkers('2'),2);
+assert.equal(publicQemuGateWorkers(undefined,{ci:true}),1);
+assert.throws(()=>publicQemuGateWorkers('2',{ci:true}),/CI requires/);
+for(const value of ['',null,'0','3','1.5','2.0','01',' 2','invalid',0,1,2,NaN])
+  assert.throws(()=>publicQemuGateWorkers(value),/exactly 1 or 2/);
+const caseKey=item=>[item.lane,item.device,item.example||''].join('/');
+const sequential=[];
+const single=await schedulePublicQemuGate(plan.cases,{runCase:async item=>{sequential.push(caseKey(item));return {status:'PASS'};}});
+assert.equal(single.workers,1);assert.equal(single.max_active_children,1);assert.equal(single.all_passed,true);
+assert.equal(single.first_failure,null);assert.deepEqual(sequential,plan.cases.map(caseKey),'default1 retains the existing complete order');
+const liveDevices=new Set(),parallelOrder=[],uiCount=plan.cases.filter(item=>item.lane!=='fixed').length;
+let live=0,maxLive=0,uiComplete=0;
+const dual=await schedulePublicQemuGate(plan.cases,{workers:2,runCase:async item=>{
+  assert.ok(!liveDevices.has(item.device),'same device cannot run two cases concurrently');
+  if(item.lane==='fixed')assert.equal(uiComplete,uiCount,'all UIFlow groups must finish before fixed examples');
+  liveDevices.add(item.device);live++;maxLive=Math.max(maxLive,live);parallelOrder.push(caseKey(item));
+  await new Promise(resolve=>setImmediate(resolve));
+  if(item.lane!=='fixed')uiComplete++;
+  liveDevices.delete(item.device);live--;return {status:'PASS'};
+}});
+assert.equal(dual.all_passed,true);assert.equal(dual.max_active_children,2);assert.equal(maxLive,2);assert.equal(live,0);
+assert.equal(dual.cases.length,plan.cases.length);assert.ok(dual.cases.every(row=>row.status==='PASS'));
+for(const profile of publicRegistry.profiles)assert.deepEqual(
+  parallelOrder.filter(key=>key.split('/')[1]===profile.deviceId),
+  plan.cases.filter(item=>item.device===profile.deviceId).map(caseKey),'editor/buttons/extra and fixed-example order stays local to each device');
+for(const workers of [0,3,1.5,'2'])await assert.rejects(schedulePublicQemuGate(plan.cases,{workers,runCase:async()=>({status:'PASS'})}),/workers must be/);
+const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {resolve,promise};};
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+const failureCases=[
+  {device:'first',lane:'uiflow-editor'}, {device:'first',lane:'uiflow-buttons'},
+  {device:'second',lane:'uiflow-editor'}, {device:'second',lane:'uiflow-buttons'},
+  {device:'third',lane:'uiflow-editor'}, {device:'first',lane:'fixed'},
+];
+const firstChild=deferred(),otherChild=deferred(),failureStarts=[];let failureSettled=false;
+const draining=schedulePublicQemuGate(failureCases,{workers:2,runCase:async item=>{
+  failureStarts.push(caseKey(item));return item.device==='first'?firstChild.promise:otherChild.promise;
+}}).then(value=>{failureSettled=true;return value;});
+await tick();assert.deepEqual(failureStarts,['uiflow-editor/first/','uiflow-editor/second/']);
+firstChild.resolve({status:'FAIL',error:'first actual failure'});await tick();
+assert.equal(failureSettled,false,'one FAIL cannot finish the parent while another child still owns its cleanup');
+assert.equal(failureStarts.length,2,'no queued same-board or new-device case can start after FAIL');
+otherChild.resolve({status:'FAIL',error:'later failure'});
+const failed=await draining;
+assert.equal(failed.all_passed,false);assert.equal(failed.first_failure.error,'first actual failure');
+assert.equal(failed.cases.filter(row=>row.status==='FAIL').length,2);
+assert.equal(failed.cases.filter(row=>row.status==='NOT RUN').length,4);
+assert.ok(failed.cases.filter(row=>row.status==='NOT RUN').every(row=>row.not_run_reason));
+// A known nonzero child exit stops dispatch before its report is read, while
+// both callbacks are still awaited for report/cleanup finalization.
+const reportFence=deferred(),peerFence=deferred();let announceFailure,earlySettled=false,earlyStarts=0;
+const early=schedulePublicQemuGate(failureCases,{workers:2,runCase:async (item,{noteFailure})=>{
+  earlyStarts++;
+  if(item.device==='first'){
+    announceFailure=()=>noteFailure(new Error('child nonzero exit'));await reportFence.promise;
+    return {status:'FAIL',error:'child report retained'};
+  }
+  await peerFence.promise;return {status:'PASS'};
+}}).then(value=>{earlySettled=true;return value;});
+await tick();assert.equal(earlyStarts,2);announceFailure();peerFence.resolve();await tick();
+assert.equal(earlySettled,false);assert.equal(earlyStarts,2,'a known exit failure stops dispatch while its report is retained');
+reportFence.resolve();const earlyResult=await early;
+assert.equal(earlyResult.first_failure.error,'child nonzero exit');assert.equal(earlyResult.cases[0].error,'child report retained');
+assert.equal(earlyResult.cases.filter(row=>row.status==='NOT RUN').length,4);
+const launchFence=deferred();let launchStarts=0,launchSettled=false;
+const launch=schedulePublicQemuGate(failureCases,{workers:2,runCase:(item,{noteFailure})=>{
+  launchStarts++;noteFailure(new Error('synchronous launch failure'));return launchFence.promise;
+}}).then(value=>{launchSettled=true;return value;});
+await tick();assert.equal(launchStarts,1,'a synchronous failure announcement blocks even the second initial dispatch');
+assert.equal(launchSettled,false,'launch/close handling remains awaited');
+launchFence.resolve({status:'FAIL',error:'synchronous launch failure'});
+assert.equal((await launch).first_failure.error,'synchronous launch failure');
+const thrown=await schedulePublicQemuGate(failureCases,{runCase:async()=>{throw new Error('callback rejected');}});
+assert.equal(thrown.all_passed,false);assert.equal(thrown.first_failure.error,'callback rejected');
+assert.equal(thrown.cases.filter(row=>row.status==='NOT RUN').length,5);
+
 const inherited={M5_QEMU_DEVICE:'not-selected',M5_QEMU_EXAMPLE:'wallclock-candidate',M5_UIFLOW_SMOKE_ONLY:'1',
   M5_PUBLIC_URL:'https://example.test/other-export/',M5_QEMU_UPLOAD:'other-firmware.bin',M5_QEMU_CLOCK_DIVISOR:'8',
   M5_QEMU_FRAME_DIAGNOSTIC:'1',M5_QEMU_BUTTON_HOLD_MS:'1000',M5_CARDPUTER_KEYBOARD_IRQ:'0',M5_WASM_CHROME:'/explicit/chrome',M5_CHROME:'/different/chrome',

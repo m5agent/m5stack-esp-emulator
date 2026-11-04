@@ -86,6 +86,8 @@ jobs:
           M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
           M5_QEMU_READY_TIMEOUT_MS: "600000"
           M5_QEMU_GATE_REQUIRE_ALL: "1"
+          # Local opt-in 2 is functional-only; CI stays serial and explicit.
+          M5_QEMU_GATE_WORKERS: "1"
           M5_QEMU_GATE_PHASE: all
           M5_QEMU_GATE_DEVICES: ""
         run: node platform/tests/test_public_qemu_admitted_boards.mjs
