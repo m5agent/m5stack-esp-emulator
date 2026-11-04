@@ -192,10 +192,11 @@ try {
       const shell = await createDeviceShell(document.querySelector('#host'), device, { live: true, modelOptions: options });
       window.testShell = shell;
       shell.setViewMode('shell');
-      const controls = [], touches = [], raw = [];
+      const controls = [], touches = [], raw = [], capacitive = [];
       let resets = 0;
       shell.on('control', event => controls.push(event));
       shell.on('touch', event => touches.push(event));
+      shell.on('capacitive-touch', event => capacitive.push(event));
       shell.on('model-input', event => raw.push(event));
       shell.on('reset', () => resets++);
       const display = shell.display;
@@ -247,6 +248,25 @@ try {
           keyboardEvents=controls.splice(start).map(event=>[event.key,event.down]);
         }
         allPhysicalControls.push({id,qcode,aliases,heldEvents,mixedEvents,keyboardEvents});
+      }
+      const bodyTouchCases=[];
+      if(device.id==='stackchan')for(const [zone,key,letter]of [[1,'KeyZ','z'],[2,'KeyX','x'],[3,'KeyC','c']]){
+        if(shell.model.keymap[key]!==`touch-${zone}`)throw new Error('Missing public StackChan touch alias '+key);
+        const component=shell.model.find(`touch-${zone}`,'button'),canvas=shell.viewer.renderer.domElement;
+        const send=(type,extra={},target=canvas)=>target.dispatchEvent(new KeyboardEvent(type,{code:key,key:letter,bubbles:true,...extra}));
+        const sample=()=>capacitive.splice(0).map(event=>[event.zone,event.down]);
+        sample();const ordinaryBefore=controls.length;
+        const field=document.createElement('textarea');document.body.append(field);field.focus();
+        send('keydown',{},field);send('keyup',{},field);const typing=sample();
+        canvas.focus();
+        for(const flag of ['ctrlKey','metaKey','altKey']){send('keydown',{[flag]:true});send('keyup',{[flag]:true});}
+        const chords=sample();
+        send('keydown');send('keydown',{repeat:true});field.focus();send('keyup',{},field);
+        const repeatBlur=sample();field.remove();
+        component.press('pointer:body-contract');canvas.focus();send('keydown');
+        component.release('pointer:body-contract');const held=capacitive.length;
+        send('keyup');const mixed=sample();
+        bodyTouchCases.push({zone,key,typing,chords,repeatBlur,held,mixed,ordinary:controls.length-ordinaryBefore});
       }
       const physicalAliases=[];
       if(device.id==='cardputer-adv'){
@@ -307,7 +327,8 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, allPhysicalControls, physicalAliases, pcAliases, chords, touches, resets, presentationRotation,
+        frame, controls, allPhysicalControls, bodyTouchCases, physicalAliases, pcAliases, chords, touches, resets, presentationRotation,
+        input_hint:shell.hint.textContent,
         ownership, outputs, artwork, outputEcho: raw.length - before,
       };
     }, {device, options: test.options, expectedMinimum: expectedArtwork(test), expectedControls:physicalControls[device.id]});
@@ -325,6 +346,18 @@ try {
       assert.deepEqual(item.mixedEvents,[[item.qcode,true],[item.qcode,false]],`${device.id}/${item.id} final matching release`);
       if(item.keyboardEvents)assert.deepEqual(item.keyboardEvents,[[item.qcode,true],[item.qcode,false]],
         `${device.id}/${item.id} focused keyboard repeat and blur release`);
+    }
+    for(const item of result.bodyTouchCases){
+      assert.deepEqual(item.typing,[],`StackChan/${item.zone} does not capture typing`);
+      assert.deepEqual(item.chords,[],`StackChan/${item.zone} preserves browser modifier shortcuts`);
+      assert.deepEqual(item.repeatBlur,[[item.zone,true],[item.zone,false]],`StackChan/${item.zone} repeat/blur release`);
+      assert.equal(item.held,1,`StackChan/${item.zone} remains held by the second source`);
+      assert.deepEqual(item.mixed,[[item.zone,true],[item.zone,false]],`StackChan/${item.zone} final matching source release`);
+      assert.equal(item.ordinary,0,'Body touch remains a capacitive event, not a PMIC/button event');
+    }
+    if(device.id==='stackchan'){
+      assert.equal(result.bodyTouchCases.length,3);
+      for(const key of ['Z 前部','X 中部','C 后部','P 电源'])assert.ok(result.input_hint.includes(key),'Visible StackChan keyboard help: '+key);
     }
     assert.deepEqual(result.presentationRotation,
       {initial:0,applied:true,portrait:270,reset:true}, `${device.id} presentation rotation`);

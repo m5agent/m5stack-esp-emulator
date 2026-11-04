@@ -81,6 +81,7 @@ export class ModelDeviceShell {
   static async create(host, device, options = {}) {
     const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions,
       ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, F12:'boot', ...options.modelOptions?.keymap}} : {}),
+      ...(device.id === 'stackchan' ? {keymap: {KeyZ:'touch-1', KeyX:'touch-2', KeyC:'touch-3', ...options.modelOptions?.keymap}} : {}),
     });
     try {
       return new ModelDeviceShell(host, device, model, options);
@@ -119,7 +120,9 @@ export class ModelDeviceShell {
       this.photoRoot.append(photo);
     }
     this.stage = node('div', 'three-device-stage');
-    this.hint = node('div', 'three-device-hint', '拖拽旋转 · 滚轮缩放 · 双击复位 · 聚焦模型后使用按键');
+    this.hint = node('div', 'three-device-hint', device.id === 'stackchan'
+      ? '聚焦模型：Z 前部触摸 · X 中部触摸 · C 后部触摸 · P 电源；鼠标可触摸顶部区域'
+      : '拖拽旋转 · 滚轮缩放 · 双击复位 · 聚焦模型后使用按键');
     this.overlay = node('div', 'three-device-overlay');
     const card = node('div', 'three-device-overlay-card');
     this.overlayTitle = node('b');
