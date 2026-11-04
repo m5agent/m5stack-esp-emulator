@@ -53,7 +53,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -175,7 +175,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -267,7 +267,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -355,7 +355,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -459,7 +459,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -555,7 +555,7 @@
           "path": "/machine/units/pir",
           "property": "motion"
         },
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -661,7 +661,9 @@
       },
       "inputs": {
         "touch": false,
-        "buttons": {},
+        "buttons": {
+          "boot": "f12"
+        },
         "keyboard": [
           "a",
           "b",
@@ -731,7 +733,7 @@
           "compose"
         ],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -880,7 +882,11 @@
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
         "The TCA8418 interrupt fix covers default INT_CFG=0 FIFO/W1C semantics. INT_CFG=1 50us timing, KEY_IEN gating and other interrupt sources are unvalidated."
       ],
-      "readyFirmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b"
+      "readyFirmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+      "requiredInputPatch": {
+        "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+        "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+      }
     },
     {
       "deviceId": "stamplc",
@@ -929,7 +935,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1037,7 +1043,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true,
         "capacitiveTouch": {
           "path": "/machine/si12t",
@@ -1156,7 +1162,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1264,7 +1270,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1384,12 +1390,15 @@
       "inputs": {
         "touch": true,
         "buttons": {
+          "a": "a",
+          "b": "b",
+          "c": "c",
           "power": "p",
           "p": "p"
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1496,7 +1505,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1588,7 +1597,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "encoder": {
           "path": "/machine/encoder",
           "property": "detents",
@@ -1701,7 +1710,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1802,11 +1811,14 @@
       "inputs": {
         "touch": false,
         "buttons": {
-          "a": "a"
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -1912,7 +1924,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2006,7 +2018,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2117,7 +2129,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {
@@ -2257,7 +2269,7 @@
         },
         "keyboard": [],
         "pir": null,
-        "uart": false,
+        "uart": true,
         "reset": true
       },
       "units": {

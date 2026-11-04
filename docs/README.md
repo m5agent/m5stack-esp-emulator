@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-03`
+日期：`2026-11-04`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -52,6 +52,9 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 [性能修复与对照计划](plans/2026-11-03-emulator-performance.md)执行，
 [性能修复与对照证据](evidence/2026-11-03-emulator-performance/README.md)分别记录浏览器与原生结果，
 [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
+2026-11-04 的逐设备启动、完整按键与网页 MicroPython 工作台按
+[UIFlow 浏览器工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md)推进，
+新默认镜像与新的输入路由仍需各自的完整浏览器验收。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
 SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。

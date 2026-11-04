@@ -1,3 +1,5 @@
+import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './public-uiflow-firmware.js';
+import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
 import {PublicDeviceService} from './public-service.js';
@@ -65,10 +67,12 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
+  const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
+  if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
-    if (state.config.browser_wallclock_example && $('referenceExample').value !== 'stock-div8')
+    if (state.config.browser_wallclock_example && $('referenceExample').value === 'wallclock-candidate')
       return {name:'CoreS3 LVGL + PIR（正常速度，候选修复）',composed:true,wallclockCandidate:true,
         sha256:WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256};
     return {name:'CoreS3 LVGL + PIR（原始程序，正常时钟）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
@@ -130,8 +134,7 @@ function status(status, detail) {
   $('runtimeStatus').replaceChildren(node('i'), document.createTextNode(labels[status] || status));
   $('runtimeStatus').dataset.status = status;
   if (detail) $('frameStatus').textContent = detail;
-  $('serialInput').disabled = $('serialSendBtn').disabled =
-    !state.run || state.run.kind !== 'browser' || state.run.controller instanceof PublicQemuRuntime || !['running', 'paused'].includes(status);
+  updatePythonControls(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
   $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
@@ -140,6 +143,35 @@ function status(status, detail) {
   $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : '停止';
+}
+const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成'};
+function updatePythonControls(currentStatus=state.run?.controller?.status) {
+  const run=state.run, supported=active(run)&&run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart;
+  const busy=!!run?.python?.busy;
+  $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy;
+  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!busy||run.pythonPhase!=='running';
+  $('pauseBtn').disabled=busy&&run.pythonPhase!=='running';
+  $('serialInput').disabled=$('serialSendBtn').disabled=!supported||currentStatus!=='running'||busy;
+  if(!supported)$('pythonStatus').textContent='启动浏览器中的 UIFlow 后即可运行';
+  else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
+  else if(currentStatus==='booting')$('pythonStatus').textContent='正在启动 UIFlow…';
+  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||'UIFlow 已就绪';
+}
+async function runPython() {
+  const run=state.run;
+  if(!active(run)||!(run.controller instanceof PublicQemuRuntime))return;
+  run.python ||= new PublicMicroPythonRunner(run.controller);
+  if(run.python.busy)return;
+  $('pythonOutput').textContent='';
+  try {
+    await run.python.run($('pythonSource').value,{
+      onPhase:phase=>{if(active(run)){run.pythonPhase=phase;$('pythonStatus').textContent=pythonPhases[phase];updatePythonControls();}},
+      onOutput:text=>{if(active(run)){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
+    });
+  }catch(cause){if(active(run)){
+    run.pythonPhase='failed';$('pythonStatus').textContent='运行未完成';
+    $('pythonOutput').textContent+=`\n${cause.message}`;
+  }}finally{if(active(run))updatePythonControls();}
 }
 function updateCapability() {
   const device = state.selected,
@@ -233,9 +265,12 @@ function renderDetails() {
   for (const text of [...(device.browser?.limitations || []), ...(device.runtime?.blockers || [])])
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
-  $('referenceExampleFields').hidden = !(device?.id==='cores3' && state.config.browser_runtime_engine==='qemu-wasm' && state.config.browser_wallclock_example);
+  $('referenceExampleFields').hidden = !browserProfile(device?.id);
+  for(const option of $('referenceExample').options)option.hidden=['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.wallclockCandidate
+  $('referenceDescription').textContent = ref?.composedWorkbench
+    ? '官方 UIFlow2 运行时配网页编程启动脚本。就绪后可在下方运行 MicroPython。'
+    : ref?.wallclockCandidate
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
     : ref?.composedProbe
     ? ({'cardputer-adv':'点击模型键盘，或先点击模型再用电脑键盘输入；屏幕显示按键状态和累计次数。',
@@ -290,6 +325,8 @@ async function selectDevice(id) {
   state.picker?.dispose();
   state.picker = null;
   $('unitConnectionPicker').replaceChildren();
+  if(state.selected?.id!==row.id)$('firmwareSha').value='';
+  $('referenceExample').value='uiflow';
   state.selected = row;
   renderDevices();
   $('stageTitle').textContent = row.name;
@@ -459,6 +496,12 @@ async function firmware(signal, runGeneration) {
     expected = normalizeFirmwareSha256(
       $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
     );
+  if (selectedSource === 'reference' && ref?.composedWorkbench) {
+    const result=await composeUIFlowWorkbenchFirmware({profile:browserProfile(state.selected.id),registry:state.workbenchProfiles,root,signal,
+      onProgress:progress=>{if(runGeneration===state.runGeneration)message('runProgress',progress.phase==='compose'?'正在准备 UIFlow 编程环境…':'正在校验 UIFlow 固件…');}});
+    if(expected&&expected!==result.sha256)throw new Error('UIFlow 固件 SHA-256 与预期不一致。');
+    return {bytes:result.bytes,sha256:result.sha256,name:result.fileName,size:result.bytes.byteLength,provenance:result.provenance};
+  }
   if (selectedSource === 'reference' && ref?.composedProbe) {
     const result=await composeQemuProbeFirmware({profile:browserProfile(state.selected.id),root,signal,onProgress:()=>message('runProgress','正在本地组合设备示例')});
     if(expected&&expected!==result.sha256)throw new Error('设备示例 SHA-256 与预期不一致。');
@@ -673,7 +716,7 @@ async function startRun() {
       const BrowserRuntime = state.config.browser_runtime_engine==='qemu-wasm' ? PublicQemuRuntime : PublicBrowserRuntime;
       run.controller = new BrowserRuntime({
         ...callbacks,
-        root,profiles:state.qemuProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
+        root,profiles:state.qemuProfiles,workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onDeviceState: (value) => applyBrowserDeviceState(value, run),
         onState: (value) => {
@@ -979,7 +1022,7 @@ async function init() {
   state.config = config;
   if (config.browser_runtime_engine === 'qemu-wasm') {
     try {
-      state.qemuProfiles=await loadQemuBrowserProfiles({root});
+      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
@@ -1017,8 +1060,6 @@ async function init() {
     launch = {device: null, warnings: [], mode: 'auto', serviceUrl: '', firmware: null};
   }
   $('runtimeMode').value = launch.mode;
-  if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
-  else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
   const configuredServiceUrl = launch.serviceUrl || config.service_url || '';
   $('serviceUrl').value = configuredServiceUrl;
   if (launch.firmware) {
@@ -1029,7 +1070,14 @@ async function init() {
   if (launch.warnings.length) message('launchNotice', launch.warnings.join(' '));
   renderDevices();
   renderUnits();
-  if (launch.device) await selectDevice(launch.device.id);
+  if (launch.device) {
+    await selectDevice(launch.device.id);
+    if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
+    else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
+    else if(state.qemuProfiles?.profiles.some(row=>row.deviceId===launch.device.id&&row.fixture?.firmwareSHA256===launch.sha256))$('referenceExample').value='probe';
+    if(launch.sha256)$('firmwareSha').value=launch.sha256;
+    renderDetails();updateCapability();
+  }
   else {
     $('stageTitle').textContent = '请选择设备';
     $('deviceMount').replaceChildren(node('p', 'stage-loading', '链接中的设备无法确认，请从设备列表选择。'));
@@ -1040,7 +1088,7 @@ async function init() {
     !['browser', 'model'].includes(launch.mode)
   )
     await connectService();
-  const sharedReference = (reference()?.composed || reference()?.composedProbe) && launch.sha256 === reference().sha256;
+  const sharedReference = (reference()?.composed || reference()?.composedProbe || reference()?.composedWorkbench) && launch.sha256 === reference().sha256;
   if ((launch.firmware || sharedReference) && launch.autostart && launch.device) {
     if (lane()) await startRun();
     else message('launchNotice', '已读取链接中的设备与固件。此设备需要仿真服务，连接后点击开始运行。');
@@ -1113,6 +1161,26 @@ $('pauseBtn').addEventListener('click', async () => {
 $('firmwareFile').addEventListener('change', () => {
   $('localFileName').textContent = $('firmwareFile').files[0]?.name || '选择 .bin 固件';
 });
+$('pythonRunBtn').addEventListener('click',()=>void runPython());
+$('pythonInterruptBtn').addEventListener('click',async()=>{
+  const run=state.run;
+  try{await run?.python?.interrupt();if(active(run))$('pythonStatus').textContent='正在中断…';}catch(cause){error(cause);}
+});
+$('pythonClearBtn').addEventListener('click',()=>{$('pythonOutput').textContent='';});
+$('pythonFile').addEventListener('change',async()=>{
+  const file=$('pythonFile').files[0];if(!file)return;
+  try{
+    if(file.size>65536)throw new Error('Python 文件超过 64 KiB。');
+    if(!file.name.toLowerCase().endsWith('.py'))throw new Error('请导入 .py 源码文件。');
+    $('pythonSource').value=await file.text();$('pythonSource').focus();
+  }catch(cause){$('pythonStatus').textContent=cause.message;}
+  $('pythonFile').value='';
+});
+$('pythonSource').addEventListener('keydown',event=>{
+  event.stopPropagation();
+  if(event.key==='Tab'){event.preventDefault();const field=event.currentTarget;field.setRangeText('    ',field.selectionStart,field.selectionEnd,'end');}
+  if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();if(!$('pythonRunBtn').disabled)void runPython();}
+});
 $('serialForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const run = state.run,
@@ -1123,7 +1191,11 @@ $('serialForm').addEventListener('submit', async (event) => {
     return;
   }
   try {
-    await run.controller.input({type: 'uart', text: text + '\n'});
+    if(run.python?.busy)throw new Error('代码运行期间请使用中断按钮。');
+    if(run.controller instanceof PublicQemuRuntime){
+      const encoded=new TextEncoder().encode(text+'\r\n');
+      for(let i=0;i<encoded.length;i+=1024)await run.controller.writeUart(encoded.subarray(i,i+1024));
+    }else await run.controller.input({type: 'uart', text: text + '\n'});
     if (active(run)) $('serialInput').value = '';
   } catch (cause) {
     error(cause);

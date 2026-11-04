@@ -1,0 +1,203 @@
+// Explicit opt-in, real public-UI/browser-WASM programming acceptance.
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {readFile, writeFile, mkdir} from 'node:fs/promises';
+import {resolve, dirname, extname} from 'node:path';
+import {fileURLToPath, pathToFileURL} from 'node:url';
+import {createHash, randomUUID} from 'node:crypto';
+import {capturePublicQemuProvenance, QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
+import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const site = process.env.M5_PUBLIC_SITE && resolve(process.env.M5_PUBLIC_SITE);
+if (!site) { console.log('SKIP: explicit M5_PUBLIC_SITE export required'); process.exit(0); }
+const device = process.env.M5_QEMU_DEVICE || 'cores3', basePath = process.env.M5_PUBLIC_BASE_PATH || '/showcase/';
+const output = resolve(process.env.M5_PUBLIC_QEMU_OUT || resolve(repo, '.work/public-uiflow-' + device));
+assert.ok(output.startsWith(resolve(repo, '.work') + '/'), 'raw evidence must remain in ignored .work storage');
+await mkdir(output, {recursive:false});
+const readyTimeout = Number(process.env.M5_QEMU_READY_TIMEOUT_MS || 300000);
+assert.ok(Number.isSafeInteger(readyTimeout) && readyTimeout >= 30000 && readyTimeout <= 600000);
+const smokeOnly = process.env.M5_UIFLOW_SMOKE_ONLY === '1';
+const modules = process.env.M5_WASM_NODE_MODULES || resolve(repo, 'platform/tests/node_modules');
+const {chromium} = await import(pathToFileURL(resolve(modules, 'playwright/index.mjs')));
+const nonce = randomUUID().replaceAll('-', ''), hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const checks = [], errors = [], requests = [];
+const report = {kind:'browser-local-uiflow-programming', device, status:'FAIL', started_at:new Date().toISOString(),
+  evidence_level:'virtual-device validation', hardware_validation:'NOT RUN', checks, errors, nonce, programs:[],
+  smoke_only:smokeOnly, scope:'Actual public default UIFlow startup, editor input, UART0 raw-paste, guest output and normal Worker cleanup.'};
+const check = (name, ok, details) => { checks.push({name, ok, details}); assert.ok(ok, name); console.log(name); };
+let server, browser, page, workers;
+const mime = {'.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.json':'application/json',
+  '.wasm':'application/wasm', '.css':'text/css', '.png':'image/png', '.webp':'image/webp', '.svg':'image/svg+xml', '.woff2':'font/woff2'};
+
+async function waitForGuest(predicate, description, timeout = readyTimeout) {
+  const deadline = Date.now() + timeout;
+  let nextReceipt = 0;
+  for (;;) {
+    const current = await page.evaluate(() => ({status:globalThis.uiflowRuntime?.status,
+      serial:globalThis.uiflowRuntime?.serial || '', banner:document.querySelector('#errorBanner')?.hidden ? '' : document.querySelector('#errorBanner')?.textContent,
+      python:document.querySelector('#pythonStatus')?.textContent, output:document.querySelector('#pythonOutput')?.textContent,
+      executions:globalThis.uiflowExecutions || []}));
+    if (Date.now() >= nextReceipt) {
+      await writeFile(resolve(output, 'progress.json'), JSON.stringify({waiting_for:description, at:new Date().toISOString(), ...current}, null, 2) + '\n');
+      nextReceipt = Date.now() + 10000;
+    }
+    if (current.banner) throw new Error(current.banner);
+    if (/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(current.serial)) throw new Error('Guest panic while ' + description);
+    if (predicate(current)) return current;
+    if (Date.now() >= deadline) throw new Error('Guest observation timed out: ' + description);
+    await page.waitForTimeout(100);
+  }
+}
+
+async function runProgram(name, source, {stdout, stderr, upload = false} = {}) {
+  const index = await page.evaluate(() => uiflowExecutions.length);
+  if (upload) {
+    await page.locator('#pythonFile').setInputFiles({name:'program.py', mimeType:'text/x-python', buffer:Buffer.from(source)});
+    await page.waitForFunction(source => document.querySelector('#pythonSource').value === source, source);
+  } else await page.locator('#pythonSource').fill(source);
+  await page.locator('#pythonRunBtn').click();
+  const state = await waitForGuest(state => state.executions[index]?.finished_at, name, 90000);
+  const execution = state.executions[index];
+  report.programs.push({name, source, source_sha256:hash(source), ...execution, ui_output:state.output, ui_status:state.python});
+  check(name + '-source-reached-same-guest', execution.source === source && execution.result?.sessionId === report.session_id
+    && execution.generation === report.generation && !execution.error, execution);
+  if (stdout) check(name + '-stdout', execution.result.stdout.includes(stdout) && state.output.includes(stdout), execution.result);
+  if (stderr) check(name + '-stderr', execution.result.stderr.includes(stderr) && state.output.includes(stderr), execution.result);
+  else check(name + '-no-stderr', execution.result.stderr === '', execution.result);
+  check(name + '-run-reenabled', await page.locator('#pythonRunBtn').isEnabled());
+  return execution;
+}
+
+try {
+  report.provenance = await capturePublicQemuProvenance({repo, site, testScript:'platform/tests/test_public_uiflow_guest.mjs',
+    webPaths:[...QEMU_EXECUTED_WEB_PATHS, 'platform/web/public-uiflow-firmware.js', 'platform/web/uiflow-workbench-profiles.json', 'platform/web/public-micropython.js']});
+  server = createServer(async (request, response) => {
+    try {
+      const pathname = new URL(request.url, 'http://localhost').pathname;
+      if (!pathname.startsWith(basePath)) { response.writeHead(404).end(); return; }
+      const file = resolve(site, decodeURIComponent(pathname.slice(basePath.length)) || 'index.html');
+      if (!file.startsWith(site + '/')) { response.writeHead(403).end(); return; }
+      // Deliberately no isolation headers: exercise the exported Pages worker.
+      response.writeHead(200, {'content-type':mime[extname(file)] || 'application/octet-stream', 'cache-control':'no-cache'});
+      response.end(await readFile(file));
+    } catch { response.writeHead(404).end(); }
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const origin = `http://127.0.0.1:${server.address().port}${basePath}`; report.url = origin;
+  browser = await chromium.launch({headless:true,
+    ...(process.env.M5_WASM_CHROME ? {executablePath:process.env.M5_WASM_CHROME} : {}),
+    args:['--enable-webgl', '--use-gl=angle', '--use-angle=metal', '--ignore-gpu-blocklist']});
+  workers = await observeWorkerTargets(browser); report.browser = browser.version();
+  page = await browser.newPage({viewport:{width:1440, height:1100}});
+  await page.route(url => [8787, 8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname), route => route.abort('blockedbyclient'));
+  page.on('pageerror', error => errors.push(error.message)); page.on('request', request => requests.push(request.url()));
+  await page.goto(origin, {waitUntil:'domcontentloaded'});
+  await page.waitForFunction(() => crossOriginIsolated && document.querySelector('#deviceMount')?.dataset.deviceId === 'cores3', {}, {timeout:45000});
+  check('pages-service-worker-isolation', await page.evaluate(() => crossOriginIsolated && typeof SharedArrayBuffer === 'function'));
+  await page.evaluate(async ({origin, device}) => {
+    const {PublicQemuRuntime} = await import(new URL('platform/web/public-qemu-runtime.js', origin));
+    const start = PublicQemuRuntime.prototype.start;
+    PublicQemuRuntime.prototype.start = function(...args) {
+      if (args[0].device === device) globalThis.uiflowRuntime = this;
+      return start.apply(this, args);
+    };
+    const {ModelDeviceShell} = await import(new URL('platform/web/model-shell.js?v=20261026h', origin));
+    const create = ModelDeviceShell.create;
+    ModelDeviceShell.create = async function(...args) {
+      const shell = await create.apply(this, args);
+      if (args[1].id === device) globalThis.uiflowShell = shell;
+      return shell;
+    };
+    globalThis.uiflowExecutions = [];
+    const {PublicMicroPythonRunner} = await import(new URL('platform/web/public-micropython.js', origin));
+    const run = PublicMicroPythonRunner.prototype.run;
+    PublicMicroPythonRunner.prototype.run = async function(source, ...args) {
+      const record = {source, started_at:new Date().toISOString(), generation:this.runtime.generation, session_id:this.runtime.sessionId};
+      uiflowExecutions.push(record);
+      try { record.result = await run.call(this, source, ...args); return record.result; }
+      catch (error) { record.error = error.message; throw error; }
+      finally { record.finished_at = new Date().toISOString(); }
+    };
+  }, {origin, device});
+  await page.locator(`button[data-device-id="${device}"]`).click();
+  await page.waitForFunction(device => document.querySelector('#deviceMount')?.dataset.deviceId === device && globalThis.uiflowShell?.device.id === device, device, {timeout:45000});
+  report.renderer = await page.evaluate(() => { const gl = uiflowShell.viewer.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info'); return gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER); });
+  check('hardware-angle-renderer', !/swiftshader|software/i.test(report.renderer), report.renderer);
+  await page.locator('.advanced-options > summary').click();
+  await page.locator('#runtimeMode').selectOption('browser');
+  await page.locator('input[name="firmwareSource"][value="reference"]').check();
+  check('uiflow-is-default-firmware', await page.locator('#referenceExample').inputValue() === 'uiflow');
+  check('programming-startup-described-accurately', (await page.locator('#referenceDescription').textContent()).includes('网页编程启动脚本'));
+  const started = performance.now(); await page.locator('#startBtn').click();
+  const ready = await waitForGuest(state => state.status === 'running' && state.serial.includes('M5_UIFLOW_WORKBENCH_READY'), 'UIFlow programming boot');
+  report.click_to_ready_ms = performance.now() - started;
+  report.initial = await page.evaluate(() => uiflowRuntime.evidence());
+  report.session_id = report.initial.session_id; report.generation = await page.evaluate(() => uiflowRuntime.generation);
+  check('actual-programming-startup-marker', ready.serial.includes('M5_UIFLOW_WORKBENCH_READY'), {click_to_ready_ms:report.click_to_ready_ms, receipt:report.initial.receipt});
+  const registry = JSON.parse(await readFile(resolve(site, 'platform/web/uiflow-workbench-profiles.json')));
+  const expected = registry.profiles.find(row => row.deviceId === device);
+  check('exact-uiflow-firmware-and-ready-binding', report.initial.receipt.firmwareSha256 === expected.firmwareSHA256
+    && await page.evaluate(() => uiflowRuntime.profile.readyFirmwareSHA256) === expected.firmwareSHA256);
+  const utf8 = `M5_UTF8_${nonce}:你好，UIFlow 世界`;
+  await runProgram('utf8-print', `print(${JSON.stringify(utf8)})\n`, {stdout:utf8});
+  await runProgram('multiline-loop', `total = 0\nfor value in range(10):\n    total += value\nprint("M5_SUM_${nonce}", total)\n`, {stdout:`M5_SUM_${nonce} 45`});
+  if (!smokeOnly) {
+    await runProgram('long-utf8-source', `text = ${JSON.stringify('界'.repeat(1500))}\nprint("M5_LONG_${nonce}", len(text))\n`, {stdout:`M5_LONG_${nonce} 1500`});
+    await runProgram('syntax-error', 'if True print("invalid")\n', {stderr:'SyntaxError'});
+    await runProgram('runtime-error', `print("M5_BEFORE_ERROR_${nonce}")\nraise RuntimeError("M5_EXPECTED_ERROR_${nonce}")\n`, {stdout:`M5_BEFORE_ERROR_${nonce}`, stderr:`M5_EXPECTED_ERROR_${nonce}`});
+    await runProgram('file-import-recovery', `print("M5_IMPORTED_${nonce}")\n`, {stdout:`M5_IMPORTED_${nonce}`, upload:true});
+    const index = await page.evaluate(() => uiflowExecutions.length), source = `import time\nprint("M5_LOOP_${nonce}")\nwhile True:\n    time.sleep_ms(10)\n`;
+    await page.locator('#pythonSource').fill(source); await page.locator('#pythonRunBtn').click();
+    await waitForGuest(state => state.output.includes(`M5_LOOP_${nonce}`), 'infinite program output', 90000);
+    check('infinite-program-has-interrupt-control', await page.locator('#pythonInterruptBtn').isEnabled());
+    await page.locator('#pythonInterruptBtn').click();
+    const interrupted = await waitForGuest(state => state.executions[index]?.finished_at, 'infinite program interruption', 15000);
+    report.programs.push({name:'infinite-program-interrupt', source, source_sha256:hash(source), ...interrupted.executions[index], ui_output:interrupted.output});
+    check('guest-acknowledged-interruption', interrupted.executions[index].result?.interrupted === true
+      && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
+    await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
+    if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
+      const source = `import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("M5_RED_FRAME_${nonce}")\n`;
+      await runProgram('guest-display-output', source, {stdout:`M5_RED_FRAME_${nonce}`});
+      await page.waitForFunction(() => { const frame = uiflowRuntime.lastFrame; if (!frame) return false; let red = 0; for (let i = 0; i < frame.pixels.length; i += 2) if ((frame.pixels[i] | frame.pixels[i+1] << 8) === 0xf800) red++; return red > frame.width * frame.height * .95; }, {}, {timeout:30000});
+      report.frame = await page.evaluate(async () => { const frame = uiflowRuntime.lastFrame, digest = await crypto.subtle.digest('SHA-256', new Uint8Array(frame.pixels)); return {width:frame.width, height:frame.height, sequence:frame.sequence, sha256:[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2,'0')).join('')}; });
+      check('source-drew-actual-guest-framebuffer', report.frame.width > 0 && report.frame.height > 0, report.frame);
+    }
+  }
+  check('same-guest-through-all-programs', await page.evaluate(({session, generation}) => uiflowRuntime.sessionId === session && uiflowRuntime.generation === generation && !uiflowRuntime.machineEvents.some(row => row.event === 'RESET'), {session:report.session_id, generation:report.generation}));
+  await page.screenshot({path:resolve(output, 'workbench.png'), fullPage:true});
+  report.before_stop = await page.evaluate(() => uiflowRuntime.evidence());
+  await page.evaluate(() => { const frame = uiflowRuntime.iframe, remove = frame.remove; globalThis.deferredUIFlowRemoval = {frame, remove, requests:0}; frame.remove = () => { deferredUIFlowRemoval.requests++; }; });
+  await page.locator('#stopBtn').click();
+  await page.waitForFunction(() => uiflowRuntime.status === 'stopped', {}, {timeout:45000});
+  report.stopped = await page.evaluate(() => uiflowRuntime.evidence());
+  const cleanup = report.stopped.cleanup, minimum = cleanup.workersCreated + 1;
+  check('normal-guest-exit-no-forced-termination', cleanup.gracefulExit && cleanup.exitCode === 0 && cleanup.workersAtExit === 0
+    && cleanup.disposal?.workersRemaining === 0 && cleanup.disposal.workersTerminatedByDispose === 0
+    && cleanup.engineOwnership?.engineFallbackTerminations === 0, cleanup);
+  report.pthreads_closed = await workers.waitUntilOnly({minimumObserved:minimum, allowedUrlPart:'/public-qemu-engine.js', timeoutMs:30000});
+  check('pthreads-closed-before-iframe-removal', report.pthreads_closed.ok && await page.evaluate(() => deferredUIFlowRemoval.frame.isConnected && deferredUIFlowRemoval.requests === 1));
+  await page.evaluate(() => { deferredUIFlowRemoval.remove.call(deferredUIFlowRemoval.frame); delete globalThis.deferredUIFlowRemoval; });
+  report.all_workers_closed = await workers.waitUntilClosed({minimumObserved:minimum});
+  check('all-cdp-workers-closed-before-context', report.all_workers_closed.ok, report.all_workers_closed);
+  check('no-device-service-requests', !requests.some(url => /\/api\/v1|:8787\b|:8830\b/.test(url)));
+  check('no-page-errors', errors.length === 0, errors);
+  report.status = 'PASS';
+} catch (error) {
+  report.error = error.stack || error.message; process.exitCode = 1;
+  if (page) {
+    report.failure = await page.evaluate(() => ({evidence:globalThis.uiflowRuntime?.evidence(), executions:globalThis.uiflowExecutions,
+      python:document.querySelector('#pythonStatus')?.textContent, output:document.querySelector('#pythonOutput')?.textContent,
+      banner:document.querySelector('#errorBanner')?.textContent})).catch(() => null);
+    await page.screenshot({path:resolve(output, 'failure.png'), fullPage:true}).catch(() => {});
+    await page.evaluate(() => globalThis.uiflowRuntime?.stop()).catch(() => {});
+    await page.evaluate(() => { if (globalThis.deferredUIFlowRemoval) deferredUIFlowRemoval.remove.call(deferredUIFlowRemoval.frame); }).catch(() => {});
+    if (workers) report.failure_cleanup = await workers.waitUntilClosed({minimumObserved:1, timeoutMs:30000}).catch(() => null);
+  }
+} finally {
+  report.finished_at = new Date().toISOString();
+  await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
+  await workers?.detach(); await browser?.close(); if (server) await new Promise(resolve => server.close(resolve));
+  console.log(JSON.stringify({status:report.status, device, output, error:report.error || null, checks:checks.length}));
+}

@@ -146,7 +146,7 @@ async function start(config) {
         m.FS.registerDevice(dev, {
           open:stream => { stream.seekable = false; }, close:() => {},
           read:(stream,buffer,offset,length) => {
-            if (!uartInput.length) throw new m.FS.ErrnoError(6);
+            if (path!=='/bridge/uart.in'||!uartInput.length) throw new m.FS.ErrnoError(6);
             const count = Math.min(uartInput.length,length);
             for (let i=0;i<count;i++) buffer[offset+i] = uartInput.shift();
             return count;
@@ -157,10 +157,12 @@ async function start(config) {
             if(path==='/bridge/serial1'&&boardProfile.deviceId==='stackchan')return length;
             // Chromium rejects SharedArrayBuffer-backed TextDecoder input.
             // FS buffers can be the shared WASM heap: copy before decoding.
-            const text = serialDecoder.decode(buffer.slice(offset,offset+length), {stream:true});
+            const bytes=Uint8Array.from(buffer.subarray(offset,offset+length));
+            if(path==='/bridge/uart.out')emit('uart-bytes',bytes);
+            const text = serialDecoder.decode(bytes, {stream:true});
             serial = (serial + text).slice(-65536); emit('serial', text); return length;
           },
-          poll:() => 4 | (uartInput.length ? 1 : 0),
+          poll:() => 4 | (path==='/bridge/uart.in'&&uartInput.length ? 1 : 0),
           llseek:() => { throw new m.FS.ErrnoError(70); },
         });
         m.FS.mkdev(path,0o666,dev);
@@ -272,7 +274,15 @@ async function request(op, value) {
     if(command.readback)return {motion:await qmp(command.readback.execute,command.readback.arguments)};
     return result;
   }
-  if (op === 'uart') throw new Error('This offline profile supports UART output only');
+  if (op === 'uart') {
+    if(!boardProfile?.inputs.uart)throw new Error('UART input is not admitted');
+    const bytes=value?.bytes;
+    if(!Array.isArray(bytes)||bytes.length<1||bytes.length>1024
+      ||bytes.some(byte=>!Number.isInteger(byte)||byte<0||byte>255))throw new Error('Invalid UART bytes');
+    if(uartInput.length+bytes.length>65536)throw new Error('UART input queue is full');
+    uartInput.push(...bytes);
+    return {queued:bytes.length,transport:'esp-uart0'};
+  }
   throw new Error('Unsupported instance operation');
 }
 addEventListener('message', event => {

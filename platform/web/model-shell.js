@@ -19,6 +19,7 @@ const CONTROL_MAPS = {
   cores3: { power: 'power' },
   stopwatch: { a: 'a', b: 'b', power: 'power' },
   core2: { a: 'a', b: 'b', c: 'c', power: 'power' },
+  'cardputer-adv': { boot: 'boot' },
   stackchan: { power: 'power' },
   papermono: { key1: 'key1', key2: 'key2', power: 'power' },
   papercolor: { key1: 'key1', key2: 'key2', key3: 'key3', power: 'power' },
@@ -79,7 +80,7 @@ function node(tag, className, text) {
 export class ModelDeviceShell {
   static async create(host, device, options = {}) {
     const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions,
-      ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, ...options.modelOptions?.keymap}} : {}),
+      ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, F12:'boot', ...options.modelOptions?.keymap}} : {}),
     });
     try {
       return new ModelDeviceShell(host, device, model, options);

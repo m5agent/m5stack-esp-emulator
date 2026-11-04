@@ -350,6 +350,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `UI-02` | 进行中 | 扩展更多固定固件与长期稳定性，继续归因原始 StackChan 跳舞固件的 Core1 ROM 字面量启动异常及独立触摸证据缺口、官方 Factory 浏览器 WDT/异常、其它应用的 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化；分别验证 C6 RISC-V、P4 controller 数据面与 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC 及 StackChan 其它固件/运动模式边界 | 已满足前置：单一 C/QEMU 性能优化及精确固件正常时钟、新 producer 路径策略、完整本地固定示例门禁和应急 prepared-site 正式 HTTPS 更新已有独立证据；逐固件绑定 Flash/runtime/profile/input/frame，功能回归不等于逐板提速，native 或 compiled_profiles 不授浏览器/stock SDK PASS；hosted regular publication 的 engine CDP target 残留仍需定位并重新执行正式全板门禁，prepared 发布不关闭该缺口 |
+| `UI-03` | 进行中 | 逐设备排查浏览器启动速度和全部物理按键；默认官方 UIFlow2 运行时配网页编程启动脚本，加入 MicroPython 源码运行/中断/输出入口 | [设计](plans/2026-11-04-uiflow-browser-workbench-design.md)；先保留 Atom Matrix、StickC Plus 冷/暖启动基线，再逐板测量；新默认 Flash、输入、代码执行与 Worker 清场必须同会话绑定，全部浏览器准入设备验收后再授予完整覆盖，正式 HTTPS 独立验证 |
 | `UNIT-01` | 已完成（virtual-device） | 视觉主机接入与 Unit 数据面战役 2026-11-03 收口：9 host 接入 + 5 boundary-only/composition-only；Unit 160 = 158 implemented/partial + 2 DEFER（`mini-bps-v11`/`mini-pdm`）+ 25 c 类边界，184/184；canonical 41 层（0120–0161，41/41 replay），PR #80–#161。 仅 `UNIT-DEFER-01` 保留 2 项 DEFER 的关闭条件；其余历史 UNIT-HOST 问题与逐型号边界保留在证据/研究页 | 仅剩 2 项 DEFER；所有 implemented 均为限定 virtual-device 证据，物理 RF/光学/电气/声学/机械语义 NOT RUN；DEFER 关闭前不升 implemented |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频和摄像头虚拟设备边界明确 |
 

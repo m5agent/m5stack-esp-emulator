@@ -485,6 +485,18 @@ summary {
   font-size: 12px;
   text-align: left;
 }
+.python-workbench { margin-top: 24px; padding: 20px 24px 24px; border-top: 1px solid var(--m5-line); }
+.python-heading, .python-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.python-heading { justify-content: space-between; margin-bottom: 16px; }
+.python-heading h2 { margin: 0; font-size: 20px; }
+#pythonStatus { font-size: 13px; color: var(--m5-ink-muted); }
+.python-source { width: 100%; min-height: 220px; resize: vertical; tab-size: 4; font: 14px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.python-actions { margin: 12px 0; }
+.python-actions .primary-button { width: auto; margin-top: 0; }
+.python-file { cursor: pointer; position: relative; }
+.python-file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.python-file:focus-within { outline: 2px solid var(--m5-blue-deep); outline-offset: 4px; }
+.python-output { margin: 0; min-height: 90px; max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 16px; border-radius: 8px; background: var(--m5-surface-subtle); font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .console-drawer {
   border-top: 1px solid var(--m5-line);
 }

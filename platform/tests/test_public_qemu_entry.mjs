@@ -7,6 +7,8 @@ import {createHash} from 'node:crypto';
 import * as config from '../web/public-config.js';
 import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
+import * as uiflowFirmware from '../web/public-uiflow-firmware.js';
+import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
 import * as qemuServo from '../web/public-qemu-servo.js';
@@ -19,7 +21,7 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,15,'local-file hashing reuses the firmware module; no separate synchronous sha256Blob import is required');
+assert.equal(imports.length,17,'UIFlow composer and guest MicroPython runner join the existing firmware imports');
 assert.deepEqual(imports.filter(match=>match[2]==='./public-qemu-servo.js')
   .flatMap(match=>match[1].split(',').map(name=>name.trim())),
 ['qemuServoVisualCommands','qemuServoDiagnostic']);
@@ -27,6 +29,7 @@ assert.ok(source.endsWith('void init().catch(error);\n'));
 const body=source.replace(/^import \{[^}]+\} from '[^']+';\n/gm,'').replace(/void init\(\)\.catch\(error\);\n$/,'');
 const required=imports.flatMap(match=>match[1].split(',').map(name=>name.trim()));
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
+const workbenchRegistry=JSON.parse(await readFile(new URL('../web/uiflow-workbench-profiles.json',import.meta.url),'utf8'));
 const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',import.meta.url),'utf8'));
 // A candidate may precede native catalog admission; the real entry also merges
 // these hosts from the pinned visual catalog. Keep that boundary in this mock.
@@ -37,7 +40,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const element=(id)=>{
-    if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],
+    if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],
       listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},replaceChildren(){},append(){},focus(){},scrollIntoView(){},
       classList:{add(){},remove(){},toggle(){}}});
     return elements.get(id);
@@ -49,6 +52,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
       const match=selector.match(/\[value="([^"]+)"\]/);return match?radios.get(match[1]):null;},
     createElement:element,createTextNode:text=>({textContent:text})};
   const fetchFixture=async url=>{
+    if(url.endsWith('uiflow-workbench-profiles.json'))return new Response(JSON.stringify(workbenchRegistry));
     if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualCandidates}));
@@ -57,9 +61,11 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,qemuServo,{
+  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
+    PublicMicroPythonRunner,
+    loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
     getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
@@ -141,6 +147,9 @@ assert.ok(unavailable.events.includes('render-devices')&&unavailable.events.incl
 unavailable.element('runtimeMode').value='model';assert.equal(unavailable.lane(),'model');assert.match(unavailable.element('errorBanner').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
 
 const original=await entry();assert.equal(original.events.some(item=>item.startsWith('start:')),false);
+assert.equal(original.reference().composedWorkbench,true,'official UIFlow programming firmware is the default');
+assert.equal(original.reference().sha256,workbenchRegistry.profiles.find(row=>row.deviceId==='cores3').firmwareSHA256);
+original.element('referenceExample').value='stock-div8';
 original.element('runtimeMode').value='browser';await original.share();
 const share=new URL(original.clipboard[0]);
 assert.equal(share.searchParams.get('device'),'cores3');assert.equal(share.searchParams.get('sha256'),fixtureSha);
@@ -149,7 +158,7 @@ const reopened=await entry({search:share.search});
 assert.ok(reopened.events.includes('start:browser'),'an exact composed-reference SHA authorizes reference autostart');
 assert.equal(reopened.element('firmwareSha').value,fixtureSha);
 assert.equal(reopened.element('referenceExample').value,'stock-div8');
-const wallclock=await entry({wallclockExample:true});
+const wallclock=await entry({wallclockExample:true});wallclock.element('referenceExample').value='wallclock-candidate';
 assert.equal(wallclock.reference().sha256,wallclockSha);assert.equal(wallclock.reference().wallclockCandidate,true);
 wallclock.element('runtimeMode').value='browser';await wallclock.share();
 const wallclockLink=new URL(wallclock.clipboard[0]);assert.equal(wallclockLink.searchParams.get('sha256'),wallclockSha);
@@ -191,12 +200,14 @@ for(const search of [share.search+'&autostart=0',share.search.replace(fixtureSha
 for(const profile of registry.profiles){
   const app=await entry({publicationEligible:false,search:`?device=${profile.deviceId}&mode=browser&autostart=0`});
   assert.equal(app.browserProfile(profile.deviceId).board,profile.board);assert.equal(app.lane(),'browser');
-  assert.equal(app.browserProfile(profile.deviceId).inputs.uart,false);
+  assert.equal(app.browserProfile(profile.deviceId).inputs.uart,true);
   const controller=new PublicQemuRuntime({root:pageRoot,profiles:registry,allowCandidateProfiles:true});controller.profile=app.browserProfile(profile.deviceId);
   app.state.run={kind:'browser',generation:app.state.runGeneration,controller};app.status('running');
-  assert.equal(app.element('serialInput').disabled,true,'QEMU output-only UART cannot become a send UI');
+  assert.equal(app.element('serialInput').disabled,false,'an active UART-capable QEMU run exposes its real serial input');
   assert.equal(app.element('browserPirPanel').hidden,!profile.inputs.pir,'PIR controls must follow the selected actual profile');
   assert.equal(app.element('nativeScreenBtn').hidden,profile.display===null,'headless devices cannot offer a fabricated flat screen');
+  if(workbenchRegistry.profiles.some(row=>row.deviceId===profile.deviceId))assert.equal(app.reference().composedWorkbench,true);
+  app.element('referenceExample').value='probe';
   const reference=app.reference();
   if(['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile.fixture?.id)){
     assert.equal(reference.composedProbe,true);assert.equal(reference.sha256,profile.fixture.firmwareSHA256);

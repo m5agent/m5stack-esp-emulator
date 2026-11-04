@@ -251,7 +251,7 @@ class RuntimeDistributionTests(unittest.TestCase):
     def test_fixed_patch_order_and_runtime_source_boundary(self):
         native_count = self.lock["native_patch_count"]
         self.assertEqual(native_count, 47)
-        self.assertEqual(len(self.lock["patches"]), native_count + 25)
+        self.assertEqual(len(self.lock["patches"]), native_count + 26)
         self.assertEqual(len(self.lock["patched_files"]), 160)
         self.assertIn("tcg/tci.c", self.lock["patched_files"])
         self.assertIn("tcg/tci-wasm-call.h", self.lock["patched_files"])
@@ -260,7 +260,7 @@ class RuntimeDistributionTests(unittest.TestCase):
         self.assertTrue(self.lock["patches"][30]["path"].endswith("0064-esp32-intmatrix-pending-irq-remap.patch"))
         self.assertEqual([Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:native_count]], ["0096", "0097", "0098", "0099", "0100", "0014", "0101", "0102", "0103", "0087", "0104", "0105", "0106", "0107", "0108", "0109"])
         suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][native_count:]]
-        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027", "0028"])
+        self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027", "0028", "0029"])
         self.assertEqual(self.lock["patched_files"]["hw/misc/esp32s3_cache.c"],
                          "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a")
         self.assertEqual(self.lock["patched_files"]["util/coroutine-wasm.c"],

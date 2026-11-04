@@ -1,0 +1,34 @@
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index f22dc37..6fcf61a 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -648,7 +648,13 @@ static void m5_panel_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
+             fprintf(stderr, "[m5panel-input] qcode=%d down=%d\n", q, down);
+         }
+         if (s->keyboard) {
+-            m5_panel_keyboard_event(q, down);
++            /* F12 is a transport carrier for the separate G0 switch, not a
++             * TCA8418 matrix key. Only boards explicitly wired to GPIO0 opt in. */
++            if (q == Q_KEY_CODE_F12 && s->key_a_pin == 0) {
++                esp32_gpio_set_input(s->key_a_pin, !down);
++            } else {
++                m5_panel_keyboard_event(q, down);
++            }
+             break;
+         }
+         if (s->plc_keys) {
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index f7a98eb..eb6e3c6 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -143,6 +143,10 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+     qdev_prop_set_uint32(panel, "glass-rotation", 3);
+     qdev_prop_set_bit(panel, "apply-madctl", true);
++    /* The separate G0/Boot switch is active-low GPIO0. Its dedicated input
++     * must not enter the TCA8418 FIFO as the keyboard's letter A. */
++    qdev_prop_set_uint32(panel, "key-a-pin", 0);
++    esp32_gpio_set_input(0, true);
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);

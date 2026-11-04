@@ -33,6 +33,20 @@ assert.ok(runtimeControllers.every(id => manifest.controllers.includes(id)), 'A 
 // firmware/device profile into the Device Service catalog.
 const controllerDevices = manifest.controllers.map(id => catalog.devices.find(device => device.id === id) ||
   {id, name: products.find(product => product.id === id)?.name || id, hardware: {}, visual_only: true});
+// Physical controls beyond the first button have their own routes. In
+// particular, StickC Plus B/PWR and Core2's three touch areas must not silently
+// disappear while a first-button-only model smoke test remains green.
+const physicalControls = {
+  sticks3:{btnA:'a',btnB:'b',btnPWR:'p'}, cores3:{power:'p'}, 'cardputer-adv':{boot:'boot'},
+  stopwatch:{a:'a',b:'b',power:'p'}, core2:{a:'a',b:'b',c:'c',power:'p'},
+  stackchan:{power:'p'}, papermono:{key1:'a',key2:'b',power:'p'},
+  papercolor:{key1:'a',key2:'b',key3:'c',power:'p'}, nanoc6:{button:'a'},
+  atoms3:{button:'a'}, 'atoms3-lite':{button:'a'}, atoms3r:{button:'a'},
+  'atom-lite':{button:'a'}, 'atom-matrix':{button:'a'}, 'atom-matrix-v11':{button:'a'},
+  stickc:{a:'a',b:'b',power:'p'}, 'stickc-plus':{a:'a',b:'b',power:'p'},
+  'stickc-plus2':{a:'a',b:'b',power:'p'}, 'stickc-plus-se':{a:'a',b:'b',power:'p'},
+  dial:{wake:'a'}, stamplc:{a:'a',b:'b',c:'c'},
+};
 const modelCases = [...controllerDevices.map(device => ({kind: 'controller', id: device.id})), ...manifest.units.map(id => ({kind: 'unit', id})),
   ...[...manifest.controllers, ...manifest.units].map(id => ({kind: 'preview', id}))]
   .map(test => ({...test, key: `${test.kind}:${test.id}`, configuration: 'default', options: {}}));
@@ -172,7 +186,7 @@ try {
     if (index % settings.batchSize === 0) await openPage(`controllers-${Math.floor(index / settings.batchSize)}`);
     activeLabel = test.key;
     const device = controllerDevices.find(device => device.id === test.id);
-    const result = await evaluate(async ({device, options, expectedMinimum}) => {
+    const result = await evaluate(async ({device, options, expectedMinimum, expectedControls}) => {
       window.modelProbe.disposeShell();
       const { createDeviceShell } = await import('/platform/web/device-shell-factory.js');
       const shell = await createDeviceShell(document.querySelector('#host'), device, { live: true, modelOptions: options });
@@ -210,6 +224,30 @@ try {
       }
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
       if (button) { button.press('integration-probe'); button.release('integration-probe'); }
+      const allPhysicalControls=[];
+      for(const [id,qcode] of Object.entries(expectedControls||{})){
+        const component=shell.model.find(id,'button');
+        if(!component)throw new Error(`Missing physical control ${device.id}/${id}`);
+        const start=controls.length;
+        component.press('pointer:button-contract');
+        component.press('key:button-contract');
+        component.release('pointer:button-contract');
+        const heldEvents=controls.slice(start).map(event=>[event.key,event.down]);
+        component.release('key:button-contract');
+        const mixedEvents=controls.splice(start).map(event=>[event.key,event.down]);
+        const aliases=Object.entries(shell.model.keymap).filter(([,path])=>path===id).map(([code])=>code);
+        let keyboardEvents=null;
+        if(aliases.length){
+          const canvas=shell.viewer.renderer.domElement,key=aliases[0];
+          canvas.focus();
+          canvas.dispatchEvent(new KeyboardEvent('keydown',{code:key,key,bubbles:true}));
+          canvas.dispatchEvent(new KeyboardEvent('keydown',{code:key,key,bubbles:true,repeat:true}));
+          const field=document.createElement('textarea');document.body.append(field);field.focus();
+          field.dispatchEvent(new KeyboardEvent('keyup',{code:key,key,bubbles:true}));field.remove();
+          keyboardEvents=controls.splice(start).map(event=>[event.key,event.down]);
+        }
+        allPhysicalControls.push({id,qcode,aliases,heldEvents,mixedEvents,keyboardEvents});
+      }
       const physicalAliases=[];
       if(device.id==='cardputer-adv'){
         const {CARDPUTER_ADV_KEYS}=await import('/platform/web/cardputer-adv-keymap.js');
@@ -269,10 +307,10 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, physicalAliases, pcAliases, chords, touches, resets, presentationRotation,
+        frame, controls, allPhysicalControls, physicalAliases, pcAliases, chords, touches, resets, presentationRotation,
         ownership, outputs, artwork, outputEcho: raw.length - before,
       };
-    }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
+    }, {device, options: test.options, expectedMinimum: expectedArtwork(test), expectedControls:physicalControls[device.id]});
     assert.equal(result.source, 'm5stack-models', `${device.id} fell back to the old renderer`);
     if (result.frame) {
       assert.deepEqual(result.frame.pixel, [255, 0, 0], `${device.id} RGB565 mapping`);
@@ -282,6 +320,12 @@ try {
       assert.equal(result.frame.littleEndianSequence, 9);
     }
     assert.equal(result.outputEcho, 0, `${device.id} output echoed as input`);
+    for(const item of result.allPhysicalControls){
+      assert.deepEqual(item.heldEvents,[[item.qcode,true]],`${device.id}/${item.id} remains held by its second source`);
+      assert.deepEqual(item.mixedEvents,[[item.qcode,true],[item.qcode,false]],`${device.id}/${item.id} final matching release`);
+      if(item.keyboardEvents)assert.deepEqual(item.keyboardEvents,[[item.qcode,true],[item.qcode,false]],
+        `${device.id}/${item.id} focused keyboard repeat and blur release`);
+    }
     assert.deepEqual(result.presentationRotation,
       {initial:0,applied:true,portrait:270,reset:true}, `${device.id} presentation rotation`);
     if (device.hardware.display?.touch) {
@@ -289,7 +333,9 @@ try {
     }
     const firstKeys = { sticks3: 'a', cores3: 'p', stopwatch: 'a', 'cardputer-adv': 'grave_accent',
       'cardputer-zero': 'f1', papermono: 'a', core2: 'a', papercolor: 'a',
-      nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a', stickc:'a', 'stickc-plus-se':'a' };
+      nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a', stickc:'a', 'stickc-plus-se':'a',
+      atoms3:'a', 'atoms3-lite':'a', 'atom-lite':'a', 'atom-matrix':'a', 'atom-matrix-v11':'a',
+      'stickc-plus':'a', 'stickc-plus2':'a', dial:'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if(device.id==='cardputer-adv'){
       const matrix=result.physicalAliases.filter(row=>Number.isInteger(row.row));

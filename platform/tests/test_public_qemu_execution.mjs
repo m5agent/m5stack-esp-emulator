@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import {validateQemuProfile,validateQemuRuntimeRequirements,resolveQemuFirmwareProfile,clearQemuFirmwareExecutionBinding,
-  buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+  buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url)));
 const base=getQemuBrowserProfile('stackchan',registry), firmwareSHA256='a'.repeat(64);
@@ -51,6 +51,23 @@ for(const manifest of [{},{source:{}},{source:{patches:{}}},{source:{patches:[]}
 ])assert.throws(()=>validateQemuRuntimeRequirements(resolved,manifest),/required source patch/);
 assert.equal(validateQemuRuntimeRequirements(resolved,compatible),resolved);
 assert.equal(validateQemuRuntimeRequirements(base,{}),base,'ordinary profiles remain compatible with older manifests');
+
+// A G0 carrier is admitted only with the exact compiled GPIO0/FIFO-separation patch.
+const cardputerBoot=getQemuBrowserProfile('cardputer-adv',registry);
+assert.equal(qemuInputCommand(cardputerBoot,{type:'button',id:'boot',down:true}).arguments.events[0].data.key.data,'f12');
+assert.equal(cardputerBoot.inputs.keyboard.includes('f12'),false,'G0 is separate from the 56-key matrix');
+for(const manifest of [{},{source:{patches:[]}},
+  {source:{patches:[{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,sha256:'0'.repeat(64)}]}},
+  {source:{patches:[{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH},{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH}]}},
+])assert.throws(()=>validateQemuRuntimeRequirements(cardputerBoot,manifest),/physical input required source patch/);
+assert.equal(validateQemuRuntimeRequirements(cardputerBoot,{source:{patches:[{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH}]}}),cardputerBoot);
+for(const mutate of [p=>delete p.requiredInputPatch,p=>p.requiredInputPatch.sha256='0'.repeat(64),
+  p=>p.requiredInputPatch.path='../unknown.patch',p=>p.requiredInputPatch.extra=true,
+  p=>p.inputs.buttons.boot='a',p=>delete p.inputs.buttons.boot,p=>p.inputs.keyboard.push('f12')]){
+  const bad=structuredClone(cardputerBoot);mutate(bad);assert.throws(()=>validateQemuProfile(bad),/physical input patch binding/);
+}
+const foreignInputPatch=structuredClone(base);foreignInputPatch.requiredInputPatch={...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH};
+assert.throws(()=>validateQemuProfile(foreignInputPatch),/physical input patch binding/);
 
 // Published BINs identify their original artifact, never claim matching source
 // code or an application-ready log. Only these complete Flash/device pairs opt in.
@@ -131,6 +148,8 @@ assert.deepEqual(Array.from(allowed.snapshot().arguments),buildQemuArguments(res
 assert.equal(allowed.snapshot().env.M5_WASM_VM_CLOCK_DIVISOR,'1');
 assert.equal(Object.hasOwn(allowed.snapshot().env,'M5_QEMU_WASM_JIT'),false,'the shipped engine does not select a second CPU implementation');
 await assert.rejects(engine().start(config(resolved,[])),/required source patch/,'engine independently rejects an old runtime manifest');
+await assert.rejects(engine().start(config(cardputerBoot,[])),/physical input required source patch/,'engine independently rejects a runtime without the G0 GPIO0 route');
+const bootEngine=engine();await bootEngine.start(config(cardputerBoot,[{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH}]));
 const ordinary=engine();await ordinary.start(config(base,undefined));
 assert.deepEqual(Array.from(ordinary.snapshot().arguments),buildQemuArguments(base));
 assert.equal(ordinary.snapshot().arguments.includes('-accel'),false);

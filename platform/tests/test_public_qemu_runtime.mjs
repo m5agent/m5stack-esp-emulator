@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
-import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {sha256Bytes} from '../web/sha256.js';
 
 const root='https://example.test/showcase/';
@@ -10,7 +10,7 @@ const profiles=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.j
 const coreProfile=getQemuBrowserProfile('cores3',profiles);
 const roms=new Map(profiles.profiles.flatMap(profile=>profile.roms).map(rom=>[rom.url,rom]));
 const romSha='b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913';
-const manifest={schema_version:1,engine:'qemu-wasm',source:{commit:'40edccac415693c5130f91c01d84176ae6008566'},profiles:['cores3'],compiled_profiles:profiles.profiles.map(profile=>profile.deviceId),execution_profile:{id:'cores3-wasm-vm-div8'},build:{kind:'contract-fixture'},
+const manifest={schema_version:1,engine:'qemu-wasm',source:{commit:'40edccac415693c5130f91c01d84176ae6008566',patches:[{...QEMU_CARDPUTER_BOOT_RUNTIME_PATCH}]},profiles:['cores3'],compiled_profiles:profiles.profiles.map(profile=>profile.deviceId),execution_profile:{id:'cores3-wasm-vm-div8'},build:{kind:'contract-fixture'},
   assets:{javascript:{path:'qemu-system-xtensa.js',sha256:'1'.repeat(64),bytes:8},wasm:{path:'qemu-system-xtensa.wasm',sha256:'2'.repeat(64),bytes:8},worker:{path:'qemu-system-xtensa.worker.js',sha256:'3'.repeat(64),bytes:8}},
   required_rom:{url:'https://example.test/rom.bin',sha256:romSha,bytes:393216}};
 function firmware(profile=coreProfile){const bytes=new Uint8Array(0x10100),view=new DataView(bytes.buffer);for(const at of [profile.bootloaderOffset,0x10000]){bytes[at]=0xe9;bytes[at+1]=1;view.setUint16(at+12,profile.imageChipId,true);view.setUint32(at+28,4,true);}view.setUint16(0x8000,0x50aa,true);view.setUint32(0x8004,0x10000,true);view.setUint32(0x8008,0x1000,true);return bytes.buffer;}
@@ -76,6 +76,13 @@ try {
   assert.ok(normal.downloads.every(row=>row.signal instanceof AbortSignal&&typeof row.fetchImpl==='function'));
   assert.equal((await normal.runtime.input({type:'pir',motion:true})).result.motion,true);
   await normal.runtime.input({type:'touch',x:160,y:184,down:true});
+  const raw=[];const unsubscribe=normal.runtime.subscribeUart(bytes=>raw.push(Array.from(bytes)));
+  normal.runtime.receive({type:'uart-bytes',value:new Uint8Array([82,1,128,0])},normal.runtime.generation);
+  normal.runtime.receive({type:'uart-bytes',value:new Uint8Array([99])},normal.runtime.generation-1);
+  unsubscribe();assert.deepEqual(raw,[[82,1,128,0]],'raw bytes preserve binary protocol and reject stale generations');
+  await normal.runtime.writeUart(new Uint8Array([3,1]));
+  assert.deepEqual(frames.at(-1).calls.at(-1).value,{bytes:[3,1]});
+  await assert.rejects(normal.runtime.writeUart(new Uint8Array(1025)),/1024/);
   const beforeUart=frames.at(-1).calls.length;await assert.rejects(normal.runtime.input({type:'uart',text:'hello\n'}),/not admitted/);assert.equal(frames.at(-1).calls.length,beforeUart,'unadmitted UART cannot cross the private port');
   await assert.rejects(normal.runtime.input({type:'touch',x:320,y:1,down:true}));await assert.rejects(normal.runtime.input({type:'uart',text:'a'.repeat(129)}));
   await normal.runtime.pause();assert.equal(normal.runtime.status,'paused');await normal.runtime.input({type:'touch',x:160,y:184,down:false});
@@ -90,6 +97,13 @@ try {
     await assert.rejects(removed.runtime.start({device:'cores3',firmware:firmware(),...extra}),/Unsupported QEMU execution option/);
     assert.equal(removed.downloads.length,0,'removed/unbound execution options fail before resource loading');
   }
+
+  const oldInputFrameCount=frames.length;
+  const oldInputRuntime=create({fetchImpl:async()=>new Response(JSON.stringify({...manifest,source:{...manifest.source,patches:[]}}))});
+  await assert.rejects(oldInputRuntime.runtime.start({device:'cardputer-adv',firmware:firmware(getQemuBrowserProfile('cardputer-adv',profiles))}),
+    /physical input required source patch/);
+  assert.equal(oldInputRuntime.downloads.length,0,'an old G0 runtime fails before downloading executable or ROM assets');
+  assert.equal(frames.length,oldInputFrameCount,'an old G0 runtime cannot create a guest iframe');
 
   for(const device of ['papercolor','papermono','cardputer-adv']){
     const profile=getQemuBrowserProfile(device,profiles),panel=create();
@@ -295,7 +309,7 @@ try {
   const candidateProfiles=structuredClone(profiles);candidateProfiles.profiles.find(profile=>profile.deviceId==='core2').admission='candidate';
   const candidate=create({profiles:candidateProfiles,allowCandidateProfiles:true});await candidate.runtime.start({device:'core2',firmware:firmware(core2)});
   assert.equal(candidate.runtime.receipt.roms.length,2);assert.equal(candidate.runtime.receipt.deviceId,'core2');
-  await candidate.runtime.input({type:'touch',x:160,y:184,down:true});await assert.rejects(candidate.runtime.input({type:'button',id:'a',down:true}),/not admitted/);await assert.rejects(candidate.runtime.input({type:'pir',motion:true}));await candidate.runtime.stop();
+  await candidate.runtime.input({type:'touch',x:160,y:184,down:true});await candidate.runtime.input({type:'button',id:'a',down:true});await candidate.runtime.input({type:'button',id:'a',down:false});await assert.rejects(candidate.runtime.input({type:'pir',motion:true}));await candidate.runtime.stop();
   const unadmitted=create({profiles:candidateProfiles});await assert.rejects(unadmitted.runtime.start({device:'core2',firmware:firmware(core2)}),/准入/);assert.equal(unadmitted.downloads.length,0);
 
   options={};const headlessProfile=getQemuBrowserProfile('atoms3-lite',profiles,{allowCandidateProfiles:true});

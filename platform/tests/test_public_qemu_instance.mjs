@@ -25,7 +25,7 @@ class TestURL extends URL {
 }
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
-const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
+const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
   self:{postMessage:value=>lifecycle.push(value.type),close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -40,7 +40,7 @@ for(const event of [{data:{type:'other'},ports:[one]},
 assert.equal(one.started,undefined);
 connect({data:{type:'m5-qemu-engine-connect'},ports:[one]});assert.equal(one.started,true);assert.equal(one.messages[0].type,'connected');
 const two=port();connect({data:{type:'m5-qemu-engine-connect'},ports:[two]});assert.equal(two.started,undefined,'a second connection cannot replace the private port');
-await one.onmessage({data:{id:1,op:'uart',value:{text:'contract'}}});assert.match(one.messages.at(-1).error,/UART output only/);
+await one.onmessage({data:{id:1,op:'uart',value:{text:'contract'}}});assert.match(one.messages.at(-1).error,/UART input is not admitted/);
 // A JS-only factory exposes the actual preRun FS devices without importing
 // Emscripten or any guest. Exercise the real UART write and PPM parser together.
 const fakeFactory=`export default async function(options){
@@ -93,6 +93,17 @@ vm.runInContext(`
   module.FS.devices[0].write(null,serialBytes,2,1);
 `,context);
 assert.equal(one.messages.filter(item=>item.type==='serial').map(item=>item.value).join(''),'中','frame parsing cannot consume a pending UART UTF-8 sequence');
+await one.onmessage({data:{id:101,op:'uart',value:{bytes:[3,1,0xc3,0xa9]}}});
+assert.equal(one.messages.at(-1).value.queued,4);
+assert.equal(commands().length,0,'UART bytes use the C UART data plane, never QMP input commands');
+assert.throws(()=>vm.runInContext('module.FS.devices[2].read(null,new Uint8Array(4),0,4)',context),'UART1 cannot consume UART0 code');
+assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify((()=>{const out=new Uint8Array(4);module.FS.devices[0].read(null,out,0,4);return Array.from(out);})())',context)),[3,1,0xc3,0xa9]);
+assert.throws(()=>vm.runInContext('module.FS.devices[0].read(null,new Uint8Array(1),0,1)',context),'empty UART reads are EAGAIN, not EOF');
+for(const bytes of [[],[256],[-1],[1.5],Array(1025).fill(1)]){
+  await one.onmessage({data:{id:102,op:'uart',value:{bytes}}});assert.match(one.messages.at(-1).error,/Invalid UART bytes/);
+}
+vm.runInContext('module.FS.devices[1].write(null,new Int8Array([0x52,1,-128,0]),0,4)',context);
+assert.deepEqual(Array.from(one.messages.filter(item=>item.type==='uart-bytes').at(-1).value),[0x52,1,0x80,0],'raw-paste control bytes are binary, independent of UTF-8 log decoding');
 await one.onmessage({data:{id:10,op:'input',value:{type:'uart',text:'unadmitted'}}});assert.match(one.messages.at(-1).error,/not admitted/);assert.equal(commands().length,0,'UART rejection cannot enqueue a QMP command');
 const touch=one.onmessage({data:{id:11,op:'input',value:{type:'touch',x:319,y:239,down:true}}});
 const touchCommands=commands();assert.equal(touchCommands.length,1);assert.equal(touchCommands[0].execute,'input-send-event');
@@ -204,7 +215,7 @@ const raceCallbacks=new Map(),raceLifecycle=[],raceUnhandled=[];
 const onRaceUnhandled=error=>raceUnhandled.push(error);
 process.on('unhandledRejection',onRaceUnhandled);
 try {
-  const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
+  const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
     validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},

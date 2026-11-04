@@ -26,6 +26,27 @@ validateQemuBrowserProfiles(registry);
 const sortedRegistry=JSON.parse(JSON.stringify(registry,(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value));
 validateQemuBrowserProfiles(sortedRegistry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
+// Board-wired physical controls must survive admission through both press and
+// release. These are independent board expectations, not a list inferred from
+// whichever controls happen to remain enabled in the registry under test.
+const physicalButtonCodes = {
+  stopwatch:{a:'a',b:'b',power:'p'}, sticks3:{a:'a',b:'b',power:'p'},
+  atoms3:{button:'a'}, 'atoms3-lite':{button:'a'}, atoms3r:{button:'a'},
+  cores3:{power:'p'}, 'cardputer-adv':{boot:'f12'}, stamplc:{key1:'a',key2:'b',key3:'c'},
+  stackchan:{power:'p'}, papercolor:{key1:'a',key2:'b',key3:'c',power:'p'},
+  papermono:{key1:'a',key2:'b',power:'p'}, core2:{a:'a',b:'b',c:'c',power:'p'},
+  'stickc-plus2':{a:'a',b:'b',power:'p'}, dial:{wake:'a'}, stickc:{a:'a',b:'b',power:'p'},
+  'stickc-plus':{a:'a',b:'b',power:'p'}, 'stickc-plus-se':{a:'a',b:'b',power:'p'},
+  'atom-lite':{button:'a'}, 'atom-matrix':{button:'a'}, 'atom-matrix-v11':{button:'a'},
+};
+assert.deepEqual(Object.keys(physicalButtonCodes).sort(),registry.profiles.map(profile=>profile.deviceId).sort(),
+  'Every browser profile has an explicit physical-button expectation, including keyboard-only boards');
+for(const [deviceId,buttons] of Object.entries(physicalButtonCodes))for(const [id,qcode] of Object.entries(buttons)){
+  const profile=pick(deviceId);
+  for(const down of [true,false])assert.deepEqual(qemuInputCommand(profile,{type:'button',id,down}),
+    {execute:'input-send-event',arguments:{events:[{type:'key',data:{down,key:{type:'qcode',data:qcode}}}]}},
+    `${deviceId} physical ${id} must admit ${down?'press':'release'} through its board controller`);
+}
 assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
