@@ -8,6 +8,7 @@ import {createHash, randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance, QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
 import {stopwatchRedCircleOracle} from './public_qemu_stopwatch_frame_oracle.mjs';
+import {papercolorRedFrameOracle} from './public_qemu_papercolor_frame_oracle.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const site = process.env.M5_PUBLIC_SITE && resolve(process.env.M5_PUBLIC_SITE);
@@ -52,9 +53,11 @@ async function waitForGuest(predicate, description, timeout = readyTimeout) {
   }
 }
 
-async function runProgram(name, source, {stdout, stderr, upload = false} = {}) {
+async function runProgram(name, source, {stdout, stderr, upload = false, preserveEditor = false} = {}) {
   const index = await page.evaluate(() => uiflowExecutions.length);
-  if (upload) {
+  if (preserveEditor) {
+    assert.equal(await page.locator('#pythonSource').inputValue(),source,'the untouched editor must retain its original source');
+  } else if (upload) {
     await page.locator('#pythonFile').setInputFiles({name:'program.py', mimeType:'text/x-python', buffer:Buffer.from(source)});
     await page.waitForFunction(source => document.querySelector('#pythonSource').value === source, source);
   } else await page.locator('#pythonSource').fill(source);
@@ -142,6 +145,11 @@ try {
   const expected = registry.profiles.find(row => row.deviceId === device);
   check('exact-uiflow-firmware-and-ready-binding', report.initial.receipt.firmwareSha256 === expected.firmwareSHA256
     && await page.evaluate(() => uiflowRuntime.profile.readyFirmwareSHA256) === expected.firmwareSHA256);
+  const initialEditorSource='import M5\nM5.begin()\nprint("Hello, UIFlow!")\n';
+  report.initial_editor_source={source:await page.locator('#pythonSource').inputValue(),expected_sha256:hash(initialEditorSource)};
+  check('untouched-default-editor-source',report.initial_editor_source.source===initialEditorSource,report.initial_editor_source);
+  await runProgram('default-editor-first-run',initialEditorSource,{stdout:'Hello, UIFlow!',preserveEditor:true});
+  await runProgram('default-editor-repeat-run',initialEditorSource,{stdout:'Hello, UIFlow!',preserveEditor:true});
   const utf8 = `M5_UTF8_${nonce}:你好，UIFlow 世界`;
   await runProgram('utf8-print', `print(${JSON.stringify(utf8)})\n`, {stdout:utf8});
   await runProgram('multiline-loop', `total = 0\nfor value in range(10):\n    total += value\nprint("M5_SUM_${nonce}", total)\n`, {stdout:`M5_SUM_${nonce} 45`});
@@ -170,13 +178,16 @@ try {
       && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
     await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
     if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
-      const mono=device==='papermono',stopwatch=device==='stopwatch',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+      const mono=device==='papermono',stopwatch=device==='stopwatch',papercolor=device==='papercolor',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+      const beforeFrame=papercolor?await page.evaluate(()=>({afterSequence:uiflowRuntime.lastFrame?.sequence??0,
+        afterSourceSequence:uiflowRuntime.lastFrame?.sourceSequence??0})):null;
       // Original PaperMono SDK API: outermost endWrite flushes the real EPD.
       const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (480, 800) or not d.isEPD():\n    raise RuntimeError("PaperMono EPD dimensions mismatch")\nd.setEpdMode(d.EPDMode.EPD_QUALITY)\nd.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
         :stopwatch?`import M5\nd = M5.Display\nd.setRotation(0)\nd.setBrightness(255)\nwidth, height = d.width(), d.height()\nif (width, height) != (468, 468) or d.getBrightness() != 255:\n    raise RuntimeError("StopWatch logical display or brightness mismatch")\nd.fillScreen(0xFF0000)\nprint("${marker}", width, height, d.getBrightness())\n`
         :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
       await runProgram('guest-display-output', source, {stdout:marker});
       if(stopwatch)await page.waitForFunction(stopwatchRedCircleOracle,{}, {timeout:30000,polling:250});
+      else if(papercolor)await page.waitForFunction(papercolorRedFrameOracle,beforeFrame,{timeout:30000,polling:250});
       else await page.waitForFunction(mono=>{
         const frame=uiflowRuntime.lastFrame;if(!frame)return false;
         if(mono){
@@ -190,13 +201,31 @@ try {
         let red=0;for(let i=0;i<frame.pixels.length;i+=2)if((frame.pixels[i]|frame.pixels[i+1]<<8)===0xf800)red++;
         return red>frame.width*frame.height*.95;
       },mono,{timeout:30000,polling:250});
-      report.frame=await page.evaluate(async mono=>{
+      if(!papercolor)report.frame=await page.evaluate(async ({mono,redColor})=>{
         const frame=uiflowRuntime.lastFrame,digest=await crypto.subtle.digest('SHA-256',new Uint8Array(frame.pixels));
-        let black=0,white=0,red=0;for(let i=0;i<frame.pixels.length;i+=2){const value=frame.pixels[i]|frame.pixels[i+1]<<8;black+=value===0;white+=value===0xffff;red+=value===0xf800;}
+        let black=0,white=0,red=0;for(let i=0;i<frame.pixels.length;i+=2){const value=frame.pixels[i]|frame.pixels[i+1]<<8;black+=value===0;white+=value===0xffff;red+=value===redColor;}
         return {width:frame.width,height:frame.height,sequence:frame.sequence,pattern:mono?'mono-half-black-white-v1':'red-fill',
           pixels:frame.width*frame.height,black_pixels:black,white_pixels:white,red_pixels:red,
+          ...(mono?{}:{expected_red_rgb565:redColor}),
           sha256:[...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('')};
-      },mono);
+      },{mono,redColor:papercolor?0xb800:0xf800});
+      if(papercolor){
+        // One immutable actual snapshot binds pixels, hash and oracle to the
+        // same display/source sequence; it never writes guest or host pixels.
+        const observed=await page.evaluate(()=>{const frame=uiflowRuntime.lastFrame;
+          return {...frame,pixels:Array.from(frame.pixels)};});
+        let black=0,white=0,red=0;
+        for(let at=0;at<observed.pixels.length;at+=2){const value=observed.pixels[at]|observed.pixels[at+1]<<8;
+          black+=value===0;white+=value===0xffff;red+=value===0xb800;}
+        report.frame={width:observed.width,height:observed.height,sequence:observed.sequence,
+          source_sequence:observed.sourceSequence,pattern:'papercolor-spectra6-red-v1',
+          pixels:observed.width*observed.height,black_pixels:black,white_pixels:white,red_pixels:red,
+          expected_red_rgb565:0xb800,sha256:hash(Uint8Array.from(observed.pixels)),before_draw:beforeFrame,
+          oracle:papercolorRedFrameOracle({frame:observed,...beforeFrame,summary:true})};
+        report.frame.oracle_source={path:'platform/tests/public_qemu_papercolor_frame_oracle.mjs',
+          sha256:hash(await readFile(resolve(repo,'platform/tests/public_qemu_papercolor_frame_oracle.mjs')))};
+        check('papercolor-exact-spectra6-red-and-fresh-frame',report.frame.oracle.matches,report.frame.oracle);
+      }
       if(stopwatch){
         report.frame.pattern='stopwatch-round-red-brightness255-v1';
         report.frame.oracle=await page.evaluate(stopwatchRedCircleOracle,{summary:true});
