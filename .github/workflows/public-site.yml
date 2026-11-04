@@ -35,7 +35,7 @@ jobs:
     # macOS runner rather than slowing the deployed profiles or weakening the
     # guest assertions.
     runs-on: macos-14
-    # Default admission now runs 58 sequential guest cases (at least 77 boots,
+    # Default admission now runs 60 sequential guest cases (at least 79 boots,
     # including editor hardware resets) beside the fresh source build/setup.
     # The old 90-minute ceiling left no margin at a 60-second boot budget;
     # this is a job limit, not a startup-performance guarantee.

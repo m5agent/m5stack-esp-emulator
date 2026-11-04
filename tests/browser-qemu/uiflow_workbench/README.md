@@ -75,19 +75,31 @@ node platform/tests/test_public_qemu_admitted_boards.mjs
 For each public board it runs the full editor first and the keyboard/pointer
 button observer next. Atom Matrix, StickC Plus, Cardputer-ADV G0 and CoreS3
 come first; the other boards follow the exported registry. It then runs the
-independent fixed examples. The current registry plans 19 editor + 19 button
-+ 20 fixed cases; these are planned cases, not guest PASS results. A new public
+independent fixed examples. Cardputer-ADV also runs the separate original-IRQ
+[56-key keyboard case](README.cardputer-keyboard.md), and StackChan runs the
+[three body-touch regions](../stackchan_body_touch/README.md) after its PMIC
+button case. The current registry plans **60 cases**: 19 editor + 19 button
++ 1 full keyboard + 1 body touch + 20 fixed. These are planned cases, not guest
+PASS results. A new public
 board without its own workbench identity, compiled runtime or button case fails
 preflight. Candidate boards cannot inherit admission.
 
 Outputs live in separate `uiflow-editor/<device>`, `uiflow-buttons/<device>` and
-`fixed/<device>[-example]` directories below a new ignored output root. The
+`fixed/<device>[-example]` directories below a new ignored output root; the two
+additional input lanes use `cardputer-keyboard/cardputer-adv` and
+`stackchan-body-touch/stackchan`. The
 bounded gate report records each child status and report/source SHA, and stops
 at the first failure. It clears inherited smoke-only, remote URL, upload,
 clock-override and frame-diagnostic options, pins button pulses to 250 ms, and
 uses the same explicit Chrome executable for every runner. It
 requires the exact default workbench Flash, WASM and export identity for the
-two UIFlow lanes. Raw child reports and screenshots remain separate.
+four UIFlow lanes, and binds every child report to its actual control-script
+path/SHA. The full keyboard child explicitly receives
+`M5_CARDPUTER_KEYBOARD_IRQ=1`; the gate clears that opt-in for other lanes.
+Raw child reports and screenshots remain separate. Cleanup scope follows each
+actual runner: the full keyboard case observes normal exit and all Workers
+before context closure; it does not claim a nested-worker fence while an
+iframe is held.
 
 For diagnosis, `M5_QEMU_GATE_PHASE` accepts only `all` (default), `uiflow`,
 `editor`, `buttons` or `fixed`; `M5_QEMU_GATE_DEVICES` accepts an explicit
@@ -95,7 +107,7 @@ comma-separated public-device subset. Such a reduced run reports
 `DIAGNOSTIC_PASS` with `publication_eligible=false`, never full publication PASS.
 The workflow sets `M5_QEMU_GATE_REQUIRE_ALL=1`, which rejects reduced selections
 before starting a guest. Its 240-minute ceiling includes source build/setup and
-the sequential matrix, including at least 77 boots for the current full plan;
+the sequential matrix, including at least 79 boots for the current full plan;
 it is not a measured startup guarantee. Actual guest execution is still required.
 
 Source transfer preserves ordinary tabs/newlines/CR/form-feed and backslash

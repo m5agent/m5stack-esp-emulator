@@ -7,7 +7,7 @@ import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, resolveUIF
   UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
 import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements,
   QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
-import {planPublicQemuGate, publicQemuGateChildEnvironment, PUBLIC_QEMU_GATE_PHASES} from './test_public_qemu_admitted_boards.mjs';
+import {planPublicQemuGate, publicQemuGateChildEnvironment, validatePublicQemuGateResult, PUBLIC_QEMU_GATE_PHASES} from './test_public_qemu_admitted_boards.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -109,15 +109,22 @@ const gateInputs={manifest:{publication_eligible:true,candidate_profiles:[]},
   config:{publication_eligible:true,browser_candidate_profiles:[],browser_wallclock_example:true},
   registry:publicRegistry,runtime:{compiled_profiles:publicRegistry.profiles.map(row=>row.deviceId)},workbenchRegistry:registry};
 const plan=planPublicQemuGate(gateInputs),publicCount=publicRegistry.profiles.length;
-assert.equal(plan.publication_eligible,true);assert.equal(plan.cases.length,publicCount*3+1);
-assert.deepEqual(plan.cases.slice(0,8).map(row=>[row.lane,row.device]),[
+const bodyCount=publicRegistry.profiles.some(row=>row.deviceId==='stackchan')?1:0;
+const keyboardCount=publicRegistry.profiles.some(row=>row.deviceId==='cardputer-adv')?1:0;
+assert.equal(plan.publication_eligible,true);assert.equal(plan.cases.length,publicCount*3+1+bodyCount+keyboardCount);
+assert.deepEqual(plan.cases.slice(0,9).map(row=>[row.lane,row.device]),[
   ['uiflow-editor','atom-matrix'],['uiflow-buttons','atom-matrix'],
   ['uiflow-editor','stickc-plus'],['uiflow-buttons','stickc-plus'],
   ['uiflow-editor','cardputer-adv'],['uiflow-buttons','cardputer-adv'],
+  ['cardputer-keyboard','cardputer-adv'],
   ['uiflow-editor','cores3'],['uiflow-buttons','cores3'],
 ]);
-assert.ok(plan.cases.slice(0,publicCount*2).every(row=>row.lane!=='fixed'));
-assert.ok(plan.cases.slice(publicCount*2).every(row=>row.lane==='fixed'));
+assert.ok(plan.cases.slice(0,publicCount*2+bodyCount+keyboardCount).every(row=>row.lane!=='fixed'));
+assert.ok(plan.cases.slice(publicCount*2+bodyCount+keyboardCount).every(row=>row.lane==='fixed'));
+assert.deepEqual(plan.cases.filter(row=>row.lane==='stackchan-body-touch').map(row=>[row.device,row.script]),
+  [['stackchan','test_public_stackchan_body_touch_guest.mjs']]);
+assert.deepEqual(plan.cases.filter(row=>row.lane==='cardputer-keyboard').map(row=>[row.device,row.script]),
+  [['cardputer-adv','test_public_uiflow_cardputer_keyboard_guest.mjs']]);
 assert.equal(new Set(plan.cases.map(row=>[row.lane,row.device,row.example||''].join('/'))).size,plan.cases.length);
 for(const row of publicRegistry.profiles){
   const board=plan.cases.filter(item=>item.device===row.deviceId);
@@ -125,7 +132,7 @@ for(const row of publicRegistry.profiles){
 }
 for(const phase of PUBLIC_QEMU_GATE_PHASES.filter(phase=>phase!=='all')){
   const diagnostic=planPublicQemuGate({...gateInputs,phase});assert.equal(diagnostic.publication_eligible,false);
-  assert.equal(diagnostic.cases.length,phase==='uiflow'?publicCount*2:phase==='fixed'?publicCount+1:publicCount);
+  assert.equal(diagnostic.cases.length,phase==='uiflow'?publicCount*2+bodyCount+keyboardCount:phase==='fixed'?publicCount+1:phase==='buttons'?publicCount+bodyCount+keyboardCount:publicCount);
   assert.throws(()=>planPublicQemuGate({...gateInputs,phase,requireAll:true}),/Publication requires/);
 }
 const subset=planPublicQemuGate({...gateInputs,phase:'uiflow',devices:['cores3','atom-matrix']});
@@ -145,7 +152,7 @@ for(const change of [
 assert.deepEqual(qemu,originalQemu,'gate planning cannot mutate the canonical registry');
 const inherited={M5_QEMU_DEVICE:'not-selected',M5_QEMU_EXAMPLE:'wallclock-candidate',M5_UIFLOW_SMOKE_ONLY:'1',
   M5_PUBLIC_URL:'https://example.test/other-export/',M5_QEMU_UPLOAD:'other-firmware.bin',M5_QEMU_CLOCK_DIVISOR:'8',
-  M5_QEMU_FRAME_DIAGNOSTIC:'1',M5_QEMU_BUTTON_HOLD_MS:'1000',M5_WASM_CHROME:'/explicit/chrome',M5_CHROME:'/different/chrome',
+  M5_QEMU_FRAME_DIAGNOSTIC:'1',M5_QEMU_BUTTON_HOLD_MS:'1000',M5_CARDPUTER_KEYBOARD_IRQ:'0',M5_WASM_CHROME:'/explicit/chrome',M5_CHROME:'/different/chrome',
   M5_WASM_NODE_MODULES:'/test/node_modules',M5_PUBLIC_BASE_PATH:'/showcase/',M5_QEMU_READY_TIMEOUT_MS:'600000',M5_WASM_GPU:'hardware'};
 for(const item of plan.cases){
   const env=publicQemuGateChildEnvironment(inherited,item,{site:'/review/site',output:'/review/output'});
@@ -153,6 +160,7 @@ for(const item of plan.cases){
     assert.equal(env[key],'',`${item.lane} must not inherit ${key}`);
   assert.equal(env.M5_QEMU_DEVICE,item.device);assert.equal(env.M5_QEMU_EXAMPLE,item.example||'');
   assert.equal(env.M5_QEMU_BUTTON_HOLD_MS,'250','a longer inherited pulse cannot weaken gate input coverage');
+  assert.equal(env.M5_CARDPUTER_KEYBOARD_IRQ,item.lane==='cardputer-keyboard'?'1':'','the real IRQ observer must not be skipped or inherited by another lane');
   assert.equal(env.M5_WASM_CHROME,'/explicit/chrome');assert.equal(env.M5_CHROME,'/explicit/chrome');
   assert.equal(env.M5_PUBLIC_SITE,'/review/site');assert.equal(env.M5_PUBLIC_QEMU_OUT,'/review/output');
   for(const key of ['M5_WASM_NODE_MODULES','M5_PUBLIC_BASE_PATH','M5_QEMU_READY_TIMEOUT_MS','M5_WASM_GPU'])assert.equal(env[key],inherited[key]);
@@ -160,6 +168,40 @@ for(const item of plan.cases){
 assert.equal(inherited.M5_QEMU_BUTTON_HOLD_MS,'1000','child environment normalization cannot mutate its caller');
 const chromeFallback=publicQemuGateChildEnvironment({M5_CHROME:'/fallback/chrome'},plan.cases[0],{site:'/site',output:'/out'});
 assert.equal(chromeFallback.M5_WASM_CHROME,'/fallback/chrome');assert.equal(chromeFallback.M5_CHROME,'/fallback/chrome');
+
+// Source/export receipt contracts use each runner's actual report layout.
+// These synthetic metadata fixtures execute no guest or input controller.
+const binding={workbenchRegistry:registry,wasmSHA256:'a'.repeat(64),siteManifestSHA256:'b'.repeat(64),testScriptSHA256:'c'.repeat(64)};
+for(const item of plan.cases){
+  const expected=registry.profiles.find(row=>row.deviceId===item.device);
+  const receipt={deviceId:item.device,firmwareSha256:expected.firmwareSHA256,wasmSha256:binding.wasmSHA256};
+  const result={provenance:{site_manifest_sha256:binding.siteManifestSHA256,
+    test_script:{path:'platform/tests/'+item.script,sha256:binding.testScriptSHA256},
+    runtime_assets:{'qemu-system-xtensa.wasm':{sha256:binding.wasmSHA256}}},smoke_only:false};
+  if(item.lane==='cardputer-keyboard')result.initial={evidence:{receipt}};
+  else if(item.lane==='uiflow-buttons')result.running={receipt};
+  else if(item.lane!=='fixed')result.initial={receipt};
+  validatePublicQemuGateResult(item,result,binding);
+  for(const change of [copy=>copy.provenance.site_manifest_sha256='0'.repeat(64),
+    copy=>copy.provenance.test_script.sha256='0'.repeat(64),copy=>copy.provenance.test_script.path='platform/tests/other.mjs',
+    copy=>copy.provenance.runtime_assets['qemu-system-xtensa.wasm'].sha256='0'.repeat(64)]){
+    const copy=structuredClone(result);change(copy);assert.throws(()=>validatePublicQemuGateResult(item,copy,binding));
+  }
+  if(item.lane!=='fixed')for(const field of ['deviceId','firmwareSha256','wasmSha256']){
+    const copy=structuredClone(result),actual=item.lane==='cardputer-keyboard'?copy.initial.evidence.receipt
+      :item.lane==='uiflow-buttons'?copy.running.receipt:copy.initial.receipt;
+    actual[field]=field==='deviceId'?'another-device':'0'.repeat(64);
+    assert.throws(()=>validatePublicQemuGateResult(item,copy,binding));
+  }
+  if(item.lane==='cardputer-keyboard'){
+    const wrongLayout=structuredClone(result);wrongLayout.initial={receipt};
+    assert.throws(()=>validatePublicQemuGateResult(item,wrongLayout,binding),'keyboard must use its actual initial.evidence.receipt');
+  }
+  if(item.lane==='uiflow-editor'){
+    const smoke=structuredClone(result);smoke.smoke_only=true;
+    assert.throws(()=>validatePublicQemuGateResult(item,smoke,binding),/full editor/);
+  }
+}
 
 const args = new Map(); for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i], process.argv[i + 1]);
 if (args.get('--runtime') && args.get('--firmware-cache')) {
