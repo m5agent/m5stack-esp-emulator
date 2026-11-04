@@ -344,6 +344,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
+| `RUNTIME-07` | 进行中 | 定位 StamPLC 浏览器原多指令 TB 在硬件复位后访问 SYSTIMER 的 PIF 异常；精确工作台 oneInsn 策略仅作限定规避 | 原策略同固件受控复现，绑定实际 MMIO transaction、region/TLB、指令恢复元数据与 CPU1 reset/IRQ 顺序；真正修复后重跑 reset、代码执行和清场，不以规避策略关闭模型缺口 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
@@ -583,6 +584,21 @@ SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-fi
 
 验收：真实 guest 驱动完成完整生命周期；否则保持 `runtime_model_gap`，
 不承诺所有 C6 固件兼容。
+
+### RUNTIME-07 StamPLC 浏览器硬件复位后 PIF
+
+已满足的前置基线：精确工作台执行策略与原策略的限定对照见
+[复位证据](evidence/2026-11-04-stamplc-workbench-reset/README.md)。
+
+下一项最小交付：在原多指令 TB 策略、同固件和 runtime 上，分开首次启动、
+执行程序前后及硬件复位后的观测，采集实际 MMIO transaction/MemTxResult、
+region、TLB、指令恢复元数据与 CPU1 reset/IRQ 顺序，定位对已映射 SYSTIMER
+普通读发生 PIF 的原因。当前不能归因于未实现控制器或固件缺陷。
+
+验收：保留原失败，证明修复作用于同一异常路径，再验证硬件 reset、旧程序
+取消、新代码执行、控制器输入/输出和正常 Worker 清场；补受影响板型回归。
+精确工作台 oneInsn 规避不关闭广义模型缺口，未知 Flash 不继承。
+缺口状态与关闭条件见 [RUNTIME-07](runtime-model-gap-register.md#runtime-07stamplc-浏览器多指令-tb-下硬件复位后-pif-异常)。
 
 ### RUNTIME-06 ESP-NOW 加密与 peer 生命周期
 

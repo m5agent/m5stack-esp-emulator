@@ -1,6 +1,6 @@
 # 运行时模型缺口登记
 
-日期：`2026-10-30`
+日期：`2026-11-04`
 
 本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
 运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
@@ -127,6 +127,30 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 错误和未全验的后续 tab 保持 `PARTIAL`，但不阻塞本模型缺口关闭。
 
 ## 当前缺口
+
+### RUNTIME-07：StamPLC 浏览器多指令 TB 下硬件复位后 PIF 异常
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / exact execution-policy workaround validated`，根因未确定 |
+| 影响 | browser QEMU runtime75下精确StamPLC UIFlow工作台镜像的原多指令TB复位路径；不泛化其它固件 |
+| 固件 / runtime | Flash `0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d`；WASM `96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1` |
+| 首次异常 | 首启/九段程序/红帧及44项已完成检查通过后，QMP hardware reset第二boot在Core1 PC `0x4038a83a`触发`LoadStorePIFAddrError`，EXCVADDR `0x60023008` |
+| 地址与指令 | 已实现的SYSTIMER UNIT1_OP；同Flash字节解码为对齐32位`l32i.n a8,a9,4`，不是atomic、错大小或缺控制器证据 |
+| 精确策略结果 | 同Flash/runtime、div1、无icount，绑定startup源/required0027后显式`tcg,thread=multi,one-insn-per-tb=on`，首次实际完整编辑器/reset/新epoch源码执行54/54通过；普通QMP与实际6CDP清场通过 |
+| 当前边界 | 原多指令TB失败保留；精确策略PASS不证明C/controller/TCI根因修复，不授未知Flash/源/profile或全矩阵/线上 |
+| 证据 | [工作台复位策略与未关闭缺口](evidence/2026-11-04-stamplc-workbench-reset/README.md)、[有界summary](evidence/2026-11-04-stamplc-workbench-reset/summary.json) |
+
+关闭条件：
+
+1. 保留精确旧profile的首次失败，完成同Flash/runtime下reset-before-program与
+   reset-after-program等有界对照，不能跳过硬件reset或降低原检查；
+2. 采集实际MMIO事务的命中region、物理/虚拟地址、访问类型/大小、MemTxResult，
+   并关联TB restore元数据、TLB和两核reset/IRQ状态，定位多指令路径的实际偏差；
+3. 若修C/复位/事务语义，必须有原多指令策略下同一路径的失败/通过对照及受影响
+   设备回归；仅oneInsn策略通过不能关闭本缺口；
+4. 每个其它固件SHA、startup main.py和profile单独校验与guest验证，不继承本次
+   精确策略准入；物理硬件与线上行为保持独立边界。
 
 ### CORE2-02：九实例 native-HCI ACK delivery 未稳定
 

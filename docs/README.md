@@ -64,6 +64,8 @@ warm 与 pthread cancellation 尚未建立，不授予全型号、新默认镜�
 保留首次 UART signed-array 失败、修复后的 smoke、CoreS3 完整编辑器以及独立组合/布局证据；
 [CoreS3 正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md)
 记录同 Flash/WASM 的 exact-SHA 候选 54/54 与单次 `10.971 s` ready。
+[StamPLC 工作台复位证据](evidence/2026-11-04-stamplc-workbench-reset/README.md)
+保留原多指令策略复位异常与精确策略 54/54；`RUNTIME-07` 根因仍开放。
 其余 18 款新默认 guest、完整按键和新部署仍未完成。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
@@ -321,6 +323,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [WASM host poll唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md) | 构建、SDK与两板cold证据 | `2026-11-04` | fresh75原Flash Matrix15/Plus26与正常5CDP；3c/74对照分层，warm NOT RUN、取消未建立，不授予新默认、全型号或线上提速 |
 | [UIFlow工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md) | 浏览器与组合分层证据 | `2026-11-04` | 首次signed-array FAIL保留、旧3c smoke20、新2c72 CoreS3 div8完整54；19组包装与四宽度model-only检查不授予其余18板guest或全按键 |
 | [CoreS3工作台正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md) | 精确固件浏览器证据 | `2026-11-04` | 同52f Flash/2c72 WASM的div1+oneInsn完整54与正常6CDP清理；单次10.971对27.483秒，不是重复基准，未授予其余18板或新部署 |
+| [StamPLC工作台复位策略](evidence/2026-11-04-stamplc-workbench-reset/README.md) | 精确固件浏览器证据 | `2026-11-04` | 同0b2b Flash/96ea WASM/div1，原策略44项后复位PIF异常；oneInsn+0027候选完整54与正常6CDP，根因RUNTIME-07仍OPEN，完整V3矩阵与线上另验 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |
@@ -487,7 +490,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-30` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop、post-reset stop、八实例容量和九实例 fail-closed 边界；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-30` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0095` 已关闭 legacy Core2 normal-WDT stock startup，setup/REPL 与任意应用转 `API-01`；`RUNTIME-02` Zigbee commissioning 仍 `OPEN`；`RUNTIME-06` virtual-controller 已完成，bit-exact controller、物理 RF/电气和真机仍独立 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-11-04` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0095` 已关闭 legacy Core2 normal-WDT stock startup；RUNTIME-07保留StamPLC原多指令策略复位PIF，精确策略通过不关闭根因；Zigbee、bit-exact controller、物理 RF/电气和真机边界仍独立 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU 与 `qemu-unified` companion partition fencing、namespace/container-local execution、同 guest 网络生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |

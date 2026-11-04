@@ -1,0 +1,672 @@
+{
+  "kind": "bounded-stamplc-exact-workbench-reset-policy-evidence",
+  "status": "PARTIAL_OPEN_MULTI_INSTRUCTION_RESET_GAP_WITH_EXACT_POLICY_PASS",
+  "evidence_level": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "canonical_policy_updated": true,
+  "publication_eligible": false,
+  "guest_runs": {
+    "original_profile_first": 1,
+    "candidate_first_actual": 1,
+    "candidate_actual_retries": 0
+  },
+  "baseline_first_failure": {
+    "raw_report": {
+      "bytes": 993338,
+      "sha256": "8bb778ee3551c550dc16101869bcba43d2c87e52d1d38b75b8e0538ec630456b"
+    },
+    "status": "FAIL",
+    "completed_checks": 44,
+    "completed_checks_all_passed": true,
+    "first_ready_ms": 13156.204792,
+    "profile": "stamplc-wasm-wallclock",
+    "clock_divisor": 1,
+    "icount": false,
+    "one_insn_per_tb": false,
+    "failure_stage": "new UIFlow boot after hardware reset",
+    "panic": {
+      "core": 1,
+      "exception": "LoadStorePIFAddrError",
+      "pc": "0x4038a83a",
+      "excvaddr": "0x60023008"
+    },
+    "closure": {
+      "actual_post_stop_cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "all_cdp_targets_before_context": {
+        "ok": true,
+        "observed_count": 6,
+        "destroyed_count": 6,
+        "remaining_live_count": 0,
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "before_iframe_cdp_pthreads": null
+    }
+  },
+  "candidate": {
+    "raw_report": {
+      "bytes": 2232668,
+      "sha256": "b0d3e49721185c4291b1cf418b1e2dd1fad212fbc38bd8deac234d43ac03e982"
+    },
+    "status": "PASS",
+    "checks": 54,
+    "all_checks_passed": true,
+    "first_ready_ms": 4843.637124999999,
+    "profile": "stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+    "clock_divisor": 1,
+    "clock_override": null,
+    "accelerator": null,
+    "one_insn_per_tb": true,
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "actual_arguments": [
+      "./this.program",
+      "-M",
+      "m5stamplc",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "pipe:/bridge/uart",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "firmware_sha256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "javascript_sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+    "pthread_worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmware_variant": {
+      "clockDivisor": 1,
+      "firmwareSHA256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+      "fixture": "uiflow-workbench-v1",
+      "oneInsnPerTb": true,
+      "profile": "stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "requiredRuntimePatch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+      "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+    },
+    "persistent_flash": false,
+    "browser_version": "157.0.8103.38",
+    "actual_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+    "programs": [
+      {
+        "name": "utf8-print",
+        "transfer": "raw-paste",
+        "source_sha256": "8008512e514c98eca4cebf9b00499d403de02ea3d13328b7be9eb01af888cca2"
+      },
+      {
+        "name": "multiline-loop",
+        "transfer": "raw-paste",
+        "source_sha256": "b9d55f3de622b326fa4aedfcfc7f632a90b754cb709b8283059425eff2183aab"
+      },
+      {
+        "name": "long-utf8-source",
+        "transfer": "raw-paste",
+        "source_sha256": "3ff8fab3f76c5705425ed27db0bf73ffab4eb046cba8480659765ebd9c6433e9"
+      },
+      {
+        "name": "syntax-error",
+        "transfer": "raw-paste",
+        "source_sha256": "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57"
+      },
+      {
+        "name": "runtime-error",
+        "transfer": "raw-paste",
+        "source_sha256": "903aca3d54aad5366cb50a97e24ba3a8fb57787e5380859366145f64d139eab5"
+      },
+      {
+        "name": "file-import-recovery",
+        "transfer": "raw-paste",
+        "source_sha256": "7a33bff594d8ed3f80262b761c7020137e3e2d3ac4734d38b140a5c36ac6e847"
+      },
+      {
+        "name": "infinite-program-interrupt",
+        "transfer": "raw-paste",
+        "source_sha256": "9b4f260baab9204811de78148cb96ae8d1f7d66475c19c9808957eb4af2b4d0a"
+      },
+      {
+        "name": "same-vm-after-interrupt",
+        "transfer": "raw-paste",
+        "source_sha256": "3c64eaa353e65dbd95bb16434cdf304c867c4c7818cf95bbf539110eac308be9"
+      },
+      {
+        "name": "guest-display-output",
+        "transfer": "raw-paste",
+        "source_sha256": "b9a665ce77a34432b8ebfd6e0579804ed93b3312d6683ce797df32fef949e82f"
+      },
+      {
+        "name": "after-hardware-reset",
+        "transfer": "raw-paste",
+        "source_sha256": "a730d758829f7b50b8b6590b0057daa6acf677c8276351dc5d049b429d6bad0e"
+      }
+    ],
+    "frame": {
+      "width": 240,
+      "height": 135,
+      "sequence": 2,
+      "pattern": "red-fill",
+      "black_pixels": 0,
+      "white_pixels": 0,
+      "red_pixels": 32400,
+      "sha256": "01b2284e114ce1e4b8a1b456c523399f29d67800fd696bb4f2f8ad57fb21ee00"
+    },
+    "reset": {
+      "actual_machine_event": "RESET",
+      "reason": "host-qmp-system-reset",
+      "same_browser_session": true,
+      "console_epoch_before": 0,
+      "console_epoch_after": 1,
+      "old_execution_cancelled": true,
+      "new_raw_paste_program_stdout_passed": true
+    },
+    "panic_or_wdt_in_serial": false,
+    "normal_shutdown_event": true,
+    "closure": {
+      "actual_post_stop_cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "all_cdp_targets_before_context": {
+        "ok": true,
+        "observed_count": 6,
+        "destroyed_count": 6,
+        "remaining_live_count": 0,
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "before_iframe_cdp_pthreads": {
+        "ok": true,
+        "nested_closed_count": 5,
+        "engine_target_may_remain": 0
+      }
+    },
+    "check_names": [
+      "pages-service-worker-isolation",
+      "hardware-angle-renderer",
+      "uiflow-is-default-firmware",
+      "programming-startup-described-accurately",
+      "actual-programming-startup-marker",
+      "exact-uiflow-firmware-and-ready-binding",
+      "utf8-print-source-reached-same-guest",
+      "utf8-print-stdout",
+      "utf8-print-no-stderr",
+      "utf8-print-run-reenabled",
+      "multiline-loop-source-reached-same-guest",
+      "multiline-loop-stdout",
+      "multiline-loop-no-stderr",
+      "multiline-loop-run-reenabled",
+      "long-utf8-source-source-reached-same-guest",
+      "long-utf8-source-stdout",
+      "long-utf8-source-no-stderr",
+      "long-utf8-source-run-reenabled",
+      "syntax-error-source-reached-same-guest",
+      "syntax-error-stderr",
+      "syntax-error-run-reenabled",
+      "runtime-error-source-reached-same-guest",
+      "runtime-error-stdout",
+      "runtime-error-stderr",
+      "runtime-error-run-reenabled",
+      "file-import-recovery-source-reached-same-guest",
+      "file-import-recovery-stdout",
+      "file-import-recovery-no-stderr",
+      "file-import-recovery-run-reenabled",
+      "infinite-program-has-interrupt-control",
+      "pause-retains-program-owner",
+      "resume-retains-interrupt-control",
+      "guest-acknowledged-interruption",
+      "same-vm-after-interrupt-source-reached-same-guest",
+      "same-vm-after-interrupt-stdout",
+      "same-vm-after-interrupt-no-stderr",
+      "same-vm-after-interrupt-run-reenabled",
+      "guest-display-output-source-reached-same-guest",
+      "guest-display-output-stdout",
+      "guest-display-output-no-stderr",
+      "guest-display-output-run-reenabled",
+      "source-drew-actual-guest-framebuffer",
+      "same-console-through-pre-reset-programs",
+      "hardware-reset-cancels-old-console-program",
+      "hardware-reset-keeps-browser-session-with-new-console",
+      "after-hardware-reset-source-reached-same-guest",
+      "after-hardware-reset-stdout",
+      "after-hardware-reset-no-stderr",
+      "after-hardware-reset-run-reenabled",
+      "normal-guest-exit-no-forced-termination",
+      "pthreads-closed-before-iframe-removal",
+      "all-cdp-workers-closed-before-context",
+      "no-device-service-requests",
+      "no-page-errors"
+    ]
+  },
+  "provenance": {
+    "baseline_site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "candidate_site_manifest_sha256": "99afa5cb1a11ca10ed0854d17bc2eb1fe5ad06356e3bfa1c67e1bb084fc69a16",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "source_head": "b57e68a81045b739570c0add72878a0ab5620c56",
+    "runner": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010"
+    },
+    "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "same_runner_helper_binary_assets_as_baseline": true,
+    "candidate_source_registry": {
+      "bytes": 89984,
+      "base_sha256": "6b37e3c0f2702584383240a3e88b017fc197a2c3b9142952f5cdc1d58dada877",
+      "candidate_sha256": "89eadcc8afdb8536d8a0a534b3bf9076d2fc85126279e42386c614ec9cc7b91c"
+    },
+    "functional_policy_patch": {
+      "bytes": 1376,
+      "sha256": "fc7f41c364d21977f0a1791af4516b033dafe6b2593de98bc66f7bf31e349f5e"
+    },
+    "preview_only_patch": {
+      "bytes": 374,
+      "sha256": "b7c946191854e5a817543acfcb8b407bc9c7140b1730a9b0df7afe093efd37fe"
+    },
+    "source_transform_scope": [
+      "only StamPLC exact Flash variant",
+      "StamPLC admission public->candidate to force publication_eligible=false"
+    ],
+    "export_changed_paths": [
+      "platform/web/browser-profiles.json",
+      "platform/web/qemu-browser-profiles.json",
+      "platform/web/site-config.json",
+      "site-config.json"
+    ],
+    "all_other_export_assets_same": true,
+    "all_other_canonical_sources_same": true,
+    "copied_files_do_not_share_writable_inodes": true,
+    "source_export_receipt": {
+      "bytes": 639037,
+      "sha256": "56b49a3b6448c3cdc029b5df0cfaf71c76d4cfb52733494c50aaaf3ec36ae4cf"
+    },
+    "host_preflight": {
+      "bytes": 17708,
+      "sha256": "44fab50baf4667321438b43a064feca36eaf657fac7d71d97c18377b5ecc6101"
+    },
+    "static_preflight_check_count": 10
+  },
+  "instruction_review": {
+    "kind": "exact-flash-instruction-and-static-reset-review",
+    "status": "READONLY_REVIEW_NOT_ROOT_CAUSE_PROOF",
+    "firmware_sha256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+    "embedded_app_elf_sha256": "968f632826934152d1147d92388a88c90985acf41cbf11a5ab0691e52daa13f1",
+    "actual_elf_available": false,
+    "firmware_function_symbol": "NOT ESTABLISHED",
+    "segment": {
+      "vaddr": "0x40374000",
+      "flash_offset": "0x4af6dc",
+      "bytes": 109028,
+      "sha256": "ce71bf174b15da6ba74ba06f521c34c414f33bb6e8be8a38ce1fa5985af9cf96"
+    },
+    "instruction": {
+      "pc": "0x4038a83a",
+      "bytes_hex": "8819",
+      "disassembly": "l32i.n a8, a9, 4",
+      "a9": "0x60023004",
+      "effective_address": "0x60023008",
+      "size_bytes": 4,
+      "alignment_bytes": 4,
+      "crosses_page": false,
+      "atomic_instruction": false,
+      "previous_pc": "0x4038a837",
+      "previous_instruction": "memw",
+      "following_sequence": "or UPDATE bit30; s32i.n same address; load and poll bit29"
+    },
+    "objdump": {
+      "executable_sha256": "eb7d7ae55b196d7eee4bdb3152e83b7aa2c7c822ab39e454d80a8b24bb405d89",
+      "version": "GNU objdump (crosstool-NG esp-14.2.0_20260121) 2.43.1",
+      "argv_template": [
+        "xtensa-esp32s3-elf-objdump",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "xtensa",
+        "--adjust-vma=0x40374000",
+        "--start-address=0x4038a82c",
+        "--stop-address=0x4038a874",
+        "<extracted-exact-IRAM-segment.bin>"
+      ],
+      "output_bytes": 1163,
+      "output_sha256": "8646fc03a7bb953f1c566909a514c39d9280a76da0f7ed387a1f4eda98645790"
+    },
+    "source_review": [
+      {
+        "path": "hw/core/cpu-common.c",
+        "first_line": 119,
+        "last_line": 139,
+        "sha256": "ffa63a56a0ffbd834acdb4d3842bc1e985e95bb03de01216225e613aaa35f0e1",
+        "finding": "Generic reset clears mem_io_pc, icount, can_do_io, exception and next-TB override."
+      },
+      {
+        "path": "target/xtensa/cpu.c",
+        "first_line": 97,
+        "last_line": 137,
+        "sha256": "0dd40fa199e3b6162fc15092c1203148ab748c970f36fa6ab3d3746b6a2e43be",
+        "finding": "Xtensa reset calls parent then clears high-priority-IRQ bookkeeping and resets MMU."
+      },
+      {
+        "path": "accel/tcg/tcg-accel-ops-icount.c",
+        "first_line": 37,
+        "last_line": 62,
+        "sha256": "62f65add2fa1f3962da8ca7693f370922d71c24a97b256b3ec8eb054f17fd1b9",
+        "finding": "High-priority bookkeeping and active guard require icount_enabled."
+      },
+      {
+        "path": "target/xtensa/op_helper.c",
+        "first_line": 211,
+        "last_line": 227,
+        "sha256": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
+        "finding": "IRQ return/yield owns the original bookkeeping and uses active guard."
+      },
+      {
+        "path": "accel/tcg/cputlb.c",
+        "first_line": 1262,
+        "last_line": 1294,
+        "sha256": "01def80771821fd29f941ea25b00942e6ca3beffac37038b4a590af1fedd83c1",
+        "finding": "MMIO preparation recompiles a non-final instruction and transaction failure forwards to target."
+      },
+      {
+        "path": "target/xtensa/helper.c",
+        "first_line": 302,
+        "last_line": 316,
+        "sha256": "34e68186b1f055f4d57dc5f4d010c49a0318ec9f62a9d45b829b963621910684",
+        "finding": "Target transaction failure restores state and raises PIF Addr Error with supplied virtual address."
+      },
+      {
+        "path": "tcg/tci.c",
+        "first_line": 296,
+        "last_line": 320,
+        "sha256": "2e7eac135e1384e866203f2ce3977cdac85bf87551fa2f0bade94b2f7aecf126",
+        "finding": "Normal load passes the current interpreted TB return pointer explicitly to memory helpers."
+      },
+      {
+        "path": "tcg/tci.c",
+        "first_line": 935,
+        "last_line": 950,
+        "sha256": "2e7eac135e1384e866203f2ce3977cdac85bf87551fa2f0bade94b2f7aecf126",
+        "finding": "Ordinary qemu_ld invokes tci_qemu_ld with current tb_ptr."
+      },
+      {
+        "path": "accel/tcg/translator.c",
+        "first_line": 202,
+        "last_line": 214,
+        "sha256": "f446c8f68edbe62fe6140bc5c2d1d9036f6b54ff652691b14d62b850a35339e1",
+        "finding": "Multi-instruction TB marks only the last instruction as can_do_io."
+      },
+      {
+        "path": "accel/tcg/translate-all.c",
+        "first_line": 602,
+        "last_line": 644,
+        "sha256": "934a22b5355c2a3593f72e1223fa260e1d8817b88d7708c0cd791742ef2e4360",
+        "finding": "I/O recompile restores instruction state then requests memory-only one/two-instruction TB and exits."
+      }
+    ],
+    "limits": [
+      "The actual profile has no -icount. Do not transfer an icount-only reset hypothesis to it.",
+      "The instruction and panic register dump are consistent with an aligned ordinary SYSTIMER MMIO read, but do not prove the translator return metadata or memory transaction source.",
+      "Static reset code does not establish which reset callbacks ran at runtime.",
+      "One-instruction acceptance does not prove the SYSTIMER controller or a firmware defect was fixed."
+    ]
+  },
+  "pre_guest_observer_errors_preserved": [
+    {
+      "stage": "prepare metadata allowlist",
+      "guest_started": false,
+      "correction": "Root site-config.json duplicate is the fourth changed metadata asset; no data/browser-capabilities.json change; existing export verified without re-export.",
+      "record": {
+        "bytes": 375,
+        "sha256": "657c30e168361a09fcdcbddb6077889884374b9dcf69d86c1e054ce62534e353"
+      }
+    },
+    {
+      "stage": "launch1 output containment assertion",
+      "guest_started": false,
+      "correction": "Output moved under candidate source .work, as unchanged runner requires.",
+      "log": {
+        "bytes": 711,
+        "sha256": "29b1d9ae9a84093ff92dbffc31ff4d6a6f611eda946746c211d4122a156b134b"
+      }
+    },
+    {
+      "stage": "launch2 missing .work parent",
+      "guest_started": false,
+      "correction": "Created only the ignored parent directory; unchanged runner keeps recursive:false for run output.",
+      "log": {
+        "bytes": 791,
+        "sha256": "fe865d92a5162bc88fad80dd5812cd2eaf6b1fced72b12ecd40fe70d9c051428"
+      }
+    }
+  ],
+  "limits": [
+    "Only this exact StamPLC composed Flash and execution policy passed a single full54 editor/reset run.",
+    "Candidate adds explicit tcg,thread=multi,one-insn-per-tb=on; baseline supplied no explicit accelerator or icount. Do not call the command line identical.",
+    "The source and guest controller/wiring/clock/firmware/runtime binary are unchanged; this is execution-policy acceptance, not a SYSTIMER model fix or root-cause proof.",
+    "Readiness timings are single observations, not a repeated controlled performance benchmark or a guarantee.",
+    "No configured StamPLC button run was performed in this preview.",
+    "Full60 gate remains failed at its first original StamPLC reset case; previous19 passing cases are not a completed60 PASS.",
+    "After this preview passed, parent authorized only the identical exact-StamPLC functional variant in the canonical registry. C, web JS, clocks, runtime binary and online Pages were unchanged; the new canonical export has not been guest-tested by this agent.",
+    "Other firmware, models and the three remaining cold/warm comparison groups remain outside this result."
+  ],
+  "reproduction": {
+    "guest_entry": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=stamplc M5_UIFLOW_SMOKE_ONLY=0 M5_WASM_CHROME=\"$CHROME\" M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" node platform/tests/test_public_uiflow_guest.mjs",
+    "prerequisites": [
+      "A separately verified export with exact recorded Flash/runtime/startup-source and policy hashes; a new owned output under ignored storage.",
+      "Do not silently substitute the later canonical strategy for the original no-oneInsn profile. Historical comparison requires the recorded frozen original export/source.",
+      "Use real editor, original UART raw-paste, hardware QMP reset, new-console source and independent Worker cleanup; no reset-phase skip."
+    ],
+    "historical_preparation": "Ignored preparation utilities and raw reports are represented by bounded hashes/bytes; they are not ordinary-checkout prerequisites.",
+    "performance_scope": "Readiness times are single functional observations; no repeated performance or physical timing claim."
+  },
+  "canonical_promotion": {
+    "scope": "Only the identical functional exact-StamPLC row; public admission remains public; V3 export and further tests owned by parent/default agent.",
+    "receipt": {
+      "bytes": 1684,
+      "sha256": "687f39ab11e39c449d00e9d5cbfcf3a403364564d3e59bec7084474fff356113"
+    },
+    "registry_sha256_after": "40549688154e2489a8809ba4f7278388b52b00d509a8a5256bdbcd6b36562e9c",
+    "variant_equal_to_actual_receipt": true,
+    "preview_run_before_promotion": true,
+    "new_canonical_export_guest": "NOT RUN"
+  },
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "model_gap_status": "OPEN; multi-instruction reset transaction cause not established",
+  "source_summary_identity": {
+    "bytes": 21960,
+    "sha256": "e0ffffcc49bd98318120fc3f4dea298229774e16d156ea303e9164e4fb6b5064"
+  },
+  "readonly_soc_audit": {
+    "source_files": [
+      {
+        "path": "include/hw/misc/esp32s3_reg.h",
+        "sha256": "419900361d82595a306b411b46b2e8803174d7099b076284548b58cab3b8928f",
+        "manifest_patched_postimage": null,
+        "matches_when_patched": "upstream-unpatched-file"
+      },
+      {
+        "path": "include/hw/timer/esp_systimer.h",
+        "sha256": "1b30c21987d8968d762811541f5bf605b103d80a062b542358f25a0d1b1cad50",
+        "manifest_patched_postimage": null,
+        "matches_when_patched": "upstream-unpatched-file"
+      },
+      {
+        "path": "hw/xtensa/esp32s3.c",
+        "sha256": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
+        "manifest_patched_postimage": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
+        "matches_when_patched": true
+      },
+      {
+        "path": "hw/timer/esp_systimer.c",
+        "sha256": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
+        "manifest_patched_postimage": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
+        "matches_when_patched": true
+      },
+      {
+        "path": "hw/timer/esp32s3_systimer.c",
+        "sha256": "f6b714873a5d5466d2e34d80f459078bf9b940511a595515614feaeb6af93fdf",
+        "manifest_patched_postimage": null,
+        "matches_when_patched": "upstream-unpatched-file"
+      },
+      {
+        "path": "hw/misc/esp32s3_rtc_cntl.c",
+        "sha256": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b",
+        "manifest_patched_postimage": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b",
+        "matches_when_patched": true
+      },
+      {
+        "path": "target/xtensa/cpu.c",
+        "sha256": "0dd40fa199e3b6162fc15092c1203148ab748c970f36fa6ab3d3746b6a2e43be",
+        "manifest_patched_postimage": "0dd40fa199e3b6162fc15092c1203148ab748c970f36fa6ab3d3746b6a2e43be",
+        "matches_when_patched": true
+      },
+      {
+        "path": "target/xtensa/helper.c",
+        "sha256": "34e68186b1f055f4d57dc5f4d010c49a0318ec9f62a9d45b829b963621910684",
+        "manifest_patched_postimage": null,
+        "matches_when_patched": "upstream-unpatched-file"
+      },
+      {
+        "path": "hw/core/cpu-common.c",
+        "sha256": "ffa63a56a0ffbd834acdb4d3842bc1e985e95bb03de01216225e613aaa35f0e1",
+        "manifest_patched_postimage": null,
+        "matches_when_patched": "upstream-unpatched-file"
+      },
+      {
+        "path": "system/memory.c",
+        "sha256": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
+        "manifest_patched_postimage": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
+        "matches_when_patched": true
+      }
+    ],
+    "confirmed_address": {
+      "base": "0x60023000",
+      "controller": "ESP32-S3 SYSTIMER",
+      "offset": "0x08",
+      "register": "UNIT1_OP",
+      "update_bit": 30,
+      "mapping": "esp32s3.c833-842 maps real MMIO; read/write handlers support offset8; no state-dependent access rejection",
+      "transaction_failure": "target/xtensa/helper.c302-315 translates MemTxResult failure to EXCCAUSE15; instruction, size and actual region hit still unobserved"
+    },
+    "reset_findings": [
+      {
+        "source": "hw/core/cpu-common.c119-139",
+        "fact": "CPU reset clears interrupt_request/mem_io_pc/cflags_next_tb/exception and sets can_do_io true; no stale-io claim established"
+      },
+      {
+        "source": "hw/xtensa/esp32s3.c198-247",
+        "fact": "digital reset selects both CPUs+peripherals; hostreset usesALL when requested_reset0; APPCPU reset callback deliberately ignores pulse and cpu_stall callback is empty",
+        "limit": "warm-only correctness and current requested_reset flags not measured"
+      },
+      {
+        "source": "hw/timer/esp_systimer.c587-610",
+        "fact": "reset clears comparator fields but not counters; copies fullQEMUTimer before timer_del then restores copied expire_time/next metadata",
+        "limit": "timer_pending restoration/counter retention deserve isolated proof; neither explains a mapped32bitMMIO PIF by itself"
+      },
+      {
+        "source": "hw/misc/esp32s3_rtc_cntl.c199-204",
+        "fact": "reset hold changes time_base_ns only; retained OPTIONS0/stall/vector/resetcause values need observation",
+        "limit": "intentional RTC-domain retention vs hostfullreset correctness not established"
+      }
+    ],
+    "status": "REVIEW; static facts do not identify the runtime transaction failure",
+    "known_instruction_is_aligned_scalar_read": true
+  },
+  "scope_clarifications": [
+    "The exact Flash, startup main.py hash, runtime binary, controller path and clock are bound separately from execution-policy metadata.",
+    "Generic MMIO recompile/last-instruction can_do_io applies even without icount; only icount-specific IRQ guard hypotheses lack their prerequisite here.",
+    "The exact aligned32bit l32i.n read is implemented by the mapped SYSTIMER UNIT1_OP; no missing-controller inference.",
+    "One-instruction policy passed the full reset/new-console program path once; this does not close the original multi-instruction PIF model gap or prove a C/controller/TCI root cause.",
+    "Two launch path errors and one preparation allowlist error occurred before guest creation; their failures remain and are not counted as guest retries.",
+    "This preview did not execute the StamPLC ordinary-button case or the new canonical V3 full matrix."
+  ],
+  "closure_requirements": [
+    "Reproduce the original multi-instruction reset failure with exact firmware/runtime/profile, including first success and secondboot panic.",
+    "Observe actual MMIO transaction region, physical/virtual address, access type/size, MemTxResult, translated-block restore metadata, TLB and bothCPU reset/IRQ states around system_reset.",
+    "Use bounded reset-before-program/reset-after-program controls to separate application state from reset ordering without changing clock/WDT/firmware.",
+    "A genuine C/reset/MMIO fix requires negative and positive actual-path evidence and affected-device regressions under the original multi-instruction policy; exact oneInsn PASS alone is insufficient.",
+    "Other Flash hashes, startup main.py sources, firmware families and execution profiles require their own fail-closed admission and guest evidence."
+  ],
+  "firmware_packaging_identity": {
+    "device": "stamplc",
+    "official_base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+    "official_base_bytes": 8384512,
+    "full_flash_sha256": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+    "full_flash_bytes": 8388608,
+    "composer_commit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+    "startup_sources": {
+      "boot.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+        "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "bytes": 214
+      },
+      "main.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/main.py",
+        "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+        "bytes": 57
+      }
+    }
+  }
+}

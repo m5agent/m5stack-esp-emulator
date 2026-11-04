@@ -66,6 +66,7 @@
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、eFuse 和生产 key |
 | `FW-03` | 进行中 | 真实云端业务、更多设备与固件族 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 Zigbee/802.15.4 commissioning |
+| `RUNTIME-07` | 进行中 | StamPLC 浏览器原多指令 TB 在硬件复位后出现 SYSTIMER 读 PIF；精确工作台 oneInsn 仅限定规避，C/复位事务根因继续按 Backlog 定位 |
 | `RUNTIME-03` | 已完成（virtual-device stock startup） | high-priority DPORT handoff、classic RMT、classic WiFi 与 legacy WDT level delivery 已验证；同一固件三次 normal-WDT 稳定到 guest virtual 300 秒以上并保持 API Key/Wi-Fi Connect UI。setup/REPL 与任意 legacy application 在 `API-01` 继续 |
 | `RUNTIME-04` | 已关闭（virtual-device） | Core2 for AWS ATECC608 wake/Read/Info/CRC、确定性 config 与应用帧 |
 | `RUNTIME-06` | 已完成（virtual-device） | controller loopback、plaintext、CCMP、replay/reorder、guest key-state/rotation、多 peer fabric、per-peer routing、PN exhaustion、loss/retry、channel/rate 和 60 秒 soak 均已完成；bit-exact controller、物理 RF/电气和真机仍为独立边界 |
