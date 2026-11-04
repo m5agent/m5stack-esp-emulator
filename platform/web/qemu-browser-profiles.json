@@ -127,6 +127,20 @@
             "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
             "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
           }
+        },
+        {
+          "firmwareSHA256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+          "profile": "stopwatch-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ]
     },
@@ -222,7 +236,23 @@
         "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632"
+      "readyFirmwareSHA256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "43855f0144edec8fafc4525ac6c8e30b01e2386d7b7f282ddb92833d792932fc",
+          "profile": "sticks3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3",
@@ -315,7 +345,23 @@
         "Native MPU6886, explicit GPIO35 RGB/RMT and other peripherals require their own device-local evidence and do not inherit browser display/input acceptance.",
         "Networking, BLE, audio, Units, physical timing and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319"
+      "readyFirmwareSHA256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
+          "profile": "atoms3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3-lite",
@@ -414,7 +460,23 @@
         ],
         "ledTarget": "rgb",
         "buttonTarget": "button"
-      }
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+          "profile": "atoms3-lite-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "atoms3r",
@@ -507,7 +569,23 @@
         "The AtomS3R display model has an observed +2 physical-row offset for the 8x8 probe marker; input/frame acceptance does not establish pixel-coordinate calibration.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80"
+      "readyFirmwareSHA256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
+          "profile": "atoms3r-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "cores3",
@@ -1061,6 +1139,20 @@
             "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
             "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
           }
+        },
+        {
+          "firmwareSHA256": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
+          "profile": "stackchan-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ],
       "profile": "stackchan-wasm-wallclock",
@@ -1267,7 +1359,23 @@
         "Low-frequency full-page EPD quality refresh uses original guest driver; other refresh modes and partial-window semantics are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc"
+      "readyFirmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+          "profile": "papercolor-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "papermono",
@@ -1387,7 +1495,23 @@
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
         "The fixed fixture uses the official read-only M5.Touch.getTouchPointRaw(0) portrait FT point for hit-testing after M5.update; it records original logical getX/getY and does not repair or grant PASS to their stock calibration. Release coordinates explicitly retain the last pressed raw point."
       ],
-      "readyFirmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70"
+      "readyFirmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+          "profile": "papermono-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "core2",

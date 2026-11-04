@@ -173,9 +173,10 @@ for(const profile of registry.profiles) {
 }
 const stack=pick('stackchan');
 const stackDanceSHA='c854d3ac6b958439ad30c5277266575d8765f228febf75de243da5d011904542';
+const stackWorkbenchSHA='8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394';
 assert.equal(stack.clockDivisor,1);
-assert.deepEqual(stack.firmwareProfiles.map(row=>row.firmwareSHA256),[stackDanceSHA],
-  'only the validated dance image has a StackChan execution variant; Factory remains withdrawn');
+assert.deepEqual(stack.firmwareProfiles.map(row=>row.firmwareSHA256),[stackDanceSHA,stackWorkbenchSHA],
+  'only the independently validated dance and workbench images have execution variants; Factory remains withdrawn');
 const stackDance=resolveQemuFirmwareProfile(stack,stackDanceSHA);
 assert.equal(stackDance.profile,'stackchan-wasm-dance-wallclock');
 assert.equal(stackDance.clockDivisor,1);

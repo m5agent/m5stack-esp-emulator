@@ -15,6 +15,26 @@ const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const registry = validateUIFlowWorkbenchRegistry(JSON.parse(await fs.readFile(path.join(root, 'platform/web/uiflow-workbench-profiles.json'))));
 const qemu = validateQemuBrowserProfiles(JSON.parse(await fs.readFile(path.join(root, 'platform/web/qemu-browser-profiles.json'))));
 const originalQemu = structuredClone(qemu);
+// Exact workbench Flash admission is an explicit per-image policy, never a
+// blanket rule for this chip or an unknown/new firmware revision.
+const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
+  "stopwatch": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+  "sticks3": "43855f0144edec8fafc4525ac6c8e30b01e2386d7b7f282ddb92833d792932fc",
+  "atoms3": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
+  "atoms3-lite": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+  "atoms3r": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
+  "cores3": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+  "cardputer-adv": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+  "stamplc": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
+  "stackchan": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
+  "papercolor": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+  "papermono": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0"
+});
+const EXACT_S3_WORKBENCH_MAIN = 'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0';
+assert.deepEqual(Object.keys(EXACT_S3_WORKBENCH_FLASH).sort(),registry.profiles
+  .filter(row=>qemu.profiles.find(profile=>profile.deviceId===row.deviceId)?.chip==='esp32s3')
+  .map(row=>row.deviceId).sort(),'a new S3 workbench needs explicit image/policy review');
+
 assert.deepEqual(registry.profiles.map(row => row.deviceId).sort(), qemu.profiles.filter(row => row.admission === 'public').map(row => row.deviceId).sort());
 for (const row of registry.profiles) {
   const profile = qemu.profiles.find(profile => profile.deviceId === row.deviceId);
@@ -26,7 +46,8 @@ for (const row of registry.profiles) {
   assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
-  if (['cores3','stamplc','cardputer-adv'].includes(row.deviceId)) {
+  if (Object.hasOwn(EXACT_S3_WORKBENCH_FLASH,row.deviceId)) {
+    assert.equal(row.firmwareSHA256,EXACT_S3_WORKBENCH_FLASH[row.deviceId]);
     assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, true);
     assert.equal(resolved.profile, row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
       :`${row.deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`);
@@ -159,6 +180,61 @@ for(const omitted of [QEMU_ONE_INSN_RUNTIME_PATCH,cardputer.requiredInputPatch])
   const copy=structuredClone(cardputerRuntime);copy.source.patches=copy.source.patches.filter(row=>row.path!==omitted.path);
   assert.throws(()=>validateQemuRuntimeRequirements(resolveCardputer(),copy),/required source patch/,'both execution and input patches remain mandatory');
 }
+// All eleven explicit S3 images get the same fail-closed identity controls.
+// Existing device-specific tests above remain intact; the eight added rows
+// require their own executed acceptance before this patch is applied.
+for(const [deviceId,firmwareSHA256] of Object.entries(EXACT_S3_WORKBENCH_FLASH)){
+  const profile=qemu.profiles.find(row=>row.deviceId===deviceId);
+  const workbench=registry.profiles.find(row=>row.deviceId===deviceId);
+  assert.equal(workbench.firmwareSHA256,firmwareSHA256);
+  assert.equal(workbench.files['main.py'].sha256,EXACT_S3_WORKBENCH_MAIN);
+  const variant=profile.firmwareProfiles.find(row=>row.firmwareSHA256===firmwareSHA256);
+  assert.deepEqual(variant,{firmwareSHA256,
+    profile:deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+      :`${deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`,
+    clockDivisor:1,readyMarker:UIFLOW_WORKBENCH_READY,fixture:'uiflow-workbench-v1',
+    sourceSHA256:EXACT_S3_WORKBENCH_MAIN,schedulerCandidate:'qemu-tci-mmio-blocks-v1',
+    oneInsnPerTb:true,requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH});
+  const resolveExact=(candidate=profile,workbenchRegistry=registry)=>resolveUIFlowWorkbenchProfile(
+    resolveQemuFirmwareProfile(candidate,firmwareSHA256),firmwareSHA256,workbenchRegistry);
+  const exact=resolveExact();assert.equal(exact.clockDivisor,1);assert.equal(exact.oneInsnPerTb,true);
+  for(const [field,value] of [['firmwareSHA256','0'.repeat(64)],['sourceSHA256','0'.repeat(64)],
+      ['fixture','unrelated-fixture-v1'],['readyMarker','UNRELATED_READY']]){
+    const candidate=structuredClone(profile);
+    candidate.firmwareProfiles.find(row=>row.firmwareSHA256===firmwareSHA256)[field]=value;
+    if(field==='firmwareSHA256'){
+      const noMatch=resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(candidate,firmwareSHA256),firmwareSHA256,registry);
+      assert.equal(noMatch.oneInsnPerTb,undefined,`${deviceId}: wrong full Flash binding cannot inherit oneInsn`);
+      assert.equal(noMatch.profile,profile.profile);
+    }else assert.throws(()=>resolveExact(candidate),/exact workbench source, fixture and ready binding/,
+      `${deviceId}: reject ${field} mismatch`);
+  }
+  const wrongMain=structuredClone(registry);
+  wrongMain.profiles.find(row=>row.deviceId===deviceId).files['main.py'].sha256='0'.repeat(64);
+  assert.throws(()=>resolveExact(profile,wrongMain),/exact workbench source, fixture and ready binding/);
+  const unknownHash='f'.repeat(64),unknown=resolveQemuFirmwareProfile(profile,unknownHash);
+  assert.equal(unknown.profile,profile.profile);assert.equal(unknown.clockDivisor,profile.clockDivisor);
+  assert.equal(unknown.oneInsnPerTb,undefined);assert.equal(unknown.firmwareVariant,undefined);
+  assert.deepEqual(resolveUIFlowWorkbenchProfile(unknown,unknownHash,registry),unknown);
+  const conservative=resolveUIFlowWorkbenchProfile(profile,firmwareSHA256,registry);
+  assert.equal(conservative.profile,profile.profile);assert.equal(conservative.clockDivisor,profile.clockDivisor);
+  assert.equal(conservative.oneInsnPerTb,undefined,'readiness binding alone cannot synthesize execution policy');
+  const oldFixed=profile.fixture.firmwareSHA256||profile.readyFirmwareSHA256;
+  assert.notEqual(oldFixed,firmwareSHA256);
+  assert.notEqual(resolveQemuFirmwareProfile(profile,oldFixed).profile,variant.profile,
+    `${deviceId}: old fixed firmware cannot inherit its workbench variant`);
+  const goodRuntime={source:{patches:[structuredClone(QEMU_ONE_INSN_RUNTIME_PATCH),
+    ...(profile.requiredInputPatch?[structuredClone(profile.requiredInputPatch)]:[])]}};
+  validateQemuRuntimeRequirements(exact,goodRuntime);
+  for(const mode of ['missing','wrong','duplicate']){
+    const bad=structuredClone(goodRuntime),patch=bad.source.patches.find(row=>row.path===QEMU_ONE_INSN_RUNTIME_PATCH.path);
+    if(mode==='missing')bad.source.patches=bad.source.patches.filter(row=>row.path!==QEMU_ONE_INSN_RUNTIME_PATCH.path);
+    else if(mode==='wrong')patch.sha256='0'.repeat(64);
+    else bad.source.patches.push(structuredClone(patch));
+    assert.throws(()=>validateQemuRuntimeRequirements(exact,bad),/required source patch/,`${deviceId}: reject ${mode}0027`);
+  }
+}
+
 assert.deepEqual(qemu, originalQemu, 'resolving exact, unknown or invalid firmware must not mutate the registry');
 const candidate = qemu.profiles.find(row => row.admission === 'candidate');
 if (candidate) assert.deepEqual(resolveUIFlowWorkbenchProfile(candidate, 'f'.repeat(64), registry), candidate, 'programming registry must not admit candidate boards');
