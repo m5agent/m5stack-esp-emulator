@@ -1,9 +1,8 @@
 # 项目当前状态
 
-2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。
-19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。
-11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，StamPLC/Cardputer/AtomS3Lite原策略的`RUNTIME-07/08/09`根因仍OPEN。
-`UI-03`保持`PARTIAL`：本地既定功能门禁已验，逐板性能、长期稳定性、其它固件与正式HTTPS仍独立；V6未在本记录部署，功能并发不作性能样本。
+2026-11-04 后续[Pages发布资格](evidence/2026-11-04-pages-rollout-qualification/README.md)为 **FAIL**：regular attempt2实际Matrix在app-ready前超时，本机CfT单case通过不能替代正式hosted环境。 新MAIN23d/prod-prefix导出的本地完整计划也以16PASS、AtomS3Lite1FAIL和43NOT RUN终止；Lite精确oneInsn配置在代码执行后的硬reset复现Core1 PIF，`RUNTIME-09`继续OPEN。 本轮没有release promotion、prepared-preview部署或HTTPS验收，既有公开站点未变；build/export或诊断片段通过不能授予发布资格。
+
+此前2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。 19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。 11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，`RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09`根因仍OPEN。 `UI-03`保持`PARTIAL`：先恢复当前MAIN/prod-prefix导出的发布资格，再完成正式HTTPS独立验收；既有本地门禁不授逐板性能、长期稳定性、其它固件或新导出通过，功能并发不作性能样本。
 
 日期：`2026-11-04`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
