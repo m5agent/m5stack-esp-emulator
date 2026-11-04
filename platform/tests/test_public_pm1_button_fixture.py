@@ -13,7 +13,8 @@ SOURCE = ROOT / "tests/browser-qemu/uiflow_workbench/button_observer.py"
 
 class PublicPM1ButtonFixtureTests(TestCase):
     def execute_setup(self, *, before=0x2A, after=0x2D, before4a=0, after4a=0,
-                      board=1, expected_board=1, setup=True, module=True, window=500):
+                      board=1, expected_board=1, setup=True, module=True, window=500,
+                      configuration_api="m5pm1-python-driver"):
         calls = []
         values = iter([before, before4a, after, after4a])
 
@@ -24,6 +25,9 @@ class PublicPM1ButtonFixtureTests(TestCase):
             def readfrom_mem(self, addr, reg, size):
                 calls.append(("read", addr, reg, size))
                 return bytes((next(values),))
+
+            def writeto_mem(self, addr, reg, value):
+                calls.append(("write", addr, reg, bytes(value)))
 
         class PM1:
             BUTTON_TIMING_CLICK = 0
@@ -52,7 +56,8 @@ class PublicPM1ButtonFixtureTests(TestCase):
                    "driver": SimpleNamespace()}
         modules["driver.m5pm1"] = SimpleNamespace(M5PM1=PM1) if module else None
         scope = {"BUTTON_PM1_SETUP": {"board": "M5StopWatch", "i2c": 1, "scl": 48, "sda": 47,
-                                      "addr": 0x6E, "click_window_ms": window} if setup else {}}
+                                      "addr": 0x6E, "click_window_ms": window,
+                                      "configuration_api": configuration_api} if setup else {}}
         with patch.dict(sys.modules, modules):
             exec(compile(ast.Module(body=prefix, type_ignores=[]), str(SOURCE), "exec"), scope)
         return scope["pmic_setup"], calls
@@ -74,6 +79,28 @@ class PublicPM1ButtonFixtureTests(TestCase):
     def test_missing_official_module_has_no_fallback(self):
         with self.assertRaises(ImportError):
             self.execute_setup(module=False)
+
+    def test_explicit_public_i2c_does_not_import_missing_python_helper(self):
+        result, calls = self.execute_setup(module=False, configuration_api="machine-i2c-register-rmw")
+        self.assertEqual(result["configuration_api"], "machine-i2c-register-rmw")
+        self.assertEqual(result["api"], "machine.I2C.readfrom_mem+writeto_mem")
+        self.assertIn(("write", 0x6E, 0x49, b"\x2d"), calls)
+        self.assertFalse(any(row[0] == "driver" for row in calls))
+        self.assertEqual([row[2] for row in calls if row[0] == "read"], [0x49, 0x4A, 0x49, 0x4A])
+        for before in range(256):
+            _, writes = self.execute_setup(before=before, after=(before & 0xF8) | 5,
+                                           module=False, configuration_api="machine-i2c-register-rmw")
+            values = [row[3][0] for row in writes if row[0] == "write"]
+            self.assertEqual(len(values), 1)
+            self.assertEqual(values[0] & 7, 5)
+            self.assertEqual(values[0] & 0xF8, before & 0xF8)
+
+    def test_i2c_readback_and_explicit_api_fail_closed(self):
+        for kwargs in ({"after": 0x2A}, {"after": 0xAD}, {"after4a": 1},
+                       {"board": 2}, {"window": 250}, {"configuration_api": "unknown"}):
+            options = {"configuration_api": "machine-i2c-register-rmw", **kwargs}
+            with self.subTest(kwargs=kwargs), self.assertRaises(AssertionError):
+                self.execute_setup(module=False, **options)
 
     def test_unregistered_boards_do_not_touch_pm1(self):
         result, calls = self.execute_setup(setup=False, module=False)

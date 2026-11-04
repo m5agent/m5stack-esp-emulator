@@ -133,6 +133,9 @@ try{
   check('original-button-api-probe-ready',Object.keys(ready.states).length===cases.length
     &&cases.every(item=>ready.states[item.id]===false),ready);
   if(PM1_BUTTON_OBSERVER_SETUP[device])check('explicit-pm1-user-application-irq-mode',ready.pmic_setup?.applied===true
+    &&ready.pmic_setup.configuration_api===pm1Setup.configuration_api
+    &&ready.pmic_setup.api===(pm1Setup.configuration_api==='m5pm1-python-driver'
+      ?'M5PM1.disable_single_click_reset+set_button_timing':'machine.I2C.readfrom_mem+writeto_mem')
     &&ready.pmic_setup.click_window_ms===500
     &&ready.pmic_setup.cfg49_after===((ready.pmic_setup.cfg49_before&~7)|5)
     &&ready.pmic_setup.cfg4a_before===ready.pmic_setup.cfg4a_after,ready.pmic_setup);

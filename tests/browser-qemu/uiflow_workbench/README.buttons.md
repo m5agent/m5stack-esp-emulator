@@ -8,10 +8,18 @@ It does not call private ISRs or substitute host input echoes for guest state.
 
 StopWatch's original PM1 firmware defaults to single-click reset with a 250 ms
 recognition limit. The observer explicitly configures a **user-application
-button-IRQ mode** through the official `driver.m5pm1.M5PM1` API:
-`disable_single_click_reset()` and `set_button_timing(BUTTON_TIMING_CLICK,500)`.
-The registry also declares this explicit PM1 application mode for StickS3,
-PaperColor and PaperMono. All use I2C1/address0x6e; StopWatch, StickS3 and
+button-IRQ mode**. The exact StopWatch and StickS3 images use the tested
+`driver.m5pm1.M5PM1` API: `disable_single_click_reset()` and
+`set_button_timing(BUTTON_TIMING_CLICK,500)`. The PaperColor image does not
+provide that Python module. PaperColor and PaperMono explicitly select public
+`machine.I2C.readfrom_mem/writeto_mem` register configuration instead; there
+is no exception-driven fallback or inserted replacement module. The ready
+receipt records the selected `configuration_api` and actual API path.
+
+Both paths set register0x49 bit0 and bits2:1 to the documented 500ms click
+encoding, using `(before & 0xf8) | 0x05`. No IRQ/status register is read by
+setup; only the original `M5.update/BtnPWR` consumes button events.
+All four use I2C1/address0x6e; StopWatch, StickS3 and
 PaperMono use SCL48/SDA47, while PaperColor uses **SCL2/SDA3**. These mappings
 come from the pinned original board tables. The setup preserves unrelated
 configuration bits, verifies actual register0x49 readback, and emits that setup
