@@ -26,10 +26,10 @@ for (const row of registry.profiles) {
   assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
-  if (['cores3','stamplc'].includes(row.deviceId)) {
+  if (['cores3','stamplc','cardputer-adv'].includes(row.deviceId)) {
     assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, true);
     assert.equal(resolved.profile, row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
-      :'stamplc-wasm-uiflow-workbench-wallclock-oneinsn-candidate');
+      :`${row.deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`);
     assert.deepEqual(resolved.requiredRuntimePatch, QEMU_ONE_INSN_RUNTIME_PATCH);
     assert.equal(resolved.firmwareVariant.firmwareSHA256, row.firmwareSHA256);
     assert.equal(resolved.firmwareVariant.sourceSHA256, row.files['main.py'].sha256);
@@ -133,6 +133,31 @@ for(const change of [variant=>delete variant.requiredRuntimePatch,variant=>varia
   variant=>variant.requiredRuntimePatch.path='patches/qemu-wasm-probe/unrelated.patch']){
   const copy=structuredClone(stamplc);change(copy.firmwareProfiles.find(row=>row.firmwareSHA256===stamplcWorkbench.firmwareSHA256));
   assert.throws(()=>resolveStamPLC(copy),/runtime patch|one-instruction/);
+}
+const cardputer=qemu.profiles.find(profile=>profile.deviceId==='cardputer-adv');
+const cardputerWorkbench=registry.profiles.find(row=>row.deviceId==='cardputer-adv');
+const resolveCardputer=(profile=cardputer,workbenchRegistry=registry)=>resolveUIFlowWorkbenchProfile(
+  resolveQemuFirmwareProfile(profile,cardputerWorkbench.firmwareSHA256),cardputerWorkbench.firmwareSHA256,workbenchRegistry);
+assert.equal(resolveCardputer().profile,'cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate');
+assert.deepEqual(resolveCardputer().requiredInputPatch,cardputer.requiredInputPatch,'exact execution policy retains the GPIO0 input patch');
+for(const [field,value] of [['sourceSHA256','0'.repeat(64)],['fixture','unrelated-fixture-v1'],['readyMarker','UNRELATED_READY']]){
+  const copy=structuredClone(cardputer);
+  copy.firmwareProfiles.find(row=>row.firmwareSHA256===cardputerWorkbench.firmwareSHA256)[field]=value;
+  assert.throws(()=>resolveCardputer(copy),/exact workbench source, fixture and ready binding/,`Cardputer rejects ${field} mismatch`);
+}
+const changedCardputerMain=structuredClone(registry);
+changedCardputerMain.profiles.find(row=>row.deviceId==='cardputer-adv').files['main.py'].sha256='0'.repeat(64);
+assert.throws(()=>resolveCardputer(cardputer,changedCardputerMain),/exact workbench source, fixture and ready binding/);
+const unknownCardputer=resolveQemuFirmwareProfile(cardputer,'f'.repeat(64));
+assert.equal(unknownCardputer.profile,'cardputer-adv-wasm-wallclock');
+assert.equal(unknownCardputer.clockDivisor,1);assert.equal(unknownCardputer.oneInsnPerTb,undefined);
+assert.equal(unknownCardputer.firmwareVariant,undefined);
+assert.deepEqual(resolveUIFlowWorkbenchProfile(unknownCardputer,'f'.repeat(64),registry),unknownCardputer);
+const cardputerRuntime={source:{patches:[structuredClone(QEMU_ONE_INSN_RUNTIME_PATCH),structuredClone(cardputer.requiredInputPatch)]}};
+validateQemuRuntimeRequirements(resolveCardputer(),cardputerRuntime);
+for(const omitted of [QEMU_ONE_INSN_RUNTIME_PATCH,cardputer.requiredInputPatch]){
+  const copy=structuredClone(cardputerRuntime);copy.source.patches=copy.source.patches.filter(row=>row.path!==omitted.path);
+  assert.throws(()=>validateQemuRuntimeRequirements(resolveCardputer(),copy),/required source patch/,'both execution and input patches remain mandatory');
 }
 assert.deepEqual(qemu, originalQemu, 'resolving exact, unknown or invalid firmware must not mutate the registry');
 const candidate = qemu.profiles.find(row => row.admission === 'candidate');

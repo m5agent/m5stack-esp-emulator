@@ -900,7 +900,23 @@
       "requiredInputPatch": {
         "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
         "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
-      }
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+          "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "stamplc",
