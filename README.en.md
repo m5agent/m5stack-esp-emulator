@@ -13,7 +13,7 @@ Arduino, ESP-IDF and MicroPython images are also supported when their compatibil
 
 ![CoreS3 firmware and interaction in the browser workbench](docs/images/browser-workbench.png)
 
-*Captured from an actual browser run for this documentation update; see [image provenance and reproduction](docs/images/README.md). The deployed site can differ from main. See the [Pages guide](docs/pages-deployment.md) for deployment and version details.*
+*An earlier recorded browser run; see [image provenance, version and reproduction](docs/images/README.md). The deployed site can differ from main. See the [Pages guide](docs/pages-deployment.md) for deployment and version details.*
 
 ## Choose a runtime
 

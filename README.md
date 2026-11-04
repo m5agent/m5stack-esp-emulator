@@ -11,7 +11,7 @@
 
 ![浏览器工作台中运行的 CoreS3 固件与交互界面](docs/images/browser-workbench.png)
 
-*本轮实际浏览器运行截图；[图片来源与复现](docs/images/README.md)。线上部署与 main 可能不同，版本及部署方式见 [Pages 指南](docs/pages-deployment.md)。*
+*历史实测的浏览器运行截图；[图片来源、版本与复现](docs/images/README.md)。线上部署与 main 可能不同，版本及部署方式见 [Pages 指南](docs/pages-deployment.md)。*
 
 ## 选择运行方式
 
