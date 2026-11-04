@@ -7,6 +7,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {createHash, randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance, QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {stopwatchRedCircleOracle} from './public_qemu_stopwatch_frame_oracle.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const site = process.env.M5_PUBLIC_SITE && resolve(process.env.M5_PUBLIC_SITE);
@@ -169,12 +170,14 @@ try {
       && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
     await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
     if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
-      const mono=device==='papermono',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+      const mono=device==='papermono',stopwatch=device==='stopwatch',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
       // Original PaperMono SDK API: outermost endWrite flushes the real EPD.
       const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (480, 800) or not d.isEPD():\n    raise RuntimeError("PaperMono EPD dimensions mismatch")\nd.setEpdMode(d.EPDMode.EPD_QUALITY)\nd.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
+        :stopwatch?`import M5\nd = M5.Display\nd.setRotation(0)\nd.setBrightness(255)\nwidth, height = d.width(), d.height()\nif (width, height) != (468, 468) or d.getBrightness() != 255:\n    raise RuntimeError("StopWatch logical display or brightness mismatch")\nd.fillScreen(0xFF0000)\nprint("${marker}", width, height, d.getBrightness())\n`
         :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
       await runProgram('guest-display-output', source, {stdout:marker});
-      await page.waitForFunction(mono=>{
+      if(stopwatch)await page.waitForFunction(stopwatchRedCircleOracle,{}, {timeout:30000,polling:250});
+      else await page.waitForFunction(mono=>{
         const frame=uiflowRuntime.lastFrame;if(!frame)return false;
         if(mono){
           if(frame.width!==480||frame.height!==800||frame.pixels.length!==480*800*2)return false;
@@ -194,6 +197,13 @@ try {
           pixels:frame.width*frame.height,black_pixels:black,white_pixels:white,red_pixels:red,
           sha256:[...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('')};
       },mono);
+      if(stopwatch){
+        report.frame.pattern='stopwatch-round-red-brightness255-v1';
+        report.frame.oracle=await page.evaluate(stopwatchRedCircleOracle,{summary:true});
+        report.frame.oracle_source={path:'platform/tests/public_qemu_stopwatch_frame_oracle.mjs',
+          sha256:hash(await readFile(resolve(repo,'platform/tests/public_qemu_stopwatch_frame_oracle.mjs')))};
+        check('stopwatch-exact-round-mask-and-full-brightness',report.frame.oracle.matches,report.frame.oracle);
+      }
       check('source-drew-actual-guest-framebuffer', report.frame.width > 0 && report.frame.height > 0, report.frame);
       await page.screenshot({path:resolve(output,mono?'program-mono-frame.png':'program-red-frame.png'),fullPage:true});
     }
@@ -242,7 +252,16 @@ try {
       python:document.querySelector('#pythonStatus')?.textContent, output:document.querySelector('#pythonOutput')?.textContent,
       banner:document.querySelector('#errorBanner')?.textContent})).catch(() => null);
     await page.screenshot({path:resolve(output, 'failure.png'), fullPage:true}).catch(() => {});
-    await page.evaluate(() => globalThis.uiflowRuntime?.stop()).catch(() => {});
+    report.failure_stopped_evidence = await page.evaluate(async () => {
+      const runtime=globalThis.uiflowRuntime;if(!runtime)return null;
+      await runtime.stop();
+      const evidence=runtime.evidence(),frame=evidence.last_frame;
+      // Keep the actual post-stop/QMP receipt without duplicating raw pixels.
+      const {pixels,...frameSummary}=frame||{};
+      return {session_id:evidence.session_id,console_epoch:evidence.console_epoch,status:runtime.status,
+        stopped_at:evidence.stopped_at,receipt:evidence.receipt,cleanup:evidence.cleanup,
+        machine_events:evidence.machine_events,last_frame:frame?frameSummary:null};
+    }).catch(error => ({capture_error:String(error?.message||error)}));
     await page.evaluate(() => { if (globalThis.deferredUIFlowRemoval) deferredUIFlowRemoval.remove.call(deferredUIFlowRemoval.frame); }).catch(() => {});
     if (workers) report.failure_cleanup = await workers.waitUntilClosed({minimumObserved:1, timeoutMs:30000}).catch(() => null);
   }
