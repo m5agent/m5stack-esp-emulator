@@ -750,3 +750,6 @@ Dial 转环输入由 `test_public_qemu_encoder.mjs` 检查固定路径和不回�
 `test_public_qemu_buttons_guest.mjs`（含 `public_qemu_button_pointer.mjs`）取证，
 源码位于 `tests/browser-qemu/uiflow_workbench/`。默认静态检查不启动 guest，
 所有逐板实际行为、性能与清场结论仍需独立运行，不从 host 合同继承。
+
+`tests/browser-qemu/startup_timing/prepare.py` 为原固定示例生成只读启动时戳观测器。
+源码锁、完整脚本等价与路径合同用于复现已有计时方法；生成与语法检查不授予 guest PASS。

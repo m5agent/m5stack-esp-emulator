@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "kind": "runtime75-existing-startup-observer-transforms",
+  "scope": "Frozen original fixed-regression timing hooks, not a new benchmark.",
+  "runners": {
+    "headless": {
+      "basis": "platform/tests/test_public_qemu_headless_guest.mjs",
+      "basis_bytes": 18807,
+      "basis_sha256": "365b3ad482344880f0f9ace686ecedcfe0765a818ebf5925c1bb9fc8141fa4dd",
+      "historical_harness_name": "runtime75-headless-startup.mjs",
+      "historical_harness_bytes": 22491,
+      "historical_harness_sha256": "e4b4393462aa39aa1936299349f12d710bad12dfa17546bbb4e8cefe087f870f",
+      "executed_checks": 15,
+      "edits": [
+        {
+          "start_line": 7,
+          "end_line": 9,
+          "before": "import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';\nimport {observeWorkerTargets} from './public_qemu_worker_targets.mjs';\n",
+          "after": "import {capturePublicQemuProvenance} from '@REPO_URI@/platform/tests/public_qemu_artifacts.mjs';\nimport {observeWorkerTargets} from '@REPO_URI@/platform/tests/public_qemu_worker_targets.mjs';\n"
+        },
+        {
+          "start_line": 30,
+          "end_line": 30,
+          "before": "",
+          "after": "report.observation_kind='unprofiled-runtime75-fixed-regression-startup';report.harness_sha256=createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex');await writeFile(resolve(output,'harness-executed.mjs'),await readFile(new URL(import.meta.url)));\n"
+        },
+        {
+          "start_line": 82,
+          "end_line": 85,
+          "before": "      response.writeHead(200,{'content-type':mime[extname(file)]||'application/octet-stream','cache-control':'no-cache'});\n      response.end(await readFile(file));\n    }catch{response.writeHead(404).end();}\n",
+          "after": "      const bytes=await readFile(file);response.writeHead(200,{'content-type':mime[extname(file)]||'application/octet-stream','cache-control':'no-cache'});\n      response.end(bytes);\n    }catch{if(!response.headersSent)response.writeHead(404);response.end();}\n"
+        },
+        {
+          "start_line": 123,
+          "end_line": 123,
+          "before": "",
+          "after": "        const time=globalThis.startupTiming={runtime_start_ms:performance.now(),click_ms:globalThis.startupClick,assets:[],compiles:[],serial:[],states:[],guest_ready_ms:null,first_output_ms:null,first_frame_ms:null,inputs:[]};\n        const receive=this.receive,state=this.state,load=this.loadAsset,compile=this.compileWasm;\n        this.loadAsset=async function(url,options){const row={url,start_ms:performance.now()};time.assets.push(row);try{const value=await load.call(this,url,options);row.end_ms=performance.now();row.cache=value.cache;return value;}catch(error){row.error=error.message;throw error;}};\n        this.compileWasm=async function(bytes,options){const row={start_ms:performance.now()};time.compiles.push(row);const value=await compile.call(this,bytes,options);row.end_ms=performance.now();row.cache=value.cache;return value;};\n        this.state=function(status){time.states.push({status,at_ms:performance.now()});return state.call(this,status);};\n        this.receive=function(data,...rest){if(data.type==='serial'){time.serial.push({at_ms:performance.now(),data:data.value});if(time.guest_ready_ms===null&&(this.serial+data.value).includes('\"kind\": \"ready\"'))time.guest_ready_ms=performance.now();}if(data.type==='device-state'&&time.first_output_ms===null)time.first_output_ms=performance.now();if(data.type==='frame'&&time.first_frame_ms===null)time.first_frame_ms=performance.now();return receive.call(this,data,...rest);};\n\n"
+        },
+        {
+          "start_line": 124,
+          "end_line": 125,
+          "before": "        this.input=function(event){inputs.push(structuredClone(event));return input.call(this,event);};\n",
+          "after": "        this.input=function(event){time.inputs.push({at_ms:performance.now(),event:structuredClone(event)});inputs.push(structuredClone(event));return input.call(this,event);};\n"
+        },
+        {
+          "start_line": 154,
+          "end_line": 154,
+          "before": "",
+          "after": "  await page.evaluate(()=>document.querySelector('#startBtn').addEventListener('click',()=>{globalThis.startupClick=performance.now();},{capture:true,once:true}));\n"
+        },
+        {
+          "start_line": 213,
+          "end_line": 214,
+          "before": "  report.status='PASS';\n",
+          "after": "  report.timing=await page.evaluate(()=>startupTiming);report.status='PASS';\n"
+        },
+        {
+          "start_line": 215,
+          "end_line": 216,
+          "before": "  report.error=error.message;process.exitCode=1;\n",
+          "after": "  report.timing=await page?.evaluate(()=>globalThis.startupTiming).catch(()=>null);report.error=error.message;process.exitCode=1;\n"
+        },
+        {
+          "start_line": 221,
+          "end_line": 222,
+          "before": "  if(page)await page.evaluate(()=>globalThis.headlessRun?.runtime.stop()).catch(()=>{});\n",
+          "after": "  if(page){\n    if(report.status==='FAIL')await page.evaluate(()=>{const frame=globalThis.headlessRun?.runtime?.iframe;if(frame?.isConnected&&!globalThis.headlessDeferredRemoval){const remove=frame.remove;globalThis.headlessDeferredRemoval={frame,remove,requests:0};frame.remove=()=>{headlessDeferredRemoval.requests++;};}}).catch(()=>{});\n    report.final_cleanup=await page.evaluate(async()=>{await globalThis.headlessRun?.runtime?.stop();return globalThis.headlessRun?.runtime?.cleanupResult||null;}).catch(()=>null);\n    if(report.status==='FAIL'&&workerTargets){\n      const created=report.final_cleanup?.workersCreated,minimumObserved=Number.isInteger(created)?created+1:1;\n      const before=await workerTargets.waitUntilOnly({minimumObserved,allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000}).catch(error=>({ok:false,error:error.message}));\n      const held=await page.evaluate(()=>{const h=globalThis.headlessDeferredRemoval;return h?{iframe_present:h.frame.isConnected,removal_requests:h.requests}:null;}).catch(()=>null);\n      await page.evaluate(()=>{const h=globalThis.headlessDeferredRemoval;if(h){h.remove.call(h.frame);delete globalThis.headlessDeferredRemoval;}}).catch(()=>{});\n      const after=await workerTargets.waitUntilClosed({minimumObserved,timeoutMs:30000}).catch(error=>({ok:false,error:error.message}));report.failure_worker_targets={before_removal:before,iframe_removal:held,after_removal:after};\n    }\n  }\n"
+        }
+      ]
+    },
+    "board": {
+      "basis": "platform/tests/test_public_qemu_board_guest.mjs",
+      "basis_bytes": 52412,
+      "basis_sha256": "2eff0c6093609ce21c4139a2ecbc6b8a2b91d148d48c9d022aebb6653a8778d4",
+      "historical_harness_name": "runtime75-board-startup.mjs",
+      "historical_harness_bytes": 54740,
+      "historical_harness_sha256": "cd1ad0ef104b5c09879c147bf33b112108b05055405e0eb189cf62600476342b",
+      "executed_checks": 26,
+      "edits": [
+        {
+          "start_line": 7,
+          "end_line": 9,
+          "before": "import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';\nimport {observeWorkerTargets} from './public_qemu_worker_targets.mjs';\n",
+          "after": "import {capturePublicQemuProvenance} from '@REPO_URI@/platform/tests/public_qemu_artifacts.mjs';\nimport {observeWorkerTargets} from '@REPO_URI@/platform/tests/public_qemu_worker_targets.mjs';\n"
+        },
+        {
+          "start_line": 38,
+          "end_line": 38,
+          "before": "",
+          "after": "report.observation_kind='unprofiled-runtime75-fixed-regression-startup';report.harness_sha256=createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex');await writeFile(resolve(output,'harness-executed.mjs'),await readFile(new URL(import.meta.url)));\n"
+        },
+        {
+          "start_line": 72,
+          "end_line": 75,
+          "before": "      response.writeHead(200, {'content-type':mime[extname(file)] || 'application/octet-stream', 'cache-control':'no-cache'});\n      response.end(await readFile(file));\n    } catch { response.writeHead(404).end(); }\n",
+          "after": "      const bytes=await readFile(file);response.writeHead(200, {'content-type':mime[extname(file)] || 'application/octet-stream', 'cache-control':'no-cache'});\n      response.end(bytes);\n    } catch { if(!response.headersSent)response.writeHead(404);response.end(); }\n"
+        },
+        {
+          "start_line": 133,
+          "end_line": 133,
+          "before": "",
+          "after": "        const time=globalThis.startupTiming={runtime_start_ms:performance.now(),click_ms:globalThis.startupClick,assets:[],compiles:[],serial:[],states:[],guest_ready_ms:null,first_output_ms:null,first_frame_ms:null,inputs:[]};\n        const receive=this.receive,state=this.state,load=this.loadAsset,compile=this.compileWasm;\n        this.loadAsset=async function(url,options){const row={url,start_ms:performance.now()};time.assets.push(row);try{const value=await load.call(this,url,options);row.end_ms=performance.now();row.cache=value.cache;return value;}catch(error){row.error=error.message;throw error;}};\n        this.compileWasm=async function(bytes,options){const row={start_ms:performance.now()};time.compiles.push(row);const value=await compile.call(this,bytes,options);row.end_ms=performance.now();row.cache=value.cache;return value;};\n        this.state=function(status){time.states.push({status,at_ms:performance.now()});return state.call(this,status);};\n        this.receive=function(data,...rest){if(data.type==='serial'){time.serial.push({at_ms:performance.now(),data:data.value});if(time.guest_ready_ms===null&&(this.serial+data.value).includes('\"kind\": \"ready\"'))time.guest_ready_ms=performance.now();}if(data.type==='device-state'&&time.first_output_ms===null)time.first_output_ms=performance.now();if(data.type==='frame'&&time.first_frame_ms===null)time.first_frame_ms=performance.now();return receive.call(this,data,...rest);};\n\n"
+        },
+        {
+          "start_line": 134,
+          "end_line": 135,
+          "before": "          this.input = function(event) { uiInputs.push(structuredClone(event)); return input.call(this, event); };\n",
+          "after": "          this.input = function(event) {time.inputs.push({at_ms:performance.now(),event:structuredClone(event)}); uiInputs.push(structuredClone(event)); return input.call(this, event); };\n"
+        },
+        {
+          "start_line": 210,
+          "end_line": 211,
+          "before": "    await page.locator('#startBtn').click();\n",
+          "after": "    await page.evaluate(()=>document.querySelector('#startBtn').addEventListener('click',()=>{globalThis.startupClick=performance.now();},{capture:true,once:true}));\n  await page.locator('#startBtn').click();\n"
+        },
+        {
+          "start_line": 659,
+          "end_line": 660,
+          "before": "  report.firmware_sha256 = stopped.receipt.firmwareSha256; report.runtime = stopped.receipt; report.session_id = stopped.session_id; report.status = 'PASS';\n",
+          "after": "  report.firmware_sha256 = stopped.receipt.firmwareSha256; report.runtime = stopped.receipt; report.session_id = stopped.session_id; report.timing=await page.evaluate(()=>startupTiming);report.status = 'PASS';\n"
+        },
+        {
+          "start_line": 662,
+          "end_line": 663,
+          "before": "  report.status = 'FAIL'; report.error = error.message; process.exitCode = 1;\n",
+          "after": "  report.timing=await page?.evaluate(()=>globalThis.startupTiming).catch(()=>null);report.status = 'FAIL'; report.error = error.message; process.exitCode = 1;\n"
+        }
+      ]
+    }
+  },
+  "identity_wrapper": {
+    "historical_harness_name": "runtime75-fixed-preflight.mjs",
+    "historical_harness_bytes": 5072,
+    "historical_harness_sha256": "d513d9c1f30aaa865c539bd241e3b0a9cbe6698eecb6893e9a5678c5ef02ea4e"
+  }
+}

@@ -57,6 +57,9 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 新默认镜像与新的输入路由仍需各自的完整浏览器验收。
 [当前发布包启动调查](evidence/2026-11-04-browser-startup-investigation/README.md)
 保留 Atom Matrix / StickC Plus 基线、未采用候选和早启 CDP 诊断，不授予新默认固件或全设备提速。
+[host poll 唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md)
+记录 fresh75、真实 SDK 正向控制及两板原 Flash cold 15/26 项通过；
+warm 与 pthread cancellation 尚未建立，不授予全型号、新默认镜像或线上提速。
 [UIFlow 工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md)
 保留首次 UART signed-array 失败、修复后的 smoke、CoreS3 完整编辑器以及独立组合/布局证据；
 [CoreS3 正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md)
@@ -315,6 +318,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
 | [浏览器启动与UIFlow工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md) | 实施计划 | `2026-11-04` | 全部19款可运行设备的启动/按键、新默认镜像与源码编辑器；逐板身份、行为和清场仍需实际验收 |
 | [Atom Matrix / StickC Plus启动调查](evidence/2026-11-04-browser-startup-investigation/README.md) | 浏览器诊断证据 | `2026-11-04` | 原正式3c两板基线、未采用的oneInsn候选与20秒早启CDP；不授予新默认工作台、全设备提速或部署 |
+| [WASM host poll唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md) | 构建、SDK与两板cold证据 | `2026-11-04` | fresh75原Flash Matrix15/Plus26与正常5CDP；3c/74对照分层，warm NOT RUN、取消未建立，不授予新默认、全型号或线上提速 |
 | [UIFlow工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md) | 浏览器与组合分层证据 | `2026-11-04` | 首次signed-array FAIL保留、旧3c smoke20、新2c72 CoreS3 div8完整54；19组包装与四宽度model-only检查不授予其余18板guest或全按键 |
 | [CoreS3工作台正常钟后续验收](evidence/2026-11-04-browser-uiflow-workbench-wallclock/README.md) | 精确固件浏览器证据 | `2026-11-04` | 同52f Flash/2c72 WASM的div1+oneInsn完整54与正常6CDP清理；单次10.971对27.483秒，不是重复基准，未授予其余18板或新部署 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
