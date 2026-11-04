@@ -83,9 +83,9 @@ Unit 和 Device Service；原厂失败、候选修正与模型阻塞分开记录
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
 - 当前单机 namespace/container 路径不是恶意多租户固件的最终 VM 沙箱。
-- 浏览器 StamPLC 原多指令 TB 在硬件复位后发生 SYSTIMER 读 PIF，
-  精确工作台 oneInsn 策略只有限定规避证据；`RUNTIME-07` 的 C/复位事务
-  根因仍开放，见[缺口登记](runtime-model-gap-register.md)。
+- 浏览器原多指令策略的 StamPLC 复位 PIF 与 Cardputer 复位 WASM 越界
+  分别按 `RUNTIME-07/08` 保持开放；精确工作台策略或诊断通过不关闭原
+  C/复位事务根因，见[缺口登记](runtime-model-gap-register.md)。
 
 ## 当前代码盘点
 

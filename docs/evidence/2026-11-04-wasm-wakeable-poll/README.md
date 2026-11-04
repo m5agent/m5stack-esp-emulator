@@ -9,9 +9,10 @@ fresh75 在两个原固定示例上完成独立本地冷启动：Atom Matrix `15
 与 `39.144 s`。这些结果只覆盖下列两组固定示例。新默认 UIFlow 镜像、
 其他型号、线上 Pages、重复性能分布与物理硬件不从本记录继承。
 
-**warm：NOT RUN。** 同页 stop/start 的缓存对照尚未执行；硬件 reset 保留当前
-guest，不能代替新建 guest 的 stop/start 资产缓存实验。后续实际结果可单独追加
-`warm-summary.json`，不改写本轮 cold 事实。
+**本独立 cold 批次未测 warm。** [后续 Matrix75 V1 首组](warm-summary.json)
+另有 cold-prime `53.491 s` → warm `76.480 s`，warm 更慢；余下三组仍为
+`NOT RUN`，纯 cache 暖启动收益未建立。这不改写本轮 cold 事实。硬件 reset
+保留当前 guest，不能代替新建 guest 的 stop/start 资产缓存实验。
 
 ## 来源与构建身份
 

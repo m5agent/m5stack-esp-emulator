@@ -128,6 +128,22 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### RUNTIME-08：Cardputer 工作台硬件复位后 WASM 越界
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / under investigation`，根因未确定 |
+| 影响 | browser runtime75、精确 Cardputer-ADV 工作台镜像、原 div1 多指令 TB 的复位路径 |
+| 首次异常 | 完成44项编辑器检查、真实红帧和旧执行取消后，第二次 ROM/application 启动触发 pthread `memory access out of bounds` |
+| 清理 | normal QMP exit 未完成，engine fallback 为1；实际六个 CDP Worker 消失只证明失败后清场，不是正常退出 |
+| 证据边界 | 原始报告未捕获 WASM function/offset 栈；不能套用 StamPLC 的 guest PIF 或直接归因为并发负载 |
+| 证据 | [复位调查](evidence/2026-11-04-cardputer-workbench-reset/README.md) |
+
+关闭条件：在原精确固件/策略上捕获实际 WASM trap 栈、对应二进制符号与复位
+状态，再给出同一路径的受控失败/修复和受影响回归。独立诊断暂未复现、
+连续复位通过或另一执行策略通过均不关闭原内存安全缺口；不以普通重试覆盖
+首次 FAIL，不把失败后 Worker 消失写成正常 QMP 退出。
+
 ### RUNTIME-07：StamPLC 浏览器多指令 TB 下硬件复位后 PIF 异常
 
 | 字段 | 当前值 |

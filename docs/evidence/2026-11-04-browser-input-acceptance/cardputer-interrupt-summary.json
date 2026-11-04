@@ -1,0 +1,625 @@
+{
+  "kind": "Cardputer-public-keyboard-and-finally-interrupt",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "final_product_commit": "9c8f0762603d41f5a880df2bac0e36e510bc1199",
+  "prior_old_product_solo_pass": {
+    "raw": {
+      "bytes": 3463921,
+      "sha256": "9013b1541124324be241a42253a968748d8701cb4ffdb9fba65d8f377f3f3eb7"
+    },
+    "status": "PASS",
+    "completed_checks": 516,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "cardputer-adv",
+    "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+    "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+      "sha256": "39b8dd7e8121582b15c096e0080e48e267bba2ba26038099b33371acd865ebe8"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    },
+    "full_web_provenance_canonical_json_sha256": "4fc3830a84bae90fccc12dbd05c5f45b29600830c9695a60e620ac666c70e16e",
+    "profile": {
+      "board": "m5cardputeradv",
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_created": 5,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "subject_trials": 112,
+    "all_subject_trials_passed": true,
+    "scope": "Prior old double-CtrlC solo516PASS retained; adjacent pending exceptions may coalesce."
+  },
+  "r3_first_failure": {
+    "raw": {
+      "bytes": 3907841,
+      "sha256": "24a3aa82a4a2a02632e8a94a2d7b517847e38ab17b4d5c63dbf5eb4d74b4a1db"
+    },
+    "status": "FAIL",
+    "completed_checks": 513,
+    "all_completed_checks_true": false,
+    "failed_checks": [
+      "public-driver-deinit-and-raw-repl-interrupt"
+    ],
+    "device": "cardputer-adv",
+    "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+    "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "2f6f429436826f7592ead53d1e2be7c9d4f47da4d88083f3ddb7d13f9283a08a",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+      "sha256": "39b8dd7e8121582b15c096e0080e48e267bba2ba26038099b33371acd865ebe8"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "a3ae9b0109d1669a7064126a8a80ecd585f3ddda15ab8a23f4791dcc28bff6ff",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    },
+    "full_web_provenance_canonical_json_sha256": "365d81a76875a0e806491e4987d4204e14bf06dd8d198fd7ae7e227b72315996",
+    "profile": {
+      "board": "m5cardputeradv",
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_created": 5,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "subject_trials": 112,
+    "all_subject_trials_passed": true,
+    "failed_phase": "Only public-driver-deinit-and-raw-repl-interrupt after all56keyboard/mouse subjects passed.",
+    "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 70, in <module>\r\n  File \"hardware/matrix_keyboard.py\", line 80, in deinit\r\nKeyboardInterrupt: \r\n",
+    "interrupted": true,
+    "execution_error": null
+  },
+  "natural_short_diagnostic": {
+    "runs": [
+      {
+        "mode": "baseline",
+        "raw": {
+          "bytes": 59517,
+          "sha256": "22a6274c2c815294126ea67e5c08a3f38ae37b79b22cf922245b8858593022a4"
+        },
+        "original_status": "FAIL",
+        "failed_checks": [
+          "exact-interrupt-transport"
+        ],
+        "observed": {
+          "finally_begin": true,
+          "deinit_end": true,
+          "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 8, in <module>\r\nKeyboardInterrupt: \r\n",
+          "interrupted": true,
+          "error": null
+        },
+        "ctrl_c_writes": [
+          [
+            3,
+            3
+          ]
+        ],
+        "normal_raw_exit_writes": [
+          [
+            2
+          ]
+        ],
+        "cleanup": {
+          "normal_QMP": true,
+          "exit_code": 0,
+          "nested_created": 5,
+          "nested_at_exit": 0,
+          "forced_nested_disposal": 0,
+          "nested_remaining": 0,
+          "engine_fallback": 0,
+          "engine_normal_terminations": 1,
+          "engine_self_close_notifications": 1,
+          "engine_metadata_stage": "before-iframe-removal",
+          "actual_CDP_before_context": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          },
+          "actual_CDP_while_iframe_held": "NOT CAPTURED"
+        }
+      },
+      {
+        "mode": "candidate",
+        "raw": {
+          "bytes": 59621,
+          "sha256": "095d5e68a442ea1abc4cf63cd6c746384565b3062a12b68aecda97170646ae91"
+        },
+        "original_status": "FAIL",
+        "failed_checks": [
+          "exact-interrupt-transport"
+        ],
+        "observed": {
+          "finally_begin": true,
+          "deinit_end": true,
+          "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 8, in <module>\r\nKeyboardInterrupt: \r\n",
+          "interrupted": true,
+          "error": null
+        },
+        "ctrl_c_writes": [
+          [
+            3
+          ]
+        ],
+        "normal_raw_exit_writes": [
+          [
+            2
+          ]
+        ],
+        "cleanup": {
+          "normal_QMP": true,
+          "exit_code": 0,
+          "nested_created": 5,
+          "nested_at_exit": 0,
+          "forced_nested_disposal": 0,
+          "nested_remaining": 0,
+          "engine_fallback": 0,
+          "engine_normal_terminations": 1,
+          "engine_self_close_notifications": 1,
+          "engine_metadata_stage": "before-iframe-removal",
+          "actual_CDP_before_context": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          },
+          "actual_CDP_while_iframe_held": "NOT CAPTURED"
+        }
+      }
+    ],
+    "observer_error": "Both original statuses remain FAIL: exact-transport check counted the subsequent normal Ctrl-B[2] as interrupt write. Both guest finally blocks completed. No raw rewriting/rerun.",
+    "natural_R3_race_reproduced": false
+  },
+  "controlled_fault_injection": {
+    "source": {
+      "bytes": 20669,
+      "sha256": "ad44fa188ee56bd4394e9169aab795c118b4c62ab1f49c53ba9be441491df9f4"
+    },
+    "candidate": {
+      "bytes": 7659,
+      "sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "baseline": {
+      "bytes": 7360,
+      "sha256": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9"
+    },
+    "modified_transport": "Only an active original payload exactly [3,3] is split via original writeUart with the original UART owner. Its original second byte waits for real guest FINALLY_BEGIN output. Neither stdout nor driver events are synthesized.",
+    "fixture_finally_delay_ms": 200,
+    "parallel_guests": 1,
+    "performance_sample": false,
+    "modes": [
+      {
+        "mode": "baseline",
+        "raw": {
+          "bytes": 895642,
+          "sha256": "14144f8347627a3b3dd6ae63bd57ce95f32f5ff2562b0d7bf84ee778094406a0"
+        },
+        "diagnostic_status": "PASS",
+        "guest_cleanup_outcome": "EXPECTED NEGATIVE CONTROL FAILURE",
+        "observed": {
+          "finally_begin": true,
+          "deinit_end": false,
+          "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 11, in <module>\r\nKeyboardInterrupt: \r\n",
+          "interrupted": true,
+          "error": null
+        },
+        "actual_ctrl_c_writes": [
+          [
+            3
+          ],
+          [
+            3
+          ]
+        ],
+        "normal_raw_repl_exit_writes": [
+          [
+            2
+          ]
+        ],
+        "requested_interrupt_calls": 1,
+        "controlled_split": [
+          {
+            "original_payload": [
+              3,
+              3
+            ],
+            "first_at_ms": 16102.384999990463,
+            "real_finally_marker_observed": true,
+            "deinit_end_before_second": false,
+            "second_at_ms": 16129.774999976158
+          }
+        ],
+        "program_sha256": "25ee07a43d68e39d18fdd976a95462ad8506c8835c8c133f5445df4428daccab",
+        "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+        "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "console_epoch": 0,
+        "site_manifest_sha256": "2f6f429436826f7592ead53d1e2be7c9d4f47da4d88083f3ddb7d13f9283a08a",
+        "test_script_sha256": "ad44fa188ee56bd4394e9169aab795c118b4c62ab1f49c53ba9be441491df9f4",
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0,
+            "workerCountScope": "nested-pthreads",
+            "enginePlacement": "dedicated-worker-v1",
+            "engineWorkersAtAcknowledgement": 1,
+            "selfCloseAfterAcknowledgement": true
+          },
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 1,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "engineOwnershipStage": "before-iframe-removal",
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "worker_targets": {
+          "observed_count": 6,
+          "live_count": 0,
+          "ok": true,
+          "stage": "before-browser-context-close",
+          "before_iframe_measurement": "NOT CAPTURED"
+        }
+      },
+      {
+        "mode": "candidate",
+        "raw": {
+          "bytes": 894924,
+          "sha256": "e13bca9f89e734ea84e07331b9499a7a4fbe399a945db43eb6aa9c4048a72df5"
+        },
+        "diagnostic_status": "PASS",
+        "guest_cleanup_outcome": "PASS",
+        "observed": {
+          "finally_begin": true,
+          "deinit_end": true,
+          "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 8, in <module>\r\nKeyboardInterrupt: \r\n",
+          "interrupted": true,
+          "error": null
+        },
+        "actual_ctrl_c_writes": [
+          [
+            3
+          ]
+        ],
+        "normal_raw_repl_exit_writes": [
+          [
+            2
+          ]
+        ],
+        "requested_interrupt_calls": 2,
+        "controlled_split": [],
+        "program_sha256": "25ee07a43d68e39d18fdd976a95462ad8506c8835c8c133f5445df4428daccab",
+        "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+        "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "console_epoch": 0,
+        "site_manifest_sha256": "2f6f429436826f7592ead53d1e2be7c9d4f47da4d88083f3ddb7d13f9283a08a",
+        "test_script_sha256": "ad44fa188ee56bd4394e9169aab795c118b4c62ab1f49c53ba9be441491df9f4",
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0,
+            "workerCountScope": "nested-pthreads",
+            "enginePlacement": "dedicated-worker-v1",
+            "engineWorkersAtAcknowledgement": 1,
+            "selfCloseAfterAcknowledgement": true
+          },
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 1,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "engineOwnershipStage": "before-iframe-removal",
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "worker_targets": {
+          "observed_count": 6,
+          "live_count": 0,
+          "ok": true,
+          "stage": "before-browser-context-close",
+          "before_iframe_measurement": "NOT CAPTURED"
+        }
+      }
+    ]
+  },
+  "controlled_bounded_receipt": {
+    "bytes": 11621,
+    "sha256": "71cfbe20590f015bc54c3fc2b7468d8bfff5988ed0760810dd0e1150c30da0d3"
+  },
+  "fixed_product_sources": {
+    "platform/web/public-micropython.js": {
+      "bytes": 7659,
+      "sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "platform/tests/test_public_micropython.mjs": {
+      "bytes": 19540,
+      "sha256": "2da79e3ba91eeed2a5d4c039bbdabba686edf9037963899771dbacfd64900e82"
+    },
+    "tests/browser-qemu/uiflow_workbench/README.cardputer-keyboard.md": {
+      "bytes": 5491,
+      "sha256": "30f861f69f07bb1dd05d4df3f59a04dbad764d27cf4f2b74a9856b53915f6106"
+    }
+  },
+  "host_contracts": [
+    {
+      "command": "node platform/tests/test_public_micropython.mjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "guest_execution": "NOT RUN"
+    },
+    {
+      "command": "node platform/tests/test_public_micropython_ui.mjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "guest_execution": "NOT RUN"
+    },
+    {
+      "command": "node platform/tests/test_public_qemu_entry.mjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "guest_execution": "NOT RUN"
+    },
+    {
+      "command": "node platform/tests/test_public_qemu_cardputer_keyboard_contract.mjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "guest_execution": "NOT RUN"
+    }
+  ],
+  "source_mechanism": {
+    "public_keyboard_source_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+    "MicroPython_gitlink": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+    "mechanism": "UART0 dupterm_notify reads one byte per rx_chr, Ctrl-C schedules KI then returns a negative result ending that notification loop. After the pending exception is cleared and raised, a later second byte can schedule another exception while module_fun is still executing finally. pyexec disables interrupt only after module_fun unwinds.",
+    "independent_readonly_receipt": {
+      "bytes": 9077,
+      "sha256": "8d5ee205dcf4db196429be3a1cf849dffba66e5e95f93091468c3fde3889fa91"
+    }
+  },
+  "independent_final_review": {
+    "bytes": 2706,
+    "sha256": "32acc1dad57bdee73bb7668525b30065a6c2f13083693dab532f86c636f40d09"
+  },
+  "official_keyboard_oracle": {
+    "repository": "https://github.com/m5stack/uiflow-micropython",
+    "commit": "50e440780492aa847378c7d3477ab912f7063bac",
+    "files": {
+      "m5stack/libs/hardware/matrix_keyboard.py": "3d62f15337c5be53b32228f007fbbac94cdd6df88f2a1ecd7a6b56e5d39e5172",
+      "m5stack/libs/hardware/keyboard/__init__.py": "ca22657f704da629e9659ba50b769f169af077aca16d9dae1c94b269ae85fd33",
+      "m5stack/libs/hardware/keyboard/asciimap.py": "8da6502d5e16b8f82c99984ef6499b32c89a2ffa6047811f079d1c64919b893b",
+      "m5stack/libs/driver/tca8418.py": "2e875c9c2951aeb0df0f3eab87fa6c91e514b689499c8da10cc0d5b7645086d6"
+    }
+  },
+  "strict_v4_solo": {
+    "raw": {
+      "bytes": 3463951,
+      "sha256": "00147ec3a208cd743c54e1274ef34fff700c2a2d2196dc84a30e1524d98959cd"
+    },
+    "status": "PASS",
+    "completed_checks": 516,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "cardputer-adv",
+    "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+    "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+      "sha256": "39b8dd7e8121582b15c096e0080e48e267bba2ba26038099b33371acd865ebe8"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "a3ae9b0109d1669a7064126a8a80ecd585f3ddda15ab8a23f4791dcc28bff6ff",
+      "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    },
+    "full_web_provenance_canonical_json_sha256": "f0589c811dace84044c4c84f78f1d9063ade9f130d32aac14662bea30c62249a",
+    "profile": {
+      "board": "m5cardputeradv",
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_created": 5,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "physical_keys": 56,
+    "subject_trials": 112,
+    "methods": {
+      "keyboard": 56,
+      "pointer": 56
+    },
+    "all_subject_trials_passed": true,
+    "formal_requested_ms": 250,
+    "observed_subject_hold_ms": {
+      "min": 250.97291600000244,
+      "max": 256.9898749999993
+    },
+    "raycast_passes": 56,
+    "deinit_marker": {
+      "kind": "deinit",
+      "callback_count": 114
+    },
+    "same_runtime_console_check": true,
+    "execution": {
+      "interrupted": true,
+      "error": null,
+      "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 68, in <module>\r\nKeyboardInterrupt: \r\n",
+      "phases": [
+        "connecting",
+        "uploading",
+        "running",
+        "interrupted"
+      ]
+    },
+    "observer": {
+      "path": "tests/browser-qemu/uiflow_workbench/cardputer_keyboard_observer.py",
+      "sha256": "896761144c4c3edce58cee5a36bd6879a7020ba12ba9333f38698a8b5249a7a6",
+      "executed_sha256": "eb225dcdec56ce751ada26b4faf7c6d24355d8d9dd932b0daf58caadeac6f1b0"
+    },
+    "oracle_sha256": "34766e465e8b52ad71373f44b8ed7d978f94520eee181e3f89f9946a104f84e4",
+    "pointer_helper_sha256": "bba9b2c798b91cf100b98203fcc5d2f4ab79fd1150c668354846f31d4ff728b5",
+    "observed_renderer": {
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    },
+    "renderer_limit": "Recorded actual ANGLE; this runner did not assert one specific renderer string.",
+    "model_source_sha256": {
+      "platform/web/cardputer-adv-keymap.js": "28ec5ab41b3e636ee7fea3200de474eeaec62aadfad0de07729e4f8c8d1dd37b",
+      "platform/web/vendor/m5stack-models/src/core/DeviceViewer.js": "df0d46fcfeffbca672949147d8e36cc391223d2010de81cb94c2374f9f44ea95",
+      "platform/web/vendor/m5stack-models/src/core/components/Button.js": "c2b99313190d4ecf26f2522530360e0aeec687a8a6abd1a5120eb53809414b9e",
+      "platform/web/vendor/m5stack-models/src/devices/cardputer-adv/index.js": "70a3f40190794057268299d59592d54b8bdb99425395c8d362dcb8f61dec4138"
+    }
+  },
+  "limits": [
+    "Fn is tested using the documented Fn+grave ESC chord. Pointer Fn uses keyboard grave as a separately recorded companion.",
+    "The original driver emits code 0 for standalone Fn; code 0 alone cannot pass its functional case.",
+    "Source oracle hashes describe the inspected official source; the actual official image must independently pass this guest run.",
+    "Fn pointer subject uses a separate keyboard grave companion; not56pure mouse-only chords.",
+    "The old11-key private-ISR fixed fixture does not inherit56-key IRQ acceptance.",
+    "G0/Boot has its own BtnA case; power/reset sliders and other devices do not inherit matrix-key results.",
+    "External observer uses only original public MatrixKeyboard callback/get_key/is_key_pressed/deinit; no tick/private ISR/manual FIFO/replacement PinIRQ.",
+    "Controlled split proves a second exception can interrupt finally; original R3 byte/notification timing was not measured.",
+    "Normal QMP and actual sixCDP before context are distinct. Actual CDP with iframe held is NOT CAPTURED for these Card runs.",
+    "V4 solo516PASS does not grant the ongoing60gate, other firmware/profile, performance, Pages deployment or physical hardware.",
+    "Later R4 full-editor reset produced WASM OOB after44completed checks and required engine fallback1. Actual sixCDP closure does not establish normal guest exit; full editor/reset/stability remain open."
+  ],
+  "subsequent_editor_reset_failure": {
+    "scope": "Separate full-editor hardware-reset path; not the56-key IRQ/deinit acceptance or its controlled Ctrl-C diagnosis. Root-cause and repeat-reset investigation remain open.",
+    "raw": {
+      "bytes": 1705609,
+      "sha256": "a369b601cecf52ae9ae4243ae0ad315ed18eeca475451341f0eb3bb024bcac2e"
+    },
+    "status": "FAIL",
+    "previously_completed_checks": 44,
+    "all_previous_completed_checks_true": true,
+    "failed_phase": "Second boot after actual host QMP hardware reset; Uncaught RuntimeError: memory access out of bounds.",
+    "full_gate_scope": "R4 terminalFAIL,7started6PASS; no complete60/all19 acceptance.",
+    "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010"
+    },
+    "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "profile": "cardputer-adv-wasm-wallclock",
+    "product_JS_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+    "cleanup": {
+      "normal_QMP": false,
+      "exit_code": null,
+      "nested_at_exit": null,
+      "disposal": null,
+      "engine_fallback": 1,
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "limit": "V4solo516PASS grants real56-key IRQ/input and single-interrupt finally cleanup only; full editor reset/stability is not granted. The later OOB cause is not assigned to the earlier double-CtrlC race."
+  }
+}

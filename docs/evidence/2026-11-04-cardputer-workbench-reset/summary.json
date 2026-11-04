@@ -1,0 +1,833 @@
+{
+  "schema_version": 1,
+  "kind": "Cardputer-workbench-hardware-reset-open-gap",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "status": "OPEN_ORIGINAL_R4_RESET_OOB_WITH_EXACT_POLICY_FUNCTIONAL_ACCEPTANCE",
+  "runtime": {
+    "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35244932,
+        "sha256": "1de631cd82597f6477ebc1bb700274e44aeb2f1c093e8122dae07dcbb88683c6"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12746345,
+        "sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "source_lock_sha256": "68f9696628ca9ba30484a2c57487e41f11fe9ce5a51a273e573434b932f2f2c1",
+    "recipe_sha256": "e1bc8875a591e03f656db09d93fec7eba56b51dabff99aca63664ddbcce8291d"
+  },
+  "firmware": {
+    "deviceId": "cardputer-adv",
+    "board": "m5cardputeradv",
+    "chip": "esp32s3",
+    "baseSHA256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+    "baseBytes": 8384512,
+    "flashBytes": 8388608,
+    "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+    "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+    "startup_sources": {
+      "boot.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+        "bytes": 214,
+        "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+      },
+      "main.py": {
+        "path": "tests/browser-qemu/uiflow_workbench/main.py",
+        "bytes": 57,
+        "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    }
+  },
+  "original_R4_failure": {
+    "raw": {
+      "bytes": 1705609,
+      "sha256": "a369b601cecf52ae9ae4243ae0ad315ed18eeca475451341f0eb3bb024bcac2e"
+    },
+    "status": "FAIL",
+    "completed_checks": 44,
+    "all_completed_checks_true": true,
+    "failed_check_rows": [],
+    "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+    "test_source_sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010",
+    "actual_profile": {
+      "deviceId": "cardputer-adv",
+      "board": "m5cardputeradv",
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false,
+      "requiredInputPatch": {
+        "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+        "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+      }
+    },
+    "icount_in_actual_args": false,
+    "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+    "cleanup": {
+      "normal_QMP": false,
+      "exit_code": null,
+      "nested_workers_created": null,
+      "nested_workers_at_exit": null,
+      "disposal": null,
+      "engine_ownership": {
+        "engineWorkersCreated": 1,
+        "engineOwnerLive": false,
+        "engineCloseNotificationReceived": false,
+        "engineSelfCloseNotifications": 0,
+        "engineNormalTerminations": 0,
+        "engineFallbackTerminations": 1,
+        "enginePortTransferred": true
+      },
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "phase": "Second boot after actual host QMP hardware reset, after44 completed original checks passed.",
+    "reported_error": "Uncaught RuntimeError: memory access out of bounds",
+    "source_code_reached_reset_before_failure": true,
+    "original_full_gate_result": "R4 terminalFAIL after7started/6PASS; remaining cases not granted.",
+    "exception_origin": "NOT ESTABLISHED; original report has no per-worker acknowledged Debugger/Runtime exception trace.",
+    "does_not_revoke_or_expand_separate_IRQ_result": "V4 solo516PASS/112inputs establishes its own original IRQ and single-interrupt finally cleanup scope, not full editor reset/stability.",
+    "firmware_ref": "#/firmware",
+    "runtime_ref": "#/runtime",
+    "executed_web_ref": "#/executed_web_vectors/set-1",
+    "provenance_helper_ref": "#/provenance_helper_sha256"
+  },
+  "old_observer_diagnostics": [
+    {
+      "raw": {
+        "bytes": 1518609,
+        "sha256": "fbe7c2a80a4342a71d705492f6e72b80a3ed1f87c1452395725ea40cd213606d"
+      },
+      "status": "PASS",
+      "completed_checks": 54,
+      "all_completed_checks_true": true,
+      "failed_check_rows": [],
+      "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+      "test_source_sha256": "9f2b6a40a23415d7c11517b7d9de1848d50ff59940a070d8ba805afc06b7395a",
+      "actual_profile": {
+        "deviceId": "cardputer-adv",
+        "board": "m5cardputeradv",
+        "profile": "cardputer-adv-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false,
+        "requiredInputPatch": {
+          "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+          "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+        }
+      },
+      "icount_in_actual_args": false,
+      "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_workers_created": 5,
+        "nested_workers_at_exit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engine_ownership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        }
+      },
+      "diagnostic_scope": "Original full54 editor checks retained with extra CDP observation. No clean performance or complete-public-gate claim.",
+      "exception_observer": {
+        "kind": "cardputer-reset-worker-exceptions-v1",
+        "attached_sessions": 6,
+        "reported_event_count": 0,
+        "capture_error_count": 0,
+        "nested_Runtime_Debugger_ACK_before_reset": "NOT CAPTURED",
+        "zero_events_proves_no_exception": false
+      },
+      "first_hardware_reset_epochs": {
+        "before_console_epoch": 0,
+        "after_console_epoch": 1
+      },
+      "firmware_ref": "#/firmware",
+      "runtime_ref": "#/runtime",
+      "executed_web_ref": "#/executed_web_vectors/set-1",
+      "provenance_helper_ref": "#/provenance_helper_sha256"
+    },
+    {
+      "raw": {
+        "bytes": 2291387,
+        "sha256": "357ce38f922258a9cf1293af85c9f4bab01a5f8aee60fe5b619103d2c3ebddad"
+      },
+      "status": "PASS",
+      "completed_checks": 126,
+      "all_completed_checks_true": true,
+      "failed_check_rows": [],
+      "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+      "test_source_sha256": "f20175b7f9b8075cd7a5192db2b1dafd3fa2577bd6da4cc99fabc09ecc074147",
+      "actual_profile": {
+        "deviceId": "cardputer-adv",
+        "board": "m5cardputeradv",
+        "profile": "cardputer-adv-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false,
+        "requiredInputPatch": {
+          "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+          "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+        }
+      },
+      "icount_in_actual_args": false,
+      "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_workers_created": 5,
+        "nested_workers_at_exit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engine_ownership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        }
+      },
+      "diagnostic_scope": "Original full54 editor checks retained with extra CDP observation. No clean performance or complete-public-gate claim.",
+      "exception_observer": {
+        "kind": "cardputer-reset-worker-exceptions-v1",
+        "attached_sessions": 6,
+        "reported_event_count": 0,
+        "capture_error_count": 0,
+        "nested_Runtime_Debugger_ACK_before_reset": "NOT CAPTURED",
+        "zero_events_proves_no_exception": false
+      },
+      "first_hardware_reset_epochs": {
+        "before_console_epoch": 0,
+        "after_console_epoch": 1
+      },
+      "extra_reset_stress": {
+        "planned": 12,
+        "completed": 12,
+        "ordinary_full_reset_is_additional": true,
+        "epoch_span": {
+          "rounds": 12,
+          "before_epoch": 1,
+          "after_epoch": 13,
+          "each_round_increments_one": true,
+          "round_projection_sha256": "fb8b6e5c79ff18c7a385626c990b7e466f30f7696e9a8f4b665806dcea6a7eff"
+        }
+      },
+      "firmware_ref": "#/firmware",
+      "runtime_ref": "#/runtime",
+      "executed_web_ref": "#/executed_web_vectors/set-1",
+      "provenance_helper_ref": "#/provenance_helper_sha256"
+    }
+  ],
+  "old_observer_limit": "Target.sendMessageToTarget outer delivery responses were awaited without mandatory nested per-target Runtime.enable/Debugger ACK readiness before each reset. Event count0 cannot prove exception absence. Later PASS cannot erase original R4.",
+  "acknowledged_observer": {
+    "source": {
+      "bytes": 10233,
+      "sha256": "6db52788d336d68df97118c1a23891bba2d6e076706ed3a9f618dd63e101b924"
+    },
+    "required_protocol": [
+      "Every actual worker must answer nested Runtime.enable, Debugger.enable, Debugger.setPauseOnExceptions before each studied reset.",
+      "Capture original Debugger.paused callframes then immediately resume the same worker; require nested Debugger.resume ACK.",
+      "Record actual Worker lifetime and normal guest stop independently; no synthesized guest output or exception."
+    ],
+    "real_tiny_WASM_controls": [
+      {
+        "raw": {
+          "bytes": 11705,
+          "sha256": "e8b289dc0244da882ae44bc7bfdc88235c9eb89e22b4e6fbc5c0be11c173e402"
+        },
+        "observer_control_source": {
+          "bytes": 2766,
+          "sha256": "cd8f68ce2a62099e4207fa345364961b6a42f3e65d30e1a2ea55c95c31bc8bf5"
+        },
+        "status": "FAIL",
+        "guest_execution": "NOT RUN",
+        "scope": "Real48-byte WebAssembly one-page OOB in an owned dummy browser Worker; observer control only, not QEMU firmware execution.",
+        "real_trap_observed": true,
+        "event_counts": {
+          "Debugger.paused": 1,
+          "Runtime.exceptionThrown": 1
+        },
+        "target_readiness": {
+          "ok": true,
+          "expected_workers": 1,
+          "actual_live_workers": 1
+        },
+        "paused_resume_ACKs": 1,
+        "protocol_error_count": 0,
+        "capture_error_count": 0,
+        "explicit_dummy_cleanup_live_workers": "NOT CAPTURED",
+        "assertion_interpretation": "First control rejected blank callFrame.url despite the actual trap events; FAIL retained. V2 joins callFrame.location.scriptId to Debugger.scriptParsed scriptLanguage WebAssembly; original trap/ACK requirements retained."
+      },
+      {
+        "raw": {
+          "bytes": 11406,
+          "sha256": "0170b2fb0604e33fba9dc5ee04bb25db7bb472635fee9daa5af21a6d5150e098"
+        },
+        "observer_control_source": {
+          "bytes": 2906,
+          "sha256": "41ac038575274b8c7e6b5ca5a3d26d0c1c24185754549ab92105b239aa41d75c"
+        },
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "scope": "Real48-byte WebAssembly one-page OOB in an owned dummy browser Worker; observer control only, not QEMU firmware execution.",
+        "real_trap_observed": true,
+        "event_counts": {
+          "Debugger.paused": 1,
+          "Runtime.exceptionThrown": 1
+        },
+        "target_readiness": {
+          "ok": true,
+          "expected_workers": 1,
+          "actual_live_workers": 1
+        },
+        "paused_resume_ACKs": 1,
+        "protocol_error_count": 0,
+        "capture_error_count": 0,
+        "explicit_dummy_cleanup_live_workers": 0,
+        "assertion_interpretation": "First control rejected blank callFrame.url despite the actual trap events; FAIL retained. V2 joins callFrame.location.scriptId to Debugger.scriptParsed scriptLanguage WebAssembly; original trap/ACK requirements retained."
+      }
+    ],
+    "scope": "Observer reliability control, not firmware acceptance.",
+    "six_worker_13_reset_readiness_vector": {
+      "required_before_each_reset": true,
+      "checkpoints": 13,
+      "expected_actual_workers_each": 6,
+      "all_checkpoints_acknowledged": true,
+      "target_fence_verifications_per_command": {
+        "runtime_enable": 78,
+        "debugger_enable": 78,
+        "pause_on_exceptions": 78
+      },
+      "unique_nested_command_ACKs_per_command": {
+        "runtime_enable": 6,
+        "debugger_enable": 6,
+        "pause_on_exceptions": 6
+      },
+      "interpretation": "Setup enables each actual Worker once. Each reset fence verifies those same live sessions remain acknowledged; repeated snapshots are not additional protocol replies."
+    }
+  },
+  "static_exact_oneInsn_candidate": {
+    "publication_eligible": false,
+    "candidate_profiles": [
+      "cardputer-adv"
+    ],
+    "candidate_variant": {
+      "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+      "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "clockDivisor": 1,
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "fixture": "uiflow-workbench-v1",
+      "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+      "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+      "oneInsnPerTb": true,
+      "requiredRuntimePatch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      }
+    },
+    "required_input_patch_unchanged": {
+      "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+      "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+    },
+    "baseline_site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+    "candidate_site_manifest_sha256": "371c7711ae8c9e28624b29c0e73a73c907959d54e9492ba922f68b31f96c11bb",
+    "static_preparation_raw": {
+      "bytes": 639454,
+      "sha256": "cc9149d7ff47baf56a8dcbe1be85a382b855617cfc7da89385e7bf305f736612"
+    },
+    "clock_divisor": 1,
+    "icount": false,
+    "non_metadata_assets_identical": true,
+    "no_shared_writable_inodes": true,
+    "C_controller_wiring_Flash_runtime_binary_unchanged": true,
+    "functional_patch_sha256": "441deaf87cb8a039e63a627a95bd063bccaaf57591a446f82b124f0cb19ef9ea",
+    "preview_only_patch_sha256": "d076a9cb18703933d527df2b12d476a3816fccc7ff0d0d2973bae94bab05e369",
+    "limit": "Static preparation alone grants no guest PASS. The subsequent original54-check trial is recorded separately and is exact firmware/main/profile/patch only; the original OOB cause remains open.",
+    "subsequent_unmodified_full_trial": {
+      "raw": {
+        "bytes": 2234683,
+        "sha256": "aa5d437dbdc42d274067de7fc3643bae567236b2ca68bf5c12bf2d37047a13cb"
+      },
+      "status": "PASS",
+      "completed_checks": 54,
+      "all_completed_checks_true": true,
+      "failed_check_rows": [],
+      "site_manifest_sha256": "371c7711ae8c9e28624b29c0e73a73c907959d54e9492ba922f68b31f96c11bb",
+      "test_source_sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010",
+      "actual_profile": {
+        "deviceId": "cardputer-adv",
+        "board": "m5cardputeradv",
+        "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": true,
+        "persistentFlash": false,
+        "requiredInputPatch": {
+          "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+          "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+        }
+      },
+      "icount_in_actual_args": false,
+      "actual_args_canonical_json_sha256": "c816c03bfc8618b8e89dca6ef18c4f92d870035d6e81c74d6832bd55c84cb9d1",
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_workers_created": 5,
+        "nested_workers_at_exit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engine_ownership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        }
+      },
+      "original_full_runner_unmodified": true,
+      "debugger_modified": false,
+      "per_worker_exception_observer": "NOT CAPTURED; original full runner has no ACK/Debugger instrumentation.",
+      "click_to_ready_ms": 4840.501917,
+      "performance_scope": "Single functional observation only, not repeated performance benchmark.",
+      "effective_accelerator_argument": "tcg,thread=multi,one-insn-per-tb=on",
+      "exact_firmware_variant": {
+        "clockDivisor": 1,
+        "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+        "fixture": "uiflow-workbench-v1",
+        "oneInsnPerTb": true,
+        "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+        "requiredRuntimePatch": {
+          "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+          "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+        },
+        "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+        "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      },
+      "limit": "Original independent baseline and ACK-paired diagnostic runs also passed. This exact candidate sample does not establish the original reset cause fixed or a deterministic old-fails/new-passes comparison.",
+      "firmware_ref": "#/firmware",
+      "runtime_ref": "#/runtime",
+      "executed_web_ref": "#/executed_web_vectors/set-2",
+      "provenance_helper_ref": "#/provenance_helper_sha256"
+    },
+    "preparation_status": "PREPARED_GUEST_NOT_RUN",
+    "guest_execution_at_preparation": "NOT RUN",
+    "status": "EXACT_PREVIEW_FULL54_AND_ACK_STRESS126_PASS_ROOT_CAUSE_OPEN",
+    "acknowledged_stress_trial": {
+      "raw": {
+        "bytes": 2380207,
+        "sha256": "82d8ae3afa102e95df89fe9981a275a550a59ce2fa2eda0d758146419e7550fc"
+      },
+      "status": "PASS",
+      "completed_checks": 126,
+      "all_completed_checks_true": true,
+      "failed_check_rows": [],
+      "site_manifest_sha256": "371c7711ae8c9e28624b29c0e73a73c907959d54e9492ba922f68b31f96c11bb",
+      "test_source_sha256": "a52c02242aa247afe3197ad97efc2625dfbb7d9fbbce255cd02189016e2fdb34",
+      "actual_profile": {
+        "deviceId": "cardputer-adv",
+        "board": "m5cardputeradv",
+        "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": true,
+        "persistentFlash": false,
+        "requiredInputPatch": {
+          "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+          "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+        }
+      },
+      "icount_in_actual_args": false,
+      "actual_args_canonical_json_sha256": "c816c03bfc8618b8e89dca6ef18c4f92d870035d6e81c74d6832bd55c84cb9d1",
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_workers_created": 5,
+        "nested_workers_at_exit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engine_ownership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineSelfCloseNotifications": 1,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        }
+      },
+      "original_checks_retained": 54,
+      "planned_extra_resets": 12,
+      "completed_extra_resets": 12,
+      "ordinary_full_reset": 1,
+      "total_resets": 13,
+      "events": {
+        "captured_total": 0,
+        "by_method": {},
+        "protocol_errors": 0,
+        "capture_errors": 0
+      },
+      "extra_reset_epoch_span": {
+        "rounds": 12,
+        "before_epoch": 1,
+        "after_epoch": 13,
+        "each_round_increments_one": true,
+        "round_projection_sha256": "8ee964a50db3ab29b76afd961a08be088d28c41793a24edab54a752a727b2e17"
+      },
+      "test_source_role": "Generated ACK-stress source a52c..., not unmodified b417; it retains original54 checks and adds12reset rounds plus acknowledged observation.",
+      "limit": "Functional-only with Debugger timing perturbation. No captured exception in acknowledged windows; does not close original multi-instruction OOB or demonstrate a C root-cause fix.",
+      "firmware_ref": "#/firmware",
+      "runtime_ref": "#/runtime",
+      "executed_web_ref": "#/executed_web_vectors/set-2",
+      "provenance_helper_ref": "#/provenance_helper_sha256",
+      "observer_source_ref": "#/acknowledged_observer/source",
+      "readiness_ref": "#/acknowledged_observer/six_worker_13_reset_readiness_vector"
+    }
+  },
+  "limits": [
+    "R4 OOB root cause remains unproved. No C, runtime, firmware, clock or profile fix has been validated by the old diagnostic observations.",
+    "Original multi-instruction/div1 profile and exact Flash/runtime remain bound to the failure. Tiny-WASM trap is an observer control, not a reproduction of the QEMU reset cause.",
+    "CDP attachment/debugger pausing may change scheduling; these are functional diagnostics and not clean performance samples.",
+    "Full-editor reset OOB is a separate scope from earlier double-CtrlC finally failure and standalone56-key IRQ success.",
+    "Six CDP workers disappearing after engine fallback does not prove normal QMP or graceful guest exit.",
+    "ACK-paired baseline and exact candidate54/126 observations do not close the original failure. Complete60, arbitrary images, online Pages and physical hardware remain unestablished."
+  ],
+  "closure_requirements": [
+    "Reproduce or bound the original exact Flash/runtime/multi-instruction reset failure with controlled reset-before/after-program and functional-load comparisons.",
+    "Before studied reset, require actual per-worker nested ACKs; on trap capture exact runtime/module/script mapping, original callframes and reset/console epoch ordering without private IDs in public summaries.",
+    "If attributing C/TCG/TLB/CPU reset cause, bind decoded function/PC to the exact linked WASM symbol map and record transaction/state evidence; source suspicion alone cannot close the gap.",
+    "Verify any actual fix through original full-editor post-reset source execution and affected regressions with normal QMP plus independently observed Worker cleanup; preserve the first FAIL.",
+    "Exact oneInsn functional acceptance remains explicitly bound to firmware/main/profile/required patches; it does not establish the original C root cause fixed."
+  ],
+  "reproduction": {
+    "standard_editor_entry": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=cardputer-adv M5_UIFLOW_SMOKE_ONLY=0 M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_uiflow_guest.mjs",
+    "original_runner_sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010",
+    "diagnostic_transform": "Original54 checks and standard cleanup preserved. First adds Worker exception observation; stress adds12 reset-after-running-source rounds. ACK version additionally fences every real worker by nested protocol replies.",
+    "artifact_scope": "Historical raw and binaries remain outside source Git. Ordinary checkout documentation checks do not need those local files."
+  },
+  "acknowledged_paired_diagnostics": {
+    "status": "TERMINAL_PAIRED_FUNCTIONAL_OBSERVATIONS_PASS_ROOT_CAUSE_OPEN",
+    "active_raw_read": false,
+    "terminal_reports_read_after_root_authorized": true,
+    "runs": [
+      {
+        "device": "cardputer-adv",
+        "raw": {
+          "bytes": 2376315,
+          "sha256": "f0ee70cbda1629ce4e44b067c96d99756069e9a16152af3b792ad780eb099d05"
+        },
+        "status": "PASS",
+        "completed_checks": 126,
+        "all_checks_true": true,
+        "ordinary_full_hardware_reset": 1,
+        "extra_resets_completed": 12,
+        "total_resets": 13,
+        "profile": {
+          "board": "m5cardputeradv",
+          "profile": "cardputer-adv-wasm-wallclock",
+          "clockDivisor": 1,
+          "clockOverride": null,
+          "accelerator": null,
+          "oneInsnPerTb": false,
+          "persistentFlash": false,
+          "requiredRuntimePatch": null,
+          "requiredInputPatch": {
+            "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
+            "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+          }
+        },
+        "actual_icount": false,
+        "actual_args_canonical_json_sha256": "a235fed01869905c8171010bf98d16e19fe72bdbddb02be3976dcd5c72ab3f17",
+        "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+        "test_source_sha256": "b1184391d18fb9313c60838e5aeb55fc19350191726608d60b59c7aa86e0c567",
+        "events": {
+          "captured_total": 0,
+          "by_method": {},
+          "protocol_errors": 0,
+          "capture_errors": 0
+        },
+        "cleanup": {
+          "normal_QMP": true,
+          "exit_code": 0,
+          "nested_at_exit": 0,
+          "forced_nested_disposal": 0,
+          "nested_remaining": 0,
+          "engine_fallback": 0,
+          "engine_self_close_notifications": 1,
+          "actual_CDP_while_iframe_held": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          },
+          "actual_CDP_before_context": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          }
+        },
+        "limits": [
+          "This two-browser paired load is functional-only, not performance. Debugger attachment/pausing/ACK observation can alter timing.",
+          "No exception event was captured in these acknowledged reset observations; this does not prove the original R4 cause fixed or concurrent execution risk absent."
+        ],
+        "reset_epoch_span": {
+          "rounds": 12,
+          "before_epoch": 1,
+          "after_epoch": 13,
+          "each_round_increments_one": true,
+          "round_projection_sha256": "3cefb7a38e0f852c1c379fa824b7731e5b181d6894d1efc3f059670f38ccbe0c"
+        },
+        "firmware_ref": "#/firmware",
+        "runtime_ref": "#/runtime",
+        "provenance_helper_ref": "#/provenance_helper_sha256",
+        "observer_source_ref": "#/acknowledged_observer/source",
+        "readiness_ref": "#/acknowledged_observer/six_worker_13_reset_readiness_vector"
+      },
+      {
+        "device": "cores3",
+        "raw": {
+          "bytes": 5308914,
+          "sha256": "d1ff94986dd5916472b005057e9f89ce962c3e459223b056766e94d778aabbbe"
+        },
+        "status": "PASS",
+        "completed_checks": 126,
+        "all_checks_true": true,
+        "ordinary_full_hardware_reset": 1,
+        "extra_resets_completed": 12,
+        "total_resets": 13,
+        "profile": {
+          "board": "m5cores3",
+          "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+          "clockDivisor": 1,
+          "clockOverride": null,
+          "accelerator": null,
+          "oneInsnPerTb": true,
+          "persistentFlash": false,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          },
+          "requiredInputPatch": null
+        },
+        "actual_icount": false,
+        "actual_args_canonical_json_sha256": "dcafbf6c8a613a95019aad848d28eca786a21b78cb64214f157af06937fde104",
+        "site_manifest_sha256": "772f9e8618a6d32fa8f44981734bcfe1f1dd3a77f6bf834a61c8d5f971420f6f",
+        "test_source_sha256": "b1184391d18fb9313c60838e5aeb55fc19350191726608d60b59c7aa86e0c567",
+        "events": {
+          "captured_total": 0,
+          "by_method": {},
+          "protocol_errors": 0,
+          "capture_errors": 0
+        },
+        "cleanup": {
+          "normal_QMP": true,
+          "exit_code": 0,
+          "nested_at_exit": 0,
+          "forced_nested_disposal": 0,
+          "nested_remaining": 0,
+          "engine_fallback": 0,
+          "engine_self_close_notifications": 1,
+          "actual_CDP_while_iframe_held": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          },
+          "actual_CDP_before_context": {
+            "ok": true,
+            "observed": 6,
+            "live": 0
+          }
+        },
+        "limits": [
+          "This two-browser paired load is functional-only, not performance. Debugger attachment/pausing/ACK observation can alter timing.",
+          "No exception event was captured in these acknowledged reset observations; this does not prove the original R4 cause fixed or concurrent execution risk absent."
+        ],
+        "reset_epoch_span": {
+          "rounds": 12,
+          "before_epoch": 1,
+          "after_epoch": 13,
+          "each_round_increments_one": true,
+          "round_projection_sha256": "1606b8daf052159d89937569c6679bb2ac7343257b0fd4b2cbfdc5207f166b6a"
+        },
+        "firmware_ref": "#/companion_firmware",
+        "runtime_ref": "#/runtime",
+        "provenance_helper_ref": "#/provenance_helper_sha256",
+        "observer_source_ref": "#/acknowledged_observer/source",
+        "readiness_ref": "#/acknowledged_observer/six_worker_13_reset_readiness_vector"
+      }
+    ]
+  },
+  "runtime_gap": "RUNTIME-08 OPEN; authority register is maintained separately.",
+  "canonical_functional_promotion": {
+    "registry_before_sha256": "40549688154e2489a8809ba4f7278388b52b00d509a8a5256bdbcd6b36562e9c",
+    "registry_after": {
+      "bytes": 91526,
+      "sha256": "150be972fc4f53c1dbbe7ad052d80f878dd4a01d6100ce292c5b51ec189bbbe4"
+    },
+    "scope": "Only one exact Cardputer workbench firmwareProfiles row added. Original board/base/unknown firmware profile and all non-Cardputer rows unchanged.",
+    "actual_added_variant": {
+      "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+      "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+      "clockDivisor": 1,
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "fixture": "uiflow-workbench-v1",
+      "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+      "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+      "oneInsnPerTb": true,
+      "requiredRuntimePatch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      }
+    },
+    "public_admission_before": "public",
+    "public_admission_after": "public",
+    "required_input_patch_unchanged": true,
+    "preview_metadata_promoted": false,
+    "C_clock_Flash_runtime_binary_changed": false,
+    "static_review_receipt": {
+      "bytes": 1996,
+      "sha256": "626b98b23f74e6f0101af875f5d27def70a30e4b0ec5c126166ee627333772a1"
+    },
+    "new_binding_host_contract": {
+      "source": {
+        "bytes": 30613,
+        "sha256": "16a558c8fb9ba5ecc661b3ce8ed72bbc370809af380e122626d8cd24959690af"
+      },
+      "status": "PASS reported by root after actual run; not rerun by this evidence writer",
+      "scope": "Positive exact workbench binding plus negative source/fixture/marker/main/required-patch and unknown-Flash fallbacks; host contract only."
+    },
+    "post_promotion_full60_or_online_validation": "NOT RUN in this record",
+    "limit": "Exact execution-policy functional acceptance only. Candidate suffix is the executed profile label; existing public board admission remains. Original RUNTIME-08 stays OPEN."
+  },
+  "companion_firmware": {
+    "device": "cores3",
+    "firmware_sha256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+    "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "scope": "Only the paired CoreS3 companion observed run; no transfer to Cardputer."
+  },
+  "executed_web_vectors": {
+    "set-1": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "a3ae9b0109d1669a7064126a8a80ecd585f3ddda15ab8a23f4791dcc28bff6ff",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "set-2": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "4ab21b2fbc21eaa3d0c0243e5bf1ac198a02d0790f8cba989f579f1c6cb58e80",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    }
+  },
+  "provenance_helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935"
+}

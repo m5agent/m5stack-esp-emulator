@@ -1,0 +1,226 @@
+{
+  "kind": "stopwatch-circular-display-observer-repair",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "scope": "Observer and guest display source repair; C/runtime/default Flash/clock unchanged.",
+  "first_failure": {
+    "raw": {
+      "bytes": 10840473,
+      "sha256": "ffd4ede8cf0d8dc2b631f88da18d6a4cf3ea64a3ee7d525894616f61179dc187"
+    },
+    "status": "FAIL",
+    "completed_checks": 41,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "stopwatch",
+    "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+    "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "0b764dab3f7273f7bf021cfacc0d9cf5afe4b920e0a193441b02556c475096eb"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9"
+    },
+    "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+    "profile": {
+      "board": "m5stopwatch",
+      "profile": "stopwatch-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": "NOT CAPTURED",
+      "post_stop_engine_metadata": "NOT CAPTURED",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "failed_phase": "Display wait timed out after41 completed editor/source checks passed; there is no false check row for the timeout.",
+    "frame": {
+      "width": 466,
+      "height": 466,
+      "sha256": "df6886f5e402e2d4831df7a9ca304100896f08b044d8014cb0585ae7e56230d7",
+      "rgb565_counts": {
+        "0x7800": 170499,
+        "0x0000": 46657
+      },
+      "wrong_circle_or_background_pixels": 0
+    },
+    "old_oracle": "More than95percent rectangular bright-red pixels; incompatible with fixed circular visibility."
+  },
+  "repaired_full_editor": {
+    "raw": {
+      "bytes": 14425994,
+      "sha256": "d5f347e57dba0156d622d51105ec68abdecf2205a0ce102851ac1e72d767ca44"
+    },
+    "status": "PASS",
+    "completed_checks": 55,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "stopwatch",
+    "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+    "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "test_script": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9"
+    },
+    "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+    "profile": {
+      "board": "m5stopwatch",
+      "profile": "stopwatch-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_created": 5,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      }
+    },
+    "frame": {
+      "width": 466,
+      "height": 466,
+      "sequence": 3,
+      "pattern": "stopwatch-round-red-brightness255-v1",
+      "black_pixels": 46657,
+      "white_pixels": 0,
+      "red_pixels": 170499,
+      "sha256": "8d2b8ecd9cb38142e7160c2ff1cea605e4ab4b73f0d64fb953f4abfde02b566f",
+      "oracle": {
+        "pattern": "stopwatch-round-red-brightness255-v1",
+        "matches": true,
+        "expected": {
+          "width": 466,
+          "height": 466,
+          "center_x": 233,
+          "center_y": 233,
+          "radius": 233,
+          "inside_rgb565": 63488,
+          "outside_rgb565": 0,
+          "inside_pixels": 170499,
+          "outside_pixels": 46657
+        },
+        "inside_pixels": 170499,
+        "outside_pixels": 46657,
+        "wrong_inside_pixels": 0,
+        "wrong_outside_pixels": 0
+      },
+      "oracle_source": {
+        "path": "platform/tests/public_qemu_stopwatch_frame_oracle.mjs",
+        "sha256": "5107a1f07bea16e5ff583e0f15e8f325a43952e7061da64dee0a86d9aeba4656"
+      }
+    },
+    "logical_display_readback": {
+      "width": 468,
+      "height": 468,
+      "brightness": 255
+    },
+    "display_program_sha256": "afd3cc916573d6433393006d028a440467fe10e6fea9c1a48a74a2b6d13fd653"
+  },
+  "fixed_expectation": {
+    "frame": [
+      466,
+      466
+    ],
+    "SDK_logical_size": [
+      468,
+      468
+    ],
+    "center": [
+      233,
+      233
+    ],
+    "radius": 233,
+    "rule": "(x-233)^2+(y-233)^2 <=233^2, integer x/y0..465",
+    "inside_pixels": 170499,
+    "outside_pixels": 46657,
+    "inside_fraction": 0.7851452412090847,
+    "inside_RGB565": "0xf800",
+    "outside_RGB565": "0x0000",
+    "public_API": [
+      "setRotation(0)",
+      "setBrightness(255)",
+      "width()/height()",
+      "getBrightness()",
+      "fillScreen(0xFF0000)"
+    ]
+  },
+  "source": {
+    "compiled_co5300_path": "hw/m5stopwatch/co5300.c",
+    "compiled_co5300_sha256": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
+    "uiflow_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+    "M5GFX_commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+    "source_defaults_predict": "brightness127 plus brightness/255 controller scaling predicts red0x7800; frame quantization does not identify one unobserved brightness register value."
+  },
+  "host_controls": {
+    "status": "Previously PASS; not rerun for this documentation task",
+    "positive": "Independent scanline fixture and serialized observer function",
+    "negative_count": 11,
+    "examples": [
+      "Full red rectangle",
+      "Half-bright circle",
+      "Wrong interior pixel",
+      "Corner leakage",
+      "Exact-boundary mistakes",
+      "Wrong dimensions/short/missing buffer",
+      "Wrong color"
+    ],
+    "guest_execution": "NOT RUN by these host controls"
+  },
+  "limits": [
+    "First FAIL and missing normal-QMP receipt remain retained.",
+    "Later normal metadata and held-iframe CDP results do not fill earlier evidence gaps.",
+    "Display PASS does not grant button or physical optical/display performance acceptance."
+  ]
+}

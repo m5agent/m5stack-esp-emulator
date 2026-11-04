@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-browser-input-acceptance",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "status": "LIMITED_SCOPES_VALIDATED_WITH_RETAINED_FAILURES",
+  "results": {
+    "stopwatch_circle": "First frame observer FAIL retained; repaired full editor55PASS",
+    "PM1": "StopWatch default250ms FAIL retained; explicit application500ms click window with unchanged250ms input formal19checks/6pulsesPASS",
+    "Cardputer": "Old solo516PASS retained; R3 all112inputsPASS but finally deinitFAIL; controlled negative/positive diagnostic; strictV4solo516PASS112inputs plus deinit"
+  },
+  "snapshot_boundary": {
+    "full60": "Active at initial delegation, then R4 terminalFAIL after7started6PASS due a separate Cardputer full-editor post-hardware-reset WASM OOB. Ongoing follow-up reset-stress raw is not read. No full19/all60/editor-reset stability claim.",
+    "Pages_or_production_deployment": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "other_images_profiles": "NOT ESTABLISHED",
+    "Cardputer_full_editor_reset": "FAIL/open; linked hash in cardputer-interrupt-summary.json. V4solo56-key516PASS grants only IRQ/input and single-interrupt finally cleanup."
+  },
+  "parts": {
+    "stopwatch-frame-summary.json": {
+      "bytes": 8978,
+      "sha256": "2fd0fba843a4a12486ac9894c9e5f14a8bae3dc22a5886ae50d8c7262fc95151"
+    },
+    "pm1-application-summary.json": {
+      "bytes": 29105,
+      "sha256": "8658764d176df5455bf98eb7fa17efcd4e0387f0fe13ab72f31b0f50d5d72559"
+    },
+    "cardputer-interrupt-summary.json": {
+      "bytes": 26384,
+      "sha256": "cf4fa82f54f7ea6abd8fb7e42f5f72559efbe253e30b695081ab496049358f4c"
+    }
+  },
+  "runtime75": {
+    "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "assets": {
+      "qemu-system-xtensa.js": {
+        "bytes": 157200,
+        "sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0"
+      },
+      "NOTICE": {
+        "bytes": 968,
+        "sha256": "290273f3bf903aa43510e68a735810e0e6c54d43accc5dc16b00ffd5a0399f76"
+      },
+      "corresponding-source.tar.xz": {
+        "bytes": 35244932,
+        "sha256": "1de631cd82597f6477ebc1bb700274e44aeb2f1c093e8122dae07dcbb88683c6"
+      },
+      "qemu-system-xtensa.wasm": {
+        "bytes": 12746345,
+        "sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+      },
+      "qemu-system-xtensa.worker.js": {
+        "bytes": 2776,
+        "sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+      }
+    },
+    "lock_sha256": "68f9696628ca9ba30484a2c57487e41f11fe9ce5a51a273e573434b932f2f2c1",
+    "recipe_sha256": "e1bc8875a591e03f656db09d93fec7eba56b51dabff99aca63664ddbcce8291d",
+    "C_runtime_Flash_clock_changed_by_these_repairs": false
+  },
+  "firmwares": {
+    "stopwatch": {
+      "board": "m5stopwatch",
+      "chip": "esp32s3",
+      "baseSHA256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "firmwareSHA256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "startup_sources": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    "cardputer-adv": {
+      "board": "m5cardputeradv",
+      "chip": "esp32s3",
+      "baseSHA256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "baseBytes": 8384512,
+      "flashBytes": 8388608,
+      "firmwareSHA256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "startup_sources": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    }
+  },
+  "affected_final_sources": {
+    "platform/tests/public_qemu_stopwatch_frame_oracle.mjs": {
+      "bytes": 1308,
+      "sha256": "5107a1f07bea16e5ff583e0f15e8f325a43952e7061da64dee0a86d9aeba4656"
+    },
+    "platform/tests/test_public_qemu_stopwatch_frame_oracle.mjs": {
+      "bytes": 2843,
+      "sha256": "c96e03c19aabd72fbbc0b00362f5710ee3d0e52c75fe6245adfc332e7fad90c5"
+    },
+    "platform/tests/test_public_uiflow_guest.mjs": {
+      "bytes": 23343,
+      "sha256": "b417ca05de7baf6465e44ad38c1ccbc84d903142ffdd6e319e067080473bd010"
+    },
+    "platform/tests/public_qemu_button_cases.mjs": {
+      "bytes": 2513,
+      "sha256": "c5131e009e6c17c841b5108074d22ceff773701b006661c6f87fd2658456536c"
+    },
+    "platform/tests/test_public_qemu_buttons_guest.mjs": {
+      "bytes": 15413,
+      "sha256": "24b640b4ed6b48e1115e7e92225984b18f363d5c83d5da658c19eeff1d3afc91"
+    },
+    "tests/browser-qemu/uiflow_workbench/button_observer.py": {
+      "bytes": 2751,
+      "sha256": "7c12da319f25aecbd27a0f09b7306f08b339ccd3c07e0638062616bc9f3829e2"
+    },
+    "platform/tests/public_qemu_cardputer_keyboard_cases.mjs": {
+      "bytes": 3150,
+      "sha256": "34766e465e8b52ad71373f44b8ed7d978f94520eee181e3f89f9946a104f84e4"
+    },
+    "platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs": {
+      "bytes": 21316,
+      "sha256": "39b8dd7e8121582b15c096e0080e48e267bba2ba26038099b33371acd865ebe8"
+    },
+    "tests/browser-qemu/uiflow_workbench/cardputer_keyboard_observer.py": {
+      "bytes": 2031,
+      "sha256": "896761144c4c3edce58cee5a36bd6879a7020ba12ba9333f38698a8b5249a7a6"
+    },
+    "platform/web/public-micropython.js": {
+      "bytes": 7659,
+      "sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+    },
+    "platform/tests/test_public_micropython.mjs": {
+      "bytes": 19540,
+      "sha256": "2da79e3ba91eeed2a5d4c039bbdabba686edf9037963899771dbacfd64900e82"
+    }
+  },
+  "reproduction": {
+    "prerequisites": "Verified exported site matching manifest/runtime/default registry; Chrome/Playwright; fresh ignored output. Ordinary checkout tests do not require historical local raw.",
+    "editor": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=stopwatch M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_uiflow_guest.mjs",
+    "configured_buttons": "M5_PUBLIC_SITE=\"$SITE\" M5_QEMU_DEVICE=stopwatch M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_qemu_buttons_guest.mjs",
+    "Cardputer": "M5_PUBLIC_SITE=\"$SITE\" M5_CARDPUTER_KEYBOARD_IRQ=1 M5_QEMU_DEVICE=cardputer-adv M5_QEMU_BUTTON_HOLD_MS=250 M5_PUBLIC_QEMU_OUT=\"$NEW_OUT\" M5_WASM_CHROME=\"$CHROME\" node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+    "historical_scope": "Old failures require recorded original source/export identities; stock runners do not perform the diagnostic fault injection."
+  }
+}

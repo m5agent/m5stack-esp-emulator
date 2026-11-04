@@ -1,0 +1,717 @@
+{
+  "kind": "explicit-PM1-application-button-mode",
+  "date": "2026-11-04",
+  "evidence_level": "virtual-device validation",
+  "scope": "Only StopWatch formal configured application19checks/6pulses PASS is granted here; default250ms FAIL remains.",
+  "source_commit": "70ebf56ea186cae65666c34ae133cdcf270fb03b",
+  "first_default_failure": {
+    "raw": {
+      "bytes": 5709162,
+      "sha256": "da299a6b5a50af376a92aa47e6fce4472c2ff0ebc32b9ce3747935837223aca4"
+    },
+    "status": "FAIL",
+    "completed_checks": 10,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "stopwatch",
+    "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+    "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "test_script": {
+      "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+      "sha256": "fa3405fb60d669cb1a6670b5c15a8de8e89837c6b26705746d4f09ce8dbf79a2"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    },
+    "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+    "profile": {
+      "board": "m5stopwatch",
+      "profile": "stopwatch-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": "NOT CAPTURED",
+      "post_stop_engine_metadata": "NOT CAPTURED",
+      "actual_CDP_before_context": "NOT CAPTURED",
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "completed_input_trials": 4,
+    "completed_trial_scope": "A/B keyboard and pointer; PWR keyboard250ms then timed out without BtnPWR event. Formal PWR pointer NOT RUN.",
+    "failure_observation": "Heartbeat continued; actual controller accepted PWR down/up. Private PM1 virtual hold was not measured in this run.",
+    "default_PM1_PASS": false
+  },
+  "diagnostic_lanes": [
+    {
+      "raw": {
+        "bytes": 9600080,
+        "sha256": "878a0ebecceda8c6dcf74f72ee2cfbb61a04ff08da01c8e25156f6322f5edaff"
+      },
+      "status": "DIAGNOSTIC_COMPLETE",
+      "completed_checks": 7,
+      "all_completed_checks_true": true,
+      "failed_checks": [],
+      "device": "stopwatch",
+      "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+      "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+      "test_script": {
+        "path": ".work/stopwatch-power-diagnostic-20261104/runner.mjs",
+        "sha256": "a9070b5fb321b44f471e4b888fa90faef6e4dfb22303d52c3f33a42fbdd372a9"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "affected_web_exported_sha256": {
+        "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+        "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+        "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+        "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+      },
+      "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+      "profile": {
+        "board": "m5stopwatch",
+        "profile": "stopwatch-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false
+      },
+      "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+      "actual_icount": false,
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_created": 5,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_normal_terminations": 1,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "lane": "metadata",
+      "metadata": {
+        "mode": "metadata",
+        "config": "default",
+        "before": {
+          "cfg4a": 0,
+          "irq42": 0,
+          "cfg49": 42
+        },
+        "after": {
+          "cfg49": 42,
+          "cfg4a": 0
+        }
+      },
+      "input_observations": [],
+      "observer_sha256": "d51b70006bcfbd9c6c08cdbe4c9322ddbc5a9a8fc8b996934b89108287fa122a",
+      "observer_executed_sha256": "9ac0cc93655581700dc65264b52f4cfa7aaf9c0825bacb67512729578b29fc4b"
+    },
+    {
+      "raw": {
+        "bytes": 9609579,
+        "sha256": "f1d93d23ad27c1c7121c9171c3522024cd62de874b9d61a6bfb07774cb96ab18"
+      },
+      "status": "DIAGNOSTIC_COMPLETE",
+      "completed_checks": 9,
+      "all_completed_checks_true": true,
+      "failed_checks": [],
+      "device": "stopwatch",
+      "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+      "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+      "test_script": {
+        "path": ".work/stopwatch-power-diagnostic-20261104/runner.mjs",
+        "sha256": "a9070b5fb321b44f471e4b888fa90faef6e4dfb22303d52c3f33a42fbdd372a9"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "affected_web_exported_sha256": {
+        "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+        "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+        "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+        "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+      },
+      "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+      "profile": {
+        "board": "m5stopwatch",
+        "profile": "stopwatch-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false
+      },
+      "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+      "actual_icount": false,
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_created": 5,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_normal_terminations": 1,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "lane": "power",
+      "metadata": {
+        "mode": "power",
+        "config": "default",
+        "before": {
+          "cfg4a": 0,
+          "irq42": 0,
+          "cfg49": 42
+        },
+        "after": {
+          "cfg49": 42,
+          "cfg4a": 0
+        }
+      },
+      "input_observations": [
+        {
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.58679199999824,
+          "model_hold_ms": 252.70499992370605,
+          "observation": "NO_EVENT_OBSERVED",
+          "public_event_method": null
+        },
+        {
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.7668330000015,
+          "model_hold_ms": 253.25999999046326,
+          "observation": "NO_EVENT_OBSERVED",
+          "public_event_method": null
+        }
+      ],
+      "observer_sha256": "d51b70006bcfbd9c6c08cdbe4c9322ddbc5a9a8fc8b996934b89108287fa122a",
+      "observer_executed_sha256": "55d9d22d4808ff392ce21e7841107c21bbe45bd7c6e597f1cc04a0b819498da3"
+    },
+    {
+      "raw": {
+        "bytes": 9619047,
+        "sha256": "a8a506df05c70c6c613699811785f6a2a2c2db83dbe2987b3078f215a98a91b0"
+      },
+      "status": "DIAGNOSTIC_COMPLETE",
+      "completed_checks": 11,
+      "all_completed_checks_true": true,
+      "failed_checks": [],
+      "device": "stopwatch",
+      "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+      "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+      "test_script": {
+        "path": ".work/stopwatch-power-diagnostic-20261104/runner.mjs",
+        "sha256": "a9070b5fb321b44f471e4b888fa90faef6e4dfb22303d52c3f33a42fbdd372a9"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "affected_web_exported_sha256": {
+        "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+        "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+        "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+        "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+      },
+      "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+      "profile": {
+        "board": "m5stopwatch",
+        "profile": "stopwatch-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false
+      },
+      "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+      "actual_icount": false,
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_created": 5,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_normal_terminations": 1,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "lane": "configured-button",
+      "metadata": {
+        "mode": "button",
+        "config": "irq500ms",
+        "before": {
+          "cfg4a": 0,
+          "irq42": 0,
+          "cfg49": 42
+        },
+        "after": {
+          "cfg49": 45,
+          "cfg4a": 0
+        }
+      },
+      "input_observations": [
+        {
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.00104100000317,
+          "model_hold_ms": 253.0700000524521,
+          "observation": "EVENT_OBSERVED",
+          "public_event_method": "wasClicked"
+        },
+        {
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 254.4215839999997,
+          "model_hold_ms": 253.14999997615814,
+          "observation": "EVENT_OBSERVED",
+          "public_event_method": "wasClicked"
+        }
+      ],
+      "observer_sha256": "d51b70006bcfbd9c6c08cdbe4c9322ddbc5a9a8fc8b996934b89108287fa122a",
+      "observer_executed_sha256": "8cdb4a0590616541983e1e813b461f12dcf14543b2591e987dcfbe15b9134ca5"
+    },
+    {
+      "raw": {
+        "bytes": 9618951,
+        "sha256": "f73cfb07bbfdefc94d8667722bb30113f0684b9dfd4df868c42e987c6cdded53"
+      },
+      "status": "DIAGNOSTIC_COMPLETE",
+      "completed_checks": 11,
+      "all_completed_checks_true": true,
+      "failed_checks": [],
+      "device": "stopwatch",
+      "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+      "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+      "test_script": {
+        "path": ".work/stopwatch-power-diagnostic-20261104/runner-driver-api.mjs",
+        "sha256": "e05f65cd11889f2c8174699b0e8af9e1d5fd7c77c9929fd7014b513d981ef6b8"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "affected_web_exported_sha256": {
+        "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+        "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+        "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+        "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+        "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+        "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+      },
+      "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+      "profile": {
+        "board": "m5stopwatch",
+        "profile": "stopwatch-wasm-wallclock",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "accelerator": null,
+        "oneInsnPerTb": false,
+        "persistentFlash": false
+      },
+      "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+      "actual_icount": false,
+      "cleanup": {
+        "normal_QMP": true,
+        "exit_code": 0,
+        "nested_created": 5,
+        "nested_at_exit": 0,
+        "forced_nested_disposal": 0,
+        "nested_remaining": 0,
+        "engine_fallback": 0,
+        "engine_normal_terminations": 1,
+        "engine_self_close_notifications": 1,
+        "engine_metadata_stage": "before-iframe-removal",
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "actual_CDP_while_iframe_held": "NOT CAPTURED"
+      },
+      "lane": "configured-button",
+      "metadata": {
+        "mode": "button",
+        "config": "irq500ms",
+        "before": {
+          "cfg4a": 0,
+          "irq42": 0,
+          "cfg49": 42
+        },
+        "after": {
+          "cfg49": 45,
+          "cfg4a": 0
+        }
+      },
+      "input_observations": [
+        {
+          "method": "keyboard",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.1560419999987,
+          "model_hold_ms": 251.9650000333786,
+          "observation": "EVENT_OBSERVED",
+          "public_event_method": "wasClicked"
+        },
+        {
+          "method": "pointer",
+          "requested_hold_ms": 250,
+          "observed_hold_ms": 253.4755839999998,
+          "model_hold_ms": 252.12999999523163,
+          "observation": "EVENT_OBSERVED",
+          "public_event_method": "wasClicked"
+        }
+      ],
+      "observer_sha256": "d11dc04a6eb19ab4353938a7ffe58b61537c00174c71b69a0cc81f833a9a1687",
+      "observer_executed_sha256": "3b6509d7d19aed1e6875bd9832c4f62c994325020d0eea465498437d6007ce5f"
+    }
+  ],
+  "formal_configured_stopwatch": {
+    "raw": {
+      "bytes": 9647243,
+      "sha256": "c081ce2cf267c8d13003efa8d95c1ff41248018dc6026ffe03d29bd9a0f7bddf"
+    },
+    "status": "PASS",
+    "completed_checks": 19,
+    "all_completed_checks_true": true,
+    "failed_checks": [],
+    "device": "stopwatch",
+    "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+    "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+    "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "site_manifest_sha256": "6376236fddb33ca0f242253b5fbd48a186a6d116ae36718b2cf9406ded45eb3e",
+    "test_script": {
+      "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+      "sha256": "24b640b4ed6b48e1115e7e92225984b18f363d5c83d5da658c19eeff1d3afc91"
+    },
+    "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+    "affected_web_exported_sha256": {
+      "public.js": "d1a6545140888b95be0768351d8c750752592a4fe2438e2d09e3288c74f12d02",
+      "public-qemu-runtime.js": "13c97db7b721696e217476a8f1e5e52d85d6ef3309cf97d710f78aa7d9771cd3",
+      "public-qemu-engine.js": "aaaa96b52c937749f044fd7dc7ee40097a931f7f176f7596f6e26ef0c6ecdaf6",
+      "qemu-browser-profiles.json": "1d94f6d466c9d0834ca9826229cc22dfe235c8ec51d7843946fc7e4e29b61b69",
+      "public-micropython.js": "0930962db4dcc10f493815133816473e86387e2674a246bc12d061d40bbba8e9",
+      "uiflow-workbench-profiles.json": "6c38a058cacf89a6c45be1fc906566a73f4edae08757716b3dede173bf8b76e1"
+    },
+    "full_web_provenance_canonical_json_sha256": "e888b7fdb23479a09ef83e84c5f9c42256949d21daef983b8b59933c218f044b",
+    "profile": {
+      "board": "m5stopwatch",
+      "profile": "stopwatch-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "persistentFlash": false
+    },
+    "actual_args_canonical_json_sha256": "a6eb4e800e3e3679d6efa3bf6a4c3c1b2309eb7911b6a0355fd9d5eeb13c21ba",
+    "actual_icount": false,
+    "cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_created": 5,
+      "nested_at_exit": 0,
+      "forced_nested_disposal": 0,
+      "nested_remaining": 0,
+      "engine_fallback": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_metadata_stage": "before-iframe-removal",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "live": 0
+      },
+      "actual_CDP_while_iframe_held": "NOT CAPTURED"
+    },
+    "application_setup": {
+      "board": "M5StopWatch",
+      "i2c": 1,
+      "scl": 48,
+      "sda": 47,
+      "addr": 110,
+      "click_window_ms": 500
+    },
+    "actual_readback": {
+      "cfg49_after": 45,
+      "cfg4a_before": 0,
+      "sda": 47,
+      "api": "M5PM1.disable_single_click_reset+set_button_timing",
+      "i2c": 1,
+      "addr": 110,
+      "applied": true,
+      "cfg49_before": 42,
+      "cfg4a_after": 0,
+      "click_window_ms": 500,
+      "scl": 48
+    },
+    "input_trials": [
+      {
+        "id": "a",
+        "owner": "BtnA",
+        "method": "keyboard",
+        "mode": "driver-edges",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 252.70237500000076,
+        "model_hold_ms": 251.75,
+        "guest_pressed": true,
+        "guest_released": false,
+        "guest_event_method": null
+      },
+      {
+        "id": "a",
+        "owner": "BtnA",
+        "method": "pointer",
+        "mode": "driver-edges",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 252.90533399999913,
+        "model_hold_ms": 251.46000003814697,
+        "guest_pressed": true,
+        "guest_released": false,
+        "guest_event_method": null
+      },
+      {
+        "id": "b",
+        "owner": "BtnB",
+        "method": "keyboard",
+        "mode": "driver-edges",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 251.74037499999758,
+        "model_hold_ms": 251.22500002384186,
+        "guest_pressed": true,
+        "guest_released": false,
+        "guest_event_method": null
+      },
+      {
+        "id": "b",
+        "owner": "BtnB",
+        "method": "pointer",
+        "mode": "driver-edges",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 252.80220799999734,
+        "model_hold_ms": 252.0700000524521,
+        "guest_pressed": true,
+        "guest_released": false,
+        "guest_event_method": null
+      },
+      {
+        "id": "power",
+        "owner": "BtnPWR",
+        "method": "keyboard",
+        "mode": "pmic-event",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 253.38645899999756,
+        "model_hold_ms": 252.90499997138977,
+        "guest_pressed": null,
+        "guest_released": null,
+        "guest_event_method": "wasClicked"
+      },
+      {
+        "id": "power",
+        "owner": "BtnPWR",
+        "method": "pointer",
+        "mode": "pmic-event",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 253.9129580000008,
+        "model_hold_ms": 252.88999998569489,
+        "guest_pressed": null,
+        "guest_released": null,
+        "guest_event_method": "wasClicked"
+      }
+    ]
+  },
+  "public_configuration": {
+    "calls": [
+      "M5PM1(i2c,addr=0x6e)",
+      "disable_single_click_reset()",
+      "set_button_timing(M5PM1.BUTTON_TIMING_CLICK,500)"
+    ],
+    "cfg49": "0x2a ->0x2d",
+    "cfg4a": "0x00 unchanged",
+    "fixed_input_ms": 250,
+    "click_recognition_window_ms": 500,
+    "default_Flash_C_or_clock_changed": false,
+    "explicit_four_board_map": {
+      "stopwatch": {
+        "controller": 1,
+        "scl": 48,
+        "sda": 47,
+        "frequency": 100000,
+        "address": 110
+      },
+      "sticks3": {
+        "controller": 1,
+        "scl": 48,
+        "sda": 47,
+        "frequency": 100000,
+        "address": 110
+      },
+      "papercolor": {
+        "controller": 1,
+        "scl": 2,
+        "sda": 3,
+        "frequency": 100000,
+        "address": 110
+      },
+      "papermono": {
+        "controller": 1,
+        "scl": 48,
+        "sda": 47,
+        "frequency": 100000,
+        "address": 110
+      }
+    }
+  },
+  "fixed_official_sources": [
+    {
+      "repository": "uiflow-micropython",
+      "commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+      "path": "m5stack/components/M5Unified/mpy_m5unified.cpp",
+      "git_blob": "53a331cc10b5c0f073fbd9bebb41cf3cc7600c27",
+      "bytes": 36563,
+      "sha256": "2db38cbc3ce1ab53c55977c90d6d23dea246c00dc5ac8dfb1fed5c0c4a1af163",
+      "purpose": "S3 internal I2C1; M5.begin dictionary pmic_button; M5.update"
+    },
+    {
+      "repository": "uiflow-micropython",
+      "commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+      "path": "m5stack/cmodules/m5unified/m5unified_power.c",
+      "git_blob": "8473213cea70d0cbfd4f7a62aecc50606482182b",
+      "bytes": 3736,
+      "sha256": "f9a11d8f9af97905bf7a3734479ecd10e6fd0c29f9f316623f3169557b1c231c",
+      "purpose": "Public Power.getKeyState binding"
+    },
+    {
+      "repository": "M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "path": "src/M5Unified.cpp",
+      "git_blob": "e44dd99d24b1d098f7a1e5ceb6bf2890b4955e5e",
+      "bytes": 138962,
+      "sha256": "5d70485637ba6e03f97ce444df52b61a3c20afce67ed70956da6a3805882d43f",
+      "purpose": "StopWatch internal SCL48 SDA47; PM1 selection and BtnPWR event handling"
+    },
+    {
+      "repository": "M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "path": "src/M5Unified.hpp",
+      "git_blob": "aa228d88d7ff9d20f662f84606f12ee03997b025",
+      "bytes": 24938,
+      "sha256": "8842af276030c1644210f5ba8c5739e7ce187191976ce51d84c4d49037bf2290",
+      "purpose": "Default pmic_button true"
+    },
+    {
+      "repository": "M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "path": "src/utility/Power_Class.cpp",
+      "git_blob": "c063f83f8442fc02565ada0cf8c48afe56610460",
+      "bytes": 102210,
+      "sha256": "924d4bcb159bb326a34dba2aa7796b13728ed8c4fc185bf1e0bcd2f5a8cbfd2d",
+      "purpose": "StopWatch Power.begin and PM1 getKeyState dispatch"
+    },
+    {
+      "repository": "M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "path": "src/utility/power/M5PM1_Class.cpp",
+      "git_blob": "76dc21189076f13658d2364df5063f07a45a06f9",
+      "bytes": 11653,
+      "sha256": "5ffe085a11d139a2e1ea16b3499e23c97af82020e09aa2275ca021e8646e6f10",
+      "purpose": "PM1 begin only ID plus09/0a; getPekPress consumes IRQ42 flags0/2"
+    },
+    {
+      "repository": "M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "path": "src/utility/power/M5PM1_Class.hpp",
+      "git_blob": "88138e4e12d11315ad6879d475f38ce2563183b8",
+      "bytes": 9012,
+      "sha256": "3e55b7fac40db554cd511ae2d178b16713788e593b8cc570b104b93ba16a4016",
+      "purpose": "PM1 address0x6e and public PEK contract"
+    },
+    {
+      "repository": "uiflow-micropython",
+      "commit": "3404a0667985334393af05f53f27006ac954579a",
+      "path": "m5stack/libs/driver/m5pm1.py",
+      "git_blob": "ab44541c04663bc053d5a0073b4c59dffa313bd4",
+      "bytes": 86216,
+      "sha256": "021b3632c6583118ac3eb23b0d2addb7a16e0bb116a0b4ae5c728af5e4ff31b3",
+      "purpose": "Post-release-tag public driver constructor; single-click reset and timing configuration"
+    }
+  ],
+  "census": {
+    "bytes": 14373,
+    "sha256": "c641ee3a653502807e94092a8d48061c81792b6be38d184e50968f1e80f6e3f2"
+  },
+  "host_threshold_control": {
+    "receipt": {
+      "bytes": 1917,
+      "sha256": "8883209a7305073af274338e1f49b62c873ae57d6ea914090f188d9f8952486e"
+    },
+    "status": "Previously9controls PASS, guest NOT RUN in host replay",
+    "source_sha256": "01ecbf11e441ec56db5837e8c821c7f698dfb6c46a6830c643866d87965d18a9",
+    "configurations": [
+      "0x2a",
+      "0x2b",
+      "0x2d"
+    ],
+    "hold_ms": [
+      249,
+      250,
+      251
+    ]
+  },
+  "limits": [
+    "Explicit application IRQ+500ms recognition mode is not default PM1 button-event PASS. Input remains250ms.",
+    "Only four reviewed PM1 devices receive this setup. PaperColor SCL2/SDA3 differs from SCL48/SDA47 on the other three; all use I2C1 and addr0x6e.",
+    "Other three PM1 boards require independent actual guest evidence; this record does not transfer StopWatch PASS.",
+    "M5.update/BtnPWR and Power.getKeyState consume IRQ42; readers were separate per VM. Status48 has a read-to-clear latch.",
+    "Actual model aliases I2C0/I2C1 to a shared slave bus; model acceptance is not electrical GPIO enforcement.",
+    "Fixed release/later Python source explains semantics, not bit-exact identity of October base binary. Original public driver availability and APIs were separately executed on the exact binary.",
+    "Actual initial metadata returned Power.getType as boolean true, not a PMIC enum identity proof.",
+    "Default250ms threshold source replay explains a possible slightly-over250ms no-event window; it does not measure the first failure private virtual hold."
+  ]
+}

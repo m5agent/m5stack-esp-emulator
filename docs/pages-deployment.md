@@ -1,12 +1,12 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对：`2026-11-03`。本页说明部署流程；当前能力以
+最近核对：`2026-11-04`。本页说明部署流程；当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
-当前 inventory：设备 33 台、Unit catalog 160（158 implemented/partial + 2 DEFER）、canonical 41 层链；动态数量以快照为准。
+设备、Unit 与补丁链的当前 inventory 见[自动项目快照](project-snapshot.md)。
 逐设备准入由 `platform/web/qemu-browser-profiles.json` 的 `admission` 定义，
 并与本次 runtime 的 `compiled_profiles` 取交集。已编入二进制的 machine、
 候选预览或原生验证均不能自动获得公开准入。已有运行登记但未获浏览器准入的
@@ -31,7 +31,9 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
    选择 **GitHub Actions**。工作流不会代替管理员启用 Pages。
 2. 打开 **Actions → Prepare public simulator site → Run workflow**，选择 `main`。
    `publish=false` 先构建并验证，下载 `public-simulator-site-preview` artifact
-   可审查导出内容。首次完整源码构建较慢，工作流上限为 90 分钟。
+   可审查导出内容。首次完整源码构建较慢；`build` job 包含构建、导出与验收，
+   当前上限为 240 分钟，另一个 `deploy` job 上限为 10 分钟。这是 job 预算，
+   不是设备启动时延承诺。
 3. 确认后再次运行，设置 `publish=true`。项目站的 `base_path` 默认
    `/m5stack-esp-emulator/`；若更改仓库名，需要同步前缀。用户站或独立域名根路径用 `/`。
 4. `service_url` 默认留空。仅需其它原生设备时配置公开 HTTPS 服务地址；
@@ -43,7 +45,12 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
    分别绑定正常时钟配置，未知固件保留基础慢放配置。
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
-公开板型的真实客体验收成功，包括 CoreS3 两种示例。候选预览导出明确标为
+公开板型的真实客体验收成功。当前[聚合门禁](../platform/tests/test_public_qemu_admitted_boards.mjs)
+依次规划各准入板的完整编辑器和普通按键用例、Cardputer 完整键盘、StackChan
+三区体感触摸，以及旧固定示例（包括 CoreS3 两种示例）；精确用例由源码规划器
+与[工作台验收说明](../tests/browser-qemu/uiflow_workbench/README.md)维护。
+CI 显式设 `M5_QEMU_GATE_WORKERS=1` 串行执行，不能以本地并发功能检查的耗时
+作为启动性能样本。候选预览导出明确标为
 `publication_eligible=false`，聚合发布门禁拒绝它。构建 job 只有仓库读取权限，
 部署 job 才取得 Pages/OIDC 权限。
 发布构建/验收 job 固定在 `macos-14`，浏览器验收要求使用系统 Chrome 的
@@ -85,9 +92,24 @@ Core2 另按仓库已有的稳定路径使用
 每次新运行都须重新证明全部 target 自然消失，不能用本地成功覆盖或关闭 hosted runner 的失败。
 低内存设备、其它浏览器和后台标签页调度没有相同的验收结论。
 
+当前源码版的“UIFlow / 示例”默认选择“UIFlow2 编程环境”：在各板官方 UIFlow2
+基底的 LittleFS 中加入编程启动脚本，调用原 `M5.begin()` 后返回真实
+MicroPython REPL，等待用户代码；它不启动原厂菜单或固定显示/按键程序。
+已部署版本可能仍提供旧入口，不能从源码变化推断线上已经更新。
+
+选择编程环境、启动并等待就绪后，在 MicroPython 编辑区粘贴源码，或用
+“导入 .py”将文本源码放入编辑区，再点击“运行代码”。输出来自当前虚拟设备的
+MicroPython；持续执行的程序可点击“中断”。该入口不承诺通用 `.mpy` 上传或
+字节码 ABI 兼容。查看原固定演示时，在“启动环境”改选“屏幕与按键示例”；
+组合器、精确启动源码与验证入口见[工作台工具说明](../tests/browser-qemu/uiflow_workbench/README.md)。
+
+仅模型或未获浏览器准入的设备不能通过这个编辑器执行固件；不支持 UIFlow2 的
+型号也不会获得 UIFlow2 编程承诺。任意上传固件即使有 UART，也不等于已确认
+MicroPython；其实际 REPL 握手与固件兼容性仍须验证。
+
 参考固件由浏览器直接从固定官方 CDN 下载，校验 SHA256 后，用源码构建的
-LittleFS WASM 在本地组合固定源码，重新挂载逐文件读回并核对完整 Flash。
-CoreS3 原始示例仍精确匹配 `78961297…bd3f`，以独立的
+LittleFS WASM 在本地组合所选编程启动脚本或固定示例源码，重新挂载逐文件读回并核对完整 Flash。
+旧固定示例中，CoreS3 原始示例仍精确匹配 `78961297…bd3f`，以独立的
 `cores3-wasm-stock-wallclock`、clock divisor 1 和 one-insn-per-TB 运行；候选示例另加入
 `candidate_lvgl_loop.py`，精确匹配 `e9500994…9554`，包含明确的 Python
 LVGL 调度候选修复。其他板型的显示/输入 probe 使用各自基底、分区布局和
