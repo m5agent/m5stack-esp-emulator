@@ -1,0 +1,96 @@
+diff --git a/accel/tcg/tcg-accel-ops-icount.c b/accel/tcg/tcg-accel-ops-icount.c
+index 966ec95..9794b5f 100644
+--- a/accel/tcg/tcg-accel-ops-icount.c
++++ b/accel/tcg/tcg-accel-ops-icount.c
+@@ -62,6 +62,12 @@ bool icount_high_priority_irq_active(void)
+     return icount_enabled() && icount_high_priority_irq_cpus != 0;
+ }
+ 
++/* Read-only TCG guard; the original helpers still own all state changes. */
++const unsigned *icount_high_priority_irq_state(void)
++{
++    return &icount_high_priority_irq_cpus;
++}
++
+ static int64_t icount_get_limit(void)
+ {
+     int64_t deadline;
+diff --git a/include/sysemu/cpu-timers.h b/include/sysemu/cpu-timers.h
+index d0a66b2..6c02e41 100644
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -75,6 +75,7 @@ int64_t icount_round(int64_t count);
+ void icount_note_high_priority_irq(int cpu_index, bool active);
+ void icount_yield_for_high_priority_irq(CPUState *cpu);
+ bool icount_high_priority_irq_active(void);
++const unsigned *icount_high_priority_irq_state(void);
+ 
+ /* if the CPUs are idle, start accounting real time to virtual clock. */
+ void icount_start_warp_timer(void);
+diff --git a/stubs/icount.c b/stubs/icount.c
+index 14b71c2..90f6aab 100644
+--- a/stubs/icount.c
++++ b/stubs/icount.c
+@@ -28,6 +28,13 @@ bool icount_high_priority_irq_active(void)
+ {
+     return false;
+ }
++
++const unsigned *icount_high_priority_irq_state(void)
++{
++    static const unsigned inactive;
++
++    return &inactive;
++}
+ void icount_start_warp_timer(void)
+ {
+     abort();
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+index 010f4e8..aa3f0eb 100644
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1818,12 +1818,30 @@ static void translate_mac16(DisasContext *dc, const OpcodeArg arg[],
+     }
+ }
+ 
+-static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
+-                           const uint32_t par[])
++/* Under icount, IRQ enter/return/reset update this mask on the shared vCPU
++ * thread. A zero mask makes the original helper a no-op. Check it in TCG IR
++ * so ordinary memw/retw avoid a helper ABI transition and global-register sync.
++ * A nonzero mask retains the original helper, including sender-side retw.
++ * Global icount mode is intentional: replay TBs may clear CF_USE_ICOUNT. */
++static void gen_high_priority_irq_yield(uint32_t handler_only)
+ {
+     if (icount_enabled()) {
+-        gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
++        TCGv_i32 active = tcg_temp_new_i32();
++        TCGLabel *skip = gen_new_label();
++
++        tcg_gen_ld_i32(active,
++                       tcg_constant_ptr(icount_high_priority_irq_state()), 0);
++        tcg_gen_brcondi_i32(TCG_COND_EQ, active, 0, skip);
++        gen_helper_high_priority_irq_yield(tcg_env,
++                                           tcg_constant_i32(handler_only));
++        gen_set_label(skip);
+     }
++}
++
++static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
++                           const uint32_t par[])
++{
++    gen_high_priority_irq_yield(1);
+     tcg_gen_mb(TCG_BAR_SC | TCG_MO_ALL);
+ }
+ 
+@@ -2054,9 +2072,7 @@ static void translate_retw(DisasContext *dc, const OpcodeArg arg[],
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
+-    if (icount_enabled()) {
+-        gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
+-    }
++    gen_high_priority_irq_yield(0);
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }

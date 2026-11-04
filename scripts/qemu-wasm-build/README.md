@@ -59,6 +59,15 @@ command for missing or conflicting stack settings and records its argument
 hash in the build receipt and runtime manifest. The locked source-file hashes
 bind this recipe to the final reviewed source.
 
+Fresh links also require `--emit-symbol-map` from the first link. Emscripten's
+`qemu-build/qemu-system-xtensa.js.symbols` stays in the owned build cache for
+profiling the exact newly produced WASM function indices. Its hash can be
+recorded in a local sidecar receipt with that WASM hash. It is not a runtime
+asset, is not exported to the public site, and does not enable runtime tracing.
+Adding the flag and relinking an older build can change function indices;
+that later map must not be applied to the older WASM. The flag itself proves
+neither performance nor firmware behavior; both need a new same-image run.
+
 Native layers `0085` through `0089` register separate AtomS3, AtomS3 Lite,
 StickC, StickC Plus, StickC Plus SE, StickC Plus2, Dial, Atom Lite, Atom Matrix
 and Atom Matrix v1.1 machines. AtomS3 uses
@@ -172,6 +181,19 @@ The actual-source host controls are
 not establish Emscripten fiber execution or resolve a firmware watchdog fault.
 A new locked runtime requires a fresh source build and same-image acceptance;
 previous runtime hashes and diagnostic samples remain historical evidence.
+
+`0029` adds the separately wired Cardputer-ADV G0/Boot GPIO0 input; its exact
+source patch is required by the browser profile before the input is admitted.
+The existing TCA8418 keyboard matrix remains independent. See the
+[G0 source and validation boundary](../../patches/qemu-wasm-probe/README.cardputer-boot.md).
+
+`0030` emits a runtime zero-mask TCG branch before the original Xtensa
+high-priority-IRQ yield helper. This avoids a helper ABI transition only when
+that helper would immediately return; active handlers and the other CPU's
+sender-side handoff keep the original helper. The guest instruction count,
+clock/WDT, MMIO and original IRQ bookkeeping are unchanged. Its host C/IR
+controls are separate from a new WASM build and measured firmware acceptance;
+see the [guard contract](../../patches/qemu-wasm-probe/README.md#inactive-high-priority-irq-helper-guard-0030).
 
 Patch `0017` coalesces expired positive-period SYSTIMER host callbacks in WASM
 while retaining the next alarm's phase. The elapsed counter, pending interrupt

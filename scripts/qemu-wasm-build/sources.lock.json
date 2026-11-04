@@ -117,7 +117,8 @@
     "-O3",
     "-sSTACK_SIZE=64KB",
     "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
-    "-sSTACK_OVERFLOW_CHECK=2"
+    "-sSTACK_OVERFLOW_CHECK=2",
+    "--emit-symbol-map"
   ],
   "native_context": {
     "commit": "0769ae7c",
@@ -138,7 +139,7 @@
   "native_patch_count": 47,
   "patched_files": {
     "accel/tcg/cpu-exec.c": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
-    "accel/tcg/tcg-accel-ops-icount.c": "d583087ca07c2289969446aff762a36b8a8125f656cf2a6d5306ceba81b47583",
+    "accel/tcg/tcg-accel-ops-icount.c": "62f65add2fa1f3962da8ca7693f370922d71c24a97b256b3ec8eb054f17fd1b9",
     "backends/meson.build": "22154b09fdad91dfd7e63f7bad020a4c4511ce9efc9ac2082ece6334325016c3",
     "block/file-posix.c": "70de6adf72e2ae2dfc8ca625a5d011101cc35d293e12118601a32aa890243032",
     "configs/meson/emscripten.txt": "02bcaad8c232ff95b3c2e7b3846a13f0e88b6e7b257c7b06f21b054c26de884e",
@@ -267,7 +268,7 @@
     "include/hw/xtensa/esp32s3_intc.h": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
     "include/qemu/cacheflush.h": "55c1b4adb31e6433f734b2431800d648ce1283ae300a10b6a6828eae992d0a40",
     "include/qemu/osdep.h": "86dff28366bd4667bf7d188f64bfe0c72135935044b16c0d21d94c39d74ccf2b",
-    "include/sysemu/cpu-timers.h": "0cb5b58d02d684774d48a38ff4a812c5f8c71258bf06aacc08b9be07da93ac2a",
+    "include/sysemu/cpu-timers.h": "6631e9985af402e0658af8e15773a37c5d6365aa5ade8e7831ba423f13414faa",
     "include/sysemu/os-wasm.h": "d76f0a6e8fc5199742fbe31a8dd386363ad0f2a89b2c7977a61ce1954be39a41",
     "meson.build": "8856b48c88f77e0ed880ffeec1368b2cf05782e1041e2f21176d1493e8c1737a",
     "meson_options.txt": "0e6045ff1c9ce85d0f1ea13c3ad808b546e15f99dea018b92af31de66323620b",
@@ -276,7 +277,7 @@
     "qemu-options.hx": "f15252064fd72cf059eca237224abd429a8e6f298ff92ffb35ddaba30a318b46",
     "qom/object.c": "c6d542bbc99d0b16b822de69d78300d019ba317a56585c389e4edecae3f728f2",
     "scripts/meson-buildoptions.sh": "96fcc4c7802da597f29545c2d84aecf5cd6f0d6f16fa366c49ca2a9ed7209018",
-    "stubs/icount.c": "47405fb9e020eacc47ed0076ef0b96e3868213a640c140fbdfd1e4c2f28f8d34",
+    "stubs/icount.c": "296574516eebbab1f8d364388d7ea01afcf727220d3718a3ecc3c34a3f024792",
     "system/cpu-timers.c": "aeead797186773b86d3f9521973140893815ea057ea9b2bd5c21fa64c216c3cc",
     "system/main.c": "a5b9d2eeb0069f518f813dc74a2149f37d7b18f56b10a5369d81f49ced344f7c",
     "system/memory.c": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
@@ -287,7 +288,7 @@
     "target/xtensa/exc_helper.c": "a286df37066556758783c0a5189671f14f305d2879648d3ae176380e82a8b5f2",
     "target/xtensa/helper.h": "fc79394413882c1fc160230a7bf1405a29c40f28e8132a03767bac2796284ac5",
     "target/xtensa/op_helper.c": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
-    "target/xtensa/translate.c": "335c6ad3b2aee8721769ef8415ccf0a14b8f320903cde23482e212541712514f",
+    "target/xtensa/translate.c": "15335266110a8c3dd93e779b47c2465d26b7666ecbb1829717fb0c2dc543cc71",
     "tcg/tci-wasm-call.h": "3ea36afa67ea2d26f0f2a6f6a102eb85f6b96667fe434231cc64d4ea69e8da58",
     "tcg/tci.c": "2e7eac135e1384e866203f2ce3977cdac85bf87551fa2f0bade94b2f7aecf126",
     "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
@@ -590,6 +591,10 @@
     {
       "path": "patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch",
       "sha256": "04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0030-xtensa-inactive-irq-yield-guard.patch",
+      "sha256": "3dd57ecaa90d0c0d7d3139b83323564173a626a3e5882d628b6a72560a2a5415"
     }
   ],
   "qemu": {

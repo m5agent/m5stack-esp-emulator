@@ -8,6 +8,39 @@ input, Unit, networking or hardware compatibility. Current CoreS3 browser scope
 is recorded in [the Pages evidence](../../docs/evidence/2026-10-28-qemu-wasm-pages/README.md);
 see also [the investigation](../../docs/qemu-wasm-port-research.md).
 
+## Inactive high-priority IRQ helper guard (`0030`)
+
+`0030` follows the Cardputer G0 input layer `0029` in the source lock. Under
+global icount, every Xtensa `memw`/`retw` previously entered the cooperative
+yield C helper even when no high-priority IRQ was active. The original helper
+then returned without side effects. The new TCG IR reads the same mask through
+a read-only address and branches around that call only when the mask is zero.
+Nonzero masks still call the original helper, including a sender-side `retw`
+on a different CPU. The original IRQ entry/return/reset helpers are unchanged.
+
+The guard retains global `icount_enabled()` semantics; replay can clear
+`CF_USE_ICOUNT` on an individual TB and must still retain cooperative yielding.
+The mask's zero-to-active transitions happen on the shared icount vCPU thread
+at IRQ delivery; an asynchronous reset can clear the mask, and the original
+helper rechecks it. No guest instruction, barrier, register-window operation,
+virtual clock, WDT deadline, IRQ level or MMIO data path is removed or changed.
+The non-icount stub exposes a stable zero mask.
+
+The source-only controls in
+[`test_xtensa_inactive_irq_yield_guard_patch.py`](../../platform/tests/test_xtensa_inactive_irq_yield_guard_patch.py)
+compile the original C mask/getter/yield/return functions and execute IR emitted
+by the actual pre/post translators. A fixed emitted program must follow later
+mask changes; precise/adaptive modes, replay TB flags, both CPUs, PS interrupt
+levels and EXCM levels are compared. Visible barrier/retw/jump sequences and
+yield effects must match, while zero-mask calls disappear. Inverting the branch
+is a required failing control. Ordinary checkout tests replay the U3 changed
+hunks; the fresh builder independently checks complete postimage file hashes.
+
+These are host C/TCG-IR controls, not TCI/WASM execution or evidence of a speed
+gain. A newly built runtime needs same-firmware Atom Matrix/StickC Plus timing,
+input/heartbeat checks and normal Worker cleanup. Earlier runtime results do
+not transfer to the new binary.
+
 ## Source and order
 
 `0001` applies to Espressif QEMU 9.2.2, commit
