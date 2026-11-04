@@ -81,7 +81,13 @@ try {
   normal.runtime.receive({type:'uart-bytes',value:new Uint8Array([99])},normal.runtime.generation-1);
   unsubscribe();assert.deepEqual(raw,[[82,1,128,0]],'raw bytes preserve binary protocol and reject stale generations');
   await normal.runtime.writeUart(new Uint8Array([3,1]));
-  assert.deepEqual(frames.at(-1).calls.at(-1).value,{bytes:[3,1]});
+  assert.deepEqual(frames.at(-1).calls.at(-1).value,{bytes:[3,1],consoleEpoch:0});
+  const uartOwner=normal.runtime.acquireUart(),uartCalls=frames.at(-1).calls.length;
+  assert.throws(()=>normal.runtime.acquireUart(),/串口正由另一项操作/);
+  await assert.rejects(normal.runtime.writeUart(new Uint8Array([3])),/串口正由另一项操作/);
+  await assert.rejects(normal.runtime.writeUart(new Uint8Array([3]),{...uartOwner}),error=>error.name==='AbortError');
+  assert.equal(frames.at(-1).calls.length,uartCalls,'competing or cloned owners cannot cross the private port');
+  await normal.runtime.writeUart(new Uint8Array([1]),uartOwner);normal.runtime.releaseUart(uartOwner);
   await assert.rejects(normal.runtime.writeUart(new Uint8Array(1025)),/1024/);
   const beforeUart=frames.at(-1).calls.length;await assert.rejects(normal.runtime.input({type:'uart',text:'hello\n'}),/not admitted/);assert.equal(frames.at(-1).calls.length,beforeUart,'unadmitted UART cannot cross the private port');
   await assert.rejects(normal.runtime.input({type:'touch',x:320,y:1,down:true}));await assert.rejects(normal.runtime.input({type:'uart',text:'a'.repeat(129)}));
@@ -125,6 +131,7 @@ try {
   assert.deepEqual(resetFrame.calls.at(-1).value,{type:'reset',down:true});
   assert.equal(resetFrame.calls.at(-1).op,'input');
   resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false,reason:'host-qmp-system-reset'}},resetGeneration);
+  assert.equal(resetting.runtime.consoleEpoch,1,'hardware reset has its own UART execution fence');
   assert.equal(resetting.runtime.status,'booting');assert.equal(resetting.runtime.guestReady(),false,'old serial marker cannot admit a restarted guest');
   resetting.runtime.receive({type:'serial',value:'new boot\n'},resetGeneration);assert.equal(resetting.runtime.status,'booting');
   resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);assert.equal(resetting.runtime.status,'running');

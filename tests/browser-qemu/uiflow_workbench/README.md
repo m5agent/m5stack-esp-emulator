@@ -44,6 +44,10 @@ hardware ANGLE rendering, and rejects Device Service requests. The cases use
 the actual editor for UTF-8, multiline and larger raw-paste transfers, syntax
 and runtime exceptions, file import, infinite-loop interruption and subsequent
 execution in the same VM. Display boards also verify a real guest red frame.
+The full run also pauses/resumes an active program and performs a hardware
+reset: the old UART console owner must be cancelled before code can execute in
+the newly booted console epoch. This reset keeps the browser session identity;
+it does not claim Python state survives a hardware reset.
 `M5_UIFLOW_SMOKE_ONLY=1` limits the run to startup and two source executions;
 the report preserves that narrower scope. Both modes require normal guest exit
 and independent CDP Worker disappearance before closing the browser context.
@@ -52,3 +56,10 @@ Button behavior is tested separately by
 `platform/tests/test_public_qemu_buttons_guest.mjs`, using the original UIFlow
 Button API and actual public-model inputs. The programming tests do not grant
 all-device button or firmware-compatibility acceptance.
+
+Source transfer preserves ordinary tabs/newlines/CR/form-feed and backslash
+escapes, but rejects literal serial control characters before taking ownership
+of UART. Use Python string escapes when such a value is needed. Raw REPL uses
+EOT bytes to terminate stdout/stderr; arbitrary binary stdout containing EOT
+is not a transparent binary transport and can terminate a stream early. The
+editor is a text console, not a binary-file transfer interface.

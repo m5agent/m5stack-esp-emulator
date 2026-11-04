@@ -147,10 +147,10 @@ function status(status, detail) {
 const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成'};
 function updatePythonControls(currentStatus=state.run?.controller?.status) {
   const run=state.run, supported=active(run)&&run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart;
-  const busy=!!run?.python?.busy;
+  const pythonBusy=!!run?.python?.busy,busy=pythonBusy||!!run?.serialSending;
   $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy;
-  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!busy||run.pythonPhase!=='running';
-  $('pauseBtn').disabled=busy&&run.pythonPhase!=='running';
+  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running';
+  $('pauseBtn').disabled=!!run?.serialSending||pythonBusy&&run.pythonPhase!=='running';
   $('serialInput').disabled=$('serialSendBtn').disabled=!supported||currentStatus!=='running'||busy;
   if(!supported)$('pythonStatus').textContent='启动浏览器中的 UIFlow 后即可运行';
   else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
@@ -161,7 +161,7 @@ async function runPython() {
   const run=state.run;
   if(!active(run)||!(run.controller instanceof PublicQemuRuntime))return;
   run.python ||= new PublicMicroPythonRunner(run.controller);
-  if(run.python.busy)return;
+  if(run.python.busy||run.serialSending)return;
   $('pythonOutput').textContent='';
   try {
     await run.python.run($('pythonSource').value,{
@@ -1178,7 +1178,6 @@ $('pythonFile').addEventListener('change',async()=>{
 });
 $('pythonSource').addEventListener('keydown',event=>{
   event.stopPropagation();
-  if(event.key==='Tab'){event.preventDefault();const field=event.currentTarget;field.setRangeText('    ',field.selectionStart,field.selectionEnd,'end');}
   if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();if(!$('pythonRunBtn').disabled)void runPython();}
 });
 $('serialForm').addEventListener('submit', async (event) => {
@@ -1190,15 +1189,27 @@ $('serialForm').addEventListener('submit', async (event) => {
     error(new Error('当前服务未开放串口文本输入。'));
     return;
   }
+  if(run.serialSending)return;
+  let owner;
+  const controller=run.controller,generation=controller.generation,sessionId=controller.sessionId,consoleEpoch=controller.consoleEpoch;
   try {
     if(run.python?.busy)throw new Error('代码运行期间请使用中断按钮。');
-    if(run.controller instanceof PublicQemuRuntime){
+    run.serialSending=true;updatePythonControls();
+    if(controller instanceof PublicQemuRuntime){
+      owner=controller.acquireUart();
       const encoded=new TextEncoder().encode(text+'\r\n');
-      for(let i=0;i<encoded.length;i+=1024)await run.controller.writeUart(encoded.subarray(i,i+1024));
-    }else await run.controller.input({type: 'uart', text: text + '\n'});
+      for(let i=0;i<encoded.length;i+=1024){
+        if(!active(run)||controller.generation!==generation||controller.sessionId!==sessionId||controller.consoleEpoch!==consoleEpoch)
+          throw new DOMException('串口所属设备已改变。','AbortError');
+        await controller.writeUart(encoded.subarray(i,i+1024),owner);
+      }
+    }else await controller.input({type: 'uart', text: text + '\n'});
     if (active(run)) $('serialInput').value = '';
   } catch (cause) {
-    error(cause);
+    if(active(run))error(cause);
+  } finally {
+    if(owner)controller.releaseUart(owner);
+    run.serialSending=false;if(active(run))updatePythonControls();
   }
 });
 $('browserPir').addEventListener('change', async (event) => {

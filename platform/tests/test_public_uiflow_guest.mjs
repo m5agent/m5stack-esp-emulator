@@ -34,7 +34,8 @@ async function waitForGuest(predicate, description, timeout = readyTimeout) {
   const deadline = Date.now() + timeout;
   let nextReceipt = 0;
   for (;;) {
-    const current = await page.evaluate(() => ({status:globalThis.uiflowRuntime?.status,
+    const current = await page.evaluate(() => ({status:globalThis.uiflowRuntime?.status, console_epoch:globalThis.uiflowRuntime?.consoleEpoch,
+      guest_ready:globalThis.uiflowRuntime?.guestReady(),
       serial:globalThis.uiflowRuntime?.serial || '', banner:document.querySelector('#errorBanner')?.hidden ? '' : document.querySelector('#errorBanner')?.textContent,
       python:document.querySelector('#pythonStatus')?.textContent, output:document.querySelector('#pythonOutput')?.textContent,
       executions:globalThis.uiflowExecutions || []}));
@@ -61,7 +62,7 @@ async function runProgram(name, source, {stdout, stderr, upload = false} = {}) {
   const execution = state.executions[index];
   report.programs.push({name, source, source_sha256:hash(source), ...execution, ui_output:state.output, ui_status:state.python});
   check(name + '-source-reached-same-guest', execution.source === source && execution.result?.sessionId === report.session_id
-    && execution.generation === report.generation && !execution.error, execution);
+    && execution.generation === report.generation && execution.result?.consoleEpoch === report.current_console_epoch && !execution.error, execution);
   if (stdout) check(name + '-stdout', execution.result.stdout.includes(stdout) && state.output.includes(stdout), execution.result);
   if (stderr) check(name + '-stderr', execution.result.stderr.includes(stderr) && state.output.includes(stderr), execution.result);
   else check(name + '-no-stderr', execution.result.stderr === '', execution.result);
@@ -113,10 +114,10 @@ try {
     const {PublicMicroPythonRunner} = await import(new URL('platform/web/public-micropython.js', origin));
     const run = PublicMicroPythonRunner.prototype.run;
     PublicMicroPythonRunner.prototype.run = async function(source, ...args) {
-      const record = {source, started_at:new Date().toISOString(), generation:this.runtime.generation, session_id:this.runtime.sessionId};
+      const record = {source, started_at:new Date().toISOString(), generation:this.runtime.generation, session_id:this.runtime.sessionId, console_epoch:this.runtime.consoleEpoch};
       uiflowExecutions.push(record);
       try { record.result = await run.call(this, source, ...args); return record.result; }
-      catch (error) { record.error = error.message; throw error; }
+      catch (error) { record.error = error.message; record.error_name = error.name; throw error; }
       finally { record.finished_at = new Date().toISOString(); }
     };
   }, {origin, device});
@@ -134,6 +135,7 @@ try {
   report.click_to_ready_ms = performance.now() - started;
   report.initial = await page.evaluate(() => uiflowRuntime.evidence());
   report.session_id = report.initial.session_id; report.generation = await page.evaluate(() => uiflowRuntime.generation);
+  report.console_epoch = report.current_console_epoch = report.initial.console_epoch;
   check('actual-programming-startup-marker', ready.serial.includes('M5_UIFLOW_WORKBENCH_READY'), {click_to_ready_ms:report.click_to_ready_ms, receipt:report.initial.receipt});
   const registry = JSON.parse(await readFile(resolve(site, 'platform/web/uiflow-workbench-profiles.json')));
   const expected = registry.profiles.find(row => row.deviceId === device);
@@ -151,6 +153,15 @@ try {
     await page.locator('#pythonSource').fill(source); await page.locator('#pythonRunBtn').click();
     await waitForGuest(state => state.output.includes(`M5_LOOP_${nonce}`), 'infinite program output', 90000);
     check('infinite-program-has-interrupt-control', await page.locator('#pythonInterruptBtn').isEnabled());
+    await page.locator('#pauseBtn').click();
+    await page.waitForFunction(() => uiflowRuntime.status === 'paused', {}, {timeout:30000});
+    await page.waitForTimeout(300);
+    check('pause-retains-program-owner', await page.evaluate(index => !uiflowExecutions[index].finished_at
+      && !!uiflowRuntime.uartOwner && document.querySelector('#pythonInterruptBtn').disabled
+      && document.querySelector('#pythonRunBtn').disabled, index));
+    await page.locator('#pauseBtn').click();
+    await page.waitForFunction(() => uiflowRuntime.status === 'running', {}, {timeout:30000});
+    check('resume-retains-interrupt-control', await page.locator('#pythonInterruptBtn').isEnabled());
     await page.locator('#pythonInterruptBtn').click();
     const interrupted = await waitForGuest(state => state.executions[index]?.finished_at, 'infinite program interruption', 15000);
     report.programs.push({name:'infinite-program-interrupt', source, source_sha256:hash(source), ...interrupted.executions[index], ui_output:interrupted.output});
@@ -163,9 +174,28 @@ try {
       await page.waitForFunction(() => { const frame = uiflowRuntime.lastFrame; if (!frame) return false; let red = 0; for (let i = 0; i < frame.pixels.length; i += 2) if ((frame.pixels[i] | frame.pixels[i+1] << 8) === 0xf800) red++; return red > frame.width * frame.height * .95; }, {}, {timeout:30000});
       report.frame = await page.evaluate(async () => { const frame = uiflowRuntime.lastFrame, digest = await crypto.subtle.digest('SHA-256', new Uint8Array(frame.pixels)); return {width:frame.width, height:frame.height, sequence:frame.sequence, sha256:[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2,'0')).join('')}; });
       check('source-drew-actual-guest-framebuffer', report.frame.width > 0 && report.frame.height > 0, report.frame);
+      await page.screenshot({path:resolve(output,'program-red-frame.png'),fullPage:true});
     }
   }
-  check('same-guest-through-all-programs', await page.evaluate(({session, generation}) => uiflowRuntime.sessionId === session && uiflowRuntime.generation === generation && !uiflowRuntime.machineEvents.some(row => row.event === 'RESET'), {session:report.session_id, generation:report.generation}));
+  check('same-console-through-pre-reset-programs', await page.evaluate(({session, generation, epoch}) => uiflowRuntime.sessionId === session
+    && uiflowRuntime.generation === generation && uiflowRuntime.consoleEpoch === epoch
+    && !uiflowRuntime.machineEvents.some(row => row.event === 'RESET'), {session:report.session_id, generation:report.generation, epoch:report.console_epoch}));
+  if(!smokeOnly){
+    const index=await page.evaluate(()=>uiflowExecutions.length);
+    const source=`import time\nprint("M5_RESET_RUNNING_${nonce}")\nwhile True:\n    time.sleep_ms(10)\n`;
+    await page.locator('#pythonSource').fill(source);await page.locator('#pythonRunBtn').click();
+    await waitForGuest(state=>state.output.includes(`M5_RESET_RUNNING_${nonce}`),'program running before hardware reset',90000);
+    await page.evaluate(()=>uiflowRuntime.reset());
+    const cancelled=await waitForGuest(state=>state.executions[index]?.finished_at,'old program cancelled by hardware reset',15000);
+    check('hardware-reset-cancels-old-console-program',cancelled.executions[index].error_name==='AbortError',cancelled.executions[index]);
+    const rebooted=await waitForGuest(state=>state.status==='running'&&state.guest_ready&&state.console_epoch>report.console_epoch,'new UIFlow boot after hardware reset');
+    report.hardware_reset={before_console_epoch:report.console_epoch,after_console_epoch:rebooted.console_epoch,
+      old_execution:cancelled.executions[index],source,source_sha256:hash(source)};
+    report.current_console_epoch=rebooted.console_epoch;
+    check('hardware-reset-keeps-browser-session-with-new-console',await page.evaluate(({session,generation})=>uiflowRuntime.sessionId===session
+      &&uiflowRuntime.generation===generation&&!uiflowRuntime.uartOwner,{session:report.session_id,generation:report.generation}));
+    await runProgram('after-hardware-reset',`print("M5_REBOOT_RECOVERED_${nonce}")\n`,{stdout:`M5_REBOOT_RECOVERED_${nonce}`});
+  }
   await page.screenshot({path:resolve(output, 'workbench.png'), fullPage:true});
   report.before_stop = await page.evaluate(() => uiflowRuntime.evidence());
   await page.evaluate(() => { const frame = uiflowRuntime.iframe, remove = frame.remove; globalThis.deferredUIFlowRemoval = {frame, remove, requests:0}; frame.remove = () => { deferredUIFlowRemoval.requests++; }; });

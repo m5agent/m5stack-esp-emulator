@@ -9,32 +9,40 @@ export class PublicMicroPythonRunner {
   async interrupt() {
     if(!this.busy)return;
     const current=this.current;
-    if(!current||this.runtime.generation!==current.generation||this.runtime.sessionId!==current.sessionId)throw abort('设备会话已改变。');
+    if(!current||this.runtime.generation!==current.generation||this.runtime.sessionId!==current.sessionId
+      ||this.runtime.consoleEpoch!==current.consoleEpoch)throw abort('设备会话已改变。');
+    this.runtime.requireUartOwner(current.owner);
     if(current.phase!=='running')throw new Error('代码正在传输，请稍后中断或停止设备。');
+    if(this.runtime.status==='paused')throw new Error('设备已暂停，请先继续后再中断。');
     this.interrupted=true;current.interruptDeadline=Date.now()+5000;
-    await this.runtime.writeUart(new Uint8Array([3,3]));
+    await this.runtime.writeUart(new Uint8Array([3,3]),current.owner);
   }
   async run(source, {onOutput=()=>{},onPhase=()=>{},signal,timeoutMs=30000}={}) {
     if(this.busy)throw new Error('代码仍在运行，请先中断。');
     if(typeof source!=='string'||!source.trim())throw new Error('请输入 MicroPython 代码。');
+    if(/[\x00-\x08\x0b\x0e-\x1f\x7f]/.test(source))throw new Error('源码含有原始串口控制字符，请在字符串中使用反斜杠转义。');
     const data=encoder.encode(source);
     if(data.length>65536)throw new Error('代码超过 64 KiB，请缩短后重试。');
     if(!Number.isFinite(timeoutMs)||timeoutMs<100||timeoutMs>120000)throw new Error('无效的串口超时。');
-    const runtime=this.runtime, generation=runtime.generation, session=runtime.sessionId;
+    const runtime=this.runtime, generation=runtime.generation, session=runtime.sessionId, consoleEpoch=runtime.consoleEpoch;
+    const owner=runtime.acquireUart();
     this.busy=true;this.interrupted=false;
-    const current=this.current={generation,sessionId:session,phase:'connecting',interruptDeadline:Infinity};
+    const current=this.current={generation,sessionId:session,consoleEpoch,owner,phase:'connecting',interruptDeadline:Infinity};
     const phase=value=>{current.phase=value;onPhase(value);};
     let buffer=[],offset=0,deadline=Date.now()+timeoutMs,lastTick=Date.now();
-    const unsubscribe=runtime.subscribeUart(bytes=>{
+    let unsubscribe=()=>{};
+    const receive=bytes=>{
+      if(runtime.generation!==generation||runtime.sessionId!==session||runtime.consoleEpoch!==consoleEpoch)return;
       // Keep unread output bounded even if a guest floods its UART.
       if(buffer.length-offset+bytes.length>131072){this.overflow=true;return;}
       if(offset>65536){buffer=buffer.slice(offset);offset=0;}
       buffer.push(...bytes);
-    });
+    };
     this.overflow=false;
     const active=()=>{
-      if(signal?.aborted||runtime.generation!==generation||runtime.sessionId!==session||runtime.stopping
+      if(signal?.aborted||runtime.generation!==generation||runtime.sessionId!==session||runtime.consoleEpoch!==consoleEpoch||runtime.stopping
         ||!['booting','running','paused'].includes(runtime.status))throw abort('设备会话已改变，代码执行已结束。');
+      runtime.requireUartOwner(owner);
       const now=Date.now();
       if(runtime.status==='paused'){deadline+=now-lastTick;current.interruptDeadline+=now-lastTick;}
       lastTick=now;
@@ -48,7 +56,7 @@ export class PublicMicroPythonRunner {
     };
     const write=async bytes=>{
       active();while(runtime.status==='paused'){await delay(10);active();}
-      await runtime.writeUart(Uint8Array.from(bytes));
+      await runtime.writeUart(Uint8Array.from(bytes),owner);
     };
     const marker=async bytes=>{
       for(;;){
@@ -60,6 +68,7 @@ export class PublicMicroPythonRunner {
       }
     };
     try {
+      unsubscribe=runtime.subscribeUart(receive);
       phase('connecting');
       await write([13,3,3]);await delay(100);await write([13,1]);await marker(prompt);
       phase('uploading');
@@ -114,8 +123,8 @@ export class PublicMicroPythonRunner {
       deadline=Date.now()+timeoutMs;
       if((await read(1))[0]!==62)throw new Error('MicroPython 未返回原始 REPL。');
       await write([2]);
-      const result={stdout:outputs[0],stderr:outputs[1],interrupted:this.interrupted,transfer,sessionId:session};
+      const result={stdout:outputs[0],stderr:outputs[1],interrupted:this.interrupted,transfer,sessionId:session,consoleEpoch};
       phase(this.interrupted?'interrupted':outputs[1]?'error':'complete');return result;
-    }finally{unsubscribe();this.busy=false;this.current=null;}
+    }finally{unsubscribe();runtime.releaseUart(owner);this.busy=false;this.current=null;}
   }
 }

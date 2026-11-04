@@ -1,14 +1,20 @@
 import assert from 'node:assert/strict';
 import {PublicMicroPythonRunner} from '../web/public-micropython.js';
+import {PublicQemuRuntime} from '../web/public-qemu-runtime.js';
 
 const encode=value=>new TextEncoder().encode(value);
 function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',forever=false,silent=false}={}){
-  const listeners=new Set(),writes=[],sources=[];
+  const writes=[],sources=[];
   let phase='connect';
-  const runtime={generation:1,sessionId:'guest-1',status:'running',
-    subscribeUart(fn){listeners.add(fn);return()=>listeners.delete(fn);},
-    feed(value){for(const fn of listeners)fn(typeof value==='string'?encode(value):Uint8Array.from(value));},
-    async writeUart(bytes){
+  // Use the actual runtime UART lease and epoch implementation. Only the
+  // guest protocol transport is mocked; this does not execute firmware.
+  const runtime=new PublicQemuRuntime({root:'https://example.test/'});
+  Object.assign(runtime,{generation:1,sessionId:'guest-1',status:'running',profile:{inputs:{uart:true}},
+    waiters:new Map(),machineEvents:[],serial:'',writes,sources,listeners:runtime.uartListeners});
+  runtime.feed=value=>{for(const fn of runtime.uartListeners)fn(typeof value==='string'?encode(value):Uint8Array.from(value));};
+  runtime.ask=async(op,value)=>{
+      assert.equal(op,'uart');assert.equal(value.consoleEpoch,runtime.consoleEpoch);
+      const bytes=Uint8Array.from(value.bytes);
       writes.push(Array.from(bytes));
       const equal=values=>bytes.length===values.length&&values.every((v,i)=>bytes[i]===v);
       if(phase==='execute'&&equal([3,3])){runtime.feed('\x04KeyboardInterrupt\r\n\x04>');phase='done';return;}
@@ -16,7 +22,7 @@ function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',fore
       if(equal([5,65,1])){
         if(legacy)runtime.feed('raw REPL; CTRL-B to exit\r\n>');
         else runtime.feed(paste?[82,1,5,0]:[82,0]);
-        phase='source';return;
+        phase='source';runtime.source=[];return;
       }
       if(phase==='source'){
         if(equal([4])){
@@ -29,7 +35,7 @@ function guest({paste=true,legacy=false,output='hello 世界\r\n',stderr='',fore
           }
         }else{runtime.source=[...(runtime.source||[]),...bytes];if(paste&&!legacy)runtime.feed([1]);}
       }
-    },writes,sources,listeners};
+    };
   return runtime;
 }
 {
@@ -156,5 +162,59 @@ for(const legacy of [false,true]){
   await assert.rejects(runner.run('print(1)',{timeoutMs:150}),/超时/);assert.equal(runtime.listeners.size,0);
   await assert.rejects(runner.run(''),/请输入/);await assert.rejects(runner.run('x'.repeat(65537)),/64 KiB/);
   assert.equal(runtime.writes.filter(row=>row.length===1&&row[0]===4).length,0,'failed handshake never soft-resets the guest');
+}
+{
+  const runtime=guest({forever:true}),first=new PublicMicroPythonRunner(runtime),second=new PublicMicroPythonRunner(runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=first.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
+  await started;const writes=runtime.writes.length,owner=runtime.uartOwner;
+  await assert.rejects(second.run('print("competing")'),/串口正由另一项操作/);
+  await assert.rejects(runtime.writeUart(encode('ordinary serial')),/串口正由另一项操作/);
+  assert.equal(second.busy,false);assert.equal(runtime.writes.length,writes);assert.equal(runtime.uartOwner,owner);
+  await first.interrupt();await execution;assert.equal(runtime.uartOwner,null);
+}
+{
+  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime),owner=runtime.acquireUart();
+  await runtime.writeUart(encode('ordinary serial'),owner);const writes=runtime.writes.length;
+  await assert.rejects(runner.run('print("competing")'),/串口正由另一项操作/);
+  assert.equal(runtime.writes.length,writes);runtime.releaseUart(owner);
+  await runner.run('print("after serial")');assert.deepEqual(runtime.sources,['print("after serial")']);
+  assert.equal(runtime.uartOwner,null);
+}
+{
+  const runtime=guest({forever:true}),runner=new PublicMicroPythonRunner(runtime);
+  let running;const started=new Promise(resolve=>running=resolve);
+  const execution=runner.run('while True: pass',{onPhase:phase=>{if(phase==='running')running();}});
+  await started;const oldOwner=runtime.uartOwner,writes=runtime.writes.length,generation=runtime.generation;
+  runtime.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},generation);
+  const nextOwner=runtime.acquireUart();
+  await assert.rejects(runner.interrupt(),error=>error.name==='AbortError');
+  await assert.rejects(execution,error=>error.name==='AbortError');
+  await assert.rejects(runtime.writeUart(new Uint8Array([3]),oldOwner),error=>error.name==='AbortError');
+  assert.equal(runtime.generation,generation,'hardware reset changes console epoch without requiring a new browser session');
+  assert.equal(runtime.consoleEpoch,1);assert.equal(runtime.writes.length,writes);
+  assert.equal(runtime.uartOwner,nextOwner,'old runner finally cannot release the new boot owner');
+  assert.equal(runtime.listeners.size,0);runtime.releaseUart(nextOwner);
+}
+{
+  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime);let acknowledge;
+  runtime.ask=()=>new Promise(resolve=>acknowledge=resolve);
+  const execution=runner.run('print("old boot")');await Promise.resolve();
+  runtime.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},runtime.generation);
+  const nextOwner=runtime.acquireUart();acknowledge({queued:3});
+  await assert.rejects(execution,error=>error.name==='AbortError');
+  assert.equal(runtime.uartOwner,nextOwner,'late old UART ACK cannot complete or release a new console lease');
+  runtime.releaseUart(nextOwner);
+}
+for(const control of [0,1,2,3,4,5,6,7,8,11,14,27,31,127]){
+  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime);
+  await assert.rejects(runner.run('print("prefix")\n'+String.fromCharCode(control)+'print("tail")\n'),/原始串口控制字符/);
+  assert.equal(runtime.writes.length,0);assert.equal(runtime.uartOwner,null);assert.equal(runner.busy,false,
+    'raw control characters are rejected before acquiring UART or executing any prefix');
+}
+{
+  const runtime=guest(),runner=new PublicMicroPythonRunner(runtime),source='\f# whitespace\nprint("\\x04")\t\r\n';
+  await runner.run(source);assert.deepEqual(runtime.sources,[source],
+    'ordinary source whitespace and backslash escapes remain untouched; this does not claim binary stdout transparency');
 }
 console.log('MicroPython raw-paste / legacy / UTF-8 / exception / interrupt / cancellation contracts passed');

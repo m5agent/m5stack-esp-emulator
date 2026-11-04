@@ -55,8 +55,9 @@ function output(text) {
       })().catch(fail);
     }
     if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
-      emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true});
-      if (message.event==='RESET') {resetEpoch++;previousOutputs=undefined;sourceSequence=0;}
+      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;previousOutputs=undefined;sourceSequence=0;}
+      emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true,
+        ...(message.event==='RESET'?{consoleEpoch:resetEpoch}:{})});
     }
     const item = pending.get(message.id);
     if (item) {
@@ -68,6 +69,7 @@ function output(text) {
 }
 function fail(error) { emit('error', String(error?.message || error)); }
 function cleanup() {
+  uartInput.length=0;
   for (const worker of workers) worker.terminate();
   workers.clear();
   for (const url of urls) URL.revokeObjectURL(url);
@@ -276,6 +278,7 @@ async function request(op, value) {
   }
   if (op === 'uart') {
     if(!boardProfile?.inputs.uart)throw new Error('UART input is not admitted');
+    if(!Number.isSafeInteger(value?.consoleEpoch)||value.consoleEpoch!==resetEpoch)throw new Error('UART console was reset');
     const bytes=value?.bytes;
     if(!Array.isArray(bytes)||bytes.length<1||bytes.length>1024
       ||bytes.some(byte=>!Number.isInteger(byte)||byte<0||byte>255))throw new Error('Invalid UART bytes');
