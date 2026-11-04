@@ -128,22 +128,24 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
-### RUNTIME-09：AtomS3 Lite 工作台首次启动的 SYSTIMER PIF
+### RUNTIME-09：AtomS3 Lite 工作台首次启动及硬复位后的 SYSTIMER PIF
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN / under investigation`，根因未确定 |
-| 影响 | browser runtime75、AtomS3 Lite 精确工作台 Flash、div1/无icount/原多指令TB首次启动 |
-| 首次异常 | 到达工作台ready前，Core1 PC `0x403864c3` 触发PIF，EXCVADDR `0x6002306c`，随后guest复位 |
-| 真实指令 | 同Flash IRAM解码为 `l32i a8,a7,108`，A7=`0x60023000`；普通、对齐32位读已映射的 `SYSTIMER_INT_CLR` |
-| 模型依据 | 当前read显式返回INT_CLR初值0，write清raw状态并更新IRQ；缺少实际故障事务/region/TLB/TB恢复元数据，不能定为缺控制器或固件缺陷 |
-| 清理 | 该次normal QMP exit0、零fallback、五pthread归零，六实际CDP关闭；held-iframe独立CDP围栏未捕获 |
-| 证据 | [工作台执行策略调查](evidence/2026-11-04-s3-workbench-execution-policy/README.md) |
+| 影响 | browser runtime75、AtomS3 Lite精确工作台Flash、div1/无icount：原多指令首次启动，以及精确oneInsn硬reset新启动 |
+| 首次异常 | 工作台ready前Core1 PC `0x403864c3` 触发PIF，EXCVADDR `0x6002306c`，随后guest复位 |
+| 后续复现 | MAIN23d/prod-prefix新导出中，精确oneInsn先执行代码并完成48项检查，硬reset新boot再次在同PC/地址触发Core1 PIF |
+| 真实指令 | 同Flash IRAM为 `l32i a8,a7,108`，A7=`0x60023000`；普通对齐32位读已映射的 `SYSTIMER_INT_CLR` |
+| 模型依据 | read显式返回INT_CLR初值0，write清raw状态并更新IRQ；实际故障transaction/region/TLB/TB恢复元数据未捕获，不能定为缺控制器或固件缺陷 |
+| 清理 | 原首启失败与后续oneInsn reset失败各有normal QMP0、零fallback、五pthread归零、六CDP-before-context关闭；held-iframe独立围栏均未捕获 |
+| 证据 | [原执行策略调查](evidence/2026-11-04-s3-workbench-execution-policy/README.md)、[发布资格与复位复现](evidence/2026-11-04-pages-rollout-qualification/README.md) |
 
-关闭条件：在原精确固件/多指令策略下定位实际MMIO transaction、MemTxResult、
-命中region、TLB、TB恢复元数据及双核中断时序，给出同异常路径的修复/回归。
-原策略曾独立通过不能覆盖首次FAIL；其它型号的PIF/OOB不自动归为同一根因。
-精确镜像的另一执行策略必须逐板实跑，它通过也不关闭原C/事务根因。
+关闭条件：在同精确固件的首次启动及硬reset路径中定位MMIO transaction、
+MemTxResult、命中region、TLB、TB恢复元数据与双核IRQ/复位时序，证明修复
+作用于已失败路径；补原多指令/精确oneInsn受影响回归，再恢复同候选导出的完整发布门禁。
+既有独立通过不覆盖原FAIL，其它型号的PIF/OOB不自动归为同一根因。
+另一环境、诊断片段或执行策略的通过均不关闭原C/事务根因。
 
 ### RUNTIME-08：Cardputer 工作台硬件复位后 WASM 越界
 

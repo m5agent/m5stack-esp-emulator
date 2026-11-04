@@ -1,9 +1,8 @@
 # 项目当前状态
 
-2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。
-19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。
-11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，StamPLC/Cardputer/AtomS3Lite原策略的`RUNTIME-07/08/09`根因仍OPEN。
-`UI-03`保持`PARTIAL`：本地既定功能门禁已验，逐板性能、长期稳定性、其它固件与正式HTTPS仍独立；V6未在本记录部署，功能并发不作性能样本。
+2026-11-04 已按用户明确要求[携已知问题部署UIFlow工作台](evidence/2026-11-04-pages-workbench-release/README.md)：prepared-preview于10:45:44Z完成，正式HTTPS的2,130个资产length/SHA全部匹配。标准hosted Matrix600秒启动FAIL及同导出本地16PASS、Lite1FAIL、43NOT RUN保留，精确oneInsn硬reset PIF的`RUNTIME-09`继续OPEN；部署成功不代表完整生产功能门禁或C根因修复。独立HTTPS首6例已SUBSET_PASS（Matrix/Plus/Core各编辑器与按键），其余34例NOT RUN/HOLD，不授全19线上通过。部署前[资格失败记录](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，不改写旧FAIL。
+
+此前2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。 19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。 11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，`RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09`根因仍OPEN。 `UI-03`保持`PARTIAL`：携已知失败部署后，继续修复当前MAIN/prod-prefix资格缺口并完成正式HTTPS独立验收；既有本地门禁不授逐板性能、长期稳定性、其它固件或新导出通过，功能并发不作性能样本。
 
 日期：`2026-11-04`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 

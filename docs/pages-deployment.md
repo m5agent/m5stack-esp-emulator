@@ -3,6 +3,10 @@
 最近核对：`2026-11-04`。本页说明部署流程；当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
+PR #165 已合并；用户明确要求先部署、问题保留，prepared-preview已于2026-11-04 10:45:44Z更新[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)。
+[本次部署证据](evidence/2026-11-04-pages-workbench-release/README.md)记录工作流success与全部2,130个HTTPS资产匹配；独立HTTPS首6例已SUBSET_PASS、full_scope=false；Matrix/Plus/Core各编辑器与按键共222检查通过，其余34例NOT RUN/HOLD，不授完整线上门禁。
+[部署前资格失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点：标准hosted和新本地完整计划均FAIL；部署不将其改写为生产门禁PASS或C修复。
+
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
@@ -173,7 +177,8 @@ StackChan 的 SCS `present_position` 来自稀疏 QOM 快照。页面会按相�
   静态画面可零传帧；性能报告分别记录请求、传帧、像素变化与输入延迟。
 - 保留双客体 CPU、TCI、原板级与 Unit 控制器、QMP in-band；不提供 QMP OOB。
   网络、音频、其它 Unit、Flash 持久化和任意固件兼容性均需分别验证。
-  当前网页 C/QEMU 配置只开放 UART 输出；串口文本输入保持禁用。
+  通用串口文本输入框保持禁用；已确认的 UIFlow2 编程环境单独使用 UART0
+  raw-paste 传输源码、接收输出与执行中断，不向任意上传固件承诺 REPL 兼容。
 - 纯网页记录属于 `browser-local-qemu-evidence`，没有远程 `/api/v1` lease；
   不将原生服务、其它 guest 或物理设备结果拼接成浏览器 PASS。
 - QEMU WASM 及链接依赖保留各自 GPL/LGPL/宽松许可。站点随执行文件提供
@@ -213,8 +218,13 @@ Service Worker 首控流程。聚合器为每个公开板型启动独立 guest�
 `M5_QEMU_EXAMPLE=stock-reference` 或 `wallclock-candidate`，运行
 `platform/tests/test_public_qemu_guest.mjs`。
 `stock-div8` 仍是兼容选择名，已映射到相同的 `stock-reference`，不代表实际慢放。
-对已部署站点可设置 `M5_PUBLIC_URL=https://<owner>.github.io/<repository>/`
-复用同一验收器。不得把本地子路径测试写成公开部署测试；实际 URL 和结果写入验证台账。
+上述 `test_public_qemu_guest.mjs` 固定示例验收器可设置
+`M5_PUBLIC_URL=https://<owner>.github.io/<repository>/` 直接检查已部署站点。
+完整 UIFlow 编辑器、普通按键、Cardputer 全键和 StackChan 机身触摸验收器目前
+使用 `M5_PUBLIC_SITE` 启动本地静态服务器，不读取该 URL 变量；仅设置它不能证明
+这些路径已在线执行。线上复验需要明确的远程适配器，保留原程序、输入、断言和清场，
+并核对实际 HTTPS 资产及运行收据。不得把本地子路径测试写成公开部署测试；
+实际 URL 和结果写入验证台账。
 
 ### 逐板 fixture 与输入门禁
 

@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "kind": "rollout-qualification-followup-separate-failure-and-control-lanes",
+  "status": "FAIL_RELEASE_QUALIFICATION",
+  "source": {
+    "main_sha": "23d38d8dbe91488185dc53eb4cd47dee687df019",
+    "tree_sha": "f892649011246b88cb76e3b2ad2973fe76ec99ee",
+    "equal_local_source_ref": "c3db057d2ee99c022a4116ae72d661c4d39888c6",
+    "regular_workflow_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41799916700"
+  },
+  "prior_detailed_checkpoint_reference": {
+    "label": "Formal PV/CfT detailed checkpoint, not duplicated",
+    "bytes": 52617,
+    "sha256": "685a8bd93507989eebec6c8bbe3def1924e639a1fa0db2886327f72cd84c5c26"
+  },
+  "regular_attempt2": {
+    "status": "FAIL",
+    "workflow_URL": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41799916700",
+    "attempt": 2,
+    "source_build_and_static_host_controls": "PASS; unlike attempt1 source-fetch TLS failure, this attempt reached actual guest execution.",
+    "parent": {
+      "raw": {
+        "label": "CI all-admitted parent",
+        "bytes": 15796,
+        "sha256": "8740ef0f15b14c7061ee82ada7d45fceeebe4763b899f9f74ff7ad956523d380"
+      },
+      "completed_cases": 1,
+      "FAIL": 1,
+      "NOT_RUN": 59
+    },
+    "case": {
+      "device": "atom-matrix",
+      "completed_UI_checks": 4,
+      "application_programs": 0,
+      "application_ready_timeout_ms": 600000,
+      "browser": "152.0.7977.65",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple Paravirtual device, Unspecified Version)",
+      "raw": {
+        "label": "CI AtomMatrix full failure report",
+        "bytes": 26788,
+        "sha256": "5669472c2f0359cfb873832c8fc845081d3be32b8bf3d9675bb5575e710ac95f"
+      }
+    },
+    "execution_identity": {
+      "firmware_sha256": "f553ad2c9d84e22591d8da8d32a7517c9e378eb5439214a9e0b2075bf31844ed",
+      "wasm_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "javascript_sha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+      "worker_sha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "board": "m5atommatrix",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "clock_divisor": 1,
+      "clock_override": null,
+      "one_insn_per_tb": false
+    },
+    "site_manifest_sha256": "1c0077e53cbfbc23f0d552bc2abac0bb568ac029b2ae79ecf5e6247e99526d2c",
+    "runtime_manifest_sha256": "9c317e4d6e3c00a3c34fcb32443a0a8e2e1a7d20a1f68eae6cb300d24aad3085",
+    "test_script_sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2",
+    "cleanup": {
+      "normal_QMP_exit": "NOT ESTABLISHED",
+      "final_failure_CDP": {
+        "ok": true,
+        "minimum_observed": 1,
+        "observed": 5,
+        "destroyed": 5,
+        "live": 0
+      },
+      "held_iframe_nested_fence": "NOT CAPTURED",
+      "zero_fallback_final_proof": "NOT ESTABLISHED; early snapshot owner still live is not final cleanup proof."
+    },
+    "preview_upload_and_deploy": "NOT RUN after guest gate failure",
+    "root_cause": "OPEN; local PASS does not erase it."
+  },
+  "local_CfT_control": {
+    "status": "PASS_ONE_MATRIX_CASE",
+    "checks": 58,
+    "application_programs": 11,
+    "browser": "152.0.7977.65",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+    "raw": {
+      "label": "local152CfTM4",
+      "bytes": 95631,
+      "sha256": "e7d8ab8dcdbc96a7bc0b8ad51f8fad210841da305486485d0be796980b728326"
+    },
+    "source_site_manifest_sha256": "e597ce3c4465f582928042d4a36be684454a9cb4f8910f80720ad027cf1da898",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "same_original_script_8f9": true,
+    "hardware_reset": "PASS within original full case",
+    "normal_cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersAtExit": 0,
+      "engineFallbackTerminations": 0
+    },
+    "two_stage_CDP": {
+      "pthreads_closed": {
+        "ok": true,
+        "observed": 5,
+        "destroyed": 5,
+        "live": 0
+      },
+      "all_workers_closed": {
+        "ok": true,
+        "observed": 5,
+        "destroyed": 5,
+        "live": 0
+      }
+    },
+    "scope": "One exact-version CfT152/localM4 functional control, not58cases. Different packaging/signature/host from hostedPV; no browser minimum or cause attribution."
+  },
+  "shared_runtime_boundary": {
+    "local_legitimate_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "formal_CI_manifest_sha256": "9c317e4d6e3c00a3c34fcb32443a0a8e2e1a7d20a1f68eae6cb300d24aad3085",
+    "reason": "Identicalfive runtimeasset bytes andsource/recipe/lock/effectiveflags; manifestcommand/link-argv hashes reflect separatebuild invocations. Neither manifests copied/edited to pretend another producer.",
+    "formal_preview_artifact": "Not uploaded afterguest failure; actualruntimehashes came from source-bound fullbyte provenance computed inCI beforeguest. Localexact96ea bytes separately rehashed."
+  },
+  "fresh_main_desktop_full60": {
+    "status": "FAIL",
+    "source_commit": "23d38d8dbe91488185dc53eb4cd47dee687df019",
+    "source_tree": "f892649011246b88cb76e3b2ad2973fe76ec99ee",
+    "site_manifest": {
+      "bytes": 429908,
+      "sha256": "685e134cbaa09bf44edf45218843d387b26cf9e775b75cdf21b8ce3024539e7d"
+    },
+    "runtime_manifest": {
+      "bytes": 34437,
+      "sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51"
+    },
+    "parent_raw": {
+      "bytes": 21186,
+      "sha256": "2dc15180d8a1048aa09cc4dc2987a6643fce8edad273c16b07f112f99b56cac4"
+    },
+    "started_at_UTC": "2026-11-04T09:43:20.430Z",
+    "finished_at_UTC": "2026-11-04T09:48:38.088Z",
+    "counts": {
+      "planned": 60,
+      "completed": 17,
+      "PASS": 16,
+      "FAIL": 1,
+      "NOT_RUN": 43
+    },
+    "max_parallel_functional_guests": 2,
+    "performance_sample": false,
+    "publication_eligible": false,
+    "Lite_failure": {
+      "raw": {
+        "bytes": 92655,
+        "sha256": "fcab67b89818e2bab6eeaf37633972384c3f5d6233ebd03596a9be45bdbb7c46"
+      },
+      "stage": "New UIFlow boot after host hardware reset; first boot/programs already ran.",
+      "completed_checks": 48,
+      "all_completed_checks_true": true,
+      "programs_completed": 10,
+      "initial_default_runs": 2,
+      "panic": "Core1 LoadStorePIFAddrError",
+      "PC": "0x403864c3",
+      "EXCVADDR": "0x6002306c",
+      "post_failure_console_epoch": 3,
+      "identity": {
+        "firmwareSha256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+        "wasmSha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+        "javascriptSha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+        "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+        "board": "m5atoms3lite",
+        "profile": "atoms3-lite-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "clockDivisor": 1,
+        "clockOverride": null,
+        "oneInsnPerTb": true
+      },
+      "actual_accelerator": "tcg,thread=multi,one-insn-per-tb=on",
+      "icount": "Absent",
+      "startup_main_sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+      "required_runtime_patch": {
+        "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+        "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+      },
+      "test_script": {
+        "path": "platform/tests/test_public_uiflow_guest.mjs",
+        "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+      },
+      "cleanup": {
+        "normal_QMP_exit": true,
+        "exitCode": 0,
+        "nested_created": 5,
+        "nested_at_exit": 0,
+        "remaining": 0,
+        "forced_disposals": 0,
+        "engine_normal_terminations": 1,
+        "engine_self_close_notifications": 1,
+        "engine_fallback_terminations": 0,
+        "actual_CDP_before_context": {
+          "ok": true,
+          "observed": 6,
+          "destroyed": 6,
+          "live": 0
+        },
+        "held_iframe_CDP": "NOT CAPTURED"
+      },
+      "cause": "OPEN; observed despite oneInsn. Not a new source/clock/input weakening or proof of a common C cause."
+    },
+    "peer_drain": {
+      "device": "atoms3r",
+      "status": "PASS",
+      "checks": 63,
+      "raw": {
+        "bytes": 1182139,
+        "sha256": "d9879a9414cda05c38115eca9bd38f1abfe7f6ccc9f2be8fbf6563d83efb1e68"
+      },
+      "normal_QMP_exit": true,
+      "exitCode": 0,
+      "engine_fallback": 0,
+      "two_stage_CDP": {
+        "pthreads_closed": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        },
+        "all_workers_closed": {
+          "ok": true,
+          "observed": 6,
+          "live": 0
+        }
+      }
+    }
+  },
+  "current_delivery": {
+    "release_qualification": "FAIL",
+    "prepared_preview_ready": false,
+    "release_promotion": "NOT RUN",
+    "prepared_preview_deployment": "NOT RUN",
+    "HTTPS40_and_DOM_acceptance": "NOT RUN",
+    "existing_publication": "UNCHANGED; no new deployment from these failures"
+  },
+  "actions": "Derived summary of retained terminal reports. No new firmware execution, retry or deployment in this checkpoint.",
+  "limits": [
+    "Earlier localR8PASS remains a separately scoped result; it cannot qualify this failed export/run.",
+    "CfT58checks/onecase do not transfer to19devices, cloudPV or fresh local60.",
+    "Same five runtime assets do not make runtime manifests producer-identical: legitimate localfa6 and formal9c stay distinct.",
+    "No platform/Chrome/C root cause or physical/performance guarantee inferred."
+  ]
+}

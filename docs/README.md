@@ -52,6 +52,9 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 [性能修复与对照计划](plans/2026-11-03-emulator-performance.md)执行，
 [性能修复与对照证据](evidence/2026-11-03-emulator-performance/README.md)分别记录浏览器与原生结果，
 [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
+2026-11-04 后续[携已知问题部署](evidence/2026-11-04-pages-workbench-release/README.md)已按用户要求完成，全部HTTPS资产一致；HTTPS首6例SUBSET_PASS，其余34例NOT RUN/HOLD，不授全19线上通过。
+[部署前资格与Lite复位失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，hosted及新本地完整门禁FAIL不因部署转为PASS。
+原V6/R8本地PASS保留日期与身份，不授新导出资格或C根因关闭，RUNTIME-09仍OPEN。
 2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地独立完成60例，
 覆盖编辑器、声明按键/键盘/机身触摸输入与原固定示例；[设计](plans/2026-11-04-uiflow-browser-workbench-design.md)保留范围与路径。
 逐板性能、长期稳定性及正式HTTPS仍独立验收，本地功能结果不关闭原策略C根因。
@@ -337,6 +340,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Paper PM1应用配置](evidence/2026-11-04-paper-pm1-application/README.md) | 精确固件输入证据 | `2026-11-04` | R6 PaperColor准备ImportError/零输入保留；两Paper显式公开I2C配置后23/19项、8/6次250ms输入与原BtnPWR通过；Mono编辑器63项独立通过，模块/物理pinmux与清场范围分开 |
 | [S3工作台执行策略](evidence/2026-11-04-s3-workbench-execution-policy/README.md) | 精确镜像候选与源审查证据 | `2026-11-04` | 原AtomS3 Lite首启INT_CLR读PIF保留/09OPEN；八板各自editor+buttons及Stackbody共17候选/656检查/40输入通过，真实argv与清场逐项绑定；仅功能行推广到V6，完整60/线上另验 |
 | [全19板UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md) | 完整本地浏览器功能证据 | `2026-11-04` | canonical V6独立60/2564、224次raw-paste/38次默认样例、200组输入与真实清场；逐板ready仅功能观察、11S3精确argv，原FAIL及07/08/09 OPEN；不授逐板性能或线上；[V5 DOM/model-only摘要](evidence/2026-11-04-browser-uiflow-all19-acceptance/dom-qa-summary.json)独立保留观察器首FAIL，不授guest |
+| [Pages发布资格与Lite复位复现](evidence/2026-11-04-pages-rollout-qualification/README.md) | 发布资格失败与分层对照证据 | `2026-11-04` | regular Matrix ready超时、CfT单case58项独立通过、新MAIN导出Lite oneInsn硬reset PIF；旧R8保留，部署前检查点无release/deploy/HTTPS，09 OPEN |
+| [携已知问题部署工作台](evidence/2026-11-04-pages-workbench-release/README.md) | 部署与资产身份记录 | `2026-11-04` | 用户要求先部署；prepared-preview成功、全部2130资产匹配；标准hosted/本地资格FAIL保留；HTTPS首6子集通过/余34未运行，不授全19或C修复 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |
