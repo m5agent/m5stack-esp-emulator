@@ -4,6 +4,14 @@ const gpio=(id,component,owner)=>({id,component,owner,mode:'driver-edges'});
 const pmic=()=>({id:'power',component:'power',owner:'BtnPWR',mode:'pmic-event'});
 const atom=()=>[gpio('button','button','BtnA')];
 const stick=()=>[gpio('a','a','BtnA'),gpio('b','b','BtnB'),pmic()];
+// Explicit user-application setup, not a default Flash/runtime change. PM1's
+// factory single-click reset mode is not a BtnPWR click-IRQ mode.
+export const PM1_BUTTON_OBSERVER_SETUP=Object.freeze({
+  stopwatch:Object.freeze({board:'M5StopWatch',i2c:1,scl:48,sda:47,addr:0x6e,click_window_ms:500}),
+  sticks3:Object.freeze({board:'M5StickS3',i2c:1,scl:48,sda:47,addr:0x6e,click_window_ms:500}),
+  papercolor:Object.freeze({board:'M5PaperColor',i2c:1,scl:2,sda:3,addr:0x6e,click_window_ms:500}),
+  papermono:Object.freeze({board:'M5PaperMono',i2c:1,scl:48,sda:47,addr:0x6e,click_window_ms:500}),
+});
 export const PUBLIC_QEMU_BUTTON_CASES=Object.freeze({
   stopwatch:[gpio('a','a','BtnA'),gpio('b','b','BtnB'),pmic()],
   sticks3:[gpio('a','btnA','BtnA'),gpio('b','btnB','BtnB'),{...pmic(),component:'btnPWR'}],

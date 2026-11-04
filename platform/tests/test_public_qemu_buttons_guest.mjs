@@ -8,7 +8,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash,randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance,QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
-import {PUBLIC_QEMU_BUTTON_CASES,PUBLIC_QEMU_BUTTON_LIMITS} from './public_qemu_button_cases.mjs';
+import {PUBLIC_QEMU_BUTTON_CASES,PUBLIC_QEMU_BUTTON_LIMITS,PM1_BUTTON_OBSERVER_SETUP} from './public_qemu_button_cases.mjs';
 import {findPublicButtonPointerTarget} from './public_qemu_button_pointer.mjs';
 
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
@@ -30,13 +30,15 @@ const {chromium}=await import(pathToFileURL(resolve(modules,'playwright/index.mj
 const observerPath='tests/browser-qemu/uiflow_workbench/button_observer.py';
 const observer=await readFile(resolve(repo,observerPath),'utf8');
 const nonce=randomUUID(),specs=cases.map(item=>[item.id,item.owner]);
-const source=`BUTTON_SPECS = ${JSON.stringify(specs)}\nRUN_NONCE = ${JSON.stringify(nonce)}\n`+observer;
+const pm1Setup=PM1_BUTTON_OBSERVER_SETUP[device]||{};
+const source=`BUTTON_SPECS = ${JSON.stringify(specs)}\nBUTTON_PM1_SETUP = ${JSON.stringify(pm1Setup)}\nRUN_NONCE = ${JSON.stringify(nonce)}\n`+observer;
 const digest=value=>createHash('sha256').update(value).digest('hex');
 const checks=[],errors=[];
 const report={kind:'browser-qemu-uiflow-buttons',device,status:'FAIL',started_at:new Date().toISOString(),
   checks,errors,nonce,input_cases:[],hardware_validation:'NOT RUN',
   scope:'Exact firmware/profile, original public M5.update/Button APIs and real public-model keyboard and mouse input.',
   observer:{path:observerPath,sha256:digest(observer),executed_sha256:digest(source)},
+  pmic_application_setup:pm1Setup,
   input_registry:{path:'platform/tests/public_qemu_button_cases.mjs',
     sha256:digest(await readFile(resolve(repo,'platform/tests/public_qemu_button_cases.mjs')))},
   pointer_helper:{path:'platform/tests/public_qemu_button_pointer.mjs',
@@ -130,6 +132,10 @@ try{
   const ready=await observe(row=>row.kind==='ready','ready',timeout);
   check('original-button-api-probe-ready',Object.keys(ready.states).length===cases.length
     &&cases.every(item=>ready.states[item.id]===false),ready);
+  if(PM1_BUTTON_OBSERVER_SETUP[device])check('explicit-pm1-user-application-irq-mode',ready.pmic_setup?.applied===true
+    &&ready.pmic_setup.click_window_ms===500
+    &&ready.pmic_setup.cfg49_after===((ready.pmic_setup.cfg49_before&~7)|5)
+    &&ready.pmic_setup.cfg4a_before===ready.pmic_setup.cfg4a_after,ready.pmic_setup);
   for(const item of cases)for(const method of ['keyboard','pointer']){
     const before=await events(),afterSeq=before.at(-1)?.seq||0;
     const controlsBefore=await page.evaluate(()=>buttonControlEvents.length);
@@ -193,7 +199,16 @@ try{
   if(page&&!page.isClosed()){
     report.failure_state=await page.evaluate(()=>({output:globalThis.buttonRun?.output,error:globalThis.buttonRun?.error,
       evidence:globalThis.buttonRuntime?.evidence(),banner:document.querySelector('#errorBanner')?.textContent})).catch(()=>null);
-    await page.evaluate(()=>globalThis.buttonRuntime?.stop()).catch(()=>{});
+    report.failure_stopped_evidence=await page.evaluate(async()=>{
+      const runtime=globalThis.buttonRuntime;if(!runtime)return null;
+      await runtime.stop();
+      const evidence=runtime.evidence(),frame=evidence.last_frame;
+      const {pixels,...frameSummary}=frame||{};
+      return {session_id:evidence.session_id,console_epoch:evidence.console_epoch,status:runtime.status,
+        stopped_at:evidence.stopped_at,receipt:evidence.receipt,cleanup:evidence.cleanup,
+        machine_events:evidence.machine_events,last_frame:frame?frameSummary:null};
+    }).catch(error=>({capture_error:String(error?.message||error)}));
+    report.failure_worker_targets=await workers?.waitUntilClosed({minimumObserved:1,timeoutMs:30000}).catch(()=>null);
   }
   throw error;
 }finally{

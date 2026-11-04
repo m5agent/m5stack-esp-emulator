@@ -6,6 +6,23 @@ original public `Button` methods. A per-run nonce, board identity, guest time,
 button states and event methods are emitted as `M5_BUTTON_OBSERVER` JSON.
 It does not call private ISRs or substitute host input echoes for guest state.
 
+StopWatch's original PM1 firmware defaults to single-click reset with a 250 ms
+recognition limit. The observer explicitly configures a **user-application
+button-IRQ mode** through the official `driver.m5pm1.M5PM1` API:
+`disable_single_click_reset()` and `set_button_timing(BUTTON_TIMING_CLICK,500)`.
+The registry also declares this explicit PM1 application mode for StickS3,
+PaperColor and PaperMono. All use I2C1/address0x6e; StopWatch, StickS3 and
+PaperMono use SCL48/SDA47, while PaperColor uses **SCL2/SDA3**. These mappings
+come from the pinned original board tables. The setup preserves unrelated
+configuration bits, verifies actual register0x49 readback, and emits that setup
+in the ready receipt. The actual input pulse stays 250 ms. This is not default
+Flash, C-runtime or clock modification. It does not grant unconfigured-mode
+BtnPWR acceptance: the retained first unconfigured runtime75 run failed to
+observe PWR, and independent public-Power/default and configured original
+BtnPWR diagnostics established the configuration distinction. Each other PM1
+board still requires its own exact-image guest run; it cannot inherit the
+StopWatch result. Boards outside the explicit PM1 registry remain unchanged.
+
 The opt-in runner requires an exported site with the UIFlow workbench default
 and UART-capable QEMU runtime. Run one device at a time, without concurrent
 builds or guests:
@@ -51,6 +68,10 @@ Hardware reset and power sliders also require their own lifecycle tests.
 Evidence includes source/probe/input-registry hashes, runtime and firmware
 receipts, actual public-model keyboard and mouse inputs, guest observations, interrupt/REPL
 completion, and actual CDP Worker disappearance before browser context closure.
+Future failures retain the actual post-stop cleanup metadata and actual CDP
+Worker closure separately from the pre-stop failure state. The first
+unconfigured StopWatch failure had neither post-stop normal-QMP metadata nor
+independent CDP closure captured; later diagnostics cannot fill that gap.
 The provenance closure also binds `public-uiflow-firmware.js` and
 `uiflow-workbench-profiles.json`, so a different default programming image cannot
 borrow this run's result. The [full publication gate](README.md) invokes this
