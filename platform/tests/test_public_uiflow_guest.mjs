@@ -169,12 +169,33 @@ try {
       && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
     await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
     if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
-      const source = `import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("M5_RED_FRAME_${nonce}")\n`;
-      await runProgram('guest-display-output', source, {stdout:`M5_RED_FRAME_${nonce}`});
-      await page.waitForFunction(() => { const frame = uiflowRuntime.lastFrame; if (!frame) return false; let red = 0; for (let i = 0; i < frame.pixels.length; i += 2) if ((frame.pixels[i] | frame.pixels[i+1] << 8) === 0xf800) red++; return red > frame.width * frame.height * .95; }, {}, {timeout:30000});
-      report.frame = await page.evaluate(async () => { const frame = uiflowRuntime.lastFrame, digest = await crypto.subtle.digest('SHA-256', new Uint8Array(frame.pixels)); return {width:frame.width, height:frame.height, sequence:frame.sequence, sha256:[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2,'0')).join('')}; });
+      const mono=device==='papermono',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+      // Original PaperMono SDK API: outermost endWrite flushes the real EPD.
+      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (480, 800) or not d.isEPD():\n    raise RuntimeError("PaperMono EPD dimensions mismatch")\nd.setEpdMode(d.EPDMode.EPD_QUALITY)\nd.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
+        :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
+      await runProgram('guest-display-output', source, {stdout:marker});
+      await page.waitForFunction(mono=>{
+        const frame=uiflowRuntime.lastFrame;if(!frame)return false;
+        if(mono){
+          if(frame.width!==480||frame.height!==800||frame.pixels.length!==480*800*2)return false;
+          for(let y=0;y<frame.height;y++)for(let x=0;x<frame.width;x++){
+            const at=(y*frame.width+x)*2,color=frame.pixels[at]|frame.pixels[at+1]<<8;
+            if(color!==(x<frame.width/2?0x0000:0xffff))return false;
+          }
+          return true;
+        }
+        let red=0;for(let i=0;i<frame.pixels.length;i+=2)if((frame.pixels[i]|frame.pixels[i+1]<<8)===0xf800)red++;
+        return red>frame.width*frame.height*.95;
+      },mono,{timeout:30000,polling:250});
+      report.frame=await page.evaluate(async mono=>{
+        const frame=uiflowRuntime.lastFrame,digest=await crypto.subtle.digest('SHA-256',new Uint8Array(frame.pixels));
+        let black=0,white=0,red=0;for(let i=0;i<frame.pixels.length;i+=2){const value=frame.pixels[i]|frame.pixels[i+1]<<8;black+=value===0;white+=value===0xffff;red+=value===0xf800;}
+        return {width:frame.width,height:frame.height,sequence:frame.sequence,pattern:mono?'mono-half-black-white-v1':'red-fill',
+          pixels:frame.width*frame.height,black_pixels:black,white_pixels:white,red_pixels:red,
+          sha256:[...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('')};
+      },mono);
       check('source-drew-actual-guest-framebuffer', report.frame.width > 0 && report.frame.height > 0, report.frame);
-      await page.screenshot({path:resolve(output,'program-red-frame.png'),fullPage:true});
+      await page.screenshot({path:resolve(output,mono?'program-mono-frame.png':'program-red-frame.png'),fullPage:true});
     }
   }
   check('same-console-through-pre-reset-programs', await page.evaluate(({session, generation, epoch}) => uiflowRuntime.sessionId === session

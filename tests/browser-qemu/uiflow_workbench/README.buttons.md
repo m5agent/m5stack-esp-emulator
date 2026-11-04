@@ -51,4 +51,10 @@ Hardware reset and power sliders also require their own lifecycle tests.
 Evidence includes source/probe/input-registry hashes, runtime and firmware
 receipts, actual public-model keyboard and mouse inputs, guest observations, interrupt/REPL
 completion, and actual CDP Worker disappearance before browser context closure.
+The provenance closure also binds `public-uiflow-firmware.js` and
+`uiflow-workbench-profiles.json`, so a different default programming image cannot
+borrow this run's result. The [full publication gate](README.md) invokes this
+runner separately after each board's full editor case and retains its own
+`uiflow-buttons/<device>` output. A gate plan or host contract is not button
+guest evidence.
 Syntax checks and a skipped opt-in runner are not virtual-device validation.

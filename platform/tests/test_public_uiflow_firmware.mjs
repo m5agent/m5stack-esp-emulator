@@ -7,6 +7,7 @@ import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, resolveUIF
   UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
 import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements,
   QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+import {planPublicQemuGate, publicQemuGateChildEnvironment, PUBLIC_QEMU_GATE_PHASES} from './test_public_qemu_admitted_boards.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -100,6 +101,65 @@ for (const change of [copy => copy.profiles.push(copy.profiles[0]), copy => copy
   copy => copy.readyMarker = 'unrelated']) {
   const copy = structuredClone(registry); change(copy); assert.throws(() => validateUIFlowWorkbenchRegistry(copy));
 }
+
+// Planning contracts execute no browser or firmware. The actual gate remains
+// fail-fast and must collect an independent guest report for every planned row.
+const publicRegistry={...qemu,profiles:qemu.profiles.filter(row=>row.admission==='public')};
+const gateInputs={manifest:{publication_eligible:true,candidate_profiles:[]},
+  config:{publication_eligible:true,browser_candidate_profiles:[],browser_wallclock_example:true},
+  registry:publicRegistry,runtime:{compiled_profiles:publicRegistry.profiles.map(row=>row.deviceId)},workbenchRegistry:registry};
+const plan=planPublicQemuGate(gateInputs),publicCount=publicRegistry.profiles.length;
+assert.equal(plan.publication_eligible,true);assert.equal(plan.cases.length,publicCount*3+1);
+assert.deepEqual(plan.cases.slice(0,8).map(row=>[row.lane,row.device]),[
+  ['uiflow-editor','atom-matrix'],['uiflow-buttons','atom-matrix'],
+  ['uiflow-editor','stickc-plus'],['uiflow-buttons','stickc-plus'],
+  ['uiflow-editor','cardputer-adv'],['uiflow-buttons','cardputer-adv'],
+  ['uiflow-editor','cores3'],['uiflow-buttons','cores3'],
+]);
+assert.ok(plan.cases.slice(0,publicCount*2).every(row=>row.lane!=='fixed'));
+assert.ok(plan.cases.slice(publicCount*2).every(row=>row.lane==='fixed'));
+assert.equal(new Set(plan.cases.map(row=>[row.lane,row.device,row.example||''].join('/'))).size,plan.cases.length);
+for(const row of publicRegistry.profiles){
+  const board=plan.cases.filter(item=>item.device===row.deviceId);
+  assert.equal(board[0].lane,'uiflow-editor');assert.equal(board[1].lane,'uiflow-buttons');
+}
+for(const phase of PUBLIC_QEMU_GATE_PHASES.filter(phase=>phase!=='all')){
+  const diagnostic=planPublicQemuGate({...gateInputs,phase});assert.equal(diagnostic.publication_eligible,false);
+  assert.equal(diagnostic.cases.length,phase==='uiflow'?publicCount*2:phase==='fixed'?publicCount+1:publicCount);
+  assert.throws(()=>planPublicQemuGate({...gateInputs,phase,requireAll:true}),/Publication requires/);
+}
+const subset=planPublicQemuGate({...gateInputs,phase:'uiflow',devices:['cores3','atom-matrix']});
+assert.equal(subset.publication_eligible,false);assert.equal(subset.cases.length,4);
+assert.throws(()=>planPublicQemuGate({...gateInputs,devices:['cores3'],requireAll:true}),/Publication requires/);
+assert.throws(()=>planPublicQemuGate({...gateInputs,phase:'silent-subset'}),/Unknown/);
+assert.throws(()=>planPublicQemuGate({...gateInputs,devices:['not-public']}),/Unadmitted/);
+assert.throws(()=>planPublicQemuGate({...gateInputs,devices:['cores3','cores3']}),/Duplicate/);
+for(const change of [
+  copy=>copy.manifest.publication_eligible=false,
+  copy=>copy.config.browser_candidate_profiles=['cores3'],
+  copy=>copy.config.browser_wallclock_example=false,
+  copy=>copy.registry.profiles[0].admission='candidate',
+  copy=>copy.runtime.compiled_profiles=[],
+  copy=>copy.workbenchRegistry.profiles.pop(),
+]){const copy=structuredClone(gateInputs);change(copy);assert.throws(()=>planPublicQemuGate(copy));}
+assert.deepEqual(qemu,originalQemu,'gate planning cannot mutate the canonical registry');
+const inherited={M5_QEMU_DEVICE:'not-selected',M5_QEMU_EXAMPLE:'wallclock-candidate',M5_UIFLOW_SMOKE_ONLY:'1',
+  M5_PUBLIC_URL:'https://example.test/other-export/',M5_QEMU_UPLOAD:'other-firmware.bin',M5_QEMU_CLOCK_DIVISOR:'8',
+  M5_QEMU_FRAME_DIAGNOSTIC:'1',M5_QEMU_BUTTON_HOLD_MS:'1000',M5_WASM_CHROME:'/explicit/chrome',M5_CHROME:'/different/chrome',
+  M5_WASM_NODE_MODULES:'/test/node_modules',M5_PUBLIC_BASE_PATH:'/showcase/',M5_QEMU_READY_TIMEOUT_MS:'600000',M5_WASM_GPU:'hardware'};
+for(const item of plan.cases){
+  const env=publicQemuGateChildEnvironment(inherited,item,{site:'/review/site',output:'/review/output'});
+  for(const key of ['M5_UIFLOW_SMOKE_ONLY','M5_PUBLIC_URL','M5_QEMU_UPLOAD','M5_QEMU_CLOCK_DIVISOR','M5_QEMU_FRAME_DIAGNOSTIC'])
+    assert.equal(env[key],'',`${item.lane} must not inherit ${key}`);
+  assert.equal(env.M5_QEMU_DEVICE,item.device);assert.equal(env.M5_QEMU_EXAMPLE,item.example||'');
+  assert.equal(env.M5_QEMU_BUTTON_HOLD_MS,'250','a longer inherited pulse cannot weaken gate input coverage');
+  assert.equal(env.M5_WASM_CHROME,'/explicit/chrome');assert.equal(env.M5_CHROME,'/explicit/chrome');
+  assert.equal(env.M5_PUBLIC_SITE,'/review/site');assert.equal(env.M5_PUBLIC_QEMU_OUT,'/review/output');
+  for(const key of ['M5_WASM_NODE_MODULES','M5_PUBLIC_BASE_PATH','M5_QEMU_READY_TIMEOUT_MS','M5_WASM_GPU'])assert.equal(env[key],inherited[key]);
+}
+assert.equal(inherited.M5_QEMU_BUTTON_HOLD_MS,'1000','child environment normalization cannot mutate its caller');
+const chromeFallback=publicQemuGateChildEnvironment({M5_CHROME:'/fallback/chrome'},plan.cases[0],{site:'/site',output:'/out'});
+assert.equal(chromeFallback.M5_WASM_CHROME,'/fallback/chrome');assert.equal(chromeFallback.M5_CHROME,'/fallback/chrome');
 
 const args = new Map(); for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i], process.argv[i + 1]);
 if (args.get('--runtime') && args.get('--firmware-cache')) {

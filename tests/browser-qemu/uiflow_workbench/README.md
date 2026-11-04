@@ -43,7 +43,13 @@ It uses a random-port static server and the exported Service Worker, requires
 hardware ANGLE rendering, and rejects Device Service requests. The cases use
 the actual editor for UTF-8, multiline and larger raw-paste transfers, syntax
 and runtime exceptions, file import, infinite-loop interruption and subsequent
-execution in the same VM. Display boards also verify a real guest red frame.
+execution in the same VM. Color display boards retain the real guest red-frame
+check. PaperMono uses the original `M5.Display` API at rotation 0, verifies its
+480x800 EPD identity, and draws a black left half and white right half inside
+`startWrite()` / `endWrite()` so the real driver flushes. Every observed RGB565
+pixel must match that pattern; reports retain actual color counts, dimensions,
+frame sequence and SHA. Host syntax/planning checks do not establish that the
+new PaperMono guest path passes.
 The full run also pauses/resumes an active program and performs a hardware
 reset: the old UART console owner must be cancelled before code can execute in
 the newly booted console epoch. This reset keeps the browser session identity;
@@ -56,6 +62,41 @@ Button behavior is tested separately by
 `platform/tests/test_public_qemu_buttons_guest.mjs`, using the original UIFlow
 Button API and actual public-model inputs. The programming tests do not grant
 all-device button or firmware-compatibility acceptance.
+
+The publication gate runs the exported public registry in full by default:
+
+```sh
+M5_PUBLIC_SITE="$PWD/.work/public-site" \
+M5_WASM_CHROME="/path/to/chrome" M5_WASM_GPU=hardware \
+M5_QEMU_GATE_REQUIRE_ALL=1 \
+node platform/tests/test_public_qemu_admitted_boards.mjs
+```
+
+For each public board it runs the full editor first and the keyboard/pointer
+button observer next. Atom Matrix, StickC Plus, Cardputer-ADV G0 and CoreS3
+come first; the other boards follow the exported registry. It then runs the
+independent fixed examples. The current registry plans 19 editor + 19 button
++ 20 fixed cases; these are planned cases, not guest PASS results. A new public
+board without its own workbench identity, compiled runtime or button case fails
+preflight. Candidate boards cannot inherit admission.
+
+Outputs live in separate `uiflow-editor/<device>`, `uiflow-buttons/<device>` and
+`fixed/<device>[-example]` directories below a new ignored output root. The
+bounded gate report records each child status and report/source SHA, and stops
+at the first failure. It clears inherited smoke-only, remote URL, upload,
+clock-override and frame-diagnostic options, pins button pulses to 250 ms, and
+uses the same explicit Chrome executable for every runner. It
+requires the exact default workbench Flash, WASM and export identity for the
+two UIFlow lanes. Raw child reports and screenshots remain separate.
+
+For diagnosis, `M5_QEMU_GATE_PHASE` accepts only `all` (default), `uiflow`,
+`editor`, `buttons` or `fixed`; `M5_QEMU_GATE_DEVICES` accepts an explicit
+comma-separated public-device subset. Such a reduced run reports
+`DIAGNOSTIC_PASS` with `publication_eligible=false`, never full publication PASS.
+The workflow sets `M5_QEMU_GATE_REQUIRE_ALL=1`, which rejects reduced selections
+before starting a guest. Its 240-minute ceiling includes source build/setup and
+the sequential matrix, including at least 77 boots for the current full plan;
+it is not a measured startup guarantee. Actual guest execution is still required.
 
 Source transfer preserves ordinary tabs/newlines/CR/form-feed and backslash
 escapes, but rejects literal serial control characters before taking ownership

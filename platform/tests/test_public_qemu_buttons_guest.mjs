@@ -35,7 +35,7 @@ const digest=value=>createHash('sha256').update(value).digest('hex');
 const checks=[],errors=[];
 const report={kind:'browser-qemu-uiflow-buttons',device,status:'FAIL',started_at:new Date().toISOString(),
   checks,errors,nonce,input_cases:[],hardware_validation:'NOT RUN',
-  scope:'Exact firmware/profile, original public M5.update/Button APIs and focused public-model keyboard input.',
+  scope:'Exact firmware/profile, original public M5.update/Button APIs and real public-model keyboard and mouse input.',
   observer:{path:observerPath,sha256:digest(observer),executed_sha256:digest(source)},
   input_registry:{path:'platform/tests/public_qemu_button_cases.mjs',
     sha256:digest(await readFile(resolve(repo,'platform/tests/public_qemu_button_cases.mjs')))},
@@ -66,7 +66,8 @@ async function observe(predicate,description,waitMs=30000){
 }
 try{
   report.provenance=await capturePublicQemuProvenance({repo,site,
-    webPaths:[...QEMU_EXECUTED_WEB_PATHS,'platform/web/public-micropython.js'],
+    webPaths:[...QEMU_EXECUTED_WEB_PATHS,'platform/web/public-micropython.js',
+      'platform/web/public-uiflow-firmware.js','platform/web/uiflow-workbench-profiles.json'],
     testScript:'platform/tests/test_public_qemu_buttons_guest.mjs'});
   server=createServer(async(request,response)=>{
     try{

@@ -140,6 +140,8 @@ try{
   if(process.env.M5_WASM_GPU==='hardware')assert.doesNotMatch(report.webgl_renderer,/swiftshader|software/i);
   await page.locator('.advanced-options > summary').click();await page.locator('#runtimeMode').selectOption('browser');
   await page.locator('input[name="firmwareSource"][value="reference"]').check();
+    // The product defaults to UIFlow programming; this regression selects its fixed probe explicitly.
+    await page.locator('#referenceExample').selectOption('probe');
   check('public-headless-reference-label',(await page.locator('#referenceTitle').textContent()).includes('RGB 与按键示例'));
   check('public-headless-reference-instructions',!(await page.locator('#referenceDescription').textContent()).includes('屏幕'));
   if(uploadPath){
