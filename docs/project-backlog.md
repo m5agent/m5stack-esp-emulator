@@ -346,6 +346,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
 | `RUNTIME-07` | 进行中 | 定位 StamPLC 浏览器原多指令 TB 在硬件复位后访问 SYSTIMER 的 PIF 异常；精确工作台 oneInsn 策略仅作限定规避 | 原策略同固件受控复现，绑定实际 MMIO transaction、region/TLB、指令恢复元数据与 CPU1 reset/IRQ 顺序；真正修复后重跑 reset、代码执行和清场，不以规避策略关闭模型缺口 |
 | `RUNTIME-08` | 进行中 | 捕获 Cardputer-ADV 原工作台策略复位后 WASM OOB 的实际 trap 栈与状态，分清运行时原因 | 同二进制符号映射、受控复位/负载对照及真正修复回归；保留首次失败和 fallback 清理，不以单次未复现或执行策略通过关闭缺口 |
+| `RUNTIME-09` | 进行中 | 定位 AtomS3 Lite 原工作台多指令策略首次启动时对 SYSTIMER_INT_CLR 的 PIF | 同固件实际事务/region/TLB/TB恢复和IRQ时序；保留首FAIL，逐板执行策略验证不代替原C根因修复 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
@@ -585,6 +586,15 @@ SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-fi
 
 验收：真实 guest 驱动完成完整生命周期；否则保持 `runtime_model_gap`，
 不承诺所有 C6 固件兼容。
+
+### RUNTIME-09 AtomS3 Lite 工作台首次启动 PIF
+
+下一项最小交付：针对[已解码的INT_CLR读异常](evidence/2026-11-04-s3-workbench-execution-policy/README.md)，
+在原精确固件/策略上采集真实MMIO事务、MemTxResult、region、TLB、TB恢复元数据
+与双核IRQ顺序，定位已映射寄存器普通读触发PIF的原因。
+
+验收：保留首次FAIL，证明修复作用于该异常路径，补启动、代码执行、复位、输入
+和正常清场回归。逐板验证的精确执行策略仅授对应镜像/路径，不关闭原模型缺口。
 
 ### RUNTIME-08 Cardputer 浏览器复位后 WASM OOB
 

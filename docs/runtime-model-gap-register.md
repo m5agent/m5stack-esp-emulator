@@ -128,6 +128,23 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### RUNTIME-09：AtomS3 Lite 工作台首次启动的 SYSTIMER PIF
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / under investigation`，根因未确定 |
+| 影响 | browser runtime75、AtomS3 Lite 精确工作台 Flash、div1/无icount/原多指令TB首次启动 |
+| 首次异常 | 到达工作台ready前，Core1 PC `0x403864c3` 触发PIF，EXCVADDR `0x6002306c`，随后guest复位 |
+| 真实指令 | 同Flash IRAM解码为 `l32i a8,a7,108`，A7=`0x60023000`；普通、对齐32位读已映射的 `SYSTIMER_INT_CLR` |
+| 模型依据 | 当前read显式返回INT_CLR初值0，write清raw状态并更新IRQ；缺少实际故障事务/region/TLB/TB恢复元数据，不能定为缺控制器或固件缺陷 |
+| 清理 | 该次normal QMP exit0、零fallback、五pthread归零，六实际CDP关闭；held-iframe独立CDP围栏未捕获 |
+| 证据 | [工作台执行策略调查](evidence/2026-11-04-s3-workbench-execution-policy/README.md) |
+
+关闭条件：在原精确固件/多指令策略下定位实际MMIO transaction、MemTxResult、
+命中region、TLB、TB恢复元数据及双核中断时序，给出同异常路径的修复/回归。
+原策略曾独立通过不能覆盖首次FAIL；其它型号的PIF/OOB不自动归为同一根因。
+精确镜像的另一执行策略必须逐板实跑，它通过也不关闭原C/事务根因。
+
 ### RUNTIME-08：Cardputer 工作台硬件复位后 WASM 越界
 
 | 字段 | 当前值 |

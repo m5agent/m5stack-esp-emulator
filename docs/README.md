@@ -70,6 +70,7 @@ warm 与 pthread cancellation 尚未建立，不授予全型号、新默认镜�
 [Cardputer 复位调查](evidence/2026-11-04-cardputer-workbench-reset/README.md)保留后续越界与诊断边界，`RUNTIME-08` 根因仍开放。
 [PaperColor 帧观察器证据](evidence/2026-11-04-papercolor-frame-oracle/README.md)保留 LCD 红色假设的失败；按 Spectra6 调色板与新帧序列独立验收。
 [Paper PM1 应用配置](evidence/2026-11-04-paper-pm1-application/README.md)保留缺失 Python helper 的准备失败，分开公开 I2C 配置与原生按键事件结果。
+[S3 工作台执行策略](evidence/2026-11-04-s3-workbench-execution-policy/README.md)保留 AtomS3 Lite 首启 PIF，并记录八款精确镜像的独立候选验收；`RUNTIME-09` 根因仍开放。
 其余 18 款新默认 guest、完整按键和新部署仍未完成。
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
@@ -332,6 +333,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Cardputer工作台复位调查](evidence/2026-11-04-cardputer-workbench-reset/README.md) | 浏览器诊断证据 | `2026-11-04` | 原多指令策略44项后WASM OOB与fallback清场；独立未复现及观察器控制分层，RUNTIME-08 OPEN，不以诊断通过覆盖首次FAIL |
 | [PaperColor帧观察器修正](evidence/2026-11-04-papercolor-frame-oracle/README.md) | 观察器与限定虚拟设备证据 | `2026-11-04` | 同V5/96ea，首轮LCD F800假设失败保留；Spectra6全帧B800/双新鲜序列、未修改默认源码两次Run及64项窄复验；后续报告控制脚本与完整矩阵另验 |
 | [Paper PM1应用配置](evidence/2026-11-04-paper-pm1-application/README.md) | 精确固件输入证据 | `2026-11-04` | R6 PaperColor准备ImportError/零输入保留；两Paper显式公开I2C配置后23/19项、8/6次250ms输入与原BtnPWR通过；Mono编辑器63项独立通过，模块/物理pinmux与清场范围分开 |
+| [S3工作台执行策略](evidence/2026-11-04-s3-workbench-execution-policy/README.md) | 精确镜像候选与源审查证据 | `2026-11-04` | 原AtomS3 Lite首启INT_CLR读PIF保留/09OPEN；八板各自editor+buttons及Stackbody共17候选/656检查/40输入通过，真实argv与清场逐项绑定；仅功能行推广到V6，完整60/线上另验 |
 | [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md) | 架构决策 | `2026-11-03` | 保留原 TCI，不加入第二后端/JIT；精确 SHA/ready/patch 绑定及回调后 IRQ 新鲜度 |
 | [Unit 第二批协议研究](unit-research/2026-11-02-batch2-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（adc_v11 快照漏调用 bug、neopixel 版本语义、多从机/双端点框架缺口）；planned，不含 runtime 声明 |
 | [Unit 第三批协议研究](unit-research/2026-11-02-batch3-protocols.md) | Unit 研究 | `2026-11-02` | 12 款未登记 Unit 的驱动 file:line/寄存器表/QEMU 复用建议与 unresolved（rfid→rfid2 复用、vmeter/env-iv 双从机、ADS1100/ADS1110 区分、SHT4x/SCD4x 快照 vs master 语义差异、PbHub 7 地址与 MCU/RGB 冲突）；planned，不含 runtime 声明 |

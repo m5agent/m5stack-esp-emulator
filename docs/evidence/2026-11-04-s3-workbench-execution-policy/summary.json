@@ -1,0 +1,1503 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-s3-workbench-execution-policy-evidence-draft",
+  "date": "2026-11-04",
+  "draft": false,
+  "overall_status": "PARTIAL: original startup FAIL / exact preview DIAGNOSTIC_PASS17/17 / canonical full60 PENDING",
+  "publication_eligible": false,
+  "validation_layers": {
+    "original_R7_AtomS3Lite": "virtual-device validation FAIL",
+    "exact_Flash_disassembly": "Read-only exact binary instruction review, not guest execution",
+    "source_review": "Static read-only source review, not runtime transaction tracing",
+    "candidate_preparation": "80 static checks PASS; guest NOT RUN during preparation",
+    "candidate_17_functional_cases": "virtual-device validation DIAGNOSTIC_PASS17/17,656 checks; preview publication=false",
+    "physical_hardware": "NOT RUN",
+    "canonical_full60_followup": "PENDING",
+    "online_deployment": "NOT RUN"
+  },
+  "original_R7_failure": {
+    "matrix_context": {
+      "root_terminal_status": "R7 FAIL",
+      "started_cases": 16,
+      "PASS_cases": 15,
+      "FAIL_cases": 1,
+      "remaining_cases_NOT_RUN": 44,
+      "count_scope": "Root terminal counts; remaining derived from 60 planned, not a whole-matrix PASS."
+    },
+    "raw_report": {
+      "bytes": 28744,
+      "sha256": "930501c55a9a08d5c20677fcb6d95f18d88f312a03b3e055943ec51fc84e5830"
+    },
+    "failure": {
+      "phase": "First programming boot before ready or uploaded user program; not a host hardware-reset phase.",
+      "UI_checks_completed": 4,
+      "programs": 0,
+      "ready": "NOT REACHED",
+      "guest_reset_events_observed": 2,
+      "poststop_console_epoch": 2,
+      "panic": "Core1 LoadStorePIFAddrError",
+      "PC": "0x403864c3",
+      "EXCVADDR": "0x6002306c",
+      "EXCCAUSE": "0x0f",
+      "registers": {
+        "A7": "0x60023000",
+        "A6": "0x00000002"
+      },
+      "selected_original_serial": [
+        "Guru Meditation Error: Core  1 panic'ed (LoadStorePIFAddrError). Exception was unhandled.",
+        "PC      : 0x403864c3  PS      : 0x00050031  A0      : 0x4037ee25  A1      : 0x3fca1d60",
+        "A2      : 0x3fca4544  A3      : 0x00000001  A4      : 0x00000034  A5      : 0x3fca4554",
+        "A6      : 0x00000002  A7      : 0x60023000  A8      : 0x3fca4550  A9      : 0x3fca1d50",
+        "A10     : 0x00060023  A11     : 0x00000001  A12     : 0x00060021  A13     : 0x3fcafaf0",
+        "A14     : 0x00060323  A15     : 0x3fcadcbc  SAR     : 0x0000001f  EXCCAUSE: 0x0000000f",
+        "EXCVADDR: 0x6002306c  LBEG    : 0x00000000  LEND    : 0x00000000  LCOUNT  : 0x00000000",
+        "Backtrace: 0x403864c0:0x3fca1d60 0x4037ee22:0x3fca1d80 0x403828f3:0x3fcafb20 0x42120ed6:0x3fcafb40 0x421d5824:0x3fcafb60 0x4038711c:0x3fcafb80",
+        "ELF file SHA256: 0f6da851e"
+      ]
+    },
+    "execution_identity": {
+      "deviceId": "atoms3-lite",
+      "board": "m5atoms3lite",
+      "profile": "atoms3-lite-wasm-wallclock",
+      "clockDivisor": 1,
+      "clockOverride": null,
+      "accelerator": null,
+      "oneInsnPerTb": false,
+      "firmwareSha256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+      "wasmSha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+      "javascriptSha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+      "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d"
+    },
+    "argument_evidence": {
+      "explicit_icount_argument": false,
+      "explicit_accelerator_argument": false,
+      "one_insn_argument": false,
+      "machine": "m5atoms3lite",
+      "clock_modified_by_audit": false,
+      "guest_internal_virtual_paths_omitted": true
+    },
+    "provenance": {
+      "site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+      "runtime_manifest": {
+        "bytes": 34437,
+        "sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51"
+      },
+      "QEMU_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "test_script": {
+        "path": "platform/tests/test_public_uiflow_guest.mjs",
+        "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "product_public_js_sha256": "f717882a82aa91b8151fff445edf2ac3a091989c5b483fe6a8829e9ca0c694d2"
+    },
+    "actual_poststop_cleanup": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_workers_created": 5,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining": 0,
+      "nested_workers_terminated_by_dispose": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_fallback_terminations": 0,
+      "engine_metadata_stage": "before-iframe-removal",
+      "iframe_removed": true,
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "destroyed": 6,
+        "live": 0
+      },
+      "actual_CDP_held_iframe": "NOT CAPTURED"
+    }
+  },
+  "exact_Flash_instruction_review": {
+    "Flash": {
+      "bytes": 8388608,
+      "sha256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8"
+    },
+    "partition": {
+      "kind": 0,
+      "subtype": 0,
+      "offset": 65536,
+      "size": 5443584,
+      "label": "factory"
+    },
+    "IRAM_segment": {
+      "index": 4,
+      "load_address": 1077362688,
+      "bytes": 109028,
+      "Flash_data_offset": 4891256,
+      "sha256": "d4e871d37a8fd21eb2bf4eca7a675e4d3650969836087302dfc6c532d7f7953e"
+    },
+    "tool_version": "GNU objdump (crosstool-NG esp-14.2.0_20260121) 2.43.1",
+    "tool_sha256": "eb7d7ae55b196d7eee4bdb3152e83b7aa2c7c822ab39e454d80a8b24bb405d89",
+    "argv_template": [
+      "xtensa-esp32s3-elf-objdump",
+      "-D",
+      "-b",
+      "binary",
+      "-m",
+      "xtensa",
+      "--adjust-vma=0x40374000",
+      "--start-address=0x403864c3",
+      "--stop-address=0x403864f3",
+      "exact-app-iram.bin"
+    ],
+    "start_boundary": "Exact fault PC from original panic; earlier nonmatching instruction alignment not assumed.",
+    "matching_ELF": "NOT AVAILABLE / NOT USED",
+    "fault_instruction": {
+      "PC": "0x403864c3",
+      "bytes": "82271b",
+      "instruction": "l32i a8, a7, 108",
+      "instruction_bytes": 3,
+      "memory_access": "ordinary 32-bit load",
+      "effective_address": "0x60023000 + 0x6c = 0x6002306c",
+      "aligned_to_4": true,
+      "crosses_page": false,
+      "atomic_or_S32C1I": false
+    },
+    "subsequent_actual_instructions": [
+      {
+        "PC": "0x403864c6",
+        "instruction": "mov.n a11, a3"
+      },
+      {
+        "PC": "0x403864c8",
+        "instruction": "or a8, a8, a6"
+      },
+      {
+        "PC": "0x403864cb",
+        "instruction": "memw"
+      },
+      {
+        "PC": "0x403864ce",
+        "instruction": "s32i a8, a7, 108"
+      }
+    ],
+    "function_symbol": "NOT ESTABLISHED; no nonmatching ELF or StamPLC bytes reused."
+  },
+  "source_review": {
+    "artifact": {
+      "bytes": 10762,
+      "sha256": "1c87eecfe511e680c2938af124cb6c3cca70789cc159bd86c017ce535b7eab4b"
+    },
+    "findings": {
+      "register": "SYSTIMER_INT_CLR",
+      "register_offset": "0x6c",
+      "TARGET1_CONF_offset": "0x38; different register",
+      "MMIO_base": "0x60023000",
+      "MMIO_size_bytes": 256,
+      "machine_inheritance": "m5atoms3lite -> esp32s3; normal shared SoC systimer initialized and mapped at base.",
+      "read_callback": "esp_systimer_read initializes r=0; explicit A_SYSTIMER_INT_CLR case breaks without setting r, so this source callback returns0. The source comment says read-only but does not implement a read error.",
+      "write_callback": "A_SYSTIMER_INT_CLR clears each comparator raw_st bit selected by value bits0..2 and updates IRQs.",
+      "S3_override": "Only write method overridden; delegates parent then reprograms on INT_ENA. Read remains generic.",
+      "dispatch": "No custom valid.accepts or max_access_size; aligned4-byte access accepted by source memory_region_access_valid. Ordinary read accessor returns MEMTX_OK after callback.",
+      "reset": "Generic hold deletes comparator timers, lowers IRQs, zeros comparator state while restoring timer/IRQ/systimer fields, then default config. No address-unmap found in this device reset path.",
+      "implication": "Source implements and maps this register; controller absence/unsupported access size does not explain the observed PIF by itself. Actual faulting transaction lookup, callback arrival, CPU/TLB/TB state and return metadata were not instrumented."
+    },
+    "source_files": [
+      {
+        "path": "hw/timer/esp_systimer.c",
+        "bytes": 25060,
+        "sha256": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
+        "relevant_lines": "187-191,283-285,318,546-553,586-607,622-623,645-649",
+        "provenance": "runtime manifest patched_files_sha256",
+        "manifest_sha256": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
+        "matches_manifest": true
+      },
+      {
+        "path": "include/hw/timer/esp_systimer.h",
+        "bytes": 7824,
+        "sha256": "1b30c21987d8968d762811541f5bf605b103d80a062b542358f25a0d1b1cad50",
+        "relevant_lines": "25,183,230-233,256",
+        "provenance": "Unpatched pinned QEMU Git blob; not listed in patched_files_sha256",
+        "matches_pinned_commit": true
+      },
+      {
+        "path": "hw/timer/esp32s3_systimer.c",
+        "bytes": 1765,
+        "sha256": "f6b714873a5d5466d2e34d80f459078bf9b940511a595515614feaeb6af93fdf",
+        "relevant_lines": "18-40",
+        "provenance": "Unpatched pinned QEMU Git blob; not listed in patched_files_sha256",
+        "matches_pinned_commit": true
+      },
+      {
+        "path": "hw/xtensa/esp32s3.c",
+        "bytes": 53563,
+        "sha256": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
+        "relevant_lines": "720,833-841,1426-1447",
+        "provenance": "runtime manifest patched_files_sha256",
+        "manifest_sha256": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
+        "matches_manifest": true
+      },
+      {
+        "path": "include/hw/misc/esp32s3_reg.h",
+        "bytes": 4677,
+        "sha256": "419900361d82595a306b411b46b2e8803174d7099b076284548b58cab3b8928f",
+        "relevant_lines": "46",
+        "provenance": "Unpatched pinned QEMU Git blob; not listed in patched_files_sha256",
+        "matches_pinned_commit": true
+      },
+      {
+        "path": "hw/m5stopwatch/m5atoms3lite.c",
+        "bytes": 3486,
+        "sha256": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
+        "relevant_lines": "75-101",
+        "provenance": "runtime manifest patched_files_sha256",
+        "manifest_sha256": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
+        "matches_manifest": true
+      },
+      {
+        "path": "system/memory.c",
+        "bytes": 122199,
+        "sha256": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
+        "relevant_lines": "440-455,1407-1446,1449-1493",
+        "provenance": "runtime manifest patched_files_sha256",
+        "manifest_sha256": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
+        "matches_manifest": true
+      }
+    ],
+    "root_cause": "OPEN",
+    "actual_faulting_transaction": "NOT CAPTURED: no confirmed MemoryRegion selection, callback arrival, CPU/TLB/TB or return-metadata trace.",
+    "comparison_boundary": "StamPLC UNIT1_OP at0x08/reset and Cardputer OOB use different exact Flash/stages; no common C cause established.",
+    "model_gap": "RUNTIME-09 OPEN"
+  },
+  "candidate_preparation": {
+    "artifact": {
+      "bytes": 12291,
+      "sha256": "2c5cceb7f439e88b5f206df70255c6628c4f545a1326de3781ae090b77231ecb"
+    },
+    "status": "STRICT_EXPORT_AND_80_STATIC_CHECKS_PASS_GUEST_NOT_RUN",
+    "source_head": "1f69290976a139cd7ca666581b744b3544526b96",
+    "canonical_registry_sha256_at_preparation": "150be972fc4f53c1dbbe7ad052d80f878dd4a01d6100ce292c5b51ec189bbbe4",
+    "functional_registry_sha256": "0f0727d10e56811f6c99d45543eb48b60dd6642112dd3ab1e967bc3229448794",
+    "preview_registry_sha256": "5161dcc497419bd0e29e5bc43e9e11b6ad423b91c6288654d51ab7c03724a48c",
+    "baseline_site_manifest_sha256": "6123a283c5a32254d76b9de64aaba2bae64de22aecd7207b48dd2ce0af2c8bbb",
+    "preview_site_manifest_sha256": "dc722d4f6531e398368c2497c53551d0891d6330a2c00f8428aecc283bdf2c52",
+    "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+    "runtime_WASM_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "preview_publication_eligible": false,
+    "preview_admission": "candidate for the eight selected devices; not public promotion",
+    "source_and_asset_boundary": {
+      "only_transformed_source": [
+        "platform/web/qemu-browser-profiles.json"
+      ],
+      "functional_change": "Append one variant per exact selected workbench Flash/main; preserve preexisting rows.",
+      "preview_change": "Only eight selected admissions public->candidate and explicit publication=false.",
+      "changed_export_metadata": [
+        "platform/web/browser-profiles.json",
+        "platform/web/qemu-browser-profiles.json",
+        "platform/web/site-config.json",
+        "site-config.json"
+      ],
+      "all_other_assets_identical": true,
+      "all_source_copied_without_shared_writable_inodes": true,
+      "canonical_unchanged": true,
+      "controller_C_wiring_flash_runtime_binary_clock_unchanged": true,
+      "icount_added": false,
+      "actual_argument_addition": [
+        "-accel",
+        "tcg,thread=multi,one-insn-per-tb=on"
+      ]
+    },
+    "static_checks": {
+      "count": 80,
+      "status": "STATIC_POLICY_AND_PROVENANCE_PASS_GUEST_NOT_RUN",
+      "scope": [
+        "exact firmware/main/ready/clock/patch per board",
+        "unknown Flash retains old policy",
+        "old fixed and preexisting firmware variants retain old policy",
+        "bad source/ready/fixture and absent0027 reject",
+        "all unselected profiles including Core/Card/Stam/classic unchanged",
+        "unmodified strict artifact-provenance helper accepts explicit preview"
+      ]
+    },
+    "artifacts_hash_only": {
+      "source-export-receipt.json": {
+        "bytes": 684916,
+        "sha256": "30c1da1baf7257beae6e650ecf520ae9253f1c8e5eea7f76013d60e34bf25eae"
+      },
+      "static-preflight.mjs": {
+        "bytes": 6484,
+        "sha256": "55887ef87a34d57f5647ed37cb0719420fa19abd8a7f6dc1c4fb823ca3394026"
+      },
+      "static-preflight.json": {
+        "bytes": 74729,
+        "sha256": "0e90072b182733de4828286cd09592f536db22589bdcadcc072d48be142c6c07"
+      },
+      "functional.patch": {
+        "bytes": 9802,
+        "sha256": "5d03701fb7310a8737d451121b4a8b90694be22310173ee1b93986abc728bc57"
+      },
+      "preview-only.patch": {
+        "bytes": 2248,
+        "sha256": "ff691a3bf9551997788fbdf96622f537f319f7649313e711b457c3323485ace0"
+      },
+      "run-one.py": {
+        "bytes": 3772,
+        "sha256": "6085e191348ce9739aa9fc645a854ea57fa0bb4914e9f1a77f2088580e291e6d"
+      }
+    },
+    "original_functional_runners": {
+      "platform/tests/test_public_uiflow_guest.mjs": {
+        "base_sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2",
+        "candidate_sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2",
+        "bytes": 26009
+      },
+      "platform/tests/test_public_qemu_buttons_guest.mjs": {
+        "base_sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989",
+        "candidate_sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989",
+        "bytes": 15664
+      },
+      "platform/tests/test_public_stackchan_body_touch_guest.mjs": {
+        "base_sha256": "18eeac12b6dc332b31c55575f327a5cf3bcc40959818337aadc1f1e0325423ef",
+        "candidate_sha256": "18eeac12b6dc332b31c55575f327a5cf3bcc40959818337aadc1f1e0325423ef",
+        "bytes": 17186
+      }
+    }
+  },
+  "exact_policy_common": {
+    "fixture": "uiflow-workbench-v1",
+    "ready_marker": "M5_UIFLOW_WORKBENCH_READY",
+    "startup_main_sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+    "clock_divisor": 1,
+    "one_insn_per_TB": true,
+    "scheduler_candidate": "qemu-tci-mmio-blocks-v1",
+    "required_runtime_patch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "actual_argument_addition": [
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "icount_added": false,
+    "unknown_Flash_and_unselected_profiles": "Preserve existing policy; candidate result does not transfer."
+  },
+  "functional_plan": {
+    "status": "DIAGNOSTIC_PASS",
+    "active_child_reports_read_by_this_writer": false,
+    "planned_cases": 17,
+    "per_device_order": "Complete original editor, then original buttons, separately for each of eight exact devices.",
+    "editor_count": 8,
+    "buttons_count": 8,
+    "additional_StackChan_body_count": 1,
+    "rows": [
+      {
+        "device": "stopwatch",
+        "firmware_sha256": "5a7fb2941c2dfa7b17ca57defa5ea857191e64daeb774d05da5cd427cd45fe2a",
+        "candidate_profile": "stopwatch-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 64,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 14435722,
+            "sha256": "e31967e229575a3ebd030080ffce278ac6686a6848edba6c9ea6712db054178f"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5stopwatch",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "23101f6504b67960224a8eb7eff66bdd167040d01f2b0e30aad6b2565148d360"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "a633fb90fac72bab89449d26f6acd7ec8f6810e62c09959198e7045e81b346ae",
+            "7c46245a8af155525e72f6e3f67aff89ac280510339f6e7f3206eebf13593a5d",
+            "d88e6e2016e48f513ea040b10c5fd5a4973a62193cbee6a5d2eb1f17599d6d50",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "38316753fc6282586f473fc48938b6f8caf8f181b024363383ce500c8228ce1e",
+            "9c6bed29c31289f0de285ed913d39b4c2cad22c3b2cb32bb2253e8dab6528447",
+            "13c813867c913ed6fe022be235c527d821538df8b7de5cd7113089da1035e60a",
+            "1e37baa0bffe9a25b3f5fc8d648db1e42ae91b7e300f4b89ff0f6895b9089e60",
+            "9c965383e9e5b1abdc781ba2a087db31bfca569e5265c7a7b30f8ee708548c65",
+            "c4795b1b5d4386fa7210ae3d808f08c23ce6d0464d07cd79cef4605f7099e209"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 19,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 9650468,
+            "sha256": "53d20198f4b04649f674886b2cfb168b44ab580c27b06398b5eafcaf511350be"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5stopwatch",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 6,
+          "observed_hold_ms_range": [
+            253.123,
+            255.264
+          ],
+          "trials": [
+            {
+              "id": "a",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "a",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "b",
+              "owner": "BtnB",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "b",
+              "owner": "BtnB",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {
+            "board": "M5StopWatch",
+            "i2c": 1,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "click_window_ms": 500,
+            "configuration_api": "m5pm1-python-driver"
+          },
+          "actual_guest_PMIC_readback": {
+            "applied": true,
+            "cfg4a_before": 0,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "cfg4a_after": 0,
+            "configuration_api": "m5pm1-python-driver",
+            "i2c": 1,
+            "cfg49_before": 42,
+            "api": "M5PM1.disable_single_click_reset+set_button_timing",
+            "cfg49_after": 45,
+            "click_window_ms": 500
+          },
+          "executed_observer_sha256": "8445aa3494de9201fa956bc7c74f2cb165aa025639dab6f8676d862f52fa668d"
+        },
+        "base_Flash_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      {
+        "device": "sticks3",
+        "firmware_sha256": "43855f0144edec8fafc4525ac6c8e30b01e2386d7b7f282ddb92833d792932fc",
+        "candidate_profile": "sticks3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 63,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 2238627,
+            "sha256": "8fcb5ff273e218b8b1afe857a380f240e8a51d1b7516585503d14d1673eec89a"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5sticks3",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "21297fb710f7e453158447e1c05eaf96d570b9afc292e186de136097d846b74a"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93b62377530aba16b1f525fb706b6fd6e8fe6ee76bdc7b89caf9a0c091231ec6",
+            "2c5314fbdd3445a6014b99a10b4624afb8b7932defbe58d33020cee1d06218df",
+            "29ade62b4c2b05539360de0fb0b76f9313d655ad1cab925d642844dfc568b463",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "ddcb37539848783bed8b6342dc37ea88f38ef771c02063c7b0eb76014bd7a908",
+            "ebb1d1c43a8074f3783a9718c496eb8810057352c476f52a5e9076519477c576",
+            "9c3681ba84694ecedb92aacb780f276c5d70e7889bd05fcc42e2bb6d0eb1bc0f",
+            "6c3a8d3694ff04ce56711288625abb277a5ff4eb22f5fc01f859340edb70f7e2",
+            "eb6dba28d581f5e125ba5e5caab0bd22c24607d752e1d4be758084b86027a0b1",
+            "a52ac96852a99c157900a5c521a5ded4de013b445aa5e08c643316f197175066"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 19,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 1520967,
+            "sha256": "e488071207b9f0a02cdfb1f044cd748c9c459383f6c60c457584ed63fa3a7322"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5sticks3",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 6,
+          "observed_hold_ms_range": [
+            252.508,
+            255.431
+          ],
+          "trials": [
+            {
+              "id": "a",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "a",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "b",
+              "owner": "BtnB",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "b",
+              "owner": "BtnB",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {
+            "board": "M5StickS3",
+            "i2c": 1,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "click_window_ms": 500,
+            "configuration_api": "m5pm1-python-driver"
+          },
+          "actual_guest_PMIC_readback": {
+            "applied": true,
+            "cfg4a_before": 0,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "cfg4a_after": 0,
+            "configuration_api": "m5pm1-python-driver",
+            "i2c": 1,
+            "cfg49_before": 42,
+            "api": "M5PM1.disable_single_click_reset+set_button_timing",
+            "cfg49_after": 45,
+            "click_window_ms": 500
+          },
+          "executed_observer_sha256": "685fba513f6fd5d2829a740c00f70457f636811e40451a083208ef0494290fa1"
+        },
+        "base_Flash_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      {
+        "device": "atoms3",
+        "firmware_sha256": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
+        "candidate_profile": "atoms3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 63,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 1183100,
+            "sha256": "9b58e516612599d85d40f25b15d630bf9fe2063385be59f1518b3d45b60063a8"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "2455c191ae770e96ed8673c2b234130125d3b56ada4dc485680fd849d7e10bbb"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "49e2d0026ae011be6d2c68c997b20ff9907ef908161fa31bd7887bda6f591630",
+            "c11fbb1f44564da07492918a9bc45d14ea65e07dcb67ee95d3b7827360607eac",
+            "0e88f0fd62ffb698640f679e393eb25e807d33703e7830ec06a4e701b31b4f32",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "9881115ecde566a386a7e57438152930e0468e7b8f4605f8094e9755e813ce44",
+            "b89a6a36b53a09fb656727de74bc80b3e4770429b2ccfa5854a83c1f5e5c5510",
+            "9609c46b32be3d4b3fde4ac2e46f5873dc87d1ed2ade184c6acd7af03519c84f",
+            "d0a19646c08bb5648cbd8bfd4460d76425ba7c54a49cacbe31b8017c8017a821",
+            "3873ae05090ef8e51c88ffc240b39540e918f7a7077ee413541d11dc7bdcf559",
+            "9604cd672838e76b7b1c0b306cf1b782afbbafea10cba3ccedf6ad62c8459cd7"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 10,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 782843,
+            "sha256": "5af1374be0e8861aba923b3b405ced0cf29e7efa12100492fea5b66385db1343"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 2,
+          "observed_hold_ms_range": [
+            253.003,
+            253.049
+          ],
+          "trials": [
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {},
+          "executed_observer_sha256": "e045d34f053a80d4fd18c1706aa50deb62fb18b102e6390189693fe1775eee04"
+        },
+        "base_Flash_sha256": "fb294c9780cfc3766fd489e164a1a04dddf54cb989adb113d098fe10cbc52075"
+      },
+      {
+        "device": "atoms3-lite",
+        "firmware_sha256": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
+        "candidate_profile": "atoms3-lite-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 58,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 97177,
+            "sha256": "8129b5623c3f17219f53c0a78227032e53b3f46c8a265ad33da2fc169e078bca"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3lite",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 11,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "b626d7b7f048a0b426af7d9a402c3095deac838386cf76f1c26910ea9d31fe2a"
+          },
+          "program_name_template": "without_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "02d4713ef3e7cd6cf931e7ce9608f3261256407f19a97e9b3e1e24846ca006a9",
+            "caf2768de1158182a56c136bc69ec5583d3d17118bf106583f853caf14a34b23",
+            "50c2601c937ea9ff1144a9a2fd5ba93504b6ef6f73807fae2f647f114d0263a3",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "99811db3022ce99312522c5f05c3912efb2809ddc8720679a3e1860003659cb2",
+            "141b62f1ff0c4212a1156ec711e29684f7c4e26b0f6902a2c0e1ac69ba8d6554",
+            "d8d86f88e94f4a223d570a841a307ff3e4db44c8eaba96ec69aab855ede33b31",
+            "941a255833c775a59e39640e330218ec5e33b505c0fb254848160bb6764353b7",
+            "201d504c7f60edbc158ef0967338ce29aaa4fad9e4b68883cd1073062ce87943"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 10,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 61850,
+            "sha256": "f1366d916caadac19fb09906667c3eee5bd0d61c9a715dc53ea7ad3f6c095198"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3lite",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 2,
+          "observed_hold_ms_range": [
+            255.201,
+            255.494
+          ],
+          "trials": [
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {},
+          "executed_observer_sha256": "c6c2fe125c86e6a0a78c8135c2d74f70c3d0640e989f6b0710fb45d1f56958e2"
+        },
+        "base_Flash_sha256": "338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c"
+      },
+      {
+        "device": "atoms3r",
+        "firmware_sha256": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
+        "candidate_profile": "atoms3r-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 63,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 1182103,
+            "sha256": "78f09ebd8d0a0c016110aa93bcd816728213c973d7becf75a46bccf9d79de637"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3r",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "7001319cecb50af77a3da8ef3781ef6035b681c85022008c8110dfd40cbdf9fb"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "7fce5d361c11a51373a4a4409439670aa6c5810251ae45a3534dc786d91e3e75",
+            "e9b3399e03bb9e1b3016ad9b393b8888df90bbae80b532c9f7a477e12d437cf4",
+            "fa79968aa8f84cfb6ed75772a5ac94129ea648161ffda6381b4ca461e23a049c",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "3d06de3a8f100c5838ed0f0bcd0e51c897313be69dc25382eb1a398e34aa2f20",
+            "c3ed63c983b9587f5adf37c2c03b128f2b6380dafb579361e95567a15760a6f6",
+            "44d4cab313175394b297e2eeea0298cfc1170e433113266687ca871f23e3d402",
+            "347ffa5106e58223a5d59be52ed92c848eac8b7702a5575ef9cc50861c007c72",
+            "ff1511d9151f7ed6060c89513c65dd7f52e0accfd243353bec470f5cae6f1abd",
+            "d807c37c0cf4db8551c4e5117cdac6351c11a39d46e422ad90b6e15392173264"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 10,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 782558,
+            "sha256": "92b173595dbe3b09c2d0fe3a4ed67e983da019ca3e60fda6ff36e2ea57b21006"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5atoms3r",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 2,
+          "observed_hold_ms_range": [
+            253.077,
+            256.419
+          ],
+          "trials": [
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "button",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {},
+          "executed_observer_sha256": "26c210032ae2f5e642bdfba0f917a50f9c8084eff50e1752e1751898dc826900"
+        },
+        "base_Flash_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      {
+        "device": "stackchan",
+        "firmware_sha256": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
+        "candidate_profile": "stackchan-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 63,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 5171958,
+            "sha256": "20d0417a8bbab85b773553f1c0315d71a4a2ad683c1b72849deea21785b0b0b5"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5stackchan",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "f02d905823fa0fecd884ca09188f18e51b57821b27e6b5bcd4833bc67798d4c0"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "f58f74a079b29c1103276a1b133f69caee6471c40dede0d323e68ad52b42e401",
+            "55306cef0301a2d71727d99244bd6a430075a42cad6e6db2fde4f13da2701181",
+            "07cee9f26ddb18c12acd36bb15acd1047a064ed55023f4d3b37f9e66a6deecc5",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "85c8d438eb11591d3d363c927b7fb59d839fe0bff29cf9e8d7e71e819c318b23",
+            "c4946a670a423dfd875f39c7eb9ad3470d57d9d287ec7fff78969490c94544d2",
+            "ec4c5520b3713d049a1878ad5003b234d9bba25f6f33fbb153a7612426f97e12",
+            "ffee1fd79cb1bbe117ac67faed14b06278227369d01dc28a9cb454de0d0a43f6",
+            "f8776fcd6ef0368502a3dd709c34287d0b70ef4ff0bf73811c4f0a240e460735",
+            "f2a874d52c5bb90e1bc752348e1bbba4877c101062db0eb102204fdb19cf914f"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 10,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 3436180,
+            "sha256": "aa8573ea5474416498c4d634ef78fd51720ef9f2e386aea74a9c6ec8287ecaf8"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5stackchan",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 2,
+          "observed_hold_ms_range": [
+            255.166,
+            256.287
+          ],
+          "trials": [
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {},
+          "executed_observer_sha256": "23bf0011669380b90f5e06bea224227a5266471bb0187e5dc13ee09f0bb76d35"
+        },
+        "base_Flash_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9"
+      },
+      {
+        "device": "papercolor",
+        "firmware_sha256": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
+        "candidate_profile": "papercolor-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 64,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 18822720,
+            "sha256": "9e8d41d3a4c19c5e47e1f3f7b5ffe57ddc9445a30b33e58a8361bc94d52cbde0"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5papercolor",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "8d0e9ab73f88ac6b50cc008f640a99a59027c87b5a47a29ad93bcd0cd2c1e7b9"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "8574fc66a4152f0705ad87d05b6be3bd73dd3e605b35f1c4ad8ec4914bed2c3b",
+            "7a457f410e0cccc2d2262abc36e3cccd61514fc50f61320b854a9a49a6884424",
+            "4c9723183d401027e2fdda97698d8bb0b45971473a7c7a6ea5f4787f84ecf2fa",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "184f1002658fd01436b55c31b4c2c5684817e5b232bce7776f375af7652f4f83",
+            "2d0de6f339c5486f6d1466960457363e083bf36f688520dd8cff4202e5281c59",
+            "b9b975dd21987043f53459143a73606407abe80be9447ffad2c7c9152af6fd65",
+            "f9b617932f3fbcc10cd5e390c88aed2b308f5129580bec5d1c90a466487d930a",
+            "043bff87a7c0042c850915d9e4c02d10999304a2cfe85b8a98cfa9d21d3d395e",
+            "a9c4076633b4dd5a9ade4e0e81701e2ac83c390978500b69b628f4b471f7b9a8"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 23,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 12596053,
+            "sha256": "73858edfd91bac52f67a48fa8ecfcaf3a73127339799603ffe2d48476b16cf11"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5papercolor",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 8,
+          "observed_hold_ms_range": [
+            251.248,
+            254.31
+          ],
+          "trials": [
+            {
+              "id": "key1",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key1",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key2",
+              "owner": "BtnB",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key2",
+              "owner": "BtnB",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key3",
+              "owner": "BtnC",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key3",
+              "owner": "BtnC",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {
+            "board": "M5PaperColor",
+            "i2c": 1,
+            "scl": 2,
+            "sda": 3,
+            "addr": 110,
+            "click_window_ms": 500,
+            "configuration_api": "machine-i2c-register-rmw"
+          },
+          "actual_guest_PMIC_readback": {
+            "applied": true,
+            "cfg4a_before": 0,
+            "scl": 2,
+            "sda": 3,
+            "addr": 110,
+            "cfg4a_after": 0,
+            "configuration_api": "machine-i2c-register-rmw",
+            "i2c": 1,
+            "cfg49_before": 42,
+            "api": "machine.I2C.readfrom_mem+writeto_mem",
+            "cfg49_after": 45,
+            "click_window_ms": 500
+          },
+          "executed_observer_sha256": "2c21eccaa2b6a7657699df285ad40747543c1b8ef1de8f86a61aa112ab09d396"
+        },
+        "base_Flash_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816"
+      },
+      {
+        "device": "papermono",
+        "firmware_sha256": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+        "candidate_profile": "papermono-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+        "editor": {
+          "status": "PASS",
+          "checks": 63,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 30054220,
+            "sha256": "b0581ded7d43f17e6afa80ad73d4fa179196eefef98d0669c2e4f8ed09cd50e8"
+          },
+          "source_control_ref": "uiflow-editor",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5papermono",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_two_phase",
+          "programs": 12,
+          "default_source_runs": 2,
+          "hardware_reset": {
+            "before_console_epoch": 0,
+            "after_console_epoch": 1,
+            "after_reset_source_sha256": "239222aaec43497f795e48e2905ac7005d178d9e00c92094b3468a7191463394"
+          },
+          "program_name_template": "with_display",
+          "program_source_sha256_in_template_order": [
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+            "aacc9b9f6b6335044aa6ef5cbb90280b5ee4b92bfabd7024ddc4502330364b14",
+            "c45e5922da40e48852caf48d0790b5f2ee581ccc20c6cd9982d4ee3f844b645b",
+            "1d50d09472dc1650a4214d1ae750e6aea20cbedaf9c398495337c06008f670d6",
+            "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+            "fbf96d5e65f5476129c46913e5e0df1d34e6bfc5d6fe175b209fdd4b71716a80",
+            "974f2c316daea23fcd69fbd291157f7296c2a0ed9e53d0fefbcd966a950fd187",
+            "d8ec8814b53d583b9d520ec8921c3e3955c5806cc58139691f3abb8bef880c9b",
+            "a0f704dfe927c5b2b213ec41a1422a548dc40a25c206187d64e62bb044eae4b0",
+            "bae1c93477f67663758eb74cb085ac9b20adbae62308f74f91e4fb120527e31f",
+            "869e33c5ddc540c97bfe6180ee87babba891f378dd06ba6f5722e74e02432986"
+          ]
+        },
+        "buttons": {
+          "status": "PASS",
+          "checks": 19,
+          "all_checks_ok": true,
+          "raw_report": {
+            "bytes": 20064751,
+            "sha256": "ed893554a1e9bf49f0ccd7e9d7e2983d60f7e40d19691e23e393a227bb5a685f"
+          },
+          "source_control_ref": "uiflow-buttons",
+          "actual_identity_matches_exact_device_row": true,
+          "actual_board": "m5papermono",
+          "actual_arguments_verified_against_common_policy": true,
+          "cleanup_profile": "normal6_before_context_only",
+          "input_trials": 6,
+          "observed_hold_ms_range": [
+            252.178,
+            254.99
+          ],
+          "trials": [
+            {
+              "id": "key1",
+              "owner": "BtnA",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key1",
+              "owner": "BtnA",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key2",
+              "owner": "BtnB",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "key2",
+              "owner": "BtnB",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "keyboard",
+              "requested_hold_ms": 250
+            },
+            {
+              "id": "power",
+              "owner": "BtnPWR",
+              "method": "pointer",
+              "requested_hold_ms": 250
+            }
+          ],
+          "pmic_application_setup": {
+            "board": "M5PaperMono",
+            "i2c": 1,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "click_window_ms": 500,
+            "configuration_api": "machine-i2c-register-rmw"
+          },
+          "actual_guest_PMIC_readback": {
+            "applied": true,
+            "cfg4a_before": 0,
+            "scl": 48,
+            "sda": 47,
+            "addr": 110,
+            "cfg4a_after": 0,
+            "configuration_api": "machine-i2c-register-rmw",
+            "i2c": 1,
+            "cfg49_before": 42,
+            "api": "machine.I2C.readfrom_mem+writeto_mem",
+            "cfg49_after": 45,
+            "click_window_ms": 500
+          },
+          "executed_observer_sha256": "5e260abdb49cb955b987c40919747111169c66f7c99f4a22721ab2c0bfd5c4d0"
+        },
+        "base_Flash_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05"
+      }
+    ],
+    "StackChan_body": {
+      "status": "PASS",
+      "checks": 35,
+      "all_checks_ok": true,
+      "raw_report": {
+        "bytes": 1783754,
+        "sha256": "deb9b8c55cbbc99592573d0496b99a0a61747e1d11fbe50a577bd2177f38fd99"
+      },
+      "source_control_ref": "stackchan-body-touch",
+      "actual_identity_matches_exact_device_row": true,
+      "actual_board": "m5stackchan",
+      "actual_arguments_verified_against_common_policy": true,
+      "cleanup_profile": "normal6_two_phase",
+      "input_trials": 6,
+      "observed_hold_ms_range": [
+        251.555,
+        259.495
+      ],
+      "controller": {
+        "masks": [
+          48,
+          12,
+          3
+        ],
+        "path": "/machine/si12t",
+        "property": "touch-bits"
+      },
+      "trials": [
+        {
+          "zone": 1,
+          "component": "touch-1",
+          "method": "keyboard",
+          "mask": 48,
+          "requested_hold_ms": 250
+        },
+        {
+          "zone": 1,
+          "component": "touch-1",
+          "method": "pointer",
+          "mask": 48,
+          "requested_hold_ms": 250
+        },
+        {
+          "zone": 2,
+          "component": "touch-2",
+          "method": "keyboard",
+          "mask": 12,
+          "requested_hold_ms": 250
+        },
+        {
+          "zone": 2,
+          "component": "touch-2",
+          "method": "pointer",
+          "mask": 12,
+          "requested_hold_ms": 250
+        },
+        {
+          "zone": 3,
+          "component": "touch-3",
+          "method": "keyboard",
+          "mask": 3,
+          "requested_hold_ms": 250
+        },
+        {
+          "zone": 3,
+          "component": "touch-3",
+          "method": "pointer",
+          "mask": 3,
+          "requested_hold_ms": 250
+        }
+      ],
+      "executed_observer_sha256": "33e436cbf8d0d84f2dd614042478a0f19b4b5c296a3fd05d6f65958ff39cf5e3"
+    },
+    "result_transfer": "NONE: results bind each exact candidate Flash/profile; original FAIL and canonical full60 remain separate.",
+    "original_assertions_retained": [
+      "initial untouched default source first and repeated Run",
+      "all source programs/stdout/stderr/display where applicable",
+      "pause/resume/interrupt",
+      "hardware reset and new-console source execution",
+      "actual keyboard/pointer input at250ms",
+      "StackChan original body controller/driver three zones"
+    ],
+    "PM1_boundary": "Explicit application mode configuration and250ms input; not default-mode PWR PASS.",
+    "terminal_child_reports_read_by_this_writer": true,
+    "completed_cases": 17,
+    "not_run_cases": 0,
+    "checks": 656,
+    "input_trials": 40
+  },
+  "promotion_requirements": [
+    "Every proposed row requires its own original complete editor and button run with actual guest input/output and normal cleanup.",
+    "StackChan additionally requires all three body-touch zones through the original controller/driver.",
+    "Match actual firmwareVariant/argv/Flash/runtime/clock to the exact prepared row before any promotion.",
+    "Apply only successful functional rows if parent authorizes; never preview-only admission changes.",
+    "Canonical source contracts and a fresh canonical full release gate remain separate; independent HTTPS acceptance remains required for online claims."
+  ],
+  "first_failure_boundary": [
+    "New outputs and logs refuse overwrite; first FAIL terminates that invocation.",
+    "Preserve raw identity, actual source/input/output/stage and normal-or-fallback cleanup plus actual CDP disappearance.",
+    "No ordinary retries, alternate clocks/firmware or result transfer from another board.",
+    "A later policy PASS cannot close the original PIF/OOB C-cause gaps."
+  ],
+  "limits": [
+    "Root cause OPEN; no C defect or common cause with earlier StamPLC UNIT1_OP/reset failure established.",
+    "No icount was requested, but generic MMIO/TB recompile is not limited to icount; this audit does not exclude that path.",
+    "Not a physical hardware measurement.",
+    "No exact-variant preview PASS or eight-board outcome inherited.",
+    "Source review/disassembly does not establish the runtime faulting transaction selected this MemoryRegion.",
+    "No C root fix, general all19/full60 acceptance, performance/stability guarantee or production deployment claim.",
+    "80 static PASS controls are not guest execution.",
+    "Only successful exact functional rows may later be considered for promotion; preview-only admissions must not transfer.",
+    "OriginalR7AtomS3Lite first-bootPIF remainsFAIL and RUNTIME-09OPEN; candidatePASS does not establish a C root fix.",
+    "All17 were functional diagnostics with up to2 parallel guests, not performance samples.",
+    "Fresh canonical full60 R8 is PENDING; production HTTPS, long-term stability and unknown firmware remain independently unverified."
+  ],
+  "redaction": {
+    "raw_storage": "Ignored local artifacts; only bounded selected facts and byte/SHA references copied here.",
+    "omitted": [
+      "machine paths",
+      "local/private URLs or endpoints",
+      "session/target/nonce identifiers",
+      "firmware binaries",
+      "full raw serial/frame arrays",
+      "oversized export receipts/static result arrays"
+    ]
+  },
+  "terminal_diagnostic": {
+    "parent_report": {
+      "bytes": 18443,
+      "sha256": "7658ce438c1797d110cf6b9730a7780184324449769c0441221ad31aed521bdb"
+    },
+    "parent_status": "DIAGNOSTIC_PASS",
+    "publication_eligible": false,
+    "lane_counts": {
+      "uiflow-editor": 8,
+      "uiflow-buttons": 8,
+      "stackchan-body-touch": 1
+    },
+    "planned_cases": 17,
+    "completed_cases": 17,
+    "not_run_cases": 0,
+    "checks": 656,
+    "input_trials": 40,
+    "button_methods": {
+      "keyboard": 17,
+      "pointer": 17
+    },
+    "first_failure": null,
+    "max_active_guests": 2,
+    "performance_sample": false,
+    "controller_sha256": "fa20c855e9189b380e0cf37fb8369edf209b0d8c27d6c30a422e162300b28ad9",
+    "pins_sha256": "b118cce628a1e5d889a27a5ffd857b9513cc85559adfaf864396fae89bfd01d8",
+    "case_plan_sha256": "e8000cd15c268eab0586077e8d680ebae515390e1b637ce098e7fa642af30a11",
+    "source_vector_sha256": "09798bc0b15fabc6e78b1c8f0942727aa1633458d90a91a4b6384d13b5fb953d",
+    "actual_arguments_review": {
+      "bytes": 8019,
+      "sha256": "5db3b5e1a77b0f591b74a1d1ca34c6159c41b8cc33f24154b7d91ca35216ed41",
+      "status": "PASS",
+      "rows": 17,
+      "independently_rechecked_from_each_original_receipt": true
+    },
+    "identity_boundary": "All17 actual receipts match their device exact Flash/main/fixture/ready/required0027/oneInsn/div1/nooverride/noicount/explicitTCG flag and sameWASM/site. No generic unknown-firmware claim."
+  },
+  "functional_source_controls": {
+    "stackchan-body-touch": {
+      "test_script": {
+        "path": "platform/tests/test_public_stackchan_body_touch_guest.mjs",
+        "sha256": "18eeac12b6dc332b31c55575f327a5cf3bcc40959818337aadc1f1e0325423ef"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "observer_path": "tests/browser-qemu/stackchan_body_touch/main.py",
+      "observer_template_sha256": "cbac7886c49c5136101228ed6db7e4334cc9c985253426ea92a9e9d6da163f25",
+      "pointer_helper_sha256": "bba9b2c798b91cf100b98203fcc5d2f4ab79fd1150c668354846f31d4ff728b5"
+    },
+    "uiflow-buttons": {
+      "test_script": {
+        "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+        "sha256": "7e1ca495b0006f7976914ded0d51b6f137da9c8155b806ee371820620ac20989"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "observer_path": "tests/browser-qemu/uiflow_workbench/button_observer.py",
+      "observer_template_sha256": "889b00d77edd0f076815b9e3a0a05fbd48ead181e62922f77988630d541bd7d4",
+      "input_registry": {
+        "path": "platform/tests/public_qemu_button_cases.mjs",
+        "sha256": "cd76af0b1b904498bdbf8bdb77e524c71b908753447a053b0635cec80d1075ca"
+      },
+      "pointer_helper": {
+        "path": "platform/tests/public_qemu_button_pointer.mjs",
+        "sha256": "bba9b2c798b91cf100b98203fcc5d2f4ab79fd1150c668354846f31d4ff728b5"
+      }
+    },
+    "uiflow-editor": {
+      "test_script": {
+        "path": "platform/tests/test_public_uiflow_guest.mjs",
+        "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+      },
+      "helper_sha256": "7a8d75a2bf4d8ce51c611530f0c69403e1b0930385f786397dcc105a12d67935",
+      "initial_default_source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+      "program_name_templates": {
+        "without_display": [
+          "default-editor-first-run",
+          "default-editor-repeat-run",
+          "utf8-print",
+          "multiline-loop",
+          "long-utf8-source",
+          "syntax-error",
+          "runtime-error",
+          "file-import-recovery",
+          "infinite-program-interrupt",
+          "same-vm-after-interrupt",
+          "after-hardware-reset"
+        ],
+        "with_display": [
+          "default-editor-first-run",
+          "default-editor-repeat-run",
+          "utf8-print",
+          "multiline-loop",
+          "long-utf8-source",
+          "syntax-error",
+          "runtime-error",
+          "file-import-recovery",
+          "infinite-program-interrupt",
+          "same-vm-after-interrupt",
+          "guest-display-output",
+          "after-hardware-reset"
+        ]
+      }
+    }
+  },
+  "cleanup_profiles": {
+    "common_runtime_metadata_all17": {
+      "normal_QMP": true,
+      "exit_code": 0,
+      "nested_workers_created": 5,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining": 0,
+      "nested_workers_terminated_by_dispose": 0,
+      "engine_normal_terminations": 1,
+      "engine_self_close_notifications": 1,
+      "engine_fallback_terminations": 0,
+      "engine_metadata_stage": "before-iframe-removal",
+      "iframe_removed": true
+    },
+    "normal6_two_phase": {
+      "runtime_metadata_ref": "common_runtime_metadata_all17",
+      "actual_CDP_held_iframe": {
+        "ok": true,
+        "observed": 6,
+        "destroyed": 6,
+        "live": 0
+      },
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "destroyed": 6,
+        "live": 0
+      },
+      "case_count": 9
+    },
+    "normal6_before_context_only": {
+      "runtime_metadata_ref": "common_runtime_metadata_all17",
+      "actual_CDP_held_iframe": "NOT CAPTURED",
+      "actual_CDP_before_context": {
+        "ok": true,
+        "observed": 6,
+        "destroyed": 6,
+        "live": 0
+      },
+      "case_count": 8
+    }
+  },
+  "promotion_scope": {
+    "status": "CANONICAL_FUNCTIONAL_ROWS_APPLIED; fresh complete60 PENDING",
+    "source_commit": "27f01487a99fab06e9d8429430401ea5b06859ca",
+    "canonical_registry_sha256": "0f0727d10e56811f6c99d45543eb48b60dd6642112dd3ab1e967bc3229448794",
+    "functional_change": "Only8exactFlash/main/0027/oneInsn rows added after17case and actualargv review;19original public admissions,unknownFW,classics,oldfixed and3prior exact rows preserved.",
+    "preview_metadata_promoted": false,
+    "Node_contracts": {
+      "first_status": "FAIL retained: old StackChan dance-only allowlist assertion",
+      "first_log": {
+        "bytes": 18095,
+        "sha256": "cea52183a58c0fc0c37bff1ef858f7bdeead8272a53aca96b423643e82fc9b4f"
+      },
+      "followup_status": "28contract commands PASS; guest NOT RUN by host checks",
+      "followup_log": {
+        "bytes": 18950,
+        "sha256": "7b580872b3fa3a561eb122dacce64d3876e157b385e328b236277df294dc0ae4"
+      },
+      "scope": "Allowlist now includes exact guest-validated8ed58 workbench Flash; Factory remains withdrawn."
+    },
+    "canonical_V6_export": {
+      "status": "PASS export only; not canonical guest acceptance",
+      "manifest": {
+        "bytes": 429896,
+        "sha256": "e597ce3c4465f582928042d4a36be684454a9cb4f8910f80720ad027cf1da898"
+      },
+      "assets": 2130,
+      "asset_bytes": 251195290,
+      "publication_eligible": true,
+      "candidate_profiles": [],
+      "same_WASM_sha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1"
+    },
+    "fresh_canonical_full60": "R8 RUNNING / PENDING; active reports not read or grantedPASS here."
+  }
+}
