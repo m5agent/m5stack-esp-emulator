@@ -230,7 +230,17 @@
       "wait": 18,
       "post_frame_color": "2,2,00FF00",
       "memory": "0",
-      "deterministic": true
+      "deterministic": true,
+      "pre_input_marker": "CORE2_LOOP",
+      "post_input_marker": "CORE2_FRAME_AFTER_TOUCH 1",
+      "serial_expect": [
+        "CORE2_MAIN_START",
+        "CORE2_BOARD 2",
+        "CORE2_DISPLAY 320 240",
+        "CORE2_LOOP",
+        "CORE2_TOUCH",
+        "CORE2_FRAME_AFTER_TOUCH 1"
+      ]
     },
     {
       "id": "stickc-plus2",
