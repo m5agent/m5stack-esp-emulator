@@ -285,7 +285,10 @@
           "frame_sha256": {
             "after.png": "90088be0ef232a5eb750aea968abf123b176708ba6527fbb7783aae1237bbde2",
             "before.png": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e"
-          }
+          },
+          "derived_image_hash_stage": "composition receipt before guest execution",
+          "retained_after_run_sha256": "c71acabb4bc66e01b979f2e4b2602591838f8ebf5dc2312a4e8142586d6fa937",
+          "retained_hash_note": "Mutable retained Flash differs after execution; not substituted for the initial input hash."
         },
         {
           "case": "stickc",
@@ -690,7 +693,10 @@
           "frame_sha256": {
             "after.png": "90088be0ef232a5eb750aea968abf123b176708ba6527fbb7783aae1237bbde2",
             "before.png": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e"
-          }
+          },
+          "derived_image_hash_stage": "composition receipt before guest execution",
+          "retained_after_run_sha256": "c71acabb4bc66e01b979f2e4b2602591838f8ebf5dc2312a4e8142586d6fa937",
+          "retained_hash_note": "Mutable retained Flash differs after execution; not substituted for the initial input hash."
         },
         {
           "case": "stickc",
@@ -1022,7 +1028,22 @@
       "fault_controls": 3,
       "scope": "Verify exact stock files plus intentional overlay and unchanged base image SHA; original failing suite remains historical"
     },
-    "final_platform_validators_ci": "PENDING"
+    "final_platform_validators_ci": "Local platform/validators PASS; CI/delivery recorded in permanent work record",
+    "platform_v3_before_line_budget_fix": {
+      "tests": 2021,
+      "passed": 2019,
+      "failures": 1,
+      "skipped": 1,
+      "status": "FAIL",
+      "reason": "Status page452 lines exceeded450. Two wrapped links condensed; all50 docs followup PASS."
+    },
+    "platform_final": {
+      "status": "PASS",
+      "tests": 2021,
+      "passed": 2020,
+      "skipped": 1,
+      "evidence": "host-gates-summary.json"
+    }
   },
   "not_claimed": [
     "A clean full 68-case rerun after the mic fence",

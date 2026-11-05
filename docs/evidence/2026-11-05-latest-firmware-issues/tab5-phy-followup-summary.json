@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "issue": 188,
+  "kind": "latest-Tab5-DSI-PHY-startup-followup",
+  "validation_class": "virtual-device validation",
+  "overall": "PARTIAL",
+  "packing_repair": "PASS; prior composition repair retained, not reclassified as latest UI PASS",
+  "latest_guest_python_ui_touch": "NOT PROVEN; DSI PHY PLL lock wait observed in exact target app",
+  "original_failure_preserved": {
+    "kind": "Factory app partition not bootable after old VFS overwrote application bytes",
+    "prior_bad_derived_sha256": "66a099f6b39219a5aa53bfdb4e5c6710ebefa854b13615e888de3994134b6582",
+    "correct_derived_sha256": "f238ab142a8337166eaa045402ff8c691e5ee296999f3df937167298b7bbf841"
+  },
+  "target": {
+    "base_firmware_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+    "app_load_segments_sha256": "5682f3c0e7b802dcbcd07bfcfafd3ed3f40b4054a78a398a35ae3293df7222f7",
+    "descriptor_ELF_sha256": "0bb5647cd2dd4136c3b0ef41ce1e84f50d87d98dfdac621768cfeb606f194fbb",
+    "version": "V2.5.4",
+    "IDF_descriptor": "v5.5.5-dirty",
+    "compile_time": "Oct 30 2026 03:42:47"
+  },
+  "runtimes": {
+    "prior_0_50_0_binary_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+    "new_0_51_0": {
+      "release_url": "https://github.com/espressif/esp-emulator/releases/tag/v0.51.0",
+      "release_commit": "61d71cef2b1f13a936173c6d282a52c093137d6a",
+      "archive_url": "https://github.com/espressif/esp-emulator/releases/download/v0.51.0/esp-emu-0.51.0-aarch64-apple-darwin.tar.gz",
+      "archive_sha256": "ab02524bd286ce84577639731d0e48d623ce9be65e45d9e1246dd220c1476102",
+      "published_SHA256SUMS_match": true,
+      "binary_sha256": "162761d52bcee36fe8be5fd039202fed5873ca550a83a12229038311a4bbc18c",
+      "binary_bytes": 7211872,
+      "did_not_change_existing_backend_or_default": true
+    }
+  },
+  "shared_boot_inputs": {
+    "ROM_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "C6_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "virtual_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "PSRAM": "32 MiB",
+    "boot": "real ROM plus supplied bootloader, no skip-ROM/bootloader and no app rewrite"
+  },
+  "fresh_lanes": {
+    "v051-gdb": {
+      "timeout_seconds": 25,
+      "firmware_sha256": "f238ab142a8337166eaa045402ff8c691e5ee296999f3df937167298b7bbf841",
+      "ELF": null,
+      "snapshots": 3,
+      "TAB5_markers_observed": false
+    },
+    "v051-uart-mmio": {
+      "timeout_seconds": 20,
+      "firmware_sha256": "3dc852f7c758250374d7c5a9ebf0f410030fb3ae6a1837c5242f6639a077c053",
+      "app_load_segments_unchanged": true,
+      "change": "Existing VFS-only variant routes boot output through real machine.UART(0) os.dupterm; app bytes unchanged",
+      "ELF": null,
+      "observation_channels": [
+        "actual UART0 TCP output",
+        "default console auto stdout, including USB Serial/JTAG if selected"
+      ],
+      "TAB5_markers_observed": false,
+      "GDB_writes": "Only SYSTIMER UPDATE snapshot request bits; no timer config, interrupt routing, PHY ready, firmware or PC writes"
+    },
+    "v051-dsi-status": {
+      "timeout_seconds": 10,
+      "firmware_sha256": "3dc852f7c758250374d7c5a9ebf0f410030fb3ae6a1837c5242f6639a077c053",
+      "ELF": null,
+      "snapshots": 2,
+      "GDB_writes": false,
+      "TAB5_markers_observed": false
+    }
+  },
+  "actual_observations": {
+    "dual_core": {
+      "CPU0_PC": "0x4ff09a1a",
+      "CPU1_PC": "0x4ff09a1a",
+      "CPU0_SP": "0x4ff36c00",
+      "CPU1_SP": "0x4ff37360",
+      "actual_preceding_instruction": "0x4ff09a16: 10500073 wfi",
+      "interpretation": "These are WFI idle return addresses; not an identified busy-loop at the PC."
+    },
+    "main_saved_context": {
+      "TCB_candidate_from_actual_RAM_task_name": "0x4ff36520 (main)",
+      "saved_stack": "0x4ff35c70",
+      "saved_caller_return": "0x4825c686",
+      "saved_s1": "0x4ff3b37c",
+      "handle_host_pointer_at_0x4ff3b380": "0x500a0000",
+      "scope": "TCB layout inferred from documented FreeRTOS structure plus live RAM; no old ELF symbols or addresses used"
+    },
+    "actual_target_bin_loop": [
+      "0x4825c672: lw s0,4(s1)",
+      "0x4825c674: lw a5,176(s0)",
+      "0x4825c678: andi a5,a5,1",
+      "0x4825c67a: bnez a5,0x4825c690",
+      "0x4825c67c: li a0,1",
+      "0x4825c67e/0x4825c682: call 0x4ff15506",
+      "0x4825c686/0x4825c688: reload host and host+0xb0",
+      "0x4825c68c/0x4825c68e: test bit0 and repeat if zero"
+    ],
+    "DSI_register_reads": {
+      "DSI_HOST_base": "0x500a0000",
+      "DSI_HOST_PWR_UP_0x500a0004": "0x00000001",
+      "DSI_HOST_PHY_RSTZ_0x500a00a0": "0x0000000f",
+      "DSI_HOST_PHY_STATUS_0x500a00b0": [
+        "0x00000000",
+        "0x00000000"
+      ],
+      "PHY_lock_bit0": false,
+      "inference": "The original main task is repeatedly delaying while waiting for DSI PHY PLL lock. The backend does not naturally assert that status for this app/configuration."
+    },
+    "timer_progress": {
+      "unit0_counter_snapshot_low": [
+        "0x04c73061",
+        "0x09155c95",
+        "0x0d66d495"
+      ],
+      "unit1_counter_snapshot_low": [
+        "0x040413af",
+        "0x08520183",
+        "0x0ca398af"
+      ],
+      "SYSTIMER_interrupt_enable": "0x7",
+      "RAW_and_ST": "Observed changing between 0x1 and 0x2",
+      "main_delay_deadline": [
+        "0x1104",
+        "0x22ad",
+        "0x345a"
+      ],
+      "interpretation": "Counters, pending bits and task delay deadlines continue advancing. Overall timer freeze is not supported."
+    },
+    "CSR_limit": "GDB exposes GPR/FPR but mstatus/mie/mip evaluate void; no CSR values claimed. CLIC enable/pending MMIO was captured separately.",
+    "RAM_code_matches_app_BIN": {
+      "range": "0x4ff098c0..0x4ff09b00",
+      "captured_regions": 6,
+      "all_match": true,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "debug_container": "A symbol-free diagnostic ELF container was built from actual app load bytes solely for offline instruction decoding. It is not the official matching ELF and was never supplied to the emulator."
+  },
+  "source_references": {
+    "IDF_v5_5_5_reference_commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+    "PHY_lock_wait": "https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_lcd/dsi/esp_lcd_mipi_dsi_bus.c#L97-L102",
+    "limit": "This is a source reference consistent with actual target instructions, not a claim that the dirty firmware SDK is byte-identical to the public IDF tag.",
+    "UIFlow_boot_gate": "https://github.com/m5stack/uiflow-micropython/blob/e437118892520ba987c2d930a2428db1cab65ab1/m5stack/main.c#L176-L190",
+    "boot_flags": "Actual VFS readback confirms _uiflow_run_main=True; UART0 dupterm variant also preserves it."
+  },
+  "ELF_availability_audit": {
+    "release": "UIFlow2 2.5.4",
+    "source_commit": "e437118892520ba987c2d930a2428db1cab65ab1",
+    "matching_head_action_runs_queried": 10,
+    "artifact_records_inspected": 228,
+    "ELF_named_artifact_or_release_asset_found": false,
+    "Tab5_artifact_zip_examined": 12965225578,
+    "zip_contains_only": "uiflow-e437118-esp32p4-16mb-tab5-v2.5.4-20261030.bin",
+    "inspected_CI_bin_sha256": "a1bf2b43a38d87ed3effe9c5abe9196fac0c5cfdf2ef5be0653be9d6c80b3b0e",
+    "inspected_CI_descriptor_ELF_sha256": "5d51038c354fb4b20d519e11b77d72bb70155bba5e7714ea802c3851991e65bc",
+    "limit": "Bounded availability search did not locate matching 0bb5647c ELF. Other archive contents were not all downloaded. Same version or source label is not exact app identity."
+  },
+  "backend_fix_boundary": {
+    "local_repository": "ESP32-P4 uses external esp-emu, outside this project Xtensa/QEMU patch chain.",
+    "upstream_repository_visible_roots": [
+      ".github",
+      "LICENSE",
+      "README.md",
+      "docs",
+      "install.sh",
+      "test_apps",
+      "tools"
+    ],
+    "controller_core_source_available_here": false,
+    "needed_support": "A compatible ESP32-P4 backend with a real DSI host/PHY initialization path that naturally produces PLL lock and lane stop-state, followed by the original guest Python/UI/touch path. Matching target ELF improves task/display observability but cannot itself replace the missing controller behavior.",
+    "no_workaround_claim": "No host writes to PHY lock/ready, no firmware/application bypass, no reused old framebuffer mailbox, and no upgraded latest UI/touch PASS."
+  },
+  "preservation_and_cleanup": {
+    "all_fresh_lanes_input_seed_bytes_and_mtime_unchanged": true,
+    "all_fresh_lanes_owned_flash_copy_bytes_unchanged": true,
+    "owned_P4_C6_processes_reaped": true,
+    "owned_UART_reader_joined": true,
+    "owned_Unix_sockets_removed": true,
+    "user_services_untouched": true
+  },
+  "raw_evidence_hashes": {
+    "v051-gdb/c6.log": {
+      "bytes": 4017,
+      "sha256": "41e7381c8c84904e4a1037028ef100b05b232032e4c6d388b1d850a9237932a6"
+    },
+    "v051-gdb/commands.json": {
+      "bytes": 1278,
+      "sha256": "671c846e0a9bd7107db479e45b717e29d6cd9b4eb9750aace6c8078f35510121"
+    },
+    "v051-gdb/execution-check.json": {
+      "bytes": 493,
+      "sha256": "db3c0128a832cbf7b2e245b6d3d36b925a00cdce79c7170f0263e8bb63518ad0"
+    },
+    "v051-gdb/gdb-0.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-gdb/gdb-0.stdout": {
+      "bytes": 4322,
+      "sha256": "4790c46bb4eb0629f15f0cbca2cbc0be73eeb346af89aaa2cb437e5b8f8b8fc4"
+    },
+    "v051-gdb/gdb-1.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-gdb/gdb-1.stdout": {
+      "bytes": 4317,
+      "sha256": "5786dbbc8fdd6be674df4a418e01a78d7f3fb3da3c1e0cf14923ddfd9769ac4d"
+    },
+    "v051-gdb/gdb-2.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-gdb/gdb-2.stdout": {
+      "bytes": 4317,
+      "sha256": "5786dbbc8fdd6be674df4a418e01a78d7f3fb3da3c1e0cf14923ddfd9769ac4d"
+    },
+    "v051-gdb/iram-0.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-gdb/iram-1.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-gdb/iram-2.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-gdb/p4.log": {
+      "bytes": 2384,
+      "sha256": "b65eb4c62dc25c55025620e8499b018c3e681a34d81037530183ca301564ebf5"
+    },
+    "v051-uart-mmio/c6.log": {
+      "bytes": 4017,
+      "sha256": "41e7381c8c84904e4a1037028ef100b05b232032e4c6d388b1d850a9237932a6"
+    },
+    "v051-uart-mmio/commands.json": {
+      "bytes": 1511,
+      "sha256": "1ba2c55c3ec3289ef6b3095217620682178885dc218512a794fbc86059d26251"
+    },
+    "v051-uart-mmio/execution-check.json": {
+      "bytes": 685,
+      "sha256": "f7582a85c3f85e2f61ac812f26e1b1922099c754227f1302e52c376a8153da9f"
+    },
+    "v051-uart-mmio/gdb-0.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-uart-mmio/gdb-0.stdout": {
+      "bytes": 9601,
+      "sha256": "7a0e5d67035239c039dca68304de1c30a4cfcb1fcedc5a3863755e81e06a3ad5"
+    },
+    "v051-uart-mmio/gdb-1.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-uart-mmio/gdb-1.stdout": {
+      "bytes": 9597,
+      "sha256": "e28d0d0f57913747d95fb35b35cdcb9827fcffd5c0f813dbd51f4c4bda97f503"
+    },
+    "v051-uart-mmio/gdb-2.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-uart-mmio/gdb-2.stdout": {
+      "bytes": 9597,
+      "sha256": "4da157453d78aff0c81b55fbd4f5857e015bbd877b33c75927bcae5c9924a037"
+    },
+    "v051-uart-mmio/iram-0.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-uart-mmio/iram-1.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-uart-mmio/iram-2.bin": {
+      "bytes": 576,
+      "sha256": "a7087928664cf962deb79c9ea9f89f2c64d5e46e20702638855fd2e84c8a6519"
+    },
+    "v051-uart-mmio/p4.log": {
+      "bytes": 2848,
+      "sha256": "ea0c23c11ea07f23d614e1f23b496879e16068560a7a8fb7e61d9951780e73e9"
+    },
+    "v051-uart-mmio/uart0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v051-dsi-status/c6.log": {
+      "bytes": 4017,
+      "sha256": "41e7381c8c84904e4a1037028ef100b05b232032e4c6d388b1d850a9237932a6"
+    },
+    "v051-dsi-status/commands.json": {
+      "bytes": 1417,
+      "sha256": "fe50d91115dc835343e30508644d074773cfedeb769f6138777c73cefc782b1a"
+    },
+    "v051-dsi-status/execution-check.json": {
+      "bytes": 685,
+      "sha256": "f7582a85c3f85e2f61ac812f26e1b1922099c754227f1302e52c376a8153da9f"
+    },
+    "v051-dsi-status/gdb-0.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-dsi-status/gdb-0.stdout": {
+      "bytes": 2052,
+      "sha256": "4c76c6e1a4ede4a37ccba1db306efb571b15a58958a3d6c7f5724430d7d1f3f4"
+    },
+    "v051-dsi-status/gdb-1.stderr": {
+      "bytes": 139,
+      "sha256": "9d0bb1f1fd4450b087429d048aaf75a471a2306c824a2432683c3ab2076ef1a9"
+    },
+    "v051-dsi-status/gdb-1.stdout": {
+      "bytes": 2052,
+      "sha256": "4c76c6e1a4ede4a37ccba1db306efb571b15a58958a3d6c7f5724430d7d1f3f4"
+    },
+    "v051-dsi-status/p4.log": {
+      "bytes": 2234,
+      "sha256": "60945b7d32753ebd7ed916d457d9b8b2df95e8090d11e9ae1cf850775ba93ddc"
+    },
+    "v051-dsi-status/uart0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reproduction": {
+    "setup": "Use the exact admitted base and corrected source image identified above. Copy the virtual eFuse seed and flash into a new owned output directory. Choose free local GDB/UART ports and a fresh Unix socket. Start the C6 slave before the P4 host. Do not pass any application ELF.",
+    "C6_command": "$EMU --chip esp32c6 --firmware \"$C6_FW\" --hosted \"bridge:slave:$SOCKET\" --net user",
+    "P4_command": "$EMU --chip esp32p4 --firmware \"$OWNED_FLASH_COPY\" --rom \"$P4_ROM\" --efuse \"$OWNED_SEED_COPY\" --hosted \"bridge:host:$SOCKET\" --hosted-reset-gpio 15 --hosted-reset-active-high --psram-size 32M --console auto --gdb \"$GDB_PORT\" --uart-tcp \"$DEBUG_HOST:$UART_PORT\" --timeout 10s",
+    "GDB_read_only": "riscv64-elf-gdb -q -batch -ex \"target remote $DEBUG_HOST:$GDB_PORT\" -ex \"info threads\" -ex \"x/64wx 0x500a0000\" -ex \"x/12wx 0x4ff3b37c\" -ex \"x/48wx 0x4ff35cf0\" -ex \"x/4i 0x4ff09a12\" -ex detach",
+    "assertions": "At bounded 3 s and 6 s samples, retain natural PHY_STATUS=0 and the actual stack/caller instead of forcing readiness. Verify original seed SHA and mtime unchanged after owned backend processes exit. Keep both stdout and actual UART0 output.",
+    "cleanup": "Reap only the C6/P4 processes started by the reproducer and remove its own socket; retain evidence."
+  },
+  "redaction_note": "Generic local debug host replaced with caller-owned DEBUG_HOST variable; no execution result changed."
+}

@@ -3,7 +3,7 @@
   "date": "2026-11-05",
   "category": "virtual-device",
   "scope": "latest UIFlow2 native regression repair campaign",
-  "integration_gate": "PARTIAL; functional observations recorded, final host/CI/delivery pending",
+  "integration_gate": "PARTIAL: 16 issue repairs have scoped executable validation; issue 188 remains blocked on P4 DSI PHY startup; delivery recorded separately.",
   "hardware_validation": "NOT RUN",
   "browser_wasm_validation": "NOT RUN",
   "issues": [
@@ -51,7 +51,7 @@
       "scope": "classic ESP32 eFuse package 5/6 admission",
       "local_status": "PASS",
       "finding": "Bounded classic/S3 field encoding, actual eFuse driver and package values restored; targeted guest evidence retained.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 173,
@@ -59,7 +59,7 @@
       "scope": "Four missing console image builders",
       "local_status": "PASS",
       "finding": "Generic source composer restores buildability; classic console guests pass, AtomS3 Lite observation repaired under #187.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 174,
@@ -67,7 +67,7 @@
       "scope": "Actual VFS layout and stock preservation",
       "local_status": "PASS",
       "finding": "Derive VFS from each base partition table; verify unchanged non-VFS bytes and stock-file readback.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 175,
@@ -75,7 +75,7 @@
       "scope": "ED2208 partial window and AUTO refresh",
       "local_status": "PASS",
       "finding": "0x83 inclusive windows and 0x17 A5/A7 AUTO refresh pass on frozen fresh native runtime; latest full matrix and previous official SD regression retained.",
-      "closure_state": "OPEN; final host/CI/delivery gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 176,
@@ -83,7 +83,7 @@
       "scope": "AXP2101 charging status semantics",
       "local_status": "PASS",
       "finding": "AXP2101 REG01 charger/current direction states pass on frozen fresh native runtime for latest and previous official firmware.",
-      "closure_state": "OPEN; final host/CI/delivery gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 177,
@@ -91,7 +91,7 @@
       "scope": "SHA-bound official driver behavior expectations",
       "local_status": "PASS",
       "finding": "StickS3 BMI270 axes and PaperColor undetermined-charge behavior follow exact new firmware/source; old bindings retained.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 178,
@@ -99,7 +99,7 @@
       "scope": "Classic ESP32 esptool transport",
       "local_status": "PASS",
       "finding": "Stock guest stub, actual ROM banner and UART transport; complete Flash byte readback; Core2 draw-completion fence followed preserved first frame failure.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 179,
@@ -107,7 +107,7 @@
       "scope": "AtomS3 panel variant",
       "local_status": "PASS",
       "finding": "Explicit ST7735 profile passes latest and previous official firmware on frozen fresh native runtime; original GC9107 profile preserved.",
-      "closure_state": "OPEN; final host/CI/delivery gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 180,
@@ -115,7 +115,7 @@
       "scope": "PaperColor false pre-REPL diagnosis and EPD output",
       "local_status": "PASS",
       "finding": "Real UART0 observes original main and key marker; 0x17 controller refresh makes the original black-pixel assertion pass. ER warning remains non-blocking.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 181,
@@ -123,7 +123,7 @@
       "scope": "Dial Python console observation",
       "local_status": "PASS",
       "finding": "Real UART0 dupterm exposes original guest markers; original display/input case passes.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 182,
@@ -131,7 +131,7 @@
       "scope": "NanoC6 latest startup fixture",
       "local_status": "PASS",
       "finding": "Actual VFS/stock resources restore latest NanoC6 startup; fresh native device matrix passes and previous/Nesso controls remain retained.",
-      "closure_state": "OPEN; final host/CI/delivery gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 183,
@@ -139,7 +139,7 @@
       "scope": "Basic v2.7 BtnB report",
       "local_status": "PASS",
       "finding": "Fresh full-matrix run reproduced missing BtnB after A redraw. Add a real guest redraw-completion fence between inputs, retaining the 450 ms key pulse. Independent A/B/C input and final 18-board run pass. Earlier standalone PASS and fresh FAIL are retained.",
-      "closure_state": "OPEN; final host/CI/delivery gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 184,
@@ -147,7 +147,7 @@
       "scope": "StickC family frame/fixture contract",
       "local_status": "PASS",
       "finding": "Four declared frame oracles now match their checked-in fixture and actual guest input; original frame results retained.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 185,
@@ -155,7 +155,7 @@
       "scope": "Executed runtime provenance and native recipe",
       "local_status": "PASS",
       "finding": "Bind receipts to live local worker/runtime execution; clean native replay/build and actual RTC cases pass; unavailable old runtime is NOT RUN.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 186,
@@ -163,7 +163,7 @@
       "scope": "CoreS3 ADC calibration admission",
       "local_status": "PASS",
       "finding": "Add one explicit latest app binding; same 17 virtual calibration fields and unchanged numeric oracle. Angle/Light pass; existing Buzzer failure retained.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 187,
@@ -171,15 +171,15 @@
       "scope": "AtomS3 Lite Python console observation",
       "local_status": "PASS",
       "finding": "Original guest already drove RMT RGB; UART0 observation restores all markers and same-VM friendly/raw REPL executes board 137.",
-      "closure_state": "OPEN; final integration gate pending"
+      "closure_state": "Executable acceptance recorded; repository delivery is tracked by the PR and work record"
     },
     {
       "number": 188,
       "url": "https://github.com/m5agent/m5stack-esp-emulator/issues/188",
       "scope": "Tab5 latest official image packing/ELF",
       "local_status": "PARTIAL",
-      "finding": "Double-VFS app corruption and stale ELF use fixed; old emulator UI/touch/RS485 pass. Latest unchanged official app has no proven Python/UI/touch; keep open.",
-      "closure_state": "OPEN; latest official functional acceptance incomplete"
+      "finding": "VFS overwrite fixed; actual latest app waits for DSI_HOST PHY_STATUS bit0 with PWR_UP=1/PHY_RSTZ=0xf on esp-emu0.51. Timers advance. No controller ready bit or app code bypass was applied.",
+      "closure_state": "OPEN: matching latest official Python/UI/touch still required"
     }
   ],
   "runtimes": {
@@ -201,22 +201,35 @@
       "execution": "native P4 esp-emu"
     },
     "final_integration_native": {
-      "status": "NOT RUN",
-      "sha256": null,
-      "reason": "Root must fill from final frozen clean-runtime execution."
+      "status": "EXECUTED",
+      "sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+      "scope": "Xtensa only; C6 actual executable and ROM hashes are separate",
+      "runtime_registry": "root-integration-summary.json"
     },
     "fresh_native_112": {
       "sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
       "scope": "Xtensa cases only. Actual per-case native/RISC-V executable and ROM identities are in root-integration/runtime_registry."
+    },
+    "tab5_esp_emu_051": {
+      "sha256": "162761d52bcee36fe8be5fd039202fed5873ca550a83a12229038311a4bbc18c",
+      "version": "esp-emu 0.51.0",
+      "result": "DSI PHY lock wait remains; latest UI/Python NOT PROVEN",
+      "evidence": "tab5-phy-followup-summary.json"
     }
   },
   "final_integration_gate": {
     "status": "PARTIAL",
     "source_commit": null,
     "record_commit": null,
-    "platform_suite": "PENDING after documentation commit",
-    "validators": "PENDING after documentation commit",
-    "ci": "NOT RUN",
+    "platform_suite": {
+      "status": "PASS",
+      "tests": 2021,
+      "passed": 2020,
+      "skipped": 1,
+      "evidence": "host-gates-summary.json"
+    },
+    "validators": "PASS: coverage/catalog/profiles/snapshot/bootstrap112/compileall; CI and delivery separately recorded",
+    "ci": "Tracked by PR checks and the permanent work record; no CI result inferred here",
     "native_device_matrix": "PASS: 18/18 separate final run; initial 17/18 FAIL retained",
     "native_peripheral_matrix": "First full run 67 PASS / 1 FAIL; independent Core2 microphone followup PASS, not a replacement 68-case run",
     "root_issue_group_runtime_binding": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e"
@@ -272,8 +285,6 @@
     "unlinked_allocated_bytes": 11570143232,
     "duplicate_blob_paths_hardlinked": 1014,
     "dedup_allocated_bytes_estimate": 15568494592,
-    "total_allocated_bytes_removed_or_deduped": 27138637824,
-    "total_GiB": 25.274826049804688,
     "observed_available_GiB": {
       "before_first_operation_rounded": 45.4,
       "after_second_operation_rounded": 70.45
@@ -296,8 +307,8 @@
     "deletion_method": "Only explicit gitignored, inactive whitelist entries; no directory-wide deletion; metadata/size/mtime/inode/source/required SHA recorded before unlink. Flash caches were verified as retained firmware plus FF padding. Only pure .obj/.o/.d build caches were removed.",
     "dedup_method": "Only same-filesystem immutable content-addressed firmware/artifact blobs with byte SHA equality and atomic store replacement semantics. Preserve all original paths and metadata; rehash canonical blobs and verify shared inode afterward.",
     "remaining_candidates": "Unclear exports, mutable work images, service states and open browser assets retained.",
-    "total_allocated_bytes": 39932112896,
-    "total_allocated_gib": 37.18967819213867,
+    "total_allocated_bytes": 46361821184,
+    "total_allocated_gib": 43.17781066894531,
     "additional_immutable_dedup": {
       "schema_version": 1,
       "state": "COMPLETE",
@@ -343,7 +354,11 @@
       "appendix_result_sha256": "4706ed7760db7bdaef22d30dae07464b081a6fca7f4881fecd6b49c22525a954",
       "unique_hash_mismatch_unchanged": true
     },
-    "accounting_note": "Earlier 27,138,637,824 B plus disjoint additional eliminated-inode sets of 12,793,475,072 B. Each inode counted once; du reductions match. df net includes concurrent writes and is separate."
+    "accounting_note": "Disjoint completed operations: 27,138,637,824 +12,793,475,072 +6,429,708,288 allocated bytes. Each eliminated inode counted once; du deltas verified, df concurrent net separate.",
+    "first_cleanup_allocated_bytes": 27138637824,
+    "first_cleanup_GiB": 25.274826049804688,
+    "before_final_build_cleanup_allocated_bytes": 39932112896,
+    "final_build_cache_followup": "storage-followup-summary.json"
   },
   "preserved_failures": [
     "Original latest matrix failures and AtomS3 Lite missing-stdout run",
@@ -408,10 +423,35 @@
         "core2_mic_followup"
       ],
       "path": "root-peripheral-more-summary.json"
+    },
+    "tab5-phy-followup-summary.json": {
+      "scope": [
+        "Actual latest P4 app DSI PHY loop; separate0.51 run"
+      ],
+      "path": "tab5-phy-followup-summary.json"
+    },
+    "storage-followup-summary.json": {
+      "scope": [
+        "Final generated-build/cache cleanup and combined accounting"
+      ],
+      "path": "storage-followup-summary.json"
+    },
+    "native-freeze-audit-summary.json": {
+      "scope": [
+        "First68 matrix dependency freeze and independent microphone followup"
+      ],
+      "path": "native-freeze-audit-summary.json"
+    },
+    "host-gates-summary.json": {
+      "scope": [
+        "Final host contracts and preserved earlier failures"
+      ],
+      "path": "host-gates-summary.json"
     }
   },
   "source": {
     "base_commit": "73ed554fba02a2397dad81e39e12b5b4b92d0500",
-    "integration_commit": null
+    "integration_commit": null,
+    "functional_changes_commit": "56bb04fbd10a22f3e7651008d3b35132d8162bb1"
   }
 }

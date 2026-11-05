@@ -1,8 +1,8 @@
 # Latest UIFlow2 regression repairs
 
 Date: 2026-11-05. Native results are **virtual-device validation**. Physical
-hardware and browser-WASM validation are NOT RUN. Final host/CI/delivery gates
-remain pending; this page does not close all issue reports.
+hardware and browser-WASM validation are NOT RUN. Host checks are recorded separately; CI and delivery use the permanent work
+record. This page does not close all issue reports.
 
 The repairs distinguish image/observer defects from actual controller behavior.
 Actual partition tables drive VFS composition, stock files and all non-VFS bytes
@@ -36,12 +36,14 @@ The Tab5 double VFS injection corrupted latest application bytes; composition
 now preserves the entire app, rejects stale ELF symbols and gives esp-emu an owned
 virtual eFuse copy. The first shared virtual seed save-back lacked a before hash;
 its earlier byte preservation is not claimed. Later copy checks preserve source
-hash and mtime. Latest official Python/UI/touch still lacks readiness evidence;
+hash and mtime. The independent 0.51 followup observes an actual DSI PHY lock wait before
+MicroPython creation; timers advance. [Actual BIN/MMIO evidence](tab5-phy-followup-summary.json)
+uses no old ELF symbols or ready-bit bypass. Latest official Python/UI/touch still lacks readiness evidence;
 old merged-image UI/touch/RS-485 PASS is a separate control. **#188 remains open.**
 
 The engineering-storage cleanup removed only verified regenerable cache/objects
 and deduplicated byte-identical immutable blobs after write-policy checks. The
-allocated/du total is 39,932,112,896 B (37.189678 GiB); current runtime, firmware,
+allocated/du total is 46,361,821,184 B (43.177811 GiB); current runtime, firmware,
 ELF, source, sessions, metadata and valid evidence were retained. Additional
 same-inode/hash and metadata readback is included; a hash-mismatched candidate was
 left untouched. Concurrent `df` changes are reported separately.
@@ -66,5 +68,9 @@ left untouched. Concurrent `df` changes are reported separately.
 Use checked-in `tests/uiflow2/run_device_matrix.py`, `run_peripheral_matrix.py`
 and Unit host runners at the final published source commit with these exact
 firmware/runtime identities. Root summaries bind raw evidence by SHA rather than
-publishing host paths or mutable Flash. Final platform validators, CI, source/record
-permalinks and remote delivery are recorded separately after completion.
+publishing host paths or mutable Flash. Final local platform suite passes 2,020 tests with one skip; Unit has 300 passes
+and one skip, and all 30 Node scripts pass. [Host gate summary](host-gates-summary.json)
+retains earlier failures. CI, source/record permalinks and delivery use the work record.
+
+Additional bounded followups: [native dependency freeze audit](native-freeze-audit-summary.json)
+and [final generated-build/cache cleanup](storage-followup-summary.json).

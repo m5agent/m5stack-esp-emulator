@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "kind": "native-peripheral-matrix-final-and-affected-followup",
+  "date": "2026-11-05",
+  "validation_class": "virtual-device validation",
+  "physical_hardware": "NOT RUN; not required for controller/API functional regression",
+  "frozen_source_commit": "eba761b84fe8a2c1312048f8265400a4944a4790",
+  "full_matrix": {
+    "cases": 68,
+    "machines": 11,
+    "PASS": 67,
+    "FAIL": 1,
+    "failed_case": "core2-mic",
+    "attempts_per_case": 1,
+    "automatic_retries": false,
+    "original_summary_sha256": "a09a8c1a5dc37e58747aa617a71d76fe1087d57c2459967008efe632d719c1c8",
+    "failure": "(4,4) was black while the title was still partially drawn; inner profile runner had exited zero but outer microphone success-frame oracle failed. Three microphone checks FAIL.",
+    "not_claimed": "No single all-68 passing run is claimed; the original FAIL remains visible."
+  },
+  "runtime": {
+    "M5_QEMU_XTENSA": {
+      "bytes": 22206608,
+      "sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e"
+    },
+    "M5_QEMU_RISCV32": {
+      "bytes": 17090976,
+      "sha256": "25497c521ebd5838a56b066551dd5c33d6dd00df853ed4a256fcca79944de7db"
+    }
+  },
+  "firmware": {
+    "platform/.cache/firmware/atoms3r/uiflow2.bin": {
+      "bytes": 8384512,
+      "sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+    },
+    "platform/.cache/firmware/cardputer-adv/uiflow2.bin": {
+      "bytes": 8384512,
+      "sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "platform/.cache/firmware/core2/uiflow2.bin": {
+      "bytes": 16773120,
+      "sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "platform/.cache/firmware/cores3/uiflow2.bin": {
+      "bytes": 16121856,
+      "sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "platform/.cache/firmware/nesso-n1/uiflow2.bin": {
+      "bytes": 16773120,
+      "sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    },
+    "platform/.cache/firmware/papercolor/uiflow2.bin": {
+      "bytes": 16773120,
+      "sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "platform/.cache/firmware/papermono/uiflow2.bin": {
+      "bytes": 16773120,
+      "sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "platform/.cache/firmware/stackchan/uiflow2.bin": {
+      "bytes": 16121856,
+      "sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "platform/.cache/firmware/stamplc/uiflow2.bin": {
+      "bytes": 8384512,
+      "sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "platform/.cache/firmware/sticks3/uiflow2.bin": {
+      "bytes": 8384512,
+      "sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "platform/.cache/firmware/stopwatch/uiflow2.bin": {
+      "bytes": 16773120,
+      "sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    }
+  },
+  "freeze_audit": {
+    "original_broad_source_unchanged": false,
+    "actual_dependency_count": 138,
+    "actual_matrix_dependency_hashes_match_freeze": true,
+    "audited_pre_followup_tree": "c52637f8365bde137633ba58540785a5e98896e9",
+    "approved_unrelated_changed_files": [
+      "platform/tests/test_atoms3_candidate.py",
+      "tests/uiflow2/basic_v27_console_test/main.py",
+      "tests/uiflow2/device_matrix.json",
+      "tests/uiflow2/run_device_matrix.py"
+    ],
+    "runtime_and_11_base_firmware_immutable": true,
+    "dependency_audit_sha256": "3751df129405ccf088f28192c60d9368dfd44baadeb40e47e672015a284c075f",
+    "explanation": "Original wrapper intentionally hashed a broader repository surface. Four parent-approved Basic device-matrix changes did not belong to this matrix dependency closure. Core2 mic completion fence is a later separate commit/run; original matrix summary unchanged."
+  },
+  "affected_followup": {
+    "commit": "7c696e3cb4d1731f4d1a60ac593801dd326ea770",
+    "files": [
+      "tests/uiflow2/core2_mic/main.py",
+      "tests/uiflow2/run_peripheral_matrix.py"
+    ],
+    "change": "Emit the actual PCM result and final draw completion marker; reuse existing pre_input_marker before capture. Original PCM thresholds, green pixel oracle, wait=10, inputs and controller path unchanged.",
+    "status": "PASS",
+    "attempts": 1,
+    "automatic_retry": false,
+    "full_matrix_rerun": false,
+    "actual_Mic_record_nonzero_bytes": 6352,
+    "actual_peak_byte_range": 253,
+    "pixel_4_4": [
+      0,
+      255,
+      0
+    ],
+    "serial_markers": [
+      "CORE2_MIC_RESULT ok nonzero=6352 peak=253",
+      "CORE2_MIC_DRAW_COMPLETE ok"
+    ],
+    "derived_firmware_sha256": "ba5d09e311ed8b4653398e3ebbc3174f79958a1f041786a5648929dd8e26aa85",
+    "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+    "runtime_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+    "summary_sha256": "73b1f608a71c310d873cb515bd914ee9b81f06ea7becc12889192d4aae16b26e",
+    "serial_sha256": "1c87651f95f6142db06a804944daf5a0c0b9203559033c3e34ce8738794f06a4",
+    "after_png_sha256": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a",
+    "host_checks": "13 existing peripheral runner/firmware expectations/guest readiness tests PASS; git diff --check PASS",
+    "initial_check_invocation_error": "First unittest module-path invocation collided with Python stdlib platform; corrected PYTHONPATH invocation ran the same tests successfully."
+  },
+  "reproduction": "M5_QEMU_XTENSA=<frozen clean native binary> M5_QEMU_XTENSA_ROM_DIR=<same source pc-bios> PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py --case core2-mic --out-dir <fresh owned output>",
+  "cleanup": "Profile runner reaped its owned QEMU and removed its own QMP socket. No Device Service lease claimed for direct checked-in regression lane."
+}
