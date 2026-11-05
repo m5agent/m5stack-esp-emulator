@@ -262,6 +262,50 @@ def _check_console_qom(device: dict, qmp, deadline: float
         time.sleep(0.1)
 
 
+def send_console_inputs(qmp, inputs, frame, settle, serial, deadline,
+                        after_markers=()):
+    """Keep each input pulse unchanged, then fence on guest draw completion."""
+    from run_profile_ui_test import send_input
+
+    if after_markers and (not isinstance(after_markers, (list, tuple))
+        or len(after_markers) != len(inputs) or any(
+        not isinstance(marker, str) or not marker for marker in after_markers
+    )):
+        raise ValueError("input_after_markers must name one marker per input")
+    observations = []
+
+    class Recorder:
+        def cmd(self, name, **arguments):
+            sent = time.monotonic()
+            result = qmp.cmd(name, **arguments)
+            if name == "input-send-event":
+                observations[-1]["events"].append({
+                    "sent_monotonic": sent,
+                    "acked_monotonic": time.monotonic(),
+                    "events": arguments["events"],
+                })
+            return result
+
+    for index, spec in enumerate(inputs):
+        offset = serial.stat().st_size if serial.exists() else 0
+        row = {"spec": spec, "events": [], "serial_offset": offset}
+        observations.append(row)
+        send_input(Recorder(), spec, frame, settle)
+        if after_markers:
+            marker = after_markers[index]
+            row["after_marker"] = marker
+            while time.time() < deadline:
+                text = serial.read_bytes()[offset:].decode(errors="replace") if serial.exists() else ""
+                if marker in text:
+                    row["after_marker_observed"] = True
+                    break
+                time.sleep(0.05)
+            else:
+                row["after_marker_observed"] = False
+                return observations, f"guest input completion marker missing: {marker}"
+    return observations, None
+
+
 def run_console(
     device: dict,
     backend: dict,
@@ -395,6 +439,8 @@ def run_console(
     qmp = None
     qom_detail = None
     qom_error = None
+    input_observations = []
+    input_error = None
     qom_transitions: dict[str, object] = {}
     qom_markers_pending = [
         (spec["marker"], list(spec.get("set") or [])) for spec in qom_markers
@@ -418,7 +464,7 @@ def run_console(
             if not injected:
                 pre_marker = device.get("pre_input_marker")
                 if pre_marker is None or pre_marker in text:
-                    from run_profile_ui_test import send_input, wait_qmp
+                    from run_profile_ui_test import wait_qmp
 
                     if qmp is None:
                         qmp = wait_qmp(
@@ -434,12 +480,14 @@ def run_console(
                             "input_frame", (320, 240)
                         )
                     )
-                    for spec in inputs:
-                        send_input(
-                            qmp, spec, frame,
-                            device.get("post_input_wait", 0.3),
-                        )
+                    input_observations, input_error = send_console_inputs(
+                        qmp, inputs, frame,
+                        device.get("post_input_wait", 0.3), serial, deadline,
+                        device.get("input_after_markers", ()),
+                    )
                     injected = True
+                    if input_error:
+                        break
                     continue
             if all(marker in text for marker in expected):
                 matched = True
@@ -469,6 +517,8 @@ def run_console(
             proc.kill()
     text = serial.read_text(errors="replace") if serial.exists() else ""
     missing = [marker for marker in expected if marker not in text]
+    if input_error:
+        missing.append(input_error)
     if matched and qom_error is not None:
         missing.append("QOM validation: " + qom_error)
     if matched and qom_markers_pending:
@@ -528,6 +578,7 @@ def run_console(
                 "output": str(device_out),
                 "flash": flash_info,
                 "rmt_nec": validation.stdout.strip(),
+                **({"input_observations": input_observations} if input_observations else {}),
                 **({"pcm": pcm_detail} if pcm_detail else {}),
                 **({"qom": qom_detail} if qom_detail else {}),
                 **({"microphone_fixture": str(microphone_fixture)}
@@ -541,6 +592,7 @@ def run_console(
             "command": command,
             "output": str(device_out),
             "flash": flash_info,
+            **({"input_observations": input_observations} if input_observations else {}),
             **({"pcm": pcm_detail} if pcm_detail else {}),
             **({"qom": qom_detail} if qom_detail else {}),
             **({"microphone_fixture": str(microphone_fixture)}
@@ -553,6 +605,7 @@ def run_console(
         "output": str(device_out),
         "flash": flash_info,
         "reason": f"missing serial markers: {', '.join(missing)}",
+        **({"input_observations": input_observations} if input_observations else {}),
     }
 
 

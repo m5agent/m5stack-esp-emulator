@@ -549,14 +549,22 @@
         "BASIC27_BUTTON_STATE 1 0 0",
         "BASIC27_BUTTON_STATE 0 1 0",
         "BASIC27_BUTTON_STATE 0 0 1",
-        "BASIC27_BUTTON_STATE 0 0 0"
+        "BASIC27_BUTTON_STATE 0 0 0",
+        "BASIC27_FRAME_READY 2",
+        "BASIC27_FRAME_READY 4",
+        "BASIC27_FRAME_READY 6"
       ],
       "pcm": {
         "file": "speaker.pcm",
         "min_nonzero": 1000,
         "min_peak_to_peak": 1000
       },
-      "timeout": 60
+      "timeout": 60,
+      "input_after_markers": [
+        "BASIC27_FRAME_READY 2",
+        "BASIC27_FRAME_READY 4",
+        "BASIC27_FRAME_READY 6"
+      ]
     },
     {
       "id": "dial",

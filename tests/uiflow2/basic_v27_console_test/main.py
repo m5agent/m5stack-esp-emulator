@@ -90,6 +90,7 @@ except Exception as exc:
 
 print("BASIC27_PROBE_READY")
 last = (pressed[0], pressed[1], pressed[2])
+frames = 0
 while True:
     M5.update()
     now = (int(M5.BtnA.isPressed()), int(M5.BtnB.isPressed()),
@@ -99,4 +100,6 @@ while True:
         display.setCursor(4, 28)
         display.print("buttons=%d%d%d" % now)
         last = now
+        frames += 1
+        print("BASIC27_FRAME_READY", frames)
     time.sleep_ms(20)
