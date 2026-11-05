@@ -30,7 +30,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from run_service_cases import Client, png_metrics  # noqa: E402
 from run_control_cases import build_control_image  # noqa: E402
 from run_sensor_cases import verify_image_files  # noqa: E402
-from unit_adc_fixture import expected_ideal_input  # noqa: E402
+from unit_adc_fixture import expected_ideal_input, load_fixture, verify_firmware  # noqa: E402
 
 PROBE = Path(__file__).parent / "io_probe"
 IR_CALLBACK_PATCH = ROOT / "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch"
@@ -195,6 +195,9 @@ class Observations:
             # Serial can contain READY one poll before the service publishes
             # its running transition. Mutable input is not accepted in booting.
             if session["state"] == "running" and predicate(self.serial[offset:]):
+                observer = getattr(self.client, "observe_runtime", None)
+                if observer is not None:
+                    observer(session)
                 return self.serial
             time.sleep(0.2)
         raise RuntimeError("guest observation timed out; inspect serial.txt")
@@ -498,6 +501,17 @@ def validate_evidence(bundle, result):
         for name, record in manifest["files"].items():
             content = archive.read(name)
             require(len(content) == record["size"] and hashlib.sha256(content).hexdigest() == record["sha256"], f"evidence hash mismatch: {name}")
+        if result["unit_id"] in {"angle", "light"}:
+            require("units/adc-calibration.json" in archive.namelist(), "evidence lacks ADC calibration receipt")
+            receipt = json.loads(archive.read("units/adc-calibration.json"))
+            require(receipt.get("status") == "applied"
+                    and receipt.get("fixture_sha256") == result["adc_fixture_sha256"]
+                    and receipt.get("application_segment_sha256") == result["adc_application_segment_sha256"]
+                    and receipt.get("identity_or_security_fields_changed") is False
+                    and receipt.get("hardware_validation") is False,
+                    "ADC receipt does not match the admitted application and synthetic-only policy")
+            result["adc_calibration_receipt"] = receipt
+            result["checks"]["adc_receipt_matches_admitted_application"] = True
         session = manifest["session"]
         require(session["state"] == "running", "evidence was not captured from the active guest")
         for field in ("session_id", "device_id", "firmware_sha256", "runtime"):
@@ -525,6 +539,9 @@ def run_case(client, args, case):
     result["status"] = "FAIL"
     session_id = None
     try:
+        if case in {"angle", "light"}:
+            binding = verify_firmware(image.read_bytes(), load_fixture())
+            result["adc_application_segment_sha256"] = binding["application_segment_sha256"]
         artifact = client.json("artifacts", method="POST", body=image.read_bytes(), headers={
             "Content-Type": "application/octet-stream", "X-Artifact-Name": f"cores3-{case}-io-probe.bin",
         })
@@ -577,6 +594,7 @@ def run_case(client, args, case):
                 result["stop_error"] = str(error)
                 result["checks"]["stopped_with_history"] = False
         result["status"] = "PASS" if session_id and not result.get("error") and not result.get("serial_error") and all(result["checks"].values()) else "FAIL"
+        client.finalize_result(result)
         (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']} {result.get('error', '')}", flush=True)
     return result

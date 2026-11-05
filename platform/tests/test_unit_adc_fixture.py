@@ -27,7 +27,7 @@ class UnitAdcFixtureTests(unittest.TestCase):
         """Isolate bit-level contracts from the separately tested app admission."""
         if image is None:
             image = bytearray(4096)
-        with patch.object(adc, "verify_firmware"):
+        with patch.object(adc, "verify_firmware", return_value=self.fixture["firmware_binding"]):
             return adc.apply_s3_adc_calibration(
                 image, backend="qemu-esp32s3", firmware=b"host-test-only",
                 fixture_raw=self.raw if raw is None else raw,
@@ -166,6 +166,37 @@ class UnitAdcFixtureTests(unittest.TestCase):
         for image in (bytes(changed), image[:-12], bytearray(image)):
             with self.assertRaises(ValueError):
                 adc.verify_firmware(image, fixture)
+
+    def test_explicit_additional_app_binding_preserves_primary_and_records_actual_match(self):
+        fixture = copy.deepcopy(self.fixture)
+        original_binding = copy.deepcopy(fixture["firmware_binding"])
+        code = b"second admitted host-only app" * 8
+        binding = copy.deepcopy(original_binding)
+        binding.update(application_offset=32, application_segment_bytes=len(code),
+                       application_segment_sha256=hashlib.sha256(code).hexdigest())
+        fixture["additional_firmware_bindings"] = [binding]
+        firmware = b"n" * 32 + code + b"mutable vfs"
+        self.assertEqual(adc.verify_firmware(firmware, fixture), binding)
+        receipt = adc.apply_s3_adc_calibration(bytearray(4096), backend="qemu-esp32s3",
+                                             firmware=firmware, fixture_raw=self.encode(fixture))
+        self.assertEqual(receipt["application_segment_sha256"], binding["application_segment_sha256"])
+        self.assertNotEqual(receipt["application_segment_sha256"], original_binding["application_segment_sha256"])
+        self.assertEqual(fixture["firmware_binding"], original_binding)
+        changed = bytearray(firmware)
+        changed[33] ^= 1
+        image = bytearray(4096)
+        with self.assertRaisesRegex(ValueError, "application bytes"):
+            adc.apply_s3_adc_calibration(image, backend="qemu-esp32s3", firmware=bytes(changed), fixture_raw=self.encode(fixture))
+        self.assertEqual(image, bytes(4096))
+
+    def test_additional_bindings_reject_malformed_or_ambiguous_identity(self):
+        for additional in (None, {}, [self.fixture["firmware_binding"]],
+                           [{"application_offset": True, "application_segment_bytes": 1,
+                             "application_segment_sha256": "a" * 64}]):
+            fixture = copy.deepcopy(self.fixture)
+            fixture["additional_firmware_bindings"] = additional
+            with self.subTest(additional=additional), self.assertRaises(ValueError):
+                adc.load_fixture(raw=self.encode(fixture))
 
     def test_malicious_field_layout_cannot_target_identity_or_security(self):
         for key, value in (("block", 0), ("bit_start", 0), ("bit_count", 7), ("block", True), ("value", True), ("name", "MAC_FACTORY")):
