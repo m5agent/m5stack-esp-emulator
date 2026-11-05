@@ -336,8 +336,10 @@
       "efuse_pkg_version": 0,
       "serial_expect": [
         "ATOMS3_LITE_MAIN_START",
-        "ATOMS3_LITE_M5_BEGIN_OK"
-      ]
+        "ATOMS3_LITE_M5_BEGIN_OK",
+        "ATOMS3_LITE_RGB 2113632"
+      ],
+      "serial_index": 0
     },
     {
       "id": "atoms3u",
@@ -669,7 +671,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_LITE_MAIN_START",
+        "CLASSIC_RGB 1 204060"
+      ]
     },
     {
       "id": "atom-matrix",
@@ -684,7 +691,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_MATRIX_MAIN_START",
+        "CLASSIC_RGB 25 204060"
+      ]
     },
     {
       "id": "atom-matrix-v11",
@@ -699,7 +711,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_MATRIX_V11_MAIN_START",
+        "CLASSIC_RGB 25 204060"
+      ]
     },
     {
       "id": "atomu",

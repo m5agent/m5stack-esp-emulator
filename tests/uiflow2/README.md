@@ -27,6 +27,29 @@ python3 tests/uiflow2/run_device_matrix.py --device core2
 python3 tests/uiflow2/run_device_matrix.py --device tab5
 ```
 
+UI/console 镜像从实际 base 的分区表选择唯一、未加密的 `vfs` 分区；声明布局
+漂移时输出警告，并在产物 `composition.json` 中记录声明/实际布局、固件和
+探针哈希及保留验证。默认挂载并修改已有 LittleFS，保留 stock 资源、system
+文件和 VFS 外的 NVS/应用/分区表；不再因更新固件缓存而按旧偏移格式化。
+`run_profile_ui_test.py --layout-policy strict` 可在布局漂移时直接拒绝；
+`--format-vfs` 或 `--mklittlefs` 是显式的空文件系统回归模式，会删除 stock
+VFS 内容。四款无屏 Atom console fixture 与 UI fixture 使用同一个构建器，
+不要求各目录复制 `make_image.py`。
+
+只派生/检查布局，不启动 guest：
+
+```sh
+python3 tests/uiflow2/run_device_matrix.py --device sticks3 --device stickc \
+  --write-resolved-matrix /tmp/m5-device-matrix-resolved.json
+```
+
+该文件保留 matrix schema，只有选中 UI/console 条目的 VFS offset/size 从
+实际 base 更新。它可作为 `--matrix` 输入或经 review 后更新 tracked registry；
+每个新固件 SHA 仍需重新校验。`M5_QEMU_XTENSA`/`M5_QEMU_RISCV32` 可显式选择
+自建运行时；没有配置时保留 registry 路径。classic ESP32 与 S3 的 package
+eFuse 均严格限制在三位 `0..7`，分别写入各自 SoC 的字段；不会改动 security
+eFuse 或以禁用 driver 绕过 package fixture。
+
 输入验收不能只看截图哈希。Core2 曾出现触摸实际未计数、但半帧重绘仍改变
 哈希而误判 PASS；现在触摸和按键测试会在识别到输入后写固定颜色标记，
 矩阵直接读取该像素。墨水屏只做局部状态刷新，避免把 Spectra 6 长时间卡在

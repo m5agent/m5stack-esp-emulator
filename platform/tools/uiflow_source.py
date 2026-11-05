@@ -116,7 +116,8 @@ def _source_files(files: dict[str, str]) -> tuple[dict[str, bytes], list[dict]]:
     return encoded, rows
 
 
-def _layout(base: bytes, flash_size: int) -> dict:
+def uiflow_vfs_layout(base: bytes, flash_size: int) -> dict:
+    """Read and validate the supported VFS from the actual merged base image."""
     table = parse_partition_table(base, image_size=flash_size)
     if not table["valid"] or table["warnings"]:
         _error("invalid_uiflow_base", "base has an invalid or incomplete partition table")
@@ -239,7 +240,7 @@ def build_uiflow_source_image(
         if expected_base_sha256 != base_sha:
             _error("uiflow_base_hash_mismatch", "base SHA256 does not match the requested immutable base", 409)
     encoded, source_rows = _source_files(files)
-    layout = _layout(base, flash_size)
+    layout = uiflow_vfs_layout(base, flash_size)
     littlefs = _littlefs()
     start, size = layout["offset"], layout["size"]
     vfs = bytearray(base[start:start + size])

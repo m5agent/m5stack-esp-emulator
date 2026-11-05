@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 from esp_flash import flash_with_esp_emu, flash_with_qemu
 
@@ -60,7 +61,7 @@ def ui_command(
         "--input", device["input"],
         "--wait", str(device.get("wait", 6)),
         "--post-input-wait", str(device.get("post_input_wait", 0.6)),
-        "--efuse-driver", backend["efuse_driver"],
+        "--efuse-driver", device.get("efuse_driver", backend["efuse_driver"]),
         "--qemu", str(ROOT / backend["qemu"]),
         "--rom-dir", str(ROOT / backend["rom_dir"]),
         "--out-dir", str(device_out),
@@ -183,21 +184,21 @@ def run_ui(
 
 def build_console_image(device: dict, device_out: Path,
                         env: dict[str, str]) -> Path:
-    image = device_out / "uiflow2-console-test.bin"
-    command = [
-        sys.executable,
-        str(ROOT / device["files_dir"] / "make_image.py"),
-        "--base", str(ROOT / device["base"]),
-        "--out", str(image),
-    ]
-    result = subprocess.run(
-        command, cwd=ROOT, env=env, capture_output=True, text=True, check=False
-    )
-    (device_out / "build.stdout").write_text(result.stdout)
-    (device_out / "build.stderr").write_text(result.stderr)
-    if result.returncode:
-        raise RuntimeError(result.stderr or result.stdout)
-    return image
+    # Console and display probes have the same VFS contract. A per-fixture
+    # make_image.py used to duplicate pinned offsets (or be missing entirely).
+    for path in reversed(env.get("PYTHONPATH", "").split(os.pathsep)):
+        if path and path not in sys.path:
+            sys.path.insert(0, path)
+    from run_profile_ui_test import build_image
+
+    built = build_image(SimpleNamespace(
+        base=ROOT / device["base"], files_dir=ROOT / device["files_dir"],
+        flash_size=int(device["flash_size"], 0),
+        vfs_offset=int(device["vfs_offset"], 0),
+        vfs_size=int(device["vfs_size"], 0),
+        preserve_vfs=True, mklittlefs=None, prog_size=32, out_dir=device_out,
+    ))
+    return built.rename(device_out / "uiflow2-console-test.bin")
 
 
 def _apply_console_qom_sets(qmp, sets: list) -> dict[str, object]:
@@ -332,6 +333,18 @@ def run_console(
         "-L", str(ROOT / backend["rom_dir"]),
         "-display", "none",
     ]
+    if "memory" in device:
+        command.extend(["-m", str(device["memory"])])
+    from run_profile_ui_test import efuse_image
+
+    efuse_driver = device.get("efuse_driver", backend["efuse_driver"])
+    efuse = device_out / "efuse.bin"
+    efuse.write_bytes(efuse_image(device.get("efuse_pkg_version", 0), efuse_driver))
+    if efuse_driver != "none":
+        command.extend([
+            "-drive", f"if=none,id=efuse,file={efuse},format=raw",
+            "-global", f"driver={efuse_driver},property=drive,value=efuse",
+        ])
     # The console probe channel depends on the board's physical UART
     # assignment.  NanoC6 observes UART2 in the third slot; ESP32-S3 boards
     # without a USB model keep the console on UART0 in the first slot.
@@ -809,6 +822,10 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path,
                         default=Path("/tmp/m5-uiflow2-device-matrix"))
     parser.add_argument("--allow-blocked", action="store_true")
+    parser.add_argument("--matrix", type=Path, default=MATRIX,
+                        help="explicit matrix source; defaults to the tracked registry")
+    parser.add_argument("--write-resolved-matrix", type=Path,
+                        help="write actual base VFS layouts and exit without launching guests")
     parser.add_argument(
         "--flash-transport",
         choices=("direct", "esp-emu"),
@@ -825,7 +842,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    matrix = json.loads(MATRIX.read_text())
+    matrix = json.loads(args.matrix.read_text())
     backends = matrix["backends"]
     selected = set(args.device)
     devices = [
@@ -835,6 +852,29 @@ def main() -> None:
     unknown = selected - {device["id"] for device in matrix["devices"]}
     if unknown:
         raise SystemExit(f"unknown device ids: {', '.join(sorted(unknown))}")
+
+    if args.write_resolved_matrix:
+        sys.path.insert(0, str(ROOT / "platform/tools"))
+        from uiflow_source import uiflow_vfs_layout
+
+        for device in devices:
+            if device["mode"] not in {"ui", "console"}:
+                continue
+            layout = uiflow_vfs_layout((ROOT / device["base"]).read_bytes(),
+                                      int(device["flash_size"], 0))
+            device["vfs_offset"], device["vfs_size"] = (
+                hex(layout["offset"]), hex(layout["size"]))
+        args.write_resolved_matrix.parent.mkdir(parents=True, exist_ok=True)
+        args.write_resolved_matrix.write_text(
+            json.dumps(matrix, ensure_ascii=False, indent=2) + "\n")
+        print(f"resolved matrix: {args.write_resolved_matrix}")
+        return
+
+    for name, backend in backends.items():
+        variable = {"qemu-esp32s3": "M5_QEMU_XTENSA", "qemu-esp32lx6": "M5_QEMU_XTENSA",
+                    "qemu-esp32c6": "M5_QEMU_RISCV32"}.get(name)
+        if variable and os.environ.get(variable):
+            backend["qemu"] = os.environ[variable]
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
