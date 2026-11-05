@@ -1,0 +1,122 @@
+diff --git a/hw/m5stopwatch/m5_epd_panel.c b/hw/m5stopwatch/m5_epd_panel.c
+index 542ffc7..44abad9 100644
+--- a/hw/m5stopwatch/m5_epd_panel.c
++++ b/hw/m5stopwatch/m5_epd_panel.c
+@@ -41,6 +41,10 @@ struct M5EpdPanelState {
+     bool mouse_btn;
+     uint8_t cmd;
+     uint32_t data_index;
++    uint8_t window_params[9];
++    uint32_t window_param_count;
++    uint32_t window_x0, window_x1, window_y0, window_y1;
++    bool window_valid;
+ };
+ 
+ static uint32_t epd_pixel(M5EpdPanelState *s, uint32_t x, uint32_t y)
+@@ -123,6 +127,19 @@ static const GraphicHwOps m5_epd_ops = {
+     .gfx_update = m5_epd_update,
+ };
+ 
++static void m5_epd_refresh(M5EpdPanelState *s)
++{
++    s->dirty = true;
++    if (s->color && getenv("M5SW_EPD_TRACE")) {
++        uint32_t sample = s->window_y0 * (s->native_w / 2)
++            + s->window_x0 / 2;
++        fprintf(stderr, "[m5epd-refresh] cmd=%02x bytes=%u x=%u..%u y=%u..%u first=%02x\n",
++                s->cmd, s->data_index,
++                s->window_x0, s->window_x1, s->window_y0, s->window_y1,
++                sample < s->packed_size ? s->packed[sample] : 0xff);
++    }
++}
++
+ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase)
+ {
+@@ -130,18 +147,72 @@ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+         uint8_t b = buf[i];
+         if (command_phase) {
+             s->cmd = b;
++            if (s->color && b == 0x83) {
++                s->window_param_count = 0;
++                s->window_valid = false;
++            }
+             if (b == 0x10 || b == 0x24 || b == 0x26) {
+                 s->data_index = 0;
+             }
+             if (b == 0x12 || b == 0x20) {
+-                s->dirty = true;
++                m5_epd_refresh(s);
+             }
+             continue;
+         }
+ 
++        if (s->color && s->cmd == 0x17) {
++            /* ED2208 AUTO: the M5GFX A5/A7 sequences both refresh RAM;
++             * A7 additionally enters deep sleep. Waveform timing is outside
++             * this functional framebuffer model, just as for legacy 0x12. */
++            if (b == 0xa5 || b == 0xa7) {
++                m5_epd_refresh(s);
++            }
++            continue;
++        }
++        if (s->color && s->cmd == 0x83) {
++            /* M5GFX ED2208 partial window: four inclusive, big-endian
++             * pixel coordinates (xs, xe, ys, ye), then scan control 0x01.
++             * Collect across SPI/DMA fragments; reject malformed windows. */
++            if (s->window_param_count < sizeof(s->window_params)) {
++                s->window_params[s->window_param_count++] = b;
++            }
++            if (s->window_param_count == sizeof(s->window_params)) {
++                const uint8_t *p = s->window_params;
++                s->window_x0 = (p[0] << 8) | p[1];
++                s->window_x1 = (p[2] << 8) | p[3];
++                s->window_y0 = (p[4] << 8) | p[5];
++                s->window_y1 = (p[6] << 8) | p[7];
++                s->window_valid = p[8] == 1
++                    && s->window_x0 <= s->window_x1
++                    && s->window_y0 <= s->window_y1
++                    && s->window_x1 < s->native_w
++                    && s->window_y1 < s->native_h;
++                if (getenv("M5SW_EPD_TRACE")) {
++                    fprintf(stderr, "[m5epd-window] x=%u..%u y=%u..%u valid=%d\n",
++                            s->window_x0, s->window_x1,
++                            s->window_y0, s->window_y1, s->window_valid);
++                }
++            }
++            continue;
++        }
+         if (s->color && s->cmd == 0x10) {
+-            if (s->data_index < s->packed_size) {
+-                s->packed[s->data_index++] = b;
++            if (s->window_valid) {
++                uint32_t width = s->window_x1 - s->window_x0 + 1;
++                uint32_t row_bytes = (width + 1) / 2;
++                uint32_t row = s->data_index / row_bytes;
++                uint32_t col = (s->data_index % row_bytes) * 2;
++                if (row <= s->window_y1 - s->window_y0) {
++                    for (uint32_t n = 0; n < 2 && col + n < width; n++) {
++                        uint32_t x = s->window_x0 + col + n;
++                        uint32_t y = s->window_y0 + row;
++                        uint32_t idx = y * (s->native_w / 2) + x / 2;
++                        uint8_t color = n ? b & 0x0f : b >> 4;
++                        uint32_t shift = (x & 1) ? 0 : 4;
++                        s->packed[idx] = (s->packed[idx] & ~(0x0f << shift))
++                            | (color << shift);
++                    }
++                    s->data_index++;
++                }
+             }
+             continue;
+         }
+@@ -242,6 +313,10 @@ static void m5_epd_realize(DeviceState *dev, Error **errp)
+     s->msb = g_new0(uint8_t, s->plane_size);
+     s->packed = g_new0(uint8_t, s->packed_size);
+     memset(s->packed, 0xff, s->packed_size);
++    s->window_x0 = s->window_y0 = 0;
++    s->window_x1 = s->native_w - 1;
++    s->window_y1 = s->native_h - 1;
++    s->window_valid = true;
+     s->dirty = true;
+     esp32_gpio_set_input(s->busy_pin, s->busy_ready_level);
+     esp32_gpio_set_open_drain(s->busy_pin, true);

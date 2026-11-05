@@ -4,8 +4,9 @@ import json
 import os
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from web_ui_bridge import WebUIBridge, _process_executable
 
@@ -42,9 +43,37 @@ class ProcessExecutableTests(unittest.TestCase):
         self.assertIn("macOS", source)
 
     def test_short_comm_is_rejected(self):
-        with patch("web_ui_bridge.sys.platform", "darwin"), patch("web_ui_bridge.subprocess.check_output", return_value="python3\n"):
+        library = SimpleNamespace(proc_pidpath=Mock(return_value=0))
+        with patch("web_ui_bridge.sys.platform", "darwin"), patch("web_ui_bridge.subprocess.check_output", return_value="python3\n"), patch("web_ui_bridge.ctypes.CDLL", return_value=library):
             with self.assertRaisesRegex(RuntimeError, "executable is unavailable"):
                 _process_executable(2468)
+        self.assertEqual(library.proc_pidpath.call_args.args[0], 2468)
+
+    def test_short_comm_uses_native_process_image(self):
+        def native_path(pid, buffer, capacity):
+            self.assertEqual((pid, capacity), (2468, 4096))
+            buffer.value = os.fsencode(self.executable)
+            return len(buffer.value)
+        library = SimpleNamespace(proc_pidpath=Mock(side_effect=native_path))
+        with patch("web_ui_bridge.sys.platform", "darwin"), patch("web_ui_bridge.subprocess.check_output", return_value="python3\n"), patch("web_ui_bridge.ctypes.CDLL", return_value=library):
+            path, source = _process_executable(2468)
+        self.assertEqual(path, self.executable)
+        self.assertEqual(source, "macOS libproc proc_pidpath")
+
+    def test_unavailable_native_library_is_a_closed_failure(self):
+        with patch("web_ui_bridge.sys.platform", "darwin"), patch("web_ui_bridge.subprocess.check_output", return_value="python3\n"), patch("web_ui_bridge.ctypes.CDLL", side_effect=OSError("offline missing library")):
+            with self.assertRaisesRegex(RuntimeError, "executable is unavailable"):
+                _process_executable(2468)
+
+    def test_native_relative_or_missing_image_is_rejected(self):
+        for candidate in ("fixture-runtime", str(self.executable.parent / "missing")):
+            def native_path(pid, buffer, capacity):
+                buffer.value = os.fsencode(candidate)
+                return len(buffer.value)
+            library = SimpleNamespace(proc_pidpath=Mock(side_effect=native_path))
+            with self.subTest(candidate=candidate), patch("web_ui_bridge.sys.platform", "darwin"), patch("web_ui_bridge.subprocess.check_output", return_value="python3\n"), patch("web_ui_bridge.ctypes.CDLL", return_value=library):
+                with self.assertRaisesRegex(RuntimeError, "executable is unavailable"):
+                    _process_executable(2468)
 
 
 class RuntimeProvenanceTests(unittest.TestCase):

@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 from esp_flash import flash_with_esp_emu, flash_with_qemu
 
@@ -60,7 +61,7 @@ def ui_command(
         "--input", device["input"],
         "--wait", str(device.get("wait", 6)),
         "--post-input-wait", str(device.get("post_input_wait", 0.6)),
-        "--efuse-driver", backend["efuse_driver"],
+        "--efuse-driver", device.get("efuse_driver", backend["efuse_driver"]),
         "--qemu", str(ROOT / backend["qemu"]),
         "--rom-dir", str(ROOT / backend["rom_dir"]),
         "--out-dir", str(device_out),
@@ -77,6 +78,9 @@ def ui_command(
         command.append("--deterministic")
     if "post_frame_color" in device:
         command.extend(["--post-frame-color", device["post_frame_color"]])
+    for name in ("pre_input_marker", "post_input_marker"):
+        if device.get(name):
+            command.extend(["--" + name.replace("_", "-"), device[name]])
     serial_expect = device.get("serial_expect", [])
     if isinstance(serial_expect, str):
         serial_expect = [serial_expect]
@@ -183,21 +187,21 @@ def run_ui(
 
 def build_console_image(device: dict, device_out: Path,
                         env: dict[str, str]) -> Path:
-    image = device_out / "uiflow2-console-test.bin"
-    command = [
-        sys.executable,
-        str(ROOT / device["files_dir"] / "make_image.py"),
-        "--base", str(ROOT / device["base"]),
-        "--out", str(image),
-    ]
-    result = subprocess.run(
-        command, cwd=ROOT, env=env, capture_output=True, text=True, check=False
-    )
-    (device_out / "build.stdout").write_text(result.stdout)
-    (device_out / "build.stderr").write_text(result.stderr)
-    if result.returncode:
-        raise RuntimeError(result.stderr or result.stdout)
-    return image
+    # Console and display probes have the same VFS contract. A per-fixture
+    # make_image.py used to duplicate pinned offsets (or be missing entirely).
+    for path in reversed(env.get("PYTHONPATH", "").split(os.pathsep)):
+        if path and path not in sys.path:
+            sys.path.insert(0, path)
+    from run_profile_ui_test import build_image
+
+    built = build_image(SimpleNamespace(
+        base=ROOT / device["base"], files_dir=ROOT / device["files_dir"],
+        flash_size=int(device["flash_size"], 0),
+        vfs_offset=int(device["vfs_offset"], 0),
+        vfs_size=int(device["vfs_size"], 0),
+        preserve_vfs=True, mklittlefs=None, prog_size=32, out_dir=device_out,
+    ))
+    return built.rename(device_out / "uiflow2-console-test.bin")
 
 
 def _apply_console_qom_sets(qmp, sets: list) -> dict[str, object]:
@@ -258,6 +262,50 @@ def _check_console_qom(device: dict, qmp, deadline: float
         time.sleep(0.1)
 
 
+def send_console_inputs(qmp, inputs, frame, settle, serial, deadline,
+                        after_markers=()):
+    """Keep each input pulse unchanged, then fence on guest draw completion."""
+    from run_profile_ui_test import send_input
+
+    if after_markers and (not isinstance(after_markers, (list, tuple))
+        or len(after_markers) != len(inputs) or any(
+        not isinstance(marker, str) or not marker for marker in after_markers
+    )):
+        raise ValueError("input_after_markers must name one marker per input")
+    observations = []
+
+    class Recorder:
+        def cmd(self, name, **arguments):
+            sent = time.monotonic()
+            result = qmp.cmd(name, **arguments)
+            if name == "input-send-event":
+                observations[-1]["events"].append({
+                    "sent_monotonic": sent,
+                    "acked_monotonic": time.monotonic(),
+                    "events": arguments["events"],
+                })
+            return result
+
+    for index, spec in enumerate(inputs):
+        offset = serial.stat().st_size if serial.exists() else 0
+        row = {"spec": spec, "events": [], "serial_offset": offset}
+        observations.append(row)
+        send_input(Recorder(), spec, frame, settle)
+        if after_markers:
+            marker = after_markers[index]
+            row["after_marker"] = marker
+            while time.time() < deadline:
+                text = serial.read_bytes()[offset:].decode(errors="replace") if serial.exists() else ""
+                if marker in text:
+                    row["after_marker_observed"] = True
+                    break
+                time.sleep(0.05)
+            else:
+                row["after_marker_observed"] = False
+                return observations, f"guest input completion marker missing: {marker}"
+    return observations, None
+
+
 def run_console(
     device: dict,
     backend: dict,
@@ -301,16 +349,26 @@ def run_console(
         case_env["M5SW_I2S_PCM_FILE"] = str(pcm_capture)
     flash_info = {"transport": "host-image", "verified": True}
     esp_emu_chip = backend.get("esp_emu_chip")
-    if flash_transport == "esp-emu" and esp_emu_chip:
+    qemu_esptool_chip = backend.get("qemu_esptool_chip")
+    if flash_transport == "esp-emu" and (esp_emu_chip or qemu_esptool_chip):
         try:
-            flash_info = flash_with_esp_emu(
-                chip=esp_emu_chip,
+            flash_args = dict(
+                chip=esp_emu_chip or qemu_esptool_chip,
                 image=image,
                 flash_size=int(device["flash_size"], 0),
                 out_dir=device_out / "flash",
                 env=case_env,
                 timeout=max(device.get("timeout", 20), 120),
             )
+            if esp_emu_chip:
+                flash_info = flash_with_esp_emu(**flash_args)
+            else:
+                flash_info = flash_with_qemu(
+                    **flash_args, machine=device["machine"],
+                    qemu=ROOT / backend["qemu"],
+                    rom_dir=ROOT / backend["rom_dir"],
+                    memory=device.get("memory"),
+                )
             image = Path(flash_info["virtual_flash"])
         except Exception as error:
             return {
@@ -318,7 +376,7 @@ def run_console(
                 "exit_code": 1,
                 "output": str(device_out),
                 "flash": {
-                    "transport": "esp-emu-esptool",
+                    "transport": "esp-emu-esptool" if esp_emu_chip else "qemu-esptool",
                     "verified": False,
                     "error": str(error),
                 },
@@ -332,6 +390,18 @@ def run_console(
         "-L", str(ROOT / backend["rom_dir"]),
         "-display", "none",
     ]
+    if "memory" in device:
+        command.extend(["-m", str(device["memory"])])
+    from run_profile_ui_test import efuse_image
+
+    efuse_driver = device.get("efuse_driver", backend["efuse_driver"])
+    efuse = device_out / "efuse.bin"
+    efuse.write_bytes(efuse_image(device.get("efuse_pkg_version", 0), efuse_driver))
+    if efuse_driver != "none":
+        command.extend([
+            "-drive", f"if=none,id=efuse,file={efuse},format=raw",
+            "-global", f"driver={efuse_driver},property=drive,value=efuse",
+        ])
     # The console probe channel depends on the board's physical UART
     # assignment.  NanoC6 observes UART2 in the third slot; ESP32-S3 boards
     # without a USB model keep the console on UART0 in the first slot.
@@ -369,6 +439,8 @@ def run_console(
     qmp = None
     qom_detail = None
     qom_error = None
+    input_observations = []
+    input_error = None
     qom_transitions: dict[str, object] = {}
     qom_markers_pending = [
         (spec["marker"], list(spec.get("set") or [])) for spec in qom_markers
@@ -392,7 +464,7 @@ def run_console(
             if not injected:
                 pre_marker = device.get("pre_input_marker")
                 if pre_marker is None or pre_marker in text:
-                    from run_profile_ui_test import send_input, wait_qmp
+                    from run_profile_ui_test import wait_qmp
 
                     if qmp is None:
                         qmp = wait_qmp(
@@ -408,12 +480,14 @@ def run_console(
                             "input_frame", (320, 240)
                         )
                     )
-                    for spec in inputs:
-                        send_input(
-                            qmp, spec, frame,
-                            device.get("post_input_wait", 0.3),
-                        )
+                    input_observations, input_error = send_console_inputs(
+                        qmp, inputs, frame,
+                        device.get("post_input_wait", 0.3), serial, deadline,
+                        device.get("input_after_markers", ()),
+                    )
                     injected = True
+                    if input_error:
+                        break
                     continue
             if all(marker in text for marker in expected):
                 matched = True
@@ -443,6 +517,8 @@ def run_console(
             proc.kill()
     text = serial.read_text(errors="replace") if serial.exists() else ""
     missing = [marker for marker in expected if marker not in text]
+    if input_error:
+        missing.append(input_error)
     if matched and qom_error is not None:
         missing.append("QOM validation: " + qom_error)
     if matched and qom_markers_pending:
@@ -502,6 +578,7 @@ def run_console(
                 "output": str(device_out),
                 "flash": flash_info,
                 "rmt_nec": validation.stdout.strip(),
+                **({"input_observations": input_observations} if input_observations else {}),
                 **({"pcm": pcm_detail} if pcm_detail else {}),
                 **({"qom": qom_detail} if qom_detail else {}),
                 **({"microphone_fixture": str(microphone_fixture)}
@@ -515,6 +592,7 @@ def run_console(
             "command": command,
             "output": str(device_out),
             "flash": flash_info,
+            **({"input_observations": input_observations} if input_observations else {}),
             **({"pcm": pcm_detail} if pcm_detail else {}),
             **({"qom": qom_detail} if qom_detail else {}),
             **({"microphone_fixture": str(microphone_fixture)}
@@ -527,6 +605,7 @@ def run_console(
         "output": str(device_out),
         "flash": flash_info,
         "reason": f"missing serial markers: {', '.join(missing)}",
+        **({"input_observations": input_observations} if input_observations else {}),
     }
 
 
@@ -809,6 +888,10 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path,
                         default=Path("/tmp/m5-uiflow2-device-matrix"))
     parser.add_argument("--allow-blocked", action="store_true")
+    parser.add_argument("--matrix", type=Path, default=MATRIX,
+                        help="explicit matrix source; defaults to the tracked registry")
+    parser.add_argument("--write-resolved-matrix", type=Path,
+                        help="write actual base VFS layouts and exit without launching guests")
     parser.add_argument(
         "--flash-transport",
         choices=("direct", "esp-emu"),
@@ -825,7 +908,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    matrix = json.loads(MATRIX.read_text())
+    matrix = json.loads(args.matrix.read_text())
     backends = matrix["backends"]
     selected = set(args.device)
     devices = [
@@ -835,6 +918,29 @@ def main() -> None:
     unknown = selected - {device["id"] for device in matrix["devices"]}
     if unknown:
         raise SystemExit(f"unknown device ids: {', '.join(sorted(unknown))}")
+
+    if args.write_resolved_matrix:
+        sys.path.insert(0, str(ROOT / "platform/tools"))
+        from uiflow_source import uiflow_vfs_layout
+
+        for device in devices:
+            if device["mode"] not in {"ui", "console"}:
+                continue
+            layout = uiflow_vfs_layout((ROOT / device["base"]).read_bytes(),
+                                      int(device["flash_size"], 0))
+            device["vfs_offset"], device["vfs_size"] = (
+                hex(layout["offset"]), hex(layout["size"]))
+        args.write_resolved_matrix.parent.mkdir(parents=True, exist_ok=True)
+        args.write_resolved_matrix.write_text(
+            json.dumps(matrix, ensure_ascii=False, indent=2) + "\n")
+        print(f"resolved matrix: {args.write_resolved_matrix}")
+        return
+
+    for name, backend in backends.items():
+        variable = {"qemu-esp32s3": "M5_QEMU_XTENSA", "qemu-esp32lx6": "M5_QEMU_XTENSA",
+                    "qemu-esp32c6": "M5_QEMU_RISCV32"}.get(name)
+        if variable and os.environ.get(variable):
+            backend["qemu"] = os.environ[variable]
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()

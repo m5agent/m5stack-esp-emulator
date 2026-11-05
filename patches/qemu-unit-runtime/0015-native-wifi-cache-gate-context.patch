@@ -1,0 +1,164 @@
+Subject: [native] re-anchor WiFi cache IRQ gate on reconstructed source
+
+Context port of peripheral 0092. Preserve its C changes while omitting
+only absent historical handoff/trace context; no runtime PASS is implied.
+
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -354,6 +354,10 @@
+             FIELD_EX32(cs->cache_ctrl1_reg, DPORT_PRO_CACHE_CTRL1, MASK_DRAM1) == 0;
+         memory_region_set_enabled(&cs->dram1.mem, dram1_enabled);
+     }
++    qemu_set_irq(
++        cs->dport->cache_ready[cs->core_id],
++        iram0_enabled
++    );
+ }
+ 
+ static void esp32_cache_region_reset(Esp32CacheRegionState *crs)
+@@ -439,6 +443,9 @@
+     s->cache_ill_trap_en_reg = 0;
+     esp32_cache_reset(&s->cache_state[0]);
+     esp32_cache_reset(&s->cache_state[1]);
++    for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
++        qemu_set_irq(s->cache_ready[i], 0);
++    }
+     qemu_irq_lower(s->appcpu_stall_req);
+ }
+ 
+@@ -566,6 +573,12 @@
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->appcpu_reset_req, ESP32_DPORT_APPCPU_RESET_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->clk_update_req, ESP32_DPORT_CLK_UPDATE_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cache_ill_irq, ESP32_DPORT_CACHE_ILL_IRQ_GPIO, 1);
++    qdev_init_gpio_out_named(
++        DEVICE(sbd),
++        &s->cache_ready[0],
++        ESP32_DPORT_CACHE_READY_GPIO,
++        ESP32_CPU_COUNT
++    );
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->flash_enc_en_gpio, ESP32_DPORT_FLASH_ENC_EN_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->flash_dec_en_gpio, ESP32_DPORT_FLASH_DEC_EN_GPIO, 1);
+ }
+--- a/include/hw/misc/esp32_dport.h
++++ b/include/hw/misc/esp32_dport.h
+@@ -70,6 +70,7 @@
+     qemu_irq appcpu_reset_req;
+     qemu_irq clk_update_req;
+     qemu_irq cache_ill_irq;
++    qemu_irq cache_ready[ESP32_CPU_COUNT];
+     qemu_irq flash_enc_en_gpio;
+     qemu_irq flash_dec_en_gpio;
+ 
+@@ -89,6 +90,7 @@
+ #define ESP32_DPORT_APPCPU_RESET_GPIO   "appcpu-reset"
+ #define ESP32_DPORT_CLK_UPDATE_GPIO     "clk-update"
+ #define ESP32_DPORT_CACHE_ILL_IRQ_GPIO  "cache-ill-irq"
++#define ESP32_DPORT_CACHE_READY_GPIO    "cache-ready"
+ #define ESP32_DPORT_FLASH_ENC_EN_GPIO   "flash-enc-en"
+ #define ESP32_DPORT_FLASH_DEC_EN_GPIO   "flash-dec-en"
+ 
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -469,6 +469,18 @@
+     qdev_realize(DEVICE(&s->intmatrix), &s->periph_bus, &error_fatal);
+     DeviceState* intmatrix_dev = DEVICE(&s->intmatrix);
+     memory_region_add_subregion_overlap(dport_mem, ESP32_DPORT_PRO_INTMATRIX_BASE, sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->intmatrix), 0), -1);
++    for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
++        qdev_connect_gpio_out_named(
++            DEVICE(&s->dport),
++            ESP32_DPORT_CACHE_READY_GPIO,
++            i,
++            qdev_get_gpio_in_named(
++                intmatrix_dev,
++                ESP32_INTMATRIX_CACHE_READY_GPIO,
++                i
++            )
++        );
++    }
+ 
+     bool init_cache_err = false;
+     if (s->dport.flash_blk) {
+--- a/hw/xtensa/esp32_intc.c
++++ b/hw/xtensa/esp32_intc.c
+@@ -16,6 +16,7 @@
+ #include "hw/sysbus.h"
+ #include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/xtensa/esp32_intc.h"
++#include "hw/xtensa/esp32s3_intc.h"
+ 
+ #define INTMATRIX_UNINT_VALUE   6
+@@ -22,6 +22,11 @@
+ 
+ #define IRQ_MAP(cpu, input) s->irq_map[cpu][input]
+ 
++static bool esp32_intmatrix_cache_sensitive(int input)
++{
++    return input == ETS_WIFI_MAC_INTR_SOURCE;
++}
++
+ static void esp32_intmatrix_update_outputs(Esp32IntMatrixState *s)
+ {
+     for (int cpu = 0; cpu < ESP32_CPU_COUNT; ++cpu) {
+@@ -36,7 +41,9 @@
+ 
+             for (int input = 0; input < ESP32_INT_MATRIX_INPUTS; ++input) {
+                 if (s->irq_map[cpu][input] == output
+-                    && s->irq_level[input]) {
++                    && s->irq_level[input]
++                    && (s->cache_ready[cpu]
++                        || !esp32_intmatrix_cache_sensitive(input))) {
+                     level = 1;
+                     break;
+                 }
+@@ -53,6 +60,15 @@
+     if (getenv("M5SW_ESP32_INTMATRIX_TRACE")) {
+         fprintf(stderr, "[esp32-intmatrix] input=%d level=%d\n", n, level);
+     }
++    esp32_intmatrix_update_outputs(s);
++}
++
++static void esp32_intmatrix_cache_ready_handler(
++    void *opaque, int cpu, int level)
++{
++    Esp32IntMatrixState *s = ESP32_INTMATRIX(opaque);
++
++    s->cache_ready[cpu] = !!level;
+     esp32_intmatrix_update_outputs(s);
+ }
+ 
+@@ -103,6 +119,7 @@
+     Esp32IntMatrixState *s = ESP32_INTMATRIX(obj);
+     memset(s->irq_map, INTMATRIX_UNINT_VALUE, sizeof(s->irq_map));
+     memset(s->irq_level, 0, sizeof(s->irq_level));
++    memset(s->cache_ready, 0, sizeof(s->cache_ready));
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         if (s->outputs[i] == NULL) {
+             continue;
+@@ -136,6 +153,12 @@
+     sysbus_init_mmio(sbd, &s->iomem);
+ 
+     qdev_init_gpio_in(DEVICE(s), esp32_intmatrix_irq_handler, ESP32_INT_MATRIX_INPUTS);
++    qdev_init_gpio_in_named(
++        DEVICE(s),
++        esp32_intmatrix_cache_ready_handler,
++        ESP32_INTMATRIX_CACHE_READY_GPIO,
++        ESP32_CPU_COUNT
++    );
+ }
+ 
+ static Property esp32_intmatrix_properties[] = {
+--- a/include/hw/xtensa/esp32_intc.h
++++ b/include/hw/xtensa/esp32_intc.h
+@@ -35,8 +35,11 @@
+     qemu_irq *outputs[ESP32_CPU_COUNT];
+     uint8_t irq_map[ESP32_CPU_COUNT][ESP32_INT_MATRIX_INPUTS];
+     uint8_t irq_level[ESP32_INT_MATRIX_INPUTS];
++    bool cache_ready[ESP32_CPU_COUNT];
+ 
+     /* properties */
+     XtensaCPU *cpu[ESP32_CPU_COUNT];
+ } Esp32IntMatrixState;
+ 
++#define ESP32_INTMATRIX_CACHE_READY_GPIO "cache-ready"
++

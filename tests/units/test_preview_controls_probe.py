@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -14,7 +15,7 @@ import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import preview_controls_probe as probe
 
-NODE = '/opt/homebrew/bin/node'
+NODE = shutil.which("node") or "node"
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = 'platform/tests/test_live_preview_controls_service_browser.mjs'
 

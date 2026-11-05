@@ -32,7 +32,7 @@ from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
 
 MARKER = "BATCH4_PROBE_READY"
-BINARY = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+
 QEMU_SOURCE_STATE = "canonical 75f1d24 + 0120/0121/0122/0123 + 0125/0126/0127/0128/0129 + 0131 + 0134 + 0136"
 
 CASES = {
@@ -168,8 +168,8 @@ def run_case(client: Client, args, case: str) -> dict:
         "firmware_sha256": sha256(firmware_bytes),
         "base_firmware_sha256": sha256((ROOT / device_row["base"]).read_bytes()),
         "probe_sha256": {path.name: sha256(path.read_bytes()) for path in files.glob("*.py")},
-        "runtime_binary_sha256": sha256(BINARY.read_bytes()) if BINARY.is_file() else None,
-        "qemu_source_state": QEMU_SOURCE_STATE,
+        "runtime_binary_sha256": None,
+        "fixture_source_baseline": QEMU_SOURCE_STATE,
         "port": {"id": port["id"], "pins": port["pins"]},
         "qom_samples": [], "serial_markers": {}, "observations": {},
         "official_port": OFFICIAL_PORT[case],
@@ -684,6 +684,7 @@ def run_case(client: Client, args, case: str) -> dict:
         result["raw_evidence_note"] = (
             "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local "
             "ignored .work directory; only this concise report, hashes and reproduction commands are committed.")
+        client.finalize_result(result)
         (output / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)

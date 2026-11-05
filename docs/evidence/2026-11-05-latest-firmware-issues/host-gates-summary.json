@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "validation_class": "host contracts; guest results separate",
+  "platform_final": {
+    "status": "PASS",
+    "tests": 2021,
+    "passed": 2020,
+    "skipped": 1,
+    "seconds": 155.584,
+    "command": "PYTHONPATH=.work/py:platform/tools python3 -m unittest discover -s platform/tests -p 'test_*.py'"
+  },
+  "unit_final": {
+    "status": "PASS",
+    "tests": 301,
+    "passed": 300,
+    "skipped": 1
+  },
+  "node_final": {
+    "status": "PASS",
+    "scripts": 30,
+    "command": "npm run --prefix platform/tests test:contracts"
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "bootstrap112_source_check": "PASS",
+    "compileall": "PASS"
+  },
+  "prior_failures": "Original stale assertion/index/450-line contract failures, Unit stock-whitelist failures and missing Node dependency are retained in distinct raw logs and followups. They are not guest failures.",
+  "raw_log_integrity": [
+    {
+      "name": "m5-issues-final-platform-tests.log",
+      "sha256": "e93a58259add0c72514f1eeae0e0645dc1c5987f75be9ad463b25e4da67eb571",
+      "bytes": 59496
+    },
+    {
+      "name": "m5-issues-final-platform-tests-v2.log",
+      "sha256": "28aa0a5b36d4618feb37fb3597d8f1183e974861622d341b3e65ff16f215165a",
+      "bytes": 64612
+    },
+    {
+      "name": "m5-issues-final-platform-tests-v3.log",
+      "sha256": "eaf0ba6197902b6ef01846479f0acd022c4f1c73e7e688b937fe88080c68c590",
+      "bytes": 52995
+    },
+    {
+      "name": "m5-issues-final-platform-tests-v4.log",
+      "sha256": "c2fd5e5cec832635ad82d308569c5b8bfe44b36a0dad513340ae10c9ef9ef920",
+      "bytes": 52289
+    },
+    {
+      "name": "m5-issues-final-unit-tests.log",
+      "sha256": "d7d4015c340b483beeb567d6cf0aacb35903138a3328bb27b1c46db8844d84d0",
+      "bytes": 12540
+    },
+    {
+      "name": "m5-issues-final-unit-tests-v2.log",
+      "sha256": "5fc0a11ae20b20a73915742dde84cfd68e2ffc230a80edc112011918cf69b141",
+      "bytes": 2271
+    },
+    {
+      "name": "m5-issues-final-unit-tests-v3.log",
+      "sha256": "45daf724bbd8a8049918036b08c17e1b84c395fcbe3131ae6ead34f0079d4925",
+      "bytes": 2274
+    },
+    {
+      "name": "m5-issues-final-node-contracts.log",
+      "sha256": "06979e98f919c45e28bdb0260346691477188c65939c8c317b674cc82ffdbf40",
+      "bytes": 9233
+    },
+    {
+      "name": "m5-issues-final-node-contracts-v2.log",
+      "sha256": "37784a9f9c844e2ead82c1106d72ca5a57199f20217bd2b4bf30730ab101809e",
+      "bytes": 20313
+    },
+    {
+      "name": "m5-issues-final-docs-contracts.log",
+      "sha256": "37f84b6e4bb23f90837f279c7dc494cf85066305f92c36a03da57b6f5d517876",
+      "bytes": 856
+    },
+    {
+      "name": "m5-issues-final-docs-contracts-v2.log",
+      "sha256": "4e2887c02dccb79e0c3ace357c03004be0351b21867ee543b45dbba11394a6c8",
+      "bytes": 149
+    },
+    {
+      "name": "m5-issues-final-bootstrap-check.json",
+      "sha256": "15a5993877760ed90b9cef33b24fa4757ac87c39af0926df3404bd5a0f4ce882",
+      "bytes": 15989
+    }
+  ],
+  "privacy": "Raw logs retained in ignored evidence storage. Only hashes, lengths and portable commands published."
+}

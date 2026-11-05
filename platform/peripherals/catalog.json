@@ -2437,12 +2437,13 @@
       ]
     },
     "atoms3": {
-      "board_model": "m5atoms3",
+      "board_model": "m5atoms3-st7735",
       "status": "partial",
       "peripheral_status": "partial",
       "evidence": [
         "https://docs.m5stack.com/en/core/AtomS3",
-        "https://github.com/m5stack/uiflow-micropython/tree/64c3ce1346ceb4d404c1c3d74e66fed7eadb4d90/m5stack/boards/M5STACK_AtomS3"
+        "https://github.com/m5stack/uiflow-micropython/tree/64c3ce1346ceb4d404c1c3d74e66fed7eadb4d90/m5stack/boards/M5STACK_AtomS3",
+        "https://github.com/m5stack/M5GFX/blob/eef855b41c8ab7611a235055cc9afca76751ea95/src/board_detect/m5/generated/esp32s3_specs.hpp"
       ],
       "components": [
         {

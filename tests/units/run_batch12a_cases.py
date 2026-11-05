@@ -29,7 +29,7 @@ from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
 
 START_MARKER = "BATCH12A_PROBE_START"
-BINARY = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+
 QEMU_SOURCE_STATE = "canonical 75f1d24 + canonical chain 39 layers through 0159"
 
 CASES = {"byteswitch": "cores3", "bytebutton": "cores3", "step16": "cores3",
@@ -200,8 +200,8 @@ def run_case(client: Client, args, case: str) -> dict:
               "firmware_sha256": sha256(firmware),
               "base_firmware_sha256": sha256((ROOT / row["base"]).read_bytes()),
               "probe_sha256": {p.name: sha256(p.read_bytes()) for p in files.glob("*.py")},
-              "runtime_binary_sha256": sha256(BINARY.read_bytes()) if BINARY.is_file() else None,
-              "qemu_source_state": QEMU_SOURCE_STATE,
+              "runtime_binary_sha256": None,
+              "fixture_source_baseline": QEMU_SOURCE_STATE,
               "official_port": "PORT.A",
               "port": {"id": port["id"], "pins": port["pins"]},
               "initial_inputs": INITIAL[case],
@@ -281,6 +281,7 @@ def run_case(client: Client, args, case: str) -> dict:
         result["raw_evidence_note"] = (
             "Raw execution artifacts stay in local ignored .work; only concise reports, hashes "
             "and reproduction commands are committed.")
+        client.finalize_result(result)
         (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)
     return result

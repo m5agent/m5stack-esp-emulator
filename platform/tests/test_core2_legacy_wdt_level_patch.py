@@ -59,10 +59,10 @@ class Core2LegacyWdtLevelPatchTests(unittest.TestCase):
             ROOT / "scripts/bootstrap-unit-runtime.py"
         ).read_text()
         current = bootstrap.index(
-            "0094-esp32-classic-wifi-station-data.patch"
+            "0017-native-wifi-station-data-context.patch"
         )
         legacy_wdt = bootstrap.index(
-            "0095-esp32-legacy-wdt-level-delivery.patch"
+            "0018-native-wdt-level-context.patch"
         )
         self.assertLess(current, legacy_wdt)
 

@@ -1,0 +1,674 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "validation_class": "virtual-device validation",
+  "registry": "summary.json",
+  "scope": [
+    "matrix_and_expectations",
+    "classic_flash_transport"
+  ],
+  "matrix_and_expectations": {
+    "development_commits": [
+      "6d87d2c1a2254d36902ddee757773b7d97cb1c5e",
+      "7a6711c684013cf7265603ac9c92a48dc8137f4b"
+    ],
+    "runs": [
+      {
+        "case": "sticks3",
+        "batch": "issues172-174-guests-r1",
+        "status": "PASS",
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "test_image_sha256": "8337b2b40adc97aea5f010f8a58c2bf031e1da89c39bc8539be1b66e69d28bc0",
+        "vfs": {
+          "offset": 6623232,
+          "size": 1761280
+        },
+        "preservation": {
+          "base_file_count": 18,
+          "preserved_file_count": 16,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "3fe89ea1b4e215ce49a9954baefca618d4c0f15f478ad1ab87fa649c774f90ae",
+        "frames": {
+          "before": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 8014,
+            "nonblack_unique_colors": 31,
+            "rgb_sha256": "7cdaabca8f3296ee1a019f61b989dd8057bb6daf4881c3026d49d400b500cd4c",
+            "pixel_3_3": "000000"
+          },
+          "after": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 7941,
+            "nonblack_unique_colors": 30,
+            "rgb_sha256": "b5a71c30f6244163da20b069503b41de43122272768958fede60c75a85bae3ac",
+            "pixel_3_3": "00ff00"
+          }
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "atoms3-lite",
+        "batch": "issues172-174-guests-r1",
+        "status": "FAIL",
+        "base_sha256": "277309063a47340f15c6d0932ca3b1e8156b4b3fc6b2b5366379badb893ec886",
+        "test_image_sha256": "01d24dc55821126b6f2e125d06caeb2d5707c46782d9b568afaec826f05ad373",
+        "vfs": {
+          "offset": 6623232,
+          "size": 1761280
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "84b62a7da49b5c957aa9288df44a187fb9d0f8a30e082f604bf61c5120d16716",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "atom-lite",
+        "batch": "issues172-174-guests-r1",
+        "status": "PASS",
+        "base_sha256": "ae47e82cfe2ab22af1895f17fcc328506cf3ebace8114310a49ed7a02f77505f",
+        "test_image_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 19,
+          "preserved_file_count": 17,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "000c9b975bb393043f4ff0b8a785265a833d75329c8279072c78f82cada241a0",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "atom-matrix",
+        "batch": "issues172-174-guests-r1",
+        "status": "PASS",
+        "base_sha256": "eab22f51fd9b87129f59d50a38647f43fc35fce6aed1f02f5fe1c2bb86a64dd5",
+        "test_image_sha256": "51d5bcc159091be99459fec35d15ddfe893333124f85442895afbda454129ed5",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 19,
+          "preserved_file_count": 17,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "2d268a90e7b59bd00a544e1da87ad89adc9bea48be8be4a25efaadea494a3f88",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "atom-matrix-v11",
+        "batch": "issues172-174-guests-r1",
+        "status": "PASS",
+        "base_sha256": "eab22f51fd9b87129f59d50a38647f43fc35fce6aed1f02f5fe1c2bb86a64dd5",
+        "test_image_sha256": "ef0eb5ae75d53c787bd4e549fca3891b5cba4fabf6eae5d9ceb9a499caababce",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 19,
+          "preserved_file_count": 17,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "307cbd52ccd07642f1688cef76182515b94f51fc6ac4b4dffa3bbe32abad3e27",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "stickc-plus2",
+        "batch": "issues183-184-guests-r1",
+        "status": "PASS",
+        "base_sha256": "9b553277331a2cbb61b3fd73188da05bd312c66edd5ad2f39adfa4e155abf254",
+        "test_image_sha256": "0eeec7e2dfe72c178b494ccb58f924f71fd208721ccda100cd43872a2c88bbb4",
+        "vfs": {
+          "offset": 6623232,
+          "size": 1761280
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "7277db14d7a063e02175ec4258b482fd63fd2dc8f9eb00e75735927a6a6ba141",
+        "frames": {
+          "before": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 3503,
+            "nonblack_unique_colors": 19,
+            "rgb_sha256": "dc9b32ed8c6c572be2476e8a1714d0df3673e3d670f57ff7a9cf04cc7cc5e580",
+            "pixel_3_3": "000000"
+          },
+          "after": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 4753,
+            "nonblack_unique_colors": 19,
+            "rgb_sha256": "282d2247c82c0450e09454c6422772e71b41294753469a5fddc7aa94b1b09b94",
+            "pixel_3_3": "00ff00"
+          }
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "basic-v27",
+        "batch": "issues183-184-guests-r1",
+        "status": "PASS",
+        "base_sha256": "613a802da0f496d339a4120c0322c0c7ec1db3d81474b4329077f8b233d4dccb",
+        "test_image_sha256": "d2217b0a12518158234128140b845a81ead961da2eec1408475febde5a5a766f",
+        "vfs": {
+          "offset": 3710976,
+          "size": 479232
+        },
+        "preservation": {
+          "base_file_count": 66,
+          "preserved_file_count": 64,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "cbc8d96d5fe8a92ed60163f217835d9345856cb59938b0516ad6ad0c9ae78dab",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "stickc",
+        "batch": "issues183-184-guests-r1",
+        "status": "PASS",
+        "base_sha256": "00bf8f4131e6aa79188bab27bfe802da76fa5a083f4e9b775666e2f13bacdb99",
+        "test_image_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 44,
+          "preserved_file_count": 42,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "6fdbaf76e80998379353531808a4c0216e5329775efdf165c662caaffda746d9",
+        "frames": {
+          "before": {
+            "width": 80,
+            "height": 160,
+            "nonblack_pixels": 540,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "ddb7f7e6c71ba8255fa58448d6e321710eae808607d584e2f63bd56370210f25",
+            "pixel_3_3": "ff0000"
+          },
+          "after": {
+            "width": 80,
+            "height": 160,
+            "nonblack_pixels": 540,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "5af77129fd4e1ed345897b81dd28f42b5e3bbe36c083b4f26bcbbecb921e82fb",
+            "pixel_3_3": "00ff00"
+          }
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "stickc-plus",
+        "batch": "issues183-184-guests-r1",
+        "status": "PASS",
+        "base_sha256": "cc6a60aae43c63053d2805b5b0cabaf6e969ce7b6dc041415735094e1f391591",
+        "test_image_sha256": "28b8d25fb4168c3e626406024fa706a2078455c4ddf081c8e45ff7495a0175c9",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 32,
+          "preserved_file_count": 30,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "cc2f3f6cd001c4abc5db57df7a9a8ae6497555588851857699584c12f1b1aaa9",
+        "frames": {
+          "before": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 810,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "6751b22ba895d6b3206b714f773078b7c14f10fa9d00eaafe74edf333a1b9847",
+            "pixel_3_3": "ff0000"
+          },
+          "after": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 810,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "4edcd8fa9fe3ccddbe95f6ead65996f2b532eb05111d9353eb6eb1f859657108",
+            "pixel_3_3": "00ff00"
+          }
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "stickc-plus-se",
+        "batch": "issues183-184-guests-r1",
+        "status": "PASS",
+        "base_sha256": "cc6a60aae43c63053d2805b5b0cabaf6e969ce7b6dc041415735094e1f391591",
+        "test_image_sha256": "55b9afe79b7a4cf95b8f54d812b3fc53861775e6bffc4d0d65456a649cbb4099",
+        "vfs": {
+          "offset": 3624960,
+          "size": 561152
+        },
+        "preservation": {
+          "base_file_count": 32,
+          "preserved_file_count": 30,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "02e0497c721b25773b1ba03ed84b6a048e02a707aa231438a7d79d87bff5ddf5",
+        "frames": {
+          "before": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 810,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "6751b22ba895d6b3206b714f773078b7c14f10fa9d00eaafe74edf333a1b9847",
+            "pixel_3_3": "ff0000"
+          },
+          "after": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 810,
+            "nonblack_unique_colors": 2,
+            "rgb_sha256": "4edcd8fa9fe3ccddbe95f6ead65996f2b532eb05111d9353eb6eb1f859657108",
+            "pixel_3_3": "00ff00"
+          }
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "sticks3-peripherals",
+        "batch": "issue177-guests-r1",
+        "status": "PASS",
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "test_image_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+        "vfs": {
+          "offset": 6623232,
+          "size": 1761280
+        },
+        "preservation": {
+          "base_file_count": 18,
+          "preserved_file_count": 16,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "bc1f74a8483e01f5b742bc1f178fc4f1ab6538eea9b8ce4214361c4387e1bd14",
+        "frames": {
+          "before": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 2519,
+            "nonblack_unique_colors": 15,
+            "rgb_sha256": "8ec5f1fccc9f698efb6035a5ead5c566a999f3713151046d65dbee509f07a1ad",
+            "pixel_3_3": "000000"
+          },
+          "after": {
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 1534,
+            "nonblack_unique_colors": 15,
+            "rgb_sha256": "8fd5bdd61bd724308ca62fb0c00db9a0b8f7fec41488cc78a7776cd665bae6f2",
+            "pixel_3_3": "000000"
+          }
+        },
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "sha-bound-driver-behavior",
+          "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/IMU_Class.inl",
+          "detail": "UIFlow2 v2.5.5 / M5Unified 0.2.28 StickS3 BMI270 board axes"
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "case": "papercolor-peripherals",
+        "batch": "issue177-guests-r1",
+        "status": "PASS",
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "test_image_sha256": "a3cc5e6b40aca66412a4924748c8cd8f116cdbc657533a649f2c8f79eccabf2c",
+        "vfs": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "fb6c36ed73c0406758c918d064d6ef1ac2c8a07a00639e0e416b3012d910307f",
+        "frames": {
+          "before": {
+            "width": 400,
+            "height": 600,
+            "nonblack_pixels": 240000,
+            "nonblack_unique_colors": 1,
+            "rgb_sha256": "112adb85e186f340a4d75de4253fb7ba68973179a9fbd038e97b5ab2705e7dcf",
+            "pixel_3_3": "ffffff"
+          },
+          "after": {
+            "width": 400,
+            "height": 600,
+            "nonblack_pixels": 240000,
+            "nonblack_unique_colors": 1,
+            "rgb_sha256": "112adb85e186f340a4d75de4253fb7ba68973179a9fbd038e97b5ab2705e7dcf",
+            "pixel_3_3": "ffffff"
+          }
+        },
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "sha-bound-driver-behavior",
+          "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/Power_Class.inl",
+          "detail": "UIFlow2 v2.5.4 / M5Unified 0.2.28 PaperColor undetermined charge state"
+        },
+        "runtime_ref": "canonical_native"
+      }
+    ],
+    "basic27_button_observations": [
+      "A: 1 0 0",
+      "B: 0 1 0",
+      "C: 0 0 1",
+      "release: 0 0 0"
+    ],
+    "basic27_classification": "Same-firmware independent reproduction PASS; no BtnB implementation change claimed."
+  },
+  "classic_flash_transport": {
+    "development_commits": [
+      "6d87d2c1a2254d36902ddee757773b7d97cb1c5e",
+      "7a6711c684013cf7265603ac9c92a48dc8137f4b",
+      "b44b340a888df0e4a3fb1f4ca771b309f4dcbf02",
+      "776fceeba2d673ee153327595e11a3201a69db3a"
+    ],
+    "runs": [
+      {
+        "device": "core2",
+        "batch": "issue178-matrix-r2",
+        "status": "FAIL",
+        "flash_verified": true,
+        "firmware_base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "test_image_sha256": "2f1fe0043786451511863a561f694afac69a32bb8123a0cd15b99e076128446c",
+        "flash_readback_sha256": "2f1fe0043786451511863a561f694afac69a32bb8123a0cd15b99e076128446c",
+        "byte_compare": "equal",
+        "verification_phase": "after_guest_stub_exit_before_application_boot",
+        "esptool_version": "5.6.0",
+        "loader": "stock-esptool-stub",
+        "protocol": {
+          "stub_ohai": true,
+          "reply_opcodes": {
+            "0x08": 24,
+            "0x0a": 46,
+            "0x05": 2,
+            "0x07": 3,
+            "0x06": 1,
+            "0x09": 44,
+            "0x0b": 1,
+            "0x10": 1,
+            "0x11": 226,
+            "0x12": 1,
+            "0x13": 1,
+            "0x02": 1,
+            "0x04": 1
+          },
+          "uart_log_sha256": "46fa1e2d576b4fefa72313743ecd785126a6faf864f42fe6ce72e378bf6c8ebd"
+        },
+        "serial_sha256": "f0c87d220c7f8b67224989da801feb1b3f303e43b9a8160da497dfbc3040116e",
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 13355,
+          "nonblack_colors": 31,
+          "rgb_sha256": "ed7182a7b647cefd5f3f3815e327b9178571b007250d3dcdc809cc69259d4e05",
+          "marker_point": [
+            2,
+            2
+          ],
+          "marker_rgb": "000000"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3985,
+          "nonblack_colors": 31,
+          "rgb_sha256": "484f7a44360118f261b51a1f7a71c622c073619155329cd5ae2783e1b984212a",
+          "marker_point": [
+            2,
+            2
+          ],
+          "marker_rgb": "000000"
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "device": "stickc",
+        "batch": "issue178-matrix-r2",
+        "status": "PASS",
+        "flash_verified": true,
+        "firmware_base_sha256": "00bf8f4131e6aa79188bab27bfe802da76fa5a083f4e9b775666e2f13bacdb99",
+        "test_image_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+        "flash_readback_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+        "byte_compare": "equal",
+        "verification_phase": "after_guest_stub_exit_before_application_boot",
+        "esptool_version": "5.6.0",
+        "loader": "stock-esptool-stub",
+        "protocol": {
+          "stub_ohai": true,
+          "reply_opcodes": {
+            "0x08": 24,
+            "0x0a": 46,
+            "0x05": 2,
+            "0x07": 3,
+            "0x06": 1,
+            "0x09": 44,
+            "0x0b": 1,
+            "0x10": 1,
+            "0x11": 136,
+            "0x12": 1,
+            "0x13": 1,
+            "0x02": 1,
+            "0x04": 1
+          },
+          "uart_log_sha256": "c4e7e39b3053ebed4fdaf09226c1300b10d414f37d4def9bf4095b32f688883f"
+        },
+        "serial_sha256": "1b071099fb04c9554cbaca6e834ab18c93f801c97ce22a355a1f552c4835b761",
+        "before_frame": {
+          "width": 80,
+          "height": 160,
+          "nonblack_pixels": 540,
+          "nonblack_colors": 2,
+          "rgb_sha256": "ddb7f7e6c71ba8255fa58448d6e321710eae808607d584e2f63bd56370210f25",
+          "marker_point": [
+            3,
+            3
+          ],
+          "marker_rgb": "ff0000"
+        },
+        "after_frame": {
+          "width": 80,
+          "height": 160,
+          "nonblack_pixels": 540,
+          "nonblack_colors": 2,
+          "rgb_sha256": "5af77129fd4e1ed345897b81dd28f42b5e3bbe36c083b4f26bcbbecb921e82fb",
+          "marker_point": [
+            3,
+            3
+          ],
+          "marker_rgb": "00ff00"
+        },
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "device": "atom-lite",
+        "batch": "issue178-matrix-r2",
+        "status": "PASS",
+        "flash_verified": true,
+        "firmware_base_sha256": "ae47e82cfe2ab22af1895f17fcc328506cf3ebace8114310a49ed7a02f77505f",
+        "test_image_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+        "flash_readback_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+        "byte_compare": "equal",
+        "verification_phase": "after_guest_stub_exit_before_application_boot",
+        "esptool_version": "5.6.0",
+        "loader": "stock-esptool-stub",
+        "protocol": {
+          "stub_ohai": true,
+          "reply_opcodes": {
+            "0x08": 24,
+            "0x0a": 46,
+            "0x05": 2,
+            "0x07": 3,
+            "0x06": 1,
+            "0x09": 44,
+            "0x0b": 1,
+            "0x10": 1,
+            "0x11": 132,
+            "0x12": 1,
+            "0x13": 1,
+            "0x02": 1,
+            "0x04": 1
+          },
+          "uart_log_sha256": "7079351f3cc88c7b86c4fbd904054a6700855c8b04a9db8073c7004c743612de"
+        },
+        "serial_sha256": "2cc9d2972089eb57db4e177816739633f75340371be02867dd509f3644f1d922",
+        "runtime_ref": "canonical_native"
+      },
+      {
+        "device": "core2",
+        "batch": "issue178-core2-render-fence",
+        "status": "PASS",
+        "flash_verified": true,
+        "firmware_base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "test_image_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+        "flash_readback_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+        "byte_compare": "equal",
+        "verification_phase": "after_guest_stub_exit_before_application_boot",
+        "esptool_version": "5.6.0",
+        "loader": "stock-esptool-stub",
+        "protocol": {
+          "stub_ohai": true,
+          "reply_opcodes": {
+            "0x08": 24,
+            "0x0a": 46,
+            "0x05": 2,
+            "0x07": 3,
+            "0x06": 1,
+            "0x09": 44,
+            "0x0b": 1,
+            "0x10": 1,
+            "0x11": 226,
+            "0x12": 1,
+            "0x13": 1,
+            "0x02": 1,
+            "0x04": 1
+          },
+          "uart_log_sha256": "15bb91937f8a7e5c343328b028d15df96ae954a7f086f2dcd6253a9dbefb25c3"
+        },
+        "serial_sha256": "785673792ea26a9de01c3c124f4021f85d996c97942217e3dafc7768e309513c",
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 13355,
+          "nonblack_colors": 31,
+          "rgb_sha256": "ed7182a7b647cefd5f3f3815e327b9178571b007250d3dcdc809cc69259d4e05",
+          "marker_point": [
+            2,
+            2
+          ],
+          "marker_rgb": "000000"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 13443,
+          "nonblack_colors": 31,
+          "rgb_sha256": "66c7c85ed409ba10e417a07aa3c8c423eb518b0437aa04fc2767074c38abb7aa",
+          "marker_point": [
+            2,
+            2
+          ],
+          "marker_rgb": "00ff00"
+        },
+        "runtime_ref": "canonical_native"
+      }
+    ],
+    "retained_limitations": [
+      "ROM-only FLASH_DATA checksum/format diagnostic remains failing; stock-stub is the validated default.",
+      "The full latest-device/peripheral matrix is outside this targeted run.",
+      "Physical hardware and physical timing are NOT RUN."
+    ]
+  }
+}

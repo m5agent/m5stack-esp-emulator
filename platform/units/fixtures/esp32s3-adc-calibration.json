@@ -26,6 +26,19 @@
     "application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
     "meaning": "SHA-256 over actual ESP image headers and segment bytes; excludes mutable VFS/NVS. app descriptor metadata alone is not the admission gate. The public IDF tag is the reference; private dirty changes are not assumed verified."
   },
+  "additional_firmware_bindings": [
+    {
+      "reference_file": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "version": "V2.5.5",
+      "idf_version": "v5.5.4-dirty",
+      "app_elf_sha256": "ca38d241e94dfea1b5590e7842fc66695a20724dfe063d10ecaa5c1a025b0c7c",
+      "application_offset": 65536,
+      "application_segment_bytes": 9889088,
+      "application_segment_sha256": "f773755049475499de503e1f71b9bacdc25cbade03ed332a84bf1696faebe615",
+      "meaning": "Exact official CoreS3 application headers and segment bytes. VFS/NVS overlays may differ. ADC field layout and calibration arithmetic match the pinned public IDF sources; private dirty changes are not inferred from the descriptor."
+    }
+  ],
   "sar_profile": {
     "id": "s3-unit-ideal-12bit-v1",
     "bit_width": 12,

@@ -63,7 +63,7 @@
       "backend": "qemu-esp32s3",
       "network_status": "unverified",
       "mode": "ui",
-      "machine": "m5atoms3",
+      "machine": "m5atoms3-st7735",
       "base": "platform/.cache/firmware/atoms3/uiflow2.bin",
       "files_dir": "tests/uiflow2/atoms3_ui_test",
       "vfs_offset": "0x641000",
@@ -185,7 +185,14 @@
       "post_input_wait": 2,
       "post_frame_color": "270,160,000000",
       "efuse_pkg_version": 0,
-      "wait": 10
+      "wait": 10,
+      "serial_expect": [
+        "PAPERCOLOR_BOOT_FLAG",
+        "PAPERCOLOR_MAIN_START",
+        "PAPERCOLOR_BOARD 28",
+        "PAPERCOLOR_DISPLAY 400 600",
+        "PAPERCOLOR_BTN_A 1"
+      ]
     },
     {
       "id": "papermono",
@@ -223,7 +230,17 @@
       "wait": 18,
       "post_frame_color": "2,2,00FF00",
       "memory": "0",
-      "deterministic": true
+      "deterministic": true,
+      "pre_input_marker": "CORE2_LOOP",
+      "post_input_marker": "CORE2_FRAME_AFTER_TOUCH 1",
+      "serial_expect": [
+        "CORE2_MAIN_START",
+        "CORE2_BOARD 2",
+        "CORE2_DISPLAY 320 240",
+        "CORE2_LOOP",
+        "CORE2_TOUCH",
+        "CORE2_FRAME_AFTER_TOUCH 1"
+      ]
     },
     {
       "id": "stickc-plus2",
@@ -250,7 +267,8 @@
         "STICKCPLUS2_M5_BEGIN_OK",
         "STICKCPLUS2_DISPLAY 135 240",
         "STICKCPLUS2_BTN_A 1"
-      ]
+      ],
+      "pre_input_marker": "STICKCPLUS2_FRAME_READY"
     },
     {
       "id": "nesso-n1",
@@ -336,8 +354,11 @@
       "efuse_pkg_version": 0,
       "serial_expect": [
         "ATOMS3_LITE_MAIN_START",
-        "ATOMS3_LITE_M5_BEGIN_OK"
-      ]
+        "ATOMS3_LITE_M5_BEGIN_OK",
+        "ATOMS3_LITE_BOARD 137",
+        "ATOMS3_LITE_RGB 2113632"
+      ],
+      "serial_index": 0
     },
     {
       "id": "atoms3u",
@@ -528,14 +549,22 @@
         "BASIC27_BUTTON_STATE 1 0 0",
         "BASIC27_BUTTON_STATE 0 1 0",
         "BASIC27_BUTTON_STATE 0 0 1",
-        "BASIC27_BUTTON_STATE 0 0 0"
+        "BASIC27_BUTTON_STATE 0 0 0",
+        "BASIC27_FRAME_READY 2",
+        "BASIC27_FRAME_READY 4",
+        "BASIC27_FRAME_READY 6"
       ],
       "pcm": {
         "file": "speaker.pcm",
         "min_nonzero": 1000,
         "min_peak_to_peak": 1000
       },
-      "timeout": 60
+      "timeout": 60,
+      "input_after_markers": [
+        "BASIC27_FRAME_READY 2",
+        "BASIC27_FRAME_READY 4",
+        "BASIC27_FRAME_READY 6"
+      ]
     },
     {
       "id": "dial",
@@ -613,7 +642,14 @@
       "expected_size": "80x160",
       "input": "key:a",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "post_frame_color": "3,3,00FF00",
+      "pre_input_marker": "CLASSIC_DISPLAY",
+      "serial_expect": [
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_BUTTON 0 1"
+      ]
     },
     {
       "id": "stickc-plus",
@@ -636,8 +672,11 @@
         "STICKC_PLUS_MAIN_START",
         "STICKC_PLUS_M5_BEGIN_OK",
         "CLASSIC_DISPLAY 135 240",
-        "CLASSIC_BUTTON 1 1"
-      ]
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 0 1"
+      ],
+      "pre_input_marker": "CLASSIC_DISPLAY"
     },
     {
       "id": "stickc-plus-se",
@@ -654,7 +693,14 @@
       "expected_size": "135x240",
       "input": "key:a",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "post_frame_color": "3,3,00FF00",
+      "pre_input_marker": "CLASSIC_DISPLAY",
+      "serial_expect": [
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_BUTTON 0 1"
+      ]
     },
     {
       "id": "atom-lite",
@@ -669,7 +715,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_LITE_MAIN_START",
+        "CLASSIC_RGB 1 204060"
+      ]
     },
     {
       "id": "atom-matrix",
@@ -684,7 +735,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_MATRIX_MAIN_START",
+        "CLASSIC_RGB 25 204060"
+      ]
     },
     {
       "id": "atom-matrix-v11",
@@ -699,7 +755,12 @@
       "flash_size": "0x400000",
       "memory": "0",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "serial_index": 0,
+      "serial_expect": [
+        "ATOM_MATRIX_V11_MAIN_START",
+        "CLASSIC_RGB 25 204060"
+      ]
     },
     {
       "id": "atomu",

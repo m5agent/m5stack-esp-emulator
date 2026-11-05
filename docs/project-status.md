@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
+
 2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。[后续修复](evidence/2026-11-05-unit-preview-local-control/README.md)恢复独立 Unit 目录模型；无 Token 的 loopback 同源 Preview 可直接运行，配置过 Token 的实例仍要求 Bearer。
 
 2026-11-04 已按用户明确要求[携已知问题部署UIFlow工作台](evidence/2026-11-04-pages-workbench-release/README.md)：prepared-preview于10:45:44Z完成，正式HTTPS的2,130个资产length/SHA全部匹配。标准hosted Matrix600秒启动FAIL及同导出本地16PASS、Lite1FAIL、43NOT RUN保留，精确oneInsn硬reset PIF的`RUNTIME-09`继续OPEN；部署成功不代表完整生产功能门禁或C根因修复。独立HTTPS首6例已SUBSET_PASS（Matrix/Plus/Core各编辑器与按键），其余34例NOT RUN/HOLD，不授全19线上通过。部署前[资格失败记录](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，不改写旧FAIL。
@@ -432,11 +434,9 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 - 带日期的运行结果和 evidence：[验证证据台账](validation-ledger.md)。
 - 设备、固件样本、模型缺口和 Task 计数：[自动项目快照](project-snapshot.md)。
 - 源码、测试和生成物入口：[代码与验证入口地图](code-map.md)。
-- 已知模型缺口与关闭条件：
-  [运行时模型缺口登记](runtime-model-gap-register.md)。
+- 已知模型缺口与关闭条件：[运行时模型缺口登记](runtime-model-gap-register.md)。
 - 单 lease/单 guest 验收：[统一设备运行时契约](unified-device-runtime.md)。
-- API：[Device Service API](device-service-api.md) 与
-  [OpenAPI](device-service.openapi.yaml)。
+- API：[Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml)。
 - 网络：[网络模拟方案](network-simulation-plan.md) 与
   [网络诊断 lane](network-lane.md)。
 - 固件：[FirmwareManifest](firmware-manifest.md) 与

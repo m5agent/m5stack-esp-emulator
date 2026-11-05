@@ -54,7 +54,8 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
             self.assertTrue((ROOT / name).is_file(), name)
             self.assertNotIn("wasm", name)
             self.assertFalse(re.match(r"00(?:7[1-9]|8[0-4])-", Path(name).name))
-        self.assertEqual(patches[-15:], (
+        start = patches.index(PERIPHERAL + "0096-atoms3-and-atoms3-lite-boards.patch")
+        self.assertEqual(patches[start:start + 15], (
             PERIPHERAL + "0096-atoms3-and-atoms3-lite-boards.patch",
             PERIPHERAL + "0097-stickc-family-boards.patch",
             PERIPHERAL + "0098-atoms3-rgb-and-dial-board.patch",
@@ -74,11 +75,24 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
         self.assertLess(patches.index(NATIVE + "0010-native-classic-rmt-context.patch"),
                         patches.index(NATIVE + "0013-native-expanded-atom-rmt-delta.patch"))
 
+    def test_unit_batches_follow_the_reconciled_native_order(self):
+        patches = recipe()
+        names = [Path(path).name for path in patches]
+        self.assertIn("0161-unit-batch12c-chain-frames.patch", names)
+        for earlier, later in (("0119", "0120"), ("0129", "0131"),
+                               ("0136", "0130"), ("0132", "0137"),
+                               ("0139", "0140"), ("0154", "0156")):
+            a = next(i for i, name in enumerate(names) if name.startswith(earlier + "-"))
+            b = next(i for i, name in enumerate(names) if name.startswith(later + "-"))
+            self.assertLess(a, b)
+
     def test_context_ports_preserve_the_original_c_changes(self):
         pairs = (
             ("0009-native-high-priority-irq-context.patch", "0065-xtensa-high-priority-irq-cooperative-yield.patch"),
             ("0010-native-classic-rmt-context.patch", "0066-esp32-classic-rmt-legacy.patch"),
             ("0012-native-uart-trace-context.patch", "0070-esp32-uart-tx-virtual-clock.patch"),
+            ("0019-native-atoms3u-board.patch", "0110-atoms3u-board.patch"),
+            ("0020-native-atom-voices3r-board.patch", "0111-atom-voices3r-board.patch"),
         )
         for native, original in pairs:
             with self.subTest(native=native):

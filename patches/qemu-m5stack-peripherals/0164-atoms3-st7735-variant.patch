@@ -1,0 +1,94 @@
+diff --git a/hw/m5stopwatch/m5atoms3.c b/hw/m5stopwatch/m5atoms3.c
+index aa4da67..cb03c95 100644
+--- a/hw/m5stopwatch/m5atoms3.c
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -2,10 +2,13 @@
+  * Original M5Stack AtomS3 C123 board wiring.
+  *
+  * ESP32-S3FN8, 8 MiB Flash, no PSRAM; MPU6886 at 0x68 on SDA38/SCL39;
+- * GC9107 128x128 controller on SPI3 (MOSI21, SCLK17, CS15,
++ * Explicit GC9107 / ST7735S 128x128 variants on SPI3 (MOSI21, SCLK17, CS15,
+  * DC33, RST34), GPIO16 PWM backlight, and active-low GPIO41 button.
+  * This is a separate board, not an AtomS3R machine alias.
+  *
++ * LCD variant evidence: m5stack/M5GFX
++ * eef855b41c8ab7611a235055cc9afca76751ea95
++ * src/board_detect/m5/generated/esp32s3_specs.hpp
+  * Wiring evidence: m5stack/M5GFX 6e53f9bfcf7dae34e7c7c089cfd66db977793e17
+  * src/M5GFX.cpp AtomS3 probe; m5stack/M5Unified
+  * 565a499675b4cbbf897451d7f9ef66890e2cbb90 src/M5Unified.inl pin tables.
+@@ -13,6 +16,7 @@
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
++#include "hw/boards.h"
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/dma/esp_gdma.h"
+ #include "hw/qdev-properties.h"
+@@ -22,6 +26,8 @@
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                         ESPGdmaState *gdma)
+ {
++    bool st7735 = object_dynamic_cast(OBJECT(qdev_get_machine()),
++                         MACHINE_TYPE_NAME("m5atoms3-st7735")) != NULL;
+     m5stopwatch_sens_init(sys_mem);
+     m5stopwatch_regi2c_init(sys_mem);
+     m5stopwatch_fe_init(sys_mem);
+@@ -61,19 +67,22 @@ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         ETS_SPI3_INTR_SOURCE);
+ 
+     DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
+-    qdev_prop_set_uint32(panel, "mem-width", 128);
+-    qdev_prop_set_uint32(panel, "mem-height", 160);
++    qdev_prop_set_uint32(panel, "mem-width", st7735 ? 132 : 128);
++    qdev_prop_set_uint32(panel, "mem-height", st7735 ? 132 : 160);
+     qdev_prop_set_uint32(panel, "vis-width", 128);
+     qdev_prop_set_uint32(panel, "vis-height", 128);
+-    qdev_prop_set_uint32(panel, "offset-x", 0);
+-    qdev_prop_set_uint32(panel, "offset-y", 32);
++    qdev_prop_set_uint32(panel, "offset-x", st7735 ? 2 : 0);
++    qdev_prop_set_uint32(panel, "offset-y", st7735 ? 1 : 32);
+     qdev_prop_set_uint32(panel, "key-a-pin", 41);
+     qdev_prop_set_uint32(panel, "key-b-pin", 41);
+-    qdev_prop_set_uint32(panel, "read-id", 0x00079100);
+-    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_uint32(panel, "read-id", st7735 ? 0x00007683 : 0x00079100);
++    /* Explicit LCD variants from the official M5GFX board specifications.
++     * Preserve the original GC9107 machine; ST7735S has its own identity,
++     * RAM geometry, mounting and inversion, not a firmware-specific crop. */
++    qdev_prop_set_uint32(panel, "glass-rotation", st7735 ? 2 : 0);
+     qdev_prop_set_bit(panel, "apply-madctl", true);
+     qdev_prop_set_bit(panel, "infer-command", false);
+-    qdev_prop_set_bit(panel, "invert", false);
++    qdev_prop_set_bit(panel, "invert", st7735);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 33);
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 218cc79..61ee4a3 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1422,6 +1422,23 @@ static void m5atoms3_machine_type_init(void)
+ 
+ type_init(m5atoms3_machine_type_init);
+ 
++static void m5atoms3_st7735_machine_class_init(ObjectClass *oc, void *data)
++{
++    MACHINE_CLASS(oc)->desc = "M5Stack AtomS3 C123 ST7735S LCD variant";
++}
++
++static const TypeInfo m5atoms3_st7735_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3-st7735"),
++    .parent = MACHINE_TYPE_NAME("m5atoms3"),
++    .class_init = m5atoms3_st7735_machine_class_init,
++};
++
++static void m5atoms3_st7735_machine_type_init(void)
++{
++    type_register_static(&m5atoms3_st7735_info);
++}
++type_init(m5atoms3_st7735_machine_type_init);
++
+ /* C124 AtomS3 Lite: ESP32-S3FN8, 8 MiB Flash, no PSRAM, no LCD. */
+ static void m5atoms3lite_machine_init(MachineState *machine)
+ {

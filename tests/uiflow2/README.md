@@ -1,6 +1,6 @@
 # UIFlow2 虚拟烧录与 UI 回归
 
-最近核对：`2026-10-26`
+最近核对：`2026-11-05`
 
 设备参数在 `device_matrix.json` 中集中维护。统一流程：
 
@@ -11,6 +11,12 @@
 5. 校验目标分辨率首帧、非空画面、输入后像素变化；配置了
    `post_frame_color` 的输入设备还必须命中 UI 写入的固定像素标记；
 6. 输出规范 `before.png`、`after.png`、串口和命令日志。
+
+准备本地虚拟烧录依赖（Python 3.12+，不修改全局安装）：
+
+```sh
+python3 -m pip install --target .work/py -r tests/uiflow2/requirements-flash.txt
+```
 
 全量回归：
 
@@ -26,6 +32,40 @@ python3 tests/uiflow2/run_device_matrix.py --device nesso-n1
 python3 tests/uiflow2/run_device_matrix.py --device core2
 python3 tests/uiflow2/run_device_matrix.py --device tab5
 ```
+
+UI/console 镜像从实际 base 的分区表选择唯一、未加密的 `vfs` 分区；声明布局
+漂移时输出警告，并在产物 `composition.json` 中记录声明/实际布局、固件和
+探针哈希及保留验证。默认挂载并修改已有 LittleFS，保留 stock 资源、system
+文件和 VFS 外的 NVS/应用/分区表；不再因更新固件缓存而按旧偏移格式化。
+`run_profile_ui_test.py --layout-policy strict` 可在布局漂移时直接拒绝；
+`--format-vfs` 或 `--mklittlefs` 是显式的空文件系统回归模式，会删除 stock
+VFS 内容。四款无屏 Atom console fixture 与 UI fixture 使用同一个构建器，
+不要求各目录复制 `make_image.py`。
+
+只派生/检查布局，不启动 guest：
+
+```sh
+python3 tests/uiflow2/run_device_matrix.py --device sticks3 --device stickc \
+  --write-resolved-matrix /tmp/m5-device-matrix-resolved.json
+```
+
+该文件保留 matrix schema，只有选中 UI/console 条目的 VFS offset/size 从
+实际 base 更新。它可作为 `--matrix` 输入或经 review 后更新 tracked registry；
+每个新固件 SHA 仍需重新校验。`M5_QEMU_XTENSA`/`M5_QEMU_RISCV32` 可显式选择
+自建运行时；没有配置时保留 registry 路径。classic ESP32 与 S3 的 package
+eFuse 均严格限制在三位 `0..7`，分别写入各自 SoC 的字段；不会改动 security
+eFuse 或以禁用 driver 绕过 package fixture。
+
+StickC/Plus/Plus SE fixture 在初始红块外保留蓝色边框，按下/释放事件写入串口，
+首次按下后锁存绿块供最终像素断言；保留至少两种非黑颜色与真实输入后的帧
+变化检查。Plus2 在 `STICKCPLUS2_FRAME_READY` 后才注入原有按键事件，避免在
+guest 尚未进入输入循环时发送。
+
+外设矩阵的两项 M5Unified 0.2.28 行为变化由精确 base SHA 选择期望：
+StickS3 v2.5.5 使用官方 BMI270 board axes；PaperColor v2.5.4 的
+`isCharging()==False` 可代表 `undetermined`。旧 marker 保留在默认历史分支，
+不会给未知固件自动套用新版期望；输出 summary 记录实际 SHA、选中分支与
+上游源码 permalink。fixture 显示 API 读数，不能把布尔值当作物理充电结论。
 
 输入验收不能只看截图哈希。Core2 曾出现触摸实际未计数、但半帧重绘仍改变
 哈希而误判 PASS；现在触摸和按键测试会在识别到输入后写固定颜色标记，
@@ -353,7 +393,13 @@ python3 tests/uiflow2/flash_device.py \
 传输说明：
 
 - `esp-emu-esptool`：ESP32-S3/C6/P4，真实 esptool `write-flash`，写入后逐字节校验；
-- `qemu-esptool`：Core2，通过 QEMU ESP32 ROM UART 下载模式和 `esptool --no-stub` 写入，再逐字节校验；
+- `qemu-esptool`：classic ESP32 的 UI/console case 先观察真实 ROM UART
+  download banner，再由固定 esptool 的 `MEM_BEGIN/DATA/END` 上传官方 guest
+  stub；CPU 执行 stub 经 SPI 写入 Flash。QEMU chardev 日志保留实际 `OHAI`
+  和协议回复，写后完整 Flash 逐字节比较，summary 记录 tool/runtime/image/
+  readback SHA。TCP 显式 `nodelay`，不会在 host 复制镜像冒充串口烧录。
+  `flash_with_qemu(no_stub=True)` 只保留 ROM-only 诊断；其 checksum/format
+  失败是独立未关闭边界，不从 stock-stub PASS 继承。
 - Tab5：`esp-emu` P4 下载模式的地址空间限制在 8 MiB，因此仿真专用分区表把
   应用、sys、vfs 和 storage 全部放在 8 MiB 以下；生产分区布局不变。写后的
   16 MiB 虚拟 Flash 与期望镜像逐字节一致后，再从同一份 Flash 启动。

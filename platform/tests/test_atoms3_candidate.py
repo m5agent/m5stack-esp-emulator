@@ -19,7 +19,7 @@ class AtomS3CandidateTests(unittest.TestCase):
     def test_original_atoms3_is_an_independent_no_psram_candidate(self):
         specs = load_device_specs()
         atom, atom_r = specs["atoms3"], specs["atoms3r"]
-        self.assertEqual((atom.machine, atom.memory, atom.flash_size), ("m5atoms3", "0", 8 << 20))
+        self.assertEqual((atom.machine, atom.memory, atom.flash_size), ("m5atoms3-st7735", "0", 8 << 20))
         self.assertEqual((atom.sku, atom.soc), ("C123", "ESP32-S3FN8"))
         self.assertTrue(atom.supported)
         self.assertEqual(atom.peripheral_status, "partial")
@@ -28,7 +28,7 @@ class AtomS3CandidateTests(unittest.TestCase):
         source = json.loads((ROOT / "devices/catalog.source.json").read_text())
         row = next(row for row in source["devices"] if row["id"] == "atoms3")
         self.assertEqual(row["hardware"]["psram_bytes"], 0)
-        self.assertEqual(row["runtime"]["validation"]["status"], "native-display-input-imu-rgb-pass")
+        self.assertEqual(row["runtime"]["validation"]["status"], "native-st7735-display-input-pass")
         self.assertEqual(row["uiflow2"]["firmware"]["firmware_id"], "1897200000000002444")
 
     def test_soc_specific_package_fields_preserve_neighboring_efuses(self):

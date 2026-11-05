@@ -1,6 +1,6 @@
 # ESP32-S3 Unit ADC 合成校准
 
-核对日期：`2026-10-27`。
+核对日期：`2026-11-05`。
 
 Angle 官方驱动的 `get_voltage()` 调用 MicroPython `ADC.read_uv()`。
 空白的虚拟 eFuse 没有有效 S3 ADC 校准版本，ESP-IDF curve-fitting 因而返回
@@ -20,6 +20,18 @@ Angle 官方驱动的 `get_voltage()` 调用 MicroPython `ADC.read_uv()`。
 - 固定 app 起点 `0x10000`，ESP image headers 与 segment bytes 共
   `10018400` 字节，实际字节 SHA256：
   `c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f`。
+
+另显式准入 CoreS3 UIFlow2 `V2.5.5`（镜像声明 `v5.5.4-dirty`）：
+原始参考镜像 SHA256 为
+`5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded`，
+相同 `0x10000` 起点的 headers/segment bytes 共 `9889088` 字节，SHA256
+`f773755049475499de503e1f71b9bacdc25cbade03ed332a84bf1696faebe615`。
+该绑定位于 `additional_firmware_bindings`，原始 V2.5.3 绑定、17 个校准字段、
+SAR 传递函数、80 个数值 oracle 与身份/安全字段限制保持独立不变。
+新版本所用公开 IDF 的五份校准/系数/eFuse 来源与 fixture 已固定的 SHA256
+一致；这不从 `dirty` 描述符推断整个固件与公开源码相同。
+receipt 的 `application_segment_sha256` 记录实际匹配的绑定，不能始终填入
+原始参考版本的哈希。额外绑定必须是明确且不重复的完整 app 字节范围和摘要。
 
 准入核对实际 app bytes；镜像自声明的 ELF SHA 或版本字符串不能替代它。
 VFS/NVS 等 app 范围以外的 session overlay 可以变化。未知或修改过的 app

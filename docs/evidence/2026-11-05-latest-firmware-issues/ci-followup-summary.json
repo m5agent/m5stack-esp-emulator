@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "Cross-platform process provenance CI followup",
+  "failed_head": "136e20e1f3f3938a392ee21952b4ef8feda6fdf3",
+  "retained_failed_runs": [
+    42018235576,
+    42018244789
+  ],
+  "original_checks": {
+    "network_namespace": "2 PASS",
+    "platform_contracts": "2 FAIL"
+  },
+  "failure": "test_short_comm_is_rejected mocked Darwin on Linux but loaded the real macOS library; OSError before the new VFS controls. No guest failure inferred.",
+  "fix": "Mock native proc_pidpath in the negative control; cover success, missing loader, relative and missing images. Normalize unavailable native loader/symbol to RuntimeError. Do not accept short comm as a path; final absolute/existing-image guard remains.",
+  "targeted_tests": {
+    "status": "PASS",
+    "total": 12
+  },
+  "full_Unit_followup": {
+    "status": "PASS",
+    "total": 304,
+    "passed": 303,
+    "skipped": 1,
+    "seconds": 7.813
+  },
+  "platform_suite": "Local previous full2021 gate retained; exact post-fix remote gate recorded in delivery followup",
+  "raw_log_integrity": [
+    {
+      "name": "pr-42018244789-failed.log",
+      "sha256": "26c870eef65fc5d27d9f8b0b16167614d5c104b561f180dd459209b370d40eb8",
+      "bytes": 8274
+    },
+    {
+      "name": "push-42018235576-failed.log",
+      "sha256": "9d2d0a35c3e6d30e53e1600c78e15e342c76ab11c06dc5e8a6b2aba8c2e3510f",
+      "bytes": 8274
+    },
+    {
+      "name": "m5-issues-final-unit-tests-v4.log",
+      "sha256": "a810bc364a57b20f58d00ef754bf56c8c37c26650d7e593f122da6b94bd6ae27",
+      "bytes": 2277
+    }
+  ],
+  "validation_class": "host contracts; no new guest or physical claim"
+}

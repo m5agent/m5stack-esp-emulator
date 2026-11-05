@@ -59,6 +59,7 @@ jobs:
           python3 -m unittest discover -s tests/units -p 'test_sensor_evidence.py'
           python3 -m unittest discover -s tests/units -p 'test_web_ui_bridge.py'
           python3 -m unittest discover -s tests/units -p 'test_host_control_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_preserved_vfs_whitelist.py'
           python3 -m unittest discover -s tests/units -p 'test_host_sensor_preparation.py'
           python3 -m unittest discover -s tests/units -p 'test_host_sensor_execution.py'
           python3 -m unittest discover -s tests/units -p 'test_host_io_preparation.py'

@@ -59,6 +59,16 @@
 controller 或物理 PSRAM/cache；Secure Boot v2 镜像验证完成，不关闭 live
 eFuse 或生产 key。
 
+## 最新固件兼容剩余缺口
+
+已满足的前置基线：实际 VFS/stock 保留、真实 UART/controller 观测与按固件绑定的
+原生修复已有独立执行证据，见[日期化问题证据](evidence/2026-11-05-latest-firmware-issues/README.md)。
+
+- Tab5 最新官方应用保持 open：用未改应用字节在兼容 P4 路径证明 Python/UI/touch；
+  独立新后端仍等待 MIPI DSI PHY PLL lock；需要 P4 控制器实现修复后原路复验，
+  framebuffer/GDB 路径另需匹配 ELF 或实际可观测输出。旧 merged image 不满足验收。
+- Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
+
 ## 优先级总览
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |

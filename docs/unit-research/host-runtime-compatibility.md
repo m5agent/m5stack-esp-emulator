@@ -82,8 +82,9 @@ reference bytes 调用 first-party `firmware_analysis.parse_partition_table`
 matrix 参数化，而不是只往 profiles 的 hosts 数组加名字。LittleFS 仍须以
 正确 geometry 打包、remount 并逐字验证 guest 文件。
 
-ADC 有独立阻断：当前 `esp32s3-adc-calibration.json` 精确绑定 CoreS3 V2.5.3
-application segment bytes。Service 对不匹配 app 只记录 `not-applied` 并保留
+ADC 有独立准入：当前 `esp32s3-adc-calibration.json` 精确绑定 CoreS3 V2.5.3
+及显式增加的 V2.5.5 application segment bytes，receipt 必须记录实际匹配的
+app 哈希。Service 对不匹配 app 只记录 `not-applied` 并保留
 raw ADC，不能复用 CoreS3 的 `read_uv()` oracle 宣称其他主机通过。每种 firmware
 需核实 IDF/MicroPython 校准路径，建立对应的精确 fixture 绑定；StopWatch 要
 明确使用 `adc_unit=2`。不能改 guest driver 返回值或关闭校准来凑相同结果。

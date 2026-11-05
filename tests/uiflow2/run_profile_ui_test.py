@@ -29,6 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT / "platform/tools"))
 
 from qemu_accel import core2_accel_args  # noqa: E402
+from uiflow_source import build_uiflow_source_image, uiflow_vfs_layout  # noqa: E402
 
 
 def runtime_files(files_dir: Path) -> dict[Path, Path]:
@@ -43,7 +44,35 @@ def runtime_files(files_dir: Path) -> dict[Path, Path]:
 
 
 def build_image(args) -> Path:
-    image = bytearray(args.base.read_bytes())
+    base = args.base.read_bytes()
+    layout = uiflow_vfs_layout(base, args.flash_size)
+    declared = {"offset": args.vfs_offset, "size": args.vfs_size}
+    drift = any(declared[key] != layout[key] for key in declared)
+    if drift:
+        message = (f"VFS layout drift: declared {declared}, actual "
+                   f"offset={layout['offset']:#x} size={layout['size']:#x}")
+        if getattr(args, "layout_policy", "actual") == "strict":
+            raise SystemExit(message)
+        print(message + "; using the actual base partition table", file=sys.stderr)
+    args.vfs_offset, args.vfs_size = layout["offset"], layout["size"]
+    if not args.mklittlefs and not getattr(args, "format_vfs", False):
+        # Preserve stock assets and system configuration. The service's shared
+        # composer independently mounts/readbacks every unchanged file and
+        # verifies that all bytes outside this VFS remain unchanged.
+        files = {relative.as_posix(): path.read_text()
+                 for relative, path in runtime_files(args.files_dir).items()}
+        image, metadata = build_uiflow_source_image(base, args.flash_size, files)
+        metadata.update(declared_vfs=declared, layout_drift=drift)
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        out = args.out_dir / "uiflow2-ui-test.bin"
+        out.write_bytes(image)
+        (args.out_dir / "composition.json").write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2) + "\n")
+        print(f"image: {out}")
+        print(f"sha256: {hashlib.sha256(image).hexdigest()}")
+        return out
+
+    image = bytearray(base)
     if len(image) > args.flash_size:
         raise SystemExit(f"base image is larger than flash size {args.flash_size}")
     image.extend(b"\xff" * (args.flash_size - len(image)))
@@ -103,6 +132,24 @@ def build_image(args) -> Path:
     print(f"image: {out}")
     print(f"sha256: {hashlib.sha256(image).hexdigest()}")
     return out
+
+
+def efuse_image(package: int, driver: str) -> bytes:
+    """Encode only the SoC's three-bit package field, never security eFuses."""
+    if type(package) is not int or not 0 <= package <= 7:
+        raise ValueError("eFuse package must be an integer from 0 to 7")
+    fields = {"nvram.esp32.efuse": (12, 9),
+              "nvram.esp32s3.efuse": (36, 21)}
+    data = bytearray(4096)
+    if driver == "none":
+        if package:
+            raise ValueError("nonzero package requires a supported eFuse driver")
+        return bytes(data)
+    if driver not in fields:
+        raise ValueError(f"unsupported package eFuse driver: {driver}")
+    offset, shift = fields[driver]
+    data[offset:offset + 4] = (package << shift).to_bytes(4, "little")
+    return bytes(data)
 
 
 class QMPCommandError(RuntimeError):
@@ -521,8 +568,12 @@ def main():
     parser.add_argument(
         "--preserve-vfs",
         action="store_true",
-        help="mount and modify the existing LittleFS image instead of formatting",
+        help="preserve the existing LittleFS image (now the default)",
     )
+    parser.add_argument("--format-vfs", action="store_true",
+                        help="explicit regression-only fresh VFS; removes stock VFS files")
+    parser.add_argument("--layout-policy", choices=("actual", "strict"), default="actual",
+                        help="derive the VFS from the base, or reject declared layout drift")
     parser.add_argument(
         "--mklittlefs",
         type=Path,
@@ -538,7 +589,7 @@ def main():
             "required for stable Core2 peripheral runs"
         ),
     )
-    parser.add_argument("--efuse-pkg-version", type=int, choices=(0, 1), default=0)
+    parser.add_argument("--efuse-pkg-version", type=int, choices=range(8), default=0)
     parser.add_argument(
         "--efuse-driver",
         help="QEMU eFuse global driver; use 'none' to omit the eFuse drive",
@@ -567,15 +618,19 @@ def main():
         default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios",
     )
     args = parser.parse_args()
+    if args.preserve_vfs and (args.format_vfs or args.mklittlefs):
+        parser.error("--preserve-vfs cannot be combined with a formatting builder")
+    efuse_driver = args.efuse_driver or "nvram.esp32s3.efuse"
+    try:
+        efuse_data = efuse_image(args.efuse_pkg_version, efuse_driver)
+    except ValueError as error:
+        parser.error(str(error))
     args.out_dir.mkdir(parents=True, exist_ok=True)
     image = args.prebuilt_image or build_image(args)
     if args.build_only:
         return
 
     efuse = args.out_dir / "efuse.bin"
-    efuse_data = bytearray(4096)
-    if args.efuse_pkg_version:
-        efuse_data[36:40] = (args.efuse_pkg_version << 21).to_bytes(4, "little")
     efuse.write_bytes(efuse_data)
 
     serial = args.out_dir / "serial.log"
@@ -621,9 +676,6 @@ def main():
         )
     if args.qemu_log:
         command.extend(["-d", args.qemu_log])
-    efuse_driver = args.efuse_driver
-    if efuse_driver is None:
-        efuse_driver = "nvram.esp32s3.efuse"
     if efuse_driver != "none":
         command.extend([
             "-global", f"driver={efuse_driver},property=drive,value=efuse",

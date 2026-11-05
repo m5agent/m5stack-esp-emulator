@@ -62,7 +62,7 @@ def load_fixture(path: Path = FIXTURE, *, raw: bytes | None = None) -> dict:
         raise ValueError("fixture must describe synthetic compact virtual eFuse only")
     if not isinstance(fixture.get("id"), str) or not fixture["id"]:
         raise ValueError("fixture requires an identifier")
-    _firmware_binding(fixture)
+    _firmware_bindings(fixture)
     for field in fields:
         if type(field["value"]) is not int or not 0 <= field["value"] < 1 << field["bit_count"]:
             raise ValueError("invalid ADC field value")
@@ -71,6 +71,10 @@ def load_fixture(path: Path = FIXTURE, *, raw: bytes | None = None) -> dict:
 
 def _firmware_binding(fixture: dict) -> tuple[int, int, str]:
     binding = fixture.get("firmware_binding")
+    return _binding_tuple(binding)
+
+
+def _binding_tuple(binding: dict) -> tuple[int, int, str]:
     if not isinstance(binding, dict):
         raise ValueError("fixture requires an application-byte binding")
     start, length = binding.get("application_offset"), binding.get("application_segment_bytes")
@@ -78,6 +82,17 @@ def _firmware_binding(fixture: dict) -> tuple[int, int, str]:
     if type(start) is not int or start < 0 or type(length) is not int or length <= 0 or not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
         raise ValueError("invalid application-byte binding")
     return start, length, digest
+
+
+def _firmware_bindings(fixture: dict) -> list[dict]:
+    additional = fixture.get("additional_firmware_bindings", [])
+    if not isinstance(additional, list) or len(additional) > 16:
+        raise ValueError("invalid additional application-byte bindings")
+    bindings = [fixture.get("firmware_binding"), *additional]
+    identities = [_binding_tuple(binding) for binding in bindings]
+    if len(set(identities)) != len(identities):
+        raise ValueError("duplicate application-byte binding")
+    return bindings
 
 
 def field_value(image: bytes | bytearray, field: dict) -> int:
@@ -97,12 +112,15 @@ def decoded_reference_digital(fixture: dict) -> dict[str, list[int]]:
     return {"adc1": adc1, "adc2": adc2}
 
 
-def verify_firmware(firmware: bytes, fixture: dict) -> None:
+def verify_firmware(firmware: bytes, fixture: dict) -> dict:
     """Bind actual application bytes while allowing session VFS/NVS overlays."""
-    start, length, digest = _firmware_binding(fixture)
-    end = start + length
-    if not isinstance(firmware, bytes) or len(firmware) < end or hashlib.sha256(firmware[start:end]).hexdigest() != digest:
-        raise ValueError("synthetic ADC calibration is not validated for these firmware application bytes")
+    if isinstance(firmware, bytes):
+        for binding in _firmware_bindings(fixture):
+            start, length, digest = _binding_tuple(binding)
+            end = start + length
+            if len(firmware) >= end and hashlib.sha256(firmware[start:end]).hexdigest() == digest:
+                return dict(binding)
+    raise ValueError("synthetic ADC calibration is not validated for these firmware application bytes")
 
 
 def apply_s3_adc_calibration(
@@ -122,7 +140,7 @@ def apply_s3_adc_calibration(
     fixture = load_fixture(fixture_path, raw=fixture_bytes)
     if backend != "qemu-esp32s3" or not isinstance(image, bytearray) or len(image) != 4096:
         raise ValueError("requires a 4096-byte QEMU ESP32-S3 virtual eFuse buffer")
-    verify_firmware(firmware, fixture)
+    binding = verify_firmware(firmware, fixture)
     references = decoded_reference_digital(fixture)
     expected = [math.floor(850 * 4095 / scale + 0.5) for scale in fixture["sar_profile"]["full_scale_mv"]]
     if references != {"adc1": expected, "adc2": expected}:
@@ -145,7 +163,7 @@ def apply_s3_adc_calibration(
         "source": "session-frozen-fixture" if fixture_raw is not None else "explicit-fixture-file",
         "fixture_sha256": hashlib.sha256(fixture_bytes).hexdigest(),
         "sar_profile": fixture["sar_profile"]["id"],
-        "application_segment_sha256": fixture["firmware_binding"]["application_segment_sha256"],
+        "application_segment_sha256": binding["application_segment_sha256"],
         "reference_voltage_mv": 850, "reference_digital": references,
         "fields": values, "hardware_validation": False,
         "identity_or_security_fields_changed": False,

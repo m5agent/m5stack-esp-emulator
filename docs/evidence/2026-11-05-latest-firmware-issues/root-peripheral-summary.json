@@ -1,0 +1,1512 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "validation_class": "virtual-device validation",
+  "registry": "summary.json",
+  "runtime_registry": {
+    "27df1b40de94-87a437acebd4": {
+      "binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+      "binary_name": "qemu-system-xtensa",
+      "rom_files_sha256": {
+        "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+        "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+        "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+        "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      },
+      "rom_set_sha256": "87a437acebd484e55e9b315b1972223ee966303ef116196da940038bf35ca404"
+    },
+    "25497c521ebd-9f05ba71f9b7": {
+      "binary_sha256": "25497c521ebd5838a56b066551dd5c33d6dd00df853ed4a256fcca79944de7db",
+      "binary_name": "qemu-system-riscv32",
+      "rom_files_sha256": {
+        "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+        "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+        "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+        "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+        "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      },
+      "rom_set_sha256": "9f05ba71f9b785fa36c52315b915941bc7de856418fd8204c41766de757643dc"
+    }
+  },
+  "fresh_native_peripheral_run": {
+    "summary_sha256": "a09a8c1a5dc37e58747aa617a71d76fe1087d57c2459967008efe632d719c1c8",
+    "total": 68,
+    "counts": {
+      "PASS": 67,
+      "FAIL": 1
+    },
+    "cases": [
+      {
+        "case": "sticks3-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "sha-bound-driver-behavior",
+          "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/IMU_Class.inl",
+          "detail": "UIFlow2 v2.5.5 / M5Unified 0.2.28 StickS3 BMI270 board axes"
+        },
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "derived_image_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+        "composition_sha256": "14d7899d1f3c3cf328d8d5133304d0c8c6eebc925f15cc994f0c1a9a689d294b",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "97b25a1bf3fa4ba18ffde244df8451402d00bbe409445d59d0c165a9acb5b7a5",
+        "frame_sha256": {
+          "after.png": "e83eb87b4a61210122ac1bdd22cd3b07ac753f8f98e4eb433724b3f417ff67bb",
+          "before.png": "b5c5a7955d8055776f34fdb1feca309c29aea9c5304e35cf7363a2e870124159"
+        },
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS"
+          },
+          {
+            "name": "buttons_a_b_pwr",
+            "status": "PASS"
+          },
+          {
+            "name": "power",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "sticks3-audio",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "derived_image_sha256": "d9bbc4d7a8ed1b530e94ae4ed2e6e10587055c3a28f8e336dc4b2ee7e7853058",
+        "composition_sha256": "14f2ddb5ab72a046b63729d9d63ce71e95394dcb66b8df6439badc95ee414179",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "26ceb4261fef235cb54e3b6b97610e705ea346d05fc4be44a0f576f064132667",
+        "frame_sha256": {
+          "after.png": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7",
+          "before.png": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7"
+        },
+        "checks": [
+          {
+            "name": "es8311_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "sticks3-mic",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "derived_image_sha256": "b461b4b63595f42668db7e4b124ba9cc967f3a230db61b7bbef6848be459edb7",
+        "composition_sha256": "9c7c1aed9519bd5bea367ba0585ab0c9a727933e857531308aed4b989f9d1abc",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "6e38e5b5eeb3350d18824b84963c25c7e35b9f07e84cc7bf98c7f38d6010dfff",
+        "frame_sha256": {
+          "after.png": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46",
+          "before.png": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46"
+        },
+        "checks": [
+          {
+            "name": "es8311_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_record",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_rx_pcm_injection",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-sd",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "b1276cb61e890bac06d98939ad8a7f5a102aeeee7270d09a66a920eb10fdec29",
+        "composition_sha256": "86c23ae5f69afd086b5379a0a9e9ab73e2d6057616b453379a5fd020c88c1205",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "a4eafe5b2f6044a9e75c4792bd5daaae081ee50d2ce217e30ad2cfd589be83d4",
+        "frame_sha256": {
+          "after.png": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+          "before.png": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083"
+        },
+        "checks": [
+          {
+            "name": "sdspi_init",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_write_block",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_readback",
+            "status": "PASS"
+          },
+          {
+            "name": "sd_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-sd",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "121a8d625d66c83e55e272ed0b8629d734d599ef1eebb0b019b463861527e206",
+        "composition_sha256": "76ec0e410e8cf26c08c98eaa86104632c4b4354c989ce23a4ec6860389452fa3",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "62233d10f31f14bae7a38a46f7facd0be54b7590f3e6a86f416fdc51bc35a874",
+        "frame_sha256": {
+          "after.png": "286e34be22f6f839a8e3bf6d1866698efcc317e5e56931a03aaf28a64dec718c",
+          "before.png": "286e34be22f6f839a8e3bf6d1866698efcc317e5e56931a03aaf28a64dec718c"
+        },
+        "checks": [
+          {
+            "name": "sdspi_init",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_write_block",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_readback",
+            "status": "PASS"
+          },
+          {
+            "name": "sd_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-imu",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "a1a0924a060678ccde645ba6bf74940bdebaa7169349d5f9efb2e9522e6be771",
+        "composition_sha256": "386d13637bfe726ef9485f114facaeceb48271ba8226909527da7f5c3953e7d5",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "a4eafe5b2f6044a9e75c4792bd5daaae081ee50d2ce217e30ad2cfd589be83d4",
+        "frame_sha256": {
+          "after.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+          "before.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72"
+        },
+        "checks": [
+          {
+            "name": "cardputer_bmi270_init",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_bmi270_accel",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_bmi270_gyro",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_imu_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-keyboard",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "61ea11c211c2c7d6ca54c6e3ddf2d5106ca9454a4d4a4bac23528d4ee4112665",
+        "composition_sha256": "6ee46cca3b3b82cfe5cad14c2848ca43c9a938bb8b6664240857c40d8048f9d6",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "540b557fdd8db7581893321e52091464edc4d35b9460b58d86a55408730586e0",
+        "frame_sha256": {
+          "after.png": "b9323721391b39d341570db53baa11bae2ff8bbc477414264459c1869cd7685b",
+          "before.png": "1fd94bd998b8916099f5af89d6dbcdebd52bd0d32f7360de838310ebbb526859"
+        },
+        "checks": [
+          {
+            "name": "tca8418_matrix_event",
+            "status": "PASS"
+          },
+          {
+            "name": "keyboard_i2c_decode",
+            "status": "PASS"
+          },
+          {
+            "name": "keyboard_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-nfc",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "9dc898068f8f0ed09e47c8e58c108b10935308211c53cf658e1e0d49ae30f03c",
+        "composition_sha256": "f32d665983e6d8401123fa20d965457b70472107eaf2fa1bbb1103c77f511687",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "74ce440e34fb701be82410cab27a7b16a93097e4e9c0bd11d10607178e24438a",
+        "frame_sha256": {
+          "after.png": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1",
+          "before.png": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1"
+        },
+        "checks": [
+          {
+            "name": "cardputer_nfc_spi_detect",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_nfc_page_read",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_nfc_page_write_verify",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_nfc_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-cc1101",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "e50eee32d024534d92feed5771e71a6b22082121e7fe480445d57bde8ad9020e",
+        "composition_sha256": "3271c02d193be6b7e019c5899a4fda29e4050c946ffa3800607243e0d5b21814",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "060cdfd60ffe24c2ceae63e66920f34132d4a98663d65100d5e1ce6a9625d2ec",
+        "frame_sha256": {
+          "after.png": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae",
+          "before.png": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae"
+        },
+        "checks": [
+          {
+            "name": "cardputer_cc1101_spi_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_cc1101_tx",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_cc1101_rx_loopback",
+            "status": "PASS"
+          },
+          {
+            "name": "cardputer_cc1101_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-audio",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "70ae1cc7cac045843997d2b49716337705138cd0c7e4b8808ab1090c88b3bed8",
+        "composition_sha256": "0e305dfbb4f1065c43ab8399d239d4b0bdf0bbb1b2325ca567161d98d39147f3",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "74ce440e34fb701be82410cab27a7b16a93097e4e9c0bd11d10607178e24438a",
+        "frame_sha256": {
+          "after.png": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256",
+          "before.png": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256"
+        },
+        "checks": [
+          {
+            "name": "es8311_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cardputer-adv-mic",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "derived_image_sha256": "3b9265cfd660474f7dd358e54fa15eb4730708744136c4074361aba7f7df014c",
+        "composition_sha256": "5468b6ac89234eb6c5efa6739c9e652084f6e8f50be6f8d699bc4697cd8cf544",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "77e0814504dbc692ac00f2a95890eabefa0f8ac6c23c9eb1e7e5e8a588811828",
+        "frame_sha256": {
+          "after.png": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e",
+          "before.png": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e"
+        },
+        "checks": [
+          {
+            "name": "es8311_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_record",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_rx_pcm_injection",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "atoms3r-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+        "derived_image_sha256": "05068fbd5f27f4d0234eed8628fb16a7a47548f3bd24e173e67f9185bcaec621",
+        "composition_sha256": "850e4ccb507bdb6dc505507855876fdd35ec778cd15f322d77650ac680a493cb",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "0455461e5b859036c36d75fd65376d23eae2b419e9fe1ee9d158325478e8089d",
+        "frame_sha256": {
+          "after.png": "c16a25db0250a05d08e4dda92c2e83527f4f561eaff83e1ec3a1a5d1670dc4b5",
+          "before.png": "1c8498ca805e3be50ba0d97e024e224934e1cdf5668e1001c5672a8a32a317c6"
+        },
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS"
+          },
+          {
+            "name": "magnetometer",
+            "status": "PASS"
+          },
+          {
+            "name": "button",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "sticks3-ir",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "derived_image_sha256": "04539ab8a04507dba8d6d42feda3626cd2e652b3e7e99d8fb8f234ebff89dbfd",
+        "composition_sha256": "44615b0a3f37b2bbce35d4f1346471fb1219dad9bdcd3e45f917c3922a0fbb97",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "07beb762db4aab98c500ca307c7472bd6450073a7c00a97d3091eb5fcb2af51a",
+        "frame_sha256": {
+          "after.png": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+          "before.png": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545"
+        },
+        "checks": [
+          {
+            "name": "rmt_nec_tx",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "sticks3-ir-rx",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "derived_image_sha256": "daeed97bf3f06e58256094b27111a32f96ffe6d8636bcbbe0732583ed6506ecd",
+        "composition_sha256": "a7fe50ab88df0c7bdfc11d90e89abb42d314d75af95e2a5a9f9c97f7483d9354",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "baaae6360d19f12ac8314e71110b7475964e937f2f6039ee2571b4977fd5c80b",
+        "frame_sha256": {
+          "after.png": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804",
+          "before.png": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804"
+        },
+        "checks": [
+          {
+            "name": "rmt_nec_rx",
+            "status": "PASS"
+          },
+          {
+            "name": "ir_rx_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "5f26e868542ba54286c767a89ec9ad193f1d88af1ccffab800e7e396a05f973e",
+        "composition_sha256": "e5f29894bab1e0235518fa0c11b8166fc66addd4a864cb6f2553eaca806d8526",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "b11354ad219ec6fc5e74ee0e2ba2c35c26e48dc3a9a06a08e0f5527257e74195",
+        "frame_sha256": {
+          "after.png": "3786f543726a018eaefc9fe9311ea38f61d49d84dd1a357b98e3d819e052235a",
+          "before.png": "8b2dbee0b2f04361cee13ec79a6e3a20faf14869b491ed21d1dcb58fcd155e02"
+        },
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS"
+          },
+          {
+            "name": "magnetometer",
+            "status": "PASS"
+          },
+          {
+            "name": "ambient_light",
+            "status": "PASS"
+          },
+          {
+            "name": "proximity",
+            "status": "PASS"
+          },
+          {
+            "name": "touch",
+            "status": "PASS"
+          },
+          {
+            "name": "btn_pwr",
+            "status": "PASS"
+          },
+          {
+            "name": "power",
+            "status": "PASS"
+          },
+          {
+            "name": "rtc",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-power-transitions",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "22a5bae3534fdc77cf296f4ad3a015f609187786c81ddbab9fdf1d88962decac",
+        "composition_sha256": "8877bc193599b5921377991109893b8d2b1d37ff1d59919a6e2019b45f0dad41",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "5c66d7767e0d0cc949c6e43be57294aa709f8c7ae9f2af53eb203ffa2909f250",
+        "frame_sha256": {
+          "after.png": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572",
+          "before.png": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572"
+        },
+        "checks": [
+          {
+            "name": "axp2101_initial_power_state",
+            "status": "PASS"
+          },
+          {
+            "name": "axp2101_runtime_discharge_state",
+            "status": "PASS"
+          },
+          {
+            "name": "axp2101_runtime_charge_state",
+            "status": "PASS"
+          },
+          {
+            "name": "power_runtime_sequence_complete",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-usb-hid",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "93ebca97ba100a26ba8d43a5437bde0d598f4464b2681ce171836643bf1deb48",
+        "composition_sha256": "4a527c4f4ea416f81c041763c280d9908759f32f199a4b36b669c11134a3e11c",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "494f7952a9b6fcecde219d586d6298cb4d248fdcd97632a506b92f61ef765f6e",
+        "frame_sha256": {
+          "after.png": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7",
+          "before.png": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7"
+        },
+        "checks": [
+          {
+            "name": "max3421e_config",
+            "status": "PASS"
+          },
+          {
+            "name": "usb_chapter9_enumeration",
+            "status": "PASS"
+          },
+          {
+            "name": "usb_hid_report_descriptor",
+            "status": "PASS"
+          },
+          {
+            "name": "usb_hid_interrupt_in_report",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-camera",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "9a64806aca5a2caa0906c1d317ae117eff27d02da8c875731a4111ebc9e8197a",
+        "composition_sha256": "af6edc9acfddafe23887cee21f7b60ee93bea2369cd050c1f02c749cb417c0aa",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "05d624340fe487ad7c3d4db876274e4f373a8e612984a80f02c7b6e34e9c8f4a",
+        "frame_sha256": {
+          "after.png": "919d3528bdfb5bf0fd7dcd39baafb22f472813b5a817ec6ad8f4c048dc23c050",
+          "before.png": "919d3528bdfb5bf0fd7dcd39baafb22f472813b5a817ec6ad8f4c048dc23c050"
+        },
+        "checks": [
+          {
+            "name": "camera_init",
+            "status": "PASS"
+          },
+          {
+            "name": "camera_snapshot",
+            "status": "PASS"
+          },
+          {
+            "name": "camera_display",
+            "status": "PASS"
+          },
+          {
+            "name": "camera_runtime_frame_change",
+            "status": "PASS"
+          },
+          {
+            "name": "camera_runtime_frame_stream",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "stackchan-camera",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "derived_image_sha256": "8c505f5f4a760fd5c4b3bb92c7be3502e79e77ec173d1dca32b9d2b2df734207",
+        "composition_sha256": "39f67789ca0d34cf2a96a7bd3cfdea10ab2baad7c593a6ea88dfb894a0ec6074",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "f57970af51884bd1bdd9b6b9b5b7f3e8411167dd4d163dca017d52834dcc32be",
+        "frame_sha256": {
+          "after.png": "2b97bb64a06c9d70e8e995fce592d32ebaabadc9324514746d80a504bf86e023",
+          "before.png": "2b97bb64a06c9d70e8e995fce592d32ebaabadc9324514746d80a504bf86e023"
+        },
+        "checks": [
+          {
+            "name": "stackchan_camera_init",
+            "status": "PASS"
+          },
+          {
+            "name": "stackchan_camera_snapshot",
+            "status": "PASS"
+          },
+          {
+            "name": "stackchan_camera_display",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-audio",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "2eadd5e3338858854dc172f2f45a78b673c39687690db07a01eabe628f04dc65",
+        "composition_sha256": "723f1ca7639d69750ac1f9c205455e1dfbca771c7c4dc9d4df02306fad9d5b6e",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "a6416a1afd38d5622568e3f34ff16a022a6308aac10706ef18110c7185759d5e",
+        "frame_sha256": {
+          "after.png": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a",
+          "before.png": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a"
+        },
+        "checks": [
+          {
+            "name": "aw88298_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "cores3-mic",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "derived_image_sha256": "e36c7d95735e9f9d2ca6b14e87bbaa27c372051efec6f9aceeab36473da4d270",
+        "composition_sha256": "803fe17c0fb6b6de839d7c22d657793c32bef64683b570df000264c36e107c01",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "9f1cc85cc1d4abae173c78ad5c0749b7e1647bec5548ec64a53af481f423930f",
+        "frame_sha256": {
+          "after.png": "fba93cd48797c65b4df22f24e2c6571d3c6f4bd6fdc26f281c3da90e16579e42",
+          "before.png": "fba93cd48797c65b4df22f24e2c6571d3c6f4bd6fdc26f281c3da90e16579e42"
+        },
+        "checks": [
+          {
+            "name": "es7210_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_record",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_rx_pcm_injection",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "stamplc-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+        "derived_image_sha256": "a3b15940556fef1c3c97a3d2d4a8f392ec096988aa530182a9f3afdb79a0deb7",
+        "composition_sha256": "1d00d189a9b082fad56c9dea2c9459a0bca91374be6aaa736854a1b9c19e2da5",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "44638ac281c41e46b2882fc2de1096e0edb4d95e4ab68a9bb68cdc5cd94c9eb0",
+        "frame_sha256": {
+          "after.png": "bb1800dc1b2126d78747a583c10737f1b841df6f6e4d0530089bfb802b1dea8f",
+          "before.png": "049e0b3a66c69d296e20675686747649acef3ef9a9ed36395e17e23f2ec9b619"
+        },
+        "checks": [
+          {
+            "name": "relay",
+            "status": "PASS"
+          },
+          {
+            "name": "digital_inputs",
+            "status": "PASS"
+          },
+          {
+            "name": "rgb",
+            "status": "PASS"
+          },
+          {
+            "name": "ina226_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "ina226_bus_voltage",
+            "status": "PASS"
+          },
+          {
+            "name": "ina226_current",
+            "status": "PASS"
+          },
+          {
+            "name": "ina226_runtime_transition",
+            "status": "PASS"
+          },
+          {
+            "name": "rx8130_rtc_write_read",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "stopwatch-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+        "derived_image_sha256": "23cca24239800cc442d16814f7e9d511e523e97d3ada89b884aad7780a77a1d0",
+        "composition_sha256": "b71bd0674170da213a1851e72c57142c74f29af4ba2d308d8e5ee86af4e609aa",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "c0cd9c7c5a9ac8b228799e604518d5d133d726d6fb03fef4ff17a875b902dcb1",
+        "frame_sha256": {
+          "after.png": "9a38b86d284b2a08f32942c4a3b67d4bea74e3d4a6237c2008dcc2ff3027416f",
+          "before.png": "634573dd331a332f8daf6516fd351281e9ed333f40d11a5ccd9ff91cf58bddca"
+        },
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS"
+          },
+          {
+            "name": "power",
+            "status": "PASS"
+          },
+          {
+            "name": "rtc_write_read",
+            "status": "PASS"
+          },
+          {
+            "name": "touch",
+            "status": "PASS"
+          },
+          {
+            "name": "buttons_a_b_pwr",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "0c6177a744a8f1da68810dc8b83d9ef6fd4d54cdafe64c6daa1bbc6695e9aa82",
+        "composition_sha256": "adf206e319267d58fa5671aa4b86398457f3af3615e5be88a8ebf7f57ee4a861",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "f1cfeeebcbf5bd04d43fe38307751609196552a2db15ca189b426f73990cc303",
+        "frame_sha256": {
+          "after.png": "2ce9e5f9ec35d22dcec4b4ac7904a8e7c32e66ef762978400b7dfc2fb5388fc4",
+          "before.png": "3f7b8a790913ab44c70bda55d0f43427134684fb16ec0cde1b7b43eb30f4a4ac"
+        },
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS"
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS"
+          },
+          {
+            "name": "power",
+            "status": "PASS"
+          },
+          {
+            "name": "rtc_write_read",
+            "status": "PASS"
+          },
+          {
+            "name": "touch",
+            "status": "PASS"
+          },
+          {
+            "name": "user_key",
+            "status": "PASS"
+          },
+          {
+            "name": "power_key",
+            "status": "PASS"
+          },
+          {
+            "name": "sd_block_read_write",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-buzzer",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "3f3e5303635ebc2c5319d0d36dfb727c32c6798f37c81f4342ff99de90ea31e4",
+        "composition_sha256": "7157debead2f298a0d865fcdd6b3fcffe417a7cbb7d2aefb142658deefdfc065",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "08eeedebbb36bddb9027c399ab3f52e0d84c0cefe40a521cc65259504696178a",
+        "frame_sha256": {
+          "after.png": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e",
+          "before.png": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e"
+        },
+        "checks": [
+          {
+            "name": "speaker_begin",
+            "status": "PASS"
+          },
+          {
+            "name": "gpio42_i2s_tx",
+            "status": "PASS"
+          },
+          {
+            "name": "buzzer_pcm_capture",
+            "status": "PASS"
+          },
+          {
+            "name": "papermono_buzzer_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-pdm-mic",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "f5da4e556dde8223556697848e18d9e155eff27e6497f68a2dd3dbead205113b",
+        "composition_sha256": "1f96918d41e4c09c064678b093029e3da0ea5f097c1c735eafa8186cc1b52b1e",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "93db1c2c81e1ab899acce8cab513b57c4a494dd823fd63074b751a554fd465a8",
+        "frame_sha256": {
+          "after.png": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac",
+          "before.png": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac"
+        },
+        "checks": [
+          {
+            "name": "pdm_mic_begin",
+            "status": "PASS"
+          },
+          {
+            "name": "pdm_mic_record",
+            "status": "PASS"
+          },
+          {
+            "name": "pdm_i2s_rx_injection",
+            "status": "PASS"
+          },
+          {
+            "name": "pdm_mic_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-rgb",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "db4a7758fec3616d0e13b76cb1426c0f406c21ab2b3f82c60a670a5a6d225609",
+        "composition_sha256": "7581d3a94ccce2040eb1fa02c1455a6ed22de361cbff9b3c679e7674eb3c377d",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "4617aa52f844a3f4058b040dd0493403b71d97f59e196486db478d5131e35691",
+        "frame_sha256": {
+          "after.png": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05",
+          "before.png": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05"
+        },
+        "checks": [
+          {
+            "name": "papermono_rgb_set",
+            "status": "PASS"
+          },
+          {
+            "name": "papermono_m5pm1_neopixel_ram",
+            "status": "PASS"
+          },
+          {
+            "name": "papermono_rgb_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papercolor-peripherals",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "sha-bound-driver-behavior",
+          "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/Power_Class.inl",
+          "detail": "UIFlow2 v2.5.4 / M5Unified 0.2.28 PaperColor undetermined charge state"
+        },
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "a3cc5e6b40aca66412a4924748c8cd8f116cdbc657533a649f2c8f79eccabf2c",
+        "composition_sha256": "20697ae2cfb95e686c6ca43047c874c20a4d0a516ed893a56d1b9ec201199457",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "d72d506789a7dd9de8ae6d18cc76b40593a175e9ed1559605ffd356d946dcf7a",
+        "frame_sha256": {
+          "after.png": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+          "before.png": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91"
+        },
+        "checks": [
+          {
+            "name": "m5pm1_power",
+            "status": "PASS"
+          },
+          {
+            "name": "m5pm1_runtime_transition",
+            "status": "PASS"
+          },
+          {
+            "name": "rx8130_rtc_write_read",
+            "status": "PASS"
+          },
+          {
+            "name": "user_key",
+            "status": "PASS"
+          },
+          {
+            "name": "power_key",
+            "status": "PASS"
+          },
+          {
+            "name": "papercolor_peripheral_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papercolor-sd",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "4cdcdd58aded253e6d64f5f4b712cb043d7edeaf4899e6028515ce755af0108b",
+        "composition_sha256": "502ca5426cdf113259b2f6362635867abcb56427a2abd9d5c57596faf2eb2273",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "1cd95e379020ff56dcadc8c53388ed731ed19c0368658cc8ef3b5e7eda53b950",
+        "frame_sha256": {
+          "after.png": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f",
+          "before.png": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f"
+        },
+        "checks": [
+          {
+            "name": "sdspi_init",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_write_block",
+            "status": "PASS"
+          },
+          {
+            "name": "sdspi_readback",
+            "status": "PASS"
+          },
+          {
+            "name": "sd_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papercolor-audio",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "7eb8eefdce12343b97f15c6538a3787467097dff75d8e592306669490028ba6d",
+        "composition_sha256": "0ea6b2f66c4e3781f0e21682935070f017533f9f3b2601b0b11bbb14efeba69d",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "736a0abcc80ec41635d9a9dc62170fb7545efa8d67120b75cca9d98baa2a2b4d",
+        "frame_sha256": {
+          "after.png": "d38c7504e36d7ecb2597ad6f29fc3c6bd070a6b4e37b9d773ea80a45500ba284",
+          "before.png": "d38c7504e36d7ecb2597ad6f29fc3c6bd070a6b4e37b9d773ea80a45500ba284"
+        },
+        "checks": [
+          {
+            "name": "es8311_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS"
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papercolor-sht4x",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "f3b02e00dc586f010599d0ad765daa0817a8ab9b341d0e12387c6b782a2c64d5",
+        "composition_sha256": "a9fa263798ddf65816833702a3a88de68b1eeb58bbd3014bd41b371ea802156d",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "897689714a6db81ea22054d683fae23290cf0535114c7768a084d2a84e3e3d83",
+        "frame_sha256": {
+          "after.png": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2",
+          "before.png": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2"
+        },
+        "checks": [
+          {
+            "name": "sht4x_measure",
+            "status": "PASS"
+          },
+          {
+            "name": "sht4x_crc",
+            "status": "PASS"
+          },
+          {
+            "name": "sht4x_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papercolor-mic",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "8b493f35f7fa80ed1ef7ce9ada9dbbd0ca793cd04b40933a92312e0824ce0cd7",
+        "composition_sha256": "a9f0cc3f201d6d75c57665326cdf71b9da0f470a7c91539c53a2e8d57697a148",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "077b7a2769c6e95980f0e28295df22c844c64f9b719f350b66707ba62f5e4440",
+        "frame_sha256": {
+          "after.png": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe",
+          "before.png": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe"
+        },
+        "checks": [
+          {
+            "name": "es7210_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_record",
+            "status": "PASS"
+          },
+          {
+            "name": "i2s_rx_pcm_injection",
+            "status": "PASS"
+          },
+          {
+            "name": "mic_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-nfc",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "636cbe3215690960ec4d2daa1c2ec145f10c96290cb52ab1b1809e5ad2e41f72",
+        "composition_sha256": "799f54ca74f9c71afc096c14ff74343cd3c26f374ee2bd5a7e857493834c996a",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "52e2414bd0122844bf9192036c1c5e95d78fc33a3420ad98ec6c4fb4fa3f9198",
+        "frame_sha256": {
+          "after.png": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d",
+          "before.png": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d"
+        },
+        "checks": [
+          {
+            "name": "nfc_detect",
+            "status": "PASS"
+          },
+          {
+            "name": "nfc_page_read",
+            "status": "PASS"
+          },
+          {
+            "name": "nfc_page_write_verify",
+            "status": "PASS"
+          },
+          {
+            "name": "nfc_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      },
+      {
+        "case": "papermono-lora",
+        "status": "PASS",
+        "runtime_ref": "27df1b40de94-87a437acebd4",
+        "retry_used": false,
+        "attempt_count": 1,
+        "firmware_expectations": {
+          "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+          "profile": "legacy-case-default"
+        },
+        "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+        "derived_image_sha256": "2c0a970c902dfc6964f6f98e3346006cbe47b1e77614bbecc85f9d549030b6ff",
+        "composition_sha256": "43fa95c8a130f07cbab7d0f4094b6614dc43f38a372ecbc6c2d3f22877b65209",
+        "stock_preservation": {
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "3038e364d23633238b5d5113d863e92ce2bd840c706ee8bf73680798026ccaff",
+        "frame_sha256": {
+          "after.png": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da",
+          "before.png": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da"
+        },
+        "checks": [
+          {
+            "name": "lora_configure",
+            "status": "PASS"
+          },
+          {
+            "name": "lora_tx",
+            "status": "PASS"
+          },
+          {
+            "name": "lora_rx_loopback",
+            "status": "PASS"
+          },
+          {
+            "name": "lora_ui_marker",
+            "status": "PASS"
+          }
+        ]
+      }
+    ]
+  },
+  "scope_note": "First complete 68-case run and a separate targeted followup; not a claimed second full run.",
+  "case_part": 1,
+  "case_part_count": 2
+}

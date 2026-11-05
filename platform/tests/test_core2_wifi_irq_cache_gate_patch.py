@@ -61,7 +61,7 @@ class Core2WifiIrqCacheGatePatchTests(unittest.TestCase):
             "0064-esp32-intmatrix-pending-irq-remap.patch"
         )
         gate = bootstrap.index(
-            "0092-esp32-wifi-irq-cache-gate.patch"
+            "0015-native-wifi-cache-gate-context.patch"
         )
         self.assertLess(current, gate)
 

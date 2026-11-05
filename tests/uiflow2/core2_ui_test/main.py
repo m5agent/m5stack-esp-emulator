@@ -59,5 +59,6 @@ while True:
             last_touch = (x, y)
             print("CORE2_TOUCH", x, y, touches)
             draw_ui()
+            print("CORE2_FRAME_AFTER_TOUCH", touches)
     was_pressed = pressed
     time.sleep(0.02)

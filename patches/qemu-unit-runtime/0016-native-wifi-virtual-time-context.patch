@@ -1,0 +1,134 @@
+Subject: [native] re-anchor classic WiFi virtual clock on reconstructed source
+
+Context port of peripheral 0093 over the existing offline-radio lifecycle
+and channel layout. Keep its additional lifecycle rearm sites on the same
+virtual clock as the migrated timers. No guest or RF PASS is implied.
+
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -49,6 +49,23 @@
+ #define DEBUG 0
+ #define DEBUG_DUMPFRAMES 0
+ 
++static bool esp32_classic_wifi_trace_enabled(void)
++{
++    return getenv("M5SW_CLASSIC_WIFI_TRACE") != NULL;
++}
++
++static void esp32_classic_wifi_trace(const char *event, int a, int b, int c)
++{
++    if (!esp32_classic_wifi_trace_enabled()) {
++        return;
++    }
++    fprintf(stderr,
++            "[esp32-wifi] now=%" PRId64
++            " event=%s a=%d b=%d c=%d\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
++            event, a, b, c);
++}
++
+ #define WPA_KEY_INFO_KEY_TYPE BIT(3)
+ #define WPA_KEY_INFO_INSTALL BIT(6)
+ #define WPA_KEY_INFO_ACK BIT(7)
+@@ -659,6 +676,12 @@
+     // only send a beacon if we are an access point
+     if(s->ap_state!=Esp32_WLAN__STATE_STA_ASSOCIATED) {
+         if (access_points[s->beacon_ap].channel==esp32_wifi_channel) {
++            esp32_classic_wifi_trace(
++                "beacon",
++                esp32_wifi_channel,
++                s->beacon_ap,
++                s->ap_state
++            );
+             printf("QEMU: sending beacon for AP %s\n", access_points[s->beacon_ap].ssid);
+             memcpy(s->ap_macaddr,access_points[s->beacon_ap].mac_address,6);
+             frame = Esp32_WLAN_create_beacon_frame(
+@@ -673,7 +696,8 @@
+         }
+         s->beacon_ap=(s->beacon_ap+1)%nb_aps;
+     }
+-    timer_mod(s->beacon_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + BEACON_TIME);
++    timer_mod(s->beacon_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + BEACON_TIME);
+ }
+ 
+ static void Esp32_WLAN_inject_timer(void *opaque)
+@@ -693,7 +717,8 @@
+     if (s->inject_queue_size > 0) {
+         // there are more packets... schedule
+         // the timer for sending them as well
+-        timer_mod(s->inject_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + INTER_FRAME_TIME);
++        timer_mod(s->inject_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INTER_FRAME_TIME);
+     } else {
+         // we wait until a new packet schedules
+         // us again
+@@ -745,7 +770,8 @@
+         // running currently, let's schedule
+         // one run...
+         s->inject_timer_running = 1;
+-        timer_mod(s->inject_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + INTER_FRAME_TIME);
++        timer_mod(s->inject_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + INTER_FRAME_TIME);
+     }
+ 
+ }
+@@ -892,7 +918,7 @@
+     s->wpa_state = ESP32_WIFI_WPA_IDLE;
+     s->beacon_ap = 0;
+     if (enabled) {
+-        timer_mod(s->beacon_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + 1000000);
++        timer_mod(s->beacon_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+         qemu_flush_queued_packets(qemu_get_queue(s->nic));
+     }
+ }
+@@ -958,12 +984,15 @@
+     s->inject_queue = NULL;
+     s->inject_queue_size = 0;
+ 
+-    s->beacon_timer = timer_new_ns(QEMU_CLOCK_REALTIME, Esp32_WLAN_beacon_timer, s);
+-    timer_mod(s->beacon_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME)+100000000);
++    s->beacon_timer =
++        timer_new_ns(QEMU_CLOCK_VIRTUAL, Esp32_WLAN_beacon_timer, s);
++    timer_mod(s->beacon_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000000);
+ 
+     // setup the timer but only schedule
+     // it when necessary...
+-    s->inject_timer = timer_new_ns(QEMU_CLOCK_REALTIME, Esp32_WLAN_inject_timer, s);
++    s->inject_timer =
++        timer_new_ns(QEMU_CLOCK_VIRTUAL, Esp32_WLAN_inject_timer, s);
+ 
+     s->nic = qemu_new_nic(&net_info, &s->conf,
+                           object_get_typename(OBJECT(s)), dev->id,
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -133,7 +133,7 @@
+         .legacy_length=length,
+         .noise_floor=-97,
+         .channel=esp32_wifi_channel,
+-        .timestamp=qemu_clock_get_ns(QEMU_CLOCK_REALTIME)/1000,
++        .timestamp=qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)/1000,
+     };
+     // These 4 bits are set if the mac addresses previously stored at 0x40 and 0x48
+     // match the destination or bssid addresses in the frame
+--- a/hw/misc/esp32_wlan_packet.c
++++ b/hw/misc/esp32_wlan_packet.c
+@@ -112,7 +112,7 @@
+                                                 access_point_info *ap) {
+     mac80211_frame *frame=new_frame(IEEE80211_TYPE_MGT,IEEE80211_TYPE_MGT_SUBTYPE_BEACON);
+     frame->signal_strength=ap->sigstrength;
+-    frame->beacon_info.timestamp=qemu_clock_get_ns(QEMU_CLOCK_REALTIME)/1000;
++    frame->beacon_info.timestamp=qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)/1000;
+     frame->beacon_info.interval=1000;
+     frame->beacon_info.capability=1 | (s->wifi_secured ? 0x10 : 0);
+     frame->pos=12;
+@@ -209,7 +209,7 @@
+ mac80211_frame *Esp32_WLAN_create_probe_response(Esp32WifiState *s,
+                                                   access_point_info *ap) {
+     mac80211_frame *frame=new_frame(IEEE80211_TYPE_MGT,IEEE80211_TYPE_MGT_SUBTYPE_PROBE_RESP);
+-    frame->beacon_info.timestamp=qemu_clock_get_ns(QEMU_CLOCK_REALTIME)/1000;
++    frame->beacon_info.timestamp=qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)/1000;
+     frame->beacon_info.interval=1000;
+     frame->beacon_info.capability=1 | (s->wifi_secured ? 0x10 : 0);
+     frame->pos=12;

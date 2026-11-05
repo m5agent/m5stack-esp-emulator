@@ -1,0 +1,41 @@
+Subject: [native] re-anchor task WDT level delivery on reconstructed source
+
+Port the functional 0095 level-IRQ changes without importing historical
+IRQ/handoff diagnostic hooks absent from this source prelude. Edge outputs
+and other interrupt masks retain their existing behavior.
+
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -420,7 +420,20 @@
+ 
+ static void esp32_timg_int_update_inttype(Esp32TimgState *s, uint32_t int_st, Esp32TimgInterruptType it)
+ {
+-    if (int_st & (1 << it)) {
++    bool pending = int_st & (1 << it);
++
++    /*
++     * The ESP32 WDT level output is gated by WDTCONFIG0.LEVEL_INT_EN.
++     * Legacy ESP-IDF registers the TG0 WDT interrupt without programming
++     * INT_ENA.WDT, so requiring the masked status here suppresses its task
++     * watchdog forever.  Keep INT_ST as INT_RAW & INT_ENA while preserving
++     * the independently enabled WDT level output.
++     */
++    if (it == TIMG_WDT_INT && s->wdt.level_int_en) {
++        pending = s->int_raw & (1 << it);
++    }
++
++    if (pending) {
+         qemu_irq_raise(get_level_irq(s, it));
+     } else {
+         qemu_irq_lower(get_level_irq(s, it));
+@@ -650,9 +663,7 @@
+         uint32_t mask = 1 << TIMG_WDT_INT;
+         if (ws->level_int_en) {
+             s->int_raw |= mask;
+-            if (true) { /* should be checking s->int_ena & mask, but ESP32 seems to raise interrupt regardless? */
+-                qemu_irq_raise(get_level_irq(s, TIMG_WDT_INT));
+-            }
++            esp32_timg_int_update(s);
+         }
+         if (ws->edge_int_en) {
+             if (s->int_ena & mask) {

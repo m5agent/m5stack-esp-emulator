@@ -1,5 +1,28 @@
 # M5Stack peripheral models and data planes
 
+## Latest firmware compatibility layers
+
+After the canonical Unit chain through `0161`, apply `0162` (AXP2101 charger
+state), `0163` (ED2208 partial-window and AUTO refresh), then `0164` (explicit
+AtomS3 ST7735S variant). `scripts/bootstrap-unit-runtime.py` owns the native
+replay order. These layers do not change the pinned browser-WASM source lock.
+
+The ST7735S geometry follows M5GFX commit
+`eef855b41c8ab7611a235055cc9afca76751ea95`,
+`src/board_detect/m5/generated/esp32s3_specs.hpp`: 132x132 RAM, 128x128 glass,
+(2,1) offsets, rotation offset 2 and inversion. The native `m5atoms3-st7735`
+profile retains real SPI3/GDMA and GPIO41 wiring; the original `m5atoms3`
+GC9107 profile is preserved and does not inherit ST7735S results.
+
+ED2208 follows the driver sequence at M5GFX
+`2bf29105503f538122066cc6d6d4818ec52d053c`,
+`src/lgfx/v1/panel/Panel_ED2208.inl`: big-endian inclusive window coordinates
+and AUTO A5/A7 refresh. AXP2101 REG01 follows the X-Powers register table and
+M5Unified `b67ea7bd2d187d3fa8719edf1b915fd34a128c0d` charge-state reader.
+Waveforms, optical/electrical behavior and charge physics are not modeled by
+these functional register/framebuffer changes. Validation is tracked in the
+[dated campaign](../../docs/evidence/2026-11-05-latest-firmware-issues/README.md).
+
 This directory contains historical snapshot branches, not one universal
 linear patch sequence. The standalone `0003` snapshot is based on the
 M5StopWatch-QEMU-derived tree; it is **not** applicable after

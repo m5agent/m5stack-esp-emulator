@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/uiflow2"))
 from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
+from runtime_evidence import observe_runtime, finalize_runtime_result  # noqa: E402
 
 
 class Client:
@@ -32,8 +33,11 @@ class Client:
         self.token = token if token is not None else (
             os.environ.get("M5_SERVICE_API_TOKEN", "").strip() or None
         )
+        if token is None and not self.token and os.environ.get("M5_SERVICE_API_TOKEN_FILE"):
+            self.token = Path(os.environ["M5_SERVICE_API_TOKEN_FILE"]).read_text().strip() or None
         self.web_ui = None
         self.web_ui_sessions = {}
+        self.runtime_proofs = {}
         if os.environ.get("M5_UNIT_WEB_BRIDGE") == "1":
             from web_ui_bridge import WebUIBridge
             self.web_ui = WebUIBridge(self.url)
@@ -103,14 +107,37 @@ class Client:
     def json(self, *args, **kwargs):
         return json.loads(self.raw(*args, **kwargs))
 
+    def observe_runtime(self, session):
+        previous = self.runtime_proofs.get(session["session_id"], {})
+        if previous.get("observed_pid") != session.get("pid") or not previous:
+            self.runtime_proofs[session["session_id"]] = observe_runtime(self, session)
+
+    def finalize_result(self, result):
+        return finalize_runtime_result(self, result)
+
+    def check_runtime_blocker(self, session_id):
+        logs = self.json(f"sessions/{session_id}/logs?limit=16384", via_ui=False)
+        unavailable = re.search(r"(?m)^qemu-system-[^:\n]+: Unit model is unavailable: [a-z0-9-]+\s*$",
+                                logs.get("stderr", ""))
+        if unavailable:
+            raise RuntimeError(unavailable.group(0).strip())
+
 
 def wait_for(client, session_id, predicate, timeout=60):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         session = client.json(f"sessions/{session_id}")
+        if session["state"] in {"booting", "failed"}:
+            blocker_check = getattr(client, "check_runtime_blocker", None)
+            if blocker_check is not None:
+                blocker_check(session_id)
         if session["state"] in {"failed", "stopped"}:
             raise RuntimeError(session.get("error") or "session ended before observation")
         serial = client.json(f"sessions/{session_id}/serial?limit=262144").get("data", "")
+        if session["state"] == "running":
+            observer = getattr(client, "observe_runtime", None)
+            if observer is not None:
+                observer(session)
         if session["state"] == "running" and predicate(serial):
             return serial
         time.sleep(0.3)
@@ -228,6 +255,7 @@ def run_case(client, args, case):
                 result["checks"]["stopped_with_history"] = False
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()):
                 result["status"] = "FAIL"
+        client.finalize_result(result)
         (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)
     return result

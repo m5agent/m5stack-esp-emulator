@@ -1,0 +1,17 @@
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index dda5804..5d75e28 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -1325,7 +1325,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             return 0x28;  /* battery present + VBUS good */
+         }
+         if (r == 0x01) {
+-            return s->charging ? 0x20 : 0;
++            /* AXP2101 PMU status2: bits 6:5 are current direction;
++             * bits 2:0 are the charger state (2 = CC, 5 = not charging).
++             * Both fields must agree: newer M5Unified reads the state first.
++             * This is a logical fixture, not an electrical charge model. */
++            return s->charging ? 0x22 : (s->vin_mv > 0 ? 0x05 : 0x45);
+         }
+         if (r == 0xA4) {
+             return MAX(0, MIN(s->battery_level, 100));

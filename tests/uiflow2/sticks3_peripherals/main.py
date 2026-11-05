@@ -35,7 +35,8 @@ def draw():
     d.setCursor(6, 34)
     d.print("A:%d B:%d P:%d" % (state["a"], state["b"], state["pwr"]))
     d.setCursor(6, 56)
-    d.print("acc %.2f %.2f %.2f" % state["accel"])
+    # Firmware board axes; the v2.5.5 mapping has a SHA-bound host oracle.
+    d.print("accB %.2f %.2f %.2f" % state["accel"])
     d.setCursor(6, 76)
     d.print("gyr %.1f %.1f %.1f" % state["gyro"])
     d.setCursor(6, 96)

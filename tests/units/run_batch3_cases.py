@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Validate the twelve Units of the third research batch.
 
-Two separate QEMU builds are required because the merged 0130 (A+B) and 0131
-(C) patches are parallel layers: A+B sessions run on the 0130+0133 binary and
-C sessions on the 0131+0132 binary. Each case builds a merged reference-firmware
+The maintained native recipe reconciles the former 0130 (A+B) and 0131 (C)
+branches into one Unit-enabled build. Runtime selection belongs to the Device
+Service; this runner records the executable observed for each session.
+Each case builds a merged reference-firmware
 image that runs the firmware's frozen original UIFlow2 driver, creates one
 visible leased `/api/v1` session, injects external fixtures through
 `unit-input`, reads controller-backed QOM state, captures serial markers, the
@@ -49,10 +50,6 @@ CASE_DRIVERS = {
     "vmeter": "VoltmeterUnit(ADS1115)", "adc": "ADCUnit(ADS1100)",
     "env-iv": "ENVUnit(ENV_IV: SHT40+BMP280)", "co2": "CO2Unit(SCD40)",
     "pbhub": "PBHUBUnit", "ultrasonic-io": "ULTRASONIC_IOUnit",
-}
-BINARIES = {
-    "ab": ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
-    "c": ROOT / ".work/M5StopWatch-QEMU-c/build/qemu/build/qemu-system-xtensa",
 }
 
 
@@ -122,7 +119,6 @@ def expected_adc16(voltage_mv: float) -> int:
 def run_case(client: Client, args, case: str) -> dict:
     device = CASES[case]
     batch = "ab" if case in AB_CASES else "c"
-    runtime_qemu = BINARIES[batch]
     output = args.out_dir / case
     output.mkdir(parents=True, exist_ok=True)
     matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
@@ -152,7 +148,7 @@ def run_case(client: Client, args, case: str) -> dict:
         "runtime": "qemu", "status": "FAIL", "checks": {},
         "firmware_sha256": sha256(firmware_bytes),
         "probe_sha256": {path.name: sha256(path.read_bytes()) for path in files.glob("*.py")},
-        "runtime_binary_sha256": sha256(runtime_qemu.read_bytes()) if runtime_qemu.is_file() else None,
+        "runtime_binary_sha256": None,
         "port": {"id": port["id"], "pins": port["pins"]},
         "qom_samples": [], "serial_markers": {},
     }
@@ -631,6 +627,7 @@ def run_case(client: Client, args, case: str) -> dict:
                 result["checks"]["stopped_with_history"] = False
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()):
                 result["status"] = "FAIL"
+        client.finalize_result(result)
         (output / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)

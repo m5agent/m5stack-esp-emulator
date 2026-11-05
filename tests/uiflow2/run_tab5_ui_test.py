@@ -18,6 +18,7 @@ import zlib
 from pathlib import Path
 
 from esp_flash import default_env, flash_with_esp_emu
+from tab5_ui_test.make_image import FLASH_SIZE, application_identity
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EMU = (
@@ -30,6 +31,48 @@ DEFAULT_C6 = ROOT / "platform/.cache/firmware/tab5-c6/network_adapter-v2.12.6.bi
 NATIVE_GDB = shutil.which("riscv64-elf-gdb")
 UART1_PING = b"TAB5_RS485_PING"
 UART1_PONG = b"TAB5_RS485_PONG"
+
+
+def admit_image(base: bytes, image: bytes, elf: Path | None,
+                *, probe_only: bool) -> dict:
+    """Bind GDB symbols to this app before starting either virtual device."""
+    if not 0 < len(base) <= FLASH_SIZE or len(image) != FLASH_SIZE:
+        raise ValueError("Tab5 requires a complete 16 MiB execution image")
+    expected = application_identity(base + b"\xff" * (FLASH_SIZE - len(base)))
+    application = application_identity(image)
+    if application != expected:
+        raise ValueError("prebuilt image changed the declared base application")
+    if not probe_only and elf is None:
+        raise ValueError("framebuffer/touch validation requires the matching emulator ELF")
+    actual_elf = hashlib.sha256(elf.read_bytes()).hexdigest() if elf else None
+    if elf and (not application["elf_sha256"]
+                or actual_elf != application["elf_sha256"]):
+        raise ValueError(
+            "ELF does not match this factory app descriptor; do not use stale "
+            "framebuffer/touch symbols. Omit --elf for a serial-only --probe-only run."
+        )
+    return {"application": application, "elf_sha256": actual_elf,
+            "gdb_app_identity_matched": bool(elf)}
+
+
+def download_ranges(image: bytes) -> list[tuple[int, int]]:
+    """Cover every populated sector, including system/VFS in its actual location."""
+    ranges = []
+    for start in range(0, len(image), 4096):
+        if image[start:start + 4096] == b"\xff" * min(4096, len(image) - start):
+            continue
+        end = min(start + 4096, len(image))
+        if end > 0x800000:
+            raise ValueError(
+                "esp-emu 0.50.0 Tab5 ROM download lane is limited to populated "
+                "addresses below 8 MiB; use --flash-transport host-image. "
+                "No bytes have been flashed."
+            )
+        if ranges and ranges[-1][1] == start:
+            ranges[-1] = (ranges[-1][0], end)
+        else:
+            ranges.append((start, end))
+    return ranges
 
 
 def wait_for_path(path: Path, proc: subprocess.Popen, timeout: float) -> None:
@@ -348,10 +391,11 @@ def inject_touch(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", required=True, type=Path,
-                        help="16 MiB merged image produced from the same emulator ELF")
+                        help="admitted Tab5 merged base; actual VFS layout is derived")
     parser.add_argument("--prebuilt-image", type=Path,
                         help="boot this exact image instead of rebuilding its VFS")
-    parser.add_argument("--elf", required=True, type=Path)
+    parser.add_argument("--elf", type=Path,
+                        help="must match the app descriptor; required for framebuffer/touch")
     parser.add_argument("--files-dir", type=Path,
                         default=ROOT / "tests/uiflow2/tab5_ui_test")
     parser.add_argument("--out-dir", type=Path,
@@ -393,9 +437,11 @@ def main() -> None:
     args = parser.parse_args()
 
     required_paths = [
-        args.base, args.elf, args.emulator, args.rom, args.efuse,
+        args.base, args.emulator, args.rom, args.efuse,
         args.c6_firmware,
     ]
+    if args.elf:
+        required_paths.append(args.elf)
     if args.prebuilt_image:
         required_paths.append(args.prebuilt_image)
     for path in required_paths:
@@ -414,14 +460,33 @@ def main() -> None:
         subprocess.run(
             [
                 sys.executable,
-                str(args.files_dir / "make_image.py"),
+                str(ROOT / "tests/uiflow2/tab5_ui_test/make_image.py"),
                 "--base", str(args.base),
                 "--out", str(image),
+                "--files-dir", str(args.files_dir),
             ],
             cwd=ROOT,
             env=image_env,
             check=True,
         )
+
+    try:
+        identity = admit_image(args.base.read_bytes(), image.read_bytes(),
+                               args.elf, probe_only=args.probe_only)
+        ranges = download_ranges(image.read_bytes()) if args.flash_transport == "esptool" else None
+    except ValueError as error:
+        parser.error(str(error))
+    # esp-emu writes its eFuse file back even on an ordinary exit. Never hand
+    # the backend a caller's reusable seed, including in the download lane.
+    seed = args.efuse.read_bytes()
+    runtime_efuse = args.out_dir / "runtime.efuse"
+    if runtime_efuse.resolve() == args.efuse.resolve():
+        parser.error("--efuse must name an input seed outside the runtime output path")
+    runtime_efuse.write_bytes(seed)
+    args.efuse = runtime_efuse
+    identity["efuse_input_sha256"] = hashlib.sha256(seed).hexdigest()
+    (args.out_dir / "image-admission.json").write_text(
+        json.dumps(identity, indent=2) + "\n")
 
     flash_info = {"transport": "host-image", "verified": True}
     run_image = image
@@ -439,7 +504,7 @@ def main() -> None:
             extra_args=["--psram-size", "32M"],
             no_stub=True,
             chunk_size=args.flash_chunk_size,
-            chunk_ranges=[(0, 0x500000), (0x610000, 0x7F0000)],
+            chunk_ranges=ranges,
             restart_per_chunk=True,
         )
         run_image = Path(flash_info["virtual_flash"])
@@ -483,7 +548,6 @@ def main() -> None:
             str(args.emulator),
             "--chip", "esp32p4",
             "--firmware", str(run_image),
-            "--elf", str(args.elf),
             "--rom", str(args.rom),
             "--efuse", str(args.efuse),
             "--hosted", f"bridge:host:{socket_path}",
@@ -494,6 +558,8 @@ def main() -> None:
             "--gdb", str(args.gdb_port),
             "--timeout", f"{int(args.timeout)}s",
         ]
+        if args.elf:
+            p4_command.extend(["--elf", str(args.elf)])
         for device in args.i2c_dev:
             p4_command.extend(["--i2c-dev", device])
         if uart1_port:
@@ -525,6 +591,7 @@ def main() -> None:
                 "image": str(image),
                 "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
                 "flash": flash_info,
+                "image_admission": identity,
                 "i2c_dev": args.i2c_dev,
                 "uart1_peer": (
                     {
@@ -608,6 +675,7 @@ def main() -> None:
             "image": str(image),
             "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
             "flash": flash_info,
+            "image_admission": identity,
             "i2c_dev": args.i2c_dev,
             "serial_markers": [
                 "TAB5_I2C_PORT",

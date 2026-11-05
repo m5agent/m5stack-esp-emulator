@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| 最新固件原生问题战役 | 冻结 fresh112 QEMU `27df1b40…`：首次设备矩阵 17 PASS / Basic 1 FAIL 保留，真实 redraw fence、450 ms 输入后独立 Basic 与新矩阵 18/18 PASS；首次外设矩阵 67 PASS / Core2 Mic 1 FAIL 保留，独立 Mic draw fence 后真实 PCM/serial/green pixel PASS。旧 PMIC/EPD 两例和旧 AtomS3 一例通过。Unit 首次 stock whitelist 六失败保留，修后 301 total = 300 passed + 1 skipped。现有 Buzzer FAIL、Tab5 latest 在独立 0.51 仍等待 DSI PHY lock，Python/UI/touch PARTIAL；最终主机 2020 PASS+1 skip、30 Node PASS；CI/交付见工作记录 | [问题、边界与精确身份](evidence/2026-11-05-latest-firmware-issues/README.md)、[冻结矩阵与后续](evidence/2026-11-05-latest-firmware-issues/root-integration-summary.json) |
 | Unit 预览 / 本机无 Token Preview | Host 20 项、原生 CoreS3 + PIR 14 项、打开独立 Unit 目录模型的 browser-WASM CoreS3 编辑器 65 项通过。原生 8 次真实同源 POST 不含 Authorization；原程序、QOM/帧/ZIP/清场保留。配置 Bearer 与跨源/Host/peer/mode-only 负控仍拒绝；首两观察器 FAIL 独立保留 | [范围与有界身份](evidence/2026-11-05-unit-preview-local-control/README.md) |
 | 统一工作台 / 原生 CoreS3 + PIR | 新首页 13/13：同 VM 三次代码运行、导入、取消、原驱动 PIR 0→1→0、QOM/串口/红绿 framebuffer 与主机模型、停止前 ZIP/CRC/执行身份、PID/lease/Flash 释放。固件 `0ede4060…c7c78e8`，native QEMU `6d9af027…00f39d`；环境前提与观察器失败保留，不升级为 guest FAIL | [验收与范围](evidence/2026-11-05-unified-web-workbench/README.md) |
 | 统一工作台 / browser-WASM CoreS3 | 独立导出完整编辑器 63/63，12 次 raw-paste；固件 `52f38f56…`，WASM `96ea9f91…`，精确 div1/oneInsn/0027 profile。硬复位 epoch0→1，normal QMP0、无 forced/fallback、iframe 前与 context 前实际六个 CDP targets 全消失。其它设备未在本轮重跑 | [验收与范围](evidence/2026-11-05-unified-web-workbench/README.md) |

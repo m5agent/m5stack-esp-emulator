@@ -41,7 +41,7 @@ CASE_DRIVERS = {
     "acssr": "ACSSRUnit",
     "gesture": "GestureUnit",
 }
-RUNTIME_QEMU = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+
 
 
 def utc_now() -> str:
@@ -131,7 +131,7 @@ def run_case(client: Client, args, case: str) -> dict:
         "runtime": "qemu", "status": "FAIL", "checks": {},
         "firmware_sha256": sha256(firmware_bytes),
         "probe_sha256": {path.name: sha256(path.read_bytes()) for path in files.glob("*.py")},
-        "runtime_binary_sha256": sha256(RUNTIME_QEMU.read_bytes()) if RUNTIME_QEMU.is_file() else None,
+        "runtime_binary_sha256": None,
         "port": {"id": port["id"], "pins": port["pins"]},
         "qom_samples": [], "serial_markers": {},
     }
@@ -431,6 +431,7 @@ def run_case(client: Client, args, case: str) -> dict:
                 result["checks"]["stopped_with_history"] = False
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()):
                 result["status"] = "FAIL"
+        client.finalize_result(result)
         (output / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)

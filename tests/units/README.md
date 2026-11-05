@@ -7,6 +7,35 @@
 Unit 驱动 probe 的独立镜像，上传、创建可见 session，通过模型输入和串口/
 QOM/画面检验双向数据面，停止前取证并以 `purge=0` 保留历史。
 
+## 选择服务实际使用的 Unit 运行时
+
+先用 `python3 scripts/bootstrap-unit-runtime.py` 构建完整原生 Unit 配方。
+在启动专用 Device Service 的同一个环境中明确选择该产物与匹配 ROM：
+
+```sh
+export M5_QEMU_XTENSA="$PWD/.work/unit-runtime-source/qemu/build/qemu-system-xtensa"
+export M5_QEMU_XTENSA_ROM_DIR="$PWD/.work/unit-runtime-source/qemu/pc-bios"
+export M5_SERVICE_API_TOKEN_FILE="$PWD/.work/unit-service-control-token"
+# Token 文件由操作者事先创建，设为仅本人可读；不要将其加入 Git。
+python3 platform/tools/serve.py 8941 --state-dir .work/unit-service \
+  --api-token-file "$M5_SERVICE_API_TOKEN_FILE"
+# 在继承同一配置的另一个终端中：
+PYTHONPATH=platform/tools python3 tests/units/run_batch5_cases.py \
+  --api-url http://127.0.0.1:8941 --case rtc --out-dir .work/unit-rtc
+```
+
+已有 Unit-enabled 构建可通过 `M5_QEMU_XTENSA` 选择，无需改 runner 源码。
+runner 不再将旧构建路径的哈希当作实际运行身份：共享
+`runtime_evidence.py` 根据同一活跃 session 的 QEMU PID 读取 executable，
+校验本地 worker 祖先关系，并在采样后复核 session/PID/固件/worker generation。
+`M5_UNIT_EXPECT_RUNTIME_SHA256` 可额外固定预期哈希；设置了
+`M5_QEMU_XTENSA` 时，该文件的哈希也只是预期值，不能代替实测值。
+远端 worker、PID 权限不足或身份变化时保持 `NOT VERIFIED`，不会继承本地
+构建的哈希，也不会将未确认身份的功能观察写为整体 PASS。
+`Unit model is unavailable` 保留原错误，结果分类为运行时基础设施 `NOT RUN`，
+区别于 guest 驱动/数据面 FAIL。历史 `qemu_source_state` 描述已改称
+`fixture_source_baseline`，只说明探针最初的源码基线，不声明当前运行时来源。
+
 `probe/` 是 guest 代码：初始按键用官方 ButtonUnit 初始化并读取 GPIO；继电器
 用 RelayUnit 输出；ENV III 用 ENVUnit 驱动 SHT30/QMP6988，压力从 API 的
 hPa 显式换算为 Pa。probe 的原始串口观测不等于物理硬件结果。
