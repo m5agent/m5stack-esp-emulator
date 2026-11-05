@@ -220,6 +220,8 @@ class PublicSiteTests(unittest.TestCase):
         self.assertIn("          M5_WASM_GPU: hardware\n", build)
         self.assertIn("          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n", build)
         self.assertIn('          M5_QEMU_READY_TIMEOUT_MS: "600000"\n', build)
+        guest_runner = (public.ROOT / "platform/tests/test_public_qemu_guest.mjs").read_text()
+        self.assertIn("const chromeExecutable=process.env.M5_WASM_CHROME||process.env.M5_CHROME", guest_runner)
         self.assertRegex(deploy, r"^    " + re.escape(gate) + r"\n")
         self.assertIn("    needs: build\n", deploy)
         self.assertIn("    permissions:\n      pages: write\n      id-token: write\n", deploy)

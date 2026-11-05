@@ -18,6 +18,7 @@ const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qem
 const base=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
 const requestedExample=process.env.M5_QEMU_EXAMPLE||'stock-reference';
 const hardwareGPU=process.env.M5_WASM_GPU==='hardware';
+const chromeExecutable=process.env.M5_WASM_CHROME||process.env.M5_CHROME;
 assert.ok(['stock-reference','stock-div8','wallclock-candidate'].includes(requestedExample),'M5_QEMU_EXAMPLE must select a named reference example');
 // Keep the existing UI value and legacy runner alias while naming the
 // acceptance case after the fixed firmware identity instead of a clock rate.
@@ -180,7 +181,7 @@ try{
     await new Promise(done=>server.listen(0,'127.0.0.1',done));url=`http://127.0.0.1:${server.address().port}${base}`;
   }
   report.url=url;report.deployment=process.env.M5_PUBLIC_URL?'remote-static-host':'local-static-project-prefix';
-  browser=await chromium.launch({headless:true,...(process.env.M5_CHROME?{executablePath:process.env.M5_CHROME}:{}),
+  browser=await chromium.launch({headless:true,...(chromeExecutable?{executablePath:chromeExecutable}:{}),
     args:['--enable-webgl','--use-gl=angle',...(hardwareGPU?['--use-angle=metal','--ignore-gpu-blocklist']:['--use-angle=swiftshader'])]});
   context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
   await context.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
