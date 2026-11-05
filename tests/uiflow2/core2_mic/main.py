@@ -26,15 +26,18 @@ try:
     peak = max(data) - min(data)
     if nonzero < 100 or peak < 10:
         raise RuntimeError("silent pcm %d/%d" % (nonzero, peak))
+    print("CORE2_MIC_RESULT ok nonzero=%d peak=%d" % (nonzero, peak))
     d.fillRect(0, 0, 320, 8, d.COLOR.GREEN)
     status = "ok"
 except Exception as exc:
     status = "error"
+    print("CORE2_MIC_RESULT error %r" % (exc,))
     d.setCursor(6, 80)
     d.print(repr(exc))
 
 d.setCursor(6, 36)
 d.print("status=%s" % status)
+print("CORE2_MIC_DRAW_COMPLETE %s" % status)
 
 # Keep the verified frame static after Mic.end().  Re-entering the full
 # M5.update() loop can race the legacy I2S teardown in QEMU and obscure the

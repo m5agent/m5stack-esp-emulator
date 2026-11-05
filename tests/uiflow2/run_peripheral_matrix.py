@@ -1919,6 +1919,11 @@ CASES = [
         "flash_size": "0x1000000",
         "expected_size": "320x240",
         "wait": "10",
+        "pre_input_marker": "CORE2_MIC_DRAW_COMPLETE",
+        "serial_expect": [
+            "CORE2_MIC_RESULT ok",
+            "CORE2_MIC_DRAW_COMPLETE ok",
+        ],
         "inputs": [],
         "qom": [],
         "allow_static_frame": True,
