@@ -232,7 +232,14 @@
     "ci": "Tracked by PR checks and the permanent work record; no CI result inferred here",
     "native_device_matrix": "PASS: 18/18 separate final run; initial 17/18 FAIL retained",
     "native_peripheral_matrix": "First full run 67 PASS / 1 FAIL; independent Core2 microphone followup PASS, not a replacement 68-case run",
-    "root_issue_group_runtime_binding": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e"
+    "root_issue_group_runtime_binding": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+    "unit_followup": {
+      "status": "PASS",
+      "total": 304,
+      "passed": 303,
+      "skipped": 1,
+      "evidence": "ci-followup-summary.json"
+    }
   },
   "source_summary_integrity": [
     {
@@ -447,6 +454,12 @@
         "Final host contracts and preserved earlier failures"
       ],
       "path": "host-gates-summary.json"
+    },
+    "ci-followup-summary.json": {
+      "scope": [
+        "Original Linux CI failure and isolated native probe fault controls"
+      ],
+      "path": "ci-followup-summary.json"
     }
   },
   "source": {

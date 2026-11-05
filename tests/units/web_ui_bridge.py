@@ -7,6 +7,7 @@ This helper never creates, resets, or stops a Device Service session.
 from __future__ import annotations
 
 import atexit
+import ctypes
 import hashlib
 import json
 import os
@@ -28,12 +29,15 @@ def _process_executable(pid):
         if not path.is_absolute() or not path.is_file():
             # macOS may expose only a short comm (notably Python/framework
             # launchers). libproc resolves the process image, not argv[0].
-            import ctypes
-            library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
-            library.proc_pidpath.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32)
-            library.proc_pidpath.restype = ctypes.c_int
-            buffer = ctypes.create_string_buffer(4096)
-            if library.proc_pidpath(pid, buffer, len(buffer)) <= 0:
+            try:
+                library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+                library.proc_pidpath.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32)
+                library.proc_pidpath.restype = ctypes.c_int
+                buffer = ctypes.create_string_buffer(4096)
+                found = library.proc_pidpath(pid, buffer, len(buffer))
+            except (OSError, AttributeError) as error:
+                raise RuntimeError("live process executable is unavailable") from error
+            if found <= 0:
                 raise RuntimeError("live process executable is unavailable")
             path = Path(os.fsdecode(buffer.value))
             source = "macOS libproc proc_pidpath"

@@ -68,9 +68,12 @@ left untouched. Concurrent `df` changes are reported separately.
 Use checked-in `tests/uiflow2/run_device_matrix.py`, `run_peripheral_matrix.py`
 and Unit host runners at the final published source commit with these exact
 firmware/runtime identities. Root summaries bind raw evidence by SHA rather than
-publishing host paths or mutable Flash. Final local platform suite passes 2,020 tests with one skip; Unit has 300 passes
+publishing host paths or mutable Flash. Final local platform suite passes 2,020 tests with one skip; Unit has 303 passes
 and one skip, and all 30 Node scripts pass. [Host gate summary](host-gates-summary.json)
 retains earlier failures. CI, source/record permalinks and delivery use the work record.
 
 Additional bounded followups: [native dependency freeze audit](native-freeze-audit-summary.json)
 and [final generated-build/cache cleanup](storage-followup-summary.json).
+
+[Linux CI portability followup](ci-followup-summary.json) retains the first failed
+checks and verifies native executable lookup without probing the wrong host OS.
