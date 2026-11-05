@@ -1,8 +1,23 @@
 diff --git a/hw/m5stopwatch/m5atoms3.c b/hw/m5stopwatch/m5atoms3.c
-index aa4da67..b089045 100644
+index aa4da67..cb03c95 100644
 --- a/hw/m5stopwatch/m5atoms3.c
 +++ b/hw/m5stopwatch/m5atoms3.c
-@@ -13,6 +13,7 @@
+@@ -2,10 +2,13 @@
+  * Original M5Stack AtomS3 C123 board wiring.
+  *
+  * ESP32-S3FN8, 8 MiB Flash, no PSRAM; MPU6886 at 0x68 on SDA38/SCL39;
+- * GC9107 128x128 controller on SPI3 (MOSI21, SCLK17, CS15,
++ * Explicit GC9107 / ST7735S 128x128 variants on SPI3 (MOSI21, SCLK17, CS15,
+  * DC33, RST34), GPIO16 PWM backlight, and active-low GPIO41 button.
+  * This is a separate board, not an AtomS3R machine alias.
+  *
++ * LCD variant evidence: m5stack/M5GFX
++ * eef855b41c8ab7611a235055cc9afca76751ea95
++ * src/board_detect/m5/generated/esp32s3_specs.hpp
+  * Wiring evidence: m5stack/M5GFX 6e53f9bfcf7dae34e7c7c089cfd66db977793e17
+  * src/M5GFX.cpp AtomS3 probe; m5stack/M5Unified
+  * 565a499675b4cbbf897451d7f9ef66890e2cbb90 src/M5Unified.inl pin tables.
+@@ -13,6 +16,7 @@
   * SPDX-License-Identifier: GPL-2.0-or-later
   */
  #include "qemu/osdep.h"
@@ -10,7 +25,7 @@ index aa4da67..b089045 100644
  #include "hw/xtensa/esp32s3_intc.h"
  #include "hw/dma/esp_gdma.h"
  #include "hw/qdev-properties.h"
-@@ -22,6 +23,8 @@
+@@ -22,6 +26,8 @@
  void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
                          ESPGdmaState *gdma)
  {
@@ -19,7 +34,7 @@ index aa4da67..b089045 100644
      m5stopwatch_sens_init(sys_mem);
      m5stopwatch_regi2c_init(sys_mem);
      m5stopwatch_fe_init(sys_mem);
-@@ -61,19 +64,22 @@ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+@@ -61,19 +67,22 @@ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
          ETS_SPI3_INTR_SOURCE);
  
      DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
