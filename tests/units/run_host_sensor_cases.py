@@ -120,6 +120,12 @@ def full_vfs(image, record):
     sources = {path.relative_to(preparation.common.COMMON).as_posix(): sha(path.read_bytes())
                for path in preparation.common.COMMON.rglob('*.py')}
     sources.update(record['probe_sha256'])
+    matrix = json.loads((ROOT / 'tests/uiflow2/device_matrix.json').read_bytes())
+    device = next(row for row in matrix['devices'] if row['id'] == record['device_id'])
+    base = ROOT / device['base']
+    assert sha(base.read_bytes()) == record['base_firmware_sha256'], 'current reference firmware differs'
+    stock = preparation.common.vfs_hashes(base, layout)
+    sources = {**stock, **sources}
     assert expected == sources, 'VFS whitelist differs from current frozen probe/common sources'
     assert result == expected, 'VFS contains missing, unknown or changed file bytes'
     assert 'rtc_probe.py' in result, 'shared-builder common injection must be explicit'

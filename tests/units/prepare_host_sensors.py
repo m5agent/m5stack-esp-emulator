@@ -131,7 +131,7 @@ def prepare_one(output, device_id, case, matrix, hosts, registry, display=None):
         mklittlefs=None, preserve_vfs=False, vfs_offset=layout['offset'], vfs_size=layout['size'], prog_size=32, out_dir=directory))
     effective = {**device, 'vfs_offset': hex(layout['offset']), 'vfs_size': hex(layout['size'])}
     packaged = verify_image_files(image, files, effective)
-    complete, sources = common.verify_full_python(image, files, layout)
+    complete, sources = common.verify_full_python(image, files, layout, base)
     assert all(complete[name] == value for name, value in packaged.items())
     raw, original = image.read_bytes(), base.read_bytes()
     padded = original + b'\xff' * (len(raw) - len(original))

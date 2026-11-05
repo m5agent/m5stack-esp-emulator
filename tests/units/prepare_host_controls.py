@@ -189,16 +189,14 @@ def freeze_toolchain(littlefs):
     return artifacts, report
 
 
-def verify_full_python(image, files, layout):
-    """Require the complete VFS whitelist, including shared builder injection."""
+def vfs_hashes(image, layout):
+    """Read every file without formatting or executing the mounted image."""
     import littlefs
-    expected = {path.relative_to(COMMON).as_posix(): path for path in COMMON.rglob('*.py')}
-    expected.update({path.relative_to(files).as_posix(): path for path in files.rglob('*.py')})
     raw = image.read_bytes()[layout['offset']:layout['offset'] + layout['size']]
     fs = littlefs.LittleFS(context=littlefs.UserContext(buffer=bytearray(raw)), block_size=4096,
         block_count=layout['size'] // 4096, read_size=128, prog_size=32, lookahead_size=128, block_cycles=100, mount=False)
     fs.mount()
-    hashes, sources, actual = {}, {}, set()
+    hashes = {}
     try:
         def walk(directory):
             for name in fs.listdir(directory):
@@ -206,19 +204,29 @@ def verify_full_python(image, files, layout):
                 if fs.stat(path).type == 2:
                     walk(path)
                 else:
-                    actual.add(path.lstrip('/'))
+                    with fs.open(path, 'rb') as stream:
+                        hashes[path.lstrip('/')] = digest(stream.read())
         walk('/')
-        assert actual == set(expected), ('unexpected or missing packaged files', sorted(actual - set(expected)), sorted(set(expected) - actual))
-        for name, source in sorted(expected.items()):
-            with fs.open('/' + name, 'rb') as stream:
-                content = stream.read()
-            assert content == source.read_bytes(), 'packaged Python bytes differ: ' + name
-            hashes[name] = digest(content)
-            sources[name] = {'source': source.relative_to(ROOT).as_posix(), 'sha256': hashes[name],
-                             'role': 'shared-common-injection' if source.is_relative_to(COMMON) else 'prepared-probe-source'}
     finally:
         fs.unmount()
-    return hashes, sources
+    return hashes
+
+
+def verify_full_python(image, files, layout, base):
+    """Require exactly the base files plus the explicit probe/common overlay."""
+    expected = vfs_hashes(base, layout)
+    sources = {name: {'source': base.relative_to(ROOT).as_posix(), 'vfs_path': name,
+                     'sha256': sha, 'role': 'preserved-base-vfs'}
+               for name, sha in expected.items()}
+    overlay = {path.relative_to(COMMON).as_posix(): path for path in COMMON.rglob('*.py')}
+    overlay.update({path.relative_to(files).as_posix(): path for path in files.rglob('*.py')})
+    for name, source in sorted(overlay.items()):
+        expected[name] = digest(source.read_bytes())
+        sources[name] = {'source': source.relative_to(ROOT).as_posix(), 'sha256': expected[name],
+                        'role': 'shared-common-injection' if source.is_relative_to(COMMON) else 'prepared-probe-source'}
+    actual = vfs_hashes(image, layout)
+    assert actual == expected, 'VFS contains missing, unknown or changed file bytes'
+    return actual, sources
 
 
 
@@ -291,7 +299,7 @@ def prepare_one(output, device_id, case, matrix, hosts, registry):
         mklittlefs=None, preserve_vfs=False, vfs_offset=layout['offset'], vfs_size=layout['size'], prog_size=32, out_dir=directory))
     effective_device = {**device, 'vfs_offset': hex(layout['offset']), 'vfs_size': hex(layout['size'])}
     packaged = verify_image_files(image, files, effective_device)
-    full_packaged, full_sources = verify_full_python(image, files, layout)
+    full_packaged, full_sources = verify_full_python(image, files, layout, base)
     assert all(full_packaged[name] == sha for name, sha in packaged.items())
     raw, original = image.read_bytes(), base.read_bytes()
     start, end = layout['offset'], layout['offset'] + layout['size']

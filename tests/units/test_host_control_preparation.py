@@ -375,7 +375,10 @@ class RealImagePreparationTests(unittest.TestCase):
                         self.assertEqual(record["web_execution"], "NOT RUN")
                         self.assertEqual(record["hardware_execution"], "NOT RUN")
                         self.assertEqual(len(record["probe_sha256"]), 17)
-                        self.assertEqual(len(record["packaged_full_py_sha256"]), 18)
+                        overlay = {name for name, row in record['packaged_full_py_sources'].items()
+                                   if row['role'] != 'preserved-base-vfs'}
+                        self.assertEqual(len(overlay), 18)
+                        self.assertIn('res/img/default.png', record['packaged_full_py_sha256'])
                         self.assertIn("rtc_probe.py", record["packaged_full_py_sha256"])
                         image = output / device / "encoder/uiflow2-ui-test.bin"
                         self.assertEqual(runner.full_vfs(image, record), record["packaged_full_py_sha256"])
