@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "category": "virtual-device",
+  "scope": "latest UIFlow2 native regression repair campaign",
+  "integration_gate": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "browser_wasm_validation": "NOT RUN",
+  "issues": [
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188
+  ],
+  "native_patches": [
+    {
+      "path": "patches/qemu-m5stack-peripherals/0162-axp2101-charger-state.patch",
+      "sha256": "607b6fc8f3ac6da8532d866617f878d4d72c17bf54fb4dd6b929226114a0acb6"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0163-ed2208-partial-window.patch",
+      "sha256": "9d48b3b6518cd488185e51912c18eab70c40e3970c5cd3e60838c4b8034d5ed1"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0164-atoms3-st7735-variant.patch",
+      "sha256": "d32332d39eb33c631878590a523885a2d73e2492923d21eabab20178df62c15a"
+    }
+  ],
+  "scope_boundaries": [
+    "AtomS3 ST7735S is an explicit native LCD variant. Original m5atoms3 GC9107 model remains unchanged; results do not transfer between variants.",
+    "Tab5 latest image composition preserves application bytes and fixes the old overwrite, but latest official Python/UI/touch readiness remains PARTIAL.",
+    "Build/static/runner success does not imply firmware behavior. Final integration gate is recorded separately."
+  ]
+}

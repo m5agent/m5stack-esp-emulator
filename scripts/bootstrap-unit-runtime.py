@@ -138,6 +138,9 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0159-unit-batch12b.patch",
     "patches/qemu-m5stack-peripherals/0160-unit-batch12a-evidence-fixes.patch",
     "patches/qemu-m5stack-peripherals/0161-unit-batch12c-chain-frames.patch",
+    "patches/qemu-m5stack-peripherals/0162-axp2101-charger-state.patch",
+    "patches/qemu-m5stack-peripherals/0163-ed2208-partial-window.patch",
+    "patches/qemu-m5stack-peripherals/0164-atoms3-st7735-variant.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

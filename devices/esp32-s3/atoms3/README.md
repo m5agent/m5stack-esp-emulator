@@ -18,7 +18,7 @@
 | PSRAM | 0 B |
 | 机身尺寸 | 24 × 24 × 12.9 mm |
 | 重量 | 6.9 g |
-| 显示 | 128×128 ips，0.85"，GC9107，无触摸 |
+| 显示 | 128×128 ips，0.85"，ST7735S / GC9107，无触摸 |
 | 控制 | USER |
 | 外设 | imu:mpu6886, rgb-led, ir |
 
@@ -26,7 +26,7 @@
 
 candidate。
 
-- 验证：`native-display-input-imu-rgb-pass` (2026-10-29)
+- 验证：`native-st7735-display-input-pass` (2026-11-05)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 

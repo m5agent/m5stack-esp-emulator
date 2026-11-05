@@ -793,7 +793,7 @@
         "width": 128,
         "height": 128,
         "shape": "rect",
-        "driver": "GC9107",
+        "driver": "ST7735S / GC9107",
         "touch": false,
         "diagonal_in": 0.85
       },
@@ -802,13 +802,13 @@
         "chip": "esp32s3",
         "status": "candidate",
         "peripheral_status": "partial",
-        "display_protocol": "spi-gc9107",
+        "display_protocol": "spi-st7735",
         "execution": "native-qemu",
         "validation": {
-          "date": "2026-10-29",
-          "status": "native-display-input-imu-rgb-pass",
-          "detail": "原版 C123 官方 UIFlow2 v2.5.3 同 guest 通过 128x128 GC9107、GPIO41 按键与帧标记、MPU6886 两组加速度/角速度、显式 GPIO35 RGB 的真实 RMT 输出；默认 RGB() 为 None。IR、网络及物理硬件不由此结果覆盖。",
-          "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+          "date": "2026-11-05",
+          "status": "native-st7735-display-input-pass",
+          "detail": "官方 UIFlow2 v2.5.4 和 v2.5.3 通过显式 AtomS3 ST7735S 原生板级的显示/按键测试；实际 SPI 初始化为 ST7735S 的 132x132 RAM/offset(2,1)、MADCTL 0xDC 与 INVON。原 GC9107 machine 保留，变体结果不转授；无物理光学结论。",
+          "evidence": "docs/evidence/2026-11-05-latest-firmware-issues/summary.json",
           "category": "virtual-device"
         },
         "blockers": [
