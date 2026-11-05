@@ -36,7 +36,7 @@ from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
 
 MARKER = "BATCH7_PROBE_READY"
-BINARY = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+
 QEMU_SOURCE_STATE = ("canonical 75f1d24 + canonical chain 28 layers "
                      "(0120-0145, incl. 0143 batch7 A and 0145 batch7 B)")
 
@@ -183,8 +183,8 @@ def run_case(client: Client, args, case: str) -> dict:
         "firmware_sha256": sha256(firmware_bytes),
         "base_firmware_sha256": sha256((ROOT / device_row["base"]).read_bytes()),
         "probe_sha256": {path.name: sha256(path.read_bytes()) for path in files.glob("*.py")},
-        "runtime_binary_sha256": sha256(BINARY.read_bytes()) if BINARY.is_file() else None,
-        "qemu_source_state": QEMU_SOURCE_STATE,
+        "runtime_binary_sha256": None,
+        "fixture_source_baseline": QEMU_SOURCE_STATE,
         "official_port": OFFICIAL_PORT[case],
         "runtime_port_substitution": (
             "cores3 PORT.A harness wiring; the official product PinMap connector is "
@@ -438,6 +438,7 @@ def run_case(client: Client, args, case: str) -> dict:
         result["raw_evidence_note"] = (
             "Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in the local "
             "ignored .work directory; only concise reports, hashes and reproduction commands are committed.")
+        client.finalize_result(result)
         (output / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)

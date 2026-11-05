@@ -10,7 +10,7 @@ sys.path.insert(0,str(Path(__file__).parent)); sys.path.insert(0,str(ROOT/"tests
 from run_service_cases import Client, wait_for  # noqa: E402
 from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
-MARKER="BATCH11_PROBE_READY"; BINARY=ROOT/".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+MARKER="BATCH11_PROBE_READY"
 QEMU_STATE="canonical 75f1d24 + canonical chain 35 layers (0120-0154) + 0155 if any batch11 evidence fix"
 CASES=("glass","lorawan-as923","lorawan-eu868","rf433t","rf433r","audioplayer","fingerprint2")
 OFFICIAL={"glass":"PORT.A","lorawan-as923":"PORT.C","lorawan-eu868":"PORT.C","rf433t":"PORT.B","rf433r":"PORT.B","audioplayer":"PORT.C","fingerprint2":"PORT.C"}
@@ -53,8 +53,8 @@ def run_case(client,args,case):
       "scope":"device-local Unit data plane through a visible Device Service session; not hardware","device_id":device,"unit_id":case,
       "driver_class":DRIVERS[case],"driver_flavor":"reference-firmware-frozen-original-unit-driver" if case in ("glass","lorawan-as923","lorawan-eu868") else "reference-firmware-raw-gpio-uart-driver-gap",
       "runtime":"qemu","status":"FAIL","checks":{},"firmware_sha256":sha(fb),"base_firmware_sha256":sha((ROOT/row["base"]).read_bytes()),
-      "probe_sha256":{p.name:sha(p.read_bytes()) for p in files.glob("*.py")},"runtime_binary_sha256":sha(BINARY.read_bytes()),
-      "qemu_source_state":QEMU_STATE,"official_port":OFFICIAL[case],
+      "probe_sha256":{p.name:sha(p.read_bytes()) for p in files.glob("*.py")},"runtime_binary_sha256": None,
+      "fixture_source_baseline":QEMU_STATE,"official_port":OFFICIAL[case],
       "runtime_port_substitution":("cores3 PORT.A harness wiring; official product PinMap is "+OFFICIAL[case]) if OFFICIAL[case]!="PORT.A" else None,
       "port":{"id":port["id"],"pins":port["pins"]},"initial_inputs":INITIAL[case],"qom_samples":[],"serial_markers":{},"observations":{}}
     sid=None
@@ -166,6 +166,7 @@ def run_case(client,args,case):
                 result["stop_error"]=str(e); result["checks"]["stopped_with_history"]=False
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()): result["status"]="FAIL"
         result["raw_evidence_note"]="Raw execution artifacts stay in local ignored .work; only concise reports, hashes and reproduction commands are committed."
+        client.finalize_result(result)
         (out/"result.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
     print(f"{case}: {result['status']}"+(f" ({result['error']})" if result.get("error") else ""),flush=True)
     return result

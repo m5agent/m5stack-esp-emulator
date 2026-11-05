@@ -21,7 +21,7 @@
 | Atom Lite (`atom-lite`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-selected-behaviors-pass` | IR and other unselected peripheral paths remain unvalidated; browser admission is limited to its hash-pinned RGB/USER fixture. |
 | Atom Matrix (`atom-matrix`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation. |
 | Atom Matrix v1.1 (`atom-matrix-v11`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation. |
-| AtomS3 (`atoms3`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-10-29` / `native-display-input-imu-rgb-pass` | Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open. |
+| AtomS3 (`atoms3`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-11-05` / `native-st7735-display-input-pass` | Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open. |
 | AtomS3 Lite (`atoms3-lite`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-10-29` / `native-button-rmt-rgb-pass` | Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open. |
 | AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | AtomS3R-CAM (`atoms3r-cam`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `partial` | `2026-11-02` / `native-boot-display-camera-geometry-stream-pass` | Camera virtual-device path passed for QQVGA, 240x240, QVGA, CIF and VGA geometry and five-frame streaming. Dynamic framesize changes while frames are streaming, IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open. |
@@ -155,13 +155,13 @@
 | `network_sandbox.py` | 1681 |
 | `worker_agent.py` | 1501 |
 
-- `tests/`：`155` 个可执行 Python 测试文件，分布在 `63` 个目录；`228` 个 evidence JSON。
-- `patches/`：`16` 个补丁组，`270` 个 patch 文件。
-- 文档：`621` 个 Markdown 页面；除本生成页外共 `68922` 行。
+- `tests/`：`156` 个可执行 Python 测试文件，分布在 `63` 个目录；`228` 个 evidence JSON。
+- `patches/`：`16` 个补丁组，`276` 个 patch 文件。
+- 文档：`621` 个 Markdown 页面；除本生成页外共 `68965` 行。
 
 ## 文档与测试
 
-- 平台测试：`1996` 项。
+- 平台测试：`1997` 项。
 - Docs 新鲜度登记：`229` 行；其中非历史页 `208` 行，历史固定页 `21` 行。
 - 文档职责分布：待办 `3`，契约 `9`，证据/差异 `89`，历史固定 `21`，实现/设计 `14`，参考 `89`，工作流/导航 `4`。
 - 全量文档盘点：`621` 个 Markdown 页面；职责分布：权威/专题页 `229`，设备档案 `37`，示例 `1`，治理/入口 `9`，文档导航 `1`，其他 `9`，补丁说明 `21`，平台说明 `13`，仓内历史记录 `5`，测试/用例说明 `188`，未登记 docs 页面 `4`，第三方来源说明 `104`。

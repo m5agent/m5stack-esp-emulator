@@ -29,7 +29,7 @@ from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
 
 MARKER = "BATCH12B_PROBE_READY"
-BINARY = ROOT / ".work/native-lock-source/qemu/build/qemu-system-xtensa"
+
 QEMU_STATE = ("canonical 75f1d24 native layers + canonical 39-layer Unit chain "
               "(0120-0159; reconciled 0157/0158/0159); no batch12b evidence fix expected")
 CASES = ("bmm350", "ina226-10a", "ina226-1a", "roller485", "roller485-lite",
@@ -173,7 +173,7 @@ def run_case(client, args, case):
         "firmware_sha256": sha(firmware),
         "base_firmware_sha256": sha((ROOT / next(r for r in json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())["devices"] if r["id"] == device)["base"]).read_bytes()),
         "probe_sha256": {p.name: sha(p.read_bytes()) for p in files.glob("*.py")},
-        "runtime_binary_sha256": sha(BINARY.read_bytes()), "qemu_source_state": QEMU_STATE,
+        "runtime_binary_sha256": None, "fixture_source_baseline": QEMU_STATE,
         "official_port": "PORT.A", "runtime_port_substitution": None,
         "port": {"id": port["id"], "pins": port["pins"]},
         "initial_inputs": INITIAL[case], "qom_samples": [], "serial_markers": {},
@@ -381,6 +381,7 @@ def run_case(client, args, case):
         result["raw_evidence_note"] = ("Raw execution artifacts stay in local ignored .work; "
                                        "only concise reports, hashes and reproduction commands "
                                        "are committed.")
+        client.finalize_result(result)
         (out / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(f"{case}: {result['status']}" + (f" ({result.get('error')})" if result.get("error") else ""), flush=True)
     return result

@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent)); sys.path.insert(0, str(ROOT / "t
 from run_service_cases import Client, wait_for  # noqa: E402
 from run_profile_ui_test import build_image  # noqa: E402
 from user_firmware_matrix import png_metrics  # noqa: E402
-MARKER="BATCH10_PROBE_READY"; BINARY=ROOT/'.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa'
+MARKER="BATCH10_PROBE_READY"
 QEMU_STATE=("canonical 75f1d24 + canonical chain 33 layers (0120-0152, incl. 0152 batch10 model subsets) "
             "+ 0153-unit-batch10-evidence-fixes")
 CASES=("dcssr","puzzle","dof6","dof9","dof10","asr")
@@ -70,8 +70,8 @@ def run_case(client,args,case):
       "runtime":"qemu","status":"FAIL","checks":{},"firmware_sha256":sha(fb),
       "base_firmware_sha256":sha((ROOT/device_row["base"]).read_bytes()),
       "probe_sha256":{p.name:sha(p.read_bytes()) for p in files.glob("*.py")},
-      "runtime_binary_sha256":sha(BINARY.read_bytes()) if BINARY.is_file() else None,
-      "qemu_source_state":QEMU_STATE,"official_port":OFFICIAL[case],
+      "runtime_binary_sha256": None,
+      "fixture_source_baseline":QEMU_STATE,"official_port":OFFICIAL[case],
       "runtime_port_substitution":("cores3 PORT.A harness wiring; the official product PinMap connector is "
         +OFFICIAL[case]+" and is not the admitted runtime host port on cores3") if OFFICIAL[case]!="PORT.A" else None,
       "port":{"id":port["id"],"pins":port["pins"]},"initial_inputs":INITIAL[case],
@@ -183,6 +183,7 @@ def run_case(client,args,case):
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()): result["status"]="FAIL"
         result["raw_evidence_note"]=("Raw execution artifacts (evidence.zip, frame.png, serial.txt, probe files) stay in local ignored "
             ".work; only concise reports, hashes and reproduction commands are committed.")
+        client.finalize_result(result)
         (out/"result.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
     print(f"{case}: {result['status']}"+(f" ({result['error']})" if result.get("error") else ""),flush=True)
     return result

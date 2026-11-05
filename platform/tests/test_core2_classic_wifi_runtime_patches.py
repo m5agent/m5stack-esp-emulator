@@ -75,13 +75,13 @@ class Core2ClassicWifiRuntimePatchTests(unittest.TestCase):
     def test_patch_order_follows_existing_runtime_series(self):
         bootstrap = (ROOT / "scripts/bootstrap-unit-runtime.py").read_text()
         cache_gate = bootstrap.index(
-            "0092-esp32-wifi-irq-cache-gate.patch"
+            "0015-native-wifi-cache-gate-context.patch"
         )
         virtual_time = bootstrap.index(
-            "0093-esp32-classic-wifi-virtual-time.patch"
+            "0016-native-wifi-virtual-time-context.patch"
         )
         station_data = bootstrap.index(
-            "0094-esp32-classic-wifi-station-data.patch"
+            "0017-native-wifi-station-data-context.patch"
         )
         self.assertLess(cache_gate, virtual_time)
         self.assertLess(virtual_time, station_data)

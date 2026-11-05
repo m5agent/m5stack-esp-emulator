@@ -19,6 +19,17 @@ is configured, with its synthetic radio disabled.
 `0087` adds the shared hard-reset output observer used by Relay and Relay2.
 No firmware, ROM, executable or credential is added by these patches.
 
+The maintained native recipe also includes the subsequent board additions and
+the reconciled Unit batch chain through `0161`. The explicit order lives in
+`scripts/bootstrap-unit-runtime.py::PATCHES`; it is independent of the browser
+WASM source lock. Native ports `0015`–`0020` re-anchor the historical
+`0092`–`0095`, `0110` and `0111` changes on this reconstructed prelude. They
+retain the WiFi cache gate, virtual timer clock, station delivery, task-WDT
+level behavior and board registrations without requiring historical diagnostic
+hooks. The extra reconstructed radio lifecycle rearm sites use the same
+virtual clock as their timers. Source replay and compilation alone do not
+grant those models a firmware PASS.
+
 ## Exact source and order
 
 1. Clone `https://github.com/espressif/qemu.git`, tag

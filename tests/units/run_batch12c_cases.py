@@ -10,7 +10,7 @@ sys.path.insert(0,str(Path(__file__).parent)); sys.path.insert(0,str(ROOT/"tests
 from run_service_cases import Client, wait_for
 from run_profile_ui_test import build_image
 from user_firmware_matrix import png_metrics
-MARKER="BATCH12C_PROBE_READY"; BINARY=ROOT/".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+MARKER="BATCH12C_PROBE_READY"
 CASES=("8servos2-chain","chainbus","cat1-cn","mini-imu-pro")
 OFFICIAL={"8servos2-chain":"PORT.C","chainbus":"PORT.C","cat1-cn":"PORT.C","mini-imu-pro":"PORT.A"}
 DRIVERS={"8servos2-chain":"raw UART AA55 Chain driver-gap","chainbus":"raw UART AA55 Chain driver-gap","cat1-cn":"raw UART AT driver-gap","mini-imu-pro":"generic BMI270 + BMP280 driver"}
@@ -54,8 +54,8 @@ def run_case(client,args,case):
       "scope":"device-local Unit data plane through a visible Device Service session; not hardware","device_id":device,"unit_id":case,
       "driver_class":DRIVERS[case],"driver_flavor":"reference-firmware-raw-uart-i2c-driver-gap","runtime":"qemu","status":"FAIL","checks":{},
       "firmware_sha256":sha(fb),"base_firmware_sha256":sha((ROOT/row["base"]).read_bytes()),
-      "probe_sha256":{p.name:sha(p.read_bytes()) for p in files.glob("*.py")},"runtime_binary_sha256":sha(BINARY.read_bytes()),
-      "qemu_source_state":"canonical 75f1d24 + canonical chain 39 layers (0120-0159); no 0160 model fix found",
+      "probe_sha256":{p.name:sha(p.read_bytes()) for p in files.glob("*.py")},"runtime_binary_sha256": None,
+      "fixture_source_baseline":"canonical 75f1d24 + canonical chain 39 layers (0120-0159); no 0160 model fix found",
       "official_port":OFFICIAL[case],"runtime_port_substitution":("cores3 PORT.A harness wiring; official product PinMap is "+OFFICIAL[case]) if OFFICIAL[case]!="PORT.A" else None,
       "port":{"id":port["id"],"pins":port["pins"]},"initial_inputs":INITIAL[case],"qom_samples":[],"serial_markers":{},"observations":{}}
     sid=None
@@ -158,6 +158,7 @@ def run_case(client,args,case):
                 result["stop_error"]=str(e); result["checks"]["stopped_with_history"]=False
             if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()): result["status"]="FAIL"
         result["raw_evidence_note"]="Raw execution artifacts stay in local ignored .work; only concise reports, hashes and reproduction commands are committed."
+        client.finalize_result(result)
         (out/"result.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
     print(f"{case}: {result['status']}"+(f" ({result['error']})" if result.get("error") else ""),flush=True)
     return result

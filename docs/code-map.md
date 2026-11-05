@@ -283,6 +283,9 @@ StickS3 `servo8-hat@0x36`、CoreS3 `8servos@0x25`、Joystick2
 `ModelDeviceShell.installAssemblyCamera/fitAssembly`只包装该实例公开fit/resize与render(dt)，按主机/Unit/线缆world bounds构图；`test_model_camera_fit.mjs`保留旧窄屏与长RAF阻塞负控、四断点、用户视角与无回声回归，不修改共享vendor。
 `scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
+`tests/units/runtime_evidence.py` 从活跃 session 的本地 QEMU PID 采样实际
+executable SHA，并确认 worker 归属、进程祖先与采样后的会话身份；Unit
+runner 不再用假定构建路径代替实际运行时身份，未知身份保持未验证。
 `platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，以及历史证据索引结构；
 `tests/units/verify_historical_runtime_evidence.py` 显式取得完整旧归档后，
 通过 `_unit_host_control_evidence.py` 核对控制类/Web证据契约：原始

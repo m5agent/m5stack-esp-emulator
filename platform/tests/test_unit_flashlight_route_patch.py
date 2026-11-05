@@ -346,7 +346,10 @@ class UnitFlashlightRoutePatchTests(unittest.TestCase):
         # its changed pad semantics are covered by the cold-pad patch suite.
         touching = [Path(name).name for name in patches
                     if f"diff --git a/{UNIT} b/{UNIT}\n" in (ROOT / name).read_text()]
-        self.assertEqual(touching, [*STACK, "0047-unit-flashlight-cold-pad-observation.patch"])
+        # Preserve this historical oracle through its 0047 successor. Later
+        # Unit batch protocols are independent extensions of the same file.
+        successor = "0047-unit-flashlight-cold-pad-observation.patch"
+        self.assertEqual(touching[:touching.index(successor) + 1], [*STACK, successor])
 
     @unittest.skipUnless(shutil.which("cc") and shutil.which("git"), "C compiler or Git unavailable")
     def test_current_patch_routes_lifecycle_and_old_postimage_is_negative_control(self):

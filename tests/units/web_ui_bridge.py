@@ -25,6 +25,18 @@ def _process_executable(pid):
     elif sys.platform == "darwin":
         path = Path(subprocess.check_output(["ps", "-p", str(pid), "-o", "comm="], text=True).strip())
         source = "macOS ps comm"
+        if not path.is_absolute() or not path.is_file():
+            # macOS may expose only a short comm (notably Python/framework
+            # launchers). libproc resolves the process image, not argv[0].
+            import ctypes
+            library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+            library.proc_pidpath.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32)
+            library.proc_pidpath.restype = ctypes.c_int
+            buffer = ctypes.create_string_buffer(4096)
+            if library.proc_pidpath(pid, buffer, len(buffer)) <= 0:
+                raise RuntimeError("live process executable is unavailable")
+            path = Path(os.fsdecode(buffer.value))
+            source = "macOS libproc proc_pidpath"
     else:
         raise RuntimeError("local executable inspection requires Linux or macOS")
     if not path.is_absolute() or not path.is_file():
