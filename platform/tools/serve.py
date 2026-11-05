@@ -240,6 +240,28 @@ class Handler(SimpleHTTPRequestHandler):
         ".json": "application/json",
     }
 
+    def send_head(self):
+        # Serve the same canonical workbench at the local root and the existing
+        # source URL. Keep the legacy session console available: it can contain
+        # sessions that the workbench cannot yet adopt, so do not redirect them.
+        aliases = {
+            "/": "/platform/web/index.html",
+            "/index.html": "/platform/web/index.html",
+            "/sessions": "/platform/web/sessions.html",
+            "/sessions/": "/platform/web/sessions.html",
+            "/sessions.html": "/platform/web/sessions.html",
+        }
+        parsed = urlparse(self.path)
+        target = aliases.get(parsed.path)
+        if target is None:
+            return super().send_head()
+        original_path = self.path
+        self.path = parsed._replace(path=target).geturl()
+        try:
+            return super().send_head()
+        finally:
+            self.path = original_path
+
     def end_headers(self) -> None:
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")

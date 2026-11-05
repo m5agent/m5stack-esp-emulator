@@ -159,6 +159,17 @@ summary {
   gap: var(--m5-space-l);
   align-items: start;
 }
+.workbench-session {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--m5-line);
+}
+.workbench-session small { color: var(--m5-ink-muted); overflow-wrap: anywhere; }
+.workbench-session button { text-align: left; justify-self: start; }
+#unitAssemblyPanel { margin: 24px 0; border-top: 1px solid var(--m5-line); padding-top: 20px; }
+#unitAssemblyPanel fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+#unitAssemblyPanel select { max-width: 100%; }
 .surface {
   min-width: 0;
   background: var(--m5-surface);

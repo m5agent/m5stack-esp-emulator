@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="选择 M5Stack 设备，在浏览器中加载固件、观察屏幕与串口，也可连接独立仿真服务。" />
-    <title>M5Stack Simulator · 在浏览器中运行固件</title>
+    <title>M5Stack Simulator · 设备编程工作台</title>
     <link rel="stylesheet" href="/platform/web/m5-tokens.css" />
     <link rel="stylesheet" href="/platform/web/device-shell.css" />
     <link rel="stylesheet" href="/platform/web/three-device-viewer.css" />
@@ -35,10 +35,10 @@
         ></a
       >
       <nav aria-label="主导航">
-        <!-- Native service endpoints /platform/web/sessions.html and
-             /platform/web/firmware.html open only on the selected service. -->
-        <a data-service-console="platform/web/sessions.html" href="#serviceConnection">设备会话</a
-        ><a data-service-console="platform/web/firmware.html" href="#serviceConnection">WebBurner</a
+        <a href="#pythonHeading">代码编程</a
+        ><a href="#unitAssemblyPanel">连接 Unit</a
+        ><a href="#serviceSessions">设备会话</a
+        ><a href="#firmwareHeading">加载固件</a
         ><a href="https://github.com/m5agent/m5stack-esp-emulator" target="_blank" rel="noreferrer"
           >GitHub <span aria-hidden="true">↗</span></a
         >
@@ -48,8 +48,8 @@
       <div class="intro-row">
         <div>
           <p class="eyebrow">YOUR FIRMWARE. YOUR DEVICE.</p>
-          <h1>先在浏览器里，运行一次。</h1>
-          <p class="intro-copy">选择设备，加载固件，观察屏幕与输入的变化。</p>
+          <h1>连接、编程、运行，在一个工作台。</h1>
+          <p class="intro-copy">选择设备与 Unit，运行 UIFlow 代码，直接观察屏幕、串口和外设。</p>
         </div>
         <span class="catalog-count" id="catalogChip">正在读取设备…</span>
       </div>
@@ -217,6 +217,7 @@ print("Hello, UIFlow!")
             <p id="capabilityText">模型预览与固件运行分别标注。</p>
             <button class="text-button" id="openServiceBtn" type="button" hidden>连接仿真服务 →</button>
           </section>
+          <div id="unitAssemblyPanel"></div>
           <button class="share-button" id="shareBtn" type="button">
             <span aria-hidden="true">↗</span> 复制分享链接
           </button>
@@ -241,7 +242,12 @@ print("Hello, UIFlow!")
               placeholder="只保存在当前页面内存中"
             /><button class="secondary-button" id="connectServiceBtn" type="button">连接服务</button>
             <p class="field-help" id="serviceStatus" role="status"></p>
-            <div id="unitConnectionPicker"></div>
+          </details>
+          <details class="plain-details service-sessions" id="serviceSessions">
+            <summary>服务中的设备会话</summary>
+            <p class="field-help" id="sessionsStatus">连接仿真服务后，可在这里查看已有会话。</p>
+            <button type="button" class="text-button" id="refreshSessionsBtn">刷新会话</button>
+            <div id="serviceSessionList"></div>
           </details>
           <details class="plain-details technical-details">
             <summary>设备信息与模拟边界</summary>
@@ -250,7 +256,7 @@ print("Hello, UIFlow!")
           </details>
         </aside>
         <details class="unit-explorer surface" id="unitExplorer">
-          <summary><span>添加 Unit，探索更多交互</span><span id="unitCount">Unit 模型</span></summary>
+          <summary><span>Unit 库 · 添加到当前设备</span><span id="unitCount">Unit 模型</span></summary>
           <div class="unit-explorer-body">
             <div class="unit-library">
               <label class="sr-only" for="unitSearch">搜索 Unit 名称、型号或接口</label
@@ -273,10 +279,8 @@ print("Hello, UIFlow!")
                 <h3 id="unitTitle">选择一个 Unit</h3>
                 <span id="unitCapability">独立模型预览</span>
               </div>
-              <div class="unit-model-mount" id="unitModelMount">
-                <p class="field-help">在左侧搜索或选择外设，查看结构与交互。</p>
-              </div>
-              <p class="field-help" id="unitPreviewNote">模型浏览不向固件注入数据。可运行外设在服务连接中配置。</p>
+              <p class="field-help" id="unitPreviewNote">选择 Unit 后添加到上方主机；接线与代码运行共用当前设备。</p>
+              <button id="addSelectedUnitBtn" class="secondary-button" type="button" disabled>添加到当前设备</button>
               <details class="plain-details" id="unitDetails" hidden>
                 <summary>查看规格与模型说明</summary>
                 <div id="unitDetailBody"></div>

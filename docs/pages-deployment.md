@@ -1,6 +1,6 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对：`2026-11-04`。本页说明部署流程；当前能力以
+最近核对：`2026-11-05`。本页说明部署流程；当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
 PR #165 已合并；用户明确要求先部署、问题保留，prepared-preview已于2026-11-04 10:45:44Z更新[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)。
@@ -8,6 +8,11 @@ PR #165 已合并；用户明确要求先部署、问题保留，prepared-previe
 [部署前资格失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点：标准hosted和新本地完整计划均FAIL；部署不将其改写为生产门禁PASS或C修复。
 
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
+本机 Device Service 的根路径也提供同一工作台：Unit 接线、代码编辑器和已有
+会话入口不再分散。连接服务后，默认 UIFlow 环境通过该服务的 Preview/Run
+在同一 guest 中执行；静态 Pages 保留 browser-WASM 路径。已创建会话的接线
+不可热插拔，未实现的 browser Unit 不能继承原生支持；见
+[统一工作台验收](evidence/2026-11-05-unified-web-workbench/README.md)。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
 设备、Unit 与补丁链的当前 inventory 见[自动项目快照](project-snapshot.md)。

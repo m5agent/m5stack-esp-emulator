@@ -53,8 +53,11 @@ cd m5stack-esp-emulator
 ./start.sh
 ```
 
-打开 <http://127.0.0.1:8787/platform/web/>。也可访问[会话页](http://127.0.0.1:8787/platform/web/sessions.html)、
-[固件导入](http://127.0.0.1:8787/platform/web/firmware.html)和 [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml)。
+打开 <http://127.0.0.1:8787/>（原 `/platform/web/` 入口仍可用）。同一工作台可添加 Unit、
+加载固件、运行 UIFlow 代码和打开已有会话；服务编程需在连接区填写访问凭据。
+运行期间 Unit 接线锁定，停止后可调整。浏览器未接入的 Unit 需要兼容设备服务。
+旧[会话管理](http://127.0.0.1:8787/platform/web/sessions.html)、
+[固件管理](http://127.0.0.1:8787/platform/web/firmware.html)和 [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml)保留兼容。
 需要换端口时使用 `PORT=8890 ./start.sh`。
 
 全新 clone 可启动设备目录和 API 页面；它不包含创建原生虚拟设备所需的本地运行时资产。

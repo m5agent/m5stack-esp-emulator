@@ -149,6 +149,8 @@ class PublicSiteTests(unittest.TestCase):
             "devices/catalog.json": '{"devices":[]}',
             "devices/group/core/device.json": '{"shell":{"reference_image":"/platform/web/photo.png"}}',
             "platform/units/catalog.json": '{"units":[]}',
+            "platform/units/host-ports.json": '{"hosts":[]}',
+            "platform/units/runtime-profiles.json": '{"units":{}}',
             "platform/web/private.bin": 'not-public',
             "platform/web/.private": 'not-public',
             ".work/token": 'not-public',

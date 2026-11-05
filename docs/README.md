@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-04`
+日期：`2026-11-05`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -53,6 +53,8 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 [性能修复与对照证据](evidence/2026-11-03-emulator-performance/README.md)分别记录浏览器与原生结果，
 [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
 2026-11-04 后续[携已知问题部署](evidence/2026-11-04-pages-workbench-release/README.md)已按用户要求完成，全部HTTPS资产一致；HTTPS首6例SUBSET_PASS，其余34例NOT RUN/HOLD，不授全19线上通过。
+2026-11-05 的[统一 Web 工作台设计](plans/2026-11-05-unified-web-workbench.md)合并首页、Unit 装配与服务编程入口；浏览器和原生服务保留各自执行合同。
+新首页的同 guest 代码、PIR、真实帧与资源清理见[统一工作台验收](evidence/2026-11-05-unified-web-workbench/README.md)。
 [部署前资格与Lite复位失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，hosted及新本地完整门禁FAIL不因部署转为PASS。
 原V6/R8本地PASS保留日期与身份，不授新导出资格或C根因关闭，RUNTIME-09仍OPEN。
 2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地独立完成60例，
@@ -329,6 +331,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [原生页面性能验证](evidence/2026-11-03-emulator-performance/native-validation.md) | 验证证据 | `2026-11-03` | 四次同固件对照及实际帧、SCS、输入、历史和停止；不授予 browser 或物理性能 |
 | [性能修复计划](plans/2026-11-03-emulator-performance.md) | 执行计划 | `2026-11-03` | 单一 QEMU 的加载、C/TCI/GPIO、轮询与精确固件执行设置；正式 guest gate 分层 |
 | [浏览器启动与UIFlow工作台设计](plans/2026-11-04-uiflow-browser-workbench-design.md) | 实施计划 | `2026-11-04` | 全部19款设备的默认工作台/声明输入本地验收另见R8；本设计保留身份与行为门禁，性能、长期稳定性和正式HTTPS仍独立 |
+| [统一 Web 工作台设计](plans/2026-11-05-unified-web-workbench.md) | 实施计划 | `2026-11-05` | 首页合并 Unit 装配、服务会话与代码入口；原生与浏览器分别验证，不互授能力 |
+| [统一工作台验收](evidence/2026-11-05-unified-web-workbench/README.md) | 日期化证据 | `2026-11-05` | 新首页原生 CoreS3 + PIR、同 VM 编程/中断/导入及 ZIP、PID、lease 清理；浏览器结果独立登记 |
 | [Atom Matrix / StickC Plus启动调查](evidence/2026-11-04-browser-startup-investigation/README.md) | 浏览器诊断证据 | `2026-11-04` | 原正式3c两板基线、未采用的oneInsn候选与20秒早启CDP；不授予新默认工作台、全设备提速或部署 |
 | [WASM host poll唤醒限定证据](evidence/2026-11-04-wasm-wakeable-poll/README.md) | 构建、SDK与两板cold/同页warm限定证据 | `2026-11-04` | fresh75原Flash Matrix15/Plus26与正常5CDP；独立cold原值保留；[后续四组](evidence/2026-11-04-wasm-wakeable-poll/warm-summary.json)完成3c/75两板cold-prime→新VM warm，75两组53.491→76.480/39.378→63.627s更慢；首3cMatrix观察器FAIL另存，纯cache收益与取消未建立；不授予新默认、全型号或线上提速 |
 | [UIFlow工作台限定验收](evidence/2026-11-04-browser-uiflow-workbench/README.md) | 浏览器与组合分层证据 | `2026-11-04` | 首次signed-array FAIL保留、旧3c smoke20、新2c72 CoreS3 div8完整54；19组包装与四宽度model-only检查不授予其余18板guest或全按键 |
@@ -411,7 +415,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
-| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-04` | 逐板准入、默认UIFlow源码工作台/可选旧示例、未知UART与仅模型边界；固定源码构建、完整门禁、CI串行及管理员手动main/publish流程，源码与实际线上版本分开 |
+| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-05` | 逐板准入、默认UIFlow源码工作台/可选旧示例、未知UART与仅模型边界；固定源码构建、完整门禁、CI串行及管理员手动main/publish流程，源码与实际线上版本分开 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
 | [运动、电源与复位修复](plans/2026-10-29-motion-power-device-adaptation.md) | 当前交付计划 | `2026-10-29` | Arduino/UIFlow 舵机输出、板级 PMIC 与保持供电、同实例复位、剩余 Atom/Stick 接入 |
 | [StackChan Arduino 浏览器兼容性](stackchan-arduino-browser.md) | 固件行为与实现边界 | `2026-10-29` | 固定 Dance 的扭矩策略、真实串口/位置诊断、S3 Flash QIOR 相位与同实例复位 |

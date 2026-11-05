@@ -1,0 +1,252 @@
+{
+  "kind": "unified-workbench-cores3-browser-full-summary",
+  "status": "PASS",
+  "evidence_level": "virtual-device validation",
+  "scope": "CoreS3 complete browser-WASM editor on the current local production-prefix export; no native/HTTPS/added-Unit acceptance is inherited.",
+  "started_at": "2026-11-05T01:57:59.371Z",
+  "finished_at": "2026-11-05T01:58:27.410Z",
+  "checks_passed": 63,
+  "checks_failed": 0,
+  "smoke_only": false,
+  "raw_report": {
+    "bytes": 5171512,
+    "sha256": "a7558be7f0307adebae82b2c2f92a24b768b5f02e8b2c48f51f579803573ebcc"
+  },
+  "site": {
+    "base_path": "/m5stack-esp-emulator/",
+    "manifest_sha256": "23e3fc8515b0f02b585bce0eb36e4e9f6579113d03ba96c6aafc12680f61844c"
+  },
+  "source": {
+    "runner": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "8f9dad6414db348a315acdaceab73f4e95abdbe10440056edb7eed42356c93c2"
+    },
+    "helper_sha256": "1c845e5f060f04dc47ecd3926f0d7f87e31036ecf33603f0fbaf250be76c7a1f",
+    "web_paths_count": 33,
+    "web_closure_sha256": "36f05b61e547549d63af0a38ae52d56e8ba646902a0686465777abce361927e9",
+    "selected_source_export_pairs": {
+      "platform/web/index.html": {
+        "source_sha256": "ff5dc05b935c934cb7f649181a3be9cf6f4dcf2480223488c6bef3434280d940",
+        "exported_sha256": "4c3bf25b3db6c7d979416bec220a5d1cebaa4e10f387ebb2e6d1bdc5bb0d1fcb"
+      },
+      "platform/web/public.js": {
+        "source_sha256": "e0f60211ab05f9c558833a825430d489a9900db672c62eb47c464d97ab323bcc",
+        "exported_sha256": "e0f60211ab05f9c558833a825430d489a9900db672c62eb47c464d97ab323bcc"
+      },
+      "platform/web/public.css": {
+        "source_sha256": "b98111a23d07d76ffad9ddfc852f1a6ac690636fafabd96ba162281aadbb91d5",
+        "exported_sha256": "b98111a23d07d76ffad9ddfc852f1a6ac690636fafabd96ba162281aadbb91d5"
+      },
+      "platform/web/public-unit-assembly.js": {
+        "source_sha256": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+        "exported_sha256": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6"
+      },
+      "platform/web/public-service-program.js": {
+        "source_sha256": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+        "exported_sha256": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd"
+      },
+      "platform/web/public-session-controller.js": {
+        "source_sha256": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+        "exported_sha256": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0"
+      },
+      "platform/web/unit-panel.js": {
+        "source_sha256": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+        "exported_sha256": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a"
+      },
+      "platform/web/public-micropython.js": {
+        "source_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+        "exported_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+      },
+      "platform/web/public-uiflow-firmware.js": {
+        "source_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6",
+        "exported_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6"
+      }
+    }
+  },
+  "execution_identity": {
+    "deviceId": "cores3",
+    "board": "m5cores3",
+    "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+    "clockDivisor": 1,
+    "clockOverride": null,
+    "oneInsnPerTb": true,
+    "requiredRuntimePatch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+    "javascriptSha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+    "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+    "wasmSha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmwareSha256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+    "uiflowWorkbench": {
+      "baseSha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "composerCommit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+      "startupSources": {
+        "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "main.py": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    },
+    "actualArguments": [
+      "./this.program",
+      "-M",
+      "m5cores3",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "pipe:/bridge/uart",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ]
+  },
+  "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+  "browser": "157.0.8103.38",
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+  "programs": {
+    "completed_raw_paste": 12,
+    "untouched_default_runs": 2,
+    "initial_editor_source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+    "cases": [
+      {
+        "name": "default-editor-first-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "default-editor-repeat-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "utf8-print",
+        "source_sha256": "aba66ee3d22a04772a89602bb01477df741a9bf8d7e4ba2d986586f84cba5e6d",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "multiline-loop",
+        "source_sha256": "39577001ab83eecec893599f7ea912f2581a71ecba0b06877d50b428d95e4577",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "long-utf8-source",
+        "source_sha256": "3e9ef5ebe382b387efab54da1f55ef3b7d06432cd8a8dd2f3932e4b457fcfc85",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "syntax-error",
+        "source_sha256": "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "runtime-error",
+        "source_sha256": "c2194de6910dae6c7230f5f8791697853d1e9100aaa816d297aa0bdb8b896ee2",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "file-import-recovery",
+        "source_sha256": "9b56308224942a4d49577761e3bede26d2f775d1e663287b8a2578f9b3352da2",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "infinite-program-interrupt",
+        "source_sha256": "907c7504e5c19d0821c7a3f9c83c9d1e08182bdf615a0a082950d1ced6309471",
+        "transfer": "raw-paste",
+        "interrupted": true
+      },
+      {
+        "name": "same-vm-after-interrupt",
+        "source_sha256": "862262f165a82441791b5e7dcc34e83269fb471406ec8db97bf71f8bbe9db870",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "guest-display-output",
+        "source_sha256": "ced738e5b223dc0c701eaa841ecd35735a09a3b1e06b17e6fbeb5c13bdd5c465",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "after-hardware-reset",
+        "source_sha256": "6411892917125b5a2f3d16f58013efcc671e7099186ea15b209a21b6e45ca808",
+        "transfer": "raw-paste",
+        "interrupted": false
+      }
+    ]
+  },
+  "input_and_observations": {
+    "path": "Actual UI editor/File input to UART0 raw-paste to same MicroPython guest; pause/resume, interrupt, hardware reset and post-reset code recovery.",
+    "interrupt_acknowledged": true,
+    "console_epoch_before_reset": 0,
+    "console_epoch_after_reset": 1,
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "sequence": 4,
+      "pattern": "red-fill",
+      "black_pixels": 0,
+      "white_pixels": 0,
+      "red_pixels": 76800,
+      "expected_red_rgb565": 63488,
+      "sha256": "6c3c796f317b1dedac4e04e377080d92154b3f28f4e8d5252a3f2d083245cc86"
+    },
+    "no_device_service_requests": true,
+    "page_errors": []
+  },
+  "cleanup": {
+    "normal_qmp_exit_code": 0,
+    "graceful_exit": true,
+    "pthreads_created": 5,
+    "pthreads_at_exit": 0,
+    "forced_disposals": 0,
+    "workers_remaining": 0,
+    "engine": {
+      "engineWorkersCreated": 1,
+      "engineOwnerLive": false,
+      "engineCloseNotificationReceived": true,
+      "engineSelfCloseNotifications": 1,
+      "engineNormalTerminations": 1,
+      "engineFallbackTerminations": 0,
+      "enginePortTransferred": true
+    },
+    "explicit_worker_disposal": true,
+    "iframe_removed": true,
+    "nested_before_held_iframe_removal": {
+      "status": "CAPTURED",
+      "actual_targets_observed": 6,
+      "live_targets": 0
+    },
+    "all_before_context_close": {
+      "status": "CAPTURED",
+      "actual_targets_observed": 6,
+      "live_targets": 0
+    },
+    "runner_exit_code": 0,
+    "browser_and_server_finally_completed": true
+  },
+  "limits": [
+    "No added external Unit input/controller path was exercised by this editor-only case.",
+    "No full19 matrix, current independent HTTPS execution, physical hardware, network/security, long-run stability or runtime root-cause closure is claimed.",
+    "Single ready observation is not a performance guarantee; prior FAIL receipts remain preserved."
+  ]
+}

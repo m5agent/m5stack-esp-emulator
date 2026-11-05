@@ -1,0 +1,45 @@
+{
+  "kind": "unified-workbench-final-copy-host-contract",
+  "status": "PASS",
+  "checks": 18,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "browser": "157.0.8103.38",
+  "runtime_workers_observed": 0,
+  "wasm_requests": 0,
+  "report": {
+    "bytes": 3768,
+    "sha256": "e11b91740bac29c25b1368a42acd9be355b5a1daba76be010390563fc4eda6fd"
+  },
+  "test_script": {
+    "bytes": 38006,
+    "sha256": "5af90ebe799b052097051852d1caee95006ed5dc5f56edf949054ac8b709a769"
+  },
+  "manifest_sha256": "8d006f16690b52ae556816893f44b116b58a5b111e89efd2380fdc416d9f601b",
+  "source_sha256": {
+    "platform/web/index.html": "ff5dc05b935c934cb7f649181a3be9cf6f4dcf2480223488c6bef3434280d940",
+    "platform/web/public.js": "e0f60211ab05f9c558833a825430d489a9900db672c62eb47c464d97ab323bcc",
+    "platform/web/public.css": "b98111a23d07d76ffad9ddfc852f1a6ac690636fafabd96ba162281aadbb91d5",
+    "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+    "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+    "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+    "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+    "platform/tests/test_public_workbench_browser.mjs": "5af90ebe799b052097051852d1caee95006ed5dc5f56edf949054ac8b709a769"
+  },
+  "exported_source_sha256": {
+    "platform/web/index.html": "10292dbb83c942d4a57ee5cce6148ec9c6ab12444d32a03819865ea080806bed",
+    "platform/web/public.js": "e0f60211ab05f9c558833a825430d489a9900db672c62eb47c464d97ab323bcc",
+    "platform/web/public.css": "b98111a23d07d76ffad9ddfc852f1a6ac690636fafabd96ba162281aadbb91d5",
+    "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+    "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+    "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+    "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158"
+  },
+  "preceding_host_summary": {
+    "bytes": 4095,
+    "sha256": "817152e4621a6f83b4ad6a567a699a960072b8887734cf4ac4cb15a114791488"
+  },
+  "change": "Re-exported final product copy; same18 host contracts plus explicit auto/offline Unit capability title assertion. Prior FAIL and PASS receipts retained."
+}
