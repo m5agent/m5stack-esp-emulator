@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 import signal
 import socket
 import subprocess
@@ -40,6 +41,70 @@ def padded_image(image: Path, flash_size: int) -> bytes:
             f"image is larger than flash size: {len(data)} > {flash_size}"
         )
     return data + b"\xff" * (flash_size - len(data))
+
+
+def wait_for_qemu_download(port: int, proc: subprocess.Popen,
+                           out_dir: Path, timeout: float = 15) -> None:
+    """Observe the real ROM UART download banner before esptool sends SYNC."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if proc.poll() is not None:
+            raise RuntimeError(f"QEMU exited before ROM download readiness: {proc.returncode}")
+        try:
+            peer = socket.create_connection(("127.0.0.1", port), timeout=0.2)
+            break
+        except OSError:
+            time.sleep(0.05)
+    else:
+        raise RuntimeError("QEMU ROM download UART did not open")
+    data = bytearray()
+    try:
+        peer.settimeout(0.2)
+        while time.monotonic() < deadline:
+            try:
+                chunk = peer.recv(4096)
+            except socket.timeout:
+                continue
+            if not chunk:
+                raise RuntimeError("QEMU ROM download UART closed before readiness")
+            data.extend(chunk)
+            if len(data) > 65536:
+                raise RuntimeError("QEMU ROM download banner exceeded 64 KiB")
+            if b"UART_BOOT(UART0))\r\n" in data:
+                return
+        raise RuntimeError("QEMU did not report ROM UART download mode")
+    finally:
+        peer.close()
+        (out_dir / "rom-download.log").write_bytes(data)
+
+
+def download_protocol_evidence(raw: bytes) -> dict:
+    """Summarize actual guest-to-host SLIP replies from QEMU's chardev log."""
+    frames, current, escape = [], None, False
+    for byte in raw:
+        if byte == 0xC0:
+            if current:
+                frames.append(bytes(current))
+            current, escape = bytearray(), False
+        elif current is not None:
+            if escape:
+                if byte not in (0xDC, 0xDD):
+                    current, escape = None, False
+                    continue
+                current.append({0xDC: 0xC0, 0xDD: 0xDB}[byte])
+                escape = False
+            elif byte == 0xDB:
+                escape = True
+            else:
+                current.append(byte)
+    counts = {}
+    for frame in frames:
+        if (len(frame) >= 8 and frame[0] == 1
+                and int.from_bytes(frame[2:4], "little") == len(frame) - 8):
+            opcode = f"0x{frame[1]:02x}"
+            counts[opcode] = counts.get(opcode, 0) + 1
+    return {"stub_ohai": b"OHAI" in frames, "reply_opcodes": counts,
+            "uart_log_sha256": hashlib.sha256(raw).hexdigest()}
 
 
 def flash_with_esp_emu(
@@ -222,14 +287,19 @@ def flash_with_qemu(
     rom_dir: Path,
     timeout: float = 180,
     memory: str | None = None,
-    no_stub: bool = True,
+    no_stub: bool = False,
     baud_scale: int = 16,
 ) -> dict:
-    """Flash a virtual drive through QEMU's ROM UART download mode."""
+    """Use ROM MEM_DATA to upload stock esptool's guest stub, then write SPI.
+
+    ROM-only FLASH_DATA is retained as an explicit diagnostic option. It is
+    not a fallback: that lane has independent checksum/format failures.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
     virtual_flash = out_dir / "virtual-flash.bin"
     virtual_flash.write_bytes(b"\xff" * flash_size)
     port = free_local_port()
+    uart_log = out_dir / "uart-download.bin"
     command = [
         str(qemu),
         "-M", machine,
@@ -237,7 +307,9 @@ def flash_with_qemu(
         "-L", str(rom_dir),
         "-display", "none",
         "-monitor", "none",
-        "-serial", f"tcp:127.0.0.1:{port},server=on,wait=off",
+        "-chardev", (f"socket,id=download-uart,host=127.0.0.1,port={port},"
+                     f"server=on,wait=off,nodelay=on,logfile={uart_log}"),
+        "-serial", "chardev:download-uart",
         "-global", "driver=esp32.gpio,property=strap_mode,value=0x0f",
         "-global",
         f"driver=esp_soc.uart,property=baud-scale,value={baud_scale}",
@@ -255,7 +327,14 @@ def flash_with_qemu(
         stderr=emu_stderr,
     )
     try:
-        wait_for_port(port, emu)
+        wait_for_qemu_download(port, emu, out_dir)
+        version = subprocess.run(
+            [sys.executable, "-m", "esptool", "version"], cwd=ROOT, env=env,
+            capture_output=True, text=True, timeout=15, check=False,
+        )
+        if version.returncode:
+            raise RuntimeError("esptool version probe failed: " + version.stderr[-600:])
+        tool_version = version.stdout.strip().splitlines()[-1]
         esptool_command = [
             sys.executable,
             "-m", "esptool",
@@ -292,7 +371,8 @@ def flash_with_qemu(
         (out_dir / "esptool.stderr").write_text(result.stderr)
         if result.returncode:
             raise RuntimeError(
-                f"QEMU esptool write failed ({result.returncode}): "
+                f"QEMU esptool {tool_version} write failed ({result.returncode}, "
+                f"loader={'rom-only' if no_stub else 'stock-stub'}): "
                 f"{result.stderr[-1200:] or result.stdout[-1200:]}"
             )
     finally:
@@ -308,6 +388,9 @@ def flash_with_qemu(
 
     expected = padded_image(image, flash_size)
     actual = virtual_flash.read_bytes()
+    protocol = download_protocol_evidence(uart_log.read_bytes())
+    if not no_stub and not protocol["stub_ohai"]:
+        raise RuntimeError("stock esptool stub OHAI was not observed in the real UART log")
     if actual != expected:
         first_diff = next(
             (index for index, (left, right) in enumerate(zip(actual, expected))
@@ -327,6 +410,14 @@ def flash_with_qemu(
         "flash_size": flash_size,
         "verified": True,
         "no_stub": no_stub,
+        "loader": "rom-only-diagnostic" if no_stub else "stock-esptool-stub",
+        "esptool_version": tool_version,
+        "runtime_binary_sha256": hashlib.sha256(qemu.read_bytes()).hexdigest(),
+        "image_sha256": hashlib.sha256(expected).hexdigest(),
+        "readback_sha256": hashlib.sha256(actual).hexdigest(),
+        "byte_compare": "equal",
+        "rom_download_ready": True,
+        "protocol": protocol,
         "baud_scale": baud_scale,
     }
 

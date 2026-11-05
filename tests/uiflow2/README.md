@@ -12,6 +12,12 @@
    `post_frame_color` 的输入设备还必须命中 UI 写入的固定像素标记；
 6. 输出规范 `before.png`、`after.png`、串口和命令日志。
 
+准备本地虚拟烧录依赖（Python 3.12+，不修改全局安装）：
+
+```sh
+python3 -m pip install --target .work/py -r tests/uiflow2/requirements-flash.txt
+```
+
 全量回归：
 
 ```bash
@@ -387,7 +393,13 @@ python3 tests/uiflow2/flash_device.py \
 传输说明：
 
 - `esp-emu-esptool`：ESP32-S3/C6/P4，真实 esptool `write-flash`，写入后逐字节校验；
-- `qemu-esptool`：Core2，通过 QEMU ESP32 ROM UART 下载模式和 `esptool --no-stub` 写入，再逐字节校验；
+- `qemu-esptool`：classic ESP32 的 UI/console case 先观察真实 ROM UART
+  download banner，再由固定 esptool 的 `MEM_BEGIN/DATA/END` 上传官方 guest
+  stub；CPU 执行 stub 经 SPI 写入 Flash。QEMU chardev 日志保留实际 `OHAI`
+  和协议回复，写后完整 Flash 逐字节比较，summary 记录 tool/runtime/image/
+  readback SHA。TCP 显式 `nodelay`，不会在 host 复制镜像冒充串口烧录。
+  `flash_with_qemu(no_stub=True)` 只保留 ROM-only 诊断；其 checksum/format
+  失败是独立未关闭边界，不从 stock-stub PASS 继承。
 - Tab5：`esp-emu` P4 下载模式的地址空间限制在 8 MiB，因此仿真专用分区表把
   应用、sys、vfs 和 storage 全部放在 8 MiB 以下；生产分区布局不变。写后的
   16 MiB 虚拟 Flash 与期望镜像逐字节一致后，再从同一份 Flash 启动。

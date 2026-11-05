@@ -305,16 +305,26 @@ def run_console(
         case_env["M5SW_I2S_PCM_FILE"] = str(pcm_capture)
     flash_info = {"transport": "host-image", "verified": True}
     esp_emu_chip = backend.get("esp_emu_chip")
-    if flash_transport == "esp-emu" and esp_emu_chip:
+    qemu_esptool_chip = backend.get("qemu_esptool_chip")
+    if flash_transport == "esp-emu" and (esp_emu_chip or qemu_esptool_chip):
         try:
-            flash_info = flash_with_esp_emu(
-                chip=esp_emu_chip,
+            flash_args = dict(
+                chip=esp_emu_chip or qemu_esptool_chip,
                 image=image,
                 flash_size=int(device["flash_size"], 0),
                 out_dir=device_out / "flash",
                 env=case_env,
                 timeout=max(device.get("timeout", 20), 120),
             )
+            if esp_emu_chip:
+                flash_info = flash_with_esp_emu(**flash_args)
+            else:
+                flash_info = flash_with_qemu(
+                    **flash_args, machine=device["machine"],
+                    qemu=ROOT / backend["qemu"],
+                    rom_dir=ROOT / backend["rom_dir"],
+                    memory=device.get("memory"),
+                )
             image = Path(flash_info["virtual_flash"])
         except Exception as error:
             return {
@@ -322,7 +332,7 @@ def run_console(
                 "exit_code": 1,
                 "output": str(device_out),
                 "flash": {
-                    "transport": "esp-emu-esptool",
+                    "transport": "esp-emu-esptool" if esp_emu_chip else "qemu-esptool",
                     "verified": False,
                     "error": str(error),
                 },
