@@ -78,6 +78,9 @@ def ui_command(
         command.append("--deterministic")
     if "post_frame_color" in device:
         command.extend(["--post-frame-color", device["post_frame_color"]])
+    for name in ("pre_input_marker", "post_input_marker"):
+        if device.get(name):
+            command.extend(["--" + name.replace("_", "-"), device[name]])
     serial_expect = device.get("serial_expect", [])
     if isinstance(serial_expect, str):
         serial_expect = [serial_expect]

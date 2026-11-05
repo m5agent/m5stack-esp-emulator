@@ -63,6 +63,15 @@ CASES = [
             "STICKS3_BTN_PWR 1",
             "STICKS3_IMU 0.250 -0.500 0.750",
         ],
+        "firmware_serial_expectations": {
+            "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7": {
+                # M5Unified 0.2.28 maps sensor axes to X=+Y, Y=-X, Z=+Z.
+                "replace": {"STICKS3_IMU 0.250 -0.500 0.750":
+                            "STICKS3_IMU -0.500 -0.250 0.750"},
+                "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/IMU_Class.inl",
+                "detail": "UIFlow2 v2.5.5 / M5Unified 0.2.28 StickS3 BMI270 board axes",
+            },
+        },
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -1103,6 +1112,19 @@ CASES = [
             "PAPERCOLOR_KEY 1",
             "PAPERCOLOR_PWR 1",
         ],
+        "firmware_serial_expectations": {
+            "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d": {
+                # No charger-status wire: VIN present means undetermined,
+                # so isCharging() is false rather than a physical not-charging claim.
+                "replace": {
+                    "PAPERCOLOR_POWER 87 4000 1": "PAPERCOLOR_POWER 87 4000 0",
+                    "PAPERCOLOR_POWER_STATE 3400 1": "PAPERCOLOR_POWER_STATE 3400 0",
+                    "PAPERCOLOR_POWER_STATE 4200 1": "PAPERCOLOR_POWER_STATE 4200 0",
+                },
+                "source": "https://github.com/m5stack/M5Unified/blob/b67ea7bd2d187d3fa8719edf1b915fd34a128c0d/src/utility/Power_Class.inl",
+                "detail": "UIFlow2 v2.5.4 / M5Unified 0.2.28 PaperColor undetermined charge state",
+            },
+        },
         "post_input_wait": 5.0,
         "min_unique_colors": 1,
         "allow_static_frame": True,
@@ -2502,6 +2524,22 @@ CASES = [
 ]
 
 
+def firmware_case_expectations(case: dict, base_sha256: str) -> tuple[dict, dict]:
+    """Select only an explicitly SHA-bound driver-behavior change."""
+    selected = case.get("firmware_serial_expectations", {}).get(base_sha256)
+    identity = {"base_sha256": base_sha256, "profile": "legacy-case-default"}
+    if selected is None:
+        return case, identity
+    replacements = selected["replace"]
+    original = case.get("serial_expect", [])
+    if not set(replacements) <= set(original):
+        raise ValueError(f"{case['id']}: firmware expectation replaces an unknown marker")
+    effective = {**case, "serial_expect": [replacements.get(marker, marker)
+                                           for marker in original]}
+    return effective, {**identity, "profile": "sha-bound-driver-behavior",
+                        "source": selected["source"], "detail": selected["detail"]}
+
+
 def reference_layout(case: dict) -> dict:
     """Resolve the refreshed reference's VFS before composing a probe image."""
     tools_path = str(ROOT / "platform/tools")
@@ -2729,6 +2767,8 @@ def main() -> None:
                 check=True,
             )
         reference = reference_layout(case)
+        case, expectation = firmware_case_expectations(
+            case, reference["base_firmware_sha256"])
         command = command_for(case, case_out, sd_image, reference=reference)
         case_env = env.copy()
         for key, value in case.get("env", {}).items():
@@ -2934,6 +2974,7 @@ def main() -> None:
         results[case["id"]] = {
             "status": status,
             "reference_layout": reference,
+            "firmware_expectations": expectation,
             "exit_code": process.returncode,
             "command": command,
             "output": str(case_out),

@@ -30,7 +30,8 @@ def draw():
     d.print("PaperColor peripherals")
     d.setTextSize(2)
     d.setCursor(24, 110)
-    d.print("power:%d%% %dmV chg:%d" % state["power"])
+    # API bool=0 can mean undetermined on v2.5.4, not physical not-charging.
+    d.print("power:%d%% %dmV APIbool:%d" % state["power"])
     d.setCursor(24, 154)
     d.print("rtc:%04d-%02d-%02d %02d:%02d:%02d" % state["rtc"])
     d.setCursor(24, 198)

@@ -250,7 +250,8 @@
         "STICKCPLUS2_M5_BEGIN_OK",
         "STICKCPLUS2_DISPLAY 135 240",
         "STICKCPLUS2_BTN_A 1"
-      ]
+      ],
+      "pre_input_marker": "STICKCPLUS2_FRAME_READY"
     },
     {
       "id": "nesso-n1",
@@ -615,7 +616,14 @@
       "expected_size": "80x160",
       "input": "key:a",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "post_frame_color": "3,3,00FF00",
+      "pre_input_marker": "CLASSIC_DISPLAY",
+      "serial_expect": [
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_BUTTON 0 1"
+      ]
     },
     {
       "id": "stickc-plus",
@@ -638,8 +646,11 @@
         "STICKC_PLUS_MAIN_START",
         "STICKC_PLUS_M5_BEGIN_OK",
         "CLASSIC_DISPLAY 135 240",
-        "CLASSIC_BUTTON 1 1"
-      ]
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 0 1"
+      ],
+      "pre_input_marker": "CLASSIC_DISPLAY"
     },
     {
       "id": "stickc-plus-se",
@@ -656,7 +667,14 @@
       "expected_size": "135x240",
       "input": "key:a",
       "efuse_pkg_version": 5,
-      "efuse_driver": "nvram.esp32.efuse"
+      "efuse_driver": "nvram.esp32.efuse",
+      "post_frame_color": "3,3,00FF00",
+      "pre_input_marker": "CLASSIC_DISPLAY",
+      "serial_expect": [
+        "CLASSIC_DISPLAY",
+        "CLASSIC_BUTTON 1 1",
+        "CLASSIC_BUTTON 0 1"
+      ]
     },
     {
       "id": "atom-lite",

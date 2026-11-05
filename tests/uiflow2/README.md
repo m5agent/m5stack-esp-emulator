@@ -1,6 +1,6 @@
 # UIFlow2 虚拟烧录与 UI 回归
 
-最近核对：`2026-10-26`
+最近核对：`2026-11-05`
 
 设备参数在 `device_matrix.json` 中集中维护。统一流程：
 
@@ -49,6 +49,17 @@ python3 tests/uiflow2/run_device_matrix.py --device sticks3 --device stickc \
 自建运行时；没有配置时保留 registry 路径。classic ESP32 与 S3 的 package
 eFuse 均严格限制在三位 `0..7`，分别写入各自 SoC 的字段；不会改动 security
 eFuse 或以禁用 driver 绕过 package fixture。
+
+StickC/Plus/Plus SE fixture 在初始红块外保留蓝色边框，按下/释放事件写入串口，
+首次按下后锁存绿块供最终像素断言；保留至少两种非黑颜色与真实输入后的帧
+变化检查。Plus2 在 `STICKCPLUS2_FRAME_READY` 后才注入原有按键事件，避免在
+guest 尚未进入输入循环时发送。
+
+外设矩阵的两项 M5Unified 0.2.28 行为变化由精确 base SHA 选择期望：
+StickS3 v2.5.5 使用官方 BMI270 board axes；PaperColor v2.5.4 的
+`isCharging()==False` 可代表 `undetermined`。旧 marker 保留在默认历史分支，
+不会给未知固件自动套用新版期望；输出 summary 记录实际 SHA、选中分支与
+上游源码 permalink。fixture 显示 API 读数，不能把布尔值当作物理充电结论。
 
 输入验收不能只看截图哈希。Core2 曾出现触摸实际未计数、但半帧重绘仍改变
 哈希而误判 PASS；现在触摸和按键测试会在识别到输入后写固定颜色标记，
