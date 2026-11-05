@@ -1,0 +1,434 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "validation_class": "virtual-device validation",
+  "registry": "summary.json",
+  "scope": [
+    "s3_startup",
+    "tab5"
+  ],
+  "s3_startup": {
+    "development_commit": "1606acca2acd735c114a575ef1ce27503443824d",
+    "root_causes": {
+      "dial_and_atoms3_lite": "Official Python console is USB CDC; fixture only set run-main flag and had no UART stdout attachment. Original AtomS3Lite guest already emitted RGB through RMT; no pre-REPL hang was present. Boot now attaches the real UART0 via os.dupterm and RX notification. No host-side guest output or values.",
+      "papercolor": "Same UART observation gap plus controller failed to commit ED2208 AUTO command 0x17 payload A5/A7. Fixed controller by parent; child main program unchanged and original post-input black-pixel assertion retained.",
+      "rejected_er_read": "Xtensa External Register address space, XDM_OCD_DCR_SET 0x10200C (debug control SET), not I2C/EPD/PM1 MMIO. Warning remains in a fully passing PaperColor execution, so it was not the blocking cause."
+    },
+    "negative_controls": {
+      "canonical_unmodified_fixtures": {
+        "papercolor": "FAIL",
+        "dial": "FAIL",
+        "atoms3-lite": "FAIL"
+      },
+      "canonical_uart0_only": {
+        "papercolor": "FAIL original post-frame pixel",
+        "dial": "PASS",
+        "atoms3-lite": "PASS"
+      },
+      "canonical_atoms3_lite_qom_without_stdout": {
+        "PC_CPU0": "403838d2",
+        "led_rgb": 2113632,
+        "rmt_tx_completions": 2,
+        "onboard_led_frames": 2
+      }
+    },
+    "positive_runs": [
+      {
+        "device": "papercolor",
+        "status": "PASS",
+        "machine": "m5papercolor",
+        "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+        "derived_image_sha256": "0910224d754135c77402c2bdd25e20db1a8b92466741eca37ead664557eac498",
+        "source_sha256": "df7a11030d3b1f8fadca26377c04c285d86d89cf5d3fb8608229c3d7f0bd37c4",
+        "vfs": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "92c8726634be0b98c31a0a92c81f62b4df5b95b8308cdc7d13dc960b60890c2d",
+        "serial_bytes": 423,
+        "serial_markers": {
+          "PAPERCOLOR_BOOT_FLAG": true,
+          "PAPERCOLOR_MAIN_START": true,
+          "PAPERCOLOR_BOARD 28": true,
+          "PAPERCOLOR_DISPLAY 400 600": true,
+          "PAPERCOLOR_BTN_A 1": true
+        },
+        "before_png_sha256": "7d47296a4f712c793fb75c28822bf6bedc9dd5bee5a01d3bdee6f62702e0d0ac",
+        "after_png_sha256": "19df21a5e51ba73871992388a425ee3ae929dee030c26d302c5b349a9aec171c",
+        "post_frame_assertion": {
+          "pixel": [
+            270,
+            160
+          ],
+          "expected_rgb": "000000",
+          "status": "PASS"
+        },
+        "lane": "final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      },
+      {
+        "device": "atoms3-lite",
+        "status": "PASS",
+        "machine": "m5atoms3lite",
+        "base_sha256": "277309063a47340f15c6d0932ca3b1e8156b4b3fc6b2b5366379badb893ec886",
+        "derived_image_sha256": "45d61c6cd2c56cffd530820aa0dd41072bcd4625456465b929070fda3f4f08f5",
+        "source_sha256": "e3e5b364b5a4bf92ee3639158942adfe5ca3da718681636327c7726b05c2ee8b",
+        "vfs": {
+          "offset": 6623232,
+          "size": 1761280
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "2c150dba10f4f0e468e0a114e19c906504b32d65c8256cfa2768223406a4508c",
+        "serial_bytes": 406,
+        "serial_markers": {
+          "ATOMS3_LITE_MAIN_START": true,
+          "ATOMS3_LITE_M5_BEGIN_OK": true,
+          "ATOMS3_LITE_BOARD 137": true,
+          "ATOMS3_LITE_RGB 2113632": true
+        },
+        "lane": "final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      },
+      {
+        "device": "dial",
+        "status": "PASS",
+        "machine": "m5dial",
+        "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+        "derived_image_sha256": "107675151f4be759b6387f3e4ebe11f2b6cd08f360dc27d214cf658cd7bd7a45",
+        "source_sha256": "ad5e392c6e07087d5d620f300eb6ec060b1e6d6dd69a56c168ab6e894694610e",
+        "vfs": {
+          "offset": 7602176,
+          "size": 786432
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "c2c15686ee0c4bf4b5c00ee53b2f6b8643afc093a3cc9ad58000d74001a8ebb5",
+        "serial_bytes": 749,
+        "serial_markers": {
+          "DIAL_MAIN_START": true,
+          "DIAL_M5_BEGIN_OK": true,
+          "DIAL_DISPLAY 240 240": true
+        },
+        "before_png_sha256": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e",
+        "after_png_sha256": "90088be0ef232a5eb750aea968abf123b176708ba6527fbb7783aae1237bbde2",
+        "lane": "final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      },
+      {
+        "device": "papercolor",
+        "status": "PASS",
+        "machine": "m5papercolor",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "derived_image_sha256": "122afd0ada9449d13224c9fc74f773939d7ef0db4a0ab56b610cb67626f32ec3",
+        "source_sha256": "df7a11030d3b1f8fadca26377c04c285d86d89cf5d3fb8608229c3d7f0bd37c4",
+        "vfs": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "572aade9cf14903160ef4946dd066a453cb1f8be4ab2d22c7a809d9b0c4be064",
+        "serial_bytes": 423,
+        "serial_markers": {
+          "PAPERCOLOR_BOOT_FLAG": true,
+          "PAPERCOLOR_MAIN_START": true,
+          "PAPERCOLOR_BOARD 28": true,
+          "PAPERCOLOR_DISPLAY 400 600": true,
+          "PAPERCOLOR_BTN_A 1": true
+        },
+        "before_png_sha256": "7d47296a4f712c793fb75c28822bf6bedc9dd5bee5a01d3bdee6f62702e0d0ac",
+        "after_png_sha256": "19df21a5e51ba73871992388a425ee3ae929dee030c26d302c5b349a9aec171c",
+        "post_frame_assertion": {
+          "pixel": [
+            270,
+            160
+          ],
+          "expected_rgb": "000000",
+          "status": "PASS"
+        },
+        "lane": "older-final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      },
+      {
+        "device": "atoms3-lite",
+        "status": "PASS",
+        "machine": "m5atoms3lite",
+        "base_sha256": "338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c",
+        "derived_image_sha256": "047a4f89a5adbbaa2f388159ebbc9c071504b342bebe6fbe8db7e06b4dc87406",
+        "source_sha256": "e3e5b364b5a4bf92ee3639158942adfe5ca3da718681636327c7726b05c2ee8b",
+        "vfs": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "243be4adf6f1d0341100828013c9d6eb99b39db817861bc1ce9dfcac0bf4c57e",
+        "serial_bytes": 406,
+        "serial_markers": {
+          "ATOMS3_LITE_MAIN_START": true,
+          "ATOMS3_LITE_M5_BEGIN_OK": true,
+          "ATOMS3_LITE_BOARD 137": true,
+          "ATOMS3_LITE_RGB 2113632": true
+        },
+        "lane": "older-final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      },
+      {
+        "device": "dial",
+        "status": "PASS",
+        "machine": "m5dial",
+        "base_sha256": "6a0187dad13c491129e9228ca36b9e04adb46ebf9d8d51fca8eca5f9b7332a53",
+        "derived_image_sha256": "6005452ece8f211fa8ab0c37382cde5c658393ffa0743d7a74dd98842de35a82",
+        "source_sha256": "ad5e392c6e07087d5d620f300eb6ec060b1e6d6dd69a56c168ab6e894694610e",
+        "vfs": {
+          "offset": 7602176,
+          "size": 786432
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "efuse_driver": "nvram.esp32s3.efuse",
+        "efuse_pkg_version": 0,
+        "serial_sha256": "500c8999476a02cafd4991b4b86a58869db34c1cda3f2d6fdb176cdd9cfadb73",
+        "serial_bytes": 791,
+        "serial_markers": {
+          "DIAL_MAIN_START": true,
+          "DIAL_M5_BEGIN_OK": true,
+          "DIAL_DISPLAY 240 240": true
+        },
+        "before_png_sha256": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e",
+        "after_png_sha256": "90088be0ef232a5eb750aea968abf123b176708ba6527fbb7783aae1237bbde2",
+        "lane": "older-final-tracked",
+        "runtime_ref": "startup_epd_auto_snapshot"
+      }
+    ],
+    "same_vm_raw_repl": {
+      "scope": "virtual-device UART0 same-VM raw-REPL proof",
+      "status": "PASS",
+      "input_hex": [
+        "0d0303",
+        "01",
+        "7072696e74282241544f4d53335f4c4954455f5245504c5f50524f4f46222c204d352e676574426f61726428292904"
+      ],
+      "serial_markers": [
+        "ATOMS3_LITE_RGB 2113632",
+        ">>>",
+        "raw REPL; CTRL-B to exit",
+        "ATOMS3_LITE_REPL_PROOF 137"
+      ],
+      "cleanup": "owned QEMU reaped, sockets removed"
+    },
+    "papercolor_final_trace": {
+      "er_rejected_read_count": 2,
+      "refresh_lines": [
+        "[m5epd-refresh] cmd=17 bytes=120000 first=00 sample270x160=00",
+        "[m5epd-refresh] cmd=17 bytes=120000 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=120000 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=117400 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=4212 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=960 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=5040 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=3120 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=12160 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=2400 first=66 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=7424 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=4560 first=11 sample270x160=11",
+        "[m5epd-refresh] cmd=17 bytes=240 first=11 sample270x160=00"
+      ],
+      "stdout_sha256": "639a19a9052da5cec865d008e0ca7e2cff4e18e291cf7b12dcb1ebd924a1b8e1",
+      "stderr_sha256": "98b7a704f3f9afbf40a26376200409ed95feea7e17a31fc53ea4f014b6db77e1",
+      "status": "PASS"
+    }
+  },
+  "tab5": {
+    "development_commit": "14427d51d1a3e1c4adc3c86fcedf52858e1827c9",
+    "overall_status": "PARTIAL",
+    "packing_repair": "PASS",
+    "latest_official_python_ui_touch": "NOT PROVEN",
+    "original_firmware_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+    "correct_derived_sha256": "f238ab142a8337166eaa045402ff8c691e5ee296999f3df937167298b7bbf841",
+    "application_identity": {
+      "offset": 65536,
+      "size": 10027008,
+      "segments_end": 7920420,
+      "partition_sha256": "f49ac654a62bd521a0ee9e1adbbcf90db8b9f29cbd4493a88786eee6612971a5",
+      "segments_sha256": "5682f3c0e7b802dcbcd07bfcfafd3ed3f40b4054a78a398a35ae3293df7222f7",
+      "elf_sha256": "0bb5647cd2dd4136c3b0ef41ce1e84f50d87d98dfdac621768cfeb606f194fbb",
+      "version": "V2.5.4"
+    },
+    "application_bytes_unchanged": true,
+    "stock_preservation": {
+      "base_file_count": 18,
+      "preserved_file_count": 16,
+      "overwritten_files": [
+        "boot.py",
+        "main.py"
+      ],
+      "outside_vfs_unchanged": true,
+      "existing_files_readback_verified": true,
+      "source_readback_verified": true
+    },
+    "actual_vfs": {
+      "offset": 11141120,
+      "size": 4980736
+    },
+    "previous_corruption": {
+      "previous_bad_image_sha256": "66a099f6b39219a5aa53bfdb4e5c6710ebefa854b13615e888de3994134b6582",
+      "previous_bad_app_difference_bytes": 1557304,
+      "previous_first_difference": 6356992
+    },
+    "runtime_ref": "tab5_esp_emu",
+    "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "unmatched_elf": {
+      "expected_app_elf_sha256": "0bb5647cd2dd4136c3b0ef41ce1e84f50d87d98dfdac621768cfeb606f194fbb",
+      "old_elf_sha256": "b02f850429014de264138b56babc2bdf263fc9cf66b0b014551f4eca90a59886",
+      "negative_control": "CLI rejected stale ELF before either guest was launched"
+    },
+    "latest_startup_observation": {
+      "status": "PARTIAL",
+      "bounded_execution_seconds": [
+        40,
+        25,
+        20,
+        18
+      ],
+      "gdb_no_elf_snapshots": [
+        {
+          "sha256": "e4a7507c796fafeef2091a7fbf81a9f3cd412ab11340ec35116d6d7f4e9c6b9e",
+          "pc": "0x4ff09a1a",
+          "ra": "0x4ff09a06",
+          "sp": "0x4ff36c00"
+        },
+        {
+          "sha256": "e4a7507c796fafeef2091a7fbf81a9f3cd412ab11340ec35116d6d7f4e9c6b9e",
+          "pc": "0x4ff09a1a",
+          "ra": "0x4ff09a06",
+          "sp": "0x4ff36c00"
+        },
+        {
+          "sha256": "e4a7507c796fafeef2091a7fbf81a9f3cd412ab11340ec35116d6d7f4e9c6b9e",
+          "pc": "0x4ff09a1a",
+          "ra": "0x4ff09a06",
+          "sp": "0x4ff36c00"
+        }
+      ],
+      "interpretation": "The repeated PC lies in the actual latest-app IRAM load interval; no matching debug ELF was used. Factory partition rejection disappeared, but no Python/UI/touch marker was observed. Specific stalled function/controller is not established.",
+      "do_not_infer": "An old ELF at the same address resolves different instructions; its symbols cannot identify this latest PC."
+    },
+    "legacy_regressions": {
+      "ui_touch": {
+        "machine": "tab5-esp-emu-gdb",
+        "size": "1280x720",
+        "touch_logical": [
+          640,
+          520
+        ],
+        "touch_raw": [
+          199,
+          640
+        ],
+        "changed_channels": 7900,
+        "image_sha256": "04a809b78b1bf8718ed68f501e6c6e5caa7a250484c102d69cf4fbb76a76068f",
+        "serial_markers": [
+          "TAB5_I2C_PORT",
+          "TAB5_UI_DRAWN",
+          "TAB5_DRAW_AFTER_TOUCH"
+        ],
+        "before": {
+          "nonblack_pixels": 100472,
+          "unique_colors": 31
+        },
+        "after": {
+          "nonblack_pixels": 99944,
+          "unique_colors": 31
+        }
+      },
+      "rs485": {
+        "status": "PASS",
+        "derived_image_sha256": "b803295fa793b62807f4f9bf3ae5b6dade45aa248846fa247198cdf771a626ff",
+        "ready_marker": "TAB5_RS485_DONE PASS",
+        "uart1_peer": {
+          "connected": true,
+          "rx": "544142355f52533438355f50494e47",
+          "tx": "544142355f52533438355f504f4e47"
+        }
+      }
+    },
+    "seed_handling": {
+      "fix": "Backend receives an owned copy; final positive/negative execution inputs retained identical bytes and mtime.",
+      "early_diagnostic_boundary": "Backend implicit save-back was discovered after earlier diagnostic use of the shared seed. Its mtime changed; no pre-run content hash was available, so earlier byte preservation is not claimed. No explicit burn command was executed."
+    },
+    "remaining_requirements": [
+      "Latest official app must reach actual guest Python/UI markers on a compatible P4 execution path.",
+      "Framebuffer/touch requires that exact app supported data plane or matching exported ABI; the current old-build GDB mailbox does not transfer.",
+      "The closed backend startup stall needs matching latest ELF/controller observability to identify its specific function."
+    ]
+  }
+}

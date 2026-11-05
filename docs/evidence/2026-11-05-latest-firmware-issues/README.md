@@ -1,28 +1,70 @@
 # Latest UIFlow2 regression repairs
 
-Date: 2026-11-05. This campaign separates image/observer defects from actual
-controller behavior. Native results are **virtual-device validation**; physical
-hardware and browser-WASM validation are NOT RUN.
+Date: 2026-11-05. Native results are **virtual-device validation**. Physical
+hardware and browser-WASM validation are NOT RUN. Final host/CI/delivery gates
+remain pending; this page does not close all issue reports.
 
-The source changes retain the original failing controls. They derive VFS layout
-from the exact firmware, preserve stock files and all bytes outside VFS, observe
-real UART/controller output, and bind expected differences to exact firmware
-hashes. Synthetic ADC calibration remains an explicit, application-byte-bound
-virtual fixture; unknown application images do not inherit admission.
+The repairs distinguish image/observer defects from actual controller behavior.
+Actual partition tables drive VFS composition, stock files and all non-VFS bytes
+are preserved, classic/S3 eFuse fields are bounded, and expected driver differences
+are bound to exact firmware hashes. Real UART0 observation exposes the original
+PaperColor, Dial and AtomS3 Lite programs. Synthetic ADC calibration remains an
+explicit application-byte-bound virtual fixture, with unchanged numeric oracles.
 
-## Native controller changes
+## Native controllers and inputs
 
-- AXP2101 PMU status2 now reports both charger-state and current-direction fields.
-- ED2208 accepts inclusive partial windows (0x83) and the AUTO refresh sequence
-  (0x17 with A5/A7); the legacy full-frame refresh protocol is preserved.
-- AtomS3 has an explicit `m5atoms3-st7735` LCD variant using the official M5GFX
-  ST7735S RAM geometry, mounting and inversion. The original `m5atoms3` GC9107
-  machine remains available. This is a declared native profile selection,
-  not an automatic firmware-dependent crop or a framebuffer substitution.
+AXP2101 reports charger/current direction fields. ED2208 accepts inclusive 0x83
+windows and 0x17 A5/A7 AUTO refresh while preserving the legacy protocol. AtomS3
+has an explicit `m5atoms3-st7735` LCD profile; original `m5atoms3` GC9107 is
+preserved. Latest/previous official controls use the frozen fresh native runtime.
 
-## Integration gate
+Basic's earlier standalone A/B/C PASS is retained. The first frozen device matrix
+reproduced a missing B after A redraw: 17 PASS / 1 FAIL. A real guest redraw fence
+now separates inputs while keeping the 450 ms pulse; measured ACK intervals are
+0.456461/0.453950/0.451503 s. The independent fenced case and a new full device run
+pass (18/18). This is a fixture synchronization repair, not a changed button model.
 
-Final integrated platform/native/CI results are not yet recorded in this commit.
-See [summary.json](summary.json); result details are appended after execution.
-Tab5's corrected latest official image has reached its application address, but
-Python/UI/touch readiness remains PARTIAL and must not inherit an old-image PASS.
+The first full peripheral run remains 67 PASS / 1 FAIL: Core2 Mic had a successful
+guest result but its sampled (4,4) frame pixel was black. A separate draw-fenced
+followup observes nonzero PCM, both result/draw markers and the unchanged green
+pixel assertion. It does not rewrite the original 68-case run into a full PASS.
+The existing Unit Buzzer default timer-zero failure is separate and remains open.
+
+## Tab5 and storage boundaries
+
+The Tab5 double VFS injection corrupted latest application bytes; composition
+now preserves the entire app, rejects stale ELF symbols and gives esp-emu an owned
+virtual eFuse copy. The first shared virtual seed save-back lacked a before hash;
+its earlier byte preservation is not claimed. Later copy checks preserve source
+hash and mtime. Latest official Python/UI/touch still lacks readiness evidence;
+old merged-image UI/touch/RS-485 PASS is a separate control. **#188 remains open.**
+
+The engineering-storage cleanup removed only verified regenerable cache/objects
+and deduplicated byte-identical immutable blobs after write-policy checks. The
+allocated/du total is 39,932,112,896 B (37.189678 GiB); current runtime, firmware,
+ELF, source, sessions, metadata and valid evidence were retained. Additional
+same-inode/hash and metadata readback is included; a hash-mismatched candidate was
+left untouched. Concurrent `df` changes are reported separately.
+
+## Bounded evidence and reproduction
+
+- [Summary and identities](summary.json): issue dispositions, runtime hashes,
+  storage accounting, boundaries and final pending gates.
+- [Matrix and Flash transport](matrix-transport-summary.json): original failures,
+  exact-firmware expectations, stock esptool guest-stub and complete Flash readback.
+- [Runtime provenance and ADC](service-adc-summary.json): replay/build boundaries,
+  executed-runtime identity, calibration values and retained Buzzer failure.
+- [S3 startup and Tab5](startup-tab5-summary.json): original programs, UART/EPD
+  observations, unchanged latest Tab5 app, old-image controls and seed boundary.
+- [Fresh native integration](root-integration-summary.json): initial/final device
+  matrices, previous firmware
+  controls, exact base/derived-image/serial/frame hashes and measured Basic input.
+- [Fresh native peripherals](root-peripheral-summary.json): the complete first
+  67 PASS / 1 FAIL run (part 1), with [part 2 and independent Mic followup](root-peripheral-more-summary.json), separately bound
+  to actual firmware/runtime/ROM and data-plane/frame checks.
+
+Use checked-in `tests/uiflow2/run_device_matrix.py`, `run_peripheral_matrix.py`
+and Unit host runners at the final published source commit with these exact
+firmware/runtime identities. Root summaries bind raw evidence by SHA rather than
+publishing host paths or mutable Flash. Final platform validators, CI, source/record
+permalinks and remote delivery are recorded separately after completion.

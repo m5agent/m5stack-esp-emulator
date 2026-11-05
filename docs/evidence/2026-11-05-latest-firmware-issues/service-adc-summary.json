@@ -1,0 +1,1209 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "validation_class": "virtual-device validation",
+  "registry": "summary.json",
+  "scope": [
+    "runtime_provenance",
+    "adc_calibration"
+  ],
+  "runtime_provenance": {
+    "development_commit": "640bea9f795c4b03e56185f989053c946c06ccc7",
+    "source_replay": {
+      "status": "PASS",
+      "base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+      "patch_count": 109,
+      "source_files": 138,
+      "forward_check": "PASS",
+      "reverse_check_at_each_layer": "PASS",
+      "full_reverse_to_base": "PASS",
+      "restored_source_matches_built_source": true
+    },
+    "build": {
+      "runtime_ref": "fresh_native_109",
+      "first_build": "FAIL: cache-gate enum header missing; fixed in native context port",
+      "second_build": "PASS",
+      "dependency_reuse": "read-only existing pinned native dependency prefix and Python environment; QEMU objects rebuilt in isolated source tree"
+    },
+    "initial_unit_suite": {
+      "total": 294,
+      "errors": 2,
+      "skipped": 1,
+      "status": "FAIL",
+      "reason": "existing hardcoded /opt/homebrew/bin/node in preview test; parent fixes tool locator separately"
+    },
+    "runs": [
+      {
+        "label": "rtc",
+        "status": "PARTIAL",
+        "classification": "runtime-provenance",
+        "blocker": "functional observations exist but the executed runtime identity is not verified",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "official_driver_ready": true,
+          "live_controller_state": true,
+          "guest_base_time": true,
+          "virtual_clock_advanced": true,
+          "guest_time_advanced": true,
+          "guest_write_fields": true,
+          "qom_unix_time_written": true,
+          "i2c_address_0x51": true,
+          "nonempty_application_frame": true,
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "frame": {
+          "sha256": "a6946f00b1d2366514a1c0c6f8c44692ee790f499b9c32b7f203b438c48be8e4",
+          "metrics": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 57600,
+            "unique_colors": 16
+          }
+        },
+        "observations": {
+          "rtc": {
+            "guest_t1": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "2"
+            ],
+            "guest_t2": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "3"
+            ],
+            "guest_written": [
+              "26",
+              "3",
+              "2",
+              "12",
+              "0",
+              "0"
+            ],
+            "qom": {
+              "unix-time": 1772452800,
+              "running": false,
+              "i2c-address": 81
+            },
+            "boundary": "Crystal accuracy/battery backup/power-loss retention, timezone/NTP, alarm IRQ timing and century/leap-year are NOT RUN; the clock uses QEMU virtual time while running and BCD registers while stopped. 0x51 conflicts with the ameter calibration EEPROM (one Unit per bus)."
+          }
+        },
+        "serial_sha256": "63d2f56507f86cb590c44d98adbe366f3497bea5da95966fd6243c9512545a15",
+        "runtime_ref": null,
+        "runtime_provenance_status": "NOT VERIFIED"
+      },
+      {
+        "label": "rtc-v2",
+        "status": "PASS",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "official_driver_ready": true,
+          "live_controller_state": true,
+          "guest_base_time": true,
+          "virtual_clock_advanced": true,
+          "guest_time_advanced": true,
+          "guest_write_fields": true,
+          "qom_unix_time_written": true,
+          "i2c_address_0x51": true,
+          "nonempty_application_frame": true,
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "frame": {
+          "sha256": "a6946f00b1d2366514a1c0c6f8c44692ee790f499b9c32b7f203b438c48be8e4",
+          "metrics": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 57600,
+            "unique_colors": 16
+          }
+        },
+        "observations": {
+          "rtc": {
+            "guest_t1": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "2"
+            ],
+            "guest_t2": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "3"
+            ],
+            "guest_written": [
+              "26",
+              "3",
+              "2",
+              "12",
+              "0",
+              "0"
+            ],
+            "qom": {
+              "unix-time": 1772452800,
+              "running": false,
+              "i2c-address": 81
+            },
+            "boundary": "Crystal accuracy/battery backup/power-loss retention, timezone/NTP, alarm IRQ timing and century/leap-year are NOT RUN; the clock uses QEMU virtual time while running and BCD registers while stopped. 0x51 conflicts with the ameter calibration EEPROM (one Unit per bus)."
+          }
+        },
+        "serial_sha256": "549fe67d7796d0e71f14a2dea7daa37cf9e0ec84510edd7b2670eea8a06c82f9",
+        "runtime_ref": "canonical_native",
+        "runtime_provenance_status": "VERIFIED"
+      },
+      {
+        "label": "bootstrap-rtc",
+        "status": "PASS",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "official_driver_ready": true,
+          "live_controller_state": true,
+          "guest_base_time": true,
+          "virtual_clock_advanced": true,
+          "guest_time_advanced": true,
+          "guest_write_fields": true,
+          "qom_unix_time_written": true,
+          "i2c_address_0x51": true,
+          "nonempty_application_frame": true,
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "frame": {
+          "sha256": "a6946f00b1d2366514a1c0c6f8c44692ee790f499b9c32b7f203b438c48be8e4",
+          "metrics": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 57600,
+            "unique_colors": 16
+          }
+        },
+        "observations": {
+          "rtc": {
+            "guest_t1": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "2"
+            ],
+            "guest_t2": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "3"
+            ],
+            "guest_written": [
+              "26",
+              "3",
+              "2",
+              "12",
+              "0",
+              "0"
+            ],
+            "qom": {
+              "unix-time": 1772452800,
+              "running": false,
+              "i2c-address": 81
+            },
+            "boundary": "Crystal accuracy/battery backup/power-loss retention, timezone/NTP, alarm IRQ timing and century/leap-year are NOT RUN; the clock uses QEMU virtual time while running and BCD registers while stopped. 0x51 conflicts with the ameter calibration EEPROM (one Unit per bus)."
+          }
+        },
+        "serial_sha256": "b59c25a321a79e40b92bad23089845742c1ef4b10a3aebe9bedb53320b6b9eb7",
+        "runtime_ref": "fresh_native_109",
+        "runtime_provenance_status": "VERIFIED"
+      },
+      {
+        "label": "bootstrap-rtc-final",
+        "status": "PASS",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "official_driver_ready": true,
+          "live_controller_state": true,
+          "guest_base_time": true,
+          "virtual_clock_advanced": true,
+          "guest_time_advanced": true,
+          "guest_write_fields": true,
+          "qom_unix_time_written": true,
+          "i2c_address_0x51": true,
+          "nonempty_application_frame": true,
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "frame": {
+          "sha256": "a6946f00b1d2366514a1c0c6f8c44692ee790f499b9c32b7f203b438c48be8e4",
+          "metrics": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 57600,
+            "unique_colors": 16
+          }
+        },
+        "observations": {
+          "rtc": {
+            "guest_t1": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "2"
+            ],
+            "guest_t2": [
+              "26",
+              "1",
+              "1",
+              "0",
+              "0",
+              "3"
+            ],
+            "guest_written": [
+              "26",
+              "3",
+              "2",
+              "12",
+              "0",
+              "0"
+            ],
+            "qom": {
+              "unix-time": 1772452800,
+              "running": false,
+              "i2c-address": 81
+            },
+            "boundary": "Crystal accuracy/battery backup/power-loss retention, timezone/NTP, alarm IRQ timing and century/leap-year are NOT RUN; the clock uses QEMU virtual time while running and BCD registers while stopped. 0x51 conflicts with the ameter calibration EEPROM (one Unit per bus)."
+          }
+        },
+        "serial_sha256": "9be95278b9caa1f74ac8e255283b22ac3cbe0bc574cc6c4c11d229b7271171f3",
+        "runtime_ref": "fresh_native_109",
+        "runtime_provenance_status": "VERIFIED"
+      },
+      {
+        "label": "legacy-negative",
+        "status": "FAIL",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "observations": {},
+        "serial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_summary": "runtime exited before QMP socket was ready; exact internal path omitted",
+        "runtime_ref": null,
+        "runtime_provenance_status": "NOT VERIFIED"
+      },
+      {
+        "label": "legacy-negative-v2",
+        "status": "NOT RUN",
+        "classification": "runtime-infrastructure",
+        "blocker": "runtime lacks the requested Unit model; select a Unit-enabled runtime with M5_QEMU_XTENSA on the service",
+        "device_id": "cores3",
+        "unit_id": "rtc",
+        "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "firmware_sha256": "bdb6b0b25892faffac06942cdd049aef100f490b1e7c3f4d88b85051ac431285",
+        "checks": {
+          "evidence_complete": true,
+          "stopped_with_history": true
+        },
+        "observations": {},
+        "serial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_summary": "qemu-system-xtensa: Unit model is unavailable: rtc",
+        "runtime_ref": null,
+        "runtime_provenance_status": "NOT VERIFIED"
+      }
+    ],
+    "cleanup": {
+      "owned_services_stopped": true,
+      "active_leases_at_shutdown": 0,
+      "evidence_before_stop": true,
+      "history_retained": true
+    }
+  },
+  "adc_calibration": {
+    "development_commit": "0861eb89ee2e00b9975b36703e02ce3dd84b91e7",
+    "runtime_ref": "fresh_native_109",
+    "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+    "fixture_sha256": "b29092daf5f8bbe72c383a6be45e18a24f60228617123e07fd44e3744175ad89",
+    "adc_status": "PASS",
+    "io_status": "PARTIAL: 11 PASS including Angle/Light, one unchanged Buzzer FAIL",
+    "all_original_idf_source_hashes_match": true,
+    "numeric_oracle_functions_byte_identical": true,
+    "virtual_calibration_checks": [
+      {
+        "case": "angle",
+        "efuse_sha256": "fbde16bfd556b72a88225c49c56aba4ef42cb993fda9c8a8352c71c94fbcdfd2",
+        "nonzero_bytes_outside_adc_fields": 0,
+        "all_17_fields_match_receipt": true
+      },
+      {
+        "case": "light",
+        "efuse_sha256": "fbde16bfd556b72a88225c49c56aba4ef42cb993fda9c8a8352c71c94fbcdfd2",
+        "nonzero_bytes_outside_adc_fields": 0,
+        "all_17_fields_match_receipt": true
+      }
+    ],
+    "cases": [
+      {
+        "device_id": "cores3",
+        "unit_id": "angle",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "78b671284f89cd1c7f9e554d57df37fd2618e08cf01c3847fc71b70302dd2100",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "unchanged_idf_curve_fitting_exact_uv_and_monotonic_voltage": true,
+          "selected_white_adc_ideal_12bit_transfer": true,
+          "nonblank_application_frame": true,
+          "adc_receipt_matches_admitted_application": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "voltage-mv": 0
+            },
+            "expected_ideal_input": {
+              "input_mv": 0,
+              "raw_12bit": 0,
+              "read_u16": 0,
+              "read_uv": 0,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              0,
+              0.0,
+              0
+            ]
+          },
+          {
+            "values": {
+              "voltage-mv": 1250
+            },
+            "expected_ideal_input": {
+              "input_mv": 1250,
+              "raw_12bit": 1651,
+              "read_u16": 26422,
+              "read_uv": 1232000,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              26422,
+              1.232,
+              1232000
+            ]
+          },
+          {
+            "values": {
+              "voltage-mv": 2500
+            },
+            "expected_ideal_input": {
+              "input_mv": 2500,
+              "raw_12bit": 3302,
+              "read_u16": 52844,
+              "read_uv": 2427000,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              52844,
+              2.427,
+              2427000
+            ]
+          }
+        ],
+        "frame_sha256": "76f67b417209cbb2b50b06458b96579206c687b40d871a1f18292eceeda5c7e4",
+        "serial_sha256": "6df2db06d0c790097d41888588200e2e499cc333c84d5202fb73a209a12ffdec",
+        "evidence_sha256": "d66e40a8381d2a336321cd38d087ce95007ed5417646e5234eadc62a32f49adf",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "76f67b417209cbb2b50b06458b96579206c687b40d871a1f18292eceeda5c7e4",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "light",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "616a570429838c7508e53592b17412f39a4d8c4e77e8f61c08345b161aaca6ae",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "selected_white_adc_ideal_12bit_transfer": true,
+          "independent_yellow_digital_input": true,
+          "nonblank_application_frame": true,
+          "adc_receipt_matches_admitted_application": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "analog-mv": 310,
+              "digital-level": false
+            },
+            "expected_ideal_input": {
+              "input_mv": 310,
+              "raw_12bit": 410,
+              "read_u16": 6561,
+              "read_uv": 319000,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              6561,
+              0.0
+            ]
+          },
+          {
+            "values": {
+              "analog-mv": 1550,
+              "digital-level": true
+            },
+            "expected_ideal_input": {
+              "input_mv": 1550,
+              "raw_12bit": 2048,
+              "read_u16": 32776,
+              "read_uv": 1523000,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              32776,
+              1.0
+            ]
+          },
+          {
+            "values": {
+              "analog-mv": 3100,
+              "digital-level": false
+            },
+            "expected_ideal_input": {
+              "input_mv": 3100,
+              "raw_12bit": 4095,
+              "read_u16": 65535,
+              "read_uv": 2912000,
+              "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+            },
+            "guest_reading": [
+              65535,
+              0.0
+            ]
+          }
+        ],
+        "frame_sha256": "2e52e6a4f897c401a72a8ba0069f222887250895f81bee9d3668a5fed5f05796",
+        "serial_sha256": "d292949518b6dcf4dc5357f2cb5c8d08c232ace9c3cbc9eaf8185239e8dab4b5",
+        "evidence_sha256": "f489d9f81ab0ef3411ae49ccc12f07c97f633c38671aa489beda760042d034b2",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "2e52e6a4f897c401a72a8ba0069f222887250895f81bee9d3668a5fed5f05796",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "pir",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "dad50ab37067a46adaf4466ec353c5669bf1ccfc0d9624ffcb243eacf3ae5a07",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "both_gpio_edges_and_disable_reenable_irq": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "motion": true
+            }
+          },
+          {
+            "values": {
+              "motion": false
+            }
+          },
+          {
+            "values": {
+              "motion": true
+            }
+          },
+          {
+            "values": {
+              "motion": false
+            }
+          },
+          {
+            "values": {
+              "motion": true
+            }
+          },
+          {
+            "values": {
+              "motion": false
+            }
+          }
+        ],
+        "frame_sha256": "fdfb59527c6dd5f50ff6ee9913cd2eda49b26c43611499dc85ca26f2a7068cf0",
+        "serial_sha256": "78ac00bdd3c5276f257a4969e3338f346c57b8eb296841d226282a1528d2e4a1",
+        "evidence_sha256": "f8f6f88d4187a0b1f83aec43363f612624bcce56b8099d6b4a216a09e3dfa13d",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "fdfb59527c6dd5f50ff6ee9913cd2eda49b26c43611499dc85ca26f2a7068cf0",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "dual-button",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "a404f4a8629b16effb7b8df00964def6816abc500fab66235799b41362363079",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "independent_hardware_button_pins_and_click_state_machines": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "blue-pressed": true
+            }
+          },
+          {
+            "values": {
+              "blue-pressed": false
+            }
+          },
+          {
+            "values": {
+              "red-pressed": true
+            }
+          },
+          {
+            "values": {
+              "red-pressed": false
+            }
+          }
+        ],
+        "frame_sha256": "1f872ddb81ab6572bff91a705ae66db42c9fedbf7046c4854fc30334a5969d79",
+        "serial_sha256": "b55ded90b9b216f61cf22d747e86b7e6a320b0b077638d333d4e85217776e369",
+        "evidence_sha256": "951180c60fc510da12dd90da0fc0d88d5010b5f1153fa99d8272ac7e81064d29",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "1f872ddb81ab6572bff91a705ae66db42c9fedbf7046c4854fc30334a5969d79",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "limit",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "1c95501080304b7f89e974e978e999e49bbe065db65633f4498cad16e4053216",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "official_limit_button_alias_irq_counter_and_reset": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "pressed": true
+            }
+          },
+          {
+            "values": {
+              "pressed": false
+            }
+          },
+          {
+            "values": {
+              "pressed": true
+            }
+          },
+          {
+            "values": {
+              "pressed": false
+            }
+          }
+        ],
+        "frame_sha256": "eb3a3faffa3596b724fa4ac114dd8051fff8e2f8cb5164f12d2b9f4ab0a06ac8",
+        "serial_sha256": "1367cc4c4adb1a6973bc715092c6e6da172c3ab73c93660f8a844e5b56c90f3f",
+        "evidence_sha256": "2e758df958fd2d5402d4abdc05576c8694b0712678b3b88ed4e97e95c61f8a66",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "eb3a3faffa3596b724fa4ac114dd8051fff8e2f8cb5164f12d2b9f4ab0a06ac8",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "key",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "deb3adc0cb29777cb661d7ed502d08f798f3343198f72f9ecf35c3d4d0279107",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "active_low_key_and_guest_brightness_rgb_frames": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "pressed": true
+            }
+          },
+          {
+            "values": {
+              "pressed": false
+            }
+          }
+        ],
+        "frame_sha256": "35100e1d71ff2c8b28b85db6191361bdd583b32094c401ec8215b97b99846562",
+        "serial_sha256": "23036614ec986bb432832b81f84f5b06d7ed9f8e6bcb35d84fc3bd4d51cff909",
+        "evidence_sha256": "5efd816e41f2a08aa353c3e03b2dbdf8fa96dc5a2fb6b11c157b9981c5177b0c",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "35100e1d71ff2c8b28b85db6191361bdd583b32094c401ec8215b97b99846562",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "rgb",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "a1cbcde1d13d519ecec40504a1b59c0c9f40c7ab706e7ff10c4e8b96b87d00f6",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "native_rmt_grb_all_three_leds_and_short_frame_negative": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [],
+        "frame_sha256": "fffa060c97465afe685f0a7ebb6e74fd0d093aeddc3810d7fd754d917caeb2c6",
+        "serial_sha256": "c04cd2a73873e9e1473940fa72aa28bb22413d7ac4d02a049ee1f3cf3dd15267",
+        "evidence_sha256": "9424df724788925d5e4359c41bf3be0816c09f3cafcb49e2340c6aac377857f0",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "fffa060c97465afe685f0a7ebb6e74fd0d093aeddc3810d7fd754d917caeb2c6",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "fan",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "240504f7b07bec91f02c1605c144e8510c823e8a009bd5a36d48d534ef5a915b",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "guest_ledc_frequency_and_duty_registers": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [],
+        "frame_sha256": "5b639eb6ef82745ed4f3382b04f77c2486e146581573253a362aa4d46dea7f60",
+        "serial_sha256": "0f8b6362887964fb16d003cbae928eff07223cf0bccaadebfd85a90523c6f776",
+        "evidence_sha256": "235d62116b1e62a48d759e080fd679d9780e8ea3a789a854bf86200f1060a87d",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "5b639eb6ef82745ed4f3382b04f77c2486e146581573253a362aa4d46dea7f60",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "ir",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "a6e1260e7b9de6c96eb6f883f70b9e74b3101a13c2fd59adbb331ddbaeea67ae",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "official_wrapper_faithful_raw16_plus_16_payload": true,
+          "separate_native_uint16_packed_nec8_transmit": true,
+          "native_nec_tx_rx_bad_frame_and_rearmed_receiver": true,
+          "native_nec_repeat_preserves_last_address_and_command": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "rx-pulses-us": [
+                9000,
+                4500,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562
+              ]
+            }
+          },
+          {
+            "values": {
+              "rx-pulses-us": [
+                200,
+                4500,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562
+              ]
+            }
+          },
+          {
+            "values": {
+              "rx-pulses-us": [
+                9000,
+                2250,
+                562
+              ]
+            }
+          },
+          {
+            "values": {
+              "rx-pulses-us": [
+                9000,
+                4500,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                1687,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                562,
+                1687,
+                562
+              ]
+            }
+          }
+        ],
+        "frame_sha256": "3b8270b305dba6bdb8c7dafa2bdf82062d119eae3294676461afea1825fae893",
+        "serial_sha256": "5459f647edb97ec3b0d54155f790407d05af040242f57246ceffb4dd71dcf1a3",
+        "evidence_sha256": "67f74e4f80f5747f2a097875fca527ab892193eea6050409dcabe7e733bad389",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "3b8270b305dba6bdb8c7dafa2bdf82062d119eae3294676461afea1825fae893",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "rs485",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "5ab3b0cf228ba4adfe3344ae1aa510bbacf438a77452a585c4b1020c6c1d572a",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "uart1_bidirectional_binary_fifo_and_any_read_write": true,
+          "fifo_capacity_rejection_and_uart0_log_separation": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "rx-hex": "706565722d746f2d6775657374007fff"
+            }
+          }
+        ],
+        "frame_sha256": "bfb15c0562179117f7b821e2d088c9a73b3fd875c4d76b677d35da30609ea28a",
+        "serial_sha256": "821017244be09823c61f410bf7f51cac29e539afeb3736d1599dc557df465924",
+        "evidence_sha256": "dc324887009cf3d99ff213382c2e0375f50f57441d93f78433d1fb67a6d65f22",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "bfb15c0562179117f7b821e2d088c9a73b3fd875c4d76b677d35da30609ea28a",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "hub",
+        "status": "PASS",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "77cb164425826289f92523fec20507ae83977246d542f7b2263a016ccebe3567",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "passive_hub_three_real_drivers_independent_inputs_same_bus": true,
+          "hub_has_no_i2c_address": true,
+          "nonblank_application_frame": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [
+          {
+            "values": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765
+            }
+          },
+          {
+            "values": {
+              "ambient-c": 17.3,
+              "object-c": 37.1
+            }
+          },
+          {
+            "values": {
+              "eco2-ppm": 1250,
+              "tvoc-ppb": 230
+            }
+          }
+        ],
+        "frame_sha256": "94921d12d298a8d7800952e2b70b0ca8c5ae8deca3fa3cc8bda6def78c806db7",
+        "serial_sha256": "6972d54bd48daf969fc637b465d00837f7a5589c7274eeed64f83cbc8e10db75",
+        "evidence_sha256": "723029427b558f924885dc2cedfb8304ddca6baf10a3ea7b32aa8cf0150fdab5",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "94921d12d298a8d7800952e2b70b0ca8c5ae8deca3fa3cc8bda6def78c806db7",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "runtime_ref": "fresh_native_109"
+      },
+      {
+        "device_id": "cores3",
+        "unit_id": "buzzer",
+        "status": "FAIL",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "firmware_sha256": "1aa4c474b7d5466e889904970178afe062b387bfeeac2768cd20504e6928b225",
+        "checks": {
+          "packaged_guest_bytes_verified": true,
+          "official_driver_ready": true,
+          "evidence_before_stop": true,
+          "stopped_with_history": true,
+          "history_metadata_and_frame_retained": true,
+          "history_frame_readable": true
+        },
+        "injections": [],
+        "serial_sha256": "0de328cf844853aae8cb6477efb5d3725c0af27f726f539977bb881e75121974",
+        "evidence_sha256": "d1faec0f2b36beae85408aa5a8f969bfa419b5e9c7dbc0de4fa0f08b78a1c0c8",
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 57600,
+          "unique_colors": 16
+        },
+        "observed_frame_sha256": "0deeaa9b1aee40918fda76dd51638c7806096a4674d52a54acf1e51962e18dfb",
+        "runtime_provenance_verified": true,
+        "local_worker_ancestry_verified": true,
+        "error_summary": "RuntimeError: natural Buzzer timer zero not observed before TIMER_DONE/manual output",
+        "runtime_ref": "fresh_native_109"
+      }
+    ],
+    "retained_buzzer_failure": {
+      "same_as_before": true,
+      "error": "RuntimeError: natural Buzzer timer zero not observed before TIMER_DONE/manual output"
+    },
+    "cleanup": {
+      "active_leases_at_shutdown": 0,
+      "owned_service_stopped": true,
+      "evidence_before_stop": true,
+      "history_retained": true
+    },
+    "idf_source_hash_check_count": 5
+  }
+}
