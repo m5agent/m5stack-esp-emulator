@@ -170,6 +170,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 | `platform/web/public-service-program.js`、`public-unit-assembly.js` | 首页原生 Preview 编程、既有会话接入与非拥有视图清理；每设备 Unit 草稿、主机装配与运行拓扑锁定 | `test_public_service_program.mjs`、`test_public_unit_assembly.mjs`；opt-in 新首页实际验收 `test_public_unified_service_browser.mjs` |
+| `platform/tools/preview_request_context.py` | Preview 的无 Token 本机 socket、Host、Origin 与 Fetch Metadata 限定；已配置 Bearer 仍由原认证路径验证 | `test_preview_request_context.py`、`test_preview_http.py` |
 | `platform/web/public-verified-assets.js` | 按显式 SHA/长度缓存不可变运行资源，独立 buffer 所有权及有界编译 Module 复用；不复用客体内存或运行中 Flash | `test_public_verified_assets.mjs`、`test_public_qemu_instance.mjs` |
 | `platform/tests/benchmark_emulator_firmware.mjs`、`emulator_performance_summary.mjs`、`derive_emulator_benchmark.mjs` | 同完整 BIN、浏览器与输入的本项目/对照性能观测及统一派生统计；原始状态与展示插值分开 | 调用和边界见 [基准说明](../platform/tests/benchmark_emulator_firmware.md)；采集/退出成功不等于动作目标通过 |
 | `platform/tests/test_public_native_performance.mjs` | 独立 Device Service 的同固件页面取帧前后对照、真实输入和停止历史 | 显式 `--execute` 与独立 runtime/ROM 路径；原始材料写入 ignored storage |

@@ -58,8 +58,8 @@ cd m5stack-esp-emulator
 ```
 
 Open <http://127.0.0.1:8787/>; the original `/platform/web/` entry still works. The same workbench
-connects Units, loads firmware, runs UIFlow code and opens existing sessions. Enter service credentials
-in the connection panel for native programming. Unit wiring is frozen during execution; stop before
+connects Units, loads firmware, runs UIFlow code and opens existing sessions. Same-origin loopback programming needs no Token when the service has none configured.
+Enter credentials in the connection panel when the service has configured a Token. Unit wiring is frozen during execution; stop before
 editing it. Units without a browser controller require a compatible Device Service.
 Legacy [session management](http://127.0.0.1:8787/platform/web/sessions.html),
 [firmware management](http://127.0.0.1:8787/platform/web/firmware.html) and [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml) remain available.

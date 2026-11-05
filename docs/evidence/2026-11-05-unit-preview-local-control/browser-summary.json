@@ -1,0 +1,321 @@
+{
+  "kind": "unit-catalog-preview-cores3-browser-full-summary",
+  "status": "PASS",
+  "evidence_level": "virtual-device validation",
+  "scope": "Complete CoreS3 browser-WASM editor with independent PIR catalog preview left open, without adding a Unit to the guest or host draft.",
+  "started_at": "2026-11-05T03:26:18.988Z",
+  "finished_at": "2026-11-05T03:26:49.845Z",
+  "checks_passed": 65,
+  "checks_failed": 0,
+  "smoke_only": false,
+  "raw_report": {
+    "bytes": 3483748,
+    "sha256": "ed3e123f4e80b74f899bdf5c5a60a44963177ba81cfb0aca4a36ecbb6f23d9be"
+  },
+  "site": {
+    "base_path": "/m5stack-esp-emulator/",
+    "manifest_sha256": "23ee838732c99369d2b0b852b4430c46eee48236ed768a88d9374a5969cc8b2c"
+  },
+  "source": {
+    "runner": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "b987d2f727927da133a6b58cd4bc96bcf7f5f09d16cc0be76916b280a5d61169"
+    },
+    "helper_sha256": "1c845e5f060f04dc47ecd3926f0d7f87e31036ecf33603f0fbaf250be76c7a1f",
+    "web_paths_count": 33,
+    "web_closure_sha256": "d5c371419659fe740b6ee454a3ebf86110ccd1d0ed415471d2875edbdc297a53",
+    "web_closure_encoding": "UTF-8 JSON, sorted keys, compact separators",
+    "selected_source_export_pairs": {
+      "platform/web/index.html": {
+        "source_sha256": "e1b26f20a954a315a761b5d17317fa48949e262e5ffd51d02c43da4709a1aac6",
+        "exported_sha256": "bff94c9d629b520554c5ea0e645a225879cf622a4500c9d819b1c8a233c513e9"
+      },
+      "platform/web/public.js": {
+        "source_sha256": "41dda90f74fa3a944eb31d573733d8b39859f9e50fedb04b9a9960c5956b927f",
+        "exported_sha256": "41dda90f74fa3a944eb31d573733d8b39859f9e50fedb04b9a9960c5956b927f"
+      },
+      "platform/web/public.css": {
+        "source_sha256": "b0649645211f00623f3698b8ec862228130c189502b3c74d0d129bb4c1e924a9",
+        "exported_sha256": "b0649645211f00623f3698b8ec862228130c189502b3c74d0d129bb4c1e924a9"
+      },
+      "platform/web/public-unit-assembly.js": {
+        "source_sha256": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+        "exported_sha256": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6"
+      },
+      "platform/web/public-service-program.js": {
+        "source_sha256": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+        "exported_sha256": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd"
+      },
+      "platform/web/public-session-controller.js": {
+        "source_sha256": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+        "exported_sha256": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0"
+      },
+      "platform/web/unit-panel.js": {
+        "source_sha256": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+        "exported_sha256": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a"
+      },
+      "platform/web/public-micropython.js": {
+        "source_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196",
+        "exported_sha256": "f5cd3daa3cf4cdc363cd1093802fe3a2ed9ca62b8ebb59be0dd86e398c6ca196"
+      },
+      "platform/web/public-uiflow-firmware.js": {
+        "source_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6",
+        "exported_sha256": "0a44300b6c437dece030cde1bd1a76eb985e217d1671fbf63be8467ef023d8c6"
+      }
+    }
+  },
+  "runtime_manifest_sha256": "fa6b56048ec91d100cb4f2a15088ce77e313bd2e6e8ba083229826b258297c51",
+  "execution_identity": {
+    "deviceId": "cores3",
+    "board": "m5cores3",
+    "profile": "cores3-wasm-uiflow-workbench-wallclock-candidate",
+    "clockDivisor": 1,
+    "clockOverride": null,
+    "accelerator": null,
+    "oneInsnPerTb": true,
+    "requiredRuntimePatch": {
+      "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+      "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+    },
+    "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+    "javascriptSha256": "30bd87652a1938146d7d9dfd3cd96bc582c85eee756801fe177f1a74f79fdcb0",
+    "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+    "wasmSha256": "96ea9f91956aa80926182ed174ea426f3f4c84e96ca58754fa249063fdda5ca1",
+    "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmwareSha256": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+    "actualArguments": [
+      "./this.program",
+      "-M",
+      "m5cores3",
+      "-drive",
+      "file=/flash.bin,if=mtd,format=raw",
+      "-L",
+      "/rom",
+      "-display",
+      "none",
+      "-serial",
+      "pipe:/bridge/uart",
+      "-serial",
+      "file:/bridge/serial1",
+      "-qmp",
+      "stdio",
+      "-drive",
+      "if=none,id=efuse,file=/efuse.bin,format=raw",
+      "-global",
+      "driver=nvram.esp32s3.efuse,property=drive,value=efuse",
+      "-accel",
+      "tcg,thread=multi,one-insn-per-tb=on"
+    ],
+    "uiflowWorkbench": {
+      "baseSha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "composerCommit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+      "startupSources": {
+        "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+        "main.py": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    }
+  },
+  "browser": "157.0.8103.38",
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+  "unit_preview": {
+    "environment": "M5_UIFLOW_UNIT_PREVIEW=1",
+    "unit_id": "pir",
+    "scope": "Independent catalog model alongside the actual CoreS3 browser guest; no Unit is added or granted a guest controller binding.",
+    "before_guest": {
+      "explorer_open": true,
+      "selected_unit_id": "pir",
+      "model_unit_id": "pir",
+      "model_source": "m5stack-models",
+      "visual_only": "true",
+      "selected_catalog_button": "true",
+      "canvases": 1,
+      "width": 836,
+      "height": 278,
+      "same_model_root": true,
+      "host_unit_models": 0,
+      "host_picker_selections": [],
+      "runtime_status": null
+    },
+    "after_programs": {
+      "explorer_open": true,
+      "selected_unit_id": "pir",
+      "model_unit_id": "pir",
+      "model_source": "m5stack-models",
+      "visual_only": "true",
+      "selected_catalog_button": "true",
+      "canvases": 1,
+      "width": 836,
+      "height": 278,
+      "same_model_root": true,
+      "host_unit_models": 0,
+      "host_picker_selections": [],
+      "runtime_status": "running"
+    }
+  },
+  "programs": {
+    "completed_raw_paste": 12,
+    "untouched_default_runs": 2,
+    "initial_editor_source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+    "cases": [
+      {
+        "name": "default-editor-first-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "default-editor-repeat-run",
+        "source_sha256": "93ebf6c7166ac121b8f6163c836ed1001e4ba469c47e3cfd3a90f47908ccc1db",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "utf8-print",
+        "source_sha256": "2bf05b853219bb6155f34fdbbbcb390f0e8d41b732c7cd8069603bfb816e76fe",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "multiline-loop",
+        "source_sha256": "b4647175720720afdaff39d8a4991a90ed00624efcd5d3cfecf72f5aed77c614",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "long-utf8-source",
+        "source_sha256": "f7f1e344e593eb91ee8c1fe9391ffb46983557b11c57650051ae7715eb8b1042",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "syntax-error",
+        "source_sha256": "b5f77673ca286088d5e94dada734e41406e6c08e11c4206c813aec59674bac57",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "runtime-error",
+        "source_sha256": "c1e11a3bb2525eb5ad9aa458fe1987d5f80c3223b3378d4e8f004579ae587099",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "file-import-recovery",
+        "source_sha256": "d7c5c856adde39b567c1943c54ac24acebace0c3c9fbe8b03ed81575dd21da53",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "infinite-program-interrupt",
+        "source_sha256": "d71c0728a816cf155c8edd344bbcb8e6a9715353fcf208e0b2f33350b8ae34a6",
+        "transfer": "raw-paste",
+        "interrupted": true
+      },
+      {
+        "name": "same-vm-after-interrupt",
+        "source_sha256": "27792739c4013855a1ec8de591268dd25e033650d8721d6702b40f6c611868e9",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "guest-display-output",
+        "source_sha256": "43ebb8d3670006727dcd6255b88e2e35602d54f519cb425429c8d677fe40416f",
+        "transfer": "raw-paste",
+        "interrupted": false
+      },
+      {
+        "name": "after-hardware-reset",
+        "source_sha256": "448315d9cc711c2bf31a1a4a687f62fbe9ee1de95a66a4d4b0e4afd63ad0b0cd",
+        "transfer": "raw-paste",
+        "interrupted": false
+      }
+    ]
+  },
+  "observations": {
+    "click_to_ready_ms": 8770.540417,
+    "console_epoch_before_reset": 0,
+    "console_epoch_after_reset": 1,
+    "interrupt_acknowledged": true,
+    "guest_frame": {
+      "width": 320,
+      "height": 240,
+      "sequence": 4,
+      "pattern": "red-fill",
+      "black_pixels": 0,
+      "white_pixels": 0,
+      "red_pixels": 76800,
+      "expected_red_rgb565": 63488,
+      "sha256": "6c3c796f317b1dedac4e04e377080d92154b3f28f4e8d5252a3f2d083245cc86"
+    },
+    "no_device_service_requests": true,
+    "page_errors": []
+  },
+  "cleanup": {
+    "normal_qmp_exit_code": 0,
+    "graceful_exit": true,
+    "pthreads_created": 5,
+    "pthreads_at_exit": 0,
+    "forced_disposals": 0,
+    "workers_remaining": 0,
+    "engine": {
+      "engineWorkersCreated": 1,
+      "engineOwnerLive": false,
+      "engineCloseNotificationReceived": true,
+      "engineSelfCloseNotifications": 1,
+      "engineNormalTerminations": 1,
+      "engineFallbackTerminations": 0,
+      "enginePortTransferred": true
+    },
+    "engine_ownership_stage": "before-iframe-removal",
+    "explicit_worker_disposal": true,
+    "iframe_removed": true,
+    "actual_cdp_fences": {
+      "before_held_iframe_removal": {
+        "status": "CAPTURED",
+        "actual_targets_observed": 6,
+        "live_targets": 0,
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "before_context_close": {
+        "status": "CAPTURED",
+        "actual_targets_observed": 6,
+        "live_targets": 0,
+        "source": "Chrome DevTools Target.getTargets"
+      }
+    },
+    "runner_exit_code": 0,
+    "browser_and_owned_server_finally_closed": true
+  },
+  "screenshots": {
+    "unit-preview-before-guest.png": {
+      "bytes": 14973,
+      "sha256": "feb33db1669ff4d0f44d8fed0d46904cb95b21678e877e375e94b70802830f21"
+    },
+    "unit-preview-with-running-guest.png": {
+      "bytes": 14952,
+      "sha256": "078200a6149cb76266c6b40d96af1b91209dc84b4cbe7ee64f2a1218f8a04ac6"
+    },
+    "workbench.png": {
+      "bytes": 301625,
+      "sha256": "c366e460116ce4e3a89b12349490c79687b27845c298c768ef1e98582877a5a9"
+    }
+  },
+  "reproduction": {
+    "entry": "platform/tests/test_public_uiflow_guest.mjs",
+    "environment": {
+      "M5_UIFLOW_UNIT_PREVIEW": "1",
+      "M5_QEMU_DEVICE": "cores3",
+      "M5_PUBLIC_SITE": ".work/public-fix-pages",
+      "M5_PUBLIC_BASE_PATH": "/m5stack-esp-emulator/",
+      "M5_QEMU_READY_TIMEOUT_MS": "600000",
+      "M5_PUBLIC_QEMU_OUT": ".work/unit-preview-cores3-full-first"
+    },
+    "browser": "Configured Chrome executable with hardware ANGLE/Metal, matching the recorded browser/renderer."
+  },
+  "limits": [
+    "This local static-site acceptance does not establish independent HTTPS deployment acceptance or a full19 matrix.",
+    "The PIR is an independent visual-only catalog model. No PIR motion, host attachment, peripheral protocol or guest Unit controller binding is exercised or granted.",
+    "The scene passes all original editor programs and guest/Worker cleanup checks with the preview open; it does not close runtime root-cause gaps or prove long-run stability.",
+    "The one ready observation is functional evidence, not a performance comparison or guarantee. Physical hardware and native-service results are separate."
+  ]
+}
