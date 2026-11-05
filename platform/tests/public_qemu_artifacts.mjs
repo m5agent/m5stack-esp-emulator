@@ -18,6 +18,9 @@ export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
   'platform/web/public-qemu-profiles.js','platform/web/qemu-browser-profiles.json',
   'platform/web/public-qemu-frame.js','platform/web/public-qemu-probe-firmware.js','platform/web/public-qemu-servo.js',
   'platform/web/model-shell.js','platform/web/device-shell-factory.js',
+  'platform/web/public-unit-assembly.js','platform/web/public-service-program.js',
+  'platform/web/public-session-controller.js','platform/web/unit-panel.js','platform/web/preview-client.js',
+  'platform/units/catalog.json','platform/units/host-ports.json','platform/units/runtime-profiles.json',
 ]);
 
 function safePath(path){

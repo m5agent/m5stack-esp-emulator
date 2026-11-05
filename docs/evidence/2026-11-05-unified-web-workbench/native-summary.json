@@ -1,0 +1,230 @@
+{
+  "kind": "unified-homepage-cores3-pir-native-summary-v1",
+  "status": "PASS",
+  "scope": "New canonical homepage with one owned native managedPreview/CoreS3+PIR; virtual-device validation only.",
+  "hardware_validation": "NOT RUN",
+  "raw_report": {
+    "bytes": 143658,
+    "sha256": "1067fa9f00ae997cf10a26e8e99418b67e0803d4216d795524e03629d5713df4"
+  },
+  "started_at": "2026-11-05T01:56:51.920Z",
+  "finished_at": "2026-11-05T01:57:05.533Z",
+  "checks": 13,
+  "source_sha256": {
+    "platform/tests/test_public_unified_service_browser.mjs": "1e2c7f43db1d455a10ff74d38a09f551c966ce305e802c1fd6b68a604b2255dd",
+    "tests/units/preview_controls_probe.py": "efb9af7b1df20053630e3b7da36de26e21224cbc30d76f16d5dcda61df444e1f",
+    "platform/web/index.html": "ff5dc05b935c934cb7f649181a3be9cf6f4dcf2480223488c6bef3434280d940",
+    "platform/web/public.js": "e0f60211ab05f9c558833a825430d489a9900db672c62eb47c464d97ab323bcc",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+    "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+    "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+    "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+    "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+    "platform/web/preview-client.js": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+    "platform/web/model-shell.js": "b383b226601f9707cc0c201298bd21eef8f00d6bd5331dac00fac09d46eb47c0",
+    "platform/tools/serve.py": "ecdba5a91d4eb9087535a3f26984f380df39017ed103c0a6adfb4fa54cac3a82",
+    "platform/tools/device_service.py": "857eb0d046815d80d63f45a95a69bfd92a7dd54e9c0efd58ae8a7d9512b55998",
+    "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+    "platform/tools/unit_runtime.py": "ab6e5da85a39126ce5b180063b1cf4905f2ab24df7b4298966d22cac8bc7be0c",
+    "platform/units/runtime-profiles.json": "4acc5593b8ef6e2ebd354616559981a966572b977f440b5d12c38900da45a306",
+    "platform/units/host-ports.json": "6edf82ccaf8b13834696f97ec87dbbd1551d68f93b0e2404ef7a4ab4f4ecbfcf"
+  },
+  "execution": {
+    "runtime": "qemu",
+    "binary": {
+      "executable_name": "qemu-system-xtensa",
+      "sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+    },
+    "device": "cores3",
+    "program_transport": "uart-repl",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "session_alias": "owned-session-1",
+    "same_vm_nonce": "Dedicated sys.modules entry set byA and asserted byB/import; actual serial markers observed.",
+    "profile_scope": "Native CoreS3 service session, current frozen service/model contracts; argv not separately captured.",
+    "flash_scope": "Existing standard esptool-prepared cache reused; not a fresh esptool transport or performance measurement."
+  },
+  "programs": [
+    {
+      "alias": "run-A",
+      "source_sha256": "cc7ff5377f0d1c569c78b094662a42f2b5be49f8fffafab0e01a70fbef25b31f",
+      "revision_sha256": "f1e3f0dbc01818f0b6ea2b1a7e9d95fccdefd90ac50f09e6bb713eb6144d8991",
+      "observed_state": "completed",
+      "same_session_pid_firmware": true
+    },
+    {
+      "alias": "run-B",
+      "source_sha256": "10cf95b96da4eafa64aaff1c4215a8c27383c17a7bb8d05cc3d61b320716bd23",
+      "revision_sha256": "aa5c6d38b5f7b0a712111463f1e9bde3285c84242579d43e953ddbd04f3ed5a2",
+      "observed_state": "running",
+      "same_session_pid_firmware": true
+    },
+    {
+      "alias": "import-file",
+      "source_sha256": "bf2ce03aa930e5360105ae72617a665be3664080daa544797285114825cc5ade",
+      "revision_sha256": "0bebbca5e7f560ab866da483c3d3f78efb0d92e017ca082ca311917639f1dddd",
+      "observed_state": "completed",
+      "same_session_pid_firmware": true
+    }
+  ],
+  "inputs": [
+    {
+      "unit": "pir",
+      "component": "external1",
+      "requested_motion": true,
+      "qom_motion": true,
+      "original_PIRUnit_get_status_serial": 1,
+      "same_run_session": true
+    },
+    {
+      "unit": "pir",
+      "component": "external1",
+      "requested_motion": false,
+      "qom_motion": false,
+      "original_PIRUnit_get_status_serial": 0,
+      "same_run_session": true
+    }
+  ],
+  "frames": [
+    {
+      "alias": "program-a-frame",
+      "width": 320,
+      "height": 240,
+      "rgba": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "png_sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+      "capture_sequence": 13,
+      "source": "live",
+      "same_run_revision": true,
+      "displayed_on_main_model": true
+    },
+    {
+      "alias": "program-b-frame",
+      "width": 320,
+      "height": 240,
+      "rgba": [
+        0,
+        255,
+        0,
+        255
+      ],
+      "png_sha256": "7f8f4d8af5c2ab0d5fd15740fd426ddf4f5333070e4ac58c8b64830b90b5fb30",
+      "capture_sequence": 83,
+      "source": "live",
+      "same_run_revision": true,
+      "displayed_on_main_model": true
+    }
+  ],
+  "interrupt": {
+    "alias": "run-B",
+    "actual_state": "cancelled",
+    "via": "Main homepage interrupt→existing Preview cancel API",
+    "same_run_verified": true
+  },
+  "zip": {
+    "source": "Actual product run.python.lastEvidence Blob fetched during UIstop before Preview close; read afterwards through retained read-only run handle.",
+    "bytes": 33819,
+    "sha256": "cfe05805fba2a2fc4957e957486260e9c040a4e48799cfe71ed2821803f3680f",
+    "type": "application/zip",
+    "http_content_length": 33819,
+    "zip_session_state": "running",
+    "members": 25,
+    "crc": "PASS",
+    "manifest_all_member_size_sha": "PASS",
+    "session_pid_firmware_all3program_identity": "PASS",
+    "network_body_observer": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Playwright body observer returned0B despite valid product Blob/Content-Length; kept as observer limitation, not product export failure."
+    }
+  },
+  "cleanup": {
+    "via_UI_stop": true,
+    "history_retained": true,
+    "session_state": "stopped",
+    "owned_pid_gone": true,
+    "lease_active": false,
+    "active_sessions": 0,
+    "active_lease_count": 0,
+    "mutable_flash_retained": false,
+    "owned_browser_disconnected": true
+  },
+  "prior_attempts": [
+    {
+      "attempt": "first",
+      "classification": "PREREQUISITE_FAIL",
+      "raw_report": {
+        "bytes": 4220,
+        "sha256": "92b8b19abcfdfa37bd6f5fbd524ba2079c584a94d0d8b7e2e42694a6003e0939"
+      },
+      "recorded_checks": 0,
+      "explanation": "Backend files unavailable; no browser/guest allocation.",
+      "preserved": true
+    },
+    {
+      "attempt": "r2",
+      "classification": "OBSERVER_FAIL",
+      "raw_report": {
+        "bytes": 5003,
+        "sha256": "749cb0b5cfbaa80cf7713e3f532fbf808038fdad2399e945d3c1140ff0308f83"
+      },
+      "recorded_checks": 0,
+      "explanation": "Closed advanced settings hid runtime selector; no native allocation.",
+      "preserved": true
+    },
+    {
+      "attempt": "r3",
+      "classification": "DEPENDENCY_FAIL",
+      "raw_report": {
+        "bytes": 13048,
+        "sha256": "4abbe7eaa7d4c6c89f15db8383d7054cb5f65296ff5a988a692eb94775a6b4d5"
+      },
+      "recorded_checks": 0,
+      "explanation": "Missing esptool; failed before QEMU PID/serial; owned Preview closed.",
+      "preserved": true
+    },
+    {
+      "attempt": "r4",
+      "classification": "DEPENDENCY_VERSION_FAIL",
+      "raw_report": {
+        "bytes": 13683,
+        "sha256": "67c4c6959a15f388e9e303bed1bfd7bfbcf747d121ce65136e8e18dd6efb96cd"
+      },
+      "recorded_checks": 0,
+      "explanation": "esptool4.9 rejected repository no-reset CLI; failed before QEMU PID; closed.",
+      "preserved": true
+    },
+    {
+      "attempt": "r5",
+      "classification": "OBSERVER_BUDGET_FAIL",
+      "raw_report": {
+        "bytes": 164452,
+        "sha256": "897bfc72385b4c5d09b3f72fae2677f6b96962aea870ff27f489d09822814fc8"
+      },
+      "recorded_checks": 0,
+      "explanation": "Observer used30s for software-device Flash readiness instead of approved120s; QEMU never started; cleanup pending at report, later root confirmed stopped.",
+      "preserved": true
+    },
+    {
+      "attempt": "r6",
+      "classification": "PARTIAL_OBSERVER_FAIL",
+      "raw_report": {
+        "bytes": 130966,
+        "sha256": "fa091d039f7c934761b832cb21ea05d1dfd06ea11435341b78b5d14c05f691ea"
+      },
+      "recorded_checks": 11,
+      "explanation": "11 actual functional checks passed; Playwright network-body ZIP observer returned0B. Product pre-stop Blob was NOT CAPTURED in this run; post-stop API ZIP is diagnostic only.",
+      "preserved": true
+    }
+  ],
+  "limits": [
+    "Does not qualify other Units/hosts, ordinary legacy-session adoption, Pages/WASM, physical properties or performance.",
+    "Read-only frontend instrumentation exposes existing state only; no product methods, API data or guest outputs are rewritten.",
+    "Earlier dependency/observer failures remain distinct; r6 functional evidence is not retroactively upgraded to a full PASS.",
+    "No external messages/docs/source changes or further guest launches are authorized by this summary."
+  ]
+}

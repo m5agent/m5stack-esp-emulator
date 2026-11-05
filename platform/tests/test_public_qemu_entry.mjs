@@ -21,7 +21,8 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,17,'UIFlow composer and guest MicroPython runner join the existing firmware imports');
+for(const module of ['./public-uiflow-firmware.js','./public-micropython.js','./public-unit-assembly.js','./public-service-program.js'])
+  assert.ok(imports.some(match=>match[2]===module),'the workbench imports its programming and assembly adapters');
 assert.deepEqual(imports.filter(match=>match[2]==='./public-qemu-servo.js')
   .flatMap(match=>match[1].split(',').map(name=>name.trim())),
 ['qemuServoVisualCommands','qemuServoDiagnostic']);
@@ -56,6 +57,9 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
       const match=selector.match(/\[value="([^"]+)"\]/);return match?radios.get(match[1]):null;},
     createElement:makeElement,createTextNode:text=>({textContent:text})};
   const fetchFixture=async url=>{
+    if(url.endsWith('platform/units/catalog.json'))return new Response('{"units":[]}');
+    if(url.endsWith('platform/units/host-ports.json'))return new Response('{"hosts":[]}');
+    if(url.endsWith('platform/units/runtime-profiles.json'))return new Response('{"units":{}}');
     if(url.endsWith('uiflow-workbench-profiles.json'))return new Response(JSON.stringify(workbenchRegistry));
     if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
@@ -69,6 +73,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     PublicMicroPythonRunner,
+    createPublicUnitAssembly:async()=>({attachments:()=>[]}),
     loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
     getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),

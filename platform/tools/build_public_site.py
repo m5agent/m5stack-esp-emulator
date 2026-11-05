@@ -74,7 +74,8 @@ def export_sources(root: Path) -> dict[str, Path]:
         if path.is_symlink():
             raise ValueError("device manifest cannot be a symlink")
         files[path.relative_to(root).as_posix()] = path
-    for name in ("devices/catalog.json", "platform/units/catalog.json"):
+    for name in ("devices/catalog.json", "platform/units/catalog.json",
+                 "platform/units/host-ports.json", "platform/units/runtime-profiles.json"):
         files[name] = root / name
     # Existing pinned runtime, preserved for diagnostic consumers only. There is
     # deliberately no board-WASM capability assertion or bundled firmware here.

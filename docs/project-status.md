@@ -1,10 +1,12 @@
 # 项目当前状态
 
+2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。
+
 2026-11-04 已按用户明确要求[携已知问题部署UIFlow工作台](evidence/2026-11-04-pages-workbench-release/README.md)：prepared-preview于10:45:44Z完成，正式HTTPS的2,130个资产length/SHA全部匹配。标准hosted Matrix600秒启动FAIL及同导出本地16PASS、Lite1FAIL、43NOT RUN保留，精确oneInsn硬reset PIF的`RUNTIME-09`继续OPEN；部署成功不代表完整生产功能门禁或C根因修复。独立HTTPS首6例已SUBSET_PASS（Matrix/Plus/Core各编辑器与按键），其余34例NOT RUN/HOLD，不授全19线上通过。部署前[资格失败记录](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，不改写旧FAIL。
 
 此前2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。 19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。 11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，`RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09`根因仍OPEN。 `UI-03`保持`PARTIAL`：携已知失败部署后，继续修复当前MAIN/prod-prefix资格缺口并完成正式HTTPS独立验收；既有本地门禁不授逐板性能、长期稳定性、其它固件或新导出通过，功能并发不作性能样本。
 
-日期：`2026-11-04`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-11-05`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。设备登记 33 台；视觉主机 38 款中 33 台有运行登记、5 款仍仅视觉（全部 boundary-only/composition-only）；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
@@ -441,8 +443,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
   [固件审查工作流](firmware-review-and-simulation-workflow.md)。
 - Core2 历史诊断：[cache/panic 调查](core2-cache-panic-investigation.md)、
   [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、
-  [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、
-  [state sweep evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、
+  [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、 [state sweep evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、
   [setter PC trace evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json)。
 - 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及 `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
 

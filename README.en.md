@@ -57,8 +57,12 @@ cd m5stack-esp-emulator
 ./start.sh
 ```
 
-Open <http://127.0.0.1:8787/platform/web/>. Also available: [sessions](http://127.0.0.1:8787/platform/web/sessions.html),
-[firmware import](http://127.0.0.1:8787/platform/web/firmware.html) and [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml).
+Open <http://127.0.0.1:8787/>; the original `/platform/web/` entry still works. The same workbench
+connects Units, loads firmware, runs UIFlow code and opens existing sessions. Enter service credentials
+in the connection panel for native programming. Unit wiring is frozen during execution; stop before
+editing it. Units without a browser controller require a compatible Device Service.
+Legacy [session management](http://127.0.0.1:8787/platform/web/sessions.html),
+[firmware management](http://127.0.0.1:8787/platform/web/firmware.html) and [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml) remain available.
 Use `PORT=8890 ./start.sh` to choose another port.
 
 A fresh clone can serve the catalog and API pages. It does not contain the local runtime assets

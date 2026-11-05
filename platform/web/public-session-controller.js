@@ -1,5 +1,6 @@
 import { createUnitPanel } from './unit-panel.js';
 import {validateQemuServoOutputProfile, validateQemuServoState} from './public-qemu-servo.js';
+import {Sha256} from './sha256.js';
 
 const ACTIVE = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const abortError = () => new DOMException('已取消启动。', 'AbortError');
@@ -19,7 +20,7 @@ const PRECREATE_REJECTIONS = {
 /** Owns only the session it creates, never another user's Live session. */
 export class PublicSessionController {
   constructor({service, shell = null, unitContainer = null, onSerial = () => {}, onState = () => {}, onError = () => {}, onFrame = () => {}, onDeviceState = () => {}, onOutputState = () => {}, outputProfile = null, pollIntervalMs = 350, frameIntervalMs = 33, outputIntervalMs = 50,
-    createKey = () => `public-${globalThis.crypto.randomUUID()}`, createTimeoutMs = 30000, stopConfirmAttempts = 30, stopPollIntervalMs = 350, stopRequestTimeoutMs = 10000}) {
+    createKey = () => `public-${globalThis.crypto.randomUUID()}`, createTimeoutMs = 30000, stopConfirmAttempts = 30, stopPollIntervalMs = 350, stopRequestTimeoutMs = 10000, onManagedStop = null}) {
     Object.assign(this, {service, shell, unitContainer, onSerial, onState, onError, onFrame, onDeviceState, onOutputState, pollIntervalMs, frameIntervalMs, outputIntervalMs,
       createKey, createTimeoutMs, stopConfirmAttempts, stopPollIntervalMs, stopRequestTimeoutMs});
     if (outputProfile) {
@@ -31,7 +32,10 @@ export class PublicSessionController {
     this.outputProfile = outputProfile ? structuredClone(outputProfile) : null;
     this.generation = 0;
     this.current = null;
+    this.owned = true;
+    this.onManagedStop = onManagedStop;
     this.held = new Set();
+    this.heldContexts = new Map();
     this.inputQueues = new Map();
     this.disposed = false;
     this.frameEpoch = 0;
@@ -40,6 +44,40 @@ export class PublicSessionController {
   }
 
   matches(generation, id) { return !this.disposed && !this.closing && generation === this.generation && this.current?.session_id === id; }
+
+  setManagedStop(stop) {
+    if (typeof stop !== 'function' || this.current || this.pendingCreate || this.stopOperation) throw new Error('当前控制器不能准备托管会话。');
+    this.pendingManagedStop = stop;
+  }
+
+  async adoptManagedSession(session, previewClient, options = {}) {
+    if (!previewClient || previewClient.session?.session_id !== session?.session_id
+      || previewClient.session?.firmware_sha256 !== session.firmware_sha256
+      || JSON.stringify(previewClient.session?.management_binding) !== JSON.stringify(session.management_binding)) throw new Error('Preview 不属于当前原生会话。');
+    return this.adoptSession(session, {...options, previewClient});
+  }
+
+  /** Attach a captured session without gaining ownership of another page's VM. */
+  async adoptSession(session, {owned = false, previewClient = null, stop = this.onManagedStop} = {}) {
+    if (this.disposed || this.pendingCreate) throw new Error('当前控制器不能接入会话。');
+    if (!session || typeof session.session_id !== 'string' || typeof session.device_id !== 'string') throw new Error('会话身份无效。');
+    if (session.management_binding && !previewClient) throw new Error('托管会话需要 Preview 上下文。');
+    if (owned && session.management_binding && typeof stop !== 'function') throw new Error('托管会话缺少停止回调。');
+    if (this.current || this.createIntent) await this.stop();
+    this.generation++; this.current = structuredClone(session); this.owned = owned;
+    this.previewClient = previewClient; this.managedStop = stop;
+    this.pendingManagedStop = null;
+    this.serialOffset = 0; this.frameReady = false; this.frameSequence = 0; this.etag = null;
+    this.frameContextKey = null; this.pollAbort = new AbortController();
+    const generation = this.generation, id = session.session_id;
+    if (this.unitContainer && session.units?.length) {
+      this.unitPanel = await createUnitPanel(this.unitContainer, {session, shell: this.shell, api: this.api, previewClient});
+      if (!this.matches(generation, id)) {await this.unitPanel.dispose(); this.unitPanel = null; throw abortError();}
+    }
+    this.onState({status: session.state, sessionId: id, session, frameReady: false});
+    void this.poll(generation, id); void this.pollFrames(generation, id);
+    return session;
+  }
 
   async start({deviceId, firmwareId, units = [], signal}) {
     if (this.disposed) throw new Error('会话控制器已关闭。');
@@ -50,6 +88,7 @@ export class PublicSessionController {
     if (this.current || this.createIntent) await this.stop();
     if (signal?.aborted) throw abortError();
     const generation = ++this.generation;
+    this.owned = true; this.previewClient = null; this.managedStop = null;
     this.serialOffset = 0;
     this.frameReady = false;
     this.frameSequence = 0;
@@ -132,7 +171,11 @@ export class PublicSessionController {
       const session = await this.service.session(id, {signal});
       if (!this.matches(generation, id)) return;
       if (session.session_id !== id || session.device_id !== this.current.device_id) throw new Error('服务返回了其他设备的会话数据。');
+      if (this.previewClient && (session.firmware_sha256 !== this.current.firmware_sha256
+        || session.created_at !== this.current.created_at
+        || JSON.stringify(session.management_binding) !== JSON.stringify(this.current.management_binding))) throw new Error('托管会话的身份发生变化。');
       this.current = session;
+      this.previewClient?.updateSession(session);
       this.unitPanel?.updateSession(session);
       this.onState({status: session.state, sessionId: id, session, frameReady: this.frameReady});
       const serial = await this.service.serial(id, this.serialOffset, {signal});
@@ -218,21 +261,35 @@ export class PublicSessionController {
 
   async readFrame(generation, id, signal) {
     const shell = this.shell, epoch = this.frameEpoch;
-    const current = () => !signal.aborted && this.matches(generation, id) && this.current.state === 'running' && this.shell === shell && this.frameEpoch === epoch;
+    const client = this.previewClient, context = client?.snapshot().frameContext;
+    if (client && !context) {this.etag = null; this.frameHash = null; this.frameReady = false; return;}
+    if (client && this.frameContextKey !== context.key) {this.frameContextKey = context.key; this.etag = null; this.frameHash = null; this.frameReady = false;}
+    const current = () => !signal.aborted && this.matches(generation, id) && this.current.state === 'running' && this.shell === shell && this.frameEpoch === epoch
+      && (!client || this.previewClient === client && client.matches(context, 'frame'));
     // A positive bound selects the service's conditional frame API. Keep it
     // below the display cadence so a 500ms preview never throttles animation.
-    const response = await this.service.fetch(`/api/v1/sessions/${encodeURIComponent(id)}/frame.png?max_age_ms=1`, {
+    const path = client ? `/api/v1/previews/${encodeURIComponent(context.previewId)}/runs/${encodeURIComponent(context.runId)}/frame.png`
+      : `/api/v1/sessions/${encodeURIComponent(id)}/frame.png`;
+    const response = await this.service.fetch(`${path}?max_age_ms=1`, {
       signal, cache: 'no-store', headers: this.etag ? {'If-None-Match': this.etag} : {},
     });
     if (!current()) return;
-    if (response.status === 304) return;
+    if (client && (response.headers.get('X-Preview-ID') !== context.previewId || response.headers.get('X-Run-ID') !== context.runId
+      || response.headers.get('X-Frame-Execution-ID') !== context.executionId || response.headers.get('X-Frame-Revision-ID') !== context.revisionId)) throw new Error('Run 画面身份不匹配。');
+    if (response.status === 304) {
+      if (client && (!this.etag || !this.frameReady || response.headers.get('X-Frame-SHA256') !== this.frameHash)) throw new Error('Run 条件画面响应没有匹配的缓存。');
+      return;
+    }
     if (!response.ok) {if (response.status >= 500 || response.status === 409) return; throw new Error(`画面读取失败（${response.status}）`);}
     const image = await response.blob();
+    if (!current()) return;
+    if (client && new Sha256().update(new Uint8Array(await image.arrayBuffer())).hex() !== response.headers.get('X-Frame-SHA256')) throw new Error('Run 画面摘要不匹配。');
     if (!current()) return;
     const sequence = ++this.frameSequence;
     const applied = shell?.setImage ? await shell.setImage(image, sequence, current) : false;
     if (!current()) return;
     this.etag = applied === false ? null : response.headers.get('ETag');
+    this.frameHash = applied === false ? null : response.headers.get('X-Frame-SHA256');
     const wasReady = this.frameReady;
     this.frameReady = applied !== false;
     this.onFrame({blob: image, sequence, sessionId: id, applied: this.frameReady});
@@ -244,13 +301,17 @@ export class PublicSessionController {
     if (!session || session.state !== 'running' || this.disposed || this.closing) return Promise.resolve(null);
     const id = session.session_id, generation = this.generation;
     const key = command.kind === 'key' ? command.key : 'touch';
+    const previewClient = this.previewClient, context = command.kind === 'key' && command.action === 'up'
+      ? this.heldContexts.get(key) || previewClient?.captureInput() : previewClient?.captureInput();
+    if (previewClient && !context) return Promise.reject(new Error('当前 Run 尚未确认输入归属。'));
     if (command.kind === 'key') {
-      if (command.action === 'down') this.held.add(key);
-      else this.held.delete(key);
+      if (command.action === 'down') {this.held.add(key); if (context) this.heldContexts.set(key, context);}
+      else {this.held.delete(key); this.heldContexts.delete(key);}
     }
     const previous = this.inputQueues.get(key) || Promise.resolve();
     const request = previous.catch(() => {}).then(() => {
       if (!this.matches(generation, id)) return null;
+      if (previewClient) return previewClient.input(context, 'input', {...command, settle_seconds: 0.02});
       return this.service.input(id, {...command, settle_seconds: 0.02});
     });
     this.inputQueues.set(key, request);
@@ -260,6 +321,8 @@ export class PublicSessionController {
 
   async reset() {
     if (this.closing) throw new Error('正在停止会话，请等待。');
+    if (this.previewClient) throw new Error('此编程会话由 Preview 管理；请重新运行代码，或停止后重新启动设备。');
+    if (this.owned === false) throw new Error('当前视图不拥有此会话，请在设备会话控制台重置。');
     const id = this.current?.session_id;
     if (!id) return;
     const generation = ++this.generation;
@@ -288,9 +351,15 @@ export class PublicSessionController {
 
   async releaseInputs(id) {
     const held = [...this.held];
+    const contexts = this.heldContexts; this.heldContexts = new Map();
     this.held.clear();
     await Promise.allSettled([...this.inputQueues.values()]);
-    await Promise.allSettled(held.map(key => this.service.input(id, {kind: 'key', key, action: 'up', settle_seconds: 0.02})));
+    await Promise.allSettled(held.map(key => {
+      const command = {kind: 'key', key, action: 'up', settle_seconds: 0.02};
+      const context = contexts.get(key);
+      return this.previewClient ? context ? this.previewClient.input(context, 'input', command, {keepalive: true}) : Promise.resolve()
+        : this.service.input(id, command);
+    }));
   }
 
   async closeSession(id) {
@@ -333,6 +402,10 @@ export class PublicSessionController {
     const operation = (async () => {
       if (this.pendingCreate) await this.pendingCreate.catch(() => {});
       if (this.stopPromise) return this.stopPromise;
+      if (!this.current && this.pendingManagedStop) {
+        await this.pendingManagedStop(); this.pendingManagedStop = null;
+        return;
+      }
       if (!this.current && this.createIntent) {
         try {await this.acquireIntent(this.createIntent);}
         catch (error) {
@@ -351,14 +424,26 @@ export class PublicSessionController {
     if (!session) return Promise.resolve();
     this.closing = true;
     this.stopPromise = (async () => {
-      this.unitPanel?.dispose();
+      const panel = this.unitPanel;
       this.unitPanel = null;
+      if (panel) {
+        try {await this.boundedStopRequest(() => panel.dispose(), 'Unit 输入释放');}
+        catch (error) {this.onError(error);}
+      }
       try {await this.boundedStopRequest(() => this.releaseInputs(session.session_id), '输入释放');}
       catch (error) {this.onError(error);}
       finally {this.inputQueues.clear();}
-      const result = await this.closeSession(session.session_id);
+      let result;
+      if (this.previewClient) {
+        if (this.owned && !this.managedStop) throw new Error('托管会话缺少停止回调。');
+        if (this.managedStop) await this.managedStop();
+        else this.previewClient.dispose();
+        result = session;
+      } else if (this.owned === false) {if (this.managedStop) await this.managedStop(); result = session;}
+      else result = await this.closeSession(session.session_id);
       if (this.current?.session_id === session.session_id) this.current = null;
-      this.onState({status: 'stopped', sessionId: session.session_id, frameReady: false, session});
+      this.previewClient = null; this.managedStop = null;
+      this.onState({status: 'stopped', sessionId: session.session_id, frameReady: false, session, detached: this.owned === false});
       return result;
     })().catch(error => {
       this.onState({status: 'stop_pending', sessionId: session.session_id, frameReady: false, session, error});

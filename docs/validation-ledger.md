@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-04`
+日期：`2026-11-05`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-05
+
+| 范围 | 结果与身份 | 证据 |
+| --- | --- | --- |
+| 统一工作台 / 原生 CoreS3 + PIR | 新首页 13/13：同 VM 三次代码运行、导入、取消、原驱动 PIR 0→1→0、QOM/串口/红绿 framebuffer 与主机模型、停止前 ZIP/CRC/执行身份、PID/lease/Flash 释放。固件 `0ede4060…c7c78e8`，native QEMU `6d9af027…00f39d`；环境前提与观察器失败保留，不升级为 guest FAIL | [验收与范围](evidence/2026-11-05-unified-web-workbench/README.md) |
+| 统一工作台 / browser-WASM CoreS3 | 独立导出完整编辑器 63/63，12 次 raw-paste；固件 `52f38f56…`，WASM `96ea9f91…`，精确 div1/oneInsn/0027 profile。硬复位 epoch0→1，normal QMP0、无 forced/fallback、iframe 前与 context 前实际六个 CDP targets 全消失。其它设备未在本轮重跑 | [验收与范围](evidence/2026-11-05-unified-web-workbench/README.md) |
+| 统一工作台 / host 合同 | Chrome 18 项、四宽度、Unit 主机草稿、失效草稿拒绝、快速切板和已有会话竞态；无 guest/WASM。Unit 19 与 service adapter 15 项 Node 控制独立通过，不冒充设备运行 | [设计](plans/2026-11-05-unified-web-workbench.md)、[验收](evidence/2026-11-05-unified-web-workbench/README.md) |
 
 ## 2026-11-04
 

@@ -14,7 +14,8 @@ import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
 import {createVisualModelShell} from './model-shell.js';
-import {createUnitPicker} from './unit-panel.js';
+import {createPublicUnitAssembly} from './public-unit-assembly.js';
+import {PublicServiceProgram} from './public-service-program.js';
 
 const $ = (id) => document.getElementById(id),
   root = siteRoot();
@@ -24,10 +25,9 @@ const state = {
   config: {},
   selected: null,
   shell: null,
-  unitShell: null,
   selection: 0,
-  unitSelection: 0,
   runGeneration: 0,
+  openGeneration: 0,
   serviceGeneration: 0,
   run: null,
   abort: null,
@@ -67,6 +67,8 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
+  if (lane(device)==='service' && serviceProgrammingDevice(device?.id) && $('referenceExample').value==='uiflow')
+    return {name:`${device.name} · UIFlow2 编程环境`,nativeWorkbench:true};
   const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
@@ -83,6 +85,9 @@ function reference(device = state.selected) {
       ? {url: device.uiflow2.firmware.download_url, name: `UIFlow2 ${device.uiflow2.firmware.version}`}
       : null)
   );
+}
+function serviceProgrammingDevice(id=state.selected?.id) {
+  return state.serviceDevices.some(row=>row.device_id===id&&row.creatable&&row.program_modes?.includes('uiflow-live'));
 }
 function selectedAttachments() {
   try {
@@ -142,52 +147,58 @@ function status(status, detail) {
   $('browserPir').disabled = status !== 'running';
   $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
   $('stopBtn').hidden = !state.run;
-  $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : '停止';
+  $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : state.run?.owned===false ? '停止查看' : '停止';
 }
 const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成'};
 function pythonUnavailableReason() {
   const device=state.selected;
+  if (state.run?.kind==='service') return '当前固件未启用网页编程。选择 UIFlow2 编程环境后重新启动。';
+  if (lane()==='service'&&serviceProgrammingDevice()) return '启动当前设备的 UIFlow 后即可运行代码';
   if(device?.uiflow2?.supported===false)return '此型号不支持 UIFlow2，当前网页编程不可用';
   if(device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!browserProfile(device.id)))
     return '当前浏览器仅提供此型号的模型预览，不能运行网页代码';
   if(state.browserUnavailable||state.config.browser_board_execution!==true)return '本站浏览器运行暂不可用，可浏览模型或连接仿真服务';
   if(!browserProfile(device?.id))return '此型号尚未取得浏览器运行准入，网页编程不可用';
   if(state.config.browser_runtime_engine!=='qemu-wasm')return '当前运行内核不提供网页 MicroPython 编程';
-  if(state.run?.kind==='service')return '网页编程需选择浏览器本地运行';
   return '启动浏览器中的 UIFlow 后即可运行';
 }
-function updatePythonControls(currentStatus=state.run?.controller?.status) {
-  const run=state.run, supported=active(run)&&run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart;
+function updatePythonControls(currentStatus=state.run?.controller?.status || state.run?.controller?.current?.state) {
+  const run=state.run, native=active(run)&&run.kind==='service'&&!!run.python;
+  const supported=active(run)&&(run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart || native&&(run.python.ready||run.python.busy));
   const programming=!!run?.controller?.receipt?.uiflowWorkbench&&state.workbenchProfiles?.profiles.some(row=>
     row.deviceId===state.selected?.id&&row.deviceId===run.controller.receipt.deviceId
       &&row.firmwareSHA256===run.controller.receipt.firmwareSha256);
   const pythonBusy=!!run?.python?.busy,busy=pythonBusy||!!run?.serialSending;
-  $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy;
-  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running';
+  const replace=pythonBusy&&run.python.canReplace===true&&run.pythonPhase==='running';
+  $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy&&!replace;
+  $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running'||run.python?.canInterrupt===false;
+  $('pythonInterruptBtn').title=run?.python?.canInterrupt===false?'此旧会话不提供中断；新建 UIFlow 编程环境可使用中断。':'';
   $('pauseBtn').disabled=!!run?.serialSending||pythonBusy&&run.pythonPhase!=='running';
-  $('serialInput').disabled=$('serialSendBtn').disabled=!supported||currentStatus!=='running'||busy;
-  if(!supported)$('pythonStatus').textContent=pythonUnavailableReason();
+  $('serialInput').disabled=$('serialSendBtn').disabled=!!native||!supported||currentStatus!=='running'||busy;
+  if(native&&!supported)$('pythonStatus').textContent='正在同步服务中的 UIFlow 编程环境…';
+  else if(!supported)$('pythonStatus').textContent=pythonUnavailableReason();
   else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
   else if(currentStatus==='error')$('pythonStatus').textContent='设备运行未完成，请停止或重新启动';
   else if(currentStatus==='sleeping')$('pythonStatus').textContent='设备已休眠，请唤醒后运行代码';
   else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 UIFlow…':'正在启动固件…';
-  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(programming?'UIFlow 已就绪':'串口已连接，MicroPython 待确认');
+  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'UIFlow 已就绪':'串口已连接，MicroPython 待确认');
 }
 async function runPython() {
   const run=state.run;
-  if(!active(run)||!(run.controller instanceof PublicQemuRuntime))return;
+  if(!active(run)||(!(run.controller instanceof PublicQemuRuntime)&&!run.python))return;
   run.python ||= new PublicMicroPythonRunner(run.controller);
-  if(run.python.busy||run.serialSending)return;
+  if(run.python.busy&&!(run.python.canReplace===true&&run.pythonPhase==='running')||run.serialSending)return;
+  const click=run.pythonClick=(run.pythonClick||0)+1,current=()=>active(run)&&run.pythonClick===click;
   $('pythonOutput').textContent='';
   try {
     await run.python.run($('pythonSource').value,{
-      onPhase:phase=>{if(active(run)){run.pythonPhase=phase;$('pythonStatus').textContent=pythonPhases[phase];updatePythonControls();}},
-      onOutput:text=>{if(active(run)){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
+      onPhase:phase=>{if(current()){run.pythonPhase=phase;$('pythonStatus').textContent=pythonPhases[phase];updatePythonControls();}},
+      onOutput:text=>{if(current()){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
     });
-  }catch(cause){if(active(run)){
+  }catch(cause){if(current()){
     run.pythonPhase='failed';$('pythonStatus').textContent='运行未完成';
     $('pythonOutput').textContent+=`\n${cause.message}`;
-  }}finally{if(active(run))updatePythonControls();}
+  }}finally{if(current())updatePythonControls();}
 }
 function updateCapability() {
   const device = state.selected,
@@ -227,15 +238,21 @@ function updateCapability() {
     $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor>1?`虚拟时间与看门狗按 1/${p.clockDivisor} 慢放。`:'采用正常虚拟时钟。'}刷新不保存 Flash。`;
     if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
-  if ($('runtimeMode').value === 'browser' && selectedAttachments().length) {
+  if (selectedAttachments().length && !['service','model'].includes(selectedLane)) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
   }
+  const assembly=state.picker?.snapshot?.(),invalidAssembly=assembly?.valid===false;
+  if(invalidAssembly){
+    $('capabilityTitle').textContent='请调整 Unit 连线';
+    $('capabilityText').textContent=assembly.issues?.[0]?.message||'当前装配草稿与设备接口不兼容。';
+  }
   $('openServiceBtn').hidden = !!selectedLane || !!modelOnly || $('runtimeMode').value === 'browser';
-  $('startBtn').disabled = state.busy || state.stopUnconfirmed || !device || !state.shell || !selectedLane;
+  $('startBtn').disabled = state.busy || state.stopUnconfirmed || invalidAssembly || !device || !state.shell || !selectedLane;
   $('startBtn').textContent =
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
   $('cancelLoadBtn').hidden = !state.busy;
+  $('addSelectedUnitBtn').disabled=!state.selectedUnit||state.busy||!!state.run;
 }
 function renderDevices() {
   const query = $('search').value.trim().toLowerCase();
@@ -296,10 +313,12 @@ function renderDetails() {
   for (const text of limits)
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
-  $('referenceExampleFields').hidden = !profile || !qemu || !workbench;
+  $('referenceExampleFields').hidden = !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
   for(const option of $('referenceExample').options)option.hidden=['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.composedWorkbench
+  $('referenceDescription').textContent = ref?.nativeWorkbench
+    ? '在当前仿真服务中启动 UIFlow。Unit、屏幕和代码运行共用同一设备会话。'
+    : ref?.composedWorkbench
     ? '官方 UIFlow2 运行时配网页编程启动脚本。就绪后可在下方运行 MicroPython。'
     : ref?.wallclockCandidate
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
@@ -345,17 +364,20 @@ function normalizeDevice(device) {
     },
   };
 }
-async function selectDevice(id) {
+async function selectDevice(id, {openGeneration} = {}) {
+  if(openGeneration===undefined)state.openGeneration++;
+  else if(openGeneration!==state.openGeneration)return;
   const selection = ++state.selection,
     row = state.devices.find((d) => d.id === id);
   if (!row) return;
   await stopRun();
   if (selection !== state.selection) return;
   message('errorBanner');
-  state.inventory = null;
-  state.picker?.dispose();
-  state.picker = null;
-  $('unitConnectionPicker').replaceChildren();
+  state.inventory = state.localUnitInventory;
+  await state.picker?.attachShell(null);
+  if(selection!==state.selection)return;
+  await state.picker?.setDevice(id);
+  if(selection!==state.selection)return;
   if(state.selected?.id!==row.id)$('firmwareSha').value='';
   $('referenceExample').value='uiflow';
   state.selected = row;
@@ -394,6 +416,8 @@ async function selectDevice(id) {
     return;
   }
   state.shell = shell;
+  await state.picker?.attachShell(shell);
+  if(selection!==state.selection){shell.dispose();return;}
   $('deviceMount').replaceChildren(mount);
   shell.viewer?.resize();
   shell.resetView?.();
@@ -417,6 +441,10 @@ async function selectDevice(id) {
   shell.on?.('encoder', event => void deliverEncoderInput(event));
   shell.on?.('reset', event => void deliverInput({type:'reset', down:true}, event));
   shell.on?.('capacitive-touch', event => void deliverInput({type:'capacitive-touch', zone:event.zone, down:event.down}, event));
+  shell.on?.('unit-input', event => {
+    const run=state.run;
+    if(active(run)&&run.kind==='service'&&!state.busy)void run.controller.unitPanel?.handleInput(event);
+  });
   status(
     'model',
     browserProfile(id) ? '选择固件后即可开始' : row.visual_only ? '此型号目前仅有视觉模型' : '尚未运行固件',
@@ -485,6 +513,7 @@ async function stopRun() {
   const run = state.run;
   if (!run) {
     state.busy = false;
+    await state.picker?.setLocked(false);
     status('stopped', '保留最后显示帧');
     message('runProgress');
     updateCapability();
@@ -502,6 +531,8 @@ async function stopRun() {
       if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
+      await state.picker?.setLocked(false);
+      await state.picker?.attachShell(state.shell);
       clearBrowserOutputs(run.controller.outputProfile || run.controller.profile);
       status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录':'保留最后显示帧');
       message('runProgress');
@@ -700,6 +731,8 @@ async function startRun() {
   if (selection !== state.selection) return;
   message('errorBanner');
   message('launchNotice');
+  const assembly=state.picker?.snapshot?.();
+  if(assembly?.valid===false){error(new Error(assembly.issues?.[0]?.message||'请先调整 Unit 连线。'));updateCapability();return;}
   const kind = lane();
   if (kind === 'model') {
     view('shell');
@@ -714,12 +747,15 @@ async function startRun() {
   const generation = ++state.runGeneration,
     abort = (state.abort = new AbortController());
   state.busy = true;
+  await state.picker?.setLocked(true, '停止当前运行后可修改 Unit 连线。');
   if (kind === 'browser') state.shell?.pauseRendering?.();
   status('loading', '尚未取得应用首帧');
   updateCapability();
   let run;
   try {
-    const loaded = await firmware(abort.signal, generation);
+    const nativeWorkbench=kind==='service'&&source()==='reference'&&reference()?.nativeWorkbench;
+    if(nativeWorkbench&&$('firmwareSha').value.trim())throw new Error('服务编程环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
+    const loaded = nativeWorkbench ? {name:reference().name,size:0} : await firmware(abort.signal, generation);
     if (generation !== state.runGeneration || selection !== state.selection) return;
     $('rawFramePanel').hidden = true;
     $('deviceMount').classList.remove('has-raw-frame');
@@ -730,7 +766,7 @@ async function startRun() {
     state.serialBytes = 0;
     $('serialOutput').textContent = '';
     $('serialCount').textContent = '0 B';
-    message('runProgress', `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
+    message('runProgress', nativeWorkbench ? '正在启动 UIFlow 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
     run = {kind, generation, controller: null};
     const callbacks = {
       onSerial: (text) => {
@@ -768,7 +804,7 @@ async function startRun() {
       state.shell?.focusInput?.();
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
-      const imported = await state.service.importFirmware(
+      const imported = nativeWorkbench ? null : await state.service.importFirmware(
         new File([loaded.bytes], loaded.name, {type: 'application/octet-stream'}),
         state.selected.id,
         {signal: abort.signal},
@@ -804,20 +840,20 @@ async function startRun() {
         unitContainer: $('runtimeUnitPanel'),
         onState: (value) => {
           if (active(run)) {
+            run.python?.bindSession(value.session);
             if (['stopped', 'failed'].includes(value.status)) clearBrowserOutputs(outputProfile);
             status(value.status, value.frameReady ? '实际会话屏幕已更新' : '等待应用显示帧');
           }
         },
       });
       state.run = run;
-      await run.controller.start({
-        deviceId: state.selected.id,
-        firmwareId: imported.firmware_id,
-        units,
-        signal: abort.signal,
-      });
+      if(nativeWorkbench) {
+        run.python=new PublicServiceProgram({service:state.service,controller:run.controller,
+          onState:()=>{if(active(run))updatePythonControls();}});
+        await run.python.start({deviceId:state.selected.id,units,signal:abort.signal});
+      } else await run.controller.start({deviceId:state.selected.id,firmwareId:imported.firmware_id,units,signal:abort.signal});
     }
-    if (active(run)) message('runProgress', `已加载 ${loaded.name} · ${bytes(loaded.size)}`);
+    if (active(run)) message('runProgress', nativeWorkbench ? `已启动 ${loaded.name}` : `已加载 ${loaded.name} · ${bytes(loaded.size)}`);
   } catch (cause) {
     if (generation === state.runGeneration) {
       if (run?.controller && state.run === run) {
@@ -831,6 +867,7 @@ async function startRun() {
       status(cause.name === 'AbortError' ? 'stopped' : 'error', '可修改固件或运行选项后重试');
       state.shell?.resumeRendering?.();
       state.busy = false;
+      if(!state.run)await state.picker?.setLocked(false);
       updateCapability();
     }
   } finally {
@@ -883,8 +920,10 @@ async function connectService() {
     updateServiceLinks();
     message('serviceStatus', `已连接 · ${state.serviceDevices.filter((d) => d.creatable).length} 个可运行设备`);
     await loadServiceUnits(state.selection);
+    renderDetails();
     updateCapability();
     renderDevices();
+    void refreshServiceSessions();
   } catch (cause) {
     if (generation === state.serviceGeneration) {
       if (state.service) {
@@ -892,10 +931,8 @@ async function connectService() {
         $('serviceToken').value = state.service.token;
       } else {
         state.serviceDevices = [];
-        state.inventory = null;
-        state.picker?.dispose();
-        state.picker = null;
-        $('unitConnectionPicker').replaceChildren();
+        state.inventory = state.localUnitInventory;
+        await state.picker?.updateInventory(state.localUnitInventory);
       }
       message('serviceStatus', `连接失败：${cause.message}${state.service ? '；已保留原服务连接与 Unit 配置。' : ''}`);
       updateServiceLinks();
@@ -907,14 +944,11 @@ async function connectService() {
   }
 }
 async function loadServiceUnits(selection) {
-  state.picker?.dispose();
-  state.picker = null;
-  state.inventory = null;
   const service = state.service,
-    deviceId = state.selected?.id,
-    mount = node('div');
-  $('unitConnectionPicker').replaceChildren(mount);
+    deviceId = state.selected?.id;
   if (!service || !state.serviceDevices.some((d) => d.device_id === deviceId && d.creatable)) {
+    state.inventory = state.localUnitInventory;
+    await state.picker?.updateInventory(state.localUnitInventory);
     renderUnits();
     return;
   }
@@ -922,18 +956,63 @@ async function loadServiceUnits(selection) {
     const inventory = await service.units(deviceId);
     if (selection !== state.selection || service !== state.service) return;
     state.inventory = inventory;
-    const picker = await createUnitPicker(mount, {deviceId, api: async () => inventory});
-    if (selection !== state.selection || service !== state.service) {
-      picker.dispose();
-      return;
-    }
-    state.picker = picker;
+    await state.picker?.updateInventory(inventory);
     renderUnits();
   } catch (cause) {
     if (selection === state.selection) message('serviceStatus', `服务已连接，Unit 目录读取失败：${cause.message}`);
   }
 }
+async function refreshServiceSessions() {
+  const service=state.service;
+  $('serviceSessionList').replaceChildren();
+  if(!service){$('sessionsStatus').textContent='连接仿真服务后，可在这里查看已有会话。';return;}
+  try {
+    const result=await service.request('/api/v1/sessions');
+    if(service!==state.service)return;
+    const sessions=result.sessions||[];
+    $('sessionsStatus').textContent=`${sessions.length} 个会话 · 打开已有会话不会重新创建设备。`;
+    for(const session of sessions) {
+      const row=node('div','workbench-session');
+      row.append(node('strong','',state.devices.find(d=>d.id===session.device_id)?.name||session.device_id),
+        node('small','',`${session.state} · ${session.session_id.slice(0,8)}`));
+      if(['running','booting'].includes(session.state)) {
+        const button=node('button','text-button','在工作台打开');button.type='button';
+        button.addEventListener('click',()=>void openServiceSession(session.session_id).catch(error));row.append(button);
+      }
+      $('serviceSessionList').append(row);
+    }
+  } catch(cause){if(service===state.service)$('sessionsStatus').textContent=`会话读取失败：${cause.message}`;}
+}
+async function openServiceSession(id) {
+  if(state.run?.kind==='service'&&state.run.controller.current?.session_id===id&&!state.run.stopping) {
+    state.openGeneration++;
+    $('deviceMount').scrollIntoView({block:'center'});return;
+  }
+  const service=state.service, openGeneration=++state.openGeneration, session=await service.session(id);
+  const current=()=>service===state.service&&openGeneration===state.openGeneration;
+  if(!current())return;
+  if(!state.devices.some(d=>d.id===session.device_id))throw new Error('当前工作台尚无此设备模型。');
+  await selectDevice(session.device_id,{openGeneration});
+  if(!current()||state.selected?.id!==session.device_id)return;
+  await state.picker?.attachShell(null);
+  if(!current())return;
+  const run={kind:'service',generation:++state.runGeneration,owned:false};
+  run.controller=new PublicSessionController({service,shell:state.shell,unitContainer:$('runtimeUnitPanel'),
+    onSerial:text=>{if(active(run))appendSerial(text);},onError:cause=>{if(active(run))error(cause);},
+    onState:value=>{if(active(run)){run.python?.bindSession(value.session);status(value.status,value.frameReady?'实际会话屏幕已更新':'等待应用显示帧');}}});
+  state.run=run;await state.picker?.setLocked(true,'当前显示已创建的会话，停止查看后可修改装配草稿。');
+  if(!current()||!active(run))return;
+  if(session.management_binding||session.program_transport==='uart-repl'){
+    run.python=new PublicServiceProgram({service,controller:run.controller,onState:()=>{if(active(run))updatePythonControls();}});
+    await run.python.attach(session);
+  } else await run.controller.adoptSession(session,{owned:false});
+  if(!current()||!active(run)){await run.controller.stop();return;}
+  status(session.state,'已打开现有会话；停止查看不会结束原会话');
+  $('stopBtn').textContent='停止查看';
+  $('deviceMount').scrollIntoView({block:'center'});
+}
 function runnableUnit(id) {
+  if(!state.service||!state.serviceDevices.some(d=>d.device_id===state.selected?.id&&d.creatable))return false;
   const unit = state.inventory?.units?.find((unit) => unit.id === id);
   return (
     ['implemented', 'validated'].includes(unit?.runtime?.status) && unit.runtime.hosts?.includes(state.selected?.id)
@@ -973,36 +1052,20 @@ function renderUnits() {
     );
 }
 async function selectUnit(id) {
-  const generation = ++state.unitSelection,
-    unit = state.units.find((unit) => unit.id === id);
+  const unit = state.units.find((unit) => unit.id === id);
   if (!unit) return;
   state.selectedUnit = id;
-  state.unitShell?.dispose();
-  state.unitShell = null;
   renderUnits();
   $('unitTitle').textContent = unit.name;
-  $('unitCapability').textContent = runnableUnit(id) ? '可在当前主机运行' : '独立模型预览';
+  $('unitCapability').textContent = runnableUnit(id) ? '当前服务支持此主机' : '运行能力待确认';
+  $('addSelectedUnitBtn').disabled = !state.picker || !!state.run || state.busy;
+  $('unitPreviewNote').textContent = '添加后在上方主机模型中查看连线；运行能力以所选后端为准。';
   $('unitDetailBody').replaceChildren();
   for (const text of [unit.sku, ...(unit.limitations || []), unit.nextAction].filter(Boolean))
     $('unitDetailBody').append(node('p', '', text));
   $('unitDetails').hidden = false;
   $('unitDetails').open = false;
-  const mount = node('div');
-  $('unitModelMount').replaceChildren(node('p', 'field-help', '正在加载 Unit 模型…'));
-  try {
-    const shell = await createVisualModelShell(mount, id);
-    if (generation !== state.unitSelection) {
-      shell.dispose();
-      return;
-    }
-    state.unitShell = shell;
-    $('unitModelMount').replaceChildren(mount);
-    shell.viewer?.resize();
-    shell.resetView();
-  } catch (cause) {
-    if (generation === state.unitSelection)
-      $('unitModelMount').replaceChildren(node('p', 'field-help', `模型暂时无法加载：${cause.message}`));
-  }
+
 }
 async function share() {
   try {
@@ -1078,6 +1141,13 @@ async function init() {
   for (const profile of browser.devices) rows.set(profile.id, {...rows.get(profile.id), ...profile});
   state.devices = [...rows.values()];
   state.units = visual.products.filter((model) => model.category === 'unit');
+  const [unitCatalog,hostPorts,runtimeProfiles]=await Promise.all([
+    json(assetUrl('platform/units/catalog.json')),json(assetUrl('platform/units/host-ports.json')),
+    json(assetUrl('platform/units/runtime-profiles.json'))]);
+  state.localUnitInventory={units:unitCatalog.units.map(unit=>({...unit,runtime:runtimeProfiles.units[unit.id]||{}})),hosts:hostPorts.hosts};
+  state.inventory=state.localUnitInventory;
+  state.picker=await createPublicUnitAssembly($('unitAssemblyPanel'),{deviceId:'cores3',catalog:state.localUnitInventory,
+    onChange:()=>updateCapability(),onError:error});
   $('deviceCount').textContent = state.devices.length;
   $('unitCount').textContent = `${state.units.length} 个 Unit 模型`;
   $('catalogChip').textContent = `${state.devices.length} DEVICES / ${state.units.length} UNITS`;
@@ -1093,6 +1163,9 @@ async function init() {
   $('runtimeMode').value = launch.mode;
   const configuredServiceUrl = launch.serviceUrl || config.service_url || '';
   $('serviceUrl').value = configuredServiceUrl;
+  if(configuredServiceUrl&&new URL(configuredServiceUrl).origin===location.origin) {
+    try {$('serviceToken').value=sessionStorage.getItem('m5-service-token')||'';} catch {}
+  }
   if (launch.firmware) {
     $('firmwareUrl').value = launch.firmware;
     document.querySelector('[name="firmwareSource"][value="url"]').checked = true;
@@ -1162,8 +1235,12 @@ $('resetViewBtn').addEventListener('click', () => {
 $('startBtn').addEventListener('click', () => void startRun().catch(error));
 $('stopBtn').addEventListener('click', () => void stopRun().catch(error));
 $('cancelLoadBtn').addEventListener('click', () => void stopRun().catch(error));
-$('runtimeMode').addEventListener('change', updateCapability);
-$('unitConnectionPicker').addEventListener('change', updateCapability);
+$('runtimeMode').addEventListener('change', ()=>{renderDetails();updateCapability();updatePythonControls();});
+$('refreshSessionsBtn').addEventListener('click',()=>void refreshServiceSessions());
+$('addSelectedUnitBtn').addEventListener('click',async()=>{
+  try {await state.picker?.addUnit(state.selectedUnit);$('unitAssemblyPanel').scrollIntoView({block:'center'});}
+  catch(cause){error(cause);}
+});
 $('connectServiceBtn').addEventListener('click', () => void connectService());
 for (const link of document.querySelectorAll('[data-service-console]'))
   link.addEventListener('click', (event) => {
@@ -1283,11 +1360,9 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
 window.addEventListener('blur', () => void releaseInputs());
 window.addEventListener('pagehide', () => {
   state.selection++;
-  state.unitSelection++;
   state.abort?.abort();
   state.run?.controller.stop();
   state.shell?.dispose();
-  state.unitShell?.dispose();
   state.picker?.dispose();
 });
 void init().catch(error);

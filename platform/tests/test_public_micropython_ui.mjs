@@ -62,4 +62,23 @@ function fixture(){
   test.nodes.pythonRunBtn.disabled=true;
   keydown({key:'Enter',ctrlKey:true,stopPropagation(){},preventDefault(){}});assert.equal(ran,2,'shortcut respects UART ownership controls');
 }
-console.log('MicroPython UI serial ownership, hardware-reset cancellation and native Tab navigation contracts passed');
+{
+  const test=fixture(),pending=[];
+  Object.assign(test.run,{kind:'service',controller:{current:{state:'running'}}});
+  const native=test.run.python={ready:true,busy:false,canInterrupt:true,canReplace:false,
+    run(_source,options){this.busy=true;options.onPhase('running');return new Promise((resolve,reject)=>pending.push({options,resolve,reject}));}};
+  const first=test.context.runPython();
+  assert.equal(test.nodes.pythonInterruptBtn.disabled,false,'native code keeps its real cancellation available while busy');
+  assert.equal(test.nodes.serialSendBtn.disabled,true,'raw UART cannot race a managed native program');
+  await test.context.runPython();assert.equal(pending.length,1,'managed Run cannot overlap the current transfer');
+  native.canReplace=true;test.context.updatePythonControls();
+  assert.equal(test.nodes.pythonRunBtn.disabled,false,'ordinary legacy sessions can explicitly replace running code');
+  const second=test.context.runPython();assert.equal(pending.length,2);
+  pending[1].options.onOutput('new output');pending[1].options.onPhase('complete');native.busy=false;pending[1].resolve();await second;
+  pending[0].options.onOutput('late output');pending[0].reject(new Error('late observer'));await first;
+  assert.equal(test.nodes.pythonOutput.textContent,'new output','old execution observations cannot overwrite the replacement editor');
+  assert.equal(test.run.pythonPhase,'complete');
+  native.canInterrupt=false;native.busy=true;test.run.pythonPhase='running';test.context.updatePythonControls();
+  assert.equal(test.nodes.pythonInterruptBtn.disabled,true,'legacy sessions never advertise a missing interrupt API');
+}
+console.log('MicroPython UI serial ownership, reset cancellation, native programming and replacement generation contracts passed');
