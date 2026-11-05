@@ -1,0 +1,159 @@
+{
+  "kind": "unit-catalog-preview-browser-host-acceptance",
+  "status": "PASS",
+  "scope": "Independent Unit catalog model preview and Add-to-host draft coexist; actual browser/model lifecycle and HTTP ownership contracts only, without firmware execution.",
+  "base_path": "/showcase/",
+  "browser": "157.0.8103.38",
+  "raw_report": {
+    "bytes": 3906,
+    "sha256": "4715b76aeda6f6b3f32fbb64b646439d2b937267a600efcf84ac45747794d54d"
+  },
+  "site": {
+    "manifest_sha256": "e400adb8c3923713f4a6b5273b23a35a810db5033100dd46f9ca8ab7ef7e9da7",
+    "assets": 2103,
+    "bytes": 203606358,
+    "browser_board_execution": false
+  },
+  "source_sha256": {
+    "platform/web/index.html": "e1b26f20a954a315a761b5d17317fa48949e262e5ffd51d02c43da4709a1aac6",
+    "platform/web/public.js": "41dda90f74fa3a944eb31d573733d8b39859f9e50fedb04b9a9960c5956b927f",
+    "platform/web/public.css": "b0649645211f00623f3698b8ec862228130c189502b3c74d0d129bb4c1e924a9",
+    "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+    "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+    "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+    "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+    "platform/tests/test_public_workbench_browser.mjs": "8a49d111ebd32632b8e1f2c773d6db78c89383430b93536c4b1cef37cc47892f"
+  },
+  "exported_source_sha256": {
+    "platform/web/index.html": "1d1d12286866925fc19dbbf3fee2d8b337d67d736c7e141dc508b2dd48978329",
+    "platform/web/public.js": "41dda90f74fa3a944eb31d573733d8b39859f9e50fedb04b9a9960c5956b927f",
+    "platform/web/public.css": "b0649645211f00623f3698b8ec862228130c189502b3c74d0d129bb4c1e924a9",
+    "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+    "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+    "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+    "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+    "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158"
+  },
+  "browser_checks": {
+    "passed": 20,
+    "failed": 0,
+    "cases": [
+      "first-visit-and-project-prefix-are-model-only-without-an-implicit-service",
+      "one-page-navigation-never-opens-a-separate-console",
+      "offline-unit-adds-to-main-host-and-retains-an-honest-capability-boundary",
+      "catalog-preview-disposal-and-reopen-never-change-the-host-draft",
+      "late-catalog-model-load-cannot-replace-a-newer-unit-preview",
+      "device-selection-preserves-only-its-own-unit-draft",
+      "responsive-main-host-assembly-has-no-overflow-at-four-widths",
+      "device-alias-and-share-never-forward-credentials",
+      "first-service-failure-preserves-offline-unit-catalog-and-draft-ui-fixture",
+      "service-connect-keeps-navigation-local-and-does-not-create-a-guest-ui-fixture",
+      "configured-units-are-not-silently-dropped-by-browser-mode-ui-fixture",
+      "failed-reconnect-preserves-original-service-and-unit-owner-ui-fixture",
+      "catalog-change-keeps-invalid-draft-and-blocks-auto-browser-and-programmatic-start-ui-fixture",
+      "sha-mismatch-fails-before-any-native-session-allocation-ui-fixture",
+      "firmware-load-locks-unit-draft-and-cancel-releases-it-without-a-guest-ui-fixture",
+      "unconfirmed-stop-blocks-device-and-service-replacement-ui-fixture",
+      "borrowed-live-session-opens-in-place-without-create-or-delete-ui-fixture",
+      "pending-borrowed-B-cannot-replace-current-A-after-A-is-reselected-ui-fixture",
+      "late-picker-device-A-return-cannot-overwrite-current-device-B",
+      "unknown-device-fails-closed-and-no-runtime-is-started-by-host-contracts"
+    ]
+  },
+  "unit_draft_contracts": {
+    "passed": 19,
+    "failed": 0,
+    "scope": "Deterministic host configuration/model ownership; no HTTP, browser or guest.",
+    "entry": "node platform/tests/test_public_unit_assembly.mjs"
+  },
+  "observations": [
+    "Selecting Button creates a separate real visual-only Unit model; Add still attaches Button to the current host draft and repeated Add does not duplicate it.",
+    "Selecting Angle disposes the previous preview; closing the catalog removes and disposes its shell; reopening creates a fresh preview without changing the host draft.",
+    "A barrier delays the real Relay model module response. Selecting Button before release keeps Button current, and the stale Relay shell is actually disposed.",
+    "Changing the main device preserves the same standalone preview object and refreshes the selected Unit note/capability; each host retains its own draft.",
+    "A real canvas click on the standalone preview while viewing a borrowed HTTP-fixture session does not attach the draft to that session or produce session writes.",
+    "Page navigation invokes the actual pagehide preview disposal; Token helper is associated with its input using aria-describedby.",
+    "Existing invalid-draft rejection, load/cancel locking, uncertain-stop fences, borrowed-session no-create/delete behavior, and delayed device/session race contracts remain included."
+  ],
+  "layout": {
+    "widths": [
+      1440,
+      1024,
+      768,
+      390
+    ],
+    "horizontal_overflow": false,
+    "host_canvases": 1,
+    "standalone_unit_canvases": 1,
+    "preview_has_positive_visible_bounds": true,
+    "screenshots": {
+      "1440": {
+        "page": {
+          "bytes": 278550,
+          "sha256": "b974e88ed7014056eb9136836a5e3825fe66e4f872475e94e1e18c7ef4bf1b5d"
+        },
+        "unit_preview": {
+          "bytes": 9237,
+          "sha256": "659c71b857047c187a9616a074d19146d1f23f0c0dc0c75da9a6f36e433a5f2d"
+        }
+      },
+      "1024": {
+        "page": {
+          "bytes": 267058,
+          "sha256": "b745db648336304ed02d83f8a2c96ea0353557fa37287e9186d8d5414375ff51"
+        },
+        "unit_preview": {
+          "bytes": 8912,
+          "sha256": "f261d1024aacc8b89f821ea37f376b4bd5c149c883416fb50001b97d819d10c1"
+        }
+      },
+      "768": {
+        "page": {
+          "bytes": 256377,
+          "sha256": "63e45387a307062ea73b1d7ff8eca0731dc85f08a63629155301ff4e74ff6493"
+        },
+        "unit_preview": {
+          "bytes": 9072,
+          "sha256": "1f09aba53fec7de5c56d3c8b321440c4f0a8746b30b63ae6b472ded07464cfe3"
+        }
+      },
+      "390": {
+        "page": {
+          "bytes": 222998,
+          "sha256": "c5604b3bcb330440b41487413378ddf68ab20033b9c241f33255d7c43c81bfbb"
+        },
+        "unit_preview": {
+          "bytes": 8268,
+          "sha256": "d9a5b60468054efe85332cb9be16dc56756eb19f3bb5e344deee44955f0ed7b1"
+        }
+      }
+    },
+    "visual_inspection": "390px full page and 390px/1440px independent Unit previews inspected; actual catalog model visible without clipping or horizontal overflow."
+  },
+  "runtime": {
+    "guest_execution": "NOT RUN",
+    "native_guest": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "runtime_workers_observed": 0,
+    "wasm_requests_observed": 0,
+    "page_errors": []
+  },
+  "cleanup": {
+    "runner_exit_code": 0,
+    "browser_closed_in_finally": true,
+    "owned_static_server_closed_in_finally": true,
+    "guest_cleanup": "NOT APPLICABLE: no guest or runtime Worker created"
+  },
+  "reproduction": {
+    "export": "python platform/tools/build_public_site.py --output .work/public-ux-contract-site --base-path /showcase/",
+    "test": "M5_PUBLIC_SITE=.work/public-ux-contract-site M5_PUBLIC_UI_OUT=.work/unit-preview-host-final node platform/tests/test_public_workbench_browser.mjs",
+    "dependencies": "Use repository-locked Playwright dependencies and the configured Chrome executable; M5_WASM_NODE_MODULES may point to an existing owned installation."
+  },
+  "limits": [
+    "The HTTP service fixture validates UI/data ownership only and fabricates no guest serial, sensor or framebuffer output.",
+    "The renderer pause/resume implementation covers both main host and any current or newly created preview during browser loading; browser-WASM startup with the preview open requires a separate actual guest run.",
+    "Unit catalog preview is visual-only. Neither adding a draft nor operating a preview grants browser-WASM Unit controller execution or admission.",
+    "This result does not establish any firmware, hardware, performance, external service or deployment acceptance."
+  ]
+}

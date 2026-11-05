@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "kind": "unified-web-native-loopback-tokenless-pir-acceptance",
+  "date": "2026-11-05",
+  "status": "PASS",
+  "validation_kind": "virtual-device validation",
+  "started_at": "2026-11-05T03:25:14.931Z",
+  "finished_at": "2026-11-05T03:25:30.095Z",
+  "checks": {
+    "passed": 14,
+    "failed": 0,
+    "names": [
+      "main-ui-created-owned-native-cores3-with-pir",
+      "run-A-actual-same-guest-run",
+      "program-a-frame-actual-guest-color",
+      "program-a-frame-same-frame-on-main-model",
+      "run-B-actual-same-guest-run",
+      "pir-ui-controller-original-driver-true",
+      "pir-ui-controller-original-driver-false",
+      "program-b-frame-actual-guest-color",
+      "program-b-frame-same-frame-on-main-model",
+      "main-ui-interrupt-confirmed",
+      "import-file-actual-same-guest-run",
+      "ui-stop-zip-history-pid-and-lease-cleanup",
+      "tokenless-preview-posts-no-authorization-and-same-origin",
+      "same-source-new-homepage-native-only"
+    ]
+  },
+  "scope": {
+    "device": "cores3",
+    "unit": "pir",
+    "entry": "canonical local workbench root",
+    "authentication": "explicit loopback tokenless Preview; no Bearer or token file",
+    "service_bound_loopback": true,
+    "service_state_independent": true,
+    "program_transport": "uart-repl",
+    "service_flash_mode_configured": "host-image",
+    "actual_flash_transport": "cache",
+    "first_owned_seed_flash_transport": "host-image",
+    "flash_verified": true,
+    "session_isolated_flash_copy": true,
+    "esptool_transport": "NOT TESTED",
+    "browser_wasm": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "other_models_and_units": "NOT RUN",
+    "reserved_user_services": "UNTOUCHED"
+  },
+  "identities": {
+    "runtime": {
+      "executable_name": "qemu-system-xtensa",
+      "sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+    },
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "composed_boot_sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+    "composed_main_sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+    "sources_sha256": {
+      "platform/tests/test_public_unified_service_browser.mjs": "e9127e7958852dc8c7c51896105835b23474797b97da28f83d6bb587a92370d8",
+      "tests/units/preview_controls_probe.py": "efb9af7b1df20053630e3b7da36de26e21224cbc30d76f16d5dcda61df444e1f",
+      "platform/web/index.html": "e1b26f20a954a315a761b5d17317fa48949e262e5ffd51d02c43da4709a1aac6",
+      "platform/web/public.js": "41dda90f74fa3a944eb31d573733d8b39859f9e50fedb04b9a9960c5956b927f",
+      "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+      "platform/web/public-session-controller.js": "e958db8f7fe0a602016ada081776fa0746d9108f469ec630798520f332de1de0",
+      "platform/web/public-service-program.js": "b8c9efec6c27d043f1b467d1109d831e9a67ab616a98f4b224724397c9ebe9bd",
+      "platform/web/public-unit-assembly.js": "6fcaf311bfdebb3bdce9e3368cf2c88c024827981434cd478a682a6f168c8af6",
+      "platform/web/unit-panel.js": "c8d4a827a6e0a78b082d9d0bb865377544dcb4d5120d1745fe3074e178f9f26a",
+      "platform/web/preview-client.js": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+      "platform/web/model-shell.js": "b383b226601f9707cc0c201298bd21eef8f00d6bd5331dac00fac09d46eb47c0",
+      "platform/tools/serve.py": "0a1e41d50eb4acc25d43938f90af5f5085c095ed5f78ce5ac84153aa8cc504ea",
+      "platform/tools/preview_request_context.py": "f5b40acdc2f7e3e8fea232106c1a321ca96c3fa89abd3ca57c3c13651a40eb0b",
+      "platform/tools/device_service.py": "857eb0d046815d80d63f45a95a69bfd92a7dd54e9c0efd58ae8a7d9512b55998",
+      "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+      "platform/tools/unit_runtime.py": "ab6e5da85a39126ce5b180063b1cf4905f2ab24df7b4298966d22cac8bc7be0c",
+      "platform/units/runtime-profiles.json": "4acc5593b8ef6e2ebd354616559981a966572b977f440b5d12c38900da45a306",
+      "platform/units/host-ports.json": "6edf82ccaf8b13834696f97ec87dbbd1551d68f93b0e2404ef7a4ab4f4ecbfcf"
+    },
+    "browser_version": "157.0.8103.38",
+    "raw_report": {
+      "bytes": 148248,
+      "sha256": "0861db1e3488d5e78e2ae2168a7d00079e32e2b40b9d626ffaffc1c57612a67d"
+    }
+  },
+  "programs": {
+    "count": 3,
+    "same_guest": true,
+    "same_pid_firmware_session_verified": true,
+    "dedicated_sys_modules_nonce_state_verified": true,
+    "serial_markers_verified_from_prestop_zip": [
+      "run-A",
+      "run-B-ready",
+      "PIR true",
+      "PIR false",
+      "import math/UTF8"
+    ],
+    "runs": [
+      {
+        "name": "run-A",
+        "state_at_observation": "completed",
+        "source_sha256": "6a260e05b50e11f7bae2867810ce7ec58d51cfa4ad1e38afc3e12f4ec61084b7"
+      },
+      {
+        "name": "run-B",
+        "state_at_observation": "running",
+        "source_sha256": "4b658b32cc849976730e6262284d277b7f1b9937effb688a2ffe0886e9978631"
+      },
+      {
+        "name": "import-file",
+        "state_at_observation": "completed",
+        "source_sha256": "73121b3441654ff60893abd3ff235ffd3f5cc5bb0b2a70aed719f307473ada23"
+      }
+    ],
+    "interrupt": "confirmed cancelled/interrupted through UI"
+  },
+  "inputs": {
+    "count": 2,
+    "values": [
+      true,
+      false
+    ],
+    "path": "Unit UI -> Preview input -> controller GPIO -> original PIRUnit.get_status -> same-guest serial; actual Unit state and QOM readback",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "input_observations": [
+      {
+        "requested_motion": true,
+        "qom_value": true,
+        "same_run_identity_verified": true
+      },
+      {
+        "requested_motion": false,
+        "qom_value": false,
+        "same_run_identity_verified": true
+      }
+    ]
+  },
+  "frames": [
+    {
+      "name": "program-a-frame",
+      "bytes": 579,
+      "sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+      "width": 320,
+      "height": 240,
+      "rgba": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "same_frame_on_main_model": true
+    },
+    {
+      "name": "program-b-frame",
+      "bytes": 579,
+      "sha256": "7f8f4d8af5c2ab0d5fd15740fd426ddf4f5333070e4ac58c8b64830b90b5fb30",
+      "width": 320,
+      "height": 240,
+      "rgba": [
+        0,
+        255,
+        0,
+        255
+      ],
+      "same_frame_on_main_model": true
+    }
+  ],
+  "request_context": {
+    "browser_preview_post_count": 8,
+    "route_counts": {
+      "create": 1,
+      "submit": 3,
+      "input": 2,
+      "cancel": 1,
+      "close": 1
+    },
+    "authorization_present": false,
+    "request_url_document_url_origin_header_exactly_same_origin": true,
+    "fetch_site_header_observation": "ABSENT in all 8 Playwright allHeaders observations; Origin positive proof retained",
+    "contradictory_fetch_site_accepted": false,
+    "observer_backend_transport": "node:http explicit local CLI without Fetch Metadata",
+    "observer_headers_fabricated": false
+  },
+  "evidence_zip": {
+    "source": "Product retained run.python.lastEvidence Blob created by UI Stop before Preview close",
+    "bytes": 33844,
+    "sha256": "4d97225399ca8574349c865bc8eff470a1937f2ada5031532e6577246c2b1525",
+    "members": 25,
+    "crc_all_members": "PASS",
+    "member_hashes_and_complete_membership": "PASS",
+    "session_device_pid_firmware_and_all_three_program_revisions": "PASS",
+    "zip_manifest_session_state": "running",
+    "actual_http_content_length": 33844,
+    "content_length_matches_product_blob": true,
+    "network_body_observer_bytes": 0,
+    "network_body_limitation": "Playwright body observation returned zero bytes; product Blob and actual response Content-Length were the primary same-response evidence",
+    "zip_verifier_transport": "Original exact JSON via file descriptor stdin; 10s timeout",
+    "network_body_observer_limit_ms": 5000,
+    "browser_task_observer_limit_ms": 10000
+  },
+  "cleanup": {
+    "ui_stop": true,
+    "history_retained": true,
+    "owned_pid_gone": true,
+    "worker_lease_active": false,
+    "active_sessions": 0,
+    "active_leases": 0,
+    "flash_retained": false,
+    "browser_disconnected": true,
+    "fallback_required": false
+  },
+  "historical_runs": [
+    {
+      "run": "tokenless-native-pir-first",
+      "status": "FAIL",
+      "raw_report": {
+        "bytes": 7172,
+        "sha256": "f3983a4ed6f2e6d2794c69a830b5fee99619f386206e72fa4a1ae5afddafbc97"
+      },
+      "harness_sha256": "1803e8597ced3ff815a1cdea9432faafe1bcb274142d00e9a8723d3c948d0664",
+      "recorded_checks": 0,
+      "all_recorded_checks_true": true,
+      "classification": "OBSERVER_FAIL: Node fetch injected Fetch Metadata without browser Origin context; actual Preview created and became ready; separately owned CLI evidence/close cleanup completed",
+      "browser_disconnected": true,
+      "not_reclassified_by_later_pass": true
+    },
+    {
+      "run": "tokenless-native-pir-r2",
+      "status": "FAIL",
+      "raw_report": {
+        "bytes": 135881,
+        "sha256": "d4bd5bcbe8454fdc234c8fd7f4d8d2ab2f21c2e5525211bda81df650a9be3a6e"
+      },
+      "harness_sha256": "2ea7a6a330cde606f121c2325271d52d4035fcdc3d386042a23d28f85a7e3a54",
+      "recorded_checks": 11,
+      "all_recorded_checks_true": true,
+      "classification": "OBSERVER_FAIL: unbounded synchronous Python pipe ZIP verifier required owned child termination; original 11 functional checks true; valid product ZIP independently checked after run; Fetch-Site presence was an observer overconstraint, corrected in R3",
+      "browser_disconnected": true,
+      "not_reclassified_by_later_pass": true
+    }
+  ],
+  "limits": [
+    "Functional native-service acceptance for one CoreS3+PIR path only.",
+    "Loopback tokenless Preview policy is not global CSRF protection, remote authentication or an untrusted-firmware sandbox.",
+    "Host-image configured virtual Flash/cache use does not validate esptool serial transport.",
+    "No performance, physical RF/power/electrical, other-board or browser-WASM inference."
+  ]
+}

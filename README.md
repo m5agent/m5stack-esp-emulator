@@ -54,7 +54,7 @@ cd m5stack-esp-emulator
 ```
 
 打开 <http://127.0.0.1:8787/>（原 `/platform/web/` 入口仍可用）。同一工作台可添加 Unit、
-加载固件、运行 UIFlow 代码和打开已有会话；服务编程需在连接区填写访问凭据。
+加载固件、运行 UIFlow 代码和打开已有会话；本机同源连接无需填写 Token；服务已配置 Token 时，在连接区填写。
 运行期间 Unit 接线锁定，停止后可调整。浏览器未接入的 Unit 需要兼容设备服务。
 旧[会话管理](http://127.0.0.1:8787/platform/web/sessions.html)、
 [固件管理](http://127.0.0.1:8787/platform/web/firmware.html)和 [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml)保留兼容。

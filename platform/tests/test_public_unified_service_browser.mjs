@@ -3,24 +3,78 @@
 import assert from 'node:assert/strict';
 import {createHash,randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {request as httpRequest} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {writeFileSync,openSync,closeSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {setTimeout as delay} from 'node:timers/promises';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const hash=value=>createHash('sha256').update(value).digest('hex');
-export function unifiedServicePlan(){return {kind:'public-unified-native-browser-plan',status:'NOT RUN',device:'cores3',unit:'pir',
-  execute:'node platform/tests/test_public_unified_service_browser.mjs --execute --service <owned-loopback-service> --token-file <file> --out <new-.work-directory>',
+export function unifiedServicePlan({tokenlessLocal=true}={}){return {kind:'public-unified-native-browser-plan',status:'NOT RUN',device:'cores3',unit:'pir',
+  auth_mode:tokenlessLocal?'explicit-loopback-tokenless':'control-bearer',
+  execute:tokenlessLocal
+    ?'node platform/tests/test_public_unified_service_browser.mjs --execute --tokenless-local --service <owned-loopback-service:port> --out <new-.work-directory>'
+    :'node platform/tests/test_public_unified_service_browser.mjs --execute --service <owned-loopback-service> --token-file <file> --out <new-.work-directory>',
+  execute_bearer:'node platform/tests/test_public_unified_service_browser.mjs --execute --service <owned-loopback-service> --token-file <file> --out <new-.work-directory>',
   scope:['Canonical homepage only; actual service connection, device/Unit selection and UIFlow start.',
     'Run A/B, file import, public PIR driver/controller input, same-VM nonce, serial and displayed framebuffer.',
     'UI interrupt and UI stop, evidence ZIP, retained history, released owned PID/lease.'],
   boot_budget_ms:120000,per_run_budget_ms:120000,cleanup_budget_ms:45000,not_granted:['Other devices/Units','legacy session adoption','Pages/WASM','physical hardware','performance']};}
 
+export function validateUnifiedServiceOptions(options){
+  assert.ok(options.service&&options.out,'Explicit service/output required');
+  assert.ok(options.tokenless_local===undefined||typeof options.tokenless_local==='boolean','Tokenless mode must be an explicit boolean');
+  const tokenless=options.tokenless_local===true;
+  assert.ok(tokenless?!options.token_file:options.token_file,'Choose --tokenless-local or an explicit --token-file');
+  const base=new URL(options.service);assert.ok(base.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(base.hostname)
+    &&base.pathname==='/'&&!base.search&&!base.hash&&!base.username&&!base.password,'Owned loopback HTTP service root required');
+  assert.ok(!['8787','8830'].includes(base.port),'User testing services cannot be used by this harness');
+  if(tokenless)assert.match(options.service,/^http:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):[1-9][0-9]{0,4}\/?$/,
+    'Tokenless mode requires an explicit canonical owned loopback host and port');
+  const output=resolve(options.out);assert.ok(output.startsWith(resolve(root,'.work')+'/'),'Output must be a new repository .work directory');
+  return {base,output,tokenless};
+}
+
+// Explicit local CLI transport: Node fetch adds Sec-Fetch-Mode automatically.
+// Browser request-context evidence below continues to come from Chromium.
+export function localCliHttpRequest(url,{method='GET',headers={},body,signal}={}){
+  const target=new URL(url);
+  assert.ok(target.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(target.hostname)
+    &&!['8787','8830'].includes(target.port)&&!target.username&&!target.password,'Owned local HTTP CLI target required');
+  assert.ok(!Object.keys(headers).some(key=>/^(?:authorization|cookie|sec-fetch-)/i.test(key)),
+    'Tokenless CLI transport must not supply authentication, cookies or Fetch Metadata');
+  const payload=body===undefined?undefined:Buffer.from(body);
+  return new Promise((resolve,reject)=>{
+    const request=httpRequest(target,{method,signal,headers:{...headers,...(payload?{'Content-Length':String(payload.length)}:{})}},response=>{
+      const chunks=[];response.on('data',chunk=>chunks.push(chunk));response.once('error',reject);
+      response.once('aborted',()=>reject(new Error('Local CLI response aborted')));
+      response.once('end',()=>{
+        const responseHeaders=new Headers();for(let i=0;i<response.rawHeaders.length;i+=2)responseHeaders.append(response.rawHeaders[i],response.rawHeaders[i+1]);
+        const status=response.statusCode;resolve({status,ok:status>=200&&status<300,headers:responseHeaders,bytes:Buffer.concat(chunks)});
+      });
+    });
+    request.once('error',reject);request.end(payload);
+  });
+}
+
+export function observerDeadline(promise,timeoutMs,code){
+  let timer;
+  return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>{
+    const error=new Error(code);error.code=code;reject(error);
+  },timeoutMs);})]).finally(()=>clearTimeout(timer));
+}
+
+export function sameOriginPreviewEvidence(request,origin){
+  return request.request_origin===origin&&request.document_origin===origin&&request.origin_header===origin
+    &&(request.fetch_site===null||request.fetch_site==='same-origin');
+}
+
 const sourcePaths=['platform/tests/test_public_unified_service_browser.mjs','tests/units/preview_controls_probe.py',
   'platform/web/index.html','platform/web/public.js','platform/web/public-service.js','platform/web/public-session-controller.js',
   'platform/web/public-service-program.js','platform/web/public-unit-assembly.js','platform/web/unit-panel.js',
-  'platform/web/preview-client.js','platform/web/model-shell.js','platform/tools/serve.py','platform/tools/device_service.py',
+  'platform/web/preview-client.js','platform/web/model-shell.js','platform/tools/serve.py','platform/tools/preview_request_context.py','platform/tools/device_service.py',
   'platform/tools/preview_service.py','platform/tools/unit_runtime.py','platform/units/runtime-profiles.json','platform/units/host-ports.json'];
 async function fingerprints(){return Object.fromEntries(await Promise.all(sourcePaths.map(async path=>[path,hash(await readFile(resolve(root,path)))])));}
 function processIdentity(pid,python){
@@ -44,26 +98,31 @@ function program(phase,nonce,pins){
 }
 
 export async function execute(options){
-  assert.ok(options.service&&options.token_file&&options.out,'Explicit service/token/output required');
-  const base=new URL(options.service);assert.ok(base.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(base.hostname)
-    &&base.pathname==='/'&&!base.search&&!base.hash&&!base.username&&!base.password,'Owned loopback HTTP service root required');
-  assert.ok(!['8787','8830'].includes(base.port),'User testing services cannot be used by this harness');
-  const origin=base.origin,output=resolve(options.out);assert.ok(output.startsWith(resolve(root,'.work')+'/'));
-  const token=(await readFile(resolve(options.token_file),'utf8')).trim();assert.ok(token,'Explicit control token required');
+  const {base,output,tokenless}=validateUnifiedServiceOptions(options),origin=base.origin;
+  const token=tokenless?'':(await readFile(resolve(options.token_file),'utf8')).trim();assert.ok(tokenless||token,'Explicit control token required');
   await mkdir(output,{recursive:false});
   const python=options.python||process.env.M5_PYTHON||'python3',nonce=randomUUID().replaceAll('-','');
-  const report={kind:'public-unified-native-browser',status:'FAIL',started_at:new Date().toISOString(),scope:unifiedServicePlan(),
+  const report={kind:'public-unified-native-browser',status:'FAIL',started_at:new Date().toISOString(),scope:unifiedServicePlan({tokenlessLocal:tokenless}),
+    auth_mode:tokenless?'loopback-tokenless':'control-bearer',preview_requests:[],preview_request_errors:[],
+    observer_http_transport:tokenless?'node:http explicit local CLI without Fetch Metadata':'Node fetch with explicit control Bearer',
     evidence_level:'virtual-device validation',hardware_validation:'NOT RUN',nonce,source_sha256:await fingerprints(),checks:[],runs:[],inputs:[],frames:[],http:[],page_errors:[],
     instrumentation:'Only append globalThis.__unifiedWorkbenchProbe={state} to hash-verified public.js; product methods/API/guest output unchanged.'};
   const check=(name,ok,details)=>{report.checks.push({name,ok,details});assert.ok(ok,name);console.log(name);};
   const save=(name,value)=>writeFile(resolve(output,name),JSON.stringify(value,null,2)+'\n');
   let deadline=Date.now()+120000,cleanupMode=false,browser,page,previewId,ownerEpoch,sessionId,session,creationIntent,zip,stopped;
   const browserTasks=[];
+  async function drainBrowserTasks(required=false){
+    try{await observerDeadline(Promise.allSettled(browserTasks),10000,'browser_tasks_observer_timeout');}
+    catch(error){report.browser_tasks_observer_timeout=true;report.status='FAIL';process.exitCode=1;
+      report.error ||= String(error?.stack||error);if(required)throw error;}
+  }
   const left=(maximum=30000)=>{const n=cleanupMode?maximum:Math.min(maximum,deadline-Date.now());assert.ok(n>0,'120s phase budget exceeded');return Math.max(1,Math.ceil(n));};
   async function api(path,{method='GET',body,binary=false,headers={}}={}){
-    const response=await fetch(origin+'/api/v1/'+path,{method,redirect:'error',credentials:'omit',signal:AbortSignal.timeout(left()),
-      headers:{Authorization:`Bearer ${token}`,...(body===undefined?{}:{'Content-Type':'application/json'}),...headers},...(body===undefined?{}:{body:JSON.stringify(body)})});
-    const bytes=Buffer.from(await response.arrayBuffer());report.http.push({path,method,status:response.status,bytes:bytes.length,sha256:hash(bytes)});
+    if(tokenless)assert.ok(!Object.keys(headers).some(key=>key.toLowerCase()==='authorization'),'Tokenless helper cannot inject Authorization');
+    const request={method,redirect:'error',credentials:'omit',signal:AbortSignal.timeout(left()),
+      headers:{...(tokenless?{}:{Authorization:`Bearer ${token}`}),...(body===undefined?{}:{'Content-Type':'application/json'}),...headers},...(body===undefined?{}:{body:JSON.stringify(body)})};
+    const response=await (tokenless?localCliHttpRequest:fetch)(origin+'/api/v1/'+path,request);
+    const bytes=tokenless?response.bytes:Buffer.from(await response.arrayBuffer());report.http.push({path,method,status:response.status,bytes:bytes.length,sha256:hash(bytes)});
     assert.ok(response.ok,`${method} ${path}: HTTP${response.status} ${bytes.toString().slice(0,500)}`);
     return binary?{bytes,headers:Object.fromEntries(response.headers)}:JSON.parse(bytes);
   }
@@ -104,9 +163,13 @@ export async function execute(options){
   }
   function verifyZip(){
     assert.ok(zip?.length,'Evidence ZIP required');
-    return JSON.parse(execFileSync(python,['-B','tests/units/preview_controls_probe.py','zip','--device','cores3'],{cwd:root,encoding:'utf8',maxBuffer:1024*1024,
-      input:JSON.stringify({bytes:zip.toString('base64'),expected:{session_id:sessionId,device_id:'cores3',firmware_sha256:session.firmware_sha256,pid:session.pid,
-        runs:report.runs.map(x=>({execution_id:x.execution_id,revision_id:x.revision_id}))}})}));
+    const input=resolve(output,'zip-verification-input.json');
+    writeFileSync(input,JSON.stringify({bytes:zip.toString('base64'),expected:{session_id:sessionId,device_id:'cores3',firmware_sha256:session.firmware_sha256,pid:session.pid,
+      runs:report.runs.map(x=>({execution_id:x.execution_id,revision_id:x.revision_id}))}}),{flag:'wx',mode:0o600});
+    const fd=openSync(input,'r');
+    try{return JSON.parse(execFileSync(python,['-B','tests/units/preview_controls_probe.py','zip','--device','cores3'],
+      {cwd:root,encoding:'utf8',maxBuffer:1024*1024,timeout:10000,stdio:[fd,'pipe','pipe']}));}
+    finally{closeSync(fd);}
   }
   try{
     const capacity=await api('capacity');assert.equal(capacity.active_sessions,0,'Dedicated service must begin with no active sessions');
@@ -118,6 +181,12 @@ export async function execute(options){
     page.on('pageerror',error=>report.page_errors.push(error.message));
     page.on('request',request=>{const u=new URL(request.url());
       if(u.pathname==='/api/v1/previews'&&request.method()==='POST')creationIntent={body:request.postDataJSON(),key:request.headers()['idempotency-key']};
+      if(tokenless&&request.method()==='POST'&&/^\/api\/v1\/previews(?:\/|$)/.test(u.pathname))browserTasks.push((async()=>{
+        const headers=await request.allHeaders(),documentOrigin=new URL(request.frame().url()).origin;
+        const evidence={path:u.pathname,method:request.method(),authorization_present:Object.hasOwn(headers,'authorization'),
+          request_origin:u.origin,document_origin:documentOrigin,origin_header:headers.origin??null,fetch_site:headers['sec-fetch-site']??null};
+        report.preview_requests.push({...evidence,same_origin:sameOriginPreviewEvidence(evidence,origin)});
+      })().catch(error=>report.preview_request_errors.push(String(error?.message||error))));
       if(/\.wasm$/.test(u.pathname))report.unexpected_browser_wasm=true;
       if(u.pathname==='/platform/web/sessions.html')report.legacy_sessions_page_requested=true;
     });
@@ -127,9 +196,10 @@ export async function execute(options){
         report.network_evidence={status:response.status(),headers:await response.allHeaders()};
         if(response.ok()){
           report.ui_evidence_request=true;
-          try{const bytes=Buffer.from(await response.body());await writeFile(resolve(output,'network-evidence-before-stop.zip'),bytes);
+          try{const bytes=Buffer.from(await observerDeadline(response.body(),5000,'network_body_observer_timeout'));await writeFile(resolve(output,'network-evidence-before-stop.zip'),bytes);
             Object.assign(report.network_evidence,{bytes:bytes.length,sha256:hash(bytes)});
-          }catch(error){report.network_evidence.body_observation_error=String(error?.message||error);}
+          }catch(error){report.network_evidence.body_observation_error=String(error?.message||error);
+            if(error?.code==='network_body_observer_timeout')report.network_evidence.network_body_observer_timeout=true;}
         }
       })());
     });
@@ -140,7 +210,10 @@ export async function execute(options){
     const entry=await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:left()});assert.equal(hash(await entry.body()),report.source_sha256['platform/web/index.html']);
     await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3'&&globalThis.__unifiedWorkbenchProbe?.state.shell,{}, {timeout:left()});
     if(!await page.locator('#serviceUrl').isVisible())await page.locator('#serviceConnection > summary').click();
-    await page.locator('#serviceUrl').fill(origin);await page.locator('#serviceToken').fill(token);await page.locator('#connectServiceBtn').click();
+    await page.locator('#serviceUrl').fill(origin);
+    if(tokenless)assert.equal(await page.locator('#serviceToken').inputValue(),'','Tokenless run must begin with an empty UI token');
+    else await page.locator('#serviceToken').fill(token);
+    await page.locator('#connectServiceBtn').click();
     await until(()=>page.evaluate(()=>globalThis.__unifiedWorkbenchProbe.state.serviceDevices.some(x=>x.device_id==='cores3'&&x.program_modes?.includes('uiflow-live'))),Boolean);
     if(!await page.locator('#runtimeMode').isVisible())await page.locator('.advanced-options > summary').click();
     await page.locator('#runtimeMode').selectOption('service');await page.locator('#referenceExample').selectOption('uiflow');
@@ -190,7 +263,7 @@ export async function execute(options){
     zip=Buffer.from(productEvidence.base64,'base64');assert.equal(zip.length,productEvidence.size);
     report.product_evidence={present:true,size:productEvidence.size,type:productEvidence.type,sha256:hash(zip)};
     await writeFile(resolve(output,'evidence-before-stop.zip'),zip);
-    await Promise.allSettled(browserTasks);assert.ok(report.ui_evidence_request);
+    await drainBrowserTasks(true);assert.ok(report.ui_evidence_request);
     assert.equal(Number(report.network_evidence.headers['content-length']),zip.length,'Product Blob must match actual evidence response Content-Length');
     if(report.network_evidence.bytes>0)assert.equal(report.network_evidence.sha256,hash(zip),'Observed nonempty network body must match product Blob');
     report.zip=verifyZip();
@@ -198,6 +271,12 @@ export async function execute(options){
     const after=await api('capacity');assert.equal(after.active_sessions,0);assert.equal(after.worker.active_lease_count,0);report.cleanup={ui_stop:true,pid_gone:true,capacity:after};
     check('ui-stop-zip-history-pid-and-lease-cleanup',true);
     assert.equal(report.page_errors.length,0);assert.ok(!report.unexpected_browser_wasm&&!report.legacy_sessions_page_requested);
+    if(tokenless){
+      assert.equal(report.preview_request_errors.length,0);
+      assert.ok(report.preview_requests.some(request=>request.path==='/api/v1/previews'),'Actual UI Preview creation POST required');
+      check('tokenless-preview-posts-no-authorization-and-same-origin',report.preview_requests.every(request=>!request.authorization_present&&request.same_origin),
+        {post_count:report.preview_requests.length});
+    }
     assert.deepEqual(await fingerprints(),report.source_sha256);check('same-source-new-homepage-native-only',true);report.status='PASS';
   }catch(error){report.error=String(error?.stack||error);process.exitCode=1;}
   finally{
@@ -214,7 +293,7 @@ export async function execute(options){
           await until(()=>api(`previews/${previewId}`),p=>p.state==='closed',45000);if(sessionId)report.fallback_stopped=await api(`sessions/${sessionId}`);}
       }catch(error){report.cleanup_error=String(error?.stack||error);}
     }
-    await Promise.allSettled(browserTasks);if(browser){await browser.close();report.browser_disconnected=!browser.isConnected();}
+    await drainBrowserTasks();if(browser){await browser.close();report.browser_disconnected=!browser.isConnected();}
     report.finished_at=new Date().toISOString();await save('report.json',report);
     console.log(JSON.stringify({status:report.status,checks:report.checks.length,output,error:report.error||null}));
   }
@@ -225,6 +304,7 @@ const isMain=process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.me
 if(isMain){const options={execute:false},args=process.argv.slice(2);
   for(let i=0;i<args.length;i++){
     if(args[i]==='--execute'){assert.equal(options.execute,false);options.execute=true;continue;}
+    if(args[i]==='--tokenless-local'){assert.ok(!Object.hasOwn(options,'tokenless_local'));options.tokenless_local=true;continue;}
     assert.ok(['--service','--token-file','--out','--chrome','--node-modules','--python'].includes(args[i]),'Unknown argument');
     const key=args[i].slice(2).replaceAll('-','_');assert.ok(args[i+1]&&!args[i+1].startsWith('--')&&!Object.hasOwn(options,key));options[key]=args[++i];
   }

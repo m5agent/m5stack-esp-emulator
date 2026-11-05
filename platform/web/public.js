@@ -41,6 +41,9 @@ const state = {
   deviceFilter: 'all',
   unitFilter: 'all',
   selectedUnit: null,
+  unitShell: null,
+  unitPreviewGeneration: 0,
+  browserModelsPaused: false,
   holds: new Map(),
   stopped: false,
 };
@@ -512,6 +515,7 @@ async function stopRun() {
   state.abort = null;
   const run = state.run;
   if (!run) {
+    setBrowserModelsPaused(false);
     state.busy = false;
     await state.picker?.setLocked(false);
     status('stopped', '保留最后显示帧');
@@ -544,6 +548,7 @@ async function stopRun() {
       error(failure);
       throw failure;
     } finally {
+      setBrowserModelsPaused(false);
       state.busy = false;
       if (state.stopping === attempt) state.stopping = null;
       updateCapability();
@@ -748,7 +753,7 @@ async function startRun() {
     abort = (state.abort = new AbortController());
   state.busy = true;
   await state.picker?.setLocked(true, '停止当前运行后可修改 Unit 连线。');
-  if (kind === 'browser') state.shell?.pauseRendering?.();
+  if (kind === 'browser') setBrowserModelsPaused(true);
   status('loading', '尚未取得应用首帧');
   updateCapability();
   let run;
@@ -774,6 +779,7 @@ async function startRun() {
       },
       onError: (cause) => {
         if (active(run)) {
+          if (kind === 'browser') setBrowserModelsPaused(false);
           error(cause);
           status('error', '请查看错误信息或串口输出');
         } else if (run.stopping && run.stopGeneration === state.runGeneration) error(cause);
@@ -791,7 +797,7 @@ async function startRun() {
             applyBrowserPresentation(value);
             status(value.status);
             if (value.status==='stopped'||value.status==='error') clearBrowserOutputs(run.controller.profile);
-            if (['running', 'paused', 'error', 'stopped'].includes(value.status)) state.shell?.resumeRendering?.();
+            if (['running', 'paused', 'error', 'stopped'].includes(value.status)) setBrowserModelsPaused(false);
           }
         },
       });
@@ -865,14 +871,14 @@ async function startRun() {
       }
       error(cause);
       status(cause.name === 'AbortError' ? 'stopped' : 'error', '可修改固件或运行选项后重试');
-      state.shell?.resumeRendering?.();
+      setBrowserModelsPaused(false);
       state.busy = false;
       if(!state.run)await state.picker?.setLocked(false);
       updateCapability();
     }
   } finally {
     if (generation === state.runGeneration) {
-      state.shell?.resumeRendering?.();
+      setBrowserModelsPaused(false);
       state.busy = false;
       updateCapability();
     }
@@ -1050,22 +1056,62 @@ function renderUnits() {
           : '没有匹配的 Unit。试试型号或 SKU。',
       ),
     );
+  renderSelectedUnit();
+}
+function renderSelectedUnit() {
+  const unit = state.units.find(row => row.id === state.selectedUnit);
+  if (!unit) return;
+  $('unitTitle').textContent = unit.name;
+  $('unitCapability').textContent = runnableUnit(unit.id) ? '当前服务支持此主机' : '运行能力待确认';
+  $('addSelectedUnitBtn').disabled = !state.picker || !!state.run || state.busy;
+  $('unitPreviewNote').textContent = `下方为独立目录模型，不连接运行中的设备。添加到 ${state.selected?.name || '所选设备'} 后可在上方主机模型中查看连线；运行能力以所选后端为准。`;
+}
+function setBrowserModelsPaused(paused) {
+  state.browserModelsPaused = paused;
+  for (const shell of [state.shell, state.unitShell]) {
+    if (paused) shell?.pauseRendering?.();
+    else shell?.resumeRendering?.();
+  }
+}
+function disposeUnitPreview() {
+  state.unitPreviewGeneration++;
+  state.unitShell?.dispose();
+  state.unitShell = null;
+  $('unitModelMount').replaceChildren();
+  delete $('unitModelMount').dataset.unitId;
 }
 async function selectUnit(id) {
   const unit = state.units.find((unit) => unit.id === id);
   if (!unit) return;
+  disposeUnitPreview();
+  const generation = state.unitPreviewGeneration;
   state.selectedUnit = id;
   renderUnits();
-  $('unitTitle').textContent = unit.name;
-  $('unitCapability').textContent = runnableUnit(id) ? '当前服务支持此主机' : '运行能力待确认';
-  $('addSelectedUnitBtn').disabled = !state.picker || !!state.run || state.busy;
-  $('unitPreviewNote').textContent = '添加后在上方主机模型中查看连线；运行能力以所选后端为准。';
   $('unitDetailBody').replaceChildren();
   for (const text of [unit.sku, ...(unit.limitations || []), unit.nextAction].filter(Boolean))
     $('unitDetailBody').append(node('p', '', text));
   $('unitDetails').hidden = false;
   $('unitDetails').open = false;
-
+  const mount = node('div', 'unit-render-mount');
+  $('unitModelMount').replaceChildren(node('p', 'stage-loading', '正在准备 Unit 模型…'));
+  let shell;
+  try {
+    shell = await createVisualModelShell(mount, id);
+  } catch (cause) {
+    if (generation !== state.unitPreviewGeneration) return;
+    $('unitModelMount').replaceChildren(node('p', 'stage-loading', 'Unit 模型暂时不可用，请重新选择后重试。'));
+    throw cause;
+  }
+  if (generation !== state.unitPreviewGeneration) {
+    shell.dispose();
+    return;
+  }
+  state.unitShell = shell;
+  $('unitModelMount').replaceChildren(mount);
+  $('unitModelMount').dataset.unitId = id;
+  shell.viewer?.resize();
+  shell.resetView?.();
+  if (state.browserModelsPaused) shell.pauseRendering?.();
 }
 async function share() {
   try {
@@ -1339,7 +1385,8 @@ $('browserEvidenceBtn').addEventListener('click', () => {
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 $('unitExplorer').addEventListener('toggle', () => {
-  if ($('unitExplorer').open && !state.selectedUnit && state.units[0]) void selectUnit(state.units[0].id);
+  if (!$('unitExplorer').open) disposeUnitPreview();
+  else if (!state.unitShell && state.units[0]) void selectUnit(state.selectedUnit || state.units[0].id).catch(error);
 });
 for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
   $('rawFrameCanvas').addEventListener(type, (event) => {
@@ -1360,6 +1407,7 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
 window.addEventListener('blur', () => void releaseInputs());
 window.addEventListener('pagehide', () => {
   state.selection++;
+  disposeUnitPreview();
   state.abort?.abort();
   state.run?.controller.stop();
   state.shell?.dispose();

@@ -35,6 +35,7 @@ from evidence_store import MAX_EVIDENCE_BYTES
 from peripheral_inventory import build_inventory
 from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
 from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
+from preview_request_context import tokenless_preview_local_control
 from runtime_interfaces import build_interfaces
 from runtime_acl import RuntimeACL, RuntimeACLConfigError
 from unit_runtime import UnitError, UnitRegistry
@@ -1150,8 +1151,14 @@ class Handler(SimpleHTTPRequestHandler):
             )
 
     def _handle_preview(self, method, parts, query, request_id):
-        """Authenticated local-control facade; the coordinator owns execution."""
-        if not (type(self).api_token or type(self).previous_api_token):
+        """Preview facade: configured auth or scoped loopback local control."""
+        if not (type(self).api_token or type(self).previous_api_token) and not tokenless_preview_local_control(
+            server_address=self.server.server_address,
+            client_address=self.client_address,
+            headers=self.headers,
+            method=method,
+            secure=isinstance(self.connection, ssl.SSLSocket),
+        ):
             raise ServiceError("preview_auth_unavailable", "Preview requires a configured control Bearer token", 503)
         control = self._get_service().preview_control()
         owner = "local-control"

@@ -58,7 +58,10 @@ paths:
   /previews:
     post:
       summary: Allocate a stable same-guest UIFlow Preview
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists allocation intent before creating a visible managed session. TTL 30–3600 seconds. Creation retries do not allocate a second guest.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. Persists allocation intent before creating a visible managed session. TTL 30–3600 seconds. Creation retries do not allocate a second guest.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '202':
           description: Current record; asynchronous receipts require polling.
@@ -100,7 +103,10 @@ paths:
         description: One header only. Same scoped key and request returns the original receipt, even after state changes; different content returns 409.
     get:
       summary: List retained Previews
-      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      description: 'Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. '
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: Current record; asynchronous receipts require polling.
@@ -145,7 +151,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     get:
       summary: Poll a Preview
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. The current generation is required for the next Run submission.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. The current generation is required for the next Run submission.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: Current record; asynchronous receipts require polling.
@@ -179,7 +188,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     post:
       summary: Queue an immutable checkpoint Run
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists reserved execution identity before UART transfer. One UART owner and latest pending intent per Preview. Queued runs may be superseded; cancellation during transmission cannot guarantee no transient START. Known host package errors do not interrupt the old Run.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. Persists reserved execution identity before UART transfer. One UART owner and latest pending intent per Preview. Queued runs may be superseded; cancellation during transmission cannot guarantee no transient START. Known host package errors do not interrupt the old Run.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '202':
           description: Current record; asynchronous receipts require polling.
@@ -235,7 +247,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     get:
       summary: Poll a Run
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. START is not application readiness. Cancelling remains unconfirmed until a fresh raw prompt is observed; no automatic replay of unknown execution.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. START is not application readiness. Cancelling remains unconfirmed until a fresh raw prompt is observed; no automatic replay of unknown execution.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: Current record; asynchronous receipts require polling.
@@ -275,7 +290,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     post:
       summary: Request cancellation without stopping the VM
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Untouched queued work needs no interrupt. Otherwise wait for interrupt_ack=confirmed. Explicit retry may request a fresh prompt; native modules, IRQ, timers and threads are not fully reset.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. Untouched queued work needs no interrupt. Otherwise wait for interrupt_ack=confirmed. Explicit retry may request a fresh prompt; native modules, IRQ, timers and threads are not fully reset.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '202':
           description: Current record; asynchronous receipts require polling.
@@ -315,7 +333,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     post:
       summary: Renew Preview and managed session lease
-      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      description: 'Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. '
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: Current record; asynchronous receipts require polling.
@@ -355,7 +376,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     post:
       summary: Capture evidence and stop the managed guest
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Drains input and captures before-close.zip before stop(purge=0). Evidence/release failures remain explicit; cleanup still stops the VM, releases mutable Flash and preserves history. Poll for closed.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. Drains input and captures before-close.zip before stop(purge=0). Evidence/release failures remain explicit; cleanup still stops the VM, releases mutable Flash and preserves history. Poll for closed.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '202':
           description: Current record; asynchronous receipts require polling.
@@ -395,7 +419,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     post:
       summary: Apply host or Unit input to the expected running Run
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. A permit drains before switching programs; momentary inputs are released before replacement. If a transition begins while the operation is in flight, 409 may indicate effect_possible=true. Input and framebuffer are separate samples.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. A permit drains before switching programs; momentary inputs are released before replacement. If a transition begins while the operation is in flight, 409 may indicate effect_possible=true. Input and framebuffer are separate samples.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: Current record; asynchronous receipts require polling.
@@ -443,7 +470,10 @@ paths:
         pattern: ^[0-9a-f]{32}$
     get:
       summary: Capture a frame fenced to Run identity
-      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Checks execution/revision before and after capture. A switch during capture returns 409; a historical Run without a retained sample returns 410. ETag includes Preview, Run, revision and PNG hash.
+      description: Configured current/rotation tokens always require verified Bearer auth. Without tokens, only a loopback-bound listener and peer with a strict matching loopback Host and same-origin browser context (or local CLI) are allowed; other tokenless contexts return 503. The shared principal is local-control; no tenant isolation or body owner is accepted. Checks execution/revision before and after capture. A switch during capture returns 409; a historical Run without a retained sample returns 410. ETag includes Preview, Run, revision and PNG hash.
+      security:
+        - bearerAuth: []
+        - {}
       responses:
         '200':
           description: PNG with X-Preview-ID, X-Run-ID, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-SHA256 and ETag.

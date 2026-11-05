@@ -1,6 +1,6 @@
 # 项目当前状态
 
-2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。
+2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。[后续修复](evidence/2026-11-05-unit-preview-local-control/README.md)恢复独立 Unit 目录模型；无 Token 的 loopback 同源 Preview 可直接运行，配置过 Token 的实例仍要求 Bearer。
 
 2026-11-04 已按用户明确要求[携已知问题部署UIFlow工作台](evidence/2026-11-04-pages-workbench-release/README.md)：prepared-preview于10:45:44Z完成，正式HTTPS的2,130个资产length/SHA全部匹配。标准hosted Matrix600秒启动FAIL及同导出本地16PASS、Lite1FAIL、43NOT RUN保留，精确oneInsn硬reset PIF的`RUNTIME-09`继续OPEN；部署成功不代表完整生产功能门禁或C根因修复。独立HTTPS首6例已SUBSET_PASS（Matrix/Plus/Core各编辑器与按键），其余34例NOT RUN/HOLD，不授全19线上通过。部署前[资格失败记录](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，不改写旧FAIL。
 

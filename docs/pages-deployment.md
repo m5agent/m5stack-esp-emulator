@@ -13,6 +13,9 @@ PR #165 已合并；用户明确要求先部署、问题保留，prepared-previe
 在同一 guest 中执行；静态 Pages 保留 browser-WASM 路径。已创建会话的接线
 不可热插拔，未实现的 browser Unit 不能继承原生支持；见
 [统一工作台验收](evidence/2026-11-05-unified-web-workbench/README.md)。
+Unit 库独立模型已恢复，同时保留添加到主机。只有同源 loopback 且服务未配置
+Token 时，本机 Preview 可免填凭据；远程或已配置认证的服务继续使用 Bearer。
+[后续验收](evidence/2026-11-05-unit-preview-local-control/README.md)分开记录模型、原生与浏览器路径。
 GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
 设备、Unit 与补丁链的当前 inventory 见[自动项目快照](project-snapshot.md)。

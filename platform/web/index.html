@@ -233,14 +233,17 @@ print("Hello, UIFlow!")
               placeholder="https://…"
               autocomplete="off"
               spellcheck="false"
-            /><label class="public-label" for="serviceToken">访问 Token（可选）</label
+            /><label class="public-label" for="serviceToken">访问 Token（按服务配置）</label
             ><input
               class="public-field"
               id="serviceToken"
               type="password"
               autocomplete="off"
               placeholder="只保存在当前页面内存中"
-            /><button class="secondary-button" id="connectServiceBtn" type="button">连接服务</button>
+              aria-describedby="serviceTokenHelp"
+            />
+            <p class="field-help" id="serviceTokenHelp">本机同源连接无需 Token；服务已配置 Token 时请填写。远程连接使用服务提供的 Token。</p>
+            <button class="secondary-button" id="connectServiceBtn" type="button">连接服务</button>
             <p class="field-help" id="serviceStatus" role="status"></p>
           </details>
           <details class="plain-details service-sessions" id="serviceSessions">
@@ -279,7 +282,10 @@ print("Hello, UIFlow!")
                 <h3 id="unitTitle">选择一个 Unit</h3>
                 <span id="unitCapability">独立模型预览</span>
               </div>
-              <p class="field-help" id="unitPreviewNote">选择 Unit 后添加到上方主机；接线与代码运行共用当前设备。</p>
+              <div class="unit-model-mount" id="unitModelMount" aria-label="Unit 独立目录模型预览">
+                <p class="stage-loading">选择 Unit 查看模型</p>
+              </div>
+              <p class="field-help" id="unitPreviewNote">选择 Unit 查看独立模型；也可添加到上方主机装配草稿，运行能力以所选后端为准。</p>
               <button id="addSelectedUnitBtn" class="secondary-button" type="button" disabled>添加到当前设备</button>
               <details class="plain-details" id="unitDetails" hidden>
                 <summary>查看规格与模型说明</summary>

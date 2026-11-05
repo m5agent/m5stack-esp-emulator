@@ -241,10 +241,24 @@ sessions. Preview uses a visible managed UIFlow QEMU session on CoreS3, AtomS3R,
 StickS3, StopWatch or Cardputer-ADV, initialized once. Subsequent Runs reference complete public
 checkpoints and use the same UART REPL/VM rather than reflashing firmware.
 
-Every Preview route requires a configured and verified control Bearer token;
-without configuration it returns `503 preview_auth_unavailable`. Active and
-rotation tokens share the server principal `local-control`. A body cannot
-declare owner; this is a shared local control scope, without tenant isolation.
+When a current or rotation control token is configured, every Preview route
+requires a verified Bearer token, including requests from the local machine.
+Without configured tokens, Preview is available only when the listener and peer
+are both loopback and the request has one strict loopback Host matching the
+listener port. Browser requests must be same-origin: Origin, when present, must
+match the actual HTTP(S) scheme and Host; cross-site, same-site, null or duplicate
+context is rejected. A safe direct browser navigation or a local CLI without
+Origin/Fetch Metadata is allowed under the same socket and Host constraints.
+Wildcard/LAN listeners and other ineligible tokenless contexts retain
+`503 preview_auth_unavailable`. Forwarded headers and DNS names other than exact
+localhost are not used to establish locality. These checks apply to Preview;
+they do not add a global policy to the legacy local-control APIs.
+
+The browser distinctions follow the [Fetch Origin algorithm](https://fetch.spec.whatwg.org/#append-a-request-origin-header)
+and [Fetch Metadata request context](https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-site-header).
+Both accepted local requests and verified active/rotation tokens share the
+server principal `local-control`. A body cannot declare owner; this remains a
+shared local control scope, without tenant isolation.
 `POST /previews` accepts `device_id`, optional `runtime="qemu"`, `units` and
 `ttl_seconds` (30–3600, default 300). It requires one `Idempotency-Key` header
 (1–128 printable ASCII characters without whitespace) and returns 202 plus

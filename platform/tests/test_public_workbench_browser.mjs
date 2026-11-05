@@ -154,6 +154,9 @@ try {
     await page.locator('#deviceLibrary').evaluate(node => node.open = true);
     await page.locator(`#deviceNav button[data-device-id="${id}"]`).click(); await modelReady(id);
   };
+  const unitReady = async id => page.waitForFunction(id => document.querySelector('#unitModelMount')?.dataset.unitId === id
+    && window.__publicWorkbenchProbe?.unitShell?.device.id === id
+    && !window.__publicWorkbenchProbe.unitShell.disposed, id);
   await test('first-visit-and-project-prefix-are-model-only-without-an-implicit-service', async () => {
     await page.goto(`${base}/showcase/?device=cores3&autostart=0`); await modelReady('cores3');
     assert.equal(await page.locator('#runtimeStatus').getAttribute('data-status'), 'model');
@@ -168,6 +171,8 @@ try {
     assert.equal(await page.locator('#pythonRunBtn').isDisabled(), true);
     assert.equal(await page.locator('#pythonInterruptBtn').isDisabled(), true);
     assert.equal(await page.locator('#pythonSource').isDisabled(), false, 'source remains an editable local draft');
+    assert.match(await page.locator('#serviceTokenHelp').textContent(), /本机同源连接无需 Token.*服务已配置 Token.*远程连接/);
+    assert.equal(await page.locator('#serviceToken').getAttribute('aria-describedby'), 'serviceTokenHelp');
   });
   await test('one-page-navigation-never-opens-a-separate-console', async () => {
     const targets = ['#pythonHeading', '#unitAssemblyPanel', '#serviceSessions', '#firmwareHeading'];
@@ -183,8 +188,11 @@ try {
     await page.locator('#unitExplorer').evaluate(node => node.open = true);
     await page.locator('#unitSearch').fill('U027');
     await page.locator('[data-unit-model="button"]').click();
+    await unitReady('button');
     assert.equal(await page.locator('#unitDetails').getAttribute('open'), null);
-    assert.equal(await page.locator('#unitModelMount').count(), 0, 'Unit selection has no second independent model');
+    assert.equal(await page.locator('#unitModelMount canvas').count(), 1, 'Unit selection previews the real catalog model');
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.unitShell !== window.__publicWorkbenchProbe.shell), true);
+    assert.equal(await page.locator('#unitModelMount [data-visual-only="true"]').count(), 1);
     assert.match(await page.locator('#unitPreviewNote').textContent(), /主机模型.*后端/);
     await page.locator('#addSelectedUnitBtn').click();
     await page.waitForFunction(() => window.__publicWorkbenchProbe.picker.attachments('cores3').some(row => row.unit_id === 'button')
@@ -204,27 +212,84 @@ try {
     assert.equal(await page.locator('[data-unit-model]').count(), 0); assert.match(await page.locator('#unitResults').textContent(), /先连接服务/);
     await page.locator('[data-unit-filter="all"]').click();
   });
+  await test('catalog-preview-disposal-and-reopen-never-change-the-host-draft', async () => {
+    await page.evaluate(() => window.__previousUnitPreview = window.__publicWorkbenchProbe.unitShell);
+    await page.locator('[data-unit-model="angle"]').click(); await unitReady('angle');
+    assert.equal(await page.evaluate(() => window.__previousUnitPreview.disposed), true);
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.picker.attachments()[0].unit_id), 'button');
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.shell.model.port('grove').module.meta.id), 'm5stack.unit.button.grove');
+    await page.evaluate(() => window.__previousUnitPreview = window.__publicWorkbenchProbe.unitShell);
+    await page.locator('#unitExplorer').evaluate(node => node.open = false);
+    await page.waitForFunction(() => window.__publicWorkbenchProbe.unitShell === null);
+    assert.equal(await page.evaluate(() => window.__previousUnitPreview.disposed), true);
+    assert.equal(await page.locator('#unitModelMount canvas').count(), 0);
+    await page.locator('#unitExplorer').evaluate(node => node.open = true); await unitReady('angle');
+    assert.equal(await page.evaluate(() => window.__previousUnitPreview !== window.__publicWorkbenchProbe.unitShell), true);
+    assert.equal(await page.locator('#deviceMount canvas').count(), 1);
+  });
+  await test('late-catalog-model-load-cannot-replace-a-newer-unit-preview', async () => {
+    let release, seen;
+    const gate = new Promise(resolve => release = resolve), observed = new Promise(resolve => seen = resolve);
+    const pattern = '**/vendor/m5stack-models/src/units/relay/index.js';
+    await page.route(pattern, async route => { seen(); await gate; await route.continue(); });
+    await page.evaluate(() => {
+      const prototype = Object.getPrototypeOf(window.__publicWorkbenchProbe.unitShell), original = prototype.dispose;
+      window.__staleRelayDisposed = 0;
+      prototype.dispose = function(...args) {
+        if (this.device.id === 'relay' && !this.disposed) window.__staleRelayDisposed++;
+        return original.apply(this, args);
+      };
+    });
+    await page.locator('[data-unit-model="relay"]').click();
+    let timer;
+    try {
+      await Promise.race([observed, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Relay model request was not observed')), 10000); })]);
+    } finally { clearTimeout(timer); }
+    await page.locator('[data-unit-model="button"]').click(); await unitReady('button');
+    release(); await page.waitForFunction(() => window.__staleRelayDisposed === 1);
+    await page.unroute(pattern);
+    assert.equal(await page.locator('#unitModelMount').getAttribute('data-unit-id'), 'button');
+    assert.equal(await page.locator('#unitModelMount canvas').count(), 1);
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.unitShell.device.id), 'button');
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.picker.attachments()[0].unit_id), 'button');
+    assert.equal(requests.some(url => /\/api\/v1(?:\/|\?|$)/.test(url)), false);
+  });
   await test('device-selection-preserves-only-its-own-unit-draft', async () => {
+    await page.evaluate(() => window.__sameCatalogPreview = window.__publicWorkbenchProbe.unitShell);
     await selectDevice('atoms3-lite'); assert.deepEqual(await page.evaluate(() => window.__publicWorkbenchProbe.picker.attachments()), []);
+    assert.equal(await page.evaluate(() => window.__sameCatalogPreview === window.__publicWorkbenchProbe.unitShell), true);
+    assert.match(await page.locator('#unitPreviewNote').textContent(), /AtomS3 Lite/);
+    assert.equal(await page.locator('#unitCapability').textContent(), '运行能力待确认');
     if (!realBrowser) assert.equal(await page.locator('#startBtn').isDisabled(), true);
     await selectDevice('cores3');
     await page.waitForFunction(() => window.__publicWorkbenchProbe.shell.model.port('grove').module?.meta.id === 'm5stack.unit.button.grove');
     assert.equal(await page.locator('#unitModelSelect').inputValue(), 'button');
+    assert.match(await page.locator('#unitPreviewNote').textContent(), /CoreS3/);
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run), null);
   });
   await test('responsive-main-host-assembly-has-no-overflow-at-four-widths', async () => {
-    await page.locator('#unitExplorer').evaluate(node => node.open = false);
+    await page.locator('#unitExplorer').evaluate(node => node.open = true); await unitReady('button');
     for (const width of [1440, 1024, 768, 390]) {
       await page.setViewportSize({width, height:1000}); await page.waitForTimeout(150);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `no horizontal overflow at ${width}`);
       assert.equal(await page.locator('#startBtn').count(), 1);
       assert.equal(await page.locator('#deviceMount canvas').count(), 1);
+      assert.equal(await page.locator('#unitModelMount canvas').count(), 1);
+      const bounds = await page.locator('#unitModelMount canvas').boundingBox();
+      assert.ok(bounds.width > 100 && bounds.height > 100, `independent Unit preview remains visible at ${width}`);
       await page.screenshot({path:`${out}/public-${width}.png`, fullPage:true});
+      await page.locator('#unitModelMount').screenshot({path:`${out}/unit-preview-${width}.png`});
     }
     await page.setViewportSize({width:1440, height:1000});
   });
   await test('device-alias-and-share-never-forward-credentials', async () => {
+    await page.evaluate(() => {
+      const preview = window.__publicWorkbenchProbe.unitShell, original = preview.dispose.bind(preview);
+      localStorage.removeItem('unit-preview-pagehide-disposed');
+      preview.dispose = (...args) => { const result = original(...args); localStorage.setItem('unit-preview-pagehide-disposed', String(preview.disposed)); return result; };
+    });
     await page.goto(`${base}/showcase/?device=m5papers3&autostart=0&token=ignored-secret`); await modelReady('papers3');
+    assert.equal(await page.evaluate(() => localStorage.getItem('unit-preview-pagehide-disposed')), 'true');
     assert.equal(await page.locator('#stageTitle').textContent(), 'PaperS3');
     assert.match(await page.locator('#launchNotice').textContent(), /凭据参数已忽略/);
     if (!realBrowser) assert.equal(await page.locator('#startBtn').isDisabled(), true);
@@ -358,6 +423,12 @@ try {
     await page.waitForFunction(() => window.__publicWorkbenchProbe.run?.controller.current?.session_id === 'a'.repeat(32));
     assert.equal(await page.locator('#stopBtn').textContent(), '停止查看'); assert.equal(await page.locator('#unitAssemblyPanel fieldset').evaluate(node=>node.disabled), true);
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.shell.model.port('grove').module), null, 'a borrowed empty topology must not display the unrelated draft Unit');
+    await page.locator('#unitExplorer').evaluate(node=>node.open=true);
+    await page.locator('[data-unit-model="button"]').click(); await unitReady('button');
+    assert.equal(await page.locator('#addSelectedUnitBtn').isDisabled(), true);
+    await page.locator('#unitModelMount canvas').click();
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run.controller.current.session_id), 'a'.repeat(32));
+    assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.shell.model.port('grove').module), null, 'catalog preview cannot attach to the borrowed guest');
     assert.equal(serviceCalls.slice(before).some(row=>row.method==='POST'||row.method==='DELETE'), false, 'opening never creates or destroys another owner session');
   });
   await test('pending-borrowed-B-cannot-replace-current-A-after-A-is-reselected-ui-fixture', async () => {

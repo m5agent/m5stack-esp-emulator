@@ -20,6 +20,8 @@ await mkdir(output, {recursive:false});
 const readyTimeout = Number(process.env.M5_QEMU_READY_TIMEOUT_MS || 300000);
 assert.ok(Number.isSafeInteger(readyTimeout) && readyTimeout >= 30000 && readyTimeout <= 600000);
 const smokeOnly = process.env.M5_UIFLOW_SMOKE_ONLY === '1';
+const unitPreview = process.env.M5_UIFLOW_UNIT_PREVIEW === '1';
+if (unitPreview) assert.ok(device === 'cores3' && !smokeOnly, 'Unit preview acceptance requires the complete CoreS3 editor case');
 const modules = process.env.M5_WASM_NODE_MODULES || resolve(repo, 'platform/tests/node_modules');
 const {chromium} = await import(pathToFileURL(resolve(modules, 'playwright/index.mjs')));
 const nonce = randomUUID().replaceAll('-', ''), hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -27,6 +29,8 @@ const checks = [], errors = [], requests = [];
 const report = {kind:'browser-local-uiflow-programming', device, status:'FAIL', started_at:new Date().toISOString(),
   evidence_level:'virtual-device validation', hardware_validation:'NOT RUN', checks, errors, nonce, programs:[],
   smoke_only:smokeOnly, scope:'Actual public default UIFlow startup, editor input, UART0 raw-paste, guest output and normal Worker cleanup.'};
+if (unitPreview) report.unit_preview = {environment:'M5_UIFLOW_UNIT_PREVIEW=1', unit_id:'pir',
+  scope:'Independent catalog model alongside the actual CoreS3 browser guest; no Unit is added or granted a guest controller binding.'};
 const check = (name, ok, details) => { checks.push({name, ok, details}); assert.ok(ok, name); console.log(name); };
 let server, browser, page, workers;
 const mime = {'.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.json':'application/json',
@@ -72,6 +76,28 @@ async function runProgram(name, source, {stdout, stderr, upload = false, preserv
   else check(name + '-no-stderr', execution.result.stderr === '', execution.result);
   check(name + '-run-reenabled', await page.locator('#pythonRunBtn').isEnabled());
   return execution;
+}
+
+async function unitPreviewSnapshot() {
+  return page.evaluate(() => {
+    const mount = document.querySelector('#unitModelMount'), model = mount?.querySelector('[data-model-source]'),
+      canvas = mount?.querySelector('canvas'), bounds = canvas?.getBoundingClientRect();
+    return {explorer_open:document.querySelector('#unitExplorer').open,
+      selected_unit_id:mount?.dataset.unitId, model_unit_id:model?.dataset.device,
+      model_source:model?.dataset.modelSource, visual_only:model?.dataset.visualOnly,
+      selected_catalog_button:document.querySelector('[data-unit-model="pir"]')?.getAttribute('aria-pressed'),
+      canvases:mount?.querySelectorAll('canvas').length, width:bounds?.width, height:bounds?.height,
+      same_model_root:!globalThis.uiflowUnitPreviewRoot || globalThis.uiflowUnitPreviewRoot === model,
+      host_unit_models:uiflowShell.model.list('port').filter(port => port.module).length,
+      host_picker_selections:[...document.querySelectorAll('#unitAssemblyPanel select')].filter(select => select.value).map(select => select.value),
+      runtime_status:globalThis.uiflowRuntime?.status || null};
+  });
+}
+function validUnitPreview(snapshot) {
+  return snapshot.explorer_open && snapshot.selected_unit_id === 'pir' && snapshot.model_unit_id === 'pir'
+    && snapshot.model_source === 'm5stack-models' && snapshot.visual_only === 'true' && snapshot.selected_catalog_button === 'true'
+    && snapshot.canvases === 1 && snapshot.width > 100 && snapshot.height > 100 && snapshot.same_model_root
+    && snapshot.host_unit_models === 0 && snapshot.host_picker_selections.length === 0;
 }
 
 try {
@@ -134,6 +160,18 @@ try {
   await page.locator('input[name="firmwareSource"][value="reference"]').check();
   check('uiflow-is-default-firmware', await page.locator('#referenceExample').inputValue() === 'uiflow');
   check('programming-startup-described-accurately', (await page.locator('#referenceDescription').textContent()).includes('网页编程启动脚本'));
+  if (unitPreview) {
+    await page.locator('#unitExplorer').evaluate(node => node.open = true);
+    await page.locator('#unitSearch').fill('PIR');
+    await page.locator('[data-unit-model="pir"]').click();
+    await page.waitForFunction(() => document.querySelector('#unitModelMount')?.dataset.unitId === 'pir'
+      && document.querySelector('#unitModelMount [data-model-source="m5stack-models"][data-device="pir"] canvas'), {}, {timeout:30000});
+    report.unit_preview.before_guest = await unitPreviewSnapshot();
+    check('unit-catalog-preview-visible-before-guest', validUnitPreview(report.unit_preview.before_guest)
+      && report.unit_preview.before_guest.runtime_status === null, report.unit_preview.before_guest);
+    await page.evaluate(() => { globalThis.uiflowUnitPreviewRoot = document.querySelector('#unitModelMount [data-model-source]'); });
+    await page.locator('#unitModelMount').screenshot({path:resolve(output, 'unit-preview-before-guest.png')});
+  }
   const started = performance.now(); await page.locator('#startBtn').click();
   const ready = await waitForGuest(state => state.status === 'running' && state.serial.includes('M5_UIFLOW_WORKBENCH_READY'), 'UIFlow programming boot');
   report.click_to_ready_ms = performance.now() - started;
@@ -255,6 +293,12 @@ try {
     check('hardware-reset-keeps-browser-session-with-new-console',await page.evaluate(({session,generation})=>uiflowRuntime.sessionId===session
       &&uiflowRuntime.generation===generation&&!uiflowRuntime.uartOwner,{session:report.session_id,generation:report.generation}));
     await runProgram('after-hardware-reset',`print("M5_REBOOT_RECOVERED_${nonce}")\n`,{stdout:`M5_REBOOT_RECOVERED_${nonce}`});
+  }
+  if (unitPreview) {
+    report.unit_preview.after_programs = await unitPreviewSnapshot();
+    check('unit-catalog-preview-preserved-with-running-guest', validUnitPreview(report.unit_preview.after_programs)
+      && report.unit_preview.after_programs.runtime_status === 'running', report.unit_preview.after_programs);
+    await page.locator('#unitModelMount').screenshot({path:resolve(output, 'unit-preview-with-running-guest.png')});
   }
   await page.screenshot({path:resolve(output, 'workbench.png'), fullPage:true});
   report.before_stop = await page.evaluate(() => uiflowRuntime.evidence());

@@ -137,7 +137,7 @@ class PreviewHttpTests(unittest.TestCase):
         for method in CONTROL_METHODS:
             getattr(self.control, method).assert_not_called()
 
-    def test_preview_requires_configured_control_token_even_when_legacy_auth_is_open(self):
+    def test_tokenless_preview_allows_local_cli_and_same_origin_browser_context(self):
         self.handler.api_token = self.handler.previous_api_token = None
         for method, path, payload in (
             ("GET", "/api/v1/previews", None),
@@ -145,9 +145,107 @@ class PreviewHttpTests(unittest.TestCase):
             ("GET", f"/api/v1/previews/{PREVIEW_ID}/runs/{RUN_ID}/frame.png", None),
         ):
             with self.subTest(method=method, path=path):
-                self.assert_error(self.request(method, path, payload=payload), 503, "preview_auth_unavailable")
+                self.assertIn(self.request(method, path, payload=payload, token=None)[0], {200, 202})
+        origin = f"http://127.0.0.1:{self.server.server_port}"
+        self.assertEqual(self.request("POST", "/api/v1/previews", payload={"device_id": "cores3"}, token=None,
+                                     headers={"Origin": origin, "Sec-Fetch-Site": "same-origin"})[0], 202)
+        self.assertEqual(self.request("GET", "/api/v1/previews", token=None,
+                                     headers={"Sec-Fetch-Site": "same-origin"})[0], 200)
+
+    def test_tokenless_preview_rejects_cross_origin_before_body_or_coordinator(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        for headers in (
+            {"Origin": "https://external.example"}, {"Origin": "null"},
+            {"Origin": f"http://127.0.0.1:{self.server.server_port + 1}"},
+            {"Host": f"rebind.example:{self.server.server_port}"},
+            {"Host": "127.0.0.1:1"}, {"Sec-Fetch-Site": "cross-site"},
+            {"Sec-Fetch-Site": "same-site"}, {"Sec-Fetch-Site": "none"},
+            {"Sec-Fetch-Mode": "cors"},
+        ):
+            with self.subTest(headers=headers):
+                self.assert_error(self.request("POST", "/api/v1/previews", raw=b"{malformed", token=None,
+                                               headers=headers), 503, "preview_auth_unavailable")
         self.service.preview_control.assert_not_called()
         self.assert_control_unused()
+
+    def test_duplicate_or_missing_context_headers_are_rejected_over_real_http(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        host = f"127.0.0.1:{self.server.server_port}"
+        origin = "http://" + host
+        for pairs in ([], [("Host", host), ("Host", host)],
+                      [("Host", host), ("Origin", origin), ("Origin", origin)],
+                      [("Host", host), ("Sec-Fetch-Site", "same-origin"), ("Sec-Fetch-Site", "same-origin")]):
+            with self.subTest(pairs=pairs):
+                connection = http.client.HTTPConnection("127.0.0.1", self.server.server_port, timeout=3)
+                try:
+                    connection.putrequest("POST", "/api/v1/previews", skip_host=True)
+                    for name, value in pairs:
+                        connection.putheader(name, value)
+                    connection.putheader("Content-Length", "10")
+                    connection.endheaders(b"{malformed")
+                    response = connection.getresponse()
+                    self.assertEqual(response.status, 503)
+                    self.assertEqual(json.loads(response.read())["error"]["code"], "preview_auth_unavailable")
+                finally:
+                    connection.close()
+        self.service.preview_control.assert_not_called()
+        self.assert_control_unused()
+
+    def test_tokenless_cross_site_preview_reads_and_frames_are_also_blocked(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        for path in ("/api/v1/previews", f"/api/v1/previews/{PREVIEW_ID}/runs/{RUN_ID}/frame.png"):
+            for headers in ({"Origin": "https://external.example"}, {"Sec-Fetch-Site": "cross-site"},
+                            {"Host": f"rebind.example:{self.server.server_port}"}):
+                with self.subTest(path=path, headers=headers):
+                    self.assert_error(self.request("GET", path, token=None, headers=headers), 503, "preview_auth_unavailable")
+        self.service.preview_control.assert_not_called()
+        self.assert_control_unused()
+
+    def test_local_fallback_preserves_body_validation_before_allocation(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        for raw in (b"{malformed", b'{"device_id":"cores3","device_id":"cores3"}'):
+            with self.subTest(raw=raw):
+                self.assert_error(self.request("POST", "/api/v1/previews", raw=raw, token=None), 400, "invalid_json")
+        self.assert_control_unused()
+
+    def test_node_fetch_mode_only_is_not_same_origin_proof_or_metadata_free_cli(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        # Undici/Node fetch can send this shape automatically. User-Agent is
+        # not an authority signal: only a proper local CLI without Fetch
+        # Metadata, or verified same-origin context, can use tokenless Preview.
+        for method, payload in (("GET", None), ("POST", {"device_id": "cores3"})):
+            with self.subTest(method=method):
+                self.assert_error(self.request(method, "/api/v1/previews", payload=payload, token=None,
+                                               headers={"Sec-Fetch-Mode": "cors", "User-Agent": "node"}),
+                                  503, "preview_auth_unavailable")
+        self.service.preview_control.assert_not_called()
+        self.assert_control_unused()
+
+    def test_tokenless_wildcard_listener_is_rejected_even_for_local_peer(self):
+        self.handler.api_token = self.handler.previous_api_token = None
+        server = ThreadingHTTPServer(("0.0.0.0", 0), self.handler)
+        thread = threading.Thread(target=lambda: server.serve_forever(poll_interval=.01), daemon=True)
+        thread.start()
+        try:
+            connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=3)
+            try:
+                connection.request("GET", "/api/v1/previews")
+                response = connection.getresponse()
+                self.assertEqual(response.status, 503)
+                self.assertEqual(json.loads(response.read())["error"]["code"], "preview_auth_unavailable")
+            finally:
+                connection.close()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=2)
+            self.assertFalse(thread.is_alive())
+        self.service.preview_control.assert_not_called()
+
+    def test_configured_tokens_do_not_use_local_fallback_or_restrict_existing_remote_context(self):
+        self.assert_error(self.request("GET", "/api/v1/previews", token=None,
+                                       headers={"Sec-Fetch-Site": "same-origin"}), 401, "unauthorized")
+        self.assertEqual(self.request("GET", "/api/v1/previews", token=TOKEN,
+                                     headers={"Origin": "https://external.example", "Host": "remote.example",
+                                              "Sec-Fetch-Site": "cross-site"})[0], 200)
 
     def test_missing_wrong_and_current_previous_tokens_map_only_to_local_control(self):
         for token in (None, "wrong-control-token"):
