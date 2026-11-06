@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-11-05`
+日期：`2026-11-06`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -92,6 +92,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/observation_store.py` | 本地展示页的有界 SQLite 生命周期投影、全局游标、缺口与保留；独立于可清理的会话内容 | Device Service、`test_observation_store.py` |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_network_execution.py` | 无状态 esp-emu network execution 请求解析，保持 profile/port/ELF/I2C 契约 | `device_service.py` 兼容 re-export、network-execution tests |
@@ -170,6 +171,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 | `platform/web/public-service-program.js`、`public-unit-assembly.js` | 首页原生 Preview 编程、既有会话接入与非拥有视图清理；每设备 Unit 草稿、主机装配与运行拓扑锁定 | `test_public_service_program.mjs`、`test_public_unit_assembly.mjs`；opt-in 新首页实际验收 `test_public_unified_service_browser.mjs` |
+| `platform/web/observatory*.js`、`observatory.html`、`observatory.css` | 无输入的本地共享 3D 实验室、自动巡展与日志跟随、同型号阵列、短任务痕迹和有限并发观察 | `test_observatory_state.mjs`、`test_observatory_tour.mjs`、`test_observatory_scene.mjs`；opt-in `test_observatory_browser.mjs` |
+| `platform/web/model-output.js` | 工作台与展示场景共用的纯输出适配：PNG 方向、LED/关节 unknown 和活动反馈，不安装输入或播放音频 | `model-shell.js`、`observatory-scene.js`、`test_model_output.mjs` |
 | `platform/tools/preview_request_context.py` | Preview 的无 Token 本机 socket、Host、Origin 与 Fetch Metadata 限定；已配置 Bearer 仍由原认证路径验证 | `test_preview_request_context.py`、`test_preview_http.py` |
 | `platform/web/public-verified-assets.js` | 按显式 SHA/长度缓存不可变运行资源，独立 buffer 所有权及有界编译 Module 复用；不复用客体内存或运行中 Flash | `test_public_verified_assets.mjs`、`test_public_qemu_instance.mjs` |
 | `platform/tests/benchmark_emulator_firmware.mjs`、`emulator_performance_summary.mjs`、`derive_emulator_benchmark.mjs` | 同完整 BIN、浏览器与输入的本项目/对照性能观测及统一派生统计；原始状态与展示插值分开 | 调用和边界见 [基准说明](../platform/tests/benchmark_emulator_firmware.md)；采集/退出成功不等于动作目标通过 |

@@ -152,6 +152,8 @@ class PublicSiteTests(unittest.TestCase):
             "platform/units/host-ports.json": '{"hosts":[]}',
             "platform/units/runtime-profiles.json": '{"units":{}}',
             "platform/web/private.bin": 'not-public',
+            "platform/web/observatory.html": 'local-only-observer',
+            "platform/web/observatory-scene.js": 'local-only-scene',
             "platform/web/.private": 'not-public',
             ".work/token": 'not-public',
         }
@@ -172,6 +174,8 @@ class PublicSiteTests(unittest.TestCase):
             self.assertEqual(json.loads((output / "site-config.json").read_text())["service_url"], "https://service.example.test")
             self.assertFalse(first["firmware_bundled"])
             self.assertFalse((output / "platform/web/private.bin").exists())
+            self.assertFalse((output / "platform/web/observatory.html").exists())
+            self.assertFalse((output / "platform/web/observatory-scene.js").exists())
             self.assertFalse((output / ".work").exists())
             self.assertTrue((output / ".nojekyll").is_file())
 

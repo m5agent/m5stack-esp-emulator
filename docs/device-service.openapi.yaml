@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.51.0
+  version: 1.52.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -55,6 +55,54 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /observatory/snapshot:
+    get:
+      summary: Read the local device observatory snapshot
+      description: >
+        Read-only local-service metadata. Session projections and journal cursor
+        share one transaction; capacity and full-queue job counts are separate
+        supporting summaries. No browser-WASM or remote runtime registration.
+        Lifecycle metadata survives session purge; guest contents do not.
+        A degraded index never blocks guest stop or purge.
+      responses:
+        '200':
+          description: Active/recent metadata, journal position and availability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationSnapshot'
+        '401':
+          $ref: '#/components/responses/Error'
+  /observatory/events:
+    get:
+      summary: Read ordered local-device lifecycle changes
+      description: >
+        Each row is a complete allowlisted metadata projection, never guest
+        source, serial text or framebuffer bytes. Read every page until
+        has_more is false. Epoch mismatch, history gaps and future cursors
+        return resync=true with no events; obtain a fresh snapshot.
+      parameters:
+        - name: journal_id
+          in: query
+          required: true
+          schema: {type: string}
+        - name: after
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 500, default: 200}
+      responses:
+        '200':
+          description: Ordered event page or explicit resynchronization request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationEvents'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
   /previews:
     post:
       summary: Allocate a stable same-guest UIFlow Preview
@@ -2444,6 +2492,94 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    ObservationStatus:
+      type: object
+      required: [state, available, gap_possible]
+      properties:
+        state: {type: string, enum: [ok, degraded]}
+        available: {type: boolean}
+        gap_possible: {type: boolean}
+    ObservationSession:
+      type: object
+      description: >
+        Bounded lifecycle metadata; stopped does not imply a successful test.
+        Purged sessions retain this projection only. Unknown means runtime
+        ownership/history could not be recovered, not a firmware verdict.
+      required: [session_id, device_id, state, serial_bytes, purged]
+      properties:
+        session_id: {type: string}
+        device_id: {type: string}
+        state: {type: string}
+        firmware_id: {type: string}
+        firmware_sha256: {type: string}
+        runtime: {type: string}
+        created_at: {type: string, format: date-time}
+        completed_at: {type: [string, 'null'], format: date-time}
+        observed_at: {type: string, format: date-time}
+        units:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              unit_id: {type: string}
+              port_id: {type: string}
+              visual_port: {type: [string, 'null']}
+              parent_id: {type: string}
+        display: {type: [object, 'null']}
+        serial_bytes: {type: integer, minimum: 0}
+        last_frame_available: {type: boolean}
+        last_frame_captured_at: {type: [string, 'null'], format: date-time}
+        device_state_supported: {type: boolean}
+        management_binding: {type: object}
+        interrupted: {type: boolean}
+        restored: {type: boolean}
+        purged: {type: boolean}
+    ObservationSnapshot:
+      type: object
+      required: [journal_id, cursor, active, recent, status, server_time, capacity, jobs]
+      properties:
+        journal_id: {type: [string, 'null']}
+        cursor: {type: integer, minimum: 0}
+        status: {$ref: '#/components/schemas/ObservationStatus'}
+        server_time: {type: string, format: date-time}
+        active:
+          type: array
+          items: {$ref: '#/components/schemas/ObservationSession'}
+        recent:
+          type: array
+          items: {$ref: '#/components/schemas/ObservationSession'}
+        capacity: {$ref: '#/components/schemas/Capacity'}
+        jobs:
+          type: object
+          required: [available, counts, job_count]
+          properties:
+            available: {type: boolean}
+            job_count: {type: [integer, 'null'], minimum: 0}
+            counts:
+              type: object
+              additionalProperties: {type: integer, minimum: 0}
+    ObservationEvents:
+      type: object
+      required: [journal_id, events, next_cursor, has_more, resync, status, server_time]
+      properties:
+        journal_id: {type: [string, 'null']}
+        next_cursor: {type: integer, minimum: 0}
+        has_more: {type: boolean}
+        resync: {type: boolean}
+        status: {$ref: '#/components/schemas/ObservationStatus'}
+        server_time: {type: string, format: date-time}
+        events:
+          type: array
+          maxItems: 500
+          items:
+            type: object
+            required: [seq, kind, session]
+            properties:
+              seq: {type: integer, minimum: 1}
+              kind: {const: session}
+              session: {$ref: '#/components/schemas/ObservationSession'}
     PreviewLimits:
       type: object
       additionalProperties: false

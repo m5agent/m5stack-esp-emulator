@@ -2,6 +2,7 @@ import { DeviceViewer } from './vendor/m5stack-models/src/core/DeviceViewer.js';
 import * as THREE from 'three';
 import {UnitAnnotations} from './unit-annotations.js';
 import {layoutHubAttachments} from './unit-assembly-layout.js';
+import {setModelImage, applyModelVisualState, clearModelDriveActivities} from './model-output.js';
 import { loadModel, loadGroveModule } from './vendor/m5stack-models/src/loaders.js';
 import { MODEL_METADATA, MODEL_DEVICES, UNIT_MODELS } from './vendor/m5stack-models/runtime-index.js';
 import {
@@ -39,14 +40,6 @@ const CONTROL_MAPS = {
 };
 
 const RUNTIME_KEYS = { power: 'p', key1: 'a', key2: 'b', key3: 'c', button: 'a' };
-
-// These two upstream Component-based indicators reject color changes instead
-// of exposing Led.fixedColor. Their pinned source permits on/brightness only.
-const FIXED_BLUE_STATUS_HOSTS = new Set(['m5stack.unit.timercamera-f', 'm5stack.unit.timercamera-f.grove',
-  'm5stack.unit.timercamera-x', 'm5stack.unit.timercamera-x.grove']);
-const fixedColorIndicator = led => led.fixedColor !== undefined || led.meta.fixedColor !== undefined
-  || [led.meta.colorMode, led.meta.color].some(value => String(value || '').startsWith('fixed-'))
-  || (led.id === 'status' && FIXED_BLUE_STATUS_HOSTS.has(led.host?.meta?.id));
 
 const QCODE = {
   Enter: 'ret', Space: 'spc', Escape: 'esc', Backspace: 'backspace', Tab: 'tab',
@@ -485,112 +478,13 @@ export class ModelDeviceShell {
   }
 
   async setImage(image, sequence = this.frameSeq + 1, commitGuard = () => true) {
-    if (!this.display || this.disposed || !commitGuard()) return false;
-    const bitmap = await createImageBitmap(image);
-    try {
-      if (this.disposed || !commitGuard()) return false;
-      const rotated = this.display.meta.nativeRasterRotation === 90 && bitmap.width === this.display.height && bitmap.height === this.display.width;
-      if (!rotated && (bitmap.width !== this.display.width || bitmap.height !== this.display.height)) {
-        this.showOverlay('Framebuffer mismatch', `收到 ${bitmap.width}×${bitmap.height}，面板为 ${this.display.width}×${this.display.height}`);
-        return false;
-      }
-      const context = this.display.getContext2D();
-      context.clearRect(0, 0, this.display.width, this.display.height);
-      context.save();
-      if (rotated) { context.translate(this.display.width, 0); context.rotate(Math.PI / 2); }
-      context.drawImage(bitmap, 0, 0);
-      context.restore();
-      this.display.present();
-      this.frameSeq = sequence;
-      this.hideOverlay();
-      return true;
-    } finally { bitmap.close(); }
+    return setModelImage(this, image, sequence, commitGuard);
   }
 
   // Output-only commands must not echo back as runtime input. Caller owns the
   // mapping from controller/device-state evidence to these visual components.
   applyVisualState(commands) {
-    if (this.disposed) return [];
-    this.feedbackDepth++;
-    try {
-      return (Array.isArray(commands) ? commands : [commands]).map(command => {
-        if (!command || !['led', 'joint', 'display', 'vibrate', 'position', 'button-state', 'drive-activity'].includes(command.type)) {
-          throw new TypeError('Expected an output-only visual command');
-        }
-        if (command.type === 'drive-activity') {
-          if (typeof command.active !== 'boolean' || !String(command.target).endsWith('/rotor')) throw new TypeError('Expected a fan drive activity command');
-          const joint = this.model.find(command.target, 'joint');
-          if (!joint?.continuous) throw new TypeError('Fan rotor joint is unavailable');
-          let activity = this.driveActivities.get(command.target);
-          if (!activity) {
-            activity = {joint, update: joint.update, active: false, angle: joint.getState().angleDeg};
-            this.driveActivities.set(command.target, activity);
-            joint.update = (dt = 0) => {
-              if (!activity.active) return activity.update.call(joint, dt);
-              if (!Number.isFinite(dt) || dt < 0) return activity.update.call(joint, dt);
-              // A fixed graphical cadence communicates electrical activity.
-              // It is deliberately independent of duty/frequency and is never
-              // written to the joint's RPM state or claimed as shaft speed.
-              activity.angle = (activity.angle + Math.max(0, Math.min(dt, 0.25)) * 180) % 360;
-              joint.setAngle(activity.angle);
-              return true;
-            };
-          }
-          activity.active = command.active;
-          joint.requestRender();
-          return {active: activity.active, semantics: 'drive-activity-only; shaft-speed-unmodeled'};
-        }
-        if (command.type === 'position') {
-          return this.model.button(command.target).setPosition(command.position);
-        }
-        if (command.type === 'button-state') {
-          const button = this.model.button(command.target);
-          if (button.latching) throw new TypeError('Latching switches use position output');
-          if (typeof command.pressed !== 'boolean') throw new TypeError('pressed must be boolean');
-          if (command.pressed) button.press('runtime-readback');
-          else button.cancel('runtime-readback');
-          return button.getState();
-        }
-        if (command.type === 'joint') {
-          if (command.known !== undefined && typeof command.known !== 'boolean') throw new TypeError('Joint known must be boolean');
-          const joint=this.model.find(command.target,'joint');
-          if (!joint) throw new TypeError('Joint component is unavailable');
-          // Unknown output preserves the last observed pose; it is not a home command.
-          const result=command.known===false?joint.getState():this.model.handle(command);
-          joint.runtimeKnown=joint.object3d.userData.runtimeKnown=command.known!==false;
-          return result;
-        }
-        if (command.type === 'led') {
-          if (command.known !== undefined && typeof command.known !== 'boolean') throw new TypeError('LED known must be boolean');
-          const led = this.model.find(command.target, 'led');
-          if (!led) throw new TypeError('LED component is unavailable');
-          if (command.known !== false) {
-            if (command.brightness !== undefined && !Number.isFinite(command.brightness)) throw new TypeError('LED brightness must be finite');
-            if (command.on !== undefined && typeof command.on !== 'boolean') throw new TypeError('LED on must be boolean');
-            if (command.color !== undefined) {
-              if (typeof command.color === 'number' && (!Number.isInteger(command.color) || command.color < 0 || command.color > 0xFFFFFF)) throw new TypeError('LED color must be packed RGB');
-              // Three.js may warn and retain the old color for invalid input.
-              // Parse on a detached value so that cannot promote unknown output.
-              const color = led.color.clone();
-              color.r = color.g = color.b = NaN;
-              color.set(command.color);
-              if (![color.r, color.g, color.b].every(Number.isFinite)) throw new TypeError('LED color is invalid');
-            }
-          }
-          // Zero emission is the neutral appearance of unknown output, not an
-          // electrical off observation. Keep that distinction on the component.
-          if (command.known === false) {
-            led.set(fixedColorIndicator(led) ? {brightness: 0} : {color: 0, brightness: 0});
-            led.runtimeKnown = led.object3d.userData.runtimeKnown = false;
-            return {known: false};
-          }
-          const result = this.model.handle(command);
-          led.runtimeKnown = led.object3d.userData.runtimeKnown = true;
-          return result;
-        }
-        return this.model.handle(command);
-      });
-    } finally { this.feedbackDepth--; }
+    return applyModelVisualState(this, commands);
   }
 
   setDeviceState(payload) {
@@ -616,12 +510,7 @@ export class ModelDeviceShell {
   }
 
   clearDriveActivities(port = null) {
-    for (const [target, activity] of this.driveActivities) {
-      if (port !== null && !target.startsWith(`${port}/`)) continue;
-      activity.active = false;
-      activity.joint.update = activity.update;
-      this.driveActivities.delete(target);
-    }
+    return clearModelDriveActivities(this, port);
   }
 
   updateUnitAssemblyLayout() {

@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
+
 2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
 
 2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。[后续修复](evidence/2026-11-05-unit-preview-local-control/README.md)恢复独立 Unit 目录模型；无 Token 的 loopback 同源 Preview 可直接运行，配置过 Token 的实例仍要求 Bearer。
@@ -8,7 +10,7 @@
 
 此前2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。 19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。 11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，`RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09`根因仍OPEN。 `UI-03`保持`PARTIAL`：携已知失败部署后，继续修复当前MAIN/prod-prefix资格缺口并完成正式HTTPS独立验收；既有本地门禁不授逐板性能、长期稳定性、其它固件或新导出通过，功能并发不作性能样本。
 
-日期：`2026-11-05`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-11-06`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。设备登记 33 台；视觉主机 38 款中 33 台有运行登记、5 款仍仅视觉（全部 boundary-only/composition-only）；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
@@ -437,10 +439,8 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 - 已知模型缺口与关闭条件：[运行时模型缺口登记](runtime-model-gap-register.md)。
 - 单 lease/单 guest 验收：[统一设备运行时契约](unified-device-runtime.md)。
 - API：[Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml)。
-- 网络：[网络模拟方案](network-simulation-plan.md) 与
-  [网络诊断 lane](network-lane.md)。
-- 固件：[FirmwareManifest](firmware-manifest.md) 与
-  [固件审查工作流](firmware-review-and-simulation-workflow.md)。
+- 网络：[网络模拟方案](network-simulation-plan.md) 与 [网络诊断 lane](network-lane.md)。
+- 固件：[FirmwareManifest](firmware-manifest.md) 与 [固件审查工作流](firmware-review-and-simulation-workflow.md)。
 - Core2 历史诊断：[cache/panic 调查](core2-cache-panic-investigation.md)、
   [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、
   [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、 [state sweep evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、

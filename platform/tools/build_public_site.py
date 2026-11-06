@@ -64,6 +64,10 @@ def export_sources(root: Path) -> dict[str, Path]:
     files: dict[str, Path] = {}
     web = root / "platform/web"
     for path in sorted(web.rglob("*")):
+        # The Device Service observatory consumes local lifecycle APIs. It is
+        # deliberately absent from the separately hosted browser workbench.
+        if path.relative_to(web).parts[0].startswith("observatory"):
+            continue
         if path.is_symlink():
             raise ValueError(f"browser asset cannot be a symlink: {path.relative_to(root)}")
         if not path.is_file() or any(part.startswith(".") or part == "node_modules" for part in path.relative_to(web).parts):

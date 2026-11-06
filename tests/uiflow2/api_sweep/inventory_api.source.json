@@ -2,11 +2,29 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.51.0",
-  "contract_sha256": "49f4d4baa62fcfa554207eaea4d3bcb1b04e7442a6f36df3635088a7b3b0c784",
+  "contract_version": "1.52.0",
+  "contract_sha256": "2180e0d96055ba7b03c092f2bcb4c1980385a29eacc6bb32ea26c9898ed2b5b0",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
+    {
+      "operation_id": "GET /observatory/snapshot",
+      "method": "GET",
+      "path": "/observatory/snapshot",
+      "phase": "observatory-lifecycle",
+      "required_fixtures": ["owned-device-service", "externally-created-session"],
+      "case_ids": ["GET /observatory/snapshot"],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /observatory/events",
+      "method": "GET",
+      "path": "/observatory/events",
+      "phase": "observatory-lifecycle",
+      "required_fixtures": ["owned-device-service", "snapshot-cursor", "short-session-purge"],
+      "case_ids": ["GET /observatory/events resync"],
+      "positive_status": "NOT RUN"
+    },
     {
       "operation_id": "POST /previews",
       "method": "POST",
@@ -1138,6 +1156,22 @@
     }
   ],
   "safe_cases": [
+    {
+      "case_id": "GET /observatory/snapshot",
+      "operation_id": "GET /observatory/snapshot",
+      "method": "GET",
+      "path": "/observatory/snapshot",
+      "coverage": "positive-read",
+      "expected_status": [200]
+    },
+    {
+      "case_id": "GET /observatory/events resync",
+      "operation_id": "GET /observatory/events",
+      "method": "GET",
+      "path": "/observatory/events?after=0&journal_id=api-sweep-absent",
+      "coverage": "positive-read",
+      "expected_status": [200]
+    },
     {
       "case_id": "POST /previews invalid-admission",
       "operation_id": "POST /previews",
@@ -2333,6 +2367,7 @@
     }
   },
   "positive_phase_plans": {
+    "observatory-lifecycle": "Use the dedicated local service; atomically bind snapshot/cursor, then create, stop and purge owned real guests between observer reads. Validate ordered replay, pagination, resync and restart without reviving guests. Safe HTTP reads alone do not establish lifecycle or guest output coverage; use test_observatory_browser.mjs for virtual-device validation.",
     "visible-preview": "Create visible Preview; poll ready; run immutable checkpoint twice in the same PID; validate application READY, input, cancel/recovery, Run-bound frame, renew, ZIP-before-close and retained history.",
     "checkpoint-store": "Store exact complete checkpoint; retry bytes under alternate encoding; verify immutable ID, metadata, full file bytes and error cases.",
     "visible-session": "Exercise this operation only on an owned visible guest; bind outputs to firmware/PID/execution and capture evidence ZIP before stop purge=0.",

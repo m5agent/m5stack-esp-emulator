@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-29`.
+Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.51.0` and bounded
+Status: local MVP with unified-device runtime contract `1.52.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2405,10 +2405,58 @@ and BMI270 IMU values through the same QMP instance. Live sampling is persisted
 to the session directory and remains readable as a last-known snapshot after
 the session stops. This endpoint does not expose arbitrary QOM internals.
 
+## Local observatory
+
+Open `/observatory` on the local Device Service for the read-only multi-device
+display. This page observes sessions created by other workbench/API clients on
+the same service. It does not register browser-local WASM guests, proxy remote
+worker-local guests, create devices, renew leases, or send guest input. API
+requests retain the service's existing Bearer/rotation-token authentication;
+live serial and program reads retain the existing runtime ACL checks.
+
+`GET /api/v1/observatory/snapshot` returns `active`, `recent`, `journal_id`,
+`cursor`, `status`, `server_time`, `capacity`, and `jobs`. The session lists and
+cursor share one SQLite transaction. Capacity and full-queue job counts are
+current supporting summaries, not part of that journal transaction or a
+session-to-job mapping. `jobs.counts.running` aliases the queue's `leased`
+count; device counts and job counts must remain separate. Each session includes
+identity, lifecycle state, Unit attachment identity/port, display dimensions,
+serial byte count and frame availability, plus `observed_at` and `purged`.
+`stopped` means execution ended; it does not establish a successful test.
+
+Poll `GET /api/v1/observatory/events?journal_id=...&after=...&limit=200` after the
+snapshot. Responses contain ordered `events` with `{seq, kind: "session",
+session}`, `next_cursor`, `has_more`, `resync`, `journal_id`, `status`, and
+`server_time`. Each event contains a complete metadata projection. Advance only
+to the returned cursor; immediately fetch additional pages while `has_more` is
+true. `limit` is 1–500. Epoch mismatch, expired/missing history, or a cursor
+beyond the current journal return HTTP 200 with `resync: true` and no events;
+fetch a fresh snapshot. Invalid numeric parameters return 400.
+
+The independent `observations.sqlite` journal survives session-directory purge
+and service restart, so a short create/stop/purge between polls still leaves a
+lifecycle trace. It retains up to 24 hours/5,000 terminal session summaries and
+50,000 events; active summaries remain pinned. It does not retain guest serial
+text, framebuffer bytes, source, arbitrary event details or runtime environment.
+Use the existing content endpoints for unpurged sessions. After purge the trace
+remains, but `purged: true` and unavailable content must be shown honestly.
+Already purged sessions from before this feature cannot be recovered.
+
+`status.state` is `ok` or `degraded`, with `available` and `gap_possible`. A
+journal/storage failure never blocks guest stop or cleanup: the index becomes
+unavailable and the snapshot falls back to the currently known sessions with
+an explicit gap warning. Restart retries the index and rotates its epoch when
+a persisted gap marker exists; the warning remains because already purged data
+cannot be reconstructed. Missing/unreadable runtime records are shown as
+`state: "unknown"`, not restarted or inferred to be firmware failures. This
+display journal is not a replacement for same-session validation evidence.
+
 ## Endpoints
 
 | Method | Path | Purpose |
 | --- | --- | --- |
+| GET | `/api/v1/observatory/snapshot` | Atomic local-device display snapshot and journal cursor |
+| GET | `/api/v1/observatory/events` | Ordered lifecycle metadata after a journal cursor; resync on gaps |
 | GET | `/api/v1/program-revisions/{revision_id}/files` | Read every verified package file as canonical base64 |
 | GET/POST | `/api/v1/previews` | List retained Previews or allocate a stable managed UIFlow guest |
 | GET | `/api/v1/previews/{preview_id}` | Poll Preview/generation/lease |

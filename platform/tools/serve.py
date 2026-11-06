@@ -251,6 +251,9 @@ class Handler(SimpleHTTPRequestHandler):
             "/sessions": "/platform/web/sessions.html",
             "/sessions/": "/platform/web/sessions.html",
             "/sessions.html": "/platform/web/sessions.html",
+            "/observatory": "/platform/web/observatory.html",
+            "/observatory/": "/platform/web/observatory.html",
+            "/observatory.html": "/platform/web/observatory.html",
         }
         parsed = urlparse(self.path)
         target = aliases.get(parsed.path)
@@ -496,6 +499,15 @@ class Handler(SimpleHTTPRequestHandler):
                     "api_version": "v1",
                     "capacity": service.capacity(),
                 }
+            elif method == "GET" and parts == ["observatory", "snapshot"]:
+                response = service.observatory_snapshot()
+            elif method == "GET" and parts == ["observatory", "events"]:
+                try:
+                    after = int(query.get("after", ["0"])[0])
+                    limit = int(query.get("limit", ["200"])[0])
+                except ValueError as error:
+                    raise ServiceError("invalid_observation_cursor", "after and limit must be integers", 400) from error
+                response = service.observatory_events(journal_id=query.get("journal_id", [""])[0], after=after, limit=limit)
             elif method == "GET" and parts == ["devices"]:
                 include = query.get("include_unsupported", ["1"])[0] != "0"
                 response = service.list_devices(include_unsupported=include)

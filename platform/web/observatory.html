@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="实时观察本地虚拟设备中心的设备、屏幕、外设与任务活动。">
+  <title>M5Stack · 虚拟设备实验室</title>
+  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
+  <link rel="stylesheet" href="/platform/web/observatory.css">
+  <script type="importmap">{"imports":{"three":"/platform/web/vendor/three/three.module.js","three/addons/":"/platform/web/vendor/three/addons/"}}</script>
+</head>
+<body>
+  <header class="lab-header">
+    <div class="lab-brand"><img src="/platform/web/m5stack-logo.png" alt="M5Stack" width="42" height="42"><span><strong>M5STACK <span>OBSERVATORY</span></strong><small>VIRTUAL DEVICE LAB</small></span></div>
+    <div class="lab-status"><span class="display-only-label">自动巡展</span><span id="connectionState" class="connection" role="status"><i></i>正在连接</span></div>
+  </header>
+  <main>
+    <section class="lab-intro" aria-labelledby="labTitle"><div><p class="eyebrow">LOCAL DEVICE CENTER</p><h1 id="labTitle">虚拟设备实验室<span>观察每一次运行</span></h1></div><div class="lab-clock"><time id="wallClock"></time><span id="syncTime">等待首次同步</span></div></section>
+    <section class="metrics" aria-label="中心概况">
+      <div class="metric"><span><i class="metric-dot"></i>运行设备</span><strong id="metricRunning">—</strong><small id="capacityNote">正在读取中心容量</small></div>
+      <div class="metric"><span>启动中</span><strong id="metricStarting">—</strong><small>准备 · 加载 · 启动</small></div>
+      <div class="metric"><span>排队任务</span><strong id="metricQueued">—</strong><small id="queueNote">设备服务任务队列</small></div>
+      <div class="metric"><span>近期结束</span><strong id="metricEnded">—</strong><small>最近 1 小时</small></div>
+      <div class="metric"><span>近期异常</span><strong id="metricFailed">—</strong><small>最近 1 小时</small></div>
+    </section>
+    <div id="notice" class="lab-notice" role="status" hidden></div>
+    <div class="lab-layout">
+      <section class="space-panel" id="lab" aria-labelledby="spaceTitle">
+        <div class="space-toolbar"><div><h2 id="spaceTitle">工作现场</h2><span id="spaceSummary">等待设备进入空间</span></div><div class="presentation-status"><span id="presentationMode">全景观察</span><span id="presentationCountdown"></span></div></div>
+        <div class="lab-space" id="labSpace" aria-label="共享三维设备空间">
+          <div id="sceneMount"></div>
+          <div id="emptySpace" class="empty-space"><div class="empty-symbol" aria-hidden="true">＋</div><h3>实验室准备就绪</h3><p>从工作台或 API 创建虚拟设备，<br>它们会自动出现在这里。</p><span>等待真实设备会话</span></div>
+          <div id="sceneError" class="scene-error" hidden></div>
+          <div class="space-caption"><span><i></i>真实会话 · 实时观察</span><span>全景 · 设备组 · 单台特写，自动轮换</span></div>
+        </div>
+        <div class="group-strip" id="groupStrip" aria-label="设备型号分组"></div>
+      </section>
+      <aside class="inspector" aria-labelledby="inspectorTitle">
+        <div class="inspector-heading"><div><p class="eyebrow">DEVICE FOCUS</p><h2 id="inspectorTitle">正在观察</h2></div><span class="auto-tag">自动轮换</span></div>
+        <div id="detailEmpty" class="detail-empty"><span class="detail-symbol" aria-hidden="true">◌</span><h3>等待设备进入</h3><p>设备运行后，屏幕、外设与串口会自动呈现在这里。</p><div class="observation-note">持续观察真实会话，无需操作。</div></div>
+        <div id="deviceDetail" hidden>
+          <div class="detail-identity"><h3 id="detailTitle"></h3><span id="detailState" class="state-badge"></span><code id="detailId"></code></div>
+          <div class="detail-screen"><img id="detailFrame" alt="当前设备实际屏幕帧" hidden><span id="detailFrameNote">等待画面</span></div>
+          <dl class="device-facts"><div><dt>运行时长</dt><dd id="detailDuration"></dd></div><div><dt>串口输出</dt><dd id="detailBytes"></dd></div></dl>
+          <section class="unit-section"><h4>外设连接 <span id="detailUnitCount"></span></h4><div id="detailUnits"></div></section>
+          <section class="serial-section"><div><h4>串口输出</h4><span id="serialStatus">自动跟随</span></div><pre id="detailSerial" aria-label="当前观察设备串口输出">等待串口输出…</pre></section>
+        </div>
+      </aside>
+    </div>
+    <section class="activity-panel" aria-labelledby="activityTitle"><div class="activity-heading"><div><p class="eyebrow">ACTIVITY STREAM</p><h2 id="activityTitle">最近活动</h2></div><span id="activityPage">保留真实时间与结束状态</span></div><div id="activityList" class="activity-list"><p class="activity-empty">这里会记录设备的出现与结束。</p></div></section>
+  </main>
+  <footer><span>M5STACK · VIRTUAL DEVICE CENTER</span><span>本地服务观察 · 虚拟设备仿真</span></footer>
+  <script type="module" src="/platform/web/observatory.js"></script>
+</body>
+</html>

@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 from serve import Handler
+from device_service import DeviceService
 
 
 class ServeWorkbenchRouteTests(unittest.TestCase):
@@ -99,7 +100,18 @@ class ServeWorkbenchRouteTests(unittest.TestCase):
 class ServePeripheralApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        # A /api/v1 read initializes the service before dispatching the catalog
+        # route. Never acquire the user's default worker-state directory or
+        # reuse a Handler service left behind by another HTTP test.
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.service = DeviceService(state_dir=Path(cls.tmp.name))
+
+        class InventoryHandler(Handler):
+            service = cls.service
+            api_token = None
+            previous_api_token = None
+
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), InventoryHandler)
         cls.thread = threading.Thread(
             target=cls.server.serve_forever,
             daemon=True,
@@ -112,6 +124,8 @@ class ServePeripheralApiTests(unittest.TestCase):
         cls.server.shutdown()
         cls.server.server_close()
         cls.thread.join(timeout=2)
+        cls.service.close_all()
+        cls.tmp.cleanup()
 
     def get_json(self, path: str):
         with urlopen(self.base + path, timeout=5) as response:

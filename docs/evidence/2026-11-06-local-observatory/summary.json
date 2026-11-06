@@ -1,0 +1,1608 @@
+{
+  "schema_version": 1,
+  "kind": "local-observatory-validation-summary",
+  "date": "2026-11-06",
+  "status": "PASS",
+  "draft": false,
+  "source": {
+    "repository": "https://github.com/m5agent/m5stack-esp-emulator",
+    "base_commit": "ea6a553b702c636b10692665c475341b178cb662",
+    "identity": "Base commit plus exact per-file hashes; delivery commit recorded by work log."
+  },
+  "evidence_level": "virtual-device validation",
+  "physical_hardware": "NOT RUN",
+  "browser_wasm_guest": "NOT RUN",
+  "measured_performance": "NOT RUN",
+  "scope": {
+    "execution_lane": "native Device Service/QEMU",
+    "display_source": "Actual same-guest framebuffer, serial and controller observations",
+    "current_user_requirement": "Unattended display; no pointer, touch, keyboard, scrolling or operational controls",
+    "logical_pressure": "64 logical records, separate from real guests; not 64 guest execution"
+  },
+  "redaction": "Bounded allowlist-derived summary. Raw identifiers, local endpoints/paths, credentials, guest nonce/source contents, mutable Flash, binaries, original HTTP bodies and frame series are not copied. Source reports are bound by SHA256 and byte count.",
+  "attempts": [
+    {
+      "run": "run-1",
+      "status": "FAIL",
+      "started_at": "2026-11-06T03:21:51.250Z",
+      "completed_at": "2026-11-06T03:23:56.681Z",
+      "source_report": {
+        "sha256": "2b92758651227b017ddd2319409210eef515327ab98e373042e91bffeb177498",
+        "bytes": 104380
+      },
+      "source_sha256": {
+        "platform/web/observatory.html": "0f98cfba5a162b5658002fa91485aa6b345d7f0b5aa00658e927d4da8f995ddb",
+        "platform/web/observatory.css": "72939d0ec8e66dee417164572b71fa43115618ec316ad0257cf10622665b61c6",
+        "platform/web/observatory.js": "4997382af44a8d33e871c3dc138cd0fcf6b02b302cf190ec8bf6459a1e5bcc4f",
+        "platform/web/observatory-scene.js": "f4cb1f3f38b5485df90a0ec4865a6c11b52eccf223a909d78a06e0e79547958e",
+        "platform/tools/device_service.py": "6c889fa02852764c3f968877f231c8b6b554216663274ff0a2c86217f60f10ae",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "67f406c2a1324859289de647187a9cb12b6e0bcb660794105b6e995a7fbb4dd6"
+      },
+      "interface_iteration": "manual focus",
+      "passed_named_checks": 2,
+      "firmware_runtime_identities": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        }
+      ],
+      "failure": {
+        "stage": "native browser observation deadline",
+        "status": "FAIL",
+        "summary": "Observation deadline exceeded before mixed-session discovery was accepted.",
+        "attribution": "Observer transport diagnosis/fix is recorded separately from guest firmware behavior."
+      }
+    },
+    {
+      "run": "run-2",
+      "status": "FAIL",
+      "started_at": "2026-11-06T03:25:35.536Z",
+      "completed_at": "2026-11-06T03:28:14.502Z",
+      "source_report": {
+        "sha256": "38cad9b35d0a98aba51ca812fd2b2ff924145aa28902fcdba9c752438067076a",
+        "bytes": 550526
+      },
+      "source_sha256": {
+        "platform/web/observatory.html": "0f98cfba5a162b5658002fa91485aa6b345d7f0b5aa00658e927d4da8f995ddb",
+        "platform/web/observatory.css": "72939d0ec8e66dee417164572b71fa43115618ec316ad0257cf10622665b61c6",
+        "platform/web/observatory.js": "bca877720d7a464d5ad26a33814dd737842bb96756c0373300d084a70748d451",
+        "platform/web/observatory-scene.js": "bf9b6418cfc2810d477dfb070606898c2cd8f4ea29573e176db6d4bdc1673fcf",
+        "platform/tools/device_service.py": "6c889fa02852764c3f968877f231c8b6b554216663274ff0a2c86217f60f10ae",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "bc4435a69045581d93f0b85eeac66435f05394394f7d863b5648bfbfb5ff7a26"
+      },
+      "interface_iteration": "manual focus",
+      "passed_named_checks": 11,
+      "firmware_runtime_identities": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "black-screen-short",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "failed",
+          "firmware_sha256": "9c82f6d1b72e673f9780df3d85cc65d1005737204a005be1627b4a90ad495791",
+          "runtime_sha256": null
+        }
+      ],
+      "failure": {
+        "stage": "separate directly composed black-screen guest startup",
+        "status": "FAIL",
+        "summary": "Serial readiness marker was absent at the configured 120-second startup deadline; the separate guest reached failed state.",
+        "attribution": "Guest/runtime startup failure; this report does not establish a display-page defect or a firmware root cause."
+      }
+    },
+    {
+      "run": "run-3",
+      "status": "FAIL",
+      "started_at": "2026-11-06T03:33:59.484Z",
+      "completed_at": "2026-11-06T03:34:18.044Z",
+      "source_report": {
+        "sha256": "2599d73c50386574b956993cfe79a999a53a425fbdd0f9d07298b1d509e14db0",
+        "bytes": 89222
+      },
+      "source_sha256": {
+        "platform/web/observatory.html": "0f98cfba5a162b5658002fa91485aa6b345d7f0b5aa00658e927d4da8f995ddb",
+        "platform/web/observatory.css": "72939d0ec8e66dee417164572b71fa43115618ec316ad0257cf10622665b61c6",
+        "platform/web/observatory.js": "bca877720d7a464d5ad26a33814dd737842bb96756c0373300d084a70748d451",
+        "platform/web/observatory-scene.js": "7223e305be20767a0f1f57169111720907dc585c7b418ba8aef8283b6d914e3b",
+        "platform/tools/device_service.py": "4a5cb086214032ff948fe7cfe908a3ad9982beb88dd254a52d8aaf478920af10",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "1878f8909e2eba055fa2c801c4e4e4a995e3fd95ebd14e23ebc86bce462a4975"
+      },
+      "interface_iteration": "manual focus",
+      "passed_named_checks": 14,
+      "firmware_runtime_identities": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "black-screen-short",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        }
+      ],
+      "failure": {
+        "category": "test-oracle label assertion mismatch",
+        "status": "FAIL",
+        "summary": "An old full-text ended-label assertion did not match the compact-label design. Persistent purge metadata and the actual black frame had already passed.",
+        "attribution": "Acceptance-oracle defect, not evidence of a product losing terminal state. Among the eight recorded source hashes, only the acceptance script changed before run-4 passed."
+      }
+    },
+    {
+      "run": "run-4",
+      "status": "PASS",
+      "started_at": "2026-11-06T03:35:23.747Z",
+      "completed_at": "2026-11-06T03:36:00.243Z",
+      "source_report": {
+        "sha256": "dc33fe0da1f55f27fe8958a4944e956c7f2214d377ddde31373e166305a760f1",
+        "bytes": 114515
+      },
+      "source_sha256": {
+        "platform/web/observatory.html": "0f98cfba5a162b5658002fa91485aa6b345d7f0b5aa00658e927d4da8f995ddb",
+        "platform/web/observatory.css": "72939d0ec8e66dee417164572b71fa43115618ec316ad0257cf10622665b61c6",
+        "platform/web/observatory.js": "bca877720d7a464d5ad26a33814dd737842bb96756c0373300d084a70748d451",
+        "platform/web/observatory-scene.js": "7223e305be20767a0f1f57169111720907dc585c7b418ba8aef8283b6d914e3b",
+        "platform/tools/device_service.py": "4a5cb086214032ff948fe7cfe908a3ad9982beb88dd254a52d8aaf478920af10",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "604b65d74865d0820dfe7e24c0bcc4ba4c0fc4b8b0f802b24d9ee671a7dfb40e"
+      },
+      "interface_iteration": "manual focus",
+      "passed_named_checks": 25,
+      "firmware_runtime_identities": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "black-screen-short",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-3",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-4",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-5",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-6",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-7",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-8",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-9",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-10",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-11",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        }
+      ],
+      "default_capacity": {
+        "max_sessions": 12,
+        "active_sessions": 12,
+        "available_sessions": 0,
+        "max_per_device": 8,
+        "by_device": {
+          "cores3": 8,
+          "atoms3r": 4
+        }
+      },
+      "display_pressure": {
+        "status": "PASS",
+        "label": "logical display-pressure fixture; no guest execution",
+        "logical_session_count": 64,
+        "churn_ended": 8,
+        "churn_created": 8,
+        "labels_after_dwell": 64,
+        "canvas_count": 1,
+        "scroll_width": 1920,
+        "viewport": 1920,
+        "scope": "Logical display fixture only; not 64 real guests.",
+        "configured_detailed_model_budget": 32,
+        "actual_detailed_model_count": "NOT RECORDED"
+      },
+      "browser_observer_methods": {
+        "status": "PASS",
+        "methods": [
+          "GET"
+        ],
+        "observed_request_count": 199
+      }
+    },
+    {
+      "run": "run-5",
+      "status": "FAIL",
+      "interface_iteration": "unattended automatic tour, before stable-bay fix",
+      "started_at": "2026-11-06T03:50:24.019Z",
+      "completed_at": "2026-11-06T03:52:13.998Z",
+      "source_report": {
+        "sha256": "2a2b16831f9b63a764e592db2334e5de98795da249cf4d8e3d6f837afc3aeb84",
+        "bytes": 223338
+      },
+      "source_sha256": {
+        "platform/web/observatory-client.js": "a01847022d1b13e2caf2530293c8b912522c791fe40c2c1a8b9374f0742ba1b3",
+        "platform/web/observatory-scene.js": "74a356166ea6321d222210f0c757255a6f30cab22621aea6b8fa456caba5ab62",
+        "platform/web/observatory-state.js": "1b0a3be54e52ad193b241d7d4f55c94538929f42c4a935397f37cb715368d220",
+        "platform/web/observatory-tour.js": "7a3e4ef91f41bab597820e1bfbcf53945990cccd042f59e9114912fa336e40d0",
+        "platform/web/observatory.css": "cc23a46d34e780819250ad6854cb7b378fa425a6cd5023bed0acf77b67c02f3a",
+        "platform/web/observatory.html": "e5dd85e6628104c6a39f307a2c29e78d23a971cd4b2ebac0d87314aea8fe2bb2",
+        "platform/web/observatory.js": "a855b34705c61eb9b38301bc92887dd6560cd3086f31f7d02ee2009298456ce9",
+        "platform/web/model-output.js": "1c8230db25e75101a00b6c21f2945e34993820a73d5efff071c0168957b38d9c",
+        "platform/web/unit-visual-mappings.js": "e07ec7c0f993647463b219d8e3ff622f133db16500a25334ef399bfc33113b85",
+        "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+        "platform/web/vendor/m5stack-models/vendor-manifest.json": "6b6f245941853c41b04c2a6cb600e45970aa0b1f7ac394f33d5cccf6ec6eed2f",
+        "platform/tools/device_service.py": "4a5cb086214032ff948fe7cfe908a3ad9982beb88dd254a52d8aaf478920af10",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "30bdeb0f6dd269755df7ee904754aec0889061fd75810dbea86ed71cee90df0f"
+      },
+      "checks": [
+        {
+          "name": "dedicated-service-starts-empty",
+          "status": "PASS"
+        },
+        {
+          "name": "native-reference-backends-ready",
+          "status": "PASS"
+        },
+        {
+          "name": "external-mixed-and-repeated-sessions-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "automatic-display-has-no-visible-interactive-controls",
+          "status": "PASS"
+        },
+        {
+          "name": "automatically-focused-serial-is-actual-same-session-output",
+          "status": "PASS"
+        },
+        {
+          "name": "serial-output-follows-tail-without-user-scroll",
+          "status": "PASS"
+        },
+        {
+          "name": "actual-screen-changes-reach-corresponding-3d-display",
+          "status": "PASS"
+        },
+        {
+          "name": "actual-unit-output-changes-reach-corresponding-scene",
+          "status": "PASS"
+        },
+        {
+          "name": "relay-actual-controller-output-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "same-guest-screen-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "overview-group-and-multiple-device-tour-advances-without-input",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1920-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1920-fits-one-screen-height",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1440-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1440-fits-one-screen-height",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-390-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "short-task-frame-is-actually-black",
+          "status": "PASS"
+        },
+        {
+          "name": "purged-short-task-survives-in-observation-index",
+          "status": "PASS"
+        },
+        {
+          "name": "short-task-ended-before-observer-is-presented",
+          "status": "PASS"
+        },
+        {
+          "name": "abnormal-exit-is-failed-not-pass",
+          "status": "PASS"
+        },
+        {
+          "name": "abnormal-exit-reaches-observatory",
+          "status": "PASS"
+        },
+        {
+          "name": "ninth-same-model-session-remains-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "unchanged-default-12-total-8-same-model-capacity",
+          "status": "PASS"
+        },
+        {
+          "name": "thirteenth-total-session-remains-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "closing-observer-does-not-stop-external-guests",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-browser-requests-are-get-only",
+          "status": "PASS"
+        },
+        {
+          "name": "real-guests-cleaned-before-display-pressure-fixture",
+          "status": "PASS"
+        }
+      ],
+      "guests": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "black-screen-short",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-3",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-4",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-5",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-6",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-7",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-8",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-9",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-10",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-11",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        }
+      ],
+      "program_source_sha256": "3ef0e9e1a950567b3b42c8f694f4526c8fccd101508561b8f609f366ac26a5af",
+      "model_observations": {
+        "screen_colors": [
+          "255,0,0",
+          "0,255,0"
+        ],
+        "unit_output_levels": [
+          false,
+          true
+        ]
+      },
+      "frames": [
+        {
+          "name": "live-frame-0",
+          "bytes": 579,
+          "sha256": "7f8f4d8af5c2ab0d5fd15740fd426ddf4f5333070e4ac58c8b64830b90b5fb30",
+          "pixels": {
+            "width": 320,
+            "height": 240,
+            "corner": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "nonblack_pixels": 76800
+          }
+        },
+        {
+          "name": "live-frame-1",
+          "bytes": 579,
+          "sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+          "pixels": {
+            "width": 320,
+            "height": 240,
+            "corner": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "nonblack_pixels": 76800
+          }
+        }
+      ],
+      "viewport_observations": [
+        {
+          "name": "observatory-1920",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "name": "observatory-1440",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "observatory-390",
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "page_error_count": 0,
+      "automatic_tour": [
+        {
+          "alias": "live-relay",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "CoreS3",
+          "observed_at": "2026-11-06T03:51:31.518Z"
+        },
+        {
+          "alias": "same-model-0",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "CoreS3",
+          "observed_at": "2026-11-06T03:51:37.685Z"
+        },
+        {
+          "alias": "different-model",
+          "phase": "group",
+          "group": "atoms3r",
+          "camera_alias": null,
+          "detail_title": "AtomS3R",
+          "observed_at": "2026-11-06T03:51:43.613Z"
+        },
+        {
+          "alias": "different-model",
+          "phase": "device",
+          "group": "atoms3r",
+          "camera_alias": "different-model",
+          "detail_title": "AtomS3R",
+          "observed_at": "2026-11-06T03:51:48.638Z"
+        },
+        {
+          "alias": "same-model-1",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "CoreS3",
+          "observed_at": "2026-11-06T03:51:56.895Z"
+        }
+      ],
+      "serial_tail": {
+        "scroll_top": 1415,
+        "scroll_height": 1558,
+        "client_height": 143
+      },
+      "browser_observer_methods": {
+        "status": "PASS",
+        "methods": [
+          "GET"
+        ],
+        "observed_request_count": 391
+      },
+      "default_capacity": {
+        "max_sessions": 12,
+        "active_sessions": 12,
+        "available_sessions": 0,
+        "max_per_device": 8,
+        "by_device": {
+          "cores3": 8,
+          "atoms3r": 4
+        }
+      },
+      "display_pressure": {
+        "status": "FAIL",
+        "scope": "Separate logical fixture, not guest execution",
+        "logical_session_count": 64,
+        "failure": "A surviving model moved when detailed-model budget/churn replaced the placeholder geometry.",
+        "observed_before": [
+          83,
+          0,
+          0
+        ],
+        "observed_after": [
+          87.00000000000001,
+          0,
+          3.552713678800501e-15
+        ],
+        "material_geometry_fix": "Use the same fixed no-Unit bay dimensions for detailed and placeholder models; final retest pending."
+      },
+      "failure": {
+        "category": "product layout stability",
+        "status": "FAIL",
+        "summary": "27 real-guest/automatic-display checks passed, then the separate 64-logical-device churn position invariant failed. The whole run remains FAIL."
+      },
+      "short_task": {
+        "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+        "source_sha256": "94d359330a1ad6061dd3971998b1a7419e4ae6f3554141235b3ea7331a7197e4",
+        "serial_sha256": "39a8d4a4b287f68ba4b5527fec51fb63cbb8bad09250e83598e5b0d68ddd031d",
+        "serial_bytes": 1264,
+        "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "pixels": {
+          "width": 320,
+          "height": 240,
+          "corner": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "nonblack_pixels": 0
+        },
+        "evidence": {
+          "bytes": 15624,
+          "sha256": "b6d5a11a9ed3654cbebb741118bfbc69b51eeda483d990049c5de234e4548f3f"
+        },
+        "description": "Actual black-screen same-guest program stopped and purged before observation resumed."
+      },
+      "abnormal": {
+        "evidence_before_exit": {
+          "bytes": 9907,
+          "sha256": "0dc39e13a3248da2d5e7df49998f861d54e6771afa84a3c204c41e9283c35465"
+        },
+        "observed_state": "failed",
+        "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+      },
+      "cleanup": [
+        {
+          "alias": "live-relay",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "same-model-0",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "same-model-1",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-3",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-4",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-5",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-6",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-7",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-8",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-9",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-10",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-11",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "kind": "redacted-virtual-device-acceptance-summary",
+      "run": "run-6",
+      "status": "PASS",
+      "interface_iteration": "unattended automatic tour after stable-bay fix",
+      "evidence_level": "virtual-device validation",
+      "physical_hardware": "NOT RUN",
+      "started_at": "2026-11-06T03:58:21.854Z",
+      "completed_at": "2026-11-06T03:59:13.248Z",
+      "browser_version": "157.0.8103.38",
+      "source_report": {
+        "sha256": "d6db3cc463d42aeeef24c7a44f6589ad3ecb483ca4201921dbd31eafc2a9b767",
+        "bytes": 140744
+      },
+      "redaction": "Allowlisted derived summary. No endpoints, machine paths, credentials, original session/process/worker identities, guest nonce/source contents or raw HTTP payloads. Not raw.",
+      "checks": [
+        {
+          "name": "dedicated-service-starts-empty",
+          "status": "PASS"
+        },
+        {
+          "name": "native-reference-backends-ready",
+          "status": "PASS"
+        },
+        {
+          "name": "external-mixed-and-repeated-sessions-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "automatic-display-has-no-visible-interactive-controls",
+          "status": "PASS"
+        },
+        {
+          "name": "automatically-focused-serial-is-actual-same-session-output",
+          "status": "PASS"
+        },
+        {
+          "name": "serial-output-follows-tail-without-user-scroll",
+          "status": "PASS"
+        },
+        {
+          "name": "actual-screen-changes-reach-corresponding-3d-display",
+          "status": "PASS"
+        },
+        {
+          "name": "actual-unit-output-changes-reach-corresponding-scene",
+          "status": "PASS"
+        },
+        {
+          "name": "relay-actual-controller-output-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "same-guest-screen-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "overview-group-and-multiple-device-tour-advances-without-input",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1920-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1920-fits-one-screen-height",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1440-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-1440-fits-one-screen-height",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-390-no-horizontal-overflow",
+          "status": "PASS"
+        },
+        {
+          "name": "short-task-frame-is-actually-black",
+          "status": "PASS"
+        },
+        {
+          "name": "purged-short-task-survives-in-observation-index",
+          "status": "PASS"
+        },
+        {
+          "name": "short-task-ended-before-observer-is-presented",
+          "status": "PASS"
+        },
+        {
+          "name": "new-short-task-lifecycle-is-shown-in-overview",
+          "status": "PASS"
+        },
+        {
+          "name": "abnormal-exit-is-failed-not-pass",
+          "status": "PASS"
+        },
+        {
+          "name": "abnormal-exit-reaches-observatory",
+          "status": "PASS"
+        },
+        {
+          "name": "ninth-same-model-session-remains-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "unchanged-default-12-total-8-same-model-capacity",
+          "status": "PASS"
+        },
+        {
+          "name": "thirteenth-total-session-remains-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "closing-observer-does-not-stop-external-guests",
+          "status": "PASS"
+        },
+        {
+          "name": "observatory-browser-requests-are-get-only",
+          "status": "PASS"
+        },
+        {
+          "name": "real-guests-cleaned-before-display-pressure-fixture",
+          "status": "PASS"
+        },
+        {
+          "name": "logical-display-has-no-visible-interactive-controls",
+          "status": "PASS"
+        },
+        {
+          "name": "64-logical-session-display-only-layout",
+          "status": "PASS"
+        },
+        {
+          "name": "no-browser-page-errors",
+          "status": "PASS"
+        }
+      ],
+      "guests": [
+        {
+          "alias": "live-relay",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-0",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "same-model-1",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "different-model",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "black-screen-short",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-3",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-4",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-5",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-6",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-core-7",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-8",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-9",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-10",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        },
+        {
+          "alias": "capacity-atom-11",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "state_at_capture": "running",
+          "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+          "runtime_sha256": "6d9af027e2f744208fc2503128f1772f436d7ca7358f9e53be597bc76800f39d"
+        }
+      ],
+      "program_source_sha256": "064d80e9b8ce0ea8d87bebfa117763f4f7b09524eac90175e03fe105dd3ba307",
+      "model_observations": {
+        "screen_colors": [
+          "0,255,0",
+          "255,0,0"
+        ],
+        "unit_output_levels": [
+          true,
+          false
+        ]
+      },
+      "frames": [
+        {
+          "name": "live-frame-0",
+          "bytes": 579,
+          "sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+          "pixels": {
+            "width": 320,
+            "height": 240,
+            "corner": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "nonblack_pixels": 76800
+          }
+        },
+        {
+          "name": "live-frame-1",
+          "bytes": 579,
+          "sha256": "7f8f4d8af5c2ab0d5fd15740fd426ddf4f5333070e4ac58c8b64830b90b5fb30",
+          "pixels": {
+            "width": 320,
+            "height": 240,
+            "corner": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "nonblack_pixels": 76800
+          }
+        }
+      ],
+      "viewport_observations": [
+        {
+          "name": "observatory-1920",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "name": "observatory-1440",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "observatory-390",
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "page_error_count": 0,
+      "automatic_tour": [
+        {
+          "alias": "live-relay",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "CoreS3",
+          "observed_at": "2026-11-06T03:58:30.974Z"
+        },
+        {
+          "alias": "same-model-0",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "CoreS3",
+          "observed_at": "2026-11-06T03:58:37.050Z"
+        },
+        {
+          "alias": "different-model",
+          "phase": "group",
+          "group": "atoms3r",
+          "camera_alias": null,
+          "detail_title": "AtomS3R",
+          "observed_at": "2026-11-06T03:58:43.118Z"
+        },
+        {
+          "alias": "different-model",
+          "phase": "device",
+          "group": "atoms3r",
+          "camera_alias": "different-model",
+          "detail_title": "AtomS3R",
+          "observed_at": "2026-11-06T03:58:48.122Z"
+        },
+        {
+          "alias": "different-model",
+          "phase": "overview",
+          "group": null,
+          "camera_alias": null,
+          "detail_title": "AtomS3R",
+          "observed_at": "2026-11-06T03:58:54.203Z"
+        }
+      ],
+      "serial_tail": {
+        "scroll_top": 780,
+        "scroll_height": 923,
+        "client_height": 143
+      },
+      "browser_observer_methods": {
+        "status": "PASS",
+        "methods": [
+          "GET"
+        ],
+        "observed_request_count": 401
+      },
+      "default_capacity": {
+        "max_sessions": 12,
+        "active_sessions": 12,
+        "available_sessions": 0,
+        "max_per_device": 8,
+        "by_device": {
+          "cores3": 8,
+          "atoms3r": 4
+        }
+      },
+      "display_pressure": {
+        "status": "PASS",
+        "label": "logical display-pressure fixture; no guest execution",
+        "logical_session_count": 64,
+        "churn_ended": 8,
+        "churn_created": 8,
+        "labels_after_dwell": 64,
+        "canvas_count": 1,
+        "scroll_width": 1920,
+        "viewport": 1920,
+        "scope": "Logical layout fixture only; real guests already cleaned.",
+        "configured_detailed_model_budget": 32,
+        "actual_detailed_model_count": "NOT RECORDED",
+        "stable_positions_during_churn": "PASS"
+      },
+      "source_sha256": {
+        "platform/web/observatory-client.js": "a01847022d1b13e2caf2530293c8b912522c791fe40c2c1a8b9374f0742ba1b3",
+        "platform/web/observatory-scene.js": "072238966f1ed8ce8b4e281e42dd149a48b5789ba2a95bda1cb2e45c27fc8987",
+        "platform/web/observatory-state.js": "1b0a3be54e52ad193b241d7d4f55c94538929f42c4a935397f37cb715368d220",
+        "platform/web/observatory-tour.js": "905d1045e9b1ca71a5a11cb8da5e3a7df7906d579334016fb0b59da51b9d38b8",
+        "platform/web/observatory.css": "cc23a46d34e780819250ad6854cb7b378fa425a6cd5023bed0acf77b67c02f3a",
+        "platform/web/observatory.html": "e5dd85e6628104c6a39f307a2c29e78d23a971cd4b2ebac0d87314aea8fe2bb2",
+        "platform/web/observatory.js": "ba7b2e2e3e3da12c57eb0f404e6e4d164aa4a32af66fd3d8326e4ceb45e04f38",
+        "platform/web/model-output.js": "1c8230db25e75101a00b6c21f2945e34993820a73d5efff071c0168957b38d9c",
+        "platform/web/unit-visual-mappings.js": "e07ec7c0f993647463b219d8e3ff622f133db16500a25334ef399bfc33113b85",
+        "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+        "platform/web/vendor/m5stack-models/vendor-manifest.json": "6b6f245941853c41b04c2a6cb600e45970aa0b1f7ac394f33d5cccf6ec6eed2f",
+        "platform/tools/device_service.py": "4a5cb086214032ff948fe7cfe908a3ad9982beb88dd254a52d8aaf478920af10",
+        "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab",
+        "platform/tools/observation_store.py": "7d45ebc64251afc9c82947512a374954b9d9ae061114715613efa0e7a6de3b05",
+        "platform/tests/test_observatory_browser.mjs": "179ac6d7e419e8d23ed34341928ec98a7ad4bf570ccc2bb10bdc2f9b6c9a4565"
+      },
+      "cleanup": [
+        {
+          "alias": "live-relay",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "same-model-0",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "same-model-1",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-3",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-4",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-5",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-6",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-core-7",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-8",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-9",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-10",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        },
+        {
+          "alias": "capacity-atom-11",
+          "state": "stopped",
+          "mutable_flash_retained": false,
+          "owned_process_gone": true
+        }
+      ],
+      "short_task": {
+        "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+        "source_sha256": "3d85a14f2cf9131c35fd27fcfa707877a4d50caeecb5b2d2e11a7ee6657e5e36",
+        "serial_sha256": "9c6ce114061fc47756f9c43c420a1b4dffc27aa40e1281f0d34401919b2163a7",
+        "serial_bytes": 1264,
+        "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "pixels": {
+          "width": 320,
+          "height": 240,
+          "corner": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "nonblack_pixels": 0
+        },
+        "evidence": {
+          "bytes": 15638,
+          "sha256": "eb6e03c4c5d4ceeb255a9cbcf23326222779424066feb31fc126584a9d612de8"
+        },
+        "description": "Actual black-screen same-guest program stopped/purged while observation was held; terminal presentation returned to overview before the model dwell elapsed."
+      },
+      "abnormal": {
+        "evidence_before_exit": {
+          "bytes": 9902,
+          "sha256": "ac4afffed6aa5d13aabb80cffe684e22a932c43791f0a738d1ba84f822d210f8"
+        },
+        "observed_state": "failed",
+        "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+      },
+      "owned_guest_count": 14,
+      "all_owned_guest_pids_gone": true
+    }
+  ],
+  "restart_followup": {
+    "status": "PASS",
+    "evidence_level": "virtual-device validation",
+    "source_report": {
+      "sha256": "93f2d5a51fe4d0fedc525c3d4eb2887e5399c4b1d1848ddcc0cfdf3d4cac051a",
+      "bytes": 2999
+    },
+    "validation_iteration": "Manual-focus run-4 product iteration; automatic-tour final acceptance pending.",
+    "short_actual_elapsed_seconds": 3.905601,
+    "checks": {
+      "journal_survives_restart": true,
+      "purged_terminal_projection_survives_restart": true,
+      "purged_content_stays_unavailable": true,
+      "no_guest_resurrection": true,
+      "production_source_hashes_match_run_4": true
+    },
+    "before": {
+      "cursor": 165,
+      "snapshot_sha256": "62caf6ee18cfa486b45140f0a1458f630ff4cd35a31e6231fd5b8b206c3b950d",
+      "active_sessions": 0,
+      "purged_frame_http_status": 404,
+      "purged_serial_http_status": 404,
+      "short_session": {
+        "state": "stopped",
+        "purged": true,
+        "serial_bytes": 1264,
+        "created_at": "2026-11-06T03:35:37.664729+00:00",
+        "completed_at": "2026-11-06T03:35:41.570330+00:00",
+        "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+        "runtime": "qemu",
+        "device_id": "cores3"
+      }
+    },
+    "after": {
+      "cursor": 182,
+      "snapshot_sha256": "f3121c01ba693d6c3f29ae09411ce3191ed2a597d8072038e3e279f62835bd36",
+      "active_sessions": 0,
+      "purged_frame_http_status": 404,
+      "purged_serial_http_status": 404,
+      "short_session": {
+        "state": "stopped",
+        "purged": true,
+        "serial_bytes": 1264,
+        "created_at": "2026-11-06T03:35:37.664729+00:00",
+        "completed_at": "2026-11-06T03:35:41.570330+00:00",
+        "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+        "runtime": "qemu",
+        "device_id": "cores3"
+      }
+    }
+  },
+  "host_validation": {
+    "python_full_suite": {
+      "status": "PASS",
+      "run": 2035,
+      "passed": 2034,
+      "skipped": 1,
+      "seconds": 238.674,
+      "source_log": {
+        "sha256": "ed70908bfa6953741b78ad137937853cc07dca79ebcd3cf0f99f6723764ae8f5",
+        "bytes": 51929
+      },
+      "scope": "Backend-frozen full platform suite; guest evidence is reported separately."
+    },
+    "automatic_node_contracts": {
+      "status": "PASS",
+      "script_count": 33,
+      "command": "npm run --prefix platform/tests test:contracts",
+      "source_log": {
+        "sha256": "57b053b967617020d134951c270fc04831aead365692c83454cf8205f275534b",
+        "bytes": 20519
+      },
+      "scope": "Host contracts including automatic-tour timing, fairness, empty/removal and new/terminal preemption."
+    },
+    "earlier_full_suite_attempts": [
+      {
+        "name": "platform-suite-initial",
+        "status": "FAIL",
+        "run": 1968,
+        "failures": 96,
+        "errors": 21,
+        "skipped": 1,
+        "seconds": 188.856,
+        "source_log": {
+          "sha256": "30819355ff2c59cbe30411cd63e1ba0dda4e3b9d7ded782caea5569159c397a1",
+          "bytes": 289735
+        },
+        "attribution": "New observation shutdown/purge callbacks assumed fields absent from existing bare service fixtures. Cleanup failures and mock contamination caused cascading host failures; these totals do not count guest firmware regressions."
+      },
+      {
+        "name": "platform-suite-second",
+        "status": "FAIL",
+        "run": 2035,
+        "failures": 3,
+        "errors": 2,
+        "skipped": 1,
+        "seconds": 231.244,
+        "source_log": {
+          "sha256": "c5e40bab019aee1d7e47678d3de88f6ab6732aef68d930627df70404b5685a0b",
+          "bytes": 70135
+        },
+        "attribution": "API inventory omitted the new operations, document review freshness and generated snapshot were stale, and an existing HTTP test fixture used the default service state directory. These were fixed before the final rerun."
+      }
+    ]
+  },
+  "limits": [
+    "Final unattended run-6 passed all 31 checks; source execution identity is bound by exact per-file hashes, with delivery commit recorded in the external work log.",
+    "Earlier manual-focus runs do not validate the final unattended interaction path.",
+    "Run-5 passed 27 named real-guest/automatic-display checks but failed product layout stability; it remains FAIL.",
+    "Physical RF, power, optics, acoustics, electrical behavior, long-term stability and performance were not tested.",
+    "Run-4 short lifetime 3.905601 seconds belongs to its restart follow-up, not a transferred timing claim for other firmware or attempts."
+  ],
+  "publication_status": "NOT RUN",
+  "final_source_binding": {
+    "recorded_source_count": 15,
+    "worktree_matches_captured_run6_sources": true,
+    "backend_sources_identical_to_run4_restart_followup": [
+      "platform/tools/device_service.py",
+      "platform/tools/serve.py",
+      "platform/tools/observation_store.py"
+    ],
+    "delivery_identity": "Recorded after source commit in the external work log."
+  },
+  "final_automatic_followup": {
+    "schema_version": 1,
+    "kind": "redacted-final-automatic-validation-followup",
+    "status": "PASS",
+    "captured_at": "2026-11-06T04:00:06.336568+00:00",
+    "evidence_level": "virtual-device validation",
+    "source_report": {
+      "sha256": "0803f22072c136b0e1fec50012ab0a2dd1a0dc3342a4af30457324c605d58b2a",
+      "bytes": 2952
+    },
+    "run_report_sha256": "d6db3cc463d42aeeef24c7a44f6589ad3ecb483ca4201921dbd31eafc2a9b767",
+    "checks": {
+      "all_final_source_hashes_match": true,
+      "backend_unchanged_from_executed_restart_validation": true,
+      "active_sessions_zero": true,
+      "all_owned_guest_pids_gone": true
+    },
+    "source_hash_checks": {
+      "platform/web/observatory-client.js": true,
+      "platform/web/observatory-scene.js": true,
+      "platform/web/observatory-state.js": true,
+      "platform/web/observatory-tour.js": true,
+      "platform/web/observatory.css": true,
+      "platform/web/observatory.html": true,
+      "platform/web/observatory.js": true,
+      "platform/web/model-output.js": true,
+      "platform/web/unit-visual-mappings.js": true,
+      "platform/web/unit-assembly-layout.js": true,
+      "platform/web/vendor/m5stack-models/vendor-manifest.json": true,
+      "platform/tools/device_service.py": true,
+      "platform/tools/serve.py": true,
+      "platform/tools/observation_store.py": true,
+      "platform/tests/test_observatory_browser.mjs": true
+    },
+    "backend_hash_checks": {
+      "platform/tools/device_service.py": true,
+      "platform/tools/serve.py": true,
+      "platform/tools/observation_store.py": true
+    },
+    "restart_validation_sha256": "93f2d5a51fe4d0fedc525c3d4eb2887e5399c4b1d1848ddcc0cfdf3d4cac051a",
+    "short_actual_elapsed_seconds": 3.624473,
+    "short_task": {
+      "state": "stopped",
+      "purged": true,
+      "serial_bytes": 1264,
+      "created_at": "2026-11-06T03:58:50.413197+00:00",
+      "completed_at": "2026-11-06T03:58:54.037670+00:00",
+      "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+      "runtime": "qemu",
+      "device_id": "cores3"
+    },
+    "automatic_tour_phases": [
+      "overview",
+      "group",
+      "device"
+    ],
+    "browser_request_count": 401,
+    "checks_passed": 31,
+    "owned_guest_count": 14,
+    "cleanup_status": "PASS",
+    "redaction": "Allowlist-derived summary; original identities, machine locations, credentials, guest source/nonce and raw payloads omitted. Not raw."
+  }
+}

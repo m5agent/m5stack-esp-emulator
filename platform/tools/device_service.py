@@ -123,6 +123,7 @@ from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
 from uiflow_package_runtime import deploy_package, validate_mpy  # noqa: E402
 from uiflow_main_loader import main_loader_verified, probe_main_loader  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
+from observation_store import ObservationStore  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
     UIFlowRuntimeError, live_bootstrap_files, run_mpy, run_source, synchronize_raw_repl,
@@ -2851,6 +2852,10 @@ class DeviceSession:
 
     def _persist_session(self) -> None:
         atomic_write_json(self.session_record_path, self._session_record())
+        if getattr(self, "_observation_registered", False):
+            observe = getattr(self.service, "_observe_session", None)
+            if observe is not None:
+                observe(self)
 
     def _process_identity_matches(self) -> bool:
         if self.pid is None or not self.process_start_token:
@@ -7847,6 +7852,9 @@ class DeviceSession:
                 self._stop_complete.set()
                 result = self.snapshot()
                 if purge:
+                    observe = getattr(self.service, "_observe_session", None)
+                    if observe is not None:
+                        observe(self, purged=True)
                     shutil.rmtree(self.dir, ignore_errors=True)
                     result["flash_retained"] = False
                 return result
@@ -7916,6 +7924,9 @@ class DeviceSession:
             result = self.snapshot()
             self._persist_session()
         if purge:
+            observe = getattr(self.service, "_observe_session", None)
+            if observe is not None:
+                observe(self, purged=True)
             shutil.rmtree(self.dir, ignore_errors=True)
             result["flash_retained"] = False
         return result
@@ -8670,7 +8681,14 @@ class DeviceService:
                 error.status,
             ) from error
         try:
+            self._observations = ObservationStore(self.state_dir / "observations.sqlite")
             self._restore_history()
+            for record in self._observations.snapshot()["active"]:
+                if record["session_id"] not in self._sessions:
+                    # An unreadable/missing runtime record cannot be reanimated
+                    # from the display journal, nor labelled a firmware failure.
+                    self._observations.record({**record, "state": "unknown", "interrupted": True,
+                                               "purged": not (self.state_dir / "sessions" / record["session_id"]).exists()})
         except Exception:
             self.worker.close()
             raise
@@ -9080,6 +9098,8 @@ class DeviceService:
             else:
                 session._persist_session()
             self._sessions[session.id] = session
+            session._observation_registered = True
+            self._observe_session(session)
 
     def raw_device(self, device_id: str) -> dict:
         for row in self.raw_matrix["devices"]:
@@ -10264,6 +10284,8 @@ class DeviceService:
                     },
                 )
                 raise
+        session._observation_registered = True
+        self._observe_session(session)
         session.start()
         snapshot = session.snapshot()
         snapshot["idempotent_replay"] = False
@@ -10275,6 +10297,95 @@ class DeviceService:
         if session is None:
             raise ServiceError("unknown_session", f"unknown session: {session_id}", 404)
         return session
+
+    @staticmethod
+    def _observation_projection(session: DeviceSession, *, purged: bool = False) -> dict:
+        # No snapshot(), QMP, UART ownership or guest request on this path.
+        # snapshot() also polls process state, which is inappropriate inside a
+        # metadata persistence callback.
+        with session._lock:
+            try:
+                serial_bytes = session.serial0.stat().st_size
+            except OSError:
+                serial_bytes = 0
+            frame_meta = {}
+            try:
+                frame_meta = json.loads(session.last_frame_meta_path.read_text())
+            except (OSError, ValueError):
+                pass
+            return {
+                "session_id": session.id, "device_id": session.spec.id,
+                "state": session.state, "created_at": session.created_at,
+                "completed_at": session.completed_at, "firmware_id": session.firmware_id,
+                "firmware_sha256": session.firmware_sha, "runtime": session.runtime,
+                "units": session.units, "display": session.spec.display,
+                "serial_bytes": serial_bytes, "last_frame_available": session.last_frame_path.is_file() and not purged,
+                "last_frame_captured_at": frame_meta.get("captured_at") if isinstance(frame_meta, dict) else None,
+                "device_state_supported": bool(session.runtime in QEMU_QMP_RUNTIMES and session.spec.state_probes),
+                **({"management_binding": dict(session.management_binding)} if session.management_binding is not None else {}),
+                "interrupted": session.interrupted, "restored": session.restored,
+                "purged": purged or session._purged_snapshot is not None,
+            }
+
+    def _observe_session(self, session: DeviceSession, *, purged: bool = False) -> None:
+        store = getattr(self, "_observations", None)
+        if store is None:
+            return
+        try:
+            store.record(self._observation_projection(session, purged=purged))
+        except Exception:
+            # Observation failure must never turn a completed guest stop into
+            # stop_cleanup_pending, or prevent release of its processes/lease.
+            store._failure()
+
+    def _observe_orphan(self, path: Path) -> None:
+        store = getattr(self, "_observations", None)
+        if store is None:
+            return
+        if not (path / "session.json").is_file():
+            return
+        try:
+            record = json.loads((path / "session.json").read_text())
+            if not isinstance(record, dict) or record.get("session_id") != path.name:
+                return
+            record["purged"] = True
+            if record.get("state") in OCCUPIED_STATES:
+                record.update(state="unknown", interrupted=True)
+            record["serial_bytes"] = (path / "serial.log").stat().st_size if (path / "serial.log").is_file() else 0
+            spec = self.specs.get(record.get("device_id"))
+            if spec is not None:
+                record["display"] = spec.display
+            store.record(record)
+        except (OSError, ValueError, TypeError):
+            # Malformed orphan contents are not a trustworthy display record.
+            store._failure()
+
+    def observatory_snapshot(self) -> dict:
+        with self._lock:
+            sessions = list(self._sessions.values())
+        for session in sessions:
+            self._observe_session(session)
+        result = self._observations.snapshot()
+        if not result["status"]["available"]:
+            # Keep live devices visible, while explicitly denying complete
+            # journal coverage. No stale journal row becomes runtime authority.
+            result["active"] = []
+            result["recent"] = []
+            for session in sessions:
+                projection = self._observation_projection(session)
+                result["active" if session.state in OCCUPIED_STATES else "recent"].append(projection)
+        try:
+            queue = self.worker_queue.list_jobs(limit=1)
+            jobs = {"available": True, "counts": {**queue["counts"], "running": queue["counts"].get("leased", 0)}, "job_count": queue["job_count"]}
+        except (WorkerQueueError, OSError, ValueError):
+            jobs = {"available": False, "counts": {}, "job_count": None}
+        return {**result, "server_time": iso_now(), "capacity": self.capacity(), "jobs": jobs}
+
+    def observatory_events(self, *, journal_id: str, after: int, limit: int = 200) -> dict:
+        try:
+            return {**self._observations.events(journal_id=journal_id, after=after, limit=limit), "server_time": iso_now()}
+        except ValueError as error:
+            raise ServiceError("invalid_observation_cursor", str(error), 400) from error
 
     def list_sessions(self, include_stopped: bool = True) -> dict:
         with self._lock:
@@ -10367,6 +10478,7 @@ class DeviceService:
                         target.append(path.name)
                         continue
                     try:
+                        self._observe_orphan(path)
                         shutil.rmtree(path)
                     except OSError:
                         orphaned_skipped.append(path.name)
@@ -11445,6 +11557,9 @@ class DeviceService:
         with self._shutdown_lock:
             if not self._worker_closed:
                 self.worker.close()
+                observations = getattr(self, "_observations", None)
+                if observations is not None:
+                    observations.close()
                 self._worker_closed = True
 
     def close_all(self) -> dict:
@@ -11477,6 +11592,9 @@ class DeviceService:
             if not pending and not self._janitor.is_alive() and not self.worker.snapshot().get("active_lease_count", 0):
                 if not self._worker_closed:
                     self.worker.close()
+                    observations = getattr(self, "_observations", None)
+                    if observations is not None:
+                        observations.close()
                     self._worker_closed = True
                 return {"state": "stopped", "pending_sessions": []}
             if self._shutdown_thread is None:

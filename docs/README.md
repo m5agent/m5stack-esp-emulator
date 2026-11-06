@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-05`
+日期：`2026-11-06`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -12,6 +12,9 @@
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
 ## 五分钟阅读顺序
+
+本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
+该页面由 Device Service 提供，不进入静态托管导出。
 
 只想知道“现在做到哪、还差什么”时，不需要从头读所有专题：
 
@@ -308,6 +311,10 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 ## 新鲜度台账
 
+| 文档 | 职责 | 最近核对 | 范围 |
+| --- | --- | --- | --- |
+| [本地无输入展示验收](evidence/2026-11-06-local-observatory/README.md) | 证据 | `2026-11-06` | 自动巡展、真实会话与独立 64 逻辑设备布局；保留先前失败，不授硬件或性能结论 |
+
 “最近核对”表示该页结论已经和当前主入口对齐，不表示所有底层矩阵都在同一天
 重跑；真正的验证时间以页内 evidence 和 JSON 为准。
 
@@ -511,7 +518,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
 | [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-29` | `1.51.0`；新增 operator-owned runtime ACL/执行策略，session/capacity 暴露 policy hash 与有效权限；保留 1.50 worker evidence、claim response-loss replay、Unit准入、冻结 schema、lease/evidence 及网络契约 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-06` | `1.52.0`；新增本地展示 snapshot/events 只读生命周期接口，保留 runtime ACL、会话内容权限及既有执行契约 |
+| [本地虚拟设备实验室](local-observatory.md) | 使用指南 | `2026-11-06` | 无输入自动巡展、短任务与黑屏、日志跟随和资源预算；不进入静态托管导出 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-29` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，Relay/Relay2 hard-reset A/B 已限定闭环，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-30` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop、post-reset stop、八实例容量和九实例 fail-closed 边界；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |

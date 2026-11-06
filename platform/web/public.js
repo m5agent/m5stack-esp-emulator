@@ -1210,6 +1210,7 @@ async function init() {
   const configuredServiceUrl = launch.serviceUrl || config.service_url || '';
   $('serviceUrl').value = configuredServiceUrl;
   if(configuredServiceUrl&&new URL(configuredServiceUrl).origin===location.origin) {
+    $('localObservatoryLink').hidden = false;
     try {$('serviceToken').value=sessionStorage.getItem('m5-service-token')||'';} catch {}
   }
   if (launch.firmware) {
