@@ -67,6 +67,8 @@ eFuse 或生产 key。
 - Tab5 最新官方应用保持 open：用未改应用字节在兼容 P4 路径证明 Python/UI/touch；
   独立新后端仍等待 MIPI DSI PHY PLL lock；需要 P4 控制器实现修复后原路复验，
   framebuffer/GDB 路径另需匹配 ELF 或实际可观测输出。旧 merged image 不满足验收。
+- [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
+- [#192](https://github.com/m5agent/m5stack-esp-emulator/issues/192) StackChan 与 Core2 AXP192 已按实际探针进度采样。完整验收仍需按报告条件完成两轮 68 项高负载矩阵。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
 
 ## 优先级总览

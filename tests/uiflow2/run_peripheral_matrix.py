@@ -1512,6 +1512,7 @@ CASES = [
         "expected_size": "320x240",
         "efuse_pkg_version": "0",
         "wait": "3",
+        "before_frame_timeout": 10,
         "inputs": ["touch:160,120"],
         "post_input_wait": 8,
         "qom_set_boot": [
@@ -1529,15 +1530,16 @@ CASES = [
             ("/machine/bmm150", "mag-y", "-20"),
             ("/machine/bmm150", "mag-z", "45"),
         ],
-        "qom": [
-            ("/machine/bmi270", "accel-x", "0.25"),
-            ("/machine/bmi270", "accel-y", "-0.50"),
-            ("/machine/bmi270", "accel-z", "0.75"),
-            ("/machine/bmi270", "gyro-x", "10"),
-            ("/machine/bmi270", "gyro-y", "-20"),
-            ("/machine/bmi270", "gyro-z", "30"),
+        # Seed the live samples after M5.begin() finishes gyro calibration
+        # and the probe draws its title. The loop then observes the touch.
+        "qom_steps": [
+            (0, "/machine/bmi270", "accel-x", "0.25", "STACKCHAN_IMU_TYPE 6"),
+            (0, "/machine/bmi270", "accel-y", "-0.50"),
+            (0, "/machine/bmi270", "accel-z", "0.75"),
+            (0, "/machine/bmi270", "gyro-x", "10"),
+            (0, "/machine/bmi270", "gyro-y", "-20"),
+            (0, "/machine/bmi270", "gyro-z", "30"),
         ],
-        "qom_settle": 0.5,
         "allow_static_frame": True,
         "env": {
             "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
@@ -2131,6 +2133,9 @@ CASES = [
         "flash_size": "0x1000000",
         "expected_size": "320x240",
         "wait": "13",
+        "before_frame_timeout": 10,
+        "pre_input_marker": "CORE2_AXP192_READY",
+        "post_input_marker": "CORE2_AXP192_DRAW_COMPLETE",
         "inputs": ["touch:160,183"],
         "qom": [
             ("/machine/axp192", "vbat-mv", "3900"),
@@ -2607,6 +2612,8 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
     if "memory" in case:
         command.extend(["--memory", case["memory"]])
+    if "before_frame_timeout" in case:
+        command.extend(["--before-frame-timeout", str(case["before_frame_timeout"])])
     for name in ("pre_input_marker", "post_input_marker"):
         if case.get(name):
             command.extend(["--" + name.replace("_", "-"), case[name]])

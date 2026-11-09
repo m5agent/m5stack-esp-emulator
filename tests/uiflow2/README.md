@@ -398,6 +398,10 @@ python3 tests/uiflow2/flash_device.py \
   stub；CPU 执行 stub 经 SPI 写入 Flash。QEMU chardev 日志保留实际 `OHAI`
   和协议回复，写后完整 Flash 逐字节比较，summary 记录 tool/runtime/image/
   readback SHA。TCP 显式 `nodelay`，不会在 host 复制镜像冒充串口烧录。
+  ROM 已响应 `MEM_BEGIN`、尚未出现 `OHAI` 且 esptool 报告 `0107` 或 UART
+  流中断时，默认传输用独立的新 VM/空 Flash 按倍率 8 重试一次，沿用剩余写入预算。
+  summary 的 `protocol.first_attempt` 记录原错误类型、倍率与 UART 摘要；
+  写入后的故障与读回不一致直接失败。
   `flash_with_qemu(no_stub=True)` 只保留 ROM-only 诊断；其 checksum/format
   失败是独立未关闭边界，不从 stock-stub PASS 继承。
 - Tab5：`esp-emu` P4 下载模式的地址空间限制在 8 MiB，因此仿真专用分区表把

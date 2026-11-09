@@ -16,6 +16,7 @@ ok = False
 detail = "init"
 try:
     i2c = SoftI2C(scl=Pin(22), sda=Pin(21), freq=100000)
+    print("CORE2_AXP192_READY")
     while M5.Touch.getCount() == 0:
         M5.update()
         time.sleep_ms(10)
@@ -42,6 +43,7 @@ d.setCursor(12, 55)
 d.print(detail)
 d.setCursor(12, 85)
 d.print("PASS" if ok else "FAIL")
+print("CORE2_AXP192_DRAW_COMPLETE")
 
 while True:
     M5.update()

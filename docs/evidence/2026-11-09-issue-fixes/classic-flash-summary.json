@@ -1,0 +1,397 @@
+{
+  "validation": "virtual-device validation",
+  "issue": 178,
+  "base_commit": "dd2eb35d2e6a909992268089ddc37e27970d4a92",
+  "fixed_code_commit": "9214bfaf62bf7ea0117fd0256463ae4c0eb3bae2",
+  "flash_helper_sha256": "0ff0ab1adb7aea80bca36cd7284ca04d5becf63f1377e69ddd12cd54a4acdff7",
+  "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+  "esptool_version": "5.6.0",
+  "baseline": {
+    "cases": [
+      {
+        "device": "core2",
+        "status": "PASS",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5core2",
+          "flash_size": 16777216,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+          "readback_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 226,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "15bb91937f8a7e5c343328b028d15df96ae954a7f086f2dcd6253a9dbefb25c3"
+          },
+          "baud_scale": 16
+        }
+      },
+      {
+        "device": "basic-v27",
+        "status": "PASS",
+        "base_firmware_sha256": "613a802da0f496d339a4120c0322c0c7ec1db3d81474b4329077f8b233d4dccb",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5basic",
+          "flash_size": 4194304,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "fc6592f250ca3f31717eb6c3aa00d811dedf8069163131f48efea044de1014b6",
+          "readback_sha256": "fc6592f250ca3f31717eb6c3aa00d811dedf8069163131f48efea044de1014b6",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 139,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "45d2e7e9df33b434a2148b42bee357b425aec1652886b731b326d7eeac5f9d3c"
+          },
+          "baud_scale": 16
+        },
+        "serial_log_sha256": "881a1f6f2f2233970e7ab6fbe18ae593cd1ba1df12030f69359d9169f80a4125",
+        "serial_markers": []
+      },
+      {
+        "device": "stickc",
+        "status": "PASS",
+        "base_firmware_sha256": "00bf8f4131e6aa79188bab27bfe802da76fa5a083f4e9b775666e2f13bacdb99",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5stickc",
+          "flash_size": 4194304,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+          "readback_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 136,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "c4e7e39b3053ebed4fdaf09226c1300b10d414f37d4def9bf4095b32f688883f"
+          },
+          "baud_scale": 16
+        }
+      },
+      {
+        "device": "atom-lite",
+        "status": "FAIL",
+        "base_firmware_sha256": "ae47e82cfe2ab22af1895f17fcc328506cf3ebace8114310a49ed7a02f77505f",
+        "flash": {
+          "transport": "qemu-esptool",
+          "verified": false
+        },
+        "failure": "ROM MEM_DATA checksum 0107 before OHAI",
+        "failed_uart_sha256": "96170cc49ed707a90809b6f5291a8078b1e2f8c30c41610f298f00fa091d7993"
+      }
+    ],
+    "raw_summary": {
+      "bytes": 13086,
+      "sha256": "b9bcfbd35ac9f5901be17bf1a8874e65fc0a807e68475b3aa74852e6bb0d2479"
+    }
+  },
+  "fixed_atom_lite": {
+    "cases": [
+      {
+        "device": "atom-lite",
+        "status": "PASS",
+        "base_firmware_sha256": "ae47e82cfe2ab22af1895f17fcc328506cf3ebace8114310a49ed7a02f77505f",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5atomlite",
+          "flash_size": 4194304,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+          "readback_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 132,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "7079351f3cc88c7b86c4fbd904054a6700855c8b04a9db8073c7004c743612de",
+            "first_attempt": {
+              "baud_scale": 16,
+              "phase": "rom-stub-upload",
+              "reason": "checksum-0107",
+              "uart_log_sha256": "96170cc49ed707a90809b6f5291a8078b1e2f8c30c41610f298f00fa091d7993"
+            }
+          },
+          "baud_scale": 8
+        },
+        "serial_log_sha256": "d026e5fe1b396af65bbb2b38d65373274843f3d9cbca97f4041e2fba792ca2f0",
+        "serial_markers": [
+          "ATOM_LITE_MAIN_START",
+          "CLASSIC_BOARD 128",
+          "CLASSIC_RGB 1 204060"
+        ]
+      }
+    ],
+    "raw_summary": {
+      "bytes": 3218,
+      "sha256": "44e6a9b53574a7012a451fcb8a4bd6856551767539dbac5442bd6a62600ac110"
+    }
+  },
+  "fixed_core2_stickc": {
+    "cases": [
+      {
+        "device": "core2",
+        "status": "PASS",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5core2",
+          "flash_size": 16777216,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+          "readback_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 226,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "15bb91937f8a7e5c343328b028d15df96ae954a7f086f2dcd6253a9dbefb25c3"
+          },
+          "baud_scale": 16
+        }
+      },
+      {
+        "device": "stickc",
+        "status": "PASS",
+        "base_firmware_sha256": "00bf8f4131e6aa79188bab27bfe802da76fa5a083f4e9b775666e2f13bacdb99",
+        "flash": {
+          "transport": "qemu-esptool",
+          "chip": "esp32",
+          "machine": "m5stickc",
+          "flash_size": 4194304,
+          "verified": true,
+          "no_stub": false,
+          "loader": "stock-esptool-stub",
+          "esptool_version": "5.6.0",
+          "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+          "image_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+          "readback_sha256": "a5c8c5c4c312cbb2a37d97a8d9dc152786f5229e2f83a134baf884f9faf637be",
+          "byte_compare": "equal",
+          "rom_download_ready": true,
+          "protocol": {
+            "stub_ohai": true,
+            "reply_opcodes": {
+              "0x08": 24,
+              "0x0a": 46,
+              "0x05": 2,
+              "0x07": 3,
+              "0x06": 1,
+              "0x09": 44,
+              "0x0b": 1,
+              "0x10": 1,
+              "0x11": 136,
+              "0x12": 1,
+              "0x13": 1,
+              "0x02": 1,
+              "0x04": 1
+            },
+            "uart_log_sha256": "c4e7e39b3053ebed4fdaf09226c1300b10d414f37d4def9bf4095b32f688883f"
+          },
+          "baud_scale": 16
+        }
+      }
+    ],
+    "raw_summary": {
+      "bytes": 7204,
+      "sha256": "e234f500525f71143c2ca6d38cc789abce45a6dd23e936e003081160424d0078"
+    }
+  },
+  "fixed_cold_service_atom_lite": {
+    "device": "atom-lite",
+    "firmware_input_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+    "runtime_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+    "source_commit": "9214bfaf62bf7ea0117fd0256463ae4c0eb3bae2",
+    "status": "PASS",
+    "flash": {
+      "transport": "qemu-esptool",
+      "chip": "esp32",
+      "machine": "m5atomlite",
+      "flash_size": 4194304,
+      "verified": true,
+      "no_stub": false,
+      "loader": "stock-esptool-stub",
+      "esptool_version": "5.6.0",
+      "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+      "image_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+      "readback_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+      "byte_compare": "equal",
+      "rom_download_ready": true,
+      "protocol": {
+        "stub_ohai": true,
+        "reply_opcodes": {
+          "0x08": 24,
+          "0x0a": 46,
+          "0x05": 2,
+          "0x07": 3,
+          "0x06": 1,
+          "0x09": 44,
+          "0x0b": 1,
+          "0x10": 1,
+          "0x11": 132,
+          "0x12": 1,
+          "0x13": 1,
+          "0x02": 1,
+          "0x04": 1
+        },
+        "uart_log_sha256": "7079351f3cc88c7b86c4fbd904054a6700855c8b04a9db8073c7004c743612de"
+      },
+      "baud_scale": 16,
+      "session_isolated_copy": true
+    },
+    "runtime_status": "VERIFIED",
+    "service_firmware_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+    "serial_markers": [
+      "ATOM_LITE_MAIN_START",
+      "CLASSIC_RGB 1 204060",
+      "CLASSIC_BUTTON 1 1",
+      "CLASSIC_BUTTON 0 1"
+    ],
+    "evidence_sha256": "c91ab380d0c03c30abd6d6fc092550854b91c9299f51c432fa7ed44ab427a0c6",
+    "evidence_bytes": 7573,
+    "history_retained": true,
+    "leases_released": true,
+    "pid_reaped": true,
+    "service_exited": true
+  },
+  "pace_control": {
+    "status": "PASS",
+    "device": "atom-lite",
+    "baud_scale": 8,
+    "input_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+    "readback_sha256": "45daa932641e35a5fef15d6ce22a69539606a12baadde77223d64f909a6ba7d3",
+    "load1_min": 12.01416015625,
+    "load1_max": 27.9658203125,
+    "seconds": 70.55549591686577
+  },
+  "retained_controls": {
+    "basic_baud16": "2 complete equal readbacks",
+    "basic_baud1": "2 FAIL after OHAI and FLASH_DEFL_BEGIN, before FLASH_DEFL_DATA response",
+    "setup_not_run": [
+      "initial manual machine spelling was not registered",
+      "initial pace comparison used the wrong console image basename"
+    ]
+  },
+  "closure_boundary": "Bounded recovery verified on a naturally failed default Atom Lite attempt, with named sibling and cold service checks. Full repeated high-load classic matrix not executed.",
+  "host_image_control": {
+    "cases": [
+      {
+        "device": "atom-lite",
+        "status": "PASS",
+        "base_firmware_sha256": "ae47e82cfe2ab22af1895f17fcc328506cf3ebace8114310a49ed7a02f77505f",
+        "flash": {
+          "transport": "host-image",
+          "verified": true
+        },
+        "serial_log_sha256": "31ca8c69f83fa4a1b08d34d63f2bd2cd8dcf114a4e8f30bf14a72ed0762c3761",
+        "serial_markers": [
+          "ATOM_LITE_MAIN_START",
+          "CLASSIC_BOARD 128",
+          "CLASSIC_RGB 1 204060"
+        ]
+      }
+    ],
+    "raw_summary": {
+      "bytes": 1520,
+      "sha256": "a97c3863b52cb84e424fe18961a3c409f9824504ad057230975ca800f94a6a44"
+    }
+  }
+}

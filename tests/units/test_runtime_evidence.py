@@ -112,6 +112,31 @@ class RuntimeEvidenceTests(unittest.TestCase):
         self.assertEqual(result["status"], "PASS")
 
 
+    def test_explicit_session_lookup_preserves_hash_only_result_identity(self):
+        proof = observe_runtime(self.client, self.session)
+        sid = self.session["session_id"]
+        self.client.runtime_proofs[sid] = proof
+        result = {"status": "PASS", "session_id_sha256": hashlib.sha256(sid.encode()).hexdigest()}
+        finalize_runtime_result(self.client, result, session_id=sid)
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["runtime_provenance"]["status"], "VERIFIED")
+        self.assertEqual(result["runtime_binary_sha256"], proof["runtime_binary_sha256"])
+        self.assertNotIn("session_id", result["runtime_provenance"])
+        self.assertEqual(proof["session_id"], sid)
+
+    def test_expected_hash_mismatch_fails_a_functionally_passing_result(self):
+        os.environ["M5_UNIT_EXPECT_RUNTIME_SHA256"] = "0" * 64
+        sid = self.session["session_id"]
+        proof = observe_runtime(self.client, self.session)
+        self.client.runtime_proofs[sid] = proof
+        result = {"status": "PASS", "session_id": sid}
+        finalize_runtime_result(self.client, result)
+        self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["classification"], "runtime-provenance")
+        self.assertEqual(result["runtime_binary_sha256"], proof["runtime_binary_sha256"])
+        self.assertEqual(result["runtime_provenance"]["expected_runtime_binary_sha256"], "0" * 64)
+
+
 class ControlTokenFileTests(unittest.TestCase):
     def test_file_is_used_without_disclosing_or_overriding_explicit_credentials(self):
         from run_service_cases import Client

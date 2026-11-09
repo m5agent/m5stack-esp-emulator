@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-06`
+日期：`2026-11-09`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-09
+
+| 范围 | 结果与身份 | 证据 |
+| --- | --- | --- |
+| #178 Classic 烧录 / virtual-device validation | Atom Lite 的首次真实 `0107` 保留，低速重试完成逐字节读回和 guest 验证。Core2、StickC 和独立 Atom Lite 服务冷烧录通过；全 Classic 高负载可靠性仍待复验 | [失败与恢复](evidence/2026-11-09-issue-fixes/classic-flash-summary.json) |
+| #190–#191 目录资料 | 三款主机规格与 Joystick2 SKU 更正，四项公开 Unit 驱动资料和 ADC v1.1 差异更新。相关生成物和静态检查通过 | [目录来源](evidence/2026-11-09-issue-fixes/README.md) |
+| #192 基线帧 / virtual-device validation | 旧版在高负载复现两例黑帧，最终版在负载 6.73–8.68 下首轮通过。超时负控在输入前保留黑帧并失败，全矩阵高负载门禁待验收 | [同路径结果](evidence/2026-11-09-issue-fixes/README.md) |
+| #193 Unit 身份 / virtual-device validation | CoreS3 三 runner 的 19 项运行身份 VERIFIED，错误 SHA 负控 FAIL，独立历史、ZIP 和清场已核对 | [结果与边界](evidence/2026-11-09-issue-fixes/README.md) |
 
 ## 2026-11-06
 

@@ -5773,7 +5773,7 @@
       "hosts": [
         "stopwatch"
       ],
-      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; ADS1100-vs-ADS1110, SPS set and internal-2.048V-vs-VDD reference contradictions remain UNRESOLVED; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
       "inputs": {
         "voltage-mv": {
           "property": "voltage-mv"
@@ -12231,7 +12231,7 @@
         "cores3"
       ],
       "model_completeness": "pending",
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
       "bindings_required": [],
       "notes": "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。",
       "inputs": {
@@ -13007,7 +13007,7 @@
         "cores3"
       ],
       "model_completeness": "partial",
-      "blocker": "Guest evidence uses the frozen generic BMI270 driver at 0x68 (no Unit DoF driver): accel/gyro/temp fixture readback and QOM whoami=0x24. BMI270 init blob accepted but not executed; range/motion/real motion/vibration physics NOT RUN; guest values carry driver 4g/2000dps scale and 23C offset, not physical units; 0x68 conflicts with mini-imu families.",
+      "blocker": "Guest evidence uses the frozen generic BMI270 driver at 0x68 (DoF6Unit not exercised): accel/gyro/temp fixture readback and QOM whoami=0x24. BMI270 init blob accepted but not executed; range/motion/real motion/vibration physics NOT RUN; guest values carry driver 4g/2000dps scale and 23C offset, not physical units; 0x68 conflicts with mini-imu families.",
       "bindings_required": [],
       "notes": "0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。",
       "inputs": {
@@ -14142,7 +14142,7 @@
         "cores3"
       ],
       "model_completeness": "pending",
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {
@@ -14263,7 +14263,7 @@
         "cores3"
       ],
       "model_completeness": "pending",
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
       "bindings_required": [],
       "notes": "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
       "inputs": {

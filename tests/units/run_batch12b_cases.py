@@ -381,7 +381,7 @@ def run_case(client, args, case):
         result["raw_evidence_note"] = ("Raw execution artifacts stay in local ignored .work; "
                                        "only concise reports, hashes and reproduction commands "
                                        "are committed.")
-        client.finalize_result(result)
+        client.finalize_result(result, session_id=sid)
         (out / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(f"{case}: {result['status']}" + (f" ({result.get('error')})" if result.get("error") else ""), flush=True)
     return result

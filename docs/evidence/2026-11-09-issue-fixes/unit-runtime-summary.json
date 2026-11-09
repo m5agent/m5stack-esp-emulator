@@ -1,0 +1,1833 @@
+{
+  "schema_version": 1,
+  "issue": 193,
+  "category": "virtual-device validation",
+  "status": "PASS",
+  "date": "2026-11-09",
+  "base_source_commit": "dd2eb35d2e6a909992268089ddc37e27970d4a92",
+  "execution_source_commit": "db535de07bfd3dda673678cd556b6f60f2cb8d29",
+  "source_sha256": {
+    "tests/units/run_batch12b_cases.py": "3e677f282f757cff92102cecffb3c5aa149da41db06645f12a467aa27cecfd69",
+    "tests/units/run_control_cases.py": "e6f381691c5079ab4570927b10831ddc1080456178a1e6ab12ae8d553468b7f7",
+    "tests/units/run_sensor_cases.py": "397c73957989d5130c7e3e66fd5c9ffd2c474b441bc56cf07079d640654a4914",
+    "tests/units/run_service_cases.py": "7a9d894365e6272e167f61a7a663483a67fbb42ed735f01df34403ffb16bcc7b",
+    "tests/units/runtime_evidence.py": "adda61105ef319d40e8ce93d7f6aed2803a5c3867ac0770386b8fdac8e8cb2b3",
+    "tests/units/web_ui_bridge.py": "a59da1ce268170ff6f00d2c88fda1632438b30cffbf0623304e8397858837f4b",
+    "tests/uiflow2/run_profile_ui_test.py": "0595c0fdf3ce9dee40c548b63e49dce339f5bd456c4437387de59b2d01014649",
+    "platform/qemu/profiles.json": "3e88ec4dd64da5f5dc4a5bc2b8c79fe19e047ee23dd075709a97798c28e6347e",
+    "platform/tools/device_service.py": "4a5cb086214032ff948fe7cfe908a3ad9982beb88dd254a52d8aaf478920af10",
+    "platform/tools/serve.py": "d78110e9498f1c5f3eb9dc0c3cba216f903850ab9cd55a4b61e57f38aad3d1ab"
+  },
+  "runtime_binary_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+  "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+  "runtime_profile": {
+    "device_id": "cores3",
+    "machine": "m5cores3",
+    "backend": "qemu-esp32s3",
+    "soc": "ESP32-S3"
+  },
+  "runtime_transport": "native QEMU using isolated Device Service with host-image flash preparation",
+  "validation_scope": "Three affected Unit runners on CoreS3. The native runtime and base firmware match the historical issue inputs. Each run binds its own composed image. The flash transport itself and physical hardware are outside this verification.",
+  "historical_reproduction": {
+    "observed_date": "2026-11-06",
+    "source_commit": "dd2eb35d2e6a909992268089ddc37e27970d4a92",
+    "raw_aggregate_sha256": "dd3559ed34e32b52c5f22c9c340aa8cf11d566ba3fe9b16a2360eae53b878903",
+    "counts": {
+      "functional_cases": 19,
+      "partial_missing_lookup": 7,
+      "pass_without_provenance": 12
+    },
+    "rows": [
+      {
+        "runner": "batch12b",
+        "case": "bmm350",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "9222065de888f71eb339a94ed7ef5f97e92b41a0dd1cc113d3d4282d0eaf5e9b"
+      },
+      {
+        "runner": "batch12b",
+        "case": "ina226-1a",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "953dc3ed45c756112c4ed0af29041019285ec84083a93005979ef6839621f9cd"
+      },
+      {
+        "runner": "batch12b",
+        "case": "roller485-lite",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "6bfac6c11ddef34ec7cdbe664ac7e374af61ffed245c56f564cdd10642473e55"
+      },
+      {
+        "runner": "batch12b",
+        "case": "rollercan-lite",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "8e4201cc8217e239d8c300c5260ba7ad5a6a5458f4bcfa53f5a599c223ad52c3"
+      },
+      {
+        "runner": "control",
+        "case": "encoder",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "90954723573342c833ad483ad01a96c4957d04325d9be8ed86bc241b31ea6a3f"
+      },
+      {
+        "runner": "control",
+        "case": "cardkb",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "802ce18c46f6d4797f2fd590c5806507fe378996f2d69af9498a4c395577b42f"
+      },
+      {
+        "runner": "sensor",
+        "case": "color",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "747bea4a77de8866224199762d5e732bfb9da154fffefb0bf1ffbc35864894af"
+      },
+      {
+        "runner": "sensor",
+        "case": "ncir",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "2a409cb2d590e2048ec49fe07c96c442294988fbb3912d45a27e8adb0e70896f"
+      },
+      {
+        "runner": "sensor",
+        "case": "tvoc",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "f35e6ca1e3aa631d3c92e1184767fa52e9728649df09199ad69bd277b51eb6f1"
+      },
+      {
+        "runner": "sensor",
+        "case": "thermal",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "404cd9a336bac9dd0687202a4008e9e41785b38c5587c9a338fb7ff68a49715a"
+      },
+      {
+        "runner": "batch12b",
+        "case": "ina226-10a",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "f4b7b9c18c8b5c2b173f2e3c9672e2629d5c62704d74b2f3da3818a36f4bb909"
+      },
+      {
+        "runner": "batch12b",
+        "case": "roller485",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "37a8edc4bab6334853be1cd2690f888f0fcb655401cb2847250a39fb7adeae43"
+      },
+      {
+        "runner": "batch12b",
+        "case": "rollercan",
+        "status": "PARTIAL",
+        "runtime_provenance_status": "NOT VERIFIED",
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "e4713c23a22fad8752d56d78d28e1510a8713fe9bdd51e58b25de1ceef06d494"
+      },
+      {
+        "runner": "control",
+        "case": "joystick-v11",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "50ca60fc6717088eeac40ef90347a0c02f79e79da211e598a127547ddad93156"
+      },
+      {
+        "runner": "control",
+        "case": "8encoder",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "d606777e1035341561547669ee781bdb4053ae40b64dd43903cd6616ad654dc5"
+      },
+      {
+        "runner": "control",
+        "case": "rfid2",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "7dfe5a7f1f6c5e59c7d14ad1226bfb733135610ee0e2e862834706c84696f5e8"
+      },
+      {
+        "runner": "sensor",
+        "case": "tof",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "c6bb5fe76e5224628597f4845e7df2c39ddc3b87021c298a5c62e2220880fdf6"
+      },
+      {
+        "runner": "sensor",
+        "case": "heart",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "0dbac91cd89b9318380a57851b84a318e7a6bccb80584382c30f72c6752d4751"
+      },
+      {
+        "runner": "sensor",
+        "case": "ultrasonic-i2c",
+        "status": "PASS",
+        "runtime_provenance_status": null,
+        "functional_checks_all_true": true,
+        "merged_firmware_sha256": "56e9f03416079aa775edddeebfe7227af1f4d9744acbeb90830b5f55470bf9d1"
+      }
+    ]
+  },
+  "pre_fix_host_regression": {
+    "tests_run": 25,
+    "failures": 2,
+    "errors": 1,
+    "signals": [
+      "hash-only result could not pass its session lookup key",
+      "explicit expected hash mismatch became PARTIAL",
+      "sensor ready wait never observed the running session"
+    ]
+  },
+  "launch_attempts": [
+    {
+      "attempt": 1,
+      "status": "NOT RUN",
+      "reason": "isolated checkout lacked the required esp-emu executable and readiness rejected session creation",
+      "guest_sessions_created": 0,
+      "raw_progress_sha256": "43ce880899151de35c4710935a99fefe4827e576d29c7cf349012ac946c248c8"
+    },
+    {
+      "attempt": 2,
+      "status": "NOT RUN",
+      "reason": "requested port was not immediately bindable following the first service shutdown",
+      "guest_sessions_created": 0
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "positive_case_count": 19,
+      "expected_mismatch_control_count": 1,
+      "raw_progress_sha256": "70845f8678e56434383a6e61582a56f439b57fe20ae38a2dcc18abb35bc49bf3"
+    }
+  ],
+  "case_summary": {
+    "positive_pass": 19,
+    "positive_provenance_verified": 19,
+    "composed_images_byte_equal_to_historical_results": 14,
+    "probe_source_files_equal_to_historical_results": 19
+  },
+  "cases": [
+    {
+      "runner": "batch12b",
+      "case": "bmm350",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "9222065de888f71eb339a94ed7ef5f97e92b41a0dd1cc113d3d4282d0eaf5e9b",
+      "zip_sha256": "5ebbc61804de0f11fde31710d4f0be53866a881cf76b4e45ca21e39b723b15d2",
+      "zip_bytes": 23074,
+      "session_id_sha256": "d4ded38498e788f95c0661197f42dfd4b0abf5f08c70b370676b8c649a257ce0",
+      "frame_sha256": "e781a3a50e6fd6a204fd2032241722f573deb861b9cdaa676dd2acc71d948e1c",
+      "serial_sha256": "4af9765709eac49c8758cd1cb09709a732060f950ef7c4ad5148563578b3b0fd",
+      "raw_result_sha256": "405b3c636f1784ae60eb3c980fb22f2c285c7d35529f2d27d979e6d26b3968c7",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "dummy_two_bytes_consistent",
+        "evidence_complete",
+        "guest_chip_id",
+        "guest_mag_x_raw",
+        "guest_mag_y_raw",
+        "guest_mag_z_raw",
+        "guest_scan",
+        "guest_temp_raw",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_fixture_matches_initial",
+        "qom_otp_status",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [20]",
+        "BATCH12B_PROBE_READY bmm350",
+        "BMM350_CHIP_ID 51",
+        "BMM350_X_RAW 14144",
+        "BMM350_Y_RAW -7072"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "magnetic-x": 100,
+        "magnetic-y": -50,
+        "magnetic-z": 25,
+        "temperature-c": 25,
+        "transactions": 13,
+        "read-bytes": 26,
+        "written-bytes": 6,
+        "whoami": 51,
+        "i2c-address": 20
+      },
+      "recorded_initial_inputs": {
+        "magnetic-x": 100.0,
+        "magnetic-y": -50.0,
+        "magnetic-z": 25.0
+      }
+    },
+    {
+      "runner": "batch12b",
+      "case": "ina226-10a",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "f4b7b9c18c8b5c2b173f2e3c9672e2629d5c62704d74b2f3da3818a36f4bb909",
+      "zip_sha256": "7ee1eeb78c1d19a1c2731491137bb5dc63903f52295e507d0fe3300781d0d8a6",
+      "zip_bytes": 22477,
+      "session_id_sha256": "f4a6b7a7250e9e8f9a9c8b293f234105c1a80871e0b6c54d0493feef81d8bf24",
+      "frame_sha256": "6490e4ada2dd04ada7e02b244ee49d3c954a13e58a1e540bd4366d036560acfa",
+      "serial_sha256": "b1718b7e5f16bea9394f92f66248e08345a38be458e9fc70c4086304e96f357e",
+      "raw_result_sha256": "6b01677139096cd4b5af6f30f3d0d403c60179f66c94692780c07174b7f93c31",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_bus",
+        "guest_cal",
+        "guest_cal_readback",
+        "guest_config",
+        "guest_current",
+        "guest_die",
+        "guest_manufacturer",
+        "guest_power",
+        "guest_scan",
+        "guest_shunt",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_fixture_matches_initial",
+        "qom_power_derived",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [65]",
+        "BATCH12B_PROBE_READY ina226-10a",
+        "INA226_MANUFACTURER 21577",
+        "INA226_CURRENT_RAW 6250",
+        "INA226_POWER_RAW 3000"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "bus-voltage-v": 12,
+        "current-a": 2,
+        "transactions": 21,
+        "read-bytes": 18,
+        "written-bytes": 12,
+        "i2c-address": 65
+      },
+      "recorded_initial_inputs": {
+        "bus-voltage-v": 12.0,
+        "current-a": 2.0
+      }
+    },
+    {
+      "runner": "batch12b",
+      "case": "ina226-1a",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "953dc3ed45c756112c4ed0af29041019285ec84083a93005979ef6839621f9cd",
+      "zip_sha256": "82135b4775102444bfaebdd9ce90af462183b8b8874f28d6a010c2475b2dd3bb",
+      "zip_bytes": 22198,
+      "session_id_sha256": "cad2d40be981b5f7b661ea34c3e8a20f9a46a3daa622298f340dc420b598324e",
+      "frame_sha256": "72dc6e0532d38dfa37b8c431babedbb80b349d01be1ddc9a344e8abfadddf60f",
+      "serial_sha256": "916207f02cf8d85c906d83018078a292035cc394c533a271727f6b720044dd4b",
+      "raw_result_sha256": "440fce425a34ef59775426792f2fe575609dfcb8efbea5982c7deeb4c004362e",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_bus",
+        "guest_cal",
+        "guest_cal_readback",
+        "guest_config",
+        "guest_current",
+        "guest_die",
+        "guest_manufacturer",
+        "guest_power",
+        "guest_scan",
+        "guest_shunt",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_fixture_matches_initial",
+        "qom_power_derived",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [65]",
+        "BATCH12B_PROBE_READY ina226-1a",
+        "INA226_MANUFACTURER 21577",
+        "INA226_CURRENT_RAW 16000",
+        "INA226_POWER_RAW 3200"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "bus-voltage-v": 5,
+        "current-a": 0.5,
+        "transactions": 21,
+        "read-bytes": 18,
+        "written-bytes": 12,
+        "i2c-address": 65
+      },
+      "recorded_initial_inputs": {
+        "bus-voltage-v": 5.0,
+        "current-a": 0.5
+      }
+    },
+    {
+      "runner": "batch12b",
+      "case": "roller485",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "37a8edc4bab6334853be1cd2690f888f0fcb655401cb2847250a39fb7adeae43",
+      "zip_sha256": "069f3d1d482d5e463c3fc42c35ba22f16ff574a7e852f5689bd75832b03ca345",
+      "zip_bytes": 25273,
+      "session_id_sha256": "78137cff77c911b57ef3018b4e09d2acc3b57027c73ef2bfa3bebb0717e5d87d",
+      "frame_sha256": "a22902df1c8510a1a492268eb71507965fbc45006fb952aba22e2c8b1531a5e2",
+      "serial_sha256": "972ab3cba4c8e29b63530ba69e3a026549582d396eab9a55ab3fa5292702470f",
+      "raw_result_sha256": "24ebdc374597a0911dce9523bf65e5ca4072d5a72c18bdf8dad2596806f67ee0",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_actual_position",
+        "guest_actual_speed",
+        "guest_address",
+        "guest_current",
+        "guest_encoder",
+        "guest_firmware",
+        "guest_mode_readback",
+        "guest_product_id",
+        "guest_scan",
+        "guest_status_clean",
+        "guest_target_pos_readback",
+        "guest_target_speed",
+        "guest_target_speed_readback",
+        "guest_temperature",
+        "guest_vin",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_mode_write",
+        "qom_save_count",
+        "qom_target_position_write",
+        "qom_target_speed_write",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [100]",
+        "BATCH12B_PROBE_READY roller485",
+        "ROLLER_PRODUCT_ID 1",
+        "ROLLER_MODE 1",
+        "ROLLER_MODE_RB 2"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "target-speed-rpm": 1500,
+        "target-position-deg": 90,
+        "transactions": 41,
+        "read-bytes": 43,
+        "written-bytes": 30,
+        "actual-speed-rpm": 0,
+        "actual-position-deg": 0,
+        "i2c-address": 100,
+        "save-count": 1
+      },
+      "recorded_initial_inputs": {}
+    },
+    {
+      "runner": "batch12b",
+      "case": "roller485-lite",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "6bfac6c11ddef34ec7cdbe664ac7e374af61ffed245c56f564cdd10642473e55",
+      "zip_sha256": "0edc1bf2e5870993b6d91d68696edabdb28e098d087779a64265e852ff74c788",
+      "zip_bytes": 23603,
+      "session_id_sha256": "f63da3cefdc49d30956348125bcf6735f35769cb7c0b927004784a7d6118f2f4",
+      "frame_sha256": "72f83261050d5d7090a33b184b243171ae579774874a16e6b9f3ed56ed9c4625",
+      "serial_sha256": "60c11eb385e1cf6c3bc8c4adba83df8a91ca71b64ff842170b5539fef4c8ad27",
+      "raw_result_sha256": "815914c494d8e397b909a6747a7738cd7e5e5cd97c85309170abba1830c68185",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_actual_position",
+        "guest_actual_speed",
+        "guest_address",
+        "guest_current",
+        "guest_encoder",
+        "guest_firmware",
+        "guest_mode_readback",
+        "guest_product_id",
+        "guest_scan",
+        "guest_status_clean",
+        "guest_target_pos_readback",
+        "guest_target_speed",
+        "guest_target_speed_readback",
+        "guest_temperature",
+        "guest_vin",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_mode_write",
+        "qom_save_count",
+        "qom_target_position_write",
+        "qom_target_speed_write",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [100]",
+        "BATCH12B_PROBE_READY roller485-lite",
+        "ROLLER_PRODUCT_ID 1",
+        "ROLLER_MODE 1",
+        "ROLLER_MODE_RB 2"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "target-speed-rpm": 1500,
+        "target-position-deg": 90,
+        "transactions": 41,
+        "read-bytes": 43,
+        "written-bytes": 30,
+        "actual-speed-rpm": 0,
+        "actual-position-deg": 0,
+        "i2c-address": 100,
+        "save-count": 1
+      },
+      "recorded_initial_inputs": {}
+    },
+    {
+      "runner": "batch12b",
+      "case": "rollercan",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "e4713c23a22fad8752d56d78d28e1510a8713fe9bdd51e58b25de1ceef06d494",
+      "zip_sha256": "bbb6ecf609661cbac99e0b4fc34b65632fabc77d762f64c94b1644a51f87922d",
+      "zip_bytes": 24795,
+      "session_id_sha256": "ad154cc726dc5398fb87091227d26d6a546ca9ec87ec989c576fa1889e0754fd",
+      "frame_sha256": "5f9487afcda7fb3a2f990b581b29ff52aa1150067ddf4fe9fa794545a84739ee",
+      "serial_sha256": "94b8e4eac5ec1d7ed0ad8e77b8a402e3e555f8bacc29b5b1bce97b5656371458",
+      "raw_result_sha256": "5f0278a4dff0cb1a67e563ec743d253fc23de37647909d88bd0779d2e0ea9ff8",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_actual_position",
+        "guest_actual_speed",
+        "guest_address",
+        "guest_current",
+        "guest_encoder",
+        "guest_firmware",
+        "guest_mode_readback",
+        "guest_product_id",
+        "guest_scan",
+        "guest_status_clean",
+        "guest_target_pos_readback",
+        "guest_target_speed",
+        "guest_target_speed_readback",
+        "guest_temperature",
+        "guest_vin",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_mode_write",
+        "qom_save_count",
+        "qom_target_position_write",
+        "qom_target_speed_write",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [100]",
+        "BATCH12B_PROBE_READY rollercan",
+        "ROLLER_PRODUCT_ID 2",
+        "ROLLER_MODE 1",
+        "ROLLER_MODE_RB 2"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "target-speed-rpm": 1500,
+        "target-position-deg": 90,
+        "transactions": 41,
+        "read-bytes": 43,
+        "written-bytes": 30,
+        "actual-speed-rpm": 0,
+        "actual-position-deg": 0,
+        "i2c-address": 100,
+        "save-count": 1
+      },
+      "recorded_initial_inputs": {}
+    },
+    {
+      "runner": "batch12b",
+      "case": "rollercan-lite",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "8e4201cc8217e239d8c300c5260ba7ad5a6a5458f4bcfa53f5a599c223ad52c3",
+      "zip_sha256": "125fbc09bd7f60639222f5697d7453625fcdbeba87b735b4c6f453fa8bbb1570",
+      "zip_bytes": 23467,
+      "session_id_sha256": "cff176d245356df8550488c5625b1a34bd8adcf2a5f70825ad464750506551ff",
+      "frame_sha256": "c9a5097edba47dc404079a1abe9d7d9492c202e9145c4650a6951d9d3ef9d5a9",
+      "serial_sha256": "59ec514c841295aacd117c5e7d25636b33dc0665583e2b2e2e95e846fb24db86",
+      "raw_result_sha256": "5ed0a7d6aa9b0f8e44578e230c0963965c525a174f5485a3f3f0e461035ba3a1",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "driver_gap_recorded",
+        "driver_ready",
+        "evidence_complete",
+        "guest_actual_position",
+        "guest_actual_speed",
+        "guest_address",
+        "guest_current",
+        "guest_encoder",
+        "guest_firmware",
+        "guest_mode_readback",
+        "guest_product_id",
+        "guest_scan",
+        "guest_status_clean",
+        "guest_target_pos_readback",
+        "guest_target_speed",
+        "guest_target_speed_readback",
+        "guest_temperature",
+        "guest_vin",
+        "live_controller_state",
+        "nonempty_application_frame",
+        "qom_address",
+        "qom_mode_write",
+        "qom_save_count",
+        "qom_target_position_write",
+        "qom_target_speed_write",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "BATCH12B_SCAN [100]",
+        "BATCH12B_PROBE_READY rollercan-lite",
+        "ROLLER_PRODUCT_ID 2",
+        "ROLLER_MODE 1",
+        "ROLLER_MODE_RB 2"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "target-speed-rpm": 1500,
+        "target-position-deg": 90,
+        "transactions": 41,
+        "read-bytes": 43,
+        "written-bytes": 30,
+        "actual-speed-rpm": 0,
+        "actual-position-deg": 0,
+        "i2c-address": 100,
+        "save-count": 1
+      },
+      "recorded_initial_inputs": {}
+    },
+    {
+      "runner": "control",
+      "case": "joystick-v11",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "aac137ba848d27112b1a210818967e0673d2a6897bdac32117721600cee62d9a",
+      "zip_sha256": "32a5d8d0c38bfd36588cbb87d7fbdd4ae33aadf0a7936d12a97df81a9589cdab",
+      "zip_bytes": 26414,
+      "session_id_sha256": "116a7a9ea1ed79cdfa9e159f9a9491c58956c7f624a91231cb9963ac13e74f0d",
+      "frame_sha256": "b7e62c307c4d9ee5ca41c471ee16d1ba50367895e9c1cecb1f711fdf00dcc3aa",
+      "serial_sha256": "7a1c7dfaaa5af2751327f99a091ef8efb806b31461bf3c466fdb55cf264cb103",
+      "raw_result_sha256": "5231c0805add879681e62cd3bf4352be838308c60377988413bf64760a0039eb",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "exact_official_driver_ready",
+        "same_guest_i2c_controller_counters",
+        "stopped_with_history",
+        "three_raw_bytes_reach_guest"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "CONTROL_PROBE_READY joystick-v11",
+        "CONTROL_JOYSTICK 128 128 0",
+        "CONTROL_JOYSTICK 31 240 1",
+        "CONTROL_JOYSTICK 255 0 0"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "x-raw": 255,
+        "y-raw": 0,
+        "button-raw": 0,
+        "transactions": 32,
+        "read-bytes": 45,
+        "written-bytes": 15,
+        "input-events": 6,
+        "output-transitions": 0,
+        "i2c-address": 82
+      }
+    },
+    {
+      "runner": "control",
+      "case": "encoder",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "aaf10dfeecbe7ef7f92fe3581d8dbe70aa06c51cfec17555a87afb26bbb31808",
+      "zip_sha256": "2c97936f1356fffe9c1ab26bdf24388349fdca3e8c7155fd340604983d954cb1",
+      "zip_bytes": 26724,
+      "session_id_sha256": "68d0c9f79b63d6bc50365ac92d83471778c2172f81a4cfc44b7d1e0bf03dccb1",
+      "frame_sha256": "f7d60a6d63fa7eb2412df4a1511a191e27f7617a8d32f7b5f9ad99eaad9e8480",
+      "serial_sha256": "2b83c0290ebeed3845f6dfb37e8666002c94123e8d64aa8b9013df4eadf7eb5f",
+      "raw_result_sha256": "621e988d43b67dad43c2ecf55286c01c71700d4e402596c754566ca757055941",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "exact_official_driver_ready",
+        "guest_led_writes_read_back",
+        "same_guest_i2c_controller_counters",
+        "signed_int16_and_active_low_driver",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "CONTROL_PROBE_READY encoder",
+        "CONTROL_ENCODER 0 0",
+        "CONTROL_ENCODER -12345 1",
+        "CONTROL_ENCODER 32767 0"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "pressed": false,
+        "led-rgb": [
+          1122867,
+          4478310
+        ],
+        "transactions": 27,
+        "read-bytes": 22,
+        "written-bytes": 26,
+        "input-events": 4,
+        "output-transitions": 2,
+        "i2c-address": 64
+      }
+    },
+    {
+      "runner": "control",
+      "case": "8encoder",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "b42a7a5387ad6a92b75a3eb4bbe4ad99c6a7a627c4ec6b019024cd51544adcfb",
+      "zip_sha256": "19e1d1ed263c350f327cb1e05407a9b28edbf3dcab8df2b45cf50b39f07c96e8",
+      "zip_bytes": 28952,
+      "session_id_sha256": "2f124b2ffe0f79b9c74bd415f9b6c68d6697e13ffbcb6248657f6727ba71bfe0",
+      "frame_sha256": "1c4bd295848b7822504071cc43c15668c6b757abbef2563269d775a3e253690b",
+      "serial_sha256": "edb6d8f34024e82b57a45ee079cb5d897d940aa7e8bcccf8240967cb12485c8e",
+      "raw_result_sha256": "0962c5c71d383216e3a1d3c397a043a6c4f7463629112e20680ba4c10b9e28d4",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "all_nine_guest_rgb_register_triplets",
+        "eight_signed_channels_buttons_and_switch",
+        "exact_official_driver_ready",
+        "guest_counter_write_reset_and_address_change",
+        "same_guest_i2c_controller_counters",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "CONTROL_ENCODER8_REGISTER_WRITE -1234567 0",
+        "CONTROL_ENCODER8_ADDRESS 66",
+        "CONTROL_PROBE_READY 8encoder"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "counters": [
+          1,
+          -2,
+          123456,
+          -123456,
+          2147483647,
+          -2147483648,
+          7,
+          8
+        ],
+        "pressed": [
+          true,
+          false,
+          true,
+          false,
+          false,
+          true,
+          false,
+          true
+        ],
+        "switch-on": true,
+        "led-rgb": [
+          66051,
+          132102,
+          198153,
+          264204,
+          330255,
+          396306,
+          462357,
+          528408,
+          1648953
+        ],
+        "transactions": 121,
+        "read-bytes": 155,
+        "written-bytes": 98,
+        "input-events": 3,
+        "output-transitions": 27,
+        "i2c-address": 66
+      }
+    },
+    {
+      "runner": "control",
+      "case": "cardkb",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "20f54adb812cadcbf046a932c7c1bb1d8b26d73eea930962b2b3068f10564d1c",
+      "zip_sha256": "4847db4e944cae6f7a39338763f322eb25c7ad237d16fdf6ceaab7c224706483",
+      "zip_bytes": 31657,
+      "session_id_sha256": "3f6244fbe9bc9fb20198352c38f55a64905513b9a26cf77e4d0b79e8c5d282c9",
+      "frame_sha256": "6af2b726d3244dffdeddca89dda2ff93f2aaf86693b67da9d54cfd6704e4254c",
+      "serial_sha256": "5e781a43abbb027e18574865a55e79bec0d346d194fbb9d4fd9e0494bf832ed2",
+      "raw_result_sha256": "90115a7ec48cab76d9e155b5aa9b299e7ba445e9454627ea19c08b9e62fd4831",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "all_47_nonmodifier_keys_via_i2c",
+        "all_four_official_key_tables_and_modifier_locks",
+        "all_three_one_shot_modifiers",
+        "exact_official_driver_ready",
+        "legacy_byte_consumption",
+        "same_guest_i2c_controller_counters",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "CONTROL_CARDKB_LEGACY 1",
+        "CONTROL_PROBE_READY cardkb",
+        "CONTROL_CARDKB_KEY 27",
+        "CONTROL_CARDKB_LAST 27",
+        "CONTROL_CARDKB_KEY 49"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "led-rgb": 0,
+        "transactions": 729,
+        "read-bytes": 726,
+        "written-bytes": 1,
+        "input-events": 413,
+        "output-transitions": 15,
+        "i2c-address": 95
+      }
+    },
+    {
+      "runner": "control",
+      "case": "rfid2",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "4ac08e7acecb6634b5d9302e626db6cd92e0add3392eea30d779a5a5e16c36ef",
+      "zip_sha256": "e07419f7c3a0adc8f60d063f9f8b8c0d6594f1c1b5c20fb444ed9869dc441d3b",
+      "zip_bytes": 25763,
+      "session_id_sha256": "89b4354381e341e4281767ccd471c4d7a697ae157f5e79ee21a8eb39b6144d12",
+      "frame_sha256": "808f454fbfd77313902fd01298387632b1e3d17e7d9c9c843cb9fd173c2b8a10",
+      "serial_sha256": "1ebe7a93f9531227dbf33bf52ae62ca7135518e6ddf2584ff00c44e4bdb776a5",
+      "raw_result_sha256": "9e634af1b0782c8870d39663ce7c42bb8fa01866e10b535ae86f152036b34840",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "card_removal_reaches_guest",
+        "exact_official_driver_ready",
+        "four_seven_ten_byte_uid_cascade_select",
+        "request_anticollision_select_auth_block_write_read_halt",
+        "same_guest_i2c_controller_counters",
+        "stopped_with_history",
+        "wrong_key_halt_and_antenna_negative_controls"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "CONTROL_PROBE_READY rfid2",
+        "CONTROL_RFID_BAD_CRC 1",
+        "CONTROL_RFID_BAD_KEY 1",
+        "CONTROL_RFID_NO_CARD"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 2233,
+        "read-bytes": 571,
+        "written-bytes": 2168,
+        "input-events": 7,
+        "output-transitions": 1,
+        "i2c-address": 40
+      }
+    },
+    {
+      "runner": "sensor",
+      "case": "color",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "747bea4a77de8866224199762d5e732bfb9da154fffefb0bf1ffbc35864894af",
+      "zip_sha256": "d7ca49b43523c094a8e457f75b3feb49c259ba87214e25a66bb7a243eee11db0",
+      "zip_bytes": 24913,
+      "session_id_sha256": "bc924e4616c3915be8e1c1346b4a23b1aa43b288fd25f658d8653b151038e67e",
+      "frame_sha256": "12989b6ed2f49d115a9aab856490c513454cc6b3f57a47b7d9348908c23b60c4",
+      "serial_sha256": "dd2f0d9d103400ae8a0754f39c81eda285a61cebe79b2e92956af1a59b3a66c3",
+      "raw_result_sha256": "ee1101fb8ee5cd184a0340999029e7715430fc619f141e8e29252626312ccf5b",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "color_adc_saturation",
+        "color_command_bit_required",
+        "color_identity_read_only",
+        "color_integration_not_ready",
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK color_command_bit_required PASS",
+        "SENSOR_CHECK color_identity_read_only PASS",
+        "SENSOR_CHECK color_integration_not_ready PASS",
+        "SENSOR_CHECK color_adc_saturation PASS",
+        "SENSOR_PROBE_READY color"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 62,
+        "read-bytes": 40,
+        "written-bytes": 39,
+        "input-events": 12,
+        "output-transitions": 0,
+        "samples-generated": 4,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "clear-raw": 42000,
+            "red-raw": 9000,
+            "green-raw": 6000,
+            "blue-raw": 3000
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "clear-raw": 53000,
+            "red-raw": 21000,
+            "green-raw": 12000,
+            "blue-raw": 6000
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "tof",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "c6bb5fe76e5224628597f4845e7df2c39ddc3b87021c298a5c62e2220880fdf6",
+      "zip_sha256": "9e601134c31dd02a45c12b3f92e6db12ba9ec76c663705346a355faa581ad66c",
+      "zip_bytes": 24132,
+      "session_id_sha256": "05f7247161fe7bca9feb4416d6134bd6600f38142abd246e74fecdecb4398d27",
+      "frame_sha256": "7e1344d4a317ed7933c4c7a7375f18c652c274409e8bb8de6d0542c33899b938",
+      "serial_sha256": "c2b837eec7c186815e96702f887d63e1ae7eb8e4437e736d4d3aac701a228989",
+      "raw_result_sha256": "3b41aaa06616fe5ff0eb0e2c22f74696894b91d7f29f16881e2228715d7292dd",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history",
+        "tof_conversion_not_ready",
+        "tof_conversion_ready",
+        "tof_interrupt_clear",
+        "tof_new_address_identity",
+        "tof_old_address_nack",
+        "tof_reset_identity_absent",
+        "tof_reset_identity_restored"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK tof_reset_identity_absent PASS",
+        "SENSOR_CHECK tof_reset_identity_restored PASS",
+        "SENSOR_CHECK tof_conversion_not_ready PASS",
+        "SENSOR_CHECK tof_conversion_ready PASS",
+        "SENSOR_CHECK tof_interrupt_clear PASS"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 3107,
+        "read-bytes": 1379,
+        "written-bytes": 1751,
+        "input-events": 2,
+        "output-transitions": 0,
+        "samples-generated": 9,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "distance-mm": 321
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "distance-mm": 1456
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "ncir",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "2a409cb2d590e2048ec49fe07c96c442294988fbb3912d45a27e8adb0e70896f",
+      "zip_sha256": "73d0e997c445e47c3bc7831489b1799b2f5efe79b0c3ad5311b19b5df85ade99",
+      "zip_bytes": 24405,
+      "session_id_sha256": "8c3bf288cc5940c525381c6103156e5abc905fad09b814f720d50ec10e2b33d4",
+      "frame_sha256": "5e124fc40fe3a64c190929acc6137a5657a3c79fa2da508124a0e628a1756ec9",
+      "serial_sha256": "f301b55cb44c94f3c8919f780a7a5e7ee2dddab7aa8abc29f87cac47e50b6846",
+      "raw_result_sha256": "1c888975efc478d68f1f0b71d95d6fc62a3653d99055430fd849fc9f765d5cda",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "ncir_eeprom_write_nack",
+        "ncir_pec_6",
+        "ncir_pec_7",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK ncir_eeprom_write_nack PASS",
+        "SENSOR_CHECK ncir_pec_6 PASS",
+        "SENSOR_CHECK ncir_pec_7 PASS",
+        "SENSOR_PROBE_READY ncir",
+        "SENSOR_NCIR 24.9900 31.9900"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 17,
+        "read-bytes": 18,
+        "written-bytes": 10,
+        "input-events": 4,
+        "output-transitions": 0,
+        "samples-generated": 3,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "ambient-c": 17.3,
+            "object-c": 37.1
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "ambient-c": 31.5,
+            "object-c": 53.2
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "heart",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "0dbac91cd89b9318380a57851b84a318e7a6bccb80584382c30f72c6752d4751",
+      "zip_sha256": "af6373619a4810c7ca1769f8a34b85ae8a1347a1d9a8508d35bf320d1b78e51a",
+      "zip_bytes": 25537,
+      "session_id_sha256": "ba63354f799546309ef936680d1440d3e01a4597ba93d33085ef422e10e93120",
+      "frame_sha256": "47dbc88476e786cd01492bb12b2942fa9aacc10e61bc4147a2bfbf782b2ba4f5",
+      "serial_sha256": "71cea17665e3d787d84a9b7b90f999937f7078fd86083b6d168bc3315e57e8c9",
+      "raw_result_sha256": "5059d72cceb4626665e6e50a32ab6ace8ad24bf92c06a2a48c615c569d8ca7f9",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "evidence_before_stop",
+        "frame_available",
+        "heart_fifo_four_byte_advance",
+        "heart_fifo_initially_empty",
+        "heart_fifo_overflow",
+        "heart_fifo_sample_order",
+        "heart_reset_clears_fifo",
+        "heart_reset_self_clear",
+        "heart_shutdown_stops_sampling",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK heart_reset_self_clear PASS",
+        "SENSOR_CHECK heart_fifo_initially_empty PASS",
+        "SENSOR_CHECK heart_fifo_overflow PASS",
+        "SENSOR_CHECK heart_fifo_four_byte_advance PASS",
+        "SENSOR_CHECK heart_fifo_sample_order PASS"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 285,
+        "read-bytes": 469,
+        "written-bytes": 158,
+        "input-events": 6,
+        "output-transitions": 0,
+        "samples-generated": 126,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "ir-sample": 41000,
+            "red-sample": 36000
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "ir-sample": 12000,
+            "red-sample": 9000
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "tvoc",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "f35e6ca1e3aa631d3c92e1184767fa52e9728649df09199ad69bd277b51eb6f1",
+      "zip_sha256": "897c9308aa318a46285643c2662a471adfa7cba004a9ced8fea152a6671c1582",
+      "zip_bytes": 25358,
+      "session_id_sha256": "0bd1bdd29d37d06acd15956aa230288004f5b86cddefce4d3d1eea1664011051",
+      "frame_sha256": "70ecdeac8d3bbf78baef593c4616b054434a7bbb736b383d0e0f28926624bdaa",
+      "serial_sha256": "b3a5a4f4f204f39c974c5e22966dbf0d3cdcef54e7a5f94f96ca9c18c1248983",
+      "raw_result_sha256": "d4f428dd54cd927d69ce7dc3de0271536061c13ddad586fb344648eb482ac806",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "bad_crc_counted_by_chip",
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history",
+        "tvoc_bad_argument_crc_nack",
+        "tvoc_busy_read_nack",
+        "tvoc_iaq_before_init_nack",
+        "tvoc_initialization_fixed_output",
+        "tvoc_response_consumed",
+        "tvoc_response_crc",
+        "tvoc_unknown_command_nack"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK tvoc_iaq_before_init_nack PASS",
+        "SENSOR_CHECK tvoc_initialization_fixed_output PASS",
+        "SENSOR_CHECK tvoc_busy_read_nack PASS",
+        "SENSOR_CHECK tvoc_response_crc PASS",
+        "SENSOR_CHECK tvoc_response_consumed PASS"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 29,
+        "read-bytes": 60,
+        "written-bytes": 33,
+        "input-events": 12,
+        "output-transitions": 0,
+        "samples-generated": 7,
+        "crc-errors": 1
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "eco2-ppm": 1250,
+            "tvoc-ppb": 230,
+            "raw-h2": 26000,
+            "raw-ethanol": 31000
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "eco2-ppm": 675,
+            "tvoc-ppb": 18,
+            "raw-h2": 18300,
+            "raw-ethanol": 24500
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "ultrasonic-i2c",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "56e9f03416079aa775edddeebfe7227af1f4d9744acbeb90830b5f55470bf9d1",
+      "zip_sha256": "b56d7c5da1a963bdbbda8006ced9ef4fa9198098c405d1987b460ac8fb30c65c",
+      "zip_bytes": 24212,
+      "session_id_sha256": "9e518287028ceb3d3052a49ded2756e5bd24e95d8f43d90bc3a529ab715e691b",
+      "frame_sha256": "783aa0af02f5c0934959efcfad9e9c7c1944c116134fbd5ef319d78b32a6db13",
+      "serial_sha256": "4e6b2c0f2768da1aed7932caa276a4feb7b09219fcc305d9c7a51ea940a9cfe7",
+      "raw_result_sha256": "0a43f6b7258249d9088550eaddc5600d040f56f8e558b24bf64d542a18a0eb81",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_initial_fixture",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "same_guest_input_1",
+        "same_guest_input_2",
+        "stopped_with_history",
+        "ultrasonic_conversion_not_ready",
+        "ultrasonic_uint24_units",
+        "ultrasonic_unknown_command_nack"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_CHECK ultrasonic_unknown_command_nack PASS",
+        "SENSOR_CHECK ultrasonic_conversion_not_ready PASS",
+        "SENSOR_CHECK ultrasonic_uint24_units PASS",
+        "SENSOR_PROBE_READY ultrasonic-i2c"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 16,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 17,
+        "read-bytes": 21,
+        "written-bytes": 8,
+        "input-events": 2,
+        "output-transitions": 0,
+        "samples-generated": 7,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "sequence": 1,
+          "values": {
+            "distance-mm": 1234.5
+          },
+          "guest_observed": true
+        },
+        {
+          "sequence": 2,
+          "values": {
+            "distance-mm": 876.2
+          },
+          "guest_observed": true
+        }
+      ]
+    },
+    {
+      "runner": "sensor",
+      "case": "thermal",
+      "status": "PASS",
+      "returncode": 0,
+      "firmware_sha256": "404cd9a336bac9dd0687202a4008e9e41785b38c5587c9a338fb7ff68a49715a",
+      "zip_sha256": "60de0fd12970643632a6b9e7060aa93b9a7bc46b9deea3fdb5a3c7f9b698a168",
+      "zip_bytes": 37362,
+      "session_id_sha256": "e495ecfb28914f61f056e7f5e8556db9e42e20e5ef76546d938c3280f8b690e0",
+      "frame_sha256": "10b5e7791c6354a3bec392f0b8413768116921ea28647788f6ab44c927bebdba",
+      "serial_sha256": "d12c16344bd07aeaae63da675d0f37bfa173b3af38f8914a2ddfc88f2b3c76db",
+      "raw_result_sha256": "c0d52cff7f3bbefc7b7f9f4b43697aa0c1940d01fcee52641b9aeca3dff8e47e",
+      "runtime_provenance": {
+        "status": "VERIFIED",
+        "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "expected_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+        "local_worker_ancestry_verified": true
+      },
+      "functional_checks_passed": [
+        "evidence_before_stop",
+        "frame_available",
+        "history_last_frame_retained",
+        "history_metadata_retained",
+        "live_controller_state",
+        "official_driver_ready",
+        "real_i2c_data_plane",
+        "stopped_with_history",
+        "thermal_768_finite",
+        "thermal_9_reference_samples_within_0_05_c",
+        "thermal_control_readback",
+        "thermal_conversion_not_ready",
+        "thermal_eeprom_write_nack",
+        "thermal_fixture_control_restored",
+        "thermal_raw_input_reaches_guest_calculation",
+        "thermal_subpage_progression"
+      ],
+      "same_session_zip_binding_verified": true,
+      "cleanup": {
+        "history_retained": true,
+        "pid_reaped": true,
+        "leases_released": true
+      },
+      "flash_transport": "host-image",
+      "profile": "m5cores3",
+      "serial_examples": [
+        "SENSOR_PROBE_READY thermal",
+        "SENSOR_CHECK thermal_768_finite PASS",
+        "SENSOR_THERMAL 768 768 27.22937 34.996248 29.599962",
+        "SENSOR_THERMAL_PIXEL 0 28.857238",
+        "SENSOR_THERMAL 768 768 31.212432 39.23471 33.07903"
+      ],
+      "frame_dimensions": {
+        "width": 320,
+        "height": 240
+      },
+      "frame_unique_colors": 46,
+      "zip_manifest_file_hashes_verified": 10,
+      "probe_files_match_previous": true,
+      "controller_source": "guest-qom",
+      "controller_available": true,
+      "controller_observations": {
+        "transactions": 325,
+        "read-bytes": 8626,
+        "written-bytes": 351,
+        "input-events": 6,
+        "output-transitions": 0,
+        "samples-generated": 5,
+        "crc-errors": 0
+      },
+      "recorded_input_injections": [
+        {
+          "fixture_sha256": "a43a9db4edfc543bc0805681b4cecbc2c3c15ed872a71a6c949e3c8344f975c6",
+          "qom_response_source": "live"
+        }
+      ]
+    }
+  ],
+  "expected_sha_mismatch_control": {
+    "runner": "batch12b",
+    "case": "bmm350",
+    "status": "FAIL",
+    "returncode": 1,
+    "firmware_sha256": "9222065de888f71eb339a94ed7ef5f97e92b41a0dd1cc113d3d4282d0eaf5e9b",
+    "zip_sha256": "00c0b3dc506d53002cb191bdcd33e040494b6a38290e616a90be315ca1672c36",
+    "zip_bytes": 23061,
+    "session_id_sha256": "4f96d446d381ec4dcb3ade07204e64b32ed2a769a8bc925b7023d1c473da86d5",
+    "frame_sha256": "e781a3a50e6fd6a204fd2032241722f573deb861b9cdaa676dd2acc71d948e1c",
+    "serial_sha256": "74dafd4a7594e9f02a96282fbd2bc84b19e49dcbf59e34e89ac5757a36d40eaf",
+    "raw_result_sha256": "4c2bb898475b9e2b7b79fbf4871cdafa72c7eb093dbe1ba13f1f48b25862f54c",
+    "runtime_provenance": {
+      "status": "NOT VERIFIED",
+      "observed_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+      "expected_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "local_worker_ancestry_verified": true,
+      "error": "actual session executable differs from the required runtime"
+    },
+    "functional_checks_passed": [
+      "driver_gap_recorded",
+      "driver_ready",
+      "dummy_two_bytes_consistent",
+      "evidence_complete",
+      "guest_chip_id",
+      "guest_mag_x_raw",
+      "guest_mag_y_raw",
+      "guest_mag_z_raw",
+      "guest_scan",
+      "guest_temp_raw",
+      "live_controller_state",
+      "nonempty_application_frame",
+      "qom_fixture_matches_initial",
+      "qom_otp_status",
+      "stopped_with_history"
+    ],
+    "same_session_zip_binding_verified": true,
+    "cleanup": {
+      "history_retained": true,
+      "pid_reaped": true,
+      "leases_released": true
+    },
+    "flash_transport": "cache",
+    "classification": "runtime-provenance",
+    "profile": "m5cores3",
+    "serial_examples": [
+      "BATCH12B_SCAN [20]",
+      "BATCH12B_PROBE_READY bmm350",
+      "BMM350_CHIP_ID 51",
+      "BMM350_X_RAW 14144",
+      "BMM350_Y_RAW -7072"
+    ],
+    "frame_dimensions": {
+      "width": 320,
+      "height": 240
+    },
+    "frame_unique_colors": 16,
+    "zip_manifest_file_hashes_verified": 10,
+    "probe_files_match_previous": true,
+    "controller_source": "guest-qom",
+    "controller_available": true,
+    "controller_observations": {
+      "magnetic-x": 100,
+      "magnetic-y": -50,
+      "magnetic-z": 25,
+      "temperature-c": 25,
+      "transactions": 13,
+      "read-bytes": 26,
+      "written-bytes": 6,
+      "whoami": 51,
+      "i2c-address": 20
+    },
+    "recorded_initial_inputs": {
+      "magnetic-x": 100.0,
+      "magnetic-y": -50.0,
+      "magnetic-z": 25.0
+    }
+  },
+  "cleanup": {
+    "active_sessions": 0,
+    "active_leases": 0,
+    "service_exit_code": 0
+  },
+  "host_checks": {
+    "targeted_unit_tests": {
+      "run": 127,
+      "pass": 125,
+      "skipped": 2
+    },
+    "validators": [
+      "RUNTIME_COVERAGE_OK",
+      "PERIPHERAL_CATALOG_OK",
+      "QEMU_PROFILES_OK",
+      "PROJECT_SNAPSHOT_OK"
+    ],
+    "source_diff_check": "PASS",
+    "pr_scope": "PASS"
+  },
+  "hardware_execution": "NOT RUN"
+}

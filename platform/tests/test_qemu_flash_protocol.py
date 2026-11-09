@@ -6,6 +6,7 @@ import sys
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/uiflow2"))
@@ -67,6 +68,37 @@ class ProtocolTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(RuntimeError, "before readiness"):
                 esp_flash.wait_for_qemu_download(port, proc, Path(directory), timeout=2)
+
+    def test_only_a_stock_stub_upload_failure_restarts_the_download(self):
+        first = esp_flash._StubUploadError("bad ROM checksum", "checksum-0107", "a" * 64)
+        for no_stub, failure, should_retry in (
+            (False, first, True),
+            (True, first, False),
+            (False, RuntimeError("virtual flash mismatch"), False),
+        ):
+            with self.subTest(no_stub=no_stub, failure=str(failure)), \
+                    tempfile.TemporaryDirectory() as directory:
+                out = Path(directory)
+                success = {"protocol": {"stub_ohai": True}, "verified": True}
+                with patch.object(esp_flash, "_flash_with_qemu_attempt",
+                                  side_effect=[failure, success]) as attempt:
+                    settings = dict(chip="esp32", machine="m5basic", image=out / "image.bin",
+                                    flash_size=0x400000, out_dir=out, env={}, qemu=Path("qemu"),
+                                    rom_dir=out, timeout=10, no_stub=no_stub)
+                    if should_retry:
+                        result = esp_flash.flash_with_qemu(**settings)
+                        self.assertTrue(result["verified"])
+                        self.assertEqual(result["protocol"]["first_attempt"]["reason"], "checksum-0107")
+                        retry = attempt.call_args.kwargs
+                        self.assertLess(retry["timeout"], 10)
+                        self.assertEqual(retry["baud_scale"], 8)
+                        self.assertEqual(retry["out_dir"].parent, out)
+                        self.assertIn("bad ROM checksum", (retry["out_dir"] / "first-attempt.txt").read_text())
+                        self.assertEqual(attempt.call_count, 2)
+                    else:
+                        with self.assertRaises(RuntimeError):
+                            esp_flash.flash_with_qemu(**settings)
+                        self.assertEqual(attempt.call_count, 1)
 
 
 if __name__ == "__main__":

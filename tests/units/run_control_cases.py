@@ -289,6 +289,7 @@ def run_case(client, args, case):
             except Exception as error:
                 result["stop_error"] = str(error)
                 result["status"] = "FAIL"
+        client.finalize_result(result)
         (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(f"{case}: {result['status']} {result.get('error', '')}", flush=True)
     return result
