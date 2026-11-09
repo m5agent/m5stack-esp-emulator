@@ -203,7 +203,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          }
      } else if (s->model == M_AXP2101 && r == 0x10) {
          s->regs[r] = data & ~3; /* self-clearing off/reset commands */
-@@ -1718,9 +1788,121 @@
+@@ -1718,9 +1788,122 @@
      }
  }
  
@@ -234,7 +234,8 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 +        goto nack;
 +    }
 +    if (iap->frame_size == 0) {
-+        if (data == PM1_IAP_RUN && !pm1_iap_image_valid(iap)) {
++        if (data == PM1_IAP_RUN &&
++            (!iap->write_enabled || !pm1_iap_image_valid(iap))) {
 +            iap->run_rejections++;
 +            goto nack;
 +        }
@@ -325,7 +326,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      if (ev == I2C_START_SEND || ev == I2C_START_RECV) {
          s->transactions++;
      }
-@@ -1825,6 +2007,11 @@
+@@ -1825,6 +2008,11 @@
  static int dev_send(I2CSlave *i2c, uint8_t data)
  {
      M5swI2CDev *s = M5SW_I2C_DEV(i2c);
@@ -337,7 +338,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      s->written_bytes++;
      if (s->model == M_LEPTON) {
          if (s->lepton_addr_bytes == 0) {
-@@ -1951,6 +2138,17 @@
+@@ -1951,6 +2139,17 @@
          qemu_log("[%s] wr %02x <- %02x\n", s->model_name, s->ptr, data);
      }
      uint8_t r = s->ptr;
@@ -355,7 +356,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      if (s->model == M_MPU9250 && r == 0x6B && (data & 0x80)) {
          /* PWR_MGMT_1 device reset: clear configuration registers. */
          uint8_t who = s->regs[0x75];
-@@ -2192,6 +2390,15 @@
+@@ -2192,6 +2391,15 @@
          *(double *)op = d;
      }
  }
@@ -371,7 +372,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  static void prop_get_i64(Object *o, Visitor *v, const char *name, void *op, Error **errp)
  {
      visit_type_int64(v, name, (int64_t *)op, errp);
-@@ -2436,6 +2643,22 @@
+@@ -2436,6 +2644,22 @@
      s->trace = getenv("M5SW_I2C_TRACE") != NULL;
      if (!strcmp(m, "m5pm1")) {
          s->model = M_PM1;
@@ -394,7 +395,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          s->regs[0x00] = 0x50;   /* device id (little-endian 0x2050) */
          s->regs[0x01] = 0x20;
          s->regs[0x02] = 0x01;   /* hw rev */
-@@ -2886,6 +3109,7 @@
+@@ -2886,6 +3110,7 @@
  
  static Property dev_props[] = {
      DEFINE_PROP_STRING("model", M5swI2CDev, model_name),
@@ -402,7 +403,7 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      DEFINE_PROP_END_OF_LIST(),
  };
  
-@@ -2915,6 +3139,14 @@
+@@ -2915,6 +3140,14 @@
      if (s->power_key_timer) {
          timer_free(s->power_key_timer);
          s->power_key_timer = NULL;
@@ -420,15 +421,17 @@ diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
 --- a/hw/xtensa/esp32s3.c
 +++ b/hw/xtensa/esp32s3.c
-@@ -164,6 +164,7 @@
+@@ -164,6 +164,9 @@
      SsiPsramState *psram;
  
      uint32_t requested_reset;
 +    bool pm1_boot_out_low;
++    bool pm1_strap_latched;
++    uint32_t pm1_base_strap;
  } Esp32s3SocState;
  
  static Esp32s3SocState *g_esp32s3_soc;
-@@ -222,11 +223,26 @@
+@@ -222,11 +225,35 @@
      }
  }
  
@@ -445,17 +448,26 @@ diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
      if (s->requested_reset == 0) {
          s->requested_reset = ESP32S3_SOC_RESET_ALL;
 +        if (m5_board == M5_BOARD_STICKS3) {
-+            /* BOOT_OUT drives GPIO0 low during the PM1 power-cycle.
-+             * GPIO46's default strap is low. Latch GPIO0 on cold reset;
-+             * a later BOOT_OUT release does not change the ROM boot mode.
++            Esp32GpioState *gpio = ESP32_GPIO(&s->gpio);
++
++            /* Sample BOOT_OUT on cold reset. Keep the other strap pins and
++             * the configured GPIO0 strap for the next ordinary reset.
 +             */
-+            ESP32_GPIO(&s->gpio)->strap_mode = s->pm1_boot_out_low
-+                ? 0 : ESP32S3_STRAP_MODE_FLASH_BOOT;
++            if (s->pm1_boot_out_low) {
++                if (!s->pm1_strap_latched) {
++                    s->pm1_base_strap = gpio->strap_mode;
++                }
++                gpio->strap_mode = s->pm1_base_strap & ~BIT(2); /* GPIO0 */
++                s->pm1_strap_latched = true;
++            } else if (s->pm1_strap_latched) {
++                gpio->strap_mode = s->pm1_base_strap;
++                s->pm1_strap_latched = false;
++            }
 +        }
      }
      if (s->requested_reset & ESP32S3_SOC_RESET_PERIPH) {
          device_cold_reset(DEVICE(&s->intmatrix));
-@@ -974,6 +990,13 @@
+@@ -974,6 +1001,13 @@
      if (m5_board != M5_BOARD_NONE) {
          m5_board_init(sys_mem, intmatrix_dev, ESP_GDMA(&ss->gdma));
      }

@@ -1772,7 +1772,7 @@ def execute_sample(
         stderr = str(logs.get("stderr") or logs.get("qemu_stderr") or "")
         result["serial_bytes"] = len(serial.encode("utf-8", errors="replace"))
         result["serial_sha256"] = hashlib.sha256(serial.encode("utf-8")).hexdigest()
-        result["errors"] = error_lines(serial + "\n" + stderr)
+        diagnostics = serial + "\n" + stderr
         pm1_iap = None
         if pm1_updater:
             try:
@@ -1801,11 +1801,13 @@ def execute_sample(
                             cdc = log.read(262144)
                     pm1_iap["hwcdc-completed"] = b"=== Firmware upgrade completed ===" in cdc
                     pm1_iap["hwcdc-sha256"] = hashlib.sha256(cdc).hexdigest()
+                    diagnostics += "\n" + cdc.decode("utf-8", errors="replace")
                 except (MatrixError, KeyError, zipfile.BadZipFile):
                     pass
             result["pm1_iap"] = pm1_iap
+        result["errors"] = error_lines(diagnostics)
         runtime_model_gaps = detect_runtime_model_gaps(
-            serial + "\n" + stderr,
+            diagnostics,
             device_id=sample["device_id"],
             runtime=snapshot.get("runtime"),
             firmware_sha256=artifact.get("sha256"),
