@@ -1011,7 +1011,7 @@ def main() -> None:
                 "exit_code": 0,
                 "reason": device["reason"],
             }
-        elif device["mode"] == "excluded":
+        elif device["mode"] in {"excluded", "service-ui"}:
             result = {
                 "status": "EXCLUDED",
                 "exit_code": 0,

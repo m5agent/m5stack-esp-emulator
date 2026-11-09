@@ -117,6 +117,20 @@
       "efuse_pkg_version": 0
     },
     {
+      "id": "cardputer",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "service-ui",
+      "machine": "m5cardputer",
+      "base": "platform/.cache/firmware/cardputer/uiflow2.bin",
+      "flash_size": "0x800000",
+      "expected_size": "240x135",
+      "api_size": "240x135",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "reason": "K132 stock firmware and original GPIO keyboard are validated through tests/firmware/cardputer_k132_stock. The stock v2.5.4 filesystem replacement is a separate open boot failure."
+    },
+    {
       "id": "cardputer-adv",
       "backend": "qemu-esp32s3",
       "network_status": "validated",

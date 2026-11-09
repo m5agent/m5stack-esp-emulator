@@ -1,0 +1,264 @@
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index 0e7238c..9c100b9 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -776,7 +776,11 @@ static void m5_panel_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
+             fprintf(stderr, "[m5panel-input] qcode=%d down=%d\n", q, down);
+         }
+         if (s->keyboard) {
+-            m5_panel_keyboard_event(q, down);
++            if (m5_board == M5_BOARD_CARDPUTER) {
++                m5cardputer_key_event(q, down);
++            } else {
++                m5_panel_keyboard_event(q, down);
++            }
+             break;
+         }
+         if (s->plc_keys) {
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+new file mode 100644
+index 0000000..72ec747
+--- /dev/null
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -0,0 +1,150 @@
++/*
++ * M5Stack Cardputer K132: GPIO keyboard decoder, ST7789V2 and microSD.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "qapi/qapi-types-ui.h"
++#include "m5stopwatch.h"
++
++static const unsigned selector_pins[] = { 8, 9, 11 };
++static const unsigned sense_pins[] = { 13, 15, 3, 4, 5, 6, 7 };
++static uint8_t keys_by_selector[8];
++static uint8_t previous_sense;
++
++#define KEY(name) Q_KEY_CODE_##name
++static const QKeyCode physical_keys[4][14] = {
++    { KEY(GRAVE_ACCENT), KEY(1), KEY(2), KEY(3), KEY(4), KEY(5), KEY(6),
++      KEY(7), KEY(8), KEY(9), KEY(0), KEY(MINUS), KEY(EQUAL), KEY(BACKSPACE) },
++    { KEY(TAB), KEY(Q), KEY(W), KEY(E), KEY(R), KEY(T), KEY(Y), KEY(U),
++      KEY(I), KEY(O), KEY(P), KEY(BRACKET_LEFT), KEY(BRACKET_RIGHT),
++      KEY(BACKSLASH) },
++    { KEY(MENU), KEY(SHIFT), KEY(A), KEY(S), KEY(D), KEY(F), KEY(G),
++      KEY(H), KEY(J), KEY(K), KEY(L), KEY(SEMICOLON), KEY(APOSTROPHE), KEY(RET) },
++    { KEY(CTRL), KEY(ALT_R), KEY(ALT), KEY(Z), KEY(X), KEY(C), KEY(V),
++      KEY(B), KEY(N), KEY(M), KEY(COMMA), KEY(DOT), KEY(SLASH), KEY(SPC) },
++};
++#undef KEY
++
++static void cardputer_update_matrix(void *opaque, int pin, int level)
++{
++    unsigned selector = 0;
++
++    for (unsigned i = 0; i < ARRAY_SIZE(selector_pins); i++) {
++        selector |= esp32_gpio_get_line(selector_pins[i]) << i;
++    }
++    uint8_t sensed = keys_by_selector[selector];
++    uint8_t changes = sensed ^ previous_sense;
++
++    previous_sense = sensed;
++    for (unsigned i = 0; i < ARRAY_SIZE(sense_pins); i++) {
++        if (changes & (1u << i)) {
++            esp32_gpio_set_input(sense_pins[i], !(sensed & (1u << i)));
++        }
++    }
++}
++
++void m5cardputer_key_event(int qcode, bool down)
++{
++    if (qcode == Q_KEY_CODE_F12) {
++        esp32_gpio_set_input(0, !down);
++        return;
++    }
++
++    for (unsigned row = 0; row < ARRAY_SIZE(physical_keys); row++) {
++        for (unsigned col = 0; col < ARRAY_SIZE(physical_keys[row]); col++) {
++            if (physical_keys[row][col] == qcode) {
++                /* 74HC138 selects one active-low line. Even physical
++                 * columns use Y4..Y7; odd columns use Y0..Y3. */
++                unsigned selector = 3 - row + ((col & 1) ? 0 : 4);
++                uint8_t mask = 1u << (col / 2);
++                if (down) {
++                    keys_by_selector[selector] |= mask;
++                } else {
++                    keys_by_selector[selector] &= ~mask;
++                }
++                cardputer_update_matrix(NULL, 0, 0);
++                return;
++            }
++        }
++    }
++}
++
++static DeviceState *cardputer_i2c(MemoryRegion *sys_mem,
++                                  DeviceState *intmatrix,
++                                  hwaddr address, int irq)
++{
++    DeviceState *i2c = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, address,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c), 0,
++                       qdev_get_gpio_in(intmatrix, irq));
++    return i2c;
++}
++
++static void cardputer_spi(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                                  ESPGdmaState *gdma, hwaddr address,
++                                  int dma, M5SpiPanelState *panel)
++{
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, address,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
++    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                              ETS_SPI3_INTR_SOURCE);
++    esp32s3_gpspi_attach(spi, gdma, NULL, panel, dma);
++    esp32s3_gpspi_set_dc_pin(spi, 34);
++    esp32s3_gpspi_set_panel_cs_pin(spi, 37);
++    m5_spi_sd_attach(spi, 12);
++}
++
++void m5cardputer_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                            ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    /* The only external I2C wiring is the empty Grove bus, G2/G1.
++     * No ADV devices or selector pull-ups belong on this board. */
++    DeviceState *i2c0 = cardputer_i2c(sys_mem, intmatrix, 0x60013000,
++                                     ETS_I2C_EXT0_INTR_SOURCE);
++    DeviceState *i2c1 = cardputer_i2c(sys_mem, intmatrix, 0x60027000,
++                                     ETS_I2C_EXT1_INTR_SOURCE);
++    I2CBus *grove = I2C_BUS(qdev_get_child_bus(i2c0, "i2c"));
++    esp32s3_i2c_set_bus(i2c1, grove);
++    m5stopwatch_soft_i2c_init_pins(grove, 2, 1);
++
++    for (unsigned i = 0; i < ARRAY_SIZE(sense_pins); i++) {
++        esp32_gpio_set_input(sense_pins[i], 1);
++    }
++    for (unsigned i = 0; i < ARRAY_SIZE(selector_pins); i++) {
++        esp32_gpio_add_out_listener(selector_pins[i],
++                                    cardputer_update_matrix, NULL);
++    }
++    esp32_gpio_set_input(0, 1);
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 320);
++    qdev_prop_set_uint32(panel, "mem-height", 240);
++    qdev_prop_set_uint32(panel, "vis-width", 240);
++    qdev_prop_set_uint32(panel, "vis-height", 135);
++    qdev_prop_set_uint32(panel, "offset-x", 40);
++    qdev_prop_set_uint32(panel, "offset-y", 53);
++    qdev_prop_set_uint32(panel, "read-id", 0x00000081);
++    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_bit(panel, "keyboard", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++
++    cardputer_spi(sys_mem, intmatrix, gdma, 0x60024000, GDMA_SPI2,
++                  M5_SPI_PANEL(panel));
++    cardputer_spi(sys_mem, intmatrix, gdma, 0x60025000, GDMA_SPI3,
++                  M5_SPI_PANEL(panel));
++}
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index b4cfe31..2070e5f 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -116,6 +116,9 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_CORES3:
+         m5cores3_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_CARDPUTER:
++        m5cardputer_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_CARDPUTER_ADV:
+         m5cardputeradv_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index b8fe01e..d308efe 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -95,6 +95,7 @@ typedef enum {
+     M5_BOARD_ATOM_ECHO,
+     M5_BOARD_M5STICK,
+     M5_BOARD_STICKT2,
++    M5_BOARD_CARDPUTER,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -217,6 +218,9 @@ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
+ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          struct ESPGdmaState *gdma);
++void m5cardputer_key_event(int qcode, bool down);
++void m5cardputer_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                            struct ESPGdmaState *gdma);
+ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                struct ESPGdmaState *gdma);
+ void m5stamplc_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 652ca82..5eaa37c 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1229,6 +1229,38 @@ static void m5cores3_machine_type_init(void)
+ 
+ type_init(m5cores3_machine_type_init);
+ 
++/* M5Stack Cardputer K132 (ESP32-S3FN8 + ST7789 240x135 + GPIO keyboard) */
++static void m5cardputer_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_CARDPUTER;
++    esp32s3_machine_init(machine);
++}
++
++static void m5cardputer_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack Cardputer K132 (ESP32-S3FN8, ST7789 240x135)";
++    mc->init = m5cardputer_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5cardputer_info = {
++    .name = MACHINE_TYPE_NAME("m5cardputer"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5cardputer_machine_class_init,
++};
++
++static void m5cardputer_machine_type_init(void)
++{
++    type_register_static(&m5cardputer_info);
++}
++
++type_init(m5cardputer_machine_type_init);
++
+ /* M5Stack Cardputer-ADV (ESP32-S3FN8 + ST7789 240x135 + TCA8418) */
+ static void m5cardputeradv_machine_init(MachineState *machine)
+ {
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index b668809..2746f4b 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -62,6 +62,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5atoms3rm12.c',
+   '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
++  '../m5stopwatch/m5cardputer.c',
+   '../m5stopwatch/m5cardputeradv.c',
+   '../m5stopwatch/m5stamplc.c',
+   '../m5stopwatch/m5stackchan.c',

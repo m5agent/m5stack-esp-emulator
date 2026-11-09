@@ -3,6 +3,10 @@
   "completion_policy": {
     "rule": "A simulated model must declare its bus/controller data plane, an injection interface and at least one device on which the UIFlow2 path was exercised. A partial or planned model must declare a concrete blocker. Device manifests must expose the same blocker set. Hardware requirements and modeled components are checked in both directions so a new device cannot hide a peripheral outside its inventory. Every runtime case must declare the exact models it covers, and every simulated component must have a device-local case. A device with any unfinished component must be explicitly allowlisted for temporary backend work; all new devices must be peripheral-complete.",
     "incomplete_device_allowlist": {
+      "cardputer": {
+        "reason": "Stock K132 display and original GPIO keyboard passed. SPI microSD data, audio, IR, RGB, ADC calibration, USB, networking and power sequencing remain partial.",
+        "review_by": "2026-12-31"
+      },
       "tab5": {
         "reason": "The native ESP32-P4 backend still lacks dynamic I2C, I2S/PCM, MIPI-CSI, USB Host and SDIO data planes.",
         "review_by": "2026-12-31"
@@ -287,6 +291,44 @@
       "tested_devices": [
         "tab5"
       ]
+    },
+    "gpio-keyboard-matrix": {
+      "status": "simulated",
+      "interface": "gpio",
+      "capabilities": [
+        "keyboard"
+      ],
+      "data_plane": "QMP physical key position → 74HC138 selector GPIO8/9/11 → active-low GPIO13/15/3/4/5/6/7 → original firmware keyboard scan.",
+      "injection": [
+        "Device Service /input key events routed to the native QEMU panel input handler"
+      ],
+      "kind": "keyboard",
+      "tested_devices": [
+        "cardputer"
+      ]
+    },
+    "cardputer-battery-adc": {
+      "status": "planned",
+      "interface": "adc",
+      "capabilities": [
+        "battery"
+      ],
+      "injection": [
+        "No device-local calibrated battery ADC stimulus yet"
+      ],
+      "blocker": "GPIO10 battery divider and calibration need a K132-specific ADC fixture and original guest readback."
+    },
+    "cardputer-power-switch": {
+      "status": "planned",
+      "interface": "power",
+      "capabilities": [
+        "power-key",
+        "charging"
+      ],
+      "injection": [
+        "Only visual detent state is currently available"
+      ],
+      "blocker": "K132 battery-base switch and charge/power paths have no device-local power sequencing model."
     },
     "keyboard-tca8418": {
       "kind": "keyboard",
@@ -1649,6 +1691,130 @@
           "model": "sd-card-spi",
           "bus": "spi2",
           "pins": "sck=36,mosi=37,miso=35,cs=4"
+        }
+      ]
+    },
+    "cardputer": {
+      "board_model": "m5cardputer",
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/Cardputer"
+      ],
+      "peripheral_blockers": [
+        {
+          "model": "gpio-button",
+          "reason": "G0 press is routed, but the guest boot/download strap and EN reset semantics are not yet qualified on this board."
+        },
+        {
+          "model": "spm1423",
+          "reason": "Device-local I2S/PDM microphone capture remains unverified."
+        },
+        {
+          "model": "ns4168",
+          "reason": "Device-local I2S speaker output remains unverified."
+        },
+        {
+          "model": "sd-card-spi",
+          "reason": "The microSD CS path is wired to GPIO12, but attached-image reads have not yet been validated on K132."
+        },
+        {
+          "model": "ir-tx-rx",
+          "reason": "K132 only transmits IR. Its GPIO44 RMT transmit path remains unverified."
+        },
+        {
+          "model": "rgb-led",
+          "reason": "The Stamp-S3 visible RGB has no K132 board-local RMT output validation."
+        },
+        {
+          "model": "cardputer-battery-adc",
+          "reason": "GPIO10 battery divider and calibration need a K132-specific ADC fixture and original guest readback."
+        },
+        {
+          "model": "cardputer-power-switch",
+          "reason": "K132 battery-base switch and charge/power paths have no device-local power sequencing model."
+        }
+      ],
+      "components": [
+        {
+          "id": "keyboard",
+          "model": "gpio-keyboard-matrix",
+          "bus": "gpio",
+          "select_gpio": [
+            8,
+            9,
+            11
+          ],
+          "sense_gpio": [
+            13,
+            15,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "status": "simulated"
+        },
+        {
+          "id": "boot",
+          "model": "gpio-button",
+          "bus": "gpio",
+          "gpio": 0,
+          "status": "partial"
+        },
+        {
+          "id": "microphone",
+          "model": "spm1423",
+          "bus": "i2s-pdm",
+          "data_gpio": 46,
+          "clock_gpio": 43,
+          "status": "partial"
+        },
+        {
+          "id": "speaker",
+          "model": "ns4168",
+          "bus": "i2s",
+          "bclk_gpio": 41,
+          "sdata_gpio": 42,
+          "lrclk_gpio": 43,
+          "status": "partial"
+        },
+        {
+          "id": "sd",
+          "model": "sd-card-spi",
+          "bus": "spi",
+          "cs_gpio": 12,
+          "mosi_gpio": 14,
+          "sclk_gpio": 40,
+          "miso_gpio": 39,
+          "status": "partial"
+        },
+        {
+          "id": "ir",
+          "model": "ir-tx-rx",
+          "bus": "rmt",
+          "tx_gpio": 44,
+          "status": "partial"
+        },
+        {
+          "id": "stamp-rgb",
+          "model": "rgb-led",
+          "bus": "rmt",
+          "status": "partial"
+        },
+        {
+          "id": "battery",
+          "model": "cardputer-battery-adc",
+          "bus": "adc",
+          "gpio": 10,
+          "status": "planned"
+        },
+        {
+          "id": "power",
+          "model": "cardputer-power-switch",
+          "bus": "power",
+          "status": "planned"
         }
       ]
     },

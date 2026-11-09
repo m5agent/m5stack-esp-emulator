@@ -2,6 +2,7 @@
   "schema_version": 2,
   "machine_devices": {
     "esp32c6": "nesso-n1",
+    "m5cardputer": "cardputer",
     "m5cardputeradv": "cardputer-adv"
   },
   "external_cases": {
@@ -44,6 +45,11 @@
       "device": "cores3",
       "test": "tests/uiflow2/unified_cores3/run_test.py",
       "evidence": "tests/uiflow2/unified_cores3/evidence-2026-10-23.json"
+    },
+    "cardputer-k132-stock": {
+      "device": "cardputer",
+      "test": "tests/firmware/cardputer_k132_stock/run_service.py",
+      "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json"
     },
     "cardputer-adv-unified": {
       "device": "cardputer-adv",
@@ -125,6 +131,9 @@
       "touch-ft5x06",
       "bmi270",
       "aw88298"
+    ],
+    "cardputer-k132-stock": [
+      "gpio-keyboard-matrix"
     ],
     "cardputer-adv-unified": [
       "keyboard-tca8418",
@@ -614,6 +623,15 @@
         "sd-card-spi"
       ]
     },
+    "cardputer": {
+      "matrix": [],
+      "external": [
+        "cardputer-k132-stock"
+      ],
+      "models": [
+        "gpio-keyboard-matrix"
+      ]
+    },
     "cardputer-adv": {
       "matrix": [
         "cardputer-adv-sd",
@@ -986,6 +1004,11 @@
     }
   },
   "models": {
+    "gpio-keyboard-matrix": {
+      "external": [
+        "cardputer-k132-stock"
+      ]
+    },
     "gpio-button": {
       "matrix": [
         "sticks3-peripherals"

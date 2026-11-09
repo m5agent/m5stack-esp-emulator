@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "31 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "32 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -157,6 +157,53 @@
         "date": "2026-10-25",
         "status": "display-input-peripherals-wifi-ble-pass",
         "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI; GPIO41 input, BMI270, BMM150, LP5562, IR, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest. It also passes WPA2-PSK with the correct password and rejects a wrong password at the M2 MIC."
+      }
+    },
+    {
+      "id": "cardputer",
+      "name": "Cardputer",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 1,
+      "board_model": "m5cardputer",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false
+      },
+      "input": [
+        "gpio-keyboard-matrix",
+        "gpio0-boot"
+      ],
+      "peripherals": [
+        "gpio-keyboard-matrix",
+        "gpio-button",
+        "ns4168",
+        "spm1423",
+        "sd-card-spi",
+        "ir-tx-rx",
+        "rgb-led",
+        "cardputer-battery-adc",
+        "cardputer-power-switch"
+      ],
+      "peripheral_status": "partial",
+      "board_work": [
+        "Validate remaining board-local peripheral data planes on K132."
+      ],
+      "blockers": [
+        "K132 SPI microSD data, audio, IR, RGB, ADC calibration, USB, networking and power sequencing remain partial."
+      ],
+      "validation": {
+        "date": "2026-11-09",
+        "status": "native-k132-stock-display-keyboard-pass",
+        "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
+        "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
+        "category": "virtual-device"
       }
     },
     {

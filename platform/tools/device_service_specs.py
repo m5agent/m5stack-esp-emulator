@@ -255,7 +255,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 excluded_reason is None
                 and bool(backend)
                 and row["backend"].startswith("qemu-esp32")
-                and row["mode"] in {"ui", "console"}
+                and row["mode"] in {"ui", "console", "service-ui"}
             )
             service_kind = "qemu"
             qemu = (
