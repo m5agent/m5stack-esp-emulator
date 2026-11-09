@@ -2,6 +2,7 @@
   "schema_version": 2,
   "machine_devices": {
     "esp32c6": "nesso-n1",
+    "m5cardputer": "cardputer",
     "m5cardputeradv": "cardputer-adv"
   },
   "external_cases": {
@@ -44,6 +45,11 @@
       "device": "cores3",
       "test": "tests/uiflow2/unified_cores3/run_test.py",
       "evidence": "tests/uiflow2/unified_cores3/evidence-2026-10-23.json"
+    },
+    "cardputer-k132-stock": {
+      "device": "cardputer",
+      "test": "tests/firmware/cardputer_k132_stock/run_service.py",
+      "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json"
     },
     "cardputer-adv-unified": {
       "device": "cardputer-adv",
@@ -109,6 +115,16 @@
       "device": "stickt2",
       "test": "tests/uiflow2/run_stickt2_probe.py",
       "evidence": "tests/uiflow2/stickt2_probe/evidence-2026-11-02.json"
+    },
+    "papers3-et047-factory": {
+      "device": "papers3",
+      "test": "tests/firmware/paper_runtime/run_test.py",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+    },
+    "paperdiy-et047-factory": {
+      "device": "paperdiy",
+      "test": "tests/firmware/paper_runtime/run_test.py",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
     }
   },
   "case_models": {
@@ -125,6 +141,9 @@
       "touch-ft5x06",
       "bmi270",
       "aw88298"
+    ],
+    "cardputer-k132-stock": [
+      "gpio-keyboard-matrix"
     ],
     "cardputer-adv-unified": [
       "keyboard-tca8418",
@@ -518,6 +537,12 @@
     "stickt2-thermal-probe": [
       "lepton",
       "encoder"
+    ],
+    "papers3-et047-factory": [
+      "touch-gt911"
+    ],
+    "paperdiy-et047-factory": [
+      "gpio-button"
     ]
   },
   "device_case_groups": {
@@ -612,6 +637,15 @@
         "ltr-553als-wa",
         "usb-host",
         "sd-card-spi"
+      ]
+    },
+    "cardputer": {
+      "matrix": [],
+      "external": [
+        "cardputer-k132-stock"
+      ],
+      "models": [
+        "gpio-keyboard-matrix"
       ]
     },
     "cardputer-adv": {
@@ -983,12 +1017,36 @@
         "lepton",
         "encoder"
       ]
+    },
+    "papers3": {
+      "external": [
+        "papers3-et047-factory"
+      ],
+      "models": [
+        "touch-gt911"
+      ]
+    },
+    "paperdiy": {
+      "external": [
+        "paperdiy-et047-factory"
+      ],
+      "models": [
+        "gpio-button"
+      ]
     }
   },
   "models": {
+    "gpio-keyboard-matrix": {
+      "external": [
+        "cardputer-k132-stock"
+      ]
+    },
     "gpio-button": {
       "matrix": [
         "sticks3-peripherals"
+      ],
+      "external": [
+        "paperdiy-et047-factory"
       ]
     },
     "pwr-button": {
@@ -1301,6 +1359,11 @@
     "encoder": {
       "external": [
         "stickt2-thermal-probe"
+      ]
+    },
+    "touch-gt911": {
+      "external": [
+        "papers3-et047-factory"
       ]
     }
   }

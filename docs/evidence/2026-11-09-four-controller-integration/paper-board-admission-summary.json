@@ -1,0 +1,45 @@
+{
+  "scope": "Device Service firmware import policy; no guest execution in these six API calls",
+  "tested_parser_source": "95dbd634cf070229f73b80788ea60f8b6ec9ee17",
+  "result": "PASS",
+  "checks": [
+    {
+      "source": "papers3-factory-v05.bin",
+      "sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "device_id": "papers3",
+      "http": 201
+    },
+    {
+      "source": "papers3-factory-v05.bin",
+      "sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "device_id": "paperdiy",
+      "http": 409,
+      "manifest_issue": "firmware_board_mismatch"
+    },
+    {
+      "source": "paperdiy-source-demo-71748ca.bin",
+      "sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "device_id": "paperdiy",
+      "http": 201
+    },
+    {
+      "source": "paperdiy-source-demo-71748ca.bin",
+      "sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "device_id": "papers3",
+      "http": 409,
+      "manifest_issue": "firmware_board_mismatch"
+    },
+    {
+      "source": "papers3-uiflow2-v254.bin",
+      "sha256": "87567896973fa61c281fdf3f0e2031f280de1df8d59ac0942302de288096a1fb",
+      "device_id": "papers3",
+      "http": 201
+    },
+    {
+      "source": "paperdiy-uiflow2-v254.bin",
+      "sha256": "35a4f99833d334c93986806b9403f81172e9068e3b63ef5a8ef2d20cf281eb18",
+      "device_id": "paperdiy",
+      "http": 201
+    }
+  ]
+}

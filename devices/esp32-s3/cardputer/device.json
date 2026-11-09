@@ -1,0 +1,99 @@
+{
+  "id": "cardputer",
+  "name": "Cardputer",
+  "sku": "K132",
+  "group": "esp32-s3",
+  "category": "cardputer",
+  "hardware": {
+    "soc": "ESP32-S3FN8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 8388608,
+    "psram_bytes": 0,
+    "display": {
+      "type": "ips",
+      "width": 240,
+      "height": 135,
+      "shape": "rect",
+      "driver": "ST7789V2",
+      "touch": false,
+      "diagonal_in": 1.14
+    },
+    "keyboard": {
+      "keys": 56,
+      "rows": 4,
+      "cols": 14
+    },
+    "controls": [
+      {
+        "id": "keyboard",
+        "type": "keyboard",
+        "label": "56-key GPIO keyboard"
+      },
+      {
+        "id": "boot",
+        "type": "button",
+        "label": "G0 / Boot",
+        "gpio": 0
+      },
+      {
+        "id": "reset",
+        "type": "button",
+        "label": "EN / Reset"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "Power switch"
+      }
+    ],
+    "sensors": [
+      "microphone",
+      "speaker",
+      "sd:spi",
+      "ir",
+      "battery",
+      "rgb-led",
+      "charger"
+    ],
+    "dimensions_mm": [
+      84.0,
+      54.0,
+      19.7
+    ],
+    "weight_g": 92.3
+  },
+  "shell": {
+    "preset": "cardputer",
+    "renderer": "cardputer",
+    "accent": "#8dd8b4",
+    "screen_scale": 1.1,
+    "body_theme": "silver"
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789v2",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-09",
+      "status": "native-k132-stock-display-keyboard-pass",
+      "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
+      "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
+      "category": "virtual-device"
+    }
+  },
+  "official_docs": "https://docs.m5stack.com/en/core/Cardputer",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.4",
+      "firmware_id": "1897200000000000718",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/cardputer",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

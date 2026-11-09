@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "device_id": "papers3",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.4",
+      "firmware_id": "1897200000000000284",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000284/2116031112826097666/bin/2116031112826097667.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "boot-capable",
+    "peripheral_status": "partial",
+    "display_protocol": "epd-et047tc1-i80",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-09",
+      "status": "native-et047tc1-touch-pass",
+      "category": "virtual-device",
+      "detail": "官方出厂固件 v0.5 通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；GT911 点按改变固件蜂鸣器图标。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+    },
+    "blockers": [
+      "BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.",
+      "The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.",
+      "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
+      "C139 PMS150G power-button, latch and wake behavior are not modeled.",
+      "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.",
+      "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+    ]
+  },
+  "cache_path": "platform/.cache/firmware/papers3/uiflow2.bin"
+}

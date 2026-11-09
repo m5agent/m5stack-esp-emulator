@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "scope": "Opt-in PaperS3 prototype only. Isolated WebGL/WASM workbench. No public or native firmware admission from this run.",
+  "guest_execution": "PaperS3 official factory v0.5, browser virtual-device",
+  "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+  "wasm_sha256": "05f020796d2611865eb570f027bd6d905a5dc19b39f827421cfcae13524bbe45",
+  "runtime_source": "3cd3db3b7202e9fc559328c7247c11134c0437f9",
+  "rom_sha256": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
+  "browser": "157.0.8103.38",
+  "checks": [
+    "first-visit-and-project-prefix-are-model-only-without-an-implicit-service",
+    "one-page-navigation-never-opens-a-separate-console",
+    "offline-unit-adds-to-main-host-and-retains-an-honest-capability-boundary",
+    "catalog-preview-disposal-and-reopen-never-change-the-host-draft",
+    "late-catalog-model-load-cannot-replace-a-newer-unit-preview",
+    "device-selection-preserves-only-its-own-unit-draft",
+    "responsive-main-host-assembly-has-no-overflow-at-four-widths",
+    "device-alias-and-share-never-forward-credentials",
+    "four-controller-model-links-use-the-pinned-3d-shells",
+    "first-service-failure-preserves-offline-unit-catalog-and-draft-ui-fixture",
+    "service-connect-keeps-navigation-local-and-does-not-create-a-guest-ui-fixture",
+    "configured-units-are-not-silently-dropped-by-browser-mode-ui-fixture",
+    "failed-reconnect-preserves-original-service-and-unit-owner-ui-fixture",
+    "catalog-change-keeps-invalid-draft-and-blocks-auto-browser-and-programmatic-start-ui-fixture",
+    "sha-mismatch-fails-before-any-native-session-allocation-ui-fixture",
+    "firmware-load-locks-unit-draft-and-cancel-releases-it-without-a-guest-ui-fixture",
+    "unconfirmed-stop-blocks-device-and-service-replacement-ui-fixture",
+    "borrowed-live-session-opens-in-place-without-create-or-delete-ui-fixture",
+    "pending-borrowed-B-cannot-replace-current-A-after-A-is-reselected-ui-fixture",
+    "late-picker-device-A-return-cannot-overwrite-current-device-B",
+    "unknown-device-fails-closed-and-no-runtime-is-started-by-host-contracts",
+    "real-papers3-url-autostart-serial-screen-touch-pause-and-stop"
+  ],
+  "source_sha256": {
+    "platform/web/public.js": "d7c5d89ec835648ba27bc39db81bb18b83f552ac0bbf1291afda645598406883",
+    "platform/web/model-shell.js": "7def29cca280908421bb4ea02e84f89d6b76a6c5be85779ab0dc961c64462efd",
+    "platform/tests/test_public_workbench_browser.mjs": "3d3e80d4cc1e919b3f9c2bb8f0cd3fbd1d5b56d96d2695526ad843f27e72cd3f"
+  },
+  "results": [
+    {
+      "name": "homepage-official-boot",
+      "width": 540,
+      "height": 960,
+      "rgba_sha256": "102cae8a5553fbb1dae479db14213d781a832610742644a49d96f9886030c66b",
+      "region_sha256": "27d02ab508bb95b218b9be50cf6aba6bb3e4d78e12d82a1ae7c248b7cdfd4831"
+    },
+    {
+      "name": "papers3-3d-pointer",
+      "events": [
+        {
+          "action": "start",
+          "x": 116,
+          "y": 330
+        },
+        {
+          "action": "end",
+          "x": 116,
+          "y": 330
+        }
+      ]
+    },
+    {
+      "name": "homepage-touch-toggle",
+      "width": 540,
+      "height": 960,
+      "rgba_sha256": "51ea88eda99e920253d7ce874d88175dc625e105451112365deb2f75949dc18b",
+      "region_sha256": "831752ea001cbea6a720623eeaa0a7a9e1897b78f4676d5482732785e7facfb4"
+    },
+    {
+      "name": "papers3-3d-pointer",
+      "events": [
+        {
+          "action": "start",
+          "x": 116,
+          "y": 330
+        },
+        {
+          "action": "end",
+          "x": 116,
+          "y": 330
+        }
+      ]
+    },
+    {
+      "name": "homepage-touch-return",
+      "width": 540,
+      "height": 960,
+      "rgba_sha256": "2a672cd265ebfa2b7d47f57cc8dd823bcce19b54f874e47418306323119db80e",
+      "region_sha256": "387000bf9ae27a60e70689b16a2147e85dd93efc883dbdb24e760a8177f42588"
+    },
+    {
+      "name": "stopped",
+      "worker_terminated": true,
+      "api_requests": 0
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "device": "cardputer",
+  "sku": "K132",
+  "validation": "virtual-device validation",
+  "hardware_validation": false,
+  "status": "PARTIAL",
+  "source_base": "5f15d1f8",
+  "official_pinmap": "https://docs.m5stack.com/en/core/Cardputer",
+  "runtime": {
+    "machine": "m5cardputer",
+    "backend": "qemu-esp32s3",
+    "flash_bytes": 8388608,
+    "psram_bytes": 0,
+    "qemu_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "board_patch": "patches/qemu-m5stack-peripherals/0169-cardputer-k132-board.patch",
+    "board_patch_sha256": "d0287303883149afda7b25333322344ff050dee5f0b065f2d15377269f9aab2c",
+    "qemu_sha256": "5a05c8e56b500c08813fd50768454043fd9848924caab5e78e811f76ab27e406",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+  },
+  "display_size": [
+    240,
+    135
+  ],
+  "stock_cases": [
+    {
+      "case": "factory-v09",
+      "session_id": "d5ffaf42f1e546629a7561263d3a8e7f",
+      "firmware_sha256": "5a80d85877ca82feb888d404fd0a22659f1f5049bbf6db7615bf9c5b722923cb",
+      "firmware_id": "edcc5a24609bc298e2b20732f44bf1a39e278cb104952cbd5692a4b20c8a56ef",
+      "machine": "m5cardputer",
+      "runtime": "qemu",
+      "input_qcode": "a",
+      "status": "PASS",
+      "before_frame_sha256": "681eb9870f3768823b4982dccfd08689bb02f11e3f44966e672aa7b57fd76564",
+      "after_frame_sha256": "4a82066343ea81db169fb465bfdeea3d94c524ed9c040a9ebf1c8495f863ce34",
+      "fn_held_sha256": "0133f884c20d66d20091378e3159666f9747ee17240cbe54a1ac6346e75c4bfb",
+      "fn_released_sha256": "4a82066343ea81db169fb465bfdeea3d94c524ed9c040a9ebf1c8495f863ce34",
+      "serial_marker": "installed apps num: 9",
+      "evidence_sha256": "51d2f7a5615e28e51e08bf4ff55a0f4f82601508558b959022031c154a26898b",
+      "final_state": "stopped",
+      "observed": "Splash to stock launcher after A, with visible Fn indicator hold and restoration on release.",
+      "efuse_sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "flash_released": true
+    },
+    {
+      "case": "factory-v08",
+      "session_id": "d367d56bf7ba494a98d817ae03ae528b",
+      "firmware_sha256": "76cfa4cb8b6ba639e35b8de2489c75c5a6d677fe22982cb926aaf6dbf651992e",
+      "firmware_id": "d203f543e2e8b351b56e64ea10c339808d06ca9aaf1d42012dfbbd8568cde0bf",
+      "machine": "m5cardputer",
+      "runtime": "qemu",
+      "input_qcode": "q",
+      "status": "PASS",
+      "before_frame_sha256": "f2c8a547802c28b45c47842a2bbc62541820ce2d52b24e0cbf805796565780c8",
+      "after_frame_sha256": "4a82066343ea81db169fb465bfdeea3d94c524ed9c040a9ebf1c8495f863ce34",
+      "serial_marker": "installed apps num: 8",
+      "evidence_sha256": "d06ef558848a65e5a43aa7182e136ab91d1b009e1f303b5ce5bffb2cfccf56f6",
+      "final_state": "stopped",
+      "observed": "Splash to stock launcher after Q.",
+      "efuse_sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "flash_released": true
+    },
+    {
+      "case": "uiflow2-v254",
+      "session_id": "f216c16760364ca593a5a8d1bf3caf25",
+      "firmware_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "firmware_id": "d06401203f048d7ac150ab90e2256c12934b2b87c330fc9a6c0e91979ac0e9ae",
+      "machine": "m5cardputer",
+      "runtime": "qemu",
+      "input_qcode": "f12",
+      "status": "PASS",
+      "before_frame_sha256": "bde661059316168ea669091aa2d35a2b7ba4c93921cc07f512c6bb3d45df5c88",
+      "after_frame_sha256": "50159c770d53f88af8c51b5a4fe596f937265c306f8b70be8cffa132cf07c5fe",
+      "serial_marker": null,
+      "evidence_sha256": "2123de80307bdab6da9bd9778bd55538071a99ada2f6df0c2b53989c860d122c",
+      "final_state": "stopped",
+      "observed": "Offline UI with orange status to application menu with centered blue DEVELOP tile after G0.",
+      "efuse_sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "flash_released": true
+    }
+  ],
+  "failed_probe_controls": [
+    {
+      "case": "uiflow2-probe",
+      "status": "FAIL",
+      "source_uiFlow2_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "composed_flash_sha256": "8011fbe6abb595ae991c0e523cf456e407d343f3ea7481844bb7acd5f552d319",
+      "qemu_sha256": "2e7fa40515b8dd0801637eaeca932534dc6401deaeb839f477e9b55bd3a8ca3d",
+      "observation": "70-second nonblank readiness timeout. Last observed UART0 marker entry 0x403c8890; overlay probe marker absent.",
+      "frame_sha256": "07326dc031e15ee5126483de6dceaceaff4397011b8f300c013ae96e944d6c53",
+      "evidence_sha256": "81cfb5982e12cba530a0bfb2df16880887a2fdbd2a75244d4603171f6216fb64",
+      "final_state": "stopped",
+      "flash_released": true
+    },
+    {
+      "case": "uiflow2-probe-grove",
+      "status": "FAIL",
+      "source_uiFlow2_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "composed_flash_sha256": "8011fbe6abb595ae991c0e523cf456e407d343f3ea7481844bb7acd5f552d319",
+      "qemu_sha256": "5a05c8e56b500c08813fd50768454043fd9848924caab5e78e811f76ab27e406",
+      "observation": "70-second nonblank readiness timeout. Last observed UART0 marker entry 0x403c8890; overlay probe marker absent.",
+      "frame_sha256": "07326dc031e15ee5126483de6dceaceaff4397011b8f300c013ae96e944d6c53",
+      "evidence_sha256": "bb379a454ec82b2cb9ae78fa83892f155daccd59bdcd2d77d8000e3f8ff3cf85",
+      "final_state": "stopped",
+      "flash_released": true
+    }
+  ],
+  "limits": [
+    "Factory device-local matrix proof covers A, Q and Fn; it does not assert every physical key was tested.",
+    "Unmodified stock UIFlow2 G0 input reaches the real menu. Filesystem composition and code-run remain open.",
+    "Observed ADC calibration warnings are consistent with the synthetic eFuse file. No battery or calibration claim.",
+    "MicroSD data, speaker and microphone, IR, RGB, USB, network and power sequencing need device-local runtime evidence.",
+    "Only native Device Service QEMU was tested."
+  ]
+}

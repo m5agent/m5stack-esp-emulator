@@ -1,0 +1,195 @@
+{
+  "scope": "virtual-device validation; native Device Service; combined 0168 and 0169 build",
+  "qemu_sha256": "07c3b7a48fabff2052f6023400e2356d6fb4be2e5a8719c11d33a68cd9d8069c",
+  "base_patch_stack_commit": "a8a2bdca5249dcfb20be287b0d20bd0ad4df0e85",
+  "patch_sha256": {
+    "0168-papers3-paperdiy-et047tc1.patch": "f7320a877bef06233b4734526aa0fc8f66a967996d114a505a337e06db1d93f8",
+    "0169-cardputer-k132-board.patch": "d0287303883149afda7b25333322344ff050dee5f0b065f2d15377269f9aab2c"
+  },
+  "executions": [
+    {
+      "device": "papers3",
+      "validation": "virtual-device validation",
+      "source_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "frames": {
+        "before": {
+          "sha256": "ed6d5e993a4553d95496d4dbaced58e16ad386d7be5356cb11ca54827fe5bbe2",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "after": {
+          "sha256": "63cebc74fd60b3fa69604b7a544b2b4b5fb01aafa9a6d1d403e9eb8d191942f9",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "session_id": "c1b27cdbf0b24055b3bf0623f9dd6f34",
+          "input": "longpress:113,347,0.5",
+          "action": "tap",
+          "accepted": true
+        }
+      ],
+      "session_id": "c1b27cdbf0b24055b3bf0623f9dd6f34",
+      "firmware_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": 8,
+        "cli_requested_psram_mib": 8,
+        "effective_psram_mib": 8,
+        "effective_source": "qemu-cli-request",
+        "policy": "qemu-emulated-psram",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "serial_markers": [
+        "board_M5PaperS3"
+      ],
+      "scan_frames_before": 377,
+      "pixel_oracle": {
+        "region": [
+          78,
+          296,
+          155,
+          385
+        ],
+        "changed": 607
+      },
+      "scan_frames_after": 396,
+      "latched_lines": 213840,
+      "result": "PASS",
+      "evidence_zip_sha256": "266c0748e0776aca6d7bd1c61a714ccd944c3bd622cd7f3830dfd2bfbdf427b3",
+      "stopped_state": "stopped",
+      "flash_retained": false
+    },
+    {
+      "device": "paperdiy",
+      "validation": "virtual-device validation",
+      "source_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "frames": {
+        "before": {
+          "sha256": "1d53ed38bc7388f4ed2a5e6bf3493c7252274d3d26d619b360731c9a5dca831c",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "a-held": {
+          "sha256": "e7c4df1c410cae15cfa16389d78efc85bdec2fdc3733c503ffebd9ea91fd5a1c",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "a-released": {
+          "sha256": "22133fdfbf439a92a2e5e632a6a1f8f25d0e4d5d250961c71a0d6d15e38ed626",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "b-held": {
+          "sha256": "b2b0d29fd5d339757d873209b3b9c2f0f0f8c55582f1e4d0645ac0cb18c9d62a",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "b-released": {
+          "sha256": "150258eba1cbdc8cdf7f749178071acbabc60249dbe9eb50795fa1beb647d6d8",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "session_id": "f66162ac12104443b3222e94bcd1294d",
+          "input": "keydown:a",
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "session_id": "f66162ac12104443b3222e94bcd1294d",
+          "input": "keyup:a",
+          "action": "up",
+          "accepted": true
+        },
+        {
+          "session_id": "f66162ac12104443b3222e94bcd1294d",
+          "input": "keydown:b",
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "session_id": "f66162ac12104443b3222e94bcd1294d",
+          "input": "keyup:b",
+          "action": "up",
+          "accepted": true
+        }
+      ],
+      "nvs_sha256": "239b35c93efb68c25310e28d8c9ddd3034693e08b678db9fa2227bb9d09c9b58",
+      "session_id": "f66162ac12104443b3222e94bcd1294d",
+      "firmware_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": 8,
+        "cli_requested_psram_mib": 8,
+        "effective_psram_mib": 8,
+        "effective_source": "qemu-cli-request",
+        "policy": "qemu-emulated-psram",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "serial_markers": [
+        "PaperDIY: Firmware version: V1.0",
+        "board_M5PaperDIY",
+        "Display ready: 540x960"
+      ],
+      "scan_frames_before": 25,
+      "pixel_oracle": {
+        "a": {
+          "region": [
+            9,
+            620,
+            119,
+            686
+          ],
+          "pressed": 533,
+          "released": 533,
+          "returned_to_baseline": true,
+          "other_button_changed": 0
+        },
+        "b": {
+          "region": [
+            9,
+            731,
+            119,
+            797
+          ],
+          "pressed": 533,
+          "released": 533,
+          "returned_to_baseline": true,
+          "other_button_changed": 0
+        }
+      },
+      "scan_frames_after": 92,
+      "latched_lines": 50506,
+      "result": "PASS",
+      "evidence_zip_sha256": "fc7c6ebee3878521bf0f90c5088065f2a326f89c6497946bfbbc9f0d605dce0f",
+      "stopped_state": "stopped",
+      "flash_retained": false
+    }
+  ],
+  "cleanup": {
+    "active_sessions": 0,
+    "active_leases": 0,
+    "service_stopped": true
+  }
+}

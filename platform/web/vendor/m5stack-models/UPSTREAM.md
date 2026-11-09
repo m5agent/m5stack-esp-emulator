@@ -2,7 +2,7 @@
 
 Source: https://github.com/yuyun2000/m5stack-models
 
-Commit: `1373680d29667f99438a5412b87b955a3ba7702f`
+Commit: `de6cddc065674ecb53bba29c7fe90d9ab4ee32f7`
 
 Copied from Git objects with explicit file/hash allowlists. Upstream worktree changes and private research are never copied. A separate reviewed local runtime patch layer preserves mainline pause/resume rendering on the upstream hidden-viewport fit fix. `vendor-manifest.json.local_runtime_patches` pins each upstream preimage, patch file and effective result; `files` hashes the effective bytes. Both upstream and patched runtime resource closures are checked. Reviewed public guide/provenance texts remain pinned separately at `3681a6482aff96501d44659ba5a1603246f1fe1f` and preserve their source bytes and close relative links in the bundled guides. `vendor-manifest.json` records each source file and the reviewed guide closure. The unchanged upstream `source-manifest.json` records provenance; its `sourceCommit` is a historical preparation baseline, not this snapshot Git pin.
 

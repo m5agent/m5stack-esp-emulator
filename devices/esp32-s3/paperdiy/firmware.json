@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "device_id": "paperdiy",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.4",
+      "firmware_id": "2110563172188712962",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/2110563172188712962/2116031166261530625/bin/2116031166261530626.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "boot-capable",
+    "peripheral_status": "partial",
+    "display_protocol": "epd-et047tc1-i80",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-09",
+      "status": "native-et047tc1-buttons-pass",
+      "category": "virtual-device",
+      "detail": "由官方源码构建的 V1.0 出厂固件通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；分别验证 G4/G3 的 A/B 按住和松开。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+    },
+    "blockers": [
+      "Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.",
+      "The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.",
+      "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+    ]
+  },
+  "cache_path": "platform/.cache/firmware/paperdiy/uiflow2.bin"
+}

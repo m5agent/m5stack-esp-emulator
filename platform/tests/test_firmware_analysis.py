@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from firmware_analysis import (
     analyze_esp_image,
     analyze_firmware,
+    expected_chip_id,
     parse_partition_table,
 )
 from firmware_filesystems import SPIFFS_CONFIGS, inventory_data_partition
@@ -736,6 +737,12 @@ def build_flash_with_spiffs(**kwargs) -> bytes:
 
 
 class FirmwareAnalysisTests(unittest.TestCase):
+    def test_c61_image_chip_id_is_distinct_from_c6(self):
+        self.assertEqual(expected_chip_id("ESP32-C61HR8"), 0x0014)
+        self.assertEqual(expected_chip_id("esp32c61"), 0x0014)
+        self.assertEqual(expected_chip_id("ESP32-C6FH4"), 0x000D)
+        self.assertEqual(analyze_esp_image(build_image(0x0014))["chip"], "esp32c61")
+
     def test_parses_partition_table_and_app_descriptor(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "firmware.bin"

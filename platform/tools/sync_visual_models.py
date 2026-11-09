@@ -29,7 +29,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[2]
 DESTINATION = ROOT / "platform/web/vendor/m5stack-models"
 RUNTIME_DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
-PINNED_COMMIT = '1373680d29667f99438a5412b87b955a3ba7702f'
+PINNED_COMMIT = 'de6cddc065674ecb53bba29c7fe90d9ab4ee32f7'
 PUBLIC_REPOSITORY = "https://github.com/yuyun2000/m5stack-models"
 REVIEWED_LOCAL_RUNTIME_PATCHES = ({
     "id": "device-viewer-render-lifecycle-and-focus-v2",
@@ -48,7 +48,7 @@ REVIEWED_LOCAL_RUNTIME_PATCHES = ({
     "scope": "Preserve mainline boot-time pause/resume/dispose rendering and focused device input on the upstream hidden-viewport fit fix; no model, resource or firmware admission changes",
 }, {'id': 'cardputer-zero-rj45-liner-clearance',
  'adapted_from': {'issue': 'https://github.com/m5agent/m5stack-esp-emulator/issues/75', 'kind': 'local geometry correction'},
- 'source_commit': '1373680d29667f99438a5412b87b955a3ba7702f',
+ 'source_commit': 'de6cddc065674ecb53bba29c7fe90d9ab4ee32f7',
  'target': 'src/devices/cardputer-zero/ports.js',
  'upstream_sha256': 'aec19fdc527e90daf68844af0adbdfbf468edf1230f5df6d4d8e5c7b0f9cbccb',
  'effective_sha256': 'fbf7b53bbd0c878d447f8431700deede21bd8b11392eff4f9026546cf91dbbc1',
@@ -67,7 +67,7 @@ RASTER_SOURCE_COMMIT = PINNED_COMMIT
 # Guides remain a separately reviewed documentation snapshot. New visual models
 # do not pull upstream raw/browser evidence into this source distribution.
 GUIDE_SOURCE_COMMIT = '3681a6482aff96501d44659ba5a1603246f1fe1f'
-RASTER_NOTICE_SHA256 = '955a8b63544ca1816c4f59e6d91775ea265cb56fe98fab4f68c544448a4989fd'
+RASTER_NOTICE_SHA256 = 'c4f5fade34cae4bb06175d6f582755a8df0ed872b454ecec0fecf7bcd3a4d31c'
 # Exact public Git objects reviewed with the provider-permission notice above.
 # New source commits/assets require an explicit review of this allowlist.
 REVIEWED_RUNTIME_PNGS = {'src/devices/atom-echo/artwork/compliance.png': 'e065c851da4496ef789cad6e56e2f69fd6dd8d1be858994a08ba016fca31ffcf',
@@ -111,6 +111,16 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atom-echo/artwork/compliance.png': 'e065c8
  'src/devices/basic-v27/artwork/rear-left.png': '4dc63dea6d9a231d43f9d6997f8790c60d6a51fa47b71ab8af329c777464f2c8',
  'src/devices/basic-v27/artwork/rear-right.png': 'fbdc5577a9d51e92d19d978343011eff2d76cbaea637df8c18201b62138a74bc',
  'src/devices/basic-v27/artwork/rear-top.png': '183e75126f95bec836ee56ae2524db39ad5973ab5f29013f56d0274f2e7c88a8',
+ 'src/devices/cardputer/artwork/front-name.png': 'd369755a2d47d30f497a5564cadd0fefb78872d24f81e9787f7ec80c338c9021',
+ 'src/devices/cardputer/artwork/grove-side.png': '472695bd9a1315c14a02ede8b698691e524bdb7d1cadf4768c23f026187165f6',
+ 'src/devices/cardputer/artwork/keyboard-1.png': '5d4fb25325ba3ee87b91c8f89e53ceac40d0e102ded5ffaf835bcf61f25cf2db',
+ 'src/devices/cardputer/artwork/keyboard-2.png': '5f38c32a4367bf50af74ab77a1c4b6e455bef0ce9f5d140e628d3aba59b25e40',
+ 'src/devices/cardputer/artwork/keyboard-3.png': '20e7a692a5dcd46f354b9fa8f778a81cb868dc5fc779592e10dab422e2badb5a',
+ 'src/devices/cardputer/artwork/keyboard-4.png': '14b1000ce28bf3bb60a8d7f4c900aedc07f1dfae3952b3dcb87524b27b83195e',
+ 'src/devices/cardputer/artwork/rear-rail.png': '9f7a3ddd16b0a09c2cde8f7dd5054e0bc8c5b8bffba26421b8f34263f3f85167',
+ 'src/devices/cardputer/artwork/rear.png': '9dce97ba2b226101904671d75b00ff6fb81461c0fe4e8d6f2ca6e7f11c246af0',
+ 'src/devices/cardputer/artwork/stamp.png': 'f53b722a1223ec1448c7eece9cfa4bd6ae79311f2e29585a3263edb83cd5843c',
+ 'src/devices/cardputer/artwork/top-edge.png': '3904a34a3ab0e1964da56a871a719181680c24a48b78bf2920753729e74fd645',
  'src/devices/cardputer-adv/artwork/back.png': 'd35128e9e158873df01d32d31bd230c20a5135fc6074ef3cfa4083e19f1db1ca',
  'src/devices/cardputer-adv/artwork/front-name.png': '05062fdb2753812e0e281fe0d8a5148ea2658f69d85548b9f46ac1bdd6dae431',
  'src/devices/cardputer-adv/artwork/grove-side.png': 'b6f7df4b1aad2d7125b6fe9da21acbea329d8a766396bed9aff645ddf1da1f0a',
@@ -135,6 +145,8 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atom-echo/artwork/compliance.png': 'e065c8
  'src/devices/core2/artwork/certification.png': 'b3bf157041cedfd8efcf4b623b2b61033e6dd2542ce4d6d7882bb497f2fcdd81',
  'src/devices/core2/artwork/rear-main.png': '6861115ae897d09c28bdcfa66d0366e1a98b54d19daf2379d12e157369dc478d',
  'src/devices/core2/artwork/reference-redraw-ext.png': '76c8cee2c43a0ec9a533a78c4d155ffd2949537d33f6b9c507deccdabc29ffea',
+ 'src/devices/corematrix/artwork/rear-reference-redraw.png': '85ea58de3ef9f224220323f7c53575abb4631e8914ed0bef32775122542632d8',
+ 'src/devices/corematrix/artwork/side-reference-redraw.png': 'c5bf267e6c152640e62374a54ad6ad5ba2ea8872b1286c3536c95f702847a892',
  'src/devices/cores3/artwork/certification.png': '964e5b906bc2e9d91c6ece331089bee131b1c662471234fe2260d0fa83d002c7',
  'src/devices/cores3/artwork/din-dc.png': '4e91a6d58842571519bed3cafcf25cea8c449c6d8b89e8f5eb3d8b6e353ef66c',
  'src/devices/cores3/artwork/din-name.png': '9e60e39962f93773f0da8e28e907912e35dc2ecc1801f0e4df4dc5499fec7e9c',

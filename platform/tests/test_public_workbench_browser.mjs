@@ -31,6 +31,7 @@ const executedSourcePaths = [
   'platform/web/public-session-controller.js',
   'platform/web/public-service-program.js',
   'platform/web/public-service.js',
+  'platform/web/model-shell.js',
   'platform/tests/test_public_workbench_browser.mjs',
 ];
 const executedSourceHashes = Object.fromEntries(
@@ -297,6 +298,15 @@ try {
     assert.equal(url.pathname, '/showcase/'); assert.equal(url.searchParams.get('device'), 'papers3');
     assert.equal(url.searchParams.has('token'), false); assert.equal(url.href.includes('ignored-secret'), false);
   });
+  await test('four-controller-model-links-use-the-pinned-3d-shells', async () => {
+    for (const id of ['paperdiy','papers3','cardputer','corematrix']) {
+      await page.goto(`${base}/showcase/?device=${id}&mode=model&autostart=0`);
+      await modelReady(id);
+      assert.equal(await page.locator(`#deviceMount [data-renderer="${id}-three"]`).count(), 1);
+      assert.match(await page.locator('#startBtn').textContent(), /浏览设备模型/);
+      assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run), null);
+    }
+  });
   const [unitCatalog, hostPorts, runtimeProfiles] = await Promise.all(['catalog','host-ports','runtime-profiles'].map(name =>
     readFile(resolve(site, `platform/units/${name}.json`), 'utf8').then(JSON.parse)));
   const serviceFixture = {units:unitCatalog.units.map(unit => ({...unit, runtime:runtimeProfiles.units[unit.id] || {}})), hosts:hostPorts.hosts};
@@ -493,9 +503,20 @@ try {
         null,
         {timeout: 120000},
       );
-      assert.equal(await page.locator('[data-view="shell"]').textContent(), '屏幕');
+      assert.equal(await page.locator('[data-view="shell"]').textContent(), '3D');
+      assert.equal(await page.locator('#deviceMount [data-renderer="papers3-three"]').count(), 1);
       const firstApplicationMs = Date.now() - started;
-      const canvas = page.locator('#deviceMount .device-screen');
+      const canvas = page.locator('#deviceMount .three-device-stage canvas');
+      const cdp = await context.newCDPSession(page);
+      const guestTargets = async () => (await cdp.send('Target.getTargets')).targetInfos
+        .filter(target => target.type === 'worker' && target.url.includes('/vendor/esp32sim/worker.js'))
+        .map(target => target.targetId);
+      const startedWorkers = await guestTargets();
+      assert.ok(startedWorkers.length > 0, 'CDP sees the actual guest Worker');
+      await page.evaluate(() => {
+        window.__paperTouches = [];
+        window.__publicWorkbenchProbe.shell.on('touch', ({action, x, y}) => window.__paperTouches.push({action, x, y}));
+      });
       async function advance(seconds) {
         const target =
           (await page.evaluate(() => window.__publicWorkbenchProbe.run.controller.observe().stats.time)) + seconds;
@@ -509,10 +530,14 @@ try {
         if ((await page.locator('#runtimeStatus').getAttribute('data-status')) !== 'paused')
           await page.locator('#pauseBtn').click();
         await page.waitForFunction(() => document.querySelector('#runtimeStatus').dataset.status === 'paused');
-        const result = await canvas.evaluate(async (canvas) => {
-          const context = canvas.getContext('2d'),
-            all = context.getImageData(0, 0, canvas.width, canvas.height).data;
-          const region = context.getImageData(30, 270, 160, 160).data;
+        const result = await page.evaluate(async () => {
+          const {display} = window.__publicWorkbenchProbe.shell;
+          const {width, height, buffer:all} = display;
+          const region = new Uint8Array(160 * 160 * 4);
+          for (let row = 0; row < 160; row++) {
+            const offset = ((270 + row) * width + 30) * 4;
+            region.set(all.subarray(offset, offset + 160 * 4), row * 160 * 4);
+          }
           const hash = (data) =>
             crypto.subtle
               .digest('SHA-256', data)
@@ -524,8 +549,8 @@ try {
             if (all[i] > 224 && all[i + 1] > 224 && all[i + 2] > 224) light++;
           }
           return {
-            width: canvas.width,
-            height: canvas.height,
+            width,
+            height,
             rgba_sha256: await hash(all),
             region_sha256: await hash(region),
             dark_pixels: dark,
@@ -546,12 +571,27 @@ try {
       async function tap() {
         await page.locator('#pauseBtn').click();
         await page.waitForFunction(() => document.querySelector('#runtimeStatus').dataset.status === 'running');
-        const box = await canvas.boundingBox();
-        await page.mouse.move(box.x + (116 * box.width) / 540, box.y + (330 * box.height) / 960);
+        await canvas.scrollIntoViewIfNeeded();
+        const point = await page.evaluate(async () => {
+          const {Vector3} = await import('three');
+          const {display, viewer} = window.__publicWorkbenchProbe.shell;
+          const screenPoint = display.panel.localToWorld(new Vector3(
+            (116.5 / display.width - 0.5) * display.size[0],
+            (0.5 - 330.5 / display.height) * display.size[1], 0,
+          )).project(viewer.camera);
+          const rect = viewer.renderer.domElement.getBoundingClientRect();
+          return [rect.left + (screenPoint.x + 1) * rect.width / 2,
+            rect.top + (1 - screenPoint.y) * rect.height / 2];
+        });
+        await page.mouse.move(...point);
         await page.mouse.down();
         await advance(0.15);
         await page.mouse.up();
         await advance(4.5);
+        const events = await page.evaluate(() => window.__paperTouches.slice(-2));
+        assert.deepEqual(events.map(event => event.action), ['start','end']);
+        for (const event of events) assert.ok(Math.abs(event.x - 116) <= 2 && Math.abs(event.y - 330) <= 2);
+        checkpoints.push({name:'papers3-3d-pointer', events});
       }
       const boot = await checkpoint('homepage-official-boot');
       await tap();
@@ -570,7 +610,7 @@ try {
         await page.waitForTimeout(150);
         const bounds = await page.evaluate(() => {
           const stage = document.querySelector('#deviceMount').getBoundingClientRect();
-          const body = document.querySelector('[data-device="papers3"].device-body').getBoundingClientRect();
+          const body = document.querySelector('[data-renderer="papers3-three"]').getBoundingClientRect();
           return {
             stage: {x: stage.x, y: stage.y, width: stage.width, height: stage.height},
             body: {x: body.x, y: body.y, width: body.width, height: body.height},
@@ -592,6 +632,12 @@ try {
       await page.waitForFunction(() => document.querySelector('#runtimeStatus').dataset.status === 'stopped');
       assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run), null);
       assert.equal(await controller.evaluate((controller) => controller.worker === null), true);
+      const deadline = Date.now() + 5000;
+      while ((await guestTargets()).some(target => startedWorkers.includes(target))) {
+        assert.ok(Date.now() < deadline, 'guest Worker must disappear before browser closure');
+        await page.waitForTimeout(50);
+      }
+      await cdp.detach();
       await controller.dispose();
       assert.equal(
         requests.slice(firstRealRequest).some((url) => /\/api\/v1\//.test(url)),

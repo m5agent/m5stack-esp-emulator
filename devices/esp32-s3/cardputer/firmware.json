@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "device_id": "cardputer",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.4",
+      "firmware_id": "1897200000000000718",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789v2",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-11-09",
+      "status": "native-k132-stock-display-keyboard-pass",
+      "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
+      "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
+      "category": "virtual-device"
+    }
+  },
+  "cache_path": "platform/.cache/firmware/cardputer/uiflow2.bin"
+}

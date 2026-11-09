@@ -11,6 +11,8 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
+[2026-11-09 四款主机接入与固件验证](evidence/2026-11-09-four-controller-integration/README.md)记录 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的执行与边界。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
@@ -92,7 +94,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 c 类边界。
+同步；该批记录的视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 c 类边界。
 [逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
 仅模型、候选和通过的功能范围分别标注。
 [AtomS3U 主机接入](evidence/2026-11-02-atoms3u-host/README.md)记录独立 `m5atoms3u`
@@ -180,7 +182,7 @@ Unit Glass 的 BLOCKED 根因已由 task-75 定位并解锁：官方 M5GFX M5Uni
 Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 款 c 类边界，184/184 覆盖；canonical 41 层链（0120–0161，41/41 replay）。
 Unit 第十一批 7 款已有模型 planned 款的 guest 证据见
 [Unit 第十一批虚拟设备证据](evidence/2026-11-03-unit-batch11/README.md)：lorawan-as923/eu868（官方驱动字节层）、rf433t/r（machine.Pin bitbang/采样）、audioplayer/fingerprint2（raw UART 字节层）6 款 PASS；
-同步；当前视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 c 类边界。
+同步；该批记录的视觉库存为 38 主机、184 Unit；设备登记 33 台、5 款视觉主机仅视觉，Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 c 类边界。
 glass 因参考 GlassUnit/M5.addDisplay 未产生模型可见 I2C 事务如实 **BLOCKED**（commands=0/data-bytes=0）；本批未需 0155 模型修复。
 Unit catalog 160 条（**158 implemented/partial + 2 planned DEFER**）+ 25 款 c 类边界，184/184 覆盖。
 Unit 第十一批为 **driver-gap 17 款官方协议网络研究**：用官方协议文档/上游 UIFlow2 master 驱动/厂商 datasheet 纠正此前“无公开协议”结论，17 款全部升级为 a/b（a 15 款：8servos2-i2c、8servos2-chain、bmm350、ina226-10a、ina226-1a、roller485、roller485-lite、rollercan、rollercan-lite、byteswitch、bytebutton、step16、timerpwr、mq、chainbus；b 2 款：cardkb2、cat1-cn；c 0 款），逐款给出寄存器/帧表、驱动 file:line、QEMU 数据面建议、fixture/可断言量与 unresolved，并给出推荐实现顺序（前 5：byteswitch+bytebutton、step16、timerpwr、mq、8servos2-i2c），见
@@ -337,6 +339,9 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |
+| [初代 Cardputer K132](evidence/2026-11-09-cardputer-k132/README.md) | 日期化原生证据 | `2026-11-09` | 两版原厂固件与 UIFlow2 的 LCD、键盘和未覆盖路径 |
+| [PaperS3 与 PaperDIY](evidence/2026-11-09-paper-et047tc1/README.md) | 日期化原生证据 | `2026-11-09` | 原厂演示、UIFlow2 探针、GT911、A/B 与数字墨水屏扫描 |
 | [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md) | 日期化原生证据 | `2026-11-05` | 镜像/观测/控制器与精确固件分层；保留 Basic 和 Core2 Mic 首轮失败、独立 fence 后续及 Tab5 latest PARTIAL；最终交付另验 |
 | [性能修复与对照](evidence/2026-11-03-emulator-performance/README.md) | 验证证据 | `2026-11-03` | 历史 native 同固件取帧/动作与 browser R6 完整本地门禁；新部署另行绑定运行时 |
 | [性能优化合 main 与 Pages 更新](evidence/2026-11-03-performance-pages-release/README.md) | 部署与虚拟设备证据 | `2026-11-03` | 两 PR 合并、新 producer 路径策略、19 板 20 例完整本地门禁、prepared-preview 部署与独立 HTTPS 验证；保留 regular CI engine 清理失败 |

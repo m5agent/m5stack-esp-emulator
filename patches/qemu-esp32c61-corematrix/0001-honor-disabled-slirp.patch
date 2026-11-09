@@ -1,0 +1,13 @@
+diff --git a/meson.build b/meson.build
+index 6cc151f..46913d1 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1227,7 +1227,7 @@ if not get_option('slirp').auto() or have_system
+     slirp_cflags += ['-DLIBSLIRP_STATIC'] 
+   endif
+ 
+-  slirp = declare_dependency(dependencies: [slirp_dep],
++  slirp = not slirp_dep.found() ? not_found : declare_dependency(dependencies: [slirp_dep],
+                           compile_args: slirp_cflags,
+                           version: slirp_dep.version())
+ 

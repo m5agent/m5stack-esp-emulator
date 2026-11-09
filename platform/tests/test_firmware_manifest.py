@@ -21,6 +21,7 @@ from firmware_manifest import (  # noqa: E402
     import_package,
     load_device_profile,
     normalize_capability_declarations,
+    normalize_soc,
     validate_capabilities,
     validate_manifest_structure,
 )
@@ -1908,6 +1909,20 @@ class FirmwareManifestTests(unittest.TestCase):
             json.dumps(manifest, sort_keys=True),
         )
 
+    def test_c61_is_rejected_for_c6_profile(self):
+        for chip in ("esp32c61", "ESP32-C61", "ESP32-C61HR8"):
+            with self.subTest(chip=chip):
+                self.assertEqual(normalize_soc(chip), "esp32c61")
+                result = validate_capabilities(
+                    {
+                        "target": {"soc": chip},
+                        "capabilities": {"required": [], "optional": []},
+                    },
+                    load_device_profile("nanoc6"),
+                )
+                self.assertEqual(result["status"], "REJECTED")
+                self.assertEqual([row["code"] for row in result["errors"]], ["soc_mismatch"])
+
     def test_soc_and_flash_mismatches_are_rejected(self):
         profile = load_device_profile("sticks3")
         manifest = {
@@ -1938,6 +1953,35 @@ class FirmwareManifestTests(unittest.TestCase):
             }
             <= codes
         )
+
+    def test_paper_factory_project_cannot_target_the_other_paper(self):
+        cases = (
+            ("papers3", "papers3", "PASS"),
+            ("PaperDIY", "paperdiy", "PASS"),
+            ("papers3", "paperdiy", "REJECTED"),
+            ("PaperDIY", "papers3", "REJECTED"),
+            ("my-paperdiy-demo", "papers3", "PASS"),
+            ("micropython", "paperdiy", "PASS"),
+            (None, "paperdiy", "PASS"),
+        )
+        for project, device_id, expected in cases:
+            with self.subTest(project=project, device_id=device_id):
+                manifest = {
+                    "target": {
+                        "soc": "esp32s3",
+                        "flash_size": 16 << 20,
+                        "psram_size": 8 << 20,
+                        "application": {"project_name": project} if project else None,
+                    },
+                    "capabilities": {"required": [], "optional": []},
+                }
+                result = validate_capabilities(manifest, load_device_profile(device_id))
+                self.assertEqual(result["status"], expected)
+                if expected == "REJECTED":
+                    self.assertEqual(
+                        [(issue["code"], issue["path"]) for issue in result["errors"]],
+                        [("firmware_board_mismatch", "target.application.project_name")],
+                    )
 
     def test_source_spdx_scan_feeds_license_policy_and_redacts_paths(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-11-02",
-    "result": "31 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3R-M12 and M5Stick add device-local camera/factory-boot evidence, while the remaining candidates keep explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
+    "result": "34 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered. Cardputer K132, PaperS3 and PaperDIY have device-local native runtime evidence and explicit partial blockers. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -157,6 +157,54 @@
         "date": "2026-10-25",
         "status": "display-input-peripherals-wifi-ble-pass",
         "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI; GPIO41 input, BMI270, BMM150, LP5562, IR, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest. It also passes WPA2-PSK with the correct password and rejects a wrong password at the M2 MIC."
+      }
+    },
+    {
+      "id": "cardputer",
+      "require_machine_probe": true,
+      "name": "Cardputer",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 1,
+      "board_model": "m5cardputer",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false
+      },
+      "input": [
+        "gpio-keyboard-matrix",
+        "gpio0-boot"
+      ],
+      "peripherals": [
+        "gpio-keyboard-matrix",
+        "gpio-button",
+        "ns4168",
+        "spm1423",
+        "sd-card-spi",
+        "ir-tx-rx",
+        "rgb-led",
+        "cardputer-battery-adc",
+        "cardputer-power-switch"
+      ],
+      "peripheral_status": "partial",
+      "board_work": [
+        "Validate remaining board-local peripheral data planes on K132."
+      ],
+      "blockers": [
+        "K132 SPI microSD data, audio, IR, RGB, ADC calibration, USB, networking and power sequencing remain partial."
+      ],
+      "validation": {
+        "date": "2026-11-09",
+        "status": "native-k132-stock-display-keyboard-pass",
+        "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
+        "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -2078,6 +2126,115 @@
         "detail": "自建 bare-metal 探针（tests/uiflow2/stickt2_probe，xtensa-esp-elf 14.2.0 编译，ELF SHA-256 记录在证据中）由 QEMU -kernel 加载到新 machine `m5stickt2`，经真实内存映射控制器完成：UART0 标记输出；GPIO bit-bang I2C 上的 FLIR Lepton CCI （PING/序列号/FPA+AUX 温度/OEM sync 设置，16-bit CCI 寄存器）；HSPI 上的 VoSPI 流（164 字节包、4 段×60 包/frame，CRC 字段本固件不校验）解出 160×120 热帧，连续 3 帧的 guest FNV-1a digest 与宿主按模型 fixture seed 0/1/2 独立重建完全一致、0 包错误；ST7789 135×240 面板经 VSPI 初始化并渲染热帧，QMP 截图 135×240、32,400 非黑像素、89 种颜色；QOM 注入 encoder increment=5 被 guest 读回。另：官方 M5Burner `StickT2 User Demo` v1.0 4 MB 镜像在确定性 icount 下经 classic UART TX_DONE latch 修复后可启动到 `M5StickC initializing...OK`，但其热成像/UI 路径未在运行窗口内到达且不可注入探针，因此不作为数据面证据。物理 LWIR 光学/热测量、Grove、PDM 麦克风、编码器实际接线（文档 PA2/PA3/PA4 与官方示例 I2C 0x30 的矛盾按官方示例取 I2C 0x30）与完整工厂 UI 未验证。",
         "evidence": "docs/evidence/2026-11-02-stickt2-host/summary.json",
         "category": "virtual-device"
+      }
+    },
+    {
+      "id": "papers3",
+      "name": "PaperS3",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "shared-backend",
+      "peripheral_status": "partial",
+      "priority": 5,
+      "board_model": "m5papers3",
+      "require_machine_probe": true,
+      "display_model": "epd-et047tc1-i80",
+      "display": {
+        "driver": "ET047TC1",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "touch-gt911",
+        "bmi270",
+        "pcf8563",
+        "papers3-battery-adc",
+        "pwr-button",
+        "buzzer",
+        "sd-card-spi"
+      ],
+      "runtime_state": {
+        "panel": {
+          "path": "/machine/et047tc1",
+          "properties": [
+            "scan-frames",
+            "latched-lines"
+          ]
+        }
+      },
+      "blockers": [
+        "ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.",
+        "BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.",
+        "The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.",
+        "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
+        "C139 PMS150G power-button, latch and wake behavior are not modeled.",
+        "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.",
+        "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+      ],
+      "validation": {
+        "date": "2026-11-09",
+        "status": "native-et047tc1-touch-pass",
+        "category": "virtual-device",
+        "detail": "官方出厂固件 v0.5 通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；GT911 点按改变固件蜂鸣器图标。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+        "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+      }
+    },
+    {
+      "id": "paperdiy",
+      "name": "PaperDIY",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3-WROOM-1-N16R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "shared-backend",
+      "peripheral_status": "partial",
+      "priority": 5,
+      "board_model": "m5paperdiy",
+      "require_machine_probe": true,
+      "display_model": "epd-et047tc1-i80",
+      "display": {
+        "driver": "ET047TC1",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-buttons",
+        "pwr-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "m5pm1",
+        "pwr-button",
+        "sd-card-spi"
+      ],
+      "runtime_state": {
+        "panel": {
+          "path": "/machine/et047tc1",
+          "properties": [
+            "scan-frames",
+            "latched-lines"
+          ]
+        }
+      },
+      "blockers": [
+        "ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.",
+        "Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.",
+        "The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.",
+        "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+      ],
+      "validation": {
+        "date": "2026-11-09",
+        "status": "native-et047tc1-buttons-pass",
+        "category": "virtual-device",
+        "detail": "由官方源码构建的 V1.0 出厂固件通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；分别验证 G4/G3 的 A/B 按住和松开。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+        "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
       }
     }
   ]

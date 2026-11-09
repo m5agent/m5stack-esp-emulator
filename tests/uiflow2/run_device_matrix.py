@@ -78,6 +78,8 @@ def ui_command(
         command.append("--deterministic")
     if "post_frame_color" in device:
         command.extend(["--post-frame-color", device["post_frame_color"]])
+    if "min_unique_colors" in device:
+        command.extend(["--min-unique-colors", str(device["min_unique_colors"])])
     for name in ("pre_input_marker", "post_input_marker"):
         if device.get(name):
             command.extend(["--" + name.replace("_", "-"), device[name]])
@@ -1011,7 +1013,7 @@ def main() -> None:
                 "exit_code": 0,
                 "reason": device["reason"],
             }
-        elif device["mode"] == "excluded":
+        elif device["mode"] in {"excluded", "service-ui"}:
             result = {
                 "status": "EXCLUDED",
                 "exit_code": 0,

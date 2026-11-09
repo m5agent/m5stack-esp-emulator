@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -11,7 +12,9 @@ from peripheral_inventory import build_inventory
 class PeripheralInventoryTests(unittest.TestCase):
     def test_every_hardware_requirement_maps_to_a_component(self):
         inventory = build_inventory()
-        self.assertEqual(inventory["device_count"], 33)
+        devices = json.loads((ROOT / "devices/catalog.source.json").read_text())["devices"]
+        self.assertEqual(inventory["device_count"], len(devices))
+        self.assertEqual({row["id"] for row in inventory["devices"]}, {row["id"] for row in devices})
         self.assertEqual(
             inventory["runtime_coverage"]["covered_models"],
             inventory["runtime_coverage"]["simulated_models"],
@@ -40,7 +43,7 @@ class PeripheralInventoryTests(unittest.TestCase):
                 "stickc-plus", "stickc-plus-se", "stickc-plus2",
                 "atom-lite", "atom-matrix", "atom-matrix-v11", "atoms3u", "atom-echos3r", "atoms3r-cam", "atoms3r-m12",
                 "m5stick", "stickt2",
-                "basic-v27", "atomu", "atom-echo",
+                "basic-v27", "atomu", "atom-echo", "cardputer", "paperdiy", "papers3",
             },
         )
         self.assertIn("sc2356", devices["tab5"]["blocked_models"])

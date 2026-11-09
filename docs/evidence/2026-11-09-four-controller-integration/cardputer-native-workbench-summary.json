@@ -1,0 +1,28 @@
+{
+  "device": "cardputer",
+  "firmwareSha": "5a80d85877ca82feb888d404fd0a22659f1f5049bbf6db7615bf9c5b722923cb",
+  "browser": "157.0.8103.38",
+  "status": "PASS",
+  "frame": {
+    "width": 240,
+    "height": 135,
+    "before": "681eb9870f3768823b4982dccfd08689bb02f11e3f44966e672aa7b57fd76564",
+    "after": "c1fedda4d87d5c1a7893c183760d4e8897bede2fa0ef1b94e3408c06181b67d1"
+  },
+  "input": {
+    "kind": "key",
+    "key": "a",
+    "action": "down",
+    "settle_seconds": 0.02
+  },
+  "evidenceSha": "92035a6d763911ae32252d82a22c58f2bd89123416adffd535506335cac810e8",
+  "cleanup": {
+    "stopHttp": 200,
+    "historyHttp": 200,
+    "state": "stopped"
+  },
+  "lane": "native Device Service via the browser Workbench",
+  "machine": "m5cardputer",
+  "runtime_sha256": "07c3b7a48fabff2052f6023400e2356d6fb4be2e5a8719c11d33a68cd9d8069c",
+  "scope": "Stock V0.9 raw firmware, original K132 keyboard scan and LCD. Setup-only first attempt lacked the ignored flash tooling binary and started no guest."
+}

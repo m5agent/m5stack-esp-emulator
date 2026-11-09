@@ -1,6 +1,10 @@
 // Generated from catalog/products.json by npm run catalog. No hardware behavior.
 const bindings={
   "sticks3": {load:()=>import("./devices/sticks3/index.js"),exportName:"StickS3",moduleExport:null},
+  "paperdiy": {load:()=>import("./devices/paperdiy/index.js"),exportName:"PaperDIY",moduleExport:null},
+  "papers3": {load:()=>import("./devices/papers3/index.js"),exportName:"PaperS3",moduleExport:null},
+  "cardputer": {load:()=>import("./devices/cardputer/index.js"),exportName:"Cardputer",moduleExport:null},
+  "corematrix": {load:()=>import("./devices/corematrix/index.js"),exportName:"CoreMatrix",moduleExport:null},
   "cores3": {load:()=>import("./devices/cores3/index.js"),exportName:"CoreS3",moduleExport:null},
   "stopwatch": {load:()=>import("./devices/stopwatch/index.js"),exportName:"default",moduleExport:null},
   "cardputer-adv": {load:()=>import("./devices/cardputer-adv/index.js"),exportName:"CardputerADV",moduleExport:null},

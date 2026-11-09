@@ -287,6 +287,102 @@
       }
     },
     {
+      "id": "cardputer",
+      "name": "Cardputer",
+      "sku": "K132",
+      "group": "esp32-s3",
+      "category": "cardputer",
+      "hardware": {
+        "soc": "ESP32-S3FN8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 8388608,
+        "psram_bytes": 0,
+        "display": {
+          "type": "ips",
+          "width": 240,
+          "height": 135,
+          "shape": "rect",
+          "driver": "ST7789V2",
+          "touch": false,
+          "diagonal_in": 1.14
+        },
+        "keyboard": {
+          "keys": 56,
+          "rows": 4,
+          "cols": 14
+        },
+        "controls": [
+          {
+            "id": "keyboard",
+            "type": "keyboard",
+            "label": "56-key GPIO keyboard"
+          },
+          {
+            "id": "boot",
+            "type": "button",
+            "label": "G0 / Boot",
+            "gpio": 0
+          },
+          {
+            "id": "reset",
+            "type": "button",
+            "label": "EN / Reset"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "Power switch"
+          }
+        ],
+        "sensors": [
+          "microphone",
+          "speaker",
+          "sd:spi",
+          "ir",
+          "battery",
+          "rgb-led",
+          "charger"
+        ],
+        "dimensions_mm": [
+          84.0,
+          54.0,
+          19.7
+        ],
+        "weight_g": 92.3
+      },
+      "shell": {
+        "preset": "cardputer",
+        "renderer": "cardputer",
+        "accent": "#8dd8b4",
+        "screen_scale": 1.1,
+        "body_theme": "silver"
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-st7789v2",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-09",
+          "status": "native-k132-stock-display-keyboard-pass",
+          "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
+          "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
+          "category": "virtual-device"
+        }
+      },
+      "official_docs": "https://docs.m5stack.com/en/core/Cardputer",
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "1897200000000000718",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin"
+        }
+      }
+    },
+    {
       "id": "cardputer-adv",
       "name": "Cardputer-ADV",
       "sku": "K132-Adv",
@@ -2693,6 +2789,187 @@
           "segmented_repo": "https://github.com/m5stack/M5-StickT",
           "segmented_app_sha256": "361f0d25e5ad7d5dbb8fb52a4e412dcf9fc118c7b0a3aef73fc3159bad539b40",
           "segmented_partitions_sha256": "efba4421982bd177695a2e2091828fe3b6aa42076be3844a84f0fb08085cead4"
+        }
+      }
+    },
+    {
+      "id": "papers3",
+      "name": "PaperS3",
+      "sku": "C139",
+      "group": "esp32-s3",
+      "category": "paper",
+      "hardware": {
+        "soc": "ESP32-S3R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "e-paper",
+          "driver": "ET047TC1",
+          "width": 540,
+          "height": 960,
+          "shape": "rect",
+          "touch": true,
+          "diagonal_in": 4.7,
+          "touch_controller": "GT911"
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "GT911 touchscreen"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "rtc:bm8563",
+          "battery:adc",
+          "buzzer",
+          "storage:sd"
+        ],
+        "dimensions_mm": [
+          67.7,
+          121.5,
+          7.7
+        ],
+        "weight_g": 89,
+        "power": {
+          "controller": "PMS150G"
+        }
+      },
+      "shell": {
+        "preset": "paper",
+        "renderer": "papers3",
+        "accent": "#596067",
+        "screen_scale": 1.0,
+        "body_theme": "paper-white"
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "boot-capable",
+        "peripheral_status": "partial",
+        "display_protocol": "epd-et047tc1-i80",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-09",
+          "status": "native-et047tc1-touch-pass",
+          "category": "virtual-device",
+          "detail": "官方出厂固件 v0.5 通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；GT911 点按改变固件蜂鸣器图标。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+          "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+        },
+        "blockers": [
+          "BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.",
+          "The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.",
+          "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
+          "C139 PMS150G power-button, latch and wake behavior are not modeled.",
+          "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.",
+          "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "1897200000000000284",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000284/2116031112826097666/bin/2116031112826097667.bin"
+        }
+      }
+    },
+    {
+      "id": "paperdiy",
+      "name": "PaperDIY",
+      "sku": "K159-B",
+      "group": "esp32-s3",
+      "category": "paper",
+      "hardware": {
+        "soc": "ESP32-S3-WROOM-1-N16R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "e-paper",
+          "driver": "ET047TC1",
+          "width": 540,
+          "height": 960,
+          "shape": "rect",
+          "touch": false,
+          "diagonal_in": 4.7
+        },
+        "controls": [
+          {
+            "id": "a",
+            "type": "button",
+            "label": "A",
+            "gpio": 4
+          },
+          {
+            "id": "b",
+            "type": "button",
+            "label": "B",
+            "gpio": 3
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "battery:m5pm1",
+          "charger:m5pm1",
+          "storage:sd"
+        ],
+        "dimensions_mm": [
+          68.2,
+          120,
+          6.3
+        ],
+        "weight_g": 43.1,
+        "power": {
+          "pmic": "M5PM1"
+        }
+      },
+      "shell": {
+        "preset": "paper",
+        "renderer": "paperdiy",
+        "accent": "#596067",
+        "screen_scale": 1.0,
+        "body_theme": "paper-white"
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "boot-capable",
+        "peripheral_status": "partial",
+        "display_protocol": "epd-et047tc1-i80",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-09",
+          "status": "native-et047tc1-buttons-pass",
+          "category": "virtual-device",
+          "detail": "由官方源码构建的 V1.0 出厂固件通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；分别验证 G4/G3 的 A/B 按住和松开。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+          "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+        },
+        "blockers": [
+          "Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.",
+          "The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.",
+          "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "2110563172188712962",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2110563172188712962/2116031166261530625/bin/2116031166261530626.bin"
         }
       }
     }

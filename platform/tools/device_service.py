@@ -9114,6 +9114,7 @@ class DeviceService:
     def _public_device(self, spec: DeviceSpec) -> dict:
         reference_available = spec.reference_available
         backend_ready = spec.backend_ready
+        machine = spec.missing_backend_machine if not backend_ready else None
         return {
             "device_id": spec.id,
             "name": spec.name,
@@ -9168,7 +9169,7 @@ class DeviceService:
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
             "network_status": spec.network_status,
-            "reason": spec.reason,
+            "reason": spec.reason or (f"QEMU does not provide machine {machine}" if machine else None),
         }
 
     def list_devices(self, include_unsupported: bool = True) -> dict:
@@ -9646,12 +9647,12 @@ class DeviceService:
                 if missing
                 else ""
             )
+            machine = spec.missing_backend_machine if not missing else None
+            message = (f"QEMU does not provide machine {machine} for {device_id}"
+                       if machine else f"runtime files are missing for {device_id}{detail}")
             raise ServiceError(
                 "backend_not_ready",
-                (
-                    f"runtime files are missing for {device_id}{detail}; "
-                    "see docs/deployment.md"
-                ),
+                f"{message}; see docs/deployment.md",
                 503,
                 missing=missing,
                 documentation="docs/deployment.md",

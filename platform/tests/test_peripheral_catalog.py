@@ -17,7 +17,8 @@ class PeripheralCatalogTests(unittest.TestCase):
         errors, report = validate()
         self.assertEqual(errors, [])
         self.assertGreater(report["models"], 20)
-        self.assertEqual(report["devices"], 33)
+        devices = json.loads((ROOT / "devices/catalog.source.json").read_text())["devices"]
+        self.assertEqual(report["devices"], len(devices))
         self.assertGreater(report["requirements_total"], 50)
         self.assertEqual(
             report["requirements_covered"],
