@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 import json
 import os
 from pathlib import Path
+import subprocess
 from typing import Any
 
 from device_service_errors import ServiceError
@@ -94,6 +96,15 @@ def backend_rom_dir(backend_id: str, configured: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+@lru_cache(maxsize=16)
+def _qemu_machine_names(binary: Path, _file_identity: tuple[int, ...]) -> frozenset[str]:
+    output = subprocess.run(
+        [str(binary), "-machine", "help"], check=True, capture_output=True,
+        timeout=2, text=True, encoding="utf-8", errors="replace",
+    ).stdout
+    return frozenset(line.split()[0] for line in output.splitlines() if line.strip())
+
+
 def core2_radio_qemu_path() -> Path:
     raw_path = os.environ.get("M5_CORE2_RADIO_QEMU") or os.environ.get(
         "M5_CORE2_WIFI_QEMU"
@@ -152,6 +163,7 @@ class DeviceSpec:
     warnings: list[str]
     state_probes: dict[str, dict[str, Any]]
     reason: str | None
+    require_machine_probe: bool = False
 
     @property
     def has_display(self) -> bool:
@@ -186,7 +198,21 @@ class DeviceSpec:
                 self.flash_emulator is None
                 or self.flash_emulator.is_file()
             )
+            and self.missing_backend_machine is None
         )
+
+    @property
+    def missing_backend_machine(self) -> str | None:
+        if not self.require_machine_probe or not self.qemu.is_file():
+            return None
+        try:
+            stat = self.qemu.stat()
+            identity = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+            if self.machine in _qemu_machine_names(self.qemu, identity):
+                return None
+        except (OSError, subprocess.SubprocessError):
+            pass
+        return self.machine
 
     @property
     def missing_backend_files(self) -> list[Path]:
@@ -415,5 +441,6 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else {}
             ),
             reason=reason,
+            require_machine_probe=profile.get("require_machine_probe") is True,
         )
     return specs

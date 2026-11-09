@@ -644,6 +644,31 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "docs/deployment.md",
         )
 
+    def test_new_board_requires_the_exact_machine_in_the_configured_qemu(self):
+        with tempfile.TemporaryDirectory() as directory:
+            rom_dir = Path(directory)
+            binary = rom_dir / "qemu"
+            binary.write_text("#!/bin/sh\nprintf '%s\\n' 'm5cardputeradv Old build'\n")
+            binary.chmod(0o755)
+            spec = replace(self.service.specs["cardputer"], qemu=binary,
+                           rom_dir=rom_dir, flash_emulator=None)
+            self.service.specs["cardputer"] = spec
+            row = next(row for row in self.service.list_devices()["devices"]
+                       if row["device_id"] == "cardputer")
+            self.assertFalse(row["creatable"])
+            self.assertEqual(row["missing_runtime_files"], [])
+            self.assertEqual(row["reason"], "QEMU does not provide machine m5cardputer")
+            with self.assertRaises(ServiceError) as caught:
+                self.service.create_session({"device_id": "cardputer"})
+            self.assertEqual(caught.exception.code, "backend_not_ready")
+            self.assertIn("does not provide machine m5cardputer", str(caught.exception))
+
+            replacement = rom_dir / "qemu-new"
+            replacement.write_text("#!/bin/sh\nprintf '%s\\n' 'm5cardputer New build'\n")
+            replacement.chmod(0o755)
+            replacement.replace(binary)
+            self.assertTrue(spec.backend_ready)
+
     def test_backend_qemu_can_use_architecture_runtime_overrides(self):
         xtensa_override = Path("/opt/m5-qemu/qemu-system-xtensa")
         riscv_override = Path("/opt/m5-qemu/qemu-system-riscv32")
