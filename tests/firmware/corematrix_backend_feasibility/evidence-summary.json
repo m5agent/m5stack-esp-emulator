@@ -1,0 +1,257 @@
+{
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "board": "M5Stack CoreMatrix C158",
+  "source": {
+    "espressif_qemu_commit": "8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc",
+    "esp_idf_tag": "v5.5.4",
+    "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d"
+  },
+  "reference": {
+    "validation": "virtual-device validation",
+    "board": "CoreMatrix C158",
+    "machine": "esp32c61,m5corematrix=on",
+    "runtime_sha256": "0261ab3269fb746794c9b32603238354f5f45fafcfc5cc01d45071f1bef8dab5",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "firmware_sha256": "8282e87fb8b806ceca0538a71c32b21d836f65fca62988dec65b9d5741e43ff3",
+    "cases": [
+      {
+        "key": null,
+        "action": null,
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=00",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "gpio_input_bits": 30,
+        "marker": "CM_FRAME keys=1e irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "b",
+        "action": "down",
+        "gpio_input_bits": 29,
+        "marker": "CM_FRAME keys=1d irq=02",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b269ce3416ab83d6e6bb68831ec9d84e8869834b7f8c3f72b0047d01c9ac288b"
+      },
+      {
+        "key": "b",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=02",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "c",
+        "action": "down",
+        "gpio_input_bits": 27,
+        "marker": "CM_FRAME keys=1b irq=04",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            12,
+            7
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "01e114a36b83b00ab88fc25901b3b896f6e1c1ffd0641d09ba441f0fafafb67e"
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "gpio_input_bits": 26,
+        "marker": "CM_FRAME keys=1a irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            12,
+            7
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "e5d4437ae6d4be5702104c7bd7277fe176857f5b4bb8289d7429a1b025692ab8"
+      },
+      {
+        "key": "c",
+        "action": "up",
+        "gpio_input_bits": 30,
+        "marker": "CM_FRAME keys=1e irq=04",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      }
+    ],
+    "stop_state": "stopped",
+    "uploaded_firmware_rejected": true,
+    "lease_released": true,
+    "flash_released": true,
+    "session_id_sha256": "b97928a7f76e48550bf81b15c83563f4374b79f7f9d2179d5943771947934c38",
+    "evidence_sha256": "acb35edb1b05f4e9ddd82914d054d0ac746f81d010c75a308d760c9a910d98b9",
+    "status": "PASS",
+    "lane": "Reference-only Device Service /api/v1",
+    "initialization_markers": [
+      "CM_IDS PM1=2050 IOE=1234 OFF_NACK=1"
+    ],
+    "evidence_checked_before_stop": [
+      "same firmware hash",
+      "serial",
+      "QOM device state",
+      "PNG frame"
+    ]
+  },
+  "stock": {
+    "machine": "esp32c61,m5corematrix=on",
+    "qemu_sha256": "0261ab3269fb746794c9b32603238354f5f45fafcfc5cc01d45071f1bef8dab5",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "firmware_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "padded_flash_sha256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
+    "timeout_seconds": 15,
+    "timed_out": true,
+    "returncode": 0,
+    "frame": {
+      "width": 16,
+      "height": 16,
+      "nonzero_channels": 0,
+      "sha256": "498fc6af35b825a3125e21b0e91fdd6eb8cf0dfb21e0f5d68ddc4edfca2efef9"
+    },
+    "status": "PARTIAL",
+    "name": "UIFlow2 CoreMatrix",
+    "version": "2.5.4",
+    "m5burner_firmware_id": "2104482080746106881",
+    "m5burner_version_id": "2116030913772818433",
+    "original_bytes": 16773120,
+    "padded_flash_bytes": 16777216,
+    "chip_id": 20,
+    "serial_markers": [
+      "ESP-ROM:esp32c61-eco3-20250228",
+      "entry 0x4083b970",
+      "V2.5.4",
+      "Startup with network type: WIFI"
+    ],
+    "observation": "The stock image reached the UIFlow startup marker and the 16 by 16 raster remained black at the 15-second sample.",
+    "separate_mmio_trace": {
+      "unpatched_runtime_sha256": "8413c1531aee4107e5e99a125b2d9138cf5f2bf819166260ebb508eabe6fec2c",
+      "unpatched_unimplemented_hp_i2c_int_raw_reads": 126508,
+      "patched_unimplemented_hp_i2c_accesses": 0,
+      "patched_repeated_unimplemented_read_address": "0x600ad800",
+      "patched_repeated_unimplemented_reads": 1077649
+    }
+  },
+  "limits": [
+    "Production C158 firmware upload and browser-WASM were not exercised by this isolated catalog.",
+    "Stock compatibility remains incomplete. The backend lacks 8 MiB Quad PSRAM and C61 WiFi coverage.",
+    "PM1 external IRQ wire, power key, BMI270, SPI microSD, buzzer and physical hardware were not validated."
+  ]
+}

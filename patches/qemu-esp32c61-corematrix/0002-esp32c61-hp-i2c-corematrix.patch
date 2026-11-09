@@ -1,0 +1,713 @@
+diff --git a/hw/i2c/esp32c61_i2c.c b/hw/i2c/esp32c61_i2c.c
+new file mode 100644
+index 0000000..ad683c7
+--- /dev/null
++++ b/hw/i2c/esp32c61_i2c.c
+@@ -0,0 +1,286 @@
++/*
++ * ESP32-C61 high-performance I2C master.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/fifo8.h"
++#include "hw/i2c/i2c.h"
++#include "hw/irq.h"
++#include "hw/sysbus.h"
++
++#define TYPE_ESP32C61_I2C "esp32c61.i2c"
++OBJECT_DECLARE_SIMPLE_TYPE(Esp32C61I2C, ESP32C61_I2C)
++
++enum {
++    R_CTR = 0x04,
++    R_STATUS = 0x08,
++    R_FIFO_CONF = 0x18,
++    R_DATA = 0x1c,
++    R_INT_RAW = 0x20,
++    R_INT_CLEAR = 0x24,
++    R_INT_ENABLE = 0x28,
++    R_INT_STATUS = 0x2c,
++    R_COMMAND = 0x58,
++    R_SCL_SPECIAL = 0x80,
++    R_DATE = 0xf8,
++};
++
++enum {
++    OP_WRITE = 1,
++    OP_STOP = 2,
++    OP_READ = 3,
++    OP_END = 4,
++    OP_START = 6,
++};
++
++#define CMD_COUNT 8
++#define FIFO_SIZE 32
++#define CTRL_TRANS_START (1U << 5)
++#define IRQ_RX_OVERFLOW (1U << 2)
++#define IRQ_END_DETECT (1U << 3)
++#define IRQ_TRANS_COMPLETE (1U << 7)
++#define IRQ_TIMEOUT (1U << 8)
++#define IRQ_NACK (1U << 10)
++#define IRQ_TX_OVERFLOW (1U << 11)
++#define CMD_DONE (1U << 31)
++#define FIFO_RX_RESET (1U << 12)
++#define FIFO_TX_RESET (1U << 13)
++
++struct Esp32C61I2C {
++    SysBusDevice parent_obj;
++    MemoryRegion mmio;
++    qemu_irq irq;
++    I2CBus *bus;
++    Fifo8 tx;
++    Fifo8 rx;
++    uint32_t regs[(R_DATE / 4) + 1];
++    bool active;
++};
++
++static void update_irq(Esp32C61I2C *s)
++{
++    qemu_set_irq(s->irq, !!(s->regs[R_INT_RAW / 4] & s->regs[R_INT_ENABLE / 4]));
++}
++
++static void end_transfer(Esp32C61I2C *s)
++{
++    if (s->active) {
++        i2c_end_transfer(s->bus);
++        s->active = false;
++    }
++}
++
++static uint32_t send_bytes(Esp32C61I2C *s, unsigned count)
++{
++    if (count > fifo8_num_used(&s->tx)) {
++        return IRQ_TIMEOUT;
++    }
++    if (!s->active && count) {
++        uint8_t target = fifo8_pop(&s->tx);
++
++        if (i2c_start_transfer(s->bus, target >> 1, target & 1) != 0) {
++            return IRQ_NACK;
++        }
++        s->active = true;
++        count--;
++    }
++    while (count--) {
++        if (i2c_send(s->bus, fifo8_pop(&s->tx)) != 0) {
++            return IRQ_NACK;
++        }
++    }
++    return 0;
++}
++
++static uint32_t receive_bytes(Esp32C61I2C *s, unsigned count, bool nack)
++{
++    if (!s->active) {
++        return IRQ_TIMEOUT;
++    }
++    if (count > fifo8_num_free(&s->rx)) {
++        return IRQ_RX_OVERFLOW;
++    }
++    while (count--) {
++        fifo8_push(&s->rx, i2c_recv(s->bus));
++    }
++    if (nack) {
++        i2c_nack(s->bus);
++    }
++    return 0;
++}
++
++static void execute_commands(Esp32C61I2C *s)
++{
++    for (unsigned i = 0; i < CMD_COUNT; i++) {
++        uint32_t *reg = &s->regs[R_COMMAND / 4 + i];
++        uint32_t cmd = *reg;
++        unsigned count = cmd & 0xff;
++        unsigned op = (cmd >> 11) & 7;
++        uint32_t irq = 0;
++
++        switch (op) {
++        case OP_START:
++            end_transfer(s);
++            break;
++        case OP_WRITE:
++            irq = send_bytes(s, count);
++            break;
++        case OP_READ:
++            irq = receive_bytes(s, count, cmd & (1U << 10));
++            break;
++        case OP_STOP:
++            end_transfer(s);
++            irq = IRQ_TRANS_COMPLETE;
++            break;
++        case OP_END:
++            irq = IRQ_END_DETECT;
++            break;
++        default:
++            irq = IRQ_TIMEOUT;
++            break;
++        }
++        *reg = CMD_DONE;
++        if (irq) {
++            if (irq != IRQ_END_DETECT) {
++                end_transfer(s);
++            }
++            s->regs[R_INT_RAW / 4] |= irq;
++            break;
++        }
++    }
++    update_irq(s);
++}
++
++static uint64_t i2c_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61I2C *s = opaque;
++
++    switch (addr) {
++    case R_DATA:
++        return fifo8_is_empty(&s->rx) ? 0xff : fifo8_pop(&s->rx);
++    case R_STATUS:
++        return (s->active ? 1U << 4 : 0) |
++            (fifo8_num_used(&s->rx) << 8) | (fifo8_num_used(&s->tx) << 18);
++    case R_INT_STATUS:
++        return s->regs[R_INT_RAW / 4] & s->regs[R_INT_ENABLE / 4];
++    case R_INT_CLEAR:
++        return 0;
++    default:
++        return addr <= R_DATE ? s->regs[addr / 4] : 0;
++    }
++}
++
++static void i2c_write(void *opaque, hwaddr addr, uint64_t value, unsigned size)
++{
++    Esp32C61I2C *s = opaque;
++
++    switch (addr) {
++    case R_CTR:
++        s->regs[addr / 4] = value & ~CTRL_TRANS_START;
++        if (value & CTRL_TRANS_START) {
++            execute_commands(s);
++        }
++        break;
++    case R_FIFO_CONF:
++        if (value & FIFO_RX_RESET) {
++            fifo8_reset(&s->rx);
++        }
++        if (value & FIFO_TX_RESET) {
++            fifo8_reset(&s->tx);
++        }
++        s->regs[addr / 4] = value & ~(FIFO_RX_RESET | FIFO_TX_RESET);
++        break;
++    case R_SCL_SPECIAL:
++        if (value & 1) {
++            end_transfer(s);
++        }
++        s->regs[addr / 4] = value & ~1U;
++        break;
++    case R_DATA:
++        if (fifo8_is_full(&s->tx)) {
++            s->regs[R_INT_RAW / 4] |= IRQ_TX_OVERFLOW;
++            update_irq(s);
++        } else {
++            fifo8_push(&s->tx, value);
++        }
++        break;
++    case R_INT_CLEAR:
++        s->regs[R_INT_RAW / 4] &= ~value;
++        update_irq(s);
++        break;
++    case R_INT_ENABLE:
++        s->regs[R_INT_ENABLE / 4] = value;
++        update_irq(s);
++        break;
++    case R_STATUS:
++    case R_INT_RAW:
++    case R_INT_STATUS:
++        break;
++    default:
++        if (addr <= R_DATE) {
++            s->regs[addr / 4] = value;
++        }
++        break;
++    }
++}
++
++static const MemoryRegionOps i2c_mmio_ops = {
++    .read = i2c_read,
++    .write = i2c_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static void i2c_reset_hold(Object *obj, ResetType type)
++{
++    Esp32C61I2C *s = ESP32C61_I2C(obj);
++
++    end_transfer(s);
++    fifo8_reset(&s->tx);
++    fifo8_reset(&s->rx);
++    memset(s->regs, 0, sizeof(s->regs));
++    update_irq(s);
++}
++
++static void i2c_init(Object *obj)
++{
++    Esp32C61I2C *s = ESP32C61_I2C(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    s->bus = i2c_init_bus(DEVICE(s), "i2c");
++    fifo8_create(&s->tx, FIFO_SIZE);
++    fifo8_create(&s->rx, FIFO_SIZE);
++    memory_region_init_io(&s->mmio, obj, &i2c_mmio_ops, s, TYPE_ESP32C61_I2C, 0x1000);
++    sysbus_init_mmio(sbd, &s->mmio);
++    sysbus_init_irq(sbd, &s->irq);
++}
++
++static void i2c_finalize(Object *obj)
++{
++    Esp32C61I2C *s = ESP32C61_I2C(obj);
++
++    fifo8_destroy(&s->tx);
++    fifo8_destroy(&s->rx);
++}
++
++static void i2c_class_init(ObjectClass *klass, void *data)
++{
++    RESETTABLE_CLASS(klass)->phases.hold = i2c_reset_hold;
++}
++
++static const TypeInfo c61_i2c_info = {
++    .name = TYPE_ESP32C61_I2C,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C61I2C),
++    .instance_init = i2c_init,
++    .instance_finalize = i2c_finalize,
++    .class_init = i2c_class_init,
++};
++
++static void c61_i2c_register_types(void)
++{
++    type_register_static(&c61_i2c_info);
++}
++
++type_init(c61_i2c_register_types)
+diff --git a/hw/i2c/m5_corematrix.c b/hw/i2c/m5_corematrix.c
+new file mode 100644
+index 0000000..1c73ad4
+--- /dev/null
++++ b/hw/i2c/m5_corematrix.c
+@@ -0,0 +1,312 @@
++/*
++ * CoreMatrix C158 I2C peripheral path: TM1680, M5PM1 key lines and M5IOE1 rail.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "hw/i2c/i2c.h"
++#include "ui/console.h"
++#include "ui/input.h"
++
++#define TYPE_M5_COREMATRIX_SLAVE "m5-corematrix-i2c"
++OBJECT_DECLARE_SIMPLE_TYPE(M5CoreMatrixSlave, M5_COREMATRIX_SLAVE)
++
++#define ADDR_PM1 0x6e
++#define ADDR_IOE1 0x4f
++#define ADDR_TM1680 0x72
++
++#define PM1_MODE 0x10
++#define PM1_OUT 0x11
++#define PM1_IN 0x12
++#define PM1_IRQ 0x40
++#define IOE1_MODE_A 0x03
++#define IOE1_OUT_A 0x05
++#define IOE1_IN_A 0x07
++#define IOE1_MATRIX_RAIL (1U << 4)
++
++struct M5CoreMatrixSlave {
++    I2CSlave parent_obj;
++    uint8_t regs[256];
++    uint8_t ptr;
++    uint8_t gpio_in;
++    bool first;
++    bool command;
++    M5CoreMatrixSlave *matrix;
++    QemuConsole *console;
++    bool power;
++    bool system;
++    bool enabled;
++    bool mode;
++    uint8_t pwm;
++    bool dirty;
++};
++
++static void matrix_update(void *opaque)
++{
++    M5CoreMatrixSlave *s = opaque;
++    DisplaySurface *surface = qemu_console_surface(s->console);
++    int stride = surface_stride(surface);
++    uint8_t level = s->power && s->system && s->enabled && s->mode
++        ? 255 * (s->pwm + 1) / 16 : 0;
++    uint32_t color = (level << 16) | (level << 8) | level;
++
++    if (!s->dirty) {
++        return;
++    }
++    for (int y = 0; y < 16; ++y) {
++        uint32_t *row = (uint32_t *)(surface_data(surface) + y * stride);
++
++        for (int x = 0; x < 16; ++x) {
++            unsigned pos = (x & 7) ^ 4;
++            row[x] = (s->regs[2 * y + (x >> 3)] & (1U << pos)) ? color : 0;
++        }
++    }
++    s->dirty = false;
++    dpy_gfx_update(s->console, 0, 0, 16, 16);
++}
++
++static void matrix_invalidate(void *opaque)
++{
++    M5CoreMatrixSlave *s = opaque;
++    s->dirty = true;
++}
++
++static const GraphicHwOps matrix_graphic_ops = {
++    .invalidate = matrix_invalidate,
++    .gfx_update = matrix_update,
++};
++
++static void matrix_command(M5CoreMatrixSlave *s, uint8_t command)
++{
++    switch (command) {
++    case 0x80: s->system = false; break;
++    case 0x81: s->system = true; break;
++    case 0x82: s->enabled = false; break;
++    case 0x83: s->enabled = true; break;
++    case 0xa4: s->mode = true; break;
++    case 0xb0 ... 0xbf: s->pwm = command & 0xf; break;
++    default: break;
++    }
++    s->dirty = true;
++}
++
++static void ioe_update_rail(M5CoreMatrixSlave *s)
++{
++    M5CoreMatrixSlave *matrix = s->matrix;
++    bool power = !!(s->regs[IOE1_MODE_A] & s->regs[IOE1_OUT_A] &
++                    IOE1_MATRIX_RAIL);
++
++    if (!matrix || matrix->power == power) {
++        return;
++    }
++    matrix->power = power;
++    if (!power) {
++        memset(matrix->regs, 0, sizeof(matrix->regs));
++        matrix->system = matrix->enabled = matrix->mode = false;
++        matrix->pwm = 0;
++    }
++    matrix->dirty = true;
++}
++
++static int slave_event(I2CSlave *dev, enum i2c_event event)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(dev);
++
++    if (event == I2C_START_SEND) {
++        if (dev->address == ADDR_TM1680 && !s->power) {
++            return 1;
++        }
++        s->first = true;
++    }
++    if (event == I2C_START_RECV && dev->address == ADDR_TM1680) {
++        return 1;
++    }
++    return 0;
++}
++
++static int slave_send(I2CSlave *dev, uint8_t byte)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(dev);
++    uint8_t reg;
++
++    if (s->first) {
++        s->first = false;
++        s->command = byte & 0x80;
++        s->ptr = byte;
++        if (dev->address == ADDR_TM1680 && s->command) {
++            matrix_command(s, byte);
++        }
++        return 0;
++    }
++    reg = s->ptr++;
++    switch (dev->address) {
++    case ADDR_TM1680:
++        if (s->command) {
++            matrix_command(s, byte);
++        } else {
++            s->regs[reg & 0x7f] = byte;
++            s->dirty = true;
++        }
++        break;
++    case ADDR_PM1:
++        if (reg >= PM1_IRQ && reg <= PM1_IRQ + 2) {
++            s->regs[reg] &= byte;
++        } else if (reg >= 4 && reg != PM1_IN) {
++            s->regs[reg] = byte;
++        }
++        break;
++    case ADDR_IOE1:
++        if (reg >= IOE1_MODE_A && reg != IOE1_IN_A && reg != IOE1_IN_A + 1) {
++            s->regs[reg] = byte;
++            if (reg == IOE1_MODE_A || reg == IOE1_OUT_A) {
++                ioe_update_rail(s);
++            }
++        }
++        break;
++    }
++    return 0;
++}
++
++static uint8_t slave_recv(I2CSlave *dev)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(dev);
++    uint8_t reg = s->ptr++;
++
++    if (dev->address == ADDR_PM1 && reg == PM1_IN) {
++        uint8_t mode = s->regs[PM1_MODE];
++        return ((s->regs[PM1_OUT] & mode) | (s->gpio_in & ~mode)) & 0x1f;
++    }
++    if (dev->address == ADDR_IOE1 && reg == IOE1_IN_A) {
++        uint8_t mode = s->regs[IOE1_MODE_A];
++        return (s->regs[IOE1_OUT_A] & mode) | ~mode;
++    }
++    return s->regs[reg];
++}
++
++static void set_input_levels(M5CoreMatrixSlave *s, uint8_t level)
++{
++    s->regs[PM1_IRQ] |= (s->gpio_in ^ level) & ~s->regs[PM1_MODE];
++    s->gpio_in = level;
++}
++
++static void matrix_key(DeviceState *dev, QemuConsole *src, InputEvent *evt)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(dev);
++    InputKeyEvent *key = evt->u.key.data;
++    uint8_t mask;
++
++    switch (qemu_input_key_value_to_qcode(key->key)) {
++    case Q_KEY_CODE_A: mask = 1U << 0; break;
++    case Q_KEY_CODE_B: mask = 1U << 1; break;
++    case Q_KEY_CODE_C: mask = 1U << 2; break;
++    default: return;
++    }
++    set_input_levels(s, key->down ? s->gpio_in & ~mask : s->gpio_in | mask);
++}
++
++static const QemuInputHandler matrix_keys = {
++    .name = "CoreMatrix user keys",
++    .mask = INPUT_EVENT_MASK_KEY,
++    .event = matrix_key,
++};
++
++static void gpio_get(Object *obj, Visitor *v, const char *name, void *opaque,
++                     Error **errp)
++{
++    int64_t level = M5_COREMATRIX_SLAVE(obj)->gpio_in;
++
++    visit_type_int64(v, name, &level, errp);
++}
++
++static void gpio_set(Object *obj, Visitor *v, const char *name, void *opaque,
++                     Error **errp)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(obj);
++    int64_t level;
++
++    if (!visit_type_int64(v, name, &level, errp)) {
++        return;
++    }
++    if (level < 0 || level > 0x1f) {
++        error_setg(errp, "CoreMatrix PM1 GPIO inputs must be a 5-bit mask");
++        return;
++    }
++    set_input_levels(s, level);
++}
++
++static void slave_reset(DeviceState *dev)
++{
++    M5CoreMatrixSlave *s = M5_COREMATRIX_SLAVE(dev);
++    uint8_t addr = I2C_SLAVE(dev)->address;
++
++    memset(s->regs, 0, sizeof(s->regs));
++    s->first = true;
++    s->ptr = 0;
++    if (addr == ADDR_PM1) {
++        s->regs[0] = 0x50;
++        s->regs[1] = 0x20;
++        s->regs[2] = 1;
++        s->regs[3] = 'A';
++        s->gpio_in = 0x1f;
++    } else if (addr == ADDR_IOE1) {
++        s->regs[0] = 0x34;
++        s->regs[1] = 0x12;
++        s->regs[2] = 1;
++        ioe_update_rail(s);
++    } else {
++        s->system = s->enabled = s->mode = false;
++        s->pwm = 0;
++        s->dirty = true;
++    }
++}
++
++static void slave_class_init(ObjectClass *klass, void *data)
++{
++    I2CSlaveClass *isc = I2C_SLAVE_CLASS(klass);
++
++    isc->event = slave_event;
++    isc->send = slave_send;
++    isc->recv = slave_recv;
++    device_class_set_legacy_reset(DEVICE_CLASS(klass), slave_reset);
++}
++
++static const TypeInfo slave_type = {
++    .name = TYPE_M5_COREMATRIX_SLAVE,
++    .parent = TYPE_I2C_SLAVE,
++    .instance_size = sizeof(M5CoreMatrixSlave),
++    .class_init = slave_class_init,
++};
++
++static void corematrix_register_types(void)
++{
++    type_register_static(&slave_type);
++}
++
++type_init(corematrix_register_types)
++
++static M5CoreMatrixSlave *add_slave(Object *machine, I2CBus *bus, const char *name,
++                                   uint8_t addr)
++{
++    I2CSlave *dev = i2c_slave_new(TYPE_M5_COREMATRIX_SLAVE, addr);
++
++    object_property_add_child(machine, name, OBJECT(dev));
++    i2c_slave_realize_and_unref(dev, bus, &error_fatal);
++    return M5_COREMATRIX_SLAVE(dev);
++}
++
++void m5_corematrix_attach(Object *machine, I2CBus *bus);
++
++void m5_corematrix_attach(Object *machine, I2CBus *bus)
++{
++    M5CoreMatrixSlave *matrix = add_slave(machine, bus, "tm1680", ADDR_TM1680);
++    M5CoreMatrixSlave *ioe = add_slave(machine, bus, "m5ioe1", ADDR_IOE1);
++    M5CoreMatrixSlave *pm = add_slave(machine, bus, "m5pm1", ADDR_PM1);
++
++    matrix->console = graphic_console_init(DEVICE(matrix), 0, &matrix_graphic_ops, matrix);
++    qemu_console_resize(matrix->console, 16, 16);
++    ioe->matrix = matrix;
++    qemu_input_handler_register(DEVICE(pm), &matrix_keys);
++    object_property_add(OBJECT(pm), "gpio-input-bits", "int", gpio_get, gpio_set,
++                        NULL, NULL);
++}
+diff --git a/hw/i2c/meson.build b/hw/i2c/meson.build
+index e72dca0..a417240 100644
+--- a/hw/i2c/meson.build
++++ b/hw/i2c/meson.build
+@@ -20,4 +20,5 @@ i2c_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files('esp32_i2c.c'))
+ i2c_ss.add(when: 'CONFIG_PCA954X', if_true: files('i2c_mux_pca954x.c'))
+ i2c_ss.add(when: 'CONFIG_PMBUS', if_true: files('pmbus_device.c'))
+ i2c_ss.add(when: 'CONFIG_BCM2835_I2C', if_true: files('bcm2835_i2c.c'))
++i2c_ss.add(when: 'CONFIG_RISCV_ESP32C61', if_true: files('esp32c61_i2c.c', 'm5_corematrix.c'))
+ system_ss.add_all(when: 'CONFIG_I2C', if_true: i2c_ss)
+diff --git a/hw/riscv/Kconfig b/hw/riscv/Kconfig
+index f0ddccb..8dbec02 100644
+--- a/hw/riscv/Kconfig
++++ b/hw/riscv/Kconfig
+@@ -140,6 +140,7 @@ config RISCV_ESP32C61
+     depends on RISCV32
+     select OPENCORES_ETH
+     select UNIMP
++    select I2C
+ 
+ config RISCV_ESP32P4
+     bool
+diff --git a/hw/riscv/esp32c61.c b/hw/riscv/esp32c61.c
+index 5de83d5..05698f7 100644
+--- a/hw/riscv/esp32c61.c
++++ b/hw/riscv/esp32c61.c
+@@ -29,6 +29,7 @@
+ #include "net/net.h"
+ #include "elf.h"
+ #include "exec/address-spaces.h"
++#include "hw/i2c/i2c.h"
+ #include "hw/misc/esp32c61_reg.h"
+ #include "hw/misc/esp32c61_cache.h"
+ #include "hw/misc/esp32c61_pcr.h"
+@@ -52,6 +53,11 @@
+ #include "hw/ssi/esp32c61_spi.h"
+ #include "hw/dma/esp32c61_gdma.h"
+ 
++#define ESP32C61_HP_I2C_BASE         0x60004000
++#define ESP32C61_HP_I2C_IRQ          45
++
++void m5_corematrix_attach(Object *machine, I2CBus *bus);
++
+ #define ESP32C61_RESET_ADDRESS       0x40000000
+ #define ESP32C61_RESET_GPIO_NAME     "esp32c61.machine.reset_gpio"
+ #define MB (1024*1024)
+@@ -61,6 +67,7 @@
+ 
+ struct Esp32C61MachineState {
+     MachineState parent;
++    bool m5corematrix;
+ 
+     EspRISCVCPU soc;
+     BusState periph_bus;
+@@ -670,6 +677,22 @@ static void esp32c61_machine_init(MachineState *machine)
+         memory_region_add_subregion_overlap(sys_mem, ESP32C61_I2C_ANA_MST_BASE, mr, 0);
+     }
+ 
++    /* Digital HP I2C, separate from the internal analog register master. */
++    {
++        DeviceState *i2c = qdev_new("esp32c61.i2c");
++        SysBusDevice *sbd = SYS_BUS_DEVICE(i2c);
++
++        object_property_add_child(OBJECT(machine), "i2c0", OBJECT(i2c));
++        sysbus_realize_and_unref(sbd, &error_fatal);
++        memory_region_add_subregion_overlap(
++            sys_mem, ESP32C61_HP_I2C_BASE, sysbus_mmio_get_region(sbd, 0), 0);
++        sysbus_connect_irq(sbd, 0, qdev_get_gpio_in(intmatrix_dev, ESP32C61_HP_I2C_IRQ));
++        if (ms->m5corematrix) {
++            I2CBus *bus = I2C_BUS(qdev_get_child_bus(i2c, "i2c"));
++            m5_corematrix_attach(OBJECT(machine), bus);
++        }
++    }
++
+     /* GDMA */
+     {
+         object_property_set_link(OBJECT(&ms->gdma), "soc_mr", OBJECT(dram), &error_abort);
+@@ -774,6 +797,16 @@ static void esp32c61_machine_init(MachineState *machine)
+     create_unimplemented_device("esp32c61.clic_area", 0x20000000, 0x1000000);
+ }
+ 
++static bool esp32c61_get_corematrix(Object *obj, Error **errp)
++{
++    return ESP32C61_MACHINE(obj)->m5corematrix;
++}
++
++static void esp32c61_set_corematrix(Object *obj, bool value, Error **errp)
++{
++    ESP32C61_MACHINE(obj)->m5corematrix = value;
++}
++
+ static void esp32c61_machine_class_init(ObjectClass *oc, void *data)
+ {
+     MachineClass *mc = MACHINE_CLASS(oc);
+@@ -783,6 +816,8 @@ static void esp32c61_machine_class_init(ObjectClass *oc, void *data)
+     mc->max_cpus = 1;
+     mc->default_cpus = 1;
+     mc->default_ram_size = 320 * 1024;
++    object_class_property_add_bool(oc, "m5corematrix",
++        esp32c61_get_corematrix, esp32c61_set_corematrix);
+ }
+ 
+ static const TypeInfo esp32c61_info = {
