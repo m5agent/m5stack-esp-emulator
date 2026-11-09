@@ -34,6 +34,13 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+## StickS3 Wi-Fi monitor fixture
+
+[The peerless StickS3 fixture](sticks3_wifi_monitor/README.md) exercises the
+stock ESP-IDF promiscuous callback and benign Probe Request through the S3
+controller. The same Device Service fixture has a paired scan check on the
+original M5Gotchi v0.7 image.
+
 ## Core2 UIFlow2 startup
 
 [`core2_startup/`](core2_startup/README.md) replays the public Core2 display,

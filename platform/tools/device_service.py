@@ -57,8 +57,14 @@ from device_service_network import (  # noqa: E402
 )
 from device_service_network_execution import parse_network_execution  # noqa: E402, F401
 from device_service_qemu_wifi import (  # noqa: E402, F401
+    STICKS3_MONITOR_MAC,
+    STICKS3_MONITOR_NIC,
+    STICKS3_MONITOR_PROFILE,
     apply_qemu_wifi_environment,
+    apply_sticks3_monitor_environment,
+    configure_sticks3_monitor_radio,
     parse_qemu_wifi_security,
+    parse_sticks3_wifi_monitor,
 )
 from device_service_parsing import (  # noqa: E402
     _is_sha256,
@@ -5287,6 +5293,7 @@ class DeviceSession:
             else self.spec.qemu
         )
         profile = self.network_config.get("profile")
+        monitor_fixture = profile == STICKS3_MONITOR_PROFILE
         native_vhci = profile == CORE2_NATIVE_VHCI_PROFILE
         native_hci = profile == CORE2_NATIVE_HCI_PROFILE
         native_bt = native_vhci or native_hci
@@ -5445,7 +5452,9 @@ class DeviceSession:
                 f"file,id=usb-serial-jtag,path={self.dir / USB_SERIAL_JTAG_LOG_NAME}",
             ])
         nic: str | None = None
-        if self.runtime == QEMU_WIFI_RUNTIME or unified:
+        if monitor_fixture:
+            command.extend(["-S", "-net", f"nic,model={STICKS3_MONITOR_NIC},macaddr={STICKS3_MONITOR_MAC}"])
+        elif self.runtime == QEMU_WIFI_RUNTIME or unified:
             configured_nic = self.network_config.get("nic")
             if configured_nic:
                 nic = configured_nic
@@ -5520,11 +5529,10 @@ class DeviceSession:
                 "schema_version": 1, "attachments": self.units,
             })
             env["M5_UNIT_CONFIG"] = str(self.unit_config_path)
-        apply_qemu_wifi_environment(
-            env,
-            nic,
-            self.network_config,
-        )
+        if monitor_fixture:
+            apply_sticks3_monitor_environment(env)
+        else:
+            apply_qemu_wifi_environment(env, nic, self.network_config)
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)
@@ -5694,6 +5702,18 @@ class DeviceSession:
                     504,
                 ) from error
             self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+            if monitor_fixture:
+                enabled = self.network_config["radio_enabled"]
+                configure_sticks3_monitor_radio(self._qmp.cmd, enabled)
+                self._check_cancelled()
+                self._record_event(
+                    "wifi_monitor_fixture_verified",
+                    fixture_sha256=self.network_config["fixture_sha256"],
+                    radio_enabled=enabled,
+                    host_backends=0,
+                )
+                self._qmp.cmd("cont")
+                self.network_result = {**self.network_config, "status": "FIXTURE_READY"}
         if self.program_transport == "uart-repl":
             from guest_console import GuestConsole
 
@@ -9646,6 +9666,7 @@ class DeviceService:
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
+        monitor_config = parse_sticks3_wifi_monitor(payload)
         if program_mode:
             if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
                 raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted UIFlow2 QEMU device", 409)
@@ -9818,7 +9839,7 @@ class DeviceService:
             unit_contract = unit_registry.freeze([unit["unit_id"] for unit in units]) if units else None
         except UnitError as error:
             raise ServiceError(error.code, error.message, error.status) from error
-        network_config = None
+        network_config = monitor_config
         if runtime == "network":
             network_config = parse_network_execution(
                 spec,

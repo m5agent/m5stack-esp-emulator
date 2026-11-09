@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| #204 StickS3 Wi-Fi 夹具 / virtual-device validation | QEMU `ad3b3b7c…` 的独立 Device Service 会话核验无宿主网络后端。ESP-IDF probe 经 S3 RX DMA/IRQ 收到 beacon，radio-off 无回调。无害 Probe Request 通过 TX DMA/IRQ，虚拟 AP 返回 Probe Response。原版 M5Gotchi 扫描为 1/1 和 0/0，四会话取证后停止。Evil、完整 raw TX 和真机未测 | [精确执行身份](../tests/firmware/sticks3_wifi_monitor/evidence-2026-11-09.json) |
 | #201–#204 StickS3 矩阵判定 / virtual-device validation | 同一 QEMU `6d9af027…` 复跑 PMIC Upgrade、Bit Pirate、AirMouseS3、M5Gotchi 和 Evil-StickS3。五个样本由 UI 基线 PASS 改为结构化 `PARTIAL/runtime_model_gap`。PM1 IAP 请求和 TinyUSB 安装失败仍可观测，PulseOS 对照未命中缺口 | [模型缺口和关闭条件](runtime-model-gap-register.md#runtime-10sticks3-固件审查中的-pm1usbble-hid-与-wi-fi-monitor) |
 | #199–#200 StickS3 矩阵采样 / virtual-device validation | M5Launcher 启动帧与 t+10/30 秒主菜单分开。A/B 用真实面板键路径与逐键无输入控制。只响应 B 的 guest 对照、无输入动画负控均符合预期 | [采样与输入判据](user-firmware-simulation-matrix.md) |
 | #206 StickS3 Flash 重放 / virtual-device validation | 同一原版 M5Gotchi v0.7 由冷启写 LittleFS，独立会话从完整 8 MiB Flash 读回配置。首个观察窗口未达 marker 的结果保留。超大镜像及错误上传 SHA 拒绝 | [两会话证据](evidence/2026-11-09-issue-fixes/flash-replay-summary.json) |

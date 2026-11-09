@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.52.0` and bounded
+Status: local MVP with unified-device runtime contract `1.53.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1488,6 +1488,30 @@ runtime name alone; use the profile matrix below.
 | `qemu-wifi` | Board + WiFi firmware without external BLE | Board and WiFi only |
 | `qemu-ble` | Legacy alias for unified profiles and radio-specific diagnostics | Depends on profile |
 | `network` | Separate `esp-emu` network/BLE diagnostic lane | No framebuffer, input, QOM or same-instance board state |
+
+For a controlled StickS3 Wi-Fi observation, send an explicit fixture when
+creating a normal QEMU session.
+
+```json
+{
+  "device_id": "sticks3",
+  "runtime": "qemu",
+  "firmware_id": "<stored-stick-s3-firmware-id>",
+  "wifi_monitor_fixture": "beacon"
+}
+```
+
+`beacon` enables the virtual `m5-monitor-lab` AP on channel 1.
+`no-beacon` holds the same controller's radio off from boot for the negative
+control. The guest starts paused. It resumes only after QMP confirms exactly
+one emulated S3 Wi-Fi NIC, zero host network backends and the requested radio
+state. Omit `network`, UART program options and Wi-Fi/ESP-NOW runtime overrides
+when selecting the fixture. The session and evidence ZIP record the normalized
+fixture SHA and `FIXTURE_READY` after the topology check. Firmware observations
+come from guest serial and controller traces. This fixture uses no slirp, host
+forward, TAP, external ESP-NOW peer or physical radio. See the
+[StickS3 regression](../tests/firmware/sticks3_wifi_monitor/README.md) for the
+exact verified operations and their limits.
 
 `runtime=network` runs S3/C6 firmware through the separate `esp-emu` lane. It
 does not expose framebuffer, input, QOM or same-instance board state, so its

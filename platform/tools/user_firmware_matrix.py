@@ -1117,8 +1117,8 @@ def _sticks3_review_model_gaps(
     if firmware_sha256 in _STICKS3_MONITOR_SHA256:
         gaps.append((
             "sticks3_wifi_monitor_not_modeled",
-            "this firmware's 802.11 monitor function lacks a validated "
-            "controller-backed receive and transmit fixture",
+            "the default matrix does not exercise the isolated monitor fixture; "
+            "general 802.11 monitor and raw transmit behavior remains unverified",
         ))
     return [
         {"code": code, "scope": "sticks3-qemu", "detail": detail}

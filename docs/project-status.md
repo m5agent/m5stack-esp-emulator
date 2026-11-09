@@ -34,6 +34,9 @@ UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始
 
 - Device Service 支持 lease、虚拟 Flash、串口、frame/input/QOM、网络故障、
   pcap、evidence、历史恢复和 worker 生命周期；
+- StickS3 的 [隔离 Wi-Fi 夹具](../tests/firmware/sticks3_wifi_monitor/README.md)
+  已验证固定信道 beacon 的 ESP-IDF monitor RX、原版 M5Gotchi 扫描和无害
+  Probe Request TX 元数据。任意 raw frame、Evil-StickS3 和物理 RF 待验证。
 - S3/C6/Core2 的规范整机路径是 `qemu-unified`，同一 lease 和同一 guest
   内组合板级、WiFi、BLE 与 evidence；Core2 使用 `core2-native-hci`；
 - 网络路径包含 controlled DNS/TLS、exact/domain/CNAME answer binding、
