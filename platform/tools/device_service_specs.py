@@ -10,6 +10,7 @@ import subprocess
 from typing import Any
 
 from device_service_errors import ServiceError
+from device_service_native_hid import STICKS3_NATIVE_HID_PROFILE
 from device_service_parsing import parse_size
 
 
@@ -335,6 +336,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, STICKS3_WIFI_PROFILE)
                 network_profiles.insert(0, "uiflow2-sticks3")
                 network_profiles.insert(0, STICKS3_UNIFIED_PROFILE)
+                network_profiles.insert(0, STICKS3_NATIVE_HID_PROFILE)
             if device_id == "cores3" and network_chip:
                 network_profiles.insert(0, CORES3_UNIFIED_PROFILE)
             if device_id == "cardputer-adv" and network_chip:

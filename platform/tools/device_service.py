@@ -51,6 +51,14 @@ from device_service_execution_parsing import (  # noqa: E402, F401
     parse_nvs_execution,
     parse_storage_execution,
 )
+from device_service_native_hid import (  # noqa: E402
+    AIRMOUSE_BLE_NAME,
+    STICKS3_NATIVE_HID_PROFILE,
+    airmouse_native_hid_args,
+    native_hid_evidence,
+    require_airmouse_image,
+    require_native_hid_backend,
+)
 from device_service_network import (  # noqa: E402
     parse_dns_cname_records,
     parse_network_policy,
@@ -1041,7 +1049,7 @@ def parse_qemu_ble_execution(
         }
         default_profile = CORE2_BLE_PROFILE
     elif spec.id == "sticks3":
-        supported_profiles = {STICKS3_UNIFIED_PROFILE}
+        supported_profiles = {STICKS3_UNIFIED_PROFILE, STICKS3_NATIVE_HID_PROFILE}
         default_profile = STICKS3_UNIFIED_PROFILE
     elif spec.id == "cores3":
         supported_profiles = {CORES3_UNIFIED_PROFILE}
@@ -1097,6 +1105,25 @@ def parse_qemu_ble_execution(
             f"unsupported {runtime} profile: {profile!r}",
             400,
         )
+    if profile == STICKS3_NATIVE_HID_PROFILE:
+        extras = set(value) - {"profile", "attempts"}
+        if extras:
+            raise ServiceError(
+                "invalid_network",
+                "sticks3-native-hid accepts only profile and attempts; "
+                "it uses a loopback HID peer and no IP network",
+                400,
+            )
+        attempts = value.get("attempts", 1)
+        if type(attempts) is not int or not 1 <= attempts <= 10:
+            raise ServiceError("invalid_network", "network.attempts must be an integer from 1 to 10", 400)
+        return {
+            "profile": profile,
+            "ble_name": AIRMOUSE_BLE_NAME,
+            "attempts": attempts,
+            "http_fixture": False,
+            "capture_pcap": False,
+        }
     http_fixture = value.get("http_fixture", True)
     if not isinstance(http_fixture, bool):
         raise ServiceError(
@@ -2903,6 +2930,7 @@ class DeviceSession:
                 CORE2_HCI_GATT_PROFILE,
                 NANOC6_HCI_BLE_PROFILE,
                 NESSO_UNIFIED_PROFILE,
+                STICKS3_NATIVE_HID_PROFILE,
                 *UNIFIED_PROFILES,
             }
         )
@@ -3076,7 +3104,7 @@ class DeviceSession:
                 "hci_probe_adopted",
                 pid=pid,
                 port=port,
-                prior_peer_pass="BLE_BUMBLE_PASS" in probe_log,
+                prior_peer_pass=self._ble_probe_completion_marker() in probe_log,
             )
             self._persist_session()
             return dict(self._companions["ble"])
@@ -3085,7 +3113,7 @@ class DeviceSession:
             if self.hci_probe_log.is_file()
             else ""
         )
-        if "BLE_BUMBLE_PASS" in probe_log:
+        if self._ble_probe_completion_marker() in probe_log:
             self._update_companion(
                 "ble",
                 state="completed",
@@ -3601,6 +3629,13 @@ class DeviceSession:
             else ""
         )
         profile = self.network_config.get("profile")
+        if profile == STICKS3_NATIVE_HID_PROFILE:
+            probe_log = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            return native_hid_evidence(probe_log) | {"session_id": self.id}
         if profile == NANOC6_HCI_BLE_PROFILE:
             probe_log = (
                 self.hci_probe_log.read_text(errors="replace")
@@ -4470,21 +4505,14 @@ class DeviceSession:
                         self.ready_marker,
                         self.ready_timeout,
                     )
-                if (
-                    self.network_config.get("profile")
-                    in {
-                        CORE2_HCI_GATT_PROFILE,
-                        NANOC6_HCI_BLE_PROFILE,
-                        NESSO_UNIFIED_PROFILE,
-                        *UNIFIED_PROFILES,
-                    }
-                ):
+                if self._requires_hci_probe():
                     self._wait_hci_probe_result(self.ready_timeout)
                 self.network_result = self.network_evidence()
                 self._record_event(
                     "qemu_radio_attempt",
                     attempt=attempt,
                     status="PASS",
+                    **({"stage": "subscription"} if self.network_config.get("profile") == STICKS3_NATIVE_HID_PROFILE else {}),
                 )
                 return
             except SessionCancelled:
@@ -4559,6 +4587,13 @@ class DeviceSession:
         }
         self._record_event("legacy_wifi_config_applied", **info)
 
+    def _ble_probe_completion_marker(self) -> str:
+        if self.network_config.get("profile") == STICKS3_NATIVE_HID_PROFILE:
+            return "BLE_HID_PASS"
+        if self.network_config.get("ble_peer_role") == "peripheral":
+            return "BLE_PERIPHERAL_PASS"
+        return "BLE_BUMBLE_PASS"
+
     def _wait_hci_probe_result(self, timeout: float) -> None:
         # Reconnect workloads can legitimately exceed the legacy 30-second
         # single-cycle budget. The session's ready timeout bounds the wait.
@@ -4570,16 +4605,19 @@ class DeviceSession:
                 if self.hci_probe_log.is_file()
                 else ""
             )
-            pass_marker="BLE_PERIPHERAL_PASS" if self.network_config.get("ble_peer_role")=="peripheral" else "BLE_BUMBLE_PASS"
-            if pass_marker in text:
-                self._record_event("ble_peer_pass")
-                return
-            if "BLE_BUMBLE_FAIL" in text or "BLE_BUMBLE_ERROR" in text or "BLE_PERIPHERAL_FAIL" in text:
+            hid = self.network_config.get("profile") == STICKS3_NATIVE_HID_PROFILE
+            if any(marker in text for marker in (
+                "BLE_HID_FAIL", "BLE_BUMBLE_FAIL", "BLE_BUMBLE_ERROR", "BLE_PERIPHERAL_FAIL",
+            )):
                 raise ServiceError(
                     "ble_peer_failed",
                     "external BLE peer did not complete the GATT exchange",
                     409,
                 )
+            ready_marker = "BLE_HID_SUBSCRIBED" if hid else self._ble_probe_completion_marker()
+            if ready_marker in text:
+                self._record_event("ble_hid_subscribed" if hid else "ble_peer_pass")
+                return
             if not self._hci_probe_running():
                 raise ServiceError(
                     "ble_peer_failed",
@@ -4632,6 +4670,19 @@ class DeviceSession:
                 ],
             )
         )
+        if profile == STICKS3_NATIVE_HID_PROFILE:
+            env["BLE_HCI_TRACE"] = "1"
+            return [
+                sys.executable, str(BLE_PROBE),
+                "--protocol", "hid",
+                "--port", str(self.hci_port),
+                "--name-prefix", AIRMOUSE_BLE_NAME,
+                "--hid-pairing", "always",
+                "--hid-min-reports", "2",
+                "--timeout", str(self.ready_timeout),
+                "--gatt-request-timeout", "30",
+                "--notification-timeout", "60",
+            ], env
         if c6_hci or profile in {
             CORE2_NATIVE_VHCI_PROFILE,
             CORE2_NATIVE_HCI_PROFILE,
@@ -5307,16 +5358,8 @@ class DeviceSession:
             self.network_config.get("policy")
         )
         isolated = policy.isolation == "namespace"
-        hci_gatt = (
-            self.runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
-            and profile
-            in {
-                CORE2_HCI_GATT_PROFILE,
-                NANOC6_HCI_BLE_PROFILE,
-                NESSO_UNIFIED_PROFILE,
-                *UNIFIED_PROFILES,
-            }
-        )
+        native_hid = profile == STICKS3_NATIVE_HID_PROFILE
+        hci_gatt = self._requires_hci_probe()
         guestfwd_http_command: str | None = None
         ble_probe_command: list[str] | None = None
         ble_probe_env: dict[str, str] = {}
@@ -5432,7 +5475,7 @@ class DeviceSession:
                 ])
             else:
                 command.extend(["-serial", f"file:{self.serial0}"])
-            if hci_gatt and not native_bt:
+            if hci_gatt and not native_bt and not native_hid:
                 assert self.hci_port is not None
                 if profile == STACKCHAN_UNIFIED_PROFILE:
                     command.extend(["-serial", f"file:{self.serial1}"])
@@ -5449,6 +5492,9 @@ class DeviceSession:
                 )
             elif not self.spec.qemu_console_index:
                 command.extend(["-serial", f"file:{self.serial1}"])
+        if native_hid:
+            assert self.hci_port is not None
+            command.extend(airmouse_native_hid_args(self.hci_port))
         command.extend(
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
@@ -9940,6 +9986,15 @@ class DeviceService:
                 payload["ready_marker"] = UNIFIED_READY_MARKERS[
                     network_config["profile"]
                 ]
+        if (network_config or {}).get("profile") == STICKS3_NATIVE_HID_PROFILE:
+            require_airmouse_image(firmware_source if source == "uploaded" else {}, firmware_sha)
+            if payload.get("nvs") is not None:
+                raise ServiceError(
+                    "sticks3_native_hid_image_mismatch",
+                    "NVS fixtures are unavailable for the pinned native HID image",
+                    409,
+                )
+            require_native_hid_backend(spec.qemu)
         if network_config:
             elf_artifact_id = network_config.get("elf_artifact_id")
             if elf_artifact_id:

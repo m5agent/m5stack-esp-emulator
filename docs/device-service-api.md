@@ -2607,6 +2607,34 @@ display journal is not a replacement for same-session validation evidence.
 
 ## Quick examples
 
+### StickS3 stock BLE HID
+
+Upload the [original AirMouseS3 v1.0 release BIN](https://github.com/Teapot174/AirMouseS3/releases/tag/v1.0)
+as a merged firmware image. Use its returned firmware ID with:
+
+```json
+{
+  "device_id": "sticks3",
+  "firmware_id": "<merged AirMouseS3 firmware ID>",
+  "runtime": "qemu-ble",
+  "network": {"profile": "sticks3-native-hid", "attempts": 1}
+}
+```
+
+This profile binds the VHCI hook addresses to the SHA-256 of the original
+upload and the composed Flash. Other builds, including a build from the same
+tag, are rejected. The peer is local and the guest has no IP network backend.
+The guest's native S3 VHCI callback delivers events and ACL packets to its
+unmodified NimBLE stack. No ELF or guest UART HCI connection is required.
+
+Wait for the session to reach `running` after the HID subscription. Use the
+normal input endpoint to press and release StickS3 BtnA. The session
+`/network` result is `AWAITING_INPUT` until the peer receives two valid HID
+reports. Inspect `ble-probe.log` in the evidence ZIP to check the exact payload
+bytes. Retrieve evidence before stopping the session. This is virtual-device
+validation of the Bluetooth host/controller interface and HID behavior; it
+does not establish RF or physical pairing security.
+
 ### Create a reference UIFlow2 device
 
 If the reference firmware is cached for the device, `firmware_id` can be

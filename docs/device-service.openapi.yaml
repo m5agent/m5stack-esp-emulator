@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.55.0
+  version: 1.56.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3210,7 +3210,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -4380,10 +4380,13 @@ components:
         Select the profile for the requested device. runtime=qemu-unified
         requires a one-guest *-unified profile. runtime=qemu-ble remains
         accepted for compatibility and for radio-specific profiles.
+        sticks3-native-hid requires runtime=qemu-ble, device_id=sticks3,
+        the original AirMouseS3 v1.0 merged image, and a QEMU build with the
+        S3 native VHCI bridge. It accepts only profile and attempts.
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
         wifi:
           type: boolean
         ble:
