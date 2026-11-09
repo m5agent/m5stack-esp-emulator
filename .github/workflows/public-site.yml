@@ -52,6 +52,12 @@ jobs:
           echo "$(brew --prefix flex)/bin" >> "$GITHUB_PATH"
       - name: Build pinned C/QEMU and complete corresponding source
         run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2
+      - name: Build pinned CoreMatrix C61 QEMU and corresponding source
+        run: |
+          python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
+            --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
+            --sdk-dir .work/qemu-browser-runtime-build/emsdk \
+            --downloads .work/qemu-browser-runtime-build/downloads
       - name: Retain failed source build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -65,7 +71,7 @@ jobs:
         env:
           PUBLIC_BASE_PATH: ${{ inputs.base_path }}
           PUBLIC_SERVICE_URL: ${{ inputs.service_url }}
-        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --littlefs-runtime .work/browser-littlefs
+        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

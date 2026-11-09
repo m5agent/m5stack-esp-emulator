@@ -283,6 +283,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                     (c61_directory / name).write_bytes(content)
             registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles,
                                                            c61_manifest=c61_manifest)
+            if c61_manifest and not any(row["target"] == "riscv32-softmmu" for row in registry["profiles"]):
+                raise ValueError("the C61 runtime has no selected browser profile")
             (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
             (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json(browser_profiles))
             workbench_path = Path("platform/web/uiflow-workbench-profiles.json")
@@ -315,6 +317,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                         "papermono": {"main.py": "papermono_main.py"},
                         "papers3": {"main.py": "et047tc1_main.py"},
                         "paperdiy": {"main.py": "et047tc1_main.py"},
+                        "corematrix": {"boot.py": "core2_boot.py", "main.py": "corematrix_main.py"},
                     }
                     source_name = source_names.get(profile["deviceId"], {}).get(name, name)
                     expected_path = f"platform/runtime/qemu-probe/fixture/{source_name}"
@@ -332,7 +335,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         wallclock_example = False
         if littlefs_runtime:
             per_board_probes = bool(qemu_runtime and any(
-                row.get("fixture", {}).get("id") == "xtensa-board-display-v1" for row in registry["profiles"]))
+                row.get("fixture", {}).get("id") in {"xtensa-board-display-v1", "riscv-board-display-v1"}
+                for row in registry["profiles"]))
             littlefs_files = littlefs_runtime_files(littlefs_runtime, require_sized_mount=per_board_probes)
             wallclock_example = "cores3-wasm-lvgl-wallclock-v1" in json.loads(littlefs_files["manifest.json"]).get("fixtures", {})
             for name, content in littlefs_files.items():

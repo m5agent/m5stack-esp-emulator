@@ -4,6 +4,7 @@ import {assetUrl, siteRoot} from './public-config.js';
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
 export const QEMU_C61_BROWSER_SOURCE_COMMIT = '8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc';
 const C61_BOARD = 'esp32c61,m5corematrix=on';
+export const CORE_MATRIX_STOCK_FLASH_SHA256 = '5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07';
 
 export function qemuRuntimeIdentity(profile) {
   return profile.target === 'riscv32-softmmu'
@@ -105,7 +106,8 @@ export function validateQemuProfile(profile) {
   check(profile.bootloaderOffset === (profile.chip === 'esp32' ? 0x1000 : 0) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
   const display = profile.display;
   if (c61) {
-    check(profile.admission === 'candidate' && profile.flashMb === 16 && profile.psramMb === 0
+    check((profile.admission === 'candidate' || profile.readyFirmwareSHA256 === CORE_MATRIX_STOCK_FLASH_SHA256)
+      && profile.flashMb === 16 && profile.psramMb === 0
       && display?.width === 16 && display?.height === 16 && profile.clockDivisor === 1
       && profile.efuse === null && !profile.outputs, 'Invalid CoreMatrix browser candidate');
   }

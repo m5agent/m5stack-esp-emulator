@@ -90,6 +90,11 @@ Core2 另按仓库已有的稳定路径使用
 本机通过写成托管 runner 全板型 PASS。发布包须保留对应源码与许可，且不得含
 固件、ROM 或本机路径；构建配方的路径映射在生产者端执行，不能事后修改 WASM。
 
+CoreMatrix C158 的 ESP32-C61 使用单独固定的 RISC-V QEMU 来源、WASM、Worker
+和对应源码包。导出器的 `--qemu-c61-runtime` 在主 Xtensa 导出旁添加这个运行时。
+聚合门禁按各自目标核对编译板型和 WASM SHA。CoreMatrix 依赖官方镜像的片内
+内存启动路径，当前范围保留 16 MiB Flash，8 MiB Quad PSRAM 与 Wi-Fi 数据面另行验收。
+
 ## 访问者流程与浏览器要求
 
 默认打开网页即可使用，不要求登录。静态入口不包含账号、OAuth、后端数据库或

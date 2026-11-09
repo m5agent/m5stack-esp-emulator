@@ -74,7 +74,7 @@ function reference(device = state.selected) {
     return {name:`${device.name} · UIFlow2 编程环境`,nativeWorkbench:true};
   const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
-  if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
+  if (['xtensa-board-display-v1','xtensa-board-led-v1','riscv-board-display-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
     if (state.config.browser_wallclock_example && $('referenceExample').value === 'wallclock-candidate')

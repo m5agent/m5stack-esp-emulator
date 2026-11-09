@@ -3,7 +3,7 @@ import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256} from './public-qemu-profiles.js';
 const HISTORY_KEY = 'm5-public-qemu-history-v1';
 const EXAMPLE_SHA = '78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
 export const QEMU_BROWSER_PROFILE = Object.freeze({deviceId:'cores3',board:'m5cores3',chip:'esp32s3',flashMb:16,
@@ -112,6 +112,11 @@ export class PublicQemuRuntime {
       check(globalThis.crossOriginIsolated&&typeof SharedArrayBuffer!=='undefined','浏览器共享内存尚未启用。请在 HTTPS 下刷新，允许本站 Service Worker；推荐桌面 Chromium。');
       const flash=validateQemuFirmware(firmware,profile),firmwareSHA256=await sha256Buffer(flash,{signal:bootAbort.signal});
       active();
+      if (profile.deviceId==='corematrix'&&profile.admission==='public') {
+        const verifiedWorkbench=this.workbenchProfiles?.profiles.find(row=>row.deviceId===deviceId);
+        check([CORE_MATRIX_STOCK_FLASH_SHA256, verifiedWorkbench?.firmwareSHA256, profile.fixture?.firmwareSHA256]
+          .includes(firmwareSHA256),'CoreMatrix 浏览器运行仅支持已验证的固件镜像。');
+      }
       profile=resolveQemuFirmwareProfile(profile,firmwareSHA256);
       if(this.workbenchProfiles)profile=resolveUIFlowWorkbenchProfile(profile,firmwareSHA256,this.workbenchProfiles);
       let clockOverride=null;
