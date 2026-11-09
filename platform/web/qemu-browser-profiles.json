@@ -2807,17 +2807,12 @@
       "firmwareProfiles": [
         {
           "firmwareSHA256": "4eb25cbc42d72a644d1b6c06971cf5c7d9bc3c2951024d1c122bda9bf3cb39aa",
-          "profile": "papers3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "profile": "papers3-wasm-uiflow-workbench-wallclock",
           "clockDivisor": 1,
           "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
           "fixture": "uiflow-workbench-v1",
           "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
-          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
-          "oneInsnPerTb": true,
-          "requiredRuntimePatch": {
-            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
-            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
-          }
+          "schedulerCandidate": "qemu-tci-wallclock-v1"
         }
       ]
     },
@@ -2927,17 +2922,12 @@
       "firmwareProfiles": [
         {
           "firmwareSHA256": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9",
-          "profile": "paperdiy-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "profile": "paperdiy-wasm-uiflow-workbench-wallclock",
           "clockDivisor": 1,
           "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
           "fixture": "uiflow-workbench-v1",
           "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
-          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
-          "oneInsnPerTb": true,
-          "requiredRuntimePatch": {
-            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
-            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
-          }
+          "schedulerCandidate": "qemu-tci-wallclock-v1"
         }
       ]
     },

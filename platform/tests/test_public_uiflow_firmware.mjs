@@ -34,6 +34,7 @@ const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
   "paperdiy": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9"
 });
 const EXACT_S3_WORKBENCH_MAIN = 'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0';
+const STANDARD_TCI_PAPER_WORKBENCH = new Set(['papers3','paperdiy']);
 assert.deepEqual(Object.keys(EXACT_S3_WORKBENCH_FLASH).sort(),registry.profiles
   .filter(row=>qemu.profiles.find(profile=>profile.deviceId===row.deviceId)?.chip==='esp32s3')
   .map(row=>row.deviceId).sort(),'a new S3 workbench needs explicit image/policy review');
@@ -52,15 +53,17 @@ for (const row of registry.profiles) {
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
   if (Object.hasOwn(EXACT_S3_WORKBENCH_FLASH,row.deviceId)) {
+    const standardPaper=STANDARD_TCI_PAPER_WORKBENCH.has(row.deviceId);
     assert.equal(row.firmwareSHA256,EXACT_S3_WORKBENCH_FLASH[row.deviceId]);
-    assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, true);
-    assert.equal(resolved.profile, row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+    assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, standardPaper?undefined:true);
+    assert.equal(resolved.profile, standardPaper?`${row.deviceId}-wasm-uiflow-workbench-wallclock`
+      :row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
       :`${row.deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`);
-    assert.deepEqual(resolved.requiredRuntimePatch, QEMU_ONE_INSN_RUNTIME_PATCH);
+    assert.deepEqual(resolved.requiredRuntimePatch, standardPaper?undefined:QEMU_ONE_INSN_RUNTIME_PATCH);
     assert.equal(resolved.firmwareVariant.firmwareSHA256, row.firmwareSHA256);
     assert.equal(resolved.firmwareVariant.sourceSHA256, row.files['main.py'].sha256);
     assert.equal(resolved.firmwareVariant.fixture, 'uiflow-workbench-v1');
-    assert.equal(resolved.firmwareVariant.schedulerCandidate, 'qemu-tci-mmio-blocks-v1');
+    assert.equal(resolved.firmwareVariant.schedulerCandidate, standardPaper?'qemu-tci-wallclock-v1':'qemu-tci-mmio-blocks-v1');
     assert.equal(resolved.accelerator, undefined);
   } else if(row.deviceId==='corematrix'){
     assert.equal(row.firmwareSHA256,'bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1');
@@ -193,24 +196,24 @@ for(const omitted of [QEMU_ONE_INSN_RUNTIME_PATCH,cardputer.requiredInputPatch])
   const copy=structuredClone(cardputerRuntime);copy.source.patches=copy.source.patches.filter(row=>row.path!==omitted.path);
   assert.throws(()=>validateQemuRuntimeRequirements(resolveCardputer(),copy),/required source patch/,'both execution and input patches remain mandatory');
 }
-// All eleven explicit S3 images get the same fail-closed identity controls.
-// Existing device-specific tests above remain intact; the eight added rows
-// require their own executed acceptance before this patch is applied.
+// All explicit S3 images get the same fail-closed identity controls.
 for(const [deviceId,firmwareSHA256] of Object.entries(EXACT_S3_WORKBENCH_FLASH)){
   const profile=qemu.profiles.find(row=>row.deviceId===deviceId);
   const workbench=registry.profiles.find(row=>row.deviceId===deviceId);
   assert.equal(workbench.firmwareSHA256,firmwareSHA256);
   assert.equal(workbench.files['main.py'].sha256,EXACT_S3_WORKBENCH_MAIN);
+  const standardPaper=STANDARD_TCI_PAPER_WORKBENCH.has(deviceId);
   const variant=profile.firmwareProfiles.find(row=>row.firmwareSHA256===firmwareSHA256);
   assert.deepEqual(variant,{firmwareSHA256,
-    profile:deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+    profile:standardPaper?`${deviceId}-wasm-uiflow-workbench-wallclock`
+      :deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
       :`${deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`,
     clockDivisor:1,readyMarker:UIFLOW_WORKBENCH_READY,fixture:'uiflow-workbench-v1',
-    sourceSHA256:EXACT_S3_WORKBENCH_MAIN,schedulerCandidate:'qemu-tci-mmio-blocks-v1',
-    oneInsnPerTb:true,requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH});
+    sourceSHA256:EXACT_S3_WORKBENCH_MAIN,schedulerCandidate:standardPaper?'qemu-tci-wallclock-v1':'qemu-tci-mmio-blocks-v1',
+    ...(standardPaper?{}:{oneInsnPerTb:true,requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH})});
   const resolveExact=(candidate=profile,workbenchRegistry=registry)=>resolveUIFlowWorkbenchProfile(
     resolveQemuFirmwareProfile(candidate,firmwareSHA256),firmwareSHA256,workbenchRegistry);
-  const exact=resolveExact();assert.equal(exact.clockDivisor,1);assert.equal(exact.oneInsnPerTb,true);
+  const exact=resolveExact();assert.equal(exact.clockDivisor,1);assert.equal(exact.oneInsnPerTb,standardPaper?undefined:true);
   for(const [field,value] of [['firmwareSHA256','0'.repeat(64)],['sourceSHA256','0'.repeat(64)],
       ['fixture','unrelated-fixture-v1'],['readyMarker','UNRELATED_READY']]){
     const candidate=structuredClone(profile);
@@ -239,6 +242,10 @@ for(const [deviceId,firmwareSHA256] of Object.entries(EXACT_S3_WORKBENCH_FLASH))
   const goodRuntime={source:{patches:[structuredClone(QEMU_ONE_INSN_RUNTIME_PATCH),
     ...(profile.requiredInputPatch?[structuredClone(profile.requiredInputPatch)]:[])]}};
   validateQemuRuntimeRequirements(exact,goodRuntime);
+  if(standardPaper){
+    validateQemuRuntimeRequirements(exact,{source:{patches:[]}});
+    continue;
+  }
   for(const mode of ['missing','wrong','duplicate']){
     const bad=structuredClone(goodRuntime),patch=bad.source.patches.find(row=>row.path===QEMU_ONE_INSN_RUNTIME_PATCH.path);
     if(mode==='missing')bad.source.patches=bad.source.patches.filter(row=>row.path!==QEMU_ONE_INSN_RUNTIME_PATCH.path);
