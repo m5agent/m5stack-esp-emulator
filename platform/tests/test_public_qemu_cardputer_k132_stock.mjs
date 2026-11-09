@@ -32,7 +32,10 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
   testScript:'platform/tests/test_public_qemu_cardputer_k132_stock.mjs',
   async exercise({page,canvas,origin,waitFrame,report,output,timeout}) {
     if(selectedCase==='uiflow2-v254'){
-      const offline=await waitFrame('928b23eb10887120636d16607c6a53beb8e825b52c592b0a8a4ee6e7d0838f53',[3,19,140,22]);
+      // The orange banner is drawn while the stock app is still starting.
+      // Wait for the completed Offline fields, including the MAC and code labels.
+      const offlineRegion=[3,19,140,84];
+      const offline=await waitFrame('a12502692d963d104d89ab6ecdf084ba72adaa57da74a4cad07811dcee0cee29',offlineRegion);
       await canvas.screenshot({path:resolve(output,'uiflow2-offline.png')});
       await canvas.focus();
       await page.keyboard.down('F12');
@@ -44,7 +47,7 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
       const inputs=await page.evaluate(()=>stockGuestRuntime.inputs.map(({id,down})=>({id,down})));
       assert.deepEqual(inputs,[{id:'f12',down:true},{id:'f12',down:false}]);
       report.interaction={frames:{offline,menu},inputs,holdMilliseconds:250,
-        regions:{offlineBadge:[3,19,140,22],developTile:[87,35,66,66]}};
+        regions:{offlinePage:offlineRegion,developTile:[87,35,66,66]}};
       await canvas.screenshot({path:resolve(output,'uiflow2-develop-menu.png')});
       return;
     }
