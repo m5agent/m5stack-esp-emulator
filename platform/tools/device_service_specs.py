@@ -164,6 +164,7 @@ class DeviceSpec:
     state_probes: dict[str, dict[str, Any]]
     reason: str | None
     require_machine_probe: bool = False
+    qemu_console_index: int = 0
 
     @property
     def has_display(self) -> bool:

@@ -5402,6 +5402,9 @@ class DeviceSession:
                 ]
             )
         else:
+            if self.spec.qemu_console_index:
+                command.extend(["-serial", f"file:{self.serial1}"])
+                command.extend(["-serial", "null"] * (self.spec.qemu_console_index - 1))
             if self.program_transport == "uart-repl":
                 # Start paused: the unique reader must own the socket before
                 # any guest UART output, including the initial REPL banner.
@@ -5427,7 +5430,7 @@ class DeviceSession:
                         "chardev:hci",
                     ]
                 )
-            else:
+            elif not self.spec.qemu_console_index:
                 command.extend(["-serial", f"file:{self.serial1}"])
         command.extend(
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]

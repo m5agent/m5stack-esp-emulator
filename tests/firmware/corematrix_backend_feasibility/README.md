@@ -1,8 +1,9 @@
 # CoreMatrix C158 backend feasibility
 
-This folder records two distinct virtual-device validation lanes against the
-[isolated C61 candidate](../../../patches/qemu-esp32c61-corematrix/README.md).
-The production service and browser catalogs do not admit C158 firmware.
+This folder records virtual-device validation against the
+[isolated C61 build](../../../patches/qemu-esp32c61-corematrix/README.md).
+The native probe and pinned stock runner use separate Device Service instances
+and firmware identities.
 
 ## Reference-only Device Service probe
 
@@ -94,15 +95,29 @@ python3 "$SIM_ROOT/tests/firmware/corematrix_backend_feasibility/run_stock.py" \
     --out-dir "$STOCK_OUTPUT" --corematrix
 ```
 
-The unmodified firmware prints the C61 ROM marker, the UIFlow2 v2.5.4 banner
-and `Startup with network type: WIFI`. The candidate's captured 16×16 frame
-remains black after the bounded run. The instrumented run records repeated
-reads of unimplemented MMIO `0x600ad800` after that marker. The upstream
-control also logged unimplemented HP I²C interrupt polling at `0x60004020`.
-The candidate removes the digital I²C gap for the IDF probe. Stock readiness
-and runtime admission remain open.
+The [pre-fix record](evidence-summary.json) retains the 15-second all-black
+frame and repeated reads from `0x600ad800`. The updated build exposes a
+virtual-time counter and finishes the relevant idle-radio startup commands.
+The M5GFX software I²C probe identifies the board before handing the same
+bus to HP I²C for TM1680 traffic.
 
-The [summary](evidence-summary.json) binds the firmware, ROM, QEMU,
-frames and session cleanup. These observations establish a C61 visual and input
-slice for the IDF probe. Physical assembly, radio, power and stock application
-functionality require separate validation.
+Replay the exact same stock image through Device Service to verify the
+36-pixel missing-SSID cross before any user code, the 12-pixel rectangle
+drawn over USB REPL and independent plus overlapping A/B/C presses and
+releases.
+
+```sh
+python3 "$SIM_ROOT/tests/firmware/corematrix_backend_feasibility/run_stock_service.py" \
+    --qemu "$QEMU_ROOT/build/qemu-system-riscv32" \
+    --rom-dir "$QEMU_ROOT/pc-bios" \
+    --firmware "$FIRMWARE_CACHE/community/2104482080746106881.bin" \
+    --out-dir "$STOCK_OUTPUT"
+```
+
+The runner allows only the pinned reference on its isolated loopback
+listener. It sends volatile Python through the normal program endpoint and
+does not replace the stock filesystem. It exports live evidence and checks
+that the stopped session retains history while the lease and Flash are
+released. The [new summary](stock-startup-summary.json) binds both runs to
+their runtime, ROM and firmware hashes. No physical hardware, Wi-Fi
+association or external PSRAM was validated.
