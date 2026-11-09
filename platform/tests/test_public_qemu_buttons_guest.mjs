@@ -121,7 +121,23 @@ try{
   await page.locator('#runtimeMode').selectOption('browser');
   await page.locator('input[name="firmwareSource"][value="reference"]').check();
   await page.locator('#startBtn').click();
-  await page.waitForFunction(()=>globalThis.buttonRuntime?.status==='running',{}, {timeout});
+  const readyDeadline=Date.now()+timeout;
+  let nextProgress=0;
+  for(;;){
+    const state=await page.evaluate(()=>{
+      const runtime=globalThis.buttonRuntime,banner=document.querySelector('#errorBanner');
+      return {status:runtime?.status,serial:runtime?.serial??'',error:banner?.hidden?'':banner?.textContent};
+    });
+    if(Date.now()>=nextProgress){
+      await writeFile(resolve(out,'startup-progress.json'),JSON.stringify(state,null,2)+'\n');
+      nextProgress=Date.now()+10000;
+    }
+    if(state.error||/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(state.serial))
+      throw new Error(state.error||'Guest panic while booting the UIFlow input observer');
+    if(state.status==='running')break;
+    if(Date.now()>=readyDeadline)throw new Error('Guest input observer startup timed out');
+    await page.waitForTimeout(100);
+  }
   check('public-ui-started-browser-session',true,await page.evaluate(()=>buttonRuntime.evidence().receipt));
   await page.evaluate(async({source,origin})=>{
     const {PublicMicroPythonRunner}=await import(new URL('platform/web/public-micropython.js',origin));
