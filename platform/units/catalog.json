@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-03",
+  "checked_at": "2026-11-09",
   "scope": "External visual Unit products; official protocol contracts and runtime status are independent.",
   "units": [
     {
@@ -5170,13 +5170,13 @@
     {
       "id": "joystick2",
       "name": "Joystick2 Unit",
-      "sku": "U169",
+      "sku": "U024-V2",
       "visual_asset": {
         "entry": "src/units/joystick2/index.js",
         "export": "GroveModule"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/joystick2",
-      "checked_at": "2026-10-27",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "Joystick2 controller",
@@ -5268,12 +5268,13 @@
         {
           "kind": "official-product",
           "url": "https://docs.m5stack.com/en/unit/joystick2",
-          "checked_at": "2026-10-27",
+          "checked_at": "2026-11-09",
           "claims": [
-            "identity",
+            "SKU U024-V2",
             "PinMap",
             "functions"
-          ]
+          ],
+          "source_commit": "c06d36fcf45e30c99d89c19dca991a41b975e216"
         },
         {
           "kind": "official-driver",
@@ -9167,7 +9168,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit-ADC_V1.1",
-      "checked_at": "2026-11-02",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "ADS1110",
@@ -9221,9 +9222,7 @@
           }
         ],
         "gaps": [
-          "Product page contradicts itself: ADS1110 (description/spec/official I2C index) vs ADS1100 (comparison table).",
-          "Sampling rates: page description 15/30/60/240 SPS vs comparison table 8/16/32/128 SPS.",
-          "Reference: page description internal 2.048V vs spec table VDD reference; divider=100/610 has no page source.",
+          "The 100/610 divider is taken from the driver; the product page does not document the resistor ratio.",
           "Snapshot driver has a missing-call bug in get_voltage(); master fixed it."
         ]
       },
@@ -9263,12 +9262,14 @@
         {
           "kind": "official-product",
           "url": "https://docs.m5stack.com/en/unit/Unit-ADC_V1.1",
-          "checked_at": "2026-11-02",
+          "checked_at": "2026-11-09",
           "claims": [
             "SKU U013-V11",
             "PinMap PORT.A yellow=SDA white=SCL",
-            "I2C 0x48, 16-bit, PGA 1/2/4/8, 0-12V input (with page contradictions)"
-          ]
+            "ADS1110 at 0x48, internal 2.048V reference, 15/30/60/240 SPS, 16-bit, PGA 1/2/4/8, 0-12V input",
+            "Product comparison columns corrected by documentation commit 4882025ad38b798eca05e4b424d9e8931314b347; ADS1100, VDD reference and 8/16/32/128 SPS describe the original Unit ADC."
+          ],
+          "source_commit": "c06d36fcf45e30c99d89c19dca991a41b975e216"
         },
         {
           "kind": "official-i2c-address-index",
@@ -9353,7 +9354,7 @@
         },
         "required_data_plane": "SoC I2C controller transactions to a device-local ADS1110 register-file slave; 1-byte config write and 2-byte big-endian conversion read"
       },
-      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; ADS1100-vs-ADS1110, SPS set and internal-2.048V-vs-VDD reference contradictions remain UNRESOLVED; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
+      "blocker": "Guest/Device Service evidence covers the frozen ADCV11Unit (ADS1110) on StopWatch at 0x48: voltage-mv fixture reproduces get_voltage()=1.0 and get_adc_raw_value() matching the driver formula; set_gain/set_sample_rate/set_mode/start_single_conversion writes observed in QOM config-word=0x95. Only this host/firmware combination is admitted; 0x48 conflicts with the planned ameter; physical voltage accuracy/PGA/divider tolerance are NOT RUN.",
       "input_semantics": "Synthetic input-voltage fixture inverse-encoded into a signed 16-bit ADC code using the driver formula.",
       "output_semantics": "Observed guest config writes and conversion reads; voltage is guest-side driver output.",
       "limitations": [
@@ -9363,8 +9364,7 @@
         "0125 implements ADS1110 semantics per the official I2C table; ADS1100 compatibility is NOT verified.",
         "Config-word is observable; conversion timing/DRDY behavior beyond the config byte is not modeled.",
         "0x48 conflicts with the planned ameter (ADS1115) Unit; one per bus.",
-        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-adc-v11.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN.",
-        "ADS1100-vs-ADS1110 identity, the SPS set and internal-2.048V-vs-VDD reference remain unresolved."
+        "Virtual-device guest evidence recorded in docs/evidence/2026-11-02-unit-batch2/report-adc-v11.json for stopwatch only; QEMU source = canonical 75f1d24 + 0120/0121/0122/0123 + 0125. Hardware and unlisted hosts remain NOT RUN."
       ]
     },
     {
@@ -27752,7 +27752,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
-      "checked_at": "2026-11-03",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "ESP32-C61HF4",
@@ -27791,8 +27791,8 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-unresolved-address",
-        "summary": "42-key portable keyboard with ESP32-C61HF4; four modes (I2C/UART/BLE HID/ESP-NOW), factory I2C, Grove pins are PORT.CUSTOM G26/G25. UIFlow2 page says coming soon and no Unit driver exists; the numeric I2C address and register/frame formats are behind an external manual, so both the address and the attachment are UNRESOLVED.",
+        "status": "documented-with-explicit-gaps",
+        "summary": "42-key portable keyboard with ESP32-C61HF4; four modes (I2C/UART/BLE HID/ESP-NOW), factory I2C, Grove pins are PORT.CUSTOM G26/G25. The public CardKB2 driver defaults to I2C 0x5F and supports I2C, UART and ESP-NOW. Only the legacy I2C subset has guest evidence.",
         "registers": [
           {
             "register": "mode switch Fn+Sym+1..4",
@@ -27802,17 +27802,16 @@
           {
             "register": "I2C register map",
             "length": 0,
-            "encoding": "external \"User Manual & Registers\"; numeric address UNRESOLVED"
+            "encoding": "CardKBI2C defaults to 0x5F; legacy key byte and 0xF1 firmware version; v2 report not exercised"
           },
           {
             "register": "UART frame format",
             "length": 0,
-            "encoding": "external manual; Grove UART baud/frame UNRESOLVED"
+            "encoding": "CardKBUART parses AA03 legacy and v2 report frames; UART guest path NOT RUN"
           }
         ],
         "gaps": [
-          "No official UIFlow2 Unit driver (page: coming soon)",
-          "Numeric I2C address/frame format unknown",
+          "CardKB2 driver, v2 report, UART, BLE HID and ESP-NOW are not exercised by the legacy I2C guest probe",
           "PORT.CUSTOM G26/G25 is not an admitted host port"
         ]
       },
@@ -27869,8 +27868,7 @@
             "ESP32-C61HF4",
             "42 keys + RGB LED + Reset/Boot",
             "I2C/UART/BLE HID/ESP-NOW modes with factory I2C",
-            "PORT.CUSTOM Yellow=SDA/UART_RX/G26, White=SCL/UART_TX/G25",
-            "UIFlow2 coming soon"
+            "PORT.CUSTOM Yellow=SDA/UART_RX/G26, White=SCL/UART_TX/G25"
           ]
         },
         {
@@ -27878,7 +27876,27 @@
           "url": "https://docs.m5stack.com/en/unit/Unit_CardKB2",
           "checked_at": "2026-11-03",
           "claims": [
-            "External \"Unit CardKB2 User Manual & Registers\" is referenced but not readable from the page text; I2C address/registers unresolved"
+            "Product page references the external Unit CardKB2 User Manual & Registers."
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/cardkb.py",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+          "claims": [
+            "Public UIFlow2 driver available: CardKBUnit, CardKBI2C, CardKBUART, CardKBESPNOW"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/cardkb2.rst",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "7bc523fd24a8a5c3e18dbe83fde1822027f758cc17f34f434bddc7222d81a074",
+          "claims": [
+            "Public UIFlow2 documentation available for CardKBUnit, CardKBI2C, CardKBUART, CardKBESPNOW"
           ]
         }
       ],
@@ -27914,16 +27932,14 @@
             "type": "integer"
           }
         },
-        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
+        "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read the key-code fixture 0x71 on the legacy raw-key register and the 0xF1 firmware-version pointer (FW=1); QOM key-code/firmware-version match. This is only the legacy I2C subset: CardKB2 UART AA03 frames, v2 report, BLE HID and ESP-NOW are separate attachment kinds and are NOT RUN; 42-key mechanics/key map/repeat timing and PORT.CUSTOM G26/G25 admission remain NOT RUN; 0x5F conflicts with cardkb/cardkb-original.",
       "limitations": [
-        "No official UIFlow2 Unit driver (page says coming soon).",
-        "Numeric I2C address/register map and Grove UART frame format are unresolved (external manual).",
+        "Existing guest evidence is limited to the legacy I2C key byte and firmware version; the public CardKB2 driver was not exercised.",
         "PORT.CUSTOM G26/G25 is not an admitted host port; a new attachment/mapping is required.",
         "Wi-Fi 6/BLE HID/ESP-NOW RF and keyboard mechanics are NOT RUN.",
-        "仅 planned 契约；无模型/无 guest 证据，地址/帧/键盘机械 NOT RUN。",
         "0157 新增 CONTROL_CARDKB2（I2C 0x5F legacy 子集）：0x00 raw key byte + 0xF1 firmware version。**UART AA03 帧模式、v2 report、BLE HID、ESP-NOW 是不同 attachment kind，不在本 I2C 模型内，NOT RUN；官方 v2 report 寄存器未与手册对齐；42 键机械/键码表映射/重复率（300ms+50ms）NOT RUN；Grove PORT.CUSTOM G26/G25 未准入，未来证据需 cores3 PORT.A harness 替换；0x5F 与 cardkb/cardkb-original 冲突**"
       ],
       "input_semantics": null,
@@ -29592,7 +29608,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit_DoF6",
-      "checked_at": "2026-11-03",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "BMI270",
@@ -29632,8 +29648,8 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-address-known",
-        "summary": "Six-axis BMI270 at I2C 0x68/0x69 selected by an onboard switch; 16-bit accel +/-2/4/8/16g and gyro +/-125/250/500/1000/2000dps, temperature. No Unit DoF driver; BMI270 register/init knowledge exists in the batch-7 mini-imu-pro US_BMI270 model (init burst accepted but not executed, fixtures only).",
+        "status": "documented-with-explicit-gaps",
+        "summary": "Six-axis BMI270 at I2C 0x68/0x69 selected by an onboard switch; 16-bit accel +/-2/4/8/16g and gyro +/-125/250/500/1000/2000dps, temperature. The public DoF6Unit driver defaults to 0x68; the existing guest probe uses a generic BMI270 driver against the batch-7 US_BMI270 fixture model.",
         "registers": [
           {
             "register": "BMI270 WHO_AM_I/init/accel/gyro/temp",
@@ -29642,7 +29658,7 @@
           }
         ],
         "gaps": [
-          "No public Unit DoF6 driver",
+          "DoF6Unit is not exercised by the existing generic BMI270 guest probe",
           "BMI270 init blob/range/motion NOT executed",
           "Real motion/vibration NOT RUN"
         ]
@@ -29808,12 +29824,22 @@
         },
         {
           "kind": "official-driver",
-          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/imu_pro.py",
-          "checked_at": "2026-11-03",
-          "sha256": null,
-          "sha256_source": "local checkout HEAD 528edd8",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/dof6.py",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "4a04982cc05d2d3560e2159a82f45d2eb6e547db421e4672d97e4c727139dddc",
           "claims": [
-            "No unit/dof driver exists; imu_pro uses BMI270 but is a different product; US_BMI270 model in 0145 is fixture-only"
+            "Public UIFlow2 driver available: DoF6Unit"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/dof6.rst",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "4ac9d4033aa4106321e7e01344ad3c13ca8e1d02f50f0993840168638e08ca80",
+          "claims": [
+            "Public UIFlow2 documentation available for DoF6Unit"
           ]
         }
       ],
@@ -29866,12 +29892,12 @@
         },
         "blocker": "Guest evidence uses the frozen generic BMI270 driver at 0x68 (no Unit DoF driver): accel/gyro/temp fixture readback and QOM whoami=0x24. BMI270 init blob accepted but not executed; range/motion/real motion/vibration physics NOT RUN; guest values carry driver 4g/2000dps scale and 23C offset, not physical units; 0x68 conflicts with mini-imu families."
       },
-      "blocker": "U228 has clear BMI270 addresses 0x68/0x69 and public datasheet, so a planned contract is registrable; no Unit DoF driver exists and the 0145 US_BMI270 model only accepts the init burst without executing it. Real motion/range/motion-interrupt/init physics are NOT RUN; 0x68 conflicts with mini-imu/mini-imu-pro and DoF9/DoF10. 0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。",
+      "blocker": "Guest evidence uses the frozen generic BMI270 driver at 0x68 (DoF6Unit not exercised): accel/gyro/temp fixture readback and QOM whoami=0x24. BMI270 init blob accepted but not executed; range/motion/real motion/vibration physics NOT RUN; guest values carry driver 4g/2000dps scale and 23C offset, not physical units; 0x68 conflicts with mini-imu families.",
       "limitations": [
-        "No public Unit DoF6 driver; BMI270 init blob/range/motion is not executed.",
+        "The existing generic BMI270 probe does not exercise DoF6Unit, the init blob, range changes or motion.",
         "0x68 conflicts with mini-imu/mini-imu-pro/DoF9/DoF10; 0x69 requires the onboard switch.",
         "Real motion/vibration/temperature physics NOT RUN.",
-        "0152 只登记 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN；无 guest 证据 → planned。",
+        "0152 仅覆盖 BMI270 0x68 子集（accel/gyro/temp/whoami，复用 0145 US_BMI270 fixture）；init blob/量程/motion NOT RUN。",
         "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch10/report-dof6.json for cores3; see README for modeled subset, blocked features and NOT RUN boundaries."
       ],
       "input_semantics": null,
@@ -32353,7 +32379,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit_Step16",
-      "checked_at": "2026-11-03",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "STM32G031G8U6",
@@ -32392,13 +32418,13 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-register-unresolved",
-        "summary": "16-position BCD rotary encoder + 7-segment display + 1x WS2812, STM32G031, I2C @0x48 (address range 0x08-0x77 configurable, saved), 100ms update. No public Unit Step16 driver; Protocol table unreadable, so register map for position/direction/brightness/RGB/address is UNRESOLVED.",
+        "status": "documented-with-explicit-gaps",
+        "summary": "16-position BCD rotary encoder + 7-segment display + 1x WS2812, STM32G031, I2C @0x48 (address range 0x08-0x77 configurable, saved), 100ms update. The public Step16Unit driver defines encoder, direction, LED, RGB and address register access.",
         "registers": [
           {
             "register": "I2C 0x48 position/config register map",
             "length": 0,
-            "encoding": "Protocol table unreadable -> UNRESOLVED"
+            "encoding": "Register access is documented in the pinned Step16Unit driver; guest evidence covers a raw I2C subset"
           },
           {
             "register": "address range 0x08-0x77",
@@ -32407,8 +32433,7 @@
           }
         ],
         "gaps": [
-          "No public Unit Step16 driver",
-          "Position/config/RGB/address register map unresolved",
+          "Step16Unit is not exercised by the existing raw I2C guest probe",
           "Encoder mechanics/7-seg display/optics NOT RUN"
         ]
       },
@@ -32515,7 +32540,27 @@
           "url": "https://docs.m5stack.com/en/unit/Unit_Step16",
           "checked_at": "2026-11-03",
           "claims": [
-            "Protocol table not readable in page text; register map unresolved"
+            "Product protocol table is not available as page text; register access is documented in the pinned driver."
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/step16.py",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "d76c15f2f21682bb13b04d8cee621ae4628ad46b87ce3f26b5e76cf4bac01c51",
+          "claims": [
+            "Public UIFlow2 driver available: Step16Unit"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/step16.rst",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "0ed37ac342418ddc7cb901d48b33338d2e8555136f31e7364f7c94be4d46f6f3",
+          "claims": [
+            "Public UIFlow2 documentation available for Step16Unit"
           ]
         }
       ],
@@ -32576,16 +32621,15 @@
             "type": "integer"
           }
         },
-        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
+        "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read position 7 fixture, then wrote direction 0, brightness 42, RGB 0x123456 and save 2; guest readbacks and QOM position/direction/rgb/save-count match. Only register/byte-level virtual data plane evidence; BCD knob mechanics/bounce, 7-seg optics, sleep timer timeline and real flash persistence are NOT RUN; 0x48 conflicts with adc-v11/ameter/adc.",
       "limitations": [
-        "No public Unit Step16 driver; position/config register map unresolved.",
+        "Existing guest evidence covers raw I2C register access; the Step16Unit driver was not exercised.",
         "0x48 conflicts with other I2C units; 0x08-0x77 configurable address must avoid all bus addresses.",
         "Encoder mechanics/7-seg display/optics NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
-        "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**无 guest 证据 → planned；BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**"
+        "0157 新增 CONTROL_STEP16（I2C 0x48）：0x00 编码器 0-15、0x10 LED 配置、0x20 亮度、0x30 方向、0x40/0x41 RGB 电源/亮度、0x50-0x52 RGB、0xF0 保存、0xFE FW、0xFF 地址（可配 0x08-0x77）。**BCD 旋钮机械/弹跳、7 段显示光学、睡眠定时时间轴与 FLASH 真实持久化 NOT RUN；0x48 与 adc-v11/ameter/adc 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null
@@ -32599,7 +32643,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
-      "checked_at": "2026-11-03",
+      "checked_at": "2026-11-09",
       "chips": [
         {
           "part": "STM32G031G8U6",
@@ -32642,13 +32686,13 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-register-unresolved",
-        "summary": "Timed power supply with STM32G031 RTC, LGS4056H charger, DC-DC boost, INA3221 current/voltage monitor, 0.66\" 64x48 OLED, two buttons, battery connector, I2C @0x56. No public Unit TimerPWR driver; the I2C command/schedule register table is not readable on the page.",
+        "status": "documented-with-explicit-gaps",
+        "summary": "Timed power supply with STM32G031 RTC, LGS4056H charger, DC-DC boost, INA3221 current/voltage monitor, 0.66\" 64x48 OLED, two buttons, battery connector, I2C @0x56. The public TimerPWRUnit driver defines schedule, output and telemetry register access.",
         "registers": [
           {
             "register": "I2C 0x56 schedule/status register map",
             "length": 0,
-            "encoding": "page does not give readable command/register table -> UNRESOLVED"
+            "encoding": "Register access is documented in the pinned TimerPWRUnit driver; guest evidence covers a raw I2C subset"
           },
           {
             "register": "INA3221 internal I2C2",
@@ -32657,8 +32701,7 @@
           }
         ],
         "gaps": [
-          "No public Unit TimerPWR driver",
-          "Schedule/status register map unresolved",
+          "TimerPWRUnit is not exercised by the existing raw I2C guest probe",
           "Battery/charger/boost/RTC/timed switching/OLED/thermal/safety NOT RUN"
         ]
       },
@@ -32809,7 +32852,27 @@
           "url": "https://docs.m5stack.com/en/unit/Unit-TimerPWR",
           "checked_at": "2026-11-03",
           "claims": [
-            "Page Learn/I2C sections do not give a readable schedule/status register table"
+            "Product page does not expose a readable schedule/status register table; register access is documented in the pinned driver."
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/timerpwr.py",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "1e8c2617593fb6b1dd2b92e1ea49a633bf1370fafe7845d376c1103164cc8b3c",
+          "claims": [
+            "Public UIFlow2 driver available: TimerPWRUnit"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/timerpwr.rst",
+          "checked_at": "2026-11-09",
+          "source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+          "sha256": "be4c24ed037e9572e9f5eae9a5f6d859410190665ad3a864e26b0dc313ceef8e",
+          "claims": [
+            "Public UIFlow2 documentation available for TimerPWRUnit"
           ]
         }
       ],
@@ -32905,16 +32968,15 @@
             "type": "integer"
           }
         },
-        "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
+        "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
         "required_data_plane": "SoC I2C transactions to the device-local register-file slave"
       },
-      "blocker": "Guest raw machine.I2C probe on cores3 (no official Unit driver - driver-gap) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
+      "blocker": "Guest raw machine.I2C probe on cores3 (historical driver-gap probe; current Unit driver not exercised) read idle buttons, battery raw LE32 0x172 (370 -> 3700 mV), USB V raw LE32 and charging=1 fixture; wrote Grove output enable, backlight 0, schedule 12:34 and cycle start; guest readbacks and QOM grove-output/backlight/schedule-on/charging/power-state match. Only register/byte-level virtual data plane evidence; real RTC long-timing, battery charge/discharge, DC-DC boost load, OLED/thermal/safety are NOT RUN; 0x56 conflicts with mini-bps-v11.",
       "limitations": [
-        "No public Unit TimerPWR driver; schedule/status register map unresolved.",
+        "Existing guest evidence covers raw I2C register access; the TimerPWRUnit driver was not exercised.",
         "0x56 conflicts with other I2C units.",
         "Battery/charger/boost/RTC/timed switching/OLED/thermal/safety NOT RUN.",
-        "仅登记 planned 契约，不建 QEMU 模型、不猜寄存器；无 guest 证据。",
-        "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**无 guest 证据 → planned；真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**"
+        "0157 新增 CONTROL_TIMERPWR（I2C 0x56）：0x00 Grove 输出、0x01 背光、0x10 按键、0x20/0x21 wake/sleep trigger、0x30-0x32 定时开机、0x40 sleep、0x41 cycle、0x60-0x6F USB/Grove V&I（LE32 raw/100）、0x70/0x74 电池 V（mV/10）/I（mA/100）、0x80-0x82 定时关机、0x90 充电、0xF0/FE/FF。**真实 RTC 长定时、电池充放电、DC-DC 升压负载、OLED/按键、热/安全 NOT RUN；0x56 与 mini-bps-v11 冲突**"
       ],
       "input_semantics": null,
       "output_semantics": null

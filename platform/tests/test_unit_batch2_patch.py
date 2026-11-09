@@ -63,7 +63,8 @@ class UnitBatch2PatchTests(unittest.TestCase):
         for token in ("0x76", "0x58", "QMP6988", "calibration", "NOT modeled"):
             self.assertIn(token, bps)
         adc = json.dumps(self.units["adc-v11"], ensure_ascii=False)
-        for token in ("0x48", "ADS1110", "ADS1100", "SPS", "unresolved"):
+        for token in ("0x48", "ADS1110", "15/30/60/240 SPS",
+                      "ADS1100 compatibility is NOT verified", "divider tolerance"):
             self.assertIn(token, adc)
         for unit_id in ("dac", "bps", "adc-v11"):
             self.assertEqual(self.units[unit_id]["runtime"]["status"], "implemented", unit_id)

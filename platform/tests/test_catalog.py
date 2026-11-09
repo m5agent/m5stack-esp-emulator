@@ -40,6 +40,14 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(len(ids), len(set(ids)))
         self.assertEqual(len(self.catalog["devices"]), len(EXPECTED))
 
+    def test_unit_catalog_has_unique_skus(self) -> None:
+        catalog = json.loads((ROOT / "platform" / "units" / "catalog.json").read_text())
+        by_sku = {}
+        for unit in catalog["units"]:
+            sku = unit["sku"]
+            self.assertNotIn(sku, by_sku, f"{sku}: {by_sku.get(sku)}, {unit['id']}")
+            by_sku[sku] = unit["id"]
+
     def test_device_files_exist(self) -> None:
         for entry in self.catalog["devices"]:
             path = ROOT / "devices" / entry["path"]
