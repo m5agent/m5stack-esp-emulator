@@ -12,11 +12,13 @@ const factory = {
 // RGB565 reference oracles from the unmodified factory application's recorded
 // splash, launcher and Fn indicator. They are only readback expectations.
 const splash='31499c7452ea61dcae2d7023fd329746b08acd4e14754811748cdfdb8c5668ff';
-// Check the launcher apps and modifier indicators below the live clock and
-// battery bar. Their stable regions do not depend on RTC or ADC calibration.
-const launcherRegion=[0,24,240,111];
-const launcher='2f54f832b9db9314e3c0f299be729d4ca6361316a71897b41ae771d50fe6e593';
-const fnHeld='11eb5888918170719c4553aa28729f6b9ae5ee87a120ae2d92589d5224600d98';
+// The left SCAN tile and Fn glyph are invariant across observed runs. The
+// center/right menu animation, live clock and battery bar are independent.
+const launcherRegion=[43,40,58,80];
+const launcher='0f7fd5682d60bf5ac560b0079fddbf4b7c70f5e4d1f82774988d7e1783ba2d88';
+const fnRegion=[7,40,22,17];
+const fnHeld='9e434b3f34e689609f5c9e0f357770458bd13bd82bdb6cebb9e98c930e6584e7';
+const fnReleased='af4d38ab213e31e10dab5079e4659732bc6b6bb9710f3de6764cfd87aaeb408a';
 const factoryAppCount='installed apps num: 9';
 const uiflow = {
   url:'https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin',
@@ -63,6 +65,7 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
     const selected=await waitFrame(launcher,launcherRegion);
     await page.waitForFunction(marker=>stockGuestRuntime.serial.includes(marker),factoryAppCount,{timeout});
     assert.ok(selected.sequence>before.sequence);
+    const releasedBefore=await waitFrame(fnReleased,fnRegion);
     await canvas.screenshot({path:resolve(output,'factory-launcher.png')});
     await canvas.scrollIntoViewIfNeeded();
     const pointer=await page.evaluate(findPublicButtonPointerTarget,
@@ -71,14 +74,14 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
     await page.mouse.move(pointer.clientX,pointer.clientY);
     await page.mouse.down();
     let held;
-    try { held=await waitFrame(fnHeld,launcherRegion); }
+    try { held=await waitFrame(fnHeld,fnRegion); }
     finally { await page.mouse.up(); }
-    const released=await waitFrame(launcher,launcherRegion);
-    assert.ok(held.sequence>selected.sequence && released.sequence>held.sequence);
-    assert.ok([selected,held,released].every(frame=>frame.sessionId===before.sessionId));
+    const released=await waitFrame(fnReleased,fnRegion);
+    assert.ok(held.sequence>releasedBefore.sequence && released.sequence>held.sequence);
+    assert.ok([selected,releasedBefore,held,released].every(frame=>frame.sessionId===before.sessionId));
     const inputs=await page.evaluate(()=>stockGuestRuntime.inputs.map(({id,down})=>({id,down})));
     assert.deepEqual(inputs,[{id:'a',down:true},{id:'a',down:false},{id:'menu',down:true},{id:'menu',down:false}]);
-    report.interaction={frames:{splash:before,launcher:selected,fnHeld:held,fnReleased:released},inputs,
-      launcherRegion,launcherKeyHoldMilliseconds:500,fnPointerComponent:pointer.observed_hit.component,serialMarker:factoryAppCount};
+    report.interaction={frames:{splash:before,launcher:selected,fnReleasedBefore:releasedBefore,fnHeld:held,fnReleased:released},inputs,
+      launcherRegion,fnRegion,launcherKeyHoldMilliseconds:500,fnPointerComponent:pointer.observed_hit.component,serialMarker:factoryAppCount};
   },
 });

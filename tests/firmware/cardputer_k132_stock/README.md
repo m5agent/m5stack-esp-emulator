@@ -56,7 +56,8 @@ node platform/tests/test_public_qemu_cardputer_k132_stock.mjs
 The factory case presses and releases PC **A** to enter the menu. The released
 edge is required by the [stock launcher](https://github.com/m5stack/M5Cardputer-UserDemo/blob/V0.9/main/apps/launcher/port/port.cpp).
 A real pointer presses the visible **Fn** key and the guest must draw and clear
-its Fn indicator. The launcher oracle excludes the dynamic RTC and battery bar.
+its Fn indicator. The launcher oracle checks the stable SCAN tile and exact Fn
+glyph regions. The menu animation, RTC and battery bar are outside the oracle.
 For the stock UIFlow2 case, set `M5_CARDPUTER_STOCK_CASE=uiflow2-v254`, supply the
 unmodified UIFlow2 image, and use a separate output directory. That case checks
 the offline badge and the application menu reached through PC **F12** (GPIO0).
