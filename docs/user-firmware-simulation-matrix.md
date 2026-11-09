@@ -100,6 +100,42 @@ marker. With no marker, `application_ready=false` and
 Even matching screenshots can show a static splash or miss changes between
 samples.
 
+## BLE HID observation
+
+For a guest with a working H4 controller transport, start a dedicated HID
+observer before connecting the guest's HCI socket to its loopback port.
+
+```bash
+python3 platform/tools/ble_probe.py --protocol hid --port 9544 \
+  --name-prefix STICKS3-HID-FIXTURE --hid-pairing auto --hid-min-reports 2
+```
+
+The observer discovers HID service `0x1812`, reads the Report Map and uses
+each `0x2908` Report Reference to subscribe only to input reports. An ATT
+security error triggers an SMP pairing attempt in `auto` mode. Reports count
+toward `BLE_HID_PASS` only when their payload length matches the Report Map.
+Logs include the characteristic handle, report ID, payload length and up to
+64 bytes of hex. Bond keys stay in the observer's memory. The default protocol
+continues to be NUS.
+
+The StickS3 H4 fixture exercises these host steps with an encrypted link and
+two guest BtnA reports. AirMouseS3 v1.0 uses the ESP32-S3 internal BLE
+controller, which the current StickS3 QEMU route does not connect to H4. Its
+matrix status remains `PARTIAL/runtime_model_gap` until the original firmware
+can complete a native-controller exchange.
+
+## StickS3 functional evidence
+
+The official PM1 upgrade sample needs a same-session USB Serial/JTAG
+completion marker and the CRC-validated PM1 app digest. The matrix reads
+both the serial evidence bundle and PM1 QOM state. A boot frame, A-button
+response or isolated completion string keeps the functional review partial.
+
+The generic UI matrix does not act as a USB host. For the pinned Bit Pirate
+image, use the [USB device-mode runner](../tests/firmware/sticks3_usb_otg/README.md)
+for enumeration, CDC control and bulk transfers. A successful TinyUSB
+install by itself leaves the matrix's USB exchange unobserved.
+
 ## SHA-bound review expectations
 
 FirmwareManifest describes artifact facts; it does not guess whether an

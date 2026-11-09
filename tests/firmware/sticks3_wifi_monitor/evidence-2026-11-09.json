@@ -1,0 +1,231 @@
+{
+  "date": "2026-11-09",
+  "issue": 204,
+  "scope": "virtual-device validation",
+  "status": "PASS for bounded fixture; general raw monitor/TX remains open",
+  "project_base": "67a2bf6b7511e3344eae2b04cf904fd70d64a79c",
+  "source_sha256": {
+    "platform/tools/device_service.py": "eec8fcab0195a37490e41f0f01016e34efd042e278c3f619a474437c2fec4361",
+    "platform/tools/device_service_qemu_wifi.py": "fb4fedf1a80f31dd32d5fe22e64abe34362e5b611ec3eecd3fb44f5c5fd70208",
+    "tests/firmware/sticks3_wifi_monitor/run_test.py": "2889666ee33eed33785efaf102231a2b27306e5e298f51802f2fff6b6a361474",
+    "tests/firmware/sticks3_wifi_monitor/main/monitor.c": "68501269d5260822ab02d631860960f182f95a42f458e2a7755e9f8df5beddd4",
+    "tests/firmware/sticks3_wifi_monitor/CMakeLists.txt": "75018709e280f4356e25e407f4539aad9980db81f1dc38f1e3d8cb4846b2c6a7",
+    "tests/firmware/sticks3_wifi_monitor/main/CMakeLists.txt": "8d75c0365b8a1fcf485a7b5ee1fd989f915ab2723375565d87511ecc24d67024",
+    "tests/firmware/sticks3_wifi_monitor/sdkconfig.defaults": "6fb266aa1e99892aea0eb2913c29d66147c3764cf18d10dc6eafa569ca66b1b7"
+  },
+  "runtime": {
+    "machine": "m5sticks3",
+    "profile": "sticks3-monitor-fixture",
+    "runtime": "qemu",
+    "qemu_sha256": "ad3b3b7cc55a2ba4c0a1d79f45472320efa852ad38b8723c6388d6646539999e",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "qemu_base": "40edccac415693c5130f91c01d84176ae6008566",
+    "patch_count": 118,
+    "runtime_source_receipt_sha256": "94594c7b468df17b77aec3ae29707e0ed11fc22ea9663d52ae3a5c921bc0c9fe"
+  },
+  "probe_build": {
+    "idf_version": "v5.5.4",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "app_bin_sha256": "7b133005d35e4e3d7be5f3c8aca94bc6e6cbe95d23eb9c1bbd6a3f91f56e8af6",
+    "flash_size": 8388608,
+    "image_kind": "IDF merge-bin, erased padding"
+  },
+  "stock_source": {
+    "name": "M5Gotchi",
+    "version": "0.7",
+    "catalog_id": "1897200000000001034",
+    "source_bytes": 2180768,
+    "observation": "Original Arduino scan and application frame. The separate source probe tests promiscuous RX."
+  },
+  "controls": [
+    "Driver promiscuous mode disabled before enabled",
+    "Same NIC and controller with radio disabled before boot",
+    "Peerless topology verified by QMP before guest CPU resumes",
+    "Inherited Wi-Fi SSID and ESP-NOW loopback/port settings removed for these sessions"
+  ],
+  "prior_attempts": [
+    {
+      "status": "FAIL",
+      "phase": "private harness setup",
+      "reason": "ESP-emu readiness binary absent from isolated worktree configuration. Guest not created."
+    },
+    {
+      "status": "FAIL",
+      "phase": "private harness QMP audit",
+      "reason": "Independent connection used the service-owned QMP socket. Guest produced scan counts but evidence collection did not complete."
+    },
+    {
+      "status": "FAIL",
+      "phase": "first native API runner identity check",
+      "reason": "Guest RX passed. API snapshot lacked the audited fixture receipt expected by the runner."
+    },
+    {
+      "status": "FAIL",
+      "phase": "first raw TX diagnostic runner",
+      "reason": "TX and reply traces observed. Earlier parser still expected the RX-only marker sequence."
+    }
+  ],
+  "not_run": [
+    "Evil-StickS3 feature execution",
+    "arbitrary frame injection or complete raw TX byte capture",
+    "channel hopping",
+    "physical RF or PHY",
+    "real AP or attack actions"
+  ],
+  "source_probe": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "e124d8c730a4b4615cd5074b8a66c69f34f3f12ae5f90fdd4c4d4b6e0e94cbf5",
+    "boot_flash_sha256": "e124d8c730a4b4615cd5074b8a66c69f34f3f12ae5f90fdd4c4d4b6e0e94cbf5",
+    "cases": {
+      "beacon": {
+        "mpdu_sha256": "105996711babadc98a3ad1b6344a62e8f0be586402896744597aa5b296305aea",
+        "mpdu_bytes": 81,
+        "dma_bytes": 129,
+        "irq_assert_and_guest_clear": true,
+        "tx_probe_request": {
+          "api_bytes": 43,
+          "descriptor_frame_bytes": 47,
+          "irq_assert_and_guest_clear": true,
+          "virtual_ap_reply_bytes": 75
+        },
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX beacon ssid=m5-monitor-lab ch=1 rssi=-25 len=81",
+          "MONITOR_TX probe-request len=43",
+          "MONITOR_RESULT PASS"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "beacon",
+          "radio_enabled": true,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "e78f6903c6975eb383ceb72701a06e7c6dba48d15bd749ebc53db16ed6bc05a0",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": true,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "304259bc9b1380c5987c08861002cd54a3c85ecd6a9f2df88733ca83d84686a0",
+        "serial_sha256": "bd1b36ccd3fb03b923198dfbfc48e2a29aed88d5120c962935f6a1d5a0d20428",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "session_flash_released": true
+      },
+      "no-beacon": {
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RESULT NO_BEACON"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "no-beacon",
+          "radio_enabled": false,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "f2e9e1fdd54751def392d3b81d0c0fc118bffba88a938bedd3ae9f8a57995742",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": false,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "d45f9a02d4bfd0ac20fa905868e2a848944154d6becb4ae4b96a8a6c38140e3f",
+        "serial_sha256": "367f4463faa3e7a6144d1b96a8fe86b8b69f1d52ca91786a423a0ee7f5c6e6c1",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "session_flash_released": true
+      }
+    },
+    "result": "PASS"
+  },
+  "stock_firmware": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246",
+    "boot_flash_sha256": "324d65e0bfccd88652afa3242175ad24e550fea5d0e9916b04d15718901c528c",
+    "cases": {
+      "beacon": {
+        "scan_counts": [
+          1,
+          1
+        ],
+        "scan_status": [
+          0,
+          0
+        ],
+        "virtual_ap_names": [
+          "m5-monitor-lab"
+        ],
+        "frame_sha256": "f8933b7f23609c2150edbd0becb54a4cd4de92176084e0d772080fce54e6bcf7",
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "beacon",
+          "radio_enabled": true,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "e78f6903c6975eb383ceb72701a06e7c6dba48d15bd749ebc53db16ed6bc05a0",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": true,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "44f5c742629f3e75c97fde31141ae32950ddd32c682a66f68147c013d98400e8",
+        "serial_sha256": "ecb8d969a31ec2d37f82010b64d4b83831ff32afbbb53804e9a3ff15235abbff",
+        "guest_stopped_retained_history": true,
+        "frame_size": [
+          135,
+          240
+        ],
+        "frame_nonblank": true,
+        "worker_lease_released": true,
+        "session_flash_released": true
+      },
+      "no-beacon": {
+        "scan_counts": [
+          0,
+          0
+        ],
+        "scan_status": [
+          0,
+          0
+        ],
+        "virtual_ap_names": [],
+        "frame_sha256": "70129b7cd1932130ea6b30182310dae503be2b98abe2419896160b3fef8010be",
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "no-beacon",
+          "radio_enabled": false,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "f2e9e1fdd54751def392d3b81d0c0fc118bffba88a938bedd3ae9f8a57995742",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": false,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "882f13c38d32ecfd821cb5775d3a1783936420369759b16a500894b8fc348d5f",
+        "serial_sha256": "c7061daf13f382847f49b281acd3b8f98cda55ac9ed4b604e38db8b7b23629d0",
+        "guest_stopped_retained_history": true,
+        "frame_size": [
+          135,
+          240
+        ],
+        "frame_nonblank": true,
+        "worker_lease_released": true,
+        "session_flash_released": true
+      }
+    },
+    "result": "PASS"
+  }
+}

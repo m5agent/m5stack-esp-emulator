@@ -34,12 +34,30 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+## StickS3 Wi-Fi monitor fixture
+
+[The peerless StickS3 fixture](sticks3_wifi_monitor/README.md) exercises the
+stock ESP-IDF promiscuous callback and benign Probe Request through the S3
+controller. The same Device Service fixture has a paired scan check on the
+original M5Gotchi v0.7 image.
+
 ## Core2 UIFlow2 startup
 
 [`core2_startup/`](core2_startup/README.md) replays the public Core2 display,
 Widgets, LVGL and offline WLAN startup paths through visible Device Service
 sessions, with pinned stock executable bytes and retained-history checks.
 It does not replace private full-application or legacy UIFlow1 validation.
+
+## StickS3 PM1 update and download boot
+
+The [PM1 stock-firmware probe](sticks3_pm1/README.md) exercises the native
+I2C upgrade, CRC rejection, and PWR-button entry to the ESP32-S3 ROM.
+
+## StickS3 USB device mode
+
+The [Bit Pirate stock-firmware probe](sticks3_usb_otg/README.md) exercises the
+native ESP32-S3 USB device controller, guest TinyUSB enumeration and CDC bulk
+I/O through a dedicated Device Service session.
 
 ## Core2 for AWS ATECC608
 

@@ -147,6 +147,10 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0168-papers3-paperdiy-et047tc1.patch",
     "patches/qemu-m5stack-peripherals/0169-cardputer-k132-board.patch",
     "patches/qemu-m5stack-peripherals/0170-paper-gt911-contact-ready.patch",
+    "patches/qemu-m5stack-peripherals/0171-sticks3-pm1-iap-boot-out.patch",
+    "patches/qemu-m5stack-peripherals/0172-sticks3-usb-otg-device.patch",
+    "patches/qemu-m5stack-peripherals/0173-sticks3-usb-serial-jtag-cdc-tx.patch",
+    "patches/qemu-m5stack-peripherals/0174-sticks3-usb-otg-reset-fence.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

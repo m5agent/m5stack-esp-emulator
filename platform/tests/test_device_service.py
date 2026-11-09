@@ -1932,6 +1932,41 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session = self.service.get_session(result["session_id"])
         self.assertEqual(session.runtime_env, traces)
 
+    def test_sticks3_usb_serial_jtag_capture_is_opt_in_and_separate(self):
+        key = "M5SW_USB_SERIAL_JTAG_CAPTURE"
+        for device_id, value in (("cores3", "1"), ("sticks3", "0")):
+            with self.subTest(device=device_id, value=value):
+                with self.assertRaises(ServiceError) as error:
+                    self.service.create_session(
+                        {"device_id": device_id, "runtime_env": {key: value}}
+                    )
+                self.assertEqual(error.exception.code, "invalid_runtime_env")
+
+        class LaunchCaptured(Exception):
+            pass
+
+        session = self._stopped_session(session_id=uuid.uuid4().hex)
+        session.spec = self.service.specs["sticks3"]
+        session.state = "booting"
+        log_path = session.dir / "usb-serial-jtag.log"
+        chardev = f"file,id=usb-serial-jtag,path={log_path}"
+        for setting in ({}, {key: "1"}):
+            with self.subTest(runtime_env=setting):
+                session.runtime_env = setting
+                with mock.patch.dict(
+                    os.environ, {key: "1"}
+                ), mock.patch.object(
+                    session, "_prepare_microphone_tone"
+                ), mock.patch.object(
+                    device_service_module.subprocess, "Popen",
+                    side_effect=LaunchCaptured,
+                ) as launch:
+                    with self.assertRaises(LaunchCaptured):
+                        session._launch()
+                command = launch.call_args.args[0]
+                self.assertEqual(chardev in command, bool(setting))
+                self.assertIn(f"file:{session.serial0}", command)
+
     def test_rmt_file_fixtures_are_allowlisted_for_trusted_local_runs(self):
         runtime_env = {
             "M5SW_RMT_TX_FILE": "/private/tmp/owned-ir-capture.rmt",

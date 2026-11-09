@@ -163,7 +163,8 @@ async def observe(args: argparse.Namespace) -> int:
         return 2
 
     bumble_gatt_client.GATT_REQUEST_TIMEOUT = args.gatt_request_timeout
-    emu_transport = await open_transport(f"tcp-server:_:{args.port}")
+    bind = "127.0.0.1" if args.protocol == "hid" else "_"
+    emu_transport = await open_transport(f"tcp-server:{bind}:{args.port}")
     trace_hci_transport(emu_transport)
     link = LocalLink()
     emu_controller = Controller(
@@ -249,6 +250,36 @@ async def observe(args: argparse.Namespace) -> int:
         finally:
             await phone.stop_scanning()
         return advertisement, name
+
+    if args.protocol == "hid":
+        from bumble.core import ProtocolError
+        from bumble.keys import MemoryKeyStore
+        from bumble.pairing import PairingConfig
+
+        from ble_hid import observe_hid_input
+
+        # Use an ephemeral virtual peer. No bond keys are written to disk.
+        phone.keystore = MemoryKeyStore()
+        phone.pairing_config_factory = lambda _: PairingConfig(mitm=False)
+        connection = None
+        try:
+            advertisement, name = await find_advertisement()
+            emit("BLE_HID_FOUND", f"name={name!r}")
+            connection = await phone.connect(advertisement.address, timeout=10)
+            emit("BLE_HID_CONNECTED")
+            count = await observe_hid_input(connection, args, emit)
+            encrypted = connection.is_encrypted
+        except (ValueError, RuntimeError, ProtocolError, asyncio.TimeoutError) as error:
+            emit("BLE_HID_FAIL", str(error) or "advertisement or connection timeout")
+            return 1
+        finally:
+            try:
+                if connection is not None and connection.handle in phone.connections:
+                    await asyncio.wait_for(connection.disconnect(), timeout=5)
+            finally:
+                await emu_transport.close()
+        emit("BLE_HID_PASS", f"reports={count} encrypted={str(encrypted).lower()}")
+        return 0
 
     async def exchange(cycle: int) -> Any:
         emit("BLE_BUMBLE_CYCLE_START", str(cycle))
@@ -509,6 +540,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=9544)
     parser.add_argument("--role",choices=("central","peripheral"),default="central")
+    parser.add_argument("--protocol", choices=("nus", "hid"), default="nus")
+    parser.add_argument(
+        "--hid-pairing", choices=("never", "auto", "always"), default="auto",
+        help="HID host pairing initiation policy (auto retries protected ATT reads)",
+    )
+    parser.add_argument("--hid-min-reports", type=int, default=1)
     parser.add_argument("--name-prefix", default="M5-NETWORK-LANE")
     parser.add_argument("--payload", default="M5_LANE")
     parser.add_argument("--service-uuid", default=NUS_SERVICE_UUID)
@@ -550,6 +587,16 @@ def main() -> int:
         help="bounded wait for the post-pass continuity trigger",
     )
     args = parser.parse_args()
+    if args.protocol == "hid":
+        if args.role != "central" or args.reconnect_cycles != 1 or args.post_pass_trigger is not None:
+            parser.error("HID observation requires one central connection")
+        if not args.subscribe:
+            parser.error("HID observation requires notification subscription")
+        if not 1 <= args.hid_min_reports <= 100:
+            parser.error("--hid-min-reports must be from 1 to 100")
+        for option in ("timeout", "gatt_request_timeout", "notification_timeout"):
+            if not 0 < getattr(args, option) <= 120:
+                parser.error(f"--{option.replace('_', '-')} must be greater than 0 and at most 120 for HID")
     if args.role=="peripheral" and (args.reconnect_cycles!=1 or args.post_pass_trigger is not None):
         parser.error("peripheral role supports one exchange and no post-pass continuity trigger")
     if (

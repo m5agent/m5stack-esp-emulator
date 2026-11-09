@@ -2,12 +2,16 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import Mock
 
 import device_service
 from device_service_errors import ServiceError
 from device_service_qemu_wifi import (
     apply_qemu_wifi_environment,
+    apply_sticks3_monitor_environment,
+    configure_sticks3_monitor_radio,
     parse_qemu_wifi_security,
+    parse_sticks3_wifi_monitor,
 )
 
 
@@ -118,6 +122,51 @@ class DeviceServiceQemuWifiTests(unittest.TestCase):
             network,
         )
         self.assertEqual(unrelated_env, {})
+
+
+    def test_monitor_is_opt_in_and_binds_the_radio_state(self) -> None:
+        self.assertIsNone(parse_sticks3_wifi_monitor({"device_id": "sticks3"}))
+        on = parse_sticks3_wifi_monitor({"device_id": "sticks3", "wifi_monitor_fixture": "beacon"})
+        off = parse_sticks3_wifi_monitor({"device_id": "sticks3", "wifi_monitor_fixture": "no-beacon"})
+        self.assertTrue(on["radio_enabled"])
+        self.assertFalse(off["radio_enabled"])
+        self.assertEqual(on["host_backends"], 0)
+        self.assertNotEqual(on["fixture_sha256"], off["fixture_sha256"])
+
+    def test_monitor_rejects_nonlocal_or_conflicting_configuration(self) -> None:
+        payload = {"device_id": "sticks3", "wifi_monitor_fixture": "beacon"}
+        for change, code in (
+            ({"wifi_monitor_fixture": True}, "invalid_wifi_monitor_fixture"),
+            ({"wifi_monitor_fixture": None}, "invalid_wifi_monitor_fixture"),
+            ({"device_id": "cores3"}, "wifi_monitor_fixture_not_supported"),
+            ({"runtime": "qemu-wifi"}, "wifi_monitor_fixture_not_supported"),
+            ({"network": {"hostfwd": []}}, "wifi_monitor_fixture_conflict"),
+            ({"runtime_env": {"M5SW_ESPNOW_LOOPBACK": "1"}}, "wifi_monitor_fixture_conflict"),
+            ({"program_transport": "uart-repl"}, "wifi_monitor_fixture_conflict"),
+        ):
+            with self.subTest(change=change), self.assertRaises(ServiceError) as caught:
+                parse_sticks3_wifi_monitor(payload | change)
+            self.assertEqual(caught.exception.code, code)
+
+    def test_monitor_environment_drops_inherited_wifi_and_peers(self) -> None:
+        env = {"M5SW_WIFI_SSID": "inherited", "M5SW_WIFI_PASSWORD": "inherited",
+               "M5SW_ESPNOW_LOOPBACK": "1", "M5SW_ESPNOW_PEER_LOCAL_PORT": "7001",
+               "M5SW_ESPNOW_PEER_REMOTE_PORT": "7002", "M5SW_INPUT_TRACE": "1"}
+        apply_sticks3_monitor_environment(env)
+        self.assertEqual(env, {"M5SW_WIFI_SSID": "m5-monitor-lab", "M5SW_WIFI_AUTH": "open",
+                               "M5SW_S3_WIFI_TRACE": "1", "M5SW_INPUT_TRACE": "1"})
+
+    def test_monitor_rejects_a_host_backend_before_changing_radio(self) -> None:
+        qmp = Mock(side_effect=[
+            {"return": {"running": False}},
+            {"return": "hub 0\n \\ hub0port0: misc.esp32s3.wifi.0: "
+                       "index=0,type=nic,model=misc.esp32s3.wifi,macaddr=02:00:00:00:20:04\n"
+                       " \\ hub0port1: user.0: type=user\n"},
+        ])
+        with self.assertRaises(ServiceError) as caught:
+            configure_sticks3_monitor_radio(qmp, True)
+        self.assertEqual(caught.exception.code, "wifi_monitor_fixture_isolation")
+        self.assertEqual(qmp.call_count, 2)
 
 
 if __name__ == "__main__":

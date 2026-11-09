@@ -12,6 +12,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
+from ble_hid import input_report_lengths
 from ble_probe import install_controller_command_compatibility, main, serve_peripheral
 
 
@@ -48,6 +49,28 @@ class BleProbeCompatibilityTests(unittest.TestCase):
 
         self.assertIsNone(result)
         self.assertEqual(controller.responses, [])
+
+
+class HidReportMapTests(unittest.TestCase):
+    def test_mouse_layout_counts_padding_but_excludes_report_id(self):
+        report_map = bytes.fromhex(
+            "05010902a10185010901a10005091901290315002501950375018102"
+            "95017505810105010930093109381581257f750895038106c0c0"
+        )
+        self.assertEqual(input_report_lengths(report_map), {1: 4})
+
+    def test_multiple_reports_restore_global_state_and_ignore_output_fields(self):
+        report_map = bytes.fromhex("8501750895018102a48502950381029102b48102")
+        self.assertEqual(input_report_lengths(report_map), {1: 2, 2: 3})
+
+    def test_invalid_layouts_cannot_validate_notifications(self):
+        for report_map in (
+            b"", b"\x75", b"\xfe\x03\x00\xff", b"\xb4",
+            bytes.fromhex("8500750895018102"),
+            bytes.fromhex("75089501810285018102"),
+        ):
+            with self.subTest(report_map=report_map.hex()), self.assertRaises(ValueError):
+                input_report_lengths(report_map)
 
 
 class BlePeripheralLifecycleTests(unittest.IsolatedAsyncioTestCase):

@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "issue": 202,
+  "status": "PASS for exact StickS3 FIFO USB device CDC path",
+  "validation_class": "virtual-device validation",
+  "device": "sticks3",
+  "machine": "m5sticks3",
+  "source_base": "8131c4682e4ef89b7a28ec6a47ab09f38a2636f1",
+  "qemu_upstream": "40edccac415693c5130f91c01d84176ae6008566",
+  "native_baseline_patch_count": 118,
+  "candidate_patch_sha256": "e692d141d0f888e3ea803f1aaac7588d1ab12874e22c330cd831e0d704a792f4",
+  "firmware": {
+    "name": "Bit Pirate v1.6",
+    "bytes": 3876400,
+    "sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+    "normalized_flash_sha256": "b892cfb72ef2c9f895da9cb2ddb3eb489a194f990decc95fad8092518c1cdf6e",
+    "flash_size": 8388608,
+    "source": "https://github.com/geo-tp/ESP32-Bit-Pirate/releases/tag/v1.6"
+  },
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "baseline": {
+    "firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+    "runtime_sha256": "dc9bf3ee224f419c6ce7b5c86917b19f06a9715ba7de7ab7542e4f22fc2a3a01",
+    "merged_flash_sha256": "b892cfb72ef2c9f895da9cb2ddb3eb489a194f990decc95fad8092518c1cdf6e",
+    "baseline_tinyusb_failure": true,
+    "tinyusb_failure_marker": true,
+    "serial_sha256": "829938bb6a2fc79b5df3949586c3f0f161efb6076aa647a2d919bcc612f97ec6",
+    "frame_sha256": "59da6bb375acd068fd8882d348b5e7835997b3157f2aefcd8df0e9dac52e4a9c",
+    "evidence_zip_sha256": "69d06dd495746460435d5264660ee3888d7dac19a067ba06474452a40319fca5",
+    "original_inputs_unchanged": true
+  },
+  "earlier_class_only_probe": {
+    "runtime_sha256": "e11679280d9ce1579c85999638cba75735481bcd28fbb9937a655ece5f767f5e",
+    "serial_sha256": "509d89601d3e4a0c06cb2e21e25fcdf76a62afd311354ae547fa6dbd113013f8",
+    "frame_sha256": "93d00bb47faee5fca0c5ca6713278ca62ef45ac98177e95eb011c5e974e33e79",
+    "evidence_zip_sha256": "921c7064931f89d37073b22506542db0482d07bf6728ae5f6f1e07a6c1652b7e",
+    "enumerated": true,
+    "cdc_line_coding": {
+      "original_bit_rate": 115200,
+      "changed_bit_rate": 57600,
+      "restored": true,
+      "stop_parity_data_bits": [
+        0,
+        0,
+        8
+      ],
+      "bytes": 7
+    },
+    "bulk_out_acknowledged": true,
+    "bulk_in": "NOT OBSERVED at terminal selection menu"
+  },
+  "candidate_controller_and_input": {
+    "vid": "0x303a",
+    "pid": "0x1002",
+    "config_bytes": 130,
+    "device_desc_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+    "config_desc_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+    "interfaces": [
+      {
+        "number": 0,
+        "class": 8,
+        "subclass": 6,
+        "endpoints": [
+          {
+            "address": 2,
+            "type": 2
+          },
+          {
+            "address": 130,
+            "type": 2
+          }
+        ]
+      },
+      {
+        "number": 1,
+        "class": 3,
+        "subclass": 1,
+        "endpoints": [
+          {
+            "address": 1,
+            "type": 3
+          },
+          {
+            "address": 129,
+            "type": 3
+          }
+        ],
+        "report_len": 245
+      },
+      {
+        "number": 2,
+        "class": 2,
+        "subclass": 2,
+        "endpoints": [
+          {
+            "address": 133,
+            "type": 3
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "class": 10,
+        "subclass": 0,
+        "endpoints": [
+          {
+            "address": 3,
+            "type": 2
+          },
+          {
+            "address": 132,
+            "type": 2
+          }
+        ]
+      }
+    ],
+    "controller": {
+      "pre_address": "attached address=0 mode=fifo",
+      "post_address": "attached address=7 mode=fifo"
+    },
+    "cdc_line_coding": {
+      "original_bit_rate": 115200,
+      "changed_bit_rate": 57600,
+      "restored": true,
+      "stop_parity_data_bits": [
+        0,
+        0,
+        8
+      ],
+      "bytes": 7
+    },
+    "hid_report_descriptor": {
+      "bytes": 245,
+      "sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6"
+    },
+    "virtual_input": {
+      "key_sequence": [
+        "b",
+        "a"
+      ],
+      "initial_frame_sha256": "93d00bb47faee5fca0c5ca6713278ca62ef45ac98177e95eb011c5e974e33e79",
+      "serial_selection_frame_sha256": "abb7bbf051e82d05e72c0ab88bffc9819ea4c5ecf28c99359dec53c4358900ec"
+    },
+    "cdc_bulk_out": {
+      "endpoint": 3,
+      "bytes": 2,
+      "payload": "CRLF",
+      "bus_ack": true
+    },
+    "cdc_bulk_in": {
+      "endpoint": 4,
+      "bytes": 406,
+      "sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "prompt_seen": true,
+      "welcome_seen": false
+    }
+  },
+  "independent_checked_in_fixture": {
+    "firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+    "runtime_sha256": "c8a47d0a582999e4b911e4b484d1f9be738710a4076fa365ce088dcffaab8a8e",
+    "merged_flash_sha256": "b892cfb72ef2c9f895da9cb2ddb3eb489a194f990decc95fad8092518c1cdf6e",
+    "fixture": {
+      "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+      "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+      "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+      "cdc_line_coding": [
+        115200,
+        57600,
+        115200
+      ],
+      "bulk_out_ep3": "CRLF ACK",
+      "bulk_in_ep4_bytes": 406,
+      "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "guest_markers": [
+        "Press any key to start",
+        "HIZ>"
+      ],
+      "serial_sha256": "c1189ea09ddeb7146cf1c202735e109c773e5ec30231c99df9f39f98ea712fad",
+      "transaction_sha256": "9f54d377fd49a760d2824597ab1d13eba563eebe3e09f959572c7a022090b6c9"
+    },
+    "tinyusb_failure_marker": false,
+    "serial_sha256": "c1189ea09ddeb7146cf1c202735e109c773e5ec30231c99df9f39f98ea712fad",
+    "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+    "evidence_zip_sha256": "32697680e6dc5e14e0f0eb4487ab08c8fccb3b63d854b41614d9c7113845879a",
+    "original_inputs_unchanged": true
+  },
+  "transport": {
+    "runtime": "qemu",
+    "flash": "host-image",
+    "host": "QOM USB packets on the same guest",
+    "io_base": "0x60080000",
+    "irq": "ETS_USB_INTR_SOURCE",
+    "device_fifo": "verified"
+  },
+  "cleanup": {
+    "owned_sessions_stopped_with_purge_0": true,
+    "final_mutable_flash_released": true,
+    "original_firmware_and_input_runtime_file_preserved": true
+  },
+  "other_validation": {
+    "buffer_dma_guest": "NOT RUN",
+    "hid_report_io": "NOT RUN",
+    "msc_io": "NOT RUN",
+    "controller_host_mode": "OUT OF SCOPE",
+    "usb_serial_jtag": "SEPARATE CONTROLLER",
+    "usb_phy_electrical_timing": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "references": [
+    "https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf",
+    "https://github.com/espressif/esp-idf/blob/87912cd291d68f4319f13695718af6754879a83f/components/soc/esp32s3/register/soc/usb_reg.h",
+    "https://github.com/hathach/tinyusb/blob/0.19.0/src/portable/synopsys/dwc2/dcd_dwc2.c"
+  ],
+  "reset_fence_followup": {
+    "status": "PASS in exact guest and deterministic controller control",
+    "patch_sha256": "cd30a5ac41b2ae2d33fd504f98e2847fd955dea96d680f8e8f3ae8c2b542c292",
+    "earlier_combined_guest": {
+      "runtime_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+      "serial_sha256": "9971ccb799824b40b4a8e9ec76a43435e7c2f80a92af895c415a0e492d673b51",
+      "frame_sha256": "93d00bb47faee5fca0c5ca6713278ca62ef45ac98177e95eb011c5e974e33e79",
+      "evidence_zip_sha256": "4cee5f07945f6c641a9d8ea30d1301f58a6c652632125dedf5c81283fbbb6372",
+      "tinyusb_failure_marker": false,
+      "status": "FAIL for USB enumeration on this run",
+      "observation": "First GET_DESCRIPTOR SETUP was sent, but EP0 IN never returned the device descriptor. Guest menu was visible."
+    },
+    "controller_qtest": {
+      "unfenced": {
+        "qemu_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "ACK",
+        "setup_while_enum_pending": "ACK",
+        "early_fifo_status": "0xc0080",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      },
+      "fenced": {
+        "qemu_sha256": "dc2dbc5562570070f35074ec5d9ecade784ee02bf657ba59d730c1ff181d98da",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "NAK",
+        "setup_while_enum_pending": "NAK",
+        "early_fifo_status": "0x0",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      }
+    },
+    "qtest_boundary": "Paused CPU and raw MMIO to isolate reset/IRQ/FIFO behavior. Actual guest execution is below.",
+    "fenced_runtime_sha256": "dc2dbc5562570070f35074ec5d9ecade784ee02bf657ba59d730c1ff181d98da",
+    "fenced_guest_runs": {
+      "independent": {
+        "serial_sha256": "4a2f4c6bf5d89f0578a91e0d26b8ae3a4c59d17cd874206bff40aaddc6ddb3ba",
+        "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+        "evidence_zip_sha256": "53fd3b3225f9d343d03942edf09f0b5742fc5f81ab8a030e8b96379f5cac1eb8",
+        "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+        "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+        "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+        "cdc_line_coding": [
+          115200,
+          57600,
+          115200
+        ],
+        "bulk_out_ep3": "CRLF ACK",
+        "bulk_in_ep4_bytes": 406,
+        "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+        "guest_markers": [
+          "Press any key to start",
+          "HIZ>"
+        ],
+        "transaction_sha256": "9ed7989c6bfecb938ec426b80e35046e94f8142ea5daffd7536a2a248dd5bd03"
+      },
+      "three_concurrent": [
+        {
+          "serial_sha256": "e0fbca180ae63b2ba123baf19f4416f4b75344c8f486c8af343dcd68d67d6b2e",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "8db68db97168334ec979df1be7e3b49f27c8ee55b40812cdfa64febec5c258e0",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "126caa117d332a81e27e36c410ee959045b47ca72ccca95301d16f3d73d415d2"
+        },
+        {
+          "serial_sha256": "19f1efe8824896ea0a5929c243bc525fde53fb065beab558f5ac3d6aff759d6c",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "57ede2d1795340f43dc098ff99adb7f5f050a41f0e3828926e9a844b0df19cb4",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "aa2d0cf8930531df7c5a91942fce59403a1d53559e267dcf5f9a4c98c5c6fc00"
+        },
+        {
+          "serial_sha256": "5b671d207095f4c6cd170d72bfc8c6c2ad9084695f1326cfd9a3d2ce59e1ce73",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "a736d63adb3946c7ad5e06444f5506657ca77530360e63902d61ca1d1937aac6",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "656a1415aced8e524f653344fae58b8c0343727076d81b8bb559357b14973e18"
+        }
+      ]
+    }
+  },
+  "integrated_repeat": {
+    "source_firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+    "runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+    "flash_sha256": "b892cfb72ef2c9f895da9cb2ddb3eb489a194f990decc95fad8092518c1cdf6e",
+    "flash_transport": "esp-emu-esptool",
+    "cleanup": "stopped",
+    "evidence_zip_sha256": "399e5443bfea4ebec24f92c0339adc5c10009530ec13a679c92fd11a8e2f1606",
+    "probe": {
+      "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+      "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+      "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+      "cdc_line_coding": [
+        115200,
+        57600,
+        115200
+      ],
+      "bulk_out_ep3": "CRLF ACK",
+      "bulk_in_ep4_bytes": 406,
+      "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "guest_markers": [
+        "Press any key to start",
+        "HIZ>"
+      ],
+      "serial_sha256": "b8dbe42dd29387b3605e3579bdd722a4ec7728e1f9bb3202d92578af4f0be501",
+      "transaction_sha256": "afc10666040a0c5e062f3c854d1f098df51b718b460aba1605c24ec987ea93d2"
+    },
+    "reset_fence": {
+      "unfenced": {
+        "qemu_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "ACK",
+        "setup_while_enum_pending": "ACK",
+        "early_fifo_status": "0xc0080",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      },
+      "fenced": {
+        "qemu_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "NAK",
+        "setup_while_enum_pending": "NAK",
+        "early_fifo_status": "0x0",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      }
+    }
+  }
+}

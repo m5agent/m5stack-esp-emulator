@@ -1,0 +1,483 @@
+Subject: [PATCH] Model StickS3 M5PM1 I2C IAP and BOOT_OUT sampling
+
+The M5PM1 normal I2C slave switches to its IAP bootloader address after
+the updater's entry transaction. Model write-enable, contiguous app
+pages, CRC verification and return to normal addressing. Keep the
+PM1 image separate from ESP32 Flash and from the live PM1 register model.
+
+The StickS3 also wires the PM1 BOOT_OUT to ESP32-S3 GPIO0. The PM1
+pulses it across a cold reset, where the SoC latches the ROM strap.
+Other PM1 boards retain their existing lifecycle.
+
+Source: M5PM1 Datasheet rev 1.8 (Download Flowchart), K150 StickS3
+schematic rev 0.6, and the official M5PM1-O updater I2C data path.
+Native-only layer, apply after 0170.
+
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -45,6 +45,9 @@
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+         qdev_prop_set_string(d, "model", devs[i].model);
+         qdev_prop_set_uint8(d, "address", devs[i].addr);
++        if (!strcmp(devs[i].model, "m5pm1")) {
++            qdev_prop_set_bit(d, "pm1-iap", true);
++        }
+         object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
+     }
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -6,12 +6,15 @@
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
++#include "qemu/bswap.h"
+ #include "qemu/log.h"
+ #include "qemu/timer.h"
+ #include "sysemu/runstate.h"
+ #include "qapi/error.h"
+ #include "hw/i2c/i2c.h"
+ #include "hw/qdev-properties.h"
++#include "hw/irq.h"
++
+ #include "qapi/visitor.h"
+ #include <math.h>
+ #include "qom/object.h"
+@@ -53,6 +56,29 @@
+     M_LEPTON,
+     M_ENCODER,
+ };
++
++/* The StickS3 updater switches the PM1 from its normal address to an
++ * I2C bootloader. Keep the app bank separate from the live PM1 registers.
++ */
++enum {
++    PM1_IAP_ADDR = 0x54,
++    PM1_IAP_APP_BASE = 0x08001000,
++    PM1_IAP_APP_SIZE = 0x5000,
++    PM1_IAP_PAGE_SIZE = 128,
++    PM1_IAP_HEADER_SIZE = 8,
++    PM1_IAP_WREN_WRITE = 0x06,
++    PM1_IAP_RUN = 0x77,
++};
++
++typedef struct M5PM1Iap {
++    uint8_t app_address;
++    bool active, enter_pending, write_enabled, rejected;
++    unsigned frame_size;
++    uint8_t frame[PM1_IAP_HEADER_SIZE + PM1_IAP_PAGE_SIZE];
++    uint8_t app[PM1_IAP_APP_SIZE];
++    int64_t bytes_written, upgrades, run_rejections;
++    char *app_sha256;
++} M5PM1Iap;
+ 
+ typedef struct M5swI2CDev {
+     I2CSlave parent_obj;
+@@ -130,6 +156,11 @@
+     bool axp192_speaker_enabled;
+     bool axp2101_speaker_enabled;
+     QEMUTimer *power_key_timer;
++    QEMUTimer *pm1_boot_timer;
++    qemu_irq pm1_boot_out;
++    bool pm1_download_on_release;
++    bool pm1_iap_enabled;
++    M5PM1Iap *pm1_iap;
+     int64_t power_key_down_ns, power_key_release_ns;
+     int64_t shutdown_requests, reset_requests, download_requests;
+     bool power_enabled, power_key_down, power_key_long, download_requested;
+@@ -556,20 +587,37 @@
+     qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
+ }
+ 
++static void pm1_release_boot_out(void *opaque)
++{
++    M5swI2CDev *s = opaque;
++
++    qemu_set_irq(s->pm1_boot_out, 1);
++}
++
++static void pm1_reset_power_gpio(M5swI2CDev *s)
++{
++    /* The charging enable is on the PM1's separate supply. */
++    s->regs[0x07] = 0;
++    pm1_release_gpio(s, 0);
++    s->regs[0x06] = 0x16 | (s->regs[0x06] & 1);
++    s->pm1_pa_enabled = false;
++    memset(&s->regs[0x40], 0, 3);
++}
++
+ static void pmic_reset_request(M5swI2CDev *s, const char *source)
+ {
++    s->pm1_download_on_release = false;
++    if (s->pm1_boot_timer) {
++        timer_del(s->pm1_boot_timer);
++        pm1_release_boot_out(s);
++    }
+     s->reset_requests++;
+     s->pm1_clicks = 0;
+     s->power_key_down = s->power_key_long = false;
+     s->download_requested = false;
+     timer_del(s->power_key_timer);
+     if (s->model == M_PM1) {
+-        /* PM1 reset releases its GPIO functions, not its charging supply. */
+-        s->regs[0x07] = 0;
+-        pm1_release_gpio(s, 0);
+-        s->regs[0x06] = 0x16 | (s->regs[0x06] & 1);
+-        s->pm1_pa_enabled = false;
+-        memset(&s->regs[0x40], 0, 3);
++        pm1_reset_power_gpio(s);
+         s->regs[0x48] &= ~1;
+     }
+     fprintf(stderr, "[m5-power] model=%s action=reset source=%s virtual_ns=%" PRId64 "\n",
+@@ -629,17 +677,35 @@
+     }
+ }
+ 
+-static void pmic_download_request(M5swI2CDev *s, const char *source)
+-{
+-    /* The PM1 requests download, but the SoC currently has no dynamic boot
+-     * strap sampler. Retain that observable model gap rather than reset into
+-     * ordinary Flash and claim that the ROM downloader was entered.
++static void pm1_enter_download(M5swI2CDev *s)
++{
++    /* M5PM1 datasheet, Download Flowchart: reset the power/GPIO state
++     * and pulse the open-drain BOOT_OUT for 500 ms across the SoC reset.
+      */
++    pm1_reset_power_gpio(s);
++    qemu_set_irq(s->pm1_boot_out, 0);
++    timer_mod(s->pm1_boot_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500 * SCALE_MS);
++    qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++}
++
++static void pmic_download_request(M5swI2CDev *s, const char *source,
++                                  bool wait_for_release)
++{
+     s->download_requests++;
+     s->download_requested = true;
+     s->pm1_clicks = 0;
+-    fprintf(stderr, "[m5-power] model=%s action=download-requested source=%s "
+-            "runtime_model_gap=dynamic-boot-strap\n", s->model_name, source);
++    if (!s->pm1_boot_out) {
++        fprintf(stderr, "[m5-power] model=%s action=download-requested source=%s "
++                "runtime_model_gap=dynamic-boot-strap\n", s->model_name, source);
++        return;
++    }
++    fprintf(stderr, "[m5-power] model=%s action=download-requested source=%s\n",
++            s->model_name, source);
++    s->pm1_download_on_release = wait_for_release;
++    if (!wait_for_release) {
++        pm1_enter_download(s);
++    }
+ }
+ 
+ static void pmic_key_tick(void *opaque)
+@@ -660,7 +726,7 @@
+             } else if (s->model == M_AXP192) {
+                 s->regs[0x46] |= BIT(0);
+             } else if (!(s->regs[0x49] & BIT(7))) {
+-                pmic_download_request(s, "button-long");
++                pmic_download_request(s, "button-long", true);
+             }
+         }
+         if (pmic_key_off_enabled(s) && held >= pmic_key_off_ns(s)) {
+@@ -736,6 +802,10 @@
+         }
+     } else {
+         s->pm1_clicks = 0;
++        if (s->pm1_download_on_release) {
++            s->pm1_download_on_release = false;
++            pm1_enter_download(s);
++        }
+     }
+     pmic_key_rearm(s);
+ }
+@@ -756,7 +826,7 @@
+         } else if (data == 0xa2) {
+             pmic_reset_request(s, "sys-cmd");
+         } else if (data == 0xa3) {
+-            pmic_download_request(s, "sys-cmd");
++            pmic_download_request(s, "sys-cmd", false);
+         }
+     } else if (s->model == M_AXP2101 && r == 0x10) {
+         s->regs[r] = data & ~3; /* self-clearing off/reset commands */
+@@ -1718,9 +1788,122 @@
+     }
+ }
+ 
++/* PM1 app images carry a little-endian STM32 CRC word after the
++ * program/padding. Input is consumed as big-endian words, CRC polynomial
++ * 0x04c11db7, initial value 0xffffffff, no reflection or final XOR.
++ */
++static bool pm1_iap_image_valid(const M5PM1Iap *iap)
++{
++    uint32_t crc = UINT32_MAX;
++    uint32_t size = sizeof(iap->app) - sizeof(crc);
++
++    if (iap->bytes_written != sizeof(iap->app)) {
++        return false;
++    }
++    for (unsigned i = 0; i < size; i++) {
++        crc ^= (uint32_t)iap->app[i] << 24;
++        for (unsigned bit = 0; bit < 8; bit++) {
++            crc = (crc << 1) ^ ((crc & BIT(31)) ? 0x04c11db7 : 0);
++        }
++    }
++    return crc == ldl_le_p(iap->app + size);
++}
++
++static int pm1_iap_send(M5PM1Iap *iap, uint8_t data)
++{
++    if (iap->rejected || iap->frame_size == sizeof(iap->frame)) {
++        goto nack;
++    }
++    if (iap->frame_size == 0) {
++        if (data == PM1_IAP_RUN &&
++            (!iap->write_enabled || !pm1_iap_image_valid(iap))) {
++            iap->run_rejections++;
++            goto nack;
++        }
++        if (data != PM1_IAP_WREN_WRITE && data != PM1_IAP_RUN) {
++            goto nack;
++        }
++    } else if (!iap->write_enabled || iap->frame[0] != PM1_IAP_WREN_WRITE) {
++        goto nack;
++    }
++    iap->frame[iap->frame_size++] = data;
++    if (iap->frame_size >= PM1_IAP_HEADER_SIZE) {
++        uint32_t address = ldl_be_p(iap->frame + 1);
++        unsigned length = lduw_be_p(iap->frame + 5);
++
++        if (address != PM1_IAP_APP_BASE + iap->bytes_written ||
++            !length || length > PM1_IAP_PAGE_SIZE || iap->frame[7] != 0xff ||
++            length > PM1_IAP_APP_SIZE - iap->bytes_written ||
++            iap->frame_size > PM1_IAP_HEADER_SIZE + length) {
++            goto nack;
++        }
++    }
++    return 0;
++
++nack:
++    iap->rejected = true;
++    return -1;
++}
++
++static void pm1_iap_finish(I2CSlave *slave, M5PM1Iap *iap)
++{
++    if (iap->rejected || !iap->frame_size) {
++        return;
++    }
++    if (iap->frame_size == 1 && iap->frame[0] == PM1_IAP_WREN_WRITE) {
++        iap->write_enabled = true;
++        iap->bytes_written = 0;
++        memset(iap->app, 0xff, sizeof(iap->app));
++        g_clear_pointer(&iap->app_sha256, g_free);
++    } else if (iap->frame_size == 1 && iap->frame[0] == PM1_IAP_RUN) {
++        iap->active = iap->write_enabled = false;
++        iap->upgrades++;
++        iap->app_sha256 = g_compute_checksum_for_data(G_CHECKSUM_SHA256,
++                                                    iap->app, sizeof(iap->app));
++        i2c_slave_set_address(slave, iap->app_address);
++    } else if (iap->frame_size >= PM1_IAP_HEADER_SIZE) {
++        unsigned length = lduw_be_p(iap->frame + 5);
++
++        if (iap->frame_size == PM1_IAP_HEADER_SIZE + length) {
++            memcpy(iap->app + iap->bytes_written,
++                   iap->frame + PM1_IAP_HEADER_SIZE, length);
++            iap->bytes_written += length;
++        }
++    }
++}
++
+ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    M5PM1Iap *iap = s->pm1_iap;
++
++    if (iap && iap->active) {
++        switch (ev) {
++        case I2C_START_SEND:
++            iap->frame_size = 0;
++            iap->rejected = false;
++            break;
++        case I2C_START_RECV:
++            return -1;
++        case I2C_FINISH:
++            pm1_iap_finish(i2c, iap);
++            iap->frame_size = 0;
++            break;
++        default:
++            break;
++        }
++        return 0;
++    }
++    if (iap) {
++        if (ev == I2C_START_SEND) {
++            iap->enter_pending = false;
++        } else if (ev == I2C_FINISH && iap->enter_pending) {
++            iap->enter_pending = false;
++            iap->active = true;
++            iap->app_address = i2c->address;
++            i2c_slave_set_address(i2c, PM1_IAP_ADDR);
++        }
++    }
+     if (ev == I2C_START_SEND || ev == I2C_START_RECV) {
+         s->transactions++;
+     }
+@@ -1825,6 +2008,11 @@
+ static int dev_send(I2CSlave *i2c, uint8_t data)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    M5PM1Iap *iap = s->pm1_iap;
++
++    if (iap && iap->active) {
++        return pm1_iap_send(iap, data);
++    }
+     s->written_bytes++;
+     if (s->model == M_LEPTON) {
+         if (s->lepton_addr_bytes == 0) {
+@@ -1951,6 +2139,17 @@
+         qemu_log("[%s] wr %02x <- %02x\n", s->model_name, s->ptr, data);
+     }
+     uint8_t r = s->ptr;
++    if (iap) {
++        if (iap->enter_pending) {
++            iap->enter_pending = false;
++            return -1; /* BOOT command is a single data byte. */
++        }
++        if (r == 0xfd && data == 0x1a) {
++            iap->enter_pending = true;
++            s->ptr++;
++            return 0;
++        }
++    }
+     if (s->model == M_MPU9250 && r == 0x6B && (data & 0x80)) {
+         /* PWR_MGMT_1 device reset: clear configuration registers. */
+         uint8_t who = s->regs[0x75];
+@@ -2192,6 +2391,15 @@
+         *(double *)op = d;
+     }
+ }
++static void pm1_iap_get_sha256(Object *obj, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    M5PM1Iap *iap = opaque;
++    g_autofree char *hash = g_strdup(iap->app_sha256 ? iap->app_sha256 : "");
++
++    visit_type_str(v, name, &hash, errp);
++}
++
+ static void prop_get_i64(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     visit_type_int64(v, name, (int64_t *)op, errp);
+@@ -2436,6 +2644,22 @@
+     s->trace = getenv("M5SW_I2C_TRACE") != NULL;
+     if (!strcmp(m, "m5pm1")) {
+         s->model = M_PM1;
++        if (s->pm1_iap_enabled) {
++            M5PM1Iap *iap = s->pm1_iap = g_new0(M5PM1Iap, 1);
++
++            object_property_add(OBJECT(s), "iap-active", "bool", prop_get_bool,
++                                NULL, NULL, &iap->active);
++            object_property_add(OBJECT(s), "iap-bytes-written", "int", prop_get_i64,
++                                NULL, NULL, &iap->bytes_written);
++            object_property_add(OBJECT(s), "iap-upgrades", "int", prop_get_i64,
++                                NULL, NULL, &iap->upgrades);
++            object_property_add(OBJECT(s), "iap-run-rejections", "int", prop_get_i64,
++                                NULL, NULL, &iap->run_rejections);
++            object_property_add(OBJECT(s), "iap-app-sha256", "str", pm1_iap_get_sha256,
++                                NULL, NULL, iap);
++        }
++        qdev_init_gpio_out_named(dev, &s->pm1_boot_out, "boot-out", 1);
++        s->pm1_boot_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, pm1_release_boot_out, s);
+         s->regs[0x00] = 0x50;   /* device id (little-endian 0x2050) */
+         s->regs[0x01] = 0x20;
+         s->regs[0x02] = 0x01;   /* hw rev */
+@@ -2886,6 +3110,7 @@
+ 
+ static Property dev_props[] = {
+     DEFINE_PROP_STRING("model", M5swI2CDev, model_name),
++    DEFINE_PROP_BOOL("pm1-iap", M5swI2CDev, pm1_iap_enabled, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -2915,6 +3140,14 @@
+     if (s->power_key_timer) {
+         timer_free(s->power_key_timer);
+         s->power_key_timer = NULL;
++    }
++    if (s->pm1_iap) {
++        g_free(s->pm1_iap->app_sha256);
++        g_clear_pointer(&s->pm1_iap, g_free);
++    }
++    if (s->pm1_boot_timer) {
++        timer_free(s->pm1_boot_timer);
++        s->pm1_boot_timer = NULL;
+     }
+     if (g_pm1 == s) {
+         g_pm1 = NULL;
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -164,6 +164,9 @@
+     SsiPsramState *psram;
+ 
+     uint32_t requested_reset;
++    bool pm1_boot_out_low;
++    bool pm1_strap_latched;
++    uint32_t pm1_base_strap;
+ } Esp32s3SocState;
+ 
+ static Esp32s3SocState *g_esp32s3_soc;
+@@ -222,11 +225,35 @@
+     }
+ }
+ 
++static void esp32s3_pm1_boot_out(void *opaque, int n, int level)
++{
++    Esp32s3SocState *s = ESP32S3_SOC(opaque);
++
++    s->pm1_boot_out_low = !level;
++}
++
+ static void esp32s3_soc_reset(DeviceState *dev)
+ {
+     Esp32s3SocState *s = ESP32S3_SOC(dev);
+     if (s->requested_reset == 0) {
+         s->requested_reset = ESP32S3_SOC_RESET_ALL;
++        if (m5_board == M5_BOARD_STICKS3) {
++            Esp32GpioState *gpio = ESP32_GPIO(&s->gpio);
++
++            /* Sample BOOT_OUT on cold reset. Keep the other strap pins and
++             * the configured GPIO0 strap for the next ordinary reset.
++             */
++            if (s->pm1_boot_out_low) {
++                if (!s->pm1_strap_latched) {
++                    s->pm1_base_strap = gpio->strap_mode;
++                }
++                gpio->strap_mode = s->pm1_base_strap & ~BIT(2); /* GPIO0 */
++                s->pm1_strap_latched = true;
++            } else if (s->pm1_strap_latched) {
++                gpio->strap_mode = s->pm1_base_strap;
++                s->pm1_strap_latched = false;
++            }
++        }
+     }
+     if (s->requested_reset & ESP32S3_SOC_RESET_PERIPH) {
+         device_cold_reset(DEVICE(&s->intmatrix));
+@@ -974,6 +1001,13 @@
+     if (m5_board != M5_BOARD_NONE) {
+         m5_board_init(sys_mem, intmatrix_dev, ESP_GDMA(&ss->gdma));
+     }
++    if (m5_board == M5_BOARD_STICKS3) {
++        Object *pm1 = object_resolve_path_component(OBJECT(machine), "m5pm1");
++
++        qdev_init_gpio_in_named(DEVICE(ss), esp32s3_pm1_boot_out, "pm1-boot-out", 1);
++        qdev_connect_gpio_out_named(DEVICE(pm1), "boot-out", 0,
++            qdev_get_gpio_in_named(DEVICE(ss), "pm1-boot-out", 0));
++    }
+     m5_unit_runtime_init(true);
+ 
+     /* Need MMU initialized prior to ELF loading,

@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "device": "sticks3",
+  "machine": "m5sticks3",
+  "runtime": "native qemu",
+  "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "ordered_patch_count": 121,
+  "cases": {
+    "iap": {
+      "status": "PASS",
+      "source_firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+      "flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+      "runtime_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+      "flash_transport": "esp-emu-esptool",
+      "controller": {
+        "address": 110,
+        "download-requests": 0,
+        "iap-active": false,
+        "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+        "iap-bytes-written": 20480,
+        "iap-run-rejections": 0,
+        "iap-upgrades": 1,
+        "reset-requests": 0
+      },
+      "serial_markers": [
+        "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+        "◉ Button A"
+      ],
+      "frames_sha256": {
+        "after": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+      },
+      "evidence_zip_sha256": "7115bba4108eac719a3c1cbf3cadb0db4f62b652ff7531660e2eb965bee71fb6",
+      "cleanup": "stopped",
+      "usb_serial_jtag": {
+        "sha256": "4d72b18a5700231cb9aa5de1bf6059ff4249267192da288f70b3054c81c7bf70",
+        "bytes": 8257,
+        "guest_completion_marker": true
+      }
+    },
+    "bad-crc": {
+      "status": "PASS",
+      "source_firmware_sha256": "3b6247e161f038355516c1cd1bb320146d145a32c5d5b5d69cc5e139bd5ec88e",
+      "flash_sha256": "9f370584246696832a939d321c9e2792c0ef7d653518ca524d8ddc016c9190c3",
+      "runtime_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+      "flash_transport": "esp-emu-esptool",
+      "controller": {
+        "address": 84,
+        "download-requests": 0,
+        "iap-active": true,
+        "iap-app-sha256": "",
+        "iap-bytes-written": 20480,
+        "iap-run-rejections": 13,
+        "iap-upgrades": 0,
+        "reset-requests": 0
+      },
+      "serial_markers": [
+        "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+        "◉ Button A"
+      ],
+      "frames_sha256": {
+        "after": "6a8d54b90c57ecc7fe1332f53296e05564029a6bc30af622ec803c171d504911",
+        "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+      },
+      "evidence_zip_sha256": "ab3d612131cfcfa6cd0799bbe718b217caef0846961bc77046424820995e97e1",
+      "cleanup": "stopped",
+      "usb_serial_jtag": {
+        "sha256": "a6ae470b8ffe1d575eb6f35269dc604bf521852cc9a2a5fb468cd0deef48df48",
+        "bytes": 8646,
+        "guest_completion_marker": false
+      }
+    },
+    "strap": {
+      "status": "PASS",
+      "source_firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+      "flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+      "runtime_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+      "flash_transport": "cache",
+      "controller": {
+        "address": 110,
+        "download-requests": 1,
+        "iap-active": false,
+        "iap-app-sha256": "",
+        "iap-bytes-written": 0,
+        "iap-run-rejections": 0,
+        "iap-upgrades": 0,
+        "reset-requests": 1
+      },
+      "serial_markers": [
+        "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+        "rst:0x1 (POWERON),boot:0x0 (DOWNLOAD(USB/UART0))",
+        "waiting for download",
+        "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)"
+      ],
+      "frames_sha256": {
+        "after": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "download": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+      },
+      "evidence_zip_sha256": "9a6747a20012e004ac20211f1cd4fc189a674154cd7c36bf493d7d1a383db7c0",
+      "cleanup": "stopped"
+    }
+  },
+  "earlier_attempts": [
+    {
+      "status": "FAIL",
+      "phase": "early candidate boot",
+      "observed": "QEMU exited -11 inside TCG while booting. PM1 input was not injected."
+    },
+    {
+      "status": "FAIL",
+      "phase": "early recovery after strap entry",
+      "observed": "A service reset after the ROM banner reached SPI boot, then the guest reported one spinlock_acquire assertion. The checked-in short-PWR recovery check was run separately."
+    },
+    {
+      "status": "PARTIAL",
+      "phase": "121-layer general matrix repeat",
+      "observed": "The original updater displayed a frame and then reported a guest spinlock_acquire assertion before IAP completion. Matrix retained fatal_after_application_frame."
+    },
+    {
+      "status": "FAIL",
+      "phase": "0174 parallel PM1 startup",
+      "observed": "The guest process exited with signal 11 in host TCG before A input. A standalone repeat separately transferred 20,480 bytes but did not emit its final CDC marker."
+    }
+  ],
+  "outside_scope": [
+    "PM1 MCU instruction execution",
+    "physical power and IAP",
+    "browser-WASM",
+    "USB PHY"
+  ],
+  "release_repeat": {
+    "ordered_patch_count": 122,
+    "cases": {
+      "iap": {
+        "status": "PASS",
+        "source_firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+        "flash_transport": "esp-emu-esptool",
+        "controller": {
+          "address": 110,
+          "download-requests": 0,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1,
+          "reset-requests": 0
+        },
+        "serial_markers": [
+          "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+          "◉ Button A"
+        ],
+        "frames_sha256": {
+          "after": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+          "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+        },
+        "evidence_zip_sha256": "74855475a2b94c9c4edd3aa49fe9aef69c5a1bd7fc1b073db8eeaccbe0203f1c",
+        "cleanup": "stopped",
+        "usb_serial_jtag": {
+          "sha256": "a5d4ae40706467778b9b4305a8e026f855639188cc802d4fd739fb20f5248015",
+          "bytes": 8196,
+          "guest_completion_marker": true
+        }
+      },
+      "bad-crc": {
+        "status": "PASS",
+        "source_firmware_sha256": "3b6247e161f038355516c1cd1bb320146d145a32c5d5b5d69cc5e139bd5ec88e",
+        "flash_sha256": "9f370584246696832a939d321c9e2792c0ef7d653518ca524d8ddc016c9190c3",
+        "runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+        "flash_transport": "esp-emu-esptool",
+        "controller": {
+          "address": 84,
+          "download-requests": 0,
+          "iap-active": true,
+          "iap-app-sha256": "",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 14,
+          "iap-upgrades": 0,
+          "reset-requests": 0
+        },
+        "serial_markers": [
+          "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+          "◉ Button A"
+        ],
+        "frames_sha256": {
+          "after": "6a8d54b90c57ecc7fe1332f53296e05564029a6bc30af622ec803c171d504911",
+          "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+        },
+        "evidence_zip_sha256": "a5b9ed8d0dc5631a2bf15fcf70e20fdabe134874ec27f2081f07ab54c0a41058",
+        "cleanup": "stopped",
+        "usb_serial_jtag": {
+          "sha256": "a2a82728f926af523210c2cbd301db65c447ea4b0a775ddba8464048741f74bf",
+          "bytes": 8717,
+          "guest_completion_marker": false
+        }
+      },
+      "strap": {
+        "status": "PASS",
+        "source_firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+        "flash_transport": "cache",
+        "controller": {
+          "address": 110,
+          "download-requests": 1,
+          "iap-active": false,
+          "iap-app-sha256": "",
+          "iap-bytes-written": 0,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 0,
+          "reset-requests": 1
+        },
+        "serial_markers": [
+          "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)",
+          "rst:0x1 (POWERON),boot:0x0 (DOWNLOAD(USB/UART0))",
+          "waiting for download",
+          "rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)"
+        ],
+        "frames_sha256": {
+          "after": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+          "before": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+          "download": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+        },
+        "evidence_zip_sha256": "a9de12a473b9467401f22fbff93726993abdeaa2612deab61cd08039d10dfb1d",
+        "cleanup": "stopped"
+      }
+    },
+    "explicit_gpio0_override_rom_boot": "PASS"
+  }
+}

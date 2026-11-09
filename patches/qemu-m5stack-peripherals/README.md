@@ -1,5 +1,44 @@
 # M5Stack peripheral models and data planes
 
+## StickS3 USB device mode
+
+`0171-sticks3-pm1-iap-boot-out.patch` models the StickS3 M5PM1's I2C
+bootloader address, write enable, bounded app writes, CRC verification and
+return to normal addressing. It also wires PM1 BOOT_OUT to the cold-reset
+GPIO0 strap sample on the S3. This native layer follows `0170`. The
+[stock updater probe](../../tests/firmware/sticks3_pm1/README.md) includes
+a corrupt-image rejection and a PWR-button ROM boot/recovery control.
+
+`0172-sticks3-usb-otg-device.patch` adds the ESP32-S3 full-speed device
+controller to the native `m5sticks3` machine. The system clock and reset gates
+drive the DWC2 controller at `0x60080000`, with its endpoint interrupts routed
+through the ESP32-S3 interrupt matrix. A virtual host sends packets via
+`/machine/soc/usb-otg`. The guest supplies descriptors and transfer data through
+the controller's endpoint buffers.
+
+`0174-sticks3-usb-otg-reset-fence.patch` keeps host packets pending through
+the USB reset and speed-detection interrupt acknowledgments. The guest's
+receive FIFO flush can then finish before the host's first SETUP is accepted.
+
+The pinned Bit Pirate v1.6 guest passed address and configuration enumeration,
+CDC ACM line-coding writes and readback, CDC bulk I/O and HID report descriptor
+readback. The guest used the FIFO path. The Buffer DMA path, HID reports, MSC
+operations, controller host mode, USB PHY behavior and browser-WASM remain
+outside this acceptance. The native bootstrap applies this layer after
+`0170`; the browser source lock is unchanged.
+[Exact stock-firmware probe and evidence](../../tests/firmware/sticks3_usb_otg/README.md)
+
+## StickS3 USB Serial/JTAG transmit capture
+
+`0173-sticks3-usb-serial-jtag-cdc-tx.patch` implements the fixed controller's
+EP1 transmit FIFO, WR_DONE, virtual host frame tick and IN-empty interrupt
+on native StickS3 with an explicit host chardev. The Device Service opt-in
+retains the guest's transmit output in a separate evidence member.
+The original PM1 upgrader's completion marker was captured through this
+controller. The result covers CDC transmit. Receive, JTAG transactions,
+physical enumeration and shared PHY switching remain outside the validation.
+[PM1 upgrader capture evidence](../../docs/evidence/2026-11-09-issue-fixes/usb-serial-jtag-pm1.json)
+
 ## Latest firmware compatibility layers
 
 After the canonical Unit chain through `0161`, apply `0162` (AXP2101 charger

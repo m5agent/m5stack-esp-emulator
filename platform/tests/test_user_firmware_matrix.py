@@ -797,6 +797,10 @@ class UserFirmwareMatrixTests(unittest.TestCase):
                 "esp32s3_usb_otg_not_modeled",
             ),
             (
+                "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+                "Bit Pirate menu ready", "sticks3_usb_otg_exchange_unobserved",
+            ),
+            (
                 "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
                 "auto detect board:26", "sticks3_ble_hid_host_unavailable",
             ),
@@ -820,11 +824,9 @@ class UserFirmwareMatrixTests(unittest.TestCase):
                 self.assertEqual((status, reason), ("PARTIAL", "runtime_model_gap"))
 
     def test_sticks3_gap_does_not_infer_a_monitor_requirement_or_hide_a_panic(self):
-        pmic = "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
         monitor = "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246"
         controls = (
             ("SCAN Done: Results: 0", "sticks3", "qemu", "0" * 64),
-            ("Firmware upgrade completed", "sticks3", "qemu", pmic),
             ("Guru Meditation", "sticks3", "qemu", monitor),
             ("boot", "sticks3", "qemu-unified", monitor),
             ("boot", "cores3", "qemu", monitor),
@@ -834,6 +836,26 @@ class UserFirmwareMatrixTests(unittest.TestCase):
                 self.assertEqual(detect_runtime_model_gaps(
                     serial, device, runtime=runtime, firmware_sha256=sha,
                 ), [])
+
+    def test_sticks3_pmic_completion_needs_guest_marker_and_programmed_app(self):
+        sha = "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
+        completion = "Firmware upgrade completed"
+        pm1 = {
+            "iap-active": False, "iap-upgrades": 1, "address": 0x6e,
+            "hwcdc-completed": True,
+            "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+        }
+
+        def gaps(serial, observation):
+            return detect_runtime_model_gaps(
+                serial, "sticks3", runtime="qemu", firmware_sha256=sha,
+                pm1_iap=observation,
+            )
+
+        self.assertEqual(gaps("Button A", pm1), [])
+        self.assertTrue(gaps(completion, None))
+        self.assertTrue(gaps(completion, {**pm1, "hwcdc-completed": False}))
+        self.assertTrue(gaps(completion, {**pm1, "iap-app-sha256": "0" * 64}))
 
     def test_detect_papermono_missing_sd_fixture_as_runtime_gap(self):
         serial = "\n".join(

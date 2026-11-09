@@ -330,6 +330,7 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
         )
         self.session.virtual_flash = self.session.firmware_path
         self.session.serial0.write_text("privileged serial\n")
+        (self.session.dir / "usb-serial-jtag.log").write_text("privileged USB CDC\n")
         bundle = self.session.evidence_bundle(
             {"manifest", "serial", "logs", "flash"}
         )
@@ -338,6 +339,7 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
             manifest = json.loads(archive.read("manifest.json"))
         self.assertFalse(any(name.startswith("programs/") for name in names))
         self.assertNotIn("serial.log", names)
+        self.assertNotIn("usb-serial-jtag.log", names)
         self.assertNotIn("qemu.stdout", names)
         self.assertNotIn("flash/virtual-flash.bin", names)
         self.assertEqual(
