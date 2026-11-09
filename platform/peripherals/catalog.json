@@ -1490,7 +1490,7 @@
       "injection": [
         "qmp-pointer"
       ],
-      "data_plane": "QEMU absolute pointer events drive GT911 coordinate/status registers through ESP32-S3 I2C and GPIO48 interrupt; factory firmware touch changes the ET047TC1 framebuffer.",
+      "data_plane": "QEMU absolute pointer events drive one GT911 contact in its coordinate/status registers through ESP32-S3 I2C and GPIO48 interrupt; factory firmware touch changes the ET047TC1 framebuffer.",
       "tested_devices": [
         "papers3"
       ]
@@ -4047,7 +4047,8 @@
           "id": "touch",
           "model": "touch-gt911",
           "pins": "sda=41,scl=42,irq=48",
-          "status": "simulated"
+          "status": "simulated",
+          "qom_path": "/machine/gt911"
         },
         {
           "id": "imu",
@@ -4060,7 +4061,7 @@
           "id": "rtc",
           "model": "pcf8563",
           "pins": "sda=41,scl=42",
-          "qom_path": "/machine/bm8563",
+          "qom_path": "/machine/pcf8563",
           "status": "partial"
         },
         {
