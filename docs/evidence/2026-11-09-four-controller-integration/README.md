@@ -25,3 +25,7 @@
 - [合并构建摘要](paper-native-combined-summary.json)
 - [原厂固件及 UIFlow2 探针复现](../2026-11-09-paper-et047tc1/README.md)
 - [CoreMatrix C158 单独后端的探针和官方固件对照](../../../tests/firmware/corematrix_backend_feasibility/README.md)
+
+## 两款 Paper 的固件导入
+
+四个正向 HTTP 试验接受正确型号的原厂样本与 UIFlow2 v2.5.4。两个交叉导入试验识别出另一型号的原厂项目，返回 HTTP 409 和 `firmware_board_mismatch`。未知项目仍走既有固件和外设约束。[导入摘要](paper-board-admission-summary.json)
