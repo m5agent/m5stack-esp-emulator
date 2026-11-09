@@ -879,6 +879,58 @@
         }
       ],
       "timeout": 60
+    },
+    {
+      "id": "papers3",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5papers3",
+      "base": "platform/.cache/firmware/papers3/uiflow2.bin",
+      "files_dir": "tests/uiflow2/papers3_ui_test",
+      "vfs_offset": "0x651000",
+      "vfs_size": "0x1AE000",
+      "flash_size": "0x1000000",
+      "memory": "8",
+      "expected_size": "540x960",
+      "api_size": "540x960",
+      "ui_rotation": 0,
+      "input": "longpress:270,400,0.8",
+      "post_frame_color": "24,24,000000",
+      "wait": 18,
+      "post_input_wait": 1.5,
+      "pre_input_marker": "PAPERS3_READY",
+      "serial_expect": [
+        "PAPERS3_READY 540 960",
+        "PAPERS3_TOUCH"
+      ],
+      "min_unique_colors": 1
+    },
+    {
+      "id": "paperdiy",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5paperdiy",
+      "base": "platform/.cache/firmware/paperdiy/uiflow2.bin",
+      "files_dir": "tests/uiflow2/paperdiy_ui_test",
+      "vfs_offset": "0x820000",
+      "vfs_size": "0x7DF000",
+      "flash_size": "0x1000000",
+      "memory": "8",
+      "expected_size": "540x960",
+      "api_size": "540x960",
+      "ui_rotation": 0,
+      "input": "key:a",
+      "post_frame_color": "24,24,000000",
+      "wait": 18,
+      "post_input_wait": 1.5,
+      "pre_input_marker": "PAPERDIY_READY",
+      "serial_expect": [
+        "PAPERDIY_READY 540 960",
+        "PAPERDIY_KEY_A"
+      ],
+      "min_unique_colors": 1
     }
   ]
 }

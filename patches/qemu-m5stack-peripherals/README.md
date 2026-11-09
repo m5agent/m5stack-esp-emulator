@@ -1274,3 +1274,18 @@ tree with the full 0113..0123 sequence applied; see
 
 `0160-unit-batch12a-evidence-fixes.patch` fixes the Unit MQ ADC12 QOM rounding found by the batch-12a raw-I2C guest evidence. Base in the reconciled canonical order is the 39-layer chain through `0159`; it is the 40th layer after `0120` and applies at the chain end. The register refresh already used `llround(sensor-mv * 4095 / ref-mv)` but the QOM `adc12` getter truncated the double (guest 0x08BA = 2234 vs QOM 2233); the getter now uses the same rounded integer and `adc8 = adc12 / 16` derives from it. `patch_sha256` = `a54a178785824096158a9b89a6c7f787a97a6cee8e9c8aed310d02abe89ba923`. It registers no guest PASS itself; the batch-12a evidence reports record the guest results for the exact runtime binary built from this tree. The batch-12c Chain frame fix (`0161`) applies after `0160`, so the current chain from `0120` onward is 41 layers; `0162`+ are the next free numbers.
 `0161-unit-batch12c-chain-frames.patch` fixes the AA55 Chain responder bug found by batch-12c guest evidence. Chain frames encode length = data_len + 3, so data-less get/enumeration/heartbeat requests have length 3 and are valid; the parser required length >= 4 and cleared its whole receive buffer on such frames, discarding every data-less command in a guest batch. It now accepts length >= 3 while keeping the total/buffer guards and CRC/tail validation. Base is the 40-layer canonical chain through 0160; this is the 41st layer after 0120 and the full 41-layer replay was verified on the pristine tree. The responder remains raw UART frame-level only: cascade topology, servo PWM, electrical behavior and physical Chain semantics are NOT RUN. `patch_sha256` = `b9d07d03619781a1df957622944f235b4ab29be741f65363e4f0cd2f5d86ecce`.
+
+## PaperS3 and PaperDIY ET047TC1
+
+Native layer `0168-papers3-paperdiy-et047tc1.patch` follows `0167`. It
+registers the C139 `m5papers3` and K159-B `m5paperdiy` machines. Both feed
+packed ESP32-S3 LCD_CAM/GDMA bytes through the GPIO matrix and the ET047TC1
+scan/latch signals. The QEMU console renders the black and white endpoints
+of the scan protocol in the devices' 540 × 960 portrait orientation.
+
+PaperS3 attaches the GT911 to the internal I2C bus and GPIO48 interrupt, with
+panel power from G45/G46. PaperDIY has no touch controller. It uses two
+active-low GPIO buttons and gates the panel on G46 plus M5PM1 PYG2. The
+native model does not reproduce optical e-paper behavior. See the hardware
+pin maps for [PaperS3](https://docs.m5stack.com/en/core/PaperS3) and
+[PaperDIY Complete Kit](https://docs.m5stack.com/en/core/PaperDIY_Complete_Kit).

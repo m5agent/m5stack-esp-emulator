@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "physical_hardware": "NOT RUN",
+  "qemu_source": "40edccac415693c5130f91c01d84176ae6008566 plus the native replay order through 0168",
+  "qemu_sha256": "736e5dc78136f2bb9799049b8c1f59ca10ce5be41a260d055d09e16e3eaa1e74",
+  "patch_sha256": "f7320a877bef06233b4734526aa0fc8f66a967996d114a505a337e06db1d93f8",
+  "runtime_configuration": {
+    "flash_bytes": 16777216,
+    "psram_bytes": 8388608,
+    "machine_by_device": {
+      "papers3": "m5papers3",
+      "paperdiy": "m5paperdiy"
+    }
+  },
+  "factory": [
+    {
+      "device": "papers3",
+      "validation": "virtual-device validation",
+      "source_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "frames": {
+        "before": {
+          "sha256": "5b68cdac33943771202023b1d9962f0cc2e084458dc6e42fcada7267ba88ee65",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "after": {
+          "sha256": "ee286c0c08fff8a34cb6b50d4e9748afa831c8ed77348fad14f56f322b9d75f3",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "session_id": "65f4d77bf88a44bfb968f61e40979360",
+          "input": "longpress:113,347,0.5",
+          "action": "tap",
+          "accepted": true
+        }
+      ],
+      "session_id": "65f4d77bf88a44bfb968f61e40979360",
+      "firmware_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": 8,
+        "cli_requested_psram_mib": 8,
+        "effective_psram_mib": 8,
+        "effective_source": "qemu-cli-request",
+        "policy": "qemu-emulated-psram",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "serial_markers": [
+        "board_M5PaperS3"
+      ],
+      "scan_frames_before": 337,
+      "pixel_oracle": {
+        "region": [
+          78,
+          296,
+          155,
+          385
+        ],
+        "changed": 607
+      },
+      "scan_frames_after": 372,
+      "latched_lines": 200965,
+      "result": "PASS",
+      "evidence_zip_sha256": "268acb8d53f32ea9a30247105a1690a72b600a5fc9a6ce8b6db1c64026e931ac",
+      "stopped_state": "stopped",
+      "flash_retained": false
+    },
+    {
+      "device": "paperdiy",
+      "validation": "virtual-device validation",
+      "source_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "frames": {
+        "before": {
+          "sha256": "1d53ed38bc7388f4ed2a5e6bf3493c7252274d3d26d619b360731c9a5dca831c",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "a-held": {
+          "sha256": "e7c4df1c410cae15cfa16389d78efc85bdec2fdc3733c503ffebd9ea91fd5a1c",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "a-released": {
+          "sha256": "b371a161e693263431d273a7875dbb725b976ce5f11cfa87f82d8374b06ef6ce",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "b-held": {
+          "sha256": "b2b0d29fd5d339757d873209b3b9c2f0f0f8c55582f1e4d0645ac0cb18c9d62a",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "b-released": {
+          "sha256": "150258eba1cbdc8cdf7f749178071acbabc60249dbe9eb50795fa1beb647d6d8",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "session_id": "e6976822cea8468e9237ffb76358edd5",
+          "input": "keydown:a",
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "session_id": "e6976822cea8468e9237ffb76358edd5",
+          "input": "keyup:a",
+          "action": "up",
+          "accepted": true
+        },
+        {
+          "session_id": "e6976822cea8468e9237ffb76358edd5",
+          "input": "keydown:b",
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "session_id": "e6976822cea8468e9237ffb76358edd5",
+          "input": "keyup:b",
+          "action": "up",
+          "accepted": true
+        }
+      ],
+      "nvs_sha256": "239b35c93efb68c25310e28d8c9ddd3034693e08b678db9fa2227bb9d09c9b58",
+      "session_id": "e6976822cea8468e9237ffb76358edd5",
+      "firmware_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": 8,
+        "cli_requested_psram_mib": 8,
+        "effective_psram_mib": 8,
+        "effective_source": "qemu-cli-request",
+        "policy": "qemu-emulated-psram",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "serial_markers": [
+        "PaperDIY: Firmware version: V1.0",
+        "board_M5PaperDIY",
+        "Display ready: 540x960"
+      ],
+      "scan_frames_before": 26,
+      "pixel_oracle": {
+        "a": {
+          "region": [
+            9,
+            620,
+            119,
+            686
+          ],
+          "pressed": 533,
+          "released": 533,
+          "returned_to_baseline": true,
+          "other_button_changed": 0
+        },
+        "b": {
+          "region": [
+            9,
+            731,
+            119,
+            797
+          ],
+          "pressed": 533,
+          "released": 533,
+          "returned_to_baseline": true,
+          "other_button_changed": 0
+        }
+      },
+      "scan_frames_after": 96,
+      "latched_lines": 52549,
+      "result": "PASS",
+      "evidence_zip_sha256": "a2f96b38155fb149223509225c7b08eee740f6902491efd148cf59eabb31a592",
+      "stopped_state": "stopped",
+      "flash_retained": false
+    },
+    {
+      "device": "paperdiy",
+      "runtime": "qemu",
+      "session_id": "21adad62dba3408fbe7c7b68433829ed",
+      "source_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "firmware_sha256": "66afa47fc117ee47d4be3e9364370bac73f1ba15422acb5eda32c4f8bf04e730",
+      "serial_markers": [
+        "PaperDIY: Firmware version: V1.0",
+        "Display ready: 540x960",
+        "Sending M5PM1 shutdown command"
+      ],
+      "frames": {},
+      "evidence_zip_sha256": "f0fc3ed95238955cf367e72ba4a9e9bc8d69d953c5b093dd35eee6ca80431c13",
+      "guest_state_at_collection": "failed",
+      "stopped_state": "failed",
+      "flash_retained": false,
+      "result": "EXPECTED GUEST SHUTDOWN",
+      "observation": "QEMU exits with code 0; Device Service records failed when a standalone guest exits. Standby, virtual power-button wake and restart were not tested."
+    }
+  ],
+  "stock_uiflow2_v2_5_4": [
+    {
+      "device": "papers3",
+      "runtime": "qemu",
+      "session_id": "4e97e2f8eb0a46859cf8afaf0f147282",
+      "source_sha256": "87567896973fa61c281fdf3f0e2031f280de1df8d59ac0942302de288096a1fb",
+      "firmware_sha256": "9151a5260a8e1a6f0e55cd0d3314bfb971b8243a294499f531e30edfa2055886",
+      "serial_markers": [
+        "ESP-ROM:esp32s3-20210327"
+      ],
+      "frames": {
+        "capture": {
+          "sha256": "92305de41ce11fe44edc326c9fd2b4269fcaefb32fd23831c928da2905cd34d3",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "touch-514-248": {
+          "sha256": "92305de41ce11fe44edc326c9fd2b4269fcaefb32fd23831c928da2905cd34d3",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "evidence_zip_sha256": "daf481a04d65c781fa29c223c01222fa537ddbff63d7c72934eb3df4cecf5e00",
+      "guest_state_at_collection": "running",
+      "stopped_state": "stopped",
+      "flash_retained": false,
+      "scan_frames_after": 299,
+      "latched_lines": 161999,
+      "scan_frames_before": 299,
+      "inputs": [
+        {
+          "session_id": "4e97e2f8eb0a46859cf8afaf0f147282",
+          "input": "longpress:514,248,0.5",
+          "action": "tap",
+          "accepted": true
+        }
+      ],
+      "result": "BOOT AND DISPLAY PASS",
+      "observation": "Code Information screen displayed. No redraw from the stock menu interaction at the sampled input."
+    },
+    {
+      "device": "paperdiy",
+      "runtime": "qemu",
+      "session_id": "341aaa400f4d4f3484447bbd616165e8",
+      "source_sha256": "35a4f99833d334c93986806b9403f81172e9068e3b63ef5a8ef2d20cf281eb18",
+      "firmware_sha256": "fcd1ab55e300fea1c4a03b3e14c7c1a091e78baac3b9df6bfda6b08a576fb1f7",
+      "serial_markers": [
+        "ESP-ROM:esp32s3-20210327"
+      ],
+      "frames": {
+        "capture": {
+          "sha256": "fb2b5aec73ff9f80425ce2b8e4a374313c7f38d89ff2f320a98a86f36f821b15",
+          "size": [
+            540,
+            960
+          ]
+        },
+        "key-a": {
+          "sha256": "fb2b5aec73ff9f80425ce2b8e4a374313c7f38d89ff2f320a98a86f36f821b15",
+          "size": [
+            540,
+            960
+          ]
+        }
+      },
+      "evidence_zip_sha256": "5431eee69a5ea44ef3cad12c14d77923cb7da1c54675caff2a63554845d128c6",
+      "guest_state_at_collection": "running",
+      "stopped_state": "stopped",
+      "flash_retained": false,
+      "scan_frames_after": 207,
+      "latched_lines": 112319,
+      "scan_frames_before": 207,
+      "inputs": [
+        {
+          "session_id": "341aaa400f4d4f3484447bbd616165e8",
+          "input": "keydown:a",
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "session_id": "341aaa400f4d4f3484447bbd616165e8",
+          "input": "keyup:a",
+          "action": "up",
+          "accepted": true
+        }
+      ],
+      "result": "BOOT AND DISPLAY PASS",
+      "observation": "Code Information screen displayed. No redraw from the stock menu interaction at the sampled input."
+    }
+  ],
+  "composed_uiflow2_v2_5_4": [
+    {
+      "device": "papers3",
+      "result": "PASS",
+      "execution": "native QEMU regression",
+      "firmware_sha256": "b591fa64dba5a63d36133240eddab18be442d4c8e2c76faeb36404cdcbd5fba4",
+      "serial_markers": [
+        "PAPERS3_READY 540 960",
+        "PAPERS3_TOUCH 270 400"
+      ],
+      "input": "longpress:270,400,0.8",
+      "frame_size": [
+        540,
+        960
+      ],
+      "frame_ppm_sha256": {
+        "before": "b54d45ed7bce8936019d851c4fb5862f9dde5f9eaee1bc3e032941b127255479",
+        "after": "f2d7d8237b3157647d47ef4f527d8e2cfeab7592198dc3f9d6982ec572be1989"
+      },
+      "changed_pixels": 1024,
+      "final_pixel": {
+        "x": 24,
+        "y": 24,
+        "rgb": "000000"
+      }
+    },
+    {
+      "device": "paperdiy",
+      "result": "PASS",
+      "execution": "native QEMU regression",
+      "firmware_sha256": "392d78b5447e9147f5ea492f56407f2826297647a6ab06ed9ccc6a762747f324",
+      "serial_markers": [
+        "PAPERDIY_READY 540 960",
+        "PAPERDIY_KEY_A"
+      ],
+      "input": "key:a",
+      "frame_size": [
+        540,
+        960
+      ],
+      "frame_ppm_sha256": {
+        "before": "b54d45ed7bce8936019d851c4fb5862f9dde5f9eaee1bc3e032941b127255479",
+        "after": "f2d7d8237b3157647d47ef4f527d8e2cfeab7592198dc3f9d6982ec572be1989"
+      },
+      "changed_pixels": 1024,
+      "final_pixel": {
+        "x": 24,
+        "y": 24,
+        "rgb": "000000"
+      }
+    }
+  ],
+  "earlier_failures": [
+    {
+      "device": "papers3",
+      "result": "FAIL",
+      "observation": "Before GP-SPI board wiring was restored, the factory image watchdog-restarted in SD probing after 41 EPD scan frames.",
+      "evidence_zip_sha256": "896fb2cb106f28cd088f3571c2e0f52228784607aea72daf993ad61f70921e1a"
+    },
+    {
+      "device": "papers3",
+      "result": "FAIL",
+      "observation": "The initial real-registry runner sampled the factory startup before the stable menu. The stable icon mask now gates input.",
+      "evidence_zip_sha256": "d6da35f78b7c96bac3feb2fdde0c1df6b04bd10ee5a2348624f7120e3da10ae9"
+    },
+    {
+      "device": "paperdiy",
+      "result": "FAIL",
+      "observation": "A fixed host delay sometimes sampled the initial display transition or a button edge before redraw. The runner polls the input regions for each state.",
+      "evidence_zip_sha256": "a1774fabaea81bacc385c4c48f2a48eb5cf72e0bcada4fb0d237de10a607a152"
+    },
+    {
+      "device": "both",
+      "result": "FAIL",
+      "observation": "The composed fixture's initial matrix invocation required two non-black colors although this panel uses one. Input markers and expected black pixels were present. The new per-profile threshold passed the rerun."
+    }
+  ],
+  "limitations": [
+    "Black and white digital scanout. Grayscale waveforms and optical behavior are not modeled.",
+    "PaperS3 PMS150G power behavior and buzzer audio were not modeled. The icon state is a touch oracle.",
+    "PaperDIY charge and wake behavior, mounted-card read/write, network and hardware were not tested."
+  ]
+}

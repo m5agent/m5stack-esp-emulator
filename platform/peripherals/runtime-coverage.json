@@ -115,6 +115,16 @@
       "device": "stickt2",
       "test": "tests/uiflow2/run_stickt2_probe.py",
       "evidence": "tests/uiflow2/stickt2_probe/evidence-2026-11-02.json"
+    },
+    "papers3-et047-factory": {
+      "device": "papers3",
+      "test": "tests/firmware/paper_runtime/run_test.py",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+    },
+    "paperdiy-et047-factory": {
+      "device": "paperdiy",
+      "test": "tests/firmware/paper_runtime/run_test.py",
+      "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
     }
   },
   "case_models": {
@@ -527,6 +537,12 @@
     "stickt2-thermal-probe": [
       "lepton",
       "encoder"
+    ],
+    "papers3-et047-factory": [
+      "touch-gt911"
+    ],
+    "paperdiy-et047-factory": [
+      "gpio-button"
     ]
   },
   "device_case_groups": {
@@ -1001,6 +1017,22 @@
         "lepton",
         "encoder"
       ]
+    },
+    "papers3": {
+      "external": [
+        "papers3-et047-factory"
+      ],
+      "models": [
+        "touch-gt911"
+      ]
+    },
+    "paperdiy": {
+      "external": [
+        "paperdiy-et047-factory"
+      ],
+      "models": [
+        "gpio-button"
+      ]
     }
   },
   "models": {
@@ -1012,6 +1044,9 @@
     "gpio-button": {
       "matrix": [
         "sticks3-peripherals"
+      ],
+      "external": [
+        "paperdiy-et047-factory"
       ]
     },
     "pwr-button": {
@@ -1324,6 +1359,11 @@
     "encoder": {
       "external": [
         "stickt2-thermal-probe"
+      ]
+    },
+    "touch-gt911": {
+      "external": [
+        "papers3-et047-factory"
       ]
     }
   }

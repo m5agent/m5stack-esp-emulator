@@ -1243,6 +1243,54 @@
       }
     },
     {
+      "id": "paperdiy",
+      "name": "PaperDIY",
+      "sku": "K159-B",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "paper",
+      "path": "esp32-s3/paperdiy",
+      "shell": "paper",
+      "display": {
+        "type": "e-paper",
+        "driver": "ET047TC1",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "touch": false,
+        "diagonal_in": 4.7
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "boot-capable",
+        "peripheral_status": "partial",
+        "display_protocol": "epd-et047tc1-i80",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-09",
+          "status": "native-et047tc1-buttons-pass",
+          "category": "virtual-device",
+          "detail": "由官方源码构建的 V1.0 出厂固件通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；分别验证 G4/G3 的 A/B 按住和松开。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+          "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+        },
+        "blockers": [
+          "Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.",
+          "The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.",
+          "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "2110563172188712962",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2110563172188712962/2116031166261530625/bin/2116031166261530626.bin"
+        }
+      }
+    },
+    {
       "id": "papermono",
       "name": "PaperMono",
       "sku": "C153",
@@ -1281,6 +1329,58 @@
           "version": "v2.5.3",
           "firmware_id": "2089633464953118721",
           "download_url": "https://m5burner-cdn.m5stack.com/community/1/2089633464953118721/2098280529426337794/bin/2098280529426337795.bin"
+        }
+      }
+    },
+    {
+      "id": "papers3",
+      "name": "PaperS3",
+      "sku": "C139",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "paper",
+      "path": "esp32-s3/papers3",
+      "shell": "paper",
+      "display": {
+        "type": "e-paper",
+        "driver": "ET047TC1",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "touch": true,
+        "diagonal_in": 4.7,
+        "touch_controller": "GT911"
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "boot-capable",
+        "peripheral_status": "partial",
+        "display_protocol": "epd-et047tc1-i80",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-11-09",
+          "status": "native-et047tc1-touch-pass",
+          "category": "virtual-device",
+          "detail": "官方出厂固件 v0.5 通过 ESP32-S3 LCD_CAM/GDMA 驱动 ET047TC1；GT911 点按改变固件蜂鸣器图标。官方 UIFlow2 v2.5.4 启动并绘制界面。",
+          "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+        },
+        "blockers": [
+          "BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.",
+          "The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.",
+          "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
+          "C139 PMS150G power-button, latch and wake behavior are not modeled.",
+          "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.",
+          "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.4",
+          "firmware_id": "1897200000000000284",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000284/2116031112826097666/bin/2116031112826097667.bin"
         }
       }
     },
