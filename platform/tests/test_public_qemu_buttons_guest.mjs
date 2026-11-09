@@ -149,6 +149,13 @@ try{
   const ready=await observe(row=>row.kind==='ready','ready',timeout);
   check('original-button-api-probe-ready',Object.keys(ready.states).length===cases.length
     &&cases.every(item=>ready.states[item.id]===false),ready);
+  if(cases.some(item=>item.mode==='touch-edges')){
+    // UART can deliver the startup marker while its guest print is still
+    // returning. Wait for repeated M5.update polling before a short click.
+    const first=await observe(row=>row.kind==='heartbeat'&&row.seq>ready.seq,'first touch polling heartbeat');
+    const second=await observe(row=>row.kind==='heartbeat'&&row.seq>first.seq,'subsequent touch polling heartbeat');
+    check('guest-touch-polling-idle-before-input',cases.every(item=>second.states[item.id]===false),{first,second});
+  }
   if(PM1_BUTTON_OBSERVER_SETUP[device])check('explicit-pm1-user-application-irq-mode',ready.pmic_setup?.applied===true
     &&ready.pmic_setup.configuration_api===pm1Setup.configuration_api
     &&ready.pmic_setup.api===(pm1Setup.configuration_api==='m5pm1-python-driver'
