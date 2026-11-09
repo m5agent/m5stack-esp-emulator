@@ -997,6 +997,130 @@
       ]
     },
     {
+      "deviceId": "cardputer",
+      "board": "m5cardputer",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 8,
+      "psramMb": 0,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 240,
+        "height": 135,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "cardputer-k132-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": null,
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "boot": "f12",
+          "f12": "f12"
+        },
+        "keyboard": [
+          "grave_accent",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "0",
+          "minus",
+          "equal",
+          "backspace",
+          "tab",
+          "q",
+          "w",
+          "e",
+          "r",
+          "t",
+          "y",
+          "u",
+          "i",
+          "o",
+          "p",
+          "bracket_left",
+          "bracket_right",
+          "backslash",
+          "menu",
+          "shift",
+          "a",
+          "s",
+          "d",
+          "f",
+          "g",
+          "h",
+          "j",
+          "k",
+          "l",
+          "semicolon",
+          "apostrophe",
+          "ret",
+          "ctrl",
+          "alt_r",
+          "alt",
+          "z",
+          "x",
+          "c",
+          "v",
+          "b",
+          "n",
+          "m",
+          "comma",
+          "dot",
+          "slash",
+          "spc"
+        ],
+        "pir": null,
+        "uart": true,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.4 (Cardputer K132)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin",
+        "bytes": 8384512,
+        "sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309"
+      },
+      "limitations": [
+        "Preview of the original Cardputer K132 with its GPIO keyboard matrix. Cardputer-ADV uses separate firmware and an I2C keyboard.",
+        "This preview uses browser virtual-device validation with exact reference images. Physical hardware, audio, SD card, radio and broader firmware compatibility have separate qualification."
+      ],
+      "readyFirmwareSHA256": null,
+      "requiredInputPatch": {
+        "path": "patches/qemu-wasm-probe/0034-cardputer-k132-board.patch",
+        "sha256": "6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af"
+      }
+    },
+    {
       "deviceId": "stamplc",
       "board": "m5stamplc",
       "chip": "esp32s3",

@@ -21,6 +21,10 @@ export const QEMU_CARDPUTER_BOOT_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch',
   sha256:'04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85',
 });
+const QEMU_CARDPUTER_K132_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0034-cardputer-k132-board.patch',
+  sha256:'6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af',
+});
 const variantFields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];
 const variantOptions = ['oneInsnPerTb', 'requiredRuntimePatch', 'sourceKind'];
 // Published BIN provenance is distinct from a matching source-code revision.
@@ -171,12 +175,18 @@ export function validateQemuProfile(profile) {
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
     && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
   const bootInput=Object.hasOwn(input.buttons,'boot');
-  if(bootInput||profile.requiredInputPatch!==undefined){
+  const originalCardputer=profile.deviceId==='cardputer';
+  if(bootInput||originalCardputer||profile.requiredInputPatch!==undefined){
     const patch=profile.requiredInputPatch;
-    check(profile.deviceId==='cardputer-adv'&&profile.board==='m5cardputeradv'&&bootInput
+    const expectedPatch=originalCardputer?QEMU_CARDPUTER_K132_RUNTIME_PATCH:QEMU_CARDPUTER_BOOT_RUNTIME_PATCH;
+    const boardMatches=originalCardputer
+      ? profile.board==='m5cardputer'&&profile.chip==='esp32s3'&&profile.flashMb===8&&profile.psramMb===0
+        &&display?.width===240&&display.height===135&&input.buttons.f12==='f12'
+      : profile.deviceId==='cardputer-adv'&&profile.board==='m5cardputeradv';
+    check(boardMatches&&bootInput
       &&input.buttons.boot==='f12'&&!input.keyboard.includes('f12')
       &&patch&&Object.keys(patch).length===2
-      &&patch.path===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.path&&patch.sha256===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.sha256,
+      &&patch.path===expectedPatch.path&&patch.sha256===expectedPatch.sha256,
       'Invalid QEMU physical input patch binding');
   }
   if (display === null) check(!input.touch && input.pir === null && input.keyboard.length === 0

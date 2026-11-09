@@ -32,7 +32,8 @@ const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:t
 const physicalButtonCodes = {
   stopwatch:{a:'a',b:'b',power:'p'}, sticks3:{a:'a',b:'b',power:'p'},
   atoms3:{button:'a'}, 'atoms3-lite':{button:'a'}, atoms3r:{button:'a'},
-  cores3:{power:'p'}, 'cardputer-adv':{boot:'f12'}, stamplc:{key1:'a',key2:'b',key3:'c'},
+  cores3:{power:'p'}, 'cardputer-adv':{boot:'f12'}, cardputer:{boot:'f12',f12:'f12'},
+  stamplc:{key1:'a',key2:'b',key3:'c'},
   stackchan:{power:'p'}, papercolor:{key1:'a',key2:'b',key3:'c',power:'p'},
   papermono:{key1:'a',key2:'b',power:'p'}, core2:{a:'a',b:'b',c:'c',power:'p'},
   'stickc-plus2':{a:'a',b:'b',power:'p'}, dial:{wake:'a'}, stickc:{a:'a',b:'b',power:'p'},
@@ -52,6 +53,17 @@ const withheld = structuredClone(registry); withheld.profiles.find(row => row.de
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
 assert.equal(getQemuBrowserProfile('tab5', registry, {allowCandidateProfiles:true}), null);
+assert.equal(getQemuBrowserProfile('cardputer', registry), null, 'K132 candidate must remain private until real browser acceptance');
+const originalCardputer=pick('cardputer');
+assert.equal(originalCardputer.inputs.keyboard.length,56);
+for(const code of ['a','menu','ctrl','alt_r'])for(const down of [true,false])
+  assert.deepEqual(qemuInputCommand(originalCardputer,{type:'button',id:code,down}).arguments.events,
+    [{type:'key',data:{down,key:{type:'qcode',data:code}}}]);
+assert.throws(()=>qemuInputCommand(originalCardputer,{type:'key',key:'compose',down:true}),/not admitted/);
+for(const mutate of [p=>delete p.requiredInputPatch,p=>p.board='m5cardputeradv',p=>p.psramMb=8,p=>delete p.inputs.buttons.f12]){
+  const candidate=structuredClone(originalCardputer);mutate(candidate);
+  assert.throws(()=>validateQemuProfile(candidate),/physical input patch binding/);
+}
 const detached = pick('cores3'); detached.display.width = 1;
 assert.equal(pick('cores3').display.width, 320);
 const duplicate = structuredClone(registry); duplicate.profiles.push(duplicate.profiles[0]);
