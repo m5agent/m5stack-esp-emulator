@@ -153,7 +153,7 @@ try{
   check('normal-guest-worker-cleanup',cleanup.gracefulExit&&cleanup.exitCode===0&&cleanup.workersAtExit===0
     &&cleanup.explicitWorkerDisposal===true&&cleanup.disposal.workersRemaining===0&&cleanup.disposal.workersTerminatedByDispose===0
     &&cleanup.engineOwnership.engineOwnerLive===false&&cleanup.engineOwnership.engineCloseNotificationReceived===true
-    &&cleanup.engineOwnership.engineSelfCloseNotifications===1&&cleanup.engineOwnership.engineNormalTerminations===1
+    &&cleanup.engineOwnership.engineCloseNotifications===1&&cleanup.engineOwnership.engineNormalTerminations===1
     &&cleanup.engineOwnership.engineFallbackTerminations===0,cleanup);
   report.pthreads_closed=await workers.waitUntilOnly({minimumObserved:minimum,allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   check('nested-workers-close-before-iframe',report.pthreads_closed.ok&&await page.evaluate(()=>bodyTouchDeferred.frame.isConnected&&bodyTouchDeferred.requests===1));

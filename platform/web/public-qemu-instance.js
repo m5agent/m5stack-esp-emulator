@@ -2,24 +2,19 @@
 // All guest execution and MEMFS work belongs to one module DedicatedWorker.
 let connected=false,engine,heldPort,readyTimer;
 let engineWorkersCreated=0,engineOwnerLive=false,engineCloseNotificationReceived=false;
-let engineSelfCloseNotifications=0,engineNormalTerminations=0,engineFallbackTerminations=0;
+let engineCloseNotifications=0,engineNormalTerminations=0,engineFallbackTerminations=0;
 let enginePortTransferred=false,engineTerminationRequested=false;
 Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze({
   engineWorkersCreated,engineOwnerLive,engineCloseNotificationReceived,
-  engineSelfCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
+  engineCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
 })});
 function finalizeOwner() {
   if (engineTerminationRequested || engineCloseNotificationReceived) return;
-  engineCloseNotificationReceived=true;engineSelfCloseNotifications++;engineOwnerLive=false;
-  // The closing notification is sent after the engine requests self.close().
-  // The owner must still finalize its Worker handle so Chrome removes the
-  // DedicatedWorker target; this acknowledged path is not a fallback terminate.
+  engineCloseNotificationReceived=true;engineCloseNotifications++;engineOwnerLive=false;
+  // The engine has disposed its resources and closed the port. Only the
+  // iframe owner terminates the Worker, once, on this acknowledged path.
   engineTerminationRequested=true;engineNormalTerminations++;
-  const worker=engine;engine=null;
-  worker?.terminate();
-  // Do not join the worker from inside its own message callback. A fresh task
-  // lets Chrome finish dispatching self.close() before final handle cleanup.
-  if(worker)setTimeout(()=>worker.terminate(),0);
+  const worker=engine;engine=null;worker.terminate();
 }
 function terminateOwner() {
   if (!engine || engineTerminationRequested) return;
@@ -58,7 +53,6 @@ addEventListener('message', event => {
 });
 addEventListener('pagehide',()=>{
   clearTimeout(readyTimer);heldPort?.close();heldPort=null;
-  // A normal close notification precedes engine self.close(), not proof of
-  // exit. Let that path finish; unannounced teardown still needs a fallback.
-  if(!engineCloseNotificationReceived)terminateOwner();
+  // The termination guard keeps acknowledged cleanup separate from fallback.
+  terminateOwner();
 });

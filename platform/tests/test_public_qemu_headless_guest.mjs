@@ -189,7 +189,7 @@ try{
   check('clean-guest-and-worker-stop',stopped.cleanup?.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.workersAtExit===0
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
-    &&stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===1
+    &&stopped.cleanup.engineOwnership?.engineCloseNotifications===1
     &&stopped.cleanup.engineOwnership?.engineNormalTerminations===1
     &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;

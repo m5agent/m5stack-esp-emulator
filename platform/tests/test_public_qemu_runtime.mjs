@@ -38,7 +38,7 @@ const mockDocument={
       if(data.op==='start')frame.profile=data.value.profile;
       port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
-        :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true}:{})}:undefined});
+        :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,ownerTerminatesAfterAcknowledgement:true}:{})}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile)}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
@@ -46,7 +46,7 @@ const mockDocument={
     };
     port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
   }}};
-  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineSelfCloseNotifications:1,engineNormalTerminations:1,engineFallbackTerminations:0,enginePortTransferred:true};
+  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineCloseNotifications:1,engineNormalTerminations:1,engineFallbackTerminations:0,enginePortTransferred:true};
   frames.push(frame);return frame;},
   body:{append(frame){if(!options.ignoreLoad)queueMicrotask(()=>frame.onload?.());}},
 };
@@ -183,12 +183,12 @@ try {
   assert.equal(dedicatedFrame.calls.filter(row=>row.op==='dispose').length,1);
   assert.equal(dedicated.runtime.cleanupResult.disposal.enginePlacement,'dedicated-worker-v1');
   assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineCloseNotificationReceived,true);
-  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineSelfCloseNotifications,1);
+  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineCloseNotifications,1);
   assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineNormalTerminations,1);
   assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineFallbackTerminations,0);
   assert.equal(dedicated.runtime.engineOwnerFailed(dedicated.runtime.cleanupResult.engineOwnership),false,
     'acknowledged cooperative finalization is not a fallback engine error');
-  assert.equal(browserQemuHistory(dedicated.runtime.storage)[0].cleanup.engineOwnership.engineSelfCloseNotifications,1,
+  assert.equal(browserQemuHistory(dedicated.runtime.storage)[0].cleanup.engineOwnership.engineCloseNotifications,1,
     'history retains the acknowledged cooperative finalization without claiming a fallback');
   assert.equal(dedicatedFrame.removed,true);
 
