@@ -1954,6 +1954,35 @@ class FirmwareManifestTests(unittest.TestCase):
             <= codes
         )
 
+    def test_paper_factory_project_cannot_target_the_other_paper(self):
+        cases = (
+            ("papers3", "papers3", "PASS"),
+            ("PaperDIY", "paperdiy", "PASS"),
+            ("papers3", "paperdiy", "REJECTED"),
+            ("PaperDIY", "papers3", "REJECTED"),
+            ("my-paperdiy-demo", "papers3", "PASS"),
+            ("micropython", "paperdiy", "PASS"),
+            (None, "paperdiy", "PASS"),
+        )
+        for project, device_id, expected in cases:
+            with self.subTest(project=project, device_id=device_id):
+                manifest = {
+                    "target": {
+                        "soc": "esp32s3",
+                        "flash_size": 16 << 20,
+                        "psram_size": 8 << 20,
+                        "application": {"project_name": project} if project else None,
+                    },
+                    "capabilities": {"required": [], "optional": []},
+                }
+                result = validate_capabilities(manifest, load_device_profile(device_id))
+                self.assertEqual(result["status"], expected)
+                if expected == "REJECTED":
+                    self.assertEqual(
+                        [(issue["code"], issue["path"]) for issue in result["errors"]],
+                        [("firmware_board_mismatch", "target.application.project_name")],
+                    )
+
     def test_source_spdx_scan_feeds_license_policy_and_redacts_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "package"

@@ -85,6 +85,10 @@ SOC_ALIASES = {
     "esp32p4": "esp32p4",
     "esp32-p4": "esp32p4",
 }
+PAPER_FACTORY_PROJECTS = {
+    "papers3": "papers3",
+    "paperdiy": "PaperDIY",
+}
 KNOWN_CAPABILITIES = {
     "adc",
     "audio",
@@ -1413,8 +1417,9 @@ def validate_capabilities(
     hardware = device.get("hardware")
     if not isinstance(hardware, dict):
         raise ManifestError("device profile has no hardware object")
+    target = manifest.get("target", {})
     expected_soc = normalize_soc(hardware.get("soc"))
-    actual_soc = normalize_soc(manifest.get("target", {}).get("soc"))
+    actual_soc = normalize_soc(target.get("soc"))
     if expected_soc and actual_soc and expected_soc != actual_soc:
         errors.append(
             _code_issues(
@@ -1425,8 +1430,28 @@ def validate_capabilities(
                 path="target.soc",
             )
         )
+    # The Paper factory demos share a SoC but use different board wiring.
+    # Other project names carry no board identity in the application header.
+    application = target.get("application")
+    project = application.get("project_name") if isinstance(application, dict) else None
+    device_id = device.get("id")
+    expected_project = PAPER_FACTORY_PROJECTS.get(device_id)
+    if (
+        expected_project is not None
+        and project in PAPER_FACTORY_PROJECTS.values()
+        and project != expected_project
+    ):
+        errors.append(
+            _code_issues(
+                "firmware_board_mismatch",
+                f"factory application {project!r} does not target {device_id}",
+                requirement=expected_project,
+                available=project,
+                path="target.application.project_name",
+            )
+        )
     device_flash = hardware.get("flash_bytes")
-    manifest_flash = manifest.get("target", {}).get("flash_size")
+    manifest_flash = target.get("flash_size")
     if isinstance(device_flash, int) and isinstance(manifest_flash, int):
         if manifest_flash > device_flash:
             errors.append(
@@ -1441,7 +1466,7 @@ def validate_capabilities(
                     path="target.flash_size",
                 )
             )
-    manifest_psram = manifest.get("target", {}).get("psram_size")
+    manifest_psram = target.get("psram_size")
     device_psram = hardware.get("psram_bytes")
     if isinstance(manifest_psram, int) and manifest_psram > 0:
         if not isinstance(device_psram, int) or device_psram < manifest_psram:
