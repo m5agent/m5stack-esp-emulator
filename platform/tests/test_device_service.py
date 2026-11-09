@@ -24,6 +24,11 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
+SERVICE_INVENTORY_IDS = [
+    row["id"] for row in json.loads(
+        (ROOT / "tests/uiflow2/device_matrix.json").read_text()
+    )["devices"]
+]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 sys.path.insert(0, str(ROOT / "platform/tests"))
 
@@ -407,13 +412,23 @@ class DeviceServiceUnitTests(unittest.TestCase):
         rows = {row["device_id"]: row for row in payload["devices"]}
         # The original Plus now has an exact reference; its functional status
         # remains candidate. Linux metadata cannot create a service session.
-        self.assertEqual(len(rows), 33)
+        self.assertCountEqual(
+            [row["device_id"] for row in payload["devices"]], SERVICE_INVENTORY_IDS
+        )
         self.assertIn("stickc-plus", rows)
-        self.assertEqual(sum(row["creatable"] for row in rows.values()), 30)
         self.assertFalse(rows["cardputer-zero"]["creatable"])
         supported = self.service.list_devices(include_unsupported=False)["devices"]
-        self.assertEqual(len(supported), 30)
+        self.assertCountEqual(
+            [row["device_id"] for row in supported],
+            [device_id for device_id, row in rows.items() if row["supported"]],
+        )
+        self.assertTrue(all(row["creatable"] for row in supported))
         self.assertNotIn("cardputer-zero", {row["device_id"] for row in supported})
+        original = rows["cardputer"]
+        self.assertEqual((original["sku"], original["machine"]), ("K132", "m5cardputer"))
+        self.assertTrue(original["creatable"])
+        self.assertEqual(original["peripheral_status"], "partial")
+        self.assertEqual(original["program_modes"], [])
         for candidate in (
             "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus-se",
             "stickc-plus2", "atom-lite", "atom-matrix", "atom-matrix-v11",
@@ -6262,7 +6277,9 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)
         self.assertEqual(payload["api_version"], "v1")
-        self.assertEqual(len(payload["devices"]), 33)
+        self.assertCountEqual(
+            [row["device_id"] for row in payload["devices"]], SERVICE_INVENTORY_IDS
+        )
         rows = {row["device_id"]: row for row in payload["devices"]}
         self.assertIn("stickc-plus", rows)
         self.assertFalse(rows["cardputer-zero"]["supported"])
