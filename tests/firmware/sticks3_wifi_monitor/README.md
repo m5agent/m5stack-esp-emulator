@@ -53,6 +53,9 @@ the Arduino scanner. The SDK probe independently establishes the promiscuous
 callback path.
 
 See [the execution summary](evidence-2026-11-09.json) for exact identities. This
-scope covers the fixed channel and demonstrated management frames. Evil-StickS3,
-arbitrary RX injection, arbitrary TX capture, RF/PHY and attack behavior are
-`NOT RUN`. The fixture does not connect the guest to an external network.
+scope covers the fixed channel and demonstrated management frames. The
+[original Evil-StickS3 scan follow-up](evil-stock-summary.json) used its
+Scan WiFi and Select Network menu entries. The radio-on list showed the
+synthetic AP and the radio-off list was empty. Evil promiscuous mode,
+arbitrary RX injection, arbitrary TX capture, RF/PHY and attack behavior
+are `NOT RUN`. The fixture does not connect the guest to an external network.

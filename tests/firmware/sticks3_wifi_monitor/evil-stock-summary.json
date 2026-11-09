@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-09",
+  "issue": 204,
+  "scope": "virtual-device validation",
+  "status": "PASS for exact original Evil-StickS3 Scan WiFi and Select Network UI with the isolated fixture",
+  "catalog_id": "1897200000000003468",
+  "firmware_version": "v1.5.1-beta",
+  "runtime_patch_count": 121,
+  "runtime_source_receipt_sha256": "35ced6167d9c0a62dcf0f2ae90825a73161b1577c8a9f79468554dc76c4c51dc",
+  "source_review": {
+    "upstream_reference": "https://github.com/7h30th3r0n3/Evil-M5Project/blob/2c421957eada9f42323cf3d6de6186cd0833b3ce/Evil-Stick-Beta.ino",
+    "role": "The public Stick sketch routes the first menu entry to ordinary STA Wi-Fi discovery and the second to the stored result list. The exact test executes the unchanged M5Burner BIN.",
+    "stock_source_commit_resolution": "The BIN advertises short project version 8cabf2c. It did not resolve in the public upstream repository."
+  },
+  "first_attempt": {
+    "status": "PARTIAL",
+    "result": "22 scan probe requests, 22 synthetic responses and 310 beacons. The UART had no application scan markers. The late frame had returned to the menu.",
+    "evidence_zip_sha256": "df7e92d97fe60244bd0a76803554e597595c7cdb1796e9a264834cfd1b69d14c",
+    "guest_stopped_retained_history": true
+  },
+  "cases": {
+    "beacon": {
+      "mode": "beacon",
+      "runtime": "qemu",
+      "machine": "m5sticks3",
+      "source_service_commit": "2a5e62abb6c36d6a2aefdd659e2cb678e2d776a5",
+      "firmware_sha256": "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+      "boot_flash_sha256": "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+      "qemu_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "fixture_sha256": "e78f6903c6975eb383ceb72701a06e7c6dba48d15bd749ebc53db16ed6bc05a0",
+      "host_backends": 0,
+      "menus": [
+        "Scan WiFi",
+        "Select Network"
+      ],
+      "inputs": [
+        "A",
+        "B",
+        "A"
+      ],
+      "holds_ms": [
+        455.028,
+        120.015,
+        451.0
+      ],
+      "scan_frames": {
+        "b25d5b8737d45a2b6c34e607aa421c843435327b2b8b73fb3edde8a45e5b49a2": "scan-frame-0",
+        "7b758d134deb71b07e2ad3345a3a66a00671d0a837ab3c0f0e897cf0182bcc92": "scan-frame-1",
+        "5812cd2d9555e32278e05e2b508339be67879a9724e812f68fdc9e9498db0a4a": "scan-frame-2"
+      },
+      "tx_probe_requests": 22,
+      "rx_beacons": 241,
+      "rx_probe_responses": 22,
+      "before_frame_sha256": "7fc263b134c871a68299437fce59769232d52e00c2db42ea71baf8a39b68d744",
+      "select_menu_frame_sha256": "317b921f965e0fab2de9e0c50aba8a9038eeb9dd6e0325d7510096d2464013a6",
+      "result_frame_sha256": "96ee9572c7509fdad2db5a11b5fae02a6937dbab92fec6a04678db5d61f59b66",
+      "serial_sha256": "53fac02b42eb5615755794b4708e22a68804f8fd0f71a1035b9232afffae6207",
+      "application_uart_scan_marker_observed": false,
+      "evidence_zip_sha256": "b8d2de684cd99248081d17a79c5893fe1d3dcfc26f10d4d283e2ccead971e754",
+      "guest_stopped_retained_history": true,
+      "input_edges": [
+        "keydown:a",
+        "keyup:a",
+        "keydown:b",
+        "keyup:b",
+        "keydown:a",
+        "keyup:a"
+      ],
+      "frame_pixels_nonblack": 3068,
+      "visual_scan_result": [
+        "m5-monitor-lab ch1 -25dBm"
+      ],
+      "lease_and_mutable_flash_released": true
+    },
+    "no-beacon": {
+      "mode": "no-beacon",
+      "runtime": "qemu",
+      "machine": "m5sticks3",
+      "source_service_commit": "2a5e62abb6c36d6a2aefdd659e2cb678e2d776a5",
+      "firmware_sha256": "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+      "boot_flash_sha256": "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+      "qemu_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "fixture_sha256": "f2e9e1fdd54751def392d3b81d0c0fc118bffba88a938bedd3ae9f8a57995742",
+      "host_backends": 0,
+      "menus": [
+        "Scan WiFi",
+        "Select Network"
+      ],
+      "inputs": [
+        "A",
+        "B (no selection movement)",
+        "B (retry)",
+        "A"
+      ],
+      "holds_ms": [
+        455.02,
+        119.797,
+        453.237
+      ],
+      "scan_frames": {
+        "b25d5b8737d45a2b6c34e607aa421c843435327b2b8b73fb3edde8a45e5b49a2": "scan-frame-0",
+        "7b758d134deb71b07e2ad3345a3a66a00671d0a837ab3c0f0e897cf0182bcc92": "scan-frame-1",
+        "fb3730942bbbeee17c1eff89b96c0a0cd663f91f367186667c9b2c8f7ea544b9": "scan-frame-2"
+      },
+      "tx_probe_requests": 22,
+      "rx_beacons": 0,
+      "rx_probe_responses": 0,
+      "before_frame_sha256": "7fc263b134c871a68299437fce59769232d52e00c2db42ea71baf8a39b68d744",
+      "select_menu_frame_sha256": "317b921f965e0fab2de9e0c50aba8a9038eeb9dd6e0325d7510096d2464013a6",
+      "result_frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "serial_sha256": "f5bebc698c97f7cf960291b61a1ecef17690c72439c0a8723fecca7c5e40f6cf",
+      "application_uart_scan_marker_observed": false,
+      "evidence_zip_sha256": "d0f0baddefa87f7fed902e119ce7baee162a25b43c3de04e3d3233ae03b816d8",
+      "guest_stopped_retained_history": true,
+      "input_edges": [
+        "keydown:a",
+        "keyup:a",
+        "keydown:b",
+        "keyup:b",
+        "keydown:b",
+        "keyup:b",
+        "keydown:a",
+        "keyup:a"
+      ],
+      "frame_pixels_nonblack": 0,
+      "visual_scan_result": [],
+      "lease_and_mutable_flash_released": true,
+      "b_navigation_retry": {
+        "input": "B",
+        "observed_before_frame_sha256": "7fc263b134c871a68299437fce59769232d52e00c2db42ea71baf8a39b68d744",
+        "reason": "first B did not move the selected row",
+        "repeat_host_hold_ms": 117.594
+      }
+    }
+  },
+  "not_run": [
+    "Evil-StickS3 promiscuous/attack menus",
+    "general RX frame injection or raw TX capture",
+    "physical RF/PHY and real networks"
+  ]
+}

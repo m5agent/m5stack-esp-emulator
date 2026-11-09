@@ -343,5 +343,60 @@
         }
       ]
     }
+  },
+  "integrated_repeat": {
+    "source_firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+    "runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+    "flash_sha256": "b892cfb72ef2c9f895da9cb2ddb3eb489a194f990decc95fad8092518c1cdf6e",
+    "flash_transport": "esp-emu-esptool",
+    "cleanup": "stopped",
+    "evidence_zip_sha256": "399e5443bfea4ebec24f92c0339adc5c10009530ec13a679c92fd11a8e2f1606",
+    "probe": {
+      "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+      "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+      "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+      "cdc_line_coding": [
+        115200,
+        57600,
+        115200
+      ],
+      "bulk_out_ep3": "CRLF ACK",
+      "bulk_in_ep4_bytes": 406,
+      "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "guest_markers": [
+        "Press any key to start",
+        "HIZ>"
+      ],
+      "serial_sha256": "b8dbe42dd29387b3605e3579bdd722a4ec7728e1f9bb3202d92578af4f0be501",
+      "transaction_sha256": "afc10666040a0c5e062f3c854d1f098df51b718b460aba1605c24ec987ea93d2"
+    },
+    "reset_fence": {
+      "unfenced": {
+        "qemu_sha256": "8f5a372b1410bcada2ea27b8c1df5993b8dc3a7721ff23afbbd59347431dc561",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "ACK",
+        "setup_while_enum_pending": "ACK",
+        "early_fifo_status": "0xc0080",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      },
+      "fenced": {
+        "qemu_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "NAK",
+        "setup_while_enum_pending": "NAK",
+        "early_fifo_status": "0x0",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      }
+    }
   }
 }

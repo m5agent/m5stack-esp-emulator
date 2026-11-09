@@ -136,7 +136,7 @@
 | `RUNTIME-07` | 进行中 | 定位 StamPLC 浏览器原多指令 TB 在硬件复位后访问 SYSTIMER 的 PIF 异常；精确工作台 oneInsn 策略仅作限定规避 |
 | `RUNTIME-08` | 进行中 | 捕获 Cardputer-ADV 原工作台策略复位后 WASM OOB 的实际 trap 栈与状态，分清运行时原因 |
 | `RUNTIME-09` | 进行中 | 定位AtomS3 Lite精确工作台首次启动及oneInsn硬reset PIF，恢复受影响候选资格 |
-| `RUNTIME-10` | 进行中 | StickS3 原版 AirMouseS3 内置 BLE 控制器、Evil-StickS3、任意 802.11 RX 与完整 TX 捕获 |
+| `RUNTIME-10` | 进行中 | StickS3 PM1 升级复跑稳定性、原版 AirMouseS3 内置 BLE 控制器、Evil 混杂模式、任意 802.11 RX 与完整 TX 捕获 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
@@ -162,7 +162,7 @@
 
 - `tests/`：`164` 个可执行 Python 测试文件，分布在 `68` 个目录；`232` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`297` 个 patch 文件。
-- 文档：`639` 个 Markdown 页面；除本生成页外共 `70463` 行。
+- 文档：`639` 个 Markdown 页面；除本生成页外共 `70466` 行。
 
 ## 文档与测试
 
