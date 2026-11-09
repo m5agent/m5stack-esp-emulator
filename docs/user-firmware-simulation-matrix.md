@@ -1,6 +1,6 @@
 # User firmware simulation matrix
 
-Last reviewed: `2026-10-30`
+Last reviewed: `2026-11-09`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
@@ -30,7 +30,7 @@ older PASS.
 
 This is virtual-device validation evidence. It may support an external fix,
 issue reply, review or release note when the selected firmware boots, reaches a
-non-blank application frame, responds to the configured input and records no
+non-blank frame, responds to the configured input and records no
 fatal serial signature. Results must still be labeled as virtual-device
 validation rather than physical-hardware measurements.
 
@@ -58,6 +58,8 @@ python3 platform/tools/user_firmware_matrix.py \
 
 Use `--resume` with the same output directory to retry missing or intentionally
 removed sample results without changing the stored hot-firmware selection.
+Use a fresh output directory when comparing different sampling settings or
+rerunning a result recorded before controlled input sampling.
 Storage-dependent PaperMono tests can add a session-isolated SD fixture:
 
 ```bash
@@ -70,6 +72,31 @@ python3 platform/tools/user_firmware_matrix.py \
 
 The fixture SHA becomes part of the result key, so a firmware cannot reuse a
 PASS obtained without the required SD media.
+
+## UI sampling and input evidence
+
+`--observe-seconds` limits the wait for a first non-blank frame. The matrix
+then captures frames without input at offsets `0,5,10,30` seconds after that
+wait succeeds. Adjust the offsets with `--ready-timeline-seconds`. After the
+last sample, `--settle-after-ready-seconds` adds a three-second quiet window by
+default. `ready_timeline` and `before_frame` carry the actual capture time and
+frame SHA-256. `frame_settled` reports whether the final samples match.
+
+The device catalog supplies the physical controls. StickS3 receives A and B.
+Keyboard devices may receive Enter (`ret`). Generic probes omit power and
+reset controls because their actions depend on press duration and device state.
+Each input records its mapped control, acceptance receipt, its own before and
+after frames, and serial byte offsets. The matrix samples a matching no-input
+window before each probe. Frame changes or serial growth during an unstable
+window are recorded for review and do not satisfy the input check.
+
+A UI matrix `PASS` covers the non-blank frame and input baseline. Assess an
+application's main menu using the timeline or its declared readiness marker.
+For a UI expectation, `application_ready=true` requires the explicit serial
+marker. With no marker, `application_ready=false` and
+`application_ready_basis=no_explicit_ready_marker` report unverified readiness.
+Even matching screenshots can show a static splash or miss changes between
+samples.
 
 ## SHA-bound review expectations
 
@@ -154,8 +181,8 @@ Realtime/WebRTC, WPA2 physical security and hardware remain `NOT RUN`.
 ## Status
 
 - `PASS`: the selected expectation was fully met. The default UI path requires
-  a non-blank application frame, a running session, no fatal serial signature
-  and an observable input response. Headless/network modes require their
+  a non-blank frame, a running session, no fatal serial signature and an
+  observable input response after a quiet control. Headless/network modes require their
   declared markers and, for network-first, network status `PASS`.
 - `PARTIAL`: boot or application output exists, but frame, input, device
   lifecycle or full application readiness is incomplete.
