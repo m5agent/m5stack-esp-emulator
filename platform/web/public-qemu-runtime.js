@@ -336,8 +336,8 @@ export class PublicQemuRuntime {
       }
       engineOwnership=this.readEngineOwnership()||engineOwnership;
       if(disposal?.enginePlacement==='dedicated-worker-v1'){
-        // Keep the iframe until its owner receives the notification and issues
-        // termination. An external Worker observer still verifies actual exit.
+        // Keep the iframe until its owner receives the close notification.
+        // An external Worker observer still verifies actual exit.
         const deadline=performance.now()+2000;
         while((engineOwnership=this.readEngineOwnership()||engineOwnership)){
           if(engineOwnership.engineCloseNotificationReceived||this.engineOwnerFailed(engineOwnership)||performance.now()>deadline)break;

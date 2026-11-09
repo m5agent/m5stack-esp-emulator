@@ -172,8 +172,8 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 确认 VM running；固件规定了 ready marker 时，还要等待同 guest 串口标记。
 
 正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
-dispose。engine 依次回复私有端口确认、关闭端口并通知 iframe owner。
-owner 收到通知后调用一次 `Worker.terminate()`。实际回收由独立观察确认，
+dispose。engine 依次回复私有端口确认、关闭端口并通知 iframe owner，随后调用
+`self.close()`。owner 收到通知后释放句柄。实际回收由独立观察确认，
 真实客体验收通过 Chrome CDP `Target.getTargets` 分两阶段核对：
 iframe 保留时，本次实际创建的
 全部嵌套 pthread target 必须消失（不同板型为四或五个）；正常移除 iframe 后

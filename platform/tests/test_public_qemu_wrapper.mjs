@@ -77,20 +77,19 @@ engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
 assert.equal(active.ownership().engineCloseNotifications,1);
 assert.equal(active.ownership().engineSelfCloseNotifications,1,'the legacy receipt key preserves the notification count');
-assert.equal(active.ownership().engineNormalTerminations,1,'the owner finalizes the handle after the cooperative notification');
+assert.equal(active.ownership().engineNormalTerminations,0,'the owner acknowledges cooperative self-close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
-assert.equal(engine.terminations,1,'post-notification finalization removes the Worker handle exactly once');
+assert.equal(engine.terminations,0,'the owner does not terminate after the notification');
 assert.equal(active.timers.size,0,'acknowledged finalization cannot schedule another termination');
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotifications,1,'duplicate notifications cannot invent another close');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
 active.release();
-assert.equal(engine.terminations,1,'pagehide cannot double-finalize an acknowledged close');
+assert.equal(engine.terminations,0,'pagehide cannot force termination after acknowledgement');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(active.ownership().engineOwnerLive,false);
 
-// A later explicit worker error is still a failure, even after normal close
-// intent. Its forced termination remains separate from cooperative intent.
+// Late events do not rewrite an acknowledged self-close as a forced fallback.
 const closeFailure=fixture(),closeFailurePort=closeFailure.port();closeFailure.connect(closeFailurePort);
 const closeFailureWorker=closeFailure.workers[0];
 closeFailureWorker.emit('message',{type:'m5-qemu-engine-listening'});
@@ -99,9 +98,9 @@ closeFailureWorker.emit('error',{message:'synthetic error after close notificati
 closeFailureWorker.emit('error',{message:'duplicate error'});
 closeFailure.dispatch('pagehide',{});
 assert.equal(closeFailure.ownership().engineCloseNotifications,1);
-assert.equal(closeFailure.ownership().engineNormalTerminations,1);
+assert.equal(closeFailure.ownership().engineNormalTerminations,0);
 assert.equal(closeFailure.ownership().engineFallbackTerminations,0);
-assert.equal(closeFailureWorker.terminations,1,'post-notification finalization is not relabeled as fallback');
+assert.equal(closeFailureWorker.terminations,0,'late errors cannot force termination after acknowledgement');
 assert.equal(closeFailure.timers.size,0,'late worker errors and pagehide cannot schedule another termination');
 
 for(const transferred of [false,true]){

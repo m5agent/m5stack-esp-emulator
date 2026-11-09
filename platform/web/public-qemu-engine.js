@@ -199,7 +199,8 @@ async function request(op, value) {
     disposeRequested=true;
     const workersTerminatedByDispose=workers.size;cleanup();
     return {workersRemaining:workers.size,workersTerminatedByDispose,workerCountScope:'nested-pthreads',
-      enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,ownerTerminatesAfterAcknowledgement:true};
+      enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
+      ownerTerminatesAfterAcknowledgement:false,engineSelfClosesAfterAcknowledgement:true};
   }
   if (op === 'frame') {
     const epoch=resetEpoch;
@@ -301,10 +302,11 @@ addEventListener('message', event => {
       if (closed || disposeRequested && data.op!=='dispose') return;
       port.postMessage({id:data.id,value});
       if (data.op === 'dispose') {
-        // Send the acknowledgement and close the private port before handing
-        // off termination to the iframe. The notification does not prove exit.
+        // Notify the owner after acknowledging disposal and closing the port.
+        // CDP observes engine exit separately from this notification.
         closed=true;port.close();
         self.postMessage({type:'m5-qemu-engine-closing'});
+        self.close();
       }
     } catch(error) {
       if (!closed && !disposeRequested) port.postMessage({id:data.id,error:String(error?.message||error)});

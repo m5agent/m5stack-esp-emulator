@@ -2,21 +2,20 @@
 // All guest execution and MEMFS work belongs to one module DedicatedWorker.
 let connected=false,engine,heldPort,readyTimer;
 let engineWorkersCreated=0,engineOwnerLive=false,engineCloseNotificationReceived=false;
-let engineCloseNotifications=0,engineNormalTerminations=0,engineFallbackTerminations=0;
+let engineCloseNotifications=0,engineFallbackTerminations=0;
 let enginePortTransferred=false,engineTerminationRequested=false;
 Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze({
   engineWorkersCreated,engineOwnerLive,engineCloseNotificationReceived,
-  engineCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
+  engineCloseNotifications,engineNormalTerminations:0,engineFallbackTerminations,enginePortTransferred,
   // Historical runners use this key for the engine's closing message count.
   engineSelfCloseNotifications:engineCloseNotifications,
 })});
-function finalizeOwner() {
+function acknowledgeOwnerClose() {
   if (engineTerminationRequested || engineCloseNotificationReceived) return;
   engineCloseNotificationReceived=true;engineCloseNotifications++;engineOwnerLive=false;
-  // The engine has disposed its resources and closed the port. Only the
-  // iframe owner terminates the Worker, once, on this acknowledged path.
-  engineTerminationRequested=true;engineNormalTerminations++;
-  const worker=engine;engine=null;worker.terminate();
+  // The Worker closes itself after disposal. Releasing this handle keeps
+  // forced termination confined to a missing acknowledgement or error.
+  engine=null;
 }
 function terminateOwner() {
   if (!engine || engineTerminationRequested) return;
@@ -51,7 +50,7 @@ addEventListener('message', event => {
           enginePortTransferred=true;heldPort=null;
         } catch(error) { failBeforeTransfer(error); }
       } else if (data?.type==='m5-qemu-engine-closing' && enginePortTransferred) {
-        finalizeOwner();
+        acknowledgeOwnerClose();
       }
     });
     engine.addEventListener('error',event=>{
