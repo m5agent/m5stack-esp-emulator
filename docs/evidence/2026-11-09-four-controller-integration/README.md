@@ -10,3 +10,10 @@
 - [浏览器摘要](papers3-browser-prototype-summary.json)
 - [固定源码及本地构建步骤](../../../platform/web/vendor/esp32sim/UPSTREAM.md)
 - [实际 Workbench 用例](../../../platform/tests/test_public_workbench_browser.mjs)
+
+## 初代 Cardputer 原生工作台
+
+工作台连接隔离的 Device Service，上传未改动的 Factory v0.9，聚焦初代 Cardputer 模型并按 A。浏览器的按键请求经 QMP 到达 m5cardputer。实际 240 × 135 会话帧在按键后从启动提示切换为应用菜单。先下载证据，再停止并保留会话历史。
+
+- [工作台端到端摘要](cardputer-native-workbench-summary.json)
+- [V0.8、V0.9 和官方 UIFlow2 的独立设备服务取证](../2026-11-09-cardputer-k132/README.md)
