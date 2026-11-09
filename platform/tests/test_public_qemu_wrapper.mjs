@@ -34,7 +34,8 @@ function fixture({constructorError,transferError}={}){
 assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
 const initial=fixture();
 assert.deepEqual(initial.ownership(),{engineWorkersCreated:0,engineOwnerLive:false,
-  engineCloseNotificationReceived:false,engineCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false});
+  engineCloseNotificationReceived:false,engineCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false,
+  engineSelfCloseNotifications:0});
 const invalidPort=initial.port();
 for(const overrides of [
   {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{ports:[]},{ports:null},{ports:[invalidPort,initial.port()]},
@@ -71,6 +72,7 @@ assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
 assert.equal(active.ownership().engineCloseNotifications,1);
+assert.equal(active.ownership().engineSelfCloseNotifications,1,'the legacy receipt key preserves the notification count');
 assert.equal(active.ownership().engineNormalTerminations,1,'the owner finalizes the handle after the cooperative notification');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(engine.terminations,1,'post-notification finalization removes the Worker handle exactly once');

@@ -7,6 +7,8 @@ let enginePortTransferred=false,engineTerminationRequested=false;
 Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze({
   engineWorkersCreated,engineOwnerLive,engineCloseNotificationReceived,
   engineCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
+  // Historical runners use this key for the engine's closing message count.
+  engineSelfCloseNotifications:engineCloseNotifications,
 })});
 function finalizeOwner() {
   if (engineTerminationRequested || engineCloseNotificationReceived) return;
