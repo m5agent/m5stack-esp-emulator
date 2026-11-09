@@ -1,0 +1,78 @@
+diff --git a/hw/m5stopwatch/m5paper_et047.c b/hw/m5stopwatch/m5paper_et047.c
+index b6008e7a..4df446d6 100644
+--- a/hw/m5stopwatch/m5paper_et047.c
++++ b/hw/m5stopwatch/m5paper_et047.c
+@@ -72,6 +72,10 @@ struct M5PaperET047 {
+ static void gt911_scan(void *opaque)
+ {
+     M5Gt911 *s = opaque;
++
++    if (!s->down && !s->report_down) {
++        return;
++    }
+     s->report_x = s->x;
+     s->report_y = s->y;
+     s->report_down = s->down;
+@@ -79,11 +83,23 @@ static void gt911_scan(void *opaque)
+     esp32_gpio_force_line(GT911_INT, 0);
+ }
+ 
+-static void gt911_next_scan(M5Gt911 *s)
++static void gt911_schedule_scan(M5Gt911 *s)
++{
++    /*
++     * Keep an unread report latched until the host acknowledges it. An idle
++     * panel has no coordinate update to report. After a contact, publish one
++     * final zero-point report so the guest observes the release.
++     */
++    if (!s->ready && (s->down || s->report_down) && !timer_pending(s->timer)) {
++        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++    }
++}
++
++static void gt911_acknowledge(M5Gt911 *s)
+ {
+     s->ready = false;
+     esp32_gpio_force_line(GT911_INT, 1);
+-    timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++    gt911_schedule_scan(s);
+ }
+ 
+ static int gt911_event(I2CSlave *slave, enum i2c_event event)
+@@ -108,7 +124,7 @@ static int gt911_send(I2CSlave *slave, uint8_t value)
+         uint16_t reg = s->reg++;
+ 
+         if (reg == GT911_STATUS && value == 0) {
+-            gt911_next_scan(s);
++            gt911_acknowledge(s);
+         } else if (reg >= GT911_CONFIG && reg < GT911_CONFIG + GT911_CONFIG_SIZE) {
+             s->config[reg - GT911_CONFIG] = value;
+         }
+@@ -156,7 +172,7 @@ static void gt911_realize(DeviceState *dev, Error **errp)
+     s->config[3] = ET_COLUMNS & 0xff;
+     s->config[4] = ET_COLUMNS >> 8;
+     s->config[5] = 2;
+-    gt911_next_scan(s);
++    gt911_acknowledge(s);
+ }
+ 
+ static void gt911_reset(DeviceState *dev)
+@@ -165,7 +181,9 @@ static void gt911_reset(DeviceState *dev)
+     s->reg = 0;
+     s->addr_bytes = 0;
+     s->down = false;
+-    gt911_next_scan(s);
++    s->report_down = false;
++    timer_del(s->timer);
++    gt911_acknowledge(s);
+ }
+ 
+ static void gt911_unrealize(DeviceState *dev)
+@@ -322,6 +340,7 @@ static void et047_input_sync(DeviceState *dev)
+         s->touch->x = s->mouse_x;
+         s->touch->y = s->mouse_y;
+         s->touch->down = s->mouse_down;
++        gt911_schedule_scan(s->touch);
+     }
+ }
+ 
