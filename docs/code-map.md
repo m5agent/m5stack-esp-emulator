@@ -75,7 +75,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、Secure Boot v2 结构/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/CNAME/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
-| BLE/发布工具 | `ble_probe.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、H4 分包、生成的设备目录和可移植资产包 |
+| BLE/发布工具 | `ble_probe.py`、`ble_hid.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、HID 输入报告、H4 分包、生成的设备目录和可移植资产包 |
 
 `platform/tools/*.py` 是服务侧共享实现；`tests/uiflow2/`、`tests/network/`
 和 `tests/firmware/` 是运行时/契约验证入口。若只改文档，不重启
@@ -144,7 +144,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/unified_http_guestfwd.py` | QEMU user-net `guestfwd` 的 per-connection HTTP fixture；避免并发 session 共享宿主 18089 端口 | Device Service、Core2 concurrent runner |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
 | `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay、hold、unified peer write settle 和 session-readiness-bound peer scan 的共享上限，以及按 cycle/delay 计算的 readiness workload 预算 | Device Service、BLE probe、Core2 runner |
-| `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
+| `platform/tools/ble_probe.py` | 外部 BLE peer、NUS GATT 多轮验证与显式 HID 输入报告观察 | unified/BLE runners |
+| `platform/tools/ble_hid.py` | HID 服务与 Report Reference 发现、按需 SMP、CCCD 订阅及报告长度校验 | `ble_probe.py --protocol hid` |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
 | `platform/tools/qemu_accel.py` | Core2 deterministic TCG、bounded 128 MiB translation buffer、默认固定 `icount shift=5` 和默认 `10 us` per-vCPU fairness cap；`M5_CORE2_ICOUNT_SHIFT` 接受 `auto`/`0-10`，`M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` 可关闭 cap，其他值限 `1000-1000000000` | Device Service、Core2 runners、回归测试 |
