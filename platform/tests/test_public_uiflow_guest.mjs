@@ -244,7 +244,7 @@ try {
       const beforeFrame=papercolor?await page.evaluate(()=>({afterSequence:uiflowRuntime.lastFrame?.sequence??0,
         afterSourceSequence:uiflowRuntime.lastFrame?.sourceSequence??0})):null;
       // The original SDK's outermost endWrite flushes the real EPD.
-      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (${monoWidth}, ${monoHeight}) or not d.isEPD():\n    raise RuntimeError("EPD dimensions mismatch")\n${et047tc1?'':'d.setEpdMode(d.EPDMode.EPD_QUALITY)\\n'}d.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
+      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (${monoWidth}, ${monoHeight}) or not d.isEPD():\n    raise RuntimeError("EPD dimensions mismatch")\n${et047tc1?'':'d.setEpdMode(d.EPDMode.EPD_QUALITY)\n'}d.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
         :stopwatch?`import M5\nd = M5.Display\nd.setRotation(0)\nd.setBrightness(255)\nwidth, height = d.width(), d.height()\nif (width, height) != (468, 468) or d.getBrightness() != 255:\n    raise RuntimeError("StopWatch logical display or brightness mismatch")\nd.fillScreen(0xFF0000)\nprint("${marker}", width, height, d.getBrightness())\n`
         :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
       await runProgram('guest-display-output', source, {stdout:marker});
