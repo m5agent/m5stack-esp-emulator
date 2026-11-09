@@ -6,6 +6,8 @@ const device=process.env.M5_QEMU_DEVICE;
 assert.ok(['papers3','paperdiy'].includes(device),'M5_QEMU_DEVICE must select an exact Paper factory case');
 const testScript='platform/tests/test_public_qemu_paper_stock_guest.mjs';
 const papers3=device==='papers3';
+const holdMs=Number(process.env.M5_QEMU_PAPER_STOCK_HOLD_MS||300);
+assert.ok(holdMs===300||(papers3&&holdMs===500),'PaperS3 factory supports the 300 ms short and 500 ms native-parity cases');
 const firmware=papers3 ? {
   release:'PaperS3 Factory V0.5',
   bytes:1439168,
@@ -45,9 +47,11 @@ await runPublicStockGuest({device,board:'m5'+device,firmware,testScript,exercise
     await page.waitForFunction(sequence=>stockGuestRuntime.lastFrame?.sequence>sequence+24,first.sequence,{timeout});
     const before=await waitFrame(baseline,roi);
     report.factory_readiness={first,before};
+    report.touch_gesture={requested_hold_ms:holdMs,
+      scope:holdMs===500?'native-factory-oracle-parity':'short-touch'};
     await page.evaluate(()=>{
       globalThis.stockPaperInputs=[];
-      stockGuestShell.on('touch',({x,y,down})=>stockPaperInputs.push({x,y,down}));
+      stockGuestShell.on('touch',({x,y,down})=>stockPaperInputs.push({x,y,down,observed_at_ms:performance.now()}));
     });
     const tap=async(x,y)=>{
       const point=await page.evaluate(async({origin,x,y})=>{
@@ -60,21 +64,22 @@ await runPublicStockGuest({device,board:'m5'+device,firmware,testScript,exercise
       },{origin,x,y});
       const firstIndex=await page.evaluate(()=>stockPaperInputs.length);
       await page.mouse.move(...point);await page.mouse.down();
-      try{await page.waitForTimeout(300);}finally{await page.mouse.up();}
+      try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}
       const inputs=await page.evaluate(firstIndex=>stockPaperInputs.slice(firstIndex),firstIndex);
       assert.deepEqual(inputs.map(item=>item.down),[true,false]);
       for(const input of inputs)assert.ok(Math.abs(input.x-x)<=2&&Math.abs(input.y-y)<=2);
-      return inputs;
+      return {inputs,model_hold_ms:inputs[1].observed_at_ms-inputs[0].observed_at_ms};
     };
     const neutral=await tap(270,400);
     await page.waitForFunction(sequence=>stockGuestRuntime.lastFrame?.sequence>sequence+24,before.sequence,{timeout});
     const unchanged=await waitFrame(baseline,roi);
     assert.ok(unchanged.sequence>before.sequence&&unchanged.sessionId===before.sessionId);
-    report.neutral_touch={roi,inputs:neutral,unchanged};
-    const inputs=await tap(113,347);
+    report.neutral_touch={roi,...neutral,unchanged};
+    const positive=await tap(113,347);
+    report.positive_touch={roi,...positive};
     const after=await waitFrame('05d016cfbd40f9cf998104146948b3ea6c93016e9519304aba0185d1389376f3',roi);
     assert.ok(after.sequence>unchanged.sequence&&after.sessionId===unchanged.sessionId);
-    report.frames.push({roi,before:unchanged,after,expected_changed_pixels:607,inputs});
+    report.frames.push({roi,before:unchanged,after,expected_changed_pixels:607,...positive});
   }else{
     for(const [key,region] of Object.entries(buttonCases)){
       const other=buttonCases[key==='a'?'b':'a'];
