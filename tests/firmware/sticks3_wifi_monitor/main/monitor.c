@@ -13,7 +13,10 @@
 #define FIXTURE_SSID "m5-monitor-lab"
 #define MAX_MPDU_SIZE 128
 #define MAC_HEADER_SIZE 24
+#define QOS_HEADER_SIZE 26
+#define RAW_TX_PROBES 12
 
+static const char qos_payload[] = "m5-qos-lab";
 static const uint8_t fixture_action[] = "\x7f\x02\x00\x00" "m5-raw-lab";
 
 struct monitor_frame {
@@ -27,7 +30,7 @@ static QueueHandle_t frames;
 
 static void monitor_receive(void *data, wifi_promiscuous_pkt_type_t type)
 {
-    if (type != WIFI_PKT_MGMT) {
+    if (type != WIFI_PKT_MGMT && type != WIFI_PKT_DATA) {
         return;
     }
 
@@ -39,15 +42,18 @@ static void monitor_receive(void *data, wifi_promiscuous_pkt_type_t type)
     if (length < MAC_HEADER_SIZE + 4 || length > MAX_MPDU_SIZE) {
         return;
     }
-    const bool beacon = payload[0] == 0x80 &&
+    const bool beacon = type == WIFI_PKT_MGMT && payload[0] == 0x80 &&
         length >= BEACON_IE_OFFSET + 2 + ssid_length + 4 &&
         payload[BEACON_IE_OFFSET] == 0 &&
         payload[BEACON_IE_OFFSET + 1] == ssid_length &&
         !memcmp(payload + BEACON_IE_OFFSET + 2, FIXTURE_SSID, ssid_length);
-    const bool action = payload[0] == 0xd0 &&
+    const bool action = type == WIFI_PKT_MGMT && payload[0] == 0xd0 &&
         length >= MAC_HEADER_SIZE + sizeof(fixture_action) - 1 + 4 &&
         !memcmp(payload + MAC_HEADER_SIZE, fixture_action, sizeof(fixture_action) - 1);
-    if (!beacon && !action) {
+    const bool qos = type == WIFI_PKT_DATA && payload[0] == 0x88 &&
+        length >= QOS_HEADER_SIZE + 8 + sizeof(qos_payload) - 1 + 4 &&
+        !memcmp(payload + QOS_HEADER_SIZE + 8, qos_payload, sizeof(qos_payload) - 1);
+    if (!beacon && !action && !qos) {
         return;
     }
 
@@ -60,10 +66,11 @@ static void monitor_receive(void *data, wifi_promiscuous_pkt_type_t type)
     xQueueSend(frames, &frame, 0);
 }
 
-static void send_probe_request(void)
+static void send_probe_requests(bool burst)
 {
     const unsigned ssid_length = sizeof(FIXTURE_SSID) - 1;
-    uint8_t frame[24 + 2 + sizeof(FIXTURE_SSID) - 1 + 3] = {0x40};
+    const size_t probe_size = 24 + 2 + sizeof(FIXTURE_SSID) - 1 + 3;
+    uint8_t frame[24 + 2 + sizeof(FIXTURE_SSID) - 1 + 3 + 6] = {0x40};
     memset(frame + 4, 0xff, 6);  /* Broadcast receiver. */
     memset(frame + 16, 0xff, 6); /* Wildcard BSSID. */
     frame[25] = ssid_length;
@@ -75,9 +82,23 @@ static void send_probe_request(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
     ESP_ERROR_CHECK(esp_wifi_get_mac(WIFI_IF_STA, frame + 10));
-    ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, frame, sizeof(frame), true));
-    printf("MONITOR_TX probe-request len=%u\n", (unsigned)sizeof(frame));
-    vTaskDelay(pdMS_TO_TICKS(200));
+    if (!burst) {
+        ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, frame, probe_size, true));
+        printf("MONITOR_TX probe-request len=%u\n", (unsigned)probe_size);
+        vTaskDelay(pdMS_TO_TICKS(200));
+        return;
+    }
+
+    /* A different vendor IE ordinal distinguishes each original guest TX. */
+    frame[probe_size] = 221;
+    frame[probe_size + 1] = 4;
+    frame[probe_size + 2] = 2;
+    for (unsigned i = 1; i <= RAW_TX_PROBES; ++i) {
+        frame[sizeof(frame) - 1] = i;
+        ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, frame, sizeof(frame), true));
+        vTaskDelay(pdMS_TO_TICKS(125));
+    }
+    printf("MONITOR_TX burst count=%u len=%u\n", RAW_TX_PROBES, (unsigned)sizeof(frame));
 }
 
 void app_main(void)
@@ -85,7 +106,7 @@ void app_main(void)
     struct monitor_frame frame;
     wifi_init_config_t wifi = WIFI_INIT_CONFIG_DEFAULT();
     wifi_promiscuous_filter_t filter = {
-        .filter_mask = WIFI_PROMIS_FILTER_MASK_MGMT,
+        .filter_mask = WIFI_PROMIS_FILTER_MASK_MGMT | WIFI_PROMIS_FILTER_MASK_DATA,
     };
 
     frames = xQueueCreate(8, sizeof(frame));
@@ -111,6 +132,9 @@ void app_main(void)
         if (frame.mpdu[0] == 0xd0) {
             printf("MONITOR_RX action ch=%u rssi=%d len=%u\n",
                    (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
+        } else if (frame.mpdu[0] == 0x88) {
+            printf("MONITOR_RX qos ch=%u rssi=%d len=%u\n",
+                   (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
         } else {
             printf("MONITOR_RX beacon ssid=%s ch=%u rssi=%d len=%u\n",
                    FIXTURE_SSID, (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
@@ -123,7 +147,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(esp_wifi_set_promiscuous(false));
     if (enabled_rx && !disabled_rx && frame.channel == 1) {
-        send_probe_request();
+        send_probe_requests(frame.mpdu[0] != 0x80);
     }
     if (disabled_rx || (enabled_rx && frame.channel != 1)) {
         puts("MONITOR_RESULT FAIL");

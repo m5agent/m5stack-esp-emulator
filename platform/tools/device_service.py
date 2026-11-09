@@ -62,6 +62,7 @@ from device_service_qemu_wifi import (  # noqa: E402, F401
     STICKS3_MONITOR_PROFILE,
     STICKS3_RAW_RX_PROPERTY,
     STICKS3_RAW_TX_PROPERTY,
+    STICKS3_RAW_TX_WINDOW_PROPERTY,
     apply_qemu_wifi_environment,
     apply_sticks3_monitor_environment,
     configure_sticks3_monitor_radio,
@@ -5781,6 +5782,9 @@ class DeviceSession:
                     raise ServiceError("unit_input_rejected", str(error), 409) from error
                 if isinstance(error, QMPCommandError) and name == "qom-set" and arguments.get("property") == STICKS3_RAW_RX_PROPERTY:
                     raise ServiceError("wifi_monitor_mpdu_rejected", str(error), 409) from error
+                if (isinstance(error, QMPCommandError) and name == "qom-get"
+                        and arguments.get("property") == STICKS3_RAW_TX_WINDOW_PROPERTY):
+                    raise ServiceError("wifi_monitor_raw_window_unavailable", str(error), 409) from error
                 try:
                     self._qmp.close()
                 except OSError:
@@ -7096,7 +7100,7 @@ class DeviceSession:
 
     def qom_get(self, path: str, prop: str) -> dict:
         with self._lock:
-            if prop == STICKS3_RAW_TX_PROPERTY:
+            if prop in {STICKS3_RAW_TX_PROPERTY, STICKS3_RAW_TX_WINDOW_PROPERTY}:
                 self._require_raw_monitor_qom(path, "serial.read")
             result = self._qmp_call("qom-get", path=path, property=prop)
         return {
@@ -7135,7 +7139,9 @@ class DeviceSession:
                     break
                 name = field.get("name")
                 field_type = str(field.get("type", ""))
-                if not name or name in {STICKS3_RAW_RX_PROPERTY, STICKS3_RAW_TX_PROPERTY}:
+                if not name or name in {
+                    STICKS3_RAW_RX_PROPERTY, STICKS3_RAW_TX_PROPERTY, STICKS3_RAW_TX_WINDOW_PROPERTY,
+                }:
                     continue
                 budget["remaining"] -= 1
                 if field_type.startswith("child<") and current_depth < depth:

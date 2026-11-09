@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.54.0` and bounded
+Status: local MVP with unified-device runtime contract `1.55.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1520,20 +1520,29 @@ When the guest Wi-Fi driver is ready, use the session's
 
 - `POST /sessions/{session_id}/qom` with `property="raw-rx-mpdu"` and
   a hex `value` containing 28–2316 bytes of an unprotected three-address
-  management or non-QoS data MPDU, including a valid four-byte FCS. The S3
+  management, non-QoS data or QoS Data MPDU, including a valid four-byte FCS. The S3
   model reports channel 1 and synthetic RSSI −42 dBm. Malformed hex returns
   400. The controller rejects unsupported frames, wrong FCS and unready DMA
   with 409. The event records input SHA-256 and length.
 - `GET /sessions/{session_id}/qom?path=…&property=raw-tx-latest` returns
   `sequence:hex` for the latest complete guest TX DMA buffer, captured before
   controller MAC rewriting. `0:` indicates no capture. A device reset clears
-  the capture and sequence. This is a bounded diagnostic, with one retained
-  frame per controller. Readout requires `serial.read` and injection requires
-  `input.write`. Automatic QOM snapshots omit both raw properties.
+  the capture and sequence.
+- `GET /sessions/{session_id}/qom?path=…&property=raw-tx-window` returns
+  up to eight `sequence:hex` rows in ascending order, separated by newlines.
+  An empty string means no capture. Readers poll and deduplicate by sequence.
+  If the first returned sequence is greater than the next expected sequence,
+  the intervening captures have already been overwritten. The fixed capacity
+  bounds memory and response size independently of traffic and read frequency.
+
+Readout requires `serial.read` and injection requires `input.write`.
+Automatic QOM snapshots omit all three raw properties. The ordered window
+and QoS RX require native patch 0176. Patch 0175 still supports the latest
+frame and original RX types. Its ordered-window query returns 409.
 
 Raw mode requires native patch 0175 or later. The service rejects an
 incompatible backend before creating a session. Driver filtering and controller buffer
-capacity still apply. PHY, protected/QoS RX, full TX streams and frame capture
+capacity still apply. PHY, protected RX, unbounded capture and frame capture
 from an external interface remain outside this fixture.
 
 `runtime=network` runs S3/C6 firmware through the separate `esp-emu` lane. It

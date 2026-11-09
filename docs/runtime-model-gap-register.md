@@ -235,7 +235,7 @@ StickS3 以同一固件会话的控制器与对端数据确认下列功能。矩
 | [#201](https://github.com/m5agent/m5stack-esp-emulator/issues/201) | 旧运行时停在 `FD 1A`。新原生运行时执行 PM1 I²C 升级并从 USB Serial/JTAG 采集 guest 完成标记。长按 PWR 进入 ESP32-S3 ROM 下载，短按恢复 Flash 启动。 | [原固件、坏 CRC 负控与 BOOT_OUT 复验](../tests/firmware/sticks3_pm1/evidence-summary.json)。保留间歇 TCG 退出、guest 断言与末尾标记缺失，稳定性继续验收 |
 | [#202](https://github.com/m5agent/m5stack-esp-emulator/issues/202) | 旧运行时 TinyUSB 初始化失败。新原生运行时的 Bit Pirate 完成 guest 描述符枚举、CDC 控制传输和 bulk 终端交换。 | [原固件 USB 复验](../tests/firmware/sticks3_usb_otg/README.md)。HID/MSC 交换、主机模式与电气行为需单独验证 |
 | [#203](https://github.com/m5agent/m5stack-esp-emulator/issues/203) | `sticks3_ble_hid_host_unavailable`。精确 AirMouseS3 镜像，StickS3 QEMU 缺少原生控制器到 HID host 的传输 | 用原版镜像完成配对、HID 服务发现及至少一条输入报告。H4 夹具的验证与 NUS 回归分别记录 |
-| [#204](https://github.com/m5agent/m5stack-esp-emulator/issues/204) | `sticks3_wifi_monitor_not_modeled`。默认矩阵保留原判定 | [隔离夹具](../tests/firmware/sticks3_wifi_monitor/README.md)验证原版扫描、固定 beacon、受控 raw RX 与最新 TX 描述符字节。Evil 混杂模式、受保护帧、连续捕获与物理 RF 待验 |
+| [#204](https://github.com/m5agent/m5stack-esp-emulator/issues/204) | `sticks3_wifi_monitor_not_modeled`。默认矩阵保留原判定 | [隔离夹具](../tests/firmware/sticks3_wifi_monitor/README.md)验证原版扫描及 Evil Probe Sniffing、受控 Action/QoS RX 与有界 TX 捕获。受保护帧、无界捕获与物理 RF 待验 |
 
 原厂 PM1 MCU 指令执行、物理升级与电气、USB PHY、BLE RF 和 Wi-Fi RF
 均为 `NOT RUN`。浏览器 WASM 单独验证。剩余工作见

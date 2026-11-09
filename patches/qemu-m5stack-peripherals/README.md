@@ -10,6 +10,12 @@ The fixture suppresses the virtual AP and both directions of network forwarding.
 [The guest regression](../../tests/firmware/sticks3_wifi_monitor/README.md)
 drives the input and capture through Device Service with zero host backends.
 
+`0176-sticks3-wifi-raw-window-qos.patch` retains eight ordered TX DMA buffers
+and accepts unprotected three-address QoS Data. Sequence numbers allow a
+polling reader to distinguish an unread frame from an overwritten one. A
+controller reset clears capture history. The fixed ring bounds storage even
+when a guest transmits while nobody is polling.
+
 ## StickS3 USB device mode
 
 `0171-sticks3-pm1-iap-boot-out.patch` models the StickS3 M5PM1's I2C

@@ -364,7 +364,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `RUNTIME-07` | 进行中 | 定位 StamPLC 浏览器原多指令 TB 在硬件复位后访问 SYSTIMER 的 PIF 异常；精确工作台 oneInsn 策略仅作限定规避 | 原策略同固件受控复现，绑定实际 MMIO transaction、region/TLB、指令恢复元数据与 CPU1 reset/IRQ 顺序；真正修复后重跑 reset、代码执行和清场，不以规避策略关闭模型缺口 |
 | `RUNTIME-08` | 进行中 | 捕获 Cardputer-ADV 原工作台策略复位后 WASM OOB 的实际 trap 栈与状态，分清运行时原因 | 同二进制符号映射、受控复位/负载对照及真正修复回归；保留首次失败和 fallback 清理，不以单次未复现或执行策略通过关闭缺口 |
 | `RUNTIME-09` | 进行中 | 定位AtomS3 Lite精确工作台首次启动及oneInsn硬reset PIF，恢复受影响候选资格 | 采集同异常路径真实MMIO/region/TLB/TB恢复与IRQ/复位时序；修复后补启动、代码、reset、输入及清场回归，诊断或策略通过不代替根因关闭 |
-| `RUNTIME-10` | 进行中 | StickS3 PM1 升级复跑稳定性、原版 AirMouseS3 内置 BLE 控制器、Evil 混杂模式、更多 802.11 RX 类型与连续 TX 捕获 | PM1 与 USB CDC 的原版数字路径已复验。按 [缺口登记](runtime-model-gap-register.md#runtime-10sticks3-固件审查中的-pm1usbble-hid-与-wi-fi-monitor) 保留各路径独立验收 |
+| `RUNTIME-10` | 进行中 | StickS3 PM1 升级复跑稳定性、原版 AirMouseS3 内置 BLE 控制器、受保护 802.11 RX 与高吞吐捕获边界 | PM1 与 USB CDC 的原版数字路径已复验。按 [缺口登记](runtime-model-gap-register.md#runtime-10sticks3-固件审查中的-pm1usbble-hid-与-wi-fi-monitor) 保留各路径独立验收 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |

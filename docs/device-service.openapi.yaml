@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.54.0
+  version: 1.55.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4326,7 +4326,9 @@ components:
             enables the channel-1 m5-monitor-lab AP. no-beacon keeps the same
             virtual radio off for a negative control. raw enables bounded
             raw-rx-mpdu injection and raw-tx-latest capture on the audited
-            network.raw_qom_path. It suppresses the modeled AP and forwarding.
+            network.raw_qom_path. Native patch 0176 adds unprotected QoS Data
+            and raw-tx-window with eight ordered captures. Raw mode suppresses
+            the modeled AP and forwarding.
             Cannot combine with network, Wi-Fi/ESP-NOW runtime overrides or
             UART program options. Session evidence includes the fixture SHA.
         network:

@@ -1118,7 +1118,7 @@ def _sticks3_review_model_gaps(
         gaps.append((
             "sticks3_wifi_monitor_not_modeled",
             "the default matrix does not exercise the isolated monitor fixture; "
-            "general 802.11 monitor and raw transmit behavior remains unverified",
+            "see its peerless scan, raw receive and bounded transmit evidence",
         ))
     return [
         {"code": code, "scope": "sticks3-qemu", "detail": detail}
