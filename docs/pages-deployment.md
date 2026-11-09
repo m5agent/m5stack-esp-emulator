@@ -65,7 +65,7 @@ CI 显式设 `M5_QEMU_GATE_WORKERS=1` 串行执行，不能以本地并发功能
 作为启动性能样本。候选预览导出明确标为
 `publication_eligible=false`，聚合发布门禁拒绝它。构建 job 只有仓库读取权限，
 部署 job 才取得 Pages/OIDC 权限。
-发布构建/验收 job 固定在 `macos-14`，浏览器验收要求使用系统 Chrome 的
+发布构建/验收 job 固定在 `macos-15`，浏览器验收要求使用系统 Chrome 的
 硬件 ANGLE 渲染；若实际 renderer 回退到 SwiftShader/software 会直接失败。
 个别设备模型壳在 ANGLE Metal 下不可用时，页面保留通用屏幕壳并继续通过真实
 按钮与原生 framebuffer 验收；该回退不授予对应设备的 3D 纹理 PASS。

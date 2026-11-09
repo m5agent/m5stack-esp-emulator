@@ -34,7 +34,7 @@ jobs:
     # real interrupt-WDT, so keep publication acceptance on a workstation-class
     # macOS runner rather than slowing the deployed profiles or weakening the
     # guest assertions.
-    runs-on: macos-14
+    runs-on: macos-15
     # Default admission now runs 60 sequential guest cases (at least 79 boots,
     # including editor hardware resets) beside the fresh source build/setup.
     # The old 90-minute ceiling left no margin at a 60-second boot budget;
