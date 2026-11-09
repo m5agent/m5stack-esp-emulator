@@ -75,6 +75,25 @@ The PaperS3 case verifies the original GT911 logical coordinates at
 `(270,400)`. PaperDIY's separate workbench input case covers both A and B.
 These cases do not cover physical grayscale, waveform timing or power.
 
+The separate `platform/tests/test_public_qemu_paper_stock_guest.mjs` case
+uploads the exact Factory V0.5 PaperS3 image or the PaperDIY Factory V1.0
+source build with second-start NVS. Build the PaperDIY source and generate
+the NVS using the [native reproduction instructions](../../../docs/evidence/2026-11-09-paper-et047tc1/README.md),
+then overlay the 0x6000-byte NVS partition at 0x9000 in a copy of the
+16 MiB merged image. The test checks both the upload and complete Flash SHA.
+The NVS overlay does not change the compiled factory application.
+
+```sh
+M5_QEMU_DEVICE=papers3 M5_PUBLIC_SITE="$SITE" M5_QEMU_UPLOAD="$FACTORY_BIN" \
+  node platform/tests/test_public_qemu_paper_stock_guest.mjs
+```
+
+Use `M5_QEMU_DEVICE=paperdiy` and the NVS-overlaid merged image for the other
+case. Neither image is shipped with the static export. The stock test
+checks exact same-session RGB565 regions against the visible model texture,
+plus normal worker cleanup. It also accepts a deployed HTTPS site via
+`M5_PUBLIC_URL` in place of `M5_PUBLIC_SITE`.
+
 Cardputer-ADV creates `KeyboardI2C` in `ASCII_MODE` at address `0x34`, with
 SDA8/SCL9 on I2C1 and interrupt pin11. It polls the original driver's IRQ
 handler over guest I2C, consumes its decoded events and observes releases
