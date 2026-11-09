@@ -2949,8 +2949,9 @@
         "hostRotation": 0
       },
       "clockDivisor": 1,
-      "profile": "corematrix-wasm-candidate",
-      "admission": "candidate",
+      "profile": "corematrix-wasm",
+      "admission": "public",
+      "stockFirmwareSHA256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
       "readyMarker": "\"kind\": \"ready\"",
       "readyFirmwareSHA256": "150ebc83874d2e5d500477e548314babde272e65ab8c4b3b7dd4ddcc08244641",
       "roms": [
@@ -2986,8 +2987,8 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/2104482080746106881/2116030913772818433/bin/2116030913772818434.bin"
       },
       "limitations": [
-        "独立 ESP32-C61 WASM 候选板型。官方固件启动、点阵及输入需分别验证。",
-        "Quad PSRAM 和 Wi-Fi 数据面仍在跟踪。"
+        "支持官方 UIFlow2 v2.5.4 原镜像及对应的编程和固定示例。已验证离线启动、16×16 点阵、USB REPL 和 A/B/C 按键。",
+        "当前使用 16 MiB Flash 和片内 RAM。8 MiB Quad PSRAM、Wi-Fi 数据面和硬件复位待验证。"
       ],
       "fixture": {
         "vfsOffset": 8519680,

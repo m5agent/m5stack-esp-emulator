@@ -106,10 +106,11 @@ export function validateQemuProfile(profile) {
   check(profile.bootloaderOffset === (profile.chip === 'esp32' ? 0x1000 : 0) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
   const display = profile.display;
   if (c61) {
-    check((profile.admission === 'candidate' || profile.readyFirmwareSHA256 === CORE_MATRIX_STOCK_FLASH_SHA256)
+    check((profile.stockFirmwareSHA256 === CORE_MATRIX_STOCK_FLASH_SHA256
+        || profile.admission === 'candidate' && profile.stockFirmwareSHA256 === undefined)
       && profile.flashMb === 16 && profile.psramMb === 0
       && display?.width === 16 && display?.height === 16 && profile.clockDivisor === 1
-      && profile.efuse === null && !profile.outputs, 'Invalid CoreMatrix browser candidate');
+      && profile.efuse === null && !profile.outputs, 'Invalid CoreMatrix browser profile');
   }
   if (display === null) {
     const output=profile.outputs, matrix=['atom-matrix','atom-matrix-v11'].includes(profile.deviceId);

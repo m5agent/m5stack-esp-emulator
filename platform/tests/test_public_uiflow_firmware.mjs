@@ -269,7 +269,9 @@ for (const change of [copy => copy.profiles.push(copy.profiles[0]), copy => copy
 const publicRegistry={...qemu,profiles:qemu.profiles.filter(row=>row.admission==='public')};
 const gateInputs={manifest:{publication_eligible:true,candidate_profiles:[]},
   config:{publication_eligible:true,browser_candidate_profiles:[],browser_wallclock_example:true},
-  registry:publicRegistry,runtime:{compiled_profiles:publicRegistry.profiles.map(row=>row.deviceId)},
+  registry:publicRegistry,
+  runtime:{compiled_profiles:publicRegistry.profiles.filter(row=>row.target==='xtensa-softmmu').map(row=>row.deviceId)},
+  c61Runtime:{compiled_profiles:publicRegistry.profiles.filter(row=>row.target==='riscv32-softmmu').map(row=>row.deviceId)},
   workbenchRegistry:{...registry,profiles:registry.profiles.filter(row=>publicRegistry.profiles.some(profile=>profile.deviceId===row.deviceId))}};
 const plan=planPublicQemuGate(gateInputs),publicCount=publicRegistry.profiles.length;
 const bodyCount=publicRegistry.profiles.some(row=>row.deviceId==='stackchan')?1:0;
@@ -310,6 +312,7 @@ for(const change of [
   copy=>copy.config.browser_wallclock_example=false,
   copy=>copy.registry.profiles[0].admission='candidate',
   copy=>copy.runtime.compiled_profiles=[],
+  copy=>copy.c61Runtime.compiled_profiles=[],
   copy=>copy.workbenchRegistry.profiles.pop(),
 ]){const copy=structuredClone(gateInputs);change(copy);assert.throws(()=>planPublicQemuGate(copy));}
 assert.deepEqual(qemu,originalQemu,'gate planning cannot mutate the canonical registry');
@@ -415,16 +418,18 @@ const binding={workbenchRegistry:registry,wasmSHA256:'a'.repeat(64),siteManifest
 for(const item of plan.cases){
   const expected=registry.profiles.find(row=>row.deviceId===item.device);
   const receipt={deviceId:item.device,firmwareSha256:expected.firmwareSHA256,wasmSha256:binding.wasmSHA256};
+  const assetGroup=item.device==='corematrix'?'c61_runtime_assets':'runtime_assets';
+  const wasmPath=item.device==='corematrix'?'qemu-system-riscv32.wasm':'qemu-system-xtensa.wasm';
   const result={provenance:{site_manifest_sha256:binding.siteManifestSHA256,
     test_script:{path:'platform/tests/'+item.script,sha256:binding.testScriptSHA256},
-    runtime_assets:{'qemu-system-xtensa.wasm':{sha256:binding.wasmSHA256}}},smoke_only:false};
+    [assetGroup]:{[wasmPath]:{sha256:binding.wasmSHA256}}},smoke_only:false};
   if(item.lane==='cardputer-keyboard')result.initial={evidence:{receipt}};
   else if(item.lane==='uiflow-buttons')result.running={receipt};
   else if(item.lane!=='fixed')result.initial={receipt};
   validatePublicQemuGateResult(item,result,binding);
   for(const change of [copy=>copy.provenance.site_manifest_sha256='0'.repeat(64),
     copy=>copy.provenance.test_script.sha256='0'.repeat(64),copy=>copy.provenance.test_script.path='platform/tests/other.mjs',
-    copy=>copy.provenance.runtime_assets['qemu-system-xtensa.wasm'].sha256='0'.repeat(64)]){
+    copy=>copy.provenance[assetGroup][wasmPath].sha256='0'.repeat(64)]){
     const copy=structuredClone(result);change(copy);assert.throws(()=>validatePublicQemuGateResult(item,copy,binding));
   }
   if(item.lane!=='fixed')for(const field of ['deviceId','firmwareSha256','wasmSha256']){
