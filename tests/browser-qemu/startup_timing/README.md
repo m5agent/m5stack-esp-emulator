@@ -11,12 +11,14 @@ The source-pinned bases are
 `365b3ad482344880f0f9ace686ecedcfe0765a818ebf5925c1bb9fc8141fa4dd`)
 and `platform/tests/test_public_qemu_board_guest.mjs` (SHA256
 `2eff0c6093609ce21c4139a2ecbc6b8a2b91d148d48c9d022aebb6653a8778d4`).
-Source drift is refused; review a changed runner and explicitly update the
-transform rather than silently changing the comparison.
+The generator reads both files from Git commit
+`b57e68a81045b739570c0add72878a0ab5620c56` and checks their exact hashes.
+Current runner changes leave this historical comparison intact.
 
 ## Prepare without execution
 
-Use Python 3.12+ from the repository root:
+Use Python 3.12+ from the repository root. The pinned revision must be
+available locally, as in a full Git checkout:
 
 ```sh
 python3 tests/browser-qemu/startup_timing/prepare.py \

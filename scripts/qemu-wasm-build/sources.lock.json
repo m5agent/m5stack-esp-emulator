@@ -84,7 +84,10 @@
     "dial",
     "atom-lite",
     "atom-matrix",
-    "atom-matrix-v11"
+    "atom-matrix-v11",
+    "cardputer",
+    "papers3",
+    "paperdiy"
   ],
   "dependency_patches": [
     {
@@ -171,12 +174,12 @@
     "hw/m5stopwatch/m5_epd_panel.c": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
     "hw/m5stopwatch/m5_i2s.c": "99f5893d000255d7139d893c49fed5841964b2680d664e77cba7172d1e16fe87",
     "hw/m5stopwatch/m5_i2s_esp32.c": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
-    "hw/m5stopwatch/m5_lcd_cam.c": "88d837d86222ad26c1a636635ef234e291f7c2072610aecfa1ab17e0e9816f38",
+    "hw/m5stopwatch/m5_lcd_cam.c": "45e8d6e9eacd5e5a9a6f9df9d43c4bfd5495a16de4e74dab3fd67166cd5b3a61",
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
-    "hw/m5stopwatch/m5_spi_panel.c": "2b0eda9d99e64122a69a9ffa5c868a4fb86726d2504f87b162d54c7f6a22e786",
+    "hw/m5stopwatch/m5_spi_panel.c": "cb6a31a41f13364f26c22f33a983725e8e7121dfca6f0fe96cca47fdc01de520",
     "hw/m5stopwatch/m5_spi_sd.c": "d84f58dc7554f69d1ee4c68548951ebda0ee7aec22877f52fbb7606081c1a24e",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "f6ac801a1ce8dcb0fd3878b6979b5b8e4aed2746408a665cd56c4c7b0a8423d5",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -190,19 +193,21 @@
     "hw/m5stopwatch/m5atoms3.c": "b8c135dd9d015e1fc3c549d36dbaf69aceda74f90d6003aa9899731a828bae78",
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
+    "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
     "hw/m5stopwatch/m5cardputeradv.c": "a9503e5ab59ea0c7ffc0fad154485b58b924bbd8c94b9c95ad87fc74dcca2916",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
+    "hw/m5stopwatch/m5paper_et047.c": "88d4b30712372c88cabf375cf16e569a3d533f2731014dd6e918a49a3cb7cdf8",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
     "hw/m5stopwatch/m5papermono.c": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
     "hw/m5stopwatch/m5stackchan.c": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
     "hw/m5stopwatch/m5stamplc.c": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
-    "hw/m5stopwatch/m5sticks3.c": "9b7bd9a47a8b47edb9a7db1f640fca7f2d420bdf0baba3b66aec14b7fd7f3d51",
-    "hw/m5stopwatch/m5stopwatch.h": "40cc95b2ccbdbda2758c9aa9e5e17a84197bce73eae1d1d1528cbc49285a2158",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "01ecbf11e441ec56db5837e8c821c7f698dfb6c46a6830c643866d87965d18a9",
+    "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
+    "hw/m5stopwatch/m5stopwatch.h": "3eb019b4dda0bd9e722bf1a1999bef04655003506ce66a25442ef8ba76e63353",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "96d85651f66778e7c2abb95cebb2dbc3eb985eefcfe9ece6f71fba2b01f01ca7",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
@@ -234,10 +239,10 @@
     "hw/xtensa/esp32.c": "24f39d8969d5fe187df2f7c42d6cbca1d3131b79efb11470c1b32f1e5484b2f5",
     "hw/xtensa/esp32_intc.c": "760b86bd07b471b8846e349751cbd30d5374a46ba658cf751ea1b57c363a3574",
     "hw/xtensa/esp32_native_hci.c": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
-    "hw/xtensa/esp32s3.c": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
+    "hw/xtensa/esp32s3.c": "8ef1b850972e06c5ed18a5fefcac9b37302d9e29c745b2b779c0a0f0228fd2d1",
     "hw/xtensa/esp32s3_clk.c": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
     "hw/xtensa/esp32s3_intc.c": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
-    "hw/xtensa/meson.build": "d8ad56451d22bb1f01ae4309cef540e4a33fc4b4bec3bbeb65d7b2ce4b21727e",
+    "hw/xtensa/meson.build": "1a10878b1818cac14858804f46220bedf3f77deb87133ee98a6134589fc131cc",
     "include/glib-compat.h": "620b8868a3ce5fda543fc65f46c8257beb84587d4bdc29cdd345eac81961ae9c",
     "include/hw/arm/bcm2835_peripherals.h": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
     "include/hw/char/esp32_uart.h": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
@@ -609,6 +614,18 @@
     {
       "path": "patches/qemu-wasm-probe/0032-wasm-wakeable-host-poll.patch",
       "sha256": "5a43ac91491e1d8637f0147e7165066940dc78a245ad3a6c733ba12968f30e7c"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0033-papers3-paperdiy-et047tc1.patch",
+      "sha256": "c43ed57c3b22fd73cbd573b0c9f665e30001a9ce7855f0a2a0949d09ba8eb0d7"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0034-cardputer-k132-board.patch",
+      "sha256": "6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0037-paper-gt911-contact-ready.patch",
+      "sha256": "c474d06b3068d5a783a04c9b992d04c41c9b5b648a72aac3690095f3c7a7b66d"
     }
   ],
   "qemu": {

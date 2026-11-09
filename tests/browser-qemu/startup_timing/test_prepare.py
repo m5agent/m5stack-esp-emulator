@@ -5,6 +5,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 HERE = Path(__file__).resolve().parent
@@ -28,11 +29,13 @@ class StartupTimingPreparationTests(unittest.TestCase):
         receipt = prepare.prepare(self.repo, Path(".work/observers"))
         self.assertEqual(receipt["status"], "PREPARED_NOT_EXECUTED")
         self.assertEqual(receipt["guest_execution"], "NOT RUN")
+        self.assertEqual(receipt["basis_commit"], "b57e68a81045b739570c0add72878a0ab5620c56")
         self.assertEqual([r["expected_same_case_guest_checks"] for r in receipt["runners"]], [15, 26])
         bodies = []
         for row in receipt["runners"]:
             generated = (self.repo / ".work/observers" / row["generated_name"]).read_text()
-            basis = (self.repo / row["basis"]).read_text()
+            basis = (self.repo / ".work/observers" / f"{row['kind']}-basis.mjs").read_text()
+            self.assertEqual(prepare.sha256(basis.encode()), row["basis_sha256"])
             self.assertEqual(prepare.controls(generated), prepare.controls(basis))
             self.assertIn((self.repo / "platform/tests/public_qemu_artifacts.mjs").as_uri(), generated)
             self.assertIn(json.dumps(str(self.repo)), generated)
@@ -87,11 +90,23 @@ class StartupTimingPreparationTests(unittest.TestCase):
         self.assertEqual(list(outside.iterdir()), [])
 
     def test_source_drift_fails_before_creating_output(self):
-        basis = self.repo / "platform/tests/test_public_qemu_headless_guest.mjs"
-        basis.write_text(basis.read_text().replace("assert.ok(ok,name)", "assert.ok(true,name)"))
-        with self.assertRaisesRegex(ValueError, "fixed basis changed"):
+        original = prepare.read_basis
+
+        def drift(commit, path):
+            return original(commit, path).replace("assert.ok(ok,name)", "assert.ok(true,name)")
+
+        with patch.object(prepare, "read_basis", drift), self.assertRaisesRegex(ValueError, "fixed basis changed"):
             prepare.prepare(self.repo, Path(".work/new"))
         self.assertFalse((self.repo / ".work").exists())
+
+    def test_current_runner_changes_do_not_affect_historical_preparation(self):
+        path = self.repo / "platform/tests/test_public_qemu_board_guest.mjs"
+        path.write_text("current board runner has different controller cases\n")
+        receipt = prepare.prepare(self.repo, Path(".work/new"))
+        expected = next(row["basis_sha256"] for row in receipt["runners"] if row["kind"] == "board")
+        frozen = (self.repo / ".work/new/board-basis.mjs").read_bytes()
+        self.assertEqual(prepare.sha256(frozen), expected)
+        self.assertNotEqual(frozen, path.read_bytes())
 
     def test_unrecognized_reference_fails_before_creating_output(self):
         reference = self.repo / "references"

@@ -67,8 +67,8 @@ void app_main(void)
                     ? ESP_OK : ESP_FAIL);
     printf("CM_IDS PM1=%02x%02x IOE=%02x%02x OFF_NACK=1\n",
            read_reg(pm, 1), read_reg(pm, 0), read_reg(ioe, 1), read_reg(ioe, 0));
-    send(ioe, (const uint8_t[]){0x03, 0x10}, 2);
-    send(ioe, (const uint8_t[]){0x05, 0x10}, 2);
+    send(ioe, (const uint8_t[]){0x03, 0x08}, 2);
+    send(ioe, (const uint8_t[]){0x05, 0x08}, 2);
     ESP_ERROR_CHECK(i2c_master_probe(bus, 0x72, 500));
     send(matrix, (const uint8_t[]){0x80, 0xa4, 0x98, 0x81, 0xbf, 0x83}, 6);
 

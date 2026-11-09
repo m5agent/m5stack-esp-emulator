@@ -1,6 +1,6 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对：`2026-11-05`。本页说明部署流程；当前能力以
+最近核对 `2026-11-09`。本页说明部署流程，当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
 PR #165 已合并；用户明确要求先部署、问题保留，prepared-preview已于2026-11-04 10:45:44Z更新[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)。
@@ -26,8 +26,9 @@ LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机
 尚无固件执行通路。视觉目录、运行登记和浏览器准入是三个不同集合，数量见
 [自动项目快照](project-snapshot.md)，具体输入和示例见 profile registry。
 
-当前公开配置包含 CoreS3/Core2、StopWatch、Cardputer-ADV、StamPLC、
-StackChan、PaperColor/PaperMono，以及已准入的 Atom/Stick 型号。
+源码中的公开配置包含 CoreS3/Core2、StopWatch、初代 Cardputer 和 Cardputer-ADV、
+StamPLC、StackChan、PaperColor、PaperMono、PaperDIY、PaperS3、CoreMatrix，以及
+已准入的 Atom/Stick 型号。
 AtomS3/Lite、StickC/Plus SE/Plus2 的固定示例有
 [独立浏览器证据](evidence/2026-10-29-expanded-hosts/README.md)；经典 Atom
 三板及原 StickC Plus 的限定默认入口结果见
@@ -58,7 +59,7 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
 公开板型的真实客体验收成功。当前[聚合门禁](../platform/tests/test_public_qemu_admitted_boards.mjs)
-依次规划各准入板的完整编辑器和普通按键用例、Cardputer 完整键盘、StackChan
+依次规划各准入板的完整编辑器和普通输入用例、Cardputer-ADV 完整键盘、StackChan
 三区体感触摸，以及旧固定示例（包括 CoreS3 两种示例）；精确用例由源码规划器
 与[工作台验收说明](../tests/browser-qemu/uiflow_workbench/README.md)维护。
 CI 显式设 `M5_QEMU_GATE_WORKERS=1` 串行执行，不能以本地并发功能检查的耗时
@@ -89,6 +90,22 @@ Core2 另按仓库已有的稳定路径使用
 从实际 HTTPS 地址独立验证客体。该流程不替代 regular publication，不能把
 本机通过写成托管 runner 全板型 PASS。发布包须保留对应源码与许可，且不得含
 固件、ROM 或本机路径；构建配方的路径映射在生产者端执行，不能事后修改 WASM。
+
+CoreMatrix C158 的 ESP32-C61 使用单独固定的 RISC-V QEMU 来源、WASM、Worker
+和对应源码包。导出器的 `--qemu-c61-runtime` 在主 Xtensa 导出旁添加这个运行时。
+聚合门禁按各自目标核对编译板型和 WASM SHA。CoreMatrix 依赖官方镜像的片内
+内存启动路径，当前使用 16 MiB Flash。浏览器仅接受已验证的 UIFlow2 v2.5.4
+原镜像及其工作台与固定示例组合镜像。8 MiB Quad PSRAM、Wi-Fi 数据面与硬件复位另行验收。
+
+```sh
+python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
+  --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
+  --sdk-dir .work/qemu-browser-runtime-build/emsdk \
+  --downloads .work/qemu-browser-runtime-build/downloads
+python3 platform/tools/build_public_site.py --output .work/public-site \
+  --base-path /m5stack-esp-emulator/ --qemu-runtime .work/qemu-browser-runtime \
+  --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
+```
 
 ## 访问者流程与浏览器要求
 

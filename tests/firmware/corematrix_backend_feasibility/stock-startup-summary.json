@@ -1,0 +1,402 @@
+{
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "upstream_qemu_commit": "8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc",
+  "patched_qemu_source_tree": "31e4ef52e8b2fd7929273db39e28213d7657c731",
+  "patch_sha256": {
+    "0001-honor-disabled-slirp.patch": "58885a4ec1cff91260d71a985859aa160776ac2dae7b1d3ded85130035d6f120",
+    "0002-esp32c61-hp-i2c-corematrix.patch": "7933a7d268a1ba9b7312a052bff02154a6fbf95e347f267c78b04703e13827fa",
+    "0003-esp32c61-wdev-clock.patch": "94c73e23c9607c16a5a13a1bb084be01f4f79fbcb3e3bc18f40edb8dacaf1112",
+    "0004-esp32c61-corematrix-stock-startup.patch": "7aa4c6403047d780fd048cc4944a1cf46b1b87a45fabd970417a691cf27ab2f7"
+  },
+  "firmware_source": "M5Burner 2104482080746106881 version 2116030913772818433",
+  "ui_flow_source_commit": "e437118892520ba987c2d930a2428db1cab65ab1",
+  "m5gfx_source_commit": "eef855b41c8ab7611a235055cc9afca76751ea95",
+  "pre_fix": {
+    "firmware_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "qemu_sha256": "0261ab3269fb746794c9b32603238354f5f45fafcfc5cc01d45071f1bef8dab5",
+    "last_guest_marker": "Startup with network type: WIFI",
+    "frame_ppm_sha256": "498fc6af35b825a3125e21b0e91fdd6eb8cf0dfb21e0f5d68ddc4edfca2efef9",
+    "lit_pixels": 0
+  },
+  "diagnosed_stops_in_sequence": [
+    {
+      "pc": "0x4080b874",
+      "function": "phy_wait_i2c_sdm_stable",
+      "wait": "unsigned elapsed delta from 0x600ad800; constant zero never reaches the 9999 threshold",
+      "model": "32-bit wrapping WLAN microsecond counter from QEMU virtual time"
+    },
+    {
+      "pc": "0x4219654c",
+      "function": "phy_iq_est_enable_new",
+      "wait": "bit 16 at 0x600a047c after the command at 0x600a0450",
+      "model": "completion after the configured sample window in the idle front end"
+    },
+    {
+      "pc": "0x421988ca",
+      "function": "phy_txdc_cal",
+      "wait": "bit 22 of 0x600a0418 after enabling and starting TX DC detection",
+      "model": "timed detector using the sign of both programmed DAC offsets"
+    },
+    {
+      "pc": "0x42194a3c",
+      "function": "phy_pwdet_tone_start",
+      "wait": "idle state 7 in bits 16:14 of 0x600a080c after start at 0x600a0808",
+      "model": "idle SAR power detector command and conversion completion"
+    },
+    {
+      "pc": "0x42193866",
+      "function": "phy_set_chan_freq_sw_start",
+      "wait": "bit 8 of 0x600a0028 after bit 17 of 0x600a001c",
+      "model": "virtual frequency sequencer command and completion"
+    },
+    {
+      "pc": "0x4217bdb4",
+      "function": "hal_init",
+      "wait": "bit 0 of 0x600a4ddc after the MAC reset command in bit 1",
+      "model": "timed MAC reset completion"
+    },
+    {
+      "pc": "0x4205c5d0",
+      "function": "lgfx::i2c::wait",
+      "wait": "I2C_BUS_BUSY in 0x60004008 remained set after the HP I2C END batch",
+      "model": "END leaves the addressed slave selected without keeping a completed command batch busy"
+    }
+  ],
+  "board_detection": {
+    "software_i2c": {
+      "gpio_sda": 0,
+      "gpio_scl": 1,
+      "pm1_address": "0x6e",
+      "ioe1_address": "0x4f"
+    },
+    "ioe1_rail": {
+      "mode_register": "0x03",
+      "output_register": "0x05",
+      "mask": "0x08"
+    },
+    "tm1680_address": "0x72",
+    "source": "GPIO bit-bang trace, then HP I2C command trace and stock guest board ID"
+  },
+  "native_stock_service": {
+    "validation": "virtual-device validation",
+    "board": "CoreMatrix C158",
+    "machine": "esp32c61,m5corematrix=on",
+    "runtime_sha256": "a702c7762771e8de603bfc6a07869543e485a1947daa5e228fc61e93e9a1014a",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "firmware_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "padded_flash_sha256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
+    "session_id_sha256": "cd6ccbf638a062e20f94e5290dbfc3e87438e727d125c16ad75be9866fff939c",
+    "boot_markers": [
+      "V2.5.4",
+      "WiFi initialized",
+      "SSID: Not Found",
+      "M5Stack CoreMatrix with ESP32-C61HR8",
+      ">>>"
+    ],
+    "board_marker": "CM_BOARD 152 16 16",
+    "heap_marker": "CM_HEAP 179624",
+    "boot_frame": {
+      "sha256": "f8610ca3bdce3e03e66f45721659db00008eab7b707f63bcf3bff8b017d65ab3",
+      "width": 16,
+      "height": 16,
+      "lit_pixels": 36
+    },
+    "program_frame": {
+      "sha256": "1cc6e03073113931be94493d2f1dddcc2846e42a2ba074a180679b4b095e0dd7",
+      "width": 16,
+      "height": 16,
+      "lit_pixels": 12
+    },
+    "cases": [
+      {
+        "key": null,
+        "action": null,
+        "marker": "CM_BUTTONS False False False",
+        "pm1_gpio": 31
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "marker": "CM_BUTTONS True False False",
+        "pm1_gpio": 30
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "marker": "CM_BUTTONS False False False",
+        "pm1_gpio": 31
+      },
+      {
+        "key": "b",
+        "action": "down",
+        "marker": "CM_BUTTONS False True False",
+        "pm1_gpio": 29
+      },
+      {
+        "key": "b",
+        "action": "up",
+        "marker": "CM_BUTTONS False False False",
+        "pm1_gpio": 31
+      },
+      {
+        "key": "c",
+        "action": "down",
+        "marker": "CM_BUTTONS False False True",
+        "pm1_gpio": 27
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "marker": "CM_BUTTONS True False True",
+        "pm1_gpio": 26
+      },
+      {
+        "key": "c",
+        "action": "up",
+        "marker": "CM_BUTTONS True False False",
+        "pm1_gpio": 30
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "marker": "CM_BUTTONS False False False",
+        "pm1_gpio": 31
+      }
+    ],
+    "evidence_sha256": "fb51f3626e69f881eed5ea7e15553c294f04e6fe94bbe5107d16b07020d0b7be",
+    "stock_only_admission": true,
+    "stop_state": "stopped",
+    "lease_released": true,
+    "flash_released": true
+  },
+  "native_stock_usb_multipacket": {
+    "validation": "virtual-device validation",
+    "board": "CoreMatrix C158",
+    "firmware_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "padded_flash_sha256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "patch_sha256": "bbfe934d1b2f4b8b93ff6d0759d694c24e29fcccb4b388c3bbab26fa8225b9a3",
+    "patched_qemu_source_tree": "ccfc55f4ef9503d3144ff161601a1bbad5ca0ff0",
+    "command": "print('CM_LONG', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' * 6)",
+    "before": {
+      "runtime_sha256": "a702c7762771e8de603bfc6a07869543e485a1947daa5e228fc61e93e9a1014a",
+      "lane": "direct QEMU reproduction",
+      "wait_seconds": 15,
+      "last_serial": "CM_LONG ",
+      "ep1_conf_at_0x6000f004": "0x00000000",
+      "prompt_returned": false
+    },
+    "after": {
+      "runtime_sha256": "2e230e6e5a06b139ccaca781171d8854ab3bb0f8f8f8457bfbdab8f8d76c6203",
+      "lanes": ["direct QEMU reproduction", "Device Service"],
+      "session_id_sha256": "12d4b82dec5c1e7664f26f468f3f8da7c7954238771f6dfcf0fa6920d0d3dfcb",
+      "payload_bytes": 216,
+      "payload_sha256": "650e7ae860976fe12955162581e0e362cefb7b29521c7005929ac250a9868404",
+      "next_program_completed": true,
+      "button_cases_passed": 9,
+      "evidence_sha256": "6f317211ababf7bfabc42ceae26e2fc33f4760b44b5838df59837eb25dd4a60e",
+      "stop_state": "stopped",
+      "lease_released": true,
+      "flash_released": true
+    }
+  },
+  "native_idf_probe_service": {
+    "validation": "virtual-device validation",
+    "board": "CoreMatrix C158",
+    "machine": "esp32c61,m5corematrix=on",
+    "runtime_sha256": "a702c7762771e8de603bfc6a07869543e485a1947daa5e228fc61e93e9a1014a",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "firmware_sha256": "62b885f2e4f7367917860be62613e6a70d4fcfba88e31fe4c19c520eec44f6e1",
+    "cases": [
+      {
+        "key": null,
+        "action": null,
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=00",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "gpio_input_bits": 30,
+        "marker": "CM_FRAME keys=1e irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "b",
+        "action": "down",
+        "gpio_input_bits": 29,
+        "marker": "CM_FRAME keys=1d irq=02",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b269ce3416ab83d6e6bb68831ec9d84e8869834b7f8c3f72b0047d01c9ac288b"
+      },
+      {
+        "key": "b",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=02",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      },
+      {
+        "key": "c",
+        "action": "down",
+        "gpio_input_bits": 27,
+        "marker": "CM_FRAME keys=1b irq=04",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            12,
+            7
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "01e114a36b83b00ab88fc25901b3b896f6e1c1ffd0641d09ba441f0fafafb67e"
+      },
+      {
+        "key": "a",
+        "action": "down",
+        "gpio_input_bits": 26,
+        "marker": "CM_FRAME keys=1a irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            12,
+            7
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "e5d4437ae6d4be5702104c7bd7277fe176857f5b4bb8289d7429a1b025692ab8"
+      },
+      {
+        "key": "c",
+        "action": "up",
+        "gpio_input_bits": 30,
+        "marker": "CM_FRAME keys=1e irq=04",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+      },
+      {
+        "key": "a",
+        "action": "up",
+        "gpio_input_bits": 31,
+        "marker": "CM_FRAME keys=1f irq=01",
+        "lit_xy": [
+          [
+            0,
+            0
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+      }
+    ],
+    "stop_state": "stopped",
+    "uploaded_firmware_rejected": true,
+    "lease_released": true,
+    "flash_released": true,
+    "session_id_sha256": "c96cf3de1e60e8a41bf602b4191367ac99c9f895ae139d91a1fdd0ff263e8d00",
+    "evidence_sha256": "41f5fcb23df9925eb309211f6f15c979419ec761b012025a2302e697f744d072"
+  },
+  "limits": [
+    "8 MiB Quad PSRAM not modeled or reported by the stock guest",
+    "No Wi-Fi scan, association or packet exchange validation",
+    "RF, physical hardware, power, IMU, SD and speaker not measured"
+  ]
+}

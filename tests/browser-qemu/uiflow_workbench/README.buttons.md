@@ -87,3 +87,10 @@ runner separately after each board's full editor case and retains its own
 `uiflow-buttons/<device>` output. A gate plan or host contract is not button
 guest evidence.
 Syntax checks and a skipped opt-in runner are not virtual-device validation.
+## ET047TC1 candidates
+
+PaperDIY checks its independent A/B inputs through the original M5 Button
+API. Each key is exercised through both focused keyboard and 3D pointer input.
+PaperS3 projects a real pointer event to `(270,400)` on the modeled display
+and checks the original GT911 logical coordinates and release through
+`M5.Touch`. Its PMS150G power actuator remains outside this input contract.

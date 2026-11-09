@@ -215,21 +215,45 @@ try {
     check('guest-acknowledged-interruption', interrupted.executions[index].result?.interrupted === true
       && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
     await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
-    if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
-      const mono=device==='papermono',stopwatch=device==='stopwatch',papercolor=device==='papercolor',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+    if(device==='corematrix'){
+      const before=await page.evaluate(()=>uiflowRuntime.lastFrame?.sourceSequence??0);
+      const marker=`M5_COREMATRIX_FRAME_${nonce}`;
+      const source=`import M5\nd = M5.Lcd\nd.setRotation(0)\nd.setBrightness(255)\nd.clear(0)\nd.fillRect(1, 2, 4, 3, 0xFFFFFF)\nprint("${marker}", M5.getBoard(), d.width(), d.height())\n`;
+      await runProgram('guest-display-output',source,{stdout:`${marker} 152 16 16`});
+      const observed=await page.waitForFunction(after=>{
+        const f=uiflowRuntime.lastFrame;
+        if(!f||f.width!==16||f.height!==16||f.pixels.length!==512||f.sourceSequence<=after)return false;
+        let lit=0;
+        for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+          const at=(y*16+x)*2,value=f.pixels[at]|(f.pixels[at+1]<<8);
+          const white=x>=1&&x<5&&y>=2&&y<5;
+          if(value!==(white?0xffff:0))return false;
+          lit+=white;
+        }
+        return {width:f.width,height:f.height,sequence:f.sequence,source_sequence:f.sourceSequence,lit_pixels:lit,
+          pattern:'corematrix-white-rectangle-v1'};
+      },before,{timeout:30000,polling:250});
+      report.frame=await observed.jsonValue();
+      await observed.dispose();
+      check('corematrix-source-drew-exact-fresh-monochrome-frame',report.frame.lit_pixels===12,report.frame);
+      await page.screenshot({path:resolve(output,'program-matrix-frame.png'),fullPage:true});
+    } else if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
+      const et047tc1=['papers3','paperdiy'].includes(device),mono=et047tc1||device==='papermono';
+      const monoWidth=et047tc1?540:480,monoHeight=et047tc1?960:800;
+      const stopwatch=device==='stopwatch',papercolor=device==='papercolor',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
       const beforeFrame=papercolor?await page.evaluate(()=>({afterSequence:uiflowRuntime.lastFrame?.sequence??0,
         afterSourceSequence:uiflowRuntime.lastFrame?.sourceSequence??0})):null;
-      // Original PaperMono SDK API: outermost endWrite flushes the real EPD.
-      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (480, 800) or not d.isEPD():\n    raise RuntimeError("PaperMono EPD dimensions mismatch")\nd.setEpdMode(d.EPDMode.EPD_QUALITY)\nd.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
+      // The original SDK's outermost endWrite flushes the real EPD.
+      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (${monoWidth}, ${monoHeight}) or not d.isEPD():\n    raise RuntimeError("EPD dimensions mismatch")\n${et047tc1?'':'d.setEpdMode(d.EPDMode.EPD_QUALITY)\\n'}d.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
         :stopwatch?`import M5\nd = M5.Display\nd.setRotation(0)\nd.setBrightness(255)\nwidth, height = d.width(), d.height()\nif (width, height) != (468, 468) or d.getBrightness() != 255:\n    raise RuntimeError("StopWatch logical display or brightness mismatch")\nd.fillScreen(0xFF0000)\nprint("${marker}", width, height, d.getBrightness())\n`
         :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
       await runProgram('guest-display-output', source, {stdout:marker});
       if(stopwatch)await page.waitForFunction(stopwatchRedCircleOracle,{}, {timeout:30000,polling:250});
       else if(papercolor)await page.waitForFunction(papercolorRedFrameOracle,beforeFrame,{timeout:30000,polling:250});
-      else await page.waitForFunction(mono=>{
+      else await page.waitForFunction(({mono,monoWidth,monoHeight})=>{
         const frame=uiflowRuntime.lastFrame;if(!frame)return false;
         if(mono){
-          if(frame.width!==480||frame.height!==800||frame.pixels.length!==480*800*2)return false;
+          if(frame.width!==monoWidth||frame.height!==monoHeight||frame.pixels.length!==monoWidth*monoHeight*2)return false;
           for(let y=0;y<frame.height;y++)for(let x=0;x<frame.width;x++){
             const at=(y*frame.width+x)*2,color=frame.pixels[at]|frame.pixels[at+1]<<8;
             if(color!==(x<frame.width/2?0x0000:0xffff))return false;
@@ -238,7 +262,7 @@ try {
         }
         let red=0;for(let i=0;i<frame.pixels.length;i+=2)if((frame.pixels[i]|frame.pixels[i+1]<<8)===0xf800)red++;
         return red>frame.width*frame.height*.95;
-      },mono,{timeout:30000,polling:250});
+      },{mono,monoWidth,monoHeight},{timeout:30000,polling:250});
       if(!papercolor)report.frame=await page.evaluate(async ({mono,redColor})=>{
         const frame=uiflowRuntime.lastFrame,digest=await crypto.subtle.digest('SHA-256',new Uint8Array(frame.pixels));
         let black=0,white=0,red=0;for(let i=0;i<frame.pixels.length;i+=2){const value=frame.pixels[i]|frame.pixels[i+1]<<8;black+=value===0;white+=value===0xffff;red+=value===redColor;}
@@ -278,7 +302,7 @@ try {
   check('same-console-through-pre-reset-programs', await page.evaluate(({session, generation, epoch}) => uiflowRuntime.sessionId === session
     && uiflowRuntime.generation === generation && uiflowRuntime.consoleEpoch === epoch
     && !uiflowRuntime.machineEvents.some(row => row.event === 'RESET'), {session:report.session_id, generation:report.generation, epoch:report.console_epoch}));
-  if(!smokeOnly){
+  if(!smokeOnly && await page.evaluate(()=>uiflowRuntime.profile.inputs.reset===true)){
     const index=await page.evaluate(()=>uiflowExecutions.length);
     const source=`import time\nprint("M5_RESET_RUNNING_${nonce}")\nwhile True:\n    time.sleep_ms(10)\n`;
     await page.locator('#pythonSource').fill(source);await page.locator('#pythonRunBtn').click();
@@ -293,6 +317,8 @@ try {
     check('hardware-reset-keeps-browser-session-with-new-console',await page.evaluate(({session,generation})=>uiflowRuntime.sessionId===session
       &&uiflowRuntime.generation===generation&&!uiflowRuntime.uartOwner,{session:report.session_id,generation:report.generation}));
     await runProgram('after-hardware-reset',`print("M5_REBOOT_RECOVERED_${nonce}")\n`,{stdout:`M5_REBOOT_RECOVERED_${nonce}`});
+  }else if(!smokeOnly){
+    report.hardware_reset={status:'NOT RUN',reason:'The exact browser board profile does not admit hardware reset'};
   }
   if (unitPreview) {
     report.unit_preview.after_programs = await unitPreviewSnapshot();

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile, validateQemuFirmware,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
-  qemuOnboardOutputQueries, validateQemuOnboardState} from '../web/public-qemu-profiles.js';
+  qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 
 const s3AdcFields = [
@@ -32,9 +32,12 @@ const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:t
 const physicalButtonCodes = {
   stopwatch:{a:'a',b:'b',power:'p'}, sticks3:{a:'a',b:'b',power:'p'},
   atoms3:{button:'a'}, 'atoms3-lite':{button:'a'}, atoms3r:{button:'a'},
-  cores3:{power:'p'}, 'cardputer-adv':{boot:'f12'}, stamplc:{key1:'a',key2:'b',key3:'c'},
+  cores3:{power:'p'}, 'cardputer-adv':{boot:'f12'}, cardputer:{boot:'f12',f12:'f12'},
+  stamplc:{key1:'a',key2:'b',key3:'c'},
   stackchan:{power:'p'}, papercolor:{key1:'a',key2:'b',key3:'c',power:'p'},
   papermono:{key1:'a',key2:'b',power:'p'}, core2:{a:'a',b:'b',c:'c',power:'p'},
+  paperdiy:{key1:'a',key2:'b'}, papers3:{},
+  corematrix:{a:'a',b:'b',c:'c'},
   'stickc-plus2':{a:'a',b:'b',power:'p'}, dial:{wake:'a'}, stickc:{a:'a',b:'b',power:'p'},
   'stickc-plus':{a:'a',b:'b',power:'p'}, 'stickc-plus-se':{a:'a',b:'b',power:'p'},
   'atom-lite':{button:'a'}, 'atom-matrix':{button:'a'}, 'atom-matrix-v11':{button:'a'},
@@ -47,13 +50,55 @@ for(const [deviceId,buttons] of Object.entries(physicalButtonCodes))for(const [i
     {execute:'input-send-event',arguments:{events:[{type:'key',data:{down,key:{type:'qcode',data:qcode}}}]}},
     `${deviceId} physical ${id} must admit ${down?'press':'release'} through its board controller`);
 }
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11']);
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'cardputer', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11', 'papers3', 'paperdiy', 'corematrix']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
 assert.equal(getQemuBrowserProfile('tab5', registry, {allowCandidateProfiles:true}), null);
+assert.equal(getQemuBrowserProfile('cardputer', registry)?.board,'m5cardputer');
+withheld.profiles.find(row=>row.deviceId==='cardputer').admission='candidate';
+assert.equal(getQemuBrowserProfile('cardputer', withheld),null,'a K132 candidate must remain private');
+const originalCardputer=pick('cardputer');
+assert.equal(originalCardputer.inputs.keyboard.length,56);
+for(const code of ['a','menu','ctrl','alt_r'])for(const down of [true,false])
+  assert.deepEqual(qemuInputCommand(originalCardputer,{type:'button',id:code,down}).arguments.events,
+    [{type:'key',data:{down,key:{type:'qcode',data:code}}}]);
+assert.throws(()=>qemuInputCommand(originalCardputer,{type:'key',key:'compose',down:true}),/not admitted/);
+for(const mutate of [p=>delete p.requiredInputPatch,p=>p.board='m5cardputeradv',p=>p.psramMb=8,p=>delete p.inputs.buttons.f12]){
+  const candidate=structuredClone(originalCardputer);mutate(candidate);
+  assert.throws(()=>validateQemuProfile(candidate),/physical input patch binding/);
+}
+for(const id of ['papers3','paperdiy']){
+  const profile=pick(id);
+  assert.equal(profile.board,'m5'+id);
+  assert.deepEqual([profile.flashMb,profile.psramMb,profile.display.width,profile.display.height],[16,8,540,960]);
+  assert.equal(profile.inputs.touch,id==='papers3');
+  assert.equal(getQemuBrowserProfile(id,registry)?.board,'m5'+id);
+  withheld.profiles.find(row=>row.deviceId===id).admission='candidate';
+  assert.equal(getQemuBrowserProfile(id,withheld),null,'A Paper candidate remains private');
+  assert.throws(()=>qemuInputCommand(profile,{type:'button',id:'power',down:true}),/not admitted/);
+}
 const detached = pick('cores3'); detached.display.width = 1;
 assert.equal(pick('cores3').display.width, 320);
+const matrixC61=pick('corematrix');
+assert.equal(getQemuBrowserProfile('corematrix',registry).stockFirmwareSHA256,CORE_MATRIX_STOCK_FLASH_SHA256);
+assert.equal(resolveQemuFirmwareProfile(matrixC61,matrixC61.fixture.firmwareSHA256).readyFirmwareSHA256,
+  matrixC61.fixture.firmwareSHA256,'The fixed example keeps its own readiness binding');
+const matrixWorkbench=matrixC61.firmwareProfiles[0];
+assert.equal(resolveQemuFirmwareProfile(matrixC61,matrixWorkbench.firmwareSHA256).readyFirmwareSHA256,
+  matrixWorkbench.firmwareSHA256,'The workbench can resolve its own readiness binding');
+assert.deepEqual(qemuRuntimeIdentity(matrixC61),{directory:'qemu-c61',commit:'8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc'});
+assert.deepEqual(buildQemuArguments(matrixC61).slice(0,2),['-M','esp32c61,m5corematrix=on']);
+const matrixArgs=buildQemuArguments(matrixC61);
+assert.deepEqual(matrixArgs.filter((_,index)=>matrixArgs[index-1]==='-serial'),
+  ['file:/bridge/uart.out','file:/bridge/serial1','null','pipe:/bridge/usb']);
+assert.equal(buildQemuEfuse(matrixC61),null);
+for(const mutate of [row=>delete row.stockFirmwareSHA256,row=>row.stockFirmwareSHA256=row.fixture.firmwareSHA256,row=>row.chip='esp32c6',
+  row=>row.board='esp32c61',row=>row.roms=pick('cores3').roms]){
+  const invalid=structuredClone(matrixC61);
+  mutate(invalid);
+  assert.throws(()=>validateQemuProfile(invalid));
+}
 const duplicate = structuredClone(registry); duplicate.profiles.push(duplicate.profiles[0]);
 assert.throws(() => validateQemuBrowserProfiles(duplicate), /Duplicate/);
 for (const mutate of [p => p.target = 'riscv32-softmmu', p => p.roms[0].url = 'https://example.test/rom',
@@ -168,7 +213,8 @@ for (const profile of registry.profiles) {
   assert.throws(() => validateQemuFirmware(overflow, profile), /Partition/);
 }
 for(const profile of registry.profiles) {
-  assert.deepEqual(qemuInputCommand(profile,{type:'reset',down:true}),{execute:'system_reset',arguments:{}});
+  if(profile.deviceId==='corematrix')assert.throws(()=>qemuInputCommand(profile,{type:'reset',down:true}),/not admitted/);
+  else assert.deepEqual(qemuInputCommand(profile,{type:'reset',down:true}),{execute:'system_reset',arguments:{}});
   for(const event of [{type:'reset',down:false},{type:'reset',down:true,path:'/machine/other'}])assert.throws(()=>qemuInputCommand(profile,event));
 }
 const stack=pick('stackchan');

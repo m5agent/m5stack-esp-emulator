@@ -40,7 +40,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
-  deviceCatalog=catalog,
+  deviceCatalog=catalog,qemuRegistry=registry,
   isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const makeElement=id=>({id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],children:[],
@@ -62,7 +62,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('platform/units/host-ports.json'))return new Response('{"hosts":[]}');
     if(url.endsWith('platform/units/runtime-profiles.json'))return new Response('{"units":{}}');
     if(url.endsWith('uiflow-workbench-profiles.json'))return new Response(JSON.stringify(workbenchRegistry));
-    if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
+    if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(qemuRegistry),{status:registryFailure?503:200});}
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
@@ -143,8 +143,9 @@ const textOf=node=>[node.textContent||'',...(node.children||[]).map(textOf)].joi
 const paperModel={id:'papers3',name:'PaperS3',category:'controller',display:{width:540,height:960}};
 const visualWithPaper=[...visualCandidates,paperModel];
 const catalogWithoutPaper={...catalog,devices:catalog.devices.filter(row=>row.id!=='papers3')};
+const exportWithoutPaper={...registry,profiles:registry.profiles.filter(row=>row.deviceId!=='papers3')};
 const papers=await entry({browserDevices:legacyBrowserDevices,visualProducts:visualWithPaper,deviceCatalog:catalogWithoutPaper,
-  search:'?device=papers3&mode=browser&autostart=0'});
+  qemuRegistry:exportWithoutPaper,search:'?device=papers3&mode=browser&autostart=0'});
 papers.status('model');
 assert.equal(papers.browserProfile('papers3'),null);assert.equal(papers.lane(),null);assert.equal(papers.element('startBtn').disabled,true);
 assert.equal(papers.deviceRuntimeLabel(papers.state.selected),'仅模型');
@@ -161,7 +162,7 @@ assert.equal(legacyPapers.lane(),'browser','a legacy experimental profile can re
 const nativePaper={id:'papers3',name:'PaperS3',path:'esp32-s3/papers3',hardware:{controls:[{id:'power'}]}};
 const nativePapers=await entry({browserDevices:legacyBrowserDevices,visualProducts:visualWithPaper,
   deviceCatalog:{...catalogWithoutPaper,devices:[...catalogWithoutPaper.devices,nativePaper]},
-  search:'?device=papers3&mode=service&autostart=0'});
+  qemuRegistry:exportWithoutPaper,search:'?device=papers3&mode=service&autostart=0'});
 assert.equal(nativePapers.state.selected.path,nativePaper.path);
 assert.equal(nativePapers.state.selected.hardware.controls[0].id,'power');
 assert.equal(nativePapers.state.selected.browser_only,undefined);

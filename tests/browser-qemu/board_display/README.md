@@ -4,7 +4,10 @@ These fixtures run the original UIFlow2 `M5.begin`, `M5.Display`, `M5.update`
 and board input drivers in the guest. Serial `M5_BROWSER_PROBE` JSON binds the
 board, logical display size, input edges, counter and heartbeat to the same
 execution. LCD/OLED fixtures change a complete 8x8 red marker to green; EPD
-fixtures change a 16x16 QUALITY-encoded black marker to white. They are bounded
+fixtures change a 16x16 QUALITY-encoded black marker to white. The CoreMatrix
+probe starts with a white 4x4 block on its 16x16 monochrome display and moves
+it to a separate 4x3 region when its original BtnA API reports a press.
+CoreMatrix retains the stock USB REPL console. They are bounded
 controller-path probes: LVGL, networking, audio, unrelated Units and physical
 hardware equivalence require separate evidence.
 
@@ -30,6 +33,8 @@ changing the console setup requires a new composition and browser run.
 | StackChan | `main.py` | 320x240 at guest rotation 1; screen `M5.Touch`, separate from the Si12T body-touch path |
 | PaperColor | `papercolor_main.py` | 400x600; Spectra 6 EPD and front `M5.BtnA` |
 | PaperMono | `papermono_main.py` | 480x800; SSD1677 four-gray EPD and `M5.Touch.getTouchPointRaw(0)` hitbox workaround |
+| PaperS3 | `et047tc1_main.py` | 540x960; ET047TC1 digital scanout and original GT911 logical coordinates |
+| PaperDIY | `et047tc1_main.py` | 540x960; ET047TC1 digital scanout and original `M5.BtnA` |
 | Cardputer-ADV | `cardputer_adv_main.py` | 240x135 at guest rotation 1; original `hardware.KeyboardI2C` over guest I2C/TCA8418 FIFO |
 
 The StackChan default keeps screen input independent of its UART motion work.
@@ -66,6 +71,31 @@ This raw-point workaround does not establish a stock logical-touch fix or
 physical-hardware equivalence. A separate SDK `offset_rotation` change from
 0 to 1 has only an extracted-source host C++ calibration proof; no candidate
 firmware was rebuilt or run, so it has no firmware or hardware PASS.
+
+The two ET047TC1 candidates use official UIFlow2 v2.5.4. They compare all 256
+pixels of a fixed black-to-white marker against a fresh native framebuffer.
+The PaperS3 case verifies the original GT911 logical coordinates at
+`(270,400)`. PaperDIY's separate workbench input case covers both A and B.
+These cases do not cover physical grayscale, waveform timing or power.
+
+The separate `platform/tests/test_public_qemu_paper_stock_guest.mjs` case
+uploads the exact Factory V0.5 PaperS3 image or the PaperDIY Factory V1.0
+source build with second-start NVS. Build the PaperDIY source and generate
+the NVS using the [native reproduction instructions](../../../docs/evidence/2026-11-09-paper-et047tc1/README.md),
+then overlay the 0x6000-byte NVS partition at 0x9000 in a copy of the
+16 MiB merged image. The test checks both the upload and complete Flash SHA.
+The NVS overlay does not change the compiled factory application.
+
+```sh
+M5_QEMU_DEVICE=papers3 M5_PUBLIC_SITE="$SITE" M5_QEMU_UPLOAD="$FACTORY_BIN" \
+  node platform/tests/test_public_qemu_paper_stock_guest.mjs
+```
+
+Use `M5_QEMU_DEVICE=paperdiy` and the NVS-overlaid merged image for the other
+case. Neither image is shipped with the static export. The stock test
+checks exact same-session RGB565 regions against the visible model texture,
+plus normal worker cleanup. It also accepts a deployed HTTPS site via
+`M5_PUBLIC_URL` in place of `M5_PUBLIC_SITE`.
 
 Cardputer-ADV creates `KeyboardI2C` in `ASCII_MODE` at address `0x34`, with
 SDA8/SCL9 on I2C1 and interrupt pin11. It polls the original driver's IRQ

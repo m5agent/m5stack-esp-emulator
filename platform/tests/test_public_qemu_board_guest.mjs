@@ -238,6 +238,8 @@ try {
   if(device==='stickc')check('original-stickc-board',ready.board===3&&ready.width===80&&ready.height===160,ready);
   if(device==='stickc-plus')check('original-stickc-plus-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
   if(device==='stickc-plus-se')check('original-stickc-plus-se-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
+  if(device==='cardputer')check('original-cardputer-k132-board',ready.board===14&&ready.width===240&&ready.height===135,ready);
+  if(device==='corematrix')check('original-corematrix-c158-board',ready.board===152&&ready.width===16&&ready.height===16,ready);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
@@ -352,6 +354,13 @@ try {
   check(frameOracle?'complete-native-panel-marker':'complete-native-red-marker',
     marker.count===expectedMarker.width*expectedMarker.height && marker.x2-marker.x1===expectedMarker.width-1
       && marker.y2-marker.y1===expectedMarker.height-1, marker);
+  if(device==='corematrix')check('corematrix-unlit-background-before-input',await page.evaluate(()=>{
+    const {frame,markerPixels}=boardRun;
+    const lit=new Set(markerPixels);
+    for(let at=0;at<frame.pixels.length;at+=2)
+      if((frame.pixels[at]|(frame.pixels[at+1]<<8))!==(lit.has(at/2)?0xffff:0))return false;
+    return true;
+  }));
   if (publicUI) {
     await page.waitForFunction(modelShell => Number(document.querySelector('#deviceMount').dataset.frameSequence) > 0
       && (!modelShell || globalThis.boardUiShell?.frameSeq > 0), report.public_shell.model_shell, {timeout:30000});
@@ -407,7 +416,7 @@ try {
   check('actual-physical-frame-dimensions',first.last_frame.width===dimensions.width&&first.last_frame.height===dimensions.height);
   const touchPoint=await page.evaluate(()=>boardRun.profile.fixture.touchPoint||{x:Math.floor(boardRun.profile.display.width/2),y:Math.floor(boardRun.profile.display.height/2)});
   const keyboardOracle=await page.evaluate(()=>boardRun.profile.fixture.keyboardOracle||null);
-  const firstPanelPage=frameOracle?await panelPage(0):null;
+  const firstPanelPage=epdOracle?await panelPage(0):null;
   if(firstPanelPage)check('epd-original-controller-palette-and-zero-count-pixels',true,{counter_sha256:firstPanelPage.sha256});
   // This fixed oracle belongs to the pinned Cardputer fixture: the counter is
   // separate from both corner markers and the key-state text at the bottom.
@@ -461,7 +470,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(modelShell => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1',paperdiy:'key1','cardputer-adv':'key-KeyA',cardputer:'boot',corematrix:'btnA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return {target,key:modelShell
         ? Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0] : null};
@@ -484,6 +493,8 @@ try {
   check('guest-button-counter',firstCount.count===1,firstCount);
   const firstPress=await guest('pressed',row=>row.seq===firstCount.seq-1,30000);
   report.guest_input_observation={requested_physical_touch:await page.evaluate(()=>boardRun.profile.inputs.touch)?touchPoint:null,pressed:firstPress};
+  if(device==='papers3')check('gt911-guest-logical-touch-coordinate',
+    Math.abs(firstPress.x-touchPoint.x)<=2&&Math.abs(firstPress.y-touchPoint.y)<=2,firstPress);
   if (rawTouch) check('original-ft-raw-point-and-stock-logical-gap', firstPress.coordinate_source === 'official-raw-point'
     && firstPress.coordinates_cached === false && firstPress.x === touchPoint.x && firstPress.y === touchPoint.y
     && firstPress.size === 1 && firstPress.touch_id === 0 && firstPress.logical_x === 90 && firstPress.logical_y === 400, firstPress);
@@ -520,6 +531,25 @@ try {
     if(!oracle)for (let at = 0; at < f.pixels.length; at += 2) if (f.pixels[at] === 0 && f.pixels[at + 1] === 0xf8) return false;
     return true;
   }, frameOracle, {timeout:60000}); check('controller-input-changes-native-frame-marker', true);
+  if(device==='corematrix'){
+    const verify=await page.waitForFunction(before=>{
+      const f=boardRun.frame;
+      if(f.width!==16||f.height!==16||f.sourceSequence<=before||f.pixels.length!==512)return false;
+      let lit=0;
+      for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+        const at=(y*16+x)*2,value=f.pixels[at]|(f.pixels[at+1]<<8);
+        const white=x>=8&&x<12&&y>=9&&y<12;
+        if(value!==(white?0xffff:0))return false;
+        lit+=white;
+      }
+      return {lit_pixels:lit,source_sequence:f.sourceSequence};
+    },marker.sourceSequence,{timeout:30000});
+    const observed=await verify.jsonValue();
+    await verify.dispose();
+    check('corematrix-exact-fresh-monochrome-frame',observed.lit_pixels===12,observed);
+  }
+  if(['papers3','paperdiy'].includes(device))check('et047tc1-marker-is-from-a-fresh-native-frame',
+    await page.evaluate(before=>boardRun.frame.sourceSequence>before,marker.sourceSequence));
   if(firstPanelPage){
     const changed=await panelPage(1,firstPanelPage.counter);
     check('epd-refresh-changes-count-text-and-count-bit',changed.sha256!==firstPanelPage.sha256,{counter_sha256:changed.sha256});

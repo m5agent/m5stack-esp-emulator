@@ -1,0 +1,750 @@
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index aaaed7455b31f40458168218a309f23b3fac12a3..17dfd5ef32a90f058fcf26906845e1234fe1a85e 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -9,6 +9,7 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/timer.h"
++#include "qemu/bitops.h"
+ #include "qemu/log.h"
+ #include "hw/dma/esp_gdma.h"
+ #include "hw/irq.h"
+@@ -18,6 +19,18 @@
+ #define R_CAM_CTRL   0x04
+ #define R_CAM_CTRL1  0x08
+ #define R_CAM_RGB    0x0c
++#define R_LCD_USER   0x14
++#define LCD_DOUT_CYCLES_MASK 0x1fff
++#define LCD_ALWAYS_OUT BIT(13)
++#define LCD_BYTE_ORDER_8 BIT(19)
++#define LCD_BIT_ORDER BIT(21)
++#define LCD_WIDE BIT(23)
++#define LCD_DOUT BIT(24)
++#define LCD_UPDATE BIT(20)
++#define LCD_START BIT(27)
++#define LCD_RESET BIT(28)
++#define LCD_TRANS_DONE BIT(1)
++#define LCD_I80_MAX_BYTES 1024
+ #define R_INT_ENA    0x64
+ #define R_INT_RAW    0x68
+ #define R_INT_ST     0x6c
+@@ -36,6 +49,8 @@ struct M5LcdCamState {
+     MemoryRegion iomem;
+     qemu_irq irq;
+     ESPGdmaState *gdma;
++    M5LcdI80Output i80_output;
++    void *i80_opaque;
+     uint32_t regs[0x100 / 4];
+     uint32_t int_ena;
+     uint32_t int_raw;
+@@ -243,6 +258,49 @@ static uint64_t lcd_cam_read(void *opaque, hwaddr addr, unsigned size)
+     }
+ }
+ 
++static void lcd_i80_transfer(M5LcdCamState *s, uint32_t user)
++{
++    if (user & LCD_DOUT) {
++        uint8_t bytes[LCD_I80_MAX_BYTES];
++        uint32_t channel;
++        uint32_t count;
++
++        if ((user & LCD_WIDE) ||
++            !esp_gdma_get_channel_periph(s->gdma, GDMA_LCDCAM,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
++            return;
++        }
++        count = esp_gdma_get_out_transfer_size(s->gdma, channel,
++                                               sizeof(bytes) + 1);
++        if (!count || count > sizeof(bytes) ||
++            (!(user & LCD_ALWAYS_OUT) &&
++             count != (user & LCD_DOUT_CYCLES_MASK) + 1) ||
++            !esp_gdma_read_channel(s->gdma, channel, bytes, count)) {
++            return;
++        }
++        if (user & LCD_BYTE_ORDER_8) {
++            for (unsigned i = 0; i + 1 < count; i += 2) {
++                uint8_t swap = bytes[i];
++                bytes[i] = bytes[i + 1];
++                bytes[i + 1] = swap;
++            }
++        }
++        if (user & LCD_BIT_ORDER) {
++            for (unsigned i = 0; i < count; i++) {
++                uint8_t b = bytes[i];
++                b = ((b >> 1) & 0x55) | ((b & 0x55) << 1);
++                b = ((b >> 2) & 0x33) | ((b & 0x33) << 2);
++                bytes[i] = (b >> 4) | (b << 4);
++            }
++        }
++        s->i80_output(s->i80_opaque, bytes, count);
++    }
++
++    s->regs[R_LCD_USER / 4] &= ~LCD_START;
++    s->int_raw |= LCD_TRANS_DONE;
++    lcd_cam_update_irq(s);
++}
++
+ static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
+                           unsigned size)
+ {
+@@ -275,6 +333,16 @@ static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
+         }
+         break;
+     }
++    case R_LCD_USER:
++        if (s->i80_output) {
++            s->regs[addr / 4] = v & ~(LCD_UPDATE | LCD_RESET);
++            if ((v & (LCD_START | LCD_RESET)) == LCD_START) {
++                lcd_i80_transfer(s, v);
++            }
++        } else {
++            s->regs[addr / 4] = v;
++        }
++        break;
+     case R_INT_ENA:
+         s->int_ena = v;
+         lcd_cam_update_irq(s);
+@@ -383,3 +451,12 @@ void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
+         s->frame_data_size = MIN(size, UINT32_MAX);
+     }
+ }
++
++void m5_lcd_cam_attach_i80(DeviceState *dev, ESPGdmaState *gdma,
++                          M5LcdI80Output output, void *opaque)
++{
++    M5LcdCamState *s = M5_LCD_CAM(dev);
++    s->gdma = gdma;
++    s->i80_output = output;
++    s->i80_opaque = opaque;
++}
+diff --git a/hw/m5stopwatch/m5paper_et047.c b/hw/m5stopwatch/m5paper_et047.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..b6008e7a585f9dc20f0ad15baf20ac94bd488908
+--- /dev/null
++++ b/hw/m5stopwatch/m5paper_et047.c
+@@ -0,0 +1,476 @@
++/*
++ * PaperS3 and PaperDIY board wiring for the ET047TC1 source/gate interface.
++ * The digital panel captures the black/white endpoints of a 2-bit scan line.
++ * Analog waveform integration and intermediate reflectance are outside scope.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "qemu/bitops.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/gpio/esp32_gpio.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "ui/console.h"
++#include "ui/input.h"
++#include "m5stopwatch.h"
++
++#define ET_COLUMNS 960
++#define ET_ROWS 540
++#define ET_BYTES (ET_COLUMNS / 4)
++#define ET_SPV 17
++#define ET_LE 15
++#define ET_CKV 18
++#define ET_OE 45
++#define ET_BOOST 46
++
++#define GT911_STATUS 0x814e
++#define GT911_ID 0x8140
++#define GT911_CONFIG 0x8047
++#define GT911_CONFIG_SIZE 186
++#define GT911_INT 48
++#define TYPE_M5_GT911 "m5-gt911"
++#define TYPE_M5_PAPER_ET047 "m5-paper-et047"
++OBJECT_DECLARE_SIMPLE_TYPE(M5Gt911, M5_GT911)
++OBJECT_DECLARE_SIMPLE_TYPE(M5PaperET047, M5_PAPER_ET047)
++
++struct M5Gt911 {
++    I2CSlave parent_obj;
++    uint16_t reg;
++    unsigned addr_bytes;
++    uint8_t config[GT911_CONFIG_SIZE];
++    bool ready;
++    bool down;
++    uint16_t x, y;
++    bool report_down;
++    uint16_t report_x, report_y;
++    QEMUTimer *timer;
++};
++
++struct M5PaperET047 {
++    DeviceState parent_obj;
++    DeviceState *pm1;
++    M5Gt911 *touch;
++    QemuConsole *con;
++    QemuInputHandlerState *input;
++    bool diy;
++    uint8_t *reflectance;
++    uint8_t pending[ET_BYTES];
++    bool pending_valid;
++    bool scanning;
++    bool dirty;
++    bool prev_le;
++    bool prev_spv;
++    uint32_t row;
++    uint32_t frames;
++    uint32_t lines;
++    bool mouse_down;
++    uint16_t mouse_x, mouse_y;
++};
++
++static void gt911_scan(void *opaque)
++{
++    M5Gt911 *s = opaque;
++    s->report_x = s->x;
++    s->report_y = s->y;
++    s->report_down = s->down;
++    s->ready = true;
++    esp32_gpio_force_line(GT911_INT, 0);
++}
++
++static void gt911_next_scan(M5Gt911 *s)
++{
++    s->ready = false;
++    esp32_gpio_force_line(GT911_INT, 1);
++    timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++}
++
++static int gt911_event(I2CSlave *slave, enum i2c_event event)
++{
++    if (event == I2C_START_SEND) {
++        M5_GT911(slave)->addr_bytes = 0;
++    }
++    return 0;
++}
++
++static int gt911_send(I2CSlave *slave, uint8_t value)
++{
++    M5Gt911 *s = M5_GT911(slave);
++
++    if (s->addr_bytes == 0) {
++        s->reg = (uint16_t)value << 8;
++        s->addr_bytes = 1;
++    } else if (s->addr_bytes == 1) {
++        s->reg |= value;
++        s->addr_bytes = 2;
++    } else {
++        uint16_t reg = s->reg++;
++
++        if (reg == GT911_STATUS && value == 0) {
++            gt911_next_scan(s);
++        } else if (reg >= GT911_CONFIG && reg < GT911_CONFIG + GT911_CONFIG_SIZE) {
++            s->config[reg - GT911_CONFIG] = value;
++        }
++    }
++    return 0;
++}
++
++static uint8_t gt911_recv(I2CSlave *slave)
++{
++    M5Gt911 *s = M5_GT911(slave);
++    uint16_t reg = s->reg++;
++
++    switch (reg) {
++    case GT911_ID:
++        return '9';
++    case GT911_ID + 1:
++    case GT911_ID + 2:
++        return '1';
++    case GT911_STATUS:
++        return s->ready ? 0x80 | s->report_down : 0;
++    case 0x8150:
++        return s->report_x;
++    case 0x8151:
++        return s->report_x >> 8;
++    case 0x8152:
++        return s->report_y;
++    case 0x8153:
++        return s->report_y >> 8;
++    case 0x8154:
++        return 20;
++    default:
++        if (reg >= GT911_CONFIG && reg < GT911_CONFIG + GT911_CONFIG_SIZE) {
++            return s->config[reg - GT911_CONFIG];
++        }
++        return 0;
++    }
++}
++
++static void gt911_realize(DeviceState *dev, Error **errp)
++{
++    M5Gt911 *s = M5_GT911(dev);
++    s->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, gt911_scan, s);
++    s->config[1] = ET_ROWS & 0xff;
++    s->config[2] = ET_ROWS >> 8;
++    s->config[3] = ET_COLUMNS & 0xff;
++    s->config[4] = ET_COLUMNS >> 8;
++    s->config[5] = 2;
++    gt911_next_scan(s);
++}
++
++static void gt911_reset(DeviceState *dev)
++{
++    M5Gt911 *s = M5_GT911(dev);
++    s->reg = 0;
++    s->addr_bytes = 0;
++    s->down = false;
++    gt911_next_scan(s);
++}
++
++static void gt911_unrealize(DeviceState *dev)
++{
++    timer_free(M5_GT911(dev)->timer);
++}
++
++static void gt911_class_init(ObjectClass *oc, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(oc);
++    I2CSlaveClass *ic = I2C_SLAVE_CLASS(oc);
++    dc->realize = gt911_realize;
++    dc->user_creatable = false;
++    dc->unrealize = gt911_unrealize;
++    device_class_set_legacy_reset(dc, gt911_reset);
++    ic->event = gt911_event;
++    ic->send = gt911_send;
++    ic->recv = gt911_recv;
++}
++
++static bool et047_powered(const M5PaperET047 *s)
++{
++    if (!esp32_gpio_get_line(ET_BOOST)) {
++        return false;
++    }
++    return s->diy ? m5sw_pm1_output_high(s->pm1, 2)
++                  : esp32_gpio_get_line(ET_OE);
++}
++
++static void et047_gpio(void *opaque, int pin, int level)
++{
++    M5PaperET047 *s = opaque;
++
++    if (!et047_powered(s)) {
++        s->scanning = false;
++        s->pending_valid = false;
++    } else if (pin == ET_SPV && s->prev_spv && !level) {
++        s->scanning = true;
++        s->row = 0;
++        s->pending_valid = false;
++    } else if (pin == ET_LE && !s->prev_le && level && s->scanning &&
++               s->pending_valid && s->row < ET_ROWS) {
++        uint8_t *row = s->reflectance + s->row * ET_COLUMNS;
++
++        for (unsigned x = 0; x < ET_COLUMNS; x++) {
++            uint8_t drive = (s->pending[x / 4] >> (6 - 2 * (x % 4))) & 3;
++            uint8_t value = drive == 1 ? 0 : drive == 2 ? 255 : row[x];
++            s->dirty |= row[x] != value;
++            row[x] = value;
++        }
++        s->pending_valid = false;
++        s->lines++;
++        if (++s->row == ET_ROWS) {
++            s->frames++;
++        }
++    }
++
++    if (pin == ET_LE) {
++        s->prev_le = level;
++    } else if (pin == ET_SPV) {
++        s->prev_spv = level;
++    }
++}
++
++static void et047_receive(void *opaque, const uint8_t *bytes, size_t count)
++{
++    static const int data_gpio[] = { 6, 14, 7, 12, 9, 11, 8, 10 };
++    M5PaperET047 *s = opaque;
++
++    s->pending_valid = false;
++    if (count < ET_BYTES || !s->scanning || !et047_powered(s) ||
++        esp32_gpio_get_line(ET_LE) || !esp32_gpio_get_line(ET_CKV) ||
++        esp32_gpio_matrix_out_signal(16, true) != 154 ||
++        esp32_gpio_matrix_out_signal(13, true) != 132) {
++        return;
++    }
++    for (unsigned i = 0; i < ARRAY_SIZE(data_gpio); i++) {
++        if (esp32_gpio_matrix_out_signal(data_gpio[i], true) != 133 + i) {
++            return;
++        }
++    }
++
++    memcpy(s->pending, bytes, sizeof(s->pending));
++    s->pending_valid = true;
++}
++
++static void et047_update(void *opaque)
++{
++    M5PaperET047 *s = opaque;
++    DisplaySurface *surface = qemu_console_surface(s->con);
++
++    if (!s->dirty) {
++        return;
++    }
++    for (unsigned y = 0; y < ET_COLUMNS; y++) {
++        uint32_t *dest = (uint32_t *)(surface_data(surface) +
++                                     y * surface_stride(surface));
++        for (unsigned x = 0; x < ET_ROWS; x++) {
++            uint8_t value = s->reflectance[(ET_ROWS - 1 - x) * ET_COLUMNS + y];
++            dest[x] = value * 0x010101;
++        }
++    }
++    s->dirty = false;
++    dpy_gfx_update(s->con, 0, 0, ET_ROWS, ET_COLUMNS);
++}
++
++static void et047_invalidate(void *opaque)
++{
++    M5PaperET047 *s = opaque;
++    s->dirty = true;
++}
++
++static const GraphicHwOps et047_graphics = {
++    .invalidate = et047_invalidate,
++    .gfx_update = et047_update,
++};
++
++static void et047_input(DeviceState *dev, QemuConsole *src, InputEvent *event)
++{
++    M5PaperET047 *s = M5_PAPER_ET047(dev);
++
++    if (event->type == INPUT_EVENT_KIND_KEY && s->diy) {
++        InputKeyEvent *key = event->u.key.data;
++        int qcode = qemu_input_key_value_to_qcode(key->key);
++
++        if (qcode == Q_KEY_CODE_A || qcode == Q_KEY_CODE_1) {
++            esp32_gpio_force_line(4, !key->down);
++        } else if (qcode == Q_KEY_CODE_B || qcode == Q_KEY_CODE_2) {
++            esp32_gpio_force_line(3, !key->down);
++        } else if (qcode == Q_KEY_CODE_P) {
++            m5sw_pwr_button(key->down);
++        }
++    } else if (event->type == INPUT_EVENT_KIND_ABS && s->touch) {
++        InputMoveEvent *move = event->u.abs.data;
++        if (move->axis == INPUT_AXIS_X) {
++            s->mouse_x = qemu_input_scale_axis(move->value,
++                INPUT_EVENT_ABS_MIN, INPUT_EVENT_ABS_MAX, 0, ET_ROWS - 1);
++        } else if (move->axis == INPUT_AXIS_Y) {
++            s->mouse_y = qemu_input_scale_axis(move->value,
++                INPUT_EVENT_ABS_MIN, INPUT_EVENT_ABS_MAX, 0, ET_COLUMNS - 1);
++        }
++    } else if (event->type == INPUT_EVENT_KIND_BTN && s->touch) {
++        InputBtnEvent *button = event->u.btn.data;
++        if (button->button == INPUT_BUTTON_LEFT) {
++            s->mouse_down = button->down;
++        }
++    }
++}
++
++static void et047_input_sync(DeviceState *dev)
++{
++    M5PaperET047 *s = M5_PAPER_ET047(dev);
++    if (s->touch) {
++        s->touch->x = s->mouse_x;
++        s->touch->y = s->mouse_y;
++        s->touch->down = s->mouse_down;
++    }
++}
++
++static const QemuInputHandler et047_input_handler = {
++    .name = "ET047TC1 Paper inputs",
++    .mask = INPUT_EVENT_MASK_KEY | INPUT_EVENT_MASK_ABS | INPUT_EVENT_MASK_BTN,
++    .event = et047_input,
++    .sync = et047_input_sync,
++};
++
++static void et047_realize(DeviceState *dev, Error **errp)
++{
++    M5PaperET047 *s = M5_PAPER_ET047(dev);
++    static const int observed[] = { ET_SPV, ET_LE, ET_BOOST, ET_OE };
++
++    s->reflectance = g_malloc(ET_COLUMNS * ET_ROWS);
++    memset(s->reflectance, 255, ET_COLUMNS * ET_ROWS);
++    s->dirty = true;
++    s->con = graphic_console_init(dev, 0, &et047_graphics, s);
++    qemu_console_resize(s->con, ET_ROWS, ET_COLUMNS);
++    for (unsigned i = 0; i < ARRAY_SIZE(observed); i++) {
++        esp32_gpio_add_out_listener(observed[i], et047_gpio, s);
++    }
++    s->input = qemu_input_handler_register(dev, &et047_input_handler);
++    qemu_input_handler_activate(s->input);
++    object_property_add_uint32_ptr(OBJECT(dev), "scan-frames", &s->frames,
++                                   OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(OBJECT(dev), "latched-lines", &s->lines,
++                                   OBJ_PROP_FLAG_READ);
++}
++
++static void et047_reset(DeviceState *dev)
++{
++    M5PaperET047 *s = M5_PAPER_ET047(dev);
++
++    s->scanning = false;
++    s->pending_valid = false;
++    s->prev_le = false;
++    s->prev_spv = false;
++    s->mouse_down = false;
++    if (s->diy) {
++        esp32_gpio_force_line(4, 1);
++        esp32_gpio_force_line(3, 1);
++    }
++}
++
++static void et047_class_init(ObjectClass *oc, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(oc);
++    dc->realize = et047_realize;
++    dc->user_creatable = false;
++    device_class_set_legacy_reset(dc, et047_reset);
++}
++
++static DeviceState *paper_i2c_device(I2CBus *bus, const char *model,
++                                    uint8_t addr)
++{
++    DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++    qdev_prop_set_string(d, "model", model);
++    qdev_prop_set_uint8(d, "address", addr);
++    object_property_add_child(qdev_get_machine(), model, OBJECT(d));
++    qdev_realize_and_unref(d, BUS(bus), &error_fatal);
++    return d;
++}
++
++void m5paper_et047_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             ESPGdmaState *gdma, bool diy)
++{
++    const hwaddr i2c_mmio[] = { 0x60013000, 0x60027000 };
++    const unsigned i2c_irq[] = { ETS_I2C_EXT0_INTR_SOURCE, ETS_I2C_EXT1_INTR_SOURCE };
++    const hwaddr spi_mmio[] = { 0x60024000, 0x60025000 };
++    const unsigned spi_irq[] = { ETS_SPI2_INTR_SOURCE, ETS_SPI3_INTR_SOURCE };
++    const GdmaPeripheral spi_dma[] = { GDMA_SPI2, GDMA_SPI3 };
++    I2CBus *bus = NULL;
++
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++    for (unsigned i = 0; i < ARRAY_SIZE(i2c_mmio); i++) {
++        DeviceState *i2c = qdev_new(TYPE_ESP32S3_I2C);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c), &error_fatal);
++        memory_region_add_subregion_overlap(sys_mem, i2c_mmio[i],
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c), 0), 1);
++        sysbus_connect_irq(SYS_BUS_DEVICE(i2c), 0,
++                           qdev_get_gpio_in(intmatrix, i2c_irq[i]));
++        if (!bus) {
++            bus = I2C_BUS(qdev_get_child_bus(i2c, "i2c"));
++        } else {
++            esp32s3_i2c_set_bus(i2c, bus);
++        }
++    }
++    m5stopwatch_soft_i2c_init_pins(bus, 41, 42);
++
++    /*
++     * The factory firmware tries the empty socket unconditionally. Map
++     * GP-SPI even when there is no media, so command completion and the
++     * all-high MISO response reach the original driver.
++     */
++    for (unsigned i = 0; i < ARRAY_SIZE(spi_mmio); i++) {
++        DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++        memory_region_add_subregion_overlap(sys_mem, spi_mmio[i],
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
++        sysbus_connect_irq(SYS_BUS_DEVICE(spi), 0,
++                           qdev_get_gpio_in(intmatrix, spi_irq[i]));
++        esp32s3_gpspi_attach(spi, gdma, NULL, NULL, spi_dma[i]);
++        m5_spi_sd_attach(spi, 47);
++    }
++
++    DeviceState *panel = qdev_new(TYPE_M5_PAPER_ET047);
++    M5PaperET047 *et = M5_PAPER_ET047(panel);
++    et->diy = diy;
++    if (diy) {
++        et->pm1 = paper_i2c_device(bus, "m5pm1", 0x6e);
++        esp32_gpio_force_line(48, 1); /* Empty microSD detect, active low. */
++    } else {
++        paper_i2c_device(bus, "pcf8563", 0x51);
++        paper_i2c_device(bus, "bmi270", 0x68);
++        DeviceState *touch = qdev_new(TYPE_M5_GT911);
++        qdev_prop_set_uint8(touch, "address", 0x5d);
++        object_property_add_child(qdev_get_machine(), "gt911", OBJECT(touch));
++        qdev_realize_and_unref(touch, BUS(bus), &error_fatal);
++        et->touch = M5_GT911(touch);
++    }
++    object_property_add_child(qdev_get_machine(), "et047tc1", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++
++    DeviceState *lcd = qdev_new(TYPE_M5_LCD_CAM);
++    m5_lcd_cam_attach_i80(lcd, gdma, et047_receive, et);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(lcd), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(lcd), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(lcd), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++}
++
++static const TypeInfo paper_types[] = {
++    {
++        .name = TYPE_M5_PAPER_ET047,
++        .parent = TYPE_DEVICE,
++        .instance_size = sizeof(M5PaperET047),
++        .class_init = et047_class_init,
++    }, {
++        .name = TYPE_M5_GT911,
++        .parent = TYPE_I2C_SLAVE,
++        .instance_size = sizeof(M5Gt911),
++        .class_init = gt911_class_init,
++    },
++};
++
++DEFINE_TYPES(paper_types)
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 698fc8fc6ac818533583a9e53fdcc7c8181ac69a..2fac5595288ade4dfa4b495e39760767b9cd9de5 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -113,6 +113,12 @@ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     case M5_BOARD_STACKCHAN:
+         m5stackchan_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_PAPERS3:
++        m5paper_et047_board_init(sys_mem, intmatrix, gdma, false);
++        break;
++    case M5_BOARD_PAPERDIY:
++        m5paper_et047_board_init(sys_mem, intmatrix, gdma, true);
++        break;
+     case M5_BOARD_PAPERMONO:
+         m5papermono_board_init(sys_mem, intmatrix, gdma);
+         break;
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index c1ff1cc8889dc7d9d69ad4239e2d5dea203d6a9d..dfcd15d55f41d86045b161d3d447e10f1bcc06ee 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -72,6 +72,8 @@ typedef enum {
+     M5_BOARD_STACKCHAN,
+     M5_BOARD_PAPERMONO,
+     M5_BOARD_PAPERCOLOR,
++    M5_BOARD_PAPERS3,
++    M5_BOARD_PAPERDIY,
+     M5_BOARD_CORE2,
+     M5_BOARD_ATOMS3,
+     M5_BOARD_ATOMS3_LITE,
+@@ -110,6 +112,12 @@ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase);
+ void m5_lcd_cam_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+                        uint32_t width, uint32_t height);
++typedef void (*M5LcdI80Output)(void *opaque, const uint8_t *bytes, size_t len);
++void m5_lcd_cam_attach_i80(DeviceState *dev, struct ESPGdmaState *gdma,
++                          M5LcdI80Output output, void *opaque);
++bool m5sw_pm1_output_high(DeviceState *dev, unsigned pin);
++void m5paper_et047_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             struct ESPGdmaState *gdma, bool diy);
+ void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
+ void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                        struct ESPGdmaState *gdma);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 0283835d0f0ad473061e3f718fe7db9eca68a9e9..fba2aa57c2ee226a1d45993b3b11efbc4e7d7d6e 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -589,6 +589,13 @@ static bool pmic_write_power_register(M5swI2CDev *s, uint8_t r, uint8_t data)
+     return true;
+ }
+ 
++bool m5sw_pm1_output_high(DeviceState *dev, unsigned pin)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(dev);
++    return s->model == M_PM1 && pin < 5 &&
++           (s->regs[0x10] & s->regs[0x11] & BIT(pin)) != 0;
++}
++
+ void m5sw_pwr_button(int pressed)
+ {
+     pmic_key_event(g_pm1, pressed != 0);
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 90e76d425865d018bc1471352467377c7de1813c..a17d22b78cb8cc75569126ebcfd6e6a483a379b8 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1325,6 +1325,70 @@ static void m5stackchan_machine_type_init(void)
+ 
+ type_init(m5stackchan_machine_type_init);
+ 
++/* M5Stack PaperS3 (ESP32-S3R8 + ET047TC1 540x960 e-paper) */
++static void m5papers3_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_PAPERS3;
++    esp32s3_machine_init(machine);
++}
++
++static void m5papers3_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack PaperS3 (ESP32-S3R8, ET047TC1 540x960)";
++    mc->init = m5papers3_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 8 * MiB;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5papers3_info = {
++    .name = MACHINE_TYPE_NAME("m5papers3"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5papers3_machine_class_init,
++};
++
++static void m5papers3_machine_type_init(void)
++{
++    type_register_static(&m5papers3_info);
++}
++
++type_init(m5papers3_machine_type_init);
++
++/* M5Stack PaperDIY (ESP32-S3R8 + ET047TC1 540x960 e-paper) */
++static void m5paperdiy_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_PAPERDIY;
++    esp32s3_machine_init(machine);
++}
++
++static void m5paperdiy_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack PaperDIY (ESP32-S3R8, ET047TC1 540x960)";
++    mc->init = m5paperdiy_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 8 * MiB;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5paperdiy_info = {
++    .name = MACHINE_TYPE_NAME("m5paperdiy"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5paperdiy_machine_class_init,
++};
++
++static void m5paperdiy_machine_type_init(void)
++{
++    type_register_static(&m5paperdiy_info);
++}
++
++type_init(m5paperdiy_machine_type_init);
++
+ /* M5Stack PaperMono (ESP32-S3R8 + SSD1677 480x800 e-paper) */
+ static void m5papermono_machine_init(MachineState *machine)
+ {
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 11887af3b406daf5d0b81824847d4bbd242d63ba..1bfdc602f69ae9875687736324674a5bf5d3b60f 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -58,6 +58,7 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5stackchan.c',
+   '../m5stopwatch/m5_epd_panel.c',
+   '../m5stopwatch/m5_lcd_cam.c',
++  '../m5stopwatch/m5paper_et047.c',
+   '../m5stopwatch/m5_i2s.c',
+   '../m5stopwatch/m5papermono.c',
+   '../m5stopwatch/m5papercolor.c',

@@ -21,6 +21,9 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 RECIPE = Path(__file__).resolve().parent
 LOCK_PATH = RECIPE / "sources.lock.json"
+XTENSA_TARGET = "xtensa-softmmu"
+C61_TARGET = "riscv32-softmmu"
+TARGET_LOCKS = {XTENSA_TARGET: LOCK_PATH, C61_TARGET: RECIPE / "sources-c61.lock.json"}
 OWNER = ".m5-qemu-wasm-build.json"
 RUNTIME_KIND = "m5stack-qemu-browser-runtime"
 ASSET_NAMES = {
@@ -38,6 +41,19 @@ PATH_POLICY = {
     },
     "glib_prefix": "/usr",
 }
+
+
+def target_asset_names(target: str) -> dict[str, str]:
+    if target == XTENSA_TARGET:
+        return ASSET_NAMES
+    return {key: value.replace("qemu-system-xtensa", "qemu-system-riscv32")
+            for key, value in ASSET_NAMES.items()}
+
+
+def baseline_profile(target: str) -> tuple[list[str], dict]:
+    if target == XTENSA_TARGET:
+        return ["cores3"], {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}
+    return ["corematrix"], {"id": "corematrix-wasm-vm-div1", "clock_divisor": 1, "scope": "corematrix-c158"}
 
 
 def source_prefix_flags(roots: dict[str, Path]) -> list[str]:
@@ -86,13 +102,14 @@ def write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
 
 
-def load_lock(root: Path = ROOT) -> dict:
-    lock = json.loads((root / "scripts/qemu-wasm-build/sources.lock.json").read_text())
+def load_lock(root: Path = ROOT, *, target: str = XTENSA_TARGET) -> dict:
+    lock = json.loads((root / "scripts/qemu-wasm-build" / TARGET_LOCKS[target].name).read_text())
     patches = lock.get("patches", [])
     native_count = lock.get("native_patch_count")
     if (lock.get("schema_version") != 1 or type(native_count) is not int
             or not 0 < native_count < len(patches)
-            or any(not row.get("path", "").startswith(("patches/qemu-unit-runtime/", "patches/qemu-m5stack-peripherals/"))
+            or any(not row.get("path", "").startswith(("patches/qemu-unit-runtime/", "patches/qemu-m5stack-peripherals/")
+                                                       if target == XTENSA_TARGET else "patches/qemu-esp32c61-corematrix/")
                    for row in patches[:native_count])
             or any(not row.get("path", "").startswith("patches/qemu-wasm-probe/")
                    for row in patches[native_count:])):
@@ -190,10 +207,13 @@ def audit_link_arguments(argv: list[str], flags: list[str]) -> dict:
 
 
 class Builder:
-    def __init__(self, cache: Path, *, jobs: int = 2, sdk: Path | None = None, downloads: Path | None = None, reuse_dependencies: Path | None = None):
+    def __init__(self, cache: Path, *, jobs: int = 2, sdk: Path | None = None, downloads: Path | None = None, reuse_dependencies: Path | None = None, target: str = XTENSA_TARGET):
         self.cache = safe_directory(cache)
-        self.lock = load_lock()
-        self.lock_sha = sha(LOCK_PATH)
+        self.target = target
+        self.lock_path = TARGET_LOCKS[target]
+        self.asset_names = target_asset_names(target)
+        self.lock = load_lock(target=target)
+        self.lock_sha = sha(self.lock_path)
         self.recipe_sha = sha(Path(__file__))
         self.jobs = jobs
         if not 1 <= jobs <= 64:
@@ -441,7 +461,9 @@ class Builder:
             raise ValueError("build recipe changed during execution; use a new cache")
         env = env.copy(); env["CFLAGS"] += " -Wno-incompatible-function-pointer-types"
         self.build.mkdir(exist_ok=True)
-        options = ["--target-list=xtensa-softmmu", "--enable-tcg-interpreter", "--cpu=wasm32", "--static", "--disable-docs", "--disable-tools", "--disable-werror", "--without-default-features", "--disable-install-blobs", "--enable-gcrypt", "--enable-pixman", "--disable-plugins", "--disable-slirp", "--disable-sdl", "--disable-gtk", "--disable-cocoa", "--disable-vnc", "--disable-curl", "--disable-libssh", "--disable-gnutls", "--disable-nettle", "--disable-guest-agent", "--disable-download", f"--python={self.venv}/bin/python", f"--host-cc={shutil.which('cc') or '/usr/bin/cc'}", f"--cc={self.sdk}/upstream/emscripten/emcc", f"--cxx={self.sdk}/upstream/emscripten/em++", f"--extra-cflags=-I{self.prefix}/include -Wno-incompatible-function-pointer-types", f"--extra-ldflags=-L{self.prefix}/lib " + " ".join(self.lock["link_flags"])]
+        options = [f"--target-list={self.target}", "--enable-tcg-interpreter", "--cpu=wasm32", "--static", "--disable-docs", "--disable-tools", "--disable-werror", "--without-default-features", "--disable-install-blobs", "--enable-gcrypt", "--enable-pixman", "--disable-plugins", "--disable-slirp", "--disable-sdl", "--disable-gtk", "--disable-cocoa", "--disable-vnc", "--disable-curl", "--disable-libssh", "--disable-gnutls", "--disable-nettle", "--disable-guest-agent", "--disable-download", f"--python={self.venv}/bin/python", f"--host-cc={shutil.which('cc') or '/usr/bin/cc'}", f"--cc={self.sdk}/upstream/emscripten/emcc", f"--cxx={self.sdk}/upstream/emscripten/em++", f"--extra-cflags=-I{self.prefix}/include -Wno-incompatible-function-pointer-types", f"--extra-ldflags=-L{self.prefix}/lib " + " ".join(self.lock["link_flags"])]
+        if self.target == C61_TARGET:
+            options.append("--enable-fdt=internal")
         # QEMU adds its Emscripten cross file after configure's generated cross
         # file. Its built-in c_args/c_link_args REPLACE those earlier values.
         # Meson command-line options have the final precedence; pass the full
@@ -455,15 +477,16 @@ class Builder:
         for language in ["c", "cpp"]:
             options += [f"-D{language}_link_args=" + repr(cross_options[language + "_link_args"] + self.lock["link_flags"])]
         if not (self.build / "build.ninja").exists(): self.run([self.source / "configure", *options], cwd=self.build, env=env)
-        plan = subprocess.check_output([self.venv / "bin/ninja", "-C", self.build, "-t", "commands", "qemu-system-xtensa.js"], env=env, text=True)
+        executable = self.asset_names["javascript"]
+        plan = subprocess.check_output([self.venv / "bin/ninja", "-C", self.build, "-t", "commands", executable], env=env, text=True)
         final_link = shlex.split(plan.splitlines()[-1])
         link_audit = audit_link_arguments(final_link, self.lock["link_flags"])
         write_json(self.cache / "effective-link.json", {"argv": final_link, **link_audit})
-        self.run([self.venv / "bin/ninja", "-C", self.build, f"-j{self.jobs}", "qemu-system-xtensa.js"], env=env)
+        self.run([self.venv / "bin/ninja", "-C", self.build, f"-j{self.jobs}", executable], env=env)
         self.verify_source()
         if sha(Path(__file__)) != self.recipe_sha:
             raise ValueError("build recipe changed during compilation; preserve this attempt and use a new cache")
-        files = {key: self.build / name for key, name in ASSET_NAMES.items() if key in ["javascript", "wasm", "worker"]}
+        files = {key: self.build / name for key, name in self.asset_names.items() if key in ["javascript", "wasm", "worker"]}
         if not files["wasm"].read_bytes().startswith(b"\0asm\x01\0\0\0"):
             raise ValueError("QEMU output is not WASM")
         for path in files.values():
@@ -501,7 +524,7 @@ class Builder:
                     if path.is_file(): add(path, "qemu/" + path.relative_to(self.source).as_posix())
             for row in self.lock["archives"]: add(self.downloads / row["filename"], "dependency-archives/" + row["filename"])
             for row in self.lock["patches"] + self.lock["dependency_patches"]: add(ROOT / row["path"], row["path"])
-            for name in ["build.py", "sources.lock.json", "README.md"]: add(RECIPE / name, "scripts/qemu-wasm-build/" + name)
+            for name in ["build.py", self.lock_path.name, "README.md"]: add(RECIPE / name, "scripts/qemu-wasm-build/" + name)
             add(ROOT / "platform/tools/bootstrap_qemu_browser_runtime.py", "platform/tools/bootstrap_qemu_browser_runtime.py")
             add(ROOT / "LICENSE", "LICENSE.project")
             # Emscripten JS support and linked libc/pthread sources and licenses.
@@ -517,33 +540,36 @@ class Builder:
             add(self.cache / "unsupported-resolver.c", "support/unsupported-resolver.c")
 
 
-def runtime_files(directory: Path, *, allow_incremental: bool = False) -> tuple[dict, dict[str, bytes]]:
+def runtime_files(directory: Path, *, allow_incremental: bool = False, target: str = XTENSA_TARGET) -> tuple[dict, dict[str, bytes]]:
     """Strict allowlist reader shared with the public-site exporter."""
-    lock = load_lock()
+    lock = load_lock(target=target)
+    lock_path = TARGET_LOCKS[target]
+    names = target_asset_names(target)
+    profiles, execution = baseline_profile(target)
     manifest = json.loads((directory / "runtime.json").read_text())
-    if manifest.get("schema_version") != 1 or manifest.get("kind") != RUNTIME_KIND or manifest.get("engine") != "qemu-wasm":
+    if manifest.get("schema_version") != 1 or manifest.get("kind") != RUNTIME_KIND or manifest.get("engine") != "qemu-wasm" or manifest.get("target", XTENSA_TARGET) != target:
         raise ValueError("unsupported browser QEMU runtime manifest")
     if manifest.get("source", {}).get("commit") != lock["qemu"]["commit"] or manifest["source"].get("patches") != lock["patches"] or manifest["source"].get("patched_files_sha256") != lock["patched_files"]:
         raise ValueError("QEMU source or patch lock mismatch")
     kind = manifest.get("build", {}).get("kind")
     rebuilt = manifest.get("build", {}).get("all_objects_rebuilt")
-    if kind != "source-build" or (rebuilt is not True and not (allow_incremental and rebuilt is False)):
+    if kind != "source-build" or (rebuilt is not True and not (target == XTENSA_TARGET and allow_incremental and rebuilt is False)):
         raise ValueError("a full source build is required; incremental reference needs explicit opt-in")
     build = manifest["build"]
-    if build.get("lock_sha256") != sha(LOCK_PATH) or build.get("emscripten") != lock["emsdk"]["version"]:
+    if build.get("lock_sha256") != sha(lock_path) or build.get("emscripten") != lock["emsdk"]["version"]:
         raise ValueError("runtime build recipe/toolchain lock mismatch")
-    if manifest.get("execution_profile") != {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}:
+    if manifest.get("execution_profile") != execution:
         raise ValueError("runtime execution profile mismatch")
-    if manifest.get("compiled_profiles", ["cores3"]) != lock.get("compiled_profiles", ["cores3"]) or manifest.get("frame_transport") != lock.get("frame_transport"):
+    if manifest.get("compiled_profiles", profiles) != lock.get("compiled_profiles", profiles) or manifest.get("frame_transport") != lock.get("frame_transport"):
         raise ValueError("runtime compiled boards or framebuffer ABI mismatch")
     if rebuilt is True:
         audit = build.get("link_audit", {})
         effective = audit_link_arguments(lock["link_flags"], lock["link_flags"])["effective"]
         if audit.get("verified") is not True or audit.get("source") != "ninja-link-command" or audit.get("required_flags") != lock["link_flags"] or audit.get("effective") != effective or not isinstance(audit.get("argv_sha256"), str) or len(audit["argv_sha256"]) != 64:
             raise ValueError("runtime lacks the verified effective link settings")
-    if manifest.get("profiles") != ["cores3"] or manifest.get("required_rom") != lock["required_rom"] or manifest.get("firmware_bundled") is not False:
+    if manifest.get("profiles") != profiles or manifest.get("required_rom") != lock["required_rom"] or manifest.get("firmware_bundled") is not False:
         raise ValueError("runtime profile/ROM/firmware distribution contract mismatch")
-    if set(manifest.get("assets", {})) != set(ASSET_NAMES): raise ValueError("unexpected runtime assets")
+    if set(manifest.get("assets", {})) != set(names): raise ValueError("unexpected runtime assets")
     if rebuilt is False:
         reference = lock["reference_runtime"]
         if reference.get("source_lock_compatible") is False:
@@ -551,22 +577,22 @@ def runtime_files(directory: Path, *, allow_incremental: bool = False) -> tuple[
         if build.get("reference_build_receipt_sha256") != reference["build_receipt_sha256"]:
             raise ValueError("incremental reference receipt mismatch")
         for key in ["javascript", "wasm", "worker"]:
-            if manifest["assets"][key].get("sha256") != reference["artifacts"][ASSET_NAMES[key]]["sha256"]:
+            if manifest["assets"][key].get("sha256") != reference["artifacts"][names[key]]["sha256"]:
                 raise ValueError("incremental reference artifact mismatch")
     files = {"runtime.json": (directory / "runtime.json").read_bytes()}
-    for key, expected_name in ASSET_NAMES.items():
+    for key, expected_name in names.items():
         row = manifest["assets"][key]; path = directory / expected_name
         if row.get("path") != expected_name or path.is_symlink(): raise ValueError("unsafe runtime asset path")
         data = path.read_bytes()
         if len(data) != row.get("bytes") or hashlib.sha256(data).hexdigest() != row.get("sha256"):
             raise ValueError("runtime asset hash/size mismatch: " + key)
         files[expected_name] = data
-    if not files[ASSET_NAMES["wasm"]].startswith(b"\0asm\x01\0\0\0"): raise ValueError("invalid WASM module")
+    if not files[names["wasm"]].startswith(b"\0asm\x01\0\0\0"): raise ValueError("invalid WASM module")
     # The archive closes the recipe used for this output. Later improvements to
     # this validator must not invalidate a frozen, self-contained source build.
     try:
-        with tarfile.open(fileobj=io.BytesIO(files[ASSET_NAMES["source"]])) as package:
-            for member_name, expected in [("scripts/qemu-wasm-build/build.py", build.get("recipe_sha256")), ("scripts/qemu-wasm-build/sources.lock.json", build.get("lock_sha256"))]:
+        with tarfile.open(fileobj=io.BytesIO(files[names["source"]])) as package:
+            for member_name, expected in [("scripts/qemu-wasm-build/build.py", build.get("recipe_sha256")), ("scripts/qemu-wasm-build/" + lock_path.name, build.get("lock_sha256"))]:
                 member = package.getmember(member_name)
                 if not member.isfile() or member.size > 512 * 1024:
                     raise ValueError("invalid archived build recipe")
@@ -583,20 +609,24 @@ def export_runtime(builder: Builder, output: Path, report: dict, *, runtime_dire
     if output.exists() and any(output.iterdir()):
         raise ValueError("runtime output already contains files; preserve it and choose a new --output")
     output.mkdir(parents=True, exist_ok=True)
+    names = builder.asset_names
+    profiles, execution = baseline_profile(builder.target)
     for key in ["javascript", "wasm", "worker"]:
-        source = (runtime_directory or builder.build) / ASSET_NAMES[key]
-        builder.require_public(source.read_bytes(), ASSET_NAMES[key])
-        shutil.copy2(source, output / ASSET_NAMES[key])
-    builder.source_bundle(output / ASSET_NAMES["source"])
+        source = (runtime_directory or builder.build) / names[key]
+        builder.require_public(source.read_bytes(), names[key])
+        shutil.copy2(source, output / names[key])
+    builder.source_bundle(output / names["source"])
     (output / "NOTICE").write_text("M5Stack browser QEMU source build\n\nQEMU is GPL-2.0; its COPYING and per-file licenses, the complete modified host source, linked dependencies, dependency patches and build recipe are in corresponding-source.tar.xz served beside this executable. This archive is part of the runtime export and must be preserved on redistribution. Individual libraries retain their own licenses (GLib/libgcrypt/libgpg-error LGPL, libffi/pixman/zlib/PCRE2 permissive terms); source archives include their exact license texts. Emscripten linked support/library sources and license texts are also included.\n\nROM and UIFlow2 firmware are not bundled. Their public availability is not treated as redistribution permission. Obtain the exact required ROM and firmware separately from authoritative upstream or user files; verify SHA-256 in the browser. The reviewed offline CoreS3 vm-div8 fixture does not establish physical timing, other firmware/device coverage or full hardware equivalence.\n", encoding="utf-8")
     lock = builder.lock
     manifest = {"schema_version": 1, "kind": RUNTIME_KIND, "engine": "qemu-wasm", "source": {**lock["qemu"], "native_patch_count": lock["native_patch_count"], "patches": lock["patches"], "patched_files_sha256": lock["patched_files"]},
         "build": {"kind": "source-build", "all_objects_rebuilt": report["all_objects_rebuilt"], "emscripten": "3.1.50", "recipe_sha256": builder.recipe_sha, "lock_sha256": builder.lock_sha, "commands_sha256": sha(builder.cache / "commands.json"), "guest_execution": "NOT RUN by builder", **({"path_policy": report["path_policy"]} if "path_policy" in report else {}), **({"link_audit": report["link_audit"]} if "link_audit" in report else {}), **({"reference_build_receipt_sha256": report["reference_build_receipt_sha256"], "reference_note": "Reviewed incremental source build; inherited object/library identities are in its original receipt. This is not a fresh full-object build."} if "reference_build_receipt_sha256" in report else {})},
-        "profiles": ["cores3"], "compiled_profiles": lock.get("compiled_profiles", ["cores3"]), "frame_transport": lock.get("frame_transport"), "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in ASSET_NAMES.items()},
+        "profiles": profiles, "compiled_profiles": lock.get("compiled_profiles", profiles), "frame_transport": lock.get("frame_transport"), "execution_profile": execution, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in names.items()},
         "required_rom": lock["required_rom"], "firmware_bundled": False}
+    if builder.target != XTENSA_TARGET:
+        manifest["target"] = builder.target
     write_json(output / "runtime.json", manifest)
     builder.require_public((output / "runtime.json").read_bytes(), "runtime.json")
-    runtime_files(output, allow_incremental=not report["all_objects_rebuilt"])
+    runtime_files(output, allow_incremental=not report["all_objects_rebuilt"], target=builder.target)
     return manifest
 
 
@@ -623,6 +653,7 @@ def package_reference(builder: Builder, directory: Path, output: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--target", choices=tuple(TARGET_LOCKS), default=XTENSA_TARGET)
     parser.add_argument("--cache", type=Path, default=ROOT / ".work/qemu-browser-runtime-build")
     parser.add_argument("--output", type=Path, default=ROOT / ".work/qemu-browser-runtime")
     parser.add_argument("--sdk-dir", type=Path, help="existing isolated 3.1.50 SDK with local .emscripten config")
@@ -635,11 +666,13 @@ def main() -> None:
     args = parser.parse_args()
     if sys.version_info < (3, 12): parser.error("Python 3.12+ is required")
     try:
-        lock = load_lock()
+        lock = load_lock(target=args.target)
         if args.check:
             print(json.dumps({"status": "PASS", "patch_count": len(lock["patches"]), "native_patch_count": lock["native_patch_count"], "patched_files": len(lock["patched_files"]), "rom_bundled": False, "firmware_bundled": False})); return
-        builder = Builder(args.cache, jobs=args.jobs, sdk=args.sdk_dir, downloads=args.downloads, reuse_dependencies=args.reuse_dependencies)
+        builder = Builder(args.cache, jobs=args.jobs, sdk=args.sdk_dir, downloads=args.downloads, reuse_dependencies=args.reuse_dependencies, target=args.target)
         if args.reference_runtime:
+            if args.target != XTENSA_TARGET:
+                raise ValueError("the C61 runtime requires a complete source build")
             if not args.sdk_dir: raise ValueError("--reference-runtime requires --sdk-dir for matching library sources")
             manifest = package_reference(builder, args.reference_runtime.resolve(), args.output)
             print(json.dumps({"status": "PASS", "output": str(args.output), "all_objects_rebuilt": False, "wasm_sha256": manifest["assets"]["wasm"]["sha256"]})); return

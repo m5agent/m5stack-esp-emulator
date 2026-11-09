@@ -217,6 +217,36 @@
       }
     },
     {
+      "deviceId": "cardputer",
+      "board": "m5cardputer",
+      "chip": "esp32s3",
+      "baseSHA256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "baseBytes": 8384512,
+      "flashBytes": 8388608,
+      "vfsOffset": 6623232,
+      "vfsSize": 1761280,
+      "baseFileCount": 17,
+      "baseDiskVersion": 131072,
+      "derivedDiskVersion": 131073,
+      "firmwareSHA256": "220add58feadeb6087593bf9e6c078e51a3541a0c6b80be8460559d51db12fd8",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "packaging": "COMPOSED_NOT_EXECUTED",
+      "files": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "text": "from machine import UART\nimport os\n\n_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\nos.dupterm(_repl_uart, 0)\n_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n_uiflow_run_main = True\n",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "text": "import M5\n\nM5.begin()\nprint(\"M5_UIFLOW_WORKBENCH_READY\")\n",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    {
       "deviceId": "stamplc",
       "board": "m5stamplc",
       "chip": "esp32s3",
@@ -559,6 +589,96 @@
       "baseDiskVersion": 131072,
       "derivedDiskVersion": 131073,
       "firmwareSHA256": "f553ad2c9d84e22591d8da8d32a7517c9e378eb5439214a9e0b2075bf31844ed",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "packaging": "COMPOSED_NOT_EXECUTED",
+      "files": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_native.py",
+          "text": "_uiflow_run_main = True\n",
+          "bytes": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "text": "import M5\n\nM5.begin()\nprint(\"M5_UIFLOW_WORKBENCH_READY\")\n",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    {
+      "deviceId": "papers3",
+      "board": "m5papers3",
+      "chip": "esp32s3",
+      "baseSHA256": "87567896973fa61c281fdf3f0e2031f280de1df8d59ac0942302de288096a1fb",
+      "baseBytes": 8384512,
+      "flashBytes": 16777216,
+      "vfsOffset": 6623232,
+      "vfsSize": 1761280,
+      "baseFileCount": 17,
+      "baseDiskVersion": 131072,
+      "derivedDiskVersion": 131073,
+      "firmwareSHA256": "4eb25cbc42d72a644d1b6c06971cf5c7d9bc3c2951024d1c122bda9bf3cb39aa",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "packaging": "COMPOSED_NOT_EXECUTED",
+      "files": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "text": "from machine import UART\nimport os\n\n_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\nos.dupterm(_repl_uart, 0)\n_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n_uiflow_run_main = True\n",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "text": "import M5\n\nM5.begin()\nprint(\"M5_UIFLOW_WORKBENCH_READY\")\n",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    {
+      "deviceId": "paperdiy",
+      "board": "m5paperdiy",
+      "chip": "esp32s3",
+      "baseSHA256": "35a4f99833d334c93986806b9403f81172e9068e3b63ef5a8ef2d20cf281eb18",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "vfsOffset": 8519680,
+      "vfsSize": 8253440,
+      "baseFileCount": 17,
+      "baseDiskVersion": 131072,
+      "derivedDiskVersion": 131073,
+      "firmwareSHA256": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "packaging": "COMPOSED_NOT_EXECUTED",
+      "files": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_uart.py",
+          "text": "from machine import UART\nimport os\n\n_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\nos.dupterm(_repl_uart, 0)\n_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n_uiflow_run_main = True\n",
+          "bytes": 214,
+          "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "text": "import M5\n\nM5.begin()\nprint(\"M5_UIFLOW_WORKBENCH_READY\")\n",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
+    },
+    {
+      "deviceId": "corematrix",
+      "board": "esp32c61,m5corematrix=on",
+      "chip": "esp32c61",
+      "baseSHA256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "vfsOffset": 8519680,
+      "vfsSize": 8253440,
+      "baseFileCount": 17,
+      "baseDiskVersion": 131072,
+      "derivedDiskVersion": 131073,
+      "firmwareSHA256": "bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1",
       "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
       "packaging": "COMPOSED_NOT_EXECUTED",
       "files": {

@@ -146,6 +146,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0167-core2-panel-refresh.patch",
     "patches/qemu-m5stack-peripherals/0168-papers3-paperdiy-et047tc1.patch",
     "patches/qemu-m5stack-peripherals/0169-cardputer-k132-board.patch",
+    "patches/qemu-m5stack-peripherals/0170-paper-gt911-contact-ready.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

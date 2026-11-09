@@ -74,7 +74,7 @@ function reference(device = state.selected) {
     return {name:`${device.name} · UIFlow2 编程环境`,nativeWorkbench:true};
   const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
-  if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
+  if (['xtensa-board-display-v1','xtensa-board-led-v1','riscv-board-display-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
     if (state.config.browser_wallclock_example && $('referenceExample').value === 'wallclock-candidate')
@@ -343,6 +343,7 @@ function renderDetails() {
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
     : ref?.composedProbe
     ? ({'cardputer-adv':'点击模型键盘，或先点击模型再用电脑键盘输入；屏幕显示按键状态和累计次数。',
+        cardputer:'按机身的 G0 键，或聚焦模型后按 F12，观察屏幕计数和标记变化。',
         'atoms3-lite':'按住模型正面的按钮，RGB 指示灯变绿；松开后恢复蓝色。也可先点击模型，再按空格键。',
         'atom-lite':'按住模型正面的 USER 按钮，RGB 指示灯变绿；松开后恢复蓝色。也可先点击模型，再按空格键。',
         'atom-matrix':'按住模型正面的 USER 按钮，25 个 RGB 灯同时变绿；松开后恢复蓝色。当前示例仅验证同色输出，IMU 轴向待核验。',
@@ -1205,8 +1206,14 @@ async function init() {
     const native = rows.get(profile.id);
     // An experimental browser profile cannot overwrite a native device's
     // wiring, path, or admission. Its complete row can replace a preview.
-    rows.set(profile.id, native && !native.visual_only
-      ? {...native, browser:profile.browser} : profile);
+    if (native && !native.visual_only) {
+      rows.set(profile.id, {...native, browser:profile.browser});
+    } else if (config.browser_runtime_engine === 'qemu-wasm' && native && browserProfile(profile.id)) {
+      rows.set(profile.id, {...native, visual_only:false, browser:profile.browser,
+        runtime:{status:'browser-runtime'}});
+    } else {
+      rows.set(profile.id, profile);
+    }
   }
   state.devices = [...rows.values()];
   state.units = visual.products.filter((model) => model.category === 'unit');

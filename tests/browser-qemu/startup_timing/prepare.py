@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 
 
 HERE = Path(__file__).resolve().parent
@@ -81,6 +82,18 @@ def normalized(source: str, *, wrapper: bool = False) -> str:
     return replace_repo_binding(source, replacement.removesuffix("\n"), wrapper=wrapper)
 
 
+def read_basis(commit: str, path: str) -> str:
+    """Read the historical basis from this tool's checkout history."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(REPO), "cat-file", "blob", f"{commit}:{path}"],
+            check=True, capture_output=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise ValueError(f"historical fixed basis unavailable: {commit}:{path}; use a full Git checkout") from error
+    return result.stdout.decode()
+
+
 def transform(basis: str, spec: dict, repo: Path) -> str:
     raw = basis.encode()
     if len(raw) != spec["basis_bytes"] or sha256(raw) != spec["basis_sha256"]:
@@ -131,10 +144,11 @@ def prepare(repo: Path, requested: Path, reference_dir: Path | None = None) -> d
     output = new_work_output(repo, requested)
     rules_raw = RULES_PATH.read_bytes()
     rules = json.loads(rules_raw)
+    basis_commit = rules["basis_commit"]
     payloads: dict[str, bytes] = {}
     runners = []
     for kind, spec in rules["runners"].items():
-        basis = (repo / spec["basis"]).read_text()
+        basis = read_basis(basis_commit, spec["basis"])
         generated = transform(basis, spec, repo)
         source_controls = controls(basis)
         record = {
@@ -186,6 +200,7 @@ def prepare(repo: Path, requested: Path, reference_dir: Path | None = None) -> d
         "generator_sha256": sha256(Path(__file__).read_bytes()),
         "transform_rules_sha256": sha256(rules_raw),
         "identity_wrapper_template_sha256": sha256(WRAPPER_PATH.read_bytes()),
+        "basis_commit": basis_commit,
         "repo": str(repo), "output": str(output), "runners": runners,
         "artifacts": [{"path": name, "bytes": len(data), "sha256": sha256(data)}
                       for name, data in payloads.items()],

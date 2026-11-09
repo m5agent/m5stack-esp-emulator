@@ -1,0 +1,45 @@
+diff --git a/hw/misc/esp32c61_jtag.c b/hw/misc/esp32c61_jtag.c
+index 4de3e502..83da1e45 100644
+--- a/hw/misc/esp32c61_jtag.c
++++ b/hw/misc/esp32c61_jtag.c
+@@ -77,6 +77,15 @@ static uint64_t esp32c61_jtag_read(void *opaque, hwaddr addr, unsigned size)
+     }
+ }
+ 
++static void esp32c61_jtag_tx_packet(ESP32C61UsbJtagState *s)
++{
++    if (s->tx_count && qemu_chr_fe_backend_connected(&s->chr)) {
++        qemu_chr_fe_write_all(&s->chr, s->tx_fifo, s->tx_count);
++    }
++    s->tx_count = 0;
++    s->int_raw |= USB_JTAG_IRQ_TX_EMPTY;
++}
++
+ static void esp32c61_jtag_write(void *opaque, hwaddr addr, uint64_t value,
+                                 unsigned size)
+ {
+@@ -84,18 +93,16 @@ static void esp32c61_jtag_write(void *opaque, hwaddr addr, uint64_t value,
+ 
+     switch (addr) {
+     case USB_JTAG_EP1:
+-        if (s->tx_count < sizeof(s->tx_fifo)) {
+-            s->tx_fifo[s->tx_count++] = value;
+-        }
+         s->int_raw &= ~USB_JTAG_IRQ_TX_EMPTY;
++        s->tx_fifo[s->tx_count++] = value;
++        /* A full CDC IN packet is ready for the host without WR_DONE. */
++        if (s->tx_count == sizeof(s->tx_fifo)) {
++            esp32c61_jtag_tx_packet(s);
++        }
+         break;
+     case USB_JTAG_EP1_CONF:
+         if (value & USB_JTAG_WR_DONE) {
+-            if (s->tx_count && qemu_chr_fe_backend_connected(&s->chr)) {
+-                qemu_chr_fe_write_all(&s->chr, s->tx_fifo, s->tx_count);
+-            }
+-            s->tx_count = 0;
+-            s->int_raw |= USB_JTAG_IRQ_TX_EMPTY;
++            esp32c61_jtag_tx_packet(s);
+         }
+         break;
+     case USB_JTAG_INT_RAW:

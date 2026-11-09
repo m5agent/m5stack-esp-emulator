@@ -14,7 +14,8 @@ for (let i = 2; i < process.argv.length; i++) {
 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const registryPath = path.join(root, 'platform/web/uiflow-workbench-profiles.json');
-const profiles = JSON.parse(await fs.readFile(path.join(root, 'platform/web/qemu-browser-profiles.json'))).profiles.filter(row => row.admission === 'public');
+const profiles = JSON.parse(await fs.readFile(path.join(root, 'platform/web/qemu-browser-profiles.json'))).profiles
+  .filter(row => row.admission === 'public' || row.firmwareProfiles?.some(variant => variant.fixture === 'uiflow-workbench-v1'));
 const sourceFiles = {};
 for (const name of ['boot_native.py', 'boot_uart.py', 'main.py']) {
   const file = `tests/browser-qemu/uiflow_workbench/${name}`, bytes = await fs.readFile(path.join(root, file));
@@ -42,7 +43,7 @@ if (args.get('--check')) {
     assert.ok(actual, expected.deviceId);
     assert.deepEqual({...actual, firmwareSHA256:'0'.repeat(64)}, expected, expected.deviceId);
   }
-  console.log('UIFlow programming registry matches all public boards and startup source files. Guest execution: NOT RUN.');
+  console.log('UIFlow programming registry matches public and explicit candidate startup sources. Guest execution: NOT RUN.');
   process.exit(0);
 }
 assert.ok(args.get('--runtime') && args.get('--firmware-cache') && args.get('--out-dir'), 'explicit --runtime, --firmware-cache and --out-dir are required');
@@ -59,7 +60,7 @@ const {default:factory} = await import(pathToFileURL(path.join(runtime, manifest
 const wasm = await fs.readFile(path.join(runtime, manifest.assets.wasm.path));
 const engine = await factory({wasmBinary:wasm, print(){}, printErr(){}});
 const selected = args.get('--devices') ? new Set(args.get('--devices').split(',')) : null;
-if (selected) for (const id of selected) assert.ok(profiles.some(row => row.deviceId === id), `unknown or non-public board ${id}`);
+if (selected) for (const id of selected) assert.ok(profiles.some(row => row.deviceId === id), `board has no reviewed workbench configuration: ${id}`);
 const results = [];
 for (const row of rows) {
   if (selected && !selected.has(row.deviceId)) continue;

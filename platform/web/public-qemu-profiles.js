@@ -2,6 +2,15 @@ import {validateQemuServoOutputProfile,validateQemuServoState} from './public-qe
 import {assetUrl, siteRoot} from './public-config.js';
 
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
+export const QEMU_C61_BROWSER_SOURCE_COMMIT = '8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc';
+const C61_BOARD = 'esp32c61,m5corematrix=on';
+export const CORE_MATRIX_STOCK_FLASH_SHA256 = '5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07';
+
+export function qemuRuntimeIdentity(profile) {
+  return profile.target === 'riscv32-softmmu'
+    ? {directory:'qemu-c61',commit:QEMU_C61_BROWSER_SOURCE_COMMIT}
+    : {directory:'qemu',commit:QEMU_BROWSER_SOURCE_COMMIT};
+}
 const MIB = 1024 * 1024;
 const identity = /^[a-f0-9]{64}$/;
 const S3_ADC_CALIBRATION_FIELDS = Object.freeze([
@@ -20,6 +29,10 @@ export const QEMU_ONE_INSN_RUNTIME_PATCH = Object.freeze({
 export const QEMU_CARDPUTER_BOOT_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch',
   sha256:'04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85',
+});
+const QEMU_CARDPUTER_K132_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0034-cardputer-k132-board.patch',
+  sha256:'6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af',
 });
 const variantFields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];
 const variantOptions = ['oneInsnPerTb', 'requiredRuntimePatch', 'sourceKind'];
@@ -82,12 +95,23 @@ export function validateQemuRuntimeRequirements(profile, manifest) {
 
 /** Validate the narrow browser bridge contract, including iframe messages. */
 export function validateQemuProfile(profile) {
-  check(profile && /^[a-z0-9-]+$/.test(profile.deviceId) && /^m5[a-z0-9]+$/.test(profile.board), 'Invalid QEMU browser board');
-  check(profile.target === 'xtensa-softmmu' && ['esp32s3', 'esp32'].includes(profile.chip), 'Unsupported QEMU browser CPU target');
-  check(profile.imageChipId === (profile.chip === 'esp32s3' ? 9 : 0), 'QEMU image chip profile mismatch');
+  const c61 = profile?.target === 'riscv32-softmmu';
+  check(profile && /^[a-z0-9-]+$/.test(profile.deviceId) && (c61
+    ? profile.deviceId === 'corematrix' && profile.board === C61_BOARD
+    : /^m5[a-z0-9]+$/.test(profile.board)), 'Invalid QEMU browser board');
+  check(c61 ? profile.chip === 'esp32c61'
+    : profile.target === 'xtensa-softmmu' && ['esp32s3', 'esp32'].includes(profile.chip), 'Unsupported QEMU browser CPU target');
+  check(profile.imageChipId === (c61 ? 20 : profile.chip === 'esp32s3' ? 9 : 0), 'QEMU image chip profile mismatch');
   check([4, 8, 16].includes(profile.flashMb) && [0, 2, 4, 8].includes(profile.psramMb), 'Invalid QEMU browser memory profile');
-  check(profile.bootloaderOffset === (profile.chip === 'esp32s3' ? 0 : 0x1000) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
+  check(profile.bootloaderOffset === (profile.chip === 'esp32' ? 0x1000 : 0) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
   const display = profile.display;
+  if (c61) {
+    check((profile.stockFirmwareSHA256 === CORE_MATRIX_STOCK_FLASH_SHA256
+        || profile.admission === 'candidate' && profile.stockFirmwareSHA256 === undefined)
+      && profile.flashMb === 16 && profile.psramMb === 0
+      && display?.width === 16 && display?.height === 16 && profile.clockDivisor === 1
+      && profile.efuse === null && !profile.outputs, 'Invalid CoreMatrix browser profile');
+  }
   if (display === null) {
     const output=profile.outputs, matrix=['atom-matrix','atom-matrix-v11'].includes(profile.deviceId);
     const identity=profile.deviceId==='atoms3-lite'&&profile.board==='m5atoms3lite'&&profile.chip==='esp32s3'&&profile.flashMb===8
@@ -137,12 +161,13 @@ export function validateQemuProfile(profile) {
   check(profile.readyMarker === null && profile.readyFirmwareSHA256 === null || publishedWithoutMarker
     || typeof profile.readyMarker === 'string' && profile.readyMarker.length > 0 && profile.readyMarker.length <= 128
     && !/[\x00-\x1f]/.test(profile.readyMarker) && identity.test(profile.readyFirmwareSHA256), 'Invalid QEMU ready marker');
-  const names = profile.chip === 'esp32s3' ? ['esp32s3_rev0_rom.bin'] : ['esp32-v3-rom.bin', 'esp32-v3-rom-app.bin'];
+  const names = c61 ? ['esp32c61-rom.bin'] : profile.chip === 'esp32s3' ? ['esp32s3_rev0_rom.bin'] : ['esp32-v3-rom.bin', 'esp32-v3-rom-app.bin'];
+  const {commit} = qemuRuntimeIdentity(profile);
   check(Array.isArray(profile.roms) && profile.roms.length === names.length, 'Invalid QEMU ROM profile');
   for (const [index, rom] of profile.roms.entries()) {
     const url = new URL(rom.url);
     check(rom.name === names[index] && identity.test(rom.sha256) && Number.isSafeInteger(rom.bytes) && rom.bytes > 0 && rom.bytes <= 1024 * 1024
-      && url.href === `https://raw.githubusercontent.com/espressif/qemu/${QEMU_BROWSER_SOURCE_COMMIT}/pc-bios/${rom.name}` && rom.bundled === false, 'Invalid QEMU ROM identity');
+      && url.href === `https://raw.githubusercontent.com/espressif/qemu/${commit}/pc-bios/${rom.name}` && rom.bundled === false, 'Invalid QEMU ROM identity');
   }
   const classicEfuse = profile.deviceId === 'stickc-plus2' && profile.board === 'm5stickcplus2'
     && profile.flashMb === 8 && profile.psramMb === 2 && profile.efuse?.driver === 'nvram.esp32.efuse'
@@ -158,7 +183,8 @@ export function validateQemuProfile(profile) {
   const classicHeadlessEfuse = ['atom-lite','atom-matrix','atom-matrix-v11'].includes(profile.deviceId)
     && display===null&&profile.efuse?.driver==='nvram.esp32.efuse'&&profile.efuse.bytes===4096&&profile.efuse.packageVersion===5;
   const classicNoEfuse = profile.deviceId === 'core2' && profile.board === 'm5core2' && profile.efuse === null;
-  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse || classicHeadlessEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
+  check(c61 || (profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse || classicHeadlessEfuse
+    : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion)), 'Invalid QEMU eFuse profile');
   if (display === null) check(profile.efuse.packageVersion === (profile.chip==='esp32'?5:0), 'Invalid QEMU headless eFuse package');
   const input = profile.inputs;
   check(input?.reset === undefined || input.reset === true, 'Invalid hardware reset admission');
@@ -170,13 +196,22 @@ export function validateQemuProfile(profile) {
   check(input && typeof input.touch === 'boolean' && typeof input.uart === 'boolean' && input.buttons && typeof input.buttons === 'object'
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
     && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
+  if (c61) check(!input.touch && input.uart && input.pir === null && !input.keyboard.length
+    && Object.keys(input.buttons).sort().join(',') === 'a,b,c'
+    && ['a','b','c'].every(key => input.buttons[key] === key), 'Invalid CoreMatrix browser input route');
   const bootInput=Object.hasOwn(input.buttons,'boot');
-  if(bootInput||profile.requiredInputPatch!==undefined){
+  const originalCardputer=profile.deviceId==='cardputer';
+  if(bootInput||originalCardputer||profile.requiredInputPatch!==undefined){
     const patch=profile.requiredInputPatch;
-    check(profile.deviceId==='cardputer-adv'&&profile.board==='m5cardputeradv'&&bootInput
+    const expectedPatch=originalCardputer?QEMU_CARDPUTER_K132_RUNTIME_PATCH:QEMU_CARDPUTER_BOOT_RUNTIME_PATCH;
+    const boardMatches=originalCardputer
+      ? profile.board==='m5cardputer'&&profile.chip==='esp32s3'&&profile.flashMb===8&&profile.psramMb===0
+        &&display?.width===240&&display.height===135&&input.buttons.f12==='f12'
+      : profile.deviceId==='cardputer-adv'&&profile.board==='m5cardputeradv';
+    check(boardMatches&&bootInput
       &&input.buttons.boot==='f12'&&!input.keyboard.includes('f12')
       &&patch&&Object.keys(patch).length===2
-      &&patch.path===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.path&&patch.sha256===QEMU_CARDPUTER_BOOT_RUNTIME_PATCH.sha256,
+      &&patch.path===expectedPatch.path&&patch.sha256===expectedPatch.sha256,
       'Invalid QEMU physical input patch binding');
   }
   if (display === null) check(!input.touch && input.pir === null && input.keyboard.length === 0
@@ -323,8 +358,13 @@ export function validateQemuFirmware(firmware, profile) {
 
 export function buildQemuArguments(profile) {
   validateQemuProfile(profile);
+  // C61 exposes three hardware UARTs before the USB Serial/JTAG chardev.
+  // Keep ROM UART diagnostics and the stock MicroPython USB input distinct.
+  const serials = profile.target === 'riscv32-softmmu'
+    ? ['file:/bridge/uart.out','file:/bridge/serial1','null','pipe:/bridge/usb']
+    : [profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out','file:/bridge/serial1'];
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
-    '-serial', profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
+    ...serials.flatMap(device=>['-serial',device]), '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
   if (profile.oneInsnPerTb === true) {
     args.push('-accel', 'tcg,thread=multi,one-insn-per-tb=on');

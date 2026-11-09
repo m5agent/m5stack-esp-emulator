@@ -35,10 +35,8 @@ jobs:
     # macOS runner rather than slowing the deployed profiles or weakening the
     # guest assertions.
     runs-on: macos-15
-    # Default admission now runs 60 sequential guest cases (at least 79 boots,
-    # including editor hardware resets) beside the fresh source build/setup.
-    # The old 90-minute ceiling left no margin at a 60-second boot budget;
-    # this is a job limit, not a startup-performance guarantee.
+    # Each admitted board runs independent guests, including editor reset
+    # boots, after rebuilding both runtime targets from source.
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
@@ -52,12 +50,20 @@ jobs:
           echo "$(brew --prefix flex)/bin" >> "$GITHUB_PATH"
       - name: Build pinned C/QEMU and complete corresponding source
         run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2
+      - name: Build pinned CoreMatrix C61 QEMU and corresponding source
+        run: |
+          python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
+            --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
+            --sdk-dir .work/qemu-browser-runtime-build/emsdk \
+            --downloads .work/qemu-browser-runtime-build/downloads
       - name: Retain failed source build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: qemu-source-build-diagnostics
-          path: .work/qemu-browser-runtime-build/logs
+          path: |
+            .work/qemu-browser-runtime-build/logs
+            .work/qemu-c61-runtime-build/logs
           if-no-files-found: ignore
       - name: Build browser-local demo composer
         run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
@@ -65,7 +71,7 @@ jobs:
         env:
           PUBLIC_BASE_PATH: ${{ inputs.base_path }}
           PUBLIC_SERVICE_URL: ${{ inputs.service_url }}
-        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --littlefs-runtime .work/browser-littlefs
+        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -77,6 +83,18 @@ jobs:
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
+      - name: Run the unmodified official CoreMatrix firmware
+        env:
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+        run: |
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
       - name: Run every public UIFlow editor, model button and fixed example
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
@@ -98,6 +116,7 @@ jobs:
           name: browser-qemu-acceptance
           path: |
             .work/public-qemu-admitted
+            .work/public-qemu-corematrix-stock
             .work/wasm-typed-helper-control
             .work/public-qemu-pixel-observer-host-browser
           if-no-files-found: ignore

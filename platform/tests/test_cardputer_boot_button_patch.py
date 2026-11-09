@@ -50,6 +50,13 @@ def program(sources):
 #include <string.h>
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 typedef struct { bool keyboard; uint32_t key_a_pin; } M5SpiPanelState;
+enum { M5_BOARD_CARDPUTER, M5_BOARD_CARDPUTER_ADV };
+static const int m5_board __attribute__((unused)) = M5_BOARD_CARDPUTER_ADV;
+static void m5cardputer_key_event(int key, bool down) {
+    (void)key;
+    (void)down;
+    assert(false);
+}
 static unsigned gpio_count, gpio_pin, gpio_level, fifo_count;
 static uint8_t fifo[8];
 static void esp32_gpio_set_input(unsigned pin, bool level) {
@@ -121,15 +128,14 @@ class CardputerBootButtonPatchTests(unittest.TestCase):
         tree = cls.directory / "source"
         subprocess.run(["git", "init", "-q", str(tree)], check=True, capture_output=True)
         cls.lock = json.loads((ROOT / "scripts/qemu-wasm-build/sources.lock.json").read_text())
-        seen = False
-        for row in cls.lock["patches"]:
+        locked_patches = cls.lock["patches"]
+        for index, row in enumerate(locked_patches):
             if row["path"] == PATCH_NAME:
-                seen = True
                 break
             args = ["git", "apply", "--include=" + PANEL, "--include=" + BOARD, str(ROOT / row["path"])]
             subprocess.run(args[:2] + ["--check"] + args[2:], cwd=tree, check=True, capture_output=True)
             subprocess.run(args, cwd=tree, check=True, capture_output=True)
-        if not seen:
+        else:
             raise AssertionError("New input patch is absent from the source build lock")
         cls.before = {name: (tree / name).read_text() for name in PREIMAGE_SHA}
         for name, expected in PREIMAGE_SHA.items():
@@ -141,12 +147,19 @@ class CardputerBootButtonPatchTests(unittest.TestCase):
         cls.after = {name: (tree / name).read_text() for name in POSTIMAGE_SHA}
         for name, expected in POSTIMAGE_SHA.items():
             actual = digest((tree / name).read_bytes())
-            if actual != expected or actual != cls.lock["patched_files"][name]:
-                raise AssertionError("Exact locked postimage mismatch: " + name)
+            if actual != expected:
+                raise AssertionError("Exact input patch postimage mismatch: " + name)
         subprocess.run(["git", "apply", "--reverse", "--check", str(patch)], cwd=tree, check=True, capture_output=True)
         subprocess.run(["git", "apply", "--reverse", str(patch)], cwd=tree, check=True, capture_output=True)
         if any((tree / name).read_text() != text for name, text in cls.before.items()):
             raise AssertionError("Reverse apply did not restore the exact preimage")
+        for row in locked_patches[index:]:
+            args = ["git", "apply", "--include=" + PANEL, "--include=" + BOARD, str(ROOT / row["path"])]
+            subprocess.run(args, cwd=tree, check=True, capture_output=True)
+        cls.integrated = {name: (tree / name).read_text() for name in POSTIMAGE_SHA}
+        for name in POSTIMAGE_SHA:
+            if digest((tree / name).read_bytes()) != cls.lock["patched_files"][name]:
+                raise AssertionError("Exact locked postimage mismatch: " + name)
 
     def execute(self, sources, name):
         path, binary = self.directory / (name + ".c"), self.directory / name
@@ -161,9 +174,11 @@ class CardputerBootButtonPatchTests(unittest.TestCase):
         self.assertIn("BOOT_CONFIG_FAIL pin=10", result.stderr)
 
     def test_postimage_active_low_g0_keeps_all_matrix_qcodes_unchanged(self):
-        result = self.execute(self.after, "after")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("CARDPUTER_BOOT_HOST_PASS", result.stdout)
+        for name, sources in [("after", self.after), ("integrated", self.integrated)]:
+            with self.subTest(name=name):
+                result = self.execute(sources, name)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("CARDPUTER_BOOT_HOST_PASS", result.stdout)
 
     def test_original_fifo_helpers_are_byte_identical(self):
         for name in ("tca8418_event", "tca8418_key_pos", "m5_panel_keyboard_event"):

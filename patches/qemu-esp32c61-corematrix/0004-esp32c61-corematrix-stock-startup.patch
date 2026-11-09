@@ -1,0 +1,818 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+index 5e25782..91d0ef8 100644
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -36,6 +36,10 @@ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+         /* Output-enabled pins loop back; undriven pins reflect pull-up state */
+         r = (s->gpio_out & s->gpio_enable) |
+             (s->gpio_pullup & ~s->gpio_enable);
++        Esp32GpioClass *gpio_class = ESP32_GPIO_GET_CLASS(s);
++        if (gpio_class->resolve_pads) {
++            r = gpio_class->resolve_pads(s, r);
++        }
+     }
+ 
+     return r;
+@@ -58,6 +62,12 @@ static void esp32_gpio_write(void *opaque, hwaddr addr,
+         s->gpio_enable |= (uint32_t)value;
+     } else if (s->enable_w1tc_off && addr == s->enable_w1tc_off) {
+         s->gpio_enable &= ~(uint32_t)value;
++    } else {
++        return;
++    }
++    Esp32GpioClass *gpio_class = ESP32_GPIO_GET_CLASS(s);
++    if (gpio_class->outputs_changed) {
++        gpio_class->outputs_changed(s);
+     }
+ }
+ 
+diff --git a/hw/gpio/esp32c61_gpio.c b/hw/gpio/esp32c61_gpio.c
+index ec2c1a2..576fd4b 100644
+--- a/hw/gpio/esp32c61_gpio.c
++++ b/hw/gpio/esp32c61_gpio.c
+@@ -28,8 +28,52 @@ static void esp32c61_gpio_init(Object *obj)
+     s->in_off         = 0x64;
+ }
+ 
++static uint32_t esp32c61_gpio_i2c_release(Esp32GpioState *s)
++{
++    return ~(s->gpio_enable & ~s->gpio_out);
++}
++
++static uint32_t esp32c61_gpio_resolve_pads(Esp32GpioState *s, uint32_t levels)
++{
++    bitbang_i2c_interface *i2c = &ESP32C61_GPIO(s)->board_i2c;
++
++    if (i2c->bus) {
++        uint32_t released = esp32c61_gpio_i2c_release(s);
++        uint32_t sda = (released & 1) && i2c->device_out;
++
++        /* G0/SDA and G1/SCL have external pull-ups on the board. */
++        levels = (levels & ~3u) | (released & 2) | sda;
++    }
++    return levels;
++}
++
++static void esp32c61_gpio_outputs_changed(Esp32GpioState *s)
++{
++    bitbang_i2c_interface *i2c = &ESP32C61_GPIO(s)->board_i2c;
++    uint32_t released = esp32c61_gpio_i2c_release(s);
++    bool scl = released & 2;
++
++    if (i2c->bus) {
++        if (!scl) {
++            bitbang_i2c_set(i2c, BITBANG_I2C_SCL, 0);
++        }
++        bitbang_i2c_set(i2c, BITBANG_I2C_SDA, released & 1);
++        if (scl) {
++            bitbang_i2c_set(i2c, BITBANG_I2C_SCL, 1);
++        }
++    }
++}
++
++void esp32c61_gpio_connect_board_i2c(ESP32C61GPIOState *s, I2CBus *bus)
++{
++    bitbang_i2c_init(&s->board_i2c, bus);
++}
++
+ static void esp32c61_gpio_class_init(ObjectClass *klass, void *data)
+ {
++    Esp32GpioClass *gpio_class = ESP32_GPIO_CLASS(klass);
++    gpio_class->resolve_pads = esp32c61_gpio_resolve_pads;
++    gpio_class->outputs_changed = esp32c61_gpio_outputs_changed;
+ }
+ 
+ static const TypeInfo esp32c61_gpio_info = {
+diff --git a/hw/i2c/esp32c61_i2c.c b/hw/i2c/esp32c61_i2c.c
+index ad683c7..122c9cd 100644
+--- a/hw/i2c/esp32c61_i2c.c
++++ b/hw/i2c/esp32c61_i2c.c
+@@ -36,6 +36,8 @@ enum {
+ #define CMD_COUNT 8
+ #define FIFO_SIZE 32
+ #define CTRL_TRANS_START (1U << 5)
++#define CTRL_FSM_RESET (1U << 10)
++#define CTRL_CONF_UPDATE (1U << 11)
+ #define IRQ_RX_OVERFLOW (1U << 2)
+ #define IRQ_END_DETECT (1U << 3)
+ #define IRQ_TRANS_COMPLETE (1U << 7)
+@@ -159,8 +161,13 @@ static uint64_t i2c_read(void *opaque, hwaddr addr, unsigned size)
+     case R_DATA:
+         return fifo8_is_empty(&s->rx) ? 0xff : fifo8_pop(&s->rx);
+     case R_STATUS:
+-        return (s->active ? 1U << 4 : 0) |
+-            (fifo8_num_used(&s->rx) << 8) | (fifo8_num_used(&s->tx) << 18);
++        /*
++         * A command batch has finished before the guest can read status.
++         * END leaves its slave selected for the next batch but no bytes
++         * are in flight. Keeping BUS_BUSY set here deadlocks drivers that
++         * wait between submitting an END batch and the subsequent STOP.
++         */
++        return (fifo8_num_used(&s->rx) << 8) | (fifo8_num_used(&s->tx) << 18);
+     case R_INT_STATUS:
+         return s->regs[R_INT_RAW / 4] & s->regs[R_INT_ENABLE / 4];
+     case R_INT_CLEAR:
+@@ -176,7 +183,11 @@ static void i2c_write(void *opaque, hwaddr addr, uint64_t value, unsigned size)
+ 
+     switch (addr) {
+     case R_CTR:
+-        s->regs[addr / 4] = value & ~CTRL_TRANS_START;
++        s->regs[addr / 4] = value &
++            ~(CTRL_TRANS_START | CTRL_FSM_RESET | CTRL_CONF_UPDATE);
++        if (value & CTRL_FSM_RESET) {
++            end_transfer(s);
++        }
+         if (value & CTRL_TRANS_START) {
+             execute_commands(s);
+         }
+diff --git a/hw/i2c/m5_corematrix.c b/hw/i2c/m5_corematrix.c
+index 1c73ad4..d78ad0f 100644
+--- a/hw/i2c/m5_corematrix.c
++++ b/hw/i2c/m5_corematrix.c
+@@ -23,7 +23,7 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5CoreMatrixSlave, M5_COREMATRIX_SLAVE)
+ #define IOE1_MODE_A 0x03
+ #define IOE1_OUT_A 0x05
+ #define IOE1_IN_A 0x07
+-#define IOE1_MATRIX_RAIL (1U << 4)
++#define IOE1_MATRIX_RAIL (1U << 3)
+ 
+ struct M5CoreMatrixSlave {
+     I2CSlave parent_obj;
+diff --git a/hw/misc/esp32c61_jtag.c b/hw/misc/esp32c61_jtag.c
+index b600c65..4de3e50 100644
+--- a/hw/misc/esp32c61_jtag.c
++++ b/hw/misc/esp32c61_jtag.c
+@@ -9,12 +9,180 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/module.h"
++#include "hw/irq.h"
++#include "hw/qdev-properties.h"
++#include "hw/qdev-properties-system.h"
+ #include "hw/misc/esp32c61_jtag.h"
+ 
++#define USB_JTAG_EP1             0x00
++#define USB_JTAG_EP1_CONF        0x04
++#define USB_JTAG_INT_RAW         0x08
++#define USB_JTAG_INT_ST          0x0c
++#define USB_JTAG_INT_ENA         0x10
++#define USB_JTAG_INT_CLR         0x14
++#define USB_JTAG_REG_SIZE        0x84
++#define USB_JTAG_WR_DONE         BIT(0)
++#define USB_JTAG_TX_FREE         BIT(1)
++#define USB_JTAG_RX_AVAIL        BIT(2)
++#define USB_JTAG_IRQ_RX_PACKET   BIT(2)
++#define USB_JTAG_IRQ_TX_EMPTY    BIT(3)
++
++static void esp32c61_jtag_update_irq(ESP32C61UsbJtagState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_enable));
++}
++
++static int esp32c61_jtag_can_receive(void *opaque)
++{
++    ESP32C61UsbJtagState *s = opaque;
++    return fifo8_num_free(&s->rx_fifo);
++}
++
++static void esp32c61_jtag_receive(void *opaque, const uint8_t *data, int size)
++{
++    ESP32C61UsbJtagState *s = opaque;
++    uint32_t count = MIN((uint32_t)size, fifo8_num_free(&s->rx_fifo));
++
++    if (count) {
++        fifo8_push_all(&s->rx_fifo, data, count);
++        s->int_raw |= USB_JTAG_IRQ_RX_PACKET;
++        esp32c61_jtag_update_irq(s);
++    }
++}
++
++static uint64_t esp32c61_jtag_read(void *opaque, hwaddr addr, unsigned size)
++{
++    ESP32C61UsbJtagState *s = opaque;
++    uint8_t byte;
++
++    switch (addr) {
++    case USB_JTAG_EP1:
++        if (fifo8_is_empty(&s->rx_fifo)) {
++            return 0;
++        }
++        byte = fifo8_pop(&s->rx_fifo);
++        qemu_chr_fe_accept_input(&s->chr);
++        return byte;
++    case USB_JTAG_EP1_CONF:
++        return (s->tx_count < sizeof(s->tx_fifo) ? USB_JTAG_TX_FREE : 0) |
++               (!fifo8_is_empty(&s->rx_fifo) ? USB_JTAG_RX_AVAIL : 0);
++    case USB_JTAG_INT_RAW:
++        return s->int_raw;
++    case USB_JTAG_INT_ST:
++        return s->int_raw & s->int_enable;
++    case USB_JTAG_INT_ENA:
++        return s->int_enable;
++    default:
++        return 0;
++    }
++}
++
++static void esp32c61_jtag_write(void *opaque, hwaddr addr, uint64_t value,
++                                unsigned size)
++{
++    ESP32C61UsbJtagState *s = opaque;
++
++    switch (addr) {
++    case USB_JTAG_EP1:
++        if (s->tx_count < sizeof(s->tx_fifo)) {
++            s->tx_fifo[s->tx_count++] = value;
++        }
++        s->int_raw &= ~USB_JTAG_IRQ_TX_EMPTY;
++        break;
++    case USB_JTAG_EP1_CONF:
++        if (value & USB_JTAG_WR_DONE) {
++            if (s->tx_count && qemu_chr_fe_backend_connected(&s->chr)) {
++                qemu_chr_fe_write_all(&s->chr, s->tx_fifo, s->tx_count);
++            }
++            s->tx_count = 0;
++            s->int_raw |= USB_JTAG_IRQ_TX_EMPTY;
++        }
++        break;
++    case USB_JTAG_INT_RAW:
++    case USB_JTAG_INT_CLR:
++        s->int_raw &= ~value;
++        break;
++    case USB_JTAG_INT_ENA:
++        if (!s->tx_count && (value & ~s->int_enable & USB_JTAG_IRQ_TX_EMPTY)) {
++            s->int_raw |= USB_JTAG_IRQ_TX_EMPTY;
++        }
++        s->int_enable = value;
++        break;
++    }
++    esp32c61_jtag_update_irq(s);
++}
++
++static const MemoryRegionOps esp32c61_jtag_ops = {
++    .read = esp32c61_jtag_read,
++    .write = esp32c61_jtag_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++static void esp32c61_jtag_reset_hold(Object *obj, ResetType type)
++{
++    ESP32C61UsbJtagState *s = ESP32C61_JTAG(obj);
++    fifo8_reset(&s->rx_fifo);
++    s->tx_count = 0;
++    s->int_raw = USB_JTAG_IRQ_TX_EMPTY;
++    s->int_enable = 0;
++    esp32c61_jtag_update_irq(s);
++}
++
++static void esp32c61_jtag_realize(DeviceState *dev, Error **errp)
++{
++    ESP32C61UsbJtagState *s = ESP32C61_JTAG(dev);
++    qemu_chr_fe_set_handlers(&s->chr, esp32c61_jtag_can_receive,
++                            esp32c61_jtag_receive, NULL, NULL, s, NULL, true);
++}
++
++static void esp32c61_jtag_unrealize(DeviceState *dev)
++{
++    ESP32C61UsbJtagState *s = ESP32C61_JTAG(dev);
++    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL, NULL, NULL, false);
++}
++
++static void esp32c61_jtag_init(Object *obj)
++{
++    ESP32C61UsbJtagState *s = ESP32C61_JTAG(obj);
++    SysBusDevice *bus = SYS_BUS_DEVICE(obj);
++
++    fifo8_create(&s->rx_fifo, 64);
++    memory_region_init_io(&s->iomem, obj, &esp32c61_jtag_ops, s,
++                          TYPE_ESP32C61_JTAG, USB_JTAG_REG_SIZE);
++    sysbus_init_mmio(bus, &s->iomem);
++    sysbus_init_irq(bus, &s->irq);
++}
++
++static void esp32c61_jtag_finalize(Object *obj)
++{
++    ESP32C61UsbJtagState *s = ESP32C61_JTAG(obj);
++    fifo8_destroy(&s->rx_fifo);
++}
++
++static Property esp32c61_jtag_properties[] = {
++    DEFINE_PROP_CHR("chardev", ESP32C61UsbJtagState, chr),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void esp32c61_jtag_class_init(ObjectClass *class, void *data)
++{
++    DeviceClass *device = DEVICE_CLASS(class);
++    ResettableClass *reset = RESETTABLE_CLASS(class);
++
++    device->realize = esp32c61_jtag_realize;
++    device->unrealize = esp32c61_jtag_unrealize;
++    reset->phases.hold = esp32c61_jtag_reset_hold;
++    device_class_set_props(device, esp32c61_jtag_properties);
++}
++
+ static const TypeInfo esp32c61_jtag_info = {
+     .name = TYPE_ESP32C61_JTAG,
+-    .parent = TYPE_ESP32C5_JTAG,
++    .parent = TYPE_SYS_BUS_DEVICE,
+     .instance_size = sizeof(ESP32C61UsbJtagState),
++    .instance_init = esp32c61_jtag_init,
++    .instance_finalize = esp32c61_jtag_finalize,
++    .class_init = esp32c61_jtag_class_init,
+ };
+ 
+ static void esp32c61_jtag_register_types(void)
+diff --git a/hw/riscv/Kconfig b/hw/riscv/Kconfig
+index 8dbec02..4dafcd9 100644
+--- a/hw/riscv/Kconfig
++++ b/hw/riscv/Kconfig
+@@ -141,6 +141,7 @@ config RISCV_ESP32C61
+     select OPENCORES_ETH
+     select UNIMP
+     select I2C
++    select BITBANG_I2C
+ 
+ config RISCV_ESP32P4
+     bool
+diff --git a/hw/riscv/esp32c61.c b/hw/riscv/esp32c61.c
+index 7340c97..ae58526 100644
+--- a/hw/riscv/esp32c61.c
++++ b/hw/riscv/esp32c61.c
+@@ -57,6 +57,44 @@
+ #define ESP32C61_HP_I2C_BASE         0x60004000
+ #define ESP32C61_HP_I2C_IRQ          45
+ #define ESP32C61_WDEV_TIME_BASE      0x600ad800
++#define ESP32C61_FE_IQ_BASE          0x600a044c
++#define ESP32C61_FE_IQ_SIZE          0x34
++#define FE_IQ_CONFIG                 0x00
++#define FE_IQ_COMMAND                0x04
++#define FE_IQ_STATUS                 0x30
++#define FE_IQ_ENABLE                 BIT(0)
++#define FE_IQ_START                  BIT(1)
++#define FE_IQ_DONE                   BIT(16)
++#define ESP32C61_FE_TXDC_BASE        0x600a0418
++#define FE_TXDC_START                BIT(0)
++#define FE_TXDC_ENABLE               BIT(1)
++#define FE_TXDC_DONE                 BIT(22)
++#define FE_TXDC_I_ABOVE_ZERO         BIT(29)
++#define FE_TXDC_Q_ABOVE_ZERO         BIT(28)
++#define ESP32C61_FE_DAC_BASE         0x600a0884
++#define FE_DAC_COMMAND              0x00
++#define FE_DAC_STATUS               0x0c
++#define FE_DAC_WRITE                BIT(1)
++#define FE_DAC_BUSY                 BIT(31)
++#define ESP32C61_FE_PWDET_BASE       0x600a0808
++#define FE_PWDET_COMMAND             0x00
++#define FE_PWDET_STATUS              0x04
++#define FE_PWDET_CONFIG_END          0x10
++#define FE_PWDET_RESULTS_END         0x20
++#define FE_PWDET_START               BIT(0)
++#define FE_PWDET_FSM_SHIFT           14
++#define FE_PWDET_FSM_IDLE            (7 << FE_PWDET_FSM_SHIFT)
++#define ESP32C61_FE_FREQ_BASE        0x600a001c
++#define FE_FREQ_COMMAND              0x00
++#define FE_FREQ_STATUS               0x0c
++#define FE_FREQ_CONFIG_DATA          0x10
++#define FE_FREQ_START                BIT(17)
++#define FE_FREQ_TABLE_WRITE          BIT(18)
++#define FE_FREQ_RESET_N              BIT(30)
++#define FE_FREQ_DONE                 BIT(8)
++#define ESP32C61_WDEV_RESET_BASE     0x600a4ddc
++#define WDEV_MAC_RESET               BIT(1)
++#define WDEV_MAC_RESET_DONE          BIT(0)
+ 
+ void m5_corematrix_attach(Object *machine, I2CBus *bus);
+ 
+@@ -98,6 +136,30 @@ struct Esp32C61MachineState {
+     ESP32C61I2cAnaMstState i2c_ana_mst;
+     ESP32C61ModemState modem;
+     MemoryRegion wdev_time;
++    MemoryRegion fe_iq;
++    uint32_t fe_iq_config;
++    uint32_t fe_iq_command;
++    int64_t fe_iq_deadline_ns;
++    MemoryRegion fe_txdc;
++    MemoryRegion fe_dac;
++    MemoryRegion fe_pwdet;
++    MemoryRegion fe_freq;
++    MemoryRegion wdev_reset;
++    uint32_t fe_txdc_command;
++    uint32_t fe_txdc_result;
++    uint32_t fe_tone_config;
++    uint32_t fe_dac_command;
++    uint32_t fe_pwdet_config[5];
++    uint32_t fe_freq_regs[5];
++    uint32_t fe_freq_table[1024];
++    uint8_t fe_freq_channel;
++    uint32_t wdev_reset_reg;
++    uint16_t fe_dac_offset[4][16];
++    int64_t fe_txdc_deadline_ns;
++    int64_t fe_dac_deadline_ns;
++    int64_t fe_pwdet_deadline_ns;
++    int64_t fe_freq_deadline_ns;
++    int64_t wdev_reset_deadline_ns;
+ };
+ 
+ #define TYPE_ESP32C61_MACHINE MACHINE_TYPE_NAME("esp32c61")
+@@ -156,6 +218,285 @@ static const MemoryRegionOps esp32c61_wdev_time_ops = {
+     .impl = { .min_access_size = 4, .max_access_size = 4 },
+ };
+ 
++/*
++ * Digital front-end I/Q estimator control for the idle radio. The estimator
++ * accumulates a configured window of samples. This model's input is zero
++ * with no RF source, so the correlation, DC and power sums are all zero.
++ * Completion is derived from a start transition and virtual elapsed time.
++ */
++static uint64_t esp32c61_fe_iq_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    switch (addr) {
++    case FE_IQ_CONFIG:
++        return s->fe_iq_config;
++    case FE_IQ_COMMAND:
++        return s->fe_iq_command;
++    case FE_IQ_STATUS:
++        return s->fe_iq_deadline_ns &&
++               qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) >= s->fe_iq_deadline_ns
++               ? FE_IQ_DONE : 0;
++    default:
++        return 0;
++    }
++}
++
++static void esp32c61_fe_iq_write(void *opaque, hwaddr addr, uint64_t value,
++                                 unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    if (addr == FE_IQ_CONFIG) {
++        s->fe_iq_config = value;
++    } else if (addr == FE_IQ_COMMAND) {
++        const uint32_t start = FE_IQ_ENABLE | FE_IQ_START;
++
++        if ((value & start) != start) {
++            s->fe_iq_deadline_ns = 0;
++        } else if (!(s->fe_iq_command & FE_IQ_START)) {
++            /* Idle front-end samples at 40 MHz. */
++            uint32_t samples = extract32(value, 2, 15) + 1;
++            s->fe_iq_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                                   samples * 25;
++        }
++        s->fe_iq_command = value;
++    }
++}
++
++static void esp32c61_fe_iq_reset(void *opaque)
++{
++    Esp32C61MachineState *s = opaque;
++    s->fe_iq_config = 0;
++    s->fe_iq_command = 0;
++    s->fe_iq_deadline_ns = 0;
++    s->fe_txdc_command = 0;
++    s->fe_txdc_result = 0;
++    s->fe_tone_config = 0;
++    s->fe_dac_command = 0;
++    s->fe_txdc_deadline_ns = 0;
++    s->fe_dac_deadline_ns = 0;
++    s->fe_pwdet_deadline_ns = 0;
++    s->fe_freq_deadline_ns = 0;
++    s->fe_freq_channel = 0;
++    s->wdev_reset_reg = 0;
++    s->wdev_reset_deadline_ns = 0;
++    memset(s->fe_pwdet_config, 0, sizeof(s->fe_pwdet_config));
++    memset(s->fe_freq_regs, 0, sizeof(s->fe_freq_regs));
++    memset(s->fe_freq_table, 0, sizeof(s->fe_freq_table));
++    memset(s->fe_dac_offset, 0, sizeof(s->fe_dac_offset));
++}
++
++static const MemoryRegionOps esp32c61_fe_iq_ops = {
++    .read = esp32c61_fe_iq_read,
++    .write = esp32c61_fe_iq_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++static uint64_t esp32c61_fe_txdc_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    uint32_t result = s->fe_txdc_command;
++
++    if (addr == 4) {
++        return s->fe_tone_config;
++    }
++    if (s->fe_txdc_deadline_ns &&
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) >= s->fe_txdc_deadline_ns) {
++        result |= FE_TXDC_DONE | s->fe_txdc_result;
++    }
++    return result;
++}
++
++static void esp32c61_fe_txdc_write(void *opaque, hwaddr addr, uint64_t value,
++                                   unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    const uint32_t start = FE_TXDC_ENABLE | FE_TXDC_START;
++
++    if (addr == 4) {
++        s->fe_tone_config = value;
++        return;
++    }
++    if ((value & start) != start) {
++        s->fe_txdc_deadline_ns = 0;
++    } else if (!(s->fe_txdc_command & FE_TXDC_START)) {
++        /* In the ideal offset-binary DAC, each channel crosses zero at 256. */
++        s->fe_txdc_result =
++            (s->fe_dac_offset[1][2] >= 256 ? FE_TXDC_I_ABOVE_ZERO : 0) |
++            (s->fe_dac_offset[1][3] >= 256 ? FE_TXDC_Q_ABOVE_ZERO : 0);
++        s->fe_txdc_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000;
++    }
++    s->fe_txdc_command = value &
++        ~(FE_TXDC_DONE | FE_TXDC_I_ABOVE_ZERO | FE_TXDC_Q_ABOVE_ZERO);
++}
++
++static const MemoryRegionOps esp32c61_fe_txdc_ops = {
++    .read = esp32c61_fe_txdc_read,
++    .write = esp32c61_fe_txdc_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++static uint64_t esp32c61_fe_dac_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    if (addr == FE_DAC_COMMAND) {
++        return s->fe_dac_command;
++    }
++    if (addr == FE_DAC_STATUS &&
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) < s->fe_dac_deadline_ns) {
++        return FE_DAC_BUSY;
++    }
++    return 0;
++}
++
++static void esp32c61_fe_dac_write(void *opaque, hwaddr addr, uint64_t value,
++                                  unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    if (addr == FE_DAC_COMMAND) {
++        if ((value & FE_DAC_WRITE) && !(s->fe_dac_command & FE_DAC_WRITE)) {
++            s->fe_dac_offset[extract32(value, 15, 2)][extract32(value, 2, 4)] =
++                extract32(value, 6, 9);
++            s->fe_dac_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000;
++        }
++        s->fe_dac_command = value;
++    }
++}
++
++static const MemoryRegionOps esp32c61_fe_dac_ops = {
++    .read = esp32c61_fe_dac_read,
++    .write = esp32c61_fe_dac_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++/*
++ * SAR power detector sequencing with no RF input. The command starts one
++ * conversion, which returns the finite-state controller to idle. A zero
++ * input produces zero sampled power.
++ */
++static uint64_t esp32c61_fe_pwdet_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    uint32_t value = addr <= FE_PWDET_CONFIG_END
++        ? s->fe_pwdet_config[addr / 4] : 0;
++
++    if (addr == FE_PWDET_STATUS &&
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) >= s->fe_pwdet_deadline_ns) {
++        value |= FE_PWDET_FSM_IDLE;
++    }
++    return value;
++}
++
++static void esp32c61_fe_pwdet_write(void *opaque, hwaddr addr, uint64_t value,
++                                    unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++
++    if (addr > FE_PWDET_CONFIG_END) {
++        return;
++    }
++    if (addr == FE_PWDET_COMMAND) {
++        if (!(value & FE_PWDET_START)) {
++            s->fe_pwdet_deadline_ns = 0;
++        } else if (!(s->fe_pwdet_config[0] & FE_PWDET_START)) {
++            s->fe_pwdet_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 2000;
++        }
++    } else if (addr == FE_PWDET_STATUS) {
++        value &= ~FE_PWDET_FSM_IDLE;
++    }
++    s->fe_pwdet_config[addr / 4] = value;
++}
++
++static const MemoryRegionOps esp32c61_fe_pwdet_ops = {
++    .read = esp32c61_fe_pwdet_read,
++    .write = esp32c61_fe_pwdet_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++static uint64_t esp32c61_fe_freq_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++
++    if (addr == FE_FREQ_STATUS) {
++        return s->fe_freq_deadline_ns &&
++               qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) >= s->fe_freq_deadline_ns
++               ? FE_FREQ_DONE : 0;
++    }
++    return s->fe_freq_regs[addr / 4];
++}
++
++static void esp32c61_fe_freq_write(void *opaque, hwaddr addr, uint64_t value,
++                                   unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++    uint32_t rising = value & ~s->fe_freq_regs[FE_FREQ_COMMAND / 4];
++
++    if (addr == FE_FREQ_STATUS) {
++        return;
++    }
++    if (addr == FE_FREQ_COMMAND) {
++        if (rising & FE_FREQ_TABLE_WRITE) {
++            s->fe_freq_table[extract32(value, 7, 10)] =
++                s->fe_freq_regs[FE_FREQ_CONFIG_DATA / 4];
++        }
++        if (rising & FE_FREQ_START) {
++            s->fe_freq_channel = extract32(value, 0, 7);
++            s->fe_freq_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 10000;
++        } else if (!(value & FE_FREQ_RESET_N) &&
++                   (s->fe_freq_regs[FE_FREQ_COMMAND / 4] & FE_FREQ_RESET_N)) {
++            s->fe_freq_deadline_ns = 0;
++            s->fe_freq_channel = 0;
++        }
++    }
++    s->fe_freq_regs[addr / 4] = value;
++}
++
++static const MemoryRegionOps esp32c61_fe_freq_ops = {
++    .read = esp32c61_fe_freq_read,
++    .write = esp32c61_fe_freq_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
++static uint64_t esp32c61_wdev_reset_read(void *opaque, hwaddr addr,
++                                         unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++
++    if (s->wdev_reset_deadline_ns &&
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) >= s->wdev_reset_deadline_ns) {
++        return s->wdev_reset_reg | WDEV_MAC_RESET_DONE;
++    }
++    return s->wdev_reset_reg;
++}
++
++static void esp32c61_wdev_reset_write(void *opaque, hwaddr addr, uint64_t value,
++                                      unsigned size)
++{
++    Esp32C61MachineState *s = opaque;
++
++    s->wdev_reset_reg = value & ~(WDEV_MAC_RESET_DONE | WDEV_MAC_RESET);
++    if (value & WDEV_MAC_RESET) {
++        s->wdev_reset_deadline_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000;
++    }
++}
++
++static const MemoryRegionOps esp32c61_wdev_reset_ops = {
++    .read = esp32c61_wdev_reset_read,
++    .write = esp32c61_wdev_reset_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = { .min_access_size = 4, .max_access_size = 4 },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
+ static void esp32c61_load_rom_data_init(const char *rom_path)
+ {
+     GMappedFile *mapped = g_mapped_file_new(rom_path, false, NULL);
+@@ -629,6 +970,9 @@ static void esp32c61_machine_init(MachineState *machine)
+         sysbus_realize(SYS_BUS_DEVICE(&ms->jtag), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->jtag), 0);
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_USB_SERIAL_JTAG_BASE, mr, 0);
++        sysbus_connect_irq(SYS_BUS_DEVICE(&ms->jtag), 0,
++                           qdev_get_gpio_in(intmatrix_dev,
++                                            C61_ETS_USB_SERIAL_JTAG_INTR_SOURCE));
+     }
+ 
+     /* SPI1 (Flash) */
+@@ -722,6 +1066,7 @@ static void esp32c61_machine_init(MachineState *machine)
+         if (ms->m5corematrix) {
+             I2CBus *bus = I2C_BUS(qdev_get_child_bus(i2c, "i2c"));
+             m5_corematrix_attach(OBJECT(machine), bus);
++            esp32c61_gpio_connect_board_i2c(&ms->gpio, bus);
+         }
+     }
+ 
+@@ -830,6 +1175,32 @@ static void esp32c61_machine_init(MachineState *machine)
+     memory_region_add_subregion_overlap(sys_mem, ESP32C61_WDEV_TIME_BASE,
+                                         &ms->wdev_time, 0);
+ 
++    memory_region_init_io(&ms->fe_iq, OBJECT(ms), &esp32c61_fe_iq_ops,
++                          ms, "esp32c61.fe-iq", ESP32C61_FE_IQ_SIZE);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_FE_IQ_BASE,
++                                        &ms->fe_iq, 0);
++    memory_region_init_io(&ms->fe_txdc, OBJECT(ms), &esp32c61_fe_txdc_ops,
++                          ms, "esp32c61.fe-txdc", 8);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_FE_TXDC_BASE,
++                                        &ms->fe_txdc, 0);
++    memory_region_init_io(&ms->fe_dac, OBJECT(ms), &esp32c61_fe_dac_ops,
++                          ms, "esp32c61.fe-dac", FE_DAC_STATUS + 4);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_FE_DAC_BASE,
++                                        &ms->fe_dac, 0);
++    memory_region_init_io(&ms->fe_pwdet, OBJECT(ms), &esp32c61_fe_pwdet_ops,
++                          ms, "esp32c61.fe-pwdet", FE_PWDET_RESULTS_END + 4);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_FE_PWDET_BASE,
++                                        &ms->fe_pwdet, 0);
++    memory_region_init_io(&ms->fe_freq, OBJECT(ms), &esp32c61_fe_freq_ops,
++                          ms, "esp32c61.fe-freq", FE_FREQ_CONFIG_DATA + 4);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_FE_FREQ_BASE,
++                                        &ms->fe_freq, 0);
++    memory_region_init_io(&ms->wdev_reset, OBJECT(ms), &esp32c61_wdev_reset_ops,
++                          ms, "esp32c61.wdev-reset", 4);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_WDEV_RESET_BASE,
++                                        &ms->wdev_reset, 0);
++    qemu_register_reset(esp32c61_fe_iq_reset, ms);
++
+     create_unimplemented_device("esp32c61.peripherals", ESP32C61_IO_START_ADDR, 0x100000);
+     create_unimplemented_device("esp32c61.clic_area", 0x20000000, 0x1000000);
+ }
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+index 39d8733..e9f654c 100644
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -48,4 +48,6 @@ typedef struct Esp32GpioState {
+ 
+ typedef struct Esp32GpioClass {
+     SysBusDeviceClass parent_class;
++    uint32_t (*resolve_pads)(Esp32GpioState *s, uint32_t levels);
++    void (*outputs_changed)(Esp32GpioState *s);
+ } Esp32GpioClass;
+diff --git a/include/hw/gpio/esp32c61_gpio.h b/include/hw/gpio/esp32c61_gpio.h
+index aac4ad1..0221353 100644
+--- a/include/hw/gpio/esp32c61_gpio.h
++++ b/include/hw/gpio/esp32c61_gpio.h
+@@ -10,6 +10,7 @@
+ #pragma once
+ 
+ #include "esp32c3_gpio.h"
++#include "hw/i2c/bitbang_i2c.h"
+ 
+ #define TYPE_ESP32C61_GPIO "esp32c61.gpio"
+ #define ESP32C61_GPIO(obj)           OBJECT_CHECK(ESP32C61GPIOState, (obj), TYPE_ESP32C61_GPIO)
+@@ -20,8 +21,11 @@
+ 
+ typedef struct ESP32C61GPIOState {
+     ESP32C3GPIOState parent;
++    bitbang_i2c_interface board_i2c;
+ } ESP32C61GPIOState;
+ 
+ typedef struct ESP32C61GPIOClass {
+     ESP32C3GPIOClass parent_class;
+ } ESP32C61GPIOClass;
++
++void esp32c61_gpio_connect_board_i2c(ESP32C61GPIOState *s, I2CBus *bus);
+diff --git a/include/hw/misc/esp32c61_jtag.h b/include/hw/misc/esp32c61_jtag.h
+index 7da7bb7..d8efe95 100644
+--- a/include/hw/misc/esp32c61_jtag.h
++++ b/include/hw/misc/esp32c61_jtag.h
+@@ -9,11 +9,21 @@
+  */
+ #pragma once
+ 
+-#include "hw/misc/esp32c5_jtag.h"
++#include "chardev/char-fe.h"
++#include "hw/sysbus.h"
++#include "qemu/fifo8.h"
+ 
+ #define TYPE_ESP32C61_JTAG "misc.esp32c61.usb_serial_jtag"
+ #define ESP32C61_JTAG(obj) OBJECT_CHECK(ESP32C61UsbJtagState, (obj), TYPE_ESP32C61_JTAG)
+ 
+ typedef struct ESP32C61UsbJtagState {
+-    ESP32C5UsbJtagState parent;
++    SysBusDevice parent;
++    MemoryRegion iomem;
++    CharBackend chr;
++    qemu_irq irq;
++    Fifo8 rx_fifo;
++    uint32_t int_raw;
++    uint32_t int_enable;
++    uint8_t tx_fifo[64];
++    uint8_t tx_count;
+ } ESP32C61UsbJtagState;

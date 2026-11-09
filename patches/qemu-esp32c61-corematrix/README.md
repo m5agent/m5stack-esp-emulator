@@ -1,4 +1,4 @@
-# ESP32-C61 CoreMatrix diagnostic QEMU
+# ESP32-C61 CoreMatrix QEMU
 
 The base is Espressif QEMU `esp-develop` commit
 [`8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc`](https://github.com/espressif/qemu/commit/8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc).
@@ -10,17 +10,30 @@ Its board option is `-M esp32c61,m5corematrix=on`.
   source 45. The command engine uses C61 opcodes, a 32-byte TX/RX FIFO, eight
   command slots, repeated start, STOP, END, NACK and interrupt state.
   The separate upstream analog master remains in place.
-- The optional C158 board wiring connects SDA/GPIO0 and SCL/GPIO1 logical bus
-  0 to M5PM1 at `0x6e`, M5IOE1 at `0x4f` and TM1680 at `0x72`. M5IOE1 IO4
-  drives the matrix power rail. TM1680 commands and RAM writes produce the
+- `0003` maps the WLAN microsecond counter at `0x600ad800` to QEMU virtual time.
+  Stock PHY initialization uses this counter to bound its SDM polling loop.
+- `0004` adds the command and completion paths for the idle RF front-end
+  estimator, TX DC detector, SAR detector, frequency sequencer and MAC reset.
+  It also implements the bidirectional USB Serial/JTAG endpoint and interrupt.
+  The boot model assumes no RF input and does not exchange Wi-Fi packets.
+- `0005` transfers a full 64-byte USB Serial/JTAG CDC IN packet as soon as
+  it fills. Partial packets continue to use the endpoint's WR_DONE command.
+- The optional C158 board wiring shares SDA/GPIO0 and SCL/GPIO1 between the
+  software I²C probe and HP I²C controller. The bus contains M5PM1 at `0x6e`,
+  M5IOE1 at `0x4f` and TM1680 at `0x72`. M5IOE1 PIN4, mask `0x08` in the
+  port mode and output registers, drives the matrix rail. The HP controller
+  leaves its target selected after END while the batch is idle.
+  TM1680 commands and RAM writes produce the
   16×16 monochrome console. Standard QEMU A/B/C key down/up updates the
   active-low M5PM1 GPIO G0/G1/G2 and their latched status bits.
 
-The supported scope is the IDF probe's controller, key and display path.
+The unmodified UIFlow2 v2.5.4 image reaches its stock missing-SSID cross and
+MicroPython prompt on C158. The isolated Device Service reproduces the startup
+frame, USB REPL drawing and A/B/C interactions. The stock guest reported
+internal heap only.
 M5PM1 power-key and external interrupt wire, M5IOE1 peripheral channels,
-BMI270, SPI microSD, buzzer, WiFi and 8 MiB Quad PSRAM remain unvalidated or
-unmodeled here. The QEMU option is for the opt-in diagnostic. Production
-firmware admission and browser runtime stay disabled for this candidate.
+BMI270, SPI microSD, buzzer, Wi-Fi packet I/O and 8 MiB Quad PSRAM remain
+unvalidated or unmodeled here.
 
 ## Build and replay
 
@@ -31,7 +44,10 @@ depend on libgcrypt even when this probe uses neither accelerator.
 ```sh
 git clone https://github.com/espressif/qemu.git qemu-c61
 git -C qemu-c61 checkout --detach 8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc
-git -C qemu-c61 apply "$SIM_ROOT"/patches/qemu-esp32c61-corematrix/*.patch
+for patch_file in "$SIM_ROOT"/patches/qemu-esp32c61-corematrix/*.patch; do
+    git -C qemu-c61 apply --check "$patch_file" &&
+        git -C qemu-c61 apply "$patch_file" || exit
+done
 mkdir -p qemu-c61/build
 (
     cd qemu-c61/build
@@ -42,7 +58,6 @@ mkdir -p qemu-c61/build
         --disable-curses --disable-auth-pam --disable-dbus-display --disable-tpm --disable-tools
     ninja qemu-system-riscv32
 )
-git -C qemu-c61 apply --reverse --check "$SIM_ROOT"/patches/qemu-esp32c61-corematrix/*.patch
 ```
 
 `SIM_ROOT` is the absolute simulator checkout path. The build config is for
@@ -54,6 +69,7 @@ The exact fixture, stock baseline and recorded execution are in the
 
 Hardware and driver sources are the [C158 official pinout](https://docs.m5stack.com/en/core/CoreMatrix),
 [ESP-IDF C61 I²C LL](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/hal/esp32c61/include/hal/i2c_ll.h),
+[ESP-IDF C61 USB Serial/JTAG LL](https://github.com/espressif/esp-idf/blob/v5.5/components/hal/esp32c61/include/hal/usb_serial_jtag_ll.h#L150-L167),
 [M5PM1 driver](https://github.com/m5stack/M5PM1/tree/315d2899c863ae34b59197392b9f4c59490751ef/src),
 [M5IOE1 driver](https://github.com/m5stack/M5IOE1/tree/8401119bf171cb8f906fbe22e7490989077bbee8/src)
-and the [M5GFX TM1680 packet layout](https://github.com/m5stack/M5GFX/blob/1b6a793a28fd298deeb9c79f0c412170713ea556/src/lgfx/v1/panel/Panel_TM1680.inl).
+and the [M5GFX power sequence pinned by UIFlow2 v2.5.4](https://github.com/m5stack/M5GFX/blob/eef855b41c8ab7611a235055cc9afca76751ea95/src/board_detect/m5/pmic_ops.hpp).
