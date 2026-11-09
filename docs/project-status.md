@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的 C61 诊断固件已验证 PM1 按键和 TM1680 点阵数据面，官方 UIFlow2 启动仍受限，因此普通工作台保留模型预览。正式 QEMU-WASM 准入与真机验证仍分别跟踪。
+
 2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
 
 2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
@@ -13,7 +15,7 @@
 日期：`2026-11-06`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
-代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。设备登记 33 台；视觉主机 38 款中 33 台有运行登记、5 款仍仅视觉（全部 boundary-only/composition-only）；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
+代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。2026-11-06 的基线为 33 台运行登记，视觉主机 38 款中有 5 款仅视觉；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
 2026-11-03 [性能修复](evidence/2026-11-03-emulator-performance/README.md)保持单一 QEMU/TCI，未并入实验 JIT。最终本地静态导出的 19 板 20 固定示例真实浏览器门禁全部通过，覆盖输入、帧、暂停恢复及实际 Worker 回收。原始 StackChan 跳舞 Flash 的 ready 从 `11.674 s` 降至 `3.559/2.746 s`（冷/重复），原始 CoreS3 固定示例从旧 div8 的 `27.577/26.808 s` 降至 exact-SHA div1 的 `13.151/11.876 s`；配置与缓存差异显式保留，不作为固定时钟 CPU 比率。独立原生同固件 PNG 更新为 StackChan `1.25→27.17/s`、CoreS3 `1.42→8.42/s`，均不是完整应用帧率或物理性能。官方 Factory 浏览器看门狗/异常仍为 `PARTIAL`；其它固件和长期稳定性不继承。本轮已合 main，并以 prepared 流程更新正式 HTTPS；新运行时完整门禁及独立线上验证见[交付证据](evidence/2026-11-03-performance-pages-release/README.md)。19 板授予固定示例功能回归，不是十九组速度测量；hosted regular CI 的 engine 回收失败仍独立开放。线上原始跳舞两次观测通过，但独立触摸阶段在 ready 前发生 Core1 ROM 地址读取异常，触摸 NOT RUN；该固件启动稳定性保持 PARTIAL，未以旧结果或普通重试补齐。
@@ -380,7 +382,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
 | Tab5 | `partial` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller 未闭环 |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
-| 设备视觉 | `partial`；38 主机、184 Unit | CardputerZero RJ45 共面内壁已由独立固定补丁分离，见[issue #75](https://github.com/m5agent/m5stack-esp-emulator/issues/75)与验证台账。 固定公开模型 `1373680d`，新增 Atom 12、Stick 7、Dial/Basic 共 21 款；33 台有运行登记，5 台仅视觉且全部有 boundary-only/composition-only 结论。463 张运行贴图；Basic 两张贴位未确认图片按精确 SHA 排除。文档单独 pin `3681a648`。模型不授予固件、总线或硬件 PASS，StopWatch 仍是唯一参考质量外壳。见[本轮计划](plans/2026-10-29-expanded-host-models.md)与[战役汇总](evidence/2026-11-03-visual-campaign-summary/README.md) |
+| 设备视觉 | 42 主机、184 Unit | 固定公开模型 `de6cddc`。当前运行登记与仅视觉差集以[自动项目快照](project-snapshot.md)为准。CardputerZero RJ45 使用独立固定补丁。文档单独固定在 `3681a648`。 |
 
 ## 设备矩阵
 

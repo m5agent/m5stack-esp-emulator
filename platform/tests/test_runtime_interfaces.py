@@ -83,8 +83,11 @@ class RuntimeInterfaceTests(unittest.TestCase):
     def test_interfaces_are_json_serializable(self):
         encoded = json.dumps(self.payload)
         decoded = json.loads(encoded)
-        self.assertEqual(decoded["model_count"], 76)
-        self.assertEqual(decoded["device_count"], 33)
+        catalog = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())
+        self.assertEqual(set(decoded["models"]), set(catalog["models"]))
+        self.assertEqual(set(decoded["devices"]), set(catalog["devices"]))
+        self.assertEqual(decoded["model_count"], len(catalog["models"]))
+        self.assertEqual(decoded["device_count"], len(catalog["devices"]))
     def test_device_case_groups_are_resolved(self):
         stackchan = self.payload["devices"]["stackchan"]
         self.assertEqual(len(stackchan["matrix"]), 8)

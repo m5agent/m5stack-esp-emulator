@@ -30,6 +30,10 @@ QEMU 构建树、ESP-IDF、Python 依赖、ROM/eFuse、参考固件和其他生�
 `backend_ready` 和 `creatable` 会是 `false`；创建会话会返回
 `503 backend_not_ready`。
 
+初代 Cardputer、PaperS3 和 PaperDIY 需要包含对应机器的新版 Xtensa QEMU。
+Device Service 查询该二进制的机器清单后才开放创建会话。旧版显示
+`backend_not_ready`，可用 `scripts/bootstrap-unit-runtime.py` 重建。
+
 ## 为什么不能提交 `.work/`
 
 - 目录通常有数十 GiB，复制和升级都不适合走 Git。
@@ -190,7 +194,7 @@ Agent 应使用自己的端口、状态目录和 token，保留已有服务与�
 
 | 错误 | 含义 | 处理 |
 | --- | --- | --- |
-| `503 backend_not_ready` | QEMU/esp-emu 后端文件缺失 | 查看响应的 `missing` 和本文运行时清单 |
+| `503 backend_not_ready` | QEMU/esp-emu 文件或指定机器缺失 | 查看响应的 `missing` 与错误消息，按本文运行时清单准备或重建 |
 | `409 reference_firmware_missing` | 后端存在，但参考固件未缓存 | 运行 `fetch_firmware.py <device>` 或上传匹配固件 |
 | 会话启动后立即退出 | 后端或固件不匹配 | 检查 session 日志、串口、固件芯片/板型及目标架构 |
 

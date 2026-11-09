@@ -128,6 +128,12 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### CoreMatrix C158：C61 官方固件运行边界
+
+精确 ESP32-C61 候选可由 ESP-IDF 探针驱动 HP I²C、M5PM1、M5IOE1 和 TM1680。
+官方 UIFlow2 v2.5.4 到达应用串口，仍缺可交互的应用画面及 Quad PSRAM 的同路径证据。
+保持诊断入口隔离。生产准入须复验官方镜像的首帧和按键后点阵变化。
+
 ### RUNTIME-09：AtomS3 Lite 工作台首次启动及硬复位后的 SYSTIMER PIF
 
 | 字段 | 当前值 |

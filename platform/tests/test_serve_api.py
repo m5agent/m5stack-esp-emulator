@@ -11,6 +11,8 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
+DEVICE_IDS = {row["id"] for row in json.loads((ROOT / "devices/catalog.source.json").read_text())["devices"]}
+PERIPHERAL_MODELS = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())["models"]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 from serve import Handler
 from device_service import DeviceService
@@ -158,8 +160,9 @@ class ServePeripheralApiTests(unittest.TestCase):
 
     def test_all_peripherals_inventory(self):
         payload = self.get_json("/api/peripherals")
-        self.assertEqual(len(payload["devices"]), 33)
-        self.assertEqual(payload["runtime_coverage"]["covered_models"], 63)
+        self.assertEqual({row["id"] for row in payload["devices"]}, DEVICE_IDS)
+        self.assertEqual(payload["runtime_coverage"]["covered_models"],
+                         sum(model["status"] == "simulated" for model in PERIPHERAL_MODELS.values()))
         self.assertEqual(
             sum(row["complete"] for row in payload["devices"]),
             13,
@@ -167,8 +170,9 @@ class ServePeripheralApiTests(unittest.TestCase):
 
     def test_runtime_interfaces_api(self):
         payload = self.get_json("/api/peripheral-interfaces")
-        self.assertEqual(payload["model_count"], 76)
-        self.assertEqual(payload["device_count"], 33)
+        self.assertEqual(set(payload["models"]), set(PERIPHERAL_MODELS))
+        self.assertEqual(payload["model_count"], len(PERIPHERAL_MODELS))
+        self.assertEqual(payload["device_count"], len(DEVICE_IDS))
         bmi270 = payload["models"]["bmi270"]
         self.assertTrue(bmi270["interfaces"])
         self.assertIn("sticks3-peripherals", bmi270["evidence_cases"])

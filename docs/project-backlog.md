@@ -19,6 +19,11 @@
 - 模型缺口、fixture 缺口、基础设施失败和固件 FAIL 不得混算。
 - 安全状态未知时保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
 
+## 新增主机剩余工作
+
+- CoreMatrix C158：补 C61 Quad PSRAM 与 stock 启动依赖。在独立板型上用官方 UIFlow2 同时取得首次应用帧、PM1 输入及 TM1680 点阵变化，再考虑默认 Device Service 准入。
+- PaperS3、PaperDIY、初代 Cardputer：按各型号缺口继续验收未覆盖的电源、音频、存储与其它外设。浏览器 QEMU-WASM 需单独编译、走同固件输入/显示并验证 Worker 回收。
+
 ## 已完成，不再作为待办
 
 2026-11-03 收口：**视觉主机接入**与**Unit 批次接入**两条工作流已完成（剩余
