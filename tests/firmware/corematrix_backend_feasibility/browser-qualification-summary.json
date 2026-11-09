@@ -1,0 +1,412 @@
+{
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "scope": "Browser QEMU on an isolated static candidate export",
+  "browser": "157.0.8103.38",
+  "board": "M5Stack CoreMatrix C158",
+  "machine": "esp32c61,m5corematrix=on",
+  "site_source_commit": "2fb99024dba87106e75fc5ddd8c65e74139b8419",
+  "site_manifest_sha256": "978dc9e554fd0fc4a0ab6c38a807903caa5469f00ea98f5724b9c3c5fd897c63",
+  "runtime": {
+    "target": "riscv32-softmmu",
+    "upstream_commit": "8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc",
+    "manifest_sha256": "e22e1154a1499a8125ea20eb883d708596e699c50cecd1d16a23542f33f0c130",
+    "source_lock_sha256": "339160504c0ef1a0589c34bce3b1753a7e65aeca128e431fcb7dcdeca39336e8",
+    "wasm_sha256": "aeac6dba6bc0fe3ad0351fa43298068ee4c227e4d2d99f6256f638b00ca43c57",
+    "worker_sha256": "4dd0c5f6939ba709c22b4558fe0fd4116eace965d6d7085d9926b4bd8edf5f4c",
+    "javascript_sha256": "842db6be75a091f1bacc4d90bb3ec14a64e649acfb3e32712e150c9294945d3d",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "corematrix_patches": [
+      {
+        "path": "patches/qemu-esp32c61-corematrix/0001-honor-disabled-slirp.patch",
+        "sha256": "58885a4ec1cff91260d71a985859aa160776ac2dae7b1d3ded85130035d6f120"
+      },
+      {
+        "path": "patches/qemu-esp32c61-corematrix/0002-esp32c61-hp-i2c-corematrix.patch",
+        "sha256": "7933a7d268a1ba9b7312a052bff02154a6fbf95e347f267c78b04703e13827fa"
+      },
+      {
+        "path": "patches/qemu-esp32c61-corematrix/0003-esp32c61-wdev-clock.patch",
+        "sha256": "94c73e23c9607c16a5a13a1bb084be01f4f79fbcb3e3bc18f40edb8dacaf1112"
+      },
+      {
+        "path": "patches/qemu-esp32c61-corematrix/0004-esp32c61-corematrix-stock-startup.patch",
+        "sha256": "7aa4c6403047d780fd048cc4944a1cf46b1b87a45fabd970417a691cf27ab2f7"
+      },
+      {
+        "path": "patches/qemu-esp32c61-corematrix/0005-esp32c61-usb-jtag-auto-flush.patch",
+        "sha256": "bbfe934d1b2f4b8b93ff6d0759d694c24e29fcccb4b388c3bbab26fa8225b9a3"
+      },
+      {
+        "path": "patches/qemu-wasm-probe/0036-c61-wasm-sha-callbacks.patch",
+        "sha256": "8d36cdc1b392601ac894bbeaeae652588d33f031a9f9ceae259652ef079fb58f"
+      }
+    ],
+    "frame_transport": "shared-rgb565-v1",
+    "console_transport": "C61 USB Serial/JTAG through QEMU chardev index 3",
+    "clock_divisor": 1,
+    "clock_override": null,
+    "persistent_flash": false
+  },
+  "stock_uiflow2": {
+    "status": "PASS",
+    "runner": {
+      "path": "platform/tests/test_public_qemu_corematrix_stock.mjs",
+      "sha256": "38a4d72e057f0ec72acee01e506bf8fce460a4122b7922102407c14de903e022"
+    },
+    "report_sha256": "ac38cca3de8c15a8df8e9f320182afa7bc856c47e4936f39122d4d2be4345331",
+    "session_id_sha256": "1a4135d6b67cb99a4bcf9660bbad87d931ff8a7cd96c9d7e2d7def541c58fd1e",
+    "profile": "corematrix-wasm-candidate",
+    "firmware_flash_sha256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
+    "firmware_version": "UIFlow2 v2.5.4",
+    "m5burner_firmware_id": "2104482080746106881",
+    "m5burner_version_id": "2116030913772818433",
+    "firmware_url": "https://m5burner-cdn.m5stack.com/community/1/2104482080746106881/2116030913772818433/bin/2116030913772818434.bin",
+    "source_bin_bytes": 16773120,
+    "source_bin_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "boot_markers": [
+      "V2.5.4",
+      "WiFi initialized",
+      "SSID: Not Found",
+      "M5Stack CoreMatrix with ESP32-C61HR8",
+      ">>> "
+    ],
+    "board_marker": "CM_BOARD 152 16 16",
+    "boot_frame": {
+      "width": 16,
+      "height": 16,
+      "sha256": "af95bab4e8c242863fe41f184dfb77b4ccee4cdc1f1ebf0b2521635c72425365",
+      "sequence": 11,
+      "litPixels": 36,
+      "texturePixelsCompared": 256
+    },
+    "usb_tx": {
+      "payloadBytes": 216,
+      "payloadSha256": "650e7ae860976fe12955162581e0e362cefb7b29521c7005929ac250a9868404"
+    },
+    "button_routes": {
+      "a": "keyboard",
+      "b": "model pointer btnB",
+      "c": "keyboard"
+    },
+    "input_edges": [
+      {
+        "id": "a",
+        "down": true
+      },
+      {
+        "id": "a",
+        "down": false
+      },
+      {
+        "id": "b",
+        "down": true
+      },
+      {
+        "id": "b",
+        "down": false
+      },
+      {
+        "id": "c",
+        "down": true
+      },
+      {
+        "id": "a",
+        "down": true
+      },
+      {
+        "id": "c",
+        "down": false
+      },
+      {
+        "id": "a",
+        "down": false
+      }
+    ],
+    "same_session_frames": [
+      {
+        "marker": "CM_EDGE 0 0",
+        "litPixels": 12,
+        "sequence": 13,
+        "sha256": "434d21fbadc7c7d91ffd80f566097fbd693dbad42455055d26d6290b5636d8ee",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 1 1",
+        "litPixels": 13,
+        "sequence": 14,
+        "sha256": "f21297640105c193b664f59ddf2516b4317e9b2d9bbb4ab147f8fb9735250a42",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 2 0",
+        "litPixels": 12,
+        "sequence": 15,
+        "sha256": "434d21fbadc7c7d91ffd80f566097fbd693dbad42455055d26d6290b5636d8ee",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 3 2",
+        "litPixels": 13,
+        "sequence": 16,
+        "sha256": "7dbc22d965586b493bad3aafc1baf39ac1aaa091c529e8e70d84fff553cff5aa",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 4 0",
+        "litPixels": 12,
+        "sequence": 17,
+        "sha256": "434d21fbadc7c7d91ffd80f566097fbd693dbad42455055d26d6290b5636d8ee",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 5 4",
+        "litPixels": 13,
+        "sequence": 18,
+        "sha256": "773046f9fc532dfe7ed2198b07fb9e3d908de7e501810b4855ed74d1edebad8f",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 6 5",
+        "litPixels": 14,
+        "sequence": 20,
+        "sha256": "e43875a21214e26058ac59fc6c5ca279250604daf16c9321e8f2b06b3c7a9e87",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 7 1",
+        "litPixels": 13,
+        "sequence": 21,
+        "sha256": "f21297640105c193b664f59ddf2516b4317e9b2d9bbb4ab147f8fb9735250a42",
+        "texturePixelsCompared": 256
+      },
+      {
+        "marker": "CM_EDGE 8 0",
+        "litPixels": 12,
+        "sequence": 22,
+        "sha256": "434d21fbadc7c7d91ffd80f566097fbd693dbad42455055d26d6290b5636d8ee",
+        "texturePixelsCompared": 256
+      }
+    ],
+    "cleanup": {
+      "graceful_exit": true,
+      "exit_code": 0,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining_after_disposal": 0,
+      "engine_fallback_terminations": 0,
+      "iframe_removed": true,
+      "cdp_workers_observed": 5,
+      "cdp_workers_live_before_browser_close": 0,
+      "worker_closure_before_iframe_removal": "NOT CAPTURED"
+    }
+  },
+  "composed_programming_editor": {
+    "status": "PASS",
+    "runner": {
+      "path": "platform/tests/test_public_uiflow_guest.mjs",
+      "sha256": "9500d9dd0414540337ca01c26da3328be39c05ff8be9aeeaf060f5bfae7742b8"
+    },
+    "report_sha256": "79c55ae9978df153325b0195629673816e1a40a11d8b76703e8ef5c3f4fc8ff0",
+    "session_id_sha256": "4179d9237de4e9ae347f5c0f023d7727ca89a5d78824e4037c918d1678d18103",
+    "profile": "corematrix-wasm-uiflow-workbench",
+    "firmware_flash_sha256": "bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1",
+    "compose": {
+      "baseSha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+      "composerCommit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
+      "startupSources": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "main.py": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+      }
+    },
+    "ready_marker": "M5_UIFLOW_WORKBENCH_READY",
+    "checks_passed": 57,
+    "same_session_raw_paste_programs": 11,
+    "editor_checks": [
+      "Default Hello output on first and repeat execution",
+      "Short and long UTF-8 transfer",
+      "Multiline sum 45",
+      "Guest syntax and runtime errors with recovery",
+      "File import",
+      "Pause and resume with program ownership retained",
+      "Guest-acknowledged interrupt and same-session recovery",
+      "Fresh 12-pixel display rectangle"
+    ],
+    "frame": {
+      "width": 16,
+      "height": 16,
+      "sequence": 4,
+      "source_sequence": 22,
+      "lit_pixels": 12,
+      "pattern": "corematrix-white-rectangle-v1"
+    },
+    "cleanup": {
+      "graceful_exit": true,
+      "exit_code": 0,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining_after_disposal": 0,
+      "engine_fallback_terminations": 0,
+      "iframe_removed": true,
+      "cdp_workers_observed": 5,
+      "cdp_workers_live_before_browser_close": 0,
+      "worker_closure_before_iframe_removal": "PASS"
+    }
+  },
+  "composed_programming_buttons": {
+    "status": "PASS",
+    "runner": {
+      "path": "platform/tests/test_public_qemu_buttons_guest.mjs",
+      "sha256": "36b0e9d90dc56a9801368483c534f6322745f9129ebebdbd7ac244168859ae27"
+    },
+    "report_sha256": "19f29695416a61391e2923cbef554ea971782a955df23189f533848c535df19f",
+    "session_id_sha256": "c3cdce7fcafc54f6c9d585cec5c1ea606564910a8b7d2b186961cbfd83f3a389",
+    "profile": "corematrix-wasm-uiflow-workbench",
+    "firmware_flash_sha256": "bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1",
+    "checks_passed": 18,
+    "ready_board_id": 152,
+    "probe": "Original M5.BtnA, M5.BtnB and M5.BtnC APIs over the virtual M5PM1 I2C route",
+    "probe_returned_through_raw_repl_after_interrupt": true,
+    "edges": [
+      {
+        "id": "a",
+        "method": "keyboard",
+        "component": "btnA",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 253.299,
+        "model_hold_ms": 251.835,
+        "guest_pressed_sequence": 2,
+        "guest_released_sequence": 4,
+        "guest_pressed": true,
+        "guest_released": true
+      },
+      {
+        "id": "a",
+        "method": "pointer",
+        "component": "btnA",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 254.581,
+        "model_hold_ms": 252.13,
+        "guest_pressed_sequence": 8,
+        "guest_released_sequence": 10,
+        "guest_pressed": true,
+        "guest_released": true
+      },
+      {
+        "id": "b",
+        "method": "keyboard",
+        "component": "btnB",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 251.677,
+        "model_hold_ms": 250.975,
+        "guest_pressed_sequence": 14,
+        "guest_released_sequence": 16,
+        "guest_pressed": true,
+        "guest_released": true
+      },
+      {
+        "id": "b",
+        "method": "pointer",
+        "component": "btnB",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 254.706,
+        "model_hold_ms": 252.905,
+        "guest_pressed_sequence": 20,
+        "guest_released_sequence": 22,
+        "guest_pressed": true,
+        "guest_released": true
+      },
+      {
+        "id": "c",
+        "method": "keyboard",
+        "component": "btnC",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 253.323,
+        "model_hold_ms": 252.575,
+        "guest_pressed_sequence": 26,
+        "guest_released_sequence": 28,
+        "guest_pressed": true,
+        "guest_released": true
+      },
+      {
+        "id": "c",
+        "method": "pointer",
+        "component": "btnC",
+        "requested_hold_ms": 250,
+        "observed_hold_ms": 254.266,
+        "model_hold_ms": 252.46,
+        "guest_pressed_sequence": 32,
+        "guest_released_sequence": 34,
+        "guest_pressed": true,
+        "guest_released": true
+      }
+    ],
+    "cleanup": {
+      "graceful_exit": true,
+      "exit_code": 0,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining_after_disposal": 0,
+      "engine_fallback_terminations": 0,
+      "iframe_removed": true,
+      "cdp_workers_observed": 5,
+      "cdp_workers_live_before_browser_close": 0,
+      "worker_closure_before_iframe_removal": "NOT CAPTURED"
+    }
+  },
+  "composed_fixed_example": {
+    "status": "PASS",
+    "runner": {
+      "path": "platform/tests/test_public_qemu_board_guest.mjs",
+      "sha256": "2027b7e96a15efc9b1bb2798a6caadb7c5b79a4265edf36145c8c8c5ddc11a48"
+    },
+    "report_sha256": "0907533711a1ff018b9e3ec3da41888b3dc03aa6b117e803080ad672fee7ab05",
+    "session_id_sha256": "69a410604809ce5a80bd16045c9921a7b126657c08246455bc22bef63e3bc330",
+    "profile": "corematrix-wasm-candidate",
+    "firmware_flash_sha256": "150ebc83874d2e5d500477e548314babde272e65ab8c4b3b7dd4ddcc08244641",
+    "checks_passed": 28,
+    "ready_board_id": 152,
+    "input": "Model btnA press and release",
+    "guest_edges": {
+      "pressed": {
+        "seq": 2,
+        "device": "corematrix",
+        "count": 0,
+        "kind": "pressed"
+      },
+      "released": {
+        "seq": 4,
+        "device": "corematrix",
+        "count": 1,
+        "kind": "released"
+      }
+    },
+    "display_marker": {
+      "guest_marker": {
+        "height": 4,
+        "width": 4,
+        "x": 2,
+        "y": 2
+      },
+      "exact_guest_coordinates": true,
+      "offset_x": 0,
+      "offset_y": 0
+    },
+    "model_pixels_compared": 256,
+    "fresh_lit_pixels_after_release": 12,
+    "pause_resume_fresh_guest_heartbeat": true,
+    "cleanup": {
+      "graceful_exit": true,
+      "exit_code": 0,
+      "nested_workers_at_exit": 0,
+      "nested_workers_remaining_after_disposal": 0,
+      "engine_fallback_terminations": 0,
+      "iframe_removed": true,
+      "cdp_workers_observed": 5,
+      "cdp_workers_live_before_browser_close": 0,
+      "worker_closure_before_iframe_removal": "PASS"
+    }
+  },
+  "limits": [
+    "Physical hardware and optical or electrical behavior were not measured.",
+    "No Wi-Fi scan, association or packet exchange, external Quad PSRAM, BMI270, microSD, audio, external Units, power key or hardware reset were validated.",
+    "This evidence covers only the recorded stock and composed firmware hashes on the isolated candidate export."
+  ]
+}

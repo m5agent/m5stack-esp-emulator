@@ -121,3 +121,29 @@ that the stopped session retains history while the lease and Flash are
 released. The [new summary](stock-startup-summary.json) binds both runs to
 their runtime, ROM and firmware hashes. No physical hardware, Wi-Fi
 association or external PSRAM was validated.
+
+## Browser WASM qualification
+
+The [browser qualification summary](browser-qualification-summary.json)
+records four separate sessions on the same source-built RISC-V WASM runtime.
+The official upload reaches the stock missing-SSID cross. The composed
+programming image exercises the MicroPython editor and A/B/C through the
+original guest driver. The fixed example checks a fresh display update
+after a model button press. The summary binds each session to its exact
+firmware and records Worker cleanup.
+
+Run from the simulator checkout with Playwright installed under
+`platform/tests` and an isolated site exported with the pinned Xtensa and
+C61 WASM runtimes. Select the CoreMatrix candidate when replaying the
+recorded candidate source revision.
+
+```sh
+mkdir -p .work
+export M5_PUBLIC_SITE="$EXPORTED_SITE" M5_PUBLIC_BASE_PATH=/showcase/
+export M5_QEMU_DEVICE=corematrix M5_WASM_GPU=hardware
+M5_QEMU_UPLOAD="$FIRMWARE_CACHE/community/2104482080746106881.bin" \
+    node platform/tests/test_public_qemu_corematrix_stock.mjs
+node platform/tests/test_public_uiflow_guest.mjs
+node platform/tests/test_public_qemu_buttons_guest.mjs
+M5_PUBLIC_UI=1 node platform/tests/test_public_qemu_board_guest.mjs
+```
