@@ -93,8 +93,31 @@ export async function runPublicStockGuest({device, board, firmware, testScript, 
     await page.locator('#firmwareFile').setInputFiles(firmwarePath);
     await page.locator('#firmwareSha').fill(firmware.sha256);
     await page.locator('#startBtn').click();
-    await page.waitForFunction(()=>globalThis.stockGuestRuntime?.receipt
-      && ['running','error'].includes(stockGuestRuntime.status),null,{timeout});
+    const readState=()=>page.evaluate(()=>{
+      const runtime=globalThis.stockGuestRuntime, banner=document.querySelector('#errorBanner');
+      return {status:runtime?.status,serial:runtime?.serial || '',
+        ready:runtime?.status==='running' && !!runtime.receipt,
+        error:banner && !banner.hidden ? banner.textContent : ''};
+    });
+    const progress=(waitingFor,state,frame)=>writeFile(resolve(output,'progress.json'),
+      JSON.stringify({waitingFor,...state,frame},null,2)+'\n');
+    const assertHealthy=state=>{
+      assert.ok(!state.error && state.status!=='error',state.error || 'guest runtime failed');
+      assert.doesNotMatch(state.serial,/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/);
+    };
+    const bootDeadline=Date.now()+timeout;
+    let nextProgress=0;
+    for(;;){
+      const state=await readState();
+      if(Date.now()>=nextProgress){
+        await progress('guest startup',state,null);
+        nextProgress=Date.now()+10000;
+      }
+      assertHealthy(state);
+      if(state.ready)break;
+      assert.ok(Date.now()<bootDeadline,'guest startup timed out');
+      await page.waitForTimeout(125);
+    }
     const receipt=await page.evaluate(()=>stockGuestRuntime.receipt);
     assert.equal(receipt.deviceId,device);
     assert.equal(receipt.board,board);
@@ -127,12 +150,15 @@ export async function runPublicStockGuest({device, board, firmware, testScript, 
     },region);
     const waitFrame=async (sha256,region=null)=>{
       const limit=Date.now()+timeout;
-      let frame;
+      let frame, nextFrameProgress=0;
       while(Date.now()<limit) {
-        const state=await page.evaluate(()=>({status:stockGuestRuntime.status,serial:stockGuestRuntime.serial}));
-        assert.notEqual(state.status,'error','guest runtime failed');
-        assert.doesNotMatch(state.serial,/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/);
+        const state=await readState();
+        assertHealthy(state);
         frame=await sampleFrame(region);
+        if(Date.now()>=nextFrameProgress){
+          await progress('frame '+sha256,state,frame);
+          nextFrameProgress=Date.now()+10000;
+        }
         if(frame?.sha256===sha256)return frame;
         await page.waitForTimeout(125);
       }
