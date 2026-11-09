@@ -2,7 +2,9 @@
 
 Use the unmodified M5Burner StickS3 PMIC Upgrade M5PM1-O image
 (`1897200000000001767`). The runner checks its SHA-256 and the independent
-digest of the embedded PM1 app. Build the canonical native Xtensa runtime and
+digest of the embedded PM1 app. The valid update also needs the completion
+marker from the original guest's USB Serial/JTAG CDC stream. Build the
+canonical native Xtensa runtime with patches 0171 and 0173 and
 start a dedicated loopback Device Service using that binary and its matching
 ROM directory. Set `M5_SERVICE_API_TOKEN` in the runner environment to the
 service control token.
