@@ -21,8 +21,8 @@
 
 ## 新增主机剩余工作
 
-- CoreMatrix C158：补 C61 Quad PSRAM 与 stock 启动依赖。在独立板型上用官方 UIFlow2 同时取得首次应用帧、PM1 输入及 TM1680 点阵变化，再考虑默认 Device Service 准入。
-- PaperS3、PaperDIY、初代 Cardputer：按各型号缺口继续验收未覆盖的电源、音频、存储与其它外设。浏览器 QEMU-WASM 需单独编译、走同固件输入/显示并验证 Worker 回收。
+- CoreMatrix C158：验收 8 MiB Quad PSRAM、Wi-Fi 数据面和浏览器硬件复位。默认 Device Service 准入仍需独立验证固件上传契约和普通会话生命周期。
+- PaperS3、PaperDIY、初代 Cardputer：继续验收各型号的电源、音频、存储与其它外设。PaperS3 Factory V0.5 已通过与原生一致的 500 ms 操作。300 ms 的浏览器触控未稳定切换蜂鸣器图标，需定位原厂应用轮询与 GT911 IRQ/ACK 的关系。
 
 ## 已完成，不再作为待办
 

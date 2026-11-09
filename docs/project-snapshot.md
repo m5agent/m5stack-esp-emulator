@@ -59,8 +59,8 @@
 
 | 登记类别 | 数量 | 设备 ID |
 | --- | ---: | --- |
-| `candidate` | `4` | `corematrix`，`dial`，`paperdiy`，`papers3` |
-| `public` | `20` | `atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atoms3`，`atoms3-lite`，`atoms3r`，`cardputer`，`cardputer-adv`，`core2`，`cores3`，`papercolor`，`papermono`，`stackchan`，`stamplc`，`stickc`，`stickc-plus`，`stickc-plus-se`，`stickc-plus2`，`sticks3`，`stopwatch` |
+| `candidate` | `3` | `dial`，`paperdiy`，`papers3` |
+| `public` | `21` | `atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atoms3`，`atoms3-lite`，`atoms3r`，`cardputer`，`cardputer-adv`，`core2`，`corematrix`，`cores3`，`papercolor`，`papermono`，`stackchan`，`stamplc`，`stickc`，`stickc-plus`，`stickc-plus-se`，`stickc-plus2`，`sticks3`，`stopwatch` |
 
 源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。
 
@@ -160,7 +160,7 @@
 
 - `tests/`：`162` 个可执行 Python 测试文件，分布在 `66` 个目录；`229` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`293` 个 patch 文件。
-- 文档：`635` 个 Markdown 页面；除本生成页外共 `70011` 行。
+- 文档：`635` 个 Markdown 页面；除本生成页外共 `70044` 行。
 
 ## 文档与测试
 

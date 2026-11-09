@@ -35,10 +35,8 @@ jobs:
     # macOS runner rather than slowing the deployed profiles or weakening the
     # guest assertions.
     runs-on: macos-15
-    # Default admission now runs 60 sequential guest cases (at least 79 boots,
-    # including editor hardware resets) beside the fresh source build/setup.
-    # The old 90-minute ceiling left no margin at a 60-second boot budget;
-    # this is a job limit, not a startup-performance guarantee.
+    # Each admitted board runs independent guests, including editor reset
+    # boots, after rebuilding both runtime targets from source.
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +61,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qemu-source-build-diagnostics
-          path: .work/qemu-browser-runtime-build/logs
+          path: |
+            .work/qemu-browser-runtime-build/logs
+            .work/qemu-c61-runtime-build/logs
           if-no-files-found: ignore
       - name: Build browser-local demo composer
         run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
@@ -83,6 +83,18 @@ jobs:
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
+      - name: Run the unmodified official CoreMatrix firmware
+        env:
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+        run: |
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
       - name: Run every public UIFlow editor, model button and fixed example
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
@@ -97,18 +109,6 @@ jobs:
           M5_QEMU_GATE_PHASE: all
           M5_QEMU_GATE_DEVICES: ""
         run: node platform/tests/test_public_qemu_admitted_boards.mjs
-      - name: Run the unmodified official CoreMatrix firmware
-        env:
-          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
-          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
-          M5_WASM_GPU: hardware
-          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-          M5_QEMU_READY_TIMEOUT_MS: "600000"
-        run: |
-          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
-          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
-          curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
-          M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
       - name: Retain browser acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4

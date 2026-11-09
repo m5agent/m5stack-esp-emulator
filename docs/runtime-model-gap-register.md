@@ -130,9 +130,14 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ### CoreMatrix C158：C61 官方固件运行边界
 
-精确 ESP32-C61 候选可由 ESP-IDF 探针驱动 HP I²C、M5PM1、M5IOE1 和 TM1680。
-官方 UIFlow2 v2.5.4 到达应用串口，仍缺可交互的应用画面及 Quad PSRAM 的同路径证据。
-保持诊断入口隔离。生产准入须复验官方镜像的首帧和按键后点阵变化。
+官方 UIFlow2 v2.5.4 原镜像在原生隔离 Device Service 和独立 C61 浏览器 WASM
+中通过离线启动。已观察到 36 像素启动画面、216 字节 USB REPL 输出、PM1 按键
+和 TM1680 点阵变化。[原生摘要](../tests/firmware/corematrix_backend_feasibility/stock-startup-summary.json)
+及[浏览器摘要](../tests/firmware/corematrix_backend_feasibility/browser-qualification-summary.json)
+分别记录同路径证据。
+
+剩余验收覆盖 8 MiB Quad PSRAM 分配与内存读写、Wi-Fi 实际收发、浏览器硬件
+复位及默认 Device Service 固件准入。原生诊断仍使用独立入口。
 
 ### RUNTIME-09：AtomS3 Lite 工作台首次启动及硬复位后的 SYSTIMER PIF
 

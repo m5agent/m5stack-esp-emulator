@@ -93,7 +93,8 @@ Core2 另按仓库已有的稳定路径使用
 CoreMatrix C158 的 ESP32-C61 使用单独固定的 RISC-V QEMU 来源、WASM、Worker
 和对应源码包。导出器的 `--qemu-c61-runtime` 在主 Xtensa 导出旁添加这个运行时。
 聚合门禁按各自目标核对编译板型和 WASM SHA。CoreMatrix 依赖官方镜像的片内
-内存启动路径，当前范围保留 16 MiB Flash，8 MiB Quad PSRAM 与 Wi-Fi 数据面另行验收。
+内存启动路径，当前使用 16 MiB Flash。浏览器仅接受已验证的 UIFlow2 v2.5.4
+原镜像及其工作台与固定示例组合镜像。8 MiB Quad PSRAM、Wi-Fi 数据面与硬件复位另行验收。
 
 ## 访问者流程与浏览器要求
 
