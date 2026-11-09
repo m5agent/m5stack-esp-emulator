@@ -202,7 +202,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
         runtime = Path(self.tmp.name) / "runtime"
         runtime.mkdir()
         qemu = runtime / "qemu-system-xtensa"
-        qemu.write_text("#!/bin/sh\nexit 0\n")
+        qemu.write_text(
+            "#!/bin/sh\nprintf '%s\\n' 'm5cardputer Original Cardputer' "
+            "'m5papers3 PaperS3' 'm5paperdiy PaperDIY'\n"
+        )
         qemu.chmod(0o755)
         rom_dir = runtime / "pc-bios"
         rom_dir.mkdir()
@@ -428,6 +431,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual((original["sku"], original["machine"]), ("K132", "m5cardputer"))
         self.assertTrue(original["creatable"])
         self.assertEqual(original["peripheral_status"], "partial")
+        for device_id in ("papers3", "paperdiy"):
+            with self.subTest(device_id=device_id):
+                self.assertEqual(rows[device_id]["machine"], f"m5{device_id}")
+                self.assertTrue(rows[device_id]["creatable"])
+                self.assertEqual(rows[device_id]["peripheral_status"], "partial")
         self.assertEqual(original["program_modes"], [])
         for candidate in (
             "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus-se",

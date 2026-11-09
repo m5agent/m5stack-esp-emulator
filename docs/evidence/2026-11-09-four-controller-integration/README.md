@@ -17,3 +17,11 @@
 
 - [工作台端到端摘要](cardputer-native-workbench-summary.json)
 - [V0.8、V0.9 和官方 UIFlow2 的独立设备服务取证](../2026-11-09-cardputer-k132/README.md)
+
+## PaperS3 与 PaperDIY 合并构建复测
+
+在同一份包含 0168 和 0169 的 Xtensa QEMU 上，通过独立 Device Service 重放两款原厂演示。PaperS3 的 GT911 输入改变蜂鸣器图标区的 607 个像素。PaperDIY 的 A/B 按住、松开分别改变各自区域 533 个像素，松开后回到基线，另一按键区域保持原样。两个会话先导出证据，再停止并释放 Flash。
+
+- [合并构建摘要](paper-native-combined-summary.json)
+- [原厂固件及 UIFlow2 探针复现](../2026-11-09-paper-et047tc1/README.md)
+- [CoreMatrix C158 单独后端的探针和官方固件对照](../../../tests/firmware/corematrix_backend_feasibility/README.md)
