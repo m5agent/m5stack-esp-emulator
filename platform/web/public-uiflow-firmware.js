@@ -21,10 +21,13 @@ export function validateUIFlowWorkbenchRegistry(registry) {
     && registry.composer_commit === COMPOSER_COMMIT && Array.isArray(registry.profiles), 'Invalid UIFlow programming registry');
   const seen = new Set();
   for (const row of registry.profiles) {
+    const boardMatches = row.deviceId === 'corematrix'
+      ? row.chip === 'esp32c61' && row.board === 'esp32c61,m5corematrix=on' && row.flashBytes === 16 * 1048576
+      : /^[a-z0-9-]+$/.test(row.board) && ['esp32', 'esp32s3'].includes(row.chip);
     check(/^[a-z0-9-]+$/.test(row.deviceId) && !seen.has(row.deviceId) && HASH.test(row.baseSHA256)
       && HASH.test(row.firmwareSHA256) && Number.isSafeInteger(row.baseBytes) && row.baseBytes > 0
       && Number.isSafeInteger(row.flashBytes) && row.flashBytes >= row.baseBytes && row.flashBytes <= 64 * 1048576
-      && /^[a-z0-9-]+$/.test(row.board) && ['esp32', 'esp32s3'].includes(row.chip)
+      && boardMatches
       && Number.isSafeInteger(row.vfsOffset) && row.vfsOffset >= 4096 && row.vfsOffset % 4096 === 0
       && Number.isSafeInteger(row.vfsSize) && row.vfsSize >= 8192 && row.vfsSize % 4096 === 0
       && row.vfsOffset + row.vfsSize <= row.baseBytes

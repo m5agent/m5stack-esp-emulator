@@ -665,6 +665,36 @@
           "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
         }
       }
+    },
+    {
+      "deviceId": "corematrix",
+      "board": "esp32c61,m5corematrix=on",
+      "chip": "esp32c61",
+      "baseSHA256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+      "baseBytes": 16773120,
+      "flashBytes": 16777216,
+      "vfsOffset": 8519680,
+      "vfsSize": 8253440,
+      "baseFileCount": 17,
+      "baseDiskVersion": 131072,
+      "derivedDiskVersion": 131073,
+      "firmwareSHA256": "bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1",
+      "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+      "packaging": "COMPOSED_NOT_EXECUTED",
+      "files": {
+        "boot.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/boot_native.py",
+          "text": "_uiflow_run_main = True\n",
+          "bytes": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "path": "tests/browser-qemu/uiflow_workbench/main.py",
+          "text": "import M5\n\nM5.begin()\nprint(\"M5_UIFLOW_WORKBENCH_READY\")\n",
+          "bytes": 57,
+          "sha256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0"
+        }
+      }
     }
   ]
 }

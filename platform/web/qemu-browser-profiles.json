@@ -2961,8 +2961,8 @@
       "clockDivisor": 1,
       "profile": "corematrix-wasm-candidate",
       "admission": "candidate",
-      "readyMarker": null,
-      "readyFirmwareSHA256": null,
+      "readyMarker": "\"kind\": \"ready\"",
+      "readyFirmwareSHA256": "150ebc83874d2e5d500477e548314babde272e65ab8c4b3b7dd4ddcc08244641",
       "roms": [
         {
           "name": "esp32c61-rom.bin",
@@ -2998,6 +2998,54 @@
       "limitations": [
         "独立 ESP32-C61 WASM 候选板型。官方固件启动、点阵及输入需分别验证。",
         "Quad PSRAM 和 Wi-Fi 数据面仍在跟踪。"
+      ],
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "riscv-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/corematrix_main.py",
+            "bytes": 1422,
+            "sha256": "d452daed256bce098aa48244a9960d4738a026dcb8927bc5cb9dd43ee5499ac2"
+          }
+        },
+        "configSHA256": "c4fff5d3271435958d696957a2b6f301d74b7709bd4d3ff1e484b77e22859213",
+        "firmwareSHA256": "150ebc83874d2e5d500477e548314babde272e65ab8c4b3b7dd4ddcc08244641",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table",
+        "frameOracle": {
+          "rect": {
+            "x": 2,
+            "y": 2,
+            "width": 4,
+            "height": 4
+          },
+          "before": 65535,
+          "after": 0
+        }
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1",
+          "profile": "corematrix-wasm-uiflow-workbench",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-c61"
+        }
       ]
     }
   ]

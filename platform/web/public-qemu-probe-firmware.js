@@ -5,6 +5,7 @@ import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCES = Object.freeze({
+  "corematrix_main.py": {"bytes": 1422, "sha256": "d452daed256bce098aa48244a9960d4738a026dcb8927bc5cb9dd43ee5499ac2"},
   "atom_lite_main.py": {"bytes": 1085, "sha256": "b31b9e62e2500269ff878d31114c1d048d0a258bdaae120632c9e3c7796a6fa9"},
   "atom_matrix_main.py": {"bytes": 1088, "sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"},
 
@@ -51,6 +52,7 @@ const SOURCES = Object.freeze({
   }
 });
 const SOURCE_NAMES = Object.freeze({
+  "corematrix": {"boot.py": "core2_boot.py", "main.py": "corematrix_main.py"},
   "atom-lite": {"boot.py": "core2_boot.py", "main.py": "atom_lite_main.py"},
   "atom-matrix": {"boot.py": "core2_boot.py", "main.py": "atom_matrix_main.py"},
   "atom-matrix-v11": {"boot.py": "core2_boot.py", "main.py": "atom_matrix_main.py"},
@@ -148,7 +150,9 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
   signal, fetchImpl = globalThis.fetch, onProgress = () => {}} = {}) {
   validateQemuProfile(profile); abort(signal);
   const fixture = profile.fixture;
-  check(fixture?.id === (profile.display===null?'xtensa-board-led-v1':'xtensa-board-display-v1') && ['button', 'touch', 'keyboard'].includes(fixture.inputMode)
+  const fixtureId=profile.target==='riscv32-softmmu'?'riscv-board-display-v1'
+    :profile.display===null?'xtensa-board-led-v1':'xtensa-board-display-v1';
+  check(fixture?.id === fixtureId && ['button', 'touch', 'keyboard'].includes(fixture.inputMode)
     && Number.isInteger(fixture.uiRotation) && fixture.uiRotation >= 0 && fixture.uiRotation <= 3
     && /^[a-f0-9]{64}$/.test(fixture.firmwareSHA256), 'This board has no reviewed browser probe fixture');
   const options = {signal, fetchImpl};

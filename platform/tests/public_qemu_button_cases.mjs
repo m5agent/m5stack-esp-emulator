@@ -21,6 +21,7 @@ export const PUBLIC_QEMU_BUTTON_CASES=Object.freeze({
   // admitted only by a runtime containing the dedicated GPIO0 input patch.
   'cardputer-adv':[gpio('boot','boot','BtnA')],
   cardputer:[gpio('f12','boot','BtnA')],
+  corematrix:[gpio('a','btnA','BtnA'),gpio('b','btnB','BtnB'),gpio('c','btnC','BtnC')],
   stamplc:[gpio('key1','a','BtnA'),gpio('key2','b','BtnB'),gpio('key3','c','BtnC')],
   stackchan:[pmic()],
   papercolor:[gpio('key1','key1','BtnA'),gpio('key2','key2','BtnB'),gpio('key3','key3','BtnC'),pmic()],
@@ -37,6 +38,7 @@ export const PUBLIC_QEMU_BUTTON_CASES=Object.freeze({
 export const PUBLIC_QEMU_BUTTON_LIMITS=Object.freeze({
   'cardputer-adv':'G0 / Boot covers original BtnA on GPIO0; the 56-key keyboard FIFO has separate coverage.',
   cardputer:'G0 / Boot uses GPIO0. The K132 GPIO matrix has a separate stock launcher and Fn indicator case.',
+  corematrix:'A/B/C are read by the M5 button API from the virtual M5PM1 over HP I2C.',
   stackchan:'The three Si12T capacitive body zones are separate from the PMIC button observer.',
   core2:'A/B/C route through the FT touch-controller raw bottom band, not GPIO switches.',
   papers3:'The GT911 touchscreen is the browser input path. PMS150G power behavior is unmodeled.',

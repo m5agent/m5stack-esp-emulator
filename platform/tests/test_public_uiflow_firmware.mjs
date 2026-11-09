@@ -62,6 +62,14 @@ for (const row of registry.profiles) {
     assert.equal(resolved.firmwareVariant.fixture, 'uiflow-workbench-v1');
     assert.equal(resolved.firmwareVariant.schedulerCandidate, 'qemu-tci-mmio-blocks-v1');
     assert.equal(resolved.accelerator, undefined);
+  } else if(row.deviceId==='corematrix'){
+    assert.equal(row.firmwareSHA256,'bfe9e28a1ac0795c74d0c25c0619224974bb8ef00d230bc412a26889f23eafe1');
+    assert.equal(row.chip,'esp32c61');
+    assert.equal(row.board,'esp32c61,m5corematrix=on');
+    assert.equal(resolved.profile,'corematrix-wasm-uiflow-workbench');
+    assert.equal(resolved.oneInsnPerTb,undefined);
+    assert.equal(resolved.firmwareVariant.fixture,'uiflow-workbench-v1');
+    assert.equal(resolved.firmwareVariant.sourceSHA256,row.files['main.py'].sha256);
   } else {
     assert.equal(resolved.clockDivisor, profile.clockDivisor, `${row.deviceId} cannot inherit another board's exact execution policy`);
     assert.deepEqual(resolved.accelerator, profile.accelerator);

@@ -4,7 +4,10 @@ These fixtures run the original UIFlow2 `M5.begin`, `M5.Display`, `M5.update`
 and board input drivers in the guest. Serial `M5_BROWSER_PROBE` JSON binds the
 board, logical display size, input edges, counter and heartbeat to the same
 execution. LCD/OLED fixtures change a complete 8x8 red marker to green; EPD
-fixtures change a 16x16 QUALITY-encoded black marker to white. They are bounded
+fixtures change a 16x16 QUALITY-encoded black marker to white. The CoreMatrix
+probe starts with a white 4x4 block on its 16x16 monochrome display and moves
+it to a separate 4x3 region when its original BtnA API reports a press.
+CoreMatrix retains the stock USB REPL console. They are bounded
 controller-path probes: LVGL, networking, audio, unrelated Units and physical
 hardware equivalence require separate evidence.
 
