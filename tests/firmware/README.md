@@ -41,6 +41,12 @@ Widgets, LVGL and offline WLAN startup paths through visible Device Service
 sessions, with pinned stock executable bytes and retained-history checks.
 It does not replace private full-application or legacy UIFlow1 validation.
 
+## StickS3 USB device mode
+
+The [Bit Pirate stock-firmware probe](sticks3_usb_otg/README.md) exercises the
+native ESP32-S3 USB device controller, guest TinyUSB enumeration and CDC bulk
+I/O through a dedicated Device Service session.
+
 ## Core2 for AWS ATECC608
 
 [`core2_atecc608/`](core2_atecc608/README.md) drives the public Core2 for AWS

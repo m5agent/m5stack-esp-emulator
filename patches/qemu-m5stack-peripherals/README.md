@@ -1,5 +1,22 @@
 # M5Stack peripheral models and data planes
 
+## StickS3 USB device mode
+
+`0172-sticks3-usb-otg-device.patch` adds the ESP32-S3 full-speed device
+controller to the native `m5sticks3` machine. The system clock and reset gates
+drive the DWC2 controller at `0x60080000`, with its endpoint interrupts routed
+through the ESP32-S3 interrupt matrix. A virtual host sends packets via
+`/machine/soc/usb-otg`. The guest supplies descriptors and transfer data through
+the controller's endpoint buffers.
+
+The pinned Bit Pirate v1.6 guest passed address and configuration enumeration,
+CDC ACM line-coding writes and readback, CDC bulk I/O and HID report descriptor
+readback. The guest used the FIFO path. The Buffer DMA path, HID reports, MSC
+operations, controller host mode, USB PHY behavior and browser-WASM remain
+outside this acceptance. The native bootstrap applies this layer after
+`0170`; the browser source lock is unchanged.
+[Exact stock-firmware probe and evidence](../../tests/firmware/sticks3_usb_otg/README.md)
+
 ## Latest firmware compatibility layers
 
 After the canonical Unit chain through `0161`, apply `0162` (AXP2101 charger
