@@ -2939,6 +2939,65 @@
           }
         }
       ]
+    },
+    {
+      "deviceId": "corematrix",
+      "name": "CoreMatrix C158",
+      "board": "esp32c61,m5corematrix=on",
+      "target": "riscv32-softmmu",
+      "chip": "esp32c61",
+      "imageChipId": 20,
+      "flashMb": 16,
+      "psramMb": 0,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 16,
+        "height": 16,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "clockDivisor": 1,
+      "profile": "corematrix-wasm-candidate",
+      "admission": "candidate",
+      "readyMarker": null,
+      "readyFirmwareSHA256": null,
+      "roms": [
+        {
+          "name": "esp32c61-rom.bin",
+          "sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+          "bytes": 262144,
+          "url": "https://raw.githubusercontent.com/espressif/qemu/8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc/pc-bios/esp32c61-rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": null,
+      "inputs": {
+        "touch": false,
+        "uart": true,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "c": "c"
+        },
+        "keyboard": [],
+        "pir": null
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "CoreMatrix 官方 UIFlow2 v2.5.4",
+        "sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+        "bytes": 16773120,
+        "url": "https://m5burner-cdn.m5stack.com/community/1/2104482080746106881/2116030913772818433/bin/2116030913772818434.bin"
+      },
+      "limitations": [
+        "独立 ESP32-C61 WASM 候选板型。官方固件启动、点阵及输入需分别验证。",
+        "Quad PSRAM 和 Wi-Fi 数据面仍在跟踪。"
+      ]
     }
   ]
 }

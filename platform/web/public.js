@@ -1206,8 +1206,16 @@ async function init() {
     const native = rows.get(profile.id);
     // An experimental browser profile cannot overwrite a native device's
     // wiring, path, or admission. Its complete row can replace a preview.
-    rows.set(profile.id, native && !native.visual_only
-      ? {...native, browser:profile.browser} : profile);
+    if (native && !native.visual_only) {
+      rows.set(profile.id, {...native, browser:profile.browser});
+    } else if (config.browser_runtime_engine === 'qemu-wasm') {
+      if (native && browserProfile(profile.id)) {
+        rows.set(profile.id, {...native, visual_only:false, browser:profile.browser,
+          runtime:{status:'browser-runtime'}});
+      }
+    } else {
+      rows.set(profile.id, profile);
+    }
   }
   state.devices = [...rows.values()];
   state.units = visual.products.filter((model) => model.category === 'unit');

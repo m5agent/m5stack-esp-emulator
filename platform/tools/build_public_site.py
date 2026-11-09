@@ -124,12 +124,13 @@ def browser_runtime_files(directory: Path, *, allow_diagnostic: bool = False) ->
     return manifest, files
 
 
-def qemu_runtime_files(directory: Path, *, allow_diagnostic: bool = False) -> tuple[dict, dict[str, bytes]]:
+def qemu_runtime_files(directory: Path, *, allow_diagnostic: bool = False, target: str = "xtensa-softmmu") -> tuple[dict, dict[str, bytes]]:
     from bootstrap_qemu_browser_runtime import runtime_files
-    return runtime_files(directory, allow_incremental=allow_diagnostic)
+    return runtime_files(directory, allow_incremental=allow_diagnostic, target=target)
 
 
-def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str, ...] = ()) -> tuple[dict, dict]:
+def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str, ...] = (), *,
+                       c61_manifest: dict | None = None) -> tuple[dict, dict]:
     """Export only individually admitted boards, or explicit preview candidates.
 
     The engine manifest describes compiled availability. It is deliberately
@@ -144,13 +145,17 @@ def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str
     by_id = {row["deviceId"]: row for row in rows}
     if len(by_id) != len(rows) or len(set(candidates)) != len(candidates):
         raise ValueError("duplicate QEMU browser profile")
+    available = {
+        "xtensa-softmmu": set(runtime_manifest.get("compiled_profiles", runtime_manifest.get("profiles", []))),
+        "riscv32-softmmu": set(c61_manifest["compiled_profiles"]) if c61_manifest else set(),
+    }
     for device_id in candidates:
         if device_id not in by_id or by_id[device_id].get("admission") != "candidate":
             raise ValueError("unknown or non-candidate QEMU preview profile")
-        if device_id not in runtime_manifest.get("compiled_profiles", runtime_manifest.get("profiles", [])):
+        if device_id not in available.get(by_id[device_id]["target"], ()):
             raise ValueError("QEMU preview profile is not available in this runtime")
-    available = runtime_manifest.get("compiled_profiles", runtime_manifest.get("profiles", []))
-    selected = [row for row in rows if (row.get("admission") == "public" and row["deviceId"] in available)
+    selected = [row for row in rows if (row.get("admission") == "public"
+                and row["deviceId"] in available.get(row["target"], ()))
                 or row["deviceId"] in candidates]
     registry["profiles"] = selected
     browser = {"schema_version": 1, "scope": "C/QEMU per-board browser admission; native coverage is not inherited",
@@ -221,14 +226,14 @@ def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False
     return files
 
 
-def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = ()) -> dict:
+def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = ()) -> dict:
     root, output = root.resolve(), output.resolve()
     base_path = normalize_base_path(base_path)
     service_url = normalize_service_url(service_url)
     if browser_runtime and qemu_runtime:
         raise ValueError("select one browser engine per exported site")
-    if qemu_candidate_profiles and not qemu_runtime:
-        raise ValueError("QEMU candidate profiles require a QEMU runtime")
+    if (qemu_candidate_profiles or qemu_c61_runtime) and not qemu_runtime:
+        raise ValueError("QEMU candidate profiles and the C61 runtime require the primary QEMU runtime")
     # Never overwrite a source tree or an arbitrary existing user directory.
     in_sources = any(path == output or path in output.parents for path in (root / "platform", root / "devices", root / ".git"))
     if output == root or output in root.parents or in_sources or any((output / name).exists() for name in (".git", "platform", "devices")) and not (output / MANIFEST_NAME).is_file():
@@ -269,7 +274,15 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             runtime_directory.mkdir(parents=True, exist_ok=True)
             for name, content in runtime_files.items():
                 (runtime_directory / name).write_bytes(content)
-            registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles)
+            c61_manifest = None
+            if qemu_c61_runtime:
+                c61_manifest, c61_files = qemu_runtime_files(qemu_c61_runtime, target="riscv32-softmmu")
+                c61_directory = temporary / "platform/runtime/qemu-c61"
+                c61_directory.mkdir()
+                for name, content in c61_files.items():
+                    (c61_directory / name).write_bytes(content)
+            registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles,
+                                                           c61_manifest=c61_manifest)
             (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
             (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json(browser_profiles))
             workbench_path = Path("platform/web/uiflow-workbench-profiles.json")
@@ -385,12 +398,13 @@ def main() -> None:
     parser.add_argument("--service-url", default="", help="optional public HTTPS Device Service, without token")
     parser.add_argument("--browser-runtime", type=Path, help="directory from bootstrap_browser_runtime.py")
     parser.add_argument("--qemu-runtime", type=Path, help="directory from bootstrap_qemu_browser_runtime.py")
+    parser.add_argument("--qemu-c61-runtime", type=Path, help="directory from the RISC-V C61 source build")
     parser.add_argument("--littlefs-runtime", type=Path, help="source-built browser LittleFS composer")
     parser.add_argument("--allow-diagnostic-runtime", action="store_true", help="explicit preview-only opt-in for the pinned downloaded WASM")
     parser.add_argument("--qemu-candidate-profile", action="append", default=[], help="preview-only board candidate; never supplied by the Pages publication workflow")
     args = parser.parse_args()
     try:
-        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile))
+        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile))
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"public site export failed: {error}\n")
     print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "bytes": sum(row["bytes"] for row in manifest["assets"]), "base_path": manifest["base_path"], "published": False}))

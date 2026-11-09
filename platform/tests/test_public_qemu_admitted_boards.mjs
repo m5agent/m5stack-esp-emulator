@@ -89,7 +89,10 @@ export function validatePublicQemuGateResult(item,result,{workbenchRegistry,wasm
   assert.equal(provenance?.site_manifest_sha256,siteManifestSHA256,'Gate cannot inherit another export result');
   assert.equal(provenance?.test_script?.path,'platform/tests/'+item.script,'Gate child control script path mismatch');
   assert.equal(provenance?.test_script?.sha256,testScriptSHA256,'Gate child control script SHA mismatch');
-  assert.equal(provenance?.runtime_assets?.['qemu-system-xtensa.wasm']?.sha256,wasmSHA256,'Gate cannot inherit another runtime result');
+  const runtimeArtifact=item.device==='corematrix'
+    ? provenance?.c61_runtime_assets?.['qemu-system-riscv32.wasm']
+    : provenance?.runtime_assets?.['qemu-system-xtensa.wasm'];
+  assert.equal(runtimeArtifact?.sha256,wasmSHA256,'Gate cannot inherit another runtime result');
   if(item.lane==='fixed')return;
   assert.ok(['uiflow-editor','uiflow-buttons','stackchan-body-touch','cardputer-keyboard'].includes(item.lane),'Unknown workbench lane');
   const expected=workbenchRegistry.profiles.find(row=>row.deviceId===item.device);
@@ -106,7 +109,7 @@ export function validatePublicQemuGateResult(item,result,{workbenchRegistry,wasm
 }
 
 /** Pure planning: no process, browser, firmware or runtime execution. */
-export function planPublicQemuGate({manifest,config,registry,runtime,workbenchRegistry,
+export function planPublicQemuGate({manifest,config,registry,runtime,c61Runtime,workbenchRegistry,
   phase='all',devices=[],requireAll=false}){
   assert.ok(PUBLIC_QEMU_GATE_PHASES.includes(phase),'Unknown M5_QEMU_GATE_PHASE');
   assert.ok(Array.isArray(devices)&&new Set(devices).size===devices.length,'Duplicate gate device selection');
@@ -114,8 +117,12 @@ export function planPublicQemuGate({manifest,config,registry,runtime,workbenchRe
   assert.deepEqual(manifest.candidate_profiles,[]);assert.deepEqual(config.browser_candidate_profiles,[]);
   validateQemuBrowserProfiles(registry);validateUIFlowWorkbenchRegistry(workbenchRegistry);
   assert.ok(registry.profiles.length&&registry.profiles.some(profile=>profile.deviceId==='cores3'));
+  const compiled=new Map([
+    ['xtensa-softmmu',runtime.compiled_profiles||runtime.profiles],
+    ['riscv32-softmmu',c61Runtime?.compiled_profiles||[]],
+  ]);
   assert.ok(registry.profiles.every(profile=>profile.admission==='public'
-    && (runtime.compiled_profiles||runtime.profiles).includes(profile.deviceId)),
+    && compiled.get(profile.target)?.includes(profile.deviceId)),
   'Only explicitly public, compiled registry boards enter this gate');
   const publicIds=registry.profiles.map(profile=>profile.deviceId);
   assert.deepEqual(workbenchRegistry.profiles.map(row=>row.deviceId).sort(),[...publicIds].sort(),
@@ -168,9 +175,12 @@ async function run(){
     async function json(path){const bytes=await readFile(resolve(site,path));assets[path]={bytes:bytes.length,sha256:digest(bytes)};return JSON.parse(bytes);}
     const manifest=await json('public-site-manifest.json'),config=await json('platform/web/site-config.json');
     const registry=await json('platform/web/qemu-browser-profiles.json'),runtime=await json('platform/runtime/qemu/runtime.json');
+    const c61Runtime=registry.profiles.some(row=>row.target==='riscv32-softmmu')
+      ? await json('platform/runtime/qemu-c61/runtime.json') : null;
     const workbenchRegistry=await json('platform/web/uiflow-workbench-profiles.json');
     Object.assign(report,{assets,wasm_sha256:runtime.assets?.wasm?.sha256});
-    const plan=planPublicQemuGate({manifest,config,registry,runtime,workbenchRegistry,
+    if(c61Runtime)report.c61_wasm_sha256=c61Runtime.assets.wasm.sha256;
+    const plan=planPublicQemuGate({manifest,config,registry,runtime,c61Runtime,workbenchRegistry,
       phase:process.env.M5_QEMU_GATE_PHASE||'all',
       devices:process.env.M5_QEMU_GATE_DEVICES?process.env.M5_QEMU_GATE_DEVICES.split(','):[],
       requireAll:process.env.M5_QEMU_GATE_REQUIRE_ALL==='1'});
@@ -208,7 +218,8 @@ async function run(){
         Object.assign(row,{status:result.result||result.status,report_sha256:digest(raw),report_bytes:raw.length});
         assert.equal(code.code,0,`${item.lane}/${item.device}/${item.example||'default'} guest runner failed`);
         assert.equal(row.status,'PASS',`${item.lane}/${item.device} guest did not pass`);
-        validatePublicQemuGateResult(item,result,{workbenchRegistry,wasmSHA256:runtime.assets.wasm.sha256,
+        const executionRuntime=item.device==='corematrix'?c61Runtime:runtime;
+        validatePublicQemuGateResult(item,result,{workbenchRegistry,wasmSHA256:executionRuntime.assets.wasm.sha256,
           siteManifestSHA256:assets['public-site-manifest.json'].sha256,testScriptSHA256:row.test_script_sha256});
       }catch(error){noteFailure(error);row.status='FAIL';row.error=String(error?.message||error).slice(0,2000);}
       finally{row.finished_at=new Date().toISOString();}

@@ -1,0 +1,76 @@
+diff --git a/hw/riscv/esp32c61.c b/hw/riscv/esp32c61.c
+index 05698f7..7340c97 100644
+--- a/hw/riscv/esp32c61.c
++++ b/hw/riscv/esp32c61.c
+@@ -9,6 +9,7 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "qemu/timer.h"
+ #include "qemu/error-report.h"
+ #include "hw/qdev-properties.h"
+ #include "qemu/units.h"
+@@ -55,6 +56,7 @@
+ 
+ #define ESP32C61_HP_I2C_BASE         0x60004000
+ #define ESP32C61_HP_I2C_IRQ          45
++#define ESP32C61_WDEV_TIME_BASE      0x600ad800
+ 
+ void m5_corematrix_attach(Object *machine, I2CBus *bus);
+ 
+@@ -95,6 +97,7 @@ struct Esp32C61MachineState {
+     ESP32C61SpiMemState spi_mem;
+     ESP32C61I2cAnaMstState i2c_ana_mst;
+     ESP32C61ModemState modem;
++    MemoryRegion wdev_time;
+ };
+ 
+ #define TYPE_ESP32C61_MACHINE MACHINE_TYPE_NAME("esp32c61")
+@@ -124,6 +127,35 @@ static void esp32c61_reset_request(void *opaque, int n, int level)
+     }
+ }
+ 
++/*
++ * The WLAN driver and PHY share a free-running 32-bit microsecond counter.
++ * In particular phy_wait_i2c_sdm_stable() uses its unsigned delta to bound
++ * analog calibration polling. Drive it from guest virtual time, including
++ * wraparound. This register is separate from RF and packet I/O.
++ */
++static uint64_t esp32c61_wdev_time_read(void *opaque, hwaddr addr, unsigned size)
++{
++    return (uint32_t)qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++}
++
++static bool esp32c61_wdev_time_accepts(void *opaque, hwaddr addr,
++                                     unsigned size, bool is_write,
++                                     MemTxAttrs attrs)
++{
++    return !is_write;
++}
++
++static const MemoryRegionOps esp32c61_wdev_time_ops = {
++    .read = esp32c61_wdev_time_read,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = {
++        .min_access_size = 4,
++        .max_access_size = 4,
++        .accepts = esp32c61_wdev_time_accepts,
++    },
++    .impl = { .min_access_size = 4, .max_access_size = 4 },
++};
++
+ static void esp32c61_load_rom_data_init(const char *rom_path)
+ {
+     GMappedFile *mapped = g_mapped_file_new(rom_path, false, NULL);
+@@ -793,6 +825,11 @@ static void esp32c61_machine_init(MachineState *machine)
+         }
+     }
+ 
++    memory_region_init_io(&ms->wdev_time, OBJECT(ms), &esp32c61_wdev_time_ops,
++                          ms, "esp32c61.wdev-time", 4);
++    memory_region_add_subregion_overlap(sys_mem, ESP32C61_WDEV_TIME_BASE,
++                                        &ms->wdev_time, 0);
++
+     create_unimplemented_device("esp32c61.peripherals", ESP32C61_IO_START_ADDR, 0x100000);
+     create_unimplemented_device("esp32c61.clic_area", 0x20000000, 0x1000000);
+ }

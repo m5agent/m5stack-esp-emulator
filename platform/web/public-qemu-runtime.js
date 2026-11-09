@@ -131,7 +131,9 @@ export class PublicQemuRuntime {
       const manifestUrl=assetUrl(`platform/runtime/${runtimeIdentity.directory}/runtime.json`,this.root);
       const response=await this.fetchImpl(manifestUrl,{signal:bootAbort.signal});
       check(response.ok,'站点未包含 C/QEMU WASM，请先运行 Pages 构建。');const manifest=await response.json();
-      check(manifest.schema_version===1&&manifest.engine==='qemu-wasm'&&manifest.source?.commit===runtimeIdentity.commit&&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
+      check(manifest.schema_version===1&&manifest.engine==='qemu-wasm'
+        &&(manifest.target||'xtensa-softmmu')===profile.target&&manifest.source?.commit===runtimeIdentity.commit
+        &&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
       validateQemuRuntimeRequirements(profile,manifest);
       const resource=async(row,maxBytes)=>{
         check(row&&/^[a-zA-Z0-9_.-]+$/.test(row.path)&&/^[a-f0-9]{64}$/.test(row.sha256),'C/QEMU 资源清单无效。');

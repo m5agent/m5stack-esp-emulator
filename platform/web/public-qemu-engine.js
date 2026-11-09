@@ -142,13 +142,16 @@ async function start(config) {
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
-      for (const [index,path] of ['/bridge/uart.in','/bridge/uart.out','/bridge/serial1'].entries()) {
+      const consoleBase = boardProfile.target==='riscv32-softmmu' ? '/bridge/usb' : '/bridge/uart';
+      const consoleInput = consoleBase+'.in', consoleOutput = consoleBase+'.out';
+      const chardevPaths = [...new Set([consoleInput,consoleOutput,'/bridge/uart.out','/bridge/serial1'])];
+      for (const [index,path] of chardevPaths.entries()) {
         const dev = m.FS.makedev(64,index);
         const serialDecoder = new TextDecoder();
         m.FS.registerDevice(dev, {
           open:stream => { stream.seekable = false; }, close:() => {},
           read:(stream,buffer,offset,length) => {
-            if (path!=='/bridge/uart.in'||!uartInput.length) throw new m.FS.ErrnoError(6);
+            if (path!==consoleInput||!uartInput.length) throw new m.FS.ErrnoError(6);
             const count = Math.min(uartInput.length,length);
             for (let i=0;i<count;i++) buffer[offset+i] = uartInput.shift();
             return count;
@@ -160,11 +163,11 @@ async function start(config) {
             // Chromium rejects SharedArrayBuffer-backed TextDecoder input.
             // FS buffers can be the shared WASM heap: copy before decoding.
             const bytes=Uint8Array.from(buffer.subarray(offset,offset+length));
-            if(path==='/bridge/uart.out')emit('uart-bytes',bytes);
+            if(path===consoleOutput)emit('uart-bytes',bytes);
             const text = serialDecoder.decode(bytes, {stream:true});
             serial = (serial + text).slice(-65536); emit('serial', text); return length;
           },
-          poll:() => 4 | (path==='/bridge/uart.in'&&uartInput.length ? 1 : 0),
+          poll:() => 4 | (path===consoleInput&&uartInput.length ? 1 : 0),
           llseek:() => { throw new m.FS.ErrnoError(70); },
         });
         m.FS.mkdev(path,0o666,dev);

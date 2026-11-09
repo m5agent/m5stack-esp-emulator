@@ -355,8 +355,13 @@ export function validateQemuFirmware(firmware, profile) {
 
 export function buildQemuArguments(profile) {
   validateQemuProfile(profile);
+  // C61 exposes three hardware UARTs before the USB Serial/JTAG chardev.
+  // Keep ROM UART diagnostics and the stock MicroPython USB input distinct.
+  const serials = profile.target === 'riscv32-softmmu'
+    ? ['file:/bridge/uart.out','file:/bridge/serial1','null','pipe:/bridge/usb']
+    : [profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out','file:/bridge/serial1'];
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
-    '-serial', profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
+    ...serials.flatMap(device=>['-serial',device]), '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
   if (profile.oneInsnPerTb === true) {
     args.push('-accel', 'tcg,thread=multi,one-insn-per-tb=on');

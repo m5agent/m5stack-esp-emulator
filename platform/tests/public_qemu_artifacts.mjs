@@ -53,6 +53,19 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
   }
   const runtimeBytes=await verified('platform/runtime/qemu/runtime.json'),runtime=JSON.parse(runtimeBytes);
   assert.equal(runtime.engine,'qemu-wasm');assert.equal(runtime.schema_version,1);
+  const c61ManifestPath='platform/runtime/qemu-c61/runtime.json';
+  const c61Bytes=declared.has(c61ManifestPath)?await verified(c61ManifestPath):null;
+  const c61=c61Bytes?JSON.parse(c61Bytes):null;
+  if(c61){
+    assert.equal(c61.engine,'qemu-wasm');
+    assert.equal(c61.target,'riscv32-softmmu');
+    assert.equal(c61.schema_version,1);
+  }
+  const compiled = new Map([
+    ['xtensa-softmmu',runtime.compiled_profiles??runtime.profiles],
+    ['riscv32-softmmu',c61?.compiled_profiles??[]],
+  ]);
+  assert.ok([...compiled.values()].every(Array.isArray),'invalid compiled profile list');
   const web={};
   for(const path of webPaths){
     const source=await readFile(resolve(repo,safePath(path))),exported=await verified(path);
@@ -61,12 +74,12 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
       const canonical=JSON.parse(source),actual=JSON.parse(exported),candidates=manifest.candidate_profiles??[];
       assert.equal(canonical.schema_version,1);assert.equal(canonical.engine,'qemu-wasm');assert.equal(canonical.target,'xtensa-softmmu');assert.equal(canonical.source?.commit,runtime.source?.commit);
       assert.ok(Array.isArray(canonical.profiles)&&Array.isArray(candidates)&&Array.isArray(runtime.profiles),'invalid registry transform inputs');
-      const available=runtime.compiled_profiles??runtime.profiles;assert.ok(Array.isArray(available),'invalid compiled profile list');
+      const available=profile=>compiled.get(profile?.target)?.includes(profile.deviceId);
       const byId=new Map(canonical.profiles.map(profile=>[profile.deviceId,profile]));
       assert.equal(byId.size,canonical.profiles.length,'duplicate canonical profile');assert.equal(new Set(candidates).size,candidates.length,'duplicate preview candidate');
       assert.equal(manifest.publication_eligible,candidates.length===0,'preview candidates cannot be publication eligible');
-      for(const id of candidates){assert.equal(byId.get(id)?.admission,'candidate','preview must select a canonical candidate');assert.ok(available.includes(id),'preview candidate is not compiled');}
-      const publicProfiles=canonical.profiles.filter(profile=>profile.admission==='public'&&available.includes(profile.deviceId)).map(profile=>profile.deviceId);
+      for(const id of candidates){assert.equal(byId.get(id)?.admission,'candidate','preview must select a canonical candidate');assert.ok(available(byId.get(id)),'preview candidate is not compiled');}
+      const publicProfiles=canonical.profiles.filter(profile=>profile.admission==='public'&&available(profile)).map(profile=>profile.deviceId);
       const selected=canonical.profiles.filter(profile=>publicProfiles.includes(profile.deviceId)||candidates.includes(profile.deviceId));
       assert.ok(isDeepStrictEqual(actual,{...canonical,profiles:selected}),`registry export does not match canonical deterministic selection: ${path}`);
       const builder=await readFile(resolve(repo,'platform/tools/build_public_site.py'));
@@ -89,13 +102,18 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
   // The root copies have a different pathname but must be the same execution.
   assert.deepEqual(await verified('index.html'),await verified('platform/web/index.html'),'root entry differs from public web entry');
   assert.deepEqual(await verified('coi-serviceworker.js'),await verified('platform/web/public-coi-serviceworker.js'),'project-root isolation wrapper differs');
-  const runtimeAssets={};
-  for(const row of Object.values(runtime.assets)){
-    const path='platform/runtime/qemu/'+safePath(row.path),bytes=await verified(path);
-    assert.equal(bytes.length,row.bytes,`runtime manifest length mismatch: ${path}`);
-    assert.equal(sha256(bytes),row.sha256,`runtime manifest SHA mismatch: ${path}`);
-    runtimeAssets[row.path]={bytes:bytes.length,sha256:sha256(bytes)};
+  async function verifiedRuntimeAssets(directory, manifest){
+    const assets={};
+    for(const row of Object.values(manifest.assets)){
+      const path='platform/runtime/'+directory+'/'+safePath(row.path),bytes=await verified(path);
+      assert.equal(bytes.length,row.bytes,`runtime manifest length mismatch: ${path}`);
+      assert.equal(sha256(bytes),row.sha256,`runtime manifest SHA mismatch: ${path}`);
+      assets[row.path]={bytes:bytes.length,sha256:sha256(bytes)};
+    }
+    return assets;
   }
+  const runtimeAssets=await verifiedRuntimeAssets('qemu',runtime);
+  const c61Assets=c61?await verifiedRuntimeAssets('qemu-c61',c61):null;
   const runner=await readFile(resolve(repo,safePath(testScript)));
   const helper=await readFile(fileURLToPath(import.meta.url));
   return {
@@ -103,6 +121,8 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
     site_manifest_sha256:sha256(manifestBytes),base_path:manifest.base_path,web,
     runtime_manifest_sha256:sha256(runtimeBytes),runtime_source_commit:runtime.source?.commit,
     runtime_build:runtime.build,required_rom:runtime.required_rom,runtime_assets:runtimeAssets,
+    ...(c61?{c61_runtime_manifest_sha256:sha256(c61Bytes),c61_runtime_source_commit:c61.source?.commit,
+      c61_runtime_build:c61.build,c61_required_rom:c61.required_rom,c61_runtime_assets:c61Assets}:{}),
     test_script:{path:testScript,sha256:sha256(runner)},helper_sha256:sha256(helper),
   };
 }
