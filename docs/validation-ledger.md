@@ -25,8 +25,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 | 四款主机 / virtual-device validation | 四款 3D 深链与帧写入通过。PaperS3、PaperDIY、初代 Cardputer 的限定固件交互和 CoreMatrix C61 诊断分别绑定各自镜像、内核、输入与输出。正式 QEMU-WASM 和真机未复验 | [工作台与各板证据](evidence/2026-11-09-four-controller-integration/README.md) |
 | Core2 显示刷新 / virtual-device validation | 原生 `0167` 使用既有 60 Hz 刷新。相同官方 UIFlow2 v2.5.4 基底及触摸探针在旧 `d150c645…` 和新 `75e61d00…` 上均读到点击和四向滑动的原始与逻辑坐标，FT5x06 I²C 逐点匹配，松手后触点归零。新会话取证后清场，真机与浏览器未测 | [同路径摘要](evidence/2026-11-09-core2-panel-refresh/stock-touch-summary.json) |
 | #178 Classic 烧录 / virtual-device validation | Atom Lite 的首次真实 `0107` 保留，低速重试完成逐字节读回和 guest 验证。Core2、StickC 和独立 Atom Lite 服务冷烧录通过；全 Classic 高负载可靠性仍待复验 | [失败与恢复](evidence/2026-11-09-issue-fixes/classic-flash-summary.json) |
+| #178 Classic 烧录后续 / virtual-device validation | 11 台原报告设备各三轮。旧路径 23 PASS、10 FAIL。下载 VM 使用指令时钟并在 ROM 启动前等待串口连接后，33/33 完整读回并启动 guest。Atom Lite 独立服务和 canonical 118 单板补验通过 | [下载与复现入口](../tests/uiflow2/README.md) |
 | #190–#191 目录资料 | 三款主机规格与 Joystick2 SKU 更正，四项公开 Unit 驱动资料和 ADC v1.1 差异更新。相关生成物和静态检查通过 | [目录来源](evidence/2026-11-09-issue-fixes/README.md) |
 | #192 基线帧 / virtual-device validation | 旧版在高负载复现两例黑帧，最终版在负载 6.73–8.68 下首轮通过。超时负控在输入前保留黑帧并失败，全矩阵高负载门禁待验收 | [同路径结果](evidence/2026-11-09-issue-fixes/README.md) |
+| #192 自然负载后续 / virtual-device validation | Canonical 118 的 StackChan 与 Core2 AXP192 并发首轮通过原帧、触摸和串口断言。宿主负载保护中止全矩阵，完整两轮仍待验收 | [定向与中止结果](evidence/2026-11-09-issue-fixes/peripheral-natural-load-followup.json) |
 | #193 Unit 身份 / virtual-device validation | CoreS3 三 runner 的 19 项运行身份 VERIFIED，错误 SHA 负控 FAIL，独立历史、ZIP 和清场已核对 | [结果与边界](evidence/2026-11-09-issue-fixes/README.md) |
 | Cardputer ADV 裸板与 SPI SD / virtual-device validation | 原版 MP3 v1.0.0 在原生 QEMU `d150c645…` 无卡显示提示，有卡列出 `TEST.MP3`。回车后真实 SPI 曲目扇区读取、画面切换及 524 Hz PCM 通过。三款 SPI SD 主机与 Cap 显式挂载回归通过。独立浏览器 WASM `684ee05c…` 同 BIN 无卡出画，Stop 后六个 Worker 均关闭。真机未测 | [同镜像结果](evidence/2026-11-09-cardputer-adv-model-fix/summary.json) |
 
