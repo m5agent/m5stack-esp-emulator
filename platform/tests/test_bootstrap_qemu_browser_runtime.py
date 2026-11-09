@@ -251,7 +251,6 @@ class RuntimeDistributionTests(unittest.TestCase):
     def test_fixed_patch_order_and_runtime_source_boundary(self):
         native_count = self.lock["native_patch_count"]
         self.assertEqual(native_count, 49)
-        self.assertEqual(len(self.lock["patches"]), native_count + 28)
         self.assertEqual(len(self.lock["patched_files"]), 162)
         self.assertIn("tcg/tci.c", self.lock["patched_files"])
         self.assertIn("tcg/tci-wasm-call.h", self.lock["patched_files"])

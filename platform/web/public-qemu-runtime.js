@@ -3,10 +3,7 @@ import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState} from './public-qemu-profiles.js';
-
-const QEMU_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
-const ROM_SHA = 'b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
 const HISTORY_KEY = 'm5-public-qemu-history-v1';
 const EXAMPLE_SHA = '78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
 export const QEMU_BROWSER_PROFILE = Object.freeze({deviceId:'cores3',board:'m5cores3',chip:'esp32s3',flashMb:16,
@@ -130,10 +127,11 @@ export class PublicQemuRuntime {
       validateQemuProfile(profile);
       this.profile=profile;
       active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor};
-      const manifestUrl=assetUrl('platform/runtime/qemu/runtime.json',this.root);
+      const runtimeIdentity=qemuRuntimeIdentity(profile);
+      const manifestUrl=assetUrl(`platform/runtime/${runtimeIdentity.directory}/runtime.json`,this.root);
       const response=await this.fetchImpl(manifestUrl,{signal:bootAbort.signal});
       check(response.ok,'站点未包含 C/QEMU WASM，请先运行 Pages 构建。');const manifest=await response.json();
-      check(manifest.schema_version===1&&manifest.engine==='qemu-wasm'&&manifest.source?.commit===QEMU_COMMIT&&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
+      check(manifest.schema_version===1&&manifest.engine==='qemu-wasm'&&manifest.source?.commit===runtimeIdentity.commit&&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
       validateQemuRuntimeRequirements(profile,manifest);
       const resource=async(row,maxBytes)=>{
         check(row&&/^[a-zA-Z0-9_.-]+$/.test(row.path)&&/^[a-f0-9]{64}$/.test(row.sha256),'C/QEMU 资源清单无效。');
@@ -142,7 +140,7 @@ export class PublicQemuRuntime {
       };
       const wasmTask=resource(manifest.assets.wasm,64*1048576).then(bytes=>{
         const compiled=this.compileWasm(bytes,{sha256:manifest.assets.wasm.sha256,
-          engineKey:[QEMU_COMMIT,manifest.assets.javascript.sha256,manifest.assets.worker.sha256].join(':'),signal:bootAbort.signal});
+          engineKey:[runtimeIdentity.commit,manifest.assets.javascript.sha256,manifest.assets.worker.sha256].join(':'),signal:bootAbort.signal});
         compiled.catch(()=>{}); // Observed below, after the iframe loads in parallel.
         return {bytes,compiled};
       });
@@ -156,7 +154,7 @@ export class PublicQemuRuntime {
       this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,clockOverride,
         accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,requiredInputPatch:profile.requiredInputPatch||null,
         uiflowWorkbench:workbench?{baseSha256:workbench.baseSHA256,composerCommit:this.workbenchProfiles.composer_commit,
-          startupSources:Object.fromEntries(Object.entries(workbench.files).map(([name,row])=>[name,row.sha256]))}:null,sourceCommit:QEMU_COMMIT,
+          startupSources:Object.fromEntries(Object.entries(workbench.files).map(([name,row])=>[name,row.sha256]))}:null,sourceCommit:runtimeIdentity.commit,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
