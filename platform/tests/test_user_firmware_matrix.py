@@ -24,6 +24,7 @@ from user_firmware_matrix import (  # noqa: E402
     inputs_for_device,
     load_execution_expectations,
     prepare_review_runtime,
+    probe_input,
     refresh_selected_sample,
     sample_result_key,
     ServiceClient,
@@ -457,21 +458,79 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(len(lines), 3)
 
     def test_inputs_route_touch_and_key_devices(self):
+        core2 = inputs_for_device(
+            {"device_id": "core2", "display": {"width": 320, "height": 240, "touch": True}}
+        )
         touch = inputs_for_device(
-            {"display": {"width": 320, "height": 240, "touch": True}}
+            {"device_id": "cores3", "display": {"width": 320, "height": 240, "touch": True}}
         )
-        key = inputs_for_device({"display": {"width": 128, "height": 128}})
+        stick = inputs_for_device({"device_id": "sticks3"})
+        keyboard = inputs_for_device({"device_id": "cardputer-adv"})
+        papercolor = inputs_for_device({"device_id": "papercolor"})
 
-        self.assertEqual(len(touch), 5)
-        self.assertEqual(touch[0]["kind"], "touch")
-        self.assertEqual((touch[0]["x"], touch[0]["y"]), (160, 120))
-        self.assertEqual(
-            key,
-            [
-                {"kind": "key", "key": "a", "settle_seconds": 0.8},
-                {"kind": "key", "key": "ret", "settle_seconds": 0.8},
-            ],
+        self.assertEqual(len(touch), 3)
+        self.assertTrue(all(probe["request"]["kind"] == "touch" for probe in touch))
+        self.assertEqual((touch[0]["request"]["x"], touch[0]["request"]["y"]), (160, 120))
+        self.assertEqual((core2[-1]["control_id"], core2[-1]["request"]["key"]), ("touch", "a"))
+        self.assertEqual([probe["request"]["key"] for probe in stick], ["a", "b"])
+        self.assertTrue(all(probe["mapped_to_physical_control"] for probe in stick))
+        self.assertEqual([probe["request"]["key"] for probe in keyboard], ["a", "ret"])
+        self.assertEqual([probe["request"]["key"] for probe in papercolor], ["a"])
+        self.assertEqual(inputs_for_device({"device_id": "unknown"}), [])
+
+    def test_input_probe_keeps_b_only_response_separate_from_a(self):
+        client = mock.Mock()
+        client.post.return_value = {"accepted": True}
+        client.get.side_effect = [
+            {"next_offset": n} for n in (100, 100, 100, 100, 100, 112)
+        ]
+        frames = [
+            {"sha256": value, "nonblack_pixels": 20}
+            for value in ("menu",) * 7 + ("selected",)
+        ]
+        probes = inputs_for_device({"device_id": "sticks3"})
+        with (
+            mock.patch("user_firmware_matrix.capture_matrix_frame", side_effect=frames),
+            mock.patch("user_firmware_matrix.time.sleep"),
+        ):
+            a, b = [
+                probe_input(
+                    client, "session", probe, Path("frame.png"), started=0,
+                    capture_frame=True, frame_settled=True, settle_seconds=1.2,
+                )
+                for probe in probes
+            ]
+
+        self.assertFalse(a["observed"])
+        self.assertTrue(b["frame_response_observed"])
+        self.assertTrue(b["serial_response_observed"])
+        self.assertEqual([call.args[1]["key"] for call in client.post.call_args_list], ["a", "b"])
+
+    def test_input_probe_excludes_animation_and_background_serial(self):
+        client = mock.Mock()
+        client.post.return_value = {"accepted": True}
+        client.get.side_effect = [{"next_offset": n} for n in (100, 110, 120)]
+        frames = [
+            {"sha256": str(phase), "nonblack_pixels": 20} for phase in range(4)
+        ]
+        with (
+            mock.patch("user_firmware_matrix.capture_matrix_frame", side_effect=frames),
+            mock.patch("user_firmware_matrix.time.sleep"),
+        ):
+            result = probe_input(
+                client, "session", inputs_for_device({"device_id": "sticks3"})[0],
+                Path("frame.png"), started=0, capture_frame=True,
+                frame_settled=True, settle_seconds=1.2,
+            )
+
+        self.assertTrue(result["frame_changed_from_before"])
+        self.assertTrue(result["serial_changed"])
+        self.assertFalse(result["observed"])
+        status, reason, _ = classify_result(
+            has_screenshot=True, nonblack=20, running=True, crash=False,
+            serial_bytes=120, boot_error=None, input_observed=result["observed"],
         )
+        self.assertEqual((status, reason), ("PARTIAL", "no_observable_input_response"))
 
     def test_classify_result_keeps_device_service_startup_separate(self):
         status, reason, gaps = classify_result(
@@ -725,6 +784,56 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             ),
             [],
         )
+
+    def test_sticks3_unmodeled_paths_are_partial_even_with_working_ui(self):
+        samples = (
+            (
+                "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+                "Button A", "sticks3_pm1_iap_not_modeled",
+            ),
+            (
+                "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+                "tinyusb_driver_install(): Can't initialize the TinyUSB stack",
+                "esp32s3_usb_otg_not_modeled",
+            ),
+            (
+                "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+                "auto detect board:26", "sticks3_ble_hid_host_unavailable",
+            ),
+            (
+                "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246",
+                "SCAN Done: Results: 0", "sticks3_wifi_monitor_not_modeled",
+            ),
+        )
+        for sha, serial, code in samples:
+            with self.subTest(code=code):
+                gaps = detect_runtime_model_gaps(
+                    serial, "sticks3", runtime="qemu", firmware_sha256=sha,
+                )
+                self.assertEqual([(g["code"], g["scope"]) for g in gaps],
+                                 [(code, "sticks3-qemu")])
+                status, reason, _ = classify_result(
+                    has_screenshot=True, nonblack=100, running=True,
+                    crash=False, serial_bytes=len(serial), boot_error=None,
+                    input_observed=True, runtime_model_gaps=gaps,
+                )
+                self.assertEqual((status, reason), ("PARTIAL", "runtime_model_gap"))
+
+    def test_sticks3_gap_does_not_infer_a_monitor_requirement_or_hide_a_panic(self):
+        pmic = "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
+        monitor = "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246"
+        controls = (
+            ("SCAN Done: Results: 0", "sticks3", "qemu", "0" * 64),
+            ("Firmware upgrade completed", "sticks3", "qemu", pmic),
+            ("Guru Meditation", "sticks3", "qemu", monitor),
+            ("boot", "sticks3", "qemu-unified", monitor),
+            ("boot", "cores3", "qemu", monitor),
+        )
+        for serial, device, runtime, sha in controls:
+            with self.subTest(serial=serial, runtime=runtime, device=device):
+                self.assertEqual(detect_runtime_model_gaps(
+                    serial, device, runtime=runtime, firmware_sha256=sha,
+                ), [])
 
     def test_detect_papermono_missing_sd_fixture_as_runtime_gap(self):
         serial = "\n".join(

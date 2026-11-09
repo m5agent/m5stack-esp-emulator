@@ -2622,6 +2622,49 @@ ZIP before stop or stop with `retain_flash=1`. The ZIP always contains
 `manifest.json` with session timeline, file hashes, device warnings and flash
 metadata; released images remain represented by their firmware hash.
 
+### Replay a full Flash in a new session
+
+A sparse merged image leaves bytes beyond its supplied content erased. A
+filesystem partition in that region starts blank, so a first-boot mount
+failure can precede a successful format. Creating another session with the
+original firmware ID starts from those same initial bytes.
+
+To test whether the guest reads persisted state on the next boot, use the
+existing Flash evidence and [merged firmware upload](#upload-and-boot-an-arbitrary-merged-image)
+routes.
+
+1. Boot session A and wait for an application marker confirming the write.
+   Request evidence with `include=manifest,serial,flash` and stop A with
+   `purge=0&retain_flash=1`. For a stable replay image, request the retained
+   evidence again after A reaches `stopped`. The runtime ACL must allow
+   `flash.read`.
+2. Extract only `flash/virtual-flash.bin`. Verify its exact device Flash
+   size and SHA-256 against `manifest.json` under `flash` and `files`.
+   Upload those verified bytes to `POST /api/v1/artifacts`, then create
+   firmware with `kind=merged`, the same `device_id`, and the returned
+   `artifact_id`. A full StickS3 image is 8,388,608 bytes. The uploaded
+   artifact and resulting firmware SHA-256 should match the export.
+3. Start session B with the new firmware ID. Check the application's readback
+   marker and B's evidence manifest. `session.firmware_sha256` identifies
+   B's initial image, `session.flash.session_isolated_copy` records its
+   isolated copy, and `flash.sha256` identifies the bytes captured after
+   boot. A's retained Flash can be re-exported to verify it stayed unchanged.
+   After collecting evidence, release both sessions' mutable Flash with
+   `purge=0&retain_flash=0`.
+
+The whole image goes through the normal merged firmware admission checks.
+Use resumable artifact upload with `expected_sha256` when the service
+should verify the final upload hash. Keep raw Flash and configuration
+contents local and publish only bounded evidence such as hashes and markers.
+
+On 2026-11-09, the original StickS3 M5Gotchi v0.7 image formatted its blank
+LittleFS partition and saved its configuration in A. The first B stopped
+short of the config-load marker in a 35-second observation. A replay of the
+same full export and a separate fresh A/B pair both reached
+`Conf file found, loading data` in the guest. The independent A/B pair
+verified source isolation, oversize rejection and upload hash rejection.
+[Virtual-device evidence](evidence/2026-11-09-issue-fixes/flash-replay-summary.json)
+
 ### QOM and flash snapshots
 
 ```bash
@@ -2635,8 +2678,10 @@ curl -sS -H 'Content-Type: application/json' \
 ```
 
 Use the returned `snapshot_id` values with the corresponding `diff` endpoint.
-Flash snapshot diff reports changed byte count and contiguous ranges, not a
-second full-size image.
+Flash snapshot diff reports changed byte count and contiguous ranges.
+To initialize another session, use the full Flash export and merged upload
+above. Session creation has no general Flash fixture field for a snapshot ID
+or arbitrary partition label.
 
 ### Network fault and reconnect evidence
 

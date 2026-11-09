@@ -397,7 +397,10 @@ python3 tests/uiflow2/flash_device.py \
   download banner，再由固定 esptool 的 `MEM_BEGIN/DATA/END` 上传官方 guest
   stub；CPU 执行 stub 经 SPI 写入 Flash。QEMU chardev 日志保留实际 `OHAI`
   和协议回复，写后完整 Flash 逐字节比较，summary 记录 tool/runtime/image/
-  readback SHA。TCP 显式 `nodelay`，不会在 host 复制镜像冒充串口烧录。
+  readback SHA。TCP 显式 `nodelay`。stock stub 下载 VM 等 UART 观察连接后
+  再启动 ROM，使用固定 `icount shift=4` 的单线程 TCG。UART 节奏跟随
+  guest 指令进度，减少宿主调度争用时 ROM 仍在处理上一批字节的风险。
+  下载结束后仍由同一 Flash 启动应用 VM。
   ROM 已响应 `MEM_BEGIN`、尚未出现 `OHAI` 且 esptool 报告 `0107` 或 UART
   流中断时，默认传输用独立的新 VM/空 Flash 按倍率 8 重试一次，沿用剩余写入预算。
   summary 的 `protocol.first_attempt` 记录原错误类型、倍率与 UART 摘要；

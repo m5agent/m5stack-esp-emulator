@@ -276,6 +276,7 @@ canonical QEMU 链 **41 层**（0120–0161，41/41 replay），PR #80–#161。
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
+| `RUNTIME-10` | StickS3 固件审查的四项运行时缺口 | 矩阵具名报告 PARTIAL，功能验收按缺口登记逐项执行 |
 | `RUNTIME-04` | 已关闭 Core2 for AWS ATECC608 初始化/identity；ECDSA、生产 slot/trust root、电气和真机独立 | 三个公开固件 session 通过非空帧，但测试 fixture 不代表生产安全元件 |
 | `RUNTIME-06` | 已关闭 virtual-controller 功能范围；保持 loss/retry/channel/rate 与既有 soak 回归 | bit-exact controller/baseband、物理 RF/antenna、实测 channel/rate 和电气时序仍独立，不从虚拟链路继承 |
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 session/evidence 存储和连续 evidence 流 | durable claim response-loss replay、trusted-host 和单机 restart PASS 不能继承为跨主机 |

@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 import struct
@@ -23,6 +24,7 @@ import urllib.request
 import zlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -41,6 +43,22 @@ DEFAULT_SERVICE = os.environ.get(
 )
 DEFAULT_CACHE = ROOT / "platform" / ".cache" / "user-firmware"
 DEFAULT_RESULTS = ROOT / "platform" / ".cache" / "user-firmware-matrix"
+DEFAULT_READY_TIMELINE_SECONDS = (0.0, 5.0, 10.0, 30.0)
+DEFAULT_SETTLE_AFTER_READY_SECONDS = 3.0
+# Control ID and qcode pairs for the native matrix input routes. Physical
+# controls alone do not say which qcodes the controller actually accepts.
+BOARD_KEY_PROBES = {
+    "atoms3r": (("button", "a"),),
+    "cardputer-adv": (("keyboard", "a"), ("keyboard", "ret")),
+    "core2": (("touch", "a"),),  # The SPI panel maps A to the capacitive touch strip.
+    "nanoc6": (("button", "a"),),  # Device Service injects the GPIO9 button.
+    "nesso-n1": (("key1", "a"),),
+    "papercolor": (("key1", "a"),),
+    "papermono": (("key1", "a"),),
+    "stamplc": (("key1", "a"),),
+    "sticks3": (("a", "a"), ("b", "b")),
+    "stopwatch": (("a", "a"),),
+}
 
 # M5Burner models do not map one-to-one to simulator device IDs. StamPLC is
 # distributed under Stamp-S3 because the actual controller is the StampS3 core.
@@ -998,44 +1016,101 @@ def error_lines(text: str) -> list[str]:
     return found
 
 
+@lru_cache(maxsize=1)
+def catalog_controls() -> dict[str, list[dict[str, Any]]]:
+    catalog = json.loads((ROOT / "devices/catalog.source.json").read_text())
+    return {
+        row["id"]: row.get("hardware", {}).get("controls", [])
+        for row in catalog["devices"]
+    }
+
+
 def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
+    if device.get("features", {}).get("input") is False:
+        return []
+    probes = []
+
+    def add(control_id: str, **payload: Any) -> None:
+        probes.append({
+            "control_id": control_id,
+            "mapped_to_physical_control": True,
+            "request": {**payload, "settle_seconds": 0.8},
+        })
+
     display = device.get("display")
     if isinstance(display, Mapping) and display.get("touch"):
         width = int(display.get("width") or 320)
         height = int(display.get("height") or 240)
-        return [
-            {
-                "kind": "touch",
-                "x": max(1, width // 2),
-                "y": max(1, height // 2),
-                "settle_seconds": 0.8,
-            },
-            {
-                "kind": "touch",
-                "x": max(1, width // 4),
-                "y": max(1, height // 2),
-                "settle_seconds": 0.8,
-            },
-            {
-                "kind": "touch",
-                "x": max(1, (width * 3) // 4),
-                "y": max(1, height // 2),
-                "settle_seconds": 0.8,
-            },
-            {"kind": "key", "key": "a", "settle_seconds": 0.8},
-            {"kind": "key", "key": "ret", "settle_seconds": 0.8},
-        ]
+        for x in (width // 2, width // 4, width * 3 // 4):
+            add("touch", kind="touch", x=max(1, x), y=max(1, height // 2))
+    device_id = str(device.get("device_id"))
+    controls = {item["id"] for item in catalog_controls().get(device_id, [])}
+    for control_id, key in BOARD_KEY_PROBES.get(device_id, ()):
+        if control_id in controls:
+            add(control_id, kind="key", key=key)
+    return probes
+
+
+# These review samples have a proven dependency on a missing guest path. Keep
+# them bound to the uploaded bytes: a name, an empty Wi-Fi scan, or quiet BLE
+# logs alone cannot establish which capability an arbitrary image needs.
+_STICKS3_PMIC_UPGRADE_SHA256 = (
+    "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
+)
+_STICKS3_AIRMOUSE_SHA256 = (
+    "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8"
+)
+_STICKS3_MONITOR_SHA256 = frozenset({
+    "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246",
+    "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+})
+
+
+def _sticks3_review_model_gaps(
+    serial: str, firmware_sha256: str | None,
+) -> list[dict[str, str]]:
+    gaps = []
+    if (
+        firmware_sha256 == _STICKS3_PMIC_UPGRADE_SHA256
+        and "Firmware upgrade completed" not in serial
+    ):
+        gaps.append((
+            "sticks3_pm1_iap_not_modeled",
+            "PM1 IAP and dynamic SoC boot strapping have no modeled "
+            "completion path for the official StickS3 upgrade sample",
+        ))
+    if "tinyusb_driver_install(): Can't initialize the TinyUSB stack" in serial:
+        gaps.append((
+            "esp32s3_usb_otg_not_modeled",
+            "TinyUSB initialization failed on the StickS3 QEMU profile, "
+            "which lacks a USB OTG device controller path",
+        ))
+    if firmware_sha256 == _STICKS3_AIRMOUSE_SHA256:
+        gaps.append((
+            "sticks3_ble_hid_host_unavailable",
+            "the AirMouse sample requires a BLE HID host; this review "
+            "path has no pairing or HID report observation",
+        ))
+    if firmware_sha256 in _STICKS3_MONITOR_SHA256:
+        gaps.append((
+            "sticks3_wifi_monitor_not_modeled",
+            "this firmware's 802.11 monitor function lacks a validated "
+            "controller-backed receive and transmit fixture",
+        ))
     return [
-        {"kind": "key", "key": "a", "settle_seconds": 0.8},
-        {"kind": "key", "key": "ret", "settle_seconds": 0.8},
+        {"code": code, "scope": "sticks3-qemu", "detail": detail}
+        for code, detail in gaps
     ]
 
 
 def detect_runtime_model_gaps(
     serial: str,
     device_id: str | None = None,
+    *,
+    runtime: str | None = None,
+    firmware_sha256: str | None = None,
 ) -> list[dict[str, str]]:
-    """Identify stable runtime signatures caused by unmodeled device features."""
+    """Identify stable runtime signatures and exact sample capability gaps."""
 
     gaps: list[dict[str, str]] = []
     if "Zigbee_main" in serial and re.search(
@@ -1118,6 +1193,8 @@ def detect_runtime_model_gaps(
                     ),
                 }
             )
+    if device_id == "sticks3" and runtime == "qemu" and not error_lines(serial):
+        gaps.extend(_sticks3_review_model_gaps(serial, firmware_sha256))
     return gaps
 
 
@@ -1360,6 +1437,98 @@ def prepare_review_runtime(
     }
 
 
+def capture_matrix_frame(
+    client: ServiceClient, session_id: str, path: Path, started: float,
+) -> dict[str, Any]:
+    data, headers = client.frame(session_id, path)
+    return {
+        "path": str(path),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "width": headers.get("X-Frame-Width"),
+        "height": headers.get("X-Frame-Height"),
+        "captured_at": utc_now(),
+        "elapsed_seconds": round(time.monotonic() - started, 3),
+        **png_metrics(data),
+    }
+
+
+def probe_input(
+    client: ServiceClient,
+    session_id: str,
+    probe: Mapping[str, Any],
+    path: Path,
+    *,
+    started: float,
+    capture_frame: bool,
+    frame_settled: bool,
+    settle_seconds: float,
+) -> dict[str, Any]:
+    result = dict(probe)
+    request = probe["request"]
+
+    def frame(suffix: str = "") -> dict[str, Any]:
+        return capture_matrix_frame(
+            client, session_id, path.with_name(f"{path.stem}{suffix}.png"), started,
+        )
+
+    def serial_end() -> int:
+        # The serial endpoint clamps an offset past EOF to the current size.
+        return int(client.get(
+            f"sessions/{session_id}/serial?offset={sys.maxsize}&limit=1"
+        )["next_offset"])
+
+    try:
+        start_serial = serial_end()
+        if capture_frame:
+            result["control_frame"] = frame("-idle-start")
+        # Device Service taps include the QMP down/up pulse before its settle.
+        tap_seconds = 0.90 if request["kind"] == "key" else 0.45
+        idle_seconds = tap_seconds + request["settle_seconds"] + settle_seconds
+        result["control_window_seconds"] = idle_seconds
+        time.sleep(idle_seconds / 2)
+        if capture_frame:
+            result["control_mid_frame"] = frame("-idle-mid")
+        time.sleep(idle_seconds / 2)
+        if capture_frame:
+            result["before_frame"] = frame("-before")
+        before_serial = serial_end()
+        result["input_at"] = utc_now()
+        response = client.post(f"sessions/{session_id}/input", request)
+        result["response"] = response
+        time.sleep(settle_seconds)
+        if capture_frame:
+            result["frame"] = frame()
+        after_serial = serial_end()
+        result["serial_offsets"] = {
+            "idle_start": start_serial, "before": before_serial, "after": after_serial,
+        }
+        result["control_serial_quiet"] = start_serial == before_serial
+        result["serial_changed"] = after_serial > before_serial
+        frame_control_ok = True
+        if capture_frame:
+            before = result["before_frame"]
+            frame_control_ok = (
+                before["nonblack_pixels"] >= 16
+                and result["control_frame"]["sha256"] == before["sha256"]
+                and result["control_mid_frame"]["sha256"] == before["sha256"]
+            )
+            result["control_frame_quiet"] = frame_control_ok
+            result["frame_changed_from_before"] = result["frame"]["sha256"] != before["sha256"]
+        comparable = (
+            result["mapped_to_physical_control"]
+            and response.get("accepted") is True
+            and (not capture_frame or (frame_settled and frame_control_ok))
+        )
+        result["frame_response_observed"] = comparable and bool(result.get("frame_changed_from_before"))
+        result["serial_response_observed"] = (
+            comparable and result["control_serial_quiet"] and result["serial_changed"]
+        )
+        result["observed"] = result["frame_response_observed"] or result["serial_response_observed"]
+    except HttpError as error:
+        result["error"] = {"status": error.status, "message": str(error)}
+    return result
+
+
 def execute_sample(
     sample: Mapping[str, Any],
     *,
@@ -1369,6 +1538,8 @@ def execute_sample(
     observe_seconds: float,
     settle_seconds: float,
     storage_fixture: Mapping[str, Any] | None = None,
+    settle_after_ready_seconds: float = DEFAULT_SETTLE_AFTER_READY_SECONDS,
+    ready_timeline_seconds: tuple[float, ...] = DEFAULT_READY_TIMELINE_SECONDS,
 ) -> dict[str, Any]:
     firmware_path = Path(str(sample["path"]))
     has_screenshot = bool(device.get("features", {}).get("screenshot"))
@@ -1395,6 +1566,7 @@ def execute_sample(
             and not key.startswith("_")
         },
         "started_at": utc_now(),
+        "settle_after_ready_seconds": settle_after_ready_seconds,
         "scope": "simulation-only-not-hardware-validation",
         "session_id": None,
         "review_expectation": public_review_expectation(
@@ -1445,6 +1617,7 @@ def execute_sample(
             session_payload["storage"] = {
                 "sd_image_artifact_id": storage_fixture["artifact_id"],
             }
+        session_started = time.monotonic()
         session = client.post("sessions", session_payload)
         session_id = str(session["session_id"])
         result["session_id"] = session_id
@@ -1476,6 +1649,7 @@ def execute_sample(
                     ),
                 )
             )
+        ready_detected = None
         if snapshot.get("state") == "running" and capture_frame:
             try:
                 ready = client.post(
@@ -1494,6 +1668,8 @@ def execute_sample(
                 result["frame_ready"] = True
                 result["ready_snapshot"] = ready
                 result["frame_metrics"] = ready.get("frame")
+                ready_detected = time.monotonic()
+                result["first_nonblank_elapsed_seconds"] = round(ready_detected - session_started, 3)
             except HttpError as error:
                 result["frame_ready"] = False
                 result["frame_wait_error"] = {
@@ -1503,89 +1679,47 @@ def execute_sample(
         elif expectation_mode != "network-first":
             time.sleep(min(observe_seconds, 12))
 
-        snapshot = client.get(f"sessions/{session_id}")
-        result["pre_input_snapshot"] = snapshot
-        before_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-before.png"
-        before_sha = None
+        prefix = out_dir / f"{sample['device_id']}-{sample['firmware_id']}"
+        timeline: list[dict[str, Any]] = []
+        result["ready_timeline"] = timeline
+        result["frame_settled"] = False
         if capture_frame:
             try:
-                before, before_headers = client.frame(session_id, before_path)
-                before_sha = hashlib.sha256(before).hexdigest()
-                result["before_frame"] = {
-                    "path": str(before_path),
-                    "sha256": before_sha,
-                    "width": before_headers.get("X-Frame-Width"),
-                    "height": before_headers.get("X-Frame-Height"),
-                    **png_metrics(before),
-                }
+                if ready_detected is not None:
+                    for index, delay in enumerate(ready_timeline_seconds):
+                        time.sleep(max(0, ready_detected + delay - time.monotonic()))
+                        frame = capture_matrix_frame(
+                            client, session_id, Path(f"{prefix}-ready-{index}.png"), session_started,
+                        )
+                        timeline.append({"target_after_ready_seconds": delay, **frame})
+                    time.sleep(settle_after_ready_seconds)
+                before = capture_matrix_frame(
+                    client, session_id, Path(f"{prefix}-before.png"), session_started,
+                )
+                result["before_frame"] = before
+                result["frame_settled"] = bool(
+                    timeline and before["nonblack_pixels"] >= 16
+                    and timeline[-1]["sha256"] == before["sha256"]
+                )
             except (HttpError, MatrixError) as error:
                 result["before_frame_error"] = str(error)
 
-        pre_input_serial_sha = None
-        try:
-            pre_input_logs = client.get(
-                f"sessions/{session_id}/logs?offset=0&limit=262144"
-            )
-            pre_input_serial = str(pre_input_logs.get("data") or "")
-            pre_input_serial_sha = hashlib.sha256(
-                pre_input_serial.encode("utf-8", errors="replace")
-            ).hexdigest()
-        except HttpError:
-            pre_input_serial = ""
-
+        snapshot = client.get(f"sessions/{session_id}")
+        result["pre_input_snapshot"] = snapshot
         input_attempts: list[dict[str, Any]] = []
         if snapshot.get("state") == "running" and capture_input:
-            for index, payload in enumerate(inputs_for_device(device)):
-                input_result: dict[str, Any] = {"request": payload}
-                try:
-                    response = client.post(
-                        f"sessions/{session_id}/input",
-                        payload,
-                    )
-                    input_result["response"] = response
-                    time.sleep(settle_seconds)
-                    if capture_frame:
-                        probe_path = out_dir / (
-                            f"{sample['device_id']}-{sample['firmware_id']}"
-                            f"-input-{index}.png"
-                        )
-                        probe, probe_headers = client.frame(
-                            session_id, probe_path
-                        )
-                        probe_sha = hashlib.sha256(probe).hexdigest()
-                        input_result["frame"] = {
-                            "path": str(probe_path),
-                            "sha256": probe_sha,
-                            "width": probe_headers.get("X-Frame-Width"),
-                            "height": probe_headers.get("X-Frame-Height"),
-                            **png_metrics(probe),
-                        }
-                        input_result["frame_changed_from_before"] = bool(
-                            before_sha and before_sha != probe_sha
-                        )
-                except HttpError as error:
-                    input_result["error"] = {
-                        "status": error.status,
-                        "message": str(error),
-                    }
-                input_attempts.append(input_result)
+            for index, probe in enumerate(inputs_for_device(device)):
+                input_attempts.append(probe_input(
+                    client, session_id, probe, Path(f"{prefix}-input-{index}.png"),
+                    started=session_started, capture_frame=capture_frame,
+                    frame_settled=result["frame_settled"], settle_seconds=settle_seconds,
+                ))
         result["inputs"] = input_attempts
 
-        after_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-after.png"
         if capture_frame:
             try:
-                after, after_headers = client.frame(session_id, after_path)
-                after_metrics = png_metrics(after)
-                after_sha = hashlib.sha256(after).hexdigest()
-                result["after_frame"] = {
-                    "path": str(after_path),
-                    "sha256": after_sha,
-                    "width": after_headers.get("X-Frame-Width"),
-                    "height": after_headers.get("X-Frame-Height"),
-                    **after_metrics,
-                }
-                result["input_changed_frame"] = bool(
-                    before_sha and before_sha != after_sha
+                result["after_frame"] = capture_matrix_frame(
+                    client, session_id, Path(f"{prefix}-after.png"), session_started,
                 )
             except (HttpError, MatrixError) as error:
                 result["after_frame_error"] = str(error)
@@ -1599,6 +1733,8 @@ def execute_sample(
         runtime_model_gaps = detect_runtime_model_gaps(
             serial + "\n" + stderr,
             device_id=sample["device_id"],
+            runtime=snapshot.get("runtime"),
+            firmware_sha256=artifact.get("sha256"),
         )
         result["runtime_model_gaps"] = runtime_model_gaps
         log_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-serial.log"
@@ -1687,14 +1823,15 @@ def execute_sample(
         running = pre_stop_state == "running"
         crash = bool(result["errors"])
         frame_changed = any(
-            bool(item.get("frame_changed_from_before"))
+            item.get("frame_response_observed")
             for item in input_attempts
         )
-        serial_changed = bool(
-            pre_input_serial_sha
-            and result["serial_sha256"] != pre_input_serial_sha
+        serial_changed = any(
+            item.get("serial_response_observed")
+            for item in input_attempts
         )
         input_observed = frame_changed or serial_changed
+        result["input_changed_frame"] = frame_changed
         result["observable_input_response"] = {
             "frame_changed": frame_changed,
             "serial_changed": serial_changed,
@@ -1724,7 +1861,13 @@ def execute_sample(
         result["status_reason"] = status_reason
         result["unmet_requirements"] = unmet_requirements
         if expectation_mode == "ui-interactive":
-            result["application_ready"] = nonblack >= 16
+            ready_marker = (review_expectation or {}).get("ready_marker")
+            result["application_ready"] = bool(
+                ready_marker and ready_marker in serial and running and not crash
+            )
+            result["application_ready_basis"] = (
+                "explicit_serial_marker" if ready_marker else "no_explicit_ready_marker"
+            )
         else:
             result["application_ready"] = (
                 required_markers_observed
@@ -1751,6 +1894,21 @@ def execute_sample(
     return result
 
 
+def parse_ready_timeline(value: str) -> tuple[float, ...]:
+    try:
+        offsets = tuple(float(item) for item in value.split(","))
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("expected comma-separated seconds") from error
+    if (
+        not 1 <= len(offsets) <= 10
+        or offsets[0] != 0
+        or not all(0 <= offset <= 120 for offset in offsets)
+        or any(right <= left for left, right in zip(offsets, offsets[1:]))
+    ):
+        raise argparse.ArgumentTypeError("expected 1–10 increasing offsets starting at 0, up to 120 seconds")
+    return offsets
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1769,6 +1927,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--observe-seconds", type=float, default=35)
     parser.add_argument("--settle-seconds", type=float, default=1.2)
+    parser.add_argument(
+        "--settle-after-ready-seconds", type=float, default=DEFAULT_SETTLE_AFTER_READY_SECONDS,
+        help="quiet window after the final no-input frame sample (default: 3)",
+    )
+    parser.add_argument(
+        "--ready-timeline-seconds", type=parse_ready_timeline, default=DEFAULT_READY_TIMELINE_SECONDS,
+        help="comma-separated frame sample offsets after the first nonblank frame (default: 0,5,10,30)",
+    )
     parser.add_argument("--sd-image", type=Path)
     parser.add_argument(
         "--expectation-file",
@@ -1784,7 +1950,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    args = build_parser().parse_args()
+    parser = build_parser()
+    args = parser.parse_args()
+    if not math.isfinite(args.settle_after_ready_seconds) or not 0 < args.settle_after_ready_seconds <= 120:
+        parser.error("--settle-after-ready-seconds must be greater than 0 and at most 120")
     selected_devices = [
         item.strip()
         for item in args.devices.split(",")
@@ -2002,6 +2171,8 @@ def main() -> None:
                     out_dir=args.out_dir,
                     observe_seconds=args.observe_seconds,
                     settle_seconds=args.settle_seconds,
+                    settle_after_ready_seconds=args.settle_after_ready_seconds,
+                    ready_timeline_seconds=args.ready_timeline_seconds,
                     storage_fixture=(
                         sample.get("storage_fixture")
                         if isinstance(sample.get("storage_fixture"), dict)

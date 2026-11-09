@@ -218,6 +218,27 @@ MemTxResult、命中region、TLB、TB恢复元数据与双核IRQ/复位时序，
    WiFi、公网、GATT、frame/QOM、pcap 和 cleanup；
 4. 虚拟容量结论不外推为物理 controller、RF、cache/PSRAM 或真机。
 
+### RUNTIME-10：StickS3 固件审查中的 PM1、USB、BLE HID 与 Wi-Fi monitor
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / review gap classified` |
+
+StickS3 的 `qemu` 审查路径仍缺少下列能力。矩阵对命中观测条件的样本返回
+`PARTIAL/runtime_model_gap`，保留原会话的启动、帧和输入证据。没有命中签名
+或精确样本身份时，不从无 AP、无串口输出或同名固件推断缺口。
+
+| Issue | 缺口代码与观测条件 | 模型或验证路径关闭条件 |
+| --- | --- | --- |
+| [#201](https://github.com/m5agent/m5stack-esp-emulator/issues/201) | `sticks3_pm1_iap_not_modeled`。精确官方升级镜像，尚无升级完成串口标记 | 同一镜像按 A 后，实际 I2C IAP 会话进入 PM1 bootloader、传输并校验，串口报告升级完成。单独验证 SoC 动态 download strap |
+| [#202](https://github.com/m5agent/m5stack-esp-emulator/issues/202) | `esp32s3_usb_otg_not_modeled`。TinyUSB 安装失败的精确串口签名 | 真实 guest TinyUSB 安装成功，控制器/端点完成主机枚举和至少一次 CDC 或 HID 数据交换 |
+| [#203](https://github.com/m5agent/m5stack-esp-emulator/issues/203) | `sticks3_ble_hid_host_unavailable`。精确 AirMouseS3 镜像 | 通过支持的 BLE host 路径配对，发现 HID 服务并记录至少一条 report。保留 NUS 独立回归 |
+| [#204](https://github.com/m5agent/m5stack-esp-emulator/issues/204) | `sticks3_wifi_monitor_not_modeled`。精确 M5Gotchi 和 Evil-StickS3 镜像 | 在隔离的显式夹具中，通过控制器完成 monitor RX，观察固件解析。若声明 TX 支持，另验证 guest 生成帧的有界捕获 |
+
+固件身份用实际上传的 SHA-256 匹配。USB 由运行中的串口签名判定。
+这些判定只适用于上表的虚拟路径。硬件升级、USB PHY、BLE RF 和 Wi-Fi RF 均为
+`NOT RUN`。运行时能力建设仍在 [项目 Backlog](project-backlog.md)。
+
 ### RUNTIME-02：C6 Zigbee/802.15.4 运行时未建模
 
 | 字段 | 当前值 |
