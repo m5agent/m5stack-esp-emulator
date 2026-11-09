@@ -13,8 +13,9 @@ const keyboard=source.slice(source.indexOf("$('pythonSource').addEventListener('
 assert.ok(functions.startsWith('const pythonPhases=')&&serial&&keyboard,'the production handlers must be exercised');
 function fixture(){
   const handlers=new Map(),nodes={},errors=[],writes=[];
-  for(const id of ['serialForm','serialInput','serialSendBtn','pythonSource','pythonRunBtn','pythonInterruptBtn','pythonStatus','pythonOutput','pauseBtn'])
-    nodes[id]={disabled:false,textContent:'',value:'',addEventListener:(type,handler)=>handlers.set(id+':'+type,handler)};
+  for(const id of ['serialForm','serialInput','serialSendBtn','pythonSource','pythonRunBtn','pythonInterruptBtn','pythonStatus','pythonOutput','pauseBtn',
+    'runtimeStatus','stageFirmwareNotice','stageFirmwareTitle','stageFirmwareDetail','stageFirmwareEditor'])
+    nodes[id]={disabled:false,textContent:'',value:'',dataset:{},addEventListener:(type,handler)=>handlers.set(id+':'+type,handler)};
   nodes.serialInput.value='x'.repeat(2050);nodes.pythonSource.value='print(1)';
   const runtime=new PublicQemuRuntime({root:'https://example.test/'});
   Object.assign(runtime,{generation:1,sessionId:'ui-guest',status:'running',profile:{inputs:{uart:true}},
@@ -65,9 +66,13 @@ function fixture(){
 {
   const test=fixture(),pending=[];
   Object.assign(test.run,{kind:'service',controller:{current:{state:'running'}}});
+  test.nodes.runtimeStatus.dataset.status='running';
   const native=test.run.python={ready:true,busy:false,canInterrupt:true,canReplace:false,
     run(_source,options){this.busy=true;options.onPhase('running');return new Promise((resolve,reject)=>pending.push({options,resolve,reject}));}};
+  test.context.updatePythonControls();
+  assert.equal(test.nodes.stageFirmwareNotice.dataset.phase,'ready');
   const first=test.context.runPython();
+  assert.equal(test.nodes.stageFirmwareNotice.hidden,true,'starting code dismisses the idle workbench notice');
   assert.equal(test.nodes.pythonInterruptBtn.disabled,false,'native code keeps its real cancellation available while busy');
   assert.equal(test.nodes.serialSendBtn.disabled,true,'raw UART cannot race a managed native program');
   await test.context.runPython();assert.equal(pending.length,1,'managed Run cannot overlap the current transfer');

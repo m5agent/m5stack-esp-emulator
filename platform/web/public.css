@@ -338,6 +338,30 @@ summary {
   color: var(--m5-blue-deep);
   font-weight: 650;
 }
+.stage-firmware-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m5-space-s) var(--m5-space-m);
+  margin: 0 var(--m5-space-l);
+  padding: var(--m5-space-m);
+  border: 1px solid var(--m5-line);
+  border-radius: var(--m5-radius-md);
+  background: var(--m5-surface-subtle);
+}
+.stage-firmware-notice[data-phase='ready'] {
+  border-inline-start: 3px solid var(--m5-blue-deep);
+}
+.stage-firmware-copy {
+  display: grid;
+  gap: var(--m5-space-xs);
+  color: var(--m5-ink-muted);
+  font-size: var(--m5-font-caption);
+}
+.stage-firmware-copy strong {
+  color: var(--m5-ink);
+}
 .device-stage {
   position: relative;
   height: 510px;
