@@ -179,14 +179,22 @@ uploadedUart.state.run={kind:'browser',generation:uploadedUart.state.runGenerati
 assert.equal(uploadedUart.element('pythonRunBtn').disabled,false,'compatible UART still permits the existing REPL handshake attempt');
 assert.match(uploadedUart.element('pythonStatus').textContent,/串口已连接，MicroPython 待确认/);
 assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*就绪/);
+assert.equal(uploadedUart.element('stageFirmwareNotice').hidden,true);
 uploadController.receipt.uiflowWorkbench={};uploadedUart.status('running');
 assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*就绪/,'stale workbench metadata cannot label an unknown Flash ready');
+assert.equal(uploadedUart.element('stageFirmwareNotice').hidden,true);
 const uploadedWorkbench=workbenchRegistry.profiles.find(row=>row.deviceId==='cores3');
 uploadController.receipt.firmwareSha256=uploadedWorkbench.firmwareSHA256;
 uploadedUart.status('booting');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);assert.match(uploadedUart.element('pythonStatus').textContent,/正在启动 UIFlow/);
+assert.equal(uploadedUart.element('stageFirmwareNotice').dataset.phase,'starting');
+assert.equal(uploadedUart.element('stageFirmwareEditor').hidden,true);
 uploadedUart.status('running');assert.equal(uploadedUart.element('pythonStatus').textContent,'UIFlow 已就绪');
+assert.equal(uploadedUart.element('stageFirmwareNotice').dataset.phase,'ready');
+assert.match(uploadedUart.element('stageFirmwareDetail').textContent,/程序绘图后/);
+assert.equal(uploadedUart.element('stageFirmwareEditor').hidden,false);
 uploadedUart.status('error');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);
 assert.match(uploadedUart.element('pythonStatus').textContent,/运行未完成/);
+assert.equal(uploadedUart.element('stageFirmwareNotice').hidden,true);
 uploadedUart.status('sleeping');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);
 assert.match(uploadedUart.element('pythonStatus').textContent,/已休眠/);
 

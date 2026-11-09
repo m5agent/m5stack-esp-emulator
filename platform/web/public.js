@@ -165,6 +165,20 @@ function pythonUnavailableReason() {
   if(state.config.browser_runtime_engine!=='qemu-wasm')return '当前运行内核不提供网页 MicroPython 编程';
   return '启动浏览器中的 UIFlow 后即可运行';
 }
+function updateStageFirmwareNotice(currentStatus, uiflowReady) {
+  const starting = ['loading', 'provisioning', 'flashing', 'booting'].includes(currentStatus);
+  const phase = starting ? 'starting' : currentStatus === 'running' && uiflowReady ? 'ready' : '';
+  const notice = $('stageFirmwareNotice');
+  if (notice.dataset.phase === phase) return;
+  notice.dataset.phase = phase;
+  notice.hidden = !phase;
+  $('stageFirmwareTitle').textContent = starting ? '正在启动固件' : phase ? 'UIFlow 已就绪' : '';
+  const readyDetail = state.selected?.display
+    ? '现在可以运行 MicroPython。程序绘图后，设备屏幕会更新。'
+    : '现在可以运行 MicroPython，并在下方查看代码输出。';
+  $('stageFirmwareDetail').textContent = starting ? '正在准备设备，请稍候。' : phase ? readyDetail : '';
+  $('stageFirmwareEditor').hidden = phase !== 'ready';
+}
 function updatePythonControls(currentStatus=state.run?.controller?.status || state.run?.controller?.current?.state) {
   const run=state.run, native=active(run)&&run.kind==='service'&&!!run.python;
   const supported=active(run)&&(run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart || native&&(run.python.ready||run.python.busy));
@@ -185,6 +199,8 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   else if(currentStatus==='sleeping')$('pythonStatus').textContent='设备已休眠，请唤醒后运行代码';
   else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 UIFlow…':'正在启动固件…';
   else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'UIFlow 已就绪':'串口已连接，MicroPython 待确认');
+  const readyWorkbench = currentStatus === 'running' && supported && (programming || (native && run.owned !== false && run.python.ready));
+  updateStageFirmwareNotice($('runtimeStatus').dataset.status, readyWorkbench && !busy && !run.pythonPhase);
 }
 async function runPython() {
   const run=state.run;
@@ -856,6 +872,7 @@ async function startRun() {
       if(nativeWorkbench) {
         run.python=new PublicServiceProgram({service:state.service,controller:run.controller,
           onState:()=>{if(active(run))updatePythonControls();}});
+        status('booting', '正在连接 UIFlow 编程环境');
         await run.python.start({deviceId:state.selected.id,units,signal:abort.signal});
       } else await run.controller.start({deviceId:state.selected.id,firmwareId:imported.firmware_id,units,signal:abort.signal});
     }
