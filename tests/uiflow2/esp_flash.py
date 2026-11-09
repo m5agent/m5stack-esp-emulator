@@ -343,6 +343,7 @@ def _flash_with_qemu_attempt(
     virtual_flash.write_bytes(b"\xff" * flash_size)
     port = free_local_port()
     uart_log = out_dir / "uart-download.bin"
+    uart_wait = "off" if no_stub else "on"
     command = [
         str(qemu),
         "-M", machine,
@@ -351,12 +352,20 @@ def _flash_with_qemu_attempt(
         "-display", "none",
         "-monitor", "none",
         "-chardev", (f"socket,id=download-uart,host=127.0.0.1,port={port},"
-                     f"server=on,wait=off,nodelay=on,logfile={uart_log}"),
+                     f"server=on,wait={uart_wait},nodelay=on,logfile={uart_log}"),
         "-serial", "chardev:download-uart",
         "-global", "driver=esp32.gpio,property=strap_mode,value=0x0f",
         "-global",
         f"driver=esp_soc.uart,property=baud-scale,value={baud_scale}",
     ]
+    if not no_stub:
+        # UART RX pacing uses QEMU's virtual clock. Tie it to retired
+        # instructions so a descheduled ROM cannot be fed a wall-clock burst.
+        # The first peer must attach before ROM emits its download banner.
+        command[1:1] = [
+            "-accel", "tcg,thread=single",
+            "-icount", "shift=4,align=off,sleep=off",
+        ]
     if memory is not None:
         command.extend(["-m", str(memory)])
 
