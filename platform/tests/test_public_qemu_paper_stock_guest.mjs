@@ -37,7 +37,14 @@ await runPublicStockGuest({device,board:'m5'+device,firmware,testScript,exercise
   report.frames=[];
   if(papers3){
     const roi=[78,296,77,89];
-    const before=await waitFrame('5792f0aeebe868663bf681d080c61efe0bd920470f2a57e4199f21770cb18127',roi);
+    const baseline='5792f0aeebe868663bf681d080c61efe0bd920470f2a57e4199f21770cb18127';
+    const first=await waitFrame(baseline,roi);
+    // The icon can first match during the factory application's EPD startup.
+    // Wait for a later complete instance while the clock task updates the
+    // panel. Keep the actual pointer pulse unchanged.
+    await page.waitForFunction(sequence=>stockGuestRuntime.lastFrame?.sequence>sequence+24,first.sequence,{timeout});
+    const before=await waitFrame(baseline,roi);
+    report.factory_readiness={first,before};
     const point=await page.evaluate(async origin=>{
       const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
       const {display,viewer}=stockGuestShell;
