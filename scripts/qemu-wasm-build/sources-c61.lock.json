@@ -105,7 +105,7 @@
     "commit": "8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc",
     "note": "CoreMatrix C158 native controller and board layers; no inherited browser guest acceptance"
   },
-  "native_patch_count": 4,
+  "native_patch_count": 5,
   "patched_files": {
     "accel/tcg/cpu-exec.c": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
     "accel/tcg/tcg-accel-ops-icount.c": "d583087ca07c2289969446aff762a36b8a8125f656cf2a6d5306ceba81b47583",
@@ -120,8 +120,9 @@
     "hw/i2c/esp32c61_i2c.c": "7c8afdb41fb90595c0d062c8feeb6f7b4a771e679543da1864be795c6ce15bf3",
     "hw/i2c/m5_corematrix.c": "f43fd85440a0f29d2dcf6bdb3937950924b2b2a6662dfb164fc764c4380d9032",
     "hw/i2c/meson.build": "6584a40ebcb1a1f116d1394983b4ad069ac998d5277df78dbae041d8a6b90db3",
-    "hw/misc/esp32c61_jtag.c": "7a4209794c34ffd1002cf90e51072eb1283de48a2760b6ddeb4ca7223c3bde1d",
+    "hw/misc/esp32c61_jtag.c": "d53e8c1852ee67b689c94942d1d6f843b99a5078eeb5f1fd01f911b8061c79e9",
     "hw/misc/esp32s3_cache.c": "6b4af9de8a33d1ac8a63a66a98aeef84ede7353c0a0673e97f0f6d2a600ac915",
+    "hw/misc/esp_sha.c": "5cb82d872eaf2991078ec2638b162a2fffa2e314ee0b17e056c1b8ef08bdd5ee",
     "hw/riscv/Kconfig": "77f0509878bb1a8a903df453a805a2d194d34739a38e26647a3279b8dbbe5d9e",
     "hw/riscv/esp32c61.c": "16640c9de854204f986818ea83288ae510ee152024d5b2866b37741df3657c8c",
     "include/glib-compat.h": "620b8868a3ce5fda543fc65f46c8257beb84587d4bdc29cdd345eac81961ae9c",
@@ -174,6 +175,10 @@
       "sha256": "7aa4c6403047d780fd048cc4944a1cf46b1b87a45fabd970417a691cf27ab2f7"
     },
     {
+      "path": "patches/qemu-esp32c61-corematrix/0005-esp32c61-usb-jtag-auto-flush.patch",
+      "sha256": "bbfe934d1b2f4b8b93ff6d0759d694c24e29fcccb4b388c3bbab26fa8225b9a3"
+    },
+    {
       "path": "patches/qemu-wasm-probe/0001-qemu-9.2.2-wasm-tci.patch",
       "sha256": "6754272ea00e1c19b6f7786bd16b95a9eb75bb28be1d60dd5bed7c8e6f55f279"
     },
@@ -220,6 +225,10 @@
     {
       "path": "patches/qemu-wasm-probe/0035-c61-riscv32-context.patch",
       "sha256": "15740f4b349a96876803d4176596579ecedf694260aba8a4911de6a0b9b0be0e"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0036-c61-wasm-sha-callbacks.patch",
+      "sha256": "8d36cdc1b392601ac894bbeaeae652588d33f031a9f9ceae259652ef079fb58f"
     }
   ],
   "qemu": {

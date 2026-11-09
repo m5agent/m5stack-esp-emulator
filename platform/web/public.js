@@ -1208,11 +1208,9 @@ async function init() {
     // wiring, path, or admission. Its complete row can replace a preview.
     if (native && !native.visual_only) {
       rows.set(profile.id, {...native, browser:profile.browser});
-    } else if (config.browser_runtime_engine === 'qemu-wasm') {
-      if (native && browserProfile(profile.id)) {
-        rows.set(profile.id, {...native, visual_only:false, browser:profile.browser,
-          runtime:{status:'browser-runtime'}});
-      }
+    } else if (config.browser_runtime_engine === 'qemu-wasm' && native && browserProfile(profile.id)) {
+      rows.set(profile.id, {...native, visual_only:false, browser:profile.browser,
+        runtime:{status:'browser-runtime'}});
     } else {
       rows.set(profile.id, profile);
     }
