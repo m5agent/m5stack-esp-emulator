@@ -1,0 +1,999 @@
+{
+  "status": "PASS",
+  "classification": "virtual-device validation, stock UIFlow2 control",
+  "profile": "core2",
+  "runtime": "qemu",
+  "firmware": {
+    "version": "v2.5.4",
+    "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+    "source_sha256": "39b2a0248e9b396cd31f4a34a4c586796c2c6ccc6ce6544e24f95a62ef32b81b",
+    "composed_sha256": "4f83d8e0f3740dc7ab398bbdd7a55983fe7bf29898230742f78a85eca2f1763f"
+  },
+  "qemu_sha256": "75e61d00b29bc2c8fa631d1fe396de66ba6b12b64057adc09cb2bec32185b42e",
+  "rom_sha256": {
+    "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+    "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442"
+  },
+  "directions": {
+    "tap": {
+      "guest_samples": [
+        {
+          "guest_ticks_ms": 41838,
+          "count": 1,
+          "raw": [
+            97,
+            118
+          ],
+          "logical": [
+            97,
+            118
+          ]
+        },
+        {
+          "guest_ticks_ms": 43161,
+          "count": 0
+        }
+      ],
+      "controller": [
+        {
+          "pressed": 1,
+          "x": 97,
+          "y": 118,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 216
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                97,
+                118
+              ],
+              "reads": 216
+            }
+          ]
+        },
+        {
+          "pressed": 0,
+          "x": 97,
+          "y": 118,
+          "gpio": 39,
+          "i2c_count_reads": {},
+          "i2c_coordinates": []
+        }
+      ]
+    },
+    "left": {
+      "guest_samples": [
+        {
+          "guest_ticks_ms": 45810,
+          "count": 1,
+          "raw": [
+            220,
+            170
+          ],
+          "logical": [
+            220,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 46244,
+          "count": 1,
+          "raw": [
+            199,
+            170
+          ],
+          "logical": [
+            199,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 46473,
+          "count": 1,
+          "raw": [
+            178,
+            170
+          ],
+          "logical": [
+            178,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 46714,
+          "count": 1,
+          "raw": [
+            157,
+            170
+          ],
+          "logical": [
+            157,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 46979,
+          "count": 1,
+          "raw": [
+            136,
+            170
+          ],
+          "logical": [
+            136,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 47212,
+          "count": 1,
+          "raw": [
+            115,
+            170
+          ],
+          "logical": [
+            115,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 47454,
+          "count": 1,
+          "raw": [
+            94,
+            170
+          ],
+          "logical": [
+            94,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 47739,
+          "count": 0
+        }
+      ],
+      "controller": [
+        {
+          "pressed": 1,
+          "x": 220,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 72
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                220,
+                170
+              ],
+              "reads": 72
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 199,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 39
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                199,
+                170
+              ],
+              "reads": 39
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 178,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 40
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                178,
+                170
+              ],
+              "reads": 40
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 157,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                157,
+                170
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 136,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 39
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                136,
+                170
+              ],
+              "reads": 39
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 115,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 41
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                115,
+                170
+              ],
+              "reads": 41
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 94,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                94,
+                170
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 0,
+          "x": 94,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {},
+          "i2c_coordinates": []
+        }
+      ]
+    },
+    "right": {
+      "guest_samples": [
+        {
+          "guest_ticks_ms": 50431,
+          "count": 1,
+          "raw": [
+            96,
+            170
+          ],
+          "logical": [
+            96,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 50900,
+          "count": 1,
+          "raw": [
+            116,
+            170
+          ],
+          "logical": [
+            116,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 51165,
+          "count": 1,
+          "raw": [
+            137,
+            170
+          ],
+          "logical": [
+            137,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 51406,
+          "count": 1,
+          "raw": [
+            158,
+            170
+          ],
+          "logical": [
+            158,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 51650,
+          "count": 1,
+          "raw": [
+            179,
+            170
+          ],
+          "logical": [
+            179,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 51927,
+          "count": 1,
+          "raw": [
+            200,
+            170
+          ],
+          "logical": [
+            200,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 52192,
+          "count": 1,
+          "raw": [
+            221,
+            170
+          ],
+          "logical": [
+            221,
+            170
+          ]
+        },
+        {
+          "guest_ticks_ms": 52466,
+          "count": 0
+        }
+      ],
+      "controller": [
+        {
+          "pressed": 1,
+          "x": 96,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 78
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                96,
+                170
+              ],
+              "reads": 78
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 116,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                116,
+                170
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 137,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 41
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                137,
+                170
+              ],
+              "reads": 41
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 158,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 40
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                158,
+                170
+              ],
+              "reads": 40
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 179,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 46
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                179,
+                170
+              ],
+              "reads": 46
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 200,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                200,
+                170
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 221,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                221,
+                170
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 0,
+          "x": 221,
+          "y": 170,
+          "gpio": 39,
+          "i2c_count_reads": {},
+          "i2c_coordinates": []
+        }
+      ]
+    },
+    "up": {
+      "guest_samples": [
+        {
+          "guest_ticks_ms": 54998,
+          "count": 1,
+          "raw": [
+            140,
+            208
+          ],
+          "logical": [
+            140,
+            208
+          ]
+        },
+        {
+          "guest_ticks_ms": 55443,
+          "count": 1,
+          "raw": [
+            140,
+            187
+          ],
+          "logical": [
+            140,
+            187
+          ]
+        },
+        {
+          "guest_ticks_ms": 55696,
+          "count": 1,
+          "raw": [
+            140,
+            167
+          ],
+          "logical": [
+            140,
+            167
+          ]
+        },
+        {
+          "guest_ticks_ms": 55940,
+          "count": 1,
+          "raw": [
+            140,
+            147
+          ],
+          "logical": [
+            140,
+            147
+          ]
+        },
+        {
+          "guest_ticks_ms": 56182,
+          "count": 1,
+          "raw": [
+            140,
+            127
+          ],
+          "logical": [
+            140,
+            127
+          ]
+        },
+        {
+          "guest_ticks_ms": 56447,
+          "count": 1,
+          "raw": [
+            140,
+            107
+          ],
+          "logical": [
+            140,
+            107
+          ]
+        },
+        {
+          "guest_ticks_ms": 56700,
+          "count": 1,
+          "raw": [
+            140,
+            87
+          ],
+          "logical": [
+            140,
+            87
+          ]
+        },
+        {
+          "guest_ticks_ms": 56974,
+          "count": 0
+        }
+      ],
+      "controller": [
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 208,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 74
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                208
+              ],
+              "reads": 74
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 187,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                187
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 167,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 40
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                167
+              ],
+              "reads": 40
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 147,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 41
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                147
+              ],
+              "reads": 41
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 127,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                127
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 107,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                107
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 87,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                87
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 0,
+          "x": 140,
+          "y": 87,
+          "gpio": 39,
+          "i2c_count_reads": {},
+          "i2c_coordinates": []
+        }
+      ]
+    },
+    "down": {
+      "guest_samples": [
+        {
+          "guest_ticks_ms": 59676,
+          "count": 1,
+          "raw": [
+            140,
+            84
+          ],
+          "logical": [
+            140,
+            84
+          ]
+        },
+        {
+          "guest_ticks_ms": 60158,
+          "count": 1,
+          "raw": [
+            140,
+            105
+          ],
+          "logical": [
+            140,
+            105
+          ]
+        },
+        {
+          "guest_ticks_ms": 60437,
+          "count": 1,
+          "raw": [
+            140,
+            126
+          ],
+          "logical": [
+            140,
+            126
+          ]
+        },
+        {
+          "guest_ticks_ms": 60704,
+          "count": 1,
+          "raw": [
+            140,
+            148
+          ],
+          "logical": [
+            140,
+            148
+          ]
+        },
+        {
+          "guest_ticks_ms": 60957,
+          "count": 1,
+          "raw": [
+            140,
+            169
+          ],
+          "logical": [
+            140,
+            169
+          ]
+        },
+        {
+          "guest_ticks_ms": 61210,
+          "count": 1,
+          "raw": [
+            140,
+            190
+          ],
+          "logical": [
+            140,
+            190
+          ]
+        },
+        {
+          "guest_ticks_ms": 61475,
+          "count": 1,
+          "raw": [
+            140,
+            212
+          ],
+          "logical": [
+            140,
+            212
+          ]
+        },
+        {
+          "guest_ticks_ms": 61772,
+          "count": 0
+        }
+      ],
+      "controller": [
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 84,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 80
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                84
+              ],
+              "reads": 80
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 105,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 46
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                105
+              ],
+              "reads": 46
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 126,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 45
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                126
+              ],
+              "reads": 45
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 148,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                148
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 169,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 42
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                169
+              ],
+              "reads": 42
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 190,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 44
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                190
+              ],
+              "reads": 44
+            }
+          ]
+        },
+        {
+          "pressed": 1,
+          "x": 140,
+          "y": 212,
+          "gpio": 39,
+          "i2c_count_reads": {
+            "1": 46
+          },
+          "i2c_coordinates": [
+            {
+              "xy": [
+                140,
+                212
+              ],
+              "reads": 46
+            }
+          ]
+        },
+        {
+          "pressed": 0,
+          "x": 140,
+          "y": 212,
+          "gpio": 39,
+          "i2c_count_reads": {},
+          "i2c_coordinates": []
+        }
+      ]
+    }
+  },
+  "evidence_zip_sha256": "4969316cd145b04f6c78a68c701876d40005c19e044782f30a46062ba35e82e4",
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "last_frame_available": true
+  },
+  "baseline_qemu_sha256": "d150c645291e66202d73eb6bdc98900980c2dcb4e851b41d9386dfa6a1ae4b7d",
+  "baseline_guest_coordinate_sequences_match": true,
+  "frame": {
+    "sha256": "72b59e756709e0ceec867fd1c40aca9ee1dc83dd295e3cf6b417e9a6aba93f14",
+    "width": 320,
+    "height": 240,
+    "text_observed": "Core2 touch probe"
+  },
+  "guest_drag_duration_ms": {
+    "left": 1929,
+    "right": 2035,
+    "up": 1976,
+    "down": 2096
+  }
+}

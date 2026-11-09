@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| Core2 显示刷新 / virtual-device validation | 原生 `0167` 使用既有 60 Hz 刷新。相同官方 UIFlow2 v2.5.4 基底及触摸探针在旧 `d150c645…` 和新 `75e61d00…` 上均读到点击和四向滑动的原始与逻辑坐标，FT5x06 I²C 逐点匹配，松手后触点归零。新会话取证后清场，真机与浏览器未测 | [同路径摘要](evidence/2026-11-09-core2-panel-refresh/stock-touch-summary.json) |
 | #178 Classic 烧录 / virtual-device validation | Atom Lite 的首次真实 `0107` 保留，低速重试完成逐字节读回和 guest 验证。Core2、StickC 和独立 Atom Lite 服务冷烧录通过；全 Classic 高负载可靠性仍待复验 | [失败与恢复](evidence/2026-11-09-issue-fixes/classic-flash-summary.json) |
 | #190–#191 目录资料 | 三款主机规格与 Joystick2 SKU 更正，四项公开 Unit 驱动资料和 ADC v1.1 差异更新。相关生成物和静态检查通过 | [目录来源](evidence/2026-11-09-issue-fixes/README.md) |
 | #192 基线帧 / virtual-device validation | 旧版在高负载复现两例黑帧，最终版在负载 6.73–8.68 下首轮通过。超时负控在输入前保留黑帧并失败，全矩阵高负载门禁待验收 | [同路径结果](evidence/2026-11-09-issue-fixes/README.md) |

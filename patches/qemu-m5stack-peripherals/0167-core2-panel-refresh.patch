@@ -1,0 +1,11 @@
+diff --git a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -81,7 +81,6 @@
+     qdev_prop_set_bit(panel, "touch", true);
+     qdev_prop_set_bit(panel, "touch-buttons", true);
+     qdev_prop_set_uint32(panel, "touch-int-pin", 39);
+-    qdev_prop_set_bit(panel, "immediate-update", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
+     qdev_realize_and_unref(panel, NULL, &error_fatal);

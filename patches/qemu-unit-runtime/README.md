@@ -30,7 +30,7 @@ hooks. The extra reconstructed radio lifecycle rearm sites use the same
 virtual clock as their timers. Source replay and compilation alone do not
 grant those models a firmware PASS.
 
-The native recipe ends with `0165` and `0166`. The first layer keeps Cardputer
+Native layers `0165` and `0166` cover Cardputer ADV and SPI SD. The first keeps Cardputer
 ADV bare by default and attaches both chips on the physical Cap CC1101 only
 when `M5SW_CARDPUTER_ADV_CAP_CC1101=1`. The Cap chip-select inputs observe the
 GPIO line without driving it. GPIO8/9 retain the board's internal I²C pull-ups.
@@ -40,6 +40,11 @@ reports that state in R1 and OCR, respects CMD59 CRC settings, and leaves
 MISO high on an empty socket. The model retains the SDSC byte-addressed raw
 image and transfers sectors through GP-SPI. The browser source lock includes
 the same two patches.
+
+Native layer `0167` uses the existing 60 Hz virtual display refresh for Core2.
+Guest SPI writes still update panel memory immediately. Refreshing the host
+display in batches lets the application complete its redraw and resume touch
+polling without requesting a full host-frame conversion for each SPI write.
 
 ## Exact source and order
 
