@@ -55,12 +55,12 @@
 ## 浏览器执行配置
 
 - 数据源：[`qemu-browser-profiles.json`](../platform/web/qemu-browser-profiles.json)。
-- 源码配置登记：共 `20` 款；以下按 `admission` 分类，不是部署或运行结果。
+- 源码配置登记：共 `24` 款；以下按 `admission` 分类，不是部署或运行结果。
 
 | 登记类别 | 数量 | 设备 ID |
 | --- | ---: | --- |
-| `candidate` | `1` | `dial` |
-| `public` | `19` | `atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atoms3`，`atoms3-lite`，`atoms3r`，`cardputer-adv`，`core2`，`cores3`，`papercolor`，`papermono`，`stackchan`，`stamplc`，`stickc`，`stickc-plus`，`stickc-plus-se`，`stickc-plus2`，`sticks3`，`stopwatch` |
+| `candidate` | `4` | `corematrix`，`dial`，`paperdiy`，`papers3` |
+| `public` | `20` | `atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atoms3`，`atoms3-lite`，`atoms3r`，`cardputer`，`cardputer-adv`，`core2`，`cores3`，`papercolor`，`papermono`，`stackchan`，`stamplc`，`stickc`，`stickc-plus`，`stickc-plus-se`，`stickc-plus2`，`sticks3`，`stopwatch` |
 
 源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。
 
@@ -147,20 +147,20 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`74` 个 Python 模块，`47532` 行；规模最大的模块如下。
+- `platform/tools`：`74` 个 Python 模块，`47562` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 11782 |
+| `device_service.py` | 11785 |
 | `firmware_manifest.py` | 3640 |
 | `user_firmware_matrix.py` | 2069 |
 | `serve.py` | 1755 |
 | `network_sandbox.py` | 1681 |
 | `worker_agent.py` | 1501 |
 
-- `tests/`：`161` 个可执行 Python 测试文件，分布在 `66` 个目录；`229` 个 evidence JSON。
-- `patches/`：`17` 个补丁组，`284` 个 patch 文件。
-- 文档：`635` 个 Markdown 页面；除本生成页外共 `69902` 行。
+- `tests/`：`162` 个可执行 Python 测试文件，分布在 `66` 个目录；`229` 个 evidence JSON。
+- `patches/`：`17` 个补丁组，`293` 个 patch 文件。
+- 文档：`635` 个 Markdown 页面；除本生成页外共 `70011` 行。
 
 ## 文档与测试
 
