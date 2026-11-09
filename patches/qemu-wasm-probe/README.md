@@ -491,3 +491,12 @@ check both trace policies and unchanged behavior. The coroutine shim is host C
 logic evidence; actual Emscripten fiber execution remains a separate guest gate.
 Disabling this diagnostic overhead alone is not evidence of a firmware WDT,
 Double exception, or application-completion fix.
+
+## PaperS3, PaperDIY and original Cardputer board layers
+
+Layers `0033` and `0034` port the native `0168` ET047TC1 and `0169`
+K132 board implementations to this build's explicit upstream and patch
+sequence. The camera and ADV boot-switch paths retain their existing browser
+behavior. Paper scanout uses the existing shared RGB565 host frame ABI.
+These layers make the three machines available to the compiler. Browser
+admission and firmware acceptance remain per-board profile decisions.
