@@ -36,6 +36,7 @@ const physicalButtonCodes = {
   stamplc:{key1:'a',key2:'b',key3:'c'},
   stackchan:{power:'p'}, papercolor:{key1:'a',key2:'b',key3:'c',power:'p'},
   papermono:{key1:'a',key2:'b',power:'p'}, core2:{a:'a',b:'b',c:'c',power:'p'},
+  paperdiy:{key1:'a',key2:'b'}, papers3:{},
   'stickc-plus2':{a:'a',b:'b',power:'p'}, dial:{wake:'a'}, stickc:{a:'a',b:'b',power:'p'},
   'stickc-plus':{a:'a',b:'b',power:'p'}, 'stickc-plus-se':{a:'a',b:'b',power:'p'},
   'atom-lite':{button:'a'}, 'atom-matrix':{button:'a'}, 'atom-matrix-v11':{button:'a'},
@@ -63,6 +64,14 @@ assert.throws(()=>qemuInputCommand(originalCardputer,{type:'key',key:'compose',d
 for(const mutate of [p=>delete p.requiredInputPatch,p=>p.board='m5cardputeradv',p=>p.psramMb=8,p=>delete p.inputs.buttons.f12]){
   const candidate=structuredClone(originalCardputer);mutate(candidate);
   assert.throws(()=>validateQemuProfile(candidate),/physical input patch binding/);
+}
+for(const id of ['papers3','paperdiy']){
+  const profile=pick(id);
+  assert.equal(profile.board,'m5'+id);
+  assert.deepEqual([profile.flashMb,profile.psramMb,profile.display.width,profile.display.height],[16,8,540,960]);
+  assert.equal(profile.inputs.touch,id==='papers3');
+  assert.equal(getQemuBrowserProfile(id,registry),null,'Paper preview requires a separately qualified export');
+  assert.throws(()=>qemuInputCommand(profile,{type:'button',id:'power',down:true}),/not admitted/);
 }
 const detached = pick('cores3'); detached.display.width = 1;
 assert.equal(pick('cores3').display.width, 320);

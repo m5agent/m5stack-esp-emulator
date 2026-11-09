@@ -42,7 +42,8 @@ if BUTTON_PM1_SETUP:
                   "cfg4a_before": before4a, "cfg4a_after": after4a,
                   "click_window_ms": setup["click_window_ms"], "i2c": setup["i2c"],
                   "scl": setup["scl"], "sda": setup["sda"], "addr": setup["addr"]}
-buttons = [(label, getattr(M5, owner)) for label, owner in BUTTON_SPECS]
+buttons = [(label, getattr(M5, owner)) for label, owner in BUTTON_SPECS if owner != "Touch"]
+touches = [label for label, owner in BUTTON_SPECS if owner == "Touch"]
 sequence = 0
 previous = {}
 started = time.ticks_ms()
@@ -62,6 +63,8 @@ def emit(kind, **fields):
 M5.update()
 for label, button in buttons:
     previous[label] = button.isPressed()
+for label in touches:
+    previous[label] = M5.Touch.getCount() > 0
 emit("ready", board=M5.getBoard(), states=previous, pmic_setup=pmic_setup)
 while time.ticks_diff(time.ticks_ms(), started) < 120000:
     M5.update()
@@ -73,6 +76,12 @@ while time.ticks_diff(time.ticks_ms(), started) < 120000:
         for method in ("wasPressed", "wasReleased", "wasClicked", "wasHold"):
             if getattr(button, method)():
                 emit("event", button=label, method=method)
+    for label in touches:
+        pressed = M5.Touch.getCount() > 0
+        if pressed != previous[label]:
+            point = {"x": M5.Touch.getX(), "y": M5.Touch.getY()} if pressed else {}
+            emit("state", button=label, pressed=pressed, **point)
+            previous[label] = pressed
     now = time.ticks_ms()
     if time.ticks_diff(now, heartbeat) >= 1000:
         emit("heartbeat", states=previous)

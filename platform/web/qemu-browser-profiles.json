@@ -2657,6 +2657,245 @@
         "tbSizeMb": 128,
         "icountShift": 5
       }
+    },
+    {
+      "deviceId": "papers3",
+      "board": "m5papers3",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 540,
+        "height": 960,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "papers3-wasm-wallclock-et047tc1",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": true,
+        "buttons": {},
+        "keyboard": [],
+        "pir": null,
+        "uart": true,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.4 (papers3)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000284/2116031112826097666/bin/2116031112826097667.bin",
+        "bytes": 8384512,
+        "sha256": "87567896973fa61c281fdf3f0e2031f280de1df8d59ac0942302de288096a1fb",
+        "browserValidation": "Pinned official base for the independent ET047TC1 display/input and editor browser gates."
+      },
+      "fixture": {
+        "vfsOffset": 6623232,
+        "vfsSize": 1761280,
+        "uiRotation": 0,
+        "input": "touch:270,400",
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "touch",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/et047tc1_main.py",
+            "bytes": 1792,
+            "sha256": "eab952352073f45f1dbbc1c321540eac3a8a230759ea0855c2869c16203d4b70"
+          }
+        },
+        "configSHA256": "efa78548b4995f44e11946279da3cbbe7705204a1c8e46f8281827672978e817",
+        "firmwareSHA256": "9b72f589d99ecc7289eecb45d79d6bf2743e3a1517e6c6bda30dd0f3e3d34234",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "frameOracle": {
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "before": 0,
+          "after": 65535
+        },
+        "touchPoint": {
+          "x": 270,
+          "y": 400
+        }
+      },
+      "limitations": [
+        "ET047TC1 digital black and white scanout. Optical waveforms, grayscale, panel timing and power are unvalidated.",
+        "Single GT911 touch; the PMS150G power actuator has no electrical runtime mapping.",
+        "Networking, audio, SD, external Units and arbitrary firmware behavior are unvalidated."
+      ],
+      "readyFirmwareSHA256": "9b72f589d99ecc7289eecb45d79d6bf2743e3a1517e6c6bda30dd0f3e3d34234",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "4eb25cbc42d72a644d1b6c06971cf5c7d9bc3c2951024d1c122bda9bf3cb39aa",
+          "profile": "papers3-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
+    },
+    {
+      "deviceId": "paperdiy",
+      "board": "m5paperdiy",
+      "chip": "esp32s3",
+      "imageChipId": 9,
+      "target": "xtensa-softmmu",
+      "flashMb": 16,
+      "psramMb": 8,
+      "bootloaderOffset": 0,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 540,
+        "height": 960,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "paperdiy-wasm-wallclock-et047tc1",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "bytes": 393216,
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32s3_rev0_rom.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32s3.efuse",
+        "bytes": 4096,
+        "packageVersion": 0
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "key1": "a",
+          "key2": "b"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": true,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.4 (paperdiy)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/2110563172188712962/2116031166261530625/bin/2116031166261530626.bin",
+        "bytes": 16773120,
+        "sha256": "35a4f99833d334c93986806b9403f81172e9068e3b63ef5a8ef2d20cf281eb18",
+        "browserValidation": "Pinned official base for the independent ET047TC1 display/input and editor browser gates."
+      },
+      "fixture": {
+        "vfsOffset": 8519680,
+        "vfsSize": 8253440,
+        "uiRotation": 0,
+        "input": "key:a",
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/et047tc1_main.py",
+            "bytes": 1792,
+            "sha256": "eab952352073f45f1dbbc1c321540eac3a8a230759ea0855c2869c16203d4b70"
+          }
+        },
+        "configSHA256": "1f540e88ac40f565fa50416cf40354d480f8cc1bae4b3fcd33976448ffb4e420",
+        "firmwareSHA256": "c89a5d10aa2e7250f42edf264237119d8d5befef5036901313a91c7c53bf1b9e",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "frameOracle": {
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "before": 0,
+          "after": 65535
+        }
+      },
+      "limitations": [
+        "ET047TC1 digital black and white scanout. Optical waveforms, grayscale, panel timing and power are unvalidated.",
+        "Independent A/B GPIO input. PM1 power-button, wake, charging and electrical behavior are outside browser qualification.",
+        "Networking, audio, SD, external Units and arbitrary firmware behavior are unvalidated."
+      ],
+      "readyFirmwareSHA256": "c89a5d10aa2e7250f42edf264237119d8d5befef5036901313a91c7c53bf1b9e",
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9",
+          "profile": "paperdiy-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     }
   ]
 }

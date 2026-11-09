@@ -41,6 +41,10 @@ const SOURCES = Object.freeze({
     "bytes": 4297,
     "sha256": "9ec71a31dfe6ad2d359e48a9bc1bdd9ce5eccb0080271fe819e3cfce109d403e"
   },
+  "et047tc1_main.py": {
+    "bytes": 1792,
+    "sha256": "eab952352073f45f1dbbc1c321540eac3a8a230759ea0855c2869c16203d4b70"
+  },
   "cardputer_adv_main.py": {
     "bytes": 3320,
     "sha256": "ff2d229274ac7b59ff70ef702b26a3c26415573063e4a31203f4024eed4ef6b8"
@@ -80,6 +84,8 @@ const SOURCE_NAMES = Object.freeze({
   "papermono": {
     "main.py": "papermono_main.py"
   },
+  "papers3": {"main.py": "et047tc1_main.py"},
+  "paperdiy": {"main.py": "et047tc1_main.py"},
   "cardputer-adv": {
     "main.py": "cardputer_adv_main.py"
   }

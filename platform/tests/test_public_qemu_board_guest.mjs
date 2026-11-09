@@ -407,7 +407,7 @@ try {
   check('actual-physical-frame-dimensions',first.last_frame.width===dimensions.width&&first.last_frame.height===dimensions.height);
   const touchPoint=await page.evaluate(()=>boardRun.profile.fixture.touchPoint||{x:Math.floor(boardRun.profile.display.width/2),y:Math.floor(boardRun.profile.display.height/2)});
   const keyboardOracle=await page.evaluate(()=>boardRun.profile.fixture.keyboardOracle||null);
-  const firstPanelPage=frameOracle?await panelPage(0):null;
+  const firstPanelPage=epdOracle?await panelPage(0):null;
   if(firstPanelPage)check('epd-original-controller-palette-and-zero-count-pixels',true,{counter_sha256:firstPanelPage.sha256});
   // This fixed oracle belongs to the pinned Cardputer fixture: the counter is
   // separate from both corner markers and the key-state text at the bottom.
@@ -461,7 +461,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(modelShell => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1',paperdiy:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return {target,key:modelShell
         ? Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0] : null};
@@ -484,6 +484,8 @@ try {
   check('guest-button-counter',firstCount.count===1,firstCount);
   const firstPress=await guest('pressed',row=>row.seq===firstCount.seq-1,30000);
   report.guest_input_observation={requested_physical_touch:await page.evaluate(()=>boardRun.profile.inputs.touch)?touchPoint:null,pressed:firstPress};
+  if(device==='papers3')check('gt911-guest-logical-touch-coordinate',
+    Math.abs(firstPress.x-touchPoint.x)<=2&&Math.abs(firstPress.y-touchPoint.y)<=2,firstPress);
   if (rawTouch) check('original-ft-raw-point-and-stock-logical-gap', firstPress.coordinate_source === 'official-raw-point'
     && firstPress.coordinates_cached === false && firstPress.x === touchPoint.x && firstPress.y === touchPoint.y
     && firstPress.size === 1 && firstPress.touch_id === 0 && firstPress.logical_x === 90 && firstPress.logical_y === 400, firstPress);
@@ -520,6 +522,8 @@ try {
     if(!oracle)for (let at = 0; at < f.pixels.length; at += 2) if (f.pixels[at] === 0 && f.pixels[at + 1] === 0xf8) return false;
     return true;
   }, frameOracle, {timeout:60000}); check('controller-input-changes-native-frame-marker', true);
+  if(['papers3','paperdiy'].includes(device))check('et047tc1-marker-is-from-a-fresh-native-frame',
+    await page.evaluate(before=>boardRun.frame.sourceSequence>before,marker.sourceSequence));
   if(firstPanelPage){
     const changed=await panelPage(1,firstPanelPage.counter);
     check('epd-refresh-changes-count-text-and-count-bit',changed.sha256!==firstPanelPage.sha256,{counter_sha256:changed.sha256});

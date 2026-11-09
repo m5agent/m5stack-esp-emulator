@@ -24,6 +24,8 @@ export const PUBLIC_QEMU_BUTTON_CASES=Object.freeze({
   stackchan:[pmic()],
   papercolor:[gpio('key1','key1','BtnA'),gpio('key2','key2','BtnB'),gpio('key3','key3','BtnC'),pmic()],
   papermono:[gpio('key1','key1','BtnA'),gpio('key2','key2','BtnB'),pmic()],
+  paperdiy:[gpio('a','key1','BtnA'),gpio('b','key2','BtnB')],
+  papers3:[{id:'screen',owner:'Touch',mode:'touch-edges',point:{x:270,y:400}}],
   core2:[gpio('a','a','BtnA'),gpio('b','b','BtnB'),gpio('c','c','BtnC'),pmic()],
   'stickc-plus2':[gpio('a','a','BtnA'),gpio('b','b','BtnB'),gpio('power','power','BtnPWR')],
   stickc:stick(), 'stickc-plus':stick(), 'stickc-plus-se':stick(),
@@ -35,4 +37,6 @@ export const PUBLIC_QEMU_BUTTON_LIMITS=Object.freeze({
   'cardputer-adv':'G0 / Boot covers original BtnA on GPIO0; the 56-key keyboard FIFO has separate coverage.',
   stackchan:'The three Si12T capacitive body zones are separate from the PMIC button observer.',
   core2:'A/B/C route through the FT touch-controller raw bottom band, not GPIO switches.',
+  papers3:'The GT911 touchscreen is the browser input path. PMS150G power behavior is unmodeled.',
+  paperdiy:'A/B use independent GPIO inputs. PM1 power-button behavior remains outside this case.',
 });

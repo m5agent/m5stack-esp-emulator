@@ -28,14 +28,18 @@ const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
   "stamplc": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
   "stackchan": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
   "papercolor": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",
-  "papermono": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0"
+  "papermono": "f03a6fccab31e3f3b1a3c83aabff6953f822744b5672e5b46df2ee7e57b5a9f0",
+  "papers3": "4eb25cbc42d72a644d1b6c06971cf5c7d9bc3c2951024d1c122bda9bf3cb39aa",
+  "paperdiy": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9"
 });
 const EXACT_S3_WORKBENCH_MAIN = 'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0';
 assert.deepEqual(Object.keys(EXACT_S3_WORKBENCH_FLASH).sort(),registry.profiles
   .filter(row=>qemu.profiles.find(profile=>profile.deviceId===row.deviceId)?.chip==='esp32s3')
   .map(row=>row.deviceId).sort(),'a new S3 workbench needs explicit image/policy review');
 
-assert.deepEqual(registry.profiles.map(row => row.deviceId).sort(), qemu.profiles.filter(row => row.admission === 'public').map(row => row.deviceId).sort());
+assert.deepEqual(registry.profiles.map(row => row.deviceId).sort(), qemu.profiles
+  .filter(row => row.admission === 'public' || row.firmwareProfiles?.some(variant => variant.fixture === 'uiflow-workbench-v1'))
+  .map(row => row.deviceId).sort());
 for (const row of registry.profiles) {
   const profile = qemu.profiles.find(profile => profile.deviceId === row.deviceId);
   for (const source of Object.values(row.files)) {
@@ -249,7 +253,8 @@ for (const change of [copy => copy.profiles.push(copy.profiles[0]), copy => copy
 const publicRegistry={...qemu,profiles:qemu.profiles.filter(row=>row.admission==='public')};
 const gateInputs={manifest:{publication_eligible:true,candidate_profiles:[]},
   config:{publication_eligible:true,browser_candidate_profiles:[],browser_wallclock_example:true},
-  registry:publicRegistry,runtime:{compiled_profiles:publicRegistry.profiles.map(row=>row.deviceId)},workbenchRegistry:registry};
+  registry:publicRegistry,runtime:{compiled_profiles:publicRegistry.profiles.map(row=>row.deviceId)},
+  workbenchRegistry:{...registry,profiles:registry.profiles.filter(row=>publicRegistry.profiles.some(profile=>profile.deviceId===row.deviceId))}};
 const plan=planPublicQemuGate(gateInputs),publicCount=publicRegistry.profiles.length;
 const bodyCount=publicRegistry.profiles.some(row=>row.deviceId==='stackchan')?1:0;
 const keyboardCount=publicRegistry.profiles.some(row=>row.deviceId==='cardputer-adv')?1:0;

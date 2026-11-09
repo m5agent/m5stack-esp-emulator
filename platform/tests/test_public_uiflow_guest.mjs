@@ -216,20 +216,22 @@ try {
       && interrupted.executions[index].result.stderr.includes('KeyboardInterrupt') && await page.locator('#pythonRunBtn').isEnabled(), interrupted.executions[index]);
     await runProgram('same-vm-after-interrupt', `print("M5_RECOVERED_${nonce}")\n`, {stdout:`M5_RECOVERED_${nonce}`});
     if (await page.evaluate(() => !!uiflowRuntime.profile.display)) {
-      const mono=device==='papermono',stopwatch=device==='stopwatch',papercolor=device==='papercolor',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
+      const et047tc1=['papers3','paperdiy'].includes(device),mono=et047tc1||device==='papermono';
+      const monoWidth=et047tc1?540:480,monoHeight=et047tc1?960:800;
+      const stopwatch=device==='stopwatch',papercolor=device==='papercolor',marker=`M5_${mono?'MONO':'RED'}_FRAME_${nonce}`;
       const beforeFrame=papercolor?await page.evaluate(()=>({afterSequence:uiflowRuntime.lastFrame?.sequence??0,
         afterSourceSequence:uiflowRuntime.lastFrame?.sourceSequence??0})):null;
-      // Original PaperMono SDK API: outermost endWrite flushes the real EPD.
-      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (480, 800) or not d.isEPD():\n    raise RuntimeError("PaperMono EPD dimensions mismatch")\nd.setEpdMode(d.EPDMode.EPD_QUALITY)\nd.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
+      // The original SDK's outermost endWrite flushes the real EPD.
+      const source=mono?`import M5\nd = M5.Display\nd.setRotation(0)\nwidth, height = d.width(), d.height()\nif (width, height) != (${monoWidth}, ${monoHeight}) or not d.isEPD():\n    raise RuntimeError("EPD dimensions mismatch")\n${et047tc1?'':'d.setEpdMode(d.EPDMode.EPD_QUALITY)\\n'}d.startWrite()\ntry:\n    d.fillScreen(0xFFFFFF)\n    d.fillRect(0, 0, width // 2, height, 0x000000)\nfinally:\n    d.endWrite()\nprint("${marker}", width, height)\n`
         :stopwatch?`import M5\nd = M5.Display\nd.setRotation(0)\nd.setBrightness(255)\nwidth, height = d.width(), d.height()\nif (width, height) != (468, 468) or d.getBrightness() != 255:\n    raise RuntimeError("StopWatch logical display or brightness mismatch")\nd.fillScreen(0xFF0000)\nprint("${marker}", width, height, d.getBrightness())\n`
         :`import M5\nM5.Lcd.fillScreen(0xFF0000)\nprint("${marker}")\n`;
       await runProgram('guest-display-output', source, {stdout:marker});
       if(stopwatch)await page.waitForFunction(stopwatchRedCircleOracle,{}, {timeout:30000,polling:250});
       else if(papercolor)await page.waitForFunction(papercolorRedFrameOracle,beforeFrame,{timeout:30000,polling:250});
-      else await page.waitForFunction(mono=>{
+      else await page.waitForFunction(({mono,monoWidth,monoHeight})=>{
         const frame=uiflowRuntime.lastFrame;if(!frame)return false;
         if(mono){
-          if(frame.width!==480||frame.height!==800||frame.pixels.length!==480*800*2)return false;
+          if(frame.width!==monoWidth||frame.height!==monoHeight||frame.pixels.length!==monoWidth*monoHeight*2)return false;
           for(let y=0;y<frame.height;y++)for(let x=0;x<frame.width;x++){
             const at=(y*frame.width+x)*2,color=frame.pixels[at]|frame.pixels[at+1]<<8;
             if(color!==(x<frame.width/2?0x0000:0xffff))return false;
@@ -238,7 +240,7 @@ try {
         }
         let red=0;for(let i=0;i<frame.pixels.length;i+=2)if((frame.pixels[i]|frame.pixels[i+1]<<8)===0xf800)red++;
         return red>frame.width*frame.height*.95;
-      },mono,{timeout:30000,polling:250});
+      },{mono,monoWidth,monoHeight},{timeout:30000,polling:250});
       if(!papercolor)report.frame=await page.evaluate(async ({mono,redColor})=>{
         const frame=uiflowRuntime.lastFrame,digest=await crypto.subtle.digest('SHA-256',new Uint8Array(frame.pixels));
         let black=0,white=0,red=0;for(let i=0;i<frame.pixels.length;i+=2){const value=frame.pixels[i]|frame.pixels[i+1]<<8;black+=value===0;white+=value===0xffff;red+=value===redColor;}

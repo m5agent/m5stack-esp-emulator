@@ -30,6 +30,8 @@ changing the console setup requires a new composition and browser run.
 | StackChan | `main.py` | 320x240 at guest rotation 1; screen `M5.Touch`, separate from the Si12T body-touch path |
 | PaperColor | `papercolor_main.py` | 400x600; Spectra 6 EPD and front `M5.BtnA` |
 | PaperMono | `papermono_main.py` | 480x800; SSD1677 four-gray EPD and `M5.Touch.getTouchPointRaw(0)` hitbox workaround |
+| PaperS3 | `et047tc1_main.py` | 540x960; ET047TC1 digital scanout and original GT911 logical coordinates |
+| PaperDIY | `et047tc1_main.py` | 540x960; ET047TC1 digital scanout and original `M5.BtnA` |
 | Cardputer-ADV | `cardputer_adv_main.py` | 240x135 at guest rotation 1; original `hardware.KeyboardI2C` over guest I2C/TCA8418 FIFO |
 
 The StackChan default keeps screen input independent of its UART motion work.
@@ -66,6 +68,12 @@ This raw-point workaround does not establish a stock logical-touch fix or
 physical-hardware equivalence. A separate SDK `offset_rotation` change from
 0 to 1 has only an extracted-source host C++ calibration proof; no candidate
 firmware was rebuilt or run, so it has no firmware or hardware PASS.
+
+The two ET047TC1 candidates use official UIFlow2 v2.5.4. They compare all 256
+pixels of a fixed black-to-white marker against a fresh native framebuffer.
+The PaperS3 case verifies the original GT911 logical coordinates at
+`(270,400)`. PaperDIY's separate workbench input case covers both A and B.
+These cases do not cover physical grayscale, waveform timing or power.
 
 Cardputer-ADV creates `KeyboardI2C` in `ASCII_MODE` at address `0x34`, with
 SDA8/SCL9 on I2C1 and interrupt pin11. It polls the original driver's IRQ

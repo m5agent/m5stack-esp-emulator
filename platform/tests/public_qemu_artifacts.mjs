@@ -72,6 +72,14 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
       const builder=await readFile(resolve(repo,'platform/tools/build_public_site.py'));
       row.transform={identity:'build_public_site.qemu_site_profiles-v1',builder_path:'platform/tools/build_public_site.py',builder_sha256:sha256(builder),
         public_profiles:publicProfiles,explicit_candidates:candidates,selected_profiles:selected.map(profile=>profile.deviceId)};
+    }else if(path==='platform/web/uiflow-workbench-profiles.json'){
+      const canonical=JSON.parse(source),actual=JSON.parse(exported);
+      const selected=new Set(JSON.parse(await verified('platform/web/qemu-browser-profiles.json')).profiles.map(profile=>profile.deviceId));
+      const profiles=canonical.profiles.filter(profile=>selected.has(profile.deviceId));
+      assert.deepEqual(actual,{...canonical,profiles},'workbench export does not match selected QEMU profiles');
+      const builder=await readFile(resolve(repo,'platform/tools/build_public_site.py'));
+      row.transform={identity:'build_public_site.qemu_workbench_selection-v1',builder_sha256:sha256(builder),
+        selected_profiles:profiles.map(profile=>profile.deviceId)};
     }else{
       const rewritten=Buffer.from(source.toString('utf8').replace(/(?<=["'`(])\/(platform|devices|data)\//g,(_,group)=>manifest.base_path+group+'/'));
       assert.equal(sha256(exported),sha256(rewritten),`export does not match current source: ${path}`);

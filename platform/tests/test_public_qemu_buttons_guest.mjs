@@ -100,6 +100,7 @@ try{
       if(args[1].id===device){
         globalThis.buttonShell=shell;globalThis.buttonControlEvents=[];
         shell.on('control',event=>buttonControlEvents.push({...event,observed_at_ms:performance.now()}));
+        shell.on('touch',event=>buttonControlEvents.push({...event,id:'screen',observed_at_ms:performance.now()}));
       }
       return shell;
     };
@@ -139,7 +140,7 @@ try{
     &&ready.pmic_setup.click_window_ms===500
     &&ready.pmic_setup.cfg49_after===((ready.pmic_setup.cfg49_before&~7)|5)
     &&ready.pmic_setup.cfg4a_before===ready.pmic_setup.cfg4a_after,ready.pmic_setup);
-  for(const item of cases)for(const method of ['keyboard','pointer']){
+  for(const item of cases)for(const method of item.mode==='touch-edges'?['pointer']:['keyboard','pointer']){
     const before=await events(),afterSeq=before.at(-1)?.seq||0;
     const controlsBefore=await page.evaluate(()=>buttonControlEvents.length);
     let key=null,domKey=null,pointer=null,downAt,upAt;
@@ -152,6 +153,23 @@ try{
       await canvas.focus();
       downAt=performance.now();await page.keyboard.down(domKey);
       try{await page.waitForTimeout(holdMs);}finally{await page.keyboard.up(domKey);}upAt=performance.now();
+    }else if(item.mode==='touch-edges'){
+      pointer=await page.evaluate(async({point,origin})=>{
+        const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
+        const {display,viewer}=buttonShell;
+        const projected=display.panel.localToWorld(new Vector3(
+          ((point.x+0.5)/display.width-0.5)*display.size[0],
+          (0.5-(point.y+0.5)/display.height)*display.size[1],0,
+        )).project(viewer.camera);
+        const rect=viewer.renderer.domElement.getBoundingClientRect();
+        const clientX=rect.left+(projected.x+1)*rect.width/2,clientY=rect.top+(1-projected.y)*rect.height/2;
+        if(document.elementFromPoint(clientX,clientY)!==viewer.renderer.domElement)
+          throw new Error('Projected PaperS3 touch is occluded');
+        return {clientX,clientY,point};
+      },{point:item.point,origin});
+      await page.mouse.move(pointer.clientX,pointer.clientY);
+      downAt=performance.now();await page.mouse.down();
+      try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }else{
       pointer=await page.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin});
       await page.mouse.move(pointer.clientX,pointer.clientY);
@@ -165,7 +183,7 @@ try{
       try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }
     let pressed=null,released=null,event=null;
-    if(item.mode==='driver-edges'){
+    if(item.mode==='driver-edges'||item.mode==='touch-edges'){
       pressed=await observe(row=>row.kind==='state'&&row.button===item.id&&row.pressed===true&&row.seq>afterSeq,`${item.id} pressed`);
       released=await observe(row=>row.kind==='state'&&row.button===item.id&&row.pressed===false&&row.seq>pressed.seq,`${item.id} released`);
     }else event=await observe(row=>row.kind==='event'&&row.button===item.id&&row.seq>afterSeq
@@ -175,6 +193,9 @@ try{
     const modelEvents=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
     check(`${method}-${item.id}-actual-model-down-and-up`,modelEvents.length===2&&modelEvents[0].down===true
       &&modelEvents[1].down===false&&modelEvents[0].id===item.id&&modelEvents[1].id===item.id,modelEvents);
+    if(item.mode==='touch-edges')check('gt911-original-logical-coordinates',
+      ['x','y'].every(axis=>Math.abs(modelEvents[0][axis]-item.point[axis])<=2
+        &&Math.abs(pressed[axis]-modelEvents[0][axis])<=1),{pressed,model:modelEvents[0]});
     const input={...item,method,keyboard:key,dom_key:domKey,pointer,model_events:modelEvents,
       requested_hold_ms:holdMs,observed_hold_ms:upAt-downAt,
       model_hold_ms:modelEvents[1].observed_at_ms-modelEvents[0].observed_at_ms,

@@ -272,6 +272,12 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles)
             (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
             (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json(browser_profiles))
+            workbench_path = Path("platform/web/uiflow-workbench-profiles.json")
+            workbench = json.loads((root / workbench_path).read_text(encoding="utf-8"))
+            selected_devices = {row["deviceId"] for row in registry["profiles"]}
+            workbench["profiles"] = [row for row in workbench["profiles"]
+                                     if row["deviceId"] in selected_devices]
+            (temporary / workbench_path).write_bytes(encode_json(workbench))
             # Probe sources are text, not prebuilt or derived firmware. Copy
             # only sources selected by an explicit per-board fixture identity.
             for profile in registry["profiles"]:
@@ -294,6 +300,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                         "cardputer-adv": {"main.py": "cardputer_adv_main.py"},
                         "papercolor": {"main.py": "papercolor_main.py"},
                         "papermono": {"main.py": "papermono_main.py"},
+                        "papers3": {"main.py": "et047tc1_main.py"},
+                        "paperdiy": {"main.py": "et047tc1_main.py"},
                     }
                     source_name = source_names.get(profile["deviceId"], {}).get(name, name)
                     expected_path = f"platform/runtime/qemu-probe/fixture/{source_name}"
