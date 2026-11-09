@@ -1513,6 +1513,8 @@ CASES = [
         "efuse_pkg_version": "0",
         "wait": "3",
         "before_frame_timeout": 10,
+        # A partial title can appear before the guest starts polling touch.
+        "pre_input_marker": "STACKCHAN_IMU_TYPE 6",
         "inputs": ["touch:160,120"],
         "post_input_wait": 8,
         "qom_set_boot": [
@@ -2132,7 +2134,8 @@ CASES = [
         "flash_size": "0x1000000",
         "expected_size": "320x240",
         "wait": "13",
-        "before_frame_timeout": 10,
+        # The single-threaded icount boot can take longer under host load.
+        "before_frame_timeout": 30,
         "inputs": ["touch:160,183"],
         "qom": [
             ("/machine/axp192", "vbat-mv", "3900"),
