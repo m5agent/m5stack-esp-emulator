@@ -339,6 +339,9 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |
+| [初代 Cardputer K132](evidence/2026-11-09-cardputer-k132/README.md) | 日期化原生证据 | `2026-11-09` | 两版原厂固件与 UIFlow2 的 LCD、键盘和未覆盖路径 |
+| [PaperS3 与 PaperDIY](evidence/2026-11-09-paper-et047tc1/README.md) | 日期化原生证据 | `2026-11-09` | 原厂演示、UIFlow2 探针、GT911、A/B 与数字墨水屏扫描 |
 | [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md) | 日期化原生证据 | `2026-11-05` | 镜像/观测/控制器与精确固件分层；保留 Basic 和 Core2 Mic 首轮失败、独立 fence 后续及 Tab5 latest PARTIAL；最终交付另验 |
 | [性能修复与对照](evidence/2026-11-03-emulator-performance/README.md) | 验证证据 | `2026-11-03` | 历史 native 同固件取帧/动作与 browser R6 完整本地门禁；新部署另行绑定运行时 |
 | [性能优化合 main 与 Pages 更新](evidence/2026-11-03-performance-pages-release/README.md) | 部署与虚拟设备证据 | `2026-11-03` | 两 PR 合并、新 producer 路径策略、19 板 20 例完整本地门禁、prepared-preview 部署与独立 HTTPS 验证；保留 regular CI engine 清理失败 |
