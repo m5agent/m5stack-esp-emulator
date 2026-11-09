@@ -35,3 +35,30 @@ The board's SPI microSD data, audio, IR, RGB, ADC calibration, USB, networking,
 and power sequencing need separate evidence. A filesystem-composed v2.5.4
 candidate reached ROM bootloader entry without a nonblank frame. The stock
 result is scoped to the unmodified firmware.
+
+## Browser WASM
+
+Build and export the source-locked browser QEMU as described in
+[Pages deployment](../../../docs/pages-deployment.md). Select the original
+Cardputer with `--qemu-candidate-profile cardputer` while its profile has
+candidate status. Use an isolated static export and a fresh output directory
+under `.work/`. The runner verifies the exact merged image before uploading
+through the Workbench and waits for the corresponding guest pixels in the 3D
+model's texture.
+
+```sh
+M5_PUBLIC_SITE="$K132_BROWSER_EXPORT" \
+M5_QEMU_UPLOAD="$K132_FACTORY_V09_BIN" \
+M5_PUBLIC_QEMU_OUT="$PWD/.work/k132-factory-browser" \
+node platform/tests/test_public_qemu_cardputer_k132_stock.mjs
+```
+
+The factory case presses and releases PC **A** to enter the menu. The released
+edge is required by the [stock launcher](https://github.com/m5stack/M5Cardputer-UserDemo/blob/V0.9/main/apps/launcher/port/port.cpp).
+A real pointer presses the visible **Fn** key and the guest must draw and clear
+its Fn indicator. The launcher oracle excludes the dynamic RTC and battery bar.
+For the stock UIFlow2 case, set `M5_CARDPUTER_STOCK_CASE=uiflow2-v254`, supply the
+unmodified UIFlow2 image, and use a separate output directory. That case checks
+the offline badge and the application menu reached through PC **F12** (GPIO0).
+Both cases require normal guest exit and zero live CDP Worker targets before
+browser closure.
