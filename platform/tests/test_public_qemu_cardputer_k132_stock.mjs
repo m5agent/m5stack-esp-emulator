@@ -12,8 +12,11 @@ const factory = {
 // RGB565 reference oracles from the unmodified factory application's recorded
 // splash, launcher and Fn indicator. They are only readback expectations.
 const splash='31499c7452ea61dcae2d7023fd329746b08acd4e14754811748cdfdb8c5668ff';
-const launcher='a9a144d24756851933a668840b8cf993a7c353b8b76bd48e47558a545339ec21';
-const fnHeld='a8ff0d49522dc113c373dfeb4ad2b5caa16797dc0d59aeb22a3a49f6f7e51226';
+// Check the launcher apps and modifier indicators below the live clock and
+// battery bar. Their stable regions do not depend on RTC or ADC calibration.
+const launcherRegion=[0,24,240,111];
+const launcher='2f54f832b9db9314e3c0f299be729d4ca6361316a71897b41ae771d50fe6e593';
+const fnHeld='11eb5888918170719c4553aa28729f6b9ae5ee87a120ae2d92589d5224600d98';
 const factoryAppCount='installed apps num: 9';
 const uiflow = {
   url:'https://m5burner-cdn.m5stack.com/community/1/1897200000000000718/2116030814376202242/bin/2116030814376202243.bin',
@@ -49,14 +52,13 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
     assert.deepEqual([before.width,before.height],[240,135]);
     await canvas.screenshot({path:resolve(output,'factory-splash.png')});
     await canvas.focus();
+    // V0.9 Launcher::_port_wait_enter() waits for key release before drawing
+    // the menu. Hold one bounded real PC key press across its polling loop.
     await page.keyboard.down('a');
-    let selected;
-    try {
-      selected=await waitFrame(launcher);
-      await page.waitForFunction(marker=>stockGuestRuntime.serial.includes(marker),factoryAppCount,{timeout});
-    } finally {
-      await page.keyboard.up('a');
-    }
+    try { await page.waitForTimeout(500); }
+    finally { await page.keyboard.up('a'); }
+    const selected=await waitFrame(launcher,launcherRegion);
+    await page.waitForFunction(marker=>stockGuestRuntime.serial.includes(marker),factoryAppCount,{timeout});
     assert.ok(selected.sequence>before.sequence);
     await canvas.screenshot({path:resolve(output,'factory-launcher.png')});
     await canvas.scrollIntoViewIfNeeded();
@@ -66,14 +68,14 @@ await runPublicStockGuest({device:'cardputer',board:'m5cardputer',
     await page.mouse.move(pointer.clientX,pointer.clientY);
     await page.mouse.down();
     let held;
-    try { held=await waitFrame(fnHeld); }
+    try { held=await waitFrame(fnHeld,launcherRegion); }
     finally { await page.mouse.up(); }
-    const released=await waitFrame(launcher);
+    const released=await waitFrame(launcher,launcherRegion);
     assert.ok(held.sequence>selected.sequence && released.sequence>held.sequence);
     assert.ok([selected,held,released].every(frame=>frame.sessionId===before.sessionId));
     const inputs=await page.evaluate(()=>stockGuestRuntime.inputs.map(({id,down})=>({id,down})));
     assert.deepEqual(inputs,[{id:'a',down:true},{id:'a',down:false},{id:'menu',down:true},{id:'menu',down:false}]);
     report.interaction={frames:{splash:before,launcher:selected,fnHeld:held,fnReleased:released},inputs,
-      fnPointerComponent:pointer.observed_hit.component, serialMarker:factoryAppCount};
+      launcherRegion,launcherKeyHoldMilliseconds:500,fnPointerComponent:pointer.observed_hit.component,serialMarker:factoryAppCount};
   },
 });
