@@ -1,0 +1,186 @@
+{
+  "date": "2026-11-09",
+  "issue": 204,
+  "scope": "virtual-device validation",
+  "status": "PASS for the bounded S3 raw fixture and original virtual beacon regression",
+  "project_base": "f4f076c2e07f727ce9ae23ddfa6ba7211f1b967e",
+  "source_sha256": {
+    "patches/qemu-m5stack-peripherals/0175-sticks3-wifi-raw-monitor-fixture.patch": "807511cd6b3081c84e7fef1511e42ae786053332976e27f66d56cce9eb878734",
+    "scripts/bootstrap-unit-runtime.py": "7205ec83fea863de1eb838081be55575889e369de210906f643605dfd33f31ca",
+    "platform/tools/device_service.py": "bb0bba5f6cf99c96b0ecad98f8fd8b46486272b239ac945f4e76735cf38444ea",
+    "platform/tools/device_service_qemu_wifi.py": "7fbada5209d1bacf68966da13d82fb966b8475a972b52332265ef1007e4d3d3c",
+    "tests/firmware/sticks3_wifi_monitor/main/monitor.c": "4054ebc813faccb6483ef1fb4b8e66d913c76543c25cf6d5f3c3f0411adb3ac7",
+    "tests/firmware/sticks3_wifi_monitor/run_test.py": "9a349f56075630a5a016f811c5d5ee69d9008d94eab79042218ea25ac2593361"
+  },
+  "runtime": {
+    "machine": "m5sticks3",
+    "profile": "sticks3-monitor-fixture",
+    "qemu_sha256": "9d61d807ee821990361fba074920a2ece2d8b32dbdc002f2be5c1dbad7256309",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "patch_count": 123,
+    "runtime_source_receipt_sha256": "3b5f14feb821b17366d28ce13f77578e2a5d118e9c223182ecc62b801f88824b",
+    "fresh_replay_file_hashes_matched": true,
+    "build": "Isolated native build with dependencies reused. Complete ordered replay checked against compiled source."
+  },
+  "probe_build": {
+    "idf_version": "v5.5.4",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "app_bin_sha256": "575a4acbb5f9f03b374bb7cb8c96745ef7e072cc99ac9680d7624c22478434f4"
+  },
+  "raw_service": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "017b52f3b2644408fa4eff398a656c50992d3245baf25a2010f74da49df864dc",
+    "boot_flash_sha256": "017b52f3b2644408fa4eff398a656c50992d3245baf25a2010f74da49df864dc",
+    "cases": {
+      "capture": {
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "host_backends": 0,
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX action ch=1 rssi=-42 len=42",
+          "MONITOR_TX probe-request len=43",
+          "MONITOR_RESULT PASS"
+        ],
+        "rx_mpdu_sha256": "f64b30c1b329efa41396fdb0d0b7df0dd438e14b0dc2f3afacb93b2f83225c84",
+        "rx_mpdu_bytes": 42,
+        "tx_mpdu_sha256": "d4ffc52d16a4e6182cdbcfb987314883be2bda68fbf6f795ac90214af806f244",
+        "tx_mpdu_bytes": 47,
+        "tx_sequence": 1,
+        "invalid_fcs_rejected": true,
+        "evidence_zip_sha256": "a12ef774c149b3982821362240b0e6e31805c3a9ef6fa1deb826c47bad9002e4",
+        "serial_sha256": "328dc77867e111d34ba938b869eee82699c2b5ff498e6ec9b6f187a30e0f00c9",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "mutable_flash_released": true
+      },
+      "no-injection": {
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "host_backends": 0,
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RESULT NO_BEACON"
+        ],
+        "rx_mpdu_sha256": null,
+        "rx_mpdu_bytes": 0,
+        "tx_mpdu_sha256": null,
+        "tx_mpdu_bytes": 0,
+        "tx_sequence": 0,
+        "invalid_fcs_rejected": false,
+        "evidence_zip_sha256": "af442e9ae5c13fd17a46b1823550c021b3fecbf6da25124a8d58a5de95e6f45a",
+        "serial_sha256": "ffbfe09b61c90d760bfc777d304bacc06bb7e23e7fca473456b98ec4a666ed36",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "mutable_flash_released": true
+      }
+    },
+    "result": "PASS"
+  },
+  "original_beacon_service_regression": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "017b52f3b2644408fa4eff398a656c50992d3245baf25a2010f74da49df864dc",
+    "boot_flash_sha256": "017b52f3b2644408fa4eff398a656c50992d3245baf25a2010f74da49df864dc",
+    "cases": {
+      "beacon": {
+        "mpdu_sha256": "d9da9d4b4865a542759437eb2cb85550d66ec10c530c48232ef4128f2fc878ca",
+        "mpdu_bytes": 81,
+        "dma_bytes": 129,
+        "irq_assert_and_guest_clear": true,
+        "tx_probe_request": {
+          "api_bytes": 43,
+          "descriptor_frame_bytes": 47,
+          "irq_assert_and_guest_clear": true,
+          "virtual_ap_reply_bytes": 75
+        },
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX beacon ssid=m5-monitor-lab ch=1 rssi=-25 len=81",
+          "MONITOR_TX probe-request len=43",
+          "MONITOR_RESULT PASS"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "beacon",
+          "radio_enabled": true,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "e78f6903c6975eb383ceb72701a06e7c6dba48d15bd749ebc53db16ed6bc05a0",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": true,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "bf39af44035ae7194617610dd54ef55bb302454d03170a87145d61df15c6cbd9",
+        "serial_sha256": "da514db2acd03ee57ecb12255ea34936a7be6e87fee0f845c2f60045fb1d40e8",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "mutable_flash_released": true
+      },
+      "no-beacon": {
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RESULT NO_BEACON"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "no-beacon",
+          "radio_enabled": false,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "f2e9e1fdd54751def392d3b81d0c0fc118bffba88a938bedd3ae9f8a57995742",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": false,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "632e50f2f5f58cf5a9bb5e75a76c9850b325d3798045ddafcc7b015f76aa2c8c",
+        "serial_sha256": "2dd2cd7f7c7fdf3d8c414bd041d58bec5afd14eedef2c10b672722869e349a0e",
+        "guest_stopped_retained_history": true,
+        "worker_lease_released": true,
+        "mutable_flash_released": true
+      }
+    },
+    "result": "PASS"
+  },
+  "old_backend_control": {
+    "qemu_sha256": "ad3b3b7cc55a2ba4c0a1d79f45472320efa852ad38b8723c6388d6646539999e",
+    "http_status": 503,
+    "code": "wifi_monitor_raw_backend_unavailable",
+    "sessions_created": 0
+  },
+  "controller_notes": [
+    "42-byte vendor Action MPDU includes a valid four-byte FCS. Guest callback bytes equal the input.",
+    "Capture is one complete DMA buffer before MAC rewriting. It contains the SDK four-byte placeholder and is separate from RF framing.",
+    "TX and RX IRQ clear and peerless topology verified in the evidence ZIP. Automatic QOM snapshots omit raw values."
+  ],
+  "prior_diagnostics": [
+    {
+      "scope": "prototype",
+      "result": "First global shorthand did not activate the type with dots. The explicit driver/property/value form did."
+    },
+    {
+      "scope": "prototype",
+      "result": "Post-IRQ guest RAM still contained the 43-byte Probe Request but the four trailing bytes changed. Exact capture is taken at the original controller read."
+    },
+    {
+      "scope": "old backend before admission preflight",
+      "result": "Unsupported property prevented boot. The request waited on QMP until client timeout. Final preflight rejects before creating a session."
+    }
+  ],
+  "not_run": [
+    "Evil-StickS3 promiscuous UI",
+    "arbitrary protected or QoS RX",
+    "continuous TX capture",
+    "browser-WASM or physical RF/PHY",
+    "real networks or attack actions"
+  ]
+}

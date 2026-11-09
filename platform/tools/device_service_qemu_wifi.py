@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import subprocess
+from pathlib import Path
 
 from device_service_errors import ServiceError
 
@@ -67,6 +70,8 @@ STICKS3_MONITOR_PROFILE = "sticks3-monitor-fixture"
 STICKS3_MONITOR_NIC = "misc.esp32s3.wifi"
 STICKS3_MONITOR_MAC = "02:00:00:00:20:04"
 STICKS3_MONITOR_SSID = "m5-monitor-lab"
+STICKS3_RAW_RX_PROPERTY = "raw-rx-mpdu"
+STICKS3_RAW_TX_PROPERTY = "raw-tx-latest"
 WIFI_ENV_PREFIXES = ("M5SW_WIFI_", "M5SW_S3_WIFI_", "M5SW_CLASSIC_WIFI_", "M5SW_ESPNOW_")
 
 
@@ -74,8 +79,12 @@ def parse_sticks3_wifi_monitor(payload: dict) -> dict | None:
     if "wifi_monitor_fixture" not in payload:
         return None
     mode = payload["wifi_monitor_fixture"]
-    if mode not in ("beacon", "no-beacon"):
-        raise ServiceError("invalid_wifi_monitor_fixture", "wifi_monitor_fixture must be beacon or no-beacon", 400)
+    if mode not in ("beacon", "no-beacon", "raw"):
+        raise ServiceError(
+            "invalid_wifi_monitor_fixture",
+            "wifi_monitor_fixture must be beacon, no-beacon or raw",
+            400,
+        )
     if payload.get("device_id") != "sticks3" or payload.get("runtime", "qemu") != "qemu":
         raise ServiceError("wifi_monitor_fixture_not_supported", "the fixture requires StickS3 runtime=qemu", 409)
     runtime_env = payload.get("runtime_env")
@@ -93,13 +102,15 @@ def parse_sticks3_wifi_monitor(payload: dict) -> dict | None:
     config = {
         "profile": STICKS3_MONITOR_PROFILE,
         "fixture": mode,
-        "radio_enabled": mode == "beacon",
+        "radio_enabled": mode != "no-beacon",
         "wifi_ssid": STICKS3_MONITOR_SSID,
         "wifi_auth": "open",
         "channel": 1,
         "nic": STICKS3_MONITOR_NIC,
         "host_backends": 0,
     }
+    if mode == "raw":
+        config.update(wifi_ssid=None, ap_beacons=False, forwarding=False)
     return config | {"fixture_sha256": hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()}
 
 
@@ -110,7 +121,27 @@ def apply_sticks3_monitor_environment(env: dict[str, str]) -> None:
     env.update(M5SW_WIFI_SSID=STICKS3_MONITOR_SSID, M5SW_WIFI_AUTH="open", M5SW_S3_WIFI_TRACE="1")
 
 
-def configure_sticks3_monitor_radio(qmp_call, enabled: bool) -> None:
+def require_sticks3_raw_backend(qemu: Path) -> None:
+    try:
+        help_output = subprocess.run(
+            [str(qemu), "-device", f"{STICKS3_MONITOR_NIC},help"],
+            check=True, capture_output=True, text=True, timeout=2,
+        ).stdout
+    except (OSError, subprocess.SubprocessError) as error:
+        raise ServiceError(
+            "wifi_monitor_raw_backend_unavailable",
+            "could not probe QEMU raw monitor support",
+            503,
+        ) from error
+    if not any(line.strip().startswith("raw-fixture=<bool>") for line in help_output.splitlines()):
+        raise ServiceError(
+            "wifi_monitor_raw_backend_unavailable",
+            "the QEMU controller does not support the raw monitor fixture",
+            503,
+        )
+
+
+def configure_sticks3_monitor_radio(qmp_call, enabled: bool, *, raw: bool = False) -> str:
     """Fail closed on an unexpected topology before allowing guest execution."""
     if qmp_call("query-status")["return"]["running"]:
         raise ServiceError("wifi_monitor_fixture_isolation", "guest must be paused before the fixture audit", 503)
@@ -125,6 +156,29 @@ def configure_sticks3_monitor_radio(qmp_call, enabled: bool) -> None:
     if len(radios) != 1:
         raise ServiceError("wifi_monitor_fixture_isolation", "expected exactly one S3 Wi-Fi controller", 503)
     path = f"/machine/unattached/{radios[0]}"
+    if raw:
+        properties = qmp_call("qom-list", path=path)["return"]
+        names = {entry["name"] for entry in properties}
+        if (not {STICKS3_RAW_RX_PROPERTY, STICKS3_RAW_TX_PROPERTY} <= names
+                or qmp_call("qom-get", path=path, property=STICKS3_RAW_TX_PROPERTY)["return"] != "0:"):
+            raise ServiceError(
+                "wifi_monitor_raw_backend_unavailable",
+                "the QEMU controller does not expose a fresh raw monitor fixture",
+                503,
+            )
     qmp_call("qom-set", path=path, property="radio-enabled", value=enabled)
     if qmp_call("qom-get", path=path, property="radio-enabled")["return"] is not enabled:
         raise ServiceError("wifi_monitor_fixture_isolation", "radio state mismatch before boot", 503)
+
+    return path
+
+
+def parse_sticks3_raw_mpdu(value: object) -> bytes:
+    if (not isinstance(value, str) or not 56 <= len(value) <= 4632
+            or len(value) % 2 or not re.fullmatch(r"[0-9a-fA-F]+", value)):
+        raise ServiceError(
+            "invalid_wifi_monitor_mpdu",
+            "raw-rx-mpdu requires 28 to 2316 hex-encoded bytes including FCS",
+            400,
+        )
+    return bytes.fromhex(value)

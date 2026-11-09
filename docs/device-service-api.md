@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.53.0` and bounded
+Status: local MVP with unified-device runtime contract `1.54.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1512,6 +1512,29 @@ come from guest serial and controller traces. This fixture uses no slirp, host
 forward, TAP, external ESP-NOW peer or physical radio. See the
 [StickS3 regression](../tests/firmware/sticks3_wifi_monitor/README.md) for the
 exact verified operations and their limits.
+
+Set `wifi_monitor_fixture` to `raw` to use the native controller's
+peerless frame fixture. It suppresses the modeled AP and all forwarding.
+When the guest Wi-Fi driver is ready, use the session's
+`network.raw_qom_path` with these QOM operations:
+
+- `POST /sessions/{session_id}/qom` with `property="raw-rx-mpdu"` and
+  a hex `value` containing 28–2316 bytes of an unprotected three-address
+  management or non-QoS data MPDU, including a valid four-byte FCS. The S3
+  model reports channel 1 and synthetic RSSI −42 dBm. Malformed hex returns
+  400. The controller rejects unsupported frames, wrong FCS and unready DMA
+  with 409. The event records input SHA-256 and length.
+- `GET /sessions/{session_id}/qom?path=…&property=raw-tx-latest` returns
+  `sequence:hex` for the latest complete guest TX DMA buffer, captured before
+  controller MAC rewriting. `0:` indicates no capture. A device reset clears
+  the capture and sequence. This is a bounded diagnostic, with one retained
+  frame per controller. Readout requires `serial.read` and injection requires
+  `input.write`. Automatic QOM snapshots omit both raw properties.
+
+Raw mode requires native patch 0175 or later. The service rejects an
+incompatible backend before creating a session. Driver filtering and controller buffer
+capacity still apply. PHY, protected/QoS RX, full TX streams and frame capture
+from an external interface remain outside this fixture.
 
 `runtime=network` runs S3/C6 firmware through the separate `esp-emu` lane. It
 does not expose framebuffer, input, QOM or same-instance board state, so its

@@ -1,0 +1,231 @@
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -672,7 +672,7 @@
+     struct mac80211_frame *frame;
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
+-    if (!s->radio_enabled || s->wlan_closed) { return; }
++    if (!s->radio_enabled || s->wlan_closed || s->s3_raw_fixture) { return; }
+     // only send a beacon if we are an access point
+     if(s->ap_state!=Esp32_WLAN__STATE_STA_ASSOCIATED) {
+         if (access_points[s->beacon_ap].channel==esp32_wifi_channel) {
+@@ -800,7 +800,10 @@
+ {
+     Esp32WifiState *s = qemu_get_nic_opaque(ncs);
+     struct mac80211_frame *frame;
+-    if (!s->radio_enabled || s->wlan_closed || ncs->link_down) { return size; }
++    if (!s->radio_enabled || s->wlan_closed ||
++        s->s3_raw_fixture || ncs->link_down) {
++        return size;
++    }
+     if (!Esp32_WLAN_can_receive(ncs)) {
+         // this should not happen, but in
+         // case it does, let's simply drop
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -8,6 +8,8 @@
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
++#include <zlib.h>
++#include "qemu/bswap.h"
+ #include "qemu/log.h"
+ #include "qemu/error-report.h"
+ #include "qemu/guest-random.h"
+@@ -115,7 +117,7 @@
+     g_free(echo);
+ }
+ 
+-static void s3_wifi_receive_frame(Esp32WifiState *s,
++static bool s3_wifi_receive_frame(Esp32WifiState *s,
+                                   struct mac80211_frame *frame,
+                                   int signal_strength)
+ {
+@@ -128,11 +130,11 @@
+     size_t total;
+ 
+     if (!Esp32_WLAN_prepare_s3_rx(s, frame)) {
+-        return;
++        return false;
+     }
+     if (!descriptor || !frame->frame_length ||
+         frame->frame_length > 2316) {
+-        return;
++        return false;
+     }
+     if (address_space_read(&address_space_memory, descriptor,
+                            MEMTXATTRS_UNSPECIFIED, &item,
+@@ -141,14 +143,14 @@
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "esp32s3-wifi: invalid RX descriptor %08x\n",
+                       descriptor);
+-        return;
++        return false;
+     }
+     total = sizeof(*rx) + frame->frame_length;
+     if (total > item.size) {
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "esp32s3-wifi: RX descriptor buffer %u < %zu\n",
+                       item.size, total);
+-        return;
++        return false;
+     }
+ 
+     memset(packet, 0, sizeof(packet));
+@@ -193,7 +195,7 @@
+                             total) != MEMTX_OK) {
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "esp32s3-wifi: RX DMA write failed\n");
+-        return;
++        return false;
+     }
+     if (getenv("M5SW_S3_WIFI_TRACE")) {
+         uint32_t words[4] = { 0 };
+@@ -213,12 +215,13 @@
+                             sizeof(control)) != MEMTX_OK) {
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "esp32s3-wifi: RX descriptor write failed\n");
+-        return;
++        return false;
+     }
+     s->dma_inlink_ptr = item.next ? item.next : s->dma_inlink_address;
+     s->mem[A_S3_WIFI_NEXT_RX_DSCR / 4] = s->dma_inlink_ptr;
+     s->mem[A_S3_WIFI_LAST_RX_DSCR / 4] = descriptor;
+     s3_wifi_set_interrupt(s, S3_DMA_RX_COMPLETE);
++    return true;
+ }
+ 
+ void Esp32_S3_sendFrame(Esp32WifiState *s, struct mac80211_frame *frame,
+@@ -247,6 +250,72 @@
+     s3_wifi_receive_frame(s, frame, signal_strength);
+ }
+ 
++/* A host-controlled, local fixture accepts one complete MPDU, including FCS. */
++static void s3_wifi_raw_rx(Object *obj, const char *hex, Error **errp)
++{
++    Esp32WifiState *s = ESP32S3_WIFI(obj);
++    struct mac80211_frame frame = { 0 };
++    uint8_t *bytes = (uint8_t *)&frame;
++    const size_t max = sizeof(s->s3_raw_tx_bytes);
++    size_t hexlen = strnlen(hex, 2 * max + 1);
++    size_t len = hexlen / 2;
++    unsigned type, subtype;
++
++    if (hexlen % 2 || len < IEEE80211_HEADER_SIZE + 4 || len > max) {
++        error_setg(errp, "raw RX requires 28 to 2316 hex-encoded MPDU bytes");
++        return;
++    }
++    for (size_t i = 0; i < len; i++) {
++        int hi = g_ascii_xdigit_value(hex[2 * i]);
++        int lo = g_ascii_xdigit_value(hex[2 * i + 1]);
++        if (hi < 0 || lo < 0) {
++            error_setg(errp, "raw RX contains invalid hex");
++            return;
++        }
++        bytes[i] = (hi << 4) | lo;
++    }
++    type = (bytes[0] >> 2) & 3;
++    subtype = bytes[0] >> 4;
++    if ((bytes[0] & 3) || (bytes[1] & 0xc0) || (bytes[1] & 3) == 3 ||
++        (type == IEEE80211_TYPE_MGT && (bytes[1] & 3)) ||
++        (type != IEEE80211_TYPE_MGT &&
++         (type != IEEE80211_TYPE_DATA || subtype != 0))) {
++        error_setg(errp, "raw RX requires unprotected three-address "
++                   "management or non-QoS data");
++        return;
++    }
++    if (ldl_le_p(bytes + len - 4) != crc32(0, bytes, len - 4)) {
++        error_setg(errp, "raw RX FCS does not match the MPDU");
++        return;
++    }
++    if (!s->radio_enabled || s->wlan_closed || !s->dma_inlink_ptr ||
++        (s->raw_interrupt & S3_DMA_RX_COMPLETE)) {
++        error_setg(errp, "raw RX radio or DMA is not ready");
++        return;
++    }
++    frame.frame_length = len;
++    if (!s3_wifi_receive_frame(s, &frame, -42)) {
++        error_setg(errp, "raw RX DMA rejected the frame");
++    }
++}
++
++/* The capture is the latest complete descriptor before MAC rewriting. */
++static char *s3_wifi_raw_tx(Object *obj, Error **errp)
++{
++    static const char hex_chars[] = "0123456789abcdef";
++    Esp32WifiState *s = ESP32S3_WIFI(obj);
++    char hex[2 * sizeof(s->s3_raw_tx_bytes) + 1];
++    size_t i;
++
++    for (i = 0; i < s->s3_raw_tx_length; i++) {
++        uint8_t byte = s->s3_raw_tx_bytes[i];
++        hex[2 * i] = hex_chars[byte >> 4];
++        hex[2 * i + 1] = hex_chars[byte & 15];
++    }
++    hex[2 * i] = '\0';
++    return g_strdup_printf("%" PRIu64 ":%s", s->s3_raw_tx_sequence, hex);
++}
++
+ static void esp32s3_wifi_tx(Esp32WifiState *s, uint32_t outlink)
+ {
+     struct mac80211_frame frame = { 0 };
+@@ -268,6 +337,15 @@
+                            item.length) != MEMTX_OK) {
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "esp32s3-wifi: TX DMA read failed\n");
++        s3_wifi_set_interrupt(s, S3_DMA_TX_COMPLETE);
++        return;
++    }
++    if (s->s3_raw_fixture) {
++        if (item.length) {
++            memcpy(s->s3_raw_tx_bytes, &frame, item.length);
++            s->s3_raw_tx_length = item.length;
++            s->s3_raw_tx_sequence++;
++        }
+         s3_wifi_set_interrupt(s, S3_DMA_TX_COMPLETE);
+         return;
+     }
+@@ -357,6 +435,8 @@
+     s->raw_interrupt = 0;
+     s->dma_inlink_address = 0;
+     s->dma_inlink_ptr = 0;
++    s->s3_raw_tx_length = 0;
++    s->s3_raw_tx_sequence = 0;
+     memset(s->mem, 0, sizeof(s->mem));
+ }
+ 
+@@ -373,6 +453,10 @@
+     sysbus_init_mmio(sbd, &s->iomem);
+     sysbus_init_irq(sbd, &s->irq);
+     Esp32_WLAN_setup_ap(dev, s);
++    if (s->s3_raw_fixture) {
++        object_property_add_str(OBJECT(dev), "raw-rx-mpdu", NULL, s3_wifi_raw_rx);
++        object_property_add_str(OBJECT(dev), "raw-tx-latest", s3_wifi_raw_tx, NULL);
++    }
+     /*
+      * The current S3 PHY stub does not decode the RF channel fields yet.
+      * Keep the virtual AP on the same fixed channel until that register path
+@@ -383,6 +467,7 @@
+ 
+ static Property esp32s3_wifi_properties[] = {
+     DEFINE_NIC_PROPERTIES(Esp32WifiState, conf),
++    DEFINE_PROP_BOOL("raw-fixture", Esp32WifiState, s3_raw_fixture, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -43,6 +43,10 @@
+     bool is_s3;
+     bool radio_enabled;
+     bool wlan_closed;
++    bool s3_raw_fixture;
++    uint16_t s3_raw_tx_length;
++    uint64_t s3_raw_tx_sequence;
++    uint8_t s3_raw_tx_bytes[2316];
+     unsigned int inject_sequence_number;
+     int beacon_ap;
+ 

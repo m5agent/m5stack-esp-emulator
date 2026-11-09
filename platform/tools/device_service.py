@@ -60,11 +60,15 @@ from device_service_qemu_wifi import (  # noqa: E402, F401
     STICKS3_MONITOR_MAC,
     STICKS3_MONITOR_NIC,
     STICKS3_MONITOR_PROFILE,
+    STICKS3_RAW_RX_PROPERTY,
+    STICKS3_RAW_TX_PROPERTY,
     apply_qemu_wifi_environment,
     apply_sticks3_monitor_environment,
     configure_sticks3_monitor_radio,
     parse_qemu_wifi_security,
+    parse_sticks3_raw_mpdu,
     parse_sticks3_wifi_monitor,
+    require_sticks3_raw_backend,
 )
 from device_service_parsing import (  # noqa: E402
     _is_sha256,
@@ -5294,6 +5298,7 @@ class DeviceSession:
         )
         profile = self.network_config.get("profile")
         monitor_fixture = profile == STICKS3_MONITOR_PROFILE
+        raw_monitor = monitor_fixture and self.network_config.get("fixture") == "raw"
         native_vhci = profile == CORE2_NATIVE_VHCI_PROFILE
         native_hci = profile == CORE2_NATIVE_HCI_PROFILE
         native_bt = native_vhci or native_hci
@@ -5454,6 +5459,10 @@ class DeviceSession:
         nic: str | None = None
         if monitor_fixture:
             command.extend(["-S", "-net", f"nic,model={STICKS3_MONITOR_NIC},macaddr={STICKS3_MONITOR_MAC}"])
+            if raw_monitor:
+                command.extend([
+                    "-global", f"driver={STICKS3_MONITOR_NIC},property=raw-fixture,value=on",
+                ])
         elif self.runtime == QEMU_WIFI_RUNTIME or unified:
             configured_nic = self.network_config.get("nic")
             if configured_nic:
@@ -5704,7 +5713,9 @@ class DeviceSession:
             self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
             if monitor_fixture:
                 enabled = self.network_config["radio_enabled"]
-                configure_sticks3_monitor_radio(self._qmp.cmd, enabled)
+                qom_path = configure_sticks3_monitor_radio(
+                    self._qmp.cmd, enabled, raw=raw_monitor,
+                )
                 self._check_cancelled()
                 self._record_event(
                     "wifi_monitor_fixture_verified",
@@ -5714,6 +5725,8 @@ class DeviceSession:
                 )
                 self._qmp.cmd("cont")
                 self.network_result = {**self.network_config, "status": "FIXTURE_READY"}
+                if raw_monitor:
+                    self.network_result["raw_qom_path"] = qom_path
         if self.program_transport == "uart-repl":
             from guest_console import GuestConsole
 
@@ -5766,6 +5779,8 @@ class DeviceSession:
                     # A real controller rejection (for example a full UART RX
                     # FIFO) is an input conflict. The QMP transport is healthy.
                     raise ServiceError("unit_input_rejected", str(error), 409) from error
+                if isinstance(error, QMPCommandError) and name == "qom-set" and arguments.get("property") == STICKS3_RAW_RX_PROPERTY:
+                    raise ServiceError("wifi_monitor_mpdu_rejected", str(error), 409) from error
                 try:
                     self._qmp.close()
                 except OSError:
@@ -6963,11 +6978,16 @@ class DeviceSession:
                 "invalid_qom", "path and property are required strings", 400
             )
         value = payload.get("value")
+        details = {"path": path, "property": prop}
         with self._lock:
+            if prop == STICKS3_RAW_RX_PROPERTY:
+                self._require_raw_monitor_qom(path, "input.write")
+                mpdu = parse_sticks3_raw_mpdu(value)
+                details.update(mpdu_sha256=hashlib.sha256(mpdu).hexdigest(), mpdu_bytes=len(mpdu))
+            else:
+                details["value"] = value
             result = self._qmp_call("qom-set", path=path, property=prop, value=value)
-            self._record_event(
-                "qom_set", path=path, property=prop, value=value
-            )
+            self._record_event("qom_set", **details)
         return {"session_id": self.id, "qom_set": result}
 
     def network_fault(self, payload: dict) -> dict:
@@ -7063,8 +7083,21 @@ class DeviceSession:
             409,
         )
 
+    def _require_raw_monitor_qom(self, path: str, permission: str) -> None:
+        self._check_cancelled()
+        if (self.state != "running" or self.network_config.get("fixture") != "raw"
+                or (self.network_result or {}).get("raw_qom_path") != path):
+            raise ServiceError(
+                "wifi_monitor_raw_not_ready",
+                "raw Wi-Fi QOM requires the audited controller in a running raw fixture",
+                409,
+            )
+        DeviceSession._require_runtime_permission(self, permission)
+
     def qom_get(self, path: str, prop: str) -> dict:
         with self._lock:
+            if prop == STICKS3_RAW_TX_PROPERTY:
+                self._require_raw_monitor_qom(path, "serial.read")
             result = self._qmp_call("qom-get", path=path, property=prop)
         return {
             "session_id": self.id,
@@ -7102,7 +7135,7 @@ class DeviceSession:
                     break
                 name = field.get("name")
                 field_type = str(field.get("type", ""))
-                if not name:
+                if not name or name in {STICKS3_RAW_RX_PROPERTY, STICKS3_RAW_TX_PROPERTY}:
                     continue
                 budget["remaining"] -= 1
                 if field_type.startswith("child<") and current_depth < depth:
@@ -9709,6 +9742,8 @@ class DeviceService:
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
+        if monitor_config and monitor_config["fixture"] == "raw":
+            require_sticks3_raw_backend(spec.qemu)
         worker_snapshot = self.worker_status()
         if not worker_snapshot["accepting_leases"]:
             raise ServiceError(

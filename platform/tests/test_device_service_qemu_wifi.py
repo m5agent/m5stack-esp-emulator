@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import Mock
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 import device_service
 from device_service_errors import ServiceError
@@ -11,7 +12,9 @@ from device_service_qemu_wifi import (
     apply_sticks3_monitor_environment,
     configure_sticks3_monitor_radio,
     parse_qemu_wifi_security,
+    parse_sticks3_raw_mpdu,
     parse_sticks3_wifi_monitor,
+    require_sticks3_raw_backend,
 )
 
 
@@ -167,6 +170,29 @@ class DeviceServiceQemuWifiTests(unittest.TestCase):
             configure_sticks3_monitor_radio(qmp, True)
         self.assertEqual(caught.exception.code, "wifi_monitor_fixture_isolation")
         self.assertEqual(qmp.call_count, 2)
+
+
+    def test_raw_monitor_keeps_ap_and_forwarding_off(self) -> None:
+        config = parse_sticks3_wifi_monitor({"device_id": "sticks3", "wifi_monitor_fixture": "raw"})
+        self.assertTrue(config["radio_enabled"])
+        self.assertFalse(config["forwarding"])
+        self.assertFalse(config["ap_beacons"])
+        self.assertIsNone(config["wifi_ssid"])
+
+    def test_raw_monitor_backend_probe_rejects_old_qemu(self) -> None:
+        with patch("device_service_qemu_wifi.subprocess.run", return_value=Mock(stdout="mac=<str>")):
+            with self.assertRaises(ServiceError) as caught:
+                require_sticks3_raw_backend(Path("/qemu-system-xtensa"))
+        self.assertEqual(caught.exception.code, "wifi_monitor_raw_backend_unavailable")
+        self.assertEqual(caught.exception.status, 503)
+
+    def test_raw_monitor_request_requires_bounded_hex(self) -> None:
+        self.assertEqual(parse_sticks3_raw_mpdu("AB" * 28), bytes([0xab] * 28))
+        for value in (None, "00" * 27, "00" * 2317, "0" * 57, "z0" * 28, "00 " * 28):
+            with self.subTest(value=value[:20] if isinstance(value, str) else value):
+                with self.assertRaises(ServiceError) as caught:
+                    parse_sticks3_raw_mpdu(value)
+                self.assertEqual(caught.exception.code, "invalid_wifi_monitor_mpdu")
 
 
 if __name__ == "__main__":

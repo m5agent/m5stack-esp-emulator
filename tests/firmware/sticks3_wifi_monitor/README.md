@@ -52,10 +52,25 @@ zero in each scan with the virtual radio disabled. The stock observation uses
 the Arduino scanner. The SDK probe independently establishes the promiscuous
 callback path.
 
+## Raw MPDU fixture
+
+With native patch `0175`, run the same source-built probe with `--raw`. The
+runner sends a custom vendor Action frame through the existing Device Service
+QOM endpoint. The original SDK callback returns every injected byte, including
+the FCS. A wrong-FCS request fails before DMA. A separate session with the same
+raw mode and no input waits through the receive window and captures no frame.
+
+The SDK's benign Probe Request then crosses the real TX DMA path. The raw QOM
+readout contains the latest full 47-byte TX DMA buffer, including the SDK's
+four-byte placeholder after its 43-byte request. Capture occurs before the
+model's MAC rewriting and before the IRQ returns control to the guest.
+The service stores an input digest and omits raw frame bytes from automatic
+QOM snapshots. [Raw execution summary](raw-summary.json).
+
 See [the execution summary](evidence-2026-11-09.json) for exact identities. This
 scope covers the fixed channel and demonstrated management frames. The
 [original Evil-StickS3 scan follow-up](evil-stock-summary.json) used its
 Scan WiFi and Select Network menu entries. The radio-on list showed the
 synthetic AP and the radio-off list was empty. Evil promiscuous mode,
-arbitrary RX injection, arbitrary TX capture, RF/PHY and attack behavior
-are `NOT RUN`. The fixture does not connect the guest to an external network.
+protected or QoS RX, continuous TX capture, RF/PHY and attack behavior
+are `NOT RUN`. The fixture has zero host network backends.

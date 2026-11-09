@@ -1,5 +1,15 @@
 # M5Stack peripheral models and data planes
 
+## StickS3 raw Wi-Fi fixture
+
+`0175-sticks3-wifi-raw-monitor-fixture.patch` adds a default-off controller
+fixture following native layer `0174`. It accepts a bounded host MPDU with
+verified FCS and passes it through the S3 receive descriptor and IRQ.
+It records the latest complete TX descriptor before MAC address rewriting.
+The fixture suppresses the virtual AP and both directions of network forwarding.
+[The guest regression](../../tests/firmware/sticks3_wifi_monitor/README.md)
+drives the input and capture through Device Service with zero host backends.
+
 ## StickS3 USB device mode
 
 `0171-sticks3-pm1-iap-boot-out.patch` models the StickS3 M5PM1's I2C
