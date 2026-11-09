@@ -15,6 +15,8 @@ python3 tests/firmware/sticks3_native_hid/run_test.py \
   --firmware "$AIRMOUSE_RELEASE_BIN" --evidence-out "$EVIDENCE_ZIP"
 ```
 
+[Bounded evidence](evidence-summary.json) records the runtime SHA, four independent sessions, controller counters and NUS regression.
+
 The test checks both the input image and composed Flash hashes, waits for
 encrypted pairing and the HID notification subscription, verifies the peer
 has seen zero reports before input, sends board BtnA down/up, and requires the

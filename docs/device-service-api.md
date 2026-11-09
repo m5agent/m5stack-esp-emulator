@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.55.0` and bounded
+Status: local MVP with unified-device runtime contract `1.56.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated

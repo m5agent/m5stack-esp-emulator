@@ -16,6 +16,7 @@ import zipfile
 
 SOURCE_SHA = "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8"
 FLASH_SHA = "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a"
+VHCI_QOM = "/machine/peripheral/sticks3-vhci"
 
 
 def digest(data: bytes) -> str:
@@ -60,6 +61,14 @@ def run(args: argparse.Namespace) -> dict:
         "ttl_seconds": args.ready_timeout + 90,
     })
     route = f"/sessions/{session['session_id']}"
+    def counters():
+        return {
+            prop: request(route + "/qom?" + urllib.parse.urlencode({
+                "path": VHCI_QOM, "property": prop,
+            }))["value"]
+            for prop in ("api-h2c-packets", "c2h-delivered", "c2h-errors", "rx-queue-depth")
+        }
+
     evidence = None
     result = None
     try:
@@ -76,6 +85,9 @@ def run(args: argparse.Namespace) -> dict:
         before = request(route + "/network")
         if before["status"] != "AWAITING_INPUT" or before["reports_observed"]:
             raise RuntimeError("HID reports arrived before BtnA input")
+        before_controller = counters()
+        if before_controller["api-h2c-packets"] <= 0 or before_controller["c2h-delivered"] <= 0:
+            raise RuntimeError("native controller did not transfer HCI in both directions")
         frame = request(route + "/frame.png", raw=True)
         if not frame.startswith(b"\x89PNG\r\n\x1a\n"):
             raise RuntimeError("connected guest frame was unavailable")
@@ -95,6 +107,10 @@ def run(args: argparse.Namespace) -> dict:
         else:
             raise TimeoutError("the peer did not receive two valid reports after BtnA input")
 
+        after_controller = counters()
+        if (after_controller["c2h-errors"] != 0
+                or after_controller["api-h2c-packets"] < before_controller["api-h2c-packets"] + 2):
+            raise RuntimeError("native controller did not carry both HID notifications")
         evidence = request(route + "/evidence?include=logs,serial,frames", raw=True)
         with zipfile.ZipFile(io.BytesIO(evidence)) as bundle:
             text = bundle.read("ble-probe.log").decode("utf-8")
@@ -110,6 +126,8 @@ def run(args: argparse.Namespace) -> dict:
             "evidence_sha256": digest(evidence),
             "negative_before_input": before["reports_observed"],
             "reports": reports,
+            "controller_before_input": before_controller,
+            "controller_after_input": after_controller,
             "checks": after["checks"],
         }
     finally:

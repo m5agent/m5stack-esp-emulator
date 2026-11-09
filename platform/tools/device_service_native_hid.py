@@ -63,7 +63,7 @@ def airmouse_native_hid_args(port: int) -> list[str]:
         "-icount", "shift=5",
         "-nic", "none",
         "-chardev", f"socket,id=hci,host=127.0.0.1,port={port},nodelay=on",
-        "-device", f"{NATIVE_HCI_DEVICE},chardev=hci,{props}",
+        "-device", f"{NATIVE_HCI_DEVICE},id=sticks3-vhci,chardev=hci,{props}",
     ]
 
 

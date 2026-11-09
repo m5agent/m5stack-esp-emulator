@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "status": "PASS",
+  "scope": "virtual-device validation of original AirMouseS3 v1.0, native VHCI and BLE HID button reports",
+  "firmware": {
+    "release": "https://github.com/Teapot174/AirMouseS3/releases/tag/v1.0",
+    "release_source_commit": "f98e61b07746ff60b5567c4c216db73243310b3f",
+    "source_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+    "merged_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+    "application_descriptor_elf_sha256": "a0227b121aae8dbc311f652875a60bb1294fd0b1f444f0b0c03c3c1a7322dbab"
+  },
+  "runtime": {
+    "binary_sha256": "d8f6b447ecd93eab02237d00296704f747da2d8908eb39b6e1c9e76159c755a5",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "source_receipt_sha256": "7c6bf67e44881694e3f2fd6d485879c30b76bcbca4796c26c716f074865fbe1a",
+    "ordered_layer_count": 126,
+    "source_postimages": 144,
+    "profile": "qemu-ble / sticks3-native-hid",
+    "machine": "m5sticks3",
+    "accel": "tcg,thread=single",
+    "icount": "shift=5",
+    "guest_cpus": 2,
+    "controller": "native ESP32-S3 VHCI with loopback Bumble peer",
+    "ip_network_backend": "disabled"
+  },
+  "tested_service_files": {
+    "platform/tools/device_service.py": "cbe69208f9ad2aa15f64ebc4699cd12bc3c2515b45b3ca41053e51be0278511b",
+    "platform/tools/device_service_native_hid.py": "28a34a440bfa87a1e0de9a5faed4d8a986db5eb169fde5e2245d80cb0bcc63d1",
+    "platform/tools/ble_probe.py": "f02ede21fadb7324efb821da07fdd293389ed96496be0b7170737f197eea4114",
+    "tests/firmware/sticks3_native_hid/run_test.py": "2b1475afbeb4df07487d99ff763f58f8f9b50eb198f788aae17391c636334d47"
+  },
+  "stock_runs": [
+    {
+      "status": "PASS",
+      "validation": "virtual-device",
+      "source_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+      "flash_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+      "frame_sha256": "da9ee6d3e8ffdbf2cc6122bb598efed48b6ec24a9476f88967db2d639da47798",
+      "evidence_sha256": "5bf530e73ee16c129b777393aa127eeb992e5bd02477107f779f5452142f5824",
+      "negative_before_input": 0,
+      "reports": [
+        "01000000",
+        "00000000"
+      ],
+      "checks": {
+        "paired": true,
+        "hid_service": true,
+        "report_map": true,
+        "subscribed": true,
+        "input_reports": true
+      },
+      "cleanup_state": "stopped"
+    },
+    {
+      "status": "PASS",
+      "validation": "virtual-device",
+      "source_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+      "flash_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+      "frame_sha256": "da9ee6d3e8ffdbf2cc6122bb598efed48b6ec24a9476f88967db2d639da47798",
+      "evidence_sha256": "3b065b5e919965762394e27ae3faf9536dc82277a6fd392adb0cd1caa110c939",
+      "negative_before_input": 0,
+      "reports": [
+        "01000000",
+        "00000000"
+      ],
+      "checks": {
+        "paired": true,
+        "hid_service": true,
+        "report_map": true,
+        "subscribed": true,
+        "input_reports": true
+      },
+      "cleanup_state": "stopped"
+    },
+    {
+      "status": "PASS",
+      "validation": "virtual-device",
+      "source_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+      "flash_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+      "frame_sha256": "da9ee6d3e8ffdbf2cc6122bb598efed48b6ec24a9476f88967db2d639da47798",
+      "evidence_sha256": "e47fccaf316bd74c92d92716269cd88f37d6c1a43daa8610691b6eb6b9dfca57",
+      "negative_before_input": 0,
+      "reports": [
+        "01000000",
+        "00000000"
+      ],
+      "checks": {
+        "paired": true,
+        "hid_service": true,
+        "report_map": true,
+        "subscribed": true,
+        "input_reports": true
+      },
+      "cleanup_state": "stopped"
+    },
+    {
+      "status": "PASS",
+      "validation": "virtual-device",
+      "source_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+      "flash_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+      "frame_sha256": "da9ee6d3e8ffdbf2cc6122bb598efed48b6ec24a9476f88967db2d639da47798",
+      "evidence_sha256": "3e1ec3d5596237da0bae78dfe2b99b400ea1a7c376fb1d22ae40fff1d900afd1",
+      "negative_before_input": 0,
+      "reports": [
+        "01000000",
+        "00000000"
+      ],
+      "controller_before_input": {
+        "api-h2c-packets": 62,
+        "c2h-delivered": 86,
+        "c2h-errors": 0,
+        "rx-queue-depth": 0
+      },
+      "controller_after_input": {
+        "api-h2c-packets": 65,
+        "c2h-delivered": 89,
+        "c2h-errors": 0,
+        "rx-queue-depth": 0
+      },
+      "checks": {
+        "paired": true,
+        "hid_service": true,
+        "report_map": true,
+        "subscribed": true,
+        "input_reports": true
+      },
+      "cleanup_state": "stopped"
+    }
+  ],
+  "observations": {
+    "advertisement": "AirStick",
+    "pairing": "virtual SMP complete; encrypted link; bond keys retained only in the peer process",
+    "hid_service_uuid": "1812",
+    "report_characteristic_uuid": "2a4d",
+    "report_id": 1,
+    "report_map_bytes": 54,
+    "report_map_sha256": "dd476e29707916e19705b5232c4d623cef606feafd5161390b618095c7a6df9c",
+    "input": "physical-board BtnA down/up represented by the virtual board key on the same guest"
+  },
+  "negative_controls": [
+    {
+      "status": "FAIL",
+      "observation": "Fresh isolated checkout did not expose a flash emulator path. No lease or guest started."
+    },
+    {
+      "status": "FAIL",
+      "observation": "Real HCI Reset 01030c00 and Bumble Command Complete 040e0401030c00. Legacy nested guest allocator failed before any C2H delivery.",
+      "evidence_sha256": "e4a34e13183228d751cee22581046969e7d61993ea7f13290dd570e807e90574",
+      "frame_sha256": "219cf4eeaf0f80bd5164755cd7deb5ea5a52ec69eafe4fbced664e5b31ef3ae4",
+      "api_h2c_packets": 1,
+      "c2h_rx_packets": 1,
+      "c2h_delivered": 0,
+      "c2h_errors": 1,
+      "lease_released": true,
+      "flash_retained": false
+    },
+    {
+      "status": "FAIL",
+      "observation": "Fixed single-thread clock delivered three real command responses. Legacy nested guest callback reached its 100000-step bound during the fourth response.",
+      "evidence_sha256": "d87015aa1784eb6e2c603f6afedb490ecd15f4948ebbb38b74a5fc1501b32d0f",
+      "frame_sha256": "219cf4eeaf0f80bd5164755cd7deb5ea5a52ec69eafe4fbced664e5b31ef3ae4",
+      "api_h2c_packets": 4,
+      "c2h_rx_packets": 4,
+      "c2h_delivered": 3,
+      "c2h_errors": 1,
+      "lease_released": true,
+      "flash_retained": false
+    },
+    {
+      "status": "FAIL",
+      "observation": "Normal task callback execution enabled stock AirStick advertising and LE connection. The original firmware sent SMP Pairing Response. The virtual local link then dropped that ACL because it used a configured random source address for a connection established with the public address.",
+      "evidence_sha256": "10f52a009b36f538fbb44ade479028389cf8386af272ae3bdda89a63adfc963c",
+      "frame_sha256": "da9ee6d3e8ffdbf2cc6122bb598efed48b6ec24a9476f88967db2d639da47798",
+      "api_h2c_packets": 31,
+      "c2h_rx_packets": 36,
+      "c2h_delivered": 36,
+      "c2h_errors": 0,
+      "lease_released": true,
+      "flash_retained": false
+    }
+  ],
+  "prior_h4_transport_regression": {
+    "status": "PASS",
+    "checks": {
+      "peer_opened": true,
+      "event_and_fragmented_acl_packets": true,
+      "rx_bytes": true,
+      "rx_queue_depth": true,
+      "no_malformed_packet": true,
+      "bounded_queue_depth": true,
+      "accepted_packets_before_overflow": true,
+      "overflow_packet_dropped": true,
+      "queue_full_error": true,
+      "peer_closed": true,
+      "qemu_clean_exit": true
+    },
+    "evidence_sha256": "041a54b0a1d6e3aea2a6de14c10ad9f9ec551c092c41b9442d370a4e60091f23",
+    "earlier_setup_failure": "macOS Unix socket path exceeded 103 bytes. QEMU exited before test setup; rerun used a shorter owned output path."
+  },
+  "stick_s3_nus_regression": {
+    "status": "PASS",
+    "profile": "checked-in unified_sticks3 H4 regression",
+    "firmware_sha256": "e092bfb41d81392630e1fdb55687b9cfaa0d62683d577ee55baab537a8bf491f",
+    "peer_log_sha256": "2495f27edbd587e3c16d0dc6eb400e0ddee7171303ee55cd9d4e71cf57cc89ad",
+    "serial_sha256": "f6287f4c8f17e70857cb1bc36217536e4a2b5918cef68c486c55de28fdc725d6",
+    "notification": "ACK:M5_STICKS3_UNIFIED"
+  },
+  "stock_vhci_abi": {
+    "vhci_env_pointer": "0x3fceff58",
+    "registered_callback_offset": 8,
+    "registered_callback_functions": {
+      "receive": "0x4201406c",
+      "send_available": "0x42014048"
+    },
+    "host_to_controller_call": "0x420391d0",
+    "host_to_controller_return": "0x420391d3",
+    "controller_to_host_idle_call": "0x403804ec",
+    "controller_to_host_idle_call_instruction_hex": "e00800",
+    "controller_to_host_allocator": "0x40377c60"
+  },
+  "sdk_signatures": {
+    "vhci_object_sha256": "bb9799b40866cd3bf8947e1a993574cc97cb2ceefc86409746c587d4320661f9",
+    "heap_allocator_code_bits_matched": 464,
+    "idle_task_code_bits_matched": 1310
+  },
+  "not_run": [
+    "physical BLE RF, pairing security and HID mechanics",
+    "other stock firmware or browser WASM",
+    "IMU motion and HID output reports"
+  ]
+}
