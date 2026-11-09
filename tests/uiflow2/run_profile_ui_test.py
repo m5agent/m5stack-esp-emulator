@@ -320,6 +320,44 @@ def frame_stats(pixels: bytes) -> tuple[int, int]:
     return nonblack, len(colors)
 
 
+def capture_before_frame(qmp: QMP, proc, path: Path,
+                         expected_size: tuple[int, int], *, timeout: float,
+                         min_nonblack_pixels: int,
+                         min_unique_colors: int) -> tuple[int, int]:
+    """Capture the baseline, optionally waiting for the existing content oracle."""
+    started = time.monotonic()
+    deadline = started + timeout
+    samples = 0
+    while True:
+        qmp.cmd("screendump", filename=str(path))
+        width, height, pixels = read_ppm(path)
+        actual = (width, height)
+        if actual != expected_size:
+            raise RuntimeError(f"frame size {actual} != expected {expected_size}")
+        if not timeout:
+            return actual
+        samples += 1
+        nonblack, colors = frame_stats(pixels)
+        if nonblack >= min_nonblack_pixels and colors >= min_unique_colors:
+            print(f"before frame ready after {samples} samples in "
+                  f"{time.monotonic() - started:.3f}s: "
+                  f"{nonblack} non-black pixels, {colors} colors")
+            return actual
+        if proc.poll() is not None:
+            raise RuntimeError("process exited while waiting for before frame")
+        remaining = deadline - time.monotonic()
+        if remaining > 0:
+            time.sleep(min(0.1, remaining))
+            if time.monotonic() < deadline:
+                continue
+        canonicalize_screendump(path)
+        raise RuntimeError(
+            f"timed out waiting for before frame after {samples} samples: "
+            f"{nonblack} non-black pixels (need {min_nonblack_pixels}), "
+            f"{colors} colors (need {min_unique_colors})"
+        )
+
+
 def wait_serial_marker(path: Path, marker: str, proc, timeout: float = 30.0) -> None:
     """Wait for guest completion, failing closed on exit or a bounded timeout."""
     deadline = time.monotonic() + timeout
@@ -517,6 +555,11 @@ def main():
         help="require a QOM property value after inputs; repeat as needed",
     )
     parser.add_argument("--wait", type=float, default=6.0)
+    parser.add_argument(
+        "--before-frame-timeout", type=float, default=0.0,
+        help="after boot settle, poll for the baseline content for this many "
+             "seconds before sending input (default: one capture)",
+    )
     parser.add_argument("--post-input-wait", type=float, default=0.6)
     parser.add_argument("--pre-input-marker", help="guest readiness marker required before injecting inputs")
     parser.add_argument("--post-input-marker", help="guest completion marker required before final capture")
@@ -618,6 +661,8 @@ def main():
         default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios",
     )
     args = parser.parse_args()
+    if not math.isfinite(args.before_frame_timeout) or args.before_frame_timeout < 0:
+        parser.error("--before-frame-timeout must be finite and nonnegative")
     if args.preserve_vfs and (args.format_vfs or args.mklittlefs):
         parser.error("--preserve-vfs cannot be combined with a formatting builder")
     efuse_driver = args.efuse_driver or "nvram.esp32s3.efuse"
@@ -741,11 +786,12 @@ def main():
             time.sleep(args.qom_sequence_settle)
         if args.pre_input_marker:
             wait_serial_marker(serial, args.pre_input_marker, proc)
-        qmp.cmd("screendump", filename=str(before))
         expected = tuple(map(int, args.expected_size.lower().split("x")))
-        actual = read_ppm(before)[:2]
-        if actual != expected:
-            raise RuntimeError(f"frame size {actual} != expected {expected}")
+        actual = capture_before_frame(
+            qmp, proc, before, expected, timeout=args.before_frame_timeout,
+            min_nonblack_pixels=args.min_nonblack_pixels,
+            min_unique_colors=args.min_unique_colors,
+        )
         captured = []
         for index in range(args.capture_frames):
             time.sleep(args.capture_interval)

@@ -1512,6 +1512,7 @@ CASES = [
         "expected_size": "320x240",
         "efuse_pkg_version": "0",
         "wait": "3",
+        "before_frame_timeout": 10,
         "inputs": ["touch:160,120"],
         "post_input_wait": 8,
         "qom_set_boot": [
@@ -2131,6 +2132,7 @@ CASES = [
         "flash_size": "0x1000000",
         "expected_size": "320x240",
         "wait": "13",
+        "before_frame_timeout": 10,
         "inputs": ["touch:160,183"],
         "qom": [
             ("/machine/axp192", "vbat-mv", "3900"),
@@ -2607,6 +2609,8 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
     if "memory" in case:
         command.extend(["--memory", case["memory"]])
+    if "before_frame_timeout" in case:
+        command.extend(["--before-frame-timeout", str(case["before_frame_timeout"])])
     for name in ("pre_input_marker", "post_input_marker"):
         if case.get(name):
             command.extend(["--" + name.replace("_", "-"), case[name]])

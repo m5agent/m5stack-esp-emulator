@@ -31,6 +31,44 @@ class GuestReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "timed out"):
                 runner.wait_serial_marker(path, "MISSING", process, timeout=0)
 
+    def test_before_frame_waits_for_both_content_thresholds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "before.ppm"
+            qmp, process = mock.Mock(), mock.Mock()
+            process.poll.return_value = None
+            frames = iter([bytes(6), b"\xff\x00\x00" * 2, b"\xff\x00\x00\x00\xff\x00"])
+
+            def dump(name, filename):
+                self.assertEqual(name, "screendump")
+                Path(filename).write_bytes(b"P6\n2 1\n255\n" + next(frames))
+
+            qmp.cmd.side_effect = dump
+            with mock.patch.object(runner.time, "sleep"):
+                self.assertEqual(runner.capture_before_frame(
+                    qmp, process, path, (2, 1), timeout=10,
+                    min_nonblack_pixels=2, min_unique_colors=2,
+                ), (2, 1))
+            self.assertEqual(qmp.cmd.call_count, 3)
+
+    def test_before_frame_timeout_preserves_blank_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "before.ppm"
+            qmp, process = mock.Mock(), mock.Mock()
+            process.poll.return_value = None
+            qmp.cmd.side_effect = lambda name, filename: Path(filename).write_bytes(
+                b"P6\n2 1\n255\n" + bytes(6)
+            )
+            with (mock.patch.object(runner.time, "monotonic", side_effect=[0.0, 0.0, 0.1]),
+                  mock.patch.object(runner.time, "sleep") as sleep):
+                with self.assertRaisesRegex(RuntimeError, "timed out.*0 non-black pixels"):
+                    runner.capture_before_frame(
+                        qmp, process, path, (2, 1), timeout=0.1,
+                        min_nonblack_pixels=2, min_unique_colors=2,
+                    )
+            sleep.assert_called_once_with(0.1)
+            qmp.cmd.assert_called_once()
+            self.assertTrue(path.with_suffix(".png").is_file())
+
     def test_matrix_forwards_the_two_distinct_markers(self):
         spec = importlib.util.spec_from_file_location("readiness_matrix", ROOT / "tests/uiflow2/run_peripheral_matrix.py")
         matrix = importlib.util.module_from_spec(spec)
