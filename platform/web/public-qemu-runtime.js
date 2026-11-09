@@ -323,6 +323,9 @@ export class PublicQemuRuntime {
           await new Promise(resolve=>setTimeout(resolve,10));
         }
       }
+      // The parent-document Worker outlives its iframe on an aborted start.
+      // Release any unacknowledged engine before detaching the wrapper.
+      try{this.iframe?.contentWindow?.m5QemuReleaseEngine?.();}catch{}
       // Preserve failed-dispose/fallback ownership too. This snapshot is taken
       // before DOM removal and never claims the Worker was observed closed.
       engineOwnership=this.readEngineOwnership()||engineOwnership;

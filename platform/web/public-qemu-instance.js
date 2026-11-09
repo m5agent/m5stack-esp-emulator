@@ -23,6 +23,12 @@ function terminateOwner() {
   engineTerminationRequested=true;engineFallbackTerminations++;engineOwnerLive=false;
   const worker=engine;engine=null;worker.terminate();
 }
+function releaseEngine() {
+  connected=true;
+  clearTimeout(readyTimer);heldPort?.close();heldPort=null;
+  terminateOwner();
+}
+Object.defineProperty(globalThis,'m5QemuReleaseEngine',{value:releaseEngine});
 function failBeforeTransfer(error) {
   if (!heldPort) return;
   heldPort.postMessage({type:'error',value:String(error?.message||error)});
@@ -33,7 +39,9 @@ addEventListener('message', event => {
       event.data?.type!=='m5-qemu-connect' || event.ports?.length!==1) return;
   connected=true;heldPort=event.ports[0];heldPort.start();
   try {
-    engine=new Worker(new URL('./public-qemu-engine.js',import.meta.url),{type:'module',name:'m5-qemu-engine'});
+    // The parent's Worker realm remains active through nested thread shutdown
+    // after the per-guest iframe and its private port are removed.
+    engine=new parent.Worker(new URL('./public-qemu-engine.js',import.meta.url),{type:'module',name:'m5-qemu-engine'});
     engineWorkersCreated++;engineOwnerLive=true;
     engine.addEventListener('message',({data})=>{
       if (data?.type==='m5-qemu-engine-listening' && heldPort) {
@@ -53,8 +61,4 @@ addEventListener('message', event => {
     readyTimer=setTimeout(()=>failBeforeTransfer('QEMU engine initialization timed out'),30000);
   } catch(error) { failBeforeTransfer(error); }
 });
-addEventListener('pagehide',()=>{
-  clearTimeout(readyTimer);heldPort?.close();heldPort=null;
-  // The termination guard keeps acknowledged cleanup separate from fallback.
-  terminateOwner();
-});
+addEventListener('pagehide',releaseEngine);

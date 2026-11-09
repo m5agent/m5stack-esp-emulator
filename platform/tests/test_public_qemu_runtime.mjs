@@ -357,7 +357,14 @@ try {
   registryRequests[0].resolve(new Response(JSON.stringify(profiles)));await assert.rejects(older,{name:'AbortError'});
   assert.equal(concurrent.runtime.status,'running');assert.equal(concurrent.runtime.sessionId,currentSession);assert.equal(concurrent.runtime.receipt,currentReceipt);assert.equal(concurrent.downloads.length,4);await concurrent.runtime.stop();
 
-  options={ignoreLoad:true};const loading=create(),cancel=new AbortController();const load=loading.runtime.start({device:'cores3',firmware:firmware(),signal:cancel.signal});await until(()=>loading.runtime.iframe);cancel.abort();await assert.rejects(load,{name:'AbortError'});await loading.runtime.stop();assert.equal(loading.runtime.iframe,null);assert.equal(loading.runtime.pending.size,0);assert.equal(loading.runtime.waiters.size,0);
+  options={ignoreLoad:true};const loading=create(),cancel=new AbortController();
+  const load=loading.runtime.start({device:'cores3',firmware:firmware(),signal:cancel.signal});
+  await until(()=>loading.runtime.iframe);
+  const loadingFrame=loading.runtime.iframe;let releasedBeforeDetach=false;
+  loadingFrame.contentWindow.m5QemuReleaseEngine=()=>{releasedBeforeDetach=!loadingFrame.removed;};
+  cancel.abort();await assert.rejects(load,{name:'AbortError'});await loading.runtime.stop();
+  assert.equal(releasedBeforeDetach,true,'an aborted start releases the parent-document engine before detaching the iframe');
+  assert.equal(loading.runtime.iframe,null);assert.equal(loading.runtime.pending.size,0);assert.equal(loading.runtime.waiters.size,0);
   options={};const pending=create();pending.runtime.port={postMessage(){throw new DOMException('bad transfer','DataCloneError');}};
   await assert.rejects(pending.runtime.ask('contract'),{name:'DataCloneError'});assert.equal(pending.runtime.pending.size,0);pending.runtime.port=null;
 

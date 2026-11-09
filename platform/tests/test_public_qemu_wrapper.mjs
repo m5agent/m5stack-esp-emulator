@@ -6,7 +6,6 @@ import vm from 'node:vm';
 const source=await readFile(new URL('../web/public-qemu-instance.js',import.meta.url),'utf8');
 const origin='https://example.test',scriptURL=origin+'/showcase/platform/web/public-qemu-instance.js';
 const executable=source.replaceAll('import.meta.url',JSON.stringify(scriptURL));
-const parent={};
 function fixture({constructorError,transferError}={}){
   const listeners=new Map(),workers=[],timers=new Map();let nextTimer=0;
   class MockWorker {
@@ -17,7 +16,8 @@ function fixture({constructorError,transferError}={}){
     terminate(){this.terminations++;}
     emit(type,data){const event=type==='message'?{data}:data;this['on'+type]?.(event);for(const callback of this.events.get(type)||[])callback(event);}
   }
-  const context=vm.createContext({Worker:MockWorker,parent,location:{origin,href:scriptURL},URL,
+  const parent={Worker:MockWorker};
+  const context=vm.createContext({parent,location:{origin,href:scriptURL},URL,
     Set,Map,ArrayBuffer,Uint8Array,Number,JSON,Error,Object,Promise,console,
     addEventListener:(type,callback)=>{if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(callback);},
     setTimeout:(callback,ms)=>{const id=++nextTimer;timers.set(id,{callback,ms});return id;},
@@ -28,7 +28,8 @@ function fixture({constructorError,transferError}={}){
   const port=()=>({messages:[],closed:false,started:false,
     postMessage(value,transfer=[]){this.messages.push({value,transfer});},start(){this.started=true;},close(){this.closed=true;}});
   const connect=(privatePort,overrides={})=>dispatch('message',{source:parent,origin,data:{type:'m5-qemu-connect'},ports:[privatePort],...overrides});
-  return {context,workers,timers,dispatch,ownership,port,connect};
+  const release=()=>vm.runInContext('globalThis.m5QemuReleaseEngine()',context);
+  return {context,workers,timers,dispatch,ownership,port,connect,release};
 }
 
 assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
@@ -42,6 +43,9 @@ for(const overrides of [
 ])initial.connect(invalidPort,overrides);
 assert.equal(initial.workers.length,0,'only parent/same-origin/exact-one-port may create the engine');
 assert.equal(invalidPort.messages.length,0,'untrusted connection events receive no data');
+const abandonedBeforeConnect=fixture();abandonedBeforeConnect.release();
+abandonedBeforeConnect.connect(abandonedBeforeConnect.port());
+assert.equal(abandonedBeforeConnect.workers.length,0,'a queued connect cannot create an engine after release');
 
 const active=fixture(),privatePort=active.port();active.connect(privatePort);
 assert.equal(active.workers.length,1,'accepted connect creates exactly one engine owner');
@@ -80,6 +84,7 @@ assert.equal(active.timers.size,0,'acknowledged finalization cannot schedule ano
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotifications,1,'duplicate notifications cannot invent another close');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
+active.release();
 assert.equal(engine.terminations,1,'pagehide cannot double-finalize an acknowledged close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(active.ownership().engineOwnerLive,false);
@@ -103,7 +108,7 @@ for(const transferred of [false,true]){
   const abandoned=fixture(),port=abandoned.port();abandoned.connect(port);
   const worker=abandoned.workers[0];
   if(transferred)worker.emit('message',{type:'m5-qemu-engine-listening'});
-  abandoned.dispatch('pagehide',{});abandoned.dispatch('pagehide',{});
+  abandoned.release();abandoned.dispatch('pagehide',{});
   assert.equal(worker.terminations,1,'pagehide terminates an unclosed engine exactly once');
   assert.equal(abandoned.ownership().engineFallbackTerminations,1);
   assert.equal(abandoned.ownership().engineCloseNotifications,0);
