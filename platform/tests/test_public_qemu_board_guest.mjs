@@ -238,6 +238,7 @@ try {
   if(device==='stickc')check('original-stickc-board',ready.board===3&&ready.width===80&&ready.height===160,ready);
   if(device==='stickc-plus')check('original-stickc-plus-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
   if(device==='stickc-plus-se')check('original-stickc-plus-se-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
+  if(device==='cardputer')check('original-cardputer-k132-board',ready.board===14&&ready.width===240&&ready.height===135,ready);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
@@ -461,7 +462,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(modelShell => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1',paperdiy:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1',paperdiy:'key1','cardputer-adv':'key-KeyA',cardputer:'boot'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return {target,key:modelShell
         ? Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0] : null};

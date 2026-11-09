@@ -25,6 +25,7 @@ const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
   "atoms3r": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
   "cores3": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
   "cardputer-adv": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+  "cardputer": "220add58feadeb6087593bf9e6c078e51a3541a0c6b80be8460559d51db12fd8",
   "stamplc": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
   "stackchan": "8ed58bd2c21ccb811fcef5ffbce902ebe3a8eea7cb005d641a4c3ecf54df0394",
   "papercolor": "c4486aba3d494048a8dd9e464a610bce0d19369b51ae814f2f221ddc630b6b34",

@@ -1016,7 +1016,7 @@
       "profile": "cardputer-k132-wasm-wallclock",
       "clockDivisor": 1,
       "admission": "candidate",
-      "readyMarker": null,
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -1114,11 +1114,54 @@
         "Preview of the original Cardputer K132 with its GPIO keyboard matrix. Cardputer-ADV uses separate firmware and an I2C keyboard.",
         "This preview uses browser virtual-device validation with exact reference images. Physical hardware, audio, SD card, radio and broader firmware compatibility have separate qualification."
       ],
-      "readyFirmwareSHA256": null,
+      "readyFirmwareSHA256": "2a086148973b22f6c7f289536c977e1e7968e17f7f02717c552088269ed3ac55",
       "requiredInputPatch": {
         "path": "patches/qemu-wasm-probe/0034-cardputer-k132-board.patch",
         "sha256": "6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af"
-      }
+      },
+      "fixture": {
+        "vfsOffset": 6623232,
+        "vfsSize": 1761280,
+        "uiRotation": 0,
+        "input": "key:f12",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "3319f211775c25d178b4cb678202fa988e7a16465d89053d61357b8e474e2a81",
+        "firmwareSHA256": "2a086148973b22f6c7f289536c977e1e7968e17f7f02717c552088269ed3ac55",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "firmwareProfiles": [
+        {
+          "firmwareSHA256": "220add58feadeb6087593bf9e6c078e51a3541a0c6b80be8460559d51db12fd8",
+          "profile": "cardputer-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
+        }
+      ]
     },
     {
       "deviceId": "stamplc",
