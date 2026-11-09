@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "issue": 201,
+  "kind": "StickS3 PM1 terminal USB Serial/JTAG CDC capture",
+  "validation": "virtual-device validation",
+  "status": "PASS for the native Device Service capture opt-in and the pinned stock updater",
+  "machine": "m5sticks3",
+  "stock_updater_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+  "pm1_payload_sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+  "terminal_marker": "=== Firmware upgrade completed ===",
+  "runtime": {
+    "native_qemu_upstream": "40edccac415693c5130f91c01d84176ae6008566",
+    "tested_project_base": "02c046679fd7c7dbb008afd3c4c29e3cfca517df",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "qemu_sha256": "5f0d972f4d9227fa394fa1641f8353f5483ba8645a09c4b1567fcfb42b935960",
+    "native_patch": {
+      "file": "0177-sticks3-usb-serial-jtag-host-timing.patch",
+      "sha256": "914703539f612a23153a7be62a786ad46a962619b2fda1eaaab97b012ca19a43",
+      "ordered_layer_count": 124
+    },
+    "clock_arguments": [
+      "-accel",
+      "tcg,thread=single",
+      "-icount",
+      "shift=5,align=off,sleep=off"
+    ],
+    "existing_runtime_env": {
+      "M5SW_USB_SERIAL_JTAG_CAPTURE": "1"
+    },
+    "virtual_key_tap_milliseconds": 450,
+    "virtual_cpu_indices_observed_by_direct_qmp": [
+      0,
+      1
+    ]
+  },
+  "original_missing_marker_observations": {
+    "release_stock_instruction_trace_sha256": "20f58ba75bc4f3b36c15bf1edd400377e2979142a12b59310753a966d141565f",
+    "released_runtime_sha256": "da00ee628a238429d0e1c84057bf1974350daacdc26fa03c6b7f38378c545611",
+    "disconnected_print": {
+      "print_call_return_pcs": [
+        "0x42003106",
+        "0x42003109"
+      ],
+      "disconnected_write_pc": "0x4200a8af",
+      "print_sof_connected": 0,
+      "sof_miss_budget": 0,
+      "tx_ring_bytes_after_line_and_crlf": [
+        0,
+        34,
+        36
+      ],
+      "ep1_or_irq_writes_in_print_interval": 0,
+      "later_observation": "SOF recovered with Arduino driver flag still false, 64 queued bytes, EP1 writable and INT_ENA=0. The guest later hit a separate spinlock assertion and reset."
+    },
+    "cadence_trace_sha256": "74390ababa945110fb95fb3b274b315b00e650389d6a2e4a8afd8f0bc903fc98",
+    "cadence_instrumented_runtime_sha256": "3b7f4fb1a4e5f3162ffde8f88976b171a5a26e5e1000bd6a679136c2c3182adb",
+    "late_bulk_poll": {
+      "sample": {
+        "case": "default-1",
+        "cdc_bytes": 8162,
+        "cdc_sha256": "18e0728934ea03377184aecf6e55458773f42d73f042021850bc25c58003bd8d",
+        "stock_marker_present": false,
+        "iap": {
+          "iap-upgrades": 1,
+          "iap-bytes-written": 20480,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+        },
+        "virtual_cpu_indices": [
+          0,
+          1
+        ],
+        "owned_guest_reaped": true
+      },
+      "guest_print_path": "connected",
+      "tx_ring_bytes_after_line_and_crlf": 36,
+      "fifo_bytes_from_terminal_print": 0,
+      "following_line_cdc_bytes": 28,
+      "observation": "One vCPU submitted an empty WR_DONE after the ISR disabled IN-empty on the other vCPU. The 1 ms frame-coupled IN poll kept EP1 unavailable when the ISR attempted to move the 36 queued bytes."
+    },
+    "tick_catchup": {
+      "sample": {
+        "case": "single-3",
+        "cdc_bytes": 8104,
+        "cdc_sha256": "3c7e5852359fd5e5c37998f5143e88caa75452db9bb3aeb10f5261cf53383b0d",
+        "stock_marker_present": false,
+        "iap": {
+          "iap-upgrades": 1,
+          "iap-bytes-written": 20480,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+        },
+        "virtual_cpu_indices": [
+          0,
+          1
+        ],
+        "owned_guest_reaped": true
+      },
+      "raw_sof_polls_in_same_frame": 5,
+      "elapsed_virtual_microseconds": 24,
+      "durably_queued_bytes_after_run": 126,
+      "observation": "Catch-up ticks cleared the same SOF latch repeatedly. The stock driver went disconnected and later left queued bytes without an enabled IN-empty interrupt."
+    }
+  },
+  "controls_retained": {
+    "controller_change_with_default_wallclock": {
+      "original_iap_marker_passed": 4,
+      "original_iap_marker_missing_after_valid_run": 1,
+      "bad_crc_passed": 1,
+      "missing_case": {
+        "case": "02-iap",
+        "result": "FAIL",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "ef14538299a6c38dba6acf9bbca9adb97a50b2511e31e9ed39a713c17074b85a",
+        "uart0_sha256": "5d8032d3767d11896edcf03ff4ce353bede004c4414f5cf187c50daeda0d095d",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": false,
+        "button_a_uart0": true,
+        "cdc_bytes": 8142,
+        "cdc_sha256": "b4e99518d509e5d994d30d4c274284634e0ef446861258d76d456c6ed8419de9",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      "results_sha256": "f7995f758754546bf3508beb6d5b46e0ec4253ed8191162c3e22ee1dc5ef5265"
+    },
+    "icount_with_host_clock_tap": {
+      "pm1_stock_pre_iap_input_failures": 8,
+      "bad_crc_pre_iap_input_failures": 1,
+      "no_capture_strap_passed": 1,
+      "results_sha256": "dc92cd92e84393dab4dd36ba1adbd2fca8720ed17f0e41048e25baa9e6ffc0dd"
+    },
+    "pre_guest_setup_failures": [
+      "missing required flash backend in the isolated worktree",
+      "missing esptool under default flash transport"
+    ],
+    "direct_icount_with_virtual_160_ms_input": [
+      {
+        "case": "fixed-clock-1",
+        "cdc_bytes": 8338,
+        "cdc_sha256": "1d5280e14bef31ba18b223f77c8b16bac89fbf98ee307860fe571795a5ff3e3c",
+        "stock_marker_present": true,
+        "iap": {
+          "iap-upgrades": 1,
+          "iap-bytes-written": 20480,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+        },
+        "virtual_cpu_indices": [
+          0,
+          1
+        ],
+        "owned_guest_reaped": true
+      },
+      {
+        "case": "fixed-clock-2",
+        "cdc_bytes": 8338,
+        "cdc_sha256": "1d5280e14bef31ba18b223f77c8b16bac89fbf98ee307860fe571795a5ff3e3c",
+        "stock_marker_present": true,
+        "iap": {
+          "iap-upgrades": 1,
+          "iap-bytes-written": 20480,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+        },
+        "virtual_cpu_indices": [
+          0,
+          1
+        ],
+        "owned_guest_reaped": true
+      },
+      {
+        "case": "fixed-clock-3",
+        "cdc_bytes": 8338,
+        "cdc_sha256": "1d5280e14bef31ba18b223f77c8b16bac89fbf98ee307860fe571795a5ff3e3c",
+        "stock_marker_present": true,
+        "iap": {
+          "iap-upgrades": 1,
+          "iap-bytes-written": 20480,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+        },
+        "virtual_cpu_indices": [
+          0,
+          1
+        ],
+        "owned_guest_reaped": true
+      }
+    ]
+  },
+  "qtest_controller": {
+    "baseline_qemu_sha256": "2c78ca8cf1341b43959bf2eddefa9c8df55d45ebe934b8d40bbeb0c203239d9e",
+    "baseline": "FAIL: EP1 still busy 8 us after zero-length WR_DONE.",
+    "candidate": "PASS: timed ZLP and IN-empty, 1 ms SOF and W1C, 64-byte automatic flush, detach and reattach.",
+    "captured_bytes": 65,
+    "capture_sha256": "df88150ecc9a22ed046c39c36a40dac70bc1f690884d81015096af57613ad753"
+  },
+  "final_device_service": {
+    "reproduction": "tests/firmware/sticks3_pm1/run.py using a dedicated loopback Device Service with M5_SERVICE_FLASH_MODE=host-image.",
+    "original_iap_passed": 8,
+    "bad_crc_passed": 1,
+    "no_capture_strap_passed": 1,
+    "maximum_parallel_sessions": 2,
+    "cases": [
+      {
+        "case": "01-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "9b4d9809c1b4735b1995562ab5ea9bde2e0ee5880904e285b7f0106688762d2e",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8355,
+        "cdc_sha256": "a84f0f663810a3a4de806a508fd42eacb68405460d39fc4c0a85a9cf6af7c0a4",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "02-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "6e62e0c485b4154daa82ea50ee15a7e484e17b04127cbad9c1d4280c8fa34376",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8355,
+        "cdc_sha256": "a84f0f663810a3a4de806a508fd42eacb68405460d39fc4c0a85a9cf6af7c0a4",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "03-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "228a28b0009605c903171958f1eee840012a305976019db16a05e1436d291b39",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8349,
+        "cdc_sha256": "56c8c71aa40e38c98ee29b0176c7fa7282dc032a57a974b0c2b2f3237714db31",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "04-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "cb1caba4f63bfcd97e845209a64e4ce1e7b2e34782fd2e97b2b726d8da5d58ef",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8349,
+        "cdc_sha256": "56c8c71aa40e38c98ee29b0176c7fa7282dc032a57a974b0c2b2f3237714db31",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "05-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "005b898ec6e1f9d8374e8061317430ace74970b79bd1e5fa0abcd50df124bd37",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8349,
+        "cdc_sha256": "56c8c71aa40e38c98ee29b0176c7fa7282dc032a57a974b0c2b2f3237714db31",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "06-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "4d575af6562d4b45cd3be48993eeb9189b7cdfb8f2ae7527c09c75d421975510",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8353,
+        "cdc_sha256": "61583fb51dd6fd0d68972a7b5f74f00ee3fca7cb1738f63504cc0edce8bd6767",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "07-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "9b3741997c3b20ff5a1076f1c0734a05da2e509f2c1d047cd2d75fe3d4fe74ae",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8355,
+        "cdc_sha256": "a84f0f663810a3a4de806a508fd42eacb68405460d39fc4c0a85a9cf6af7c0a4",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "08-iap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "1bf488addc1dea41b5fbc38d4ad6ce6f32d68d99822e83e4d5f1a4e0a612750d",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": true,
+        "button_a_uart0": true,
+        "cdc_bytes": 8355,
+        "cdc_sha256": "a84f0f663810a3a4de806a508fd42eacb68405460d39fc4c0a85a9cf6af7c0a4",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "dd9efd952ad2b5132ce9e8ebbf3a5ea9bf55f98f89ed7fe0294b97950e3a64b1",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 1
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "09-bad-crc",
+        "result": "PASS",
+        "firmware_sha256": "3b6247e161f038355516c1cd1bb320146d145a32c5d5b5d69cc5e139bd5ec88e",
+        "evidence_zip_sha256": "4e489a57ca3a599d13b94eafb810fd29141178cd4cee0b359691312ca4f1209e",
+        "uart0_sha256": "702d6fc751f0dafd99b38810607e942bd67ebb014f4efdad258c922c74b84ce5",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": false,
+        "button_a_uart0": true,
+        "cdc_bytes": 10136,
+        "cdc_sha256": "3d7bc108322d8decb073cb1501560045c97b9450834ed451a520545fbe4015af",
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "6a8d54b90c57ecc7fe1332f53296e05564029a6bc30af622ec803c171d504911",
+        "virtual_flash_sha256_at_capture": "9f370584246696832a939d321c9e2792c0ef7d653518ca524d8ddc016c9190c3",
+        "qom": {
+          "address": 84,
+          "iap-active": true,
+          "iap-app-sha256": "",
+          "iap-bytes-written": 20480,
+          "iap-run-rejections": 41,
+          "iap-upgrades": 0
+        },
+        "stopped_after_evidence": true
+      },
+      {
+        "case": "10-strap",
+        "result": "PASS",
+        "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+        "evidence_zip_sha256": "f01f7cfce1bbeeb41d8cf7abf2fbfa7ebae727b8944d60bde5b55d3a679cc1f2",
+        "uart0_sha256": "1f8154cfffa8a5f6f415f99b7e3663bcf9ed2128981bb472a5124f4a80cf0675",
+        "uart0_completion_marker": false,
+        "cdc_completion_marker": false,
+        "button_a_uart0": false,
+        "cdc_bytes": null,
+        "cdc_sha256": null,
+        "before_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "after_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff",
+        "virtual_flash_sha256_at_capture": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+        "qom": {
+          "address": 110,
+          "iap-active": false,
+          "iap-app-sha256": "",
+          "iap-bytes-written": 0,
+          "iap-run-rejections": 0,
+          "iap-upgrades": 0
+        },
+        "stopped_after_evidence": true,
+        "rom_download_seen": true,
+        "flash_boot_count": 2,
+        "capture_member_present": false,
+        "download_frame_sha256": "daca2518a57113e49b8c8e478554b0779cd0cd23b7a84056fcf7bea2e764fdff"
+      }
+    ],
+    "results_sha256": "e5ea4985fff450b6e8af5bc9f8d2510dd7788b560c4b2db5e3db0ec5dbcb9b89"
+  },
+  "stock_bit_pirate_usb_otg_controls": [
+    {
+      "mode": "capture",
+      "stock_firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+      "stopped_after_evidence": true,
+      "evidence_zip_sha256": "31eeebd3869d5495a0c5c007fcd5ba77381f878d64aee43c605e00901131fa1f",
+      "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+      "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+      "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+      "cdc_line_coding": [
+        115200,
+        57600,
+        115200
+      ],
+      "bulk_out_ep3": "CRLF ACK",
+      "bulk_in_ep4_bytes": 406,
+      "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "guest_markers": [
+        "Press any key to start",
+        "HIZ>"
+      ],
+      "serial_sha256": "60efce504f914ffc0314e5303b337dffa9f22472a0c1199af03c95dcf3a56c24",
+      "transaction_sha256": "c15d4bb083ecebaa25d31b4a7e335a32251ec5a73a0fdde6294cebbbaa145273"
+    },
+    {
+      "mode": "default",
+      "stock_firmware_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+      "stopped_after_evidence": true,
+      "evidence_zip_sha256": "6457962429fe85899fd419050a54b76532f3b9c66ce74dfd97bed500063c2721",
+      "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+      "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+      "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+      "cdc_line_coding": [
+        115200,
+        57600,
+        115200
+      ],
+      "bulk_out_ep3": "CRLF ACK",
+      "bulk_in_ep4_bytes": 406,
+      "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+      "guest_markers": [
+        "Press any key to start",
+        "HIZ>"
+      ],
+      "serial_sha256": "9f58a6e46efce3d29a8a92fd285d51fc540b02a7d34ace1175d7bc97a994b339",
+      "transaction_sha256": "db72b23bc20379428d41dcd040f987dce64a56eb80285be730e3f7d32df45e01"
+    }
+  ],
+  "boundaries": {
+    "default_wallclock_persistent_stability": "NOT PROVEN",
+    "other_capture_firmware_or_long_duration_stability": "NOT RUN",
+    "physical_usb_or_pm1_electrical": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "combined_with_later_native_layers": "NOT RUN"
+  },
+  "source_cross_checks": [
+    "https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf",
+    "https://github.com/espressif/arduino-esp32/blob/2.0.17/cores/esp32/HWCDC.cpp",
+    "https://github.com/espressif/esp-idf/blob/v4.4.7/components/freertos/port/port_systick.c"
+  ]
+}

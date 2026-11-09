@@ -1,0 +1,212 @@
+diff --git a/hw/misc/esp32c3_jtag.c b/hw/misc/esp32c3_jtag.c
+--- a/hw/misc/esp32c3_jtag.c
++++ b/hw/misc/esp32c3_jtag.c
+@@ -41,6 +41,10 @@
+     PAD_PULL_OVERRIDE = BIT(8),
+     DP_PULLUP = BIT(9),
+     PAD_ENABLE = BIT(14),
++
++    USB_FRAME_NS = 1000000,
++    USB_EMPTY_IN_NS = 8000,
++    USB_DATA_IN_NS = 64000,
+ };
+ 
+ static void esp32c3_jtag_update_irq(ESP32C3UsbJtagState *s)
+@@ -54,38 +58,82 @@
+            (!(s->conf & PAD_PULL_OVERRIDE) || (s->conf & DP_PULLUP));
+ }
+ 
+-static void esp32c3_jtag_host_frame(void *opaque)
+-{
+-    ESP32C3UsbJtagState *s = opaque;
+-
+-    if (esp32c3_jtag_host_attached(s)) {
+-        s->frame = (s->frame + 1) & 0x7ff;
+-        s->int_raw |= IRQ_SOF;
+-        if (s->committed) {
+-            int done = s->tx_len ? qemu_chr_fe_write(&s->chr, s->tx, s->tx_len) : 0;
+-            if (done > 0) {
+-                s->tx_bytes += done;
+-                s->tx_len -= done;
+-                memmove(s->tx, s->tx + done, s->tx_len);
+-            }
+-            if (!s->tx_len) {
+-                s->tx_packets++;
+-                s->committed = false;
+-                s->int_raw |= IRQ_IN_EMPTY;
+-            }
+-        }
+-    }
+-    esp32c3_jtag_update_irq(s);
+-    timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++static void esp32c3_jtag_schedule(ESP32C3UsbJtagState *s)
++{
++    timer_mod_ns(s->host_timer, MIN(s->next_frame_ns, s->next_in_ns));
++}
++
++static void esp32c3_jtag_sync_host(ESP32C3UsbJtagState *s, int64_t now)
++{
++    bool changed = false;
++
++    if (now >= s->next_frame_ns) {
++        int64_t frames = 1 + (now - s->next_frame_ns) / USB_FRAME_NS;
++        s->next_frame_ns += frames * USB_FRAME_NS;
++        if (esp32c3_jtag_host_attached(s)) {
++            s->frame = (s->frame + frames) & 0x7ff;
++            s->int_raw |= IRQ_SOF;
++        }
++        changed = true;
++    }
++    if (now >= s->next_in_ns) {
++        int done = s->tx_len ? qemu_chr_fe_write(&s->chr, s->tx, s->tx_len) : 0;
++        if (done > 0) {
++            s->tx_bytes += done;
++            s->tx_len -= done;
++            memmove(s->tx, s->tx + done, s->tx_len);
++        }
++        if (s->tx_len) {
++            s->next_in_ns = now + USB_DATA_IN_NS;
++        } else {
++            s->next_in_ns = INT64_MAX;
++            s->tx_packets++;
++            s->committed = false;
++            s->int_raw |= IRQ_IN_EMPTY;
++        }
++        changed = true;
++    }
++    if (changed) {
++        esp32c3_jtag_update_irq(s);
++        esp32c3_jtag_schedule(s);
++    }
++}
++
++static void esp32c3_jtag_host_timer(void *opaque)
++{
++    esp32c3_jtag_sync_host(opaque, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++}
++
++static void esp32c3_jtag_start_in(ESP32C3UsbJtagState *s, int64_t now)
++{
++    /*
++     * An attached host polls the bulk IN endpoint independently of SOF.
++     * Model one full-speed IN transaction with a short turnaround for a
++     * zero-length packet and enough bus time for a full 64-byte packet.
++     */
++    s->next_in_ns = now + (s->tx_len ? USB_DATA_IN_NS : USB_EMPTY_IN_NS);
++    esp32c3_jtag_schedule(s);
++}
++
++static void esp32c3_jtag_commit(ESP32C3UsbJtagState *s, int64_t now)
++{
++    if (!s->committed) {
++        s->committed = true;
++        s->int_raw &= ~IRQ_IN_EMPTY;
++        if (esp32c3_jtag_host_attached(s)) {
++            esp32c3_jtag_start_in(s, now);
++        }
++    }
+ }
+ 
+ static uint64_t esp32c3_jtag_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(opaque);
+ 
+-    if (!s->host_frame) {
++    if (!s->host_timer) {
+         return 0;
+     }
++    esp32c3_jtag_sync_host(s, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+     switch (addr) {
+     case EP1_CONF:
+         return !s->committed && s->tx_len < sizeof(s->tx) ? IN_DATA_FREE : 0;
+@@ -109,19 +157,23 @@
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(opaque);
+ 
+-    if (!s->host_frame) {
++    if (!s->host_timer) {
+         return;
+     }
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    esp32c3_jtag_sync_host(s, now);
+     switch (addr) {
+     case EP1:
+         if (!s->committed && s->tx_len < sizeof(s->tx)) {
+             s->tx[s->tx_len++] = value;
++            if (s->tx_len == sizeof(s->tx)) {
++                esp32c3_jtag_commit(s, now);
++            }
+         }
+         break;
+     case EP1_CONF:
+         if (value & WR_DONE) {
+-            s->committed = true;
+-            s->int_raw &= ~IRQ_IN_EMPTY;
++            esp32c3_jtag_commit(s, now);
+         }
+         break;
+     case INT_ENABLE:
+@@ -132,6 +184,12 @@
+         break;
+     case CONF0:
+         s->conf = value & 0x1ffff;
++        if (!esp32c3_jtag_host_attached(s)) {
++            s->next_in_ns = INT64_MAX;
++            esp32c3_jtag_schedule(s);
++        } else if (s->committed && s->next_in_ns == INT64_MAX) {
++            esp32c3_jtag_start_in(s, now);
++        }
+         break;
+     }
+     esp32c3_jtag_update_irq(s);
+@@ -154,8 +212,10 @@
+     s->tx_len = 0;
+     s->committed = false;
+     esp32c3_jtag_update_irq(s);
+-    if (s->host_frame) {
+-        timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++    if (s->host_timer) {
++        s->next_frame_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + USB_FRAME_NS;
++        s->next_in_ns = INT64_MAX;
++        esp32c3_jtag_schedule(s);
+     }
+ }
+ 
+@@ -163,8 +223,8 @@
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(dev);
+     if (qemu_chr_fe_backend_connected(&s->chr)) {
+-        s->host_frame = timer_new_ms(QEMU_CLOCK_VIRTUAL,
+-                                     esp32c3_jtag_host_frame, s);
++        s->host_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                     esp32c3_jtag_host_timer, s);
+     }
+     esp32c3_jtag_reset_hold(OBJECT(dev), RESET_TYPE_COLD);
+ }
+@@ -172,9 +232,9 @@
+ static void esp32c3_jtag_unrealize(DeviceState *dev)
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(dev);
+-    if (s->host_frame) {
+-        timer_free(s->host_frame);
+-        s->host_frame = NULL;
++    if (s->host_timer) {
++        timer_free(s->host_timer);
++        s->host_timer = NULL;
+     }
+ }
+ 
+diff --git a/include/hw/misc/esp32c3_jtag.h b/include/hw/misc/esp32c3_jtag.h
+--- a/include/hw/misc/esp32c3_jtag.h
++++ b/include/hw/misc/esp32c3_jtag.h
+@@ -26,7 +26,9 @@
+     MemoryRegion iomem;
+     CharBackend chr;
+     qemu_irq irq;
+-    QEMUTimer *host_frame;
++    QEMUTimer *host_timer;
++    int64_t next_frame_ns;
++    int64_t next_in_ns;
+     uint32_t int_raw;
+     uint32_t int_enable;
+     uint32_t conf;

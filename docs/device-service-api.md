@@ -2254,7 +2254,9 @@ For native StickS3 `runtime=qemu` with patch `0173`, set
 host to the fixed USB Serial/JTAG CDC IN endpoint. The service captures
 guest bytes in the session-owned `usb-serial-jtag.log` evidence ZIP member
 when `include=serial` and `serial.read` are allowed. The `/serial` endpoint
-still reads UART0. This opt-in covers transmit capture from the fixed
+still reads UART0. The capture lane advances SOF and guest timers on an
+instruction-counted virtual clock with both virtual CPUs. Key taps use a
+450 ms guest-clock pulse. This opt-in covers transmit capture from the fixed
 controller. USB OTG, USB Serial/JTAG input and the JTAG channel are separate.
 
 Core2 board-revision probes may additionally set

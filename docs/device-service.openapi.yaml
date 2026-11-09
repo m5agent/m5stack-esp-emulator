@@ -4255,7 +4255,8 @@ components:
             M5SW_USB_SERIAL_JTAG_CAPTURE accepts only the string "1" on
             StickS3 runtime=qemu sessions. It captures guest CDC IN data
             from the fixed USB Serial/JTAG controller in a separate evidence
-            member on a runtime with patch 0173.
+            member on a runtime with patch 0173. The capture lane uses an
+            instruction-counted clock and 450 ms guest-clock key taps.
             Plain runtime=qemu on cores3/cardputer-adv enables DMA completion
             and session-owned speaker capture by default, with an explicit
             generated microphone fixture (440 Hz, 16 kHz s16le, one second;
