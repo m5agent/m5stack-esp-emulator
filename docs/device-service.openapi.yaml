@@ -1995,7 +1995,10 @@ paths:
             default: manifest,serial,frames,logs,qom
       responses:
         "200":
-          description: Evidence ZIP
+          description: >-
+            Evidence ZIP. The serial selection can include
+            usb-serial-jtag.log for opted-in native StickS3 sessions with
+            serial.read permission. UART0 remains in serial.log.
           content:
             application/zip:
               schema:
@@ -4248,6 +4251,10 @@ components:
             M5SW_CARDPUTER_ADV_CAP_CC1101 accepts only the string "1" on
             Cardputer ADV QEMU sessions and mounts the optional Cap CC1101
             (CC1101 and ST25R3916) at boot. Omit it for a bare board.
+            M5SW_USB_SERIAL_JTAG_CAPTURE accepts only the string "1" on
+            StickS3 runtime=qemu sessions. It captures guest CDC IN data
+            from the fixed USB Serial/JTAG controller in a separate evidence
+            member on a runtime with patch 0173.
             Plain runtime=qemu on cores3/cardputer-adv enables DMA completion
             and session-owned speaker capture by default, with an explicit
             generated microphone fixture (440 Hz, 16 kHz s16le, one second;

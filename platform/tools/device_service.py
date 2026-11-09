@@ -258,8 +258,11 @@ MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 CARDPUTER_ADV_CAP_CC1101_ENV = "M5SW_CARDPUTER_ADV_CAP_CC1101"
+STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV = "M5SW_USB_SERIAL_JTAG_CAPTURE"
+USB_SERIAL_JTAG_LOG_NAME = "usb-serial-jtag.log"
 ALLOWED_RUNTIME_ENV = {
     CARDPUTER_ADV_CAP_CC1101_ENV,
+    STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV,
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
     "M5SW_ESPNOW_PEER_CHANNEL",
@@ -289,6 +292,7 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_LCD_TRACE",
 }
 BOOLEAN_RUNTIME_TRACES = frozenset({
+    STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV,
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
     "M5SW_ESPNOW_PEER_FABRIC",
@@ -5435,6 +5439,11 @@ class DeviceSession:
         command.extend(
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
+        if self.runtime_env.get(STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV) == "1":
+            command.extend([
+                "-chardev",
+                f"file,id=usb-serial-jtag,path={self.dir / USB_SERIAL_JTAG_LOG_NAME}",
+            ])
         nic: str | None = None
         if self.runtime == QEMU_WIFI_RUNTIME or unified:
             configured_nic = self.network_config.get("nic")
@@ -7333,7 +7342,11 @@ class DeviceSession:
         if self.unit_adc_calibration_path.is_file():
             files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
         if "serial" in include and serial_read_allowed:
-            for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
+            for name, path in (
+                ("serial.log", self.serial0),
+                ("serial1.log", self.serial1),
+                (USB_SERIAL_JTAG_LOG_NAME, self.dir / USB_SERIAL_JTAG_LOG_NAME),
+            ):
                 if path.is_file():
                     files[name] = path.read_bytes()
         if "logs" in include and serial_read_allowed:
@@ -10011,6 +10024,15 @@ class DeviceService:
                     "invalid_runtime_env",
                     "unsupported runtime_env keys or values: "
                     + ", ".join(str(key) for key in invalid_env),
+                    400,
+                )
+            if (
+                STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV in runtime_env
+                and (spec.id != "sticks3" or runtime != "qemu")
+            ):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "USB Serial/JTAG capture requires the StickS3 qemu profile",
                     400,
                 )
             espnow_local_port = runtime_env.get("M5SW_ESPNOW_PEER_LOCAL_PORT")

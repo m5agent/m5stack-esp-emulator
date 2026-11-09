@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "issue": 201,
+  "kind": "sticks3-fixed-usb-serial-jtag-tx",
+  "status": "PASS for exact stock PM1 upgrader CDC transmit completion",
+  "validation_class": "virtual-device validation",
+  "device": "sticks3",
+  "machine": "m5sticks3",
+  "runtime": "qemu",
+  "qemu_upstream": "40edccac415693c5130f91c01d84176ae6008566",
+  "patches": {
+    "pm1_iap": "f12067d57bf1265d23d2dcd07f2431cfc72f54c951a5bb6395ff677408ef0bcc",
+    "usb_otg_device": "e692d141d0f888e3ea803f1aaac7588d1ab12874e22c330cd831e0d704a792f4",
+    "usb_serial_jtag_cdc_tx": "a490e7ff8706e1f895e288fd9ec49c6aafb91bfb083b14dd500e235c6b0c0f2f"
+  },
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "capture_enabled": {
+    "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+    "runtime_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+    "capture": true,
+    "merged_flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+    "iap": {
+      "iap-upgrades": 1,
+      "iap-bytes-written": 20480
+    },
+    "cdc": {
+      "bytes": 8260,
+      "sha256": "231381762b436edbada742173d0ab154bce7c7bb8ee42f7fbd619ae4a68cbaec",
+      "completion_marker": true,
+      "cdc-tx-packets": 381,
+      "cdc-tx-bytes": 8260
+    },
+    "uart0_separate": true,
+    "uart0_sha256": "2ae6dfe4e6d2f31b9d7f9d4af935e8a50b033ffbef2665b47d3a1e4c2f3c5a95",
+    "evidence_zip_sha256": "5d195324965a62552a057803b937d4555e706514ef32316ce43de25f054de6ee",
+    "zip_has_cdc": true,
+    "zip_cdc_marker": true,
+    "zip_cdc_sha256": "231381762b436edbada742173d0ab154bce7c7bb8ee42f7fbd619ae4a68cbaec",
+    "original_inputs_unchanged": true
+  },
+  "capture_omitted_control": {
+    "firmware_sha256": "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4",
+    "runtime_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+    "capture": false,
+    "merged_flash_sha256": "0e2d0c8fbb185606f344696f2f89a8a7b156c631b7474a5c57a3128cb8fa5a7c",
+    "iap": {
+      "iap-upgrades": 1,
+      "iap-bytes-written": 20480
+    },
+    "uart0_separate": true,
+    "uart0_sha256": "2ef55cb34a8d02d99a51cd44140b298f3624931b958282aebbfad9a35f649496",
+    "evidence_zip_sha256": "9dd7b402041cac98833ee2df83b2684f1fd4c600f20d68036a45db9e88bc678d",
+    "zip_has_cdc": false,
+    "original_inputs_unchanged": true
+  },
+  "guest_evidence": {
+    "uart0_marker": "Button A",
+    "usb_serial_jtag_prep_marker": "=== IAP Upgrade Preparation Phase ===",
+    "usb_serial_jtag_completion_marker": "=== Firmware upgrade completed ===",
+    "cdc_progress_records": 160,
+    "cdc_final_progress_packet": [
+      160,
+      160
+    ],
+    "virtual_in_packet_count_includes_zero_length_completions": true,
+    "input": {
+      "key": "A",
+      "requested_hold_seconds": 0.16
+    }
+  },
+  "reproduction": {
+    "session": {
+      "method": "POST",
+      "path": "/api/v1/sessions",
+      "device_id": "sticks3",
+      "runtime": "qemu",
+      "firmware_id": "<exact firmware_id>",
+      "runtime_env": {
+        "M5SW_USB_SERIAL_JTAG_CAPTURE": "1"
+      }
+    },
+    "input": "POST /api/v1/sessions/{id}/input for key A after the guest upgrade menu appears.",
+    "qom": "Read /machine/m5pm1 IAP counters and /machine/soc/jtag cdc-tx-bytes and cdc-tx-packets.",
+    "evidence": "GET /api/v1/sessions/{id}/evidence?include=manifest,serial. Compare usb-serial-jtag.log, its manifest hash and serial.log.",
+    "cleanup": "Both owned sessions stopped with purge=0 and retain_flash=0; guest Flash released."
+  },
+  "earlier_preflight": {
+    "runtime_sha256": "fa36175a21ecf7a033dff7f3cd209e4a8c6da3273897c3a56cda86fbe27f079b",
+    "status": "FAIL before guest boot",
+    "observation": "Initial candidate did not open the QMP console; the QOM property list was missing its terminator.",
+    "corrected": "Terminated the QOM property list and rebuilt before both fresh lanes."
+  },
+  "scope": {
+    "verified": "Fixed USB Serial/JTAG EP1 CDC IN from guest FIFO to an opt-in virtual host and separate evidence sink.",
+    "not_run": [
+      "CDC receive",
+      "JTAG data",
+      "physical USB",
+      "USB PHY arbitration",
+      "browser-WASM"
+    ]
+  },
+  "references": [
+    "https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf",
+    "https://github.com/espressif/esp-idf/blob/87912cd291d68f4319f13695718af6754879a83f/components/soc/esp32s3/register/soc/usb_serial_jtag_reg.h",
+    "https://github.com/espressif/arduino-esp32/blob/3.3.7/cores/esp32/HWCDC.cpp"
+  ]
+}

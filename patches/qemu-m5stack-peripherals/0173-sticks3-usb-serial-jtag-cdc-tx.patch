@@ -1,0 +1,277 @@
+diff --git a/hw/misc/esp32c3_jtag.c b/hw/misc/esp32c3_jtag.c
+index 82ee697..82ea6ff 100644
+--- a/hw/misc/esp32c3_jtag.c
++++ b/hw/misc/esp32c3_jtag.c
+@@ -12,39 +12,170 @@
+ #include "qemu/module.h"
+ #include "qemu/error-report.h"
+ #include "hw/hw.h"
++#include "hw/irq.h"
++#include "hw/qdev-properties.h"
++#include "hw/qdev-properties-system.h"
+ #include "hw/sysbus.h"
+ #include "hw/misc/esp32c3_jtag.h"
+ 
+ 
++/*
++ * Fixed USB Serial/JTAG CDC IN endpoint, distinct from USB OTG.
++ * Off without an explicit virtual host chardev.
++ */
++enum {
++    EP1 = 0x00,
++    EP1_CONF = 0x04,
++    INT_RAW = 0x08,
++    INT_STATUS = 0x0c,
++    INT_ENABLE = 0x10,
++    INT_CLEAR = 0x14,
++    CONF0 = 0x18,
++    FRAME_NUM = 0x24,
++
++    WR_DONE = BIT(0),
++    IN_DATA_FREE = BIT(1),
++    IRQ_SOF = BIT(1),
++    IRQ_IN_EMPTY = BIT(3),
++    PHY_EXTERNAL = BIT(0),
++    PAD_PULL_OVERRIDE = BIT(8),
++    DP_PULLUP = BIT(9),
++    PAD_ENABLE = BIT(14),
++};
++
++static void esp32c3_jtag_update_irq(ESP32C3UsbJtagState *s)
++{
++    qemu_set_irq(s->irq, (s->int_raw & s->int_enable) != 0);
++}
++
++static bool esp32c3_jtag_host_attached(ESP32C3UsbJtagState *s)
++{
++    return (s->conf & PAD_ENABLE) && !(s->conf & PHY_EXTERNAL) &&
++           (!(s->conf & PAD_PULL_OVERRIDE) || (s->conf & DP_PULLUP));
++}
++
++static void esp32c3_jtag_host_frame(void *opaque)
++{
++    ESP32C3UsbJtagState *s = opaque;
++
++    if (esp32c3_jtag_host_attached(s)) {
++        s->frame = (s->frame + 1) & 0x7ff;
++        s->int_raw |= IRQ_SOF;
++        if (s->committed) {
++            int done = s->tx_len ? qemu_chr_fe_write(&s->chr, s->tx, s->tx_len) : 0;
++            if (done > 0) {
++                s->tx_bytes += done;
++                s->tx_len -= done;
++                memmove(s->tx, s->tx + done, s->tx_len);
++            }
++            if (!s->tx_len) {
++                s->tx_packets++;
++                s->committed = false;
++                s->int_raw |= IRQ_IN_EMPTY;
++            }
++        }
++    }
++    esp32c3_jtag_update_irq(s);
++    timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++}
++
+ static uint64_t esp32c3_jtag_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(opaque);
+-    (void) s;
+-    return 0;
++
++    if (!s->host_frame) {
++        return 0;
++    }
++    switch (addr) {
++    case EP1_CONF:
++        return !s->committed && s->tx_len < sizeof(s->tx) ? IN_DATA_FREE : 0;
++    case INT_RAW:
++        return s->int_raw;
++    case INT_STATUS:
++        return s->int_raw & s->int_enable;
++    case INT_ENABLE:
++        return s->int_enable;
++    case CONF0:
++        return s->conf;
++    case FRAME_NUM:
++        return s->frame;
++    default:
++        return 0;
++    }
+ }
+ 
+-static void esp32c3_jtag_write(void *opaque, hwaddr addr, uint64_t value, unsigned int size)
++static void esp32c3_jtag_write(void *opaque, hwaddr addr, uint64_t value,
++                              unsigned int size)
+ {
+     ESP32C3UsbJtagState *s = ESP32C3_JTAG(opaque);
+-    (void) s;
++
++    if (!s->host_frame) {
++        return;
++    }
++    switch (addr) {
++    case EP1:
++        if (!s->committed && s->tx_len < sizeof(s->tx)) {
++            s->tx[s->tx_len++] = value;
++        }
++        break;
++    case EP1_CONF:
++        if (value & WR_DONE) {
++            s->committed = true;
++            s->int_raw &= ~IRQ_IN_EMPTY;
++        }
++        break;
++    case INT_ENABLE:
++        s->int_enable = value & (IRQ_SOF | IRQ_IN_EMPTY);
++        break;
++    case INT_CLEAR:
++        s->int_raw &= ~value;
++        break;
++    case CONF0:
++        s->conf = value & 0x1ffff;
++        break;
++    }
++    esp32c3_jtag_update_irq(s);
+ }
+ 
+ static const MemoryRegionOps esp32c3_jtag_ops = {
+-    .read =  esp32c3_jtag_read,
++    .read = esp32c3_jtag_read,
+     .write = esp32c3_jtag_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ static void esp32c3_jtag_reset_hold(Object *obj, ResetType type)
+ {
+-    (void) obj;
+-    (void) type;
++    ESP32C3UsbJtagState *s = ESP32C3_JTAG(obj);
++
++    s->int_raw = IRQ_IN_EMPTY;
++    s->int_enable = 0;
++    s->conf = PAD_ENABLE | DP_PULLUP;
++    s->frame = 0;
++    s->tx_len = 0;
++    s->committed = false;
++    esp32c3_jtag_update_irq(s);
++    if (s->host_frame) {
++        timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++    }
+ }
+ 
+ static void esp32c3_jtag_realize(DeviceState *dev, Error **errp)
+ {
+-    (void) dev;
+-    (void) errp;
++    ESP32C3UsbJtagState *s = ESP32C3_JTAG(dev);
++    if (qemu_chr_fe_backend_connected(&s->chr)) {
++        s->host_frame = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++                                     esp32c3_jtag_host_frame, s);
++    }
++    esp32c3_jtag_reset_hold(OBJECT(dev), RESET_TYPE_COLD);
++}
++
++static void esp32c3_jtag_unrealize(DeviceState *dev)
++{
++    ESP32C3UsbJtagState *s = ESP32C3_JTAG(dev);
++    if (s->host_frame) {
++        timer_free(s->host_frame);
++        s->host_frame = NULL;
++    }
+ }
+ 
+ static void esp32c3_jtag_init(Object *obj)
+@@ -55,8 +186,16 @@ static void esp32c3_jtag_init(Object *obj)
+     memory_region_init_io(&s->iomem, obj, &esp32c3_jtag_ops, s,
+                           TYPE_ESP32C3_JTAG, ESP32C3_JTAG_REGS_SIZE);
+     sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    object_property_add_uint64_ptr(obj, "cdc-tx-bytes", &s->tx_bytes, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(obj, "cdc-tx-packets", &s->tx_packets, OBJ_PROP_FLAG_READ);
+ }
+ 
++static const Property esp32c3_jtag_props[] = {
++    DEFINE_PROP_CHR("chardev", ESP32C3UsbJtagState, chr),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
+ static void esp32c3_jtag_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+@@ -64,6 +203,8 @@ static void esp32c3_jtag_class_init(ObjectClass *klass, void *data)
+ 
+     rc->phases.hold = esp32c3_jtag_reset_hold;
+     dc->realize = esp32c3_jtag_realize;
++    dc->unrealize = esp32c3_jtag_unrealize;
++    device_class_set_props(dc, esp32c3_jtag_props);
+ }
+ 
+ static const TypeInfo esp32c3_jtag_info = {
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 78b44f6..71cf8ce 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -73,6 +73,7 @@
+ #include "cpu_esp32s3.h"
+ 
+ #include "hw/misc/esp32c3_jtag.h"
++#include "chardev/char.h"
+ #include "hw/display/esp_rgb.h"
+ 
+ #define TYPE_ESP32S3_SOC "xtensa.esp32s3"
+@@ -751,9 +752,20 @@ static void esp32s3_machine_init(MachineState *machine)
+ 
+     /* USB Serial JTAG realization */
+     {
+-        sysbus_realize(SYS_BUS_DEVICE(&ss->jtag), &error_fatal);
+-        MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ss->jtag), 0);
+-        memory_region_add_subregion_overlap(sys_mem, DR_REG_USB_SERIAL_JTAG_BASE, mr, 0);
++        Chardev *cdc = m5_board == M5_BOARD_STICKS3 ?
++                       qemu_chr_find("usb-serial-jtag") : NULL;
++        if (cdc) {
++            qdev_prop_set_chr(DEVICE(&ss->jtag), "chardev", cdc);
++        }
++        SysBusDevice *bus = SYS_BUS_DEVICE(&ss->jtag);
++        sysbus_realize(bus, &error_fatal);
++        memory_region_add_subregion_overlap(sys_mem, DR_REG_USB_SERIAL_JTAG_BASE,
++                                           sysbus_mmio_get_region(bus, 0), 0);
++        if (cdc) {
++            sysbus_connect_irq(bus, 0,
++                               qdev_get_gpio_in(intmatrix_dev,
++                                                ETS_USB_SERIAL_JTAG_INTR_SOURCE));
++        }
+     }
+ 
+     if (m5_board == M5_BOARD_STICKS3) {
+diff --git a/include/hw/misc/esp32c3_jtag.h b/include/hw/misc/esp32c3_jtag.h
+index 8ac6ebb..e3ad145 100644
+--- a/include/hw/misc/esp32c3_jtag.h
++++ b/include/hw/misc/esp32c3_jtag.h
+@@ -10,6 +10,8 @@
+ #pragma once
+ 
+ #include "hw/hw.h"
++#include "chardev/char-fe.h"
++#include "qemu/timer.h"
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
+ 
+@@ -22,5 +24,17 @@
+ typedef struct ESP32C3UsbJtagState {
+     SysBusDevice parent_object;
+     MemoryRegion iomem;
++    CharBackend chr;
++    qemu_irq irq;
++    QEMUTimer *host_frame;
++    uint32_t int_raw;
++    uint32_t int_enable;
++    uint32_t conf;
++    uint16_t frame;
++    uint8_t tx[64];
++    unsigned tx_len;
++    bool committed;
++    uint64_t tx_bytes;
++    uint64_t tx_packets;
+ } ESP32C3UsbJtagState;
+ 

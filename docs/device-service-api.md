@@ -2193,9 +2193,18 @@ Cap CC1101 at boot, pass `{"M5SW_CARDPUTER_ADV_CAP_CC1101": "1"}` as
 `runtime_env`. This mounts both the CC1101 and ST25R3916 on the expansion
 connector.
 
+For native StickS3 `runtime=qemu` with patch `0173`, set
+`runtime_env={"M5SW_USB_SERIAL_JTAG_CAPTURE":"1"}` to attach a virtual
+host to the fixed USB Serial/JTAG CDC IN endpoint. The service captures
+guest bytes in the session-owned `usb-serial-jtag.log` evidence ZIP member
+when `include=serial` and `serial.read` are allowed. The `/serial` endpoint
+still reads UART0. This opt-in covers transmit capture from the fixed
+controller. USB OTG, USB Serial/JTAG input and the JTAG channel are separate.
+
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
-`M5SW_CARDPUTER_ADV_CAP_CC1101`, `M5SW_CORE2_PMIC`, `M5SW_ESPNOW_LOOPBACK`,
+`M5SW_CARDPUTER_ADV_CAP_CC1101`, `M5SW_USB_SERIAL_JTAG_CAPTURE`,
+`M5SW_CORE2_PMIC`, `M5SW_ESPNOW_LOOPBACK`,
 `M5SW_ESPNOW_PEER_LOCAL_PORT`, `M5SW_ESPNOW_PEER_REMOTE_PORT`,
 `M5SW_ESPNOW_PEER_PMK`, `M5SW_ESPNOW_PEER_LMK`,
 `M5SW_ESPNOW_PEER_FABRIC`, `M5SW_ESPNOW_PEER_PUBLIC_MAC`,

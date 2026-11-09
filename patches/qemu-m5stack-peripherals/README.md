@@ -24,6 +24,17 @@ outside this acceptance. The native bootstrap applies this layer after
 `0170`; the browser source lock is unchanged.
 [Exact stock-firmware probe and evidence](../../tests/firmware/sticks3_usb_otg/README.md)
 
+## StickS3 USB Serial/JTAG transmit capture
+
+`0173-sticks3-usb-serial-jtag-cdc-tx.patch` implements the fixed controller's
+EP1 transmit FIFO, WR_DONE, virtual host frame tick and IN-empty interrupt
+on native StickS3 with an explicit host chardev. The Device Service opt-in
+retains the guest's transmit output in a separate evidence member.
+The original PM1 upgrader's completion marker was captured through this
+controller. The result covers CDC transmit. Receive, JTAG transactions,
+physical enumeration and shared PHY switching remain outside the validation.
+[PM1 upgrader capture evidence](../../docs/evidence/2026-11-09-issue-fixes/usb-serial-jtag-pm1.json)
+
 ## Latest firmware compatibility layers
 
 After the canonical Unit chain through `0161`, apply `0162` (AXP2101 charger
