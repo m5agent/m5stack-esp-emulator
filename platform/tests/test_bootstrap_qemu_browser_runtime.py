@@ -14,6 +14,7 @@ import tarfile
 import tempfile
 import unittest
 from unittest import mock
+from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("qemu_builder_test", ROOT / "scripts/qemu-wasm-build/build.py")
@@ -52,6 +53,56 @@ class RuntimeDistributionTests(unittest.TestCase):
         return value
 
     def write(self, value): (self.root / "runtime.json").write_text(json.dumps(value))
+
+    def test_transient_archive_download_retries_and_verifies_pinned_bytes(self):
+        url = "https://example.com/dependency.tar.xz"
+        output = self.root / "dependency.tar.xz"
+        data = b"pinned archive"
+        upstream_timeout = HTTPError(url, 504, "Gateway Timeout", {}, None)
+
+        class Interrupted(io.BytesIO):
+            def read(self, size):
+                if self.tell():
+                    raise ConnectionResetError("archive interrupted")
+                return super().read(size)
+
+        with (mock.patch.object(builder.urllib.request, "urlopen",
+                                side_effect=[upstream_timeout, Interrupted(b"partial"), io.BytesIO(data)]) as request,
+              mock.patch.object(builder.time, "sleep") as sleep):
+            self.assertEqual(builder.acquire(url, output, hashlib.sha256(data).hexdigest()), output)
+        self.assertEqual([call.args[0].full_url for call in request.call_args_list], [url] * 3)
+        self.assertEqual(sleep.call_args_list, [mock.call(2), mock.call(4)])
+        self.assertEqual(output.read_bytes(), data)
+        self.assertEqual(list(self.root.glob("*.part")), [])
+
+    def test_archive_download_rejects_permanent_errors_and_unpinned_bytes(self):
+        url = "https://example.com/dependency.tar.xz"
+        output = self.root / "dependency.tar.xz"
+        for response, message in (
+            (HTTPError(url, 404, "Not Found", {}, None), r"dependency.tar.xz: HTTP Error 404"),
+            (io.BytesIO(b"unpinned archive"), "download SHA256 mismatch"),
+        ):
+            with (self.subTest(message=message),
+                  mock.patch.object(builder.urllib.request, "urlopen", side_effect=[response]) as request,
+                  mock.patch.object(builder.time, "sleep") as sleep):
+                with self.assertRaisesRegex(ValueError, message):
+                    builder.acquire(url, output, "a" * 64)
+                request.assert_called_once()
+                sleep.assert_not_called()
+                self.assertFalse(output.exists())
+                self.assertEqual(list(self.root.glob("*.part")), [])
+
+    def test_archive_download_exhausts_transient_retries(self):
+        url = "https://example.com/dependency.tar.xz"
+        output = self.root / "dependency.tar.xz"
+        errors = [HTTPError(url, 504, "Gateway Timeout", {}, None) for _ in range(3)]
+        with (mock.patch.object(builder.urllib.request, "urlopen", side_effect=errors) as request,
+              mock.patch.object(builder.time, "sleep")):
+            with self.assertRaisesRegex(ValueError, r"dependency.tar.xz: HTTP Error 504"):
+                builder.acquire(url, output, "a" * 64)
+        self.assertEqual(request.call_count, 3)
+        self.assertFalse(output.exists())
+        self.assertEqual(list(self.root.glob("*.part")), [])
 
     def owned_builder(self):
         sdk = self.root / "sdk"

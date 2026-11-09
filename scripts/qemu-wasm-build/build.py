@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
+import http.client
 import io
 import json
 import os
@@ -15,6 +16,8 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -137,19 +140,36 @@ def acquire(url: str, output: Path, expected: str, *, limit: int = 128 * 1024 * 
     if output.exists():
         raise ValueError("existing archive has the wrong hash: " + output.name)
     output.parent.mkdir(parents=True, exist_ok=True)
-    temporary = output.with_name(output.name + ".part")
+    print("download: " + output.name, flush=True)
     request = urllib.request.Request(url, headers={"User-Agent": "m5stack-qemu-wasm-source-builder"})
-    total = 0
-    with urllib.request.urlopen(request, timeout=60) as source, temporary.open("wb") as target:
-        for block in iter(lambda: source.read(1024 * 1024), b""):
-            total += len(block)
-            if total > limit:
-                raise ValueError("source archive exceeds its size limit")
-            target.write(block)
-    if sha(temporary) != expected:
-        raise ValueError("download SHA256 mismatch: " + output.name)
-    temporary.replace(output)
-    return output
+    retry_delays = (0, 2, 4)
+    for attempt, delay in enumerate(retry_delays, start=1):
+        if delay:
+            time.sleep(delay)
+        try:
+            with (urllib.request.urlopen(request, timeout=60) as source,
+                  tempfile.TemporaryDirectory(dir=output.parent, prefix=output.name + ".", suffix=".part") as stage):
+                temporary = Path(stage) / output.name
+                total = 0
+                with temporary.open("wb") as target:
+                    for block in iter(lambda: source.read(1024 * 1024), b""):
+                        total += len(block)
+                        if total > limit:
+                            raise ValueError("source archive exceeds its size limit")
+                        target.write(block)
+                if sha(temporary) != expected:
+                    raise ValueError("download SHA256 mismatch: " + output.name)
+                temporary.replace(output)
+                return output
+        except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.IncompleteRead) as error:
+            if isinstance(error, urllib.error.HTTPError):
+                error.close()
+                if error.code not in (408, 429, 500, 502, 503, 504):
+                    raise ValueError(f"source archive request failed for {output.name}: {error}") from error
+            if attempt == len(retry_delays):
+                raise ValueError(f"source archive request failed for {output.name}: {error}") from error
+            print(f"download retry {attempt}/{len(retry_delays) - 1}: {output.name}: {error}",
+                  file=sys.stderr, flush=True)
 
 
 def extract_archive(archive: Path, target: Path) -> None:
