@@ -124,6 +124,18 @@ controller, which the current StickS3 QEMU route does not connect to H4. Its
 matrix status remains `PARTIAL/runtime_model_gap` until the original firmware
 can complete a native-controller exchange.
 
+## StickS3 functional evidence
+
+The official PM1 upgrade sample needs a same-session USB Serial/JTAG
+completion marker and the CRC-validated PM1 app digest. The matrix reads
+both the serial evidence bundle and PM1 QOM state. A boot frame, A-button
+response or isolated completion string keeps the functional review partial.
+
+The generic UI matrix does not act as a USB host. For the pinned Bit Pirate
+image, use the [USB device-mode runner](../tests/firmware/sticks3_usb_otg/README.md)
+for enumeration, CDC control and bulk transfers. A successful TinyUSB
+install by itself leaves the matrix's USB exchange unobserved.
+
 ## SHA-bound review expectations
 
 FirmwareManifest describes artifact facts; it does not guess whether an

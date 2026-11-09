@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import struct
 import time
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
+from zipfile import ZipFile
 
 
 FIRMWARE_SHA = "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
@@ -96,6 +98,7 @@ def main():
     session = request("/sessions", payload={
         "device_id": "sticks3", "firmware_id": composed["firmware_id"], "runtime": "qemu",
         "ttl_seconds": 600, "ready_timeout_seconds": 40,
+        "runtime_env": {} if args.mode == "strap" else {"M5SW_USB_SERIAL_JTAG_CAPTURE": "1"},
     })
     route = "/sessions/" + session["session_id"]
     with args.runtime_binary.open("rb") as runtime:
@@ -156,6 +159,19 @@ def main():
             time.sleep(1)
         report["after_frame"] = frame("after")
         report["qom"] = request(route + "/qom-snapshot", payload={"path": "/machine/m5pm1", "depth": 0})
+        if args.mode != "strap":
+            def read_completion():
+                evidence = request(route + "/evidence?include=serial,manifest", binary=True)
+                with ZipFile(io.BytesIO(evidence)) as archive:
+                    cdc = archive.read("usb-serial-jtag.log")
+                report["hwcdc_sha256"] = hashlib.sha256(cdc).hexdigest()
+                report["hwcdc_bytes"] = len(cdc)
+                return b"=== Firmware upgrade completed ===" in cdc
+
+            if args.mode == "bad-crc":
+                require(not read_completion(), "stock guest reported success on the bad PM1 CRC")
+            else:
+                wait_for(read_completion, "stock USB Serial/JTAG completion marker", timeout=10)
         report["status"] = "PASS"
     finally:
         try:

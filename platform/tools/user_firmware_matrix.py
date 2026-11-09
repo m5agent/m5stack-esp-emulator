@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import math
 import os
@@ -22,6 +23,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zlib
+import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -1051,11 +1053,17 @@ def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
     return probes
 
 
-# These review samples have a proven dependency on a missing guest path. Keep
-# them bound to the uploaded bytes: a name, an empty Wi-Fi scan, or quiet BLE
-# logs alone cannot establish which capability an arbitrary image needs.
+# These exact review samples require a functional observation beyond the UI.
+# Keep that requirement bound to the uploaded bytes, since an empty scan or
+# quiet BLE log does not establish the requirements of another image.
 _STICKS3_PMIC_UPGRADE_SHA256 = (
     "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
+)
+_STICKS3_PM1_APP_SHA256 = (
+    "e3c8e94171384af2b8f946e430617b71848efc385d63041206b1a5f3f9024ec7"
+)
+_STICKS3_BIT_PIRATE_SHA256 = (
+    "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e"
 )
 _STICKS3_AIRMOUSE_SHA256 = (
     "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8"
@@ -1068,22 +1076,37 @@ _STICKS3_MONITOR_SHA256 = frozenset({
 
 def _sticks3_review_model_gaps(
     serial: str, firmware_sha256: str | None,
+    pm1_iap: Mapping[str, Any] | None,
 ) -> list[dict[str, str]]:
     gaps = []
-    if (
-        firmware_sha256 == _STICKS3_PMIC_UPGRADE_SHA256
-        and "Firmware upgrade completed" not in serial
-    ):
-        gaps.append((
-            "sticks3_pm1_iap_not_modeled",
-            "PM1 IAP and dynamic SoC boot strapping have no modeled "
-            "completion path for the official StickS3 upgrade sample",
-        ))
+    if firmware_sha256 == _STICKS3_PMIC_UPGRADE_SHA256:
+        if not pm1_iap:
+            gaps.append((
+                "sticks3_pm1_iap_not_modeled",
+                "the review runtime supplied no PM1 bootloader state",
+            ))
+        elif not (
+            pm1_iap.get("hwcdc-completed") is True
+            and pm1_iap.get("iap-upgrades") == 1
+            and pm1_iap.get("iap-active") is False
+            and pm1_iap.get("address") == 0x6e
+            and pm1_iap.get("iap-app-sha256") == _STICKS3_PM1_APP_SHA256
+        ):
+            gaps.append((
+                "sticks3_pm1_iap_completion_unobserved",
+                "PM1 requires both the guest completion marker and the "
+                "CRC-validated app image in the same session",
+            ))
     if "tinyusb_driver_install(): Can't initialize the TinyUSB stack" in serial:
         gaps.append((
             "esp32s3_usb_otg_not_modeled",
-            "TinyUSB initialization failed on the StickS3 QEMU profile, "
-            "which lacks a USB OTG device controller path",
+            "TinyUSB initialization failed on the StickS3 QEMU runtime",
+        ))
+    elif firmware_sha256 == _STICKS3_BIT_PIRATE_SHA256:
+        gaps.append((
+            "sticks3_usb_otg_exchange_unobserved",
+            "the UI matrix did not run the USB host enumeration and CDC "
+            "exchange required by the stock Bit Pirate sample",
         ))
     if firmware_sha256 == _STICKS3_AIRMOUSE_SHA256:
         gaps.append((
@@ -1109,6 +1132,7 @@ def detect_runtime_model_gaps(
     *,
     runtime: str | None = None,
     firmware_sha256: str | None = None,
+    pm1_iap: Mapping[str, Any] | None = None,
 ) -> list[dict[str, str]]:
     """Identify stable runtime signatures and exact sample capability gaps."""
 
@@ -1194,7 +1218,7 @@ def detect_runtime_model_gaps(
                 }
             )
     if device_id == "sticks3" and runtime == "qemu" and not error_lines(serial):
-        gaps.extend(_sticks3_review_model_gaps(serial, firmware_sha256))
+        gaps.extend(_sticks3_review_model_gaps(serial, firmware_sha256, pm1_iap))
     return gaps
 
 
@@ -1617,8 +1641,27 @@ def execute_sample(
             session_payload["storage"] = {
                 "sd_image_artifact_id": storage_fixture["artifact_id"],
             }
+        pm1_updater = (
+            sample["device_id"] == "sticks3"
+            and artifact.get("sha256") == _STICKS3_PMIC_UPGRADE_SHA256
+            and session_payload.get("runtime", "qemu") == "qemu"
+        )
+        if pm1_updater:
+            session_payload["runtime_env"] = {"M5SW_USB_SERIAL_JTAG_CAPTURE": "1"}
         session_started = time.monotonic()
-        session = client.post("sessions", session_payload)
+        try:
+            session = client.post("sessions", session_payload)
+        except HttpError as error:
+            details = error.payload.get("error", {}) if isinstance(error.payload, Mapping) else {}
+            if not (
+                pm1_updater
+                and isinstance(details, Mapping)
+                and details.get("code") == "invalid_runtime_env"
+            ):
+                raise
+            # An older service can still execute the sample and report its gap.
+            del session_payload["runtime_env"]
+            session = client.post("sessions", session_payload)
         session_id = str(session["session_id"])
         result["session_id"] = session_id
         snapshot = wait_until_running(
@@ -1730,11 +1773,43 @@ def execute_sample(
         result["serial_bytes"] = len(serial.encode("utf-8", errors="replace"))
         result["serial_sha256"] = hashlib.sha256(serial.encode("utf-8")).hexdigest()
         result["errors"] = error_lines(serial + "\n" + stderr)
+        pm1_iap = None
+        if pm1_updater:
+            try:
+                nodes = client.post(
+                    f"sessions/{session_id}/qom-snapshot",
+                    {"path": "/machine/m5pm1", "depth": 0},
+                ).get("nodes", {})
+                pm1_iap = {
+                    key: nodes[key]["value"] for key in (
+                        "iap-upgrades", "iap-active", "address", "iap-app-sha256",
+                    ) if key in nodes
+                }
+                if "iap-upgrades" not in pm1_iap:
+                    pm1_iap = None
+            except (HttpError, MatrixError):
+                pass
+            if pm1_iap is not None:
+                try:
+                    evidence, _ = request_bytes(
+                        client.url(f"sessions/{session_id}/evidence?include=serial,manifest"),
+                        headers={"Accept": "application/zip"},
+                        timeout=client.timeout,
+                    )
+                    with zipfile.ZipFile(io.BytesIO(evidence)) as archive:
+                        with archive.open("usb-serial-jtag.log") as log:
+                            cdc = log.read(262144)
+                    pm1_iap["hwcdc-completed"] = b"=== Firmware upgrade completed ===" in cdc
+                    pm1_iap["hwcdc-sha256"] = hashlib.sha256(cdc).hexdigest()
+                except (MatrixError, KeyError, zipfile.BadZipFile):
+                    pass
+            result["pm1_iap"] = pm1_iap
         runtime_model_gaps = detect_runtime_model_gaps(
             serial + "\n" + stderr,
             device_id=sample["device_id"],
             runtime=snapshot.get("runtime"),
             firmware_sha256=artifact.get("sha256"),
+            pm1_iap=pm1_iap,
         )
         result["runtime_model_gaps"] = runtime_model_gaps
         log_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-serial.log"
