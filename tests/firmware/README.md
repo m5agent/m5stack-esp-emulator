@@ -41,6 +41,11 @@ Widgets, LVGL and offline WLAN startup paths through visible Device Service
 sessions, with pinned stock executable bytes and retained-history checks.
 It does not replace private full-application or legacy UIFlow1 validation.
 
+## StickS3 PM1 update and download boot
+
+The [PM1 stock-firmware probe](sticks3_pm1/README.md) exercises the native
+I2C upgrade, CRC rejection, and PWR-button entry to the ESP32-S3 ROM.
+
 ## StickS3 USB device mode
 
 The [Bit Pirate stock-firmware probe](sticks3_usb_otg/README.md) exercises the

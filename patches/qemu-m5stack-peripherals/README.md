@@ -2,6 +2,13 @@
 
 ## StickS3 USB device mode
 
+`0171-sticks3-pm1-iap-boot-out.patch` models the StickS3 M5PM1's I2C
+bootloader address, write enable, bounded app writes, CRC verification and
+return to normal addressing. It also wires PM1 BOOT_OUT to the cold-reset
+GPIO0 strap sample on the S3. This native layer follows `0170`. The
+[stock updater probe](../../tests/firmware/sticks3_pm1/README.md) includes
+a corrupt-image rejection and a PWR-button ROM boot/recovery control.
+
 `0172-sticks3-usb-otg-device.patch` adds the ESP32-S3 full-speed device
 controller to the native `m5sticks3` machine. The system clock and reset gates
 drive the DWC2 controller at `0x60080000`, with its endpoint interrupts routed
