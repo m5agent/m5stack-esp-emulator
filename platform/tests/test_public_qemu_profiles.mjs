@@ -50,7 +50,7 @@ for(const [deviceId,buttons] of Object.entries(physicalButtonCodes))for(const [i
     {execute:'input-send-event',arguments:{events:[{type:'key',data:{down,key:{type:'qcode',data:qcode}}}]}},
     `${deviceId} physical ${id} must admit ${down?'press':'release'} through its board controller`);
 }
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'cardputer', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11', 'corematrix']);
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'cardputer', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11', 'papers3', 'paperdiy', 'corematrix']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
@@ -73,7 +73,9 @@ for(const id of ['papers3','paperdiy']){
   assert.equal(profile.board,'m5'+id);
   assert.deepEqual([profile.flashMb,profile.psramMb,profile.display.width,profile.display.height],[16,8,540,960]);
   assert.equal(profile.inputs.touch,id==='papers3');
-  assert.equal(getQemuBrowserProfile(id,registry),null,'Paper preview requires a separately qualified export');
+  assert.equal(getQemuBrowserProfile(id,registry)?.board,'m5'+id);
+  withheld.profiles.find(row=>row.deviceId===id).admission='candidate';
+  assert.equal(getQemuBrowserProfile(id,withheld),null,'A Paper candidate remains private');
   assert.throws(()=>qemuInputCommand(profile,{type:'button',id:'power',down:true}),/not admitted/);
 }
 const detached = pick('cores3'); detached.display.width = 1;

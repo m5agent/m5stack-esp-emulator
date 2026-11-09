@@ -434,7 +434,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
-| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-05` | 逐板准入、默认UIFlow源码工作台/可选旧示例、未知UART与仅模型边界；固定源码构建、完整门禁、CI串行及管理员手动main/publish流程，源码与实际线上版本分开 |
+| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-09` | Xtensa 与 C61 两套固定源码构建、逐板准入、工作台和固定示例、完整客体门禁与管理员手动发布，源码配置和线上版本分别核验 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
 | [运动、电源与复位修复](plans/2026-10-29-motion-power-device-adaptation.md) | 当前交付计划 | `2026-10-29` | Arduino/UIFlow 舵机输出、板级 PMIC 与保持供电、同实例复位、剩余 Atom/Stick 接入 |
 | [StackChan Arduino 浏览器兼容性](stackchan-arduino-browser.md) | 固件行为与实现边界 | `2026-10-29` | 固定 Dance 的扭矩策略、真实串口/位置诊断、S3 Flash QIOR 相位与同实例复位 |
