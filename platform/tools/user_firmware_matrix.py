@@ -1604,6 +1604,8 @@ def execute_sample(
             f"{sample['device_id']}-{sample['firmware_id']}.bin",
         )
         result["artifact"] = artifact
+        if sample.get("sha256") and artifact.get("sha256") != sample["sha256"]:
+            raise MatrixError("uploaded firmware SHA-256 differs from the planned sample")
         firmware = client.post(
             "firmware",
             {
