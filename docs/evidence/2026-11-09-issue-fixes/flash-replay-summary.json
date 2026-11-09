@@ -1,0 +1,146 @@
+{
+  "issue": 206,
+  "validation": "virtual-device validation",
+  "device": "sticks3",
+  "firmware": "M5Gotchi v0.7",
+  "stock_sha256": "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246",
+  "stock_bytes": 2180768,
+  "source_commit": "3c47006212a6ad08623e7bc34cba707b347be753",
+  "qemu_sha256": "cbfeb141a8f97ec52846a32e6e986c39d15e4fdce6629af54435d3e07198000f",
+  "transport": "host-image",
+  "flash_size": 8388608,
+  "partition": {
+    "label": "spiffs",
+    "offset": 6356992,
+    "size": 2031616
+  },
+  "app_region_sha256": "62a3cff4a077a2d35c8b9699cc3c988088a3dd0985987633f18c09874e9bb579",
+  "A": {
+    "seed_sha256": "324d65e0bfccd88652afa3242175ad24e550fea5d0e9916b04d15718901c528c",
+    "seed_filesystem_erased": true,
+    "postboot_flash_sha256": "7bd04039e0b6d660c0049fd76bbdc9754237779b2099d8572b0ebfbbd6e4d02a",
+    "serial_sha256": "a37bed457cbc86456b6ec2d253283bd0a7ec21630b10f56fcf55f7fa5a25b198",
+    "evidence_zip_sha256": "f8b3e1f650d40ffc848bc2f706e7403273fd8e4893479d9935bc11d23ec62551",
+    "changed_filesystem_bytes": 3926,
+    "markers": [
+      "mount failed",
+      "LittleFS initialized successfully",
+      "Conf file not found, creating one",
+      "Config saved successfully"
+    ],
+    "readback_after_B": {
+      "zip_sha256": "2f0a771e03d0b05fbb03ae312cd0ee43816bae3d068ab35a04d57f6a9a30951d",
+      "seed_sha256": "324d65e0bfccd88652afa3242175ad24e550fea5d0e9916b04d15718901c528c",
+      "flash_sha256": "7bd04039e0b6d660c0049fd76bbdc9754237779b2099d8572b0ebfbbd6e4d02a",
+      "session_isolated_copy": true
+    }
+  },
+  "B": {
+    "seed_sha256": "7bd04039e0b6d660c0049fd76bbdc9754237779b2099d8572b0ebfbbd6e4d02a",
+    "postboot_flash_sha256": "38e1676f6733a2cb38c4f7e9a0bdc1a132d631a5c6c3b8077f2788437bebaf1d",
+    "serial_sha256": "1f5008241af24338485fe2b0851718ddaaae729f323bc2f884b11774302c1f6f",
+    "evidence_zip_sha256": "a8c2d6700ba4a292d317b7ec1557d23ccb1a4bf7ecfb670d9fe54280d710ca04",
+    "markers": [
+      "LittleFS initialized successfully",
+      "Conf file found, loading data",
+      "Loaded identity:"
+    ],
+    "first_boot_mount_failure_and_missing_config_repeated": false,
+    "config_file_readback": {
+      "A_file_sha256": "27de46af1cfc9fb4ea6050654ff964ba0f5daa49b8a389a707cfe9327fd2d45f",
+      "B_file_sha256": "e0cedf24c41186e7cba5ef14bf48fb70a42283efd345a816cce17f8d320c0da8",
+      "A_and_B_equal_top_level_values": 43,
+      "A_top_level_fields": 52,
+      "scope": "The guest can update its own config after load. No config contents are published."
+    }
+  },
+  "both_evidence_flash_sha_verified": true,
+  "both_session_isolated_copy": true,
+  "both_sessions_same_app_partition": true,
+  "distinct_mutable_and_immutable_inodes": true,
+  "source_A_flash_unchanged_after_B": true,
+  "both_sessions_stopped_purge_0_and_flash_released": true,
+  "original_firmware_and_runtime_hash_inode_mtime_preserved": true,
+  "oversize_negative": {
+    "status": 413,
+    "response": {
+      "error": {
+        "code": "firmware_too_large",
+        "message": "firmware is 8388609 bytes; device flash is 8388608"
+      }
+    }
+  },
+  "hash_mismatch_negative": {
+    "status": 409,
+    "response": {
+      "error": {
+        "code": "artifact_hash_mismatch",
+        "message": "completed artifact SHA256 does not match expected_sha256"
+      }
+    }
+  },
+  "scope": "Existing evidence export and merged firmware upload; no API extension. Physical and browser NOT RUN.",
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "result": "PASS for Flash evidence export and reimport with stock M5Gotchi v0.7",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "same_service_A_B": true,
+  "earlier_runs": {
+    "A_first_export": {
+      "zip_sha256": "8ff2ac049b90741ec33fce1ce7f192508c20ac98ac652284ab06b24375d37600",
+      "seed_sha256": "324d65e0bfccd88652afa3242175ad24e550fea5d0e9916b04d15718901c528c",
+      "flash_sha256": "f97c8eecba5b88989f3c77173114cd9392acefe9a6d05c1bbbb0576eb9a6a25a",
+      "session_isolated_copy": true
+    },
+    "B_first_attempt": {
+      "status": "NOT READY for configuration readback",
+      "wait_seconds": 35,
+      "seed_sha256": "f97c8eecba5b88989f3c77173114cd9392acefe9a6d05c1bbbb0576eb9a6a25a",
+      "serial_sha256": "3c1497d5585f374503e9985e4386bce948607ac37a56e43c672c8a4ab3bb07cc",
+      "observation": "ROM and ESP-IDF core-dump initialization were seen. Guest config-load marker was absent."
+    },
+    "B_full_replay_repeat": {
+      "status": "PASS",
+      "zip_sha256": "810b52c933ffc037c38393012dc3c9bd8bf852acd61d17769e3ae90933f5f36c",
+      "seed_sha256": "f97c8eecba5b88989f3c77173114cd9392acefe9a6d05c1bbbb0576eb9a6a25a",
+      "flash_sha256": "b2a4e24a2025ca3761d7466836b2ae800387b0793bb4fe3ee5137f6da20c8491",
+      "session_isolated_copy": true,
+      "serial_sha256": "70224e6e1fdf49f7ad7cf0dadfa642b50cccf9ff1a2b11f4997d64ad432afeff",
+      "markers": [
+        "Conf file found, loading data",
+        "Loaded identity:"
+      ]
+    },
+    "B_filesystem_only_control": {
+      "status": "PASS",
+      "zip_sha256": "742e4e5f215c5450bbbbd2a61a18df78986ebb172fb6b00e5743bac7134d23fe",
+      "seed_sha256": "6422dc9109bd4915d4a2a74a89c55dc3ad565dc50e0b7afd7eb7b265647a6364",
+      "flash_sha256": "ba773a5e009a2faa6c28d7e586b6c76448dcc04a95c62c6ca8f97b5d2dbe7014",
+      "session_isolated_copy": true,
+      "serial_sha256": "17ee100446ae2337ca178a77490032eb02671d6ba4d3673945b14551b8ea8c36",
+      "markers": [
+        "Conf file found, loading data",
+        "Loaded identity:"
+      ],
+      "scope": "Diagnostic variant seeds only the spiffs region from A; the complete A-to-B Flash replay is separately verified."
+    }
+  },
+  "artifact_flow": [
+    "GET /sessions/{A}/evidence?include=manifest,serial,flash",
+    "DELETE /sessions/{A}?purge=0&retain_flash=1",
+    "GET /sessions/{A}/evidence?include=manifest,serial,flash",
+    "Verify flash/virtual-flash.bin size and SHA-256 against manifest.json.",
+    "POST /artifacts with the verified extracted bytes.",
+    "POST /firmware with kind=merged, device_id=sticks3, artifact_id from the upload.",
+    "POST /sessions with the reimported firmware_id and the same device.",
+    "Check B's manifest session.firmware_sha256 and session.flash.session_isolated_copy.",
+    "Verify guest config load, request B evidence, and release both sessions' mutable Flash with purge=0 and retain_flash=0."
+  ],
+  "limits": {
+    "fresh_session_default": "The selected firmware still supplies the initial bytes; erased padding stays erased for the original sparse sample.",
+    "snapshot_id": "Only a snapshot/diff handle. Reimport uses the exported merged artifact.",
+    "partition_label_negative": "NOT APPLICABLE to the whole-image merged route. It has no partition-label parameter.",
+    "physical_hardware": "NOT RUN",
+    "browser_WASM": "NOT RUN"
+  }
+}

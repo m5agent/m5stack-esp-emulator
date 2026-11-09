@@ -115,7 +115,7 @@
 | `RUNTIME-09` | `OPEN / under investigation` | AtomS3 Lite 工作台首次启动及硬复位后的 SYSTIMER PIF |
 | `RUNTIME-08` | `OPEN / under investigation` | Cardputer 工作台硬件复位后 WASM 越界 |
 | `RUNTIME-07` | `OPEN / exact execution-policy workaround validated` | StamPLC 浏览器多指令 TB 下硬件复位后 PIF 异常 |
-| `RUNTIME-10` | `UNKNOWN` | StickS3 固件审查中的 PM1、USB、BLE HID 与 Wi-Fi monitor |
+| `RUNTIME-10` | `OPEN / review gap classified` | StickS3 固件审查中的 PM1、USB、BLE HID 与 Wi-Fi monitor |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
 | `RUNTIME-03` | `FIXED` | scheduler/DPORT、classic RMT、legacy WDT 与 stock startup 已闭环 |
 | `RUNTIME-06` | `FIXED` | ESP-NOW virtual-controller 功能边界已闭环 |
@@ -149,24 +149,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`74` 个 Python 模块，`47621` 行；规模最大的模块如下。
+- `platform/tools`：`74` 个 Python 模块，`47733` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
 | `device_service.py` | 11785 |
 | `firmware_manifest.py` | 3640 |
-| `user_firmware_matrix.py` | 2128 |
+| `user_firmware_matrix.py` | 2240 |
 | `serve.py` | 1755 |
 | `network_sandbox.py` | 1681 |
 | `worker_agent.py` | 1501 |
 
 - `tests/`：`162` 个可执行 Python 测试文件，分布在 `66` 个目录；`229` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`293` 个 patch 文件。
-- 文档：`635` 个 Markdown 页面；除本生成页外共 `70077` 行。
+- 文档：`635` 个 Markdown 页面；除本生成页外共 `70159` 行。
 
 ## 文档与测试
 
-- 平台测试：`2050` 项。
+- 平台测试：`2052` 项。
 - Docs 新鲜度登记：`236` 行；其中非历史页 `215` 行，历史固定页 `21` 行。
 - 文档职责分布：待办 `3`，契约 `9`，证据/差异 `95`，历史固定 `21`，实现/设计 `14`，参考 `90`，工作流/导航 `4`。
 - 全量文档盘点：`635` 个 Markdown 页面；职责分布：权威/专题页 `236`，设备档案 `40`，示例 `1`，治理/入口 `9`，文档导航 `1`，其他 `9`，补丁说明 `22`，平台说明 `13`，仓内历史记录 `5`，测试/用例说明 `191`，未登记 docs 页面 `4`，第三方来源说明 `104`。

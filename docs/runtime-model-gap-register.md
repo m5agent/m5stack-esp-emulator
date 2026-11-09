@@ -220,6 +220,10 @@ MemTxResult、命中region、TLB、TB恢复元数据与双核IRQ/复位时序，
 
 ### RUNTIME-10：StickS3 固件审查中的 PM1、USB、BLE HID 与 Wi-Fi monitor
 
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN / review gap classified` |
+
 StickS3 的 `qemu` 审查路径仍缺少下列能力。矩阵对命中观测条件的样本返回
 `PARTIAL/runtime_model_gap`，保留原会话的启动、帧和输入证据。没有命中签名
 或精确样本身份时，不从无 AP、无串口输出或同名固件推断缺口。
