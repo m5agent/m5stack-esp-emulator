@@ -1,6 +1,6 @@
 # NanoC6
 
-- SKU：`C122`
+- SKU：`C125`
 - 分组：`ESP32-C6`
 - 外壳：`无屏控制台`
 - 运行时：`headless-ready`
