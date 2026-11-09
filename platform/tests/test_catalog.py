@@ -17,7 +17,7 @@ EXPECTED = {
     "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
     "atom-matrix-v11", "atoms3u", "atom-echos3r", "atoms3r-cam", "atoms3r-m12",
     "basic-v27", "atomu", "atom-echo",
-    "m5stick", "stickt2",
+    "m5stick", "stickt2", "cardputer", "papers3", "paperdiy",
 }
 CANDIDATES = {
     "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",

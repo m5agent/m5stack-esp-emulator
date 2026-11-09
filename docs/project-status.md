@@ -1,7 +1,5 @@
 # 项目当前状态
 
-2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的 C61 诊断固件已验证 PM1 按键和 TM1680 点阵数据面，官方 UIFlow2 启动仍受限，因此普通工作台保留模型预览。正式 QEMU-WASM 准入与真机验证仍分别跟踪。
-
 2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
 
 2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
@@ -14,7 +12,7 @@
 
 日期：`2026-11-06`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
-本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
+本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。 2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的 C61 诊断固件已验证 PM1 按键和 TM1680 点阵数据面，官方 UIFlow2 启动仍受限，因此普通工作台保留模型预览。正式 QEMU-WASM 准入与真机验证仍分别跟踪。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。2026-11-06 的基线为 33 台运行登记，视觉主机 38 款中有 5 款仅视觉；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
