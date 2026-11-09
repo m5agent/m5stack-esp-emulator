@@ -39,6 +39,8 @@
 日期；看到 `PASS`、`current` 或 `latest` 时，必须继续核对它指向的 artifact
 和设备/profile。
 
+2026-11-09 的[开放问题修复证据](evidence/2026-11-09-issue-fixes/README.md)记录目录来源、基线帧观察器与 Unit 执行身份复验。
+
 Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于历史审计；普通 CI
 不下载归档，具体保留范围与显式验证入口见[证据保留规则](evidence-retention.md)。
 Core2 legacy 的最新 status/CAS 诊断见
@@ -313,6 +315,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [开放问题修复证据](evidence/2026-11-09-issue-fixes/README.md) | 日期化证据 | `2026-11-09` | 目录资料、Classic 烧录重试、基线帧与 Unit 执行身份，保留高负载门禁 |
 | [本地无输入展示验收](evidence/2026-11-06-local-observatory/README.md) | 证据 | `2026-11-06` | 自动巡展、真实会话与独立 64 逻辑设备布局；保留先前失败，不授硬件或性能结论 |
 
 “最近核对”表示该页结论已经和当前主入口对齐，不表示所有底层矩阵都在同一天

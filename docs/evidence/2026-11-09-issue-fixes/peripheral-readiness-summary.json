@@ -1,0 +1,987 @@
+{
+  "kind": "issue-192-peripheral-before-frame-readiness",
+  "validation_type": "virtual-device validation",
+  "result": "final targeted cases and timeout PASS; full issue acceptance PARTIAL",
+  "issue": 192,
+  "source": {
+    "base": "dd2eb35d",
+    "fix": "5663ea5e649b949288623b15e6a2dcabed990483",
+    "files_sha256": {
+      "tests/uiflow2/run_peripheral_matrix.py": "8fdc3fe5aa3a9afbb8ed384f23cab80b982c56d75c0573e43e6da6e6267ef373",
+      "tests/uiflow2/run_profile_ui_test.py": "83483593a5da0f0ebdce51bfb154d871883983575651488168001092a439dfda",
+      "platform/tests/test_regression_guest_readiness.py": "5d324231b221f3ef514150179923f9f38a22f1406583388464b8d726f21f4b44",
+      "tests/uiflow2/core2_axp192/main.py": "7e05ef569586435f9ead48ef9554477970d7efc9e80d7566177fc8dc4133d79e"
+    }
+  },
+  "runtime_sha256": "27df1b40de946c694b8c193ad850668118eea8656f0308e6e77b322f0b2c695e",
+  "historical": {
+    "original": {
+      "width": 320,
+      "height": 240,
+      "bytes": 302,
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "nonblack_pixels": 0,
+      "nonblack_colors": 0,
+      "marker_4_4": [
+        0,
+        0,
+        0
+      ]
+    },
+    "core2_original": {
+      "width": 320,
+      "height": 240,
+      "bytes": 302,
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "nonblack_pixels": 0,
+      "nonblack_colors": 0,
+      "marker_4_4": [
+        0,
+        0,
+        0
+      ]
+    },
+    "longer_settle_diagnostic": {
+      "width": 320,
+      "height": 240,
+      "bytes": 1000,
+      "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+      "nonblack_pixels": 645,
+      "nonblack_colors": 15,
+      "marker_4_4": [
+        0,
+        0,
+        0
+      ]
+    },
+    "archive_summary_sha256": "bf635aab5cc5913a08e5ab4dad96760e5143b94cd2dd857ce3b7f5e627f0dc57"
+  },
+  "focused_tests": {
+    "passed": 19,
+    "skipped": 4,
+    "skips": "historical local-image-only cases"
+  },
+  "runs": {
+    "baseline": {
+      "source_commit": "dd2eb35d",
+      "summary_sha256": "9ed93e0605907055f9fdb5038f5a710a97fe79802ad1f7491869c6800e035c65",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 0.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1769,
+            "sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0",
+            "nonblack_pixels": 4086,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": null,
+          "runtime_error": null,
+          "serial_expect_count": 13,
+          "serial_expect_found": 13,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8",
+            "STACKCHAN_TOUCH 160 120",
+            "STACKCHAN_PERIPHERAL_DONE PASS"
+          ],
+          "validation": "PASS NEC offset=0 address=0x56 command=0xa3\nPASS StackChan peripherals marker rgb=(0,255,0)\n"
+        },
+        "core2-axp192": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 0.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "7ac99eb58b7cd9877f7d9512028c6e4ca130bbdb466ebaf4c59840ce61f99665",
+          "probe_source_sha256": "7a33e52ea7aec8b1ae4778f6f53842a4aa6a8f33e82c00fbf2cb6a9d08bb2fe7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 880,
+            "sha256": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83",
+            "nonblack_pixels": 395,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1201,
+            "sha256": "dbc1e32ed50115b290e3f198f4de211b2694b2e20d4ac39d881c024cb8d71215",
+            "nonblack_pixels": 3158,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": null,
+          "runtime_error": null,
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": "PASS Core2 AXP192 marker rgb=(0,255,0)\n"
+        }
+      },
+      "observer": null
+    },
+    "fixed": {
+      "source_commit": "f5a2cf24d23e5eaee348f7e5c48bbeb27ebf5726",
+      "summary_sha256": "3dfd73ed6253ea076c6291cda81c6a0a548a68b2cbdd11561621e4e08163b7ec",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1769,
+            "sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0",
+            "nonblack_pixels": 4086,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 1 samples in 0.006s: 645 non-black pixels, 15 colors",
+          "runtime_error": null,
+          "serial_expect_count": 13,
+          "serial_expect_found": 13,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8",
+            "STACKCHAN_TOUCH 160 120",
+            "STACKCHAN_PERIPHERAL_DONE PASS"
+          ],
+          "validation": "PASS NEC offset=0 address=0x56 command=0xa3\nPASS StackChan peripherals marker rgb=(0,255,0)\n"
+        },
+        "core2-axp192": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "7ac99eb58b7cd9877f7d9512028c6e4ca130bbdb466ebaf4c59840ce61f99665",
+          "probe_source_sha256": "7a33e52ea7aec8b1ae4778f6f53842a4aa6a8f33e82c00fbf2cb6a9d08bb2fe7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 880,
+            "sha256": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83",
+            "nonblack_pixels": 395,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1250,
+            "sha256": "aacf876914552d0b90df89b5d43a471b4a36d8d7d40d99c8893f04c4cdd4d31a",
+            "nonblack_pixels": 3185,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 1 samples in 0.006s: 395 non-black pixels, 15 colors",
+          "runtime_error": null,
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": "PASS Core2 AXP192 marker rgb=(0,255,0)\n"
+        }
+      },
+      "observer": {
+        "exit": 0,
+        "seconds": 28.219827166059986,
+        "load_1m_min": 2.63720703125,
+        "load_1m_max": 2.93896484375
+      }
+    },
+    "timing-old": {
+      "source_commit": "dd2eb35d",
+      "summary_sha256": "9b765bc0da0d7545bcbd7e09fa6ac9aafa002f7958bf77c15a98e849f491ec6d",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 0.0,
+          "before_frame_timeout_seconds": 0.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": null,
+          "runtime_error": "RuntimeError: before frame is blank: 0 non-black pixels",
+          "serial_expect_count": 13,
+          "serial_expect_found": 2,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8"
+          ],
+          "validation": null
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 10.061554542044178,
+        "load_1m_min": 2.87451171875,
+        "load_1m_max": 3.04443359375
+      }
+    },
+    "timing-fixed": {
+      "source_commit": "f5a2cf24d23e5eaee348f7e5c48bbeb27ebf5726",
+      "summary_sha256": "cd58d5f1ca7182d2ce7dee0f2f18970bf26396f51862a66a46502c63e6e08a25",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 0.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 372,
+            "sha256": "3094ade0f38bfeb66bd2608f7b8ba1a3bd2d4cdcbcda49f8cd818763b264ece4",
+            "nonblack_pixels": 19,
+            "nonblack_colors": 10,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 15 samples in 1.538s: 19 non-black pixels, 10 colors",
+          "runtime_error": "RuntimeError: missing serial markers: STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75, STACKCHAN_IMU_GYRO 10.0 -20.0 30.0, STACKCHAN_MAG 118.9 77.3 -356.8, STACKCHAN_PMIC_POWER 87 4000 1, STACKCHAN_TOUCH, STACKCHAN_AW9523 1 0, STACKCHAN_POWER 4.00 0.25 1.00, STACKCHAN_ALS 640 321, STACKCHAN_IR_RX 86 163, STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1, STACKCHAN_PERIPHERAL_DONE PASS",
+          "serial_expect_count": 13,
+          "serial_expect_found": 2,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8"
+          ],
+          "validation": null
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 11.592086249962449,
+        "load_1m_min": 2.87353515625,
+        "load_1m_max": 3.04052734375
+      }
+    },
+    "timeout-negative": {
+      "source_commit": "f5a2cf24d23e5eaee348f7e5c48bbeb27ebf5726",
+      "summary_sha256": "22f5625ac2af094a0523fe88329e8e3586945192afe67887a4133656b23665fa",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 0.0,
+          "before_frame_timeout_seconds": 0.1,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": null,
+          "readiness_observation": null,
+          "runtime_error": "RuntimeError: timed out waiting for before frame after 1 samples: 0 non-black pixels (need 16), 0 colors (need 2)",
+          "serial_expect_count": 13,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": null
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 1.510150499874726,
+        "load_1m_min": 2.80322265625,
+        "load_1m_max": 2.80322265625
+      }
+    },
+    "loaded-baseline": {
+      "source_commit": "dd2eb35d",
+      "summary_sha256": "a60c611185cc761886e26a35b0a1b31534da6b4102b2421a5fb0da4c3c6188a2",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 0.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": null,
+          "runtime_error": "RuntimeError: before frame is blank: 0 non-black pixels",
+          "serial_expect_count": 13,
+          "serial_expect_found": 2,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8"
+          ],
+          "validation": null
+        },
+        "core2-axp192": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 0.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "7ac99eb58b7cd9877f7d9512028c6e4ca130bbdb466ebaf4c59840ce61f99665",
+          "probe_source_sha256": "7a33e52ea7aec8b1ae4778f6f53842a4aa6a8f33e82c00fbf2cb6a9d08bb2fe7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": null,
+          "runtime_error": "RuntimeError: before frame is blank: 0 non-black pixels",
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": null
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 28.180520750116557,
+        "load_1m_min": 10.06396484375,
+        "load_1m_max": 18.4384765625,
+        "load_samples": 56,
+        "warmup_seconds": 15.051523415837437,
+        "load_workers": 12,
+        "load_worker_duration_seconds": 175
+      }
+    },
+    "loaded-fixed": {
+      "source_commit": "f5a2cf24d23e5eaee348f7e5c48bbeb27ebf5726",
+      "summary_sha256": "3ccb25359d6637d9753636290a1343e080269364fe468a1f64a99f146e06d0eb",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 785,
+            "sha256": "8b9856a4d75b895c46f7d46ff0f0dbdedebbd68d788c67d156bb964ad37bc33b",
+            "nonblack_pixels": 341,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 26 samples in 2.890s: 341 non-black pixels, 15 colors",
+          "runtime_error": "RuntimeError: missing serial markers: STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75, STACKCHAN_IMU_GYRO 10.0 -20.0 30.0, STACKCHAN_MAG 118.9 77.3 -356.8, STACKCHAN_PMIC_POWER 87 4000 1, STACKCHAN_TOUCH, STACKCHAN_AW9523 1 0, STACKCHAN_POWER 4.00 0.25 1.00, STACKCHAN_ALS 640 321, STACKCHAN_IR_RX 86 163, STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1, STACKCHAN_PERIPHERAL_DONE PASS",
+          "serial_expect_count": 13,
+          "serial_expect_found": 2,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8"
+          ],
+          "validation": null
+        },
+        "core2-axp192": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "7ac99eb58b7cd9877f7d9512028c6e4ca130bbdb466ebaf4c59840ce61f99665",
+          "probe_source_sha256": "7a33e52ea7aec8b1ae4778f6f53842a4aa6a8f33e82c00fbf2cb6a9d08bb2fe7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 302,
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "nonblack_pixels": 0,
+            "nonblack_colors": 0,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": null,
+          "readiness_observation": null,
+          "runtime_error": "RuntimeError: timed out waiting for before frame after 88 samples: 0 non-black pixels (need 16), 0 colors (need 2)",
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": null
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 39.749529916094616,
+        "load_1m_min": 18.4384765625,
+        "load_1m_max": 27.9658203125,
+        "load_samples": 79,
+        "warmup_seconds": 15.051523415837437,
+        "load_workers": 12,
+        "load_worker_duration_seconds": 175
+      }
+    },
+    "loaded-repair": {
+      "source_commit": "9abbc408bae33b1a7f1113ac8f0f14e9ab8d5c2b",
+      "summary_sha256": "785347a65a1aae9270d18a9949051da1f42c9e36f116a26c8d9d2c8f515f4c47",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "FAIL",
+          "exit_code": 1,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": "STACKCHAN_IMU_TYPE 6",
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 1 samples in 0.011s: 645 non-black pixels, 15 colors",
+          "runtime_error": "RuntimeError: missing serial markers: STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75, STACKCHAN_IMU_GYRO 10.0 -20.0 30.0, STACKCHAN_MAG 118.9 77.3 -356.8, STACKCHAN_PMIC_POWER 87 4000 1, STACKCHAN_AW9523 1 0, STACKCHAN_POWER 4.00 0.25 1.00, STACKCHAN_ALS 640 321, STACKCHAN_IR_RX 86 163, STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1, STACKCHAN_PERIPHERAL_DONE PASS",
+          "serial_expect_count": 13,
+          "serial_expect_found": 3,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8",
+            "STACKCHAN_TOUCH 160 120"
+          ],
+          "validation": null
+        },
+        "core2-axp192": {
+          "status": "FAIL",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 30.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "7ac99eb58b7cd9877f7d9512028c6e4ca130bbdb466ebaf4c59840ce61f99665",
+          "probe_source_sha256": "7a33e52ea7aec8b1ae4778f6f53842a4aa6a8f33e82c00fbf2cb6a9d08bb2fe7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 380,
+            "sha256": "29450f72a12662d852296e47c886b78baa9b08191be284e7919c15f212ea4348",
+            "nonblack_pixels": 23,
+            "nonblack_colors": 10,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 779,
+            "sha256": "6fbf4f33ab76213fb7462f8b64dd604b4b9c6b470a81ae7b5e04b9972d2eda68",
+            "nonblack_pixels": 289,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 36 samples in 4.064s: 23 non-black pixels, 10 colors",
+          "runtime_error": null,
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [],
+          "validation": "Core2 AXP192 success marker missing: rgb=(0,0,0)\n"
+        }
+      },
+      "observer": {
+        "exit": 1,
+        "seconds": 34.70454579102807,
+        "load_1m_min": 9.62939453125,
+        "load_1m_max": 10.14013671875,
+        "load_samples": 69,
+        "warmup_seconds": 1.3125129044055939e-05,
+        "load_workers": 6,
+        "load_worker_duration_seconds": 125
+      }
+    },
+    "loaded-final": {
+      "source_commit": "5663ea5e649b949288623b15e6a2dcabed990483",
+      "summary_sha256": "5f535629db8d561785b4879da23639ab29285ffe9cfd770d0e838ebc5f43ac57",
+      "cases": {
+        "stackchan-peripherals": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5stackchan",
+          "wait_seconds": 3.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": null,
+          "post_input_marker": null,
+          "first_qom_step": [
+            "0",
+            "/machine/bmi270",
+            "accel-x",
+            "0.25",
+            "STACKCHAN_IMU_TYPE 6"
+          ],
+          "post_input_wait_seconds": 8.0,
+          "deterministic": false,
+          "input": "touch:160,120",
+          "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+          "composed_firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+          "probe_source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1000,
+            "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+            "nonblack_pixels": 645,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1769,
+            "sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0",
+            "nonblack_pixels": 4086,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 1 samples in 0.010s: 645 non-black pixels, 15 colors",
+          "runtime_error": null,
+          "serial_expect_count": 13,
+          "serial_expect_found": 13,
+          "serial_markers": [
+            "STACKCHAN_PERIPHERAL_MAIN_START",
+            "STACKCHAN_RTC 2026 10 22 6 7 8",
+            "STACKCHAN_TOUCH 160 120",
+            "STACKCHAN_PERIPHERAL_DONE PASS"
+          ],
+          "validation": "PASS NEC offset=0 address=0x56 command=0xa3\nPASS StackChan peripherals marker rgb=(0,255,0)\n"
+        },
+        "core2-axp192": {
+          "status": "PASS",
+          "exit_code": 0,
+          "attempts": 1,
+          "retry_used": false,
+          "machine": "m5core2",
+          "wait_seconds": 13.0,
+          "before_frame_timeout_seconds": 10.0,
+          "pre_input_marker": "CORE2_AXP192_READY",
+          "post_input_marker": "CORE2_AXP192_DRAW_COMPLETE",
+          "first_qom_step": null,
+          "post_input_wait_seconds": 1.0,
+          "deterministic": true,
+          "input": "touch:160,183",
+          "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+          "composed_firmware_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+          "probe_source_sha256": "3aac9037f19397af75d09d1c0ad0e873c5efe4ea58616e6b09df6e4edffb604f",
+          "before": {
+            "width": 320,
+            "height": 240,
+            "bytes": 880,
+            "sha256": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83",
+            "nonblack_pixels": 395,
+            "nonblack_colors": 15,
+            "marker_4_4": [
+              0,
+              0,
+              0
+            ]
+          },
+          "after": {
+            "width": 320,
+            "height": 240,
+            "bytes": 1923,
+            "sha256": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807",
+            "nonblack_pixels": 3917,
+            "nonblack_colors": 16,
+            "marker_4_4": [
+              0,
+              255,
+              0
+            ]
+          },
+          "readiness_observation": "before frame ready after 1 samples in 0.014s: 395 non-black pixels, 15 colors",
+          "runtime_error": null,
+          "serial_expect_count": 0,
+          "serial_expect_found": 0,
+          "serial_markers": [
+            "CORE2_AXP192_READY",
+            "CORE2_AXP192_DRAW_COMPLETE"
+          ],
+          "validation": "PASS Core2 AXP192 marker rgb=(0,255,0)\n"
+        }
+      },
+      "observer": {
+        "exit": 0,
+        "seconds": 42.286390790948644,
+        "load_1m_min": 6.72705078125,
+        "load_1m_max": 8.6796875,
+        "load_samples": 84,
+        "warmup_seconds": 45.12743066716939,
+        "load_workers": 6,
+        "load_worker_duration_seconds": 125
+      }
+    }
+  },
+  "final_scoped_load_gate": {
+    "observation": {
+      "status": "NOT RUN",
+      "source_commit": "5663ea5e649b949288623b15e6a2dcabed990483",
+      "started_at": "2026-11-09T01:33:45.275627+00:00",
+      "worker_cap": 8,
+      "nice": 10,
+      "hard_deadline_seconds": 150,
+      "minimum_load": 10.0,
+      "maximum_load": 18.0,
+      "throttle_load": 15.0,
+      "reason": "load gate not reached within warmup cap",
+      "workers_reaped": 8,
+      "elapsed_s": 55.409,
+      "finished_at": "2026-11-09T01:34:40.684036+00:00",
+      "throttles": [],
+      "warmup_load": {
+        "min": 3.388671875,
+        "max": 7.68798828125,
+        "samples": 111
+      }
+    },
+    "helper_sha256": "4a8548511d64470a94e4e6965755bcaf022e3e10946539d6b16a68a42dfdd505",
+    "raw_samples_sha256": "7ee29c7b86f5036a295cf0e92c0276a8d88f56d0fde19bd2c5b85ce07c2201db"
+  },
+  "cleanup": {
+    "owned_qemu_remaining": 0,
+    "remaining_owned_qmp_sockets": 0
+  },
+  "acceptance_limits": [
+    "Original standard-argument baseline passed at low current load. The archive retains the load-sensitive failure.",
+    "Matched --wait 0 control changes QOM injection timing as well as the frame sampling point. The fixed runner resampled a nonblank frame, then the premature gyro seeding confounded the downstream probe. That experiment is retained as a failure.",
+    "The first loaded repair recovered a partially drawn StackChan frame before the probe was ready to receive touch, and Core2 exceeded the 10-second additional budget. Both failures are retained separately from the refined case settings.",
+    "The second loaded repair received StackChan touch but gyro calibration erased early samples. Core2 reached a partially drawn title before input. The final refinement uses the existing StackChan post-init marker to fence the same ordered QOM writes, and adds Core2 regression-probe readiness and draw-complete markers.",
+    "Two complete 68-case rounds across 2–3 concurrent matrix scopes were not run. A scoped load comparison, if present, is separate."
+  ]
+}

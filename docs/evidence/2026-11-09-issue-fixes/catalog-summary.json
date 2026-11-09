@@ -1,0 +1,213 @@
+{
+  "kind": "official-catalog-metadata-derived-summary",
+  "status": "PASS",
+  "scope": "Static official-product and public driver/documentation evidence; guest execution is outside #190/#191 scope",
+  "source": {
+    "base": "dd2eb35d2e6a909992268089ddc37e27970d4a92",
+    "device_fix_commit": "08daf4195ef91d560b9803d495a076b44f1e5ecb",
+    "unit_fix_commit": "dc45f2af60116cb641d91de4250803dd709fca40",
+    "files": [
+      {
+        "path": "devices/catalog.source.json",
+        "bytes": 94538,
+        "sha256": "c8c71246d1f8a0abfe006e221e90c56926a6cb53874e1f68bc56aa91c6f3cbc6"
+      },
+      {
+        "path": "devices/catalog.json",
+        "bytes": 65895,
+        "sha256": "a80a7d670415bbb865aa16e21307c0d502d6f1f8d797c02e6a526377aad2159c"
+      },
+      {
+        "path": "platform/units/catalog.json",
+        "bytes": 1267333,
+        "sha256": "181de8df5cdd50717fc0da2c0cf0d489b7fb05b23267c0879b62a4a4c65444c7"
+      },
+      {
+        "path": "platform/units/runtime-profiles.json",
+        "bytes": 702069,
+        "sha256": "8c0e1a98c1ece4c344727d618850e262d1abdfee03d87a373224d3ba848eb0ff"
+      }
+    ]
+  },
+  "issue190": {
+    "official_device_values": [
+      {
+        "device": "nanoc6",
+        "field": "sku",
+        "previous": "C122",
+        "current": "C125",
+        "official_product_url": "https://docs.m5stack.com/en/core/NanoC6",
+        "checked_at": "2026-11-09",
+        "regenerated_profile": {
+          "path": "devices/esp32-c6/nanoc6/device.json",
+          "bytes": 1948,
+          "sha256": "b892fc17b86320fbf16a4c7b3dd4f757e74825207368f268ade17a65f852a473"
+        },
+        "generated_catalog_field_present": true
+      },
+      {
+        "device": "dial",
+        "field": "dimensions_mm",
+        "previous": [
+          45,
+          45,
+          32.3
+        ],
+        "current": [
+          51.0,
+          51.0,
+          32.3
+        ],
+        "official_product_url": "https://docs.m5stack.com/en/core/Dial",
+        "checked_at": "2026-11-09",
+        "regenerated_profile": {
+          "path": "devices/esp32-s3/dial/device.json",
+          "bytes": 2398,
+          "sha256": "dc0cbbbfd0505ce29c032d96ef84973812eb2f07e469683b837d52ccc0ba8f68"
+        },
+        "generated_catalog_field_present": false
+      },
+      {
+        "device": "atoms3r-cam",
+        "field": "dimensions_mm",
+        "previous": [
+          24.0,
+          24.0,
+          14.0
+        ],
+        "current": [
+          24.0,
+          24.0,
+          13.5
+        ],
+        "official_product_url": "https://docs.m5stack.com/en/core/AtomS3R-CAM",
+        "checked_at": "2026-11-09",
+        "regenerated_profile": {
+          "path": "devices/esp32-s3/atoms3r-cam/device.json",
+          "bytes": 2827,
+          "sha256": "a92cdd7b2c22fd5bcf2ef2e92062021dd3f7a121c259904008b349f9aece07b3"
+        },
+        "generated_catalog_field_present": false
+      }
+    ]
+  },
+  "issue191": {
+    "joystick2": {
+      "old_sku": "U169",
+      "new_sku": "U024-V2",
+      "official_url": "https://docs.m5stack.com/en/unit/Unit_Joystick2"
+    },
+    "env_pro": {
+      "sku": "U169",
+      "official_url": "https://docs.m5stack.com/en/unit/Unit_ENV-Pro"
+    },
+    "env_original_entry_unchanged": true,
+    "public_driver_and_documentation_files": [
+      {
+        "unit": "timerpwr",
+        "kind": "official-driver",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/timerpwr.py",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "1e8c2617593fb6b1dd2b92e1ea49a633bf1370fafe7845d376c1103164cc8b3c",
+        "bytes": 20204,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "timerpwr",
+        "kind": "official-source",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/timerpwr.rst",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "be4c24ed037e9572e9f5eae9a5f6d859410190665ad3a864e26b0dc313ceef8e",
+        "bytes": 9579,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "step16",
+        "kind": "official-driver",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/step16.py",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "d76c15f2f21682bb13b04d8cee621ae4628ad46b87ce3f26b5e76cf4bac01c51",
+        "bytes": 11216,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "step16",
+        "kind": "official-source",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/step16.rst",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "0ed37ac342418ddc7cb901d48b33338d2e8555136f31e7364f7c94be4d46f6f3",
+        "bytes": 854,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "dof6",
+        "kind": "official-driver",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/dof6.py",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "4a04982cc05d2d3560e2159a82f45d2eb6e547db421e4672d97e4c727139dddc",
+        "bytes": 12179,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "dof6",
+        "kind": "official-source",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/dof6.rst",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "4ac9d4033aa4106321e7e01344ad3c13ca8e1d02f50f0993840168638e08ca80",
+        "bytes": 6196,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "cardkb2",
+        "kind": "official-driver",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/m5stack/libs/unit/cardkb.py",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+        "bytes": 19868,
+        "observed_at": "2026-11-09"
+      },
+      {
+        "unit": "cardkb2",
+        "kind": "official-source",
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/f20d5a00e8c9106aae1d944f3d6f1128839f59cb/docs/source/unit/cardkb2.rst",
+        "catalog_source_commit": "509a67aadb66b16f6c0e684f87fed178982c4686",
+        "public_sha256": "7bc523fd24a8a5c3e18dbe83fde1822027f758cc17f34f434bddc7222d81a074",
+        "bytes": 2230,
+        "observed_at": "2026-11-09"
+      }
+    ],
+    "adc_v11": {
+      "official_url": "https://docs.m5stack.com/en/unit/Unit_ADC_v1.1",
+      "comparison_corrected_in_document_revision": "4882025ad38b798eca05e4b424d9e8931314b347",
+      "v11": {
+        "adc": "ADS1110",
+        "reference": "internal 2.048 V",
+        "samples_per_second": [
+          15,
+          30,
+          60,
+          240
+        ]
+      },
+      "original": {
+        "adc": "ADS1100",
+        "reference": "VDD",
+        "samples_per_second": [
+          8,
+          16,
+          32,
+          128
+        ]
+      }
+    },
+    "runtime_profile_changes_only_blocker_text": true,
+    "changed_blocker_paths": [
+      "units/adc-v11/blocker",
+      "units/cardkb2/blocker",
+      "units/dof6/blocker",
+      "units/step16/blocker",
+      "units/timerpwr/blocker"
+    ]
+  },
+  "runtime_and_hardware": "NOT RUN for catalog/documentation verification"
+}
