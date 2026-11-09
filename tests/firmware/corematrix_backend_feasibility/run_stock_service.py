@@ -78,6 +78,7 @@ def validate(base: str, token: str, output: Path, reference_sha: str) -> dict:
         "V2.5.4", "WiFi initialized", "SSID: Not Found",
         "M5Stack CoreMatrix with ESP32-C61HR8", ">>>",
     )
+    usb_payload = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 6
     cross = {(x + dx, 3 + step + dy)
              for step in range(0, 10, 2)
              for x in (3 + step, 11 - step)
@@ -131,6 +132,11 @@ def validate(base: str, token: str, output: Path, reference_sha: str) -> dict:
             "import esp32; print('CM_HEAP', sum(region[0] for region in esp32.idf_heap_info(esp32.HEAP_DATA)))",
             "CM_HEAP ",
         )
+        long_line = "CM_LONG " + usb_payload
+        assert program(
+            "print('CM_LONG', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' * 6)",
+            long_line,
+        ) == long_line
         program("import M5; M5.Lcd.clear(0); M5.Lcd.fillRect(1,2,4,3,0xffffff); print('CM_DRAW')", "CM_DRAW")
         drawn = frame("stock-program", {(x, y) for x in range(1, 5) for y in range(2, 5)})
         cases = []
@@ -161,6 +167,7 @@ def validate(base: str, token: str, output: Path, reference_sha: str) -> dict:
             manifest = json.loads(bundle.read("manifest.json"))
             assert manifest["session"]["firmware_sha256"] == reference_sha
             assert b"CM_BOARD 152 16 16" in bundle.read("serial.log")
+            assert long_line.encode() in bundle.read("serial.log")
             assert bundle.read("frames/current.png")
             assert bundle.read("qom/snapshot.json")
         (output / "session-evidence.zip").write_bytes(evidence)
@@ -173,6 +180,9 @@ def validate(base: str, token: str, output: Path, reference_sha: str) -> dict:
     return {
         "session_id_sha256": hashlib.sha256(session_id.encode()).hexdigest(),
         "boot_markers": boot_markers, "board_marker": board, "heap_marker": heap,
+        "usb_tx": {"payload_bytes": len(usb_payload),
+                   "payload_sha256": hashlib.sha256(usb_payload.encode()).hexdigest(),
+                   "next_program_completed": True},
         "boot_frame": boot_frame, "program_frame": drawn, "cases": cases,
         "evidence_sha256": hashlib.sha256(evidence).hexdigest(),
         "stock_only_admission": True, "stop_state": stopped["state"],

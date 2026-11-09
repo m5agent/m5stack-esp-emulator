@@ -103,8 +103,8 @@ bus to HP I²C for TM1680 traffic.
 
 Replay the exact same stock image through Device Service to verify the
 36-pixel missing-SSID cross before any user code, the 12-pixel rectangle
-drawn over USB REPL and independent plus overlapping A/B/C presses and
-releases.
+drawn over USB REPL, 216 ordered payload bytes crossing the 64-byte USB
+TX packet boundary, and independent plus overlapping A/B/C presses and releases.
 
 ```sh
 python3 "$SIM_ROOT/tests/firmware/corematrix_backend_feasibility/run_stock_service.py" \

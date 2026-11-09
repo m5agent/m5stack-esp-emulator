@@ -170,6 +170,37 @@
     "lease_released": true,
     "flash_released": true
   },
+  "native_stock_usb_multipacket": {
+    "validation": "virtual-device validation",
+    "board": "CoreMatrix C158",
+    "firmware_sha256": "0bfbe5a4acb467d93a7ded2186a4f73adea37511869328b563c15ab73163a018",
+    "padded_flash_sha256": "5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07",
+    "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+    "patch_sha256": "bbfe934d1b2f4b8b93ff6d0759d694c24e29fcccb4b388c3bbab26fa8225b9a3",
+    "patched_qemu_source_tree": "ccfc55f4ef9503d3144ff161601a1bbad5ca0ff0",
+    "command": "print('CM_LONG', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' * 6)",
+    "before": {
+      "runtime_sha256": "a702c7762771e8de603bfc6a07869543e485a1947daa5e228fc61e93e9a1014a",
+      "lane": "direct QEMU reproduction",
+      "wait_seconds": 15,
+      "last_serial": "CM_LONG ",
+      "ep1_conf_at_0x6000f004": "0x00000000",
+      "prompt_returned": false
+    },
+    "after": {
+      "runtime_sha256": "2e230e6e5a06b139ccaca781171d8854ab3bb0f8f8f8457bfbdab8f8d76c6203",
+      "lanes": ["direct QEMU reproduction", "Device Service"],
+      "session_id_sha256": "12d4b82dec5c1e7664f26f468f3f8da7c7954238771f6dfcf0fa6920d0d3dfcb",
+      "payload_bytes": 216,
+      "payload_sha256": "650e7ae860976fe12955162581e0e362cefb7b29521c7005929ac250a9868404",
+      "next_program_completed": true,
+      "button_cases_passed": 9,
+      "evidence_sha256": "6f317211ababf7bfabc42ceae26e2fc33f4760b44b5838df59837eb25dd4a60e",
+      "stop_state": "stopped",
+      "lease_released": true,
+      "flash_released": true
+    }
+  },
   "native_idf_probe_service": {
     "validation": "virtual-device validation",
     "board": "CoreMatrix C158",

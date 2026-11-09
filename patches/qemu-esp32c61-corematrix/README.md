@@ -16,6 +16,8 @@ Its board option is `-M esp32c61,m5corematrix=on`.
   estimator, TX DC detector, SAR detector, frequency sequencer and MAC reset.
   It also implements the bidirectional USB Serial/JTAG endpoint and interrupt.
   The boot model assumes no RF input and does not exchange Wi-Fi packets.
+- `0005` transfers a full 64-byte USB Serial/JTAG CDC IN packet as soon as
+  it fills. Partial packets continue to use the endpoint's WR_DONE command.
 - The optional C158 board wiring shares SDA/GPIO0 and SCL/GPIO1 between the
   software I²C probe and HP I²C controller. The bus contains M5PM1 at `0x6e`,
   M5IOE1 at `0x4f` and TM1680 at `0x72`. M5IOE1 PIN4, mask `0x08` in the
@@ -67,6 +69,7 @@ The exact fixture, stock baseline and recorded execution are in the
 
 Hardware and driver sources are the [C158 official pinout](https://docs.m5stack.com/en/core/CoreMatrix),
 [ESP-IDF C61 I²C LL](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/hal/esp32c61/include/hal/i2c_ll.h),
+[ESP-IDF C61 USB Serial/JTAG LL](https://github.com/espressif/esp-idf/blob/v5.5/components/hal/esp32c61/include/hal/usb_serial_jtag_ll.h#L150-L167),
 [M5PM1 driver](https://github.com/m5stack/M5PM1/tree/315d2899c863ae34b59197392b9f4c59490751ef/src),
 [M5IOE1 driver](https://github.com/m5stack/M5IOE1/tree/8401119bf171cb8f906fbe22e7490989077bbee8/src)
 and the [M5GFX power sequence pinned by UIFlow2 v2.5.4](https://github.com/m5stack/M5GFX/blob/eef855b41c8ab7611a235055cc9afca76751ea95/src/board_detect/m5/pmic_ops.hpp).
