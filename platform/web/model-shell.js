@@ -22,6 +22,7 @@ const CONTROL_MAPS = {
   core2: { a: 'a', b: 'b', c: 'c', power: 'power' },
   'cardputer-adv': { boot: 'boot' },
   cardputer: { boot: 'f12' },
+  corematrix: { btnA: 'a', btnB: 'b', btnC: 'c' },
   stackchan: { power: 'power' },
   papermono: { key1: 'key1', key2: 'key2', power: 'power' },
   paperdiy: { key1: 'a', key2: 'b', power: 'power' },
@@ -78,6 +79,7 @@ export class ModelDeviceShell {
     const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions,
       ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, F12:'boot', ...options.modelOptions?.keymap}} : {}),
       ...(device.id === 'cardputer' ? {keymap: {F12:'boot', ...options.modelOptions?.keymap}} : {}),
+      ...(device.id === 'corematrix' ? {keymap: {KeyA:'btnA', KeyB:'btnB', KeyC:'btnC', ...options.modelOptions?.keymap}} : {}),
       ...(device.id === 'stackchan' ? {keymap: {KeyZ:'touch-1', KeyX:'touch-2', KeyC:'touch-3', ...options.modelOptions?.keymap}} : {}),
     });
     try {

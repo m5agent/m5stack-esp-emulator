@@ -10,6 +10,8 @@ Build the small C61 program with clean ESP-IDF v5.5.4 at
 [`735507283d5b2f9fb363a1901172dbd9e847945d`](https://github.com/espressif/esp-idf/commit/735507283d5b2f9fb363a1901172dbd9e847945d)
 and its pinned submodules. It uses 16 MiB Flash and internal RAM. The ESP-IDF
 driver exercises real virtual C61 HP I²C transactions.
+Pass a trusted local build of this fixture. The evidence records the composed
+Flash hash from the tested build.
 
 ```sh
 source "$IDF_PATH/export.sh"
@@ -40,6 +42,37 @@ the same bus, and emits its marker. The runner checks all 256 pixels in nine
 fresh frames, including overlapping A+C and separate releases. It requests
 the evidence ZIP before stop, retains stopped history, and checks lease and
 mutable Flash release. The ZIP, firmware and frames stay in the private output.
+
+### Open the probe in the 3D workbench
+
+Repeat the `run_service.py` command with a fresh `--out-dir` and append
+`--workbench`. Open the printed loopback URL. Expand **仿真服务连接**, paste
+the contents of the private `workbench-token` file into **访问 Token** and
+choose **连接服务**. Expand **服务中的设备会话** and select **在工作台打开**
+for the CoreMatrix diagnostic session. Focus the 3D model and hold or release
+**A**, **B** or **C** to observe the corresponding white pixels and guest
+serial markers. Press Ctrl+C in the runner to stop the guest and remove the
+local credential. Closing the browser view detaches from the service session.
+
+The workbench uses a temporary device row and its pre-created reference
+session. The listener serves the existing workbench assets and accepts only
+the diagnostic session APIs. Firmware import, artifact upload, HTTP session
+creation and non-loopback origins are blocked. The production catalogs and
+firmware admission rules remain separate.
+
+To repeat the Chrome verification, install the platform test dependencies
+and run the script against the printed origin while the service is running.
+
+```sh
+npm ci --prefix "$SIM_ROOT/platform/tests"
+node "$SIM_ROOT/tests/firmware/corematrix_backend_feasibility/run_workbench.mjs" \
+    "http://127.0.0.1:$PORT" "$PROBE_OUTPUT"
+```
+
+The script verifies fresh pixels from the real CoreMatrix display texture,
+the matching guest serial and PM1 state, the API guard and session cleanup.
+The [workbench summary](workbench-summary.json) records the native Device
+Service path with a Chrome 3D frontend.
 
 ## Unmodified UIFlow2 stock diagnostic
 

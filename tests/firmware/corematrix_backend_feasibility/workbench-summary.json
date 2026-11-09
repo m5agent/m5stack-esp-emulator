@@ -1,0 +1,297 @@
+{
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "lane": "Chrome WebGL workbench connected to isolated native Device Service",
+  "board": "M5Stack CoreMatrix C158",
+  "machine": "esp32c61,m5corematrix=on",
+  "runtime_sha256": "0261ab3269fb746794c9b32603238354f5f45fafcfc5cc01d45071f1bef8dab5",
+  "rom_sha256": "ba93108d967771826a8ba024da8c7002cf3c2c4346d600246b2fa882d95b30ec",
+  "frontend_base_commit": "6488103ec5324c9bc4e5b3999708a665cc896283",
+  "model_shell_sha256": "7efc493922cdf2dced204db2c29de23b8b50a22e7021b7e536cf30f080ec19da",
+  "vendor_manifest_sha256": "0641f9c35100b8f364f8e8b0c3e6126a90e6c8e486bf9f78776b24fac2f385d8",
+  "workbench_screenshot_sha256": "4c5a7af4ec61368822cae4b4d7c8982ba6867734d6792de62b90ed6b7e8ea935",
+  "view_detach_kept_session_running": true,
+  "runner_exit_removed_credential": true,
+  "evidence_checked_before_stop": [
+    "same firmware hash",
+    "serial",
+    "QOM device state",
+    "PNG frame"
+  ],
+  "browser": "157.0.8103.38",
+  "renderer": "corematrix-three",
+  "firmware_sha256": "8282e87fb8b806ceca0538a71c32b21d836f65fca62988dec65b9d5741e43ff3",
+  "session_id_sha256": "d4ea962584ad3c82376fc9a94ecac2013bddb76a7e25ede91b100e9849a78d50",
+  "evidence_sha256": "e47465ba71f6db31b79cfb69e84d80521541a8250943ee98bbc544718705bf64",
+  "cases": [
+    {
+      "marker": "CM_FRAME keys=1f irq=00",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+    },
+    {
+      "key": "a",
+      "action": "down",
+      "marker": "CM_FRAME keys=1e irq=01",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+    },
+    {
+      "key": "a",
+      "action": "up",
+      "marker": "CM_FRAME keys=1f irq=01",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+    },
+    {
+      "key": "b",
+      "action": "down",
+      "marker": "CM_FRAME keys=1d irq=02",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "b269ce3416ab83d6e6bb68831ec9d84e8869834b7f8c3f72b0047d01c9ac288b"
+    },
+    {
+      "key": "b",
+      "action": "up",
+      "marker": "CM_FRAME keys=1f irq=02",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+    },
+    {
+      "key": "c",
+      "action": "down",
+      "marker": "CM_FRAME keys=1b irq=04",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          7
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "01e114a36b83b00ab88fc25901b3b896f6e1c1ffd0641d09ba441f0fafafb67e"
+    },
+    {
+      "key": "a",
+      "action": "down",
+      "marker": "CM_FRAME keys=1a irq=01",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          12,
+          7
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "e5d4437ae6d4be5702104c7bd7277fe176857f5b4bb8289d7429a1b025692ab8"
+    },
+    {
+      "key": "c",
+      "action": "up",
+      "marker": "CM_FRAME keys=1e irq=04",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "b0c70e2cd9d4f4def4f18d67367126347089f2da50339c44061262b711762a9e"
+    },
+    {
+      "key": "a",
+      "action": "up",
+      "marker": "CM_FRAME keys=1f irq=01",
+      "lit_xy": [
+        [
+          0,
+          0
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "frame_sha256": "fc2135aef6a2778bad0b025414cd3473f0bc12ef81457827853117ad187521ec"
+    }
+  ],
+  "inputs": [
+    {
+      "payload": {
+        "kind": "key",
+        "key": "a",
+        "action": "down",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "a",
+        "action": "up",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "down",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "up",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "c",
+        "action": "down",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "a",
+        "action": "down",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "c",
+        "action": "up",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    },
+    {
+      "payload": {
+        "kind": "key",
+        "key": "a",
+        "action": "up",
+        "settle_seconds": 0.02
+      },
+      "status": 200,
+      "accepted": true
+    }
+  ],
+  "frame_response_count": 9,
+  "failed_requests": [
+    [
+      "/api/v1/devices",
+      401
+    ]
+  ],
+  "guard_statuses": {
+    "firmware_import": 409,
+    "artifact_upload": 409,
+    "uploaded_session": 409,
+    "qom_write": 409,
+    "unauthorized": 401,
+    "source_tree": 404,
+    "cross_origin": 403,
+    "foreign_host": 403
+  },
+  "stop_state": "stopped",
+  "lease_released": true,
+  "flash_released": true
+}

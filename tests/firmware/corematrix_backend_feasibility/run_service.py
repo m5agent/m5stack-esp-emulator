@@ -4,17 +4,20 @@
 from __future__ import annotations
 
 import argparse
+from functools import partial
 import hashlib
 import io
 import json
 import os
 from pathlib import Path
+import re
 import secrets
 import sys
 import threading
 import time
 from unittest.mock import patch
 from urllib.error import HTTPError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
 
@@ -33,12 +36,18 @@ from run_stock import FIRMWARE_SHA256, FLASH_SIZE, ROM_SHA256, sha256
 
 
 class ProbeService(DeviceService):
+    def _public_device(self, spec):
+        result = super()._public_device(spec)
+        result["firmware_families"] = []
+        result["features"]["flash"] = False
+        return result
+
     def create_session(self, payload, *, _management_binding=None):
         if (payload.get("device_id") != "corematrix"
                 or payload.get("runtime", "qemu") != "qemu"
                 or set(payload) - {"device_id", "runtime"}):
             raise ServiceError(
-                "reference_only_diagnostic", "Only the pinned CoreMatrix IDF probe is enabled", 409
+                "reference_only_diagnostic", "Only the locally built CoreMatrix IDF probe is enabled", 409
             )
         return super().create_session(payload, _management_binding=_management_binding)
 
@@ -46,6 +55,70 @@ class ProbeService(DeviceService):
 class QuietHandler(Handler):
     def log_message(self, fmt, *args):
         pass
+
+
+class WorkbenchHandler(QuietHandler):
+    static_roots = (ROOT / "platform/web", ROOT / "platform/units")
+    session_path = re.compile(r"/api/v1/sessions/[0-9a-f]{32}(?:/([a-z.-]+))?")
+
+    def parse_request(self):
+        if not super().parse_request():
+            return False
+        host = f"127.0.0.1:{self.server.server_port}"
+        if (self.headers.get("Host") != host
+                or self.headers.get("Origin") not in (None, f"http://{host}")):
+            self.send_error(403)
+            return False
+        return True
+
+    def do_GET(self):
+        path = urlsplit(self.path).path
+        if path == "/devices/catalog.json":
+            catalog = json.loads((ROOT / "devices/catalog.json").read_text())
+            spec = self.service.specs["corematrix"]
+            catalog["devices"] = [row for row in catalog["devices"] if row["id"] != spec.id]
+            catalog["devices"].append({
+                "id": spec.id, "name": spec.name, "sku": spec.sku,
+                "display": spec.display,
+                "hardware": {"soc": spec.soc, "display": spec.display, "controls": []},
+                "runtime": {"status": "reference-only"},
+            })
+            self._json(catalog)
+        elif path.startswith("/api/") and not path.startswith("/api/v1/"):
+            self.send_error(404)
+        else:
+            super().do_GET()
+
+    def send_head(self):
+        path = urlsplit(self.path).path
+        if path not in {"/", "/index.html"}:
+            file = Path(self.translate_path(path)).resolve()
+            if not file.is_file() or not any(
+                file.is_relative_to(folder) for folder in self.static_roots
+            ):
+                self.send_error(404)
+                return None
+        return super().send_head()
+
+    def _handle_v1(self, method, path, query):
+        if method == "GET" and path == "/api/v1/units" and query == {"device_id": ["corematrix"]}:
+            if self._authorized(path):
+                self._json({"schema_version": 1, "units": [], "hosts": []})
+                return
+        session = self.session_path.fullmatch(path)
+        action = session[1] if session else None
+        allowed = (
+            method == "GET" and (
+                path in {"/api/v1/devices", "/api/v1/units", "/api/v1/sessions"}
+                or session and action in {None, "serial", "frame.png", "device-state", "evidence", "events"}
+            )
+            or method == "POST" and session and action in {"input", "stop"}
+        )
+        if not allowed:
+            self._json({"error": {"code": "reference_only_diagnostic",
+                                 "message": "This workbench uses its pre-created reference session"}}, 409)
+            return
+        super()._handle_v1(method, path, query)
 
 
 def compose_reference(build_dir: Path, output: Path) -> None:
@@ -202,12 +275,15 @@ def main():
     parser.add_argument("--rom-dir", type=Path, required=True)
     parser.add_argument("--build-dir", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--workbench", action="store_true", help="serve a local 3D view of the reference session")
     args = parser.parse_args()
     qemu = args.qemu.resolve(strict=True)
     rom_dir = args.rom_dir.resolve(strict=True)
     if sha256(rom_dir / "esp32c61-rom.bin") != ROM_SHA256:
         parser.error("ROM must match the pinned upstream ESP32-C61 ROM")
     output = args.out_dir.resolve()
+    if args.workbench and any(output.is_relative_to(folder) for folder in WorkbenchHandler.static_roots):
+        parser.error("output directory must be outside the served asset trees")
     output.mkdir(parents=True, exist_ok=False)
     reference = output / "probe-flash.bin"
     compose_reference(args.build_dir.resolve(strict=True), reference)
@@ -217,13 +293,33 @@ def main():
         service = ProbeService(state_dir=output / "state", api_token=token,
                                max_sessions=1, max_per_device=1)
     service.raw_matrix = {"devices": [{"id": spec.id, "backend": spec.backend}]}
-    QuietHandler.service = service
-    QuietHandler.api_token = token
-    with ServiceHTTPServer(("127.0.0.1", 0), QuietHandler) as server:
+    handler = WorkbenchHandler if args.workbench else QuietHandler
+    handler.service = service
+    handler.api_token = token
+    factory = partial(handler, directory=str(ROOT))
+    with ServiceHTTPServer(("127.0.0.1", 0), factory) as server:
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
             with patch.dict(os.environ, {"M5_SERVICE_FLASH_MODE": "host-image"}):
+                if args.workbench:
+                    service.create_session({"device_id": "corematrix", "runtime": "qemu"})
+                    with open(output / "workbench-token", "x",
+                              opener=lambda path, flags: os.open(path, flags, 0o600)) as credential:
+                        credential.write(token + "\n")
+                    print(
+                        f"Open http://127.0.0.1:{server.server_port}/?device=corematrix&mode=service\n"
+                        f"Use {output / 'workbench-token'} in the service connection panel, "
+                        "then open the reference session from the session list. Press Ctrl+C to stop.",
+                        flush=True,
+                    )
+                    try:
+                        threading.Event().wait()
+                    except KeyboardInterrupt:
+                        pass
+                    finally:
+                        (output / "workbench-token").unlink(missing_ok=True)
+                    return
                 result = validate_session(
                     f"http://127.0.0.1:{server.server_port}/api/v1", token, output,
                     sha256(reference),
