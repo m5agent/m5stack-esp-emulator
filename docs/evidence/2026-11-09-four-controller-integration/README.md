@@ -29,3 +29,7 @@
 ## 两款 Paper 的固件导入
 
 四个正向 HTTP 试验接受正确型号的原厂样本与 UIFlow2 v2.5.4。两个交叉导入试验识别出另一型号的原厂项目，返回 HTTP 409 和 `firmware_board_mismatch`。未知项目仍走既有固件和外设约束。[导入摘要](paper-board-admission-summary.json)
+
+## CoreMatrix 独立 3D 诊断工作台
+
+C158 诊断运行器以 `--workbench` 在本机开放预建会话。Chromium 在 CoreMatrix 外壳上执行 A/B/C 和 A+C 组合输入，逐帧检查模型的 16 × 16 显示纹理、同会话串口以及 PM1 状态。诊断入口限制固件上传、创建会话、修改 QOM 和跨域访问。[诊断工作台摘要](../../../tests/firmware/corematrix_backend_feasibility/workbench-summary.json)
