@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.53.0
+  version: 1.54.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4319,14 +4319,16 @@ components:
           default: qemu
         wifi_monitor_fixture:
           type: string
-          enum: [beacon, no-beacon]
+          enum: [beacon, no-beacon, raw]
           description: >
             StickS3 runtime=qemu only. Starts one peerless emulated S3 Wi-Fi NIC
             and verifies zero host backends before guest execution. beacon
             enables the channel-1 m5-monitor-lab AP. no-beacon keeps the same
-            virtual radio off for a negative control. Cannot combine with
-            network, Wi-Fi/ESP-NOW runtime overrides or UART program options.
-            The normalized fixture SHA and verified state appear in session evidence.
+            virtual radio off for a negative control. raw enables bounded
+            raw-rx-mpdu injection and raw-tx-latest capture on the audited
+            network.raw_qom_path. It suppresses the modeled AP and forwarding.
+            Cannot combine with network, Wi-Fi/ESP-NOW runtime overrides or
+            UART program options. Session evidence includes the fixture SHA.
         network:
           $ref: "#/components/schemas/NetworkExecution"
         storage:

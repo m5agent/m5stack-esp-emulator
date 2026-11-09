@@ -11,13 +11,16 @@
 
 #define BEACON_IE_OFFSET 36
 #define FIXTURE_SSID "m5-monitor-lab"
-#define MAX_BEACON_SIZE 128
+#define MAX_MPDU_SIZE 128
+#define MAC_HEADER_SIZE 24
+
+static const uint8_t fixture_action[] = "\x7f\x02\x00\x00" "m5-raw-lab";
 
 struct monitor_frame {
     uint16_t length;
     int8_t rssi;
     uint8_t channel;
-    uint8_t mpdu[MAX_BEACON_SIZE];
+    uint8_t mpdu[MAX_MPDU_SIZE];
 };
 
 static QueueHandle_t frames;
@@ -32,11 +35,19 @@ static void monitor_receive(void *data, wifi_promiscuous_pkt_type_t type)
     const uint8_t *payload = packet->payload;
     const unsigned ssid_length = sizeof(FIXTURE_SSID) - 1;
 
-    if (packet->rx_ctrl.sig_len < BEACON_IE_OFFSET + 2 + ssid_length + 4 ||
-        packet->rx_ctrl.sig_len > MAX_BEACON_SIZE ||
-        payload[0] != 0x80 || payload[BEACON_IE_OFFSET] != 0 ||
-        payload[BEACON_IE_OFFSET + 1] != ssid_length ||
-        memcmp(payload + BEACON_IE_OFFSET + 2, FIXTURE_SSID, ssid_length)) {
+    const uint16_t length = packet->rx_ctrl.sig_len;
+    if (length < MAC_HEADER_SIZE + 4 || length > MAX_MPDU_SIZE) {
+        return;
+    }
+    const bool beacon = payload[0] == 0x80 &&
+        length >= BEACON_IE_OFFSET + 2 + ssid_length + 4 &&
+        payload[BEACON_IE_OFFSET] == 0 &&
+        payload[BEACON_IE_OFFSET + 1] == ssid_length &&
+        !memcmp(payload + BEACON_IE_OFFSET + 2, FIXTURE_SSID, ssid_length);
+    const bool action = payload[0] == 0xd0 &&
+        length >= MAC_HEADER_SIZE + sizeof(fixture_action) - 1 + 4 &&
+        !memcmp(payload + MAC_HEADER_SIZE, fixture_action, sizeof(fixture_action) - 1);
+    if (!beacon && !action) {
         return;
     }
 
@@ -97,8 +108,13 @@ void app_main(void)
     printf("MONITOR_ENABLED\n");
     const bool enabled_rx = xQueueReceive(frames, &frame, pdMS_TO_TICKS(3000)) == pdTRUE;
     if (enabled_rx) {
-        printf("MONITOR_RX beacon ssid=%s ch=%u rssi=%d len=%u\n",
-               FIXTURE_SSID, (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
+        if (frame.mpdu[0] == 0xd0) {
+            printf("MONITOR_RX action ch=%u rssi=%d len=%u\n",
+                   (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
+        } else {
+            printf("MONITOR_RX beacon ssid=%s ch=%u rssi=%d len=%u\n",
+                   FIXTURE_SSID, (unsigned)frame.channel, frame.rssi, (unsigned)frame.length);
+        }
         printf("MONITOR_MPDU ");
         for (unsigned i = 0; i < frame.length; ++i) {
             printf("%02x", (unsigned)frame.mpdu[i]);

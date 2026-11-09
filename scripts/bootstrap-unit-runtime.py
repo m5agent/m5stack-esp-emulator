@@ -151,6 +151,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0172-sticks3-usb-otg-device.patch",
     "patches/qemu-m5stack-peripherals/0173-sticks3-usb-serial-jtag-cdc-tx.patch",
     "patches/qemu-m5stack-peripherals/0174-sticks3-usb-otg-reset-fence.patch",
+    "patches/qemu-m5stack-peripherals/0175-sticks3-wifi-raw-monitor-fixture.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

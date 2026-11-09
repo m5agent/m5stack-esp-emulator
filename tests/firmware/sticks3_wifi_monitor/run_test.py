@@ -8,18 +8,22 @@ import hashlib
 import io
 import json
 import re
+import struct
 import sys
 import time
 import zipfile
+import zlib
 from pathlib import Path
 from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "platform/tools"))
 from device_service_qemu_wifi import (  # noqa: E402
     STICKS3_MONITOR_SSID as SSID,
+    STICKS3_RAW_RX_PROPERTY,
+    STICKS3_RAW_TX_PROPERTY,
     parse_sticks3_wifi_monitor,
 )
-from user_firmware_matrix import request_bytes, request_json  # noqa: E402
+from user_firmware_matrix import HttpError, request_bytes, request_json  # noqa: E402
 
 STOCK_SHA = "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246"
 SCAN = re.compile(r"SCAN Done: ID: \d+, Status: (\d+), Results: (\d+)")
@@ -150,12 +154,121 @@ def run(args: argparse.Namespace, mode: str, firmware: dict, call, read_bytes) -
     }
 
 
+def action_mpdu() -> bytes:
+    source = bytes.fromhex("020000005503")
+    header = struct.pack("<HH6s6s6sH", 0xd0, 0, b"\xff" * 6, source, source, 0x1230)
+    frame = header + b"\x7f\x02\x00\x00m5-raw-lab"
+    return frame + struct.pack("<I", zlib.crc32(frame))
+
+
+def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_bytes) -> dict:
+    out = args.out_dir / ("raw-capture" if inject else "raw-no-injection")
+    out.mkdir()
+    payload = {
+        "device_id": "sticks3", "runtime": "qemu", "firmware_id": firmware["firmware_id"],
+        "wifi_monitor_fixture": "raw", "ttl_seconds": 180,
+    }
+    created = call("/sessions", method="POST", payload=payload)
+    path = f"/sessions/{created['session_id']}"
+
+    def wait_marker(marker):
+        deadline = time.monotonic() + 35
+        while time.monotonic() < deadline:
+            session = call(path)
+            if session["state"] == "failed":
+                raise RuntimeError(f"raw fixture startup failed: {session['error']}")
+            serial = call(path + "/serial")["data"]
+            if session["state"] == "running" and marker in serial:
+                return session, serial
+            time.sleep(0.05)
+        raise RuntimeError(f"missing guest marker {marker!r}: {out}")
+
+    try:
+        session, _ = wait_marker("MONITOR_ENABLED")
+        config = parse_sticks3_wifi_monitor(payload) | {"status": "FIXTURE_READY"}
+        network = dict(session["network"])
+        qom_path = network.pop("raw_qom_path")
+        if network != config or session["firmware_sha256"] != firmware["sha256"]:
+            raise RuntimeError("raw fixture or boot Flash identity mismatch")
+        capture_path = path + f"/qom?path={qom_path}&property={STICKS3_RAW_TX_PROPERTY}"
+        if call(capture_path)["value"] != "0:":
+            raise RuntimeError("unexpected capture before sending the fixture")
+        packet = action_mpdu()
+        if inject:
+            body = {"path": qom_path, "property": STICKS3_RAW_RX_PROPERTY}
+            invalid = packet[:-1] + bytes((packet[-1] ^ 1,))
+            try:
+                call(path + "/qom", method="POST", payload=body | {"value": invalid.hex()})
+            except HttpError as error:
+                if error.status != 409 or error.payload["error"]["code"] != "wifi_monitor_mpdu_rejected":
+                    raise
+            else:
+                raise RuntimeError("wrong-FCS control was accepted")
+            call(path + "/qom", method="POST", payload=body | {"value": packet.hex()})
+        marker = "MONITOR_RESULT PASS" if inject else "MONITOR_RESULT NO_BEACON"
+        _, serial = wait_marker(marker)
+        sequence, hex_tx = call(capture_path)["value"].split(":", 1)
+        tx = bytes.fromhex(hex_tx)
+        (out / "serial.log").write_text(serial, encoding="utf-8")
+        evidence = read_bytes(path + "/evidence")
+        (out / "evidence.zip").write_bytes(evidence)
+        with zipfile.ZipFile(io.BytesIO(evidence)) as archive:
+            manifest = json.loads(archive.read("manifest.json"))
+            trace = archive.read("qemu.stderr").decode(errors="replace")
+            stdout = archive.read("qemu.stdout").decode(errors="replace")
+            qom_snapshot = archive.read("qom/snapshot.json")
+        if (manifest["session"]["network"] != session["network"]
+                or "hub 0 is not connected to host network" not in trace
+                or "QEMU: sending beacon" in stdout or "TX frame type=" in trace
+                or STICKS3_RAW_TX_PROPERTY.encode() in qom_snapshot):
+            raise RuntimeError("raw fixture isolation or evidence mismatch")
+        events = [event for event in manifest["timeline"]
+                  if event.get("property") == STICKS3_RAW_RX_PROPERTY]
+        if inject:
+            captured = re.search(r"^MONITOR_MPDU ([0-9a-f]+)", serial, re.MULTILINE)
+            expected_body = bytes((0, len(SSID))) + SSID.encode("ascii") + b"\x01\x01\x82"
+            if (f"MONITOR_RX action ch=1 rssi=-42 len={len(packet)}" not in serial
+                    or not captured or bytes.fromhex(captured[1]) != packet
+                    or sequence != "1" or len(tx) != 47 or tx[0] != 0x40
+                    or tx[24:43] != expected_body or tx[-4:] != bytes.fromhex("efbeadde")
+                    or not re.search(rf"RX DMA descriptor=.* length={len(packet) + 48} ", trace)
+                    or "IRQ clear 01004000 raw=01004000" not in trace
+                    or "IRQ clear 00000080 raw=00000080" not in trace
+                    or len(events) != 1 or events[0].get("mpdu_sha256") != digest(packet)
+                    or "value" in events[0]):
+                raise RuntimeError("MPDU bytes, DMA, IRQ or evidence digest mismatch")
+            (out / "tx.bin").write_bytes(tx)
+        elif tx or sequence != "0" or events or "RX DMA descriptor=" in trace or "TX DMA outlink=" in trace:
+            raise RuntimeError("raw no-injection control observed traffic")
+    finally:
+        call(path + "?purge=0", method="DELETE")
+    stopped = call(path)
+    if stopped["state"] != "stopped" or stopped["flash_retained"]:
+        raise RuntimeError("Device Service session did not release its guest Flash")
+    return {
+        "fixture_sha256": config["fixture_sha256"],
+        "host_backends": 0,
+        "guest_markers": [line for line in serial.splitlines()
+                          if line.startswith("MONITOR_") and not line.startswith("MONITOR_MPDU ")],
+        "rx_mpdu_sha256": digest(packet) if inject else None,
+        "rx_mpdu_bytes": len(packet) if inject else 0,
+        "tx_mpdu_sha256": digest(tx) if tx else None,
+        "tx_mpdu_bytes": len(tx), "tx_sequence": int(sequence),
+        "invalid_fcs_rejected": inject,
+        "evidence_zip_sha256": digest(evidence),
+        "serial_sha256": digest(serial.encode()),
+        "guest_stopped_retained_history": True,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--service", required=True)
     parser.add_argument("--token-file", type=Path, required=True)
     parser.add_argument("--firmware", type=Path, required=True)
-    parser.add_argument("--stock", action="store_true", help="verify exact M5Gotchi v0.7 scans instead of the probe")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--stock", action="store_true", help="verify exact M5Gotchi v0.7 scans")
+    mode.add_argument("--raw", action="store_true", help="verify byte-exact raw RX and controller TX capture")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     service = urlsplit(args.service)
@@ -190,11 +303,15 @@ def main() -> None:
     boot_sha = digest(binary + b"\xff" * (8 * 1024 * 1024 - len(binary)))
     if artifact["sha256"] != digest(binary) or firmware["sha256"] != boot_sha:
         raise RuntimeError("uploaded or normalized Flash SHA mismatch")
+    if args.raw:
+        cases = {label: run_raw(args, inject, firmware, call, read_bytes)
+                 for label, inject in (("capture", True), ("no-injection", False))}
+    else:
+        cases = {label: run(args, label, firmware, call, read_bytes)
+                 for label in ("beacon", "no-beacon")}
     summary = {
         "device": "sticks3", "runtime": "qemu", "firmware_sha256": digest(binary),
-        "boot_flash_sha256": boot_sha,
-        "cases": {mode: run(args, mode, firmware, call, read_bytes) for mode in ("beacon", "no-beacon")},
-        "result": "PASS",
+        "boot_flash_sha256": boot_sha, "cases": cases, "result": "PASS",
     }
     result = json.dumps(summary, indent=2) + "\n"
     (args.out_dir / "result.json").write_text(result, encoding="utf-8")
