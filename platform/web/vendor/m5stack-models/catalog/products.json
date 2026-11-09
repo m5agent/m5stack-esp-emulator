@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-28",
+  "updated": "2026-11-09",
   "scope": "visual-only",
   "products": [
     {
@@ -61,6 +61,204 @@
         "originalsDistributed": false,
         "review": "docs/STICKER-COVERAGE.md"
       }
+    },
+    {
+      "id": "paperdiy",
+      "emulatorId": "paperdiy",
+      "category": "controller",
+      "name": "PaperDIY Complete Kit",
+      "sku": "K159-B",
+      "scope": "visual-only",
+      "nominalMm": [
+        68.2,
+        120,
+        6.3
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/paperdiy/index.js",
+      "export": "PaperDIY",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1288/K159-B_PaperDIY_Complete_Kit_main_pictures_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperDIY_Complete_Kit",
+      "research": "docs/research/paperdiy/modeling.md",
+      "display": {
+        "type": "e-paper-mono",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "driver": "ET047TC1",
+        "touch": false,
+        "grayscale": 16,
+        "diagonal_in": 4.7
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "key1": "a",
+          "key2": "b",
+          "power": "power"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "默认采用带 PLA 外壳的 Complete Kit K159-B。",
+        "画面按正视竖屏的 540 × 960 像素接收，KEY1、KEY2 和电源键只发送输入意图。"
+      ],
+      "nextAction": "依据本款实物进一步复核内藏件与装配尺寸",
+      "cadEnvelopeMm": [
+        68.2,
+        121.27,
+        6.3
+      ],
+      "externalLeds": [
+        "status"
+      ]
+    },
+    {
+      "id": "papers3",
+      "emulatorId": "papers3",
+      "category": "controller",
+      "name": "PaperS3",
+      "sku": "C139",
+      "scope": "visual-only",
+      "nominalMm": [
+        67.7,
+        121.5,
+        7.7
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/papers3/index.js",
+      "export": "PaperS3",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/PaperS3/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperS3",
+      "research": "docs/research/papers3/modeling.md",
+      "display": {
+        "type": "e-paper-mono",
+        "width": 540,
+        "height": 960,
+        "shape": "rect",
+        "driver": "ET047TC1",
+        "touch": true,
+        "touch_driver": "GT911",
+        "grayscale": 16,
+        "diagonal_in": 4.7
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "power": "power"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "触点采用正视竖屏 540 × 960 坐标。外接 HC1.25 端口按实物规格表示。"
+      ],
+      "nextAction": "依据本款实物进一步复核内藏件与装配尺寸",
+      "cadEnvelopeMm": [
+        67.7,
+        127.5,
+        7.7
+      ],
+      "externalLeds": [
+        "status"
+      ]
+    },
+    {
+      "id": "cardputer",
+      "emulatorId": "cardputer",
+      "category": "controller",
+      "name": "Cardputer (original)",
+      "sku": "K132",
+      "scope": "visual-only",
+      "nominalMm": [
+        84,
+        54,
+        19.7
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/cardputer/index.js",
+      "export": "Cardputer",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/481/K132-main-pictures_01.jpg",
+      "officialDocs": "https://docs.m5stack.com/en/core/Cardputer",
+      "research": "docs/research/cardputer/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "boot": "boot",
+          "reset": "reset",
+          "power": "power",
+          "grove-power": "grove-power"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "初代 Stamp-S3 机型，提供独立 56 键与保留档位的电源滑块。"
+      ],
+      "nextAction": "依据本款实物进一步复核内藏件与装配尺寸",
+      "externalLeds": [
+        "stamp-rgb"
+      ]
+    },
+    {
+      "id": "corematrix",
+      "emulatorId": "corematrix",
+      "category": "controller",
+      "name": "CoreMatrix",
+      "sku": "C158",
+      "scope": "visual-only",
+      "nominalMm": [
+        54,
+        54,
+        11.6
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/corematrix/index.js",
+      "export": "CoreMatrix",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1274/C158_CoreMatrix_main_pictures_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/CoreMatrix",
+      "research": "docs/research/corematrix/modeling.md",
+      "display": {
+        "type": "led-matrix-mono",
+        "width": 16,
+        "height": 16,
+        "shape": "rect",
+        "driver": "TM1680",
+        "touch": false
+      },
+      "integration": {
+        "displayTarget": "display",
+        "controlMap": {
+          "btnA": "a",
+          "btnB": "b",
+          "btnC": "c",
+          "power": "power"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "256 点白光 LED 由外部帧驱动，输入与输出分别交给调用方。"
+      ],
+      "nextAction": "依据本款实物进一步复核内藏件与装配尺寸"
     },
     {
       "id": "cores3",

@@ -1201,7 +1201,13 @@ async function init() {
         shell: {preset: 'core'},
         runtime: {status: 'visual-only'},
       });
-  for (const profile of browser.devices) rows.set(profile.id, {...rows.get(profile.id), ...profile});
+  for (const profile of browser.devices) {
+    const native = rows.get(profile.id);
+    // An experimental browser profile cannot overwrite a native device's
+    // wiring, path, or admission. Its complete row can replace a preview.
+    rows.set(profile.id, native && !native.visual_only
+      ? {...native, browser:profile.browser} : profile);
+  }
   state.devices = [...rows.values()];
   state.units = visual.products.filter((model) => model.category === 'unit');
   const [unitCatalog,hostPorts,runtimeProfiles]=await Promise.all([

@@ -25,3 +25,7 @@ The own C123 AtomS3 and K130 Dial native structure data and K001-V27 Basic frame
 Each exact-SKU native CAD contribution is fixed to the M5_Hardware commit in its product research record and retains the M5Stack MIT notice and original source face attributes. Shared CAD blobs are explicitly identified;electronics and printing are independently sourced. Exact named Atom Voice Base kits retain their own native base geometry alongside the corresponding actual controller implementation.
 
 Original reconstruction code and checks use this repository's MIT license. Approved ordinary raster artwork and official-reference redraws are recorded per product;image and trademark rights remain separate from code. Private tables,vector sources,raw source names/URLs/mappings and converters are excluded from the distribution tree.
+
+## PaperDIY, PaperS3, Cardputer and CoreMatrix (2026-11-09)
+
+The K159-B, C139, K132 and C158 native structure derivatives use M5Stack/M5_Hardware at commit `ec351c516644b44defc145728cc029ced77381ff`. The pinned files, blob IDs and SHA-256 hashes are recorded in source-manifest.json. The license remains MIT, with the full notice in licenses/M5_Hardware-MIT.txt. Product artwork references retain their respective rights.

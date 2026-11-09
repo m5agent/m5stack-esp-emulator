@@ -21,8 +21,10 @@ const CONTROL_MAPS = {
   stopwatch: { a: 'a', b: 'b', power: 'power' },
   core2: { a: 'a', b: 'b', c: 'c', power: 'power' },
   'cardputer-adv': { boot: 'boot' },
+  cardputer: { boot: 'f12' },
   stackchan: { power: 'power' },
   papermono: { key1: 'key1', key2: 'key2', power: 'power' },
+  paperdiy: { key1: 'a', key2: 'b', power: 'power' },
   papercolor: { key1: 'key1', key2: 'key2', key3: 'key3', power: 'power' },
   nanoc6: { button: 'button' },
   atoms3: { button: 'button' },
@@ -49,6 +51,7 @@ const QCODE = {
   BracketLeft: 'bracket_left', BracketRight: 'bracket_right', Backslash: 'backslash',
   Semicolon: 'semicolon', Quote: 'apostrophe', Backquote: 'grave_accent',
   Comma: 'comma', Period: 'dot', Slash: 'slash', Delete: 'delete',
+  Fn: 'menu',
 };
 
 export function keyboardQcode(id) {
@@ -74,6 +77,7 @@ export class ModelDeviceShell {
   static async create(host, device, options = {}) {
     const model = await loadModel(device.id, { pixelEffect: true, ...options.modelOptions,
       ...(device.id === 'cardputer-adv' ? {keymap: {...CARDPUTER_PC_KEYMAP, F12:'boot', ...options.modelOptions?.keymap}} : {}),
+      ...(device.id === 'cardputer' ? {keymap: {F12:'boot', ...options.modelOptions?.keymap}} : {}),
       ...(device.id === 'stackchan' ? {keymap: {KeyZ:'touch-1', KeyX:'touch-2', KeyC:'touch-3', ...options.modelOptions?.keymap}} : {}),
     });
     try {
@@ -135,13 +139,15 @@ export class ModelDeviceShell {
       this.viewer.mount(model);
       this.unitAnnotations = new UnitAnnotations({container: this.stage, root: this.root, viewer: this.viewer, model});
       this.installButtonFeedback(model);
-      this.display = model.find('lcd', 'display');
+      const displayTarget = MODEL_METADATA[device.id]?.integration?.displayTarget ?? 'lcd';
+      this.display = model.find(displayTarget, 'display');
       // No demo or made-up sensor/frame values. Wait for the real runtime.
-      if (this.display) this.display.fill('#000000');
+      if (this.display && this.display.meta.surface !== 'reflective') this.display.fill('#000000');
       if (['atoms3-lite','atom-lite','atom-matrix','atom-matrix-v11'].includes(device.id))
         this.applyVisualState(this.model.list('led').map(led=>({type:'led',target:led.id,known:false})));
       this.offInput = model.on('input', event => this.handleInput(event));
-      if (device.id === 'cardputer-adv') this.installCardputerKeyboardRouting();
+      if (device.id === 'cardputer-adv') this.installCardputerKeyboardRouting(CARDPUTER_PC_KEYMAP);
+      if (device.id === 'cardputer') this.installCardputerKeyboardRouting(model.keymap);
       this.viewer.setView('front', { duration: 0 });
       this.viewer.fit({ padding: 1.15, duration: 0 });
       this.setViewMode(!live && device.shell?.reference_image ? 'photo' : 'shell');
@@ -277,7 +283,7 @@ export class ModelDeviceShell {
       return;
     }
     let id = CONTROL_MAPS[this.device.id]?.[event.id];
-    if (['cardputer-adv', 'cardputer-zero'].includes(this.device.id) && event.id.startsWith('key-')) {
+    if (['cardputer-adv', 'cardputer-zero', 'cardputer'].includes(this.device.id) && event.id.startsWith('key-')) {
       id = keyboardQcode(event.id);
       if(this.device.id==='cardputer-adv'){
         // The imported CAD names differ from the actual ADV matrix. The
@@ -292,11 +298,12 @@ export class ModelDeviceShell {
       }
     }
     if (!id) return;
-    const gpio = /^G(\d+)$/.exec(component?.meta?.gpio || '');
-    this.emit('control', { id, key: RUNTIME_KEYS[id] || id, gpio: gpio ? Number(gpio[1]) : null, down: event.action === 'down', source: event.source });
+    const pin = component?.meta?.gpio;
+    const gpio = Number.isInteger(pin) ? pin : /^G\d+$/.test(pin || '') ? Number(pin.slice(1)) : null;
+    this.emit('control', { id, key: RUNTIME_KEYS[id] || id, gpio, down: event.action === 'down', source: event.source });
   }
 
-  installCardputerKeyboardRouting() {
+  installCardputerKeyboardRouting(keymap) {
     const canvas = this.viewer.renderer.domElement;
     const down = new Map();
     const editable = target => target instanceof HTMLElement && (
@@ -316,7 +323,7 @@ export class ModelDeviceShell {
         return;
       }
       if (event.type !== 'keydown' || this.disposed
-          || !Object.hasOwn(CARDPUTER_PC_KEYMAP, event.code)
+          || !Object.hasOwn(keymap, event.code)
           || editable(event.target) || document.activeElement !== canvas)
         return;
       // DeviceViewer intentionally suppresses browser modifier chords. Once
@@ -324,16 +331,16 @@ export class ModelDeviceShell {
       // Ctrl/Meta/Alt combinations must reach the same physical matrix.
       event.preventDefault();
       event.stopImmediatePropagation();
-      const path = CARDPUTER_PC_KEYMAP[event.code];
+      const path = keymap[event.code];
       if (!path || event.repeat || down.has(event.code)) return;
       const component = this.model.find(path, 'button');
-      if (!component) throw new Error(`Cardputer-ADV key component is unavailable: ${path}`);
+      if (!component) throw new Error(`${this.device.name} key component is unavailable: ${path}`);
       down.set(event.code, component);
       component.press(source);
     };
-    for (const path of new Set(Object.values(CARDPUTER_PC_KEYMAP).filter(Boolean)))
+    for (const path of new Set(Object.values(keymap).filter(Boolean)))
       if (!this.model.find(path, 'button'))
-        throw new Error(`Cardputer-ADV key component is unavailable: ${path}`);
+        throw new Error(`${this.device.name} key component is unavailable: ${path}`);
     window.addEventListener('keydown', handle, true);
     window.addEventListener('keyup', handle, true);
     window.addEventListener('blur', releaseAll);

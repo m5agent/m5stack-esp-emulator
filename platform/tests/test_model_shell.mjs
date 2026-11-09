@@ -46,6 +46,12 @@ const physicalControls = {
   stickc:{a:'a',b:'b',power:'p'}, 'stickc-plus':{a:'a',b:'b',power:'p'},
   'stickc-plus2':{a:'a',b:'b',power:'p'}, 'stickc-plus-se':{a:'a',b:'b',power:'p'},
   dial:{wake:'a'}, stamplc:{a:'a',b:'b',c:'c'},
+  paperdiy:{key1:'a',key2:'b',power:'p'},
+  cardputer:{boot:'f12','key-Fn':'menu','key-AltRight':'alt_r','key-AltLeft':'alt',
+    'key-ControlLeft':'ctrl','key-ShiftLeft':'shift'},
+};
+const addedPanels = {
+  paperdiy: [540, 960], papers3: [540, 960], cardputer: [240, 135], corematrix: [16, 16],
 };
 const modelCases = [...controllerDevices.map(device => ({kind: 'controller', id: device.id})), ...manifest.units.map(id => ({kind: 'unit', id})),
   ...[...manifest.controllers, ...manifest.units].map(id => ({kind: 'preview', id}))]
@@ -221,6 +227,13 @@ try {
         shell.setFrameLE(littleEndian, width, height, 9);
         frame.littleEndianPixels = [0, 1, 2].map(x => display.getPixel(rotated ? display.width - 1 : x, rotated ? x : 0));
         frame.littleEndianSequence = shell.frameSeq;
+        if (device.id === 'corematrix') {
+          const intensity = new Uint8Array(256);
+          intensity[1] = 128;
+          intensity[16] = 255;
+          shell.applyVisualState({type:'display', target:'display', format:'gray8', data:intensity});
+          frame.matrix = [display.getPixel(0, 0), display.getPixel(1, 0), display.getPixel(0, 1)];
+        }
         if (display.touchEnabled) { display.touch('start', 12, 34, 1); display.touch('end', 12, 34, 1); }
       }
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
@@ -331,8 +344,15 @@ try {
         input_hint:shell.hint.textContent,
         ownership, outputs, artwork, outputEcho: raw.length - before,
       };
-    }, {device, options: test.options, expectedMinimum: expectedArtwork(test), expectedControls:physicalControls[device.id]});
+    }, {device, options: test.options, expectedMinimum: expectedArtwork(test),
+      expectedControls:device.visual_only ? {} : physicalControls[device.id]});
     assert.equal(result.source, 'm5stack-models', `${device.id} fell back to the old renderer`);
+    if (addedPanels[device.id]) assert.deepEqual(result.display, addedPanels[device.id]);
+    if (device.id === 'corematrix') assert.deepEqual(result.frame.matrix, [[0,0,0],[128,128,128],[255,255,255]]);
+    if (device.visual_only) {
+      assert.deepEqual(result.controls, [], `${device.id} visual-only controls must not reach a runtime`);
+      assert.deepEqual(result.touches, [], `${device.id} visual-only touch must not reach a runtime`);
+    }
     if (result.frame) {
       assert.deepEqual(result.frame.pixel, [255, 0, 0], `${device.id} RGB565 mapping`);
       assert.deepEqual(result.frame.pngPixel, [2, 130, 203], `${device.id} PNG mapping`);
@@ -368,8 +388,8 @@ try {
       'cardputer-zero': 'f1', papermono: 'a', core2: 'a', papercolor: 'a',
       nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a', stickc:'a', 'stickc-plus-se':'a',
       atoms3:'a', 'atoms3-lite':'a', 'atom-lite':'a', 'atom-matrix':'a', 'atom-matrix-v11':'a',
-      'stickc-plus':'a', 'stickc-plus2':'a', dial:'a' };
-    if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
+      'stickc-plus':'a', 'stickc-plus2':'a', dial:'a', paperdiy:'a', cardputer:'grave_accent' };
+    if (!device.visual_only && firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if(device.id==='cardputer-adv'){
       const matrix=result.physicalAliases.filter(row=>Number.isInteger(row.row));
       assert.equal(matrix.length,56,'ADV model exposes all 56 physical keys');

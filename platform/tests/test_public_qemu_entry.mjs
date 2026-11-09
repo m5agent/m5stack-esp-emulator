@@ -40,6 +40,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
+  deviceCatalog=catalog,
   isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
   const makeElement=id=>({id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],children:[],
@@ -62,7 +63,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('platform/units/runtime-profiles.json'))return new Response('{"units":{}}');
     if(url.endsWith('uiflow-workbench-profiles.json'))return new Response(JSON.stringify(workbenchRegistry));
     if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
-    if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
+    if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
     if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
@@ -139,7 +140,9 @@ assert.equal(disabledLegacy.lane(),'service');
 disabledLegacy.element('runtimeMode').value='browser';assert.equal(disabledLegacy.lane(),null);
 
 const textOf=node=>[node.textContent||'',...(node.children||[]).map(textOf)].join(' ');
-const papers=await entry({browserDevices:legacyBrowserDevices,search:'?device=papers3&mode=browser&autostart=0'});
+const paperModel={id:'papers3',name:'PaperS3',category:'controller',display:{width:540,height:960}};
+const visualWithPaper=[...visualCandidates,paperModel];
+const papers=await entry({browserDevices:legacyBrowserDevices,visualProducts:visualWithPaper,search:'?device=papers3&mode=browser&autostart=0'});
 papers.status('model');
 assert.equal(papers.browserProfile('papers3'),null);assert.equal(papers.lane(),null);assert.equal(papers.element('startBtn').disabled,true);
 assert.equal(papers.deviceRuntimeLabel(papers.state.selected),'仅模型');
@@ -147,11 +150,19 @@ assert.equal(papers.reference(),null,'the legacy PaperS3 BIN cannot become this 
 assert.match(textOf(papers.element('deviceDetails')),/旧浏览器演示不属于当前运行内核/);
 assert.doesNotMatch(textOf(papers.element('deviceDetails')),/浏览器运行 · 黑白显示与单点触摸/);
 assert.match(papers.element('pythonStatus').textContent,/模型预览/);assert.equal(papers.element('pythonRunBtn').disabled,true);
-const legacyPapers=await entry({runtimeEngine:null,legacyProfile:{deviceId:'papers3'},browserDevices:legacyBrowserDevices,
+const legacyPapers=await entry({runtimeEngine:null,legacyProfile:{deviceId:'papers3'},browserDevices:legacyBrowserDevices,visualProducts:visualWithPaper,
   search:'?device=papers3&mode=browser&autostart=0'});
 assert.equal(legacyPapers.reference().sha256,legacyBrowserDevices.find(row=>row.id==='papers3').browser.reference.sha256,
   'engine-specific metadata selection preserves the separate legacy reference path');
 assert.match(textOf(legacyPapers.element('deviceDetails')),/浏览器运行 · 黑白显示与单点触摸/);
+assert.equal(legacyPapers.lane(),'browser','a legacy experimental profile can replace the PaperS3 model-only row in its own build');
+const nativePaper={id:'papers3',name:'PaperS3',path:'esp32-s3/papers3',hardware:{controls:[{id:'power'}]}};
+const nativePapers=await entry({browserDevices:legacyBrowserDevices,visualProducts:visualWithPaper,
+  deviceCatalog:{...catalog,devices:[...catalog.devices.filter(row=>row.id!=='papers3'),nativePaper]},
+  search:'?device=papers3&mode=service&autostart=0'});
+assert.equal(nativePapers.state.selected.path,nativePaper.path);
+assert.equal(nativePapers.state.selected.hardware.controls[0].id,'power');
+assert.equal(nativePapers.state.selected.browser_only,undefined);
 const stopwatchScope=await entry({browserDevices:legacyBrowserDevices,search:'?device=stopwatch&mode=browser&autostart=0'});
 assert.match(textOf(stopwatchScope.element('deviceDetails')),/PM1 应用配置/);
 assert.match(textOf(stopwatchScope.element('deviceDetails')),/BtnPWR.*应用中配置/);
