@@ -45,26 +45,36 @@ await runPublicStockGuest({device,board:'m5'+device,firmware,testScript,exercise
     await page.waitForFunction(sequence=>stockGuestRuntime.lastFrame?.sequence>sequence+24,first.sequence,{timeout});
     const before=await waitFrame(baseline,roi);
     report.factory_readiness={first,before};
-    const point=await page.evaluate(async origin=>{
-      const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
-      const {display,viewer}=stockGuestShell;
-      const ndc=display.panel.localToWorld(new Vector3((113.5/display.width-0.5)*display.size[0],
-        (0.5-347.5/display.height)*display.size[1],0)).project(viewer.camera);
-      const rect=viewer.renderer.domElement.getBoundingClientRect();
-      return [rect.left+(ndc.x+1)*rect.width/2,rect.top+(1-ndc.y)*rect.height/2];
-    },origin);
     await page.evaluate(()=>{
       globalThis.stockPaperInputs=[];
       stockGuestShell.on('touch',({x,y,down})=>stockPaperInputs.push({x,y,down}));
     });
-    await page.mouse.move(...point);await page.mouse.down();
-    try{await page.waitForTimeout(300);}finally{await page.mouse.up();}
+    const tap=async(x,y)=>{
+      const point=await page.evaluate(async({origin,x,y})=>{
+        const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
+        const {display,viewer}=stockGuestShell;
+        const ndc=display.panel.localToWorld(new Vector3(((x+0.5)/display.width-0.5)*display.size[0],
+          (0.5-(y+0.5)/display.height)*display.size[1],0)).project(viewer.camera);
+        const rect=viewer.renderer.domElement.getBoundingClientRect();
+        return [rect.left+(ndc.x+1)*rect.width/2,rect.top+(1-ndc.y)*rect.height/2];
+      },{origin,x,y});
+      const firstIndex=await page.evaluate(()=>stockPaperInputs.length);
+      await page.mouse.move(...point);await page.mouse.down();
+      try{await page.waitForTimeout(300);}finally{await page.mouse.up();}
+      const inputs=await page.evaluate(firstIndex=>stockPaperInputs.slice(firstIndex),firstIndex);
+      assert.deepEqual(inputs.map(item=>item.down),[true,false]);
+      for(const input of inputs)assert.ok(Math.abs(input.x-x)<=2&&Math.abs(input.y-y)<=2);
+      return inputs;
+    };
+    const neutral=await tap(270,400);
+    await page.waitForFunction(sequence=>stockGuestRuntime.lastFrame?.sequence>sequence+24,before.sequence,{timeout});
+    const unchanged=await waitFrame(baseline,roi);
+    assert.ok(unchanged.sequence>before.sequence&&unchanged.sessionId===before.sessionId);
+    report.neutral_touch={roi,inputs:neutral,unchanged};
+    const inputs=await tap(113,347);
     const after=await waitFrame('05d016cfbd40f9cf998104146948b3ea6c93016e9519304aba0185d1389376f3',roi);
-    assert.ok(after.sequence>before.sequence && after.sessionId===before.sessionId);
-    const inputs=await page.evaluate(()=>stockPaperInputs);
-    assert.deepEqual(inputs.map(item=>item.down),[true,false]);
-    for(const input of inputs)assert.ok(Math.abs(input.x-113)<=2&&Math.abs(input.y-347)<=2);
-    report.frames.push({roi,before,after,expected_changed_pixels:607,inputs});
+    assert.ok(after.sequence>unchanged.sequence&&after.sessionId===unchanged.sessionId);
+    report.frames.push({roi,before:unchanged,after,expected_changed_pixels:607,inputs});
   }else{
     for(const [key,region] of Object.entries(buttonCases)){
       const other=buttonCases[key==='a'?'b':'a'];
