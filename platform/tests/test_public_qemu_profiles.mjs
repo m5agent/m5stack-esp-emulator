@@ -50,12 +50,14 @@ for(const [deviceId,buttons] of Object.entries(physicalButtonCodes))for(const [i
     {execute:'input-send-event',arguments:{events:[{type:'key',data:{down,key:{type:'qcode',data:qcode}}}]}},
     `${deviceId} physical ${id} must admit ${down?'press':'release'} through its board controller`);
 }
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11']);
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'cardputer', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
 assert.equal(getQemuBrowserProfile('tab5', registry, {allowCandidateProfiles:true}), null);
-assert.equal(getQemuBrowserProfile('cardputer', registry), null, 'K132 candidate must remain private until real browser acceptance');
+assert.equal(getQemuBrowserProfile('cardputer', registry)?.board,'m5cardputer');
+withheld.profiles.find(row=>row.deviceId==='cardputer').admission='candidate';
+assert.equal(getQemuBrowserProfile('cardputer', withheld),null,'a K132 candidate must remain private');
 const originalCardputer=pick('cardputer');
 assert.equal(originalCardputer.inputs.keyboard.length,56);
 for(const code of ['a','menu','ctrl','alt_r'])for(const down of [true,false])

@@ -1015,7 +1015,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "cardputer-k132-wasm-wallclock",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -1111,8 +1111,9 @@
         "sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309"
       },
       "limitations": [
-        "Preview of the original Cardputer K132 with its GPIO keyboard matrix. Cardputer-ADV uses separate firmware and an I2C keyboard.",
-        "This preview uses browser virtual-device validation with exact reference images. Physical hardware, audio, SD card, radio and broader firmware compatibility have separate qualification."
+        "The original Cardputer K132 has a GPIO keyboard matrix. Cardputer-ADV uses separate firmware and an I2C keyboard.",
+        "Browser virtual-device validation covers the exact UIFlow2 programming and fixed G0 probes and the original Factory V0.9 launcher and Fn indicator.",
+        "Audio, SD card, radio, broader firmware compatibility and physical-hardware behavior have separate qualification."
       ],
       "readyFirmwareSHA256": "2a086148973b22f6c7f289536c977e1e7968e17f7f02717c552088269ed3ac55",
       "requiredInputPatch": {
