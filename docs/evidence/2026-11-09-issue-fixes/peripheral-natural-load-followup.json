@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "kind": "issue-192-natural-load-followup",
+  "date": "2026-11-09",
+  "issue": 192,
+  "validation_class": "virtual-device validation",
+  "status": "PARTIAL",
+  "source_commit": "3c47006212a6ad08623e7bc34cba707b347be753",
+  "evidence_base_commit": "dfd2f0fc539a87c68771e93dc3b06a758acebf71",
+  "runner_files_sha256": {
+    "run_peripheral_matrix.py": "4dbcc901f56ec20e66f271dfc930ae61be2b034ca7f2dc0a8245994276f1f76a",
+    "run_profile_ui_test.py": "83483593a5da0f0ebdce51bfb154d871883983575651488168001092a439dfda"
+  },
+  "runtime": {
+    "xtensa_sha256": "ad3b3b7cc55a2ba4c0a1d79f45472320efa852ad38b8723c6388d6646539999e",
+    "xtensa_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "ordered_patches": 118,
+    "patched_source_files_verified": 140,
+    "source_receipt_sha256": "94594c7b468df17b77aec3ae29707e0ed11fc22ea9663d52ae3a5c921bc0c9fe",
+    "recipe": "scripts/bootstrap-unit-runtime.py",
+    "riscv32_sha256_for_aborted_full_matrix": "25497c521ebd5838a56b066551dd5c33d6dd00df853ed4a256fcca79944de7db",
+    "rom_sha256": {
+      "xtensa": {
+        "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+        "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+        "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+        "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      },
+      "riscv32": {
+        "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+        "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+        "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+        "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+        "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      }
+    }
+  },
+  "targeted_high_load": {
+    "status": "PASS",
+    "case_count": 2,
+    "scheduler_nice": 10,
+    "elapsed_s": 40.604,
+    "load_1m_range": [
+      16.705078125,
+      28.25
+    ],
+    "load_sample_interval_s": 0.5,
+    "simultaneous_two_scope_sample_count": 42,
+    "synthetic_workers": 0,
+    "configured_touch_hold_ms": 450,
+    "all_owned_scope_groups_gone": true,
+    "observer_sha256": "f657d9a58418f6b8de0f494c878329c61cf895a4e69013e1402af0ce61613f57",
+    "cases": [
+      {
+        "case": "stackchan-peripherals",
+        "status": "PASS",
+        "attempts": 1,
+        "machine": "m5stackchan",
+        "input": [
+          "touch:160,120"
+        ],
+        "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "boot_image_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+        "post_run_flash_sha256": "6337636641889283773a0dbf957d23944d42733a19e7de49d3b0699e129e697c",
+        "composition_sha256": "b04833c65dcfa14735e5932ffb577ab11e67c38888e697d50fe0d8a25f439d82",
+        "stock_preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "21a180d1ef36065255810816a09c0cc99c349a1476f60d9e3f0b12657616fbfc",
+        "markers_observed": [
+          "STACKCHAN_IMU_TYPE 6",
+          "STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75",
+          "STACKCHAN_IMU_GYRO 10.0 -20.0 30.0",
+          "STACKCHAN_MAG 118.9 77.3 -356.8",
+          "STACKCHAN_PMIC_POWER 87 4000 1",
+          "STACKCHAN_TOUCH",
+          "STACKCHAN_AW9523 1 0",
+          "STACKCHAN_POWER 4.00 0.25 1.00",
+          "STACKCHAN_ALS 640 321",
+          "STACKCHAN_RTC 2026 10 22 6 7 8",
+          "STACKCHAN_IR_RX 86 163",
+          "STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1",
+          "STACKCHAN_PERIPHERAL_DONE PASS"
+        ],
+        "markers_missing": [],
+        "before": {
+          "size": [
+            320,
+            240
+          ],
+          "nonblack_pixels": 645,
+          "unique_colors": 15,
+          "pixel_4_4_rgb": [
+            0,
+            0,
+            0
+          ],
+          "png_sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2"
+        },
+        "after": {
+          "size": [
+            320,
+            240
+          ],
+          "nonblack_pixels": 4086,
+          "unique_colors": 16,
+          "pixel_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "png_sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0"
+        },
+        "readiness_stdout": "before frame ready after 1 samples in 0.012s: 645 non-black pixels, 15 colors",
+        "load_1m_range": [
+          16.705078125,
+          18.5703125
+        ],
+        "load_sample_count": 42
+      },
+      {
+        "case": "core2-axp192",
+        "status": "PASS",
+        "attempts": 1,
+        "machine": "m5core2",
+        "input": [
+          "touch:160,183"
+        ],
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "boot_image_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+        "post_run_flash_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+        "composition_sha256": "f5bb41808c4feaeb2e889abd4146d58794ca7ebd3a5d03c14bbb8fc7f43cd37f",
+        "stock_preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_sha256": "fe2e60965165d48248fe7795385c812486756ed7ccd5f5c01ecb09a4c8fbafdb",
+        "markers_observed": [
+          "CORE2_AXP192_READY",
+          "CORE2_AXP192_DRAW_COMPLETE"
+        ],
+        "markers_missing": [],
+        "before": {
+          "size": [
+            320,
+            240
+          ],
+          "nonblack_pixels": 395,
+          "unique_colors": 15,
+          "pixel_4_4_rgb": [
+            0,
+            0,
+            0
+          ],
+          "png_sha256": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83"
+        },
+        "after": {
+          "size": [
+            320,
+            240
+          ],
+          "nonblack_pixels": 3917,
+          "unique_colors": 16,
+          "pixel_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "png_sha256": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807"
+        },
+        "readiness_stdout": "before frame ready after 1 samples in 0.033s: 395 non-black pixels, 15 colors",
+        "load_1m_range": [
+          16.705078125,
+          28.25
+        ],
+        "load_sample_count": 80
+      }
+    ]
+  },
+  "full_matrix_acceptance": {
+    "status": "NOT COMPLETED",
+    "required_rounds": 2,
+    "case_slots_per_round": 68,
+    "required_total_case_slots": 136,
+    "completed_full_rounds": 0,
+    "recorded_round": {
+      "round": 1,
+      "status": "ABORTED",
+      "initial_load": 16.0615234375,
+      "reason": "load ceiling 19 exceeded: 20.28",
+      "all_owned_scope_process_groups_gone": true,
+      "scope_exit_codes": [
+        -2,
+        -2,
+        -2
+      ],
+      "elapsed_s": 303.728,
+      "load_during_matrix": {
+        "minimum": 15.81591796875,
+        "maximum": 20.27880859375,
+        "samples": 61,
+        "samples_under_10": 0
+      }
+    },
+    "parallel_scope_cases": [
+      [
+        "sticks3-mic",
+        "cardputer-adv-imu",
+        "cardputer-adv-keyboard",
+        "sticks3-ir",
+        "cores3-usb-hid",
+        "stackchan-camera",
+        "cores3-audio",
+        "stamplc-peripherals",
+        "papermono-peripherals",
+        "papercolor-sd",
+        "papercolor-audio",
+        "stackchan-mic",
+        "stackchan-servo",
+        "stopwatch-vibration",
+        "stopwatch-mic",
+        "atoms3r-lp5562",
+        "core2-peripherals",
+        "core2-audio",
+        "core2-mic",
+        "stamplc-can",
+        "nesso-peripherals",
+        "nesso-lora"
+      ],
+      [
+        "sticks3-audio",
+        "cardputer-adv-sd",
+        "cardputer-adv-nfc",
+        "cardputer-adv-mic",
+        "sticks3-ir-rx",
+        "cores3-peripherals",
+        "cores3-camera",
+        "stopwatch-peripherals",
+        "papermono-buzzer",
+        "papermono-pdm-mic",
+        "papermono-rgb",
+        "papercolor-peripherals",
+        "papercolor-sht4x",
+        "papercolor-mic",
+        "stackchan-nfc",
+        "stackchan-peripherals",
+        "cardputer-adv-ir",
+        "papercolor-ir",
+        "core2-power-monitor",
+        "stamplc-buzzer",
+        "stamplc-onboard-io",
+        "nesso-ir",
+        "nesso-buzzer"
+      ],
+      [
+        "sticks3-peripherals",
+        "cores3-sd",
+        "cardputer-adv-cc1101",
+        "cardputer-adv-audio",
+        "atoms3r-peripherals",
+        "cores3-power-transitions",
+        "cores3-mic",
+        "papermono-nfc",
+        "papermono-lora",
+        "stackchan-touch",
+        "stackchan-rgb",
+        "stackchan-audio",
+        "stopwatch-audio",
+        "atoms3r-ir",
+        "stamplc-rs485",
+        "core2-imu",
+        "core2-axp192",
+        "stamplc-lm75",
+        "papercolor-rgb",
+        "cores3-aw9523-full",
+        "stopwatch-m5ioe1-full",
+        "stopwatch-m5pm1-full",
+        "nesso-imu"
+      ]
+    ],
+    "load_samples_sha256": "6bd3f4c8762375a4af40d3fd145f727ee6525fd95f79e3edfc6d52f0686718a3",
+    "first_observed_frame_sensitive_failure": {
+      "case": "sticks3-peripherals",
+      "status": "FAIL",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "input": [
+        "key:a",
+        "key:b",
+        "keytap:p,0.1"
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "boot_image_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+      "post_run_flash_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+      "composition_sha256": "14d7899d1f3c3cf328d8d5133304d0c8c6eebc925f15cc994f0c1a9a689d294b",
+      "stock_preservation": {
+        "base_file_count": 18,
+        "preserved_file_count": 16,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "serial_sha256": "47e81c9013974e5ffb033e50e8169d7b10ea4092ef2b8f470dc38a7f5f24abf7",
+      "markers_observed": [
+        "STICKS3_PM1_BUTTON_READY",
+        "STICKS3_PM1_BUTTON_CFG",
+        "STICKS3_IMU_TYPE 6",
+        "STICKS3_BATTERY 87 4000 0",
+        "STICKS3_BTN_B 1",
+        "STICKS3_BTN_PWR 1",
+        "STICKS3_IMU -0.500 -0.250 0.750"
+      ],
+      "markers_missing": [
+        "STICKS3_BTN_A 1"
+      ],
+      "before": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 236,
+        "unique_colors": 15,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "876b94d7fd9eb9060039c0db5b690d3e5874576564fb64ab2d990a663b0dfcc6"
+      },
+      "after": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 3913,
+        "unique_colors": 16,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "798a82309bcadc97948b19f99c1b76b5ff11478d2b5c9bd6f99a1df20b9f8f2e"
+      },
+      "readiness_stdout": null,
+      "load_1m_range": [
+        15.81591796875,
+        16.39111328125
+      ],
+      "load_sample_count": 21,
+      "error": "RuntimeError: missing serial markers: STICKS3_BTN_A 1"
+    },
+    "setup_interruption": {
+      "status": "ABORTED",
+      "reason": "Retired the optional-load supervisor to honor natural-load-only validation.",
+      "cleanup": "A process-group existence probe returned EPERM on Darwin. The other two owned groups were stopped and checked separately.",
+      "remaining_owned_process_groups": 0,
+      "cleanup_receipt_sha256": "d040f230d0ed9e86dec171d7bae6821bd348856d0a7fe563f514e7d11abe2906"
+    }
+  },
+  "sticks3_ready_candidate": {
+    "status": "FAIL",
+    "changes": "Emit existing readiness after the initial draw and a regular M5.update() poll.",
+    "candidate_patch_sha256": "aaf6a2220939fae0b45fee830a1a1b6b8760469dbbaee3294f2312c066359ed2",
+    "configured_a_b_hold_ms": 450,
+    "configured_p_hold_ms": 100,
+    "scheduler_nice": 10,
+    "baseline": {
+      "case": "sticks3-peripherals",
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "input": [
+        "key:a",
+        "key:b",
+        "keytap:p,0.1"
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "boot_image_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+      "post_run_flash_sha256": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+      "composition_sha256": "14d7899d1f3c3cf328d8d5133304d0c8c6eebc925f15cc994f0c1a9a689d294b",
+      "stock_preservation": {
+        "base_file_count": 18,
+        "preserved_file_count": 16,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "serial_sha256": "d5539772c3921da72f98458bebf56600b487d68211b9c081810cf839f771b5d5",
+      "markers_observed": [
+        "STICKS3_PM1_BUTTON_READY",
+        "STICKS3_PM1_BUTTON_CFG",
+        "STICKS3_IMU_TYPE 6",
+        "STICKS3_BATTERY 87 4000 0",
+        "STICKS3_BTN_A 1",
+        "STICKS3_BTN_B 1",
+        "STICKS3_BTN_PWR 1",
+        "STICKS3_IMU -0.500 -0.250 0.750"
+      ],
+      "markers_missing": [],
+      "before": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 2841,
+        "unique_colors": 15,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "fecf47dbc0670b71f9115370257b6b5c1712e6af7e3d89dd205cecfe96ecca5e"
+      },
+      "after": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 3091,
+        "unique_colors": 15,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "f64fdfba06f4e573eb9f3bdfbb2c44c0efab8fd5e5ce0809d429e4ad38d0e700"
+      },
+      "readiness_stdout": null,
+      "load_1m_range": [
+        20.6376953125,
+        21.2158203125
+      ],
+      "load_sample_count": 22
+    },
+    "candidate": {
+      "case": "sticks3-peripherals",
+      "status": "FAIL",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "input": [
+        "key:a",
+        "key:b",
+        "keytap:p,0.1"
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "boot_image_sha256": "9ad8bc6e57edeb72e52f3fd90be3b08a1e1e91a744fae536b805a9ca797ada6f",
+      "post_run_flash_sha256": "9ad8bc6e57edeb72e52f3fd90be3b08a1e1e91a744fae536b805a9ca797ada6f",
+      "composition_sha256": "b2a0b4af2862703b52977a22648f4714e58f77a6b41a4c9103384a53846ed620",
+      "stock_preservation": {
+        "base_file_count": 18,
+        "preserved_file_count": 16,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "serial_sha256": "9133ccdb1d96a3de9d731babe4fa2c53109e8ae97e949e2519ea91847c91f404",
+      "markers_observed": [
+        "STICKS3_PM1_BUTTON_READY",
+        "STICKS3_PM1_BUTTON_CFG",
+        "STICKS3_IMU_TYPE 6",
+        "STICKS3_BATTERY 87 4000 0",
+        "STICKS3_BTN_A 1",
+        "STICKS3_BTN_PWR 1",
+        "STICKS3_IMU -0.500 -0.250 0.750"
+      ],
+      "markers_missing": [
+        "STICKS3_BTN_B 1"
+      ],
+      "before": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 2758,
+        "unique_colors": 15,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "6a50a7a5f6908aca021874ae20dd42361bb382593503eb9ecbd91d1d1a78be71"
+      },
+      "after": {
+        "size": [
+          135,
+          240
+        ],
+        "nonblack_pixels": 1490,
+        "unique_colors": 15,
+        "pixel_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "png_sha256": "d72cac318b0ed3eebf25317f8dd41f17afd848fcfcba695324b7985c2ebaa3ef"
+      },
+      "readiness_stdout": null,
+      "load_1m_range": [
+        20.6376953125,
+        21.2158203125
+      ],
+      "load_sample_count": 22,
+      "error": "RuntimeError: missing serial markers: STICKS3_BTN_B 1"
+    },
+    "all_owned_scope_groups_gone": true,
+    "candidate_source_included": false,
+    "observer_sha256": "a8ad1fa7602239ac1da5b4e9b4699e18fab68c13105ff324e00bc4a5fa3b1dd2"
+  },
+  "negative_control": {
+    "status": "PASS",
+    "checks_run": 5,
+    "entrypoint": "platform/tests/test_regression_guest_readiness.py",
+    "blank_frame_timeout_preserves_evidence": true,
+    "earlier_guest_timeout_control": "peripheral-readiness-summary.json"
+  },
+  "reproduction": {
+    "targeted_commands": [
+      "python3 tests/uiflow2/run_peripheral_matrix.py --case stackchan-peripherals --out-dir <stackchan-output>",
+      "python3 tests/uiflow2/run_peripheral_matrix.py --case core2-axp192 --out-dir <core2-output>"
+    ],
+    "environment_variables": [
+      "M5_QEMU_XTENSA",
+      "M5_QEMU_XTENSA_ROM_DIR",
+      "M5_PYTHON_DEPS"
+    ],
+    "launch_mode": "Independent parallel native regression scopes, nice 10, no matrix retries."
+  },
+  "hardware_validation": "NOT RUN",
+  "browser_wasm_validation": "NOT RUN"
+}
