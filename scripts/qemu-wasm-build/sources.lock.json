@@ -136,7 +136,7 @@
       "0069"
     ]
   },
-  "native_patch_count": 47,
+  "native_patch_count": 49,
   "patched_files": {
     "accel/tcg/cpu-exec.c": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
     "accel/tcg/tcg-accel-ops-icount.c": "62f65add2fa1f3962da8ca7693f370922d71c24a97b256b3ec8eb054f17fd1b9",
@@ -157,7 +157,7 @@
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
     "hw/m5stopwatch/co5300.c": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
     "hw/m5stopwatch/esp32s3_fe.c": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
-    "hw/m5stopwatch/esp32s3_gpspi.c": "584054563add685a643638667c7ad1342818d2c0cd20944bb0d57e059d1dc919",
+    "hw/m5stopwatch/esp32s3_gpspi.c": "5e260f5b4959416000da546370c2aa6e9422ca6bfc4e380b409a471f105f6c4d",
     "hw/m5stopwatch/esp32s3_i2c.c": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
     "hw/m5stopwatch/esp32s3_phy.c": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
     "hw/m5stopwatch/esp32s3_regi2c.c": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
@@ -167,7 +167,7 @@
     "hw/m5stopwatch/m5_bcm_spi_panel.c": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
     "hw/m5stopwatch/m5_board.c": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
     "hw/m5stopwatch/m5_can_peer.c": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
-    "hw/m5stopwatch/m5_cc1101_spi.c": "d43d4cb0d6a84da3229d204c37674db15d47fed07348dbd6209fb4d7b82040fe",
+    "hw/m5stopwatch/m5_cc1101_spi.c": "37ffaf55c60188c881787a18ba3dc9eb5bd5db7b9f268659d73723072e81d715",
     "hw/m5stopwatch/m5_epd_panel.c": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
     "hw/m5stopwatch/m5_i2s.c": "99f5893d000255d7139d893c49fed5841964b2680d664e77cba7172d1e16fe87",
     "hw/m5stopwatch/m5_i2s_esp32.c": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
@@ -177,8 +177,8 @@
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
     "hw/m5stopwatch/m5_spi_panel.c": "2b0eda9d99e64122a69a9ffa5c868a4fb86726d2504f87b162d54c7f6a22e786",
-    "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
-    "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
+    "hw/m5stopwatch/m5_spi_sd.c": "d84f58dc7554f69d1ee4c68548951ebda0ee7aec22877f52fbb7606081c1a24e",
+    "hw/m5stopwatch/m5_st25r3916_spi.c": "f6ac801a1ce8dcb0fd3878b6979b5b8e4aed2746408a665cd56c4c7b0a8423d5",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
     "hw/m5stopwatch/m5_uart_peer.c": "9370859a8d6d16e7493af844a5f4bea6d3d8394f99815a7293288b34003f1d00",
     "hw/m5stopwatch/m5_unit_gpio.c": "c014cc46116f3a57d23fbd06719bdc9d3b2e04bdf74454caac9f726c8c77514b",
@@ -190,7 +190,7 @@
     "hw/m5stopwatch/m5atoms3.c": "b8c135dd9d015e1fc3c549d36dbaf69aceda74f90d6003aa9899731a828bae78",
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
-    "hw/m5stopwatch/m5cardputeradv.c": "718c8d152df07eef12f2c2ad0429bbff24a8dd0e611cc097b48783442a04dba0",
+    "hw/m5stopwatch/m5cardputeradv.c": "a9503e5ab59ea0c7ffc0fad154485b58b924bbd8c94b9c95ad87fc74dcca2916",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
@@ -201,7 +201,7 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9b7bd9a47a8b47edb9a7db1f640fca7f2d420bdf0baba3b66aec14b7fd7f3d51",
-    "hw/m5stopwatch/m5stopwatch.h": "486cf7a099de3bd3b17c183e22dc4c75e9b6b765b0490022204280bedb342e4d",
+    "hw/m5stopwatch/m5stopwatch.h": "40cc95b2ccbdbda2758c9aa9e5e17a84197bce73eae1d1d1528cbc49285a2158",
     "hw/m5stopwatch/m5sw_i2c_devs.c": "01ecbf11e441ec56db5837e8c821c7f698dfb6c46a6830c643866d87965d18a9",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
@@ -489,6 +489,14 @@
     {
       "path": "patches/qemu-m5stack-peripherals/0109-uart-rxfifo-reset.patch",
       "sha256": "d64f5a713ad3f0d03f6977e160cd03f54f4e0f59a2a2f7a8915c15b9f588da72"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0165-cardputer-adv-explicit-caps.patch",
+      "sha256": "994b286fe515fc394520867be6c56ff5e68b5ed592bdb26f264e31e8affcfdb8"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0166-spi-sd-card-init-state.patch",
+      "sha256": "736ca37581919242fc150f6e5c5cdeac6d2affa508f7da8fc101e66cc6fef8b5"
     },
     {
       "path": "patches/qemu-wasm-probe/0001-qemu-9.2.2-wasm-tci.patch",

@@ -141,6 +141,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0162-axp2101-charger-state.patch",
     "patches/qemu-m5stack-peripherals/0163-ed2208-partial-window.patch",
     "patches/qemu-m5stack-peripherals/0164-atoms3-st7735-variant.patch",
+    "patches/qemu-m5stack-peripherals/0165-cardputer-adv-explicit-caps.patch",
+    "patches/qemu-m5stack-peripherals/0166-spi-sd-card-init-state.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

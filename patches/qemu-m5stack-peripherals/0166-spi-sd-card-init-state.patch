@@ -1,0 +1,261 @@
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+index 002d8d1..cc54855 100644
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -2,7 +2,7 @@
+  * SPI-mode SD card protocol model backed by a raw sector image.
+  *
+  * The model implements the command/data frames used by ESP-IDF's SDSPI host:
+- * CMD0/8/16/17/18/24/25/55/58/59, ACMD22/23/41 and sector read/write.
++ * CMD0/8/16/17/18/24/25/55/58/59, ACMD22/23/41/42 and sector read/write.
+  * SPI data tokens follow SD Physical Layer Simplified Specification 9.00,
+  * sections 7.2.3 (read), 7.2.4 (write), and 7.3 (command definitions).
+  *
+@@ -14,6 +14,11 @@
+ #define SD_BLOCK_SIZE 512
+ #define SD_RESP_SIZE  1024
+ 
++#define SD_R1_IDLE        0x01
++#define SD_R1_ILLEGAL     0x04
++#define SD_R1_CRC_ERROR   0x08
++#define SD_R1_PARAMETER   0x40
++
+ typedef enum {
+     SD_IDLE,
+     SD_COMMAND,
+@@ -39,7 +44,10 @@ typedef struct M5SpiSdState {
+     uint8_t cid[16];
+     uint8_t csd[16];
+     uint8_t crc_pos;
++    uint16_t write_crc;
+     SdSpiMode next_mode;
++    bool card_ready;
++    bool crc_enabled;
+     bool app_cmd;
+     bool multi_read;
+     bool multi_write;
+@@ -70,7 +78,7 @@ static uint16_t sd_crc16(const uint8_t *data, uint32_t size)
+             crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+         }
+     }
+-    return (crc >> 8) | (crc << 8);
++    return crc;
+ }
+ 
+ static void sd_set_identity(M5SpiSdState *s, uint64_t size)
+@@ -182,8 +190,8 @@ static void sd_read_block(M5SpiSdState *s, bool first)
+     response[prefix - 1] = 0xfe;
+     memcpy(response + prefix, s->block, SD_BLOCK_SIZE);
+     crc = sd_crc16(s->block, SD_BLOCK_SIZE);
+-    response[prefix + SD_BLOCK_SIZE] = crc & 0xff;
+-    response[prefix + SD_BLOCK_SIZE + 1] = crc >> 8;
++    response[prefix + SD_BLOCK_SIZE] = crc >> 8;
++    response[prefix + SD_BLOCK_SIZE + 1] = crc & 0xff;
+     sd_set_response_lead(s, response, prefix + SD_BLOCK_SIZE + 2, first ? 2 : 1);
+     if (s->multi_read) {
+         s->sector++;
+@@ -196,27 +204,43 @@ static void sd_execute(M5SpiSdState *s)
+     uint8_t cmd = s->command[0] & 0x3f;
+     uint32_t arg = sd_arg(s->command);
+     bool app_cmd = s->app_cmd;
+-    uint8_t r7[5] = { 0x01, 0x00, 0x00, 0x01, 0xaa };
+-    uint8_t r3[5] = { 0x00, 0x00, 0xff, 0x80, 0x00 };
++    uint8_t r1 = s->card_ready ? 0 : SD_R1_IDLE;
++    uint8_t r7[5] = { r1, 0x00, 0x00, 0x01, arg & 0xff };
++    /* SDSC identity: CCS stays clear, with byte-addressed data commands. */
++    uint8_t r3[5] = { r1, s->card_ready ? 0x80 : 0, 0xff, 0x80, 0x00 };
+ 
+     if (s->trace) {
+         fprintf(stderr, "[sd-spi] cmd=%u arg=%08x app=%d\n",
+                 cmd, arg, s->app_cmd);
+     }
+-    if (cmd != 55) {
+-        s->app_cmd = false;
++    s->app_cmd = false;
++    if ((s->crc_enabled || cmd == 0 || cmd == 8) &&
++        s->command[5] != (uint8_t)((sd_crc7(s->command, 5) << 1) | 1)) {
++        sd_r1(s, r1 | SD_R1_CRC_ERROR);
++        return;
++    }
++    if (!s->card_ready && cmd != 0 && cmd != 1 && cmd != 8 &&
++        cmd != 41 && cmd != 55 && cmd != 58 && cmd != 59) {
++        sd_r1(s, SD_R1_IDLE | SD_R1_ILLEGAL);
++        return;
+     }
+     switch (cmd) {
+     case 0: /* GO_IDLE_STATE */
++        s->card_ready = false;
++        s->crc_enabled = false;
+         s->multi_read = false;
+         s->multi_write = false;
+-        sd_r1(s, 0x01);
++        s->written_blocks = 0;
++        sd_r1(s, SD_R1_IDLE);
+         break;
+-    case 1: /* SEND_OP_COND */
+-        sd_r1(s, 0x00);
++    case 1: /* SEND_OP_COND, retained for legacy SDSC hosts */
++        s->card_ready = true;
++        sd_r1(s, 0);
+         break;
+-    case 8: /* SEND_IF_COND */
+-        sd_set_response(s, r7, sizeof(r7));
++    case 8: /* SEND_IF_COND: return the 2.7–3.6 V check pattern. */
++        if ((arg & 0xf00) == 0x100) {
++            sd_set_response(s, r7, sizeof(r7));
++        }
+         break;
+     case 9:   /* SEND_CSD */
+     case 10:  /* SEND_CID */
+@@ -227,8 +251,8 @@ static void sd_execute(M5SpiSdState *s)
+         data[0] = 0x00;
+         data[1] = 0xfe;
+         memcpy(&data[2], identity, 16);
+-        data[18] = crc & 0xff;
+-        data[19] = crc >> 8;
++        data[18] = crc >> 8;
++        data[19] = crc & 0xff;
+         sd_set_read_response(s, data, sizeof(data));
+         break;
+     }
+@@ -237,9 +261,12 @@ static void sd_execute(M5SpiSdState *s)
+         s->multi_write = false;
+         sd_r1(s, 0x00);
+         break;
+-    case 16: /* SET_BLOCKLEN */
++    case 16: /* SET_BLOCKLEN: the raw image uses 512-byte sectors. */
++        sd_r1(s, arg == SD_BLOCK_SIZE ? 0 : SD_R1_PARAMETER);
++        break;
+     case 59: /* CRC_ON_OFF */
+-        sd_r1(s, 0x00);
++        s->crc_enabled = arg & 1;
++        sd_r1(s, r1);
+         break;
+     case 13: /* SEND_STATUS */
+         if (app_cmd) {
+@@ -249,8 +276,8 @@ static void sd_execute(M5SpiSdState *s)
+             status[0] = 0x00;
+             status[1] = 0xfe;
+             crc = sd_crc16(&status[2], 64);
+-            status[66] = crc & 0xff;
+-            status[67] = crc >> 8;
++            status[66] = crc >> 8;
++            status[67] = crc & 0xff;
+             sd_set_read_response(s, status, sizeof(status));
+         } else {
+             uint8_t status[2] = { 0x00, 0x00 }; /* R1 + card status */
+@@ -269,15 +296,15 @@ static void sd_execute(M5SpiSdState *s)
+                 s->written_blocks >> 16, s->written_blocks >> 8,
+                 s->written_blocks, 0, 0};
+             uint16_t crc = sd_crc16(count + 2, 4);
+-            count[6] = crc & 0xff;
+-            count[7] = crc >> 8;
++            count[6] = crc >> 8;
++            count[7] = crc & 0xff;
+             sd_set_read_response(s, count, sizeof(count));
+         } else {
+-            sd_r1(s, 0x05);
++            sd_r1(s, r1 | SD_R1_ILLEGAL);
+         }
+         break;
+     case 23: /* ACMD23: SET_WR_BLK_ERASE_COUNT (pre-erase hint) */
+-        sd_r1(s, app_cmd ? 0x00 : 0x05);
++        sd_r1(s, app_cmd ? r1 : r1 | SD_R1_ILLEGAL);
+         break;
+     case 24: /* WRITE_SINGLE_BLOCK */
+     case 25: /* WRITE_MULTIPLE_BLOCK */
+@@ -296,7 +323,16 @@ static void sd_execute(M5SpiSdState *s)
+         }
+         break;
+     case 41: /* ACMD41 */
+-        sd_r1(s, 0x00);
++        if (app_cmd) {
++            s->card_ready = true;
++            r1 = 0;
++        } else {
++            r1 |= SD_R1_ILLEGAL;
++        }
++        sd_r1(s, r1);
++        break;
++    case 42: /* ACMD42: accept pull-up control on the host-driven CS line. */
++        sd_r1(s, app_cmd ? r1 : r1 | SD_R1_ILLEGAL);
+         break;
+     case 51: /* ACMD51: SEND_SCR */
+         if (app_cmd) {
+@@ -308,16 +344,16 @@ static void sd_execute(M5SpiSdState *s)
+                 0x00, 0x00,
+             };
+             uint16_t crc = sd_crc16(&scr[2], 8);
+-            scr[10] = crc & 0xff;
+-            scr[11] = crc >> 8;
++            scr[10] = crc >> 8;
++            scr[11] = crc & 0xff;
+             sd_set_read_response(s, scr, sizeof(scr));
+         } else {
+-            sd_r1(s, 0x05);
++            sd_r1(s, r1 | SD_R1_ILLEGAL);
+         }
+         break;
+     case 55: /* APP_CMD */
+         s->app_cmd = true;
+-        sd_r1(s, 0x01);
++        sd_r1(s, r1);
+         break;
+     case 58: /* READ_OCR */
+         sd_set_response(s, r3, sizeof(r3));
+@@ -326,7 +362,7 @@ static void sd_execute(M5SpiSdState *s)
+         if (s->trace) {
+             fprintf(stderr, "[sd-spi] unsupported cmd=%u\n", cmd);
+         }
+-        sd_r1(s, 0x05);
++        sd_r1(s, r1 | SD_R1_ILLEGAL);
+         break;
+     }
+ }
+@@ -337,6 +373,10 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+     uint8_t out = 0xff;
+     uint8_t result;
+ 
++    /* An empty socket leaves the bus undriven. */
++    if (!s->image) {
++        return 0xff;
++    }
+     switch (s->mode) {
+     case SD_READ_NEXT:
+         if ((tx & 0xc0) == 0x40) {
+@@ -379,12 +419,16 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+         if (s->block_pos == SD_BLOCK_SIZE) {
+             s->mode = SD_WRITE_CRC;
+             s->crc_pos = 0;
++            s->write_crc = 0;
+         }
+         break;
+     case SD_WRITE_CRC:
++        s->write_crc = (s->write_crc << 8) | tx;
+         if (++s->crc_pos >= 2) {
+             result = 0x0d; /* write rejected */
+-            if (s->image && (uint64_t)s->sector * SD_BLOCK_SIZE < s->image_size &&
++            if (s->crc_enabled && s->write_crc != sd_crc16(s->block, SD_BLOCK_SIZE)) {
++                result = 0x0b; /* data CRC error; leave the image unchanged */
++            } else if ((uint64_t)s->sector * SD_BLOCK_SIZE < s->image_size &&
+                 !fseeko(s->image, (off_t)s->sector * SD_BLOCK_SIZE, SEEK_SET) &&
+                 fwrite(s->block, 1, sizeof(s->block), s->image) == SD_BLOCK_SIZE &&
+                 !fflush(s->image)) {
+@@ -428,9 +472,14 @@ void m5_spi_sd_attach(DeviceState *spi, int cs_pin)
+     if (path) {
+         s->image = fopen(path, "r+b");
+         if (s->image) {
+-            fseeko(s->image, 0, SEEK_END);
+-            s->image_size = ftello(s->image);
+-            fseeko(s->image, 0, SEEK_SET);
++            off_t size = fseeko(s->image, 0, SEEK_END) ? -1 : ftello(s->image);
++            if (size < SD_BLOCK_SIZE || size % SD_BLOCK_SIZE ||
++                fseeko(s->image, 0, SEEK_SET)) {
++                fclose(s->image);
++                s->image = NULL;
++            } else {
++                s->image_size = size;
++            }
+         }
+     }
+     sd_set_identity(s, s->image_size);

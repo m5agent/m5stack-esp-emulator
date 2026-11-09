@@ -30,6 +30,17 @@ hooks. The extra reconstructed radio lifecycle rearm sites use the same
 virtual clock as their timers. Source replay and compilation alone do not
 grant those models a firmware PASS.
 
+The native recipe ends with `0165` and `0166`. The first layer keeps Cardputer
+ADV bare by default and attaches both chips on the physical Cap CC1101 only
+when `M5SW_CARDPUTER_ADV_CAP_CC1101=1`. The Cap chip-select inputs observe the
+GPIO line without driving it. GPIO8/9 retain the board's internal I²C pull-ups.
+
+The second layer tracks the SPI SD card's idle and ready states. The card
+reports that state in R1 and OCR, respects CMD59 CRC settings, and leaves
+MISO high on an empty socket. The model retains the SDSC byte-addressed raw
+image and transfers sectors through GP-SPI. The browser source lock includes
+the same two patches.
+
 ## Exact source and order
 
 1. Clone `https://github.com/espressif/qemu.git`, tag

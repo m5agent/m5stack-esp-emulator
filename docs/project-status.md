@@ -390,7 +390,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | StickS3 | ESP32-S3 / QEMU | 显示、按键、电源、IMU、音频、IR、WiFi/BLE；Hat2-Bus 8Servos 控制器路径 | RF、舵机机械/电流和真机 `NOT RUN` |
 | CoreS3 | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、摄像头、USB Host；Port B 8Servos、双 Joystick2 和 NFC Unit 控制器路径 | 启动菜单透明/调色板图像仍有模拟条纹；新增 Unit 只覆盖寄存器与虚拟 fixture |
 | AtomS3R | ESP32-S3 / QEMU | 显示、按键、IMU、磁力计、RGB、IR | 高保真外观和真机 |
-| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SD、NFC、CC1101、IR；精确 app-bound synthetic ADC calibration、Canvas/键盘/扬声器/IMU 启动路径，以及 `0x69` BMI270 官方 API 注入回读 | 高保真外观、物理 IMU/ADC 精度、电气特性和真机 |
+| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SPI SD、IR；裸板默认，显式 Cap CC1101 提供 NFC 和 CC1101。原版 MP3 v1.0.0 经 FAT32、按键和扬声器 PCM 验证；保留精确 app-bound synthetic ADC calibration 与 `0x69` BMI270 官方 API 注入回读。[验证](evidence/2026-11-09-cardputer-adv-model-fix/summary.json) | 高保真外观、物理 IMU/ADC 精度、电气特性和真机 |
 | PaperColor | ESP32-S3 / QEMU | Spectra 6、按键、电源、SHT4X、音频、SD、RGB、IR | 刷新时序和光学真机表现 |
 | PaperMono | ESP32-S3 / QEMU | 灰度屏、触摸、电源、IMU、RTC、音频、NFC、LoRa、RGB | 刷新手感和显示真机表现 |
 | StackChan | ESP32-S3 / QEMU | 显示、触摸、摄像头、环境/运动传感器、音频、NFC、IR、舵机 | 机械运动、声学和光学 |

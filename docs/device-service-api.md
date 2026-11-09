@@ -2188,9 +2188,14 @@ object when creating a session:
 }
 ```
 
+Cardputer ADV QEMU sessions start with the bare board. To mount the optional
+Cap CC1101 at boot, pass `{"M5SW_CARDPUTER_ADV_CAP_CC1101": "1"}` as
+`runtime_env`. This mounts both the CC1101 and ST25R3916 on the expansion
+connector.
+
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
-`M5SW_CORE2_PMIC`, `M5SW_ESPNOW_LOOPBACK`,
+`M5SW_CARDPUTER_ADV_CAP_CC1101`, `M5SW_CORE2_PMIC`, `M5SW_ESPNOW_LOOPBACK`,
 `M5SW_ESPNOW_PEER_LOCAL_PORT`, `M5SW_ESPNOW_PEER_REMOTE_PORT`,
 `M5SW_ESPNOW_PEER_PMK`, `M5SW_ESPNOW_PEER_LMK`,
 `M5SW_ESPNOW_PEER_FABRIC`, `M5SW_ESPNOW_PEER_PUBLIC_MAC`,

@@ -320,6 +320,7 @@ CASES = [
         "allow_static_frame": True,
         "env": {
             "M5SW_SPI_XFER_TRACE": "1",
+            "M5SW_CARDPUTER_ADV_CAP_CC1101": "1",
         },
         "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV NFC"},
     },
@@ -352,6 +353,7 @@ CASES = [
         "env": {
             "M5SW_SPI_XFER_TRACE": "1",
             "M5SW_CC1101_TRACE": "1",
+            "M5SW_CARDPUTER_ADV_CAP_CC1101": "1",
         },
         "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV CC1101"},
     },

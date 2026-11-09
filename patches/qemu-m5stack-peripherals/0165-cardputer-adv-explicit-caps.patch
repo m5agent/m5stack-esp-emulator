@@ -1,0 +1,90 @@
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+index ef6cd68..7819979 100644
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -554,6 +554,14 @@ void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin)
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+                                     const M5SpiSlaveOps *ops,
+                                     void *opaque, int cs_pin)
++{
++    esp32_gpio_set_input(cs_pin, 1);
++    esp32s3_gpspi_attach_spi_slave_passive_cs(dev, ops, opaque, cs_pin);
++}
++
++void esp32s3_gpspi_attach_spi_slave_passive_cs(DeviceState *dev,
++                                               const M5SpiSlaveOps *ops,
++                                               void *opaque, int cs_pin)
+ {
+     Esp32s3GpspiState *s = ESP32S3_GPSPI(dev);
+     int index = s->slave_count++;
+@@ -564,7 +572,8 @@ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+     s->slaves[index].cs_pin = cs_pin;
+     s->slaves[index].cs_level = 1;
+     s->slaves[index].gdma_periph = -1;
+-    esp32_gpio_set_input(cs_pin, 1);
++    /* The Cap schematic connects CS directly to a slave input. Register an
++     * observer without driving the guest's pin from the slave. */
+     esp32_gpio_add_out_listener(cs_pin, gpspi_cs_line, s);
+ }
+ 
+diff --git a/hw/m5stopwatch/m5_cc1101_spi.c b/hw/m5stopwatch/m5_cc1101_spi.c
+index a7369a5..aa536c3 100644
+--- a/hw/m5stopwatch/m5_cc1101_spi.c
++++ b/hw/m5stopwatch/m5_cc1101_spi.c
+@@ -238,7 +238,7 @@ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin)
+     s->gdo0_pin = gdo0_pin;
+     s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, cc1101_rx_timer, s);
+     cc1101_reset(s);
+-    esp32s3_gpspi_attach_spi_slave(spi, &cc1101_ops, s, cs_pin);
++    esp32s3_gpspi_attach_spi_slave_passive_cs(spi, &cc1101_ops, s, cs_pin);
+     esp32_gpio_set_input(gdo0_pin, 0);
+     esp32_gpio_force_line(gdo0_pin, 0);
+ }
+diff --git a/hw/m5stopwatch/m5_st25r3916_spi.c b/hw/m5stopwatch/m5_st25r3916_spi.c
+index 2645eb2..940b721 100644
+--- a/hw/m5stopwatch/m5_st25r3916_spi.c
++++ b/hw/m5stopwatch/m5_st25r3916_spi.c
+@@ -252,7 +252,7 @@ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin)
+     s->irq_pin = irq_pin;
+     s->regs[0x3f] = 0x2a;
+     st25_init_tag(s);
+-    esp32s3_gpspi_attach_spi_slave(spi, &st25_ops, s, cs_pin);
++    esp32s3_gpspi_attach_spi_slave_passive_cs(spi, &st25_ops, s, cs_pin);
+     esp32_gpio_set_input(irq_pin, 0);
+     esp32_gpio_force_line(irq_pin, 0);
+ }
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index 7561cca..6ae88b2 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -100,8 +100,12 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_gpspi_set_dc_pin(sd_spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(sd_spi, 37);
+     m5_spi_sd_attach(sd_spi, 12);
+-    m5_st25r3916_spi_attach(spi, 6, 4);
+-    m5_st25r3916_spi_attach(sd_spi, 6, 4);
+-    m5_cc1101_spi_attach(spi, 5, 15);
+-    m5_cc1101_spi_attach(sd_spi, 5, 15);
++    /* Cap CC1101 adds both chips on the external connector. A bare
++     * Cardputer ADV has neither device on G5/G6. */
++    if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_CC1101"), "1") == 0) {
++        m5_st25r3916_spi_attach(spi, 6, 4);
++        m5_st25r3916_spi_attach(sd_spi, 6, 4);
++        m5_cc1101_spi_attach(spi, 5, 15);
++        m5_cc1101_spi_attach(sd_spi, 5, 15);
++    }
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index effa045..b8fe01e 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -148,6 +148,9 @@ void esp32s3_gpspi_connect_irqs(DeviceState *dev, DeviceState *intmatrix,
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+                                     const M5SpiSlaveOps *ops,
+                                     void *opaque, int cs_pin);
++void esp32s3_gpspi_attach_spi_slave_passive_cs(DeviceState *dev,
++                                               const M5SpiSlaveOps *ops,
++                                               void *opaque, int cs_pin);
+ void esp32s3_gpspi_set_spi_slave_dma(DeviceState *dev, int cs_pin,
+                                      uint32_t gdma_periph);
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);

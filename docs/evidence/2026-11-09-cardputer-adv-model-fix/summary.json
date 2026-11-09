@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "validation": "virtual-device validation",
+  "native": {
+    "profile": "m5cardputeradv",
+    "qemu_sha256": "d150c645291e66202d73eb6bdc98900980c2dcb4e851b41d9386dfa6a1ae4b7d",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmware_source_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+    "flash_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+    "negative_before_fix": "black frame with default virtual Cap; SD initialization returned 00 to CMD59 in the separate Cap-removed control",
+    "no_media": {
+      "status": "PASS",
+      "screen": "Cardputer MP3 / No microSD card",
+      "frame_sha256": "90ba9ab23f53fdf5c423707a2f0f5408751b83e942f31dc013781ea5adab0663",
+      "evidence_sha256": "2066d117e53e07ecd88210e97231bff8c8b6a3cee2c1c4d9ea14b40932c0405c",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      }
+    },
+    "mounted": {
+      "status": "PASS",
+      "checks": {
+        "library_lists_fixture_track": true,
+        "enter_accepted": true,
+        "enter_redraw": true,
+        "fat_mount_and_sectors": true,
+        "track_sectors_after_enter": true,
+        "fixture_tone_after_enter": true
+      },
+      "input": "Enter (QEMU key ret) on TEST.MP3",
+      "screens": [
+        "Library / TEST.MP3",
+        "Now Playing / TEST"
+      ],
+      "frames_sha256": [
+        "370b4236939c088e11013efe20609e33e927a03f1e9da07b3d68fc230ed28d7d",
+        "172491cf642aaaa9c3dfd083e4e7ba18cafdd18002cff7a5160326e3a9ec688c"
+      ],
+      "sd": {
+        "fixture_sha256": "6e7c003e532f2912b5a6841ea24b6ffbe1ca113caf0dd83b26d750d0cbd7f4a0",
+        "geometry": {
+          "mbr_lba": 0,
+          "boot_lba": 2048,
+          "root_lba": 4066,
+          "track_lba_first": 4067,
+          "track_lba_last": 4138,
+          "track_bytes": 36362
+        },
+        "observed_commands": [
+          [
+            0,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            41,
+            1
+          ],
+          [
+            42,
+            1
+          ],
+          [
+            55,
+            0
+          ],
+          [
+            58,
+            0
+          ],
+          [
+            59,
+            0
+          ]
+        ],
+        "init_and_fat_reads": true,
+        "file_data_read_after_key": true,
+        "addressing": [
+          {
+            "argument_units_bytes": 1,
+            "track_start_lbas_after_key": [
+              4067,
+              4068,
+              4069,
+              4070,
+              4071,
+              4072,
+              4073,
+              4074,
+              4075,
+              4076,
+              4077,
+              4078,
+              4079,
+              4080,
+              4081,
+              4082,
+              4083,
+              4084,
+              4085,
+              4086,
+              4087,
+              4088,
+              4089,
+              4090,
+              4091,
+              4092,
+              4093,
+              4094,
+              4095,
+              4096,
+              4097,
+              4098,
+              4137,
+              4138
+            ]
+          }
+        ],
+        "command_count": 103,
+        "commands_before_key": 22
+      },
+      "spi_response_hex": {
+        "CMD0": "01",
+        "CMD59": "01",
+        "CMD8": "01000001aa",
+        "CMD58_before_ACMD41": "0100ff8000",
+        "ACMD41": "00",
+        "CMD58_after_ACMD41": "0080ff8000"
+      },
+      "audio": {
+        "pcm_bytes_before_key": 0,
+        "pcm_bytes_after_key": 108032,
+        "pcm_sha256": "4c5fb29e55e45891cd8dc16e8e9a84f79b77bb6f8bfabe38fce97d909e1c530a",
+        "peak_abs": 1353,
+        "nonzero_s16_samples": 53600,
+        "expected_tone_hz_from_decoded_source": 524,
+        "matches": [
+          {
+            "channels": 1,
+            "sample_rate_hz": 48000,
+            "peak_tone_energy_fraction": 0.9835,
+            "matching_windows": 11
+          }
+        ],
+        "signatures": [
+          {
+            "channels": 2,
+            "sample_rate_hz": 44100,
+            "peak_tone_energy_fraction": 0.0001,
+            "matching_windows": 0
+          },
+          {
+            "channels": 2,
+            "sample_rate_hz": 48000,
+            "peak_tone_energy_fraction": 0.0001,
+            "matching_windows": 0
+          },
+          {
+            "channels": 1,
+            "sample_rate_hz": 44100,
+            "peak_tone_energy_fraction": 0.0056,
+            "matching_windows": 0
+          },
+          {
+            "channels": 1,
+            "sample_rate_hz": 48000,
+            "peak_tone_energy_fraction": 0.9835,
+            "matching_windows": 11
+          }
+        ],
+        "tone_verified": true
+      },
+      "evidence_sha256": "39f3cf09a0012919d756c5ad3faa11e8e888ae1e0fcad0e1940ddc0c12777517",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      }
+    },
+    "first_observer_attempt": {
+      "status": "FAIL",
+      "scope": "OCR gate did not recognize visible filename, so Enter was not sent",
+      "evidence_sha256": "8e34c831542b46259bd78ee16eaa39073ac9ef685152f3ecde99ab6c22941442",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      }
+    },
+    "checked_in_guest_regressions": {
+      "PASS": [
+        "cardputer-adv-sd",
+        "cores3-sd",
+        "papercolor-sd",
+        "cardputer-adv-keyboard",
+        "cardputer-adv-audio",
+        "cardputer-adv-nfc",
+        "cardputer-adv-cc1101"
+      ],
+      "expected_absent_cap": [
+        "cardputer-adv-nfc",
+        "cardputer-adv-cc1101"
+      ],
+      "scope": "all three native consumers of the SPI SD model checked init, sector write/readback, raw image and visible markers; integrated Cap fixture explicitly enabled for NFC and CC1101"
+    }
+  },
+  "wasm": {
+    "source_replay": {
+      "status": "PASS",
+      "patches": 77,
+      "postimages": 162
+    },
+    "no_media": {
+      "status": "PASS",
+      "scope": "local public-site export, same original merged BIN, no card",
+      "wasm_sha256": "684ee05cb3f136ca3b214706006d96faa4685c45149973a342b3e536a0cdc55a",
+      "runtime_manifest_sha256": "e6f1ff6cdcaf7bdd2a60239c60ca9026d037ec0171b2f8735ad69ceef5a01f7a",
+      "frame_sha256": "71ad40df1220ef4114ffd205d16d8addec95b875e71f08df6bbcf4a15e95e786",
+      "frame_dimensions": [
+        240,
+        135
+      ],
+      "screen": "Cardputer MP3 / No microSD card",
+      "iframe_count_after_stop": 0,
+      "worker_targets_observed": 6,
+      "worker_targets_remaining": 0,
+      "page_error_count": 0,
+      "browser_report_sha256": "abe6fac4cce18e1dcd3017df021024af81f57adb74f6ffb5ee4c56e318e8abe5"
+    },
+    "keyboard_regression": {
+      "status": "PASS",
+      "checked_keys": 11,
+      "assertions": 69,
+      "firmware_sha256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+      "browser_report_sha256": "4348b7a57fac2a9c01522656318996893ad04e22496bf9c2967d3a9b57e9e601"
+    }
+  },
+  "not_run": [
+    "physical board",
+    "physical sound",
+    "RF",
+    "browser SD and playback"
+  ],
+  "platform": {
+    "tests_run": 2041,
+    "passed": 2033,
+    "skipped": 8,
+    "browser_contracts": "PASS"
+  }
+}

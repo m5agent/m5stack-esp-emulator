@@ -4234,7 +4234,7 @@ components:
           type: object
           description: >
             Trusted-local runtime overrides for the QEMU process. Only
-            M5SW_CORE2_PMIC, M5SW_ESPNOW_LOOPBACK,
+            M5SW_CARDPUTER_ADV_CAP_CC1101, M5SW_CORE2_PMIC, M5SW_ESPNOW_LOOPBACK,
             M5SW_ESPNOW_PEER_LOCAL_PORT, M5SW_ESPNOW_PEER_REMOTE_PORT,
             M5SW_ESPNOW_PEER_PMK, M5SW_ESPNOW_PEER_LMK,
             M5SW_ESPNOW_PEER_FABRIC, M5SW_ESPNOW_PEER_PUBLIC_MAC,
@@ -4245,6 +4245,9 @@ components:
             M5SW_GDMA_TRACE are accepted. Camera/GDMA/RMT traces accept only
             the string "1"; omit them to disable. They enable retained
             controller stderr diagnostics, not arbitrary output paths.
+            M5SW_CARDPUTER_ADV_CAP_CC1101 accepts only the string "1" on
+            Cardputer ADV QEMU sessions and mounts the optional Cap CC1101
+            (CC1101 and ST25R3916) at boot. Omit it for a bare board.
             Plain runtime=qemu on cores3/cardputer-adv enables DMA completion
             and session-owned speaker capture by default, with an explicit
             generated microphone fixture (440 Hz, 16 kHz s16le, one second;
@@ -4258,6 +4261,9 @@ components:
             bridge; the public MAC is 12 hexadecimal characters and redacted.
             The TX PN start is a decimal 48-bit CCMP PN test seed.
           properties:
+            M5SW_CARDPUTER_ADV_CAP_CC1101:
+              type: string
+              enum: ['1']
             M5SW_CORE2_PMIC:
               type: string
               enum: [axp192, axp2101]

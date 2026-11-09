@@ -10,4 +10,5 @@ Exercises the CC1101 Sub-GHz Cap path on the Cardputer-ADV SPI2 bus:
 
 The probe configures the official `cap.CC1101Cap`, sends `M5CC1101`, and
 receives the deterministic chip FIFO loopback. The same bus also carries
-microSD (`CS G12`) and ST25R3916 NFC (`CS G6`).
+microSD (`CS G12`) and the Cap's ST25R3916 NFC (`CS G6`). The matrix
+explicitly attaches Cap CC1101 through `M5SW_CARDPUTER_ADV_CAP_CC1101=1`.

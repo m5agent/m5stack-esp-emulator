@@ -20,11 +20,11 @@ PANEL = "hw/m5stopwatch/m5_spi_panel.c"
 BOARD = "hw/m5stopwatch/m5cardputeradv.c"
 PREIMAGE_SHA = {
     PANEL: "838695ca92b319b516ad43bd22ea4fe0be8b23dce6ba046bd542b7d5577ed26c",
-    BOARD: "b7b0b1f5e212d7de275e8f2db4c657a19b3c5615b634abe9008f092761847934",
+    BOARD: "33236c8396be2fc1c9f5f2970dc1a92fd352dc951e782b8c1dd38c3fd9c0a9cc",
 }
 POSTIMAGE_SHA = {
     PANEL: "2b0eda9d99e64122a69a9ffa5c868a4fb86726d2504f87b162d54c7f6a22e786",
-    BOARD: "718c8d152df07eef12f2c2ad0429bbff24a8dd0e611cc097b48783442a04dba0",
+    BOARD: "a9503e5ab59ea0c7ffc0fad154485b58b924bbd8c94b9c95ad87fc74dcca2916",
 }
 
 

@@ -168,7 +168,7 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def bootstrap_stack():
+def bootstrap_stack(*, full=False):
     tree = ast.parse((ROOT / "scripts/bootstrap-unit-runtime.py").read_text())
     values = {}
     for node in tree.body:
@@ -180,6 +180,8 @@ def bootstrap_stack():
         raise AssertionError("upstream QEMU pin changed; update the exact replay seeds")
     if len(values["PATCHES"]) != len(set(values["PATCHES"])) or PATCH not in values["PATCHES"]:
         raise AssertionError("cold-pad patch missing or duplicated in bootstrap")
+    if full:
+        return values["PATCHES"]
     # These standalone C oracles bind the historical pre-Unit-batch prefix.
     # Later batch headers add CAN and further controllers not represented by
     # this fixture's OS/QOM shims; they have independent guest/build gates.

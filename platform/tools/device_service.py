@@ -257,7 +257,9 @@ SESSION_IDEMPOTENCY_SCHEMA_VERSION = 1
 MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
+CARDPUTER_ADV_CAP_CC1101_ENV = "M5SW_CARDPUTER_ADV_CAP_CC1101"
 ALLOWED_RUNTIME_ENV = {
+    CARDPUTER_ADV_CAP_CC1101_ENV,
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
     "M5SW_ESPNOW_PEER_CHANNEL",
@@ -5493,6 +5495,8 @@ class DeviceSession:
                 ]
             )
         env = os.environ.copy()
+        # A Cardputer ADV expansion belongs to the session's wiring.
+        env.pop(CARDPUTER_ADV_CAP_CC1101_ENV, None)
         env.update(self.spec.env)
         env.update(self.runtime_env)
         self._plain_qemu_audio_environment(env)
@@ -10195,6 +10199,17 @@ class DeviceService:
                         "M5SW_CORE2_PMIC must be axp192 or axp2101",
                         400,
                     )
+            cardputer_cap = runtime_env.get(CARDPUTER_ADV_CAP_CC1101_ENV)
+            if cardputer_cap is not None and (
+                device_id != "cardputer-adv"
+                or runtime not in QEMU_QMP_RUNTIMES
+                or cardputer_cap != "1"
+            ):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    f'{CARDPUTER_ADV_CAP_CC1101_ENV} must be "1" on a Cardputer ADV QEMU session',
+                    400,
+                )
             ready_timeout = effective_session_ready_timeout(
                 network_config,
                 payload.get("ready_timeout_seconds"),

@@ -1823,6 +1823,45 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "<redacted>",
         )
 
+    def test_cardputer_adv_cap_is_explicit_and_session_local(self):
+        key = "M5SW_CARDPUTER_ADV_CAP_CC1101"
+        for device_id, value in (("sticks3", "1"), ("cardputer-adv", "0")):
+            with self.subTest(device=device_id, value=value):
+                with self.assertRaises(ServiceError) as error:
+                    self.service.create_session(
+                        {"device_id": device_id, "runtime_env": {key: value}}
+                    )
+                self.assertEqual(error.exception.code, "invalid_runtime_env")
+
+        with mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session(
+                {"device_id": "cardputer-adv", "runtime_env": {key: "1"}}
+            )
+        self.assertEqual(result["runtime_env"], {key: "1"})
+
+        class LaunchCaptured(Exception):
+            pass
+
+        session = self._stopped_session(session_id=uuid.uuid4().hex)
+        session.spec = self.service.specs["cardputer-adv"]
+        session.state = "booting"
+        for setting in ({}, result["runtime_env"]):
+            with self.subTest(runtime_env=setting):
+                session.runtime_env = setting
+                with mock.patch.dict(
+                    os.environ, {key: "1"}
+                ), mock.patch.object(
+                    session, "_prepare_microphone_tone"
+                ), mock.patch.object(
+                    device_service_module.subprocess, "Popen",
+                    side_effect=LaunchCaptured,
+                ) as launch:
+                    with self.assertRaises(LaunchCaptured):
+                        session._launch()
+                self.assertEqual(
+                    launch.call_args.kwargs["env"].get(key), setting.get(key)
+                )
+
     def test_controller_trace_accept_only_explicit_boolean_enable(self):
         traces = {key: "1" for key in (
             "M5SW_CAMERA_TRACE",
