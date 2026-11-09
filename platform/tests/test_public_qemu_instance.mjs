@@ -215,7 +215,9 @@ await one.onmessage({data:{id:2,op:'dispose'}});await lateInput;assert.equal(one
 assert.equal(one.messages.at(-1).value.workerCountScope,'nested-pthreads');
 assert.equal(one.messages.at(-1).value.enginePlacement,'dedicated-worker-v1');
 assert.equal(one.messages.at(-1).value.engineWorkersAtAcknowledgement,1,'acknowledgement does not claim the owning Worker already exited');
-assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing','engine-closed']);
+assert.equal(one.messages.at(-1).value.ownerTerminatesAfterAcknowledgement,true);
+assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing'],
+  'the engine hands termination to the owner after closing its port');
 assert.equal(vm.runInContext('pending.size',context),0);
 assert.equal(one.messages.some(item=>item.id===22),false,'in-flight operations cannot reply after disposal');
 const count=one.messages.length;await one.onmessage({data:{id:3,op:'uart',value:{text:'late'}}});assert.equal(one.messages.length,count,'disposed instances reject queued late operations');
@@ -249,7 +251,7 @@ try {
   await racePort.onmessage({data:{id:302,op:'dispose'}});await tick();await tick();
   assert.equal(racePort.messages.at(-1).id,302,'disposal acknowledgement remains the final port message');
   assert.equal(racePort.closed,true);assert.equal(vm.runInContext('pending.size',raceContext),0);
-  assert.deepEqual(raceLifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing','engine-closed']);
+  assert.deepEqual(raceLifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing']);
   assert.equal(racePort.messages.some(message=>message.type==='error'||message.type==='ready'),false,
     'rejecting initialization QMP during dispose cannot emit late error/ready');
   const raceMessageCount=racePort.messages.length;
@@ -260,4 +262,4 @@ try {
 } finally {
   process.removeListener('unhandledRejection',onRaceUnhandled);
 }
-console.log('public QEMU dedicated engine one-port, FS/frame, pending-QMP disposal and ack-before-self-close contracts passed; no guest executed');
+console.log('public QEMU dedicated engine one-port, FS/frame, pending-QMP disposal and owner termination handoff contracts passed; no guest executed');

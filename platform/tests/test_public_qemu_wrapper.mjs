@@ -34,7 +34,8 @@ function fixture({constructorError,transferError}={}){
 assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
 const initial=fixture();
 assert.deepEqual(initial.ownership(),{engineWorkersCreated:0,engineOwnerLive:false,
-  engineCloseNotificationReceived:false,engineSelfCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false});
+  engineCloseNotificationReceived:false,engineCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false,
+  engineSelfCloseNotifications:0});
 const invalidPort=initial.port();
 for(const overrides of [
   {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{ports:[]},{ports:null},{ports:[invalidPort,initial.port()]},
@@ -70,12 +71,14 @@ vm.runInContext('try { globalThis.m5QemuEngineOwnership.engineWorkersCreated=99;
 assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
-assert.equal(active.ownership().engineSelfCloseNotifications,1);
+assert.equal(active.ownership().engineCloseNotifications,1);
+assert.equal(active.ownership().engineSelfCloseNotifications,1,'the legacy receipt key preserves the notification count');
 assert.equal(active.ownership().engineNormalTerminations,1,'the owner finalizes the handle after the cooperative notification');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(engine.terminations,1,'post-notification finalization removes the Worker handle exactly once');
+assert.equal(active.timers.size,0,'acknowledged finalization cannot schedule another termination');
 engine.emit('message',{type:'m5-qemu-engine-closing'});
-assert.equal(active.ownership().engineSelfCloseNotifications,1,'duplicate notifications cannot invent another close');
+assert.equal(active.ownership().engineCloseNotifications,1,'duplicate notifications cannot invent another close');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
 assert.equal(engine.terminations,1,'pagehide cannot double-finalize an acknowledged close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
@@ -90,10 +93,11 @@ closeFailureWorker.emit('message',{type:'m5-qemu-engine-closing'});
 closeFailureWorker.emit('error',{message:'synthetic error after close notification'});
 closeFailureWorker.emit('error',{message:'duplicate error'});
 closeFailure.dispatch('pagehide',{});
-assert.equal(closeFailure.ownership().engineSelfCloseNotifications,1);
+assert.equal(closeFailure.ownership().engineCloseNotifications,1);
 assert.equal(closeFailure.ownership().engineNormalTerminations,1);
 assert.equal(closeFailure.ownership().engineFallbackTerminations,0);
 assert.equal(closeFailureWorker.terminations,1,'post-notification finalization is not relabeled as fallback');
+assert.equal(closeFailure.timers.size,0,'late worker errors and pagehide cannot schedule another termination');
 
 for(const transferred of [false,true]){
   const abandoned=fixture(),port=abandoned.port();abandoned.connect(port);
@@ -102,7 +106,7 @@ for(const transferred of [false,true]){
   abandoned.dispatch('pagehide',{});abandoned.dispatch('pagehide',{});
   assert.equal(worker.terminations,1,'pagehide terminates an unclosed engine exactly once');
   assert.equal(abandoned.ownership().engineFallbackTerminations,1);
-  assert.equal(abandoned.ownership().engineSelfCloseNotifications,0);
+  assert.equal(abandoned.ownership().engineCloseNotifications,0);
   assert.equal(abandoned.ownership().engineOwnerLive,false);
   const sent=worker.messages.length;worker.emit('message',{type:'m5-qemu-engine-listening'});
   assert.equal(worker.messages.length,sent,'late listening after teardown cannot transfer a port');
