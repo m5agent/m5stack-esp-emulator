@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from ble_hid import input_report_lengths
-from ble_probe import install_controller_command_compatibility, main, serve_peripheral
+from ble_probe import connection_address_link, install_controller_command_compatibility, main, serve_peripheral
 
 
 class BleProbeCompatibilityTests(unittest.TestCase):
@@ -49,6 +49,40 @@ class BleProbeCompatibilityTests(unittest.TestCase):
 
         self.assertIsNone(result)
         self.assertEqual(controller.responses, [])
+
+
+class BleConnectionAddressTests(unittest.IsolatedAsyncioTestCase):
+    async def test_public_peripheral_acl_reaches_central_despite_configured_random_address(self):
+        try:
+            from bumble import hci
+            from bumble.controller import Connection, Controller
+            from bumble.core import PhysicalTransport
+            from bumble.link import LocalLink
+        except ImportError:
+            self.skipTest("Bumble is an optional runtime dependency")
+        link = connection_address_link(LocalLink, PhysicalTransport.LE)
+        peripheral = Controller("peripheral", link=link, public_address="02:00:00:00:00:01")
+        peripheral.random_address = hci.Address("C0:00:00:00:00:01", hci.Address.RANDOM_DEVICE_ADDRESS)
+        central = Controller("central", link=link, public_address="02:00:00:00:00:02")
+        central.random_address = hci.Address("C0:00:00:00:00:02", hci.Address.RANDOM_DEVICE_ADDRESS)
+        peripheral_connection = Connection(
+            peripheral, 1, hci.Role.PERIPHERAL, peripheral.public_address,
+            central.random_address, link, PhysicalTransport.LE, 0,
+        )
+        peripheral.le_connections[central.random_address] = peripheral_connection
+        central.le_connections[peripheral.public_address] = Connection(
+            central, 2, hci.Role.CENTRAL, central.random_address,
+            peripheral.public_address, link, PhysicalTransport.LE, 0,
+        )
+        received = asyncio.Queue()
+        central.host = SimpleNamespace(on_packet=received.put_nowait)
+
+        # Send an L2CAP PDU using the active link's public peripheral address.
+        payload = bytes.fromhex("03000400120100")
+        peripheral_connection.on_acl_pdu(payload)
+        packet = hci.HCI_Packet.from_bytes(await asyncio.wait_for(received.get(), 1))
+        self.assertEqual(packet.connection_handle, 2)
+        self.assertEqual(packet.data, payload)
 
 
 class HidReportMapTests(unittest.TestCase):

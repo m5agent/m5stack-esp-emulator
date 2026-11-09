@@ -96,6 +96,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_network_execution.py` | 无状态 esp-emu network execution 请求解析，保持 profile/port/ELF/I2C 契约 | `device_service.py` 兼容 re-export、network-execution tests |
+| `platform/tools/device_service_native_hid.py` | 原版 AirMouseS3 固件 SHA 绑定、S3 native VHCI 启动参数与 HID 证据 | Device Service BLE sessions |
 | `platform/tools/device_service_qemu_wifi.py` | QEMU WiFi open/WPA2 解析与 runtime-env projection | `device_service.py` 兼容 re-export、QEMU WiFi tests |
 | `platform/tools/device_service_execution_parsing.py` | 无状态 storage/NVS execution request 解析，保持 artifact、字段和 partition-label 契约 | `device_service.py` 兼容 re-export、execution parser tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |

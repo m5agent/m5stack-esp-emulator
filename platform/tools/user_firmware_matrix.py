@@ -1112,7 +1112,7 @@ def _sticks3_review_model_gaps(
         gaps.append((
             "sticks3_ble_hid_host_unavailable",
             "the AirMouse sample uses the native ESP32-S3 BLE controller; "
-            "this review path has no native controller transport to the HID host",
+            "the default matrix does not exercise the dedicated sticks3-native-hid profile",
         ))
     if firmware_sha256 in _STICKS3_MONITOR_SHA256:
         gaps.append((

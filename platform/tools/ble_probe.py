@@ -149,11 +149,33 @@ def install_controller_command_compatibility(
         )
 
 
+def connection_address_link(link_class: Any, le_transport: Any):
+    """Route LE ACL using the source address selected for that connection.
+
+    Bumble 0.0.236 LocalLink uses the controller's random address for all LE
+    ACL, including a peripheral connection created on its public address.
+    The receiver indexes connections by the peer address used at connect time.
+    """
+    class ConnectionAddressLink(link_class):
+        def send_acl_data(self, sender_controller, destination_address, transport, data):
+            if transport != le_transport:
+                return super().send_acl_data(sender_controller, destination_address, transport, data)
+            connection = sender_controller.le_connections.get(destination_address)
+            receiver = self.find_le_controller(destination_address)
+            if connection is not None and receiver is not None:
+                asyncio.get_running_loop().call_soon(
+                    receiver.on_link_acl_data, connection.self_address, transport, data,
+                )
+
+    return ConnectionAddressLink()
+
+
 async def observe(args: argparse.Namespace) -> int:
     try:
         from bumble import gatt_client as bumble_gatt_client
         from bumble import hci
         from bumble.controller import Controller
+        from bumble.core import PhysicalTransport
         from bumble.device import Device, Peer
         from bumble.host import Host
         from bumble.link import LocalLink
@@ -166,7 +188,7 @@ async def observe(args: argparse.Namespace) -> int:
     bind = "127.0.0.1" if args.protocol == "hid" else "_"
     emu_transport = await open_transport(f"tcp-server:{bind}:{args.port}")
     trace_hci_transport(emu_transport)
-    link = LocalLink()
+    link = connection_address_link(LocalLink, PhysicalTransport.LE)
     emu_controller = Controller(
         "network-lane-emu",
         host_source=emu_transport.source,

@@ -1,5 +1,16 @@
 # M5Stack peripheral models and data planes
 
+## ESP32-S3 native VHCI delivery
+
+`0178-s3-vhci-idle-callback-dispatch.patch` adds opt-in ESP32-S3 delivery
+through the existing H4 chardev adapter. A compatible profile binds the guest
+VHCI environment layout, allocator, send call and FreeRTOS idle call to the
+loaded firmware. The idle hook uses the decoded Xtensa `callx8 a8` instruction
+to run the guest's registered receive and send-available callbacks in the
+normal task context. It preserves the normal idle call when there is no HCI
+work. The classic ESP32 VHCI layout and HLI path remain the defaults.
+
+
 ## StickS3 raw Wi-Fi fixture
 
 `0175-sticks3-wifi-raw-monitor-fixture.patch` adds a default-off controller
