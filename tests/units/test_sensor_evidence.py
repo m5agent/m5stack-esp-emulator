@@ -76,10 +76,15 @@ class SensorEvidenceTests(unittest.TestCase):
                 self.polls += 1
                 return {"state": "booting" if self.polls == 1 else "running"}
 
+            def observe_runtime(self, session):
+                observations.append(session["state"])
+
+        observations = []
         client = Client()
         with patch.object(runner.time, "sleep"):
             runner.wait_for(client, "probe-session", lambda text: "SENSOR_PROBE_READY" in text, timeout=1)
         self.assertEqual(client.polls, 2)
+        self.assertEqual(observations, ["running"])
 
     def test_complete_archive_is_accepted(self):
         self.assertEqual(runner.validate_evidence(archive(), result())["session_id"], "probe-session")

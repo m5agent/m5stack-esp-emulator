@@ -112,8 +112,8 @@ class Client:
         if previous.get("observed_pid") != session.get("pid") or not previous:
             self.runtime_proofs[session["session_id"]] = observe_runtime(self, session)
 
-    def finalize_result(self, result):
-        return finalize_runtime_result(self, result)
+    def finalize_result(self, result, *, session_id=None):
+        return finalize_runtime_result(self, result, session_id=session_id)
 
     def check_runtime_blocker(self, session_id):
         logs = self.json(f"sessions/{session_id}/logs?limit=16384", via_ui=False)

@@ -79,16 +79,26 @@ def observe_runtime(client, session):
     return proof
 
 
-def finalize_runtime_result(client, result):
-    """Keep functional failures, unavailable infrastructure and unknown distinct."""
-    proof = client.runtime_proofs.get(result.get("session_id"))
-    result["runtime_binary_sha256"] = proof.get("runtime_binary_sha256") if proof else None
-    result["runtime_provenance"] = proof or {"status": "NOT VERIFIED", "error": "no live runtime was observed"}
+def finalize_runtime_result(client, result, *, session_id=None):
+    """Use the live proof, with an explicit lookup for hash-only result IDs."""
+    proof = client.runtime_proofs.get(result.get("session_id", session_id))
+    if not proof:
+        proof = {"status": "NOT VERIFIED", "error": "no live runtime was observed"}
+    elif "session_id" not in result:
+        proof = {key: value for key, value in proof.items() if key != "session_id"}
+    observed = proof.get("runtime_binary_sha256")
+    result["runtime_binary_sha256"] = observed
+    result["runtime_provenance"] = proof
     error = str(result.get("error", ""))
     if "Unit model is unavailable:" in error:
         result.update(status="NOT RUN", classification="runtime-infrastructure",
                       blocker="runtime lacks the requested Unit model; select a Unit-enabled runtime with M5_QEMU_XTENSA on the service")
-    elif result.get("status") == "PASS" and (not proof or proof.get("status") != "VERIFIED"):
-        result.update(status="PARTIAL", classification="runtime-provenance",
-                      blocker="functional observations exist but the executed runtime identity is not verified")
+    elif result.get("status") == "PASS" and proof.get("status") != "VERIFIED":
+        expected = proof.get("expected_runtime_binary_sha256")
+        if observed and expected and observed != expected:
+            result.update(status="FAIL", classification="runtime-provenance",
+                          blocker="actual session executable differs from the required runtime")
+        else:
+            result.update(status="PARTIAL", classification="runtime-provenance",
+                          blocker="functional observations exist but the executed runtime identity is not verified")
     return result

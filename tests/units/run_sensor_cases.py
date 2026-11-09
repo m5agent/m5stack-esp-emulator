@@ -91,6 +91,8 @@ def wait_for(client, session_id, predicate, *, timeout=60, offset=0):
         latest = client.json(f"sessions/{session_id}/serial?limit=262144").get("data", "")
         if session["state"] in {"failed", "stopped"}:
             raise RuntimeError(session.get("error") or "session ended before observation")
+        if session["state"] == "running":
+            client.observe_runtime(session)
         if "Traceback (most recent call last)" in latest or "SENSOR_PROBE_FAIL" in latest:
             raise RuntimeError("guest probe raised an exception; see serial.txt")
         if session["state"] == "running" and predicate(latest[offset:]):
@@ -385,6 +387,7 @@ def run_case(client, args, case):
                 result["checks"]["stopped_with_history"] = False
         if result["status"] != "BUILT":
             result["status"] = "PASS" if session_id and not result.get("error") and not result.get("serial_error") and all(result["checks"].values()) else "FAIL"
+            client.finalize_result(result)
         (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)
     return result
