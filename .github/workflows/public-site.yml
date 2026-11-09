@@ -48,14 +48,33 @@ jobs:
           brew install autoconf automake libtool bison flex ninja pkg-config xz
           echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
           echo "$(brew --prefix flex)/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned GitHub release archives through the upstream API
+        run: |
+          archive_cache=.work/qemu-source-downloads
+          mkdir -p "$archive_cache"
+          fetch_release_asset() {
+            local repository="$1" asset="$2" filename="$3" bytes="$4"
+            local destination="$archive_cache/$filename"
+            echo "download: $filename"
+            curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+              --connect-timeout 15 --max-time 60 --retry 2 --retry-delay 2 --max-filesize "$bytes" \
+              --header 'Accept: application/octet-stream' \
+              "https://api.github.com/repos/$repository/releases/assets/$asset" --output "$destination.part"
+            test "$(wc -c < "$destination.part" | tr -d '[:space:]')" = "$bytes"
+            mv "$destination.part" "$destination"
+          }
+          # The source builder still checks the SHA-256 in each target's lock.
+          fetch_release_asset libffi/libffi 227440472 libffi-3.4.7.tar.gz 1393979
+          fetch_release_asset PCRE2Project/pcre2 172496647 pcre2-10.44.tar.bz2 1928086
+          fetch_release_asset mesonbuild/wrapdb 192615396 pcre2_10.44-2_patch.zip 3644
       - name: Build pinned C/QEMU and complete corresponding source
-        run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2
+        run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2 --downloads .work/qemu-source-downloads
       - name: Build pinned CoreMatrix C61 QEMU and corresponding source
         run: |
           python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
             --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
             --sdk-dir .work/qemu-browser-runtime-build/emsdk \
-            --downloads .work/qemu-browser-runtime-build/downloads
+            --downloads .work/qemu-source-downloads
       - name: Retain failed source build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
