@@ -1,0 +1,347 @@
+diff --git a/hw/xtensa/esp32_native_hci.c b/hw/xtensa/esp32_native_hci.c
+index 28cb84f..c412d75 100644
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -1331,6 +1331,103 @@ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+     return returned;
+ }
+ 
++static uint32_t esp32_native_hci_idle_dispatch(void *opaque, CPUState *cs,
++                                               uint32_t idle_target)
++{
++    Esp32NativeHciState *s = opaque;
++    CPUXtensaState *env = cpu_env(cs);
++    uint32_t env_address;
++    uint32_t callback;
++    uint32_t target;
++    Esp32NativeHciPacket *packet;
++
++    BQL_LOCK_GUARD();
++    if (s->c2h_idle_cpu || s->c2h_idle_faulted ||
++        (!s->rx_queue_count && !s->c2h_idle_send_ready) ||
++        !esp32_native_hci_read_u32(cs, s->env_pointer_address, &env_address) ||
++        !env_address ||
++        !esp32_native_hci_read_u32(cs, env_address + s->c2h_callback_offset,
++                                   &callback) ||
++        !callback) {
++        return idle_target;
++    }
++    if (s->rx_queue_count) {
++        if (!s->c2h_idle_buffer) {
++            s->c2h_idle_operation = ESP32_NATIVE_HCI_IDLE_ALLOCATE;
++            env->regs[10] = s->c2h_scratch_size;
++            target = s->c2h_allocator_address;
++        } else {
++            packet = &s->rx_queue[s->rx_queue_head];
++            if (!esp32_native_hci_read_u32(cs, callback + 4, &target) ||
++                !target) {
++                return idle_target;
++            }
++            if (packet->length > s->c2h_scratch_size ||
++                cpu_memory_rw_debug(cs, s->c2h_idle_buffer,
++                                    packet->data, packet->length, true)) {
++                s->c2h_errors++;
++                s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
++                s->c2h_idle_faulted = true;
++                return idle_target;
++            }
++            s->c2h_idle_operation = ESP32_NATIVE_HCI_IDLE_RECEIVE;
++            env->regs[10] = s->c2h_idle_buffer;
++            env->regs[11] = packet->length;
++            s->c2h_last_pc = target;
++        }
++    } else {
++        if (!esp32_native_hci_read_u32(cs, callback, &target) || !target) {
++            return idle_target;
++        }
++        s->c2h_idle_send_ready = false;
++        s->c2h_idle_operation = ESP32_NATIVE_HCI_IDLE_SEND_READY;
++    }
++    s->c2h_idle_cpu = cs;
++    return target;
++}
++
++static void esp32_native_hci_idle_complete(void *opaque, CPUState *cs)
++{
++    Esp32NativeHciState *s = opaque;
++    CPUXtensaState *env = cpu_env(cs);
++    uint32_t status = env->regs[10];
++
++    BQL_LOCK_GUARD();
++    if (s->c2h_idle_cpu != cs) {
++        return;
++    }
++    switch (s->c2h_idle_operation) {
++    case ESP32_NATIVE_HCI_IDLE_ALLOCATE:
++        s->c2h_idle_buffer = status;
++        if (!status) {
++            s->c2h_errors++;
++            s->last_error = ESP32_NATIVE_HCI_ERROR_CALLBACK_FAULT;
++            s->c2h_idle_faulted = true;
++        }
++        break;
++    case ESP32_NATIVE_HCI_IDLE_RECEIVE:
++        s->c2h_last_status = status;
++        s->rx_queue_head =
++            (s->rx_queue_head + 1) % ESP32_NATIVE_HCI_QUEUE_DEPTH;
++        s->rx_queue_count--;
++        if (status) {
++            s->c2h_errors++;
++            s->last_error = ESP32_NATIVE_HCI_ERROR_CALLBACK_REJECTED;
++            s->c2h_idle_faulted = true;
++        } else {
++            s->c2h_delivered++;
++        }
++        break;
++    case ESP32_NATIVE_HCI_IDLE_SEND_READY:
++        s->c2h_send_available++;
++        break;
++    case ESP32_NATIVE_HCI_IDLE_NONE:
++        g_assert_not_reached();
++    }
++    s->c2h_idle_cpu = NULL;
++    s->c2h_idle_operation = ESP32_NATIVE_HCI_IDLE_NONE;
++}
++
+ static void esp32_native_hci_deliver_c2h(CPUState *cs,
+                                          run_on_cpu_data data)
+ {
+@@ -1363,7 +1460,7 @@ static void esp32_native_hci_deliver_c2h(CPUState *cs,
+                                    &env_address) ||
+         !env_address ||
+         !esp32_native_hci_read_u32(
+-            cs, env_address + ESP32_VHCI_CALLBACK_OFFSET,
++            cs, env_address + s->c2h_callback_offset,
+             &callback) ||
+         !callback ||
+         !esp32_native_hci_read_u32(
+@@ -1465,7 +1562,7 @@ static void esp32_native_hci_schedule_c2h(Esp32NativeHciState *s)
+     CPUState *target_cpu;
+     CPUState *next_cpu;
+ 
+-    if (s->hli_c2h ||
++    if (s->hli_c2h || s->c2h_idle_call_pc ||
+         !s->env_pointer_address ||
+         (!s->c2h_scratch_address && !s->c2h_allocator_address) ||
+         !s->rx_queue_count ||
+@@ -1580,7 +1677,8 @@ static void esp32_native_hci_poll(void *opaque)
+     Esp32NativeHciState *s = opaque;
+     uint32_t env = 0;
+ 
+-    if (!s->env_pointer_address) {
++    if (!s->env_pointer_address ||
++        s->c2h_callback_offset != ESP32_VHCI_CALLBACK_OFFSET) {
+         return;
+     }
+     if (address_space_read(&address_space_memory,
+@@ -1729,6 +1827,7 @@ static bool esp32_native_hci_api_send_packet(
+     size_t packet_length;
+     Error *error = NULL;
+ 
++    BQL_LOCK_GUARD();
+     length &= 0xffff;
+     if (!data || !length || length > sizeof(packet) ||
+         cpu_memory_rw_debug(cs, data, packet, length, false) != 0) {
+@@ -1768,6 +1867,9 @@ static bool esp32_native_hci_api_send_packet(
+     s->h2c_packets++;
+     s->h2c_bytes += length;
+     s->api_h2c_packets++;
++    if (s->c2h_idle_call_pc) {
++        s->c2h_idle_send_ready = true;
++    }
+     s->last_error = ESP32_NATIVE_HCI_ERROR_NONE;
+     return true;
+ }
+@@ -1777,6 +1879,14 @@ static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
+     Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
+     CPUState *cpu;
+ 
++    if (s->c2h_idle_call_pc &&
++        (!s->api_vhci_send_hook_pc || !s->env_pointer_address ||
++         !s->c2h_allocator_address || !s->c2h_scratch_size || s->hli_c2h)) {
++        error_setg(errp,
++                   "esp32-native-hci: idle delivery requires API send, "
++                   "VHCI environment and a guest allocator without HLI");
++        return;
++    }
+     qemu_chr_fe_set_handlers(&s->chr,
+                              esp32_native_hci_can_receive,
+                              esp32_native_hci_receive,
+@@ -1795,6 +1905,11 @@ static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
+                 (uint32_t)s->api_vhci_send_hook_pc;
+             env->native_hci_send_return_pc =
+                 (uint32_t)s->api_vhci_send_return_pc;
++            env->native_hci_idle_call_pc = s->c2h_idle_call_pc;
++            if (s->c2h_idle_call_pc) {
++                env->native_hci_idle_dispatch = esp32_native_hci_idle_dispatch;
++                env->native_hci_idle_complete = esp32_native_hci_idle_complete;
++            }
+             env->native_hci_cmd_semaphore_hook_pc =
+                 (uint32_t)s->cmd_semaphore_hook_pc;
+             env->native_hci_cmd_semaphore_return_pc =
+@@ -2172,6 +2287,9 @@ static void esp32_native_hci_unrealize(DeviceState *dev)
+         if (env->native_hci_send_opaque == s) {
+             env->native_hci_send_hook_pc = 0;
+             env->native_hci_send_return_pc = 0;
++            env->native_hci_idle_call_pc = 0;
++            env->native_hci_idle_dispatch = NULL;
++            env->native_hci_idle_complete = NULL;
+             env->native_hci_cmd_semaphore_hook_pc = 0;
+             env->native_hci_cmd_semaphore_return_pc = 0;
+             env->native_hci_acl_semaphore_hook_pc = 0;
+@@ -2217,6 +2335,11 @@ static void esp32_native_hci_reset(DeviceState *dev)
+     }
+     s->c2h_scheduled = false;
+     s->c2h_inflight = false;
++    s->c2h_idle_cpu = NULL;
++    s->c2h_idle_operation = ESP32_NATIVE_HCI_IDLE_NONE;
++    s->c2h_idle_send_ready = false;
++    s->c2h_idle_faulted = false;
++    s->c2h_idle_buffer = 0;
+     s->c2h_last_status = 0;
+     s->c2h_last_pc = 0;
+     s->c2h_observed_pc = 0;
+@@ -2261,6 +2384,11 @@ static Property esp32_native_hci_properties[] = {
+     DEFINE_PROP_CHR("chardev", Esp32NativeHciState, chr),
+     DEFINE_PROP_UINT64("env-pointer-address",
+                        Esp32NativeHciState, env_pointer_address, 0),
++    DEFINE_PROP_UINT32("c2h-callback-offset",
++                       Esp32NativeHciState, c2h_callback_offset,
++                       ESP32_VHCI_CALLBACK_OFFSET),
++    DEFINE_PROP_UINT32("c2h-idle-call-pc",
++                       Esp32NativeHciState, c2h_idle_call_pc, 0),
+     DEFINE_PROP_UINT64("c2h-scratch-address",
+                        Esp32NativeHciState, c2h_scratch_address, 0),
+     DEFINE_PROP_UINT64("c2h-allocator-address",
+diff --git a/include/hw/xtensa/esp32_native_hci.h b/include/hw/xtensa/esp32_native_hci.h
+index 230af5c..73d34d8 100644
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -57,10 +57,22 @@ struct Esp32NativeHciState {
+     uint32_t last_tx_errno;
+     uint32_t last_error;
+     uint64_t env_pointer_address;
++    uint32_t c2h_callback_offset;
+     uint32_t vhci_env_address;
+     uint32_t h2c_length_value;
+     uint64_t c2h_scratch_address;
+     uint64_t c2h_allocator_address;
++    uint32_t c2h_idle_call_pc;
++    uint32_t c2h_idle_buffer;
++    CPUState *c2h_idle_cpu;
++    enum {
++        ESP32_NATIVE_HCI_IDLE_NONE,
++        ESP32_NATIVE_HCI_IDLE_ALLOCATE,
++        ESP32_NATIVE_HCI_IDLE_RECEIVE,
++        ESP32_NATIVE_HCI_IDLE_SEND_READY,
++    } c2h_idle_operation;
++    bool c2h_idle_send_ready;
++    bool c2h_idle_faulted;
+     uint64_t scheduler_queue_address;
+     uint64_t meta_queue_pointer_address;
+     uint64_t trace_hs_conns_address;
+diff --git a/target/xtensa/cpu.h b/target/xtensa/cpu.h
+index ba25e22..315ab34 100644
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -518,6 +518,10 @@ struct CPUArchState {
+     uint32_t pc;
+     uint32_t native_hci_send_hook_pc;
+     uint32_t native_hci_send_return_pc;
++    uint32_t native_hci_idle_call_pc;
++    uint32_t (*native_hci_idle_dispatch)(void *opaque, CPUState *cs,
++                                         uint32_t idle_target);
++    void (*native_hci_idle_complete)(void *opaque, CPUState *cs);
+     uint32_t native_hci_cmd_semaphore_hook_pc;
+     uint32_t native_hci_cmd_semaphore_return_pc;
+     uint32_t native_hci_acl_semaphore_hook_pc;
+diff --git a/target/xtensa/helper.h b/target/xtensa/helper.h
+index 54cb34b..4206e60 100644
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -6,6 +6,8 @@ DEF_HELPER_3(debug_exception, noreturn, env, i32, i32)
+ DEF_HELPER_1(sync_windowbase, void, env)
+ DEF_HELPER_4(entry, void, env, i32, i32, i32)
+ DEF_HELPER_3(native_hci_send_packet, void, env, i32, i32)
++DEF_HELPER_2(native_hci_idle_dispatch, i32, env, i32)
++DEF_HELPER_1(native_hci_idle_complete, void, env)
+ DEF_HELPER_1(native_hci_semaphore_take_bypass, void, env)
+ DEF_HELPER_2(native_hci_trace_pc, void, env, i32)
+ DEF_HELPER_2(test_ill_retw, void, env, i32)
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+index 880031d..e485d55 100644
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -46,6 +46,24 @@ void HELPER(native_hci_send_packet)(CPUXtensaState *env,
+     }
+ }
+ 
++uint32_t HELPER(native_hci_idle_dispatch)(CPUXtensaState *env,
++                                         uint32_t idle_target)
++{
++    if (!env->native_hci_idle_dispatch) {
++        return idle_target;
++    }
++    return env->native_hci_idle_dispatch(env->native_hci_send_opaque,
++                                         env_cpu(env), idle_target);
++}
++
++void HELPER(native_hci_idle_complete)(CPUXtensaState *env)
++{
++    if (env->native_hci_idle_complete) {
++        env->native_hci_idle_complete(env->native_hci_send_opaque,
++                                      env_cpu(env));
++    }
++}
++
+ void HELPER(native_hci_semaphore_take_bypass)(CPUXtensaState *env)
+ {
+     env->regs[10] = 1;
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+index 4929511..f8b5709 100644
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1140,6 +1140,13 @@ static void xtensa_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
+     CPUXtensaState *env = cpu_env(cpu);
+     target_ulong page_start;
+ 
++    dc->native_hci_idle_call = env->native_hci_idle_call_pc &&
++                               dc->pc == env->native_hci_idle_call_pc;
++    if (env->native_hci_idle_call_pc &&
++        dc->pc == env->native_hci_idle_call_pc + 3) {
++        gen_helper_native_hci_idle_complete(tcg_env);
++    }
++
+     if (env->native_hci_send_hook_pc &&
+         dc->pc == env->native_hci_send_hook_pc) {
+         gen_helper_native_hci_send_packet(
+@@ -1504,7 +1511,16 @@ static void translate_callxw(DisasContext *dc, const OpcodeArg arg[],
+ {
+     TCGv_i32 tmp = tcg_temp_new_i32();
+ 
+-    tcg_gen_mov_i32(tmp, arg[0].in);
++    /*
++     * Deliver VHCI callbacks with the real task stack and register window,
++     * so a callback may block or yield and later return normally.
++     */
++    if (dc->native_hci_idle_call && par[0] == 2 &&
++        arg[0].in == cpu_R[8] && dc->base.pc_next == dc->pc + 3) {
++        gen_helper_native_hci_idle_dispatch(tmp, tcg_env, arg[0].in);
++    } else {
++        tcg_gen_mov_i32(tmp, arg[0].in);
++    }
+     gen_callw_slot(dc, par[0], tmp, -1);
+ }
+ 
+diff --git a/target/xtensa/translate.h b/target/xtensa/translate.h
+index ba35bff..fc144a7 100644
+--- a/target/xtensa/translate.h
++++ b/target/xtensa/translate.h
+@@ -39,6 +39,7 @@ struct DisasContext {
+ 
+     bool debug;
+     bool icount;
++    bool native_hci_idle_call;
+     TCGv_i32 next_icount;
+ 
+     unsigned cpenable;
