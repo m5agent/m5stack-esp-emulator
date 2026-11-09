@@ -212,5 +212,136 @@
     "https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf",
     "https://github.com/espressif/esp-idf/blob/87912cd291d68f4319f13695718af6754879a83f/components/soc/esp32s3/register/soc/usb_reg.h",
     "https://github.com/hathach/tinyusb/blob/0.19.0/src/portable/synopsys/dwc2/dcd_dwc2.c"
-  ]
+  ],
+  "reset_fence_followup": {
+    "status": "PASS in exact guest and deterministic controller control",
+    "patch_sha256": "cd30a5ac41b2ae2d33fd504f98e2847fd955dea96d680f8e8f3ae8c2b542c292",
+    "earlier_combined_guest": {
+      "runtime_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+      "serial_sha256": "9971ccb799824b40b4a8e9ec76a43435e7c2f80a92af895c415a0e492d673b51",
+      "frame_sha256": "93d00bb47faee5fca0c5ca6713278ca62ef45ac98177e95eb011c5e974e33e79",
+      "evidence_zip_sha256": "4cee5f07945f6c641a9d8ea30d1301f58a6c652632125dedf5c81283fbbb6372",
+      "tinyusb_failure_marker": false,
+      "status": "FAIL for USB enumeration on this run",
+      "observation": "First GET_DESCRIPTOR SETUP was sent, but EP0 IN never returned the device descriptor. Guest menu was visible."
+    },
+    "controller_qtest": {
+      "unfenced": {
+        "qemu_sha256": "28215f00598f73659c992872725003a624400f76e03ac5e0918a6ee66e827b66",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "ACK",
+        "setup_while_enum_pending": "ACK",
+        "early_fifo_status": "0xc0080",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      },
+      "fenced": {
+        "qemu_sha256": "dc2dbc5562570070f35074ec5d9ecade784ee02bf657ba59d730c1ff181d98da",
+        "reset_and_enum_pending": "0x3000",
+        "early_setup": "NAK",
+        "setup_while_enum_pending": "NAK",
+        "early_fifo_status": "0x0",
+        "fifo_status_after_reset_flush": "0x0",
+        "setup_after_ack": "ACK",
+        "fifo_words": [
+          "0x1000680",
+          "0x120000"
+        ]
+      }
+    },
+    "qtest_boundary": "Paused CPU and raw MMIO to isolate reset/IRQ/FIFO behavior. Actual guest execution is below.",
+    "fenced_runtime_sha256": "dc2dbc5562570070f35074ec5d9ecade784ee02bf657ba59d730c1ff181d98da",
+    "fenced_guest_runs": {
+      "independent": {
+        "serial_sha256": "4a2f4c6bf5d89f0578a91e0d26b8ae3a4c59d17cd874206bff40aaddc6ddb3ba",
+        "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+        "evidence_zip_sha256": "53fd3b3225f9d343d03942edf09f0b5742fc5f81ab8a030e8b96379f5cac1eb8",
+        "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+        "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+        "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+        "cdc_line_coding": [
+          115200,
+          57600,
+          115200
+        ],
+        "bulk_out_ep3": "CRLF ACK",
+        "bulk_in_ep4_bytes": 406,
+        "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+        "guest_markers": [
+          "Press any key to start",
+          "HIZ>"
+        ],
+        "transaction_sha256": "9ed7989c6bfecb938ec426b80e35046e94f8142ea5daffd7536a2a248dd5bd03"
+      },
+      "three_concurrent": [
+        {
+          "serial_sha256": "e0fbca180ae63b2ba123baf19f4416f4b75344c8f486c8af343dcd68d67d6b2e",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "8db68db97168334ec979df1be7e3b49f27c8ee55b40812cdfa64febec5c258e0",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "126caa117d332a81e27e36c410ee959045b47ca72ccca95301d16f3d73d415d2"
+        },
+        {
+          "serial_sha256": "19f1efe8824896ea0a5929c243bc525fde53fb065beab558f5ac3d6aff759d6c",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "57ede2d1795340f43dc098ff99adb7f5f050a41f0e3828926e9a844b0df19cb4",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "aa2d0cf8930531df7c5a91942fce59403a1d53559e267dcf5f9a4c98c5c6fc00"
+        },
+        {
+          "serial_sha256": "5b671d207095f4c6cd170d72bfc8c6c2ad9084695f1326cfd9a3d2ce59e1ce73",
+          "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+          "evidence_zip_sha256": "a736d63adb3946c7ad5e06444f5506657ca77530360e63902d61ca1d1937aac6",
+          "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+          "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+          "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+          "cdc_line_coding": [
+            115200,
+            57600,
+            115200
+          ],
+          "bulk_out_ep3": "CRLF ACK",
+          "bulk_in_ep4_bytes": 406,
+          "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+          "guest_markers": [
+            "Press any key to start",
+            "HIZ>"
+          ],
+          "transaction_sha256": "656a1415aced8e524f653344fae58b8c0343727076d81b8bb559357b14973e18"
+        }
+      ]
+    }
+  }
 }

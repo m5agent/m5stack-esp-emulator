@@ -1,0 +1,19 @@
+diff --git a/hw/xtensa/esp32s3_usb_otg.c b/hw/xtensa/esp32s3_usb_otg.c
+index 9f6aec8..9a588ef 100644
+--- a/hw/xtensa/esp32s3_usb_otg.c
++++ b/hw/xtensa/esp32s3_usb_otg.c
+@@ -568,7 +568,13 @@ static void host_packet(Object *obj, const char *value, Error **errp)
+         REG(s, DSTS) = 0x6; /* Enumerated on the dedicated 48 MHz FS PHY. */
+         s->bus_reset_seen = true;
+         strcpy(s->response, "ACK");
+-    } else if (!s->bus_reset_seen) {
++    } else if (!s->bus_reset_seen ||
++               (REG(s, GINTSTS) & (IRQ_RESET | IRQ_ENUM))) {
++        /*
++         * The guest DCD flushes the RX FIFO during USBRST processing.
++         * Keep the virtual host in the reset phase until the guest has
++         * acknowledged both reset and the resulting speed detection.
++         */
+         strcpy(s->response, "NAK");
+     } else if (in) {
+         host_in(s, n);

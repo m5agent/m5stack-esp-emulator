@@ -136,7 +136,7 @@
 | `RUNTIME-07` | 进行中 | 定位 StamPLC 浏览器原多指令 TB 在硬件复位后访问 SYSTIMER 的 PIF 异常；精确工作台 oneInsn 策略仅作限定规避 |
 | `RUNTIME-08` | 进行中 | 捕获 Cardputer-ADV 原工作台策略复位后 WASM OOB 的实际 trap 栈与状态，分清运行时原因 |
 | `RUNTIME-09` | 进行中 | 定位AtomS3 Lite精确工作台首次启动及oneInsn硬reset PIF，恢复受影响候选资格 |
-| `RUNTIME-10` | 进行中 | StickS3 的 PM1 IAP、USB OTG、BLE HID host、Evil monitor、任意 Wi-Fi RX 注入与完整 raw TX 捕获 |
+| `RUNTIME-10` | 进行中 | StickS3 原版 AirMouseS3 内置 BLE 控制器、Evil-StickS3、任意 802.11 RX 与完整 TX 捕获 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
@@ -149,20 +149,20 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`75` 个 Python 模块，`48143` 行；规模最大的模块如下。
+- `platform/tools`：`75` 个 Python 模块，`48145` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
 | `device_service.py` | 11828 |
 | `firmware_manifest.py` | 3640 |
-| `user_firmware_matrix.py` | 2315 |
+| `user_firmware_matrix.py` | 2317 |
 | `serve.py` | 1755 |
 | `network_sandbox.py` | 1681 |
 | `worker_agent.py` | 1501 |
 
-- `tests/`：`164` 个可执行 Python 测试文件，分布在 `68` 个目录；`231` 个 evidence JSON。
-- `patches/`：`17` 个补丁组，`296` 个 patch 文件。
-- 文档：`639` 个 Markdown 页面；除本生成页外共 `70446` 行。
+- `tests/`：`164` 个可执行 Python 测试文件，分布在 `68` 个目录；`232` 个 evidence JSON。
+- `patches/`：`17` 个补丁组，`297` 个 patch 文件。
+- 文档：`639` 个 Markdown 页面；除本生成页外共 `70463` 行。
 
 ## 文档与测试
 

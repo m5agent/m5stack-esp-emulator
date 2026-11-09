@@ -11,6 +11,8 @@ a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e
 
 1. Build the native Xtensa runtime including
    [patch 0172](../../../patches/qemu-m5stack-peripherals/0172-sticks3-usb-otg-device.patch).
+   Include [patch 0174](../../../patches/qemu-m5stack-peripherals/0174-sticks3-usb-otg-reset-fence.patch)
+   for the reset recovery check.
    Start an owned loopback Device Service with a separate state directory and
    token file, and point it at that QEMU and its ROM directory. The validated
    transport is `M5_SERVICE_FLASH_MODE=host-image`.
@@ -43,3 +45,15 @@ TinyUSB installation failure and distinguishes CDC class I/O from the later
 bulk exchange. The result covers the full-speed FIFO device path. Buffer DMA
 guest execution, HID report I/O, MSC I/O, controller host mode, USB Serial/JTAG,
 browser-WASM and physical USB are outside this result.
+
+The separate paused-CPU check replays the controller's receive FIFO flush
+and interrupt acknowledgments through MMIO. The early SETUP must receive NAK
+until both interrupt flags have been acknowledged. The optional older
+runtime proves that the unfenced controller acknowledged and then discarded
+the early packet. This check is separate from the original-firmware probe.
+
+```sh
+python3 tests/firmware/sticks3_usb_otg/check_reset_fence.py \
+  --qemu "$OWNED_QEMU" --rom-dir "$OWNED_ROM_DIR" \
+  --unfenced-qemu "$OWNED_UNFENCED_QEMU"
+```

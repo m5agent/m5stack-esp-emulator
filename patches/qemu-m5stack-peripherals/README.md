@@ -16,6 +16,10 @@ through the ESP32-S3 interrupt matrix. A virtual host sends packets via
 `/machine/soc/usb-otg`. The guest supplies descriptors and transfer data through
 the controller's endpoint buffers.
 
+`0174-sticks3-usb-otg-reset-fence.patch` keeps host packets pending through
+the USB reset and speed-detection interrupt acknowledgments. The guest's
+receive FIFO flush can then finish before the host's first SETUP is accepted.
+
 The pinned Bit Pirate v1.6 guest passed address and configuration enumeration,
 CDC ACM line-coding writes and readback, CDC bulk I/O and HID report descriptor
 readback. The guest used the FIFO path. The Buffer DMA path, HID reports, MSC
