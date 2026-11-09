@@ -50,10 +50,13 @@ outside this acceptance. The native bootstrap applies this layer after
 EP1 transmit FIFO, WR_DONE, virtual host frame tick and IN-empty interrupt
 on native StickS3 with an explicit host chardev. The Device Service opt-in
 retains the guest's transmit output in a separate evidence member.
+Layer `0177` keeps the 1 ms SOF cadence and services bulk IN independently.
+It also flushes the fixed controller's FIFO automatically at 64 bytes.
 The original PM1 upgrader's completion marker was captured through this
 controller. The result covers CDC transmit. Receive, JTAG transactions,
 physical enumeration and shared PHY switching remain outside the validation.
 [PM1 upgrader capture evidence](../../docs/evidence/2026-11-09-issue-fixes/usb-serial-jtag-pm1.json)
+and [terminal CDC timing retest](../../tests/firmware/sticks3_pm1/terminal-cdc-evidence-summary.json).
 
 ## Latest firmware compatibility layers
 

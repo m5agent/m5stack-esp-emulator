@@ -5453,7 +5453,11 @@ class DeviceSession:
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
         if self.runtime_env.get(STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV) == "1":
+            # Advance SOF and guest timers on the same instruction-counted clock.
+            # Wall-clock stalls can make FreeRTOS service several ticks at once.
             command.extend([
+                "-accel", "tcg,thread=single",
+                "-icount", "shift=5,align=off,sleep=off",
                 "-chardev",
                 f"file,id=usb-serial-jtag,path={self.dir / USB_SERIAL_JTAG_LOG_NAME}",
             ])
@@ -6958,6 +6962,16 @@ class DeviceSession:
                         property=property_name,
                         value=False,
                     )
+            elif kind == "key" and action == "tap" and (
+                self.runtime_env.get(STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV) == "1"
+            ):
+                # The capture lane advances virtual time independently of host time.
+                self._qmp_call(
+                    "send-key",
+                    keys=[{"type": "qcode", "data": command["key"]}],
+                    **{"hold-time": 450},
+                )
+                time.sleep(settle)
             else:
                 send_input(self._qmp, spec, frame_size, settle)
             self._record_event(

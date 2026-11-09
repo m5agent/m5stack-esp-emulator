@@ -1966,6 +1966,40 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 command = launch.call_args.args[0]
                 self.assertEqual(chardev in command, bool(setting))
                 self.assertIn(f"file:{session.serial0}", command)
+                if setting:
+                    self.assertEqual(
+                        command[command.index("-accel") + 1], "tcg,thread=single"
+                    )
+                    self.assertEqual(
+                        command[command.index("-icount") + 1],
+                        "shift=5,align=off,sleep=off",
+                    )
+                    self.assertNotIn("-smp", command)
+                else:
+                    self.assertNotIn("-icount", command)
+
+    def test_sticks3_capture_taps_are_timed_by_the_guest_clock(self):
+        session = self._stopped_session(session_id=uuid.uuid4().hex)
+        session.spec = self.service.specs["sticks3"]
+        session.state = "running"
+        tap = {"kind": "key", "key": "a", "action": "tap", "settle_seconds": 0}
+        with (
+            mock.patch.object(session, "_qmp_call") as qmp,
+            mock.patch.object(device_service_module, "send_input") as send_input,
+        ):
+            session.runtime_env = {}
+            self.assertTrue(session.inject(tap)["accepted"])
+            send_input.assert_called_once_with(session._qmp, "key:a", (135, 240), 0)
+            qmp.assert_not_called()
+            send_input.reset_mock()
+
+            session.runtime_env = {"M5SW_USB_SERIAL_JTAG_CAPTURE": "1"}
+            self.assertTrue(session.inject(tap)["accepted"])
+            qmp.assert_called_once_with(
+                "send-key", keys=[{"type": "qcode", "data": "a"}],
+                **{"hold-time": 450},
+            )
+            send_input.assert_not_called()
 
     def test_rmt_file_fixtures_are_allowlisted_for_trusted_local_runs(self):
         runtime_env = {
