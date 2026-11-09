@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import unittest
+from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 import device_service
 from device_service_errors import ServiceError
 from device_service_qemu_wifi import (
+    STICKS3_RAW_TX_WINDOW_PROPERTY,
     apply_qemu_wifi_environment,
     apply_sticks3_monitor_environment,
     configure_sticks3_monitor_radio,
@@ -193,6 +195,30 @@ class DeviceServiceQemuWifiTests(unittest.TestCase):
                 with self.assertRaises(ServiceError) as caught:
                     parse_sticks3_raw_mpdu(value)
                 self.assertEqual(caught.exception.code, "invalid_wifi_monitor_mpdu")
+
+
+    def test_raw_window_uses_audited_read_permission(self) -> None:
+        session = Mock()
+        session._lock = nullcontext()
+        session._qmp_call.return_value = {"return": "3:ab"}
+        path = "/machine/unattached/device[0]"
+        response = device_service.DeviceSession.qom_get(session, path, STICKS3_RAW_TX_WINDOW_PROPERTY)
+        session._require_raw_monitor_qom.assert_called_once_with(path, "serial.read")
+        self.assertEqual(response["value"], "3:ab")
+
+    def test_old_raw_runtime_rejects_window_without_disconnect(self) -> None:
+        session = Mock()
+        session._lock = nullcontext()
+        session._proc.poll.return_value = None
+        session._qmp.cmd.side_effect = device_service.QMPCommandError("missing raw-tx-window")
+        with self.assertRaises(ServiceError) as caught:
+            device_service.DeviceSession._qmp_call(
+                session, "qom-get", path="/machine/unattached/device[0]",
+                property=STICKS3_RAW_TX_WINDOW_PROPERTY,
+            )
+        self.assertEqual(caught.exception.code, "wifi_monitor_raw_window_unavailable")
+        self.assertEqual(caught.exception.status, 409)
+        session._qmp.close.assert_not_called()
 
 
 if __name__ == "__main__":

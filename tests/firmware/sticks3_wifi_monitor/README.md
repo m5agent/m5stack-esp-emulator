@@ -54,23 +54,28 @@ callback path.
 
 ## Raw MPDU fixture
 
-With native patch `0175`, run the same source-built probe with `--raw`. The
-runner sends a custom vendor Action frame through the existing Device Service
-QOM endpoint. The original SDK callback returns every injected byte, including
-the FCS. A wrong-FCS request fails before DMA. A separate session with the same
-raw mode and no input waits through the receive window and captures no frame.
+With native patch `0176`, run the source-built probe with `--raw`. The
+runner injects vendor Action and unprotected QoS Data frames in separate
+sessions through the audited Device Service QOM path. The SDK callback
+returns every injected byte, including FCS. Wrong-FCS and protected requests
+fail before DMA. A third raw session receives no injection and captures no
+frame.
 
-The SDK's benign Probe Request then crosses the real TX DMA path. The raw QOM
-readout contains the latest full 47-byte TX DMA buffer, including the SDK's
-four-byte placeholder after its 43-byte request. Capture occurs before the
-model's MAC rewriting and before the IRQ returns control to the guest.
-The service stores an input digest and omits raw frame bytes from automatic
-QOM snapshots. [Raw execution summary](raw-summary.json).
+Each successful callback drives 12 distinct SDK Probe Requests through TX
+DMA. The client polls `raw-tx-window` and checks all 12 complete 53-byte
+buffers, in sequence. A late read returns sequences 5–12 from the eight-frame
+ring. `raw-tx-latest` returns sequence 12. The four-byte SDK placeholder is
+part of the captured buffer. The service retains only injection SHA-256 and
+length in its event log and omits raw values from automatic QOM snapshots.
 
-See [the execution summary](evidence-2026-11-09.json) for exact identities. This
-scope covers the fixed channel and demonstrated management frames. The
-[original Evil-StickS3 scan follow-up](evil-stock-summary.json) used its
-Scan WiFi and Select Network menu entries. The radio-on list showed the
-synthetic AP and the radio-off list was empty. Evil promiscuous mode,
-protected or QoS RX, continuous TX capture, RF/PHY and attack behavior
-are `NOT RUN`. The fixture has zero host network backends.
+[Latest raw execution summary](raw-window-summary.json) covers the fixed
+channel and demonstrated management and unprotected data frames. The exact
+original Evil firmware also lists the synthetic SSID in Probe Sniffing.
+Its independent no-injection list stays empty. Protected
+reception, unbounded capture, PHY/RF and attack outcomes require separate
+validation.
+
+[The initial fixture evidence](evidence-2026-11-09.json),
+[the first raw exchange](raw-summary.json) and
+[the original Evil scan](evil-stock-summary.json) preserve the earlier
+execution scopes.

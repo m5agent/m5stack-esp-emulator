@@ -1,0 +1,293 @@
+{
+  "date": "2026-11-09",
+  "issue": 204,
+  "scope": "virtual-device validation",
+  "status": "PASS for the bounded 802.11 fixture, ordered TX retention, and the exact Evil Probe Sniffing UI",
+  "project_base": "02c046679fd7c7dbb008afd3c4c29e3cfca517df",
+  "source_sha256": {
+    "patches/qemu-m5stack-peripherals/0176-sticks3-wifi-raw-window-qos.patch": "9f82162cc182890192fd6e145f4845e01636a970a9cc33adeb2cacda21414d7c",
+    "scripts/bootstrap-unit-runtime.py": "a05609e538b6419fa0cda9cda57cbede4b0195b7a5c51c2b85575eb6a56115f0",
+    "platform/tools/device_service.py": "724f14d0e09424b0980dc857a75900e62e08160dd736994e2c422ffe694b5430",
+    "platform/tools/device_service_qemu_wifi.py": "436ca6734737080d53e958641187a36a0e1c2f6d5f1b04895938ecc5ffd70aa4",
+    "tests/firmware/sticks3_wifi_monitor/main/monitor.c": "4eabf3af3539c71d2ed6b4ec584476de62b41351a36d6c585d570a1e18b8287f",
+    "tests/firmware/sticks3_wifi_monitor/run_test.py": "9e85fe96e501115f1a947b174eab86ce87c710b9b81e7f6b85ef499b81190ead"
+  },
+  "runtime": {
+    "machine": "m5sticks3",
+    "qemu_sha256": "cd15d3342d55dd3dfd727df7e27593c8049547ff14266ac16916defa3ecd4d92",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "ordered_native_patches": 124,
+    "runtime_source_receipt_sha256": "2bd8402032a6fba3b01fe9d10afcef171f2f9f6b20b91a485f375005bc7b9e26",
+    "fresh_replay_matches_build_source": true
+  },
+  "raw_source_probe": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "f8b751ff86e9d5ae1d0473a0fce8d0012444a35f30e30564969dcbc4f7090567",
+    "boot_flash_sha256": "f8b751ff86e9d5ae1d0473a0fce8d0012444a35f30e30564969dcbc4f7090567",
+    "cases": {
+      "action": {
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "host_backends": 0,
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX action ch=1 rssi=-42 len=42",
+          "MONITOR_TX burst count=12 len=49",
+          "MONITOR_RESULT PASS"
+        ],
+        "rx_mpdu_sha256": "f64b30c1b329efa41396fdb0d0b7df0dd438e14b0dc2f3afacb93b2f83225c84",
+        "rx_mpdu_bytes": 42,
+        "tx_mpdu_sha256_by_sequence": {
+          "1": "f2109a49fff6e5c3463808395a46f6c85da96e4574ad8ec1c411bc9175ffb1d5",
+          "2": "22391303303da6da5e32b6ff70505dd8fd1ab4373788da9380ab2cd940aa7687",
+          "3": "169fc4d99090b416f5e980be0addec73911387141f8ab8c84223c6143f80f9e0",
+          "4": "246f2cdedb1757f9f34f94dc8ae812f6175305a0032ce4553cf88a0d776e236e",
+          "5": "25a9bc0ae8b8edda6ac3049d22998d056954ad229a9c1a8f34fae107998784d4",
+          "6": "be539f1064342c16a4c77991d4c50f1e788c2c95940b16a5d66fb9ee258229e2",
+          "7": "5d7a68550d74e8acf5084a935bb9252a1faf5637b9bc92a3c678e22b86f9c735",
+          "8": "3fcdc42bd0d722e6d2dca6646f20e6c27378deea6ae6cb833cfd8819b70994d9",
+          "9": "f8a4a18a7c5e7f2ae9fb6362c4c9b9d5edbeafbf2356c5eeb4010d41e67f1b03",
+          "10": "80ea84f9d3ef122e6a5686dc111a4ea754f88dc021780ff794f56c94e935fbe0",
+          "11": "6920d17791bf3e41321a6858dc63b1a473c4abdbb5cb288adb09ee8ac018c66d",
+          "12": "f73beb4e8bd71415903e002f8fb94afd8d29229f21cc8114b6aaf5c5c5fdbbe9"
+        },
+        "tx_mpdu_bytes": 53,
+        "retained_tx_sequences": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "reset_cleared_capture": true,
+        "invalid_fcs_and_protected_rejected": true,
+        "evidence_zip_sha256": "48edb1e48b5d8235d48b99f77195c3ff4e6c7d10ce82f4e787edb5299b3aecfe",
+        "serial_sha256": "370658556fde15bbd475cc80a376c49facfd6d312c34ce789db40baab1068a78",
+        "guest_stopped_retained_history": true,
+        "worker_lease_and_mutable_flash_released": true
+      },
+      "qos": {
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "host_backends": 0,
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX qos ch=1 rssi=-42 len=48",
+          "MONITOR_TX burst count=12 len=49",
+          "MONITOR_RESULT PASS"
+        ],
+        "rx_mpdu_sha256": "a74a178543e5ba5642058bbd572c0fde12cf5452ebbb0f2021ee1a01d922c91e",
+        "rx_mpdu_bytes": 48,
+        "tx_mpdu_sha256_by_sequence": {
+          "1": "f2109a49fff6e5c3463808395a46f6c85da96e4574ad8ec1c411bc9175ffb1d5",
+          "2": "22391303303da6da5e32b6ff70505dd8fd1ab4373788da9380ab2cd940aa7687",
+          "3": "169fc4d99090b416f5e980be0addec73911387141f8ab8c84223c6143f80f9e0",
+          "4": "246f2cdedb1757f9f34f94dc8ae812f6175305a0032ce4553cf88a0d776e236e",
+          "5": "25a9bc0ae8b8edda6ac3049d22998d056954ad229a9c1a8f34fae107998784d4",
+          "6": "be539f1064342c16a4c77991d4c50f1e788c2c95940b16a5d66fb9ee258229e2",
+          "7": "5d7a68550d74e8acf5084a935bb9252a1faf5637b9bc92a3c678e22b86f9c735",
+          "8": "3fcdc42bd0d722e6d2dca6646f20e6c27378deea6ae6cb833cfd8819b70994d9",
+          "9": "f8a4a18a7c5e7f2ae9fb6362c4c9b9d5edbeafbf2356c5eeb4010d41e67f1b03",
+          "10": "80ea84f9d3ef122e6a5686dc111a4ea754f88dc021780ff794f56c94e935fbe0",
+          "11": "6920d17791bf3e41321a6858dc63b1a473c4abdbb5cb288adb09ee8ac018c66d",
+          "12": "f73beb4e8bd71415903e002f8fb94afd8d29229f21cc8114b6aaf5c5c5fdbbe9"
+        },
+        "tx_mpdu_bytes": 53,
+        "retained_tx_sequences": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "reset_cleared_capture": true,
+        "invalid_fcs_and_protected_rejected": true,
+        "evidence_zip_sha256": "cd5c3f3095eef81170216ede3d3222159e6bee43eadfa9d461b2c45461a02411",
+        "serial_sha256": "057147dd68b722ea50ca04cbbadd991523c79a74e4f47a827cb7050dd3aa73b3",
+        "guest_stopped_retained_history": true,
+        "worker_lease_and_mutable_flash_released": true
+      },
+      "no-injection": {
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "host_backends": 0,
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RESULT NO_BEACON"
+        ],
+        "rx_mpdu_sha256": null,
+        "rx_mpdu_bytes": 0,
+        "tx_mpdu_sha256_by_sequence": {},
+        "tx_mpdu_bytes": 0,
+        "retained_tx_sequences": [],
+        "reset_cleared_capture": false,
+        "invalid_fcs_and_protected_rejected": false,
+        "evidence_zip_sha256": "cb9486743617572853ecb79cee10c8c2fbe3e5a15b14cdca08ac1d0527f79923",
+        "serial_sha256": "7d6c95b7c19efe7a11c2c44ddb86b967a63e7c06c2f2d2519fb0963b8ff92818",
+        "guest_stopped_retained_history": true,
+        "worker_lease_and_mutable_flash_released": true
+      }
+    },
+    "result": "PASS"
+  },
+  "beacon_source_probe_regression": {
+    "device": "sticks3",
+    "runtime": "qemu",
+    "firmware_sha256": "f8b751ff86e9d5ae1d0473a0fce8d0012444a35f30e30564969dcbc4f7090567",
+    "boot_flash_sha256": "f8b751ff86e9d5ae1d0473a0fce8d0012444a35f30e30564969dcbc4f7090567",
+    "cases": {
+      "beacon": {
+        "mpdu_sha256": "4b8ff01adf86850a3d443b0bceff2f92d33043a9e399756b00400801750f9433",
+        "mpdu_bytes": 81,
+        "dma_bytes": 129,
+        "irq_assert_and_guest_clear": true,
+        "tx_probe_request": {
+          "api_bytes": 43,
+          "descriptor_frame_bytes": 47,
+          "irq_assert_and_guest_clear": true,
+          "virtual_ap_reply_bytes": 75
+        },
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RX beacon ssid=m5-monitor-lab ch=1 rssi=-25 len=81",
+          "MONITOR_TX probe-request len=43",
+          "MONITOR_RESULT PASS"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "beacon",
+          "radio_enabled": true,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "e78f6903c6975eb383ceb72701a06e7c6dba48d15bd749ebc53db16ed6bc05a0",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": true,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "abc27a8914a4023a819659772e33060c05b785b3066def2d15415919848837d9",
+        "serial_sha256": "b22169df2fdf5d1ffc10ad30eefbad85d2ee672a91fd4d67ab8088305ae89293",
+        "guest_stopped_retained_history": true,
+        "worker_lease_and_mutable_flash_released": true
+      },
+      "no-beacon": {
+        "guest_markers": [
+          "MONITOR_DISABLED matched=0",
+          "MONITOR_ENABLED",
+          "MONITOR_RESULT NO_BEACON"
+        ],
+        "fixture": {
+          "profile": "sticks3-monitor-fixture",
+          "fixture": "no-beacon",
+          "radio_enabled": false,
+          "wifi_ssid": "m5-monitor-lab",
+          "wifi_auth": "open",
+          "channel": 1,
+          "nic": "misc.esp32s3.wifi",
+          "host_backends": 0,
+          "fixture_sha256": "f2e9e1fdd54751def392d3b81d0c0fc118bffba88a938bedd3ae9f8a57995742",
+          "status": "FIXTURE_READY"
+        },
+        "rx_dma_observed": false,
+        "user_inputs": 0,
+        "evidence_zip_sha256": "3d53c5aa489660f20e59c8215b25ce38dc214eb72e2f0433cb87e530a1b0ab18",
+        "serial_sha256": "c55c2cffcb94b84ad87daf43bfaaba9818d5aaf71405058c8e11628189ce2a73",
+        "guest_stopped_retained_history": true,
+        "worker_lease_and_mutable_flash_released": true
+      }
+    },
+    "result": "PASS"
+  },
+  "probe_build": {
+    "idf_version": "v5.5.4",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "app_bin_sha256": "80d166ea1c9342b12da4e1632a5f7e3b60f4734d0c0a4d536283ac13f5e8a673"
+  },
+  "evil_stock": {
+    "catalog_id": "1897200000000003468",
+    "version": "v1.5.1-beta",
+    "firmware_sha256": "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+    "normalization": "Complete 8 MiB input and boot image SHA match.",
+    "menu": "Probe Sniffing",
+    "source_review": "https://github.com/7h30th3r0n3/Evil-M5Project/blob/2c421957eada9f42323cf3d6de6186cd0833b3ce/Evil-Stick-Beta.ino",
+    "cases": {
+      "probe_request_injection": {
+        "status": "PASS",
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "probe_menu_frame_sha256": "c6b8bc898bd2ebbba67f4b718e2bd60fab726202ac8f59db30ca325d65d9d9a5",
+        "quiet_stop_sniff_frame_sha256": "8760fb93b5c36b6304afab2db3ee2ab5ca34ee60ee8ec4176b284e6fa4d255ad",
+        "after_frame_sha256": "4d28f8cc87382b10958b363f83e936ff10e5f86308fafad0f24fd11e3994f02f",
+        "displayed_ssids": [
+          "m5-fixture-07"
+        ],
+        "usb_readiness_marker": "OBSERVED",
+        "usb_fixture_found_marker": "Found: m5-fixture-07",
+        "rx_dma_configurations": 2,
+        "rx_dma_deliveries": 1,
+        "guest_rx_irq_clears": 1,
+        "button_taps": {
+          "B": 13,
+          "A": 1
+        },
+        "host_backends": 0,
+        "input_mpdu_bytes": 46,
+        "input_mpdu_sha256": "2a08ed4775bc251bbe7cd6d8408b9204ee1b5ccf6b7404c3d24faa42104c7483",
+        "stock_background_tx_irq_clears": 11,
+        "usb_serial_jtag_sha256": "4481bb0123684fdaff5561766fdb4a71a0ee57d1e1cf54c6e8af335875d99d53",
+        "evidence_zip_sha256": "2033a26183f5e25a2b9914209a052e337fb084c404c3c15dd6d10df69e1bfdc9",
+        "guest_stopped_and_lease_flash_released": true,
+        "tx_sequence_before_after_injection": [
+          11,
+          11
+        ]
+      },
+      "no_injection": {
+        "status": "PASS",
+        "fixture_sha256": "5c257b376ad179674ce785ec6b6199c397a2683874edd02a85ffb71dfebadf0d",
+        "probe_menu_frame_sha256": "c6b8bc898bd2ebbba67f4b718e2bd60fab726202ac8f59db30ca325d65d9d9a5",
+        "quiet_stop_sniff_frame_sha256": "8760fb93b5c36b6304afab2db3ee2ab5ca34ee60ee8ec4176b284e6fa4d255ad",
+        "after_frame_sha256": "8760fb93b5c36b6304afab2db3ee2ab5ca34ee60ee8ec4176b284e6fa4d255ad",
+        "displayed_ssids": [],
+        "usb_readiness_marker": "PARTIAL / marker absent",
+        "usb_fixture_found_marker": null,
+        "rx_dma_configurations": 2,
+        "rx_dma_deliveries": 0,
+        "guest_rx_irq_clears": 0,
+        "button_taps": {
+          "B": 13,
+          "A": 1
+        },
+        "host_backends": 0,
+        "input_mpdu_bytes": 0,
+        "input_mpdu_sha256": null,
+        "stock_background_tx_irq_clears": 11,
+        "usb_serial_jtag_sha256": "d7f9e60c3b2ae22bd4b5bee56b2c7cad9f90f34384491fa4ec8ac780210afccd",
+        "evidence_zip_sha256": "0b81282362164915c5ea2a61b9b958fdfc8b8f18060883b18b8fc8973aae5229",
+        "guest_stopped_and_lease_flash_released": true
+      }
+    }
+  },
+  "retention": "One bounded eight-frame window. Each 12-frame probe stream polled sequences 1\u201312. A late read retained 5\u201312; sequence gaps expose overwrite. No capture remained after reset.",
+  "prior_controls": [
+    "Early Evil navigation attempts timed out or skipped rows. They did not activate any unreviewed menu.",
+    "The first stock positive on the earlier 123-patch build reached the display and USB markers. A harness assumption of zero startup TX rejected the run. On the final build the capture sequence stayed at 11 throughout the positive sniff interval.",
+    "The separate no-injection stock guest had the same stable Stop Sniff frame and configured RX DMA but no delivered frame or hit marker. Its USB readiness text was absent in both checked windows."
+  ],
+  "not_run": [
+    "protected payload reception or decryption",
+    "unbounded or high-rate TX retention",
+    "Evil attack menus",
+    "physical RF/PHY or external networks",
+    "browser-WASM"
+  ]
+}

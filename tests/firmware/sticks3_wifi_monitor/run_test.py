@@ -21,6 +21,7 @@ from device_service_qemu_wifi import (  # noqa: E402
     STICKS3_MONITOR_SSID as SSID,
     STICKS3_RAW_RX_PROPERTY,
     STICKS3_RAW_TX_PROPERTY,
+    STICKS3_RAW_TX_WINDOW_PROPERTY,
     parse_sticks3_wifi_monitor,
 )
 from user_firmware_matrix import HttpError, request_bytes, request_json  # noqa: E402
@@ -154,16 +155,22 @@ def run(args: argparse.Namespace, mode: str, firmware: dict, call, read_bytes) -
     }
 
 
-def action_mpdu() -> bytes:
+def raw_mpdu(kind: str) -> bytes:
     source = bytes.fromhex("020000005503")
-    header = struct.pack("<HH6s6s6sH", 0xd0, 0, b"\xff" * 6, source, source, 0x1230)
-    frame = header + b"\x7f\x02\x00\x00m5-raw-lab"
+    fc = 0xd0 if kind == "action" else 0x88
+    header = struct.pack("<HH6s6s6sH", fc, 0, b"\xff" * 6, source, source, 0x1230)
+    if kind == "action":
+        body = b"\x7f\x02\x00\x00m5-raw-lab"
+    else:
+        body = bytes.fromhex("0000aaaa0300000088b5") + b"m5-qos-lab"
+    frame = header + body
     return frame + struct.pack("<I", zlib.crc32(frame))
 
 
-def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_bytes) -> dict:
-    out = args.out_dir / ("raw-capture" if inject else "raw-no-injection")
+def run_raw(args: argparse.Namespace, kind: str, firmware: dict, call, read_bytes) -> dict:
+    out = args.out_dir / f"raw-{kind}"
     out.mkdir()
+    inject = kind != "no-injection"
     payload = {
         "device_id": "sticks3", "runtime": "qemu", "firmware_id": firmware["firmware_id"],
         "wifi_monitor_fixture": "raw", "ttl_seconds": 180,
@@ -171,16 +178,18 @@ def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_b
     created = call("/sessions", method="POST", payload=payload)
     path = f"/sessions/{created['session_id']}"
 
-    def wait_marker(marker):
+    def wait_marker(marker, sample=None):
         deadline = time.monotonic() + 35
         while time.monotonic() < deadline:
             session = call(path)
             if session["state"] == "failed":
                 raise RuntimeError(f"raw fixture startup failed: {session['error']}")
             serial = call(path + "/serial")["data"]
+            if sample:
+                sample()
             if session["state"] == "running" and marker in serial:
                 return session, serial
-            time.sleep(0.05)
+            time.sleep(0.035)
         raise RuntimeError(f"missing guest marker {marker!r}: {out}")
 
     try:
@@ -190,25 +199,45 @@ def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_b
         qom_path = network.pop("raw_qom_path")
         if network != config or session["firmware_sha256"] != firmware["sha256"]:
             raise RuntimeError("raw fixture or boot Flash identity mismatch")
-        capture_path = path + f"/qom?path={qom_path}&property={STICKS3_RAW_TX_PROPERTY}"
-        if call(capture_path)["value"] != "0:":
+        qom_read = path + f"/qom?path={qom_path}&property="
+        window_path = qom_read + STICKS3_RAW_TX_WINDOW_PROPERTY
+        captures = {}
+        def read_window():
+            rows = call(window_path)["value"].splitlines()
+            sequences = []
+            for row in rows:
+                sequence, tx_hex = row.split(":", 1)
+                n = int(sequence)
+                tx = bytes.fromhex(tx_hex)
+                if n in captures and captures[n] != tx:
+                    raise RuntimeError(f"capture changed for TX sequence {n}")
+                captures[n] = tx
+                sequences.append(n)
+            if sequences and sequences != list(range(sequences[0], sequences[0] + len(rows))):
+                raise RuntimeError("TX capture window is out of order")
+            return sequences
+
+        if call(qom_read + STICKS3_RAW_TX_PROPERTY)["value"] != "0:" or read_window():
             raise RuntimeError("unexpected capture before sending the fixture")
-        packet = action_mpdu()
+        packet = raw_mpdu(kind) if inject else b""
         if inject:
             body = {"path": qom_path, "property": STICKS3_RAW_RX_PROPERTY}
             invalid = packet[:-1] + bytes((packet[-1] ^ 1,))
-            try:
-                call(path + "/qom", method="POST", payload=body | {"value": invalid.hex()})
-            except HttpError as error:
-                if error.status != 409 or error.payload["error"]["code"] != "wifi_monitor_mpdu_rejected":
-                    raise
-            else:
-                raise RuntimeError("wrong-FCS control was accepted")
+            protected = bytes((packet[0], packet[1] | 0x40)) + packet[2:-4]
+            protected += struct.pack("<I", zlib.crc32(protected))
+            for negative in (invalid, protected):
+                try:
+                    call(path + "/qom", method="POST", payload=body | {"value": negative.hex()})
+                except HttpError as error:
+                    if error.status != 409 or error.payload["error"]["code"] != "wifi_monitor_mpdu_rejected":
+                        raise
+                else:
+                    raise RuntimeError("wrong-FCS or protected-frame control was accepted")
             call(path + "/qom", method="POST", payload=body | {"value": packet.hex()})
         marker = "MONITOR_RESULT PASS" if inject else "MONITOR_RESULT NO_BEACON"
-        _, serial = wait_marker(marker)
-        sequence, hex_tx = call(capture_path)["value"].split(":", 1)
-        tx = bytes.fromhex(hex_tx)
+        _, serial = wait_marker(marker, sample=read_window)
+        retained = read_window()
+        latest = call(qom_read + STICKS3_RAW_TX_PROPERTY)["value"]
         (out / "serial.log").write_text(serial, encoding="utf-8")
         evidence = read_bytes(path + "/evidence")
         (out / "evidence.zip").write_bytes(evidence)
@@ -220,25 +249,44 @@ def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_b
         if (manifest["session"]["network"] != session["network"]
                 or "hub 0 is not connected to host network" not in trace
                 or "QEMU: sending beacon" in stdout or "TX frame type=" in trace
-                or STICKS3_RAW_TX_PROPERTY.encode() in qom_snapshot):
+                or any(name.encode() in qom_snapshot
+                       for name in (STICKS3_RAW_TX_PROPERTY, STICKS3_RAW_TX_WINDOW_PROPERTY))):
             raise RuntimeError("raw fixture isolation or evidence mismatch")
         events = [event for event in manifest["timeline"]
                   if event.get("property") == STICKS3_RAW_RX_PROPERTY]
         if inject:
             captured = re.search(r"^MONITOR_MPDU ([0-9a-f]+)", serial, re.MULTILINE)
-            expected_body = bytes((0, len(SSID))) + SSID.encode("ascii") + b"\x01\x01\x82"
-            if (f"MONITOR_RX action ch=1 rssi=-42 len={len(packet)}" not in serial
+            expected_body = bytes((0, len(SSID))) + SSID.encode("ascii") + bytes.fromhex("010182")
+            if (f"MONITOR_RX {kind} ch=1 rssi=-42 len={len(packet)}" not in serial
                     or not captured or bytes.fromhex(captured[1]) != packet
-                    or sequence != "1" or len(tx) != 47 or tx[0] != 0x40
-                    or tx[24:43] != expected_body or tx[-4:] != bytes.fromhex("efbeadde")
+                    or "MONITOR_TX burst count=12 len=49" not in serial
+                    or sorted(captures) != list(range(1, 13)) or retained != list(range(5, 13))
+                    or latest != f"12:{captures[12].hex()}"
                     or not re.search(rf"RX DMA descriptor=.* length={len(packet) + 48} ", trace)
                     or "IRQ clear 01004000 raw=01004000" not in trace
-                    or "IRQ clear 00000080 raw=00000080" not in trace
+                    or trace.count("IRQ clear 00000080 raw=00000080") != 12
                     or len(events) != 1 or events[0].get("mpdu_sha256") != digest(packet)
                     or "value" in events[0]):
-                raise RuntimeError("MPDU bytes, DMA, IRQ or evidence digest mismatch")
-            (out / "tx.bin").write_bytes(tx)
-        elif tx or sequence != "0" or events or "RX DMA descriptor=" in trace or "TX DMA outlink=" in trace:
+                raise RuntimeError(f"MPDU, capture window or IRQ mismatch: {out}")
+            for n, tx in captures.items():
+                if (len(tx) != 53 or tx[0] != 0x40 or tx[24:43] != expected_body
+                        or tx[43:49] != bytes((221, 4, 2, 0, 0, n))
+                        or tx[-4:] != bytes.fromhex("efbeadde")):
+                    raise RuntimeError(f"unexpected guest TX frame for capture {n}")
+            (out / "tx-captures.json").write_text(
+                json.dumps({n: tx.hex() for n, tx in captures.items()}, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            call(path + "/reset", method="POST", payload={})
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                if (call(qom_read + STICKS3_RAW_TX_PROPERTY)["value"] == "0:"
+                        and call(window_path)["value"] == ""):
+                    break
+                time.sleep(0.05)
+            else:
+                raise RuntimeError("controller reset retained a stale TX capture")
+        elif captures or latest != "0:" or events or "RX DMA descriptor=" in trace or "TX DMA outlink=" in trace:
             raise RuntimeError("raw no-injection control observed traffic")
     finally:
         call(path + "?purge=0", method="DELETE")
@@ -251,10 +299,12 @@ def run_raw(args: argparse.Namespace, inject: bool, firmware: dict, call, read_b
         "guest_markers": [line for line in serial.splitlines()
                           if line.startswith("MONITOR_") and not line.startswith("MONITOR_MPDU ")],
         "rx_mpdu_sha256": digest(packet) if inject else None,
-        "rx_mpdu_bytes": len(packet) if inject else 0,
-        "tx_mpdu_sha256": digest(tx) if tx else None,
-        "tx_mpdu_bytes": len(tx), "tx_sequence": int(sequence),
-        "invalid_fcs_rejected": inject,
+        "rx_mpdu_bytes": len(packet),
+        "tx_mpdu_sha256_by_sequence": {n: digest(tx) for n, tx in captures.items()},
+        "tx_mpdu_bytes": len(captures[12]) if inject else 0,
+        "retained_tx_sequences": retained,
+        "reset_cleared_capture": inject,
+        "invalid_fcs_and_protected_rejected": inject,
         "evidence_zip_sha256": digest(evidence),
         "serial_sha256": digest(serial.encode()),
         "guest_stopped_retained_history": True,
@@ -304,8 +354,8 @@ def main() -> None:
     if artifact["sha256"] != digest(binary) or firmware["sha256"] != boot_sha:
         raise RuntimeError("uploaded or normalized Flash SHA mismatch")
     if args.raw:
-        cases = {label: run_raw(args, inject, firmware, call, read_bytes)
-                 for label, inject in (("capture", True), ("no-injection", False))}
+        cases = {kind: run_raw(args, kind, firmware, call, read_bytes)
+                 for kind in ("action", "qos", "no-injection")}
     else:
         cases = {label: run(args, label, firmware, call, read_bytes)
                  for label in ("beacon", "no-beacon")}

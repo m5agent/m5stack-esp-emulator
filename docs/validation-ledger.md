@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| #204 StickS3 嗅探与有界 TX 捕获 / virtual-device validation | 原版 Evil 的 Probe Sniffing 显示合成 SSID，USB Serial/JTAG 同步报告；独立无输入画面保持空列表，USB 就绪标记未见。源码探针逐字节接收 Action 与 QoS Data，分别捕获 12 帧，晚读保留 5–12，复位清空。受保护帧拒绝 | [精确验证](../tests/firmware/sticks3_wifi_monitor/raw-window-summary.json) |
 | #204 StickS3 raw MPDU / virtual-device validation | 独立 Device Service 经 S3 RX DMA/IRQ 交付 42 B 受控 Action frame，guest 回调逐字节一致。MAC TX 路径在 IRQ 前保留完整 47 B DMA 缓冲区。错误 FCS 与无输入负控通过。原版 Evil 混杂模式未测 | [运行身份](../tests/firmware/sticks3_wifi_monitor/raw-summary.json) |
 | #204 StickS3 Wi-Fi 夹具 / virtual-device validation | QEMU `ad3b3b7c…` 的独立 Device Service 会话核验无宿主网络后端。ESP-IDF probe 经 S3 RX DMA/IRQ 收到 beacon，radio-off 无回调。无害 Probe Request 通过 TX DMA/IRQ，虚拟 AP 返回 Probe Response。原版 M5Gotchi 扫描为 1/1 和 0/0，四会话取证后停止。Evil、完整 raw TX 和真机未测 | [精确执行身份](../tests/firmware/sticks3_wifi_monitor/evidence-2026-11-09.json) |
 | #201 StickS3 PM1 IAP 与 ROM 下载 / virtual-device validation | 原版固件实际写入 20,480 字节，内层 CRC 校验通过，原 guest 经 USB Serial/JTAG 输出完成标记。坏 CRC 留在 bootloader。长按进入 ROM，短按后原应用再次启动。保留较早的 TCG 退出与 guest 复位断言 | [三组证据](../tests/firmware/sticks3_pm1/evidence-summary.json) |

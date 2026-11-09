@@ -1,0 +1,146 @@
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -256,7 +256,7 @@
+     Esp32WifiState *s = ESP32S3_WIFI(obj);
+     struct mac80211_frame frame = { 0 };
+     uint8_t *bytes = (uint8_t *)&frame;
+-    const size_t max = sizeof(s->s3_raw_tx_bytes);
++    const size_t max = ESP32S3_RAW_MPDU_MAX;
+     size_t hexlen = strnlen(hex, 2 * max + 1);
+     size_t len = hexlen / 2;
+     unsigned type, subtype;
+@@ -279,9 +279,14 @@
+     if ((bytes[0] & 3) || (bytes[1] & 0xc0) || (bytes[1] & 3) == 3 ||
+         (type == IEEE80211_TYPE_MGT && (bytes[1] & 3)) ||
+         (type != IEEE80211_TYPE_MGT &&
+-         (type != IEEE80211_TYPE_DATA || subtype != 0))) {
++         (type != IEEE80211_TYPE_DATA || (subtype != 0 && subtype != 8)))) {
+         error_setg(errp, "raw RX requires unprotected three-address "
+-                   "management or non-QoS data");
++                   "management or data");
++        return;
++    }
++    if (type == IEEE80211_TYPE_DATA && subtype == 8 &&
++        len < IEEE80211_HEADER_SIZE + 2 + 4) {
++        error_setg(errp, "raw RX QoS data is missing its QoS control field");
+         return;
+     }
+     if (ldl_le_p(bytes + len - 4) != crc32(0, bytes, len - 4)) {
+@@ -299,21 +304,46 @@
+     }
+ }
+ 
+-/* The capture is the latest complete descriptor before MAC rewriting. */
++/* Sequence numbers refer to captures since the last controller reset. */
++static void s3_wifi_raw_tx_append(GString *out, Esp32WifiState *s,
++                                  uint64_t sequence)
++{
++    static const char hex[] = "0123456789abcdef";
++    const Esp32S3RawTxFrame *frame;
++
++    g_string_append_printf(out, "%" PRIu64 ":", sequence);
++    if (!sequence) {
++        return;
++    }
++    frame = &s->s3_raw_tx_window[(sequence - 1) % ESP32S3_RAW_TX_WINDOW_SIZE];
++    for (size_t i = 0; i < frame->length; i++) {
++        g_string_append_c(out, hex[frame->bytes[i] >> 4]);
++        g_string_append_c(out, hex[frame->bytes[i] & 15]);
++    }
++}
++
+ static char *s3_wifi_raw_tx(Object *obj, Error **errp)
+ {
+-    static const char hex_chars[] = "0123456789abcdef";
+     Esp32WifiState *s = ESP32S3_WIFI(obj);
+-    char hex[2 * sizeof(s->s3_raw_tx_bytes) + 1];
+-    size_t i;
+-
+-    for (i = 0; i < s->s3_raw_tx_length; i++) {
+-        uint8_t byte = s->s3_raw_tx_bytes[i];
+-        hex[2 * i] = hex_chars[byte >> 4];
+-        hex[2 * i + 1] = hex_chars[byte & 15];
+-    }
+-    hex[2 * i] = '\0';
+-    return g_strdup_printf("%" PRIu64 ":%s", s->s3_raw_tx_sequence, hex);
++    GString *out = g_string_new(NULL);
++
++    s3_wifi_raw_tx_append(out, s, s->s3_raw_tx_sequence);
++    return g_string_free(out, false);
++}
++
++static char *s3_wifi_raw_tx_window(Object *obj, Error **errp)
++{
++    Esp32WifiState *s = ESP32S3_WIFI(obj);
++    uint64_t count = MIN(s->s3_raw_tx_sequence, ESP32S3_RAW_TX_WINDOW_SIZE);
++    GString *out = g_string_new(NULL);
++
++    for (uint64_t i = 0; i < count; i++) {
++        if (i) {
++            g_string_append_c(out, '\n');
++        }
++        s3_wifi_raw_tx_append(out, s, s->s3_raw_tx_sequence - count + 1 + i);
++    }
++    return g_string_free(out, false);
+ }
+ 
+ static void esp32s3_wifi_tx(Esp32WifiState *s, uint32_t outlink)
+@@ -342,8 +372,10 @@
+     }
+     if (s->s3_raw_fixture) {
+         if (item.length) {
+-            memcpy(s->s3_raw_tx_bytes, &frame, item.length);
+-            s->s3_raw_tx_length = item.length;
++            Esp32S3RawTxFrame *captured =
++                &s->s3_raw_tx_window[s->s3_raw_tx_sequence % ESP32S3_RAW_TX_WINDOW_SIZE];
++            memcpy(captured->bytes, &frame, item.length);
++            captured->length = item.length;
+             s->s3_raw_tx_sequence++;
+         }
+         s3_wifi_set_interrupt(s, S3_DMA_TX_COMPLETE);
+@@ -435,7 +467,6 @@
+     s->raw_interrupt = 0;
+     s->dma_inlink_address = 0;
+     s->dma_inlink_ptr = 0;
+-    s->s3_raw_tx_length = 0;
+     s->s3_raw_tx_sequence = 0;
+     memset(s->mem, 0, sizeof(s->mem));
+ }
+@@ -456,6 +487,7 @@
+     if (s->s3_raw_fixture) {
+         object_property_add_str(OBJECT(dev), "raw-rx-mpdu", NULL, s3_wifi_raw_rx);
+         object_property_add_str(OBJECT(dev), "raw-tx-latest", s3_wifi_raw_tx, NULL);
++        object_property_add_str(OBJECT(dev), "raw-tx-window", s3_wifi_raw_tx_window, NULL);
+     }
+     /*
+      * The current S3 PHY stub does not decode the RF channel fields yet.
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -26,6 +26,14 @@
+     ESP32_WIFI_WPA_READY,
+ };
+ 
++#define ESP32S3_RAW_MPDU_MAX 2316
++#define ESP32S3_RAW_TX_WINDOW_SIZE 8
++
++typedef struct Esp32S3RawTxFrame {
++    uint16_t length;
++    uint8_t bytes[ESP32S3_RAW_MPDU_MAX];
++} Esp32S3RawTxFrame;
++
+ typedef struct Esp32WifiState {
+     SysBusDevice parent_obj;
+     MemoryRegion iomem;
+@@ -44,9 +52,8 @@
+     bool radio_enabled;
+     bool wlan_closed;
+     bool s3_raw_fixture;
+-    uint16_t s3_raw_tx_length;
+     uint64_t s3_raw_tx_sequence;
+-    uint8_t s3_raw_tx_bytes[2316];
++    Esp32S3RawTxFrame s3_raw_tx_window[ESP32S3_RAW_TX_WINDOW_SIZE];
+     unsigned int inject_sequence_number;
+     int beacon_ap;
+ 
