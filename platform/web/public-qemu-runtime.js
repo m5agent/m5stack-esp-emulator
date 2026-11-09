@@ -24,7 +24,7 @@ export class PublicQemuRuntime {
     this.uartListeners=new Set();this.uartOwner=null;this.consoleEpoch=0;this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
-    runtime:this.receipt||null,display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
+    runtime:this.receipt||null,boot:this.bootEvidence(),display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
     resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
   state(status) { this.status=status;this.onState(this.observe()); }
   ask(op,value={},transfer=[]) {
@@ -66,7 +66,7 @@ export class PublicQemuRuntime {
       if(data.value.event==='WAKEUP'&&this.status==='sleeping')this.state(this.guestReady()?'running':'booting');
       if(data.value.event==='RESET'){
         this.consoleEpoch=Number.isSafeInteger(data.value.consoleEpoch)?data.value.consoleEpoch:this.consoleEpoch+1;
-        this.uartOwner=null;this.readySerialOffset=this.serial.length;this.lastDeviceState=null;
+        this.uartOwner=null;this.readySerialOffset=this.serial.length;this.readyMarkerObserved=false;this.lastDeviceState=null;
         if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');
       }
     }
@@ -74,6 +74,7 @@ export class PublicQemuRuntime {
     if(data.type==='frame') {
       if(this.profile?.display===null){this.receive({type:'error',value:'Headless QEMU device emitted an unadmitted framebuffer'},generation);return;}
       this.lastFrame={...data.value,sequence:++this.sequence};this.onFrame(this.lastFrame);
+      if(this.sequence===1)this.onState(this.observe());
     }
     if(data.type==='device-state') {
       try { validateQemuOnboardState(this.profile,data.value); }
@@ -94,7 +95,7 @@ export class PublicQemuRuntime {
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.display=null;this.displayPollAt=0;
-    this.receipt=null;this.profile=null;this.stoppedAt=null;
+    this.receipt=null;this.profile=null;this.stoppedAt=null;this.assetsReady=false;this.guestStarted=false;this.readyMarkerObserved=false;
     this.sessionId=crypto.randomUUID();this.startedAt=new Date().toISOString();
     const bootAbort=this.abort=new AbortController();
     const cancel=()=>{bootAbort.abort();if(generation===this.generation)void this.stop();};signal?.addEventListener('abort',cancel,{once:true});
@@ -110,7 +111,13 @@ export class PublicQemuRuntime {
       let profile=getQemuBrowserProfile(deviceId,registry,{allowCandidateProfiles:this.allowCandidateProfiles});
       check(profile,'该设备尚未取得浏览器运行准入。');
       check(globalThis.crossOriginIsolated&&typeof SharedArrayBuffer!=='undefined','浏览器共享内存尚未启用。请在 HTTPS 下刷新，允许本站 Service Worker；推荐桌面 Chromium。');
-      const flash=validateQemuFirmware(firmware,profile),firmwareSHA256=await sha256Buffer(flash,{signal:bootAbort.signal});
+      const flash=validateQemuFirmware(firmware,profile);
+      const inputBytes=firmware.byteLength,runtimeBytes=flash.byteLength;
+      const hashOptions={signal:bootAbort.signal};
+      const runtimeHash=sha256Buffer(flash,hashOptions);
+      const [firmwareSHA256,inputSHA256]=await Promise.all([
+        runtimeHash,inputBytes===runtimeBytes?runtimeHash:sha256Buffer(flash.subarray(0,inputBytes),hashOptions),
+      ]);
       active();
       if (profile.deviceId==='corematrix'&&profile.admission==='public') {
         const verifiedWorkbench=this.workbenchProfiles?.profiles.find(row=>row.deviceId===deviceId);
@@ -164,7 +171,9 @@ export class PublicQemuRuntime {
           startupSources:Object.fromEntries(Object.entries(workbench.files).map(([name,row])=>[name,row.sha256]))}:null,sourceCommit:runtimeIdentity.commit,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
-        firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
+        firmwareSha256:firmwareSHA256,firmwareInputSha256:inputSHA256,firmwareRuntimeSha256:firmwareSHA256,
+        normalization:{kind:inputBytes===runtimeBytes?'none':'pad-ff',inputBytes,runtimeBytes},
+        firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
       const iframe=document.createElement('iframe');this.iframe=iframe;
@@ -185,9 +194,11 @@ export class PublicQemuRuntime {
       iframe.contentWindow.postMessage({type:'m5-qemu-connect'},this.root.origin,[channel.port2]);
       const [,compiledWasm]=await Promise.all([connected,wasmAsset.compiled]);active();
       const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
+      this.assetsReady=true;
       const ready=this.waitFor('ready',90000);ready.catch(()=>{});this.state('booting');
       const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,runtimePatches:manifest.source.patches},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
+      this.guestStarted=true;
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
       this.receipt.actualArguments=Array.isArray(runtime.arguments)?runtime.arguments.slice():null;
       this.display=this.profile.deviceId === 'cardputer-adv' ? await this.ask('display') : null;
@@ -195,9 +206,19 @@ export class PublicQemuRuntime {
       this.poll(generation);return this.observe();
     }catch(error){if(generation===this.generation){await this.stop();if(error.name!=='AbortError'){this.state('error');this.onError(error);}}throw error;}
   }
-  guestReady() {
+  hasBoundReadyMarker() {
     const p=this.profile;
-    return !p?.readyMarker||this.receipt?.firmwareSha256!==p.readyFirmwareSHA256||this.serial.slice(this.readySerialOffset||0).includes(p.readyMarker);
+    return !!(p?.readyMarker&&this.receipt&&this.receipt.firmwareSha256===p.readyFirmwareSHA256);
+  }
+  guestReady() {
+    if(!this.hasBoundReadyMarker())return true;
+    this.readyMarkerObserved ||= this.serial.slice(this.readySerialOffset||0).includes(this.profile.readyMarker);
+    return this.readyMarkerObserved;
+  }
+  bootEvidence() {
+    return {assetsReady:this.assetsReady===true,guestStarted:this.guestStarted===true,
+      firstFrameSequence:this.sequence>0?1:null,
+      applicationReady:this.hasBoundReadyMarker()?(this.guestStarted&&this.guestReady()?'confirmed':'waiting'):'unknown'};
   }
   readEngineOwnership() {
     try {
@@ -288,7 +309,7 @@ export class PublicQemuRuntime {
     finally{if(temporary)this.releaseUart(owner);}
   }
   evidence(){return {schema_version:1,kind:'browser-local-qemu-evidence',session_id:this.sessionId,console_epoch:this.consoleEpoch,started_at:this.startedAt,
-    stopped_at:this.stoppedAt||null,receipt:this.receipt,serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,display:this.display,
+    stopped_at:this.stoppedAt||null,receipt:this.receipt,boot:this.bootEvidence(),serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,display:this.display,
     last_frame:this.lastFrame?{width:this.lastFrame.width,height:this.lastFrame.height,sequence:this.lastFrame.sequence,
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,

@@ -110,6 +110,7 @@
             ><button type="button" class="text-button" id="pauseBtn" hidden>暂停</button
             ><button type="button" class="text-button" id="stopBtn" hidden>停止</button>
           </div>
+          <p id="browserBootStatus" class="field-help" role="status" data-testid="browser-boot-status" hidden></p>
           <p id="actuatorStatus" class="console-content" role="status" aria-live="polite" hidden></p>
           <div id="runtimeUnitPanel"></div>
           <div id="browserPirPanel" class="console-content" hidden>
@@ -118,6 +119,7 @@
             <p>输入经原生 Unit / GPIO 控制器送入当前固件；屏幕与串口显示客体读回。</p>
           </div>
           <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
+          <p id="browserEvidenceStatus" class="field-help" role="status" data-testid="browser-evidence-status" data-evidence-state="unavailable" hidden></p>
           <section class="python-workbench" aria-labelledby="pythonHeading">
             <div class="python-heading"><h2 id="pythonHeading">MicroPython</h2><span id="pythonStatus" role="status" aria-live="polite">启动 UIFlow 后即可运行</span></div>
             <label class="public-label" for="pythonSource">在当前设备上运行代码</label>
@@ -154,7 +156,7 @@ print("Hello, UIFlow!")
             </div>
           </details>
         </section>
-        <aside class="firmware-setup surface" aria-labelledby="firmwareHeading">
+        <aside class="firmware-setup surface" id="firmwareSetup" aria-labelledby="firmwareHeading" data-firmware-source="reference" data-firmware-selected="false">
           <p class="eyebrow">LOAD & RUN</p>
           <h2 id="firmwareHeading">加载固件</h2>
           <fieldset class="source-picker">
@@ -194,12 +196,13 @@ print("Hello, UIFlow!")
             <label class="file-drop" for="firmwareFile"
               ><span aria-hidden="true">↑</span><strong id="localFileName">选择 .bin 固件</strong
               ><small>文件只在本次运行中使用</small
-              ><input id="firmwareFile" type="file" accept=".bin,application/octet-stream"
+              ><input id="firmwareFile" data-testid="firmware-file" type="file" accept=".bin,application/octet-stream" aria-describedby="firmwareFileStatus"
             /></label>
+            <p class="field-help" id="firmwareFileStatus" role="status">等待选择 .bin 固件</p>
           </div>
           <details class="plain-details advanced-options">
             <summary>校验与运行选项</summary>
-            <label class="public-label" for="firmwareSha">SHA-256（可选）</label
+            <label class="public-label" for="firmwareSha">输入固件 SHA-256（可选）</label
             ><input
               class="public-field mono"
               id="firmwareSha"
@@ -219,6 +222,12 @@ print("Hello, UIFlow!")
             开始运行 <span aria-hidden="true">→</span>
           </button>
           <div class="run-progress" id="runProgress" role="status" hidden></div>
+          <details class="plain-details" id="firmwareIdentity" hidden>
+            <summary>本次运行的固件校验值</summary>
+            <p class="field-help">输入固件 SHA-256 <code id="firmwareInputSha256"></code></p>
+            <p class="field-help">运行映像 SHA-256 <code id="firmwareRuntimeSha256"></code></p>
+            <p class="field-help" id="firmwareNormalization"></p>
+          </details>
           <button class="text-button cancel-loading" id="cancelLoadBtn" type="button" hidden>取消加载</button>
           <section class="execution-summary" aria-labelledby="capabilityTitle">
             <h3 id="capabilityTitle">正在确认运行方式</h3>

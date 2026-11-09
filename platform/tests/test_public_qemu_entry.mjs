@@ -18,6 +18,7 @@ const pageRoot='https://example.test/showcase/';
 const fixtureSha='78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
 const wallclockSha=demoFirmware.WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256;
 const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
+assert.match(html,/id="firmwareFile" data-testid="firmware-file"/);
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
@@ -42,10 +43,16 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,
   isolation={isolated:true,reloading:false}}={}){
-  const elements=new Map(),events=[],clipboard=[];
+  const elements=new Map(),events=[],clipboard=[],downloads=[];
+  let evidenceBlob;
+  class TestURL extends URL {
+    static createObjectURL(blob){evidenceBlob=blob;return 'blob:https://example.test/evidence';}
+    static revokeObjectURL(){}
+  }
   const makeElement=id=>({id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],children:[],
     listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},
     replaceChildren(...children){this.children=children;},append(...children){this.children.push(...children);},focus(){},scrollIntoView(){},
+    click(){if(id==='a')downloads.push({href:this.href,filename:this.download,blob:evidenceBlob});},
     classList:{add(){},remove(){},toggle(){}}});
   const element=(id)=>{
     if(!elements.has(id))elements.set(id,makeElement(id));
@@ -81,7 +88,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   });
   const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
     navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
-    URL,URLSearchParams,Map,TextEncoder,AbortController,DOMException,console,
+    URL:TestURL,URLSearchParams,Map,TextEncoder,AbortController,DOMException,Blob,console,setTimeout,
     fetch:fetchFixture,events,
   });
   vm.runInContext(body+`
@@ -89,11 +96,12 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
     connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
     startRun=async()=>events.push('start:'+lane());
-    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,firmware,updateCapability};
+    globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,
+      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
-  return {...context.contract,elements,events,clipboard,element,radios};
+  return {...context.contract,elements,events,clipboard,downloads,element,radios};
 }
 
 for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavailable']){
@@ -193,7 +201,7 @@ const uploadController=new PublicQemuRuntime({root:pageRoot,profiles:registry});
 uploadController.receipt={deviceId:'cores3',firmwareSha256:'f'.repeat(64),uiflowWorkbench:null};
 uploadedUart.state.run={kind:'browser',generation:uploadedUart.state.runGeneration,controller:uploadController};uploadedUart.status('running');
 assert.equal(uploadedUart.element('pythonRunBtn').disabled,false,'compatible UART still permits the existing REPL handshake attempt');
-assert.match(uploadedUart.element('pythonStatus').textContent,/串口已连接，MicroPython 待确认/);
+assert.match(uploadedUart.element('pythonStatus').textContent,/MicroPython REPL 未验证/);
 assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*就绪/);
 assert.equal(uploadedUart.element('stageFirmwareNotice').hidden,true);
 uploadController.receipt.uiflowWorkbench={};uploadedUart.status('running');
@@ -218,13 +226,52 @@ assert.match(uploadedUart.element('pythonStatus').textContent,/已休眠/);
 // handed to the runtime, with one File read and the existing SHA rejection.
 const localFile=await entry({search:'?device=stackchan&autostart=0'});
 for(const [name,radio] of localFile.radios)radio.checked=name==='local';
+localFile.sourceChanged();
+assert.equal(localFile.element('firmwareSetup').dataset.firmwareSource,'local');
+assert.equal(localFile.element('firmwareSetup').dataset.firmwareSelected,'false');
 const localBytes=new Uint8Array([0xe9,1,2,3,4,5]).buffer;let fileReads=0;
 localFile.element('firmwareFile').files=[{size:localBytes.byteLength,name:'fixture.bin',arrayBuffer:async()=>{fileReads++;return localBytes;}}];
+localFile.element('firmwareFile').listeners.get('change')();
+assert.equal(localFile.element('firmwareSetup').dataset.firmwareSelected,'true');
+assert.equal(localFile.element('localFileName').textContent,'fixture.bin');
 const loadedLocal=await localFile.firmware(new AbortController().signal,localFile.state.runGeneration);
 assert.equal(loadedLocal.bytes,localBytes);assert.equal(fileReads,1,'local Flash is read once and the hashed buffer is reused');
 assert.equal(loadedLocal.sha256,createHash('sha256').update(new Uint8Array(localBytes)).digest('hex'));
 localFile.element('firmwareSha').value='0'.repeat(64);
 await assert.rejects(localFile.firmware(new AbortController().signal,localFile.state.runGeneration),/SHA-256/);
+localFile.updateFirmwareIdentity({firmwareInputSha256:'a'.repeat(64),firmwareRuntimeSha256:'b'.repeat(64),
+  normalization:{kind:'pad-ff',inputBytes:6,runtimeBytes:16}});
+assert.equal(localFile.element('firmwareInputSha256').textContent,'a'.repeat(64));
+assert.equal(localFile.element('firmwareRuntimeSha256').textContent,'b'.repeat(64));
+assert.match(localFile.element('firmwareNormalization').textContent,/0xFF.*6 B.*16 B/);
+localFile.updateFirmwareIdentity(null);
+assert.equal(localFile.element('firmwareIdentity').hidden,true);
+assert.equal(localFile.element('firmwareInputSha256').textContent,'');
+assert.equal(localFile.element('firmwareRuntimeSha256').textContent,'');
+const stockBoot={assetsReady:true,guestStarted:true,firstFrameSequence:1,applicationReady:'unknown'};
+localFile.updateBrowserBoot({status:'running',boot:stockBoot});
+assert.equal(localFile.element('browserBootStatus').dataset.firstFrameSequence,'1');
+assert.equal(localFile.element('browserBootStatus').dataset.applicationReady,'unknown');
+assert.match(localFile.element('browserBootStatus').textContent,/首帧已收到.*应用就绪未确认/);
+localFile.updateBrowserBoot({status:'error',boot:{assetsReady:false,guestStarted:false,firstFrameSequence:null,applicationReady:'waiting'}});
+assert.match(localFile.element('browserBootStatus').textContent,/未就绪.*未取得首帧.*未收到应用就绪标记/);
+const evidenceController={sessionId:'test-session',receipt:{deviceId:'stackchan'},evidence:()=>({session_id:'test-session'})};
+localFile.state.lastBrowserController=evidenceController;
+localFile.status('stopped');
+assert.equal(localFile.element('browserEvidenceStatus').dataset.evidenceState,'ready');
+const requestDownload=localFile.element('browserEvidenceBtn').listeners.get('click');
+requestDownload();
+assert.equal(localFile.element('browserEvidenceStatus').dataset.evidenceState,'download-requested');
+assert.equal(localFile.downloads[0].filename,'stackchan-test-session.json');
+assert.deepEqual(JSON.parse(await localFile.downloads[0].blob.text()),{session_id:'test-session'});
+evidenceController.evidence=()=>{throw new Error('Cannot generate evidence');};
+requestDownload();
+assert.equal(localFile.element('browserEvidenceStatus').dataset.evidenceState,'download-error');
+assert.equal(localFile.downloads.length,1);
+localFile.state.lastBrowserController=null;
+localFile.status('loading');
+assert.equal(localFile.element('browserEvidenceStatus').dataset.evidenceState,'unavailable');
+assert.equal(localFile.element('browserEvidenceBtn').hidden,true);
 
 const unavailable=await entry({registryFailure:true,search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0'});
 assert.equal(unavailable.state.browserUnavailable,true);assert.equal(unavailable.browserProfile('cores3'),null);

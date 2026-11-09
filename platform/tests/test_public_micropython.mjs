@@ -180,7 +180,7 @@ for(const reset of [false,true]){
   const runtime=guest({forever:true}),runner=new PublicMicroPythonRunner(runtime);
   await assert.rejects(runner.run('print(1)',{timeoutMs:150,onPhase:phase=>{
     if(phase==='running')runtime.feed('\x04');
-  }}),/超时/);
+  }}),error=>/超时/.test(error.message)&&error.code!=='micropython_repl_timeout');
   assert.equal(runner.busy,false,'missing stderr EOF has a finite completion deadline');
 }
 {
@@ -253,7 +253,7 @@ for(const reset of [false,true]){
 }
 {
   const runtime=guest({silent:true}),runner=new PublicMicroPythonRunner(runtime);
-  await assert.rejects(runner.run('print(1)',{timeoutMs:150}),/超时/);assert.equal(runtime.listeners.size,0);
+  await assert.rejects(runner.run('print(1)',{timeoutMs:150}),{code:'micropython_repl_timeout'});assert.equal(runtime.listeners.size,0);
   await assert.rejects(runner.run(''),/请输入/);await assert.rejects(runner.run('x'.repeat(65537)),/64 KiB/);
   assert.equal(runtime.writes.filter(row=>row.length===1&&row[0]===4).length,0,'failed handshake never soft-resets the guest');
 }

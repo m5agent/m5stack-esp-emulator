@@ -52,7 +52,11 @@ export class PublicMicroPythonRunner {
       lastTick=now;
       if(Date.now()>current.interruptDeadline)throw new Error('设备未响应中断，请停止或重新启动设备。');
       if(this.overflow)throw new Error('串口输出超过缓冲区上限，请减少输出频率。');
-      if(Date.now()>deadline)throw new Error('等待 MicroPython 串口响应超时。可中断后重试或重启设备。');
+      if(Date.now()>deadline){
+        const failure=new Error('等待 MicroPython 串口响应超时。可中断后重试或重启设备。');
+        if(current.phase==='connecting')failure.code='micropython_repl_timeout';
+        throw failure;
+      }
     };
     const read=async count=>{
       while(buffer.length-offset<count){active();await delay(10);}

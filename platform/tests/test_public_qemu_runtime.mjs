@@ -65,6 +65,12 @@ function create(overrides={}){
 try {
   const normal=create();await normal.runtime.start({device:'cores3',firmware:firmware()});await until(()=>normal.runtime.lastFrame);
   assert.equal(normal.runtime.observe().status,'running');assert.equal(normal.runtime.observe().persistentStorage,false);
+  assert.deepEqual(normal.runtime.evidence().boot,{assetsReady:true,guestStarted:true,firstFrameSequence:1,applicationReady:'unknown'});
+  const input=new Uint8Array(firmware()), normalized=validateQemuFirmware(input,coreProfile);
+  assert.equal(normal.runtime.receipt.firmwareInputSha256,sha256Bytes(input));
+  assert.equal(normal.runtime.receipt.firmwareRuntimeSha256,sha256Bytes(normalized));
+  assert.equal(normal.runtime.receipt.firmwareSha256,normal.runtime.receipt.firmwareRuntimeSha256);
+  assert.deepEqual(normal.runtime.receipt.normalization,{kind:'pad-ff',inputBytes:input.byteLength,runtimeBytes:normalized.byteLength});
   assert.equal(normal.runtime.display,null);
   assert.equal(frames.at(-1).calls.some(row=>row.op==='display'),false);
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
@@ -127,14 +133,20 @@ try {
   resetting.runtime.profile.readyMarker='READY_AFTER_RESET';
   resetting.runtime.profile.readyFirmwareSHA256=resetting.runtime.receipt.firmwareSha256;
   resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);
+  assert.equal(resetting.runtime.evidence().boot.applicationReady,'confirmed');
+  resetting.runtime.receive({type:'serial',value:'x'.repeat(65536)},resetGeneration);
+  assert.equal(resetting.runtime.serial.includes('READY_AFTER_RESET'),false);
+  assert.equal(resetting.runtime.evidence().boot.applicationReady,'confirmed');
   await resetting.runtime.reset();
   assert.deepEqual(resetFrame.calls.at(-1).value,{type:'reset',down:true});
   assert.equal(resetFrame.calls.at(-1).op,'input');
   resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false,reason:'host-qmp-system-reset'}},resetGeneration);
   assert.equal(resetting.runtime.consoleEpoch,1,'hardware reset has its own UART execution fence');
   assert.equal(resetting.runtime.status,'booting');assert.equal(resetting.runtime.guestReady(),false,'old serial marker cannot admit a restarted guest');
+  assert.equal(resetting.runtime.evidence().boot.applicationReady,'waiting');
   resetting.runtime.receive({type:'serial',value:'new boot\n'},resetGeneration);assert.equal(resetting.runtime.status,'booting');
   resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);assert.equal(resetting.runtime.status,'running');
+  assert.equal(resetting.runtime.evidence().boot.applicationReady,'confirmed');
   await resetting.runtime.pause();await resetting.runtime.reset();
   resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false}},resetGeneration);
   assert.equal(resetting.runtime.status,'paused','reset cannot claim a paused CPU resumed');

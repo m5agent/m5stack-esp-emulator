@@ -124,6 +124,46 @@ function appendSerial(text) {
   $('serialCount').textContent = bytes(state.serialBytes);
   if ($('serialDrawer').open) $('serialOutput').scrollTop = $('serialOutput').scrollHeight;
 }
+function updateBrowserBoot(value) {
+  const label=$('browserBootStatus'), boot=value?.boot;
+  const next={assetsReady:String(boot?.assetsReady??false),guestStarted:String(boot?.guestStarted??false),
+    firstFrameSequence:String(boot?.firstFrameSequence??''),applicationReady:boot?.applicationReady??'unknown'};
+  Object.assign(label.dataset,next);
+  if(!boot) { message('browserBootStatus'); return; }
+  const ended=['stopped','error'].includes(value.status);
+  let phase;
+  if(boot.guestStarted)phase='客体已开始执行';
+  else if(boot.assetsReady)phase=ended?'WASM 和 ROM 已就绪，客体未开始执行':'WASM 和 ROM 已就绪，正在启动客体';
+  else phase=ended?'WASM 和 ROM 未就绪':'正在准备 WASM 和 ROM';
+  const frame=boot.firstFrameSequence!==null?'首帧已收到':value.runtime?.frameTransport===null?'设备无屏幕':ended?'未取得首帧':'等待首帧';
+  const app={confirmed:'已收到应用就绪标记',waiting:ended?'未收到应用就绪标记':'等待应用就绪标记',unknown:'应用就绪未确认'};
+  const text=`${phase} · ${frame} · ${app[boot.applicationReady]}`;
+  if(label.textContent!==text)message('browserBootStatus',text);
+}
+function updateFirmwareIdentity(receipt) {
+  $('firmwareIdentity').hidden=!receipt;
+  $('firmwareInputSha256').textContent=receipt?.firmwareInputSha256??'';
+  $('firmwareRuntimeSha256').textContent=receipt?.firmwareRuntimeSha256??'';
+  if(!receipt) { $('firmwareNormalization').textContent=''; return; }
+  const {kind,inputBytes,runtimeBytes}=receipt.normalization;
+  $('firmwareNormalization').textContent=kind==='pad-ff'
+    ?`运行前用 0xFF 从 ${bytes(inputBytes)} 补齐到 ${bytes(runtimeBytes)}。`
+    :`输入已达到 ${bytes(runtimeBytes)} Flash 容量，直接使用。`;
+}
+function browserEvidenceState(status,text) {
+  $('browserEvidenceStatus').dataset.evidenceState=status;
+  message('browserEvidenceStatus',text);
+}
+function updateBrowserEvidence() {
+  const controller=state.lastBrowserController;
+  const ready=!!controller?.receipt;
+  $('browserEvidenceBtn').hidden=!ready;
+  const label=$('browserEvidenceStatus');
+  const session=ready?controller.sessionId:'';
+  if(label.dataset.sessionId===session)return;
+  label.dataset.sessionId=session;
+  browserEvidenceState(ready?'ready':'unavailable',ready?'本地运行记录可下载。':'');
+}
 function status(status, detail) {
   const labels = {
     loading: '正在加载固件',
@@ -148,11 +188,11 @@ function status(status, detail) {
   $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
   $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
-  $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
+  updateBrowserEvidence();
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : state.run?.owned===false ? '停止查看' : '停止';
 }
-const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成'};
+const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成',noRepl:'当前固件未响应网页 MicroPython REPL 握手'};
 function pythonUnavailableReason() {
   const device=state.selected;
   if (state.run?.kind==='service') return '当前固件未启用网页编程。选择 UIFlow2 编程环境后重新启动。';
@@ -198,7 +238,7 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   else if(currentStatus==='error')$('pythonStatus').textContent='设备运行未完成，请停止或重新启动';
   else if(currentStatus==='sleeping')$('pythonStatus').textContent='设备已休眠，请唤醒后运行代码';
   else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 UIFlow…':'正在启动固件…';
-  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'UIFlow 已就绪':'串口已连接，MicroPython 待确认');
+  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'UIFlow 已就绪':'当前固件的 MicroPython REPL 未验证，运行代码时尝试连接');
   const readyWorkbench = currentStatus === 'running' && supported && (programming || (native && run.owned !== false && run.python.ready));
   updateStageFirmwareNotice($('runtimeStatus').dataset.status, readyWorkbench && !busy && !run.pythonPhase);
 }
@@ -215,7 +255,8 @@ async function runPython() {
       onOutput:text=>{if(current()){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
     });
   }catch(cause){if(current()){
-    run.pythonPhase='failed';$('pythonStatus').textContent='运行未完成';
+    run.pythonPhase=cause.code==='micropython_repl_timeout'?'noRepl':'failed';
+    $('pythonStatus').textContent=pythonPhases[run.pythonPhase];
     $('pythonOutput').textContent+=`\n${cause.message}`;
   }}finally{if(current())updatePythonControls();}
 }
@@ -366,8 +407,26 @@ function sourceChanged() {
     ['localFields', 'local'],
   ])
     $(name).hidden = source() !== value;
+  updateFirmwareSelection();
   $('shareStatus').textContent = '';
   updateCapability();
+}
+function updateFirmwareSelection() {
+  const selectedSource=source(), file=$('firmwareFile').files[0];
+  $('firmwareSetup').dataset.firmwareSource=selectedSource;
+  $('firmwareSetup').dataset.firmwareSelected=String(selectedSource==='local'&&!!file);
+  $('localFileName').textContent=file?.name||'选择 .bin 固件';
+  $('firmwareFileStatus').textContent=file?`已选择 ${bytes(file.size)}，启动时校验。`:'等待选择 .bin 固件';
+}
+function clearBrowserFrame() {
+  $('rawFramePanel').hidden=true;
+  const canvas=$('rawFrameCanvas');
+  canvas.width=canvas.height=0;
+  delete canvas.dataset.frameSequence;
+  $('deviceMount').classList.remove('has-raw-frame');
+  delete $('deviceMount').dataset.frameSequence;
+  state.shell?.display?.fill('#000000');
+  state.shell?.viewer?.requestRender();
 }
 function view(mode) {
   state.shell?.setViewMode?.(mode);
@@ -393,6 +452,10 @@ async function selectDevice(id, {openGeneration} = {}) {
   await stopRun();
   if (selection !== state.selection) return;
   message('errorBanner');
+  if(state.selected?.id!==row.id) {
+    state.lastBrowserController=null;
+    updateBrowserEvidence();
+  }
   state.inventory = state.localUnitInventory;
   await state.picker?.attachShell(null);
   if(selection!==state.selection)return;
@@ -407,9 +470,9 @@ async function selectDevice(id, {openGeneration} = {}) {
   state.shell?.dispose();
   state.shell = null;
   $('deviceMount').replaceChildren(node('p', 'stage-loading', '正在准备设备模型…'));
-  $('rawFramePanel').hidden = true;
-  $('deviceMount').classList.remove('has-raw-frame');
-  delete $('deviceMount').dataset.frameSequence;
+  clearBrowserFrame();
+  updateBrowserBoot(null);
+  updateFirmwareIdentity(null);
   const device = row.path
     ? {...row, ...(await json(assetUrl(`devices/${row.path}/device.json`))), browser: row.browser}
     : row;
@@ -548,14 +611,18 @@ async function stopRun() {
   const attempt = (async () => {
     try {
       await releaseInputs(run);
-      await run.controller.stop();
-      if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
+      const result=await run.controller.stop();
+      if (run.controller instanceof PublicQemuRuntime) {
+        updateBrowserBoot(result);
+        renderBrowserHistory();
+      }
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
       await state.picker?.setLocked(false);
       await state.picker?.attachShell(state.shell);
       clearBrowserOutputs(run.controller.outputProfile || run.controller.profile);
-      status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录':'保留最后显示帧');
+      status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录'
+        :result?.boot?.firstFrameSequence===null?'未取得屏幕帧':'保留最后显示帧');
       message('runProgress');
     } catch (cause) {
       state.stopUnconfirmed = true;
@@ -771,7 +838,15 @@ async function startRun() {
   state.busy = true;
   await state.picker?.setLocked(true, '停止当前运行后可修改 Unit 连线。');
   if (kind === 'browser') setBrowserModelsPaused(true);
-  status('loading', '尚未取得应用首帧');
+  clearBrowserFrame();
+  updateBrowserBoot(null);
+  updateFirmwareIdentity(null);
+  state.lastBrowserController=null;
+  state.serial = '';
+  state.serialBytes = 0;
+  $('serialOutput').textContent = '';
+  $('serialCount').textContent = '0 B';
+  status('loading', '等待本次运行的屏幕帧');
   updateCapability();
   let run;
   try {
@@ -779,15 +854,7 @@ async function startRun() {
     if(nativeWorkbench&&$('firmwareSha').value.trim())throw new Error('服务编程环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
     const loaded = nativeWorkbench ? {name:reference().name,size:0} : await firmware(abort.signal, generation);
     if (generation !== state.runGeneration || selection !== state.selection) return;
-    $('rawFramePanel').hidden = true;
-    $('deviceMount').classList.remove('has-raw-frame');
-    state.shell.display?.fill('#000000');
     clearBrowserOutputs(browserProfile(state.selected.id));
-    state.shell.viewer?.requestRender();
-    state.serial = '';
-    state.serialBytes = 0;
-    $('serialOutput').textContent = '';
-    $('serialCount').textContent = '0 B';
     message('runProgress', nativeWorkbench ? '正在启动 UIFlow 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
     run = {kind, generation, controller: null};
     const callbacks = {
@@ -812,6 +879,10 @@ async function startRun() {
         onState: (value) => {
           if (active(run)) {
             applyBrowserPresentation(value);
+            if(value.boot) {
+              updateBrowserBoot(value);
+              updateFirmwareIdentity(value.runtime);
+            }
             status(value.status);
             if (value.status==='stopped'||value.status==='error') clearBrowserOutputs(run.controller.profile);
             if (['running', 'paused', 'error', 'stopped'].includes(value.status)) setBrowserModelsPaused(false);
@@ -1343,9 +1414,7 @@ $('pauseBtn').addEventListener('click', async () => {
     if (active(run)) error(cause);
   }
 });
-$('firmwareFile').addEventListener('change', () => {
-  $('localFileName').textContent = $('firmwareFile').files[0]?.name || '选择 .bin 固件';
-});
+$('firmwareFile').addEventListener('change', updateFirmwareSelection);
 $('pythonRunBtn').addEventListener('click',()=>void runPython());
 $('pythonInterruptBtn').addEventListener('click',async()=>{
   const run=state.run;
@@ -1411,9 +1480,19 @@ $('nativeScreenBtn').addEventListener('click',()=>{
 $('browserEvidenceBtn').addEventListener('click', () => {
   const controller = state.lastBrowserController;
   if (!controller?.receipt) return;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(controller.evidence(),null,2)],{type:'application/json'}));
-  const link = document.createElement('a');link.href=url;link.download=`${controller.receipt.deviceId||'cores3'}-${controller.sessionId}.json`;link.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  let url;
+  try {
+    url=URL.createObjectURL(new Blob([JSON.stringify(controller.evidence(),null,2)],{type:'application/json'}));
+    const link=document.createElement('a');
+    link.href=url;
+    link.download=`${controller.receipt.deviceId||'cores3'}-${controller.sessionId}.json`;
+    link.click();
+    browserEvidenceState('download-requested','已请求浏览器下载，请查看下载列表。');
+  } catch {
+    browserEvidenceState('download-error','无法生成运行记录下载，请重试。');
+  } finally {
+    if(url)setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
 });
 $('unitExplorer').addEventListener('toggle', () => {
   if (!$('unitExplorer').open) disposeUnitPreview();

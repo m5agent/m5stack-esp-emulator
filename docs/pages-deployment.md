@@ -153,6 +153,13 @@ URL / 本地 `.bin` 入口按选定板型检查完整 ESP32/S3 合并镜像、�
 可下载 JSON 运行记录；本机历史仅保留最近五条摘要和串口，不保存 Flash、
 跨设备共享状态或刷新后的历史画面。浏览器存储不可用时仍可运行和下载记录。
 
+浏览器运行记录的 `receipt.firmwareInputSha256` 对应送入运行时的固件字节，
+`receipt.firmwareRuntimeSha256` 对应实际加载的 Flash。后者与既有
+`receipt.firmwareSha256` 一致。`receipt.normalization` 记录补齐方式和字节数。
+`boot` 分别记录 WASM/ROM 准备、客体开始执行、首帧序号和应用就绪状态。
+只有绑定当前镜像 SHA 的客体就绪标记能确认应用就绪。未知固件的首帧只证明取到了画面。
+页面提示已请求下载时，可从浏览器下载列表核对本次会话的 JSON。
+
 ## 执行、渲染与退出证据
 
 `public-qemu-runtime.js` 在工作台管理校验后的资产、命令、采帧和运行记录。
