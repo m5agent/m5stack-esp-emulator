@@ -8,6 +8,7 @@ import signal
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -275,6 +276,15 @@ def flash_with_esp_emu(
     }
 
 
+class _StubUploadError(RuntimeError):
+    """The ROM reached stub upload but did not complete the UART exchange."""
+
+    def __init__(self, message: str, reason: str, uart_log_sha256: str):
+        super().__init__(message)
+        self.reason = reason
+        self.uart_log_sha256 = uart_log_sha256
+
+
 def flash_with_qemu(
     *,
     chip: str,
@@ -292,9 +302,42 @@ def flash_with_qemu(
 ) -> dict:
     """Use ROM MEM_DATA to upload stock esptool's guest stub, then write SPI.
 
+    Retry a ROM stub-upload transport failure once with slower UART pacing.
+    Each attempt has its own fresh VM and virtual Flash.
     ROM-only FLASH_DATA is retained as an explicit diagnostic option. It is
     not a fallback: that lane has independent checksum/format failures.
     """
+    started = time.monotonic()
+    settings = dict(chip=chip, machine=machine, image=image, flash_size=flash_size,
+                    env=env, qemu=qemu, rom_dir=rom_dir, memory=memory,
+                    no_stub=no_stub)
+    try:
+        return _flash_with_qemu_attempt(
+            **settings, out_dir=out_dir, timeout=timeout, baud_scale=baud_scale,
+        )
+    except _StubUploadError as error:
+        remaining = timeout - (time.monotonic() - started)
+        if no_stub or baud_scale <= 8 or remaining <= 0:
+            raise
+        retry_dir = Path(tempfile.mkdtemp(prefix="stub-upload-retry-", dir=out_dir))
+        (retry_dir / "first-attempt.txt").write_text(f"baud_scale={baud_scale}\n{error}\n")
+        result = _flash_with_qemu_attempt(
+            **settings, out_dir=retry_dir, timeout=remaining, baud_scale=8,
+        )
+        result["protocol"]["first_attempt"] = {
+            "baud_scale": baud_scale,
+            "phase": "rom-stub-upload",
+            "reason": error.reason,
+            "uart_log_sha256": error.uart_log_sha256,
+        }
+        return result
+
+
+def _flash_with_qemu_attempt(
+    *, chip: str, machine: str, image: Path, flash_size: int, out_dir: Path,
+    env: dict[str, str], qemu: Path, rom_dir: Path, timeout: float,
+    memory: str | None, no_stub: bool, baud_scale: int,
+) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     virtual_flash = out_dir / "virtual-flash.bin"
     virtual_flash.write_bytes(b"\xff" * flash_size)
@@ -369,12 +412,6 @@ def flash_with_qemu(
         )
         (out_dir / "esptool.stdout").write_text(result.stdout)
         (out_dir / "esptool.stderr").write_text(result.stderr)
-        if result.returncode:
-            raise RuntimeError(
-                f"QEMU esptool {tool_version} write failed ({result.returncode}, "
-                f"loader={'rom-only' if no_stub else 'stock-stub'}): "
-                f"{result.stderr[-1200:] or result.stdout[-1200:]}"
-            )
     finally:
         if emu.poll() is None:
             emu.terminate()
@@ -386,11 +423,27 @@ def flash_with_qemu(
         emu_stdout.close()
         emu_stderr.close()
 
-    expected = padded_image(image, flash_size)
-    actual = virtual_flash.read_bytes()
     protocol = download_protocol_evidence(uart_log.read_bytes())
+    if result.returncode:
+        message = (
+            f"QEMU esptool {tool_version} write failed ({result.returncode}, "
+            f"loader={'rom-only' if no_stub else 'stock-stub'}): "
+            f"{result.stderr[-1200:] or result.stdout[-1200:]}"
+        )
+        if (not no_stub and not protocol["stub_ohai"]
+                and "0x05" in protocol["reply_opcodes"]
+                and "Uploading stub flasher" in result.stdout):
+            for pattern, reason in (
+                ("Failed to write to target RAM (result was 0107:", "checksum-0107"),
+                ("Serial data stream stopped", "serial-stream-stopped"),
+            ):
+                if pattern in result.stderr:
+                    raise _StubUploadError(message, reason, protocol["uart_log_sha256"])
+        raise RuntimeError(message)
     if not no_stub and not protocol["stub_ohai"]:
         raise RuntimeError("stock esptool stub OHAI was not observed in the real UART log")
+    expected = padded_image(image, flash_size)
+    actual = virtual_flash.read_bytes()
     if actual != expected:
         first_diff = next(
             (index for index, (left, right) in enumerate(zip(actual, expected))
