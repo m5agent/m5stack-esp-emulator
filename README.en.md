@@ -47,6 +47,9 @@ in the visitor's browser; they are not bundled with the site. Local `.bin` files
 must still match the selected device's chip, board configuration and partition layout.
 See [browser requirements and firmware scope](docs/pages-deployment.md) and the [workbench composition tools and acceptance entry points](tests/browser-qemu/uiflow_workbench/README.md).
 
+Agents with desktop Chromium can use the browser Skill to load a compatible full-flash image and
+inspect the guest display on GitHub Pages. See [m5stack-browser-simulator](skills/m5stack-browser-simulator/SKILL.md).
+
 ## Run locally
 
 Python 3.12+ is recommended:

@@ -36,11 +36,14 @@ class AgentSkillPackagesTests(unittest.TestCase):
                         digest, path = row.split("  ", 1)
                         self.assertEqual(hashlib.sha256(archive.read(f"{name}/{path}")).hexdigest(), digest)
                     archive.extractall(temp / "standalone")
-                script = next(p for p in expected[name] if p.startswith("scripts/") and p.endswith(".py"))
-                completed = subprocess.run([sys.executable, "-I", str(temp / "standalone" / name / script), "--help"],
-                                           cwd=temp, capture_output=True, text=True, timeout=10)
-                self.assertEqual(completed.returncode, 0, completed.stderr)
-                self.assertIn("usage:", completed.stdout)
+                scripts = (p for p in expected[name] if p.startswith("scripts/") and p.endswith(".py"))
+                for script in scripts:
+                    completed = subprocess.run(
+                        [sys.executable, "-I", str(temp / "standalone" / name / script), "--help"],
+                        cwd=temp, capture_output=True, text=True, timeout=10,
+                    )
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    self.assertIn("usage:", completed.stdout)
 
     def test_unlisted_operator_files_are_never_packaged(self):
         with tempfile.TemporaryDirectory() as temporary:

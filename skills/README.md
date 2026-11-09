@@ -1,29 +1,31 @@
 # Agent skills
 
-部署 Device Service 后，Agent 可以通过这里的 skill 使用模拟器。helper 在 Agent
-所在机器运行，通过 HTTP 连接服务；Agent 机器不需要本仓库、QEMU、ROM 或固件缓存。
+Agent 可使用浏览器工作台预览固件画面，也可连接已部署的 Device Service 做更完整的联调。
 
 | Skill | 适用对象 | 范围 |
 | --- | --- | --- |
 | [m5stack-esp-emulator](m5stack-esp-emulator/SKILL.md) | 通用 Agent / 自行部署服务的用户 | 设备与 Unit 发现、通用固件上传/合成/Manifest、session、串口/画面/交互/QOM、网络与 Flash 取证、历史与清理；UIFlow 是其中一个专用路径 |
 | [uiflow2-simulator](uiflow2-simulator/SKILL.md) | AIFlow UIFlow2 Coding Agent | 完整 Python 模块/资源 checkpoint、同 guest Preview/Run、错误诊断和 UI 迭代，遵循 AIFlow 自身的部署确认流程 |
+| [m5stack-browser-simulator](m5stack-browser-simulator/SKILL.md) | 可操作桌面 Chromium 的 Agent | 在 GitHub Pages 选择已准入设备，导入兼容的完整 Flash 镜像，运行、查看画面并停止 |
 
-二者分别携带完整 helper 和参考文件，可单独复制。通用版没有 AIFlow 的
+网页版使用浏览器 WASM，无需部署服务或配置 Token。服务版和 AIFlow 版分别携带
+完整 helper 和参考文件，可单独复制。helper 在 Agent 机器上通过 HTTP 连接服务，
+无需本地 QEMU、ROM 或固件缓存。通用版没有 AIFlow 的
 `deploy_mode`、真实设备 ID、Client ID 或推送接口依赖；它也不把所有固件当作
 UIFlow。AIFlow 版保留原技能名 `uiflow2-simulator`，与现有选择器兼容，快照来源与
 差异记录在 [source.json](uiflow2-simulator/source.json)。原 AIFlow 仓库不因本次分发
 而改变。
 
-两套都能在创建时挂接已准入的传感器 Unit，并在同一会话运行中修改其已建模环境
-输入。例如 ENV III 的温度、湿度和气压；参考文件给出了初值、实时变化、恢复与
-guest 读数/画面验证流程。接线变更需新建会话，输入值不会自动传播到其它传感器。
+两套服务 Skill 都能在创建时挂接已准入的传感器 Unit，并在同一会话运行中修改其已建模环境
+输入。以 ENV III 为例，参考文件给出了温度、湿度和气压的初值、实时变化、恢复与
+guest 读数和画面验证流程。接线变更需新建会话，输入值不会自动传播到其它传感器。
 
 ## 使用和配置
 
 将所需的**整个 skill 目录**复制到 Agent 支持的 skills 目录，让其加载 `SKILL.md`。
-不要只复制 Markdown，丢下 `scripts/` 和 `references/`。两份 CLI 当前支持
-macOS/Linux 和 Python 标准库：通用版要求 Python 3.10+，AIFlow 版要求 Python 3.9+。
-其他平台可依据包内 HTTP 参考使用自己的 API 客户端。
+网页版只需按指南操作浏览器。通用服务版和 AIFlow 版需要保留 `scripts/` 和
+`references/`。两份 CLI 在 macOS/Linux 上使用 Python 标准库。通用版要求 Python 3.10+，
+AIFlow 版要求 Python 3.9+。其他平台可依据包内 HTTP 参考使用自己的 API 客户端。
 
 | 配置 | 通用版 | AIFlow 版 |
 | --- | --- | --- |
@@ -75,12 +77,13 @@ PYTHONPATH=platform/tools python3 -m unittest discover -s platform/tests -p 'tes
 通用 API 参考以当前 OpenAPI 和服务实现为依据，不从 AIFlow 的有限需求反推
 整个模拟器的能力。
 
-## 验证服务边界
+## 验证边界
 
-本仓库的 Agent 功能测试必须使用独立 Device Service：单独端口、state 目录与
+服务路径的 Agent 功能测试必须使用独立 Device Service，并配置单独端口、state 目录与
 控制 Token。`8787` 属于用户测试服务，不能用它跑 Agent 测试，也不能为测试停止
-或重启它。分发包默认不选择任何服务；其他用户使用其部署者明确授权的 endpoint。
+或重启它。两套服务 Skill 由部署者明确指定 endpoint。浏览器路径使用独立标签页，
+在当前运行中确认 guest 画面并停止该次运行。
 
-两包都只做虚拟设备工作。真实硬件烧录、审批/发布固件、服务/worker 管理和公共
-暴露不是本次 simulation 的隐含权限。设备、固件、Unit 准入和 functional PASS
-仍按各自证据判断；不同型号、固件或 runtime 不继承结论。
+三个 Skill 都只做虚拟设备验证。设备、固件和 Unit 准入以及功能结果按各自证据判断。
+结果只适用于实际执行的设备、固件和 runtime。真实硬件烧录、固件审批与发布、
+服务管理和公共暴露各需独立授权。

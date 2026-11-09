@@ -67,17 +67,17 @@ cd m5stack-esp-emulator
 
 ## Agent Skills
 
-部署 Device Service 的用户可以将 [skills/](skills/README.md) 中的完整目录安装到
-自己的 Agent，不需要在 Agent 机器安装 QEMU：
+将 [skills/](skills/README.md) 中的完整目录安装到 Agent，即可按任务选择浏览器或
+Device Service。Agent 机器无需安装 QEMU。
 
 | Skill | 用途 |
 | --- | --- |
 | [m5stack-esp-emulator](skills/m5stack-esp-emulator/SKILL.md) | 通用固件上传/合成/Manifest、设备与 Unit、虚拟运行、串口/画面/交互、网络/Flash 取证与会话清理 |
 | [uiflow2-simulator](skills/uiflow2-simulator/SKILL.md) | AIFlow 专用 UIFlow2 完整代码/资源包、同 guest Preview/Run、报错与 UI 迭代 |
+| [m5stack-browser-simulator](skills/m5stack-browser-simulator/SKILL.md) | 通过 GitHub Pages 导入兼容的完整 Flash 镜像并查看运行画面 |
 
-两包独立携带 helper 和参考文件，服务地址与控制 Token 由部署者配置，不包含
-本机 IP 或凭据。AIFlow 版保留上游技能名和当前两阶段确认流程；通用版没有
-AIFlow 运行依赖。安装、环境变量、验证及独立 ZIP 打包见 [Skill 指南](skills/README.md)。
+网页版无需 Device Service 或 Token。两套服务 Skill 各自携带 helper 和参考文件，
+由部署者配置服务地址与控制 Token。安装、环境变量、验证及独立 ZIP 打包见 [Skill 指南](skills/README.md)。
 
 ## 能力边界
 
