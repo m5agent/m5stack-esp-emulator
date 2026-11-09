@@ -693,6 +693,8 @@ def find_app_descriptor(data: bytes, start: int, end: int) -> dict | None:
 
 def expected_chip_id(soc: str) -> int | None:
     value = soc.upper()
+    if value.strip().replace("-", "").replace("_", "").startswith("ESP32C61"):
+        return 0x0014
     if "ESP32-P4" in value:
         return 0x0012
     if "ESP32-S3" in value:

@@ -69,6 +69,7 @@ CHIP_FAMILIES = {
     "ESP32-C3": "esp32c3",
     "ESP32-C5": "esp32c5",
     "ESP32-C6": "esp32c6",
+    "ESP32-C61": "esp32c61",
     "ESP32-H2": "esp32h2",
     "ESP32-P4": "esp32p4",
 }
@@ -79,6 +80,8 @@ SOC_ALIASES = {
     "esp32-s3": "esp32s3",
     "esp32c6": "esp32c6",
     "esp32-c6": "esp32c6",
+    "esp32c61": "esp32c61",
+    "esp32-c61": "esp32c61",
     "esp32p4": "esp32p4",
     "esp32-p4": "esp32p4",
 }
@@ -411,7 +414,7 @@ def normalize_soc(value: Any) -> str | None:
     if exact is not None:
         return exact
     compact = normalized.replace("-", "")
-    for prefix in ("esp32p4", "esp32c6", "esp32s3", "esp32"):
+    for prefix in ("esp32p4", "esp32c61", "esp32c6", "esp32s3", "esp32"):
         if compact.startswith(prefix):
             return prefix
     return None

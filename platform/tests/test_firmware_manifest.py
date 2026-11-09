@@ -21,6 +21,7 @@ from firmware_manifest import (  # noqa: E402
     import_package,
     load_device_profile,
     normalize_capability_declarations,
+    normalize_soc,
     validate_capabilities,
     validate_manifest_structure,
 )
@@ -1907,6 +1908,20 @@ class FirmwareManifestTests(unittest.TestCase):
             "device.key",
             json.dumps(manifest, sort_keys=True),
         )
+
+    def test_c61_is_rejected_for_c6_profile(self):
+        for chip in ("esp32c61", "ESP32-C61", "ESP32-C61HR8"):
+            with self.subTest(chip=chip):
+                self.assertEqual(normalize_soc(chip), "esp32c61")
+                result = validate_capabilities(
+                    {
+                        "target": {"soc": chip},
+                        "capabilities": {"required": [], "optional": []},
+                    },
+                    load_device_profile("nanoc6"),
+                )
+                self.assertEqual(result["status"], "REJECTED")
+                self.assertEqual([row["code"] for row in result["errors"]], ["soc_mismatch"])
 
     def test_soc_and_flash_mismatches_are_rejected(self):
         profile = load_device_profile("sticks3")
