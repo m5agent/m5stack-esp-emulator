@@ -1031,11 +1031,66 @@ def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+# These review samples have a proven dependency on a missing guest path. Keep
+# them bound to the uploaded bytes: a name, an empty Wi-Fi scan, or quiet BLE
+# logs alone cannot establish which capability an arbitrary image needs.
+_STICKS3_PMIC_UPGRADE_SHA256 = (
+    "35e5acdb0f6e503e0ddb65fc81b91d44ef0e10550aca87a945e9d3f0300582a4"
+)
+_STICKS3_AIRMOUSE_SHA256 = (
+    "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8"
+)
+_STICKS3_MONITOR_SHA256 = frozenset({
+    "50425b34eb8b4f2b3dea7c85753e37f649c995bfae72b6189e4454077d686246",
+    "84582c9b4179b11a6d7fc1e918731e44b066f24ea7fbbfe6f9516a910c44b653",
+})
+
+
+def _sticks3_review_model_gaps(
+    serial: str, firmware_sha256: str | None,
+) -> list[dict[str, str]]:
+    gaps = []
+    if (
+        firmware_sha256 == _STICKS3_PMIC_UPGRADE_SHA256
+        and "Firmware upgrade completed" not in serial
+    ):
+        gaps.append((
+            "sticks3_pm1_iap_not_modeled",
+            "PM1 IAP and dynamic SoC boot strapping have no modeled "
+            "completion path for the official StickS3 upgrade sample",
+        ))
+    if "tinyusb_driver_install(): Can't initialize the TinyUSB stack" in serial:
+        gaps.append((
+            "esp32s3_usb_otg_not_modeled",
+            "TinyUSB initialization failed on the StickS3 QEMU profile, "
+            "which lacks a USB OTG device controller path",
+        ))
+    if firmware_sha256 == _STICKS3_AIRMOUSE_SHA256:
+        gaps.append((
+            "sticks3_ble_hid_host_unavailable",
+            "the AirMouse sample requires a BLE HID host; this review "
+            "path has no pairing or HID report observation",
+        ))
+    if firmware_sha256 in _STICKS3_MONITOR_SHA256:
+        gaps.append((
+            "sticks3_wifi_monitor_not_modeled",
+            "this firmware's 802.11 monitor function lacks a validated "
+            "controller-backed receive and transmit fixture",
+        ))
+    return [
+        {"code": code, "scope": "sticks3-qemu", "detail": detail}
+        for code, detail in gaps
+    ]
+
+
 def detect_runtime_model_gaps(
     serial: str,
     device_id: str | None = None,
+    *,
+    runtime: str | None = None,
+    firmware_sha256: str | None = None,
 ) -> list[dict[str, str]]:
-    """Identify stable runtime signatures caused by unmodeled device features."""
+    """Identify stable runtime signatures and exact sample capability gaps."""
 
     gaps: list[dict[str, str]] = []
     if "Zigbee_main" in serial and re.search(
@@ -1118,6 +1173,8 @@ def detect_runtime_model_gaps(
                     ),
                 }
             )
+    if device_id == "sticks3" and runtime == "qemu" and not error_lines(serial):
+        gaps.extend(_sticks3_review_model_gaps(serial, firmware_sha256))
     return gaps
 
 
@@ -1599,6 +1656,8 @@ def execute_sample(
         runtime_model_gaps = detect_runtime_model_gaps(
             serial + "\n" + stderr,
             device_id=sample["device_id"],
+            runtime=snapshot.get("runtime"),
+            firmware_sha256=artifact.get("sha256"),
         )
         result["runtime_model_gaps"] = runtime_model_gaps
         log_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-serial.log"

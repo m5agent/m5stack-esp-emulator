@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| #201–#204 StickS3 矩阵判定 / virtual-device validation | 同一 QEMU `6d9af027…` 复跑 PMIC Upgrade、Bit Pirate、AirMouseS3、M5Gotchi 和 Evil-StickS3。五个样本由 UI 基线 PASS 改为结构化 `PARTIAL/runtime_model_gap`。PM1 IAP 请求和 TinyUSB 安装失败仍可观测，PulseOS 对照未命中缺口 | [模型缺口和关闭条件](runtime-model-gap-register.md#runtime-10sticks3-固件审查中的-pm1usbble-hid-与-wi-fi-monitor) |
 | CoreMatrix 官方启动 / virtual-device validation | 官方 UIFlow2 v2.5.4 原镜像在独立原生 Device Service 及 C61 浏览器 WASM 上通过离线启动、36 像素点阵、216 字节 USB REPL 与 A/B/C 输入。浏览器另通过三个组合镜像会话。8 MiB Quad PSRAM、Wi-Fi 实际收发和实体硬件仍待验收 | [原生证据](../tests/firmware/corematrix_backend_feasibility/stock-startup-summary.json) · [浏览器证据](../tests/firmware/corematrix_backend_feasibility/browser-qualification-summary.json) |
 | 四款主机 / virtual-device validation | 四款 3D 深链与帧写入通过。PaperS3、PaperDIY、初代 Cardputer 的限定固件交互和 CoreMatrix C61 诊断分别绑定各自镜像、内核、输入与输出。正式 QEMU-WASM 和真机未复验 | [工作台与各板证据](evidence/2026-11-09-four-controller-integration/README.md) |
 | Core2 显示刷新 / virtual-device validation | 原生 `0167` 使用既有 60 Hz 刷新。相同官方 UIFlow2 v2.5.4 基底及触摸探针在旧 `d150c645…` 和新 `75e61d00…` 上均读到点击和四向滑动的原始与逻辑坐标，FT5x06 I²C 逐点匹配，松手后触点归零。新会话取证后清场，真机与浏览器未测 | [同路径摘要](evidence/2026-11-09-core2-panel-refresh/stock-touch-summary.json) |
