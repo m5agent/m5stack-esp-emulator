@@ -45,9 +45,19 @@ DEFAULT_CACHE = ROOT / "platform" / ".cache" / "user-firmware"
 DEFAULT_RESULTS = ROOT / "platform" / ".cache" / "user-firmware-matrix"
 DEFAULT_READY_TIMELINE_SECONDS = (0.0, 5.0, 10.0, 30.0)
 DEFAULT_SETTLE_AFTER_READY_SECONDS = 3.0
-INPUT_KEY_BY_BUTTON = {
-    "a": "a", "b": "b", "c": "c", "button": "a",
-    "key1": "a", "key2": "b", "key3": "c",
+# Control ID and qcode pairs for the native matrix input routes. Physical
+# controls alone do not say which qcodes the controller actually accepts.
+BOARD_KEY_PROBES = {
+    "atoms3r": (("button", "a"),),
+    "cardputer-adv": (("keyboard", "a"), ("keyboard", "ret")),
+    "core2": (("touch", "a"),),  # The SPI panel maps A to the capacitive touch strip.
+    "nanoc6": (("button", "a"),),  # Device Service injects the GPIO9 button.
+    "nesso-n1": (("key1", "a"),),
+    "papercolor": (("key1", "a"),),
+    "papermono": (("key1", "a"),),
+    "stamplc": (("key1", "a"),),
+    "sticks3": (("a", "a"), ("b", "b")),
+    "stopwatch": (("a", "a"),),
 }
 
 # M5Burner models do not map one-to-one to simulator device IDs. StamPLC is
@@ -1033,13 +1043,11 @@ def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
         height = int(display.get("height") or 240)
         for x in (width // 2, width // 4, width * 3 // 4):
             add("touch", kind="touch", x=max(1, x), y=max(1, height // 2))
-    for control in catalog_controls().get(str(device.get("device_id")), []):
-        control_id = control["id"]
-        if control["type"] == "keyboard":
-            for key in ("a", "ret"):
-                add(control_id, kind="key", key=key)
-        elif control["type"] == "button" and control_id in INPUT_KEY_BY_BUTTON:
-            add(control_id, kind="key", key=INPUT_KEY_BY_BUTTON[control_id])
+    device_id = str(device.get("device_id"))
+    controls = {item["id"] for item in catalog_controls().get(device_id, [])}
+    for control_id, key in BOARD_KEY_PROBES.get(device_id, ()):
+        if control_id in controls:
+            add(control_id, kind="key", key=key)
     return probes
 
 

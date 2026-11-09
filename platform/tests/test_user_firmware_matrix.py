@@ -458,18 +458,24 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(len(lines), 3)
 
     def test_inputs_route_touch_and_key_devices(self):
-        touch = inputs_for_device(
+        core2 = inputs_for_device(
             {"device_id": "core2", "display": {"width": 320, "height": 240, "touch": True}}
+        )
+        touch = inputs_for_device(
+            {"device_id": "cores3", "display": {"width": 320, "height": 240, "touch": True}}
         )
         stick = inputs_for_device({"device_id": "sticks3"})
         keyboard = inputs_for_device({"device_id": "cardputer-adv"})
+        papercolor = inputs_for_device({"device_id": "papercolor"})
 
         self.assertEqual(len(touch), 3)
         self.assertTrue(all(probe["request"]["kind"] == "touch" for probe in touch))
         self.assertEqual((touch[0]["request"]["x"], touch[0]["request"]["y"]), (160, 120))
+        self.assertEqual((core2[-1]["control_id"], core2[-1]["request"]["key"]), ("touch", "a"))
         self.assertEqual([probe["request"]["key"] for probe in stick], ["a", "b"])
         self.assertTrue(all(probe["mapped_to_physical_control"] for probe in stick))
         self.assertEqual([probe["request"]["key"] for probe in keyboard], ["a", "ret"])
+        self.assertEqual([probe["request"]["key"] for probe in papercolor], ["a"])
         self.assertEqual(inputs_for_device({"device_id": "unknown"}), [])
 
     def test_input_probe_keeps_b_only_response_separate_from_a(self):

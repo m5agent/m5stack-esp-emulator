@@ -82,9 +82,11 @@ last sample, `--settle-after-ready-seconds` adds a three-second quiet window by
 default. `ready_timeline` and `before_frame` carry the actual capture time and
 frame SHA-256. `frame_settled` reports whether the final samples match.
 
-The device catalog supplies the physical controls. StickS3 receives A and B.
-Keyboard devices may receive Enter (`ret`). Generic probes omit power and
-reset controls because their actions depend on press duration and device state.
+Key probes require a catalog control and a known runtime mapping. StickS3
+receives A and B, Core2 retains A for its capacitive touch strip, and Cardputer
+ADV can receive Enter (`ret`) through its keyboard matrix. Generic probes omit
+power and reset controls because their actions depend on press duration and
+device state.
 Each input records its mapped control, acceptance receipt, its own before and
 after frames, and serial byte offsets. The matrix samples a matching no-input
 window before each probe. Frame changes or serial growth during an unstable
