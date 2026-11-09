@@ -343,7 +343,8 @@ def _flash_with_qemu_attempt(
     virtual_flash.write_bytes(b"\xff" * flash_size)
     port = free_local_port()
     uart_log = out_dir / "uart-download.bin"
-    uart_wait = "off" if no_stub else "on"
+    paced_download = chip == "esp32" and not no_stub
+    uart_wait = "on" if paced_download else "off"
     command = [
         str(qemu),
         "-M", machine,
@@ -358,7 +359,7 @@ def _flash_with_qemu_attempt(
         "-global",
         f"driver=esp_soc.uart,property=baud-scale,value={baud_scale}",
     ]
-    if not no_stub:
+    if paced_download:
         # UART RX pacing uses QEMU's virtual clock. Tie it to retired
         # instructions so a descheduled ROM cannot be fed a wall-clock burst.
         # The first peer must attach before ROM emits its download banner.
