@@ -1,0 +1,87 @@
+name: Hosted QEMU diagnostics only
+
+on:
+  push:
+    branches: [m5agent/pages-hosted-diagnostic-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  reproduce:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-hosted-diagnostic-20261110'
+    runs-on: macos-15
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: keyboard
+            mode: fifo
+          - lane: worker
+            mode: baseline
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read pinned producer metadata and runtime archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          producer=1979809883489d92ffe7e5461fa17b26f06a89ed
+          git fetch --no-tags --depth=1 origin "$producer"
+          input=.work/hosted-diagnostic-input
+          mkdir -p "$input"
+          api="repos/$GITHUB_REPOSITORY/actions"
+          gh api "$api/runs/42770355747/attempts/1" > "$input/run.json"
+          gh api "$api/runs/42770355747/attempts/1/jobs" > "$input/jobs.json"
+          gh api "$api/runs/42770355747/artifacts" > "$input/artifacts.json"
+          gh api --allow-escape-sequences "$api/artifacts/13741959101/zip" > "$input/xtensa.zip"
+          gh api --allow-escape-sequences "$api/artifacts/13741639246/zip" > "$input/c61.zip"
+      - name: Verify exact artifacts and export to the private runner workspace
+        env:
+          PYTHONPATH: platform/tools
+        run: python3 platform/tests/prepare_hosted_qemu_diagnostic.py .work/hosted-diagnostic-input .work/hosted-diagnostic
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Run one Cardputer diagnostic lane
+        env:
+          DIAGNOSTIC_LANE: ${{ matrix.lane }}
+          DIAGNOSTIC_MODE: ${{ matrix.mode }}
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/hosted-diagnostic/guest
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+          M5_QEMU_DEVICE: cardputer-adv
+          M5_QEMU_BUTTON_HOLD_MS: "250"
+          M5_CARDPUTER_KEYBOARD_IRQ: "1"
+        run: |
+          case "$DIAGNOSTIC_LANE:$DIAGNOSTIC_MODE" in
+            keyboard:fifo) export M5_CARDPUTER_TRACE_MODE=fifo ;;
+            worker:baseline|worker:finalize-self|worker:finalize-owner)
+              export M5_CARDPUTER_WORKER_DIAG="$DIAGNOSTIC_MODE"
+              ;;
+            *) exit 2 ;;
+          esac
+          node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs
+      - name: Retain diagnostic evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-diagnostic-${{ matrix.lane }}-${{ matrix.mode }}-${{ github.run_attempt }}
+          path: |
+            .work/hosted-diagnostic/provenance.json
+            .work/hosted-diagnostic/guest/report.json
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: warn
