@@ -21,7 +21,7 @@ const report={kind:'synthetic-canvas-host-browser-control',started_at:new Date()
   test_script_sha256:createHash('sha256').update(await readFile(fileURLToPath(import.meta.url))).digest('hex'),
   validation_category:'host-only browser control; not virtual-device validation',hardware_validation:'NOT RUN',guest_execution:'NOT RUN',status:'FAIL',checks,page_errors:pageErrors};
 const rgbaHash=color=>createHash('sha256').update(Buffer.from(Array.from({length:4},()=>color).flat())).digest('hex');
-const RED=[255,0,0,255],GREEN=[0,255,0,255];
+const BLACK=[0,0,0,255],RED=[255,0,0,255],GREEN=[0,255,0,255];
 const regions=[{name:'primary',x:10,y:10,width:2,height:2,expected:rgbaHash(RED)},
   {name:'secondary',x:50,y:20,width:2,height:2,expected:rgbaHash(GREEN)}];
 const html=`<!doctype html><meta charset="utf-8"><title>Host-only Canvas control</title>
@@ -39,6 +39,7 @@ let browser,context,page;
 const check=(name,evidence)=>{checks.push({name,result:'PASS',evidence});};
 try{
   browser=await chromium.launch({executablePath:chrome,headless:true,args:['--disable-background-networking']});
+  report.browser=browser.version();
   context=await browser.newContext();
   await context.route('**/*',route=>route.request().url()==='https://canvas.example.test/'
     ?route.fulfill({status:200,contentType:'text/html',body:html}):route.abort('blockedbyclient'));
@@ -54,6 +55,16 @@ try{
     const actual=await oldHandle.jsonValue();assert.equal(actual,false);
     check('old-async-predicate-resolved-with-actual-false',{actual,meaning:'Promise truthiness allowed false to resolve; not pixel evidence'});
   }finally{await oldHandle?.dispose();}
+
+  // Establish the real Canvas readback and digest path before starting the
+  // timed frame-transition controls. This setup must itself read frame zero.
+  const initialRegions=regions.map(region=>({...region,expected:rgbaHash(BLACK)}));
+  const setupStarted=performance.now();
+  const initial=await waitForCanvasPixels(page,{regions:initialRegions,
+    boundary:{minimumSequence:-1,notBeforeMs:0},timeoutMs:15000});
+  assert.equal(initial.frame_sequence,0);
+  check('initial-black-frame-readback',{observation:initial,elapsed_ms:performance.now()-setupStarted});
+
   const boundary=await page.evaluate(()=>({minimumSequence:Number(document.querySelector('#deviceMount').dataset.frameSequence),notBeforeMs:performance.now()}));
   await page.evaluate(()=>setTimeout(()=>paintSyntheticFrame('A',1),60));
   const first=await waitForCanvasPixels(page,{regions,boundary,timeoutMs:1000,pollingMs:10});
