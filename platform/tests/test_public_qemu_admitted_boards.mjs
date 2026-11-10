@@ -188,6 +188,7 @@ async function run(){
       phase:process.env.M5_QEMU_GATE_PHASE||'all',
       devices:process.env.M5_QEMU_GATE_DEVICES?process.env.M5_QEMU_GATE_DEVICES.split(','):[],
       requireAll:process.env.M5_QEMU_GATE_REQUIRE_ALL==='1'});
+    assert.ok(!plan.publication_eligible||!process.env.M5_CARDPUTER_QMP_MODE,'QMP ordering experiments cannot enter the publication gate');
     Object.assign(report,{phase:plan.phase,selected_devices:plan.devices,full_scope:plan.publication_eligible,
       expected_cases:plan.cases.length,case_plan_sha256:digest(JSON.stringify(plan.cases)),
       lane_counts:Object.fromEntries(['uiflow-editor','uiflow-buttons','cardputer-keyboard','stackchan-body-touch','fixed'].map(lane=>[lane,plan.cases.filter(row=>row.lane===lane).length])),

@@ -56,13 +56,39 @@ globalThis.Worker = class extends EventTarget {
   }
 };
 function emit(type, value, transfer = []) { if (!closed && !disposeRequested) port?.postMessage({type, value}, transfer); }
+const qmpTraceLimit=512;
+let qmpOrderingMode, qmpTraceCount=0, qmpQueuedBytes=0, qmpReadBytes=0;
+const qmpTraceRows=[], qmpTraceUnread=[];
+const epochNow=()=>performance.timeOrigin+performance.now();
+function readQmpByte() {
+  const byte=qmpInput.shift();
+  if(byte===undefined||!qmpOrderingMode)return byte;
+  const row=qmpTraceUnread[0];
+  if(qmpReadBytes===row.first_byte_index)row.stdin_first_epoch_ms=epochNow();
+  if(++qmpReadBytes===row.end_byte_index){
+    row.stdin_last_epoch_ms=epochNow();
+    qmpTraceUnread.shift();
+  }
+  return byte;
+}
 function qmp(execute, args = {}, timeout = 15000) {
   if (!module) return Promise.reject(new Error('QEMU is not initialized'));
   const id = ++nextId;
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => { pending.delete(id); reject(new Error(`QMP ${execute} timed out`)); }, timeout);
-    pending.set(id, {resolve, reject, timer});
-    qmpInput.push(...encoder.encode(JSON.stringify({execute, arguments:args, id}) + '\n'));
+    const bytes=encoder.encode(JSON.stringify({execute, arguments:args, id}) + '\n');
+    let trace;
+    if(qmpOrderingMode){
+      trace={id,execute,queued_epoch_ms:epochNow(),queued_behind_bytes:qmpInput.length,
+        first_byte_index:qmpQueuedBytes,end_byte_index:qmpQueuedBytes+bytes.length};
+      if(execute==='qom-get')trace.property=args.property;
+      if(execute==='input-send-event')trace.events=args.events;
+      qmpQueuedBytes+=bytes.length;
+      qmpTraceRows[qmpTraceCount++%qmpTraceLimit]=trace;
+      qmpTraceUnread.push(trace);
+    }
+    pending.set(id, {resolve, reject, timer, trace});
+    qmpInput.push(...bytes);
   });
 }
 function output(text) {
@@ -97,6 +123,7 @@ function output(text) {
     const item = pending.get(message.id);
     if (item) {
       clearTimeout(item.timer); pending.delete(message.id);
+      if(item.trace)item.trace.reply_epoch_ms=epochNow();
       if (message.error) item.reject(new Error(`${message.error.class}: ${message.error.desc}`));
       else item.resolve(message.return);
     }
@@ -152,6 +179,8 @@ async function start(config) {
   const {default:createQemu} = await import(script);
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
+  if(boardProfile.deviceId==='cardputer-adv'&&['baseline','no-orientation'].includes(config.qmpOrderingMode))
+    qmpOrderingMode=config.qmpOrderingMode;
   validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
   frameTransport=config.frameTransport;
   const options = {
@@ -160,7 +189,7 @@ async function start(config) {
     locateFile:(name) => name.endsWith('.worker.js') ? worker : name,
     print:(text) => output(String(text) + '\n'),
     printErr:(text) => emit('diagnostic', String(text)),
-    stdin:() => qmpInput.shift(),
+    stdin:readQmpByte,
     onAbort:fail,
     onExit:(code) => {
       qemuExit={code,workersCreated,workersRemaining:workers.size};
@@ -236,6 +265,11 @@ async function start(config) {
 }
 async function request(op, value) {
   if (op === 'start') return start(value);
+  if (op === 'qmp-ordering-diagnostic'&&qmpOrderingMode) {
+    const offset=Math.max(0,qmpTraceCount-qmpTraceLimit);
+    return {mode:qmpOrderingMode,records_dropped:offset,
+      rows:Array.from({length:qmpTraceCount-offset},(_,i)=>qmpTraceRows[(offset+i)%qmpTraceLimit])};
+  }
   if (op === 'dispose') {
     disposeRequested=true;
     const workersTerminatedByDispose=workers.size;cleanup();

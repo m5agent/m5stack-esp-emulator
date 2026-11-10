@@ -1,0 +1,128 @@
+name: Diagnose Cardputer QMP command ordering
+
+on:
+  push:
+    branches: [m5agent/pages-cardputer-qmp-ordering-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  paired:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-cardputer-qmp-ordering-20261110'
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Export the exact staged runtimes from official run 42785667793
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          official=7edc2d1171634a8975a946625349aa37ce9343a7
+          git diff --exit-code "$official" -- scripts/qemu-wasm-build scripts/browser-littlefs patches .github/workflows/public-site.yml
+          mkdir -p .work/qmp-ordering-input
+          artifacts="repos/$GITHUB_REPOSITORY/actions/artifacts"
+          stage() {
+            local id="$1" name="$2" digest="$3" output="$4"
+            local archive=".work/qmp-ordering-input/$name.zip"
+            gh api "$artifacts/$id" | jq -e --arg sha "$official" --arg digest "sha256:$digest" --arg name "$name" '
+              .name == $name and .digest == $digest and .expired == false
+              and .workflow_run.id == 42785667793 and .workflow_run.head_sha == $sha
+              and .workflow_run.repository_id == 1427737977
+            ' >/dev/null
+            gh api --allow-escape-sequences "$artifacts/$id/zip" > "$archive"
+            echo "$digest  $archive" | shasum -a 256 -c -
+            mkdir -p "$output"
+            unzip -q "$archive" -d "$output"
+          }
+          stage 13748302714 qemu-staging-xtensa-1 fd18f186f0fc6db96e99ac514717e5b3ac5702bad84641a62fe874f917149b6f .work
+          stage 13749526510 qemu-staging-c61-1 613df2954147e7a85cbad6b3ce20de5b4ca9e31f9faae092b6cb9d169234cf6c .work/qemu-c61-runtime
+          echo '96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8  .work/qemu-browser-runtime/qemu-system-xtensa.wasm' | shasum -a 256 -c -
+          echo '83ed57e0ac517ba2c83d40c640995050df33217138c59366c089962b399ba163  .work/qemu-c61-runtime/qemu-system-riscv32.wasm' | shasum -a 256 -c -
+          python3 platform/tools/build_public_site.py --output .work/qmp-ordering-site --base-path /m5stack-esp-emulator/ --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Replay the same official prefix for both diagnostic modes
+        env:
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/qmp-ordering-site
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+          M5_QEMU_GATE_WORKERS: "1"
+          M5_QEMU_GATE_PHASE: uiflow
+          M5_QEMU_GATE_DEVICES: atom-matrix,stickc-plus,cardputer-adv
+        run: |
+          mkdir -p .work/qmp-ordering
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(row => row.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/qmp-ordering-stock.bin"
+          curl --fail --location --silent --show-error --proto '=https' --proto-redir '=https' --retry 2 --output "$firmware_path" "$firmware_url"
+          printf 'mode\tcanvas\tstock\tprefix\n' > .work/qmp-ordering/status.tsv
+          for mode in baseline no-orientation; do
+            output="$GITHUB_WORKSPACE/.work/qmp-ordering/$mode"
+            mkdir -p "$output"
+            canvas=0 stock=NOT_RUN prefix=NOT_RUN
+            M5_CANVAS_TEST_OUT="$output/canvas" node platform/tests/test_public_qemu_pixel_observer_browser.mjs || canvas=$?
+            if [ "$canvas" = 0 ]; then
+              stock=0
+              M5_PUBLIC_QEMU_OUT="$output/stock" M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs || stock=$?
+            fi
+            if [ "$stock" = 0 ]; then
+              prefix=0
+              M5_PUBLIC_QEMU_OUT="$output/prefix" M5_CARDPUTER_QMP_MODE="$mode" node platform/tests/test_public_qemu_admitted_boards.mjs || prefix=$?
+            fi
+            printf '%s\t%s\t%s\t%s\n' "$mode" "$canvas" "$stock" "$prefix" >> .work/qmp-ordering/status.tsv
+          done
+          cat .work/qmp-ordering/status.tsv
+          for mode in baseline no-orientation; do
+            output="$GITHUB_WORKSPACE/.work/qmp-ordering/$mode"
+            MODE="$mode" DIAGNOSTIC_OUTPUT="$output" node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFile} from 'node:fs/promises';
+          const base=process.env.DIAGNOSTIC_OUTPUT;
+          const read=async(path)=>JSON.parse(await readFile(base+'/'+path,'utf8'));
+          const gate=await read('prefix/report.json');
+          assert.equal(gate.publication_eligible,false);
+          assert.deepEqual(gate.cases.map(row=>[row.device,row.lane]),[
+            ['atom-matrix','uiflow-editor'],['atom-matrix','uiflow-buttons'],
+            ['stickc-plus','uiflow-editor'],['stickc-plus','uiflow-buttons'],
+            ['cardputer-adv','uiflow-editor'],['cardputer-adv','uiflow-buttons'],
+            ['cardputer-adv','cardputer-keyboard'],
+          ]);
+          assert.ok(gate.cases.slice(0,-1).every(row=>row.status==='PASS'));
+          const keyboard=await read('prefix/cardputer-keyboard/cardputer-adv/report.json');
+          assert.equal(keyboard.formal_hold_ms,250);
+          assert.equal(keyboard.publication_eligible,false);
+          assert.equal(keyboard.qmp_ordering.mode,process.env.MODE);
+          assert.ok(keyboard.checks.some(row=>row.name==='qmp-ordering-mode-and-bounded-trace'&&row.ok));
+          assert.equal(keyboard.worker_topology.ok,true);
+          assert.equal(keyboard.worker_targets.ok,true);
+          assert.equal(keyboard.worker_targets.live.length,0);
+          console.log(JSON.stringify({mode:process.env.MODE,keyboard_status:keyboard.status,
+            passed_trials:keyboard.input_cases.filter(row=>row.status==='PASS').length,
+            trace_records:keyboard.qmp_ordering.rows.length}));
+          JS
+          done
+      - name: Retain nondeployable diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardputer-qmp-ordering-${{ github.run_attempt }}
+          path: |
+            .work/qmp-ordering/**/report.json
+            .work/qmp-ordering/status.tsv
+            .work/wasm-typed-helper-control/report.json
+            .work/qemu-browser-runtime/reuse-provenance.json
+            .work/qemu-c61-runtime/reuse-provenance.json
+          retention-days: 3
+          if-no-files-found: error

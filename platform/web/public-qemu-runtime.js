@@ -203,7 +203,10 @@ export class PublicQemuRuntime {
       const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
       this.assetsReady=true;
       const ready=this.waitFor('ready',90000);ready.catch(()=>{});this.state('booting');
-      const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,runtimePatches:manifest.source.patches},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
+      const qmpOrderingMode=new URLSearchParams(globalThis.location?.search).get('m5-cardputer-qmp-ordering');
+      this.qmpOrderingMode=profile.deviceId==='cardputer-adv'&&['baseline','no-orientation'].includes(qmpOrderingMode)
+        ?qmpOrderingMode:null;
+      const [,runtime]=await Promise.all([this.ask('start',{qmpOrderingMode:this.qmpOrderingMode,javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,runtimePatches:manifest.source.patches},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.guestStarted=true;
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
@@ -239,7 +242,8 @@ export class PublicQemuRuntime {
     // slower controller/orientation round trips, with one request per lane.
     this.pollLane(generation,'frame',headless?250:33);
     if(this.profile?.outputs)this.pollLane(generation,'outputs',headless?250:50);
-    if(this.profile?.deviceId==='cardputer-adv')this.pollLane(generation,'display',250);
+    if(this.profile?.deviceId==='cardputer-adv'&&this.qmpOrderingMode!=='no-orientation')
+      this.pollLane(generation,'display',250);
   }
   pollLane(generation,op,intervalMs) {
     if(generation!==this.generation||!this.port||this.stopping||this.exit)return;

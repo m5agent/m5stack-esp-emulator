@@ -20,6 +20,8 @@ if(!site||process.env.M5_CARDPUTER_KEYBOARD_IRQ!=='1'){
 }
 assert.ok(!process.env.M5_QEMU_DEVICE||process.env.M5_QEMU_DEVICE==='cardputer-adv','Cardputer-ADV exact default image only');
 assert.ok(!process.env.M5_QEMU_BUTTON_HOLD_MS||process.env.M5_QEMU_BUTTON_HOLD_MS==='250','formal keyboard pulse is fixed at 250 ms');
+const qmpOrderingMode=process.env.M5_CARDPUTER_QMP_MODE;
+assert.ok(!qmpOrderingMode||['baseline','no-orientation'].includes(qmpOrderingMode),'unknown QMP ordering experiment mode');
 const device='cardputer-adv',holdMs=250,basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-uiflow-cardputer-keyboard-irq'));
 assert.ok(out.startsWith(resolve(repo,'.work')+'/'),'raw evidence belongs in ignored .work');
@@ -81,6 +83,12 @@ async function stopAndObserve(){
   if(!page||page.isClosed()||!await page.evaluate(()=>!!globalThis.keyboardRuntime))return;
   report.before_stop=await page.evaluate(()=>keyboardRuntime.evidence());
   report.worker_topology=await workers.snapshotQemuTopology();
+  if(qmpOrderingMode){
+    report.publication_eligible=false;
+    report.qmp_ordering_page_epoch_ms=await page.evaluate(()=>performance.timeOrigin);
+    try{report.qmp_ordering=await page.evaluate(()=>keyboardRuntime.ask('qmp-ordering-diagnostic'));}
+    catch(error){report.qmp_ordering_error=String(error?.message||error);}
+  }
   await page.evaluate(()=>keyboardRuntime.stop());
   report.stopped=await page.evaluate(()=>keyboardRuntime.evidence());
   const cleanup=report.stopped.cleanup;
@@ -93,6 +101,14 @@ async function stopAndObserve(){
     &&report.worker_targets.observed.length===cleanup.workersCreated+1,report.worker_targets);
   check('actual-top-page-engine-and-pthread-siblings',report.worker_topology.ok
     &&report.worker_topology.pthread_count===cleanup.workersCreated&&closedQemuPthreadBroker(cleanup),report.worker_topology);
+  if(qmpOrderingMode){
+    const trace=report.qmp_ordering;
+    const orientation=(trace?.rows||[]).filter(row=>row.execute==='qom-get'&&row.property==='logical-orientation');
+    check('qmp-ordering-mode-and-bounded-trace',trace?.mode===qmpOrderingMode&&trace.rows.length>0
+      &&trace.rows.some(row=>row.execute==='input-send-event'&&Number.isFinite(row.reply_epoch_ms))
+      &&(qmpOrderingMode==='baseline'?orientation.length>1:orientation.length===1),
+      {mode:trace?.mode,count:trace?.rows.length,orientation_count:orientation.length,error:report.qmp_ordering_error});
+  }
 }
 try{
   report.provenance=await capturePublicQemuProvenance({repo,site,
@@ -122,7 +138,9 @@ try{
   page=await browser.newPage({viewport:{width:1440,height:1100}});cdp=await page.context().newCDPSession(page);
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  const workbench=new URL(origin);
+  if(qmpOrderingMode)workbench.searchParams.set('m5-cardputer-qmp-ordering',qmpOrderingMode);
+  await page.goto(workbench.href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.evaluate(async({origin,device})=>{
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin));
