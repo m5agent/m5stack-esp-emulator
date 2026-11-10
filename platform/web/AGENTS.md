@@ -13,13 +13,17 @@ contract and [the code map](../../docs/code-map.md) for service UI entry points.
 - `public-qemu-runtime.js` manages validated assets and the run. The instance
   iframe admits and returns one private port. `public-qemu-engine-owner.js`
   transfers that port to the Worker and keeps its callbacks in the top document.
-  `public-qemu-engine.js` owns QEMU/MEMFS, QMP, UART and nested pthreads. Preserve
-  origin/owner checks, generation and cancellation fences, transfer ownership,
-  bounded requests and disposal.
+  `public-qemu-engine.js` owns QEMU/MEMFS, QMP, UART and Emscripten pthread
+  handles. The top document owns the actual engine and pthread Workers as
+  siblings. The owner accepts the engine’s exact verified same-origin Blob and
+  one private relay port per pthread. Preserve origin/owner checks, generation
+  and cancellation fences, transfer ownership, bounded requests and disposal.
 - Normal guest exit, iframe removal, acknowledged owner termination and actual
   CDP Worker disappearance are separate observations. Authorize one normal
-  owner termination only after exit code 0, zero nested workers, private-port
-  disposal and the matching later-task Worker acknowledgement. Never count
+  owner termination only after exit code 0, zero live pthreads, private-port
+  disposal and the matching later-task Worker acknowledgement. Verify actual
+  sibling ownership before Stop and raw dedicated Worker disappearance before
+  closing the browser context. Never count
   fallback termination or context closure as a successful normal-exit fence.
 - Preserve reference firmware/profile SHA binding, ROM/eFuse checks, explicit
   clock profiles and source/build provenance. Do not silently enable an SDK

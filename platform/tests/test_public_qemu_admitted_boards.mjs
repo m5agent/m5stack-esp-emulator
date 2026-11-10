@@ -108,7 +108,7 @@ export function validatePublicQemuGateResult(item,result,{workbenchRegistry,wasm
   assert.equal(receipt.accelerator?.icountMaxPerCpuNs,cap,'Gate child scheduling binding mismatch');
   if(item.lane==='uiflow-editor')assert.equal(result.smoke_only,false,'Publication requires the full editor runner');
   // Cleanup assertions stay in each source-bound runner. In particular the
-  // keyboard runner does not measure a nested-worker fence with iframe held.
+  // keyboard runner does not measure a pthread fence with iframe held.
   return receipt;
 }
 

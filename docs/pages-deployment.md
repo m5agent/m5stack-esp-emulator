@@ -168,21 +168,20 @@ URL / 本地 `.bin` 入口按选定板型检查完整 ESP32/S3 合并镜像、�
 携带一个 MessagePort 的首次连接，并向同源父窗口回传该端口及会话标识。
 `public-qemu-engine-owner.js` 核对 iframe 来源、同源和当前会话后，在顶层页面
 创建 `public-qemu-engine.js` module DedicatedWorker，绑定回调并转交私有端口。
-原 Emscripten factory、MEMFS
-中的 Flash/ROM/eFuse、直接 UART 字符设备、QMP 和嵌套 pthread 均由 engine
-Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D 渲染因此与
-客体执行分开。QMP greeting 只说明控制通道存在，必须等 `query-status`
+engine Worker 管理原 Emscripten factory、MEMFS 中的 Flash/ROM/eFuse、直接
+UART 字符设备、QMP 和 pthread 句柄。顶层 owner 用校验过的同源 pthread Blob
+创建实际 Worker，并用各自的私有 MessagePort 中继。引擎和 pthread 是顶层页面
+拥有的同级 Worker。iframe 只负责准入，客体执行与工作台的 DOM、输入和 3D
+渲染分离。QMP greeting 只说明控制通道存在，必须等 `query-status`
 确认 VM running；固件规定了 ready marker 时，还要等待同 guest 串口标记。
 
-正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
-dispose。engine 回复确认并关闭私有端口。顶层 owner 等待同一会话的退出和
-dispose 收据及端口关闭通知，再向 engine 发送一次性令牌。engine 在后续任务回传令牌，
-owner 解除监听并调用一次 `terminate()`。实际回收由独立观察确认，
-真实客体验收通过 Chrome CDP `Target.getTargets` 分两阶段核对：
-iframe 保留时，本次实际创建的
-全部嵌套 pthread target 必须消失。验收使用本次运行记录的 pthread 创建数。
-正常移除 iframe 后
-engine 与全部 Worker target 也必须消失。
+正常停止先要求 QMP quit、guest exit code 0 和 pthread 归零，再执行 dispose。
+engine 回复确认并关闭私有端口。顶层 owner 等待同一会话的退出和 dispose 收据、
+端口关闭通知及 pthread 回收后，再向 engine 发送一次性令牌。engine 在后续任务
+回传令牌，owner 解除监听并调用一次 `terminate()`。stock、编辑器和键盘客体测试
+在停止前用 Chrome CDP `Target.getTargets` 核对引擎与 pthread 的实际归属及数量。
+保留 iframe 的验收会先确认所有 pthread target 消失，再移除 iframe。每条验收
+在关闭浏览器上下文前要求实际 DedicatedWorker target 为零。
 后一阶段允许最多 120 秒的有界关闭回执，以容纳 macOS Chrome 超过 60 秒的
 CDP target 延迟；预算结束时仍必须为零 target，不能把超时或强制回收写成 PASS。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、

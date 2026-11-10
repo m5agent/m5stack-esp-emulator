@@ -25,7 +25,7 @@ class TestURL extends URL {
 }
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
-const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
+const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
@@ -216,19 +216,19 @@ const dispatchPort=one.onmessage;
 connect({data:{type:'m5-qemu-engine-finalize',token:'early'}});
 vm.runInContext('module.reportExit(0)',context);
 await dispatchPort({data:{id:2,op:'dispose'}});await lateInput;assert.equal(one.messages.at(-1).id,2);assert.equal(one.messages.at(-1).value.workersRemaining,0);assert.equal(one.closed,true);
-assert.equal(one.messages.at(-1).value.workerCountScope,'nested-pthreads');
+assert.equal(one.messages.at(-1).value.workerCountScope,'engine-pthreads');
 assert.equal(one.messages.at(-1).value.enginePlacement,'dedicated-worker-v1');
 assert.equal(one.messages.at(-1).value.engineWorkersAtAcknowledgement,1,'acknowledgement does not claim the owning Worker already exited');
 assert.equal(one.messages.at(-1).value.ownerTerminatesAfterAcknowledgement,true);
 assert.equal(one.messages.at(-1).value.engineSelfClosesAfterAcknowledgement,false);
 assert.equal(one.onmessage,null);
-assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-drained']);
+assert.deepEqual(lifecycle,['m5-qemu-engine-listening','m5-qemu-pthread-source','dispose-ack','port-closed','m5-qemu-engine-drained']);
 connect({data:{type:'m5-qemu-engine-finalize',token:'malformed'},ports:[port()]});
 assert.equal(context.finalizedToken,undefined);
 connect({data:{type:'m5-qemu-engine-finalize',token:'owner-token'}});
 connect({data:{type:'m5-qemu-engine-finalize',token:'duplicate'}});
 assert.equal(context.finalizedToken,'owner-token');
-assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-drained','m5-qemu-engine-finalized'],
+assert.deepEqual(lifecycle,['m5-qemu-engine-listening','m5-qemu-pthread-source','dispose-ack','port-closed','m5-qemu-engine-drained','m5-qemu-engine-finalized'],
   'normal cleanup returns the owner token only after disposing the private port');
 assert.equal(vm.runInContext('pending.size',context),0);
 assert.equal(one.messages.some(item=>item.id===22),false,'in-flight operations cannot reply after disposal');
@@ -239,7 +239,7 @@ const raceCallbacks=new Map(),raceLifecycle=[],raceUnhandled=[];
 const onRaceUnhandled=error=>raceUnhandled.push(error);
 process.on('unhandledRejection',onRaceUnhandled);
 try {
-  const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
+  const raceContext=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
     validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
@@ -263,7 +263,7 @@ try {
   await racePort.onmessage({data:{id:302,op:'dispose'}});await tick();await tick();
   assert.equal(racePort.messages.at(-1).id,302,'disposal acknowledgement remains the final port message');
   assert.equal(racePort.closed,true);assert.equal(vm.runInContext('pending.size',raceContext),0);
-  assert.deepEqual(raceLifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing','engine-closed']);
+  assert.deepEqual(raceLifecycle,['m5-qemu-engine-listening','m5-qemu-pthread-source','dispose-ack','port-closed','m5-qemu-engine-closing','engine-closed']);
   assert.equal(racePort.messages.some(message=>message.type==='error'||message.type==='ready'),false,
     'rejecting initialization QMP during dispose cannot emit late error/ready');
   const raceMessageCount=racePort.messages.length;

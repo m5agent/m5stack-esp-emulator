@@ -1,9 +1,9 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
 import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
-// One dedicated engine Worker owns the Emscripten module, MEMFS and pthreads.
+// The engine owns Emscripten and MEMFS. The top page owns its native pthread Workers.
 // The iframe transfers one private port; no window control channel is used.
-// workersCreated/workersRemaining count nested pthreads, excluding this engine.
+// workersCreated/workersRemaining count Emscripten pthread handles, excluding this engine.
 let port, module, started = false, closed = false, disposeRequested = false, serial = '', qmpLine = '';
 let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
 let previousOutputs;
@@ -15,10 +15,45 @@ let relocatedGlueSha256;
 let runtimeArguments,qemuExit,awaitingOwnerFinalization=false;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
 const encoder = new TextEncoder(), decoder = new TextDecoder();
-const NativeWorker = globalThis.Worker;
-globalThis.Worker = class extends NativeWorker {
-  constructor(...args) { super(...args);workersCreated++;workers.add(this);this.addEventListener('error',event=>fail(event.message||'QEMU pthread failed')); }
-  terminate() { workers.delete(this); return super.terminate(); }
+// Emscripten allocates a Worker-shaped handle synchronously. Its actual
+// dedicated Worker is started by the top owner, using the verified blob URL.
+globalThis.Worker = class extends EventTarget {
+  constructor(url, options) {
+    super();
+    if(options?.type!=='module')throw new TypeError('QEMU pthread requires a module Worker');
+    const relay=new MessageChannel();
+    this.relay=relay.port1;
+    this.pthreadId=workersCreated+1;
+    this.onmessage=null;this.onerror=null;
+    this.relay.onmessage=({data})=>{
+      if(data?.type==='message'){
+        const event=new MessageEvent('message',{data:data.payload,ports:data.ports||[]});
+        this.dispatchEvent(event);this.onmessage?.(event);
+      }else if(data?.type==='error'){
+        const event=new ErrorEvent('error',data.detail);
+        this.dispatchEvent(event);this.onerror?.(event);
+      }
+    };
+    this.relay.onmessageerror=()=>fail('Could not receive the QEMU pthread relay message');
+    this.addEventListener('error',event=>fail(event.message||'QEMU pthread failed'));
+    this.relay.start();
+    try{self.postMessage({type:'m5-qemu-pthread-spawn',id:this.pthreadId,url:String(url)},[relay.port2]);}
+    catch(error){relay.port1.close();relay.port2.close();throw error;}
+    workersCreated++;workers.add(this);
+  }
+  postMessage(payload, transferOrOptions=[]) {
+    const transfer=Array.isArray(transferOrOptions)?transferOrOptions:transferOrOptions?.transfer||[];
+    this.relay?.postMessage({type:'message',payload,transfer},transfer);
+  }
+  terminate() {
+    if(!this.relay)return;
+    // Spawn, terminate and engine drained notifications share the same
+    // ordered Worker channel. A closed relay cannot lose the termination.
+    self.postMessage({type:'m5-qemu-pthread-terminate',id:this.pthreadId});
+    this.relay.onmessage=null;this.relay.onmessageerror=null;
+    this.relay.close();this.relay=null;
+    workers.delete(this);
+  }
 };
 function emit(type, value, transfer = []) { if (!closed && !disposeRequested) port?.postMessage({type, value}, transfer); }
 function qmp(execute, args = {}, timeout = 15000) {
@@ -113,6 +148,7 @@ async function start(config) {
   const relocated = new TextDecoder('utf-8',{fatal:true}).decode(config.javascript).replaceAll('import.meta.url',JSON.stringify(assetBase.href));
   relocatedGlueSha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(relocated))),n=>n.toString(16).padStart(2,'0')).join('');
   const script = blob(relocated, 'text/javascript'), worker = blob(config.worker, 'text/javascript');
+  self.postMessage({type:'m5-qemu-pthread-source',url:worker});
   const {default:createQemu} = await import(script);
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
@@ -204,7 +240,7 @@ async function request(op, value) {
     disposeRequested=true;
     const workersTerminatedByDispose=workers.size;cleanup();
     const normalExit=qemuExit?.code===0&&qemuExit.workersRemaining===0&&workersTerminatedByDispose===0;
-    return {workersRemaining:workers.size,workersTerminatedByDispose,workerCountScope:'nested-pthreads',
+    return {workersRemaining:workers.size,workersTerminatedByDispose,workerCountScope:'engine-pthreads',
       enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
       ownerTerminatesAfterAcknowledgement:normalExit,engineSelfClosesAfterAcknowledgement:!normalExit};
   }

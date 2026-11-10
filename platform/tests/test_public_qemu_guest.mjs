@@ -48,16 +48,16 @@ async function closeWorkersBeforeRemovingIframe(name,total) {
   // Nested pthreads must close while the iframe remains. The engine target is
   // checked again after normal iframe DOM removal, where macOS Chrome releases
   // any remaining dedicated-Worker target even after owner finalization.
-  const nestedClose=await workerTargetObserver.waitUntilOnly({minimumObserved:total,
+  const pthreadClose=await workerTargetObserver.waitUntilOnly({minimumObserved:total,
     allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
     removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
   (report.iframe_removal_controls||=[]).push({...held,removal_deferred_by_harness:true});
-  check(`${name}-pthreads-before-iframe-finalization`,nestedClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1,
-    {worker_targets:nestedClose,playwright_worker_events:workers});
+  check(`${name}-pthreads-before-iframe-finalization`,pthreadClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1,
+    {worker_targets:pthreadClose,playwright_worker_events:workers});
   await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
   const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total});
-  (report.worker_target_lifecycles||=[]).push({name,nested_before_removal:nestedClose,all_after_removal:targetClose,playwright_worker_events:workers});
+  (report.worker_target_lifecycles||=[]).push({name,nested_before_removal:pthreadClose,all_after_removal:targetClose,playwright_worker_events:workers});
   check(`${name}-all-targets-after-iframe-finalization`,targetClose.ok,targetClose);
 }
 function exactReceipt(receipt){
@@ -190,7 +190,7 @@ try{
   page.on('pageerror',error=>errors.push(String(error)));
   page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
   context.on('page',child=>child.on('pageerror',error=>errors.push(String(error))));
-  page.on('worker',worker=>{const row={url:worker.url(),kind:worker.url().includes('/public-qemu-engine.js')?'engine':'nested-pthread',created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
+  page.on('worker',worker=>{const row={url:worker.url(),kind:worker.url().includes('/public-qemu-engine.js')?'engine':'pthread',created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
   report.webgl_renderer=await page.evaluate(()=>{

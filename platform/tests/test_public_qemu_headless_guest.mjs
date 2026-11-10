@@ -195,17 +195,17 @@ try{
     &&stopped.cleanup.engineOwnership?.engineFinalizationAcknowledged===true && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');
-  const nestedClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,
+  const pthreadClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,
     allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const held=await page.evaluate(()=>({connected:headlessDeferredRemoval.frame.isConnected,requests:headlessDeferredRemoval.requests}));
   report.iframe_removal_control={...held,removal_deferred_by_harness:true};
-  check('created-pthreads-close-before-iframe-finalization',nestedClose.ok&&held.connected&&held.requests===1
-    &&nestedClose.observed.length===expectedWorkerTargets
-    &&nestedClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,
-    {worker_targets:nestedClose,playwright_worker_events:workers,iframe_removal:held});
+  check('created-pthreads-close-before-iframe-finalization',pthreadClose.ok&&held.connected&&held.requests===1
+    &&pthreadClose.observed.length===expectedWorkerTargets
+    &&pthreadClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,
+    {worker_targets:pthreadClose,playwright_worker_events:workers,iframe_removal:held});
   await page.evaluate(()=>{const held=headlessDeferredRemoval;held.remove.call(held.frame);delete globalThis.headlessDeferredRemoval;});
   const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets});
-  report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
+  report.worker_targets={before_removal:pthreadClose,after_removal:targetClose};
   check('engine-and-created-pthreads-close-after-iframe-finalization',targetClose.ok
     &&targetClose.observed.length===expectedWorkerTargets
     &&targetClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,targetClose);

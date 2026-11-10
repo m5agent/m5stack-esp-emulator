@@ -53,7 +53,7 @@ that the image can execute on that device.
 3. Exercise the real DOM input path, then read that guest's serial,
    framebuffer/model texture and relevant controller state.
 4. Download its local run record before stopping. Record normal Stop, guest
-   exit, nested pthread and engine Worker targets independently, before closing
+   exit, pthread and engine Worker targets independently, before closing
    the browser context. A closing notification or forced context teardown alone
    does not establish clean shutdown; preserve failures as `PARTIAL`/`FAIL`.
 5. Keep browser-local evidence separate from Device Service lease/history/ZIP

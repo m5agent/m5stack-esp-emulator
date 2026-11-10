@@ -157,7 +157,7 @@ try{
     &&cleanup.engineOwnership.engineCloseNotifications===1&&cleanup.engineOwnership.engineNormalTerminations===1
     &&cleanup.engineOwnership.engineFinalizationAcknowledged===true && cleanup.engineOwnership.engineFallbackTerminations===0,cleanup);
   report.pthreads_closed=await workers.waitUntilOnly({minimumObserved:minimum,allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
-  check('nested-workers-close-before-iframe',report.pthreads_closed.ok&&await page.evaluate(()=>bodyTouchDeferred.frame.isConnected&&bodyTouchDeferred.requests===1));
+  check('pthreads-close-before-iframe',report.pthreads_closed.ok&&await page.evaluate(()=>bodyTouchDeferred.frame.isConnected&&bodyTouchDeferred.requests===1));
   await page.evaluate(()=>bodyTouchDeferred.remove.call(bodyTouchDeferred.frame));
   report.worker_targets=await workers.waitUntilClosed({minimumObserved:minimum});check('all-cdp-workers-close-before-context',report.worker_targets.ok,report.worker_targets);
   check('no-private-service-requests',privateRequests===0);check('no-page-errors',report.errors.length===0,report.errors);

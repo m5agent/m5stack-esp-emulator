@@ -6,7 +6,7 @@ import {resolve, dirname, extname} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {createHash, randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance, QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
-import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {observeWorkerTargets,closedQemuPthreadBroker} from './public_qemu_worker_targets.mjs';
 import {stopwatchRedCircleOracle} from './public_qemu_stopwatch_frame_oracle.mjs';
 import {papercolorRedFrameOracle} from './public_qemu_papercolor_frame_oracle.mjs';
 
@@ -328,6 +328,7 @@ try {
   }
   await page.screenshot({path:resolve(output, 'workbench.png'), fullPage:true});
   report.before_stop = await page.evaluate(() => uiflowRuntime.evidence());
+  report.worker_topology = await workers.snapshotQemuTopology();
   await page.evaluate(() => { const frame = uiflowRuntime.iframe, remove = frame.remove; globalThis.deferredUIFlowRemoval = {frame, remove, requests:0}; frame.remove = () => { deferredUIFlowRemoval.requests++; }; });
   await page.locator('#stopBtn').click();
   await page.waitForFunction(() => uiflowRuntime.status === 'stopped', {}, {timeout:45000});
@@ -342,7 +343,10 @@ try {
   check('pthreads-closed-before-iframe-removal', report.pthreads_closed.ok && await page.evaluate(() => deferredUIFlowRemoval.frame.isConnected && deferredUIFlowRemoval.requests === 1));
   await page.evaluate(() => { deferredUIFlowRemoval.remove.call(deferredUIFlowRemoval.frame); delete globalThis.deferredUIFlowRemoval; });
   report.all_workers_closed = await workers.waitUntilClosed({minimumObserved:minimum});
-  check('all-cdp-workers-closed-before-context', report.all_workers_closed.ok, report.all_workers_closed);
+  check('all-cdp-workers-closed-before-context', report.all_workers_closed.ok
+    &&report.all_workers_closed.observed.length===minimum, report.all_workers_closed);
+  check('actual-top-page-engine-and-pthread-siblings',report.worker_topology.ok
+    &&report.worker_topology.pthread_count===cleanup.workersCreated&&closedQemuPthreadBroker(cleanup),report.worker_topology);
   check('no-device-service-requests', !requests.some(url => /\/api\/v1|:8787\b|:8830\b/.test(url)));
   check('no-page-errors', errors.length === 0, errors);
   report.status = 'PASS';

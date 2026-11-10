@@ -33,14 +33,29 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
   cdp.on('Target.targetDestroyed', onDestroyed);
   await cdp.send('Target.setDiscoverTargets', {discover:true});
   return {
+    async snapshotQemuTopology() {
+      const {targetInfos}=await cdp.send('Target.getTargets');
+      const all=targetInfos.filter(target=>target.type==='worker');
+      const engines=all.filter(target=>target.url.includes('/public-qemu-engine.js'));
+      const engine=engines[0];
+      const pthreads=all.filter(target=>target!==engine);
+      const pageParent=targetInfos.some(target=>target.type==='page'&&target.targetId===engine?.parentId);
+      const ok=engines.length===1&&pthreads.length>0&&pageParent
+        &&new Set(all.map(target=>target.targetId)).size===all.length
+        &&pthreads.every(target=>target.url.startsWith('blob:')
+          &&target.parentId===engine.parentId&&target.parentFrameId===engine.parentFrameId
+          &&target.parentId!==engine.targetId);
+      return {ok,engine_count:engines.length,pthread_count:pthreads.length,targets:all,
+        source:'Chrome DevTools Target.getTargets'};
+    },
     async waitUntilOnly({minimumObserved, allowedUrlPart, timeoutMs = 30000}) {
       const deadline = Date.now() + timeoutMs;
       let live = [];
       while (true) {
-        const known = new Set(targets.keys());
         const response = await cdp.send('Target.getTargets');
-        live = (response.targetInfos || []).filter(target => target.type === 'worker' && known.has(target.targetId))
-          .map(target => ({target_id:target.targetId, url:target.url, attached:target.attached===true}));
+        const workers = (response.targetInfos || []).filter(target => target.type === 'worker');
+        for(const target of workers)record(target);
+        live = workers.map(target => ({target_id:target.targetId, url:target.url, attached:target.attached===true}));
         if (targets.size >= minimumObserved
             && (allowedUrlPart ? live.every(target => target.url.includes(allowedUrlPart)) : live.length === 0)) {
           return {ok:true, minimum_observed:minimumObserved, observed:[...targets.values()], live, events,
@@ -66,4 +81,13 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
       await cdp.detach().catch(() => {});
     },
   };
+}
+
+// Logical exit counts and the broker's actual normal termination calls must agree.
+export function closedQemuPthreadBroker(cleanup) {
+  const broker=cleanup?.engineOwnership?.pthreadBroker;
+  return Number.isInteger(cleanup?.workersCreated)&&cleanup.workersCreated>0
+    &&cleanup.disposal?.workerCountScope==='engine-pthreads'
+    &&broker?.created===cleanup.workersCreated&&broker.live===0
+    &&broker.terminations===broker.created&&broker.fallbackTerminations===0;
 }

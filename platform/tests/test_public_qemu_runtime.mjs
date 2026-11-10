@@ -260,7 +260,8 @@ try {
   assert.ok(ownerFrame.worker.finalizeToken);
 
   const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,engineCloseNotifications:0,
-    engineNormalTerminations:0,engineFallbackTerminations:1,enginePortTransferred:true,engineFinalizationAcknowledged:false,engineSelfCloseNotifications:0};
+    engineNormalTerminations:0,engineFallbackTerminations:1,enginePortTransferred:true,engineFinalizationAcknowledged:false,engineSelfCloseNotifications:0,
+    pthreadBroker:{created:0,live:0,terminations:0,fallbackTerminations:0}};
   options={};const pausedFailure=create();await pausedFailure.runtime.start({device:'cores3',firmware:firmware()});
   await pausedFailure.runtime.pause();const pausedFailureFrame=frames.at(-1),beforeFailureCalls=pausedFailureFrame.calls.length;
   pausedFailureFrame.worker.emit('error',{message:'contract paused engine failure'});

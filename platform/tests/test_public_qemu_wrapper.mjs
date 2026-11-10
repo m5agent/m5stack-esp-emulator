@@ -37,9 +37,9 @@ function fixture({constructorError,transferError}={}){
     removeEventListener(type,callback){this.events.get(type)?.delete(callback);}
     postMessage(value,transfer=[]){if(transferError)throw new Error(transferError);this.messages.push({value,transfer});}
     terminate(){this.terminations++;}
-    emit(type,data){const event=type==='message'?{data}:data;for(const callback of this.events.get(type)||[])callback({...event,currentTarget:this});}
+    emit(type,data,ports=[]){const event=type==='message'?{data,ports}:data;for(const callback of this.events.get(type)||[])callback({...event,currentTarget:this});}
   }
-  const context=vm.createContext({Worker:MockWorker,DOMException,crypto:globalThis.crypto,
+  const context=vm.createContext({Worker:MockWorker,DOMException,URL,crypto:globalThis.crypto,
     addEventListener:(type,callback)=>{if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(callback);},
     removeEventListener:(type,callback)=>listeners.get(type)?.delete(callback),
     setTimeout:(callback,ms)=>{const id=++nextTimer;timers.set(id,{callback,ms});return id;},
@@ -216,6 +216,62 @@ for(const drainedFirst of [true,false]){
   assert.equal(receipt.engineFallbackTerminations,0);
   assert.equal(receipt.engineSelfCloseNotifications,0);
 }
+const broker=fixture();broker.connect(broker.port());
+const brokerEngine=broker.workers[0],relay=broker.port(),threadPort=broker.port();
+const verifiedSource='blob:'+origin+'/verified-pthread';
+brokerEngine.emit('message',{type:'m5-qemu-engine-listening'});
+brokerEngine.emit('message',{type:'m5-qemu-pthread-source',url:verifiedSource});
+brokerEngine.emit('message',{type:'m5-qemu-pthread-spawn',url:verifiedSource,id:1},[relay]);
+const sibling=broker.workers[1];
+assert.equal(sibling.url,verifiedSource);assert.equal(sibling.options.name,'m5-qemu-pthread');
+assert.equal(relay.started,true);
+const load={cmd:'load',port:threadPort};
+relay.onmessage({data:{type:'message',payload:load,transfer:[threadPort]}});
+assert.equal(sibling.messages[0].value,load);
+assert.equal(sibling.messages[0].transfer[0],threadPort);
+const ready={cmd:'loaded',transferList:[threadPort]};
+sibling.emit('message',ready,[threadPort]);
+assert.equal(relay.messages[0].value.payload,ready);
+assert.equal(relay.messages[0].value.ports[0],threadPort);
+assert.equal(relay.messages[0].transfer.length,1);
+assert.equal(relay.messages[0].transfer[0],threadPort);
+broker.acknowledge(normalDisposal);
+assert.equal(brokerEngine.messages.length,1,'one verified live sibling blocks normal finalization');
+brokerEngine.emit('message',{type:'m5-qemu-pthread-terminate',id:1});
+assert.equal(sibling.terminations,1);assert.equal(relay.closed,true);
+assert.equal(sibling.events.get('message').size,0);
+brokerEngine.emit('message',{type:'m5-qemu-engine-drained'});
+const brokerToken=brokerEngine.messages.at(-1).value.token;
+assert.ok(brokerToken);
+brokerEngine.emit('message',{type:'m5-qemu-engine-finalized',token:brokerToken});
+assert.equal(broker.ownership().engineNormalTerminations,1);
+assert.equal(JSON.stringify(broker.ownership().pthreadBroker),
+  JSON.stringify({created:1,live:0,terminations:1,fallbackTerminations:0}));
+
+const liveBroker=fixture();liveBroker.connect(liveBroker.port());
+const liveEngine=liveBroker.workers[0],liveRelay=liveBroker.port();
+liveEngine.emit('message',{type:'m5-qemu-engine-listening'});
+liveEngine.emit('message',{type:'m5-qemu-pthread-source',url:verifiedSource});
+liveEngine.emit('message',{type:'m5-qemu-pthread-spawn',url:verifiedSource,id:1},[liveRelay]);
+liveBroker.acknowledge(normalDisposal);
+liveEngine.emit('message',{type:'m5-qemu-engine-drained'});
+assert.equal(liveEngine.messages.length,1,'a drained notification with a live sibling cannot authorize normal termination');
+liveBroker.release();
+assert.equal(liveRelay.closed,true);
+assert.equal(liveBroker.workers[1].terminations,1);
+assert.equal(liveBroker.ownership().pthreadBroker.fallbackTerminations,1);
+assert.equal(liveBroker.ownership().engineFallbackTerminations,1);
+assert.equal(liveBroker.ownership().engineNormalTerminations,0);
+
+const badBroker=fixture();badBroker.connect(badBroker.port());
+const badBrokerEngine=badBroker.workers[0],unexpected=badBroker.port();
+badBrokerEngine.emit('message',{type:'m5-qemu-engine-listening'});
+badBrokerEngine.emit('message',{type:'m5-qemu-pthread-source',url:verifiedSource});
+badBrokerEngine.emit('message',{type:'m5-qemu-pthread-spawn',url:'blob:'+origin+'/other',id:1},[unexpected]);
+assert.equal(unexpected.closed,true);assert.equal(badBroker.workers.length,1);
+assert.equal(badBroker.ownership().engineFallbackTerminations,1);
+assert.deepEqual(badBroker.errors,['engine failed']);
+
 const unfinished=fixture();unfinished.connect(unfinished.port());
 const unfinishedWorker=unfinished.workers[0];
 unfinishedWorker.emit('message',{type:'m5-qemu-engine-listening'});
@@ -228,4 +284,4 @@ assert.equal(unfinishedWorker.terminations,1);
 assert.equal(unfinished.ownership().engineFinalizationAcknowledged,false);
 assert.equal(unfinished.ownership().engineNormalTerminations,0);
 assert.equal(unfinished.ownership().engineFallbackTerminations,1);
-console.log('private QEMU iframe ownership/origin/one-port/transfer, acknowledged cooperative finalization without fallback, startup/error/timeout/pagehide contracts passed; no guest executed');
+console.log('private QEMU iframe ownership/origin/one-port/transfer, verified sibling broker and transfer/fallback, acknowledged cooperative finalization, startup/error/timeout/pagehide contracts passed; no guest executed');

@@ -8,7 +8,7 @@ import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash,randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance,QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
-import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {observeWorkerTargets,closedQemuPthreadBroker} from './public_qemu_worker_targets.mjs';
 import {findPublicButtonPointerTarget} from './public_qemu_button_pointer.mjs';
 import {CARDPUTER_KEYBOARD_CASES,CARDPUTER_KEYBOARD_CODES,CARDPUTER_KEYBOARD_SOURCE,
   requireCardputerKeyboardObservation} from './public_qemu_cardputer_keyboard_cases.mjs';
@@ -80,6 +80,7 @@ async function nativeKey(code,down){
 async function stopAndObserve(){
   if(!page||page.isClosed()||!await page.evaluate(()=>!!globalThis.keyboardRuntime))return;
   report.before_stop=await page.evaluate(()=>keyboardRuntime.evidence());
+  report.worker_topology=await workers.snapshotQemuTopology();
   await page.evaluate(()=>keyboardRuntime.stop());
   report.stopped=await page.evaluate(()=>keyboardRuntime.evidence());
   const cleanup=report.stopped.cleanup;
@@ -88,7 +89,10 @@ async function stopAndObserve(){
     &&cleanup.engineOwnership?.engineFinalizationAcknowledged===true&&cleanup.engineOwnership.engineNormalTerminations===1
     &&cleanup.engineOwnership.engineFallbackTerminations===0,cleanup);
   report.worker_targets=await workers.waitUntilClosed({minimumObserved:cleanup.workersCreated+1,timeoutMs:120000});
-  check('actual-workers-closed-before-browser-context',report.worker_targets.ok,report.worker_targets);
+  check('actual-workers-closed-before-browser-context',report.worker_targets.ok
+    &&report.worker_targets.observed.length===cleanup.workersCreated+1,report.worker_targets);
+  check('actual-top-page-engine-and-pthread-siblings',report.worker_topology.ok
+    &&report.worker_topology.pthread_count===cleanup.workersCreated&&closedQemuPthreadBroker(cleanup),report.worker_topology);
 }
 try{
   report.provenance=await capturePublicQemuProvenance({repo,site,

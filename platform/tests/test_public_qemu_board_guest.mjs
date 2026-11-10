@@ -84,7 +84,7 @@ try {
   workerTargets = await observeWorkerTargets(browser);
   await page.route(url => [8787,8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname), route => route.abort('blockedbyclient'));
   page.on('worker', worker => {
-    const row={kind:worker.url().includes('/public-qemu-engine.js')?'engine':'nested-pthread',
+    const row={kind:worker.url().includes('/public-qemu-engine.js')?'engine':'pthread',
       created_at:new Date().toISOString(),closed_at:null};
     workerObservations.push(row);
     worker.on('close', () => { row.closed_at=new Date().toISOString(); });
@@ -661,26 +661,26 @@ try {
     && stopped.cleanup?.engineOwnership?.engineSelfCloseNotifications === 0
     && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
     && stopped.cleanup?.engineOwnership?.engineFinalizationAcknowledged===true && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  // Check nested pthreads while the iframe is held, then all targets after
+  // Check pthreads while the iframe is held, then all targets after
   // normal DOM removal. Bind both phases to the same run's actual worker count.
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');
-  const nestedClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,
+  const pthreadClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,
     allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
     removal_requests:boardDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe').length}));
   report.iframe_removal_control={...deferredRemoval,removal_deferred_by_harness:true,
-    scope:'Real UI stop/quit/dispose; nested pthread targets are checked before iframe DOM removal, then all targets after it.'};
-  check('created-pthreads-close-before-iframe-finalization', nestedClose.ok
-    &&nestedClose.observed.length===expectedWorkerTargets
-    &&nestedClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1
+    scope:'Real UI stop/quit/dispose; pthread targets are checked before iframe DOM removal, then all targets after it.'};
+  check('created-pthreads-close-before-iframe-finalization', pthreadClose.ok
+    &&pthreadClose.observed.length===expectedWorkerTargets
+    &&pthreadClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1
     &&deferredRemoval.iframe_present&&deferredRemoval.removal_requests===1&&deferredRemoval.iframe_count===1,
-    {worker_targets:nestedClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
+    {worker_targets:pthreadClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
   await page.evaluate(() => {
     const held=boardDeferredRemoval;held.remove.call(held.frame);delete globalThis.boardDeferredRemoval;
   });
   const targetClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets});
-  report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
+  report.worker_targets={before_removal:pthreadClose,after_removal:targetClose};
   report.playwright_worker_events=workerObservations;
   check('engine-and-created-pthreads-close-after-iframe-finalization',targetClose.ok
     &&targetClose.observed.length===expectedWorkerTargets
