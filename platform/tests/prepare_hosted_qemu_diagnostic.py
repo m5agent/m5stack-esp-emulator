@@ -17,6 +17,14 @@ REPOSITORY_ID = 1427737977
 PRODUCER_RUN = 42770355747
 PRODUCER_SHA = "1979809883489d92ffe7e5461fa17b26f06a89ed"
 PRODUCER_ATTEMPT = 1
+CANDIDATE_SHA = "b4e280d5dcd9b07b4efa59dd96dc914f4f82e6ce"
+DIAGNOSTIC_FILES = {
+    ".github/workflows/hosted-qemu-diagnostics.yml",
+    "platform/tests/prepare_hosted_qemu_diagnostic.py",
+    "platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+    "platform/web/public-qemu-engine.js",
+    "platform/web/public-qemu-runtime.js",
+}
 WORKFLOW_ID = 399573281
 WORKFLOW_PATH = ".github/workflows/public-site.yml"
 RECIPE = Path("scripts/qemu-wasm-build")
@@ -97,6 +105,10 @@ def verify_producer_sources(root):
         current = read_json(root / RECIPE / lock)
         paths.update(row["path"] for row in current["patches"] + current["dependency_patches"])
     subprocess.run(["git", "diff", "--exit-code", PRODUCER_SHA, "--", *sorted(paths)], cwd=root, check=True)
+    changed = subprocess.check_output(
+        ["git", "diff", "--name-only", CANDIDATE_SHA, "--"], cwd=root, text=True
+    ).splitlines()
+    require(set(changed) == DIAGNOSTIC_FILES, "unexpected difference from the candidate source")
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
 
 
@@ -149,7 +161,7 @@ def prepare(input_dir, output):
     provenance = output / "provenance.json"
     provenance.write_bytes(public.encode_json({
         "kind": "hosted-qemu-diagnostic", "publication_eligible": False,
-        "source_commit": source_commit, "producer_commit": PRODUCER_SHA,
+        "source_commit": source_commit, "candidate_commit": CANDIDATE_SHA, "producer_commit": PRODUCER_SHA,
         "producer_run": PRODUCER_RUN, "producer_attempt": PRODUCER_ATTEMPT,
         "producer_artifacts": ARTIFACTS, "source_recipe_sha256": recipe_sha,
         "site_manifest_sha256": sha(site_manifest), "composer_assets": composer["assets"],

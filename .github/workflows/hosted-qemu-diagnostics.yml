@@ -1,8 +1,8 @@
-name: Hosted QEMU diagnostics only
+name: Candidate QEMU FIFO diagnostics only
 
 on:
   push:
-    branches: [m5agent/pages-hosted-diagnostic-20261110]
+    branches: [m5agent/pages-candidate-fifo-prefix-20261110]
 
 permissions:
   actions: read
@@ -10,7 +10,11 @@ permissions:
 
 jobs:
   reproduce:
-    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-hosted-diagnostic-20261110'
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-candidate-fifo-prefix-20261110'
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [prefix, stock]
     runs-on: macos-15
     timeout-minutes: 90
     steps:
@@ -25,7 +29,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           producer=1979809883489d92ffe7e5461fa17b26f06a89ed
-          git fetch --no-tags --depth=1 origin "$producer"
+          candidate=b4e280d5dcd9b07b4efa59dd96dc914f4f82e6ce
+          git fetch --no-tags --depth=1 origin "$producer" "$candidate"
           input=.work/hosted-diagnostic-input
           mkdir -p "$input"
           api="repos/$GITHUB_REPOSITORY/actions"
@@ -35,7 +40,6 @@ jobs:
           gh api --allow-escape-sequences "$api/artifacts/13741959101/zip" > "$input/xtensa.zip"
           gh api --allow-escape-sequences "$api/artifacts/13741639246/zip" > "$input/c61.zip"
       - name: Verify exact artifacts and export to the private runner workspace
-        id: pinned_export
         env:
           PYTHONPATH: platform/tools
         run: python3 platform/tests/prepare_hosted_qemu_diagnostic.py .work/hosted-diagnostic-input .work/hosted-diagnostic
@@ -43,15 +47,14 @@ jobs:
         with:
           node-version: "22"
       - name: Install locked browser acceptance tools
-        id: browser_tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
       - name: Verify Canvas observation positive and negative controls
-        id: canvas
+        if: matrix.lane == 'prefix'
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
       - name: Run the unmodified official CoreMatrix firmware
-        id: stock_corematrix
+        if: matrix.lane == 'stock'
         env:
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
           M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
@@ -64,11 +67,7 @@ jobs:
           curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
           M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
       - name: Run the first seven UIFlow guest cases on one runner
-        # Preserve the stock step's failed conclusion while continuing this diagnostic.
-        if: >-
-          ${{ !cancelled() && steps.pinned_export.outcome == 'success'
-              && steps.browser_tools.outcome == 'success' && steps.canvas.outcome == 'success'
-              && (steps.stock_corematrix.outcome == 'success' || steps.stock_corematrix.outcome == 'failure') }}
+        if: matrix.lane == 'prefix'
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
@@ -90,7 +89,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-diagnostic-release-prefix-${{ github.run_attempt }}
+          name: qemu-candidate-fifo-${{ matrix.lane }}-${{ github.run_attempt }}
           path: |
             .work/hosted-diagnostic/provenance.json
             .work/hosted-diagnostic/sequence/report.json
