@@ -66,10 +66,10 @@ async function observe(predicate,description,waitMs=30000){
     await page.waitForTimeout(50);
   }
 }
-async function waitForIdleTouchPolling(afterSeq){
+async function waitForIdleInputPolling(afterSeq,kind){
   const guestRangeMs=[990,1250],hostRangeMs=[750,1500];
   const samples=[],intervals=[];
-  report.input_polling={kind:'touch',samples,intervals,guestRangeMs,hostRangeMs};
+  report.input_polling={kind,samples,intervals,guestRangeMs,hostRangeMs};
   let lastSeq=afterSeq;
   const last=await observe(row=>{
     if(row.seq<=lastSeq)return false;
@@ -93,8 +93,8 @@ async function waitForIdleTouchPolling(afterSeq){
     }
     samples.push({seq:row.seq,guest_ms:row.guest_ms,observedAtMs,states:row.states});
     return samples.length===3;
-  },'two consecutive idle touch polling intervals');
-  check('guest-touch-polling-idle-before-input',true,report.input_polling);
+  },`two consecutive idle ${kind} polling intervals`);
+  check(`guest-${kind}-polling-idle-before-input`,true,report.input_polling);
   return last.seq;
 }
 try{
@@ -198,6 +198,11 @@ try{
       assert.ok(key,`${device}/${item.component} has no focused public keyboard alias`);
       domKey=/^Key[A-Z]$/.test(key)?key.slice(3).toLowerCase():key==='Space'?'Space':key;
       await canvas.focus();
+      if(device==='paperdiy'&&report.input_cases.length===0){
+        // The ready row precedes the first sustained M5.update loop. Wait
+        // for actual idle polling before the first fixed-length GPIO pulse.
+        afterSeq=await waitForIdleInputPolling((await events()).at(-1)?.seq||afterSeq,'gpio');
+      }
       downAt=performance.now();await page.keyboard.down(domKey);
       try{await page.waitForTimeout(holdMs);}finally{await page.keyboard.up(domKey);}upAt=performance.now();
     }else if(item.mode==='touch-edges'){
@@ -217,7 +222,7 @@ try{
       await page.mouse.move(pointer.clientX,pointer.clientY);
       // Prepare the real target first so the idle cadence is sampled directly
       // before input, without counting queued output from startup.
-      afterSeq=await waitForIdleTouchPolling((await events()).at(-1)?.seq||afterSeq);
+      afterSeq=await waitForIdleInputPolling((await events()).at(-1)?.seq||afterSeq,'touch');
       downAt=performance.now();await page.mouse.down();
       try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }else{
@@ -232,6 +237,13 @@ try{
       downAt=performance.now();await page.mouse.down();
       try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }
+    let modelEvents;
+    if(device==='paperdiy'){
+      modelEvents=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
+      // Retain both host edges even if the original GPIO observer times out.
+      report.pending_input={id:item.id,method,keyboard:key,dom_key:domKey,pointer,after_seq:afterSeq,
+        requested_hold_ms:holdMs,observed_hold_ms:upAt-downAt,model_events:modelEvents};
+    }
     let pressed=null,released=null,event=null;
     if(item.mode==='driver-edges'||item.mode==='touch-edges'){
       pressed=await observe(row=>row.kind==='state'&&row.button===item.id&&row.pressed===true&&row.seq>afterSeq,`${item.id} pressed`);
@@ -240,7 +252,7 @@ try{
       &&['wasPressed','wasClicked','wasHold'].includes(row.method),`${item.id} PMIC event`);
     const heartbeat=await observe(row=>row.kind==='heartbeat'&&row.seq>(released?.seq||event?.seq||0)
       &&row.states[item.id]===false,`${item.id} released heartbeat`);
-    const modelEvents=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
+    modelEvents??=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
     check(`${method}-${item.id}-actual-model-down-and-up`,modelEvents.length===2&&modelEvents[0].down===true
       &&modelEvents[1].down===false&&modelEvents[0].id===item.id&&modelEvents[1].id===item.id,modelEvents);
     if(item.mode==='touch-edges')check('gt911-original-logical-coordinates',
@@ -251,6 +263,7 @@ try{
       model_hold_ms:modelEvents[1].observed_at_ms-modelEvents[0].observed_at_ms,
       after_seq:afterSeq,pressed,released,event,heartbeat};
     report.input_cases.push(input);check(`guest-${method}-${item.id}-${item.mode}`,true,input);
+    delete report.pending_input;
   }
   await page.evaluate(()=>buttonRun.runner.interrupt());
   await page.waitForFunction(()=>!buttonRun.runner.busy,{}, {timeout:30000});

@@ -90,7 +90,10 @@ Syntax checks and a skipped opt-in runner are not virtual-device validation.
 ## ET047TC1 candidates
 
 PaperDIY checks its independent A/B inputs through the original M5 Button
-API. Each key is exercised through both focused keyboard and 3D pointer input.
+API. Each key is exercised through both focused keyboard and 3D pointer input. The
+first 250 ms GPIO pulse follows two fresh idle polling intervals observed in
+both guest and host time. The ready marker alone does not establish that the
+continuous update loop has started.
 PaperS3 projects a real pointer event to `(270,400)` on the modeled display
 and checks the original GT911 logical coordinates and release through
 `M5.Touch`. Its PMS150G power actuator remains outside this input contract.
