@@ -21,13 +21,54 @@ globalThis.Worker = class extends NativeWorker {
   terminate() { workers.delete(this); return super.terminate(); }
 };
 function emit(type, value, transfer = []) { if (!closed && !disposeRequested) port?.postMessage({type, value}, transfer); }
+// Scratch diagnostic only. Keep the original QMP input and I2C data planes.
+const keyboardTraceMode = new URL(self.location.href).searchParams.get('m5-cardputer-trace');
+const keyboardTraceEnds = new Map();
+let qmpBytesQueued = 0, qmpBytesRead = 0, keyboardTraceSequence = 0;
+function keyboardTrace(kind, fields) {
+  if (keyboardTraceMode) emit('cardputer-trace', {kind, sequence:++keyboardTraceSequence,
+    worker_epoch_ms:performance.timeOrigin+performance.now(), ...fields});
+}
+function readQmpByte() {
+  const byte = qmpInput.shift();
+  if (keyboardTraceMode && byte !== undefined) {
+    const item = keyboardTraceEnds.get(++qmpBytesRead);
+    if (item) {
+      keyboardTraceEnds.delete(qmpBytesRead);
+      keyboardTrace('qmp-stdin-command-complete', item);
+    }
+  }
+  return byte;
+}
+function writeDiagnostic(text) {
+  const value = String(text);
+  if (keyboardTraceMode) {
+    for (const line of value.split('\n')) {
+      if (/input_event_key_qcode|\[tca8418\]|\[m5panel-input\] qcode=|\[gpio\] ext input pin=11\b/.test(line)) {
+        keyboardTrace('qemu-log', {line});
+      }
+    }
+  }
+  emit('diagnostic', value);
+}
 function qmp(execute, args = {}, timeout = 15000) {
   if (!module) return Promise.reject(new Error('QEMU is not initialized'));
   const id = ++nextId;
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => { pending.delete(id); reject(new Error(`QMP ${execute} timed out`)); }, timeout);
-    pending.set(id, {resolve, reject, timer});
-    qmpInput.push(...encoder.encode(JSON.stringify({execute, arguments:args, id}) + '\n'));
+    const bytes = encoder.encode(JSON.stringify({execute, arguments:args, id}) + '\n');
+    const keys = keyboardTraceMode && execute === 'input-send-event' && args.events
+      ?.filter(event => event.type === 'key').map(({data}) => ({qcode:data.key.data, down:data.down}));
+    const keyTrace = keys?.length ? {qmp_id:id, keys} : null;
+    pending.set(id, {resolve, reject, timer, keyTrace});
+    if (keyboardTraceMode) {
+      qmpBytesQueued += bytes.length;
+      if (keyTrace) {
+        keyboardTraceEnds.set(qmpBytesQueued, keyTrace);
+        keyboardTrace('qmp-queued', {...keyTrace, pending_bytes:qmpInput.length});
+      }
+    }
+    qmpInput.push(...bytes);
   });
 }
 function output(text) {
@@ -62,6 +103,7 @@ function output(text) {
     const item = pending.get(message.id);
     if (item) {
       clearTimeout(item.timer); pending.delete(message.id);
+      if (item.keyTrace) keyboardTrace('qmp-reply', {...item.keyTrace,error:message.error||null});
       if (message.error) item.reject(new Error(`${message.error.class}: ${message.error.desc}`));
       else item.resolve(message.return);
     }
@@ -119,12 +161,13 @@ async function start(config) {
   validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
   frameTransport=config.frameTransport;
   const options = {
-    arguments:buildQemuArguments(boardProfile),
+    arguments:[...buildQemuArguments(boardProfile),...(keyboardTraceMode
+      ? ['-d','trace:input_event_key_qcode','-msg','timestamp=on'] : [])],
     wasmBinary:config.wasm, mainScriptUrlOrBlob:script,
     locateFile:(name) => name.endsWith('.worker.js') ? worker : name,
     print:(text) => output(String(text) + '\n'),
-    printErr:(text) => emit('diagnostic', String(text)),
-    stdin:() => qmpInput.shift(),
+    printErr:writeDiagnostic,
+    stdin:readQmpByte,
     onAbort:fail,
     onExit:(code) => { emit('exit', {code,workersCreated,workersRemaining:workers.size}); },
     preRun:[(m) => {
@@ -142,6 +185,8 @@ async function start(config) {
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
+      if (keyboardTraceMode) m.ENV.M5SW_INPUT_TRACE='1';
+      if (keyboardTraceMode==='fifo') Object.assign(m.ENV,{M5SW_I2C_TRACE:'1',M5SW_GPIO_TRACE:'1',M5SW_GPIO_TRACE_PIN:'11'});
       if (boardProfile.accelerator?.icountMaxPerCpuNs !== undefined)
         m.ENV.M5SW_ICOUNT_MAX_PERCPU_NS=String(boardProfile.accelerator.icountMaxPerCpuNs);
       const consoleBase = boardProfile.target==='riscv32-softmmu' ? '/bridge/usb' : '/bridge/uart';
