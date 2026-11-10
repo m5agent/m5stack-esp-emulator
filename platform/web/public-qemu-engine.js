@@ -142,6 +142,8 @@ async function start(config) {
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
+      if (boardProfile.accelerator?.icountMaxPerCpuNs !== undefined)
+        m.ENV.M5SW_ICOUNT_MAX_PERCPU_NS=String(boardProfile.accelerator.icountMaxPerCpuNs);
       const consoleBase = boardProfile.target==='riscv32-softmmu' ? '/bridge/usb' : '/bridge/uart';
       const consoleInput = consoleBase+'.in', consoleOutput = consoleBase+'.out';
       const chardevPaths = [...new Set([consoleInput,consoleOutput,'/bridge/uart.out','/bridge/serial1'])];

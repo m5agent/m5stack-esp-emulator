@@ -19,10 +19,11 @@ from test_xtensa_wallclock_noop_yield_patch import patch_image, function
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "patches/qemu-wasm-probe/0030-xtensa-inactive-irq-yield-guard.patch"
 ORIGINAL = ROOT / "patches/qemu-wasm-probe/0011-wasm-main805-native-context-compat.patch"
-POST_SHA = {
-    "accel/tcg/tcg-accel-ops-icount.c": "62f65add2fa1f3962da8ca7693f370922d71c24a97b256b3ec8eb054f17fd1b9",
-    "include/sysemu/cpu-timers.h": "6631e9985af402e0658af8e15773a37c5d6365aa5ade8e7831ba423f13414faa",
-    "stubs/icount.c": "296574516eebbab1f8d364388d7ea01afcf727220d3718a3ecc3c34a3f024792",
+LOCKED_SHA = {
+    # 0038 extends the scheduler budget without changing the IRQ guard.
+    "accel/tcg/tcg-accel-ops-icount.c": "63645fb063a20e260937273f35fe0450881fef17a96c0f46072b2e0a5d6ca308",
+    "include/sysemu/cpu-timers.h": "1f8582f9da17120e9ace842a1fe3c5d80264390344eb1948eba621d902ec855d",
+    "stubs/icount.c": "4a1ab4095afff96288ce245ccb26b6fdb1edc0ec77966c124ecd9623d4753ed4",
     "target/xtensa/translate.c": "15335266110a8c3dd93e779b47c2465d26b7666ecbb1829717fb0c2dc543cc71",
 }
 
@@ -206,8 +207,8 @@ class XtensaInactiveIrqGuardTests(unittest.TestCase):
         lock = json.loads((ROOT / "scripts/qemu-wasm-build/sources.lock.json").read_text())
         row = next(row for row in lock["patches"] if row["path"] == str(PATCH.relative_to(ROOT)))
         self.assertEqual(row["sha256"], hashlib.sha256(PATCH.read_bytes()).hexdigest())
-        self.assertEqual({name: lock["patched_files"][name] for name in POST_SHA}, POST_SHA)
-        self.assertEqual(set(hunks(PATCH)), set(POST_SHA))
+        self.assertEqual({name: lock["patched_files"][name] for name in LOCKED_SHA}, LOCKED_SHA)
+        self.assertEqual(set(hunks(PATCH)), set(LOCKED_SHA))
         self.assertNotIn("target/xtensa/op_helper.c", hunks(PATCH))
         self.assertNotIn("target/xtensa/cpu.c", hunks(PATCH))
         self.assertNotIn("target/xtensa/exc_helper.c", hunks(PATCH))

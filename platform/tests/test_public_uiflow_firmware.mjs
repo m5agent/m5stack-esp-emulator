@@ -5,8 +5,8 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, resolveUIFlowWorkbenchProfile,
   UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
-import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements,
-  QEMU_ONE_INSN_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements, buildQemuArguments,
+  clearQemuFirmwareExecutionBinding, QEMU_ONE_INSN_RUNTIME_PATCH, QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {planPublicQemuGate, publicQemuGateChildEnvironment, validatePublicQemuGateResult, PUBLIC_QEMU_GATE_PHASES,
   publicQemuGateWorkers, schedulePublicQemuGate} from './test_public_qemu_admitted_boards.mjs';
 
@@ -52,7 +52,16 @@ for (const row of registry.profiles) {
   assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
-  if (Object.hasOwn(EXACT_S3_WORKBENCH_FLASH,row.deviceId)) {
+  if (row.deviceId === 'atom-matrix') {
+    assert.deepEqual(resolved.accelerator, {...profile.accelerator, icountMaxPerCpuNs:10000});
+    assert.deepEqual(buildQemuArguments(resolved), buildQemuArguments(profile), 'fairness preserves QEMU clock and CPU arguments');
+    assert.throws(() => validateQemuRuntimeRequirements(resolved,{source:{patches:[]}}), /required per-CPU icount/);
+    assert.throws(() => validateQemuRuntimeRequirements(resolved,{source:{patches:[
+      {...QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH, sha256:'0'.repeat(64)}]}}), /required per-CPU icount/);
+    validateQemuRuntimeRequirements(resolved,{source:{patches:[QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH]}});
+    assert.deepEqual(resolveQemuFirmwareProfile(resolved,'f'.repeat(64)).accelerator, profile.accelerator);
+    assert.deepEqual(clearQemuFirmwareExecutionBinding(structuredClone(resolved)).accelerator, profile.accelerator);
+  } else if (Object.hasOwn(EXACT_S3_WORKBENCH_FLASH,row.deviceId)) {
     const standardPaper=STANDARD_TCI_PAPER_WORKBENCH.has(row.deviceId);
     assert.equal(row.firmwareSHA256,EXACT_S3_WORKBENCH_FLASH[row.deviceId]);
     assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, standardPaper?undefined:true);

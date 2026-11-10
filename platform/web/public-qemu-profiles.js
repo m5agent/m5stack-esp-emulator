@@ -5,6 +5,8 @@ export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008
 export const QEMU_C61_BROWSER_SOURCE_COMMIT = '8fd40d7f1a5151c1747375b920c3e2d5cff0b0dc';
 const C61_BOARD = 'esp32c61,m5corematrix=on';
 export const CORE_MATRIX_STOCK_FLASH_SHA256 = '5562f685a8f3ed07d04ec7d7f58fa4435be8438fbf135c6fd61ff6e906783c07';
+export const ATOM_MATRIX_WORKBENCH_FLASH_SHA256 = 'f553ad2c9d84e22591d8da8d32a7517c9e378eb5439214a9e0b2075bf31844ed';
+export const ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS = 10000;
 
 export function qemuRuntimeIdentity(profile) {
   return profile.target === 'riscv32-softmmu'
@@ -25,6 +27,10 @@ function check(ok, message) { if (!ok) throw new Error(message); }
 export const QEMU_ONE_INSN_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch',
   sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf',
+});
+export const QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0038-icount-percpu-fairness-cap.patch',
+  sha256:'7942e09a3459c768d7c76bada20bc808b3142c7421465c2db40037680434a49b',
 });
 export const QEMU_CARDPUTER_BOOT_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch',
@@ -78,6 +84,12 @@ function validateFirmwareVariant(variant, profile) {
 /** Execution metadata may require a source patch absent from an older cache. */
 export function validateQemuRuntimeRequirements(profile, manifest) {
   validateQemuProfile(profile);
+  if (profile.accelerator?.icountMaxPerCpuNs !== undefined) {
+    const patches=manifest?.source?.patches;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH.path):[];
+    check(matches.length===1&&matches[0].sha256===QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH.sha256,
+      'QEMU runtime lacks the required per-CPU icount scheduling patch');
+  }
   if (profile.oneInsnPerTb === true) {
     const patches = manifest?.source?.patches;
     const matches = Array.isArray(patches) ? patches.filter(row => row?.path === profile.requiredRuntimePatch.path) : [];
@@ -151,10 +163,16 @@ export function validateQemuProfile(profile) {
   check(profile.firmwareVariant?.oneInsnPerTb !== true || oneInsn, 'Missing QEMU one-instruction execution binding');
   if (requiredPatch) validateRuntimePatch(profile.requiredRuntimePatch);
   if (profile.accelerator !== undefined) {
-      check(profile.clockDivisor === 1 && profile.accelerator && Object.keys(profile.accelerator).length === 4
+    const cap=Object.hasOwn(profile.accelerator||{},'icountMaxPerCpuNs');
+    check(profile.clockDivisor === 1 && profile.accelerator && Object.keys(profile.accelerator).length === (cap?5:4)
         && profile.accelerator.kind === 'tcg-icount'
         && profile.accelerator.thread === 'single' && profile.accelerator.tbSizeMb === 128
         && profile.accelerator.icountShift === 5, 'Invalid QEMU deterministic accelerator profile');
+    check(!cap || profile.deviceId==='atom-matrix' && profile.board==='m5atommatrix'
+      && profile.profile==='atom-matrix-wasm-deterministic-icount'
+      && profile.readyFirmwareSHA256===ATOM_MATRIX_WORKBENCH_FLASH_SHA256
+      && profile.accelerator.icountMaxPerCpuNs===ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS,
+      'Invalid QEMU per-CPU icount scheduling binding');
   }
   const publishedWithoutMarker = profile.firmwareVariant?.sourceKind === 'published-firmware-binary'
     && profile.readyMarker === null && profile.readyFirmwareSHA256 === profile.firmwareVariant.firmwareSHA256;
@@ -303,6 +321,7 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
   const resolved = structuredClone(profile);
   delete resolved.firmwareVariant;
   delete resolved.oneInsnPerTb; delete resolved.requiredRuntimePatch;
+  if (resolved.accelerator?.icountMaxPerCpuNs !== undefined) delete resolved.accelerator.icountMaxPerCpuNs;
   const variant = profile.firmwareProfiles?.find(row => row.firmwareSHA256 === firmwareSHA256);
   if (variant) {
     resolved.profile = variant.profile; resolved.clockDivisor = variant.clockDivisor;
@@ -318,6 +337,7 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
 /** A diagnostic override cannot inherit an admitted variant's execution flags. */
 export function clearQemuFirmwareExecutionBinding(profile) {
   delete profile.firmwareVariant; delete profile.oneInsnPerTb; delete profile.requiredRuntimePatch;
+  if (profile.accelerator?.icountMaxPerCpuNs !== undefined) delete profile.accelerator.icountMaxPerCpuNs;
   // A publisher BIN with no app-ready marker must not retain a ready identity
   // outside its explicit provenance branch. Real source-code markers remain.
   if (profile.readyMarker === null) profile.readyFirmwareSHA256 = null;

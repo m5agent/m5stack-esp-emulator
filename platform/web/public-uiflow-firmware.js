@@ -1,7 +1,8 @@
 // Official UIFlow2 firmware with an explicit programming startup, composed in
 // browser memory. The original MicroPython runtime executes all user programs.
 import {assetUrl, siteRoot} from './public-config.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, validateQemuProfile, validateQemuFirmware} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, validateQemuProfile, validateQemuFirmware,
+  ATOM_MATRIX_WORKBENCH_FLASH_SHA256, ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS} from './public-qemu-profiles.js';
 import {qemuProbeVfs} from './public-qemu-probe-firmware.js';
 import {sha256Buffer} from './public-firmware.js';
 import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
@@ -85,6 +86,10 @@ export function resolveUIFlowWorkbenchProfile(profile, firmwareSHA256, registry)
   'UIFlow programming firmware requires its exact workbench source, fixture and ready binding');
   const result = structuredClone(profile);
   result.readyMarker = UIFLOW_WORKBENCH_READY; result.readyFirmwareSHA256 = row.firmwareSHA256;
+  // Limit round-robin CPU slices on this exact dual-core image so the peer
+  // can complete Flash IPC promptly. The guest clock and WDT are unchanged.
+  if (profile.deviceId === 'atom-matrix' && firmwareSHA256 === ATOM_MATRIX_WORKBENCH_FLASH_SHA256)
+    result.accelerator.icountMaxPerCpuNs = ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS;
   validateQemuProfile(result); return result;
 }
 

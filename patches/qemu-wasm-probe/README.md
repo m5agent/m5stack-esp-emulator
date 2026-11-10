@@ -500,3 +500,13 @@ sequence. The camera and ADV boot-switch paths retain their existing browser
 behavior. Paper scanout uses the existing shared RGB565 host frame ABI.
 These layers make the three machines available to the compiler. Browser
 admission and firmware acceptance remain per-board profile decisions.
+
+## Dual-core icount scheduling budget (`0038`)
+
+`0038` ports the opt-in native `0090` slice cap to the Xtensa browser build.
+The browser enables a 10 µs cap only for the exact composed Atom Matrix
+UIFlow workbench image. The cap gives the peer vCPU a turn sooner during
+Flash IPC. It leaves the icount shift, virtual clock divisor, guest
+instructions and watchdog configuration intact. An unset cap preserves the
+original scheduler behavior, including on Atom Matrix v1.1 and uploaded
+images with a different Flash identity.
