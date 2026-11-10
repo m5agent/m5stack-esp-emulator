@@ -40,7 +40,8 @@ class CardputerKeyboardObserverBoundaryTest(unittest.TestCase):
                 output = []
                 state = {46: initial_press, 101: False}
                 state_reads = []
-                key_codes = iter((46, None))
+                key_codes = iter((46, 27, None))
+                state[27] = True
 
                 def read_state(code):
                     state_reads.append(code)
@@ -51,28 +52,30 @@ class CardputerKeyboardObserverBoundaryTest(unittest.TestCase):
 
                 def serial_write(line):
                     state[46] = False
+                    state[27] = False
                     output.append(json.loads(line.split(" ", 1)[1]))
 
                 observer = {"keyboard": keyboard, "json": json, "print": serial_write,
                             "time": SimpleNamespace(ticks_ms=lambda: 100),
-                            "KEY_CODES": [46, 101], "RUN_NONCE": "host-control", "sequence": 0,
-                            "previous": {46: False, 101: False}, "pressed_codes": set(),
+                            "RUN_NONCE": "host-control", "sequence": 0, "pressed_codes": set(),
                             "callback_count": 0, "pending": []}
                 exec(program, observer)
                 observer["sample_active_states"]()
                 self.assertEqual(state_reads, [])
                 observer["key_event"](keyboard)
                 self.assertEqual(output, [])
-                self.assertEqual(state_reads, [46, 101])
+                self.assertEqual(state_reads, [46, 27])
                 observer["flush_events"]()
                 observer["sample_active_states"]()
                 observer["sample_active_states"]()
                 observer["flush_events"]()
-                self.assertEqual(state_reads, [46, 101, 46] if initial_press else [46, 101])
-                self.assertEqual(output[0]["codes"], [46])
+                self.assertEqual(state_reads[:2], [46, 27])
+                self.assertCountEqual(state_reads[2:], [46, 27] if initial_press else [27])
+                self.assertEqual(output[0]["codes"], [46, 27])
                 self.assertEqual(output[0]["callback_count"], 1)
-                self.assertEqual([row["pressed"] for row in output[1:]],
-                                 [True, False] if initial_press else [])
+                for code in (46, 27):
+                    self.assertEqual([row["pressed"] for row in output[1:] if row["code"] == code],
+                                     [True, False] if code == 27 or initial_press else [])
                 self.assertEqual([row["seq"] for row in output], list(range(1, len(output) + 1)))
                 self.assertTrue(all(row["nonce"] == "host-control" for row in output))
 
