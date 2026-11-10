@@ -44,9 +44,10 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
    选择 **GitHub Actions**。工作流不会代替管理员启用 Pages。
 2. 打开 **Actions → Prepare public simulator site → Run workflow**，选择 `main`。
    `publish=false` 先构建并验证，下载 `public-simulator-site-preview` artifact
-   可审查导出内容。首次完整源码构建较慢；`build` job 包含构建、导出与验收，
-   当前上限为 240 分钟，另一个 `deploy` job 上限为 10 分钟。这是 job 预算，
-   不是设备启动时延承诺。
+   可审查导出内容。Xtensa 与 C61 各自在 `build_runtimes` 的 macOS job 中从锁定源码
+   完整构建。`build` 只接收同一运行轮次的产物，校验并导出，再执行完整串行验收。
+   源码构建、验收和 `deploy` 的单 job 预算分别为 90、240 和 10 分钟。
+   若重跑工作流，请选择重跑全部 job 以生成本轮的两个构建产物。
 3. 确认后再次运行，设置 `publish=true`。项目站的 `base_path` 默认
    `/m5stack-esp-emulator/`；若更改仓库名，需要同步前缀。用户站或独立域名根路径用 `/`。
 4. `service_url` 默认留空。仅需其它原生设备时配置公开 HTTPS 服务地址；

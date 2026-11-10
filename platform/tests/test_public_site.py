@@ -216,14 +216,35 @@ class PublicSiteTests(unittest.TestCase):
         self.assertRegex(trigger, r"(?m)^concurrency:\n  group: public-simulator-pages-\$\{\{ github.repository \}\}\n  cancel-in-progress: false$")
 
         jobs = dict(re.findall(r"(?ms)^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)", jobs_text))
-        self.assertEqual(set(jobs), {"build", "deploy"})
-        build, deploy = jobs["build"], jobs["deploy"]
+        self.assertEqual(set(jobs), {"build_runtimes", "build", "deploy"})
+        runtimes, build, deploy = jobs["build_runtimes"], jobs["build"], jobs["deploy"]
         gate = "if: ${{ inputs.publish && github.ref == 'refs/heads/main' }}"
+        self.assertIn("    runs-on: macos-15\n", runtimes)
+        self.assertIn("        target: [xtensa-softmmu, riscv32-softmmu]\n", runtimes)
+        self.assertIn("          brew install autoconf automake libtool bison flex ninja pkg-config xz\n", runtimes)
+        self.assertNotIn("--reuse-dependencies", runtimes)
+        self.assertNotIn("--reference-runtime", runtimes)
+        self.assertNotIn("--sdk-dir", runtimes)
+        self.assertNotIn("pages: write", runtimes)
+        self.assertNotIn("id-token: write", runtimes)
+        self.assertIn("    needs: build_runtimes\n", build)
         self.assertIn("    runs-on: macos-15\n", build)
-        self.assertIn("          brew install autoconf automake libtool bison flex ninja pkg-config xz\n", build)
+        for artifact, path in (("xtensa", ".work"), ("c61", ".work/qemu-c61-runtime")):
+            name = f"          name: qemu-staging-{artifact}-${{{{ github.run_attempt }}}}\n"
+            self.assertIn(name, runtimes)
+            self.assertIn(
+                "        uses: actions/download-artifact@v4\n        with:\n"
+                + name + f"          path: {path}\n", build,
+            )
+        self.assertNotIn("run-id:", build)
+        self.assertNotIn("github-token:", build)
         self.assertIn("          M5_WASM_GPU: hardware\n", build)
         self.assertIn("          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n", build)
         self.assertIn('          M5_QEMU_READY_TIMEOUT_MS: "600000"\n', build)
+        self.assertIn('          M5_QEMU_GATE_REQUIRE_ALL: "1"\n', build)
+        self.assertIn('          M5_QEMU_GATE_WORKERS: "1"\n', build)
+        self.assertIn("          M5_QEMU_GATE_PHASE: all\n", build)
+        self.assertIn('          M5_QEMU_GATE_DEVICES: ""\n', build)
         guest_runner = (public.ROOT / "platform/tests/test_public_qemu_guest.mjs").read_text()
         self.assertIn("const chromeExecutable=process.env.M5_WASM_CHROME||process.env.M5_CHROME", guest_runner)
         self.assertRegex(deploy, r"^    " + re.escape(gate) + r"\n")

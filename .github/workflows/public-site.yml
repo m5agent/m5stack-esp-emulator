@@ -28,16 +28,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    # Normal-clock board probes run two guest CPUs beside Chromium. The
-    # constrained Linux headless runner can starve a wall-clock guest into a
-    # real interrupt-WDT, so keep publication acceptance on a workstation-class
-    # macOS runner rather than slowing the deployed profiles or weakening the
-    # guest assertions.
+  build_runtimes:
     runs-on: macos-15
-    # Each admitted board runs independent guests, including editor reset
-    # boots, after rebuilding both runtime targets from source.
-    timeout-minutes: 240
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [xtensa-softmmu, riscv32-softmmu]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -90,24 +87,86 @@ jobs:
           fetch_release_asset PCRE2Project/pcre2 172496647 pcre2-10.44.tar.bz2 1928086
           fetch_release_asset mesonbuild/wrapdb 192615396 pcre2_10.44-2_patch.zip 3644
       - name: Build pinned C/QEMU and complete corresponding source
+        if: ${{ matrix.target == 'xtensa-softmmu' }}
         run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2 --downloads .work/qemu-source-downloads
       - name: Build pinned CoreMatrix C61 QEMU and corresponding source
+        if: ${{ matrix.target == 'riscv32-softmmu' }}
         run: |
           python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
             --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
-            --sdk-dir .work/qemu-browser-runtime-build/emsdk \
             --downloads .work/qemu-source-downloads
+      - name: Build browser-local demo composer
+        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
+      - uses: actions/setup-node@v4
+        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        with:
+          node-version: "22"
+      - name: Verify the WASM32 helper ABI against the pinned libffi
+        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        run: python3 tests/browser-qemu/typed_helpers/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc --ffi-prefix .work/qemu-browser-runtime-build/target --out-dir .work/wasm-typed-helper-control
       - name: Retain failed source build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-source-build-diagnostics
+          name: qemu-source-build-diagnostics-${{ matrix.target }}-${{ github.run_attempt }}
           path: |
             .work/qemu-browser-runtime-build/logs
             .work/qemu-c61-runtime-build/logs
+            .work/wasm-typed-helper-control
           if-no-files-found: ignore
-      - name: Build browser-local demo composer
-        run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
+      - name: Stage Xtensa runtime and composer for browser acceptance
+        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-staging-xtensa-${{ github.run_attempt }}
+          path: |
+            .work/qemu-browser-runtime
+            .work/browser-littlefs
+            .work/wasm-typed-helper-control
+          include-hidden-files: true
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+      - name: Stage C61 runtime for browser acceptance
+        if: ${{ matrix.target == 'riscv32-softmmu' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-staging-c61-${{ github.run_attempt }}
+          path: .work/qemu-c61-runtime
+          include-hidden-files: true
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  build:
+    needs: build_runtimes
+    # Normal-clock board probes run two guest CPUs beside Chromium. The
+    # constrained Linux headless runner can starve a wall-clock guest into a
+    # real interrupt-WDT, so keep publication acceptance on a workstation-class
+    # macOS runner rather than slowing the deployed profiles or weakening the
+    # guest assertions.
+    runs-on: macos-15
+    # Each admitted board runs independent guests, including editor reset
+    # boots, after rebuilding both runtime targets from source.
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Downloads are scoped to this run and names bind its current attempt.
+      # Re-run all jobs to rebuild both artifacts for a new attempt.
+      - name: Retrieve this run's Xtensa runtime and composer
+        uses: actions/download-artifact@v4
+        with:
+          name: qemu-staging-xtensa-${{ github.run_attempt }}
+          path: .work
+      - name: Retrieve this run's C61 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: qemu-staging-c61-${{ github.run_attempt }}
+          path: .work/qemu-c61-runtime
       - name: Export reviewed browser assets
         env:
           PUBLIC_BASE_PATH: ${{ inputs.base_path }}
@@ -116,8 +175,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Verify the WASM32 helper ABI against the pinned libffi
-        run: python3 tests/browser-qemu/typed_helpers/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc --ffi-prefix .work/qemu-browser-runtime-build/target --out-dir .work/wasm-typed-helper-control
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
       - name: Verify Canvas observation positive and negative controls
