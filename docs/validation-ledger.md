@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-09`
+日期：`2026-11-10`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-10
+
+| 范围 | 结果与身份 | 证据 |
+| --- | --- | --- |
+| 本地主线完整串行门禁 / virtual-device validation | 源码 `7edc2d11`，站点 manifest `9b9985c3…`，Xtensa `96c7f8ba…`，C61 `83ed57e0…`。单 worker `72/72`，含 23 例编辑器、23 例按键、Cardputer ADV 键盘、StackChan 身体触摸及 24 例固定示例。Canvas 正反控五项通过。原版 CoreMatrix UIFlow2 v2.5.4 通过离线点阵、USB REPL 和模型输入。Atom Matrix 硬复位后从新控制台执行实际源码，CDP 目标从 5 清到 0。Cardputer ADV 的 112 次真实输入通过。此前本地 AtomS3 Lite 启动异常保留。 | [完整摘要与逐例报告哈希](https://github.com/m5agent/agent-work-logs/blob/20669a1ab29e1dfb01fef3472ec6dad6cff29179/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/local-exact-7ed-full-72-pass-summary.json) · [此前启动失败](https://github.com/m5agent/agent-work-logs/blob/20669a1ab29e1dfb01fef3472ec6dad6cff29179/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/local-exact-7ed-atoms3-lite-boot-pif-summary.json) |
+| 正式托管 Cardputer ADV / virtual-device validation | 同源码 `7edc2d11` 的正式任务 `42791936544` 在第七例失败。前六例通过，其余 65 例未运行。Cardputer ADV 前 52 次输入通过，第 53 次 `]` 键的两端命令均获确认，原厂回调和按下可见，松开未见。该会话正常退出，实际同层 CDP 目标从 6 清到 0。独立定向追踪在 FIFO 读空与 W1C 之间捕获释放，GPIO11 保持低电平。 | [正式托管失败](https://github.com/m5agent/agent-work-logs/blob/20669a1ab29e1dfb01fef3472ec6dad6cff29179/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/formal-cardputer-right-bracket-release-summary.json) · [独立 FIFO 追踪](https://github.com/m5agent/agent-work-logs/blob/20669a1ab29e1dfb01fef3472ec6dad6cff29179/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/hosted-cardputer-fifo-release-race-summary.json) |
+| 浏览器同层 Worker 定向托管 / virtual-device validation | 任务 `42784540906` 在同一已核验 WASM 上执行候选 `f61c99f7`。Atom Matrix 和 AtomS3 完成实际硬复位及新控制台代码，Cardputer ADV 通过全部 112 次真实输入，原版 CoreMatrix 完成 USB 与点阵交互。四轮实际 CDP 均验证同一顶层页面的引擎与 pthread 目标，正常退出后清零且未用兜底。 | [四个托管定向会话](https://github.com/m5agent/agent-work-logs/blob/20669a1ab29e1dfb01fef3472ec6dad6cff29179/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/hosted-sibling-worker-candidate-summary.json) |
 
 ## 2026-11-09
 
