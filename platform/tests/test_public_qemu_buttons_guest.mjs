@@ -66,6 +66,37 @@ async function observe(predicate,description,waitMs=30000){
     await page.waitForTimeout(50);
   }
 }
+async function waitForIdleTouchPolling(afterSeq){
+  const guestRangeMs=[990,1250],hostRangeMs=[750,1500];
+  const samples=[],intervals=[];
+  report.input_polling={kind:'touch',samples,intervals,guestRangeMs,hostRangeMs};
+  let lastSeq=afterSeq;
+  const last=await observe(row=>{
+    if(row.seq<=lastSeq)return false;
+    const consecutive=row.seq===lastSeq+1;
+    lastSeq=row.seq;
+    if(row.kind!=='heartbeat'||!Number.isSafeInteger(row.guest_ms)
+      ||!cases.every(item=>row.states?.[item.id]===false)){
+      samples.length=0;
+      return false;
+    }
+    const observedAtMs=performance.now();
+    const previous=samples.at(-1);
+    if(previous){
+      const guestMs=row.guest_ms-previous.guest_ms;
+      const hostMs=observedAtMs-previous.observedAtMs;
+      intervals.push({guestMs,hostMs});
+      // Guest time identifies completed update-loop work. Host time rejects
+      // backlogged UART bursts and host-side stalls before the short gesture.
+      if(!consecutive||guestMs<guestRangeMs[0]||guestMs>guestRangeMs[1]
+        ||hostMs<hostRangeMs[0]||hostMs>hostRangeMs[1])samples.length=0;
+    }
+    samples.push({seq:row.seq,guest_ms:row.guest_ms,observedAtMs,states:row.states});
+    return samples.length===3;
+  },'two consecutive idle touch polling intervals');
+  check('guest-touch-polling-idle-before-input',true,report.input_polling);
+  return last.seq;
+}
 try{
   report.provenance=await capturePublicQemuProvenance({repo,site,
     webPaths:[...QEMU_EXECUTED_WEB_PATHS,'platform/web/public-micropython.js',
@@ -149,13 +180,6 @@ try{
   const ready=await observe(row=>row.kind==='ready','ready',timeout);
   check('original-button-api-probe-ready',Object.keys(ready.states).length===cases.length
     &&cases.every(item=>ready.states[item.id]===false),ready);
-  if(cases.some(item=>item.mode==='touch-edges')){
-    // UART can deliver the startup marker while its guest print is still
-    // returning. Wait for repeated M5.update polling before a short click.
-    const first=await observe(row=>row.kind==='heartbeat'&&row.seq>ready.seq,'first touch polling heartbeat');
-    const second=await observe(row=>row.kind==='heartbeat'&&row.seq>first.seq,'subsequent touch polling heartbeat');
-    check('guest-touch-polling-idle-before-input',cases.every(item=>second.states[item.id]===false),{first,second});
-  }
   if(PM1_BUTTON_OBSERVER_SETUP[device])check('explicit-pm1-user-application-irq-mode',ready.pmic_setup?.applied===true
     &&ready.pmic_setup.configuration_api===pm1Setup.configuration_api
     &&ready.pmic_setup.api===(pm1Setup.configuration_api==='m5pm1-python-driver'
@@ -164,7 +188,7 @@ try{
     &&ready.pmic_setup.cfg49_after===((ready.pmic_setup.cfg49_before&~7)|5)
     &&ready.pmic_setup.cfg4a_before===ready.pmic_setup.cfg4a_after,ready.pmic_setup);
   for(const item of cases)for(const method of item.mode==='touch-edges'?['pointer']:['keyboard','pointer']){
-    const before=await events(),afterSeq=before.at(-1)?.seq||0;
+    let afterSeq=(await events()).at(-1)?.seq||0;
     const controlsBefore=await page.evaluate(()=>buttonControlEvents.length);
     let key=null,domKey=null,pointer=null,downAt,upAt;
     const canvas=page.locator('#deviceMount .three-device-stage canvas');
@@ -191,6 +215,9 @@ try{
         return {clientX,clientY,point};
       },{point:item.point,origin});
       await page.mouse.move(pointer.clientX,pointer.clientY);
+      // Prepare the real target first so the idle cadence is sampled directly
+      // before input, without counting queued output from startup.
+      afterSeq=await waitForIdleTouchPolling((await events()).at(-1)?.seq||afterSeq);
       downAt=performance.now();await page.mouse.down();
       try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }else{
