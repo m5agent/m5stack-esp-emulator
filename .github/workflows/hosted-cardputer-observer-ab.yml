@@ -1,0 +1,120 @@
+name: Compare Cardputer keyboard observers
+
+on:
+  push:
+    branches: [m5agent/pages-cardputer-observer-ab-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  compare:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-cardputer-observer-ab-20261110'
+    strategy:
+      fail-fast: false
+      matrix:
+        observer: [baseline, candidate]
+    runs-on: macos-15
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch pinned producer metadata and runtime archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --no-tags --depth=1 origin b4e280d5dcd9b07b4efa59dd96dc914f4f82e6ce
+          input=.work/hosted-cardputer-ab-input
+          mkdir -p "$input"
+          api="repos/$GITHUB_REPOSITORY/actions"
+          gh api "$api/runs/42777985298/attempts/1" > "$input/run.json"
+          gh api "$api/runs/42777985298/attempts/1/jobs" > "$input/jobs.json"
+          gh api "$api/runs/42777985298/artifacts" > "$input/artifacts.json"
+          gh api --allow-escape-sequences "$api/artifacts/13745832204/zip" > "$input/xtensa.zip"
+          gh api --allow-escape-sequences "$api/artifacts/13745208690/zip" > "$input/c61.zip"
+      - name: Verify source and export the common browser site
+        env:
+          PYTHONPATH: platform/tools
+        run: python3 platform/tests/prepare_hosted_cardputer_observer_ab.py .work/hosted-cardputer-ab-input .work/hosted-cardputer-ab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Run the official sequence through Cardputer keyboard
+        env:
+          OBSERVER: ${{ matrix.observer }}
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-cardputer-ab/site
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_WASM_NODE_MODULES: ${{ github.workspace }}/platform/tests/node_modules
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+          M5_QEMU_GATE_REQUIRE_ALL: "0"
+          M5_QEMU_GATE_WORKERS: "1"
+          M5_QEMU_GATE_PHASE: uiflow
+          M5_QEMU_GATE_DEVICES: atom-matrix,stickc-plus,cardputer-adv
+        run: |
+          diagnostic="$GITHUB_WORKSPACE/.work/hosted-cardputer-ab"
+          {
+            sw_vers -productVersion
+            sysctl hw.logicalcpu hw.memsize vm.loadavg
+          } > "$diagnostic/host-environment.txt"
+          if [ "$OBSERVER" = baseline ]; then
+            source="$diagnostic/baseline-source"
+            git worktree add --detach "$source" 7edc2d1171634a8975a946625349aa37ce9343a7
+          else
+            source="$GITHUB_WORKSPACE"
+          fi
+          cd "$source"
+          mkdir -p .work
+          node platform/tests/test_public_qemu_pixel_observer_browser.mjs
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(row => row.deviceId === "corematrix").reference.url')"
+          firmware_path="$diagnostic/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --proto '=https' --proto-redir '=https' \
+            --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" M5_PUBLIC_QEMU_OUT="$source/.work/public-qemu-corematrix-stock" \
+            node platform/tests/test_public_qemu_corematrix_stock.mjs
+          export M5_PUBLIC_QEMU_OUT="$source/.work/cardputer-observer-ab"
+          node platform/tests/test_public_qemu_admitted_boards.mjs
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const out=process.env.M5_PUBLIC_QEMU_OUT;
+          const prefix=require(out+'/report.json');
+          assert.equal(prefix.status,'DIAGNOSTIC_PASS');
+          assert.equal(prefix.publication_eligible,false);
+          assert.equal(prefix.completed_cases,7);
+          assert.equal(prefix.max_active_children,1);
+          const keyboard=require(out+'/cardputer-keyboard/cardputer-adv/report.json');
+          assert.equal(keyboard.status,'PASS');
+          assert.equal(keyboard.formal_hold_ms,250);
+          assert.equal(keyboard.input_cases.length,112);
+          assert.ok(keyboard.input_cases.every(row=>row.status==='PASS'&&row.requested_hold_ms===250));
+          assert.equal(keyboard.worker_targets.ok,true);
+          assert.equal(keyboard.worker_targets.live.length,0);
+          JS
+      - name: Retain nondeployable comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardputer-observer-ab-${{ matrix.observer }}-${{ github.run_attempt }}
+          path: |
+            .work/hosted-cardputer-ab/provenance.json
+            .work/hosted-cardputer-ab/host-environment.txt
+            .work/public-qemu-pixel-observer-host-browser/report.json
+            .work/public-qemu-corematrix-stock/report.json
+            .work/cardputer-observer-ab/**/report.json
+            .work/hosted-cardputer-ab/baseline-source/.work/public-qemu-pixel-observer-host-browser/report.json
+            .work/hosted-cardputer-ab/baseline-source/.work/public-qemu-corematrix-stock/report.json
+            .work/hosted-cardputer-ab/baseline-source/.work/cardputer-observer-ab/**/report.json
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: warn
