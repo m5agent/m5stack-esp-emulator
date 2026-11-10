@@ -39,7 +39,7 @@ function fixture({constructorError,transferError}={}){
     terminate(){this.terminations++;}
     emit(type,data){const event=type==='message'?{data}:data;for(const callback of this.events.get(type)||[])callback({...event,currentTarget:this});}
   }
-  const context=vm.createContext({Worker:MockWorker,DOMException,
+  const context=vm.createContext({Worker:MockWorker,DOMException,URL,crypto:globalThis.crypto,performance:globalThis.performance,
     addEventListener:(type,callback)=>{if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(callback);},
     removeEventListener:(type,callback)=>listeners.get(type)?.delete(callback),
     setTimeout:(callback,ms)=>{const id=++nextTimer;timers.set(id,{callback,ms});return id;},
@@ -48,7 +48,7 @@ function fixture({constructorError,transferError}={}){
   const dispatch=(type,event)=>{for(const callback of listeners.get(type)||[])callback(event);};
   const create=vm.runInContext('createQemuEngineOwner',context);
   const admit=vm.runInContext('admitQemuEnginePort',context);
-  const connect=port=>{owner=create(engineURL,port,()=>errors.push('engine failed'));};
+  const connect=(port,mode)=>{owner=create(mode?engineURL+'?m5-worker-finalization='+mode:engineURL,port,()=>errors.push('engine failed'));};
   const ownership=()=>owner.observe(),release=()=>owner.release();
   return {workers,timers,listeners,errors,dispatch,ownership,port:makePort,connect,release,admit};
 }
@@ -187,4 +187,23 @@ assert.equal(failedEngine.terminations,1);assert.equal(transferredFailure.timers
 assert.deepEqual(transferredFailure.errors,['engine failed']);
 transferredFailure.dispatch('pagehide',{});assert.equal(failedEngine.terminations,1);
 
+for(const mode of ['finalize-self','finalize-owner']){
+  const staged=fixture();staged.connect(staged.port(),mode);
+  const worker=staged.workers[0];
+  worker.emit('message',{type:'m5-qemu-engine-listening'});
+  worker.emit('message',{type:'m5-qemu-engine-drained',mode,worker_epoch_ms:10});
+  const request=worker.messages.at(-1).value;
+  assert.equal(request.type,'m5-qemu-engine-finalize');
+  assert.equal(staged.ownership().engineCloseNotifications,0);
+  worker.emit('message',{type:'m5-qemu-engine-finalized',token:'stale',worker_epoch_ms:11});
+  assert.equal(staged.ownership().engineCloseNotifications,0);
+  worker.emit('message',{type:'m5-qemu-engine-finalized',token:request.token,worker_epoch_ms:12});
+  const result=staged.ownership(),normalTerminations=mode==='finalize-owner'?1:0;
+  assert.equal(result.engineCloseNotifications,1);
+  assert.equal(result.engineNormalTerminations,normalTerminations);
+  assert.equal(result.engineFallbackTerminations,0);
+  assert.equal(result.engineFinalization.finalized_worker_epoch_ms,12);
+  assert.equal(worker.terminations,normalTerminations);
+  assert.equal(worker.events.get('message').size,0);
+}
 console.log('private QEMU iframe ownership/origin/one-port/transfer, acknowledged cooperative finalization without fallback, startup/error/timeout/pagehide contracts passed; no guest executed');

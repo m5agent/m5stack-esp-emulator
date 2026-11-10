@@ -27,6 +27,8 @@ export function admitQemuEnginePort(iframe, origin, sessionId, port, signal) {
 export function createQemuEngineOwner(url, port, onError) {
   let engine,readyTimer,heldPort=port;
   let engineWorkersCreated=0,engineCloseNotifications=0,engineFallbackTerminations=0,enginePortTransferred=false;
+  const finalizeMode=new URL(url).searchParams.get('m5-worker-finalization');
+  let engineNormalTerminations=0,finalizationToken,finalization;
 
   function detachWorker() {
     const worker=engine;engine=null;
@@ -53,9 +55,30 @@ export function createQemuEngineOwner(url, port, onError) {
         engine.postMessage({type:'m5-qemu-engine-connect'},[heldPort]);
         enginePortTransferred=true;heldPort=null;
       }catch(error){failBeforeTransfer(error);}
-    }else if(data?.type==='m5-qemu-engine-closing'&&enginePortTransferred){
+    }else if(!finalizeMode&&data?.type==='m5-qemu-engine-closing'&&enginePortTransferred){
       engineCloseNotifications++;
       detachWorker();
+    }else if(finalizeMode&&enginePortTransferred&&data?.type==='m5-qemu-engine-drained'
+      &&data.mode===finalizeMode&&!finalizationToken){
+      finalizationToken=crypto.randomUUID();
+      finalization={mode:finalizeMode,port_drained_worker_epoch_ms:data.worker_epoch_ms,
+        request_page_epoch_ms:performance.timeOrigin+performance.now()};
+      try{
+        engine.postMessage({type:'m5-qemu-engine-finalize',token:finalizationToken});
+      }catch(error){
+        finalization.request_error=String(error?.message||error);
+        release();onError();
+      }
+    }else if(finalizeMode&&finalizationToken&&data?.type==='m5-qemu-engine-finalized'
+      &&data.token===finalizationToken){
+      engineCloseNotifications++;
+      Object.assign(finalization,{finalized_worker_epoch_ms:data.worker_epoch_ms,
+        acknowledgement_page_epoch_ms:performance.timeOrigin+performance.now()});
+      const worker=detachWorker();
+      if(finalizeMode==='finalize-owner'){
+        engineNormalTerminations++;
+        worker.terminate();
+      }
     }
   }
   function fail({currentTarget,message}) {
@@ -65,8 +88,9 @@ export function createQemuEngineOwner(url, port, onError) {
     onError();
   }
   const observe=()=>({engineWorkersCreated,engineOwnerLive:!!engine,engineCloseNotificationReceived:engineCloseNotifications>0,
-    engineCloseNotifications,engineNormalTerminations:0,engineFallbackTerminations,enginePortTransferred,
-    engineSelfCloseNotifications:engineCloseNotifications});
+    engineCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
+    engineSelfCloseNotifications:finalizeMode==='finalize-owner'?0:engineCloseNotifications,
+    ...(finalizeMode?{engineFinalization:finalization||null}:{})});
 
   heldPort.start();
   globalThis.addEventListener('pagehide',release);

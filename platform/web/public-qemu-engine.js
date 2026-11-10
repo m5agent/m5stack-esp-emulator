@@ -13,6 +13,9 @@ let panelPath;
 let workersCreated = 0;
 let relocatedGlueSha256;
 let runtimeArguments;
+const finalizeMode=new URL(location.href||location.origin).searchParams.get('m5-worker-finalization');
+let awaitingFinalization=false;
+const workerEpochMs=()=>performance.timeOrigin+performance.now();
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
 const encoder = new TextEncoder(), decoder = new TextDecoder();
 const NativeWorker = globalThis.Worker;
@@ -202,7 +205,9 @@ async function request(op, value) {
     const workersTerminatedByDispose=workers.size;cleanup();
     return {workersRemaining:workers.size,workersTerminatedByDispose,workerCountScope:'nested-pthreads',
       enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
-      ownerTerminatesAfterAcknowledgement:false,engineSelfClosesAfterAcknowledgement:true};
+      ownerTerminatesAfterAcknowledgement:finalizeMode==='finalize-owner',
+      engineSelfClosesAfterAcknowledgement:finalizeMode!=='finalize-owner',
+      ...(finalizeMode?{crossTurnFinalization:finalizeMode}:{})};
   }
   if (op === 'frame') {
     const epoch=resetEpoch;
@@ -295,6 +300,13 @@ async function request(op, value) {
   throw new Error('Unsupported instance operation');
 }
 addEventListener('message', event => {
+  if (awaitingFinalization && event.data?.type === 'm5-qemu-engine-finalize'
+      && typeof event.data.token === 'string' && !event.ports?.length) {
+    awaitingFinalization=false;
+    self.postMessage({type:'m5-qemu-engine-finalized',token:event.data.token,worker_epoch_ms:workerEpochMs()});
+    if (finalizeMode==='finalize-self') self.close();
+    return;
+  }
   if (port || closed || event.data?.type !== 'm5-qemu-engine-connect' || event.ports?.length !== 1) return;
   port = event.ports[0];
   port.onmessage = async ({data}) => {
@@ -307,8 +319,15 @@ addEventListener('message', event => {
         // Notify the owner after acknowledging disposal and closing the port.
         // CDP observes engine exit separately from this notification.
         closed=true;port.close();
-        self.postMessage({type:'m5-qemu-engine-closing'});
-        self.close();
+        if (finalizeMode) {
+          // The next owner request cannot run in this dispose task.
+          port.onmessage=null;port=null;
+          awaitingFinalization=true;
+          self.postMessage({type:'m5-qemu-engine-drained',mode:finalizeMode,worker_epoch_ms:workerEpochMs()});
+        } else {
+          self.postMessage({type:'m5-qemu-engine-closing'});
+          self.close();
+        }
       }
     } catch(error) {
       if (!closed && !disposeRequested) port.postMessage({id:data.id,error:String(error?.message||error)});

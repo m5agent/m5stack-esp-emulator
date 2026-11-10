@@ -194,7 +194,11 @@ export class PublicQemuRuntime {
       const enginePort=await admitQemuEnginePort(iframe,this.root.origin,this.sessionId,channel.port2,bootAbort.signal);
       try{active();}catch(error){enginePort.close();throw error;}
       const connected=this.waitFor('connected');connected.catch(()=>{});
-      this.engineOwner=createQemuEngineOwner(assetUrl('platform/web/public-qemu-engine.js',this.root),enginePort,
+      const engineURL=new URL(assetUrl('platform/web/public-qemu-engine.js',this.root));
+      const finalizeMode=new URL(globalThis.location?.href||this.root).searchParams.get('m5-worker-finalization');
+      if(deviceId==='cardputer-adv'&&['finalize-self','finalize-owner'].includes(finalizeMode))
+        engineURL.searchParams.set('m5-worker-finalization',finalizeMode);
+      this.engineOwner=createQemuEngineOwner(engineURL.href,enginePort,
         ()=>this.receive({type:'error',value:'浏览器 QEMU 执行线程异常停止。'},generation));
       const [,compiledWasm]=await Promise.all([connected,wasmAsset.compiled]);active();
       const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
