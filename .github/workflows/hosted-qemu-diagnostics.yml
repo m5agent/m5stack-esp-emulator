@@ -35,6 +35,7 @@ jobs:
           gh api --allow-escape-sequences "$api/artifacts/13741959101/zip" > "$input/xtensa.zip"
           gh api --allow-escape-sequences "$api/artifacts/13741639246/zip" > "$input/c61.zip"
       - name: Verify exact artifacts and export to the private runner workspace
+        id: pinned_export
         env:
           PYTHONPATH: platform/tools
         run: python3 platform/tests/prepare_hosted_qemu_diagnostic.py .work/hosted-diagnostic-input .work/hosted-diagnostic
@@ -42,12 +43,15 @@ jobs:
         with:
           node-version: "22"
       - name: Install locked browser acceptance tools
+        id: browser_tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
       - name: Verify Canvas observation positive and negative controls
+        id: canvas
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
         run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
       - name: Run the unmodified official CoreMatrix firmware
+        id: stock_corematrix
         env:
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
           M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
@@ -60,6 +64,11 @@ jobs:
           curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
           M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
       - name: Run the first seven UIFlow guest cases on one runner
+        # Preserve the stock step's failed conclusion while continuing this diagnostic.
+        if: >-
+          ${{ !cancelled() && steps.pinned_export.outcome == 'success'
+              && steps.browser_tools.outcome == 'success' && steps.canvas.outcome == 'success'
+              && (steps.stock_corematrix.outcome == 'success' || steps.stock_corematrix.outcome == 'failure') }}
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
