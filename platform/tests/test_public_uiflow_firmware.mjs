@@ -427,6 +427,7 @@ const binding={workbenchRegistry:registry,wasmSHA256:'a'.repeat(64),siteManifest
 for(const item of plan.cases){
   const expected=registry.profiles.find(row=>row.deviceId===item.device);
   const receipt={deviceId:item.device,firmwareSha256:expected.firmwareSHA256,wasmSha256:binding.wasmSHA256};
+  if(item.device==='atom-matrix')receipt.accelerator={icountMaxPerCpuNs:10000};
   const assetGroup=item.device==='corematrix'?'c61_runtime_assets':'runtime_assets';
   const wasmPath=item.device==='corematrix'?'qemu-system-riscv32.wasm':'qemu-system-xtensa.wasm';
   const result={provenance:{site_manifest_sha256:binding.siteManifestSHA256,
@@ -436,6 +437,11 @@ for(const item of plan.cases){
   else if(item.lane==='uiflow-buttons')result.running={receipt};
   else if(item.lane!=='fixed')result.initial={receipt};
   validatePublicQemuGateResult(item,result,binding);
+  if(item.device==='atom-matrix'&&item.lane!=='fixed'){
+    delete receipt.accelerator;
+    assert.throws(()=>validatePublicQemuGateResult(item,result,binding),/scheduling binding mismatch/);
+    receipt.accelerator={icountMaxPerCpuNs:10000};
+  }
   for(const change of [copy=>copy.provenance.site_manifest_sha256='0'.repeat(64),
     copy=>copy.provenance.test_script.sha256='0'.repeat(64),copy=>copy.provenance.test_script.path='platform/tests/other.mjs',
     copy=>copy.provenance[assetGroup][wasmPath].sha256='0'.repeat(64)]){

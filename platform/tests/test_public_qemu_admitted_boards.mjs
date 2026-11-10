@@ -6,7 +6,8 @@ import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {validateQemuBrowserProfiles} from '../web/public-qemu-profiles.js';
+import {validateQemuBrowserProfiles, ATOM_MATRIX_WORKBENCH_FLASH_SHA256,
+  ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS} from '../web/public-qemu-profiles.js';
 import {validateUIFlowWorkbenchRegistry} from '../web/public-uiflow-firmware.js';
 import {PUBLIC_QEMU_BUTTON_CASES} from './public_qemu_button_cases.mjs';
 
@@ -102,6 +103,9 @@ export function validatePublicQemuGateResult(item,result,{workbenchRegistry,wasm
   assert.equal(receipt?.deviceId,item.device,'Gate child device mismatch');
   assert.equal(receipt?.firmwareSha256,expected.firmwareSHA256,'Gate requires the exact default workbench image');
   assert.equal(receipt?.wasmSha256,wasmSHA256,'Gate cannot inherit another runtime receipt');
+  const cap=item.device==='atom-matrix'&&expected.firmwareSHA256===ATOM_MATRIX_WORKBENCH_FLASH_SHA256
+    ? ATOM_MATRIX_ICOUNT_MAX_PER_CPU_NS : undefined;
+  assert.equal(receipt.accelerator?.icountMaxPerCpuNs,cap,'Gate child scheduling binding mismatch');
   if(item.lane==='uiflow-editor')assert.equal(result.smoke_only,false,'Publication requires the full editor runner');
   // Cleanup assertions stay in each source-bound runner. In particular the
   // keyboard runner does not measure a nested-worker fence with iframe held.
