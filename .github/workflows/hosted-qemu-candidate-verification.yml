@@ -1,0 +1,133 @@
+name: Hosted QEMU candidate verification only
+
+on:
+  push:
+    branches: [m5agent/pages-hosted-worker-candidate-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  verify:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-hosted-worker-candidate-20261110'
+    runs-on: macos-15
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [cardputer-keyboard, corematrix-stock, atom-matrix-editor]
+    env:
+      HOSTED_QEMU_CANDIDATE: b4e280d5dcd9b07b4efa59dd96dc914f4f82e6ce
+      M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
+      M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/hosted-diagnostic/guest
+      M5_WASM_GPU: hardware
+      M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+      M5_QEMU_READY_TIMEOUT_MS: "600000"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Verify the exact candidate plus diagnostic tooling
+        run: |
+          test "$(git rev-parse HEAD^)" = "$HOSTED_QEMU_CANDIDATE"
+          expected=$(printf '%s\n' .github/workflows/hosted-qemu-candidate-verification.yml platform/tests/prepare_hosted_qemu_diagnostic.py)
+          test "$(git diff --name-only "$HOSTED_QEMU_CANDIDATE" HEAD)" = "$expected"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read pinned producer metadata and runtime archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          producer=1979809883489d92ffe7e5461fa17b26f06a89ed
+          git fetch --no-tags --depth=1 origin "$producer"
+          input=.work/hosted-diagnostic-input
+          mkdir -p "$input"
+          api="repos/$GITHUB_REPOSITORY/actions"
+          gh api "$api/runs/42770355747/attempts/1" > "$input/run.json"
+          gh api "$api/runs/42770355747/attempts/1/jobs" > "$input/jobs.json"
+          gh api "$api/runs/42770355747/artifacts" > "$input/artifacts.json"
+          gh api --allow-escape-sequences "$api/artifacts/13741959101/zip" > "$input/xtensa.zip"
+          gh api --allow-escape-sequences "$api/artifacts/13741639246/zip" > "$input/c61.zip"
+      - name: Verify exact artifacts and export to the private runner workspace
+        env:
+          PYTHONPATH: platform/tools
+        run: |
+          python3 platform/tests/prepare_hosted_qemu_diagnostic.py .work/hosted-diagnostic-input .work/hosted-diagnostic
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          path = Path('.work/hosted-diagnostic/provenance.json')
+          receipt = json.loads(path.read_bytes())
+          receipt['candidate_commit'] = os.environ['HOSTED_QEMU_CANDIDATE']
+          path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Run the production Cardputer keyboard test
+        if: matrix.lane == 'cardputer-keyboard'
+        env:
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_QEMU_DEVICE: cardputer-adv
+          M5_PUBLIC_UI: "1"
+          M5_QEMU_BUTTON_HOLD_MS: "250"
+          M5_CARDPUTER_KEYBOARD_IRQ: "1"
+        run: node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs
+      - name: Run the unmodified official CoreMatrix firmware
+        if: matrix.lane == 'corematrix-stock'
+        run: |
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
+      - name: Run the full production Atom Matrix editor and reset
+        if: matrix.lane == 'atom-matrix-editor'
+        env:
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_QEMU_DEVICE: atom-matrix
+          M5_PUBLIC_UI: "1"
+          M5_UIFLOW_SMOKE_ONLY: ""
+        run: node platform/tests/test_public_uiflow_guest.mjs
+      - name: Verify the selected production test actually passed
+        env:
+          VERIFICATION_LANE: ${{ matrix.lane }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const read=path=>JSON.parse(readFileSync(path,'utf8'));
+          const report=read(process.env.M5_PUBLIC_QEMU_OUT+'/report.json');
+          const provenance=read('.work/hosted-diagnostic/provenance.json');
+          assert.equal(provenance.publication_eligible,false);
+          assert.equal(provenance.source_commit,process.env.GITHUB_SHA);
+          assert.equal(provenance.candidate_commit,process.env.HOSTED_QEMU_CANDIDATE);
+          assert.equal(report.status,'PASS');
+          assert.equal(report.provenance.site_manifest_sha256,provenance.site_manifest_sha256);
+          if(process.env.VERIFICATION_LANE==='cardputer-keyboard'){
+            assert.equal(report.input_cases.length,112);
+            assert.ok(report.input_cases.every(row=>row.status==='PASS'));
+          }
+          if(process.env.VERIFICATION_LANE==='atom-matrix-editor'){
+            assert.equal(report.smoke_only,false);
+            assert.ok(report.hardware_reset.after_console_epoch>report.hardware_reset.before_console_epoch);
+          }
+          JS
+      - name: Retain verification reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-candidate-verification-${{ matrix.lane }}-${{ github.run_attempt }}
+          path: |
+            .work/hosted-diagnostic/provenance.json
+            .work/hosted-diagnostic/guest/report.json
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: warn
