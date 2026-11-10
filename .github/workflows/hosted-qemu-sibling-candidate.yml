@@ -1,0 +1,121 @@
+name: Validate the sibling Worker candidate
+
+on:
+  push:
+    branches: [m5agent/pages-sibling-validation-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-sibling-validation-20261110'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: atoms3
+            lane: editor
+          - device: atom-matrix
+            lane: editor
+          - device: cardputer-adv
+            lane: keyboard
+          - device: corematrix
+            lane: stock
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch pinned producer metadata and runtime archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --no-tags --depth=1 origin b4e280d5dcd9b07b4efa59dd96dc914f4f82e6ce
+          input=.work/hosted-sibling-input
+          mkdir -p "$input"
+          api="repos/$GITHUB_REPOSITORY/actions"
+          gh api "$api/runs/42777985298/attempts/1" > "$input/run.json"
+          gh api "$api/runs/42777985298/attempts/1/jobs" > "$input/jobs.json"
+          gh api "$api/runs/42777985298/artifacts" > "$input/artifacts.json"
+          gh api --allow-escape-sequences "$api/artifacts/13745832204/zip" > "$input/xtensa.zip"
+          gh api --allow-escape-sequences "$api/artifacts/13745208690/zip" > "$input/c61.zip"
+      - name: Verify candidate source and export exact runtime bytes
+        env:
+          PYTHONPATH: platform/tools
+        run: python3 platform/tests/prepare_hosted_qemu_sibling_candidate.py .work/hosted-sibling-input .work/hosted-sibling
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Run the original strict guest acceptance
+        env:
+          LANE: ${{ matrix.lane }}
+          M5_QEMU_DEVICE: ${{ matrix.device }}
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-sibling/site
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/hosted-sibling/guest
+          M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+          M5_UIFLOW_SMOKE_ONLY: "0"
+          M5_QEMU_BUTTON_HOLD_MS: "250"
+        run: |
+          case "$LANE" in
+            editor) node platform/tests/test_public_uiflow_guest.mjs ;;
+            keyboard)
+              M5_CARDPUTER_KEYBOARD_IRQ=1 node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs
+              ;;
+            stock)
+              firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(row => row.deviceId === "corematrix").reference.url')"
+              firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+              curl --fail --location --silent --show-error --proto '=https' --proto-redir '=https' \
+                --retry 2 --output "$firmware_path" "$firmware_url"
+              M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
+              ;;
+            *) exit 2 ;;
+          esac
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const report=require(process.env.M5_PUBLIC_QEMU_OUT+'/report.json');
+          assert.equal(report.status,'PASS');
+          assert.equal(report.device,process.env.M5_QEMU_DEVICE);
+          assert.equal(report.worker_topology.ok,true);
+          assert.equal(report.worker_topology.engine_count,1);
+          assert.ok(report.worker_topology.pthread_count>0);
+          if(process.env.LANE==='editor'){
+            assert.equal(report.smoke_only,false);
+            assert.ok(report.hardware_reset.after_console_epoch>report.hardware_reset.before_console_epoch);
+            assert.ok(report.checks.some(row=>row.name==='after-hardware-reset-stdout'&&row.ok));
+            assert.equal(report.all_workers_closed.ok,true);
+            assert.equal(report.all_workers_closed.live.length,0);
+          }else if(process.env.LANE==='keyboard'){
+            assert.equal(report.formal_hold_ms,250);
+            assert.equal(report.input_cases.length,112);
+            assert.ok(report.input_cases.every(row=>row.status==='PASS'&&row.requested_hold_ms===250));
+            assert.equal(report.worker_targets.ok,true);
+            assert.equal(report.worker_targets.live.length,0);
+          }else{
+            assert.equal(report.worker_targets.live,0);
+            assert.equal(report.worker_targets.observed,report.worker_targets.expected);
+          }
+          JS
+      - name: Retain nondeployable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sibling-worker-${{ matrix.device }}-${{ matrix.lane }}-${{ github.run_attempt }}
+          path: |
+            .work/hosted-sibling/provenance.json
+            .work/hosted-sibling/guest/report.json
+            .work/hosted-sibling/guest/progress.json
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: warn
