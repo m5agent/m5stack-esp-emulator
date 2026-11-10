@@ -45,7 +45,7 @@ const checks=[],errors=[],requests=[];
 const report={kind:'browser-uiflow-cardputer-worker-finalization-diagnostic',status:'FAIL',device,nonce,
   worker_diagnostic_status:'NOT RUN',mode,selected_keys:selected,minimum_active_ms:activeMs,stop_observer_active:exitActive,
   started_at:new Date().toISOString(),evidence_level:'virtual-device validation',hardware_validation:'NOT RUN',
-  scope:'56 physical keys, keyboard and real raycast mouse subject input; original public MatrixKeyboard callback and release state.',
+  scope:'Selected physical keys through keyboard and raycast mouse input with the original public MatrixKeyboard callback and release state.',
   formal_hold_ms:holdMs,input_cases:[],checks,errors,source_oracle:CARDPUTER_KEYBOARD_SOURCE,
   observer:{path:observerPath,sha256:hash(observer),executed_sha256:hash(source)},
   oracle_sha256:hash(await readFile(resolve(repo,'platform/tests/public_qemu_cardputer_keyboard_cases.mjs'))),
