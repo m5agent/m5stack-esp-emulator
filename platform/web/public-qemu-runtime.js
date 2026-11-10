@@ -195,7 +195,7 @@ export class PublicQemuRuntime {
       try{active();}catch(error){enginePort.close();throw error;}
       const connected=this.waitFor('connected');connected.catch(()=>{});
       const engineUrl=new URL(assetUrl('platform/web/public-qemu-engine.js',this.root));
-      const keyboardTraceMode=new URL(location.href).searchParams.get('m5-cardputer-trace');
+      const keyboardTraceMode=new URL(globalThis.location?.href??engineUrl.href).searchParams.get('m5-cardputer-trace');
       if(deviceId==='cardputer-adv'&&['input','fifo'].includes(keyboardTraceMode))
         engineUrl.searchParams.set('m5-cardputer-trace',keyboardTraceMode);
       this.engineOwner=createQemuEngineOwner(engineUrl.href,enginePort,
