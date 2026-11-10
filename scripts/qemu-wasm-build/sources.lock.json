@@ -142,7 +142,8 @@
   "native_patch_count": 49,
   "patched_files": {
     "accel/tcg/cpu-exec.c": "a86aaa3f4182e5267442df9dc92aa28f0148c9509143df06476cd3cab6eb2d1c",
-    "accel/tcg/tcg-accel-ops-icount.c": "62f65add2fa1f3962da8ca7693f370922d71c24a97b256b3ec8eb054f17fd1b9",
+    "accel/tcg/icount-common.c": "b32c4c5c69db8f5cf94a9279ae21938cd291aa054a30e7b4166505257bd8f1d7",
+    "accel/tcg/tcg-accel-ops-icount.c": "63645fb063a20e260937273f35fe0450881fef17a96c0f46072b2e0a5d6ca308",
     "backends/meson.build": "22154b09fdad91dfd7e63f7bad020a4c4511ce9efc9ac2082ece6334325016c3",
     "block/file-posix.c": "70de6adf72e2ae2dfc8ca625a5d011101cc35d293e12118601a32aa890243032",
     "configs/meson/emscripten.txt": "02bcaad8c232ff95b3c2e7b3846a13f0e88b6e7b257c7b06f21b054c26de884e",
@@ -274,7 +275,7 @@
     "include/qemu/cacheflush.h": "55c1b4adb31e6433f734b2431800d648ce1283ae300a10b6a6828eae992d0a40",
     "include/qemu/osdep.h": "86dff28366bd4667bf7d188f64bfe0c72135935044b16c0d21d94c39d74ccf2b",
     "include/qemu/timer.h": "dd57255e9a10dfed370573636fde996bb79aedb842abbb27313e93f900655365",
-    "include/sysemu/cpu-timers.h": "6631e9985af402e0658af8e15773a37c5d6365aa5ade8e7831ba423f13414faa",
+    "include/sysemu/cpu-timers.h": "1f8582f9da17120e9ace842a1fe3c5d80264390344eb1948eba621d902ec855d",
     "include/sysemu/os-wasm.h": "d76f0a6e8fc5199742fbe31a8dd386363ad0f2a89b2c7977a61ce1954be39a41",
     "meson.build": "8856b48c88f77e0ed880ffeec1368b2cf05782e1041e2f21176d1493e8c1737a",
     "meson_options.txt": "0e6045ff1c9ce85d0f1ea13c3ad808b546e15f99dea018b92af31de66323620b",
@@ -283,7 +284,7 @@
     "qemu-options.hx": "f15252064fd72cf059eca237224abd429a8e6f298ff92ffb35ddaba30a318b46",
     "qom/object.c": "c6d542bbc99d0b16b822de69d78300d019ba317a56585c389e4edecae3f728f2",
     "scripts/meson-buildoptions.sh": "96fcc4c7802da597f29545c2d84aecf5cd6f0d6f16fa366c49ca2a9ed7209018",
-    "stubs/icount.c": "296574516eebbab1f8d364388d7ea01afcf727220d3718a3ecc3c34a3f024792",
+    "stubs/icount.c": "4a1ab4095afff96288ce245ccb26b6fdb1edc0ec77966c124ecd9623d4753ed4",
     "system/cpu-timers.c": "aeead797186773b86d3f9521973140893815ea057ea9b2bd5c21fa64c216c3cc",
     "system/main.c": "a5b9d2eeb0069f518f813dc74a2149f37d7b18f56b10a5369d81f49ced344f7c",
     "system/memory.c": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
@@ -626,6 +627,10 @@
     {
       "path": "patches/qemu-wasm-probe/0037-paper-gt911-contact-ready.patch",
       "sha256": "c474d06b3068d5a783a04c9b992d04c41c9b5b648a72aac3690095f3c7a7b66d"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0038-icount-percpu-fairness-cap.patch",
+      "sha256": "7942e09a3459c768d7c76bada20bc808b3142c7421465c2db40037680434a49b"
     }
   ],
   "qemu": {
