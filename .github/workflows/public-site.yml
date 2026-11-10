@@ -11,6 +11,11 @@ on:
         type: boolean
         required: true
         default: false
+      reuse_verified_runtimes:
+        description: "Reuse only the pinned full source builds from run 42777985298 (main only)"
+        type: boolean
+        required: false
+        default: false
       base_path:
         description: "Pages path prefix (for example /m5stack-esp-emulator/)"
         required: true
@@ -29,6 +34,9 @@ concurrency:
 
 jobs:
   build_runtimes:
+    permissions:
+      actions: read
+      contents: read
     runs-on: macos-15
     timeout-minutes: 90
     strategy:
@@ -40,12 +48,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Import the pinned prior runtime for this target
+        if: ${{ inputs.reuse_verified_runtimes }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: platform/tools
+          QEMU_RUNTIME_TARGET: ${{ matrix.target }}
+        run: python3 scripts/qemu-wasm-build/reuse_pages_runtime.py "$QEMU_RUNTIME_TARGET"
       - name: Install native source build tools
+        if: ${{ !inputs.reuse_verified_runtimes }}
         run: |
           brew install autoconf automake libtool bison flex ninja pkg-config xz
           echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
           echo "$(brew --prefix flex)/bin" >> "$GITHUB_PATH"
       - name: Fetch pinned upstream release archives
+        if: ${{ !inputs.reuse_verified_runtimes }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -87,23 +104,23 @@ jobs:
           fetch_release_asset PCRE2Project/pcre2 172496647 pcre2-10.44.tar.bz2 1928086
           fetch_release_asset mesonbuild/wrapdb 192615396 pcre2_10.44-2_patch.zip 3644
       - name: Build pinned C/QEMU and complete corresponding source
-        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        if: ${{ !inputs.reuse_verified_runtimes && matrix.target == 'xtensa-softmmu' }}
         run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2 --downloads .work/qemu-source-downloads
       - name: Build pinned CoreMatrix C61 QEMU and corresponding source
-        if: ${{ matrix.target == 'riscv32-softmmu' }}
+        if: ${{ !inputs.reuse_verified_runtimes && matrix.target == 'riscv32-softmmu' }}
         run: |
           python3 platform/tools/bootstrap_qemu_browser_runtime.py --target riscv32-softmmu --jobs 2 \
             --cache .work/qemu-c61-runtime-build --output .work/qemu-c61-runtime \
             --downloads .work/qemu-source-downloads
       - name: Build browser-local demo composer
-        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        if: ${{ !inputs.reuse_verified_runtimes && matrix.target == 'xtensa-softmmu' }}
         run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
       - uses: actions/setup-node@v4
-        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        if: ${{ !inputs.reuse_verified_runtimes && matrix.target == 'xtensa-softmmu' }}
         with:
           node-version: "22"
       - name: Verify the WASM32 helper ABI against the pinned libffi
-        if: ${{ matrix.target == 'xtensa-softmmu' }}
+        if: ${{ !inputs.reuse_verified_runtimes && matrix.target == 'xtensa-softmmu' }}
         run: python3 tests/browser-qemu/typed_helpers/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc --ffi-prefix .work/qemu-browser-runtime-build/target --out-dir .work/wasm-typed-helper-control
       - name: Retain failed source build diagnostics
         if: failure()
@@ -217,6 +234,8 @@ jobs:
             .work/public-qemu-corematrix-stock
             .work/wasm-typed-helper-control
             .work/public-qemu-pixel-observer-host-browser
+            .work/qemu-browser-runtime/reuse-provenance.json
+            .work/qemu-c61-runtime/reuse-provenance.json
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

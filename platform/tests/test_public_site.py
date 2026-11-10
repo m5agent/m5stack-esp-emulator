@@ -211,6 +211,9 @@ class PublicSiteTests(unittest.TestCase):
         publish = re.search(r"(?ms)^      publish:\n(.*?)(?=^      [a-z_]+:|\Z)", trigger).group(1)
         self.assertRegex(publish, r"(?m)^        type: boolean$")
         self.assertRegex(publish, r"(?m)^        default: false$")
+        reuse = re.search(r"(?ms)^      reuse_verified_runtimes:\n(.*?)(?=^      [a-z_]+:|\Z)", trigger).group(1)
+        self.assertRegex(reuse, r"(?m)^        type: boolean$")
+        self.assertRegex(reuse, r"(?m)^        default: false$")
         self.assertNotIn("pages: write", trigger)
         self.assertNotIn("id-token: write", trigger)
         self.assertRegex(trigger, r"(?m)^concurrency:\n  group: public-simulator-pages-\$\{\{ github.repository \}\}\n  cancel-in-progress: false$")
@@ -225,6 +228,12 @@ class PublicSiteTests(unittest.TestCase):
         self.assertNotIn("--reuse-dependencies", runtimes)
         self.assertNotIn("--reference-runtime", runtimes)
         self.assertNotIn("--sdk-dir", runtimes)
+        self.assertIn("      actions: read\n", runtimes)
+        self.assertIn("      - name: Import the pinned prior runtime for this target\n"
+                      "        if: ${{ inputs.reuse_verified_runtimes }}\n", runtimes)
+        for step in ("Install native source build tools", "Fetch pinned upstream release archives"):
+            self.assertIn(f"      - name: {step}\n        if: ${{{{ !inputs.reuse_verified_runtimes }}}}\n", runtimes)
+        self.assertEqual(runtimes.count("if: ${{ !inputs.reuse_verified_runtimes && matrix.target"), 5)
         self.assertNotIn("pages: write", runtimes)
         self.assertNotIn("id-token: write", runtimes)
         self.assertIn("    needs: build_runtimes\n", build)
