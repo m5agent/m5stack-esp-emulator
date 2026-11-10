@@ -1,10 +1,16 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对 `2026-11-09`。本页说明部署流程，当前能力以
+最近核对 `2026-11-10`。本页说明部署流程，当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
 
-PR #165 已合并；用户明确要求先部署、问题保留，prepared-preview已于2026-11-04 10:45:44Z更新[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)。
-[本次部署证据](evidence/2026-11-04-pages-workbench-release/README.md)记录工作流success与全部2,130个HTTPS资产匹配；独立HTTPS首6例已SUBSET_PASS、full_scope=false；Matrix/Plus/Core各编辑器与按键共222检查通过，其余34例NOT RUN/HOLD，不授完整线上门禁。
+2026-11-10 11:25:02 UTC，主线 `7edc2d11` 通过 prepared 工作流发布，部署 ID `7680759420`。该版本公开准入 23 款浏览器设备，导出不打包固件。发布前同一产物已通过本地完整串行门禁。此前正式托管 Cardputer ADV 的失败独立保留。 [正式站点](https://m5agent.github.io/m5stack-esp-emulator/) · [发布包](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261110-7edc2d11) · [部署任务](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/42807204507)
+
+正式 HTTPS 站点的 manifest `9b9985c3…` 和其中声明的全部资产共 2,177 份，长度及 SHA-256 均与导出匹配。首次扫描有一个资产返回 HTTP 503，在同一 manifest 下复取后匹配。线上客体的输入、串口和画面独立记录。 [当次验证](validation-ledger.md#2026-11-10)
+
+<!-- PAGES_20261110_HTTPS_GUEST: insert the #211 outcome and four-device local-BIN outcome summary after their independent validation. -->
+
+上一版 prepared-preview 于 2026-11-04 10:45:44Z 更新正式站点，见 PR #165。
+[上一版部署证据](evidence/2026-11-04-pages-workbench-release/README.md)记录工作流success与全部2,130个HTTPS资产匹配；独立HTTPS首6例已SUBSET_PASS、full_scope=false；Matrix/Plus/Core各编辑器与按键共222检查通过，其余34例NOT RUN/HOLD，不授完整线上门禁。
 [部署前资格失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点：标准hosted和新本地完整计划均FAIL；部署不将其改写为生产门禁PASS或C修复。
 
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
