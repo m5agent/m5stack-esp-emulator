@@ -40,7 +40,7 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
         const known = new Set(targets.keys());
         const response = await cdp.send('Target.getTargets');
         live = (response.targetInfos || []).filter(target => target.type === 'worker' && known.has(target.targetId))
-          .map(target => ({target_id:target.targetId, url:target.url}));
+          .map(target => ({target_id:target.targetId, url:target.url, attached:target.attached===true}));
         if (targets.size >= minimumObserved
             && (allowedUrlPart ? live.every(target => target.url.includes(allowedUrlPart)) : live.length === 0)) {
           return {ok:true, minimum_observed:minimumObserved, observed:[...targets.values()], live, events,

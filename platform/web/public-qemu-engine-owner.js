@@ -26,7 +26,8 @@ export function admitQemuEnginePort(iframe, origin, sessionId, port, signal) {
 
 export function createQemuEngineOwner(url, port, onError) {
   let engine,readyTimer,heldPort=port;
-  let engineWorkersCreated=0,engineCloseNotifications=0,engineFallbackTerminations=0,enginePortTransferred=false;
+  let engineWorkersCreated=0,engineCloseNotifications=0,engineNormalTerminations=0,engineFallbackTerminations=0;
+  let enginePortTransferred=false,portDrained=false,disposalAcknowledged=false,finalizationToken;
 
   function detachWorker() {
     const worker=engine;engine=null;
@@ -45,6 +46,19 @@ export function createQemuEngineOwner(url, port, onError) {
     try{heldPort.postMessage({type:'error',value:String(error?.message||error)});}
     finally{release();}
   }
+  function requestFinalization() {
+    if(!engine||!portDrained||!disposalAcknowledged||finalizationToken)return;
+    finalizationToken=crypto.randomUUID();
+    try{engine.postMessage({type:'m5-qemu-engine-finalize',token:finalizationToken});}
+    catch{release();onError();}
+  }
+  function acknowledgeDisposal(disposal) {
+    if(!engine||!enginePortTransferred||disposal?.enginePlacement!=='dedicated-worker-v1'
+      ||disposal.engineWorkersAtAcknowledgement!==1||disposal.workersRemaining!==0||disposal.workersTerminatedByDispose!==0
+      ||disposal.ownerTerminatesAfterAcknowledgement!==true||disposal.engineSelfClosesAfterAcknowledgement!==false)return;
+    disposalAcknowledged=true;
+    requestFinalization();
+  }
   function receive({currentTarget,data}) {
     if(!engine||currentTarget!==engine)return;
     if(data?.type==='m5-qemu-engine-listening'&&heldPort){
@@ -53,7 +67,14 @@ export function createQemuEngineOwner(url, port, onError) {
         engine.postMessage({type:'m5-qemu-engine-connect'},[heldPort]);
         enginePortTransferred=true;heldPort=null;
       }catch(error){failBeforeTransfer(error);}
-    }else if(data?.type==='m5-qemu-engine-closing'&&enginePortTransferred){
+    }else if(data?.type==='m5-qemu-engine-drained'&&enginePortTransferred){
+      portDrained=true;
+      requestFinalization();
+    }else if(data?.type==='m5-qemu-engine-finalized'&&finalizationToken&&data.token===finalizationToken){
+      const worker=detachWorker();
+      worker.terminate();
+      engineCloseNotifications++;engineNormalTerminations++;
+    }else if(data?.type==='m5-qemu-engine-closing'&&enginePortTransferred&&!portDrained&&!disposalAcknowledged){
       engineCloseNotifications++;
       detachWorker();
     }
@@ -65,8 +86,9 @@ export function createQemuEngineOwner(url, port, onError) {
     onError();
   }
   const observe=()=>({engineWorkersCreated,engineOwnerLive:!!engine,engineCloseNotificationReceived:engineCloseNotifications>0,
-    engineCloseNotifications,engineNormalTerminations:0,engineFallbackTerminations,enginePortTransferred,
-    engineSelfCloseNotifications:engineCloseNotifications});
+    engineCloseNotifications,engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
+    engineFinalizationAcknowledged:engineNormalTerminations===1,
+    engineSelfCloseNotifications:engineCloseNotifications-engineNormalTerminations});
 
   heldPort.start();
   globalThis.addEventListener('pagehide',release);
@@ -77,5 +99,5 @@ export function createQemuEngineOwner(url, port, onError) {
     engine.addEventListener('error',fail);
     readyTimer=setTimeout(()=>failBeforeTransfer('QEMU engine initialization timed out'),30000);
   }catch(error){failBeforeTransfer(error);}
-  return {observe,release};
+  return {observe,release,acknowledgeDisposal};
 }

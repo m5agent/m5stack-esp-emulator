@@ -189,10 +189,10 @@ try{
   check('clean-guest-and-worker-stop',stopped.cleanup?.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.workersAtExit===0
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
-    &&stopped.cleanup.disposal.ownerTerminatesAfterAcknowledgement===false&&stopped.cleanup.disposal.engineSelfClosesAfterAcknowledgement===true
-    &&stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===1
-    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===0
-    &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
+    &&stopped.cleanup.disposal.ownerTerminatesAfterAcknowledgement===true&&stopped.cleanup.disposal.engineSelfClosesAfterAcknowledgement===false
+    &&stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===0
+    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===1
+    &&stopped.cleanup.engineOwnership?.engineFinalizationAcknowledged===true && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');
   const nestedClose=await workerTargets.waitUntilOnly({minimumObserved:expectedWorkerTargets,

@@ -85,7 +85,8 @@ async function stopAndObserve(){
   const cleanup=report.stopped.cleanup;
   check('normal-qmp-quit-and-worker-cleanup',cleanup?.gracefulExit&&cleanup.exitCode===0&&cleanup.workersAtExit===0
     &&cleanup.disposal?.workersRemaining===0&&cleanup.disposal.workersTerminatedByDispose===0
-    &&cleanup.engineOwnership?.engineFallbackTerminations===0,cleanup);
+    &&cleanup.engineOwnership?.engineFinalizationAcknowledged===true&&cleanup.engineOwnership.engineNormalTerminations===1
+    &&cleanup.engineOwnership.engineFallbackTerminations===0,cleanup);
   report.worker_targets=await workers.waitUntilClosed({minimumObserved:cleanup.workersCreated+1,timeoutMs:120000});
   check('actual-workers-closed-before-browser-context',report.worker_targets.ok,report.worker_targets);
 }

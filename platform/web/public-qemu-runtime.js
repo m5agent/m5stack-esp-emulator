@@ -48,7 +48,10 @@ export class PublicQemuRuntime {
     if(data.id) {
       const item=this.pending.get(data.id);if(!item)return;
       this.pending.delete(data.id);clearTimeout(item.timer);
-      if(!data.error&&item.op==='dispose'&&data.value?.enginePlacement==='dedicated-worker-v1')this.engineDisposal=data.value;
+      if(!data.error&&item.op==='dispose'&&data.value?.enginePlacement==='dedicated-worker-v1'){
+        this.engineDisposal=data.value;
+        if(this.exit?.code===0&&this.exit.workersRemaining===0)this.engineOwner?.acknowledgeDisposal(data.value);
+      }
       data.error?item.reject(new Error(data.error)):item.resolve(data.value);return;
     }
     this.waiters.get(data.type)?.resolve(data.value);this.waiters.delete(data.type);
@@ -337,8 +340,8 @@ export class PublicQemuRuntime {
       }
       engineOwnership=this.readEngineOwnership()||engineOwnership;
       if(disposal?.enginePlacement==='dedicated-worker-v1'){
-        // Keep the iframe until its owner receives the close notification.
-        // An external Worker observer still verifies actual exit.
+        // Allow the authenticated Worker finalization (or abnormal self-close)
+        // notification before releasing the owner. CDP verifies actual exit.
         const deadline=performance.now()+2000;
         while((engineOwnership=this.readEngineOwnership()||engineOwnership)){
           if(engineOwnership.engineCloseNotificationReceived||this.engineOwnerFailed(engineOwnership)||performance.now()>deadline)break;

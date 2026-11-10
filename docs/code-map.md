@@ -206,10 +206,11 @@ guest ready marker，不能从 QMP greeting 提前开始帧轮询。
 
 清理区分三层：QMP quit 后的 guest exit code 与嵌套 pthread 计数；engine
 dispose 确认、端口关闭和 owner closing 通知；浏览器实际观察到的 Worker close。
-owner 收到通知时解除监听并释放句柄。逐板真实验收在移除 iframe 前独立核对嵌套
+正常退出时，owner 验证退出、dispose 和端口关闭收据，再等待 engine 在后续任务
+回传一次性令牌。owner 解除监听并终止 engine。逐板真实验收在移除 iframe 前核对嵌套
 pthread 已关闭，再核对全部 Worker target 已从 Chrome CDP 消失。初始化、错误和
-顶层页面 pagehide 仍保留 `terminate()` 兜底，成功门禁要求 fallback termination
-为零。实现与复现流程见
+顶层页面 pagehide 仍保留 `terminate()` 兜底。成功门禁要求一次已确认的 owner
+终止和零次兜底。实现与复现流程见
 [Pages 部署](pages-deployment.md#执行渲染与退出证据)。
 
 逐板 fixture 映射如下；本轮 10 板/11 例的公开准入身份见文末有界证据，正式部署另验。

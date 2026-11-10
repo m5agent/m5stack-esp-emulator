@@ -55,6 +55,11 @@ class MockWorker {
   emit(type,event){this.events.get(type)?.({...event,currentTarget:this});}
   terminate(){this.terminatedBeforeRemoval=!this.frame.removed;this.port?.close();}
   postMessage(message,ports){
+    if(message.type==='m5-qemu-engine-finalize'){
+      this.finalizeToken=message.token;
+      queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-finalized',token:message.token}}));
+      return;
+    }
     assert.equal(message.type,'m5-qemu-engine-connect');assert.equal(ports.length,1);
     const [port]=ports,frame=frameByPort.get(port),config=frame.config;
     this.frame=frame;this.port=port;frame.worker=this;frame.calls=[];
@@ -72,10 +77,13 @@ class MockWorker {
       if(data.op==='start')frame.profile=data.value.profile;
       port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
-        :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,ownerTerminatesAfterAcknowledgement:false,engineSelfClosesAfterAcknowledgement:true}:{})}:undefined});
+        :data.op==='dispose'?{workersRemaining:0,workersTerminatedByDispose:0,
+          ...(config.engineDisposal||config.ownerFinalization?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
+            ownerTerminatesAfterAcknowledgement:!!config.ownerFinalization,engineSelfClosesAfterAcknowledgement:!config.ownerFinalization}:{})}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile)}}));
+      if(data.op==='dispose'&&config.ownerFinalization)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-drained'}}));
       if(data.op==='dispose'&&config.engineDisposal)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-closing'}}));
-      if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
+      if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0,workersRemaining:0,workersCreated:4}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
       if(data.op==='outputs')port.postMessage({type:'device-state',value:config.outputState||{schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x204060,led_frames:1,pressed:false}});
     };
@@ -239,8 +247,20 @@ try {
     'history retains the acknowledged cooperative finalization without claiming a fallback');
   assert.equal(dedicatedFrame.removed,true);
 
+  options={ownerFinalization:true};const normalOwner=create();
+  await normalOwner.runtime.start({device:'cores3',firmware:firmware()});
+  const ownerFrame=frames.at(-1);
+  await normalOwner.runtime.stop();
+  const ownerCleanup=normalOwner.runtime.cleanupResult;
+  assert.equal(ownerCleanup.gracefulExit,true);
+  assert.equal(ownerCleanup.engineOwnership.engineFinalizationAcknowledged,true);
+  assert.equal(ownerCleanup.engineOwnership.engineNormalTerminations,1);
+  assert.equal(ownerCleanup.engineOwnership.engineFallbackTerminations,0);
+  assert.equal(ownerFrame.worker.terminatedBeforeRemoval,true);
+  assert.ok(ownerFrame.worker.finalizeToken);
+
   const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,engineCloseNotifications:0,
-    engineNormalTerminations:0,engineFallbackTerminations:1,enginePortTransferred:true,engineSelfCloseNotifications:0};
+    engineNormalTerminations:0,engineFallbackTerminations:1,enginePortTransferred:true,engineFinalizationAcknowledged:false,engineSelfCloseNotifications:0};
   options={};const pausedFailure=create();await pausedFailure.runtime.start({device:'cores3',firmware:firmware()});
   await pausedFailure.runtime.pause();const pausedFailureFrame=frames.at(-1),beforeFailureCalls=pausedFailureFrame.calls.length;
   pausedFailureFrame.worker.emit('error',{message:'contract paused engine failure'});
@@ -434,8 +454,12 @@ try {
   options={};const crashed=create();await crashed.runtime.start({device:'cores3',firmware:firmware()});
   crashed.runtime.receive({type:'exit',value:{code:7}},crashed.runtime.generation);await crashed.runtime.stop();
   assert.equal(crashed.runtime.cleanupResult.exitCode,7);assert.equal(crashed.runtime.cleanupResult.gracefulExit,false,'a nonzero spontaneous exit must not be reported as normal cleanup');
-  options={exitCode:9};const failedQuit=create();await failedQuit.runtime.start({device:'cores3',firmware:firmware()});await failedQuit.runtime.stop();
+  options={exitCode:9,ownerFinalization:true};const failedQuit=create();await failedQuit.runtime.start({device:'cores3',firmware:firmware()});
+  const failedQuitFrame=frames.at(-1);
+  await failedQuit.runtime.stop();
   assert.equal(failedQuit.runtime.cleanupResult.exitCode,9);assert.equal(failedQuit.runtime.cleanupResult.gracefulExit,false,'a nonzero quit exit must not be reported as normal cleanup');
+  assert.equal(failedQuitFrame.worker.finalizeToken,undefined,'an inconsistent disposal reply cannot authorize finalization after nonzero guest exit');
+  assert.equal(failedQuit.runtime.cleanupResult.engineOwnership.engineFallbackTerminations,1);
 
   options={};const assetGate=deferred(),parallelDownloads=[];
   const parallel=create({downloadImpl:async(url,config)=>{parallelDownloads.push(url);await assetGate.promise;const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};}});

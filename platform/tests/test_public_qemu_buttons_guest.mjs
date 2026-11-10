@@ -276,7 +276,8 @@ try{
   report.stopped=await page.evaluate(()=>buttonRuntime.evidence());
   const cleanup=report.stopped.cleanup;
   check('normal-browser-worker-cleanup',cleanup?.gracefulExit&&cleanup.exitCode===0&&cleanup.workersAtExit===0
-    &&cleanup.disposal?.workersTerminatedByDispose===0&&cleanup.engineOwnership?.engineFallbackTerminations===0,cleanup);
+    &&cleanup.disposal?.workersTerminatedByDispose===0&&cleanup.engineOwnership?.engineFinalizationAcknowledged===true&&cleanup.engineOwnership.engineNormalTerminations===1
+    &&cleanup.engineOwnership.engineFallbackTerminations===0,cleanup);
   report.worker_targets=await workers.waitUntilClosed({minimumObserved:cleanup.workersCreated+1,timeoutMs:120000});
   check('actual-worker-targets-disappeared',report.worker_targets.ok,report.worker_targets);
   check('browser-page-free-of-errors',errors.length===0,errors);

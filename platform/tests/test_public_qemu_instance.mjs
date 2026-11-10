@@ -27,7 +27,8 @@ const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.u
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
-  self:{postMessage:value=>lifecycle.push(value.type),close:()=>lifecycle.push('engine-closed')},
+  self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
+    close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
 vm.runInContext(executableSource,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
 const port=()=>({messages:[],closed:false,start(){this.started=true;},close(){this.closed=true;lifecycle.push('port-closed');},postMessage(value){this.messages.push(value);if(value.id===2)lifecycle.push('dispose-ack');}});
@@ -45,7 +46,7 @@ await one.onmessage({data:{id:1,op:'uart',value:{text:'contract'}}});assert.matc
 // Emscripten or any guest. Exercise the real UART write and PPM parser together.
 const fakeFactory=`export default async function(options){
   const devices=[];const stream={stream_ops:{}};
-  const files=new Map();const module={ENV:{},arguments:options.arguments,HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,files,mkdirTree(){},writeFile:(name,value)=>files.set(name,value),makedev:(a,b)=>b,
+  const files=new Map();const module={ENV:{},reportExit:options.onExit,arguments:options.arguments,HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,files,mkdirTree(){},writeFile:(name,value)=>files.set(name,value),makedev:(a,b)=>b,
     registerDevice:(id,ops)=>devices[id]=ops,mkdev(){},getStream:()=>stream,
     ErrnoError:class extends Error{}}};
   if(options.instantiateWasm){
@@ -211,17 +212,27 @@ assert.equal(one.messages.at(-1).value.unchanged,true);assert.equal(one.messages
 context.displayProfile=profile;vm.runInContext('boardProfile=displayProfile',context);
 const lateInput=one.onmessage({data:{id:22,op:'input',value:{type:'touch',x:1,y:1,down:false}}});
 assert.equal(commands().length,1);
-await one.onmessage({data:{id:2,op:'dispose'}});await lateInput;assert.equal(one.messages.at(-1).id,2);assert.equal(one.messages.at(-1).value.workersRemaining,0);assert.equal(one.closed,true);
+const dispatchPort=one.onmessage;
+connect({data:{type:'m5-qemu-engine-finalize',token:'early'}});
+vm.runInContext('module.reportExit(0)',context);
+await dispatchPort({data:{id:2,op:'dispose'}});await lateInput;assert.equal(one.messages.at(-1).id,2);assert.equal(one.messages.at(-1).value.workersRemaining,0);assert.equal(one.closed,true);
 assert.equal(one.messages.at(-1).value.workerCountScope,'nested-pthreads');
 assert.equal(one.messages.at(-1).value.enginePlacement,'dedicated-worker-v1');
 assert.equal(one.messages.at(-1).value.engineWorkersAtAcknowledgement,1,'acknowledgement does not claim the owning Worker already exited');
-assert.equal(one.messages.at(-1).value.ownerTerminatesAfterAcknowledgement,false);
-assert.equal(one.messages.at(-1).value.engineSelfClosesAfterAcknowledgement,true);
-assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-closing','engine-closed'],
-  'the engine closes itself after acknowledging disposal, closing its port and notifying the owner');
+assert.equal(one.messages.at(-1).value.ownerTerminatesAfterAcknowledgement,true);
+assert.equal(one.messages.at(-1).value.engineSelfClosesAfterAcknowledgement,false);
+assert.equal(one.onmessage,null);
+assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-drained']);
+connect({data:{type:'m5-qemu-engine-finalize',token:'malformed'},ports:[port()]});
+assert.equal(context.finalizedToken,undefined);
+connect({data:{type:'m5-qemu-engine-finalize',token:'owner-token'}});
+connect({data:{type:'m5-qemu-engine-finalize',token:'duplicate'}});
+assert.equal(context.finalizedToken,'owner-token');
+assert.deepEqual(lifecycle,['m5-qemu-engine-listening','dispose-ack','port-closed','m5-qemu-engine-drained','m5-qemu-engine-finalized'],
+  'normal cleanup returns the owner token only after disposing the private port');
 assert.equal(vm.runInContext('pending.size',context),0);
 assert.equal(one.messages.some(item=>item.id===22),false,'in-flight operations cannot reply after disposal');
-const count=one.messages.length;await one.onmessage({data:{id:3,op:'uart',value:{text:'late'}}});assert.equal(one.messages.length,count,'disposed instances reject queued late operations');
+const count=one.messages.length;await dispatchPort({data:{id:3,op:'uart',value:{text:'late'}}});assert.equal(one.messages.length,count,'disposed instances reject queued late operations');
 // Independent actual-source engine fixture: disposal while initialization is
 // awaiting query-status must not emit a late error/ready or reopen the port.
 const raceCallbacks=new Map(),raceLifecycle=[],raceUnhandled=[];
@@ -263,4 +274,4 @@ try {
 } finally {
   process.removeListener('unhandledRejection',onRaceUnhandled);
 }
-console.log('public QEMU dedicated engine one-port, FS/frame, pending-QMP disposal and engine self-close contracts passed; no guest executed');
+console.log('public QEMU dedicated engine one-port, FS/frame, pending-QMP disposal, normal owner finalization and aborted self-close contracts passed; no guest executed');

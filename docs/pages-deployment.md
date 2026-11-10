@@ -175,17 +175,19 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 确认 VM running；固件规定了 ready marker 时，还要等待同 guest 串口标记。
 
 正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
-dispose。engine 依次回复私有端口确认、关闭端口并通知顶层 owner，随后调用
-`self.close()`。owner 收到通知后解除事件监听并释放句柄。实际回收由独立观察确认，
+dispose。engine 回复确认并关闭私有端口。顶层 owner 等待同一会话的退出和
+dispose 收据及端口关闭通知，再向 engine 发送一次性令牌。engine 在后续任务回传令牌，
+owner 解除监听并调用一次 `terminate()`。实际回收由独立观察确认，
 真实客体验收通过 Chrome CDP `Target.getTargets` 分两阶段核对：
 iframe 保留时，本次实际创建的
-全部嵌套 pthread target 必须消失（不同板型为四或五个）；正常移除 iframe 后
+全部嵌套 pthread target 必须消失。验收使用本次运行记录的 pthread 创建数。
+正常移除 iframe 后
 engine 与全部 Worker target 也必须消失。
 后一阶段允许最多 120 秒的有界关闭回执，以容纳 macOS Chrome 超过 60 秒的
 CDP target 延迟；预算结束时仍必须为零 target，不能把超时或强制回收写成 PASS。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
-错误或顶层页面 pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
-记录；成功清理门禁要求 fallback 次数为零，不能把强制回收写成正常退出。
+错误、握手超时或顶层页面 pagehide 的 `terminate()` 兜底分开记录。异常
+dispose 可由 engine 自行关闭。正常清理门禁要求一次已确认的 owner 终止和零次兜底。
 
 原生 RGB565 帧同时交给可见原始屏幕和 `model-shell.js` 的显示纹理。
 逐板验收在输入前后等待模型 `frameSeq` 与 native frame sequence 一致，且

@@ -16,9 +16,11 @@ contract and [the code map](../../docs/code-map.md) for service UI entry points.
   `public-qemu-engine.js` owns QEMU/MEMFS, QMP, UART and nested pthreads. Preserve
   origin/owner checks, generation and cancellation fences, transfer ownership,
   bounded requests and disposal.
-- Normal guest exit, iframe removal, owner notifications and actual CDP Worker
-  disappearance are separate observations. Never count forced termination or
-  context closure as a successful normal-exit fence.
+- Normal guest exit, iframe removal, acknowledged owner termination and actual
+  CDP Worker disappearance are separate observations. Authorize one normal
+  owner termination only after exit code 0, zero nested workers, private-port
+  disposal and the matching later-task Worker acknowledgement. Never count
+  fallback termination or context closure as a successful normal-exit fence.
 - Preserve reference firmware/profile SHA binding, ROM/eFuse checks, explicit
   clock profiles and source/build provenance. Do not silently enable an SDK
   candidate, fallback runtime or unsupported feature for an uploaded image.

@@ -174,12 +174,18 @@ export async function runPublicStockGuest({device, board, firmware, testScript, 
     assert.ok(stopped.cleanup?.gracefulExit && stopped.cleanup.exitCode===0
       && stopped.cleanup.workersAtExit===0 && stopped.cleanup.explicitWorkerDisposal
       && stopped.cleanup.disposal?.workersRemaining===0 && stopped.cleanup.iframeRemoved
-      && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0);
+      && stopped.cleanup.engineOwnership?.engineFinalizationAcknowledged===true
+      && stopped.cleanup.engineOwnership.engineNormalTerminations===1
+      && stopped.cleanup.engineOwnership.engineFallbackTerminations===0);
     const minimumObserved=stopped.cleanup.workersCreated+1;
     assert.ok(Number.isInteger(minimumObserved)&&minimumObserved>=2);
     const closed=await targets.waitUntilClosed({minimumObserved});
     report.worker_targets={observed:closed.observed.length,live:closed.live.length,
       expected:minimumObserved,source:closed.source,nested_before_iframe:'NOT CAPTURED'};
+    if(closed.live.length)report.worker_targets.surviving_scripts=closed.live.slice(0,8).map(target=>({
+      script:target.url?.startsWith('blob:')?'blob-worker':target.url?.split(/[?#]/,1)[0].split('/').at(-1)?.slice(0,96)||null,
+      attached:target.attached,
+    }));
     assert.ok(closed.ok && closed.observed.length===minimumObserved
       && closed.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1);
     assert.deepEqual(report.errors,[]);

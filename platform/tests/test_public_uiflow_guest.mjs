@@ -335,9 +335,9 @@ try {
   const cleanup = report.stopped.cleanup, minimum = cleanup.workersCreated + 1;
   check('normal-guest-exit-no-forced-termination', cleanup.gracefulExit && cleanup.exitCode === 0 && cleanup.workersAtExit === 0
     && cleanup.disposal?.workersRemaining === 0 && cleanup.disposal.workersTerminatedByDispose === 0
-    && cleanup.disposal.ownerTerminatesAfterAcknowledgement === false && cleanup.disposal.engineSelfClosesAfterAcknowledgement === true
-    && cleanup.engineOwnership?.engineCloseNotifications === 1 && cleanup.engineOwnership.engineNormalTerminations === 0
-    && cleanup.engineOwnership?.engineFallbackTerminations === 0, cleanup);
+    && cleanup.disposal.ownerTerminatesAfterAcknowledgement === true && cleanup.disposal.engineSelfClosesAfterAcknowledgement === false
+    && cleanup.engineOwnership?.engineCloseNotifications === 1 && cleanup.engineOwnership.engineNormalTerminations === 1
+    && cleanup.engineOwnership?.engineFinalizationAcknowledged===true && cleanup.engineOwnership?.engineFallbackTerminations === 0, cleanup);
   report.pthreads_closed = await workers.waitUntilOnly({minimumObserved:minimum, allowedUrlPart:'/public-qemu-engine.js', timeoutMs:30000});
   check('pthreads-closed-before-iframe-removal', report.pthreads_closed.ok && await page.evaluate(() => deferredUIFlowRemoval.frame.isConnected && deferredUIFlowRemoval.requests === 1));
   await page.evaluate(() => { deferredUIFlowRemoval.remove.call(deferredUIFlowRemoval.frame); delete globalThis.deferredUIFlowRemoval; });
