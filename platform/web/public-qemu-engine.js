@@ -22,7 +22,8 @@ globalThis.Worker = class extends NativeWorker {
 };
 function emit(type, value, transfer = []) { if (!closed && !disposeRequested) port?.postMessage({type, value}, transfer); }
 // Scratch diagnostic only. Keep the original QMP input and I2C data planes.
-const keyboardTraceMode = new URL(self.location.href).searchParams.get('m5-cardputer-trace');
+const keyboardTraceMode = self.location
+  ? new URL(self.location.href).searchParams.get('m5-cardputer-trace') : null;
 const keyboardTraceEnds = new Map();
 let qmpBytesQueued = 0, qmpBytesRead = 0, keyboardTraceSequence = 0;
 function keyboardTrace(kind, fields) {
