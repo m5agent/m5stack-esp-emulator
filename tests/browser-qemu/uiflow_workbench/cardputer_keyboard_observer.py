@@ -13,6 +13,7 @@ keyboard = MatrixKeyboard()
 sequence = 0
 callback_count = 0
 previous = {}
+pressed_codes = set()
 pending = []
 heartbeat = time.ticks_ms()
 
@@ -25,6 +26,8 @@ def record(kind, guest_ms, **fields):
 
 def flush_events():
     global pending, sequence
+    if not pending:
+        return
     batch, pending = pending, []
     for fields in batch:
         sequence += 1
@@ -33,12 +36,21 @@ def flush_events():
         print("M5_CARDPUTER_KEYBOARD " + json.dumps(fields))
 
 
-def sample_states():
-    for code in KEY_CODES:
+def sample_states(codes):
+    for code in codes:
         pressed = keyboard.is_key_pressed(code)
         if pressed != previous[code]:
             previous[code] = pressed
+            if pressed:
+                pressed_codes.add(code)
+            else:
+                pressed_codes.discard(code)
             record("state", time.ticks_ms(), code=code, pressed=pressed)
+
+
+def sample_active_states():
+    if pressed_codes:
+        sample_states(tuple(pressed_codes))
 
 
 def key_event(active):
@@ -49,7 +61,7 @@ def key_event(active):
     codes = []
     record("callback", time.ticks_ms(), codes=codes, callback_count=callback_count,
            callback_type=type(active).__name__)
-    sample_states()
+    sample_states(KEY_CODES)
     while True:
         code = keyboard.get_key()
         if code is None:
@@ -67,10 +79,13 @@ try:
     while True:
         # On ADV is_key_pressed reads the state updated by the original IRQ
         # driver. It does not read the TCA8418 FIFO or scan GPIO keys.
-        sample_states()
+        sample_active_states()
         now = time.ticks_ms()
         if time.ticks_diff(now, heartbeat) >= 1000:
-            record("heartbeat", now, pressed=[code for code in KEY_CODES if previous[code]],
+            # Audit every public state at callback entry and on heartbeats.
+            # Between callbacks only a held key needs release observation.
+            sample_states(KEY_CODES)
+            record("heartbeat", now, pressed=[code for code in KEY_CODES if code in pressed_codes],
                    callback_count=callback_count)
             heartbeat = now
         flush_events()

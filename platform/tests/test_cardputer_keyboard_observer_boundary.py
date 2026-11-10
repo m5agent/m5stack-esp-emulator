@@ -38,9 +38,15 @@ class CardputerKeyboardObserverBoundaryTest(unittest.TestCase):
         for initial_press in (True, False):
             with self.subTest(initial_press=initial_press):
                 output = []
-                state = {46: initial_press}
+                state = {46: initial_press, 101: False}
+                state_reads = []
                 key_codes = iter((46, None))
-                keyboard = SimpleNamespace(is_key_pressed=state.__getitem__,
+
+                def read_state(code):
+                    state_reads.append(code)
+                    return state[code]
+
+                keyboard = SimpleNamespace(is_key_pressed=read_state,
                                            get_key=lambda: next(key_codes))
 
                 def serial_write(line):
@@ -49,14 +55,20 @@ class CardputerKeyboardObserverBoundaryTest(unittest.TestCase):
 
                 observer = {"keyboard": keyboard, "json": json, "print": serial_write,
                             "time": SimpleNamespace(ticks_ms=lambda: 100),
-                            "KEY_CODES": [46], "RUN_NONCE": "host-control", "sequence": 0,
-                            "previous": {46: False}, "callback_count": 0, "pending": []}
+                            "KEY_CODES": [46, 101], "RUN_NONCE": "host-control", "sequence": 0,
+                            "previous": {46: False, 101: False}, "pressed_codes": set(),
+                            "callback_count": 0, "pending": []}
                 exec(program, observer)
+                observer["sample_active_states"]()
+                self.assertEqual(state_reads, [])
                 observer["key_event"](keyboard)
                 self.assertEqual(output, [])
+                self.assertEqual(state_reads, [46, 101])
                 observer["flush_events"]()
-                observer["sample_states"]()
+                observer["sample_active_states"]()
+                observer["sample_active_states"]()
                 observer["flush_events"]()
+                self.assertEqual(state_reads, [46, 101, 46] if initial_press else [46, 101])
                 self.assertEqual(output[0]["codes"], [46])
                 self.assertEqual(output[0]["callback_count"], 1)
                 self.assertEqual([row["pressed"] for row in output[1:]],
