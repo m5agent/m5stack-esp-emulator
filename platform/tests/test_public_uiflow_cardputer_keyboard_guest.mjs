@@ -21,6 +21,21 @@ if(!site||process.env.M5_CARDPUTER_KEYBOARD_IRQ!=='1'){
 assert.ok(!process.env.M5_QEMU_DEVICE||process.env.M5_QEMU_DEVICE==='cardputer-adv','Cardputer-ADV exact default image only');
 assert.ok(!process.env.M5_QEMU_BUTTON_HOLD_MS||process.env.M5_QEMU_BUTTON_HOLD_MS==='250','formal keyboard pulse is fixed at 250 ms');
 const device='cardputer-adv',holdMs=250,basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+const traceMode=process.env.M5_CARDPUTER_TRACE_MODE||'none';
+assert.ok(['none','input','fifo'].includes(traceMode));
+const selected=(process.env.M5_CARDPUTER_TRACE_KEYS||'').split(',').filter(Boolean);
+const repeats=Number(process.env.M5_CARDPUTER_TRACE_REPEATS||1);
+assert.ok(Number.isSafeInteger(repeats)&&repeats>=1&&repeats<=10);
+assert.ok(new Set(selected).size===selected.length&&selected.every(physical=>CARDPUTER_KEYBOARD_CASES.some(item=>item.physical===physical)));
+assert.ok(selected.length||repeats===1,'repeat only a narrow selected diagnostic subset');
+const sequenceChild=process.env.M5_CARDPUTER_TRACE_GATE_CHILD==='1';
+assert.ok(!sequenceChild||traceMode==='fifo'&&!selected.length&&repeats===1
+  &&process.env.M5_QEMU_GATE_REQUIRE_ALL==='0'&&process.env.M5_QEMU_GATE_WORKERS==='1'
+  &&process.env.M5_QEMU_GATE_PHASE==='uiflow'
+  &&process.env.M5_QEMU_GATE_DEVICES==='atom-matrix,stickc-plus,cardputer-adv',
+  'sequence child requires the full keyboard test in the scoped single-worker diagnostic');
+const selectedCases=selected.length?CARDPUTER_KEYBOARD_CASES.filter(item=>selected.includes(item.physical)):CARDPUTER_KEYBOARD_CASES;
+const cases=Array.from({length:repeats},()=>selectedCases).flat();
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-uiflow-cardputer-keyboard-irq'));
 assert.ok(out.startsWith(resolve(repo,'.work')+'/'),'raw evidence belongs in ignored .work');
 await mkdir(out,{recursive:false});
@@ -34,9 +49,10 @@ const observer=await readFile(resolve(repo,observerPath),'utf8');
 const hash=value=>createHash('sha256').update(value).digest('hex'),nonce=randomUUID();
 const source=`RUN_NONCE = ${JSON.stringify(nonce)}\nKEY_CODES = ${JSON.stringify(CARDPUTER_KEYBOARD_CODES)}\n`+observer;
 const checks=[],errors=[],requests=[];
-const report={kind:'browser-uiflow-cardputer-public-keyboard-irq',status:'FAIL',device,nonce,
+const report={kind:'browser-uiflow-cardputer-tca-scratch-diagnostic',status:'FAIL',device,nonce,
+  publication_eligible:false,trace_mode:traceMode,selected_physical: selected, repetitions:repeats, traces:[],
   started_at:new Date().toISOString(),evidence_level:'virtual-device validation',hardware_validation:'NOT RUN',
-  scope:'56 physical keys, keyboard and real raycast mouse subject input; original public MatrixKeyboard callback and release state.',
+  scope:'Original public MatrixKeyboard callback and press/release from trusted keyboard and real raycast pointer input.',
   formal_hold_ms:holdMs,input_cases:[],checks,errors,source_oracle:CARDPUTER_KEYBOARD_SOURCE,
   observer:{path:observerPath,sha256:hash(observer),executed_sha256:hash(source)},
   oracle_sha256:hash(await readFile(resolve(repo,'platform/tests/public_qemu_cardputer_keyboard_cases.mjs'))),
@@ -122,7 +138,9 @@ try{
   page=await browser.newPage({viewport:{width:1440,height:1100}});cdp=await page.context().newCDPSession(page);
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  const workbenchURL=new URL(origin);
+  if(traceMode!=='none')workbenchURL.searchParams.set('m5-cardputer-trace',traceMode);
+  await page.goto(workbenchURL.href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.evaluate(async({origin,device})=>{
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin));
@@ -138,12 +156,24 @@ try{
     };
     const {PublicQemuRuntime}=await import(new URL('platform/web/public-qemu-runtime.js',origin));
     const start=PublicQemuRuntime.prototype.start,input=PublicQemuRuntime.prototype.input;
+    const receive=PublicQemuRuntime.prototype.receive;
+    globalThis.keyboardTraceRows=[];globalThis.keyboardTraceDrops=0;
+    PublicQemuRuntime.prototype.receive=function(data,generation) {
+      if (this===globalThis.keyboardRuntime&&generation===this.generation&&data.type==='cardputer-trace') {
+        if(keyboardTraceRows.length<12000)keyboardTraceRows.push({...data.value,
+          page_epoch_ms:performance.timeOrigin+performance.now()});
+        else keyboardTraceDrops++;
+      }
+      return receive.call(this,data,generation);
+    };
     PublicQemuRuntime.prototype.start=function(...args){if(args[0].device===device)globalThis.keyboardRuntime=this;return start.apply(this,args);};
     globalThis.keyboardInputs=[];globalThis.keyboardDom=[];
     PublicQemuRuntime.prototype.input=async function(event){
-      const row={event:{...event},at_ms:performance.now()};
+      const row={event:{...event},at_ms:performance.now(),page_epoch_ms:performance.timeOrigin+performance.now()};
       if(this===globalThis.keyboardRuntime)keyboardInputs.push(row);
-      try{row.response=await input.call(this,event);return row.response;}catch(error){row.error=String(error);throw error;}
+      try{row.response=await input.call(this,event);return row.response;}
+      catch(error){row.error=String(error);throw error;}
+      finally{row.done_page_epoch_ms=performance.timeOrigin+performance.now();}
     };
     // Capture native browser trust before the public focused-key handlers run.
     for(const type of ['keydown','keyup','pointerdown','pointerup'])window.addEventListener(type,event=>{
@@ -185,11 +215,13 @@ try{
   check('editor-source-reached-original-public-runner',await page.evaluate(source=>keyboardRun.source===source,source));
   check('original-cardputer-public-irq-api-ready',ready.api==='MatrixKeyboard.set_callback'&&!ready.pending
     &&Object.keys(ready.states).length===CARDPUTER_KEYBOARD_CODES.length&&Object.values(ready.states).every(value=>value===false),ready);
-  for(const item of CARDPUTER_KEYBOARD_CASES)for(const method of ['keyboard','pointer']){
+  for(const item of cases)for(const method of ['keyboard','pointer']){
     const afterSeq=(await events()).at(-1)?.seq||0;
-    const before=await page.evaluate(()=>({model:keyboardModelEvents.length,controls:keyboardControls.length,input:keyboardInputs.length,dom:keyboardDom.length}));
+    const before=await page.evaluate(()=>({model:keyboardModelEvents.length,controls:keyboardControls.length,input:keyboardInputs.length,
+      dom:keyboardDom.length,trace:keyboardTraceRows.length}));
     const trial={physical:item.physical,component:item.component,row:item.row,col:item.col,qcode:item.qcode,
-      expected_codes:item.expectedCodes,method,after_seq:afterSeq,requested_hold_ms:holdMs,companion:item.companion};
+      expected_codes:item.expectedCodes,method,after_seq:afterSeq,requested_hold_ms:holdMs,companion:item.companion,
+      trace_start_index:before.trace};
     report.input_cases.push(trial);
     const canvas=page.locator('#deviceMount .three-device-stage canvas');await canvas.scrollIntoViewIfNeeded();
     if(method==='pointer'){
@@ -237,9 +269,11 @@ try{
         &&rows.some(row=>row.seq>afterSeq&&row.kind==='callback'&&row.codes.includes(code));
     }),`${method} ${item.physical} public callback plus press/release`);
     trial.observations=requireCardputerKeyboardObservation({item,afterSeq,events:rows});
+    trial.trace_end_index=await page.evaluate(()=>keyboardTraceRows.length);
     trial.status='PASS';check(`guest-${method}-${item.physical}-irq-press-release`,true,trial.observations);await save();
   }
-  check('all-56-keys-both-public-input-paths',report.input_cases.length===112&&report.input_cases.every(row=>row.status==='PASS'));
+  check(selected.length?'all-selected-keys-both-public-input-paths':'all-56-keys-both-public-input-paths',
+    report.input_cases.length===(selected.length?cases.length*2:112)&&report.input_cases.every(row=>row.status==='PASS'));
   await page.locator('#pythonInterruptBtn').click();
   await page.waitForFunction(()=>globalThis.keyboardRun?.finished,{}, {timeout:15000});
   report.execution=await page.evaluate(()=>keyboardRun);
@@ -254,15 +288,39 @@ try{
   await page.screenshot({path:resolve(out,'keyboard.png'),fullPage:true});
   await stopAndObserve();
   check('no-device-service-requests',!requests.some(url=>/\/api\/v1|:8787\b|:8830\b/.test(url)));
-  check('no-page-errors',errors.length===0,errors);report.status='PASS';
+  check('no-page-errors',errors.length===0,errors);
+  if(traceMode==='fifo'){
+    const trace=await page.evaluate(()=>{
+      const lines=keyboardTraceRows.filter(row=>row.kind==='qemu-log').map(row=>row.line);
+      return {rows:keyboardTraceRows.length,dropped:keyboardTraceDrops,
+        native_qcode:lines.some(line=>/input_event_key_qcode/.test(line)),
+        panel_qcode:lines.some(line=>/\[m5panel-input\] qcode=/.test(line)),
+        fifo_count:lines.some(line=>/\[tca8418\] rd 03 -> /.test(line)),
+        fifo_pop:lines.some(line=>/\[tca8418\] rd 04 -> /.test(line)),
+        w1c:lines.some(line=>/\[tca8418\] wr 02 <- 01/.test(line)),
+        gpio11:lines.some(line=>/\[gpio\] ext input pin=11\b/.test(line))};
+    });
+    check('complete-native-keyboard-trace',trace.rows>0&&trace.dropped===0
+      &&trace.native_qcode&&trace.panel_qcode&&trace.fifo_count&&trace.fifo_pop&&trace.w1c&&trace.gpio11,trace);
+  }
+  report.status=sequenceChild?'PASS':'DIAGNOSTIC_PASS';
 }catch(error){
   report.failure=String(error?.stack||error);process.exitCode=1;
   if(page&&!page.isClosed()){
     report.failure_state=await page.evaluate(()=>({run:globalThis.keyboardRun,evidence:globalThis.keyboardRuntime?.evidence(),
       model_events:globalThis.keyboardModelEvents,controls:globalThis.keyboardControls,inputs:globalThis.keyboardInputs,dom:globalThis.keyboardDom})).catch(()=>null);
+    const trial=report.input_cases.at(-1);
+    if(trial&&trial.status!=='PASS') {
+      trial.trace_end_index=await page.evaluate(()=>keyboardTraceRows.length).catch(()=>null);
+      trial.guest_events_at_failure=(await events().catch(()=>[])).filter(row=>row.seq>trial.after_seq).slice(-100);
+    }
     if(!report.stopped)try{await stopAndObserve();}catch(cleanupError){report.cleanup_failure=String(cleanupError?.stack||cleanupError);}
   }
 }finally{
+  if(page&&!page.isClosed()) {
+    report.traces=await page.evaluate(()=>keyboardTraceRows).catch(()=>[]);
+    report.trace_rows_dropped=await page.evaluate(()=>keyboardTraceDrops).catch(()=>null);
+  }
   report.finished_at=new Date().toISOString();await save();
   await cdp?.detach().catch(()=>{});await workers?.detach();await browser?.close();
   await new Promise(resolve=>server?server.close(resolve):resolve());

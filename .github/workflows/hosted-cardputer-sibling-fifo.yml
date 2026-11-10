@@ -1,0 +1,156 @@
+name: Trace Cardputer release delivery in the sibling Worker runtime
+
+on:
+  push:
+    branches: [m5agent/pages-cardputer-sibling-fifo-20261110]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  trace:
+    if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-cardputer-sibling-fifo-20261110'
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [focused, prefix]
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      M5_PUBLIC_SITE: ${{ github.workspace }}/.work/cardputer-fifo-site
+      M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
+      M5_WASM_GPU: hardware
+      M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+      M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+      M5_QEMU_READY_TIMEOUT_MS: '600000'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Export the release path with diagnostic hooks and verified runtime bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          official=7edc2d1171634a8975a946625349aa37ce9343a7
+          git merge-base --is-ancestor "$official" HEAD
+          git diff --exit-code "$official" -- .github/workflows/public-site.yml scripts/qemu-wasm-build scripts/browser-littlefs patches tests/browser-qemu/uiflow_workbench platform/web/public-qemu-engine-owner.js platform/web/qemu-browser-profiles.json platform/web/uiflow-workbench-profiles.json platform/web/cardputer-adv-keymap.js platform/tests/public_qemu_cardputer_keyboard_cases.mjs platform/tests/test_public_qemu_admitted_boards.mjs
+          mkdir -p .work/cardputer-fifo-input
+          artifacts="repos/$GITHUB_REPOSITORY/actions/artifacts"
+          stage() {
+            local id="$1" name="$2" digest="$3" output="$4"
+            local archive=".work/cardputer-fifo-input/$name.zip"
+            local metadata=".work/cardputer-fifo-input/$name.json"
+            gh api "$artifacts/$id" > "$metadata"
+            jq -e --arg sha "$official" --arg digest "sha256:$digest" --arg name "$name" '
+              .name == $name and .digest == $digest and .expired == false
+              and .workflow_run.id == 42791936544 and .workflow_run.head_sha == $sha
+              and .workflow_run.head_branch == "main"
+              and .workflow_run.repository_id == 1427737977
+            ' "$metadata" >/dev/null
+            gh api --allow-escape-sequences "$artifacts/$id/zip" > "$archive"
+            echo "$digest  $archive" | shasum -a 256 -c -
+            mkdir -p "$output"
+            unzip -q "$archive" -d "$output"
+          }
+          stage 13751780693 qemu-staging-xtensa-1 57e107cd8f96365cc8939efb700efcf3db28fa2dabb1d89d98443263c30385b8 .work
+          stage 13752570391 qemu-staging-c61-1 88695775f9a35e7674c649c741958cdd77303a975f47256192e01414caca9afa .work/qemu-c61-runtime
+          shasum -a 256 -c <<'SHAS'
+          96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8  .work/qemu-browser-runtime/qemu-system-xtensa.wasm
+          83ed57e0ac517ba2c83d40c640995050df33217138c59366c089962b399ba163  .work/qemu-c61-runtime/qemu-system-riscv32.wasm
+          8fa2ca6b54194e900042c41aae89314cad57121676adf3d5f8dff40369b98389  .work/qemu-browser-runtime/corresponding-source.tar.xz
+          SHAS
+          python3 platform/tools/build_public_site.py --output "$M5_PUBLIC_SITE" --base-path "$M5_PUBLIC_BASE_PATH" --service-url '' --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
+          {
+            git rev-parse HEAD
+            git rev-parse "$official"
+            sw_vers -productVersion
+            sysctl hw.logicalcpu hw.memsize vm.loadavg
+            "$M5_WASM_CHROME" --version
+            shasum -a 256 "$M5_PUBLIC_SITE/public-site-manifest.json"
+          } > .work/cardputer-fifo-input/runner.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Repeat the failing physical key through both trusted paths
+        if: matrix.lane == 'focused'
+        env:
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/cardputer-sibling-fifo/focused
+          M5_CARDPUTER_KEYBOARD_IRQ: '1'
+          M5_CARDPUTER_TRACE_MODE: fifo
+          M5_CARDPUTER_TRACE_KEYS: BRACKET_RIGHT
+          M5_CARDPUTER_TRACE_REPEATS: '10'
+        run: |
+          mkdir -p .work/cardputer-sibling-fifo
+          node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs
+      - name: Run release Canvas and stock CoreMatrix controls
+        if: matrix.lane == 'prefix'
+        run: |
+          node platform/tests/test_public_qemu_pixel_observer_browser.mjs
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --proto '=https' --proto-redir '=https' --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" M5_PUBLIC_QEMU_OUT="$GITHUB_WORKSPACE/.work/public-qemu-corematrix-stock" node platform/tests/test_public_qemu_corematrix_stock.mjs
+      - name: Run the serial release prefix through the 112 keyboard trials
+        if: matrix.lane == 'prefix'
+        env:
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/cardputer-sibling-fifo/prefix
+          M5_QEMU_GATE_REQUIRE_ALL: '0'
+          M5_QEMU_GATE_WORKERS: '1'
+          M5_QEMU_GATE_PHASE: uiflow
+          M5_QEMU_GATE_DEVICES: atom-matrix,stickc-plus,cardputer-adv
+          M5_CARDPUTER_TRACE_GATE_CHILD: '1'
+          M5_CARDPUTER_TRACE_MODE: fifo
+        run: node platform/tests/test_public_qemu_admitted_boards.mjs
+      - name: Confirm a successful run is scoped diagnostic evidence
+        env:
+          LANE: ${{ matrix.lane }}
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const focused=process.env.LANE==='focused';
+          const root='.work/cardputer-sibling-fifo/';
+          if(!focused){
+            const prefix=require('./'+root+'prefix/report.json');
+            assert.equal(prefix.status,'DIAGNOSTIC_PASS');
+            assert.equal(prefix.publication_eligible,false);
+            assert.equal(prefix.completed_cases,7);
+            assert.equal(prefix.max_active_children,1);
+          }
+          const path=focused?'focused':'prefix/cardputer-keyboard/cardputer-adv';
+          const report=require('./'+root+path+'/report.json');
+          assert.equal(report.status,focused?'DIAGNOSTIC_PASS':'PASS');
+          assert.equal(report.publication_eligible,false);
+          assert.equal(report.trace_mode,'fifo');
+          assert.equal(report.trace_rows_dropped,0);
+          assert.ok(report.checks.some(row=>row.name==='complete-native-keyboard-trace'&&row.ok));
+          assert.equal(report.formal_hold_ms,250);
+          assert.equal(report.input_cases.length,focused?20:112);
+          assert.ok(report.input_cases.every(row=>row.status==='PASS'&&row.requested_hold_ms===250));
+          assert.equal(report.initial.evidence.receipt.firmwareSha256,'b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd');
+          assert.equal(report.initial.evidence.receipt.wasmSha256,'96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8');
+          assert.equal(report.worker_topology.ok,true);
+          assert.equal(report.worker_targets.ok,true);
+          assert.equal(report.worker_targets.live.length,0);
+          JS
+      - name: Retain nondeployable diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardputer-sibling-fifo-${{ matrix.lane }}-${{ github.run_attempt }}
+          path: |
+            .work/cardputer-fifo-input/*.json
+            .work/cardputer-fifo-input/runner.txt
+            .work/cardputer-sibling-fifo/**/report.json
+            .work/public-qemu-pixel-observer-host-browser/report.json
+            .work/public-qemu-corematrix-stock/report.json
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: warn
