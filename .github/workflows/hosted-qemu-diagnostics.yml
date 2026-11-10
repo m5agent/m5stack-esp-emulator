@@ -12,7 +12,7 @@ jobs:
   reproduce:
     if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-hosted-worker-diagnostic-20261110'
     runs-on: macos-15
-    timeout-minutes: 50
+    timeout-minutes: 110
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +43,7 @@ jobs:
           node-version: "22"
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
-      - name: Run the three Cardputer Worker modes serially
+      - name: Alternate self-close and owner termination for three rounds
         env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
@@ -59,20 +59,25 @@ jobs:
           M5_CARDPUTER_WORKER_PROBE_LINGER: "1"
         run: |
           failed=0
-          for mode in baseline finalize-self finalize-owner; do
-            export M5_CARDPUTER_WORKER_DIAG="$mode"
-            export M5_PUBLIC_QEMU_OUT="$GITHUB_WORKSPACE/.work/hosted-diagnostic/guest-$mode"
-            status=0
-            node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs || status=$?
-            printf '%s\t%s\n' "$mode" "$status" >> .work/hosted-diagnostic/worker-mode-exit-status.tsv
-            if [ "$status" -ne 0 ]; then failed=1; fi
+          results=.work/hosted-diagnostic/worker-mode-exit-status.tsv
+          printf 'round\tmode\texit_status\n' > "$results"
+          for round in 1 2 3; do
+            for mode in finalize-self finalize-owner; do
+              printf 'Worker diagnostic round %s, mode %s\n' "$round" "$mode"
+              export M5_CARDPUTER_WORKER_DIAG="$mode"
+              export M5_PUBLIC_QEMU_OUT="$GITHUB_WORKSPACE/.work/hosted-diagnostic/guest-round-$round-$mode"
+              status=0
+              node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs || status=$?
+              printf '%s\t%s\t%s\n' "$round" "$mode" "$status" >> "$results"
+              if [ "$status" -ne 0 ]; then failed=1; fi
+            done
           done
           exit "$failed"
       - name: Retain diagnostic evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-worker-diagnostic-${{ github.run_attempt }}
+          name: qemu-worker-repeat-${{ github.run_attempt }}
           path: |
             .work/hosted-diagnostic/provenance.json
             .work/hosted-diagnostic/worker-mode-exit-status.tsv
