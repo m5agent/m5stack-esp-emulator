@@ -143,7 +143,7 @@
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
 | `UI-02` | 进行中 | 扩展更多固定固件与长期稳定性，继续归因原始 StackChan 跳舞固件的 Core1 ROM 字面量启动异常及独立触摸证据缺口、官方 Factory 浏览器 WDT/异常、其它应用的 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化；分别验证 C6 RISC-V、P4 controller 数据面与 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC 及 StackChan 其它固件/运动模式边界 |
-| `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放和偶发启动、复位失败。逐板性能和长期稳定性分别验收 |
+| `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及剩余独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放、初代 Cardputer 冷启动 PIF 及其它偶发启动和复位失败。逐板性能和长期稳定性分别验收 |
 | `UNIT-01` | 已完成（virtual-device） | 视觉主机接入与 Unit 数据面战役 2026-11-03 收口：9 host 接入 + 5 boundary-only/composition-only；Unit 160 = 158 implemented/partial + 2 DEFER（`mini-bps-v11`/`mini-pdm`）+ 25 c 类边界，184/184；canonical 41 层（0120–0161，41/41 replay），PR #80–#161。 仅 `UNIT-DEFER-01` 保留 2 项 DEFER 的关闭条件；其余历史 UNIT-HOST 问题与逐型号边界保留在证据/研究页 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
@@ -162,7 +162,7 @@
 
 - `tests/`：`165` 个可执行 Python 测试文件，分布在 `69` 个目录；`233` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`302` 个 patch 文件。
-- 文档：`640` 个 Markdown 页面；除本生成页外共 `70691` 行。
+- 文档：`640` 个 Markdown 页面；除本生成页外共 `70692` 行。
 
 ## 文档与测试
 

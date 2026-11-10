@@ -7,7 +7,7 @@
 
 正式 HTTPS 站点的 manifest `9b9985c3…` 和其中声明的全部资产共 2,177 份，长度及 SHA-256 均与导出匹配。首次扫描有一个资产返回 HTTP 503，在同一 manifest 下复取后匹配。线上客体的输入、串口和画面独立记录。 [当次验证](validation-ledger.md#2026-11-10)
 
-<!-- PAGES_20261110_HTTPS_GUEST: insert the #211 outcome and four-device local-BIN outcome summary after their independent validation. -->
+同一正式 HTTPS 站点完成五个限定的浏览器 WASM 客体验收。#211 的原版 CoreS3 显示 Develop / Web IDE，同会话串口、源文件与补齐后 Flash 双 SHA 和错误 SHA 负控均通过，原版固件的 REPL 未响应。PaperS3、PaperDIY 和 CoreMatrix 通过网页本地 BIN 路径的画面与输入验证。初代 Cardputer 的首次冷启动出现 PIF 且未出帧，同一 BIN 独立复测后验证了画面与按键。正式托管全量门禁、PIF 根因和长期稳定性仍待验证。 [#211](https://github.com/m5agent/m5stack-esp-emulator/issues/211) · [线上实测与原始报告摘要](https://github.com/m5agent/agent-work-logs/blob/61bc27b30969321afcc11bedd0b1852b0489de94/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/pages-7ed-prepared-deployment-https-summary.json)
 
 上一版 prepared-preview 于 2026-11-04 10:45:44Z 更新正式站点，见 PR #165。
 [上一版部署证据](evidence/2026-11-04-pages-workbench-release/README.md)记录工作流success与全部2,130个HTTPS资产匹配；独立HTTPS首6例已SUBSET_PASS、full_scope=false；Matrix/Plus/Core各编辑器与按键共222检查通过，其余34例NOT RUN/HOLD，不授完整线上门禁。
