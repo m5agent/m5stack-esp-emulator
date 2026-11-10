@@ -38,6 +38,10 @@ configures TCA8418 at address 0x34 over SDA8/SCL9, installs GPIO11 IRQs, and
 schedules the original key-event handler. Public `is_key_pressed()` reads the
 state that this IRQ path updates; it does not read the FIFO. Press callbacks
 alone do not pass: both public press and release states are required.
+The observer samples public state at callback entry, before reading queued
+codes, and buffers observations for serial output from its main loop. This
+keeps output latency out of the capture step. A queued key code cannot supply
+a press when the public state is already released.
 
 The independent expected code table binds the inspected official source at
 [`50e440780492aa847378c7d3477ab912f7063bac`](https://github.com/m5stack/uiflow-micropython/tree/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/hardware).
