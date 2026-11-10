@@ -28,6 +28,12 @@ const repeats=Number(process.env.M5_CARDPUTER_TRACE_REPEATS||1);
 assert.ok(Number.isSafeInteger(repeats)&&repeats>=1&&repeats<=10);
 assert.ok(new Set(selected).size===selected.length&&selected.every(physical=>CARDPUTER_KEYBOARD_CASES.some(item=>item.physical===physical)));
 assert.ok(selected.length||repeats===1,'repeat only a narrow selected diagnostic subset');
+const sequenceChild=process.env.M5_CARDPUTER_TRACE_GATE_CHILD==='1';
+assert.ok(!sequenceChild||traceMode==='fifo'&&!selected.length&&repeats===1
+  &&process.env.M5_QEMU_GATE_REQUIRE_ALL==='0'&&process.env.M5_QEMU_GATE_WORKERS==='1'
+  &&process.env.M5_QEMU_GATE_PHASE==='uiflow'
+  &&process.env.M5_QEMU_GATE_DEVICES==='atom-matrix,stickc-plus,cardputer-adv',
+  'sequence child requires the full keyboard test in the scoped single-worker diagnostic');
 const selectedCases=selected.length?CARDPUTER_KEYBOARD_CASES.filter(item=>selected.includes(item.physical)):CARDPUTER_KEYBOARD_CASES;
 const cases=Array.from({length:repeats},()=>selectedCases).flat();
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-uiflow-cardputer-keyboard-irq'));
@@ -44,7 +50,7 @@ const hash=value=>createHash('sha256').update(value).digest('hex'),nonce=randomU
 const source=`RUN_NONCE = ${JSON.stringify(nonce)}\nKEY_CODES = ${JSON.stringify(CARDPUTER_KEYBOARD_CODES)}\n`+observer;
 const checks=[],errors=[],requests=[];
 const report={kind:'browser-uiflow-cardputer-tca-scratch-diagnostic',status:'FAIL',device,nonce,
-  trace_mode:traceMode,selected_physical: selected, repetitions:repeats, traces:[],
+  publication_eligible:false,trace_mode:traceMode,selected_physical: selected, repetitions:repeats, traces:[],
   started_at:new Date().toISOString(),evidence_level:'virtual-device validation',hardware_validation:'NOT RUN',
   scope:'56 physical keys, keyboard and real raycast mouse subject input; original public MatrixKeyboard callback and release state.',
   formal_hold_ms:holdMs,input_cases:[],checks,errors,source_oracle:CARDPUTER_KEYBOARD_SOURCE,
@@ -278,7 +284,20 @@ try{
   await page.screenshot({path:resolve(out,'keyboard.png'),fullPage:true});
   await stopAndObserve();
   check('no-device-service-requests',!requests.some(url=>/\/api\/v1|:8787\b|:8830\b/.test(url)));
-  check('no-page-errors',errors.length===0,errors);report.status='DIAGNOSTIC_PASS';
+  check('no-page-errors',errors.length===0,errors);
+  if(sequenceChild){
+    const trace=await page.evaluate(()=>{
+      const lines=keyboardTraceRows.filter(row=>row.kind==='qemu-log').map(row=>row.line);
+      return {rows:keyboardTraceRows.length,dropped:keyboardTraceDrops,
+        native_qcode:lines.some(line=>/input_event_key_qcode/.test(line)),
+        panel_qcode:lines.some(line=>/\[m5panel-input\] qcode=/.test(line)),
+        tca8418:lines.some(line=>/\[tca8418\]/.test(line)),
+        gpio11:lines.some(line=>/\[gpio\] ext input pin=11\b/.test(line))};
+    });
+    check('complete-native-keyboard-trace',trace.rows>0&&trace.dropped===0
+      &&trace.native_qcode&&trace.panel_qcode&&trace.tca8418&&trace.gpio11,trace);
+  }
+  report.status=sequenceChild?'PASS':'DIAGNOSTIC_PASS';
 }catch(error){
   report.failure=String(error?.stack||error);process.exitCode=1;
   if(page&&!page.isClosed()){
