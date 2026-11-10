@@ -10,10 +10,12 @@ contract and [the code map](../../docs/code-map.md) for service UI entry points.
 - Browser admission comes from `qemu-browser-profiles.json` intersected with the
   actual runtime's compiled profiles. A 3D shell, a compiled machine or native
   PASS does not admit browser firmware execution.
-- `public-qemu-runtime.js` manages validated assets and the run; the instance
-  iframe transfers one private port; `public-qemu-engine.js` owns QEMU/MEMFS,
-  QMP, UART and nested pthreads. Preserve origin/owner checks, generation and
-  cancellation fences, transfer ownership, bounded requests and disposal.
+- `public-qemu-runtime.js` manages validated assets and the run. The instance
+  iframe admits and returns one private port. `public-qemu-engine-owner.js`
+  transfers that port to the Worker and keeps its callbacks in the top document.
+  `public-qemu-engine.js` owns QEMU/MEMFS, QMP, UART and nested pthreads. Preserve
+  origin/owner checks, generation and cancellation fences, transfer ownership,
+  bounded requests and disposal.
 - Normal guest exit, iframe removal, owner notifications and actual CDP Worker
   disappearance are separate observations. Never count forced termination or
   context closure as a successful normal-exit fence.

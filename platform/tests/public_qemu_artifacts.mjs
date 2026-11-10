@@ -14,6 +14,7 @@ export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
   'platform/web/public-coi.js','platform/web/public-coi-serviceworker.js',
   'platform/web/vendor/coi-serviceworker/coi-serviceworker.js',
   'platform/web/public-qemu-runtime.js','platform/web/public-qemu-instance.js','platform/web/public-qemu-engine.js',
+  'platform/web/public-qemu-engine-owner.js',
   'platform/web/public-qemu-instance.html',
   'platform/web/public-qemu-profiles.js','platform/web/qemu-browser-profiles.json',
   'platform/web/public-qemu-frame.js','platform/web/public-qemu-probe-firmware.js','platform/web/public-qemu-servo.js',

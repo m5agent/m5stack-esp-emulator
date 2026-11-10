@@ -1,3 +1,4 @@
+import {admitQemuEnginePort,createQemuEngineOwner} from './public-qemu-engine-owner.js';
 import {resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
@@ -190,8 +191,11 @@ export class PublicQemuRuntime {
       document.body.append(iframe);await loaded;active();
       const channel=new MessageChannel();this.port=channel.port1;
       this.port.onmessage=({data})=>this.receive(data,generation);this.port.start();
+      const enginePort=await admitQemuEnginePort(iframe,this.root.origin,this.sessionId,channel.port2,bootAbort.signal);
+      try{active();}catch(error){enginePort.close();throw error;}
       const connected=this.waitFor('connected');connected.catch(()=>{});
-      iframe.contentWindow.postMessage({type:'m5-qemu-connect'},this.root.origin,[channel.port2]);
+      this.engineOwner=createQemuEngineOwner(assetUrl('platform/web/public-qemu-engine.js',this.root),enginePort,
+        ()=>this.receive({type:'error',value:'浏览器 QEMU 执行线程异常停止。'},generation));
       const [,compiledWasm]=await Promise.all([connected,wasmAsset.compiled]);active();
       const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
       this.assetsReady=true;
@@ -221,10 +225,7 @@ export class PublicQemuRuntime {
       applicationReady:this.hasBoundReadyMarker()?(this.guestStarted&&this.guestReady()?'confirmed':'waiting'):'unknown'};
   }
   readEngineOwnership() {
-    try {
-      const ownership=this.iframe?.contentWindow?.m5QemuEngineOwnership;
-      return ownership?{...ownership}:null;
-    } catch { return null; }
+    return this.engineOwner?.observe()||null;
   }
   engineOwnerFailed(ownership) {
     return ownership?.engineOwnerLive===false&&ownership.engineFallbackTerminations>0;
@@ -324,7 +325,7 @@ export class PublicQemuRuntime {
       this.abort?.abort();this.signalCleanup?.();this.signalCleanup=null;
       let graceful=this.exit?.code===0,disposed=false,disposal=null;
       let engineOwnership=this.readEngineOwnership();
-      if(this.port&&!this.engineOwnerFailed(engineOwnership)){
+      if(this.port&&engineOwnership?.enginePortTransferred&&!this.engineOwnerFailed(engineOwnership)){
         if(!this.exit&&this.status!=='loading'){
           const exit=this.waitFor('exit',6000).then(value=>value.code===0,()=>false);
           this.ask('quit').catch(()=>{});graceful=await exit;
@@ -344,13 +345,11 @@ export class PublicQemuRuntime {
           await new Promise(resolve=>setTimeout(resolve,10));
         }
       }
-      // The parent-document Worker outlives its iframe on an aborted start.
-      // Release any unacknowledged engine before detaching the wrapper.
-      try{this.iframe?.contentWindow?.m5QemuReleaseEngine?.();}catch{}
+      this.engineOwner?.release();
       // Preserve failed-dispose/fallback ownership too. This snapshot is taken
       // before DOM removal and never claims the Worker was observed closed.
       engineOwnership=this.readEngineOwnership()||engineOwnership;
-      this.generation++;this.port?.close();this.port=null;this.iframe?.remove();this.iframe=null;this.abort=null;
+      this.generation++;this.port?.close();this.port=null;this.iframe?.remove();this.iframe=null;this.engineOwner=null;this.abort=null;
       for(const item of this.pending.values()){clearTimeout(item.timer);item.reject(new DOMException('设备已停止','AbortError'));}this.pending.clear();
       for(const item of this.waiters?.values()||[])item.reject(new DOMException('设备已停止','AbortError'));this.waiters?.clear();
       this.stoppedAt=new Date().toISOString();this.cleanupResult={gracefulExit:graceful,exitCode:this.exit?.code??null,

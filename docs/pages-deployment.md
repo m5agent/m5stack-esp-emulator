@@ -164,16 +164,18 @@ URL / 本地 `.bin` 入口按选定板型检查完整 ESP32/S3 合并镜像、�
 
 `public-qemu-runtime.js` 在工作台管理校验后的资产、命令、采帧和运行记录。
 `public-qemu-instance.js` 所在的同源 iframe 只接受来自直接父窗口、同源且恰好
-携带一个 MessagePort 的首次连接，再将该私有端口交给
-`public-qemu-engine.js` module DedicatedWorker。原 Emscripten factory、MEMFS
+携带一个 MessagePort 的首次连接，并向同源父窗口回传该端口及会话标识。
+`public-qemu-engine-owner.js` 核对 iframe 来源、同源和当前会话后，在顶层页面
+创建 `public-qemu-engine.js` module DedicatedWorker，绑定回调并转交私有端口。
+原 Emscripten factory、MEMFS
 中的 Flash/ROM/eFuse、直接 UART 字符设备、QMP 和嵌套 pthread 均由 engine
 Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D 渲染因此与
 客体执行分开。QMP greeting 只说明控制通道存在，必须等 `query-status`
 确认 VM running；固件规定了 ready marker 时，还要等待同 guest 串口标记。
 
 正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
-dispose。engine 依次回复私有端口确认、关闭端口并通知 iframe owner，随后调用
-`self.close()`。owner 收到通知后释放句柄。实际回收由独立观察确认，
+dispose。engine 依次回复私有端口确认、关闭端口并通知顶层 owner，随后调用
+`self.close()`。owner 收到通知后解除事件监听并释放句柄。实际回收由独立观察确认，
 真实客体验收通过 Chrome CDP `Target.getTargets` 分两阶段核对：
 iframe 保留时，本次实际创建的
 全部嵌套 pthread target 必须消失（不同板型为四或五个）；正常移除 iframe 后
@@ -181,7 +183,7 @@ engine 与全部 Worker target 也必须消失。
 后一阶段允许最多 120 秒的有界关闭回执，以容纳 macOS Chrome 超过 60 秒的
 CDP target 延迟；预算结束时仍必须为零 target，不能把超时或强制回收写成 PASS。
 该检查不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、
-错误或 iframe pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
+错误或顶层页面 pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
 记录；成功清理门禁要求 fallback 次数为零，不能把强制回收写成正常退出。
 
 原生 RGB565 帧同时交给可见原始屏幕和 `model-shell.js` 的显示纹理。

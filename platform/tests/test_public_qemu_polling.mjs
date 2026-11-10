@@ -22,6 +22,7 @@ function fixture({deviceId = 'stackchan', headless = false, outputs = true, requ
   runtime.generation = 1;
   runtime.profile = {deviceId, display: headless ? null : {width: 320, height: 240}, ...(outputs ? {outputs: {}} : {})};
   runtime.status = 'running'; runtime.serial = ''; runtime.waiters = new Map();
+  runtime.engineOwner = {observe:()=>({enginePortTransferred:true}),release(){}};
   runtime.port = {close() {}}; runtime.iframe = {remove() {}}; runtime.abort = new AbortController();
   runtime.ask = async op => {
     calls.push({op, generation: runtime.generation});

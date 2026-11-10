@@ -18,12 +18,46 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
 async function until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,5));}throw new Error('Contract phase did not arrive');}
 function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
 function storage(){const values=new Map();return {getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};}
-let options={},frames=[];
+let options={};
+const frames=[],workers=[],frameByPort=new Map(),windowListeners=new Map();
+const addWindowListener=(type,listener)=>{
+  if(!windowListeners.has(type))windowListeners.set(type,new Set());
+  windowListeners.get(type).add(listener);
+};
+const removeWindowListener=(type,listener)=>windowListeners.get(type)?.delete(listener);
+const dispatchWindow=(type,event)=>{for(const listener of windowListeners.get(type)||[])listener(event);};
 const mockDocument={
-  createElement(tag){assert.equal(tag,'iframe');const config={...options};const frame={removed:false,style:{},attributes:new Map(),setAttribute(name,value){this.attributes.set(name,value);},remove(){this.removed=true;this.channel?.close();},contentWindow:{postMessage(message,origin,ports){
-    assert.equal(message.type,'m5-qemu-connect');assert.equal(origin,'https://example.test');assert.equal(ports.length,1);
-    if(config.throwConnect)throw new Error('connect clone failure');
-    const port=ports[0];frame.channel=port;frame.calls=[];
+  createElement(tag){
+    assert.equal(tag,'iframe');const config={...options};
+    const frame={config,removed:false,style:{},attributes:new Map(),setAttribute(name,value){this.attributes.set(name,value);},
+      remove(){this.removed=true;this.channel?.close();frameByPort.delete(this.channel);},
+      contentWindow:{postMessage(message,origin,ports){
+        assert.equal(message.type,'m5-qemu-connect');assert.ok(message.sessionId);
+        assert.equal(origin,'https://example.test');assert.equal(ports.length,1);
+        if(config.throwConnect)throw new Error('connect clone failure');
+        const [port]=ports;frameByPort.set(port,frame);frame.channel=port;
+        frame.admit=()=>dispatchWindow('message',{source:this,origin,
+          data:{type:'m5-qemu-admitted',sessionId:message.sessionId},ports:[port]});
+        if(!config.ignoreAdmission)queueMicrotask(frame.admit);
+      }}};
+    frames.push(frame);return frame;
+  },
+  body:{append(frame){if(!frame.config.ignoreLoad)queueMicrotask(()=>frame.onload?.());}},
+};
+class MockWorker {
+  constructor(url,config) {
+    assert.equal(url,root+'platform/web/public-qemu-engine.js');assert.equal(config.type,'module');
+    this.frame=frames.at(-1);this.events=new Map();workers.push(this);
+    if(!this.frame.config.ignoreWorkerReady)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-listening'}}));
+  }
+  addEventListener(type,listener){this.events.set(type,listener);}
+  removeEventListener(type,listener){if(this.events.get(type)===listener)this.events.delete(type);}
+  emit(type,event){this.events.get(type)?.({...event,currentTarget:this});}
+  terminate(){this.terminatedBeforeRemoval=!this.frame.removed;this.port?.close();}
+  postMessage(message,ports){
+    assert.equal(message.type,'m5-qemu-engine-connect');assert.equal(ports.length,1);
+    const [port]=ports,frame=frameByPort.get(port),config=frame.config;
+    this.frame=frame;this.port=port;frame.worker=this;frame.calls=[];
     port.onmessage=({data})=>{
       frame.calls.push(data);
       if(data.op==='display'&&frame.profile?.deviceId!=='cardputer-adv'){
@@ -32,7 +66,7 @@ const mockDocument={
       if(config.ignore?.includes(data.op))return;
       if(data.op==='start'&&config.rejectStart){port.postMessage({id:data.id,error:'contract start rejection'});return;}
       if(data.op==='dispose'&&config.rejectDispose){
-        if(config.failedEngineOnDispose)frame.contentWindow.m5QemuEngineOwnership=config.failedEngineOnDispose;
+        if(config.failedEngineOnDispose)this.emit('error',{message:'contract disposal engine failure'});
         port.postMessage({id:data.id,error:'contract dispose rejection'});return;
       }
       if(data.op==='start')frame.profile=data.value.profile;
@@ -40,18 +74,18 @@ const mockDocument={
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
         :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,ownerTerminatesAfterAcknowledgement:false,engineSelfClosesAfterAcknowledgement:true}:{})}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile)}}));
+      if(data.op==='dispose'&&config.engineDisposal)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-closing'}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
       if(data.op==='outputs')port.postMessage({type:'device-state',value:config.outputState||{schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x204060,led_frames:1,pressed:false}});
     };
-    port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
-  }}};
-  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineCloseNotifications:1,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:true};
-  frames.push(frame);return frame;},
-  body:{append(frame){if(!options.ignoreLoad)queueMicrotask(()=>frame.onload?.());}},
-};
-const oldDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),oldIsolation=Object.getOwnPropertyDescriptor(globalThis,'crossOriginIsolated');
-Object.defineProperty(globalThis,'document',{value:mockDocument,configurable:true});Object.defineProperty(globalThis,'crossOriginIsolated',{value:true,configurable:true});
+    port.start();port.postMessage({type:'connected',value:{}});
+  }
+}
+const globals={document:mockDocument,crossOriginIsolated:true,Worker:MockWorker,
+  addEventListener:addWindowListener,removeEventListener:removeWindowListener};
+const previousGlobals=Object.keys(globals).map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]);
+for(const [name,value] of Object.entries(globals))Object.defineProperty(globalThis,name,{value,configurable:true});
 const unhandled=[];const unhandledListener=error=>unhandled.push(error);process.on('unhandledRejection',unhandledListener);
 const runtimes=[];
 function create(overrides={}){
@@ -205,11 +239,11 @@ try {
     'history retains the acknowledged cooperative finalization without claiming a fallback');
   assert.equal(dedicatedFrame.removed,true);
 
-  const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,engineNormalTerminations:0,
-    engineFallbackTerminations:1,enginePortTransferred:true};
+  const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,engineCloseNotifications:0,
+    engineNormalTerminations:0,engineFallbackTerminations:1,enginePortTransferred:true,engineSelfCloseNotifications:0};
   options={};const pausedFailure=create();await pausedFailure.runtime.start({device:'cores3',firmware:firmware()});
   await pausedFailure.runtime.pause();const pausedFailureFrame=frames.at(-1),beforeFailureCalls=pausedFailureFrame.calls.length;
-  pausedFailureFrame.contentWindow.m5QemuEngineOwnership=failedEngine;
+  pausedFailureFrame.worker.emit('error',{message:'contract paused engine failure'});
   await until(()=>pausedFailure.runtime.status==='stopped');
   assert.equal(pausedFailure.errors.length,1);assert.match(pausedFailure.errors[0],/执行线程异常停止/);
   assert.ok(pausedFailure.states.includes('error'),'a paused engine failure must immediately enter the error path');
@@ -222,7 +256,7 @@ try {
   assert.equal(browserQemuHistory(pausedFailure.runtime.storage)[0].cleanup.engineOwnership.engineFallbackTerminations,1);
   assert.equal(pausedFailureFrame.removed,true);
 
-  options={rejectDispose:true,failedEngineOnDispose:failedEngine};const rejectedDispose=create();
+  options={rejectDispose:true,failedEngineOnDispose:true};const rejectedDispose=create();
   await rejectedDispose.runtime.start({device:'cores3',firmware:firmware()});await rejectedDispose.runtime.pause();
   const rejectedDisposeFrame=frames.at(-1),beforeRejectedStop=rejectedDisposeFrame.calls.length;
   await rejectedDispose.runtime.stop();
@@ -370,14 +404,20 @@ try {
   registryRequests[0].resolve(new Response(JSON.stringify(profiles)));await assert.rejects(older,{name:'AbortError'});
   assert.equal(concurrent.runtime.status,'running');assert.equal(concurrent.runtime.sessionId,currentSession);assert.equal(concurrent.runtime.receipt,currentReceipt);assert.equal(concurrent.downloads.length,4);await concurrent.runtime.stop();
 
-  options={ignoreLoad:true};const loading=create(),cancel=new AbortController();
-  const load=loading.runtime.start({device:'cores3',firmware:firmware(),signal:cancel.signal});
-  await until(()=>loading.runtime.iframe);
-  const loadingFrame=loading.runtime.iframe;let releasedBeforeDetach=false;
-  loadingFrame.contentWindow.m5QemuReleaseEngine=()=>{releasedBeforeDetach=!loadingFrame.removed;};
-  cancel.abort();await assert.rejects(load,{name:'AbortError'});await loading.runtime.stop();
-  assert.equal(releasedBeforeDetach,true,'an aborted start releases the parent-document engine before detaching the iframe');
-  assert.equal(loading.runtime.iframe,null);assert.equal(loading.runtime.pending.size,0);assert.equal(loading.runtime.waiters.size,0);
+  for(const phase of ['ignoreLoad','ignoreAdmission','ignoreWorkerReady']){
+    options={[phase]:true};const loading=create(),cancel=new AbortController(),initialWorkerCount=workers.length;
+    const load=loading.runtime.start({device:'cores3',firmware:firmware(),signal:cancel.signal});
+    if(phase==='ignoreLoad')await until(()=>loading.runtime.iframe);
+    if(phase==='ignoreAdmission')await until(()=>loading.runtime.iframe?.admit);
+    if(phase==='ignoreWorkerReady')await until(()=>workers.length>initialWorkerCount);
+    const loadingFrame=loading.runtime.iframe,worker=phase==='ignoreWorkerReady'?workers.at(-1):null;
+    cancel.abort();await assert.rejects(load,{name:'AbortError'});await loading.runtime.stop();
+    loadingFrame.admit?.();
+    assert.equal(workers.length,initialWorkerCount+Number(!!worker),'a late iframe admission cannot create a Worker after abort');
+    if(worker)assert.equal(worker.terminatedBeforeRemoval,true,'abort releases a partial owner before removing the iframe');
+    assert.equal(windowListeners.get('message')?.size??0,0);
+    assert.equal(loading.runtime.iframe,null);assert.equal(loading.runtime.pending.size,0);assert.equal(loading.runtime.waiters.size,0);
+  }
   options={};const pending=create();pending.runtime.port={postMessage(){throw new DOMException('bad transfer','DataCloneError');}};
   await assert.rejects(pending.runtime.ask('contract'),{name:'DataCloneError'});assert.equal(pending.runtime.pending.size,0);pending.runtime.port=null;
 
@@ -437,6 +477,7 @@ try {
 } finally {
   for(const runtime of runtimes)await runtime.stop();
   process.removeListener('unhandledRejection',unhandledListener);
-  if(oldDocument)Object.defineProperty(globalThis,'document',oldDocument);else delete globalThis.document;
-  if(oldIsolation)Object.defineProperty(globalThis,'crossOriginIsolated',oldIsolation);else delete globalThis.crossOriginIsolated;
+  for(const [name,descriptor] of previousGlobals){
+    if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name];
+  }
 }

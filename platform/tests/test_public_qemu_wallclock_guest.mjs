@@ -60,7 +60,7 @@ async function tap(x, y) {
 try {
   report.provenance = await capturePublicQemuProvenance({repo, site,
     webPaths:['platform/web/public-config.js','platform/web/public-firmware.js','platform/web/sha256.js',
-      'platform/web/public-qemu-runtime.js','platform/web/public-qemu-instance.js',
+      'platform/web/public-qemu-runtime.js','platform/web/public-qemu-instance.js','platform/web/public-qemu-engine-owner.js',
       'platform/web/public-qemu-instance.html','platform/web/public-qemu-profiles.js','platform/web/public-qemu-frame.js'],
     testScript:'platform/tests/test_public_qemu_wallclock_guest.mjs'});
   const exportedRegistry = await readFile(resolve(site,'platform/web/qemu-browser-profiles.json'));

@@ -162,7 +162,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/bootstrap_browser_runtime.py` | 固定 esp32sim 源码与 lockfile 构建 WASM，校验 ROM 来源、许可和 SHA，生成可审计 runtime manifest | `test_bootstrap_browser_runtime.py`；构建产物仅存 ignored cache / 静态导出 |
 | `platform/tools/bootstrap_qemu_browser_runtime.py`、`scripts/qemu-wasm-build/` | 固定 C/QEMU、Emscripten 及依赖完整源码构建和对应源码归档；生产者路径映射、依赖策略与分发扫描，默认不打包 ROM/固件 | `test_bootstrap_qemu_browser_runtime.py`；[Pages 部署](pages-deployment.md) |
 | `scripts/browser-littlefs/`、`platform/web/public-demo-firmware.js` | 浏览器下载官方基底后本地组合固定 LVGL/PIR 示例，精确 SHA 和原文件保留校验 | `test_browser_littlefs_build.py`、`test_browser_littlefs.mjs` |
-| `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-qemu-engine.js`、`public-coi.js` | 工作台生命周期与本地记录、同源 iframe 首次 one-port gate、module engine Worker 持有原 factory/MEMFS/直接 UART/QMP/嵌套 pthread，以及 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_wrapper.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs`、`test_public_qemu_board_guest.mjs` |
+| `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-qemu-engine-owner.js`、`public-qemu-engine.js`、`public-coi.js` | 工作台生命周期与本地记录、同源 iframe 单端口准入、顶层 Worker owner、module engine Worker 持有原 factory/MEMFS/直接 UART/QMP/嵌套 pthread，以及 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_wrapper.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/web/qemu-browser-profiles.json`、`public-qemu-profiles.js` | 逐板 ROM、Flash/eFuse、物理帧坐标、输入与公开/候选准入；完整固件 SHA 绑定执行时钟，不能从 compiled 或原生结果继承公开准入 | `test_public_qemu_profiles.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/web/public-qemu-frame.js`、QEMU WASM `0014`/`0015` | 真实显示 surface 的共享快照及序列防撕裂；SDK poll 的宿主线程等待，保留客体时钟 | `test_public_qemu_frame.mjs`、`test_wasm_poll_wait_patch.py`、`tests/browser-qemu/poll_wait/` |
 | `tests/browser-qemu/board_display/`、`platform/web/public-qemu-probe-firmware.js` | 各板固定 boot/main 与实际 VFS 的本地组合、逐文件读回、原文件/VFS 外保留和完整 Flash SHA；源码与官方 API pins 见目录 README | `test_public_qemu_probe_firmware.mjs`、`test_public_qemu_board_guest.mjs` |
@@ -194,8 +194,9 @@ LVGL/触摸/PIR与停止重开；`0009`修主CPU jump的C栈恢复，`0010`提�
 `tests/browser-qemu/cores3_lvgl_pir/`；均为显式opt-in，不纳普通CI执行。
 
 浏览器执行与工作台渲染分开：`public-qemu-instance.js` 只接受直接父窗口、
-同源且恰好一个 MessagePort 的首次连接，将端口交给
-`public-qemu-engine.js` module DedicatedWorker。原 Emscripten factory、
+同源且恰好一个 MessagePort 的首次连接，将端口及会话标识回传同源父窗口。
+`public-qemu-engine-owner.js` 验证回传来源及当前会话，在顶层页面创建
+`public-qemu-engine.js` module DedicatedWorker 并转交端口。原 Emscripten factory、
 MEMFS、直接 UART 字符设备、QMP 和嵌套 pthread 在 engine 内执行，DOM 与
 3D 留在工作台。初始化还要等 QMP `query-status` running 和匹配固件的
 guest ready marker，不能从 QMP greeting 提前开始帧轮询。
@@ -205,10 +206,10 @@ guest ready marker，不能从 QMP greeting 提前开始帧轮询。
 
 清理区分三层：QMP quit 后的 guest exit code 与嵌套 pthread 计数；engine
 dispose 确认、端口关闭和 owner closing 通知；浏览器实际观察到的 Worker close。
-通知仅是退出意图，确认时 engine 仍活着。逐板真实验收延后 iframe DOM 移除，独立
-观察一个 engine 和五个嵌套 pthread 均已关闭后才真正移除 iframe；不能把 owner 布尔值或 iframe
-移除当成同一证明。初始化/错误/pagehide 的 `terminate()` 兜底仍存在，成功
-门禁要求 fallback termination 为零。实现与复现流程见
+owner 收到通知时解除监听并释放句柄。逐板真实验收在移除 iframe 前独立核对嵌套
+pthread 已关闭，再核对全部 Worker target 已从 Chrome CDP 消失。初始化、错误和
+顶层页面 pagehide 仍保留 `terminate()` 兜底，成功门禁要求 fallback termination
+为零。实现与复现流程见
 [Pages 部署](pages-deployment.md#执行渲染与退出证据)。
 
 逐板 fixture 映射如下；本轮 10 板/11 例的公开准入身份见文末有界证据，正式部署另验。

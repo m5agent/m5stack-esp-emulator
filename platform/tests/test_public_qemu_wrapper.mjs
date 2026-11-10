@@ -3,61 +3,91 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 
-const source=await readFile(new URL('../web/public-qemu-instance.js',import.meta.url),'utf8');
-const origin='https://example.test',scriptURL=origin+'/showcase/platform/web/public-qemu-instance.js';
-const executable=source.replaceAll('import.meta.url',JSON.stringify(scriptURL));
+const iframeSource=await readFile(new URL('../web/public-qemu-instance.js',import.meta.url),'utf8');
+const ownerSource=await readFile(new URL('../web/public-qemu-engine-owner.js',import.meta.url),'utf8');
+const origin='https://example.test',engineURL=origin+'/showcase/platform/web/public-qemu-engine.js';
+const makePort=()=>({messages:[],closed:false,started:false,
+  postMessage(value,transfer=[]){this.messages.push({value,transfer});},start(){this.started=true;},close(){this.closed=true;}});
+
+function iframeFixture({replyError=false}={}) {
+  let receive;
+  const sent=[],parent={postMessage(...args){if(replyError)throw new Error('reply failed');sent.push(args);}};
+  vm.runInNewContext(iframeSource,{parent,location:{origin},addEventListener(type,callback){assert.equal(type,'message');receive=callback;}});
+  const connect=(port,overrides={})=>receive({source:parent,origin,data:{type:'m5-qemu-connect',sessionId:'session'},ports:[port],...overrides});
+  return {sent,connect};
+}
+const wrapper=iframeFixture(),port=makePort(),extraPort=makePort();
+for(const overrides of [
+  {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{data:{type:'m5-qemu-connect'}},
+  {ports:[]},{ports:null},{ports:[port,extraPort]},
+])wrapper.connect(port,overrides);
+assert.equal(wrapper.sent.length,0,'iframe rejects invalid source, origin, session and port count');
+wrapper.connect(port);wrapper.connect(extraPort);
+assert.equal(wrapper.sent.length,1,'iframe admits a single parent request');
+assert.equal(wrapper.sent[0][0].type,'m5-qemu-admitted');assert.equal(wrapper.sent[0][0].sessionId,'session');
+assert.equal(wrapper.sent[0][1],origin);assert.equal(wrapper.sent[0][2][0],port);
+const failedReply=iframeFixture({replyError:true}),failedReplyPort=makePort();
+failedReply.connect(failedReplyPort);assert.equal(failedReplyPort.closed,true);
+
 function fixture({constructorError,transferError}={}){
-  const listeners=new Map(),workers=[],timers=new Map();let nextTimer=0;
+  const listeners=new Map(),workers=[],timers=new Map(),errors=[];let nextTimer=0,owner;
   class MockWorker {
     constructor(url,options){if(constructorError)throw new Error(constructorError);this.url=String(url);this.options=options;this.messages=[];this.events=new Map();this.terminations=0;workers.push(this);}
-    addEventListener(type,callback){if(!this.events.has(type))this.events.set(type,[]);this.events.get(type).push(callback);}
-    removeEventListener(type,callback){this.events.set(type,(this.events.get(type)||[]).filter(item=>item!==callback));}
+    addEventListener(type,callback){if(!this.events.has(type))this.events.set(type,new Set());this.events.get(type).add(callback);}
+    removeEventListener(type,callback){this.events.get(type)?.delete(callback);}
     postMessage(value,transfer=[]){if(transferError)throw new Error(transferError);this.messages.push({value,transfer});}
     terminate(){this.terminations++;}
-    emit(type,data){const event=type==='message'?{data}:data;this['on'+type]?.(event);for(const callback of this.events.get(type)||[])callback(event);}
+    emit(type,data){const event=type==='message'?{data}:data;for(const callback of this.events.get(type)||[])callback({...event,currentTarget:this});}
   }
-  const parent={Worker:MockWorker};
-  const context=vm.createContext({parent,location:{origin,href:scriptURL},URL,
-    Set,Map,ArrayBuffer,Uint8Array,Number,JSON,Error,Object,Promise,console,
-    addEventListener:(type,callback)=>{if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(callback);},
+  const context=vm.createContext({Worker:MockWorker,DOMException,
+    addEventListener:(type,callback)=>{if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(callback);},
+    removeEventListener:(type,callback)=>listeners.get(type)?.delete(callback),
     setTimeout:(callback,ms)=>{const id=++nextTimer;timers.set(id,{callback,ms});return id;},
     clearTimeout:id=>timers.delete(id)});
-  vm.runInContext(executable,context,{filename:'public-qemu-instance.js'});
+  vm.runInContext(ownerSource.replace(/^export /gm,''),context,{filename:'public-qemu-engine-owner.js'});
   const dispatch=(type,event)=>{for(const callback of listeners.get(type)||[])callback(event);};
-  const ownership=()=>JSON.parse(vm.runInContext('JSON.stringify(globalThis.m5QemuEngineOwnership)',context));
-  const port=()=>({messages:[],closed:false,started:false,
-    postMessage(value,transfer=[]){this.messages.push({value,transfer});},start(){this.started=true;},close(){this.closed=true;}});
-  const connect=(privatePort,overrides={})=>dispatch('message',{source:parent,origin,data:{type:'m5-qemu-connect'},ports:[privatePort],...overrides});
-  const release=()=>vm.runInContext('globalThis.m5QemuReleaseEngine()',context);
-  return {context,workers,timers,dispatch,ownership,port,connect,release};
+  const create=vm.runInContext('createQemuEngineOwner',context);
+  const admit=vm.runInContext('admitQemuEnginePort',context);
+  const connect=port=>{owner=create(engineURL,port,()=>errors.push('engine failed'));};
+  const ownership=()=>owner.observe(),release=()=>owner.release();
+  return {workers,timers,listeners,errors,dispatch,ownership,port:makePort,connect,release,admit};
 }
 
-assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
-const initial=fixture();
-assert.deepEqual(initial.ownership(),{engineWorkersCreated:0,engineOwnerLive:false,
-  engineCloseNotificationReceived:false,engineCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false,
-  engineSelfCloseNotifications:0});
-const invalidPort=initial.port();
+const admission=fixture(),admissionPort=makePort(),returnedPort=makePort(),requests=[];
+const iframe={contentWindow:{postMessage(...args){requests.push(args);}}};
+const admitted=admission.admit(iframe,origin,'session',admissionPort,new AbortController().signal);
+assert.equal(requests.length,1);assert.equal(requests[0][0].sessionId,'session');assert.equal(requests[0][1],origin);
+assert.equal(requests[0][2][0],admissionPort);
+const response={source:iframe.contentWindow,origin,data:{type:'m5-qemu-admitted',sessionId:'session'},ports:[returnedPort]};
 for(const overrides of [
-  {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{ports:[]},{ports:null},{ports:[invalidPort,initial.port()]},
-])initial.connect(invalidPort,overrides);
-assert.equal(initial.workers.length,0,'only parent/same-origin/exact-one-port may create the engine');
-assert.equal(invalidPort.messages.length,0,'untrusted connection events receive no data');
-const abandonedBeforeConnect=fixture();abandonedBeforeConnect.release();
-abandonedBeforeConnect.connect(abandonedBeforeConnect.port());
-assert.equal(abandonedBeforeConnect.workers.length,0,'a queued connect cannot create an engine after release');
+  {source:{}},{origin:'https://other.test'},{data:{type:'m5-qemu-connect',sessionId:'session'}},
+  {data:{type:'m5-qemu-admitted',sessionId:'old-session'}},{ports:[]},{ports:[port,extraPort]},
+])admission.dispatch('message',{...response,...overrides});
+assert.equal(admission.timers.size,1,'foreign or stale events cannot resolve admission');
+assert.equal(admission.workers.length,0,'the iframe admission phase does not own a Worker');
+admission.dispatch('message',response);
+assert.equal(await admitted,returnedPort);assert.equal(admission.timers.size,0);assert.equal(admission.listeners.get('message').size,0);
+admission.dispatch('message',{...response,ports:[extraPort]});
+
+const abortedAdmission=fixture(),controller=new AbortController(),abortedPort=makePort();
+const aborted=abortedAdmission.admit(iframe,origin,'session',abortedPort,controller.signal);
+controller.abort();await assert.rejects(aborted,{name:'AbortError'});
+abortedAdmission.dispatch('message',response);
+assert.equal(abortedPort.closed,true);assert.equal(abortedAdmission.timers.size,0);
+assert.equal(abortedAdmission.listeners.get('message').size,0,'abort releases the admission listener');
+assert.equal(abortedAdmission.workers.length,0);
 
 const active=fixture(),privatePort=active.port();active.connect(privatePort);
-assert.equal(active.workers.length,1,'accepted connect creates exactly one engine owner');
+assert.equal(active.workers.length,1,'admitted port creates exactly one engine owner');
 const engine=active.workers[0];
-assert.equal(engine.url,origin+'/showcase/platform/web/public-qemu-engine.js');
+assert.equal(engine.url,engineURL);
 assert.equal(engine.options?.type,'module','the QEMU owner is a dedicated module Worker');
 assert.equal(active.ownership().engineWorkersCreated,1);
 assert.equal(active.ownership().engineOwnerLive,true);
 assert.equal(active.ownership().enginePortTransferred,false);
 assert.equal(engine.messages.length,0,'do not transfer until engine confirms its listener');
-const replacementPort=active.port();active.connect(replacementPort);
-assert.equal(active.workers.length,1,'second parent connect cannot replace the first owner or port');
+const staleReceive=[...engine.events.get('message')][0];
+staleReceive({currentTarget:{},data:{type:'m5-qemu-engine-listening'}});
 engine.emit('message',{type:'unrelated'});assert.equal(engine.messages.length,0);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,false,'an unconnected engine cannot announce accepted closure');
@@ -69,9 +99,7 @@ assert.equal(active.ownership().enginePortTransferred,true);
 assert.equal(active.timers.size,0,'successful port transfer cancels initialization timeout');
 engine.emit('message',{type:'m5-qemu-engine-listening'});
 assert.equal(engine.messages.length,1,'duplicate listening cannot transfer or connect twice');
-assert.equal(replacementPort.messages.length,0);
-// Ownership is observational. External writes must not alter internal state.
-vm.runInContext('try { globalThis.m5QemuEngineOwnership.engineWorkersCreated=99; } catch {}',active.context);
+active.ownership().engineWorkersCreated=99;
 assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
@@ -80,6 +108,9 @@ assert.equal(active.ownership().engineSelfCloseNotifications,1,'the legacy recei
 assert.equal(active.ownership().engineNormalTerminations,0,'the owner acknowledges cooperative self-close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(engine.terminations,0,'the owner does not terminate after the notification');
+assert.equal(engine.events.get('message').size,0);assert.equal(engine.events.get('error').size,0);
+assert.equal(active.listeners.get('pagehide').size,0,'normal close detaches all owner callbacks');
+staleReceive({currentTarget:engine,data:{type:'m5-qemu-engine-closing'}});
 assert.equal(active.timers.size,0,'acknowledged finalization cannot schedule another termination');
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotifications,1,'duplicate notifications cannot invent another close');
@@ -109,6 +140,7 @@ for(const transferred of [false,true]){
   if(transferred)worker.emit('message',{type:'m5-qemu-engine-listening'});
   abandoned.release();abandoned.dispatch('pagehide',{});
   assert.equal(worker.terminations,1,'pagehide terminates an unclosed engine exactly once');
+  assert.equal(worker.events.get('message').size,0);assert.equal(worker.events.get('error').size,0);
   assert.equal(abandoned.ownership().engineFallbackTerminations,1);
   assert.equal(abandoned.ownership().engineCloseNotifications,0);
   assert.equal(abandoned.ownership().engineOwnerLive,false);
@@ -144,14 +176,15 @@ assert.equal(timeout.timers.size,1);const [timerId,timer]=[...timeout.timers][0]
 assert.equal(timer.ms,30000,'engine listener wait has a bounded initialization timeout');
 timeout.timers.delete(timerId);timer.callback();
 assertBeforeTransferFailure(timeout,timeoutPort,/initialization timed out/,1);
-// A transferred MessagePort cannot be reused by the iframe. Still reclaim the
-// failed owner; the parent's request timeout remains its failure signal.
+// A transferred MessagePort cannot carry an owner-side error. Report it to
+// the current runtime callback after releasing the failed Worker.
 const transferredFailure=fixture(),transferredPort=transferredFailure.port();transferredFailure.connect(transferredPort);
 const failedEngine=transferredFailure.workers[0];failedEngine.emit('message',{type:'m5-qemu-engine-listening'});
 failedEngine.emit('error',{message:'synthetic post-transfer worker failure'});
 assert.equal(transferredFailure.ownership().engineOwnerLive,false,'post-transfer worker error must reclaim the owner');
 assert.equal(transferredFailure.ownership().engineFallbackTerminations,1);
 assert.equal(failedEngine.terminations,1);assert.equal(transferredFailure.timers.size,0);
+assert.deepEqual(transferredFailure.errors,['engine failed']);
 transferredFailure.dispatch('pagehide',{});assert.equal(failedEngine.terminations,1);
 
 console.log('private QEMU iframe ownership/origin/one-port/transfer, acknowledged cooperative finalization without fallback, startup/error/timeout/pagehide contracts passed; no guest executed');
