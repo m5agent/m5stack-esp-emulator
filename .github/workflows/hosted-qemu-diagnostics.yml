@@ -12,15 +12,7 @@ jobs:
   reproduce:
     if: github.repository == 'm5agent/m5stack-esp-emulator' && github.ref == 'refs/heads/m5agent/pages-hosted-diagnostic-20261110'
     runs-on: macos-15
-    timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - lane: keyboard
-            mode: fifo
-          - lane: worker
-            mode: baseline
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,37 +43,51 @@ jobs:
           node-version: "22"
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
-      - name: Run one Cardputer diagnostic lane
+      - name: Verify Canvas observation positive and negative controls
         env:
-          DIAGNOSTIC_LANE: ${{ matrix.lane }}
-          DIAGNOSTIC_MODE: ${{ matrix.mode }}
+          M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+        run: node platform/tests/test_public_qemu_pixel_observer_browser.mjs
+      - name: Run the unmodified official CoreMatrix firmware
+        env:
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/public-qemu-corematrix-stock
+          M5_WASM_GPU: hardware
+          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
+        run: |
+          firmware_url="$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(profile => profile.deviceId === "corematrix").reference.url')"
+          firmware_path="$GITHUB_WORKSPACE/.work/corematrix-stock-ui-flow.bin"
+          curl --fail --location --silent --show-error --retry 2 --output "$firmware_path" "$firmware_url"
+          M5_QEMU_UPLOAD="$firmware_path" node platform/tests/test_public_qemu_corematrix_stock.mjs
+      - name: Run the first seven UIFlow guest cases on one runner
+        env:
           NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
           M5_PUBLIC_SITE: ${{ github.workspace }}/.work/hosted-diagnostic/site
-          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/hosted-diagnostic/guest
+          M5_PUBLIC_QEMU_OUT: ${{ github.workspace }}/.work/hosted-diagnostic/sequence
           M5_PUBLIC_BASE_PATH: /m5stack-esp-emulator/
           M5_WASM_GPU: hardware
           M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
           M5_QEMU_READY_TIMEOUT_MS: "600000"
-          M5_QEMU_DEVICE: cardputer-adv
-          M5_QEMU_BUTTON_HOLD_MS: "250"
-          M5_CARDPUTER_KEYBOARD_IRQ: "1"
+          M5_QEMU_GATE_REQUIRE_ALL: "0"
+          M5_QEMU_GATE_WORKERS: "1"
+          M5_QEMU_GATE_PHASE: uiflow
+          M5_QEMU_GATE_DEVICES: atom-matrix,stickc-plus,cardputer-adv
+          M5_CARDPUTER_TRACE_GATE_CHILD: "1"
+          M5_CARDPUTER_TRACE_MODE: fifo
         run: |
-          case "$DIAGNOSTIC_LANE:$DIAGNOSTIC_MODE" in
-            keyboard:fifo) export M5_CARDPUTER_TRACE_MODE=fifo ;;
-            worker:baseline|worker:finalize-self|worker:finalize-owner)
-              export M5_CARDPUTER_WORKER_DIAG="$DIAGNOSTIC_MODE"
-              ;;
-            *) exit 2 ;;
-          esac
-          node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs
+          node platform/tests/test_public_qemu_admitted_boards.mjs
+          node -e 'const assert=require("node:assert/strict"); const r=require(process.env.M5_PUBLIC_QEMU_OUT+"/report.json"); assert.equal(r.status,"DIAGNOSTIC_PASS"); assert.equal(r.publication_eligible,false); assert.equal(r.completed_cases,7); assert.equal(r.max_active_children,1)'
       - name: Retain diagnostic evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-diagnostic-${{ matrix.lane }}-${{ matrix.mode }}-${{ github.run_attempt }}
+          name: qemu-diagnostic-release-prefix-${{ github.run_attempt }}
           path: |
             .work/hosted-diagnostic/provenance.json
-            .work/hosted-diagnostic/guest/report.json
+            .work/hosted-diagnostic/sequence/report.json
+            .work/hosted-diagnostic/sequence/*/*/report.json
+            .work/public-qemu-corematrix-stock/report.json
+            .work/public-qemu-pixel-observer-host-browser/report.json
           include-hidden-files: true
           retention-days: 3
           if-no-files-found: warn
