@@ -124,7 +124,7 @@ class TestURL extends URL {
   static revokeObjectURL(){}
 }
 function engine(){
-  const context=vm.createContext({Worker:NativeWorker,TextEncoder,TextDecoder,Uint8Array,Map,Set,
+  const context=vm.createContext({Worker:NativeWorker,EventTarget,TextEncoder,TextDecoder,Uint8Array,Map,Set,
     URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,
     location:{origin:'https://example.test'},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance,
     validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,
