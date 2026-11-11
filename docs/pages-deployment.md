@@ -44,6 +44,26 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
 也不用宿主输入猜测 LED。经典 ESP32 使用固定 icount；启动可能需要数分钟，
 已有通过不代表实时性能或稳定启动保证。
 
+## 本机 Device Service 的浏览器运行
+
+可用同一批已验证的 Xtensa、C61 和 LittleFS 资产导出根路径工作台，在本机
+Device Service 站点中同时使用浏览器 WASM 和原生服务。准备三个运行时目录，
+将它们分别赋给以下环境变量后导出。
+
+```sh
+python3 platform/tools/build_public_site.py --output .work/browser-site --base-path / \
+  --service-url '' --qemu-runtime "$QEMU_XTENSA_DIR" \
+  --qemu-c61-runtime "$QEMU_C61_DIR" --littlefs-runtime "$LITTLEFS_DIR"
+browser_site_sha256=$(shasum -a 256 .work/browser-site/public-site-manifest.json | cut -d ' ' -f 1)
+python3 platform/tools/serve.py --browser-site .work/browser-site \
+  --browser-site-sha256 "$browser_site_sha256"
+```
+
+启动时会校验 manifest 及其声明的资产。请保留整个导出目录，并在切换版本时
+为新版重新导出。工作台的浏览器筛选器用于选择本地 WASM，设备 URL 可加
+`mode=browser` 直接选择该路径。`/api/v1`、会话控制台和观察页仍在同源，
+原生运行依赖该服务实例的后端与固件。没有提供导出时，服务继续提供原生工作台。
+
 ## 仓库管理员部署
 
 1. 合并 PR 后，在仓库 **Settings → Pages → Build and deployment → Source**

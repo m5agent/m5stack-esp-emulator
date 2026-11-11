@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Static server and leased device service for the multi-device simulator.
 
-Serves the repository root so /devices, /platform and shared runtime assets resolve
-consistently. Adds the read-only catalog plus the /api/v1 leased device API.
+Serves the repository root and an optional verified browser export. Adds the
+read-only catalog plus the /api/v1 leased device API.
 """
 from __future__ import annotations
 
@@ -18,10 +18,11 @@ import threading
 import time
 import uuid
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
+from build_public_site import MANIFEST_KIND, MANIFEST_NAME
 from device_service import (
     DEFAULT_MAX_PER_DEVICE,
     DEFAULT_MAX_SESSIONS,
@@ -60,6 +61,78 @@ from worker_discovery import (
 
 ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
+
+
+class BrowserSite:
+    """Serve a verified root export alongside the native Device Service."""
+
+    def __init__(self, directory: Path, manifest_sha256: str):
+        self.root = directory.resolve(strict=True)
+        manifest_path = self.root / MANIFEST_NAME
+        if manifest_path.is_symlink():
+            raise ValueError("browser site manifest must be a regular file")
+        manifest_bytes = manifest_path.read_bytes()
+        if hashlib.sha256(manifest_bytes).hexdigest() != manifest_sha256:
+            raise ValueError("browser site manifest SHA-256 mismatch")
+        manifest = json.loads(manifest_bytes)
+        if (
+            not isinstance(manifest, dict)
+            or manifest.get("kind") != MANIFEST_KIND
+            or manifest.get("schema_version") != 1
+            or manifest.get("base_path") != "/"
+            or manifest.get("firmware_bundled") is not False
+            or manifest.get("publication_eligible") is not True
+            or manifest.get("candidate_profiles") != []
+            or not isinstance(manifest.get("assets"), list)
+        ):
+            raise ValueError("expected a public browser site exported with --base-path /")
+
+        assets = {MANIFEST_NAME}
+        for row in manifest["assets"]:
+            name = row.get("path") if isinstance(row, dict) else None
+            if (
+                not isinstance(name, str)
+                or not name
+                or name in assets
+                or "\\" in name
+                or any(ord(character) < 32 for character in name)
+                or any(part in {"", ".", ".."} for part in name.split("/"))
+                or PurePosixPath(name).suffix.lower() == ".bin"
+            ):
+                raise ValueError("invalid or duplicate browser site asset path")
+            asset = self.root / name
+            if asset.resolve() != asset or not asset.is_file():
+                raise ValueError(f"browser site asset unavailable: {name}")
+            if asset.stat().st_size != row.get("bytes"):
+                raise ValueError(f"browser site asset length mismatch: {name}")
+            with asset.open("rb") as content:
+                if hashlib.file_digest(content, "sha256").hexdigest() != row.get("sha256"):
+                    raise ValueError(f"browser site asset SHA-256 mismatch: {name}")
+            assets.add(name)
+
+        required = {
+            "coi-serviceworker.js", "platform/web/index.html",
+            "platform/web/site-config.json", "platform/web/browser-profiles.json",
+            "platform/web/qemu-browser-profiles.json", "platform/web/uiflow-workbench-profiles.json",
+            "platform/runtime/littlefs/manifest.json", "platform/runtime/littlefs/littlefs.mjs",
+            "platform/runtime/littlefs/littlefs.wasm",
+        }
+        for runtime_dir, target in (("qemu", "xtensa"), ("qemu-c61", "riscv32")):
+            prefix = f"platform/runtime/{runtime_dir}/"
+            required.add(prefix + "runtime.json")
+            required.update(prefix + f"qemu-system-{target}{suffix}" for suffix in (".js", ".worker.js", ".wasm"))
+        if missing := required - assets:
+            raise ValueError(f"browser site is missing {', '.join(sorted(missing))}")
+        config = json.loads((self.root / "platform/web/site-config.json").read_bytes())
+        if (
+            not isinstance(config, dict)
+            or config.get("browser_board_execution") is not True
+            or config.get("browser_runtime_engine") != "qemu-wasm"
+            or config.get("publication_eligible") is not True
+            or config.get("service_url") != ""
+        ):
+            raise ValueError("expected an exported QEMU browser site with an empty service URL")
+        self.assets = frozenset(assets)
 
 
 def service_origin_from_host(host: str | None, *, secure: bool) -> str | None:
@@ -232,6 +305,7 @@ class Handler(SimpleHTTPRequestHandler):
     service: DeviceService | None = None
     api_token: str | None = None
     previous_api_token: str | None = None
+    browser_site: BrowserSite | None = None
 
     extensions_map = {
         **SimpleHTTPRequestHandler.extensions_map,
@@ -241,6 +315,14 @@ class Handler(SimpleHTTPRequestHandler):
         ".json": "application/json",
     }
 
+    def translate_path(self, path: str) -> str:
+        source = super().translate_path(path)
+        if self.browser_site is not None:
+            relative = Path(source).relative_to(self.directory).as_posix()
+            if relative in self.browser_site.assets:
+                return str(self.browser_site.root / relative)
+        return source
+
     def send_head(self):
         # Serve the same canonical workbench at the local root and the existing
         # source URL. Keep the legacy session console available: it can contain
@@ -248,6 +330,7 @@ class Handler(SimpleHTTPRequestHandler):
         aliases = {
             "/": "/platform/web/index.html",
             "/index.html": "/platform/web/index.html",
+            "/platform/web/": "/platform/web/index.html",
             "/sessions": "/platform/web/sessions.html",
             "/sessions/": "/platform/web/sessions.html",
             "/sessions.html": "/platform/web/sessions.html",
@@ -319,7 +402,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/platform/web/site-config.json":
             try:
                 config = json.loads(
-                    (ROOT / "platform/web/site-config.json").read_text()
+                    Path(self.translate_path(path)).read_text()
                 )
             except (OSError, ValueError, UnicodeError):
                 self._json({"error": "site configuration unavailable"}, 500)
@@ -1375,6 +1458,12 @@ def main() -> None:
     parser.add_argument("--bind", default="127.0.0.1")
     parser.add_argument("--state-dir", type=Path, default=None)
     parser.add_argument(
+        "--browser-site", type=Path, help="verified browser export with --base-path /"
+    )
+    parser.add_argument(
+        "--browser-site-sha256", help="SHA-256 of its public-site-manifest.json"
+    )
+    parser.add_argument(
         "--max-sessions",
         type=int,
         default=int(
@@ -1546,6 +1635,15 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+    if (args.browser_site is None) != (args.browser_site_sha256 is None):
+        parser.error("--browser-site and --browser-site-sha256 must be provided together")
+    try:
+        browser_site = (
+            BrowserSite(args.browser_site, args.browser_site_sha256)
+            if args.browser_site is not None else None
+        )
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     if not 1 <= args.max_program_revisions <= MAX_CONFIGURED_REVISIONS:
         parser.error("--max-program-revisions must be between 1 and 4096")
     if not 1 <= args.max_program_packages <= MAX_CONFIGURED_PACKAGES:
@@ -1649,6 +1747,7 @@ def main() -> None:
     except RuntimeACLConfigError as error:
         parser.error(str(error))
     Handler.service = service
+    Handler.browser_site = browser_site
     Handler.api_token = initial_api_token
     Handler.previous_api_token = initial_previous_api_token
 

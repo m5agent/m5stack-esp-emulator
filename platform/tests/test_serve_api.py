@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import json
 import functools
+import hashlib
+import json
 import sys
 import tempfile
 import threading
@@ -14,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEVICE_IDS = {row["id"] for row in json.loads((ROOT / "devices/catalog.source.json").read_text())["devices"]}
 PERIPHERAL_MODELS = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())["models"]
 sys.path.insert(0, str(ROOT / "platform/tools"))
-from serve import Handler
+from serve import BrowserSite, Handler
 from device_service import DeviceService
 
 
@@ -97,6 +98,105 @@ class ServeWorkbenchRouteTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(HTTPError) as error:
                 urlopen(self.base + path, timeout=5)
             self.assertEqual(error.exception.code, 404)
+
+
+class ServeBrowserSiteTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.source = root / "source"
+        self.export = root / "export"
+        paths = {
+            "coi-serviceworker.js", "platform/web/index.html",
+            "platform/web/site-config.json", "platform/web/browser-profiles.json",
+            "platform/web/qemu-browser-profiles.json", "platform/web/uiflow-workbench-profiles.json",
+            "platform/runtime/littlefs/manifest.json", "platform/runtime/littlefs/littlefs.mjs",
+            "platform/runtime/littlefs/littlefs.wasm",
+        }
+        for directory, target in (("qemu", "xtensa"), ("qemu-c61", "riscv32")):
+            prefix = f"platform/runtime/{directory}/"
+            paths.add(prefix + "runtime.json")
+            paths.update(prefix + f"qemu-system-{target}{suffix}" for suffix in (".js", ".worker.js", ".wasm"))
+        config = {
+            "browser_board_execution": True,
+            "browser_runtime_engine": "qemu-wasm",
+            "publication_eligible": True,
+            "service_url": "",
+        }
+        rows = []
+        for name in sorted(paths):
+            asset = self.export / name
+            asset.parent.mkdir(parents=True, exist_ok=True)
+            content = json.dumps(config).encode() if name.endswith("site-config.json") else name.encode()
+            asset.write_bytes(content)
+            rows.append({"path": name, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()})
+        manifest = {
+            "kind": "m5stack-public-site",
+            "schema_version": 1,
+            "base_path": "/",
+            "firmware_bundled": False,
+            "publication_eligible": True,
+            "candidate_profiles": [],
+            "assets": rows,
+        }
+        data = json.dumps(manifest).encode()
+        (self.export / "public-site-manifest.json").write_bytes(data)
+        self.manifest_sha = hashlib.sha256(data).hexdigest()
+        self.wasm = "platform/runtime/qemu-c61/qemu-system-riscv32.wasm"
+        for name, content in (
+            ("platform/web/sessions.html", b"session console"),
+            ("platform/web/index.html", b"source index"),
+            (self.wasm, b"stale runtime"),
+        ):
+            asset = self.source / name
+            asset.parent.mkdir(parents=True, exist_ok=True)
+            asset.write_bytes(content)
+
+    def test_browser_overlay_and_device_service_share_the_same_origin(self):
+        site = BrowserSite(self.export, self.manifest_sha)
+
+        class RouteHandler(Handler):
+            browser_site = site
+
+            def _handle_v1(self, method, path, query):
+                self._json({"path": path})
+
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0), functools.partial(RouteHandler, directory=str(self.source))
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        origin = f"http://127.0.0.1:{server.server_port}"
+        for name, content in (
+            ("/", b"platform/web/index.html"),
+            ("/platform/web/", b"platform/web/index.html"),
+            ("/sessions", b"session console"),
+            ("/" + self.wasm, self.wasm.encode()),
+        ):
+            with self.subTest(name=name), urlopen(origin + name, timeout=5) as response:
+                self.assertEqual(response.read(), content)
+        with urlopen(origin + "/platform/web/site-config.json", timeout=5) as response:
+            config = json.load(response)
+            self.assertEqual(config["service_url"], origin)
+            self.assertEqual(config["browser_runtime_engine"], "qemu-wasm")
+        with urlopen(origin + "/api/v1/devices", timeout=5) as response:
+            self.assertEqual(json.load(response), {"path": "/api/v1/devices"})
+        (self.export / self.wasm).unlink()
+        with self.assertRaises(HTTPError) as error:
+            urlopen(origin + "/" + self.wasm, timeout=5)
+        self.assertEqual(error.exception.code, 404)
+
+    def test_activation_rejects_a_changed_or_missing_browser_asset(self):
+        asset = self.export / self.wasm
+        asset.write_bytes(b"x" * asset.stat().st_size)
+        with self.assertRaisesRegex(ValueError, "asset SHA-256 mismatch"):
+            BrowserSite(self.export, self.manifest_sha)
+        asset.unlink()
+        with self.assertRaisesRegex(ValueError, "asset unavailable"):
+            BrowserSite(self.export, self.manifest_sha)
 
 
 class ServePeripheralApiTests(unittest.TestCase):
