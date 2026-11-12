@@ -1635,6 +1635,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
             bad_variant.exception.code,
             "invalid_runtime_env",
         )
+        with self.assertRaises(ServiceError) as atoms3_wrong_device:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {"M5SW_ATOMS3_GC9107": "1"},
+                }
+            )
+        self.assertEqual(
+            atoms3_wrong_device.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as atoms3_bad_value:
+            self.service.create_session(
+                {
+                    "device_id": "atoms3",
+                    "runtime_env": {"M5SW_ATOMS3_GC9107": "true"},
+                }
+            )
+        self.assertEqual(
+            atoms3_bad_value.exception.code,
+            "invalid_runtime_env",
+        )
         with self.assertRaises(ServiceError) as partial_peer:
             self.service.create_session(
                 {

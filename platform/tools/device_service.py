@@ -278,10 +278,12 @@ ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 CARDPUTER_ADV_CAP_CC1101_ENV = "M5SW_CARDPUTER_ADV_CAP_CC1101"
 STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV = "M5SW_USB_SERIAL_JTAG_CAPTURE"
+ATOMS3_GC9107_ENV = "M5SW_ATOMS3_GC9107"
 USB_SERIAL_JTAG_LOG_NAME = "usb-serial-jtag.log"
 ALLOWED_RUNTIME_ENV = {
     CARDPUTER_ADV_CAP_CC1101_ENV,
     STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV,
+    ATOMS3_GC9107_ENV,
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
     "M5SW_ESPNOW_PEER_CHANNEL",
@@ -311,6 +313,7 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_LCD_TRACE",
 }
 BOOLEAN_RUNTIME_TRACES = frozenset({
+    ATOMS3_GC9107_ENV,
     STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV,
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
@@ -10338,6 +10341,17 @@ class DeviceService:
                             "characters",
                             400,
                         )
+            atoms3_gc9107 = runtime_env.get(ATOMS3_GC9107_ENV)
+            if atoms3_gc9107 is not None and (
+                device_id != "atoms3"
+                or runtime not in QEMU_QMP_RUNTIMES
+                or atoms3_gc9107 != "1"
+            ):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "M5SW_ATOMS3_GC9107 requires the atoms3 qemu profile",
+                    400,
+                )
             core2_pmic = runtime_env.get("M5SW_CORE2_PMIC")
             if core2_pmic is not None:
                 if device_id != "core2":

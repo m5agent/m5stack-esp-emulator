@@ -1,0 +1,16 @@
+--- a/hw/m5stopwatch/m5atoms3.c
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -28,6 +28,13 @@
+ {
+     bool st7735 = object_dynamic_cast(OBJECT(qdev_get_machine()),
+                          MACHINE_TYPE_NAME("m5atoms3-st7735")) != NULL;
++    /* Opt-in compatibility: the 2022-era M5Burner images only accept the
++     * original GC9107 controller even when the machine was created as the
++     * ST7735S variant. Runtime env selectors are limited to fixed trace
++     * switches, so this is the smallest reversible override. */
++    if (getenv("M5SW_ATOMS3_GC9107")) {
++        st7735 = false;
++    }
+     m5stopwatch_sens_init(sys_mem);
+     m5stopwatch_regi2c_init(sys_mem);
+     m5stopwatch_fe_init(sys_mem);
