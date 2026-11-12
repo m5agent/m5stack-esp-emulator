@@ -155,6 +155,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0176-sticks3-wifi-raw-window-qos.patch",
     "patches/qemu-m5stack-peripherals/0177-sticks3-usb-serial-jtag-host-timing.patch",
     "patches/qemu-m5stack-peripherals/0178-s3-vhci-idle-callback-dispatch.patch",
+    "patches/qemu-m5stack-peripherals/0179-esp32-spi-dma-link-latch.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

@@ -1,0 +1,18 @@
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -211,9 +211,12 @@
+             fprintf(stderr, "[esp32-spi-dma] link=%08lx\n",
+                     (unsigned long)value);
+         }
+-        /* OUT_LINK arms the DMA engine; only a subsequent USR transaction
+-         * clocks these bytes onto the SPI bus. */
+-        s->m5_dma_out_link = value & (1u << 29) ? value : 0;
++        /* OUT_LINK latches the descriptor address; a later write with the
++         * start bit clocks the descriptor chain onto the SPI bus.  Keep the
++         * latched link when the start write carries no address bits. */
++        if (value & 0xfffff) {
++            s->m5_dma_out_link = value & 0xfffff;
++        }
+         break;
+     }
+ }
