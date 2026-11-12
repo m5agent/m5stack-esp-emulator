@@ -1,0 +1,11 @@
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -779,7 +779,7 @@
+         }
+     }
+ 
+-    if (m5_board == M5_BOARD_STICKS3) {
++    if (m5_board == M5_BOARD_STICKS3 || m5_board == M5_BOARD_PAPERCOLOR) {
+         DeviceState *otg = qdev_new("esp32s3.usb-otg");
+         SysBusDevice *bus = SYS_BUS_DEVICE(otg);
+         object_property_add_child(OBJECT(ss), "usb-otg", OBJECT(otg));
