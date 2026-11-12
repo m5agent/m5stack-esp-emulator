@@ -5281,20 +5281,16 @@ class DeviceSession:
             espnow_peer_lane
             and self.spec.backend in {"qemu-esp32s3", "qemu-esp32lx6"}
         )
-        wifi_mac = (
-            qemu_station_mac(self.id)
-            if peer_mac_lane
-            or (
-                self.spec.backend == "qemu-esp32s3"
-                and self.network_config.get("wifi_auth") == "wpa2-psk"
-            )
-            else None
-        )
-        if wifi_mac:
-            if self.spec.backend == "qemu-esp32s3":
-                set_s3_efuse_mac(efuse_data, wifi_mac)
-            elif self.spec.backend == "qemu-esp32lx6":
-                set_esp32_efuse_mac(efuse_data, wifi_mac)
+        # Every ESP32-S3 session carries a stable, locally administered
+        # station MAC. Firmware validates the NVS PHY calibration data
+        # against this MAC during phy_init; a zero MAC sends those images
+        # down the mismatch path (issue #224). Classic ESP32 keeps its
+        # fixture-scoped behavior because its eFuse drive is not wired.
+        wifi_mac = qemu_station_mac(self.id)
+        if self.spec.backend == "qemu-esp32s3":
+            set_s3_efuse_mac(efuse_data, wifi_mac)
+        elif self.spec.backend == "qemu-esp32lx6" and peer_mac_lane:
+            set_esp32_efuse_mac(efuse_data, wifi_mac)
         if self.spec.backend == "qemu-esp32s3":
             adc_path = None
             adc_raw = None
