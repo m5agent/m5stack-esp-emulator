@@ -93,13 +93,18 @@ class DeviceInputValidationTests(unittest.TestCase):
                 self.reject(self.session.inject, {"kind": "drag", "x1": 0, "y1": 0, "x2": 10, "y2": 10, field: value})
 
     def test_valid_inject_reuses_normalized_action_for_real_qmp_helper(self):
+        self.session._proc = mock.Mock()
+        self.session._proc.poll.return_value = None
+        self.session._qmp_call.side_effect = DeviceSession._qmp_call.__get__(self.session)
         with mock.patch.object(device_service.time, "sleep", return_value=None):
             result = self.session.inject({"kind": "key", "key": "a", "action": "DOWN"})
         self.assertEqual(result["input"], "keydown:a")
         self.assertEqual(result["action"], "down")
-        events = self.session._qmp.cmd.call_args.kwargs["events"]
-        self.assertTrue(events[0]["data"]["down"])
-        self.assertEqual(events[0]["data"]["key"], {"type": "qcode", "data": "a"})
+        events = [{"type": "key", "data": {
+            "down": True, "key": {"type": "qcode", "data": "a"},
+        }}]
+        self.session._qmp_call.assert_called_once_with("input-send-event", events=events)
+        self.session._qmp.cmd.assert_called_once_with("input-send-event", events=events)
 
     def test_nanoc6_gpio_button_keeps_legacy_non_qcode_alias(self):
         self.session.spec.id = "nanoc6"
