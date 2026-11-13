@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+  "cases": [
+    {
+      "label": "launcher-rng-owner",
+      "input_sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+      "input_bytes": 1657184,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1 with read-only guest GDB diagnosis",
+      "zip_sha256": "813d0ebac3eb17971bb429791a24f6d6e9a37d901a4cdce0364166c0eb3076fe",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "gdb_sha256": "191fec102d4b18b3c09a52da7bb70da6642d4893db8044698c1cbc1b7dfe0f8a",
+      "ram_snapshot_sha256": "eb756cbccca26601683223da0e4d4db7a9bc2ffe70148cf2c0bae5be2a96d692"
+    },
+    {
+      "label": "rfid-rng-tasks",
+      "input_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "input_bytes": 2028592,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1 with read-only guest GDB diagnosis",
+      "zip_sha256": "bb1f41ff8310ddb680f042c6015d95bd203aaaf3b40bc79ffd38847300fe2c68",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "gdb_sha256": "64bd36315a1987f7d23e423d657f6d9bb1b184b3b79c62943f681dd6f1d0ae4e",
+      "ram_snapshot_sha256": "516d89e875fa4edf3b000e58427bc5a49b0d197ab9e96aff02b1c22c0df3b87f"
+    },
+    {
+      "label": "mesh-rng-tasks",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "input_bytes": 16777216,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1 with read-only guest GDB diagnosis",
+      "zip_sha256": "be5f82d2a8b86b307e15ff0376f53dc3f246a739edf9449bc8b7a01434b1f6c5",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "gdb_sha256": "af78277859b0b2cc4fe52b53651894d5ab984a2c4132b97580fafcaa23f80ec7",
+      "ram_snapshot_sha256": "94d93b75124e1073c97c4584ccb270413d376b0fd49bc557790fadc37558a2b5"
+    }
+  ],
+  "launcher": {
+    "result": "FAIL: original guest gives a mutex owned by loopTask while executing InputHandler.",
+    "breakpoint": "0x4080bc60",
+    "mutex_owner_tcb": "0x4087f17c",
+    "owner_name": "loopTask",
+    "current_tcb": "0x40826ab0",
+    "current_name": "InputHandler",
+    "call_chain": [
+      "0x42014bde",
+      "0x42017a9e",
+      "0x40808e98",
+      "0x4080bc60"
+    ],
+    "gpio_input_register": "0x6009103c",
+    "gpio_input_value": "0xffc37fff",
+    "touch_irq_gpio3_high": true,
+    "source": {
+      "launcher_commit": "36b15570af6a17d5aceba334face18e500a1d8fa",
+      "paths": [
+        "src/main.cpp",
+        "boards/arduino-nesso-n1/interface.cpp"
+      ],
+      "compatible_m5gfx_commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "m5gfx_path": "src/lgfx/v1/panel/Panel_Device.cpp",
+      "finding": "Panel_Device::getTouchRaw ends a shared transaction before invoking the touch driver and thus before testing its IRQ. The original owner violation occurs with the touch IRQ high."
+    },
+    "limit": "The exact original build ELF and complete library manifest are unavailable. Compatible source is not presented as an exact original build. No assertion or scheduling semantics were bypassed; no physical hardware comparison has run."
+  },
+  "rfid": {
+    "result": "PARTIAL: missing PN532Killer UART peer prevents startup completion; original task-watchdog panic reproduced independently.",
+    "panic_entry": "0x420a986a",
+    "mcause": "0x8000000b",
+    "mepc": "0x4080a5de",
+    "current_task": "IDLE",
+    "irq_source": 53,
+    "irq_line": 11,
+    "loop_task_tcb": "0x4087f294",
+    "loop_task_saved_sp": "0x4087ee10",
+    "loop_task_wait": "UART RX ring buffer wait, called by PN532Killer initialization",
+    "call_chain": [
+      "0x4202c93e",
+      "0x420488c6",
+      "0x4204c0b2",
+      "0x42096284",
+      "0x4209608a",
+      "0x420a1732",
+      "0x420a73e0",
+      "0x4218deb2",
+      "0x4218dbf0"
+    ],
+    "original_string_evidence": {
+      "0x421a1d48": "PN532Killer initialized",
+      "0x421a1d60": "PN532Killer failed to initialize",
+      "0x421af4d4": "PN532 -> Data checksum error"
+    },
+    "uart1_tx_frames": [
+      "0000ff02fed4aa8200",
+      "0000ff03fdd414011700"
+    ],
+    "protocol_scope": "PN532 framing with a vendor command 0xaa, wakeup bytes and SAMConfiguration 0x14/0x01. No receiver is attached; command 0xaa semantics and card behavior are not implemented or claimed.",
+    "firmware_version_string": "2.7.21.3b15159",
+    "source_limit": "Exact commit 3b15159 was not found in either the declared author fork or upstream GitHub commit API. No unrelated source/ELF substituted."
+  },
+  "meshtastic": {
+    "result": "PARTIAL at this runtime: saved loopTask stack is in the main-loop 50-tick timed wait after NimBLE sync/GATT; not an infinite startup controller poll.",
+    "loop_task_tcb": "0x4087f3d4",
+    "loop_task_saved_sp": "0x4087f270",
+    "call_chain": [
+      "0x4202b9d4",
+      "0x4200d14c",
+      "0x4200d120",
+      "0x42196218",
+      "0x4080c6c8"
+    ],
+    "observation_limit": "The previously retained normal 140-second run has a late black frame. A later startup panel trace shows a Welcome UI but with rotation and DMA clipping; a late black frame alone is insufficient to infer that the app never booted. No claim is made that tracing is a normal-lane readiness test."
+  },
+  "not_run": [
+    "Physical hardware, RF, optics, electrical behavior and hardware security.",
+    "PN532Killer card commands or card detection on an attached model.",
+    "Rebuilt Launcher firmware-side serialization control without the exact original build inputs."
+  ]
+}
