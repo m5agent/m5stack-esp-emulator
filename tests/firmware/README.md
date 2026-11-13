@@ -57,7 +57,8 @@ watchdog and native BLE limitations.
 ST7789 MADCTL address rotations from the SPI2 18-bit transfer length, using
 independent physical/logical corner oracles and 352-byte DMA blocks. Original
 Meshtastic startup/input observations are kept separate from the controller
-fixture, and do not establish hardware CS, RF or native BLE coverage.
+fixture. Separate chip-select phases check deselected/radio isolation and GPIO
+matrix CS0 routing; RF and native BLE coverage are not established.
 
 ## StickS3 Wi-Fi monitor fixture
 

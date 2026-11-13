@@ -1,0 +1,2125 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "issue": 216,
+  "patch": "0016-c6-spi2-chip-select-routing.patch",
+  "patch_sha256": "7a0173bc469263d2d8be333465544f7b463710eaebf26b7ffaf8a4738919cfe9",
+  "source_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "runtime_sha256": "4bbbee9a8c4d7eeed9f99b049c8bc0db693c87f8334f95339735ef41f79a66ed",
+  "build_manifest_sha256": "de808bc81c5e8d8d49b8a839aeebc63842273c53f40f49f111e150bfc7e60c10",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "source_sha256": {
+    "hw/gpio/esp32_gpio.c": "e162b0940354e1509a88a77572feaf9cbac851a8fbd2f882f5b353f10b03048c",
+    "hw/ssi/esp32c3_spi.c": "09e07a26e13ccf078e1fce4fe7f53fb750d03c0e8d75d87382666b866d111fa2",
+    "include/hw/gpio/esp32_gpio.h": "5eb916a5e2c911256d0b40b9455c43b30240f40872281b3ad4b11bc607a62784",
+    "include/hw/ssi/esp32c3_spi.h": "90f2473cddedc8a4f11312885c91fe082a07b8c7118f26f9bb128a3e6e347646"
+  },
+  "protocol_reference": {
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "gpio_output_select_offset": "0x554 + 4 * pin",
+    "gpio_output_signal_bits": "7:0",
+    "gpio_output_invert_bit": 8,
+    "gpio_enable_select_bit": 9,
+    "gpio_enable_invert_bit": 10,
+    "spi_cs_output_signals": [
+      68,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "spi_misc_offset": "0x20",
+    "spi_cs_disable_bits": "5:0",
+    "spi_cs_polarity_bits": "12:7",
+    "spi_cs_keep_active_bit": 30
+  },
+  "fixture_runs": [
+    {
+      "input_sha256": "a76343c7081ff13c8afa33e9a786d6fb3069d4159bde75543d95ee6cc9566014",
+      "runtime_sha256": "7ec1164b15f655b335b607f3331d37ead712065a4a7c4d872d7f9d95a13c50de",
+      "route": "Device Service /api/v1",
+      "device": "nesso-n1",
+      "zip_sha256": "0c79aaad684e09b9ddd3db089b5485dfafeef0fd6b881d89e63f973ec8c16c8e",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "label": "panel-cs-before",
+      "checks": [
+        {
+          "phase": "FIFO rotation 0",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 0",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 1",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa"
+        },
+        {
+          "phase": "FIFO rotation 1",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "FIFO rotation 2",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              0,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              0,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "9231caf6d2a7bc1e06faf8085949722d48b7f3fed05da4d16ed1a93e0ac10fa9"
+        },
+        {
+          "phase": "FIFO rotation 2",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 3",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "eef94cb95a794d1d870b06cab0eb105080478c3bbaa4238845f60929925f4a01"
+        },
+        {
+          "phase": "FIFO rotation 3",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "352-byte DMA",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa"
+        },
+        {
+          "phase": "352-byte DMA",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "both CS deselected display-off rejected",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": false,
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "whole_frame_hash_preserved": false
+        },
+        {
+          "phase": "both CS deselected display-off rejected",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": false,
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "whole_frame_hash_preserved": false
+        },
+        {
+          "phase": "radio selected isolation",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "radio selected isolation",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "hardware CS0 GPIO17 entire cyan frame",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+          "full_frame_cyan_pixels": 32400
+        },
+        {
+          "phase": "hardware CS0 GPIO17 entire cyan frame",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+          "full_frame_cyan_pixels": 32400
+        }
+      ],
+      "status": "FAIL"
+    },
+    {
+      "input_sha256": "a76343c7081ff13c8afa33e9a786d6fb3069d4159bde75543d95ee6cc9566014",
+      "runtime_sha256": "4bbbee9a8c4d7eeed9f99b049c8bc0db693c87f8334f95339735ef41f79a66ed",
+      "route": "Device Service /api/v1",
+      "device": "nesso-n1",
+      "zip_sha256": "5cb5ba44620421152cfdb194a879864880c795a2dc0498f001661a73debc5f9c",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "label": "panel-cs-after",
+      "checks": [
+        {
+          "phase": "FIFO rotation 0",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 0",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 1",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa"
+        },
+        {
+          "phase": "FIFO rotation 1",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "FIFO rotation 2",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              0,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              0,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "9231caf6d2a7bc1e06faf8085949722d48b7f3fed05da4d16ed1a93e0ac10fa9"
+        },
+        {
+          "phase": "FIFO rotation 2",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+        },
+        {
+          "phase": "FIFO rotation 3",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "eef94cb95a794d1d870b06cab0eb105080478c3bbaa4238845f60929925f4a01"
+        },
+        {
+          "phase": "FIFO rotation 3",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "352-byte DMA",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa"
+        },
+        {
+          "phase": "352-byte DMA",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+        },
+        {
+          "phase": "both CS deselected display-off rejected",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "both CS deselected display-off rejected",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "radio selected isolation",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              0
+            ]
+          ],
+          "pass": true,
+          "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "radio selected isolation",
+          "orient": "display",
+          "size": [
+            240,
+            135
+          ],
+          "corners": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+          "whole_frame_hash_preserved": true
+        },
+        {
+          "phase": "hardware CS0 GPIO17 entire cyan frame",
+          "orient": "panel",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+          "full_frame_cyan_pixels": 32400
+        },
+        {
+          "phase": "hardware CS0 GPIO17 entire cyan frame",
+          "orient": "display",
+          "size": [
+            135,
+            240
+          ],
+          "corners": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255
+            ]
+          ],
+          "pass": true,
+          "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+          "full_frame_cyan_pixels": 32400
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "fixture_oracle": {
+    "deselected": "GPIO17=1 and GPIO23=1, DC=0, send 0x28: preserve the previous full image hash",
+    "radio_selected": "GPIO17=1 and GPIO23=0, send c0 00 28: preserve the previous full image hash",
+    "hardware_cs": "ESP-IDF spics_io_num=17, no manual CS writes, every one of 32400 physical pixels must be RGB(0,255,255)",
+    "before_failure": "The exact same BIN on 7ec turns black only in the deselected phase; that negative prevents treating the old unconditional sink as hardware-CS proof."
+  },
+  "original_meshtastic": {
+    "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+    "input_bytes": 16777216,
+    "runtime_sha256": "4bbbee9a8c4d7eeed9f99b049c8bc0db693c87f8334f95339735ef41f79a66ed",
+    "route": "Device Service /api/v1",
+    "device": "nesso-n1",
+    "zip_sha256": "81385db449e45dc5bb5c357d004b45b5fe5a737fad1a1303892b708408508f0c",
+    "zip_before_stop": true,
+    "purge": 0,
+    "lease_active": false,
+    "checks": {
+      "boot_banner_count": 1,
+      "requested_resets": 0,
+      "panic_count": 0,
+      "assert_count": 0,
+      "tg0_wdt_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_file_bytes_in_partition": 2424832,
+          "original_padded_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "final_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_file_bytes_in_partition": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ]
+    },
+    "frames": {
+      "ready-before-input": {
+        "sha256": "6f9748004dfd7c252998b390b5444de140405c87da3af3b7d27af41ef0275024",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 4643,
+        "colors": 3
+      },
+      "ready-after-input": {
+        "sha256": "612b7e611e3f5f7ed640318530ca37075c3fbb22c6ec9f26fd8ad0ac9d64d9b8",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 4643,
+        "colors": 3
+      },
+      "timed-4": {
+        "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 0,
+        "colors": 1
+      },
+      "after-wake": {
+        "sha256": "89a8baf56c1681b97c09cb2fef70b11f7f5eda6c1c6b23a5c8587371e5d8440a",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 7546,
+        "colors": 3
+      }
+    },
+    "no_trace_or_gdb": true,
+    "behavior": {
+      "full_welcome_visible": true,
+      "input": "key:b through QMP and PI4IOE changes OK/Got it selection",
+      "timed_screen_black": true,
+      "seconds_after_ready_input_when_black_observed": 50.499,
+      "wake": "same-boot key:b restores visible Welcome; 7546 nonblack pixels",
+      "early_black": "Retained early capture occurred before application readiness; later timed black is followed by button wake, not a failure to boot."
+    }
+  },
+  "original_bruce": {
+    "input_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+    "input_bytes": 3958704,
+    "runtime_sha256": "4bbbee9a8c4d7eeed9f99b049c8bc0db693c87f8334f95339735ef41f79a66ed",
+    "route": "Device Service /api/v1",
+    "device": "nesso-n1",
+    "zip_sha256": "bc08c876badd52ba465f9785ed08c6816e44e8c9f217681653331d7ef03b8822",
+    "zip_before_stop": true,
+    "purge": 0,
+    "lease_active": false,
+    "checks": {
+      "boot_banner_count": 2,
+      "requested_resets": 1,
+      "panic_count": 0,
+      "assert_count": 0,
+      "tg0_wdt_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "original_file_bytes_in_partition": 3893168,
+          "original_padded_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "final_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "remount_littlefs_error_count": 0
+    },
+    "frames": {
+      "ready": {
+        "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 3525,
+        "colors": 5
+      },
+      "after-next": {
+        "sha256": "bd903113e0f1042306ab489ef6e8306baedc544e33c689e7a3c141c05a257227",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 3392,
+        "colors": 5
+      },
+      "remount": {
+        "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+        "size": [
+          240,
+          135
+        ],
+        "nonblack": 3525,
+        "colors": 5
+      }
+    },
+    "no_trace_or_gdb": true,
+    "behavior": {
+      "initial_littlefs": "original firmware formats its empty filesystem then reaches menu",
+      "touch": {
+        "physical_xy": [
+          66,
+          214
+        ],
+        "before_menu": "WiFi",
+        "after_menu": "Clock"
+      },
+      "requested_reset": "menu returns and zero LittleFS mount errors after reset",
+      "sd": "No SD backend attached; firmware reports absent card, SD functionality not claimed",
+      "original_bytes": "Original app bytes plus erased padding remain identical."
+    }
+  },
+  "uiflow_regression": [
+    {
+      "case": "nesso-peripherals",
+      "status": "PASS",
+      "route": "checked-in regression direct QEMU",
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_sha256": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "frame_before_sha256": "b9ab4bf6b6a6bc134e683af8a342542b73f705a327d4006ba49159b5e56a665b",
+      "frame_after_sha256": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4",
+      "source_fixture_trace": "none",
+      "cleanup": "runner stopped and reaped guest"
+    },
+    {
+      "case": "nesso-lora",
+      "status": "PASS",
+      "route": "checked-in regression direct QEMU",
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_sha256": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "frame_before_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "frame_after_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "source_fixture_trace": "SX1262 trace enabled by existing fixture",
+      "cleanup": "runner stopped and reaped guest"
+    }
+  ],
+  "host_checks": {
+    "bootstrap_and_frame_presentation": {
+      "tests": 11,
+      "status": "PASS"
+    },
+    "actual_c_spi_gpio_sanitizers": {
+      "cases": 24,
+      "status": "PASS",
+      "old_candidate_negative_failures": 20,
+      "old_candidate_preserved_passes": 4,
+      "coverage": [
+        "CS0 through CS5 GPIO edges",
+        "manual GPIO and radio isolation",
+        "disabled and wrong-route CS",
+        "output inversion, controller polarity, output-enable source and inversion",
+        "KEEP_ACTIVE repeated transactions and MISC/reset/remap release",
+        "radio hardware CS",
+        "failed DMA must not assert CS",
+        "SPI1 isolation"
+      ],
+      "scope": "Independent actual-C host ASan/UBSan test; separate from guest validation."
+    }
+  },
+  "limitations": [
+    "Native-service virtual-device validation; browser-WASM and physical hardware NOT RUN.",
+    "One-descriptor DMA remains bounded to 4096 bytes; chained/oversized DMA and DMA-TX/FIFO-RX readback are not added by this fix.",
+    "Guest automatic-CS coverage is CS0 on GPIO17. CS1..5, inversion and failure paths also have actual-C host tests; those host tests are not physical measurements.",
+    "Physical electrical CS timing, RF, native BLE links, optical fidelity and entropy/security NOT RUN.",
+    "Launcher remains blocked by observed cross-task SPI-lock ownership with unavailable exact ELF/build metadata; RFID remains blocked by the unmodeled external PN532Killer UART protocol."
+  ],
+  "cleanup": {
+    "owned_device_service_active_leases": 0,
+    "owned_guests_running": 0,
+    "owned_service_stopped": true,
+    "original_apps_zip_before_stop": true
+  }
+}

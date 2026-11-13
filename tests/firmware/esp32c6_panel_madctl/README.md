@@ -50,3 +50,13 @@ landscape quadrants using 352-byte SPI2/GDMA blocks. The prior model interpreted
 This phase detects the resulting missing rows independently from rotation.
 Coverage here is FIFO traffic up to 64 bytes and single-descriptor DMA blocks;
 large chained or split DMA transactions remain outside this fixture.
+
+The chip-select phases preserve the completed landscape DMA image while both
+GPIO17 (display CS) and GPIO23 (radio CS) are high. Sending display-off `0x28`
+with DC low must leave every captured corner unchanged. A separate radio-selected
+transaction also preserves that image. Finally, the probe configures ESP-IDF
+`spics_io_num=17`, makes no manual CS writes, and fills all 135x240 pixels cyan.
+This requires SPI2's CS0 output to traverse the programmed GPIO output matrix
+before the panel sink can accept bytes. The capture checks the full cyan frame,
+not only a serial readiness marker. Chip-select hold timing and electrical
+behavior remain outside this virtual-device test.

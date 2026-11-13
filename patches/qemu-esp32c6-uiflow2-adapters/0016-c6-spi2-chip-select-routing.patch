@@ -1,0 +1,151 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6 SPI2: route chip selects through the GPIO output matrix
+
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -26,6 +26,12 @@
+ static uint64_t g_open_drain;
+ static uint64_t g_force_mask;
+ static uint64_t g_force_level;
++/* Only connected peripheral signals override GPIO register outputs. */
++static struct {
++    bool valid;
++    bool level;
++    bool enabled;
++} g_output_signals[128];
+ static struct {
+     esp32_gpio_out_cb cb;
+     void *opaque;
+@@ -102,6 +108,20 @@
+ {
+     uint64_t out = gpio_out64();
+     uint64_t en = gpio_en64();
++    for (unsigned pin = 0; pin < GPIO_NPINS; pin++) {
++        uint32_t cfg = g_regs[(0x554 + pin * 4) / 4];
++        unsigned signal = cfg & 0xff;
++        if (signal < ARRAY_SIZE(g_output_signals) &&
++            g_output_signals[signal].valid) {
++            uint64_t bit = 1ULL << pin;
++            bool level = g_output_signals[signal].level ^ !!(cfg & BIT(8));
++            bool enable = (cfg & BIT(9)) ? !!(en & bit) :
++                          g_output_signals[signal].enabled;
++            enable ^= !!(cfg & BIT(10));
++            out = (out & ~bit) | (level ? bit : 0);
++            en = (en & ~bit) | (enable ? bit : 0);
++        }
++    }
+     uint64_t driven = out & en;
+     uint64_t line = (driven & ~g_open_drain)
+                   | ((driven & g_ext_in) & g_open_drain)
+@@ -124,6 +144,18 @@
+     }
+ }
+ 
++void esp32_gpio_set_output_signal(int signal, int level, bool enabled)
++{
++    if (signal < 0 || signal >= ARRAY_SIZE(g_output_signals)) {
++        return;
++    }
++    uint64_t before = gpio_line64();
++    g_output_signals[signal].valid = true;
++    g_output_signals[signal].level = !!level;
++    g_output_signals[signal].enabled = enabled;
++    gpio_notify(before, gpio_line64());
++}
++
+ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -32,3 +32,5 @@
+ void esp32_gpio_set_open_drain(int pin, bool enable);
+ void esp32_gpio_force_line(int pin, int level);
+ int esp32_gpio_get_line(int pin);
++
++void esp32_gpio_set_output_signal(int signal, int level, bool enabled);
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -238,8 +238,24 @@
+     }
+ }
+ 
++static void esp32c3_spi_set_cs(ESP32C3SpiState *s, bool active)
++{
++    if (!s->m5_spi2) {
++        qemu_set_irq(s->cs_gpio[0], !active);
++        return;
++    }
++    static const unsigned signals[] = {68, 101, 102, 103, 104, 105};
++    s->m5_cs_active = active;
++    for (unsigned cs = 0; cs < ARRAY_SIZE(signals); cs++) {
++        bool inactive = !active || (s->c6_misc & BIT(cs));
++        bool level = inactive ^ !!(s->c6_misc & BIT(cs + 7));
++        esp32_gpio_set_output_signal(signals[cs], level, true);
++    }
++}
++
+ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransaction *t)
+ {
++    esp32c3_spi_set_cs(s, true);
+     /* Keep received radio bytes even if CS is raised before the FIFO read. */
+     s->m5_rx_from_slave = s->m5_spi2 && s->m5_slave_transfer &&
+                           !esp32_gpio_get_line(s->m5_slave_cs);
+@@ -252,7 +268,6 @@
+             xts_aes_class->read_ciphertext(s->xts_aes, t->data, &(t->tx_bytes), &(t->addr), &(t->addr_bytes));
+         }
+     }
+-    qemu_set_irq(s->cs_gpio[0], 0);
+     esp32c3_spi_txrx_buffer(s, &t->cmd, t->cmd_bytes, NULL, 0);
+     esp32c3_spi_txrx_buffer(s, &t->addr, t->addr_bytes, NULL, 0);
+     if (t->has_mode_byte) {
+@@ -260,7 +275,7 @@
+     }
+     esp32c3_spi_dummy_cycles(s, t->dummy_bytes + t->extra_dummy_bytes);
+     esp32c3_spi_txrx_buffer(s, t->data, t->tx_bytes, t->data, t->rx_bytes);
+-    if (s->m5_sink && t->tx_bytes &&
++    if (s->m5_sink && t->tx_bytes && !esp32_gpio_get_line(17) &&
+         (!s->m5_slave_transfer ||
+          esp32_gpio_get_line(s->m5_slave_cs))) {
+         s->m5_sink(s->m5_sink_opaque, t->data, t->tx_bytes,
+@@ -275,7 +290,7 @@
+         }
+         fprintf(stderr, "\n");
+     }
+-    qemu_set_irq(s->cs_gpio[0], 1);
++    esp32c3_spi_set_cs(s, s->m5_spi2 && (s->c6_misc & BIT(30)));
+     s->dma_int_raw |= SPI_TRANS_DONE;
+     esp32c3_spi_update_irq(s);
+ }
+@@ -584,6 +599,7 @@
+             return;
+         case 0x20:
+             s->c6_misc = wvalue;
++            esp32c3_spi_set_cs(s, s->m5_cs_active && (wvalue & BIT(30)));
+             return;
+         case 0x24:
+             s->c6_din_mode = wvalue;
+@@ -703,7 +719,8 @@
+     s->dma_int_raw = 0;
+     s->dma_conf = 0;
+     s->m5_rx_from_slave = false;
+-    s->c6_misc = 0;
++    s->c6_misc = 0x3e;
++    esp32c3_spi_set_cs(s, false);
+     s->c6_din_mode = 0;
+     s->c6_din_num = 0;
+     s->c6_dout_mode = 0;
+diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
+--- a/include/hw/ssi/esp32c3_spi.h
++++ b/include/hw/ssi/esp32c3_spi.h
+@@ -52,6 +52,7 @@
+     ESPGdmaState *gdma;
+     uint32_t dma_conf;
+     uint32_t c6_misc;
++    bool m5_cs_active;
+     uint32_t c6_din_mode;
+     uint32_t c6_din_num;
+     uint32_t c6_dout_mode;

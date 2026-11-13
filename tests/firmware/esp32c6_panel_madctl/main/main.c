@@ -6,13 +6,14 @@
 #include "freertos/task.h"
 
 static spi_device_handle_t panel;
+static bool manual_cs = true;
 static void transfer(int dc, const uint8_t *data, unsigned len)
 {
     gpio_set_level(16, dc);
-    gpio_set_level(17, 0);
+    if (manual_cs) gpio_set_level(17, 0);
     spi_transaction_t t = {.length=len*8, .tx_buffer=data};
     ESP_ERROR_CHECK(spi_device_polling_transmit(panel, &t));
-    gpio_set_level(17, 1);
+    if (manual_cs) gpio_set_level(17, 1);
 }
 static void command(uint8_t cmd, const uint8_t *data, unsigned len)
 {
@@ -78,6 +79,41 @@ void app_main(void)
         if(used)transfer(1,bytes,used);
     }
     puts("C6_PANEL_DMA_READY");fflush(stdout);
+    vTaskDelay(pdMS_TO_TICKS(4000));
+    /* Neither slave selected: a display-off opcode must have no effect. */
+    gpio_set_level(17,1);gpio_set_level(23,1);gpio_set_level(16,0);
+    uint8_t off=0x28;
+    spi_transaction_t unselected={.length=8,.tx_buffer=&off};
+    ESP_ERROR_CHECK(spi_device_polling_transmit(panel,&unselected));
+    puts("C6_PANEL_DESELECTED_READY");fflush(stdout);
+    vTaskDelay(pdMS_TO_TICKS(4000));
+    command(0x29,NULL,0);
+
+    /* Radio selected: even display-shaped bytes cannot reach the panel. */
+    gpio_set_level(17,1);gpio_set_level(23,0);gpio_set_level(16,0);
+    uint8_t radio_status[]={0xc0,0x00,0x28};
+    spi_transaction_t radio={.length=sizeof(radio_status)*8,.tx_buffer=radio_status};
+    ESP_ERROR_CHECK(spi_device_polling_transmit(panel,&radio));
+    gpio_set_level(23,1);
+    puts("C6_PANEL_RADIO_ISOLATION_READY");fflush(stdout);
+    vTaskDelay(pdMS_TO_TICKS(4000));
+
+    /* No manual CS writes: the SPI2 CS0 output must traverse GPIO matrix. */
+    ESP_ERROR_CHECK(spi_bus_remove_device(panel));
+    dev.spics_io_num=17;
+    ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST,&dev,&panel));
+    manual_cs=false;
+    uint8_t portrait=0x08;
+    command(0x29,NULL,0);command(0x36,&portrait,1);
+    window(0x2a,52,186);window(0x2b,40,279);command(0x2c,NULL,0);
+    uint8_t cyan[352] __attribute__((aligned(4)));
+    for(unsigned i=0;i<sizeof(cyan);i+=2){cyan[i]=0x07;cyan[i+1]=0xff;}
+    for(unsigned remaining=135*240*2;remaining;) {
+        unsigned count=remaining<sizeof(cyan)?remaining:sizeof(cyan);
+        transfer(1,cyan,count);remaining-=count;
+    }
+    printf("C6_PANEL_HW_CS_IDLE %d\n",gpio_get_level(17));
+    puts("C6_PANEL_HW_CS_READY");fflush(stdout);
     vTaskDelay(pdMS_TO_TICKS(4000));
     puts("C6_PANEL_READY");
 }

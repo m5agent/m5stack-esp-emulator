@@ -75,6 +75,12 @@ SPI1 的 10-bit Flash 长度字段分开，保留 FIFO 字节并约束 DMA 缓�
 四种旋转与 352 字节 DMA；当前 DMA helper 仍是单描述符、4096 字节上限，
 该探针不建立硬件自动 CS、链式 DMA 或超大传输的覆盖。
 
+`0016-c6-spi2-chip-select-routing.patch` 将 SPI2 CS0..5 经 C6 GPIO
+输出矩阵路由到实际板级引脚，并处理 CS disable、polarity、KEEP_ACTIVE
+及 GPIO 输出使能/反相。屏幕只在 GPIO17 低、无线电 GPIO23 高时接收数据；
+双 CS 未选中时不能把传输误送屏幕。显示探针分别覆盖未选中负控、radio
+隔离和 ESP-IDF 自动 CS0/GPIO17 整帧填色；不宣称电气时序覆盖。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
