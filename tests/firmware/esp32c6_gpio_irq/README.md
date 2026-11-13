@@ -1,8 +1,11 @@
 # C6 GPIO interrupt delivery
 
-Reviewed: `2026-11-14`. Work in progress: actual-C host controls pass; runtime
-build, ESP-IDF guest ISR and original UIFlow guest callback are **NOT RUN**.
-No service or browser runtime inherits this patch before its separate rollout.
+Reviewed: `2026-11-14`. Actual-C host controls, a fresh C6 build, NanoC6 and
+Nesso ESP-IDF ISR probes, and the original Nesso UIFlow `Pin.irq` Device Service
+probe pass. Old runtimes fail the same enabled-ISR controls while passing source
+and disabled-input checks. See the [dated evidence](../../../docs/evidence/2026-11-14-c6-gpio-irq/README.md).
+The full native matrix and deployment are separate gates. No browser-WASM
+runtime inherits this native change.
 
 The patch models ordinary GPIO source 30: pad changes set raw `STATUS`, each
 pin's `INT_ENA` bit 0 gates the `PCPU_INT` view, and their OR drives the existing
@@ -70,8 +73,10 @@ python3 scripts/bootstrap-c6-runtime.py --source-dir .work/c6-gpio-irq-source --
 It replays all ordered patches, checks source receipts, and builds only
 `riscv32-softmmu`. It needs the compiler, Ninja, pkg-config, GLib, pixman, slirp,
 libgcrypt and libgpg-error. Record the resulting source, runtime and ROM hashes.
-This command has not yet been run for this work; coordinate the heavy CPU lane
-before building. No Xtensa or browser-WASM binary is rebuilt or requalified.
+The fresh build produced runtime SHA
+`69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4` and ROM SHA
+`91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713`.
+No Xtensa or browser-WASM binary was rebuilt or requalified.
 
 ## Independent ESP-IDF guest probe
 
@@ -79,17 +84,66 @@ Build against ESP-IDF v5.5.4 with its pinned RISC-V toolchain. The default probe
 uses NanoC6 GPIO9; the Nesso build uses shared GPIO3 and public hardware-I2C
 transactions to primary PI4IOE address `0x43` on SDA10/SCL8.
 
+Use a clean recursive checkout of ESP-IDF v5.5.4 commit
+`735507283d5b2f9fb363a1901172dbd9e847945d`; source its `export.sh`. The successful
+build used all 27 pinned recursive submodules. Two earlier configurations of an
+incomplete SDK failed (missing MQTT, then required mbedTLS); those failures were
+retained. Do not remove required SDK components or stub GPIO/FreeRTOS to build.
+
+From the repository root, use absolute project/output paths and a fresh output:
+
 ```sh
-idf.py -C tests/firmware/esp32c6_gpio_irq -B build-nano set-target esp32c6 build
-idf.py -C tests/firmware/esp32c6_gpio_irq -B build-nesso \
-  -D SDKCONFIG=sdkconfig.nesso.generated \
-  -D SDKCONFIG_DEFAULTS='sdkconfig.defaults;sdkconfig.nesso' set-target esp32c6 build
+probe_dir="$PWD/tests/firmware/esp32c6_gpio_irq"
+output_dir="$PWD/.work/irq-idf-build"
+idf.py -C "$probe_dir" -B "$output_dir/nano" \
+  -D SDKCONFIG="$output_dir/nano/sdkconfig" \
+  -D SDKCONFIG_DEFAULTS="$probe_dir/sdkconfig.defaults" \
+  -D IDF_TARGET=esp32c6 -D COMPONENTS=main reconfigure
+cmake --build "$output_dir/nano" --parallel 2
+(cd "$output_dir/nano" && python -m esptool --chip esp32c6 merge_bin \
+  -o merged.bin --fill-flash-size 4MB @flash_args)
+idf.py -C "$probe_dir" -B "$output_dir/nesso" \
+  -D SDKCONFIG="$output_dir/nesso/sdkconfig" \
+  -D SDKCONFIG_DEFAULTS="$probe_dir/sdkconfig.defaults;$probe_dir/sdkconfig.nesso" \
+  -D IDF_TARGET=esp32c6 -D COMPONENTS=main reconfigure
+cmake --build "$output_dir/nesso" --parallel 2
+(cd "$output_dir/nesso" && python -m esptool --chip esp32c6 merge_bin \
+  -o merged.bin --fill-flash-size 16MB @flash_args)
 ```
 
-Load each compatible merged image in a dedicated Device Service session and
-retain build/firmware hashes separately. The source calls `gpio_config`,
-`gpio_install_isr_service` and `gpio_isr_handler_add`; only that ISR increments
-`hits`. It accepts UART lines `arm 1` (rising), `arm 2` (falling), `arm 3` (both),
+Record a JSON build receipt only after both builds succeed. Required fields for
+`run_test.py` are `build_status: "PASS"`, `sdk_git_metadata.head`,
+`probe_files_sha256["main/main.c"]`, and
+`artifacts.nano["merged.bin"]` / `artifacts.nesso["merged.bin"]`. Compute SHA256
+from the actual frozen source and output bytes; retain compile commands, resolved
+component list and all build inputs separately. This run recorded 55 resolved
+components, 556 compiled source files and 1,614 source/header dependencies per
+board, including the real GPIO, interrupt allocator, RISC-V vector and FreeRTOS
+sources. A hand-written PASS receipt does not substitute for a successful build.
+
+`run_test.py` uses direct QEMU because this is a checked-in UART-driven regression;
+the general Device Service does not expose this probe's arbitrary UART command
+interface. Its IDF service lane is **NOT RUN**. Example with explicit artifacts:
+
+```sh
+python3 tests/firmware/esp32c6_gpio_irq/run_test.py --execute \
+  --board nano --runtime candidate --qemu "$qemu_binary" \
+  --runtime-sha256 "$runtime_sha256" --rom-dir "$rom_directory" \
+  --image "$output_dir/nano/merged.bin" --build-receipt "$build_receipt" \
+  --out-dir "$private_evidence_directory"
+```
+
+Repeat for `--board nesso` and each board's old `--runtime baseline` using the
+same merged BIN and a new output directory. The runner explicitly sets
+`M5SW_C6_BOARD`, checks actual board QOM children, pins ROM and compiled source,
+reads source 30's real matrix register, and drives UART plus real board inputs.
+Its baseline exit succeeds only when all source/negative controls pass, enabled
+callbacks remain zero, boot integrity is correct and cleanup succeeds; the
+functional baseline verdict remains **FAIL**. Output may contain local paths;
+keep raw output private and publish reviewed summaries only.
+
+The source calls `gpio_config`, `gpio_install_isr_service` and
+`gpio_isr_handler_add`; only that ISR increments `hits`. It accepts UART lines `arm 1` (rising), `arm 2` (falling), `arm 3` (both),
 `arm 4` (low), `arm 5` (high), `disable`, `ack`, `snap` and `reset`.
 `snap` observes raw/CPU pending and the real callback count. For held-level modes
 the ISR masks the pin to prevent a legitimate interrupt storm; main-task `ack`
@@ -129,7 +183,10 @@ and the actual ESP32 `machine_pin.c` driver were consulted for `handler` and
 `trigger`; the exact original firmware must still prove the calls at runtime.
 Do not fall back to polling or manually invoking a callback if an API fails.
 
-`main.py` imports a dedicated `irq_probe` module and returns to the guest REPL.
+The small `uiflow/` interactive probe imports a dedicated `irq_probe` module and
+returns to the guest REPL. For the repeatable marker-driven fixture, use
+[`nesso_gpio_irq`](../../uiflow2/nesso_gpio_irq/README.md), which runs the same
+real `Pin.irq` callback automatically.
 Use the same session to call `irq_probe.arm('falling')`, apply an actual board
 button/touch input, and call `irq_probe.snapshot()`. `hits` changes only in the
 real `Pin.irq` callback. `acknowledge_source()` reads the actual I2C status;

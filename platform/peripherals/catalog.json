@@ -115,7 +115,7 @@
         "qmp-key",
         "qom-gpio-input"
       ],
-      "data_plane": "Board GPIO input state changes through the ESP32 GPIO register model; QMP key events or the NanoC6 machine button property drive the physical pin level consumed by the M5Unified button state machine or machine.Pin",
+      "data_plane": "Board GPIO input state changes through the ESP32 GPIO register model; QMP key events or the NanoC6 machine button property drive the physical pin level consumed by the M5Unified button state machine or machine.Pin; the C6 ordinary GPIO source 30 path includes edge/level pending, per-pin CPU masking and real CPU ISR delivery, validated by NanoC6/Nesso IDF and original Nesso Pin.irq probes (NMI, wake and filters excluded)",
       "tested_devices": [
         "sticks3",
         "atoms3r",
@@ -244,7 +244,7 @@
       "injection": [
         "qmp-touch"
       ],
-      "data_plane": "FT5x06 I2C configuration and touch-report registers; QMP pointer events update controller reports consumed by the M5GFX touch driver",
+      "data_plane": "FT5x06 I2C configuration and touch-report registers; QMP pointer events update controller reports consumed by the M5GFX touch driver; Nesso held touch shares GPIO3 with primary PI4IOE nINT and reaches ordinary CPU interrupt delivery; trigger pulse, sleep and wake timing are not established",
       "tested_devices": [
         "core2",
         "cores3",
@@ -518,7 +518,7 @@
         "qom-input-bits",
         "i2c-register"
       ],
-      "data_plane": "PI4IOE5V6408 direction, output, high-impedance, pull, input-default, input-status, interrupt-mask and interrupt-status registers with QMP button injection",
+      "data_plane": "PI4IOE5V6408 direction, output, high-impedance, pull, input-default, input-status, interrupt-mask and interrupt-status registers with QMP button injection; Nesso primary expander nINT shares GPIO3 with the held touch source and reaches the real GPIO controller/interrupt matrix/CPU, including status-read acknowledgement without releasing another asserted source",
       "tested_devices": [
         "nesso-n1",
         "stamplc"

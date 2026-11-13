@@ -1,0 +1,2444 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "scope": "ordinary C6 GPIO source 30; original Nesso Pin.irq and public ESP-IDF ISR",
+  "native_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+  "baseline_runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+  "gpio_patch_sha256": "af329b68d47bed2ed20ef9fcae6f31b4363b305a84b2d3682260bca1aa05a18a",
+  "host_controls": {
+    "actual_c_controls": 45,
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "status": "PASS"
+  },
+  "idf_build": {
+    "status": "PASS",
+    "sdk_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "recursive_submodules": 27,
+    "resolved_components_per_board": 55,
+    "compiled_sources_per_board": 556,
+    "source_and_header_dependencies_per_board": 1614,
+    "receipt_sha256": "cfa5018726842120863913f325cd43043737e8f0238b0335ef231e44b2495d6b",
+    "prior_failures": [
+      "Incomplete SDK: missing MQTT at configure",
+      "Incomplete SDK: missing required mbedTLS at configure"
+    ]
+  },
+  "idf_runs": [
+    {
+      "device": "nanoc6",
+      "lane": "checked-in IDF regression; direct QEMU",
+      "status": "FAIL",
+      "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "firmware_sha256": "2a0e22623387a60c339eb075d12e39f2b674bb04365a1be41d9bf16582e5ca4c",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "probe_source_sha256": "7be44d666cd3f45a73fcdeacac726bf4688cdbb9c7a1f37deba238180d6d0d90",
+      "build_receipt_sha256": "cfa5018726842120863913f325cd43043737e8f0238b0335ef231e44b2495d6b",
+      "intmatrix_source30_route": {
+        "return": "0000000060010078: 0x0000000a\r\n"
+      },
+      "checks": [
+        {
+          "name": "cold-boot-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "disabled-source-pad",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-press",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-release-ack",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "both-press",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "both-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "both-release-ack",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-rearm",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-rearm",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "software-reset-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "software-reset-fresh-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        }
+      ],
+      "boot_integrity": {
+        "ready_markers": 2,
+        "requested_reset_markers": 1,
+        "fatal_marker_count": 0
+      },
+      "harness_status": "PASS",
+      "cleanup": {
+        "owned_process_reaped": true,
+        "returncode": 0,
+        "uart_thread_stopped": true
+      },
+      "baseline_missing_irq_reproduced": true,
+      "original_summary_sha256": "1b3b92afec9872abd6ff8ea20029c72b3f214912f56ce07a766e6cb2a108d1e7"
+    },
+    {
+      "device": "nanoc6",
+      "lane": "checked-in IDF regression; direct QEMU",
+      "status": "PASS",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "firmware_sha256": "2a0e22623387a60c339eb075d12e39f2b674bb04365a1be41d9bf16582e5ca4c",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "probe_source_sha256": "7be44d666cd3f45a73fcdeacac726bf4688cdbb9c7a1f37deba238180d6d0d90",
+      "build_receipt_sha256": "cfa5018726842120863913f325cd43043737e8f0238b0335ef231e44b2495d6b",
+      "intmatrix_source30_route": {
+        "return": "0000000060010078: 0x0000000a\r\n"
+      },
+      "checks": [
+        {
+          "name": "cold-boot-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "disabled-source-pad",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "falling-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 2,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 1
+        },
+        {
+          "name": "both-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 3,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 2
+        },
+        {
+          "name": "both-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 3,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 3
+        },
+        {
+          "name": "both-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 4,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 3
+        },
+        {
+          "name": "low-level-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 5,
+            "level": 0,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 4
+        },
+        {
+          "name": "low-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 5,
+            "level": 0,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 5
+        },
+        {
+          "name": "low-level-rearm",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 6,
+            "level": 0,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 5
+        },
+        {
+          "name": "high-level-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 7,
+            "level": 1,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 6
+        },
+        {
+          "name": "high-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 7,
+            "level": 1,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 7
+        },
+        {
+          "name": "high-level-rearm",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 8,
+            "level": 1,
+            "raw": 512,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 7
+        },
+        {
+          "name": "software-reset-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 9,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "software-reset-fresh-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 9,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        }
+      ],
+      "boot_integrity": {
+        "ready_markers": 2,
+        "requested_reset_markers": 1,
+        "fatal_marker_count": 0
+      },
+      "harness_status": "PASS",
+      "cleanup": {
+        "owned_process_reaped": true,
+        "returncode": 0,
+        "uart_thread_stopped": true
+      },
+      "original_summary_sha256": "4930783973d6fdd989d4af52d4ce1068cbd81eb6328ad8caa64f13af3528918f"
+    },
+    {
+      "device": "nesso-n1",
+      "lane": "checked-in IDF regression; direct QEMU",
+      "status": "FAIL",
+      "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "firmware_sha256": "316e46505f1d88bb652aedbd6e4557926fc1b6da35e32d767cd5a234f08ed83a",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "probe_source_sha256": "7be44d666cd3f45a73fcdeacac726bf4688cdbb9c7a1f37deba238180d6d0d90",
+      "build_receipt_sha256": "cfa5018726842120863913f325cd43043737e8f0238b0335ef231e44b2495d6b",
+      "intmatrix_source30_route": {
+        "return": "0000000060010078: 0x0000000b\r\n"
+      },
+      "checks": [
+        {
+          "name": "cold-boot-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "disabled-source-pad",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-press",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "rising-release-ack",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "both-press",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "both-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "both-release-ack",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "low-level-rearm",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "high-level-rearm",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "shared-button-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "shared-touch-no-second-edge",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "shared-button-ack-keeps-touch-low",
+          "pass": true,
+          "observed": {
+            "stage": "ACK",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "shared-final-release-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "touch-source-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "software-reset-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "software-reset-fresh-isr",
+          "pass": false,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        }
+      ],
+      "boot_integrity": {
+        "ready_markers": 2,
+        "requested_reset_markers": 1,
+        "fatal_marker_count": 0
+      },
+      "harness_status": "PASS",
+      "cleanup": {
+        "owned_process_reaped": true,
+        "returncode": 0,
+        "uart_thread_stopped": true
+      },
+      "baseline_missing_irq_reproduced": true,
+      "original_summary_sha256": "c7c8624b7f8d8a7576a4cb0b1925def91953b10b2192b823d51b8c4c9a753f58"
+    },
+    {
+      "device": "nesso-n1",
+      "lane": "checked-in IDF regression; direct QEMU",
+      "status": "PASS",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "firmware_sha256": "316e46505f1d88bb652aedbd6e4557926fc1b6da35e32d767cd5a234f08ed83a",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "probe_source_sha256": "7be44d666cd3f45a73fcdeacac726bf4688cdbb9c7a1f37deba238180d6d0d90",
+      "build_receipt_sha256": "cfa5018726842120863913f325cd43043737e8f0238b0335ef231e44b2495d6b",
+      "intmatrix_source30_route": {
+        "return": "0000000060010078: 0x0000000b\r\n"
+      },
+      "checks": [
+        {
+          "name": "cold-boot-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "disabled-source-pad",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "disabled-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        },
+        {
+          "name": "falling-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "falling-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 1
+        },
+        {
+          "name": "rising-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 2,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 1
+        },
+        {
+          "name": "both-press",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 3,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 2
+        },
+        {
+          "name": "both-held-quiet",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 3,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 3
+        },
+        {
+          "name": "both-release-ack",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 4,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 3
+        },
+        {
+          "name": "low-level-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 5,
+            "level": 0,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 4
+        },
+        {
+          "name": "low-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 5,
+            "level": 0,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 5
+        },
+        {
+          "name": "low-level-rearm",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 6,
+            "level": 0,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 5
+        },
+        {
+          "name": "high-level-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 7,
+            "level": 1,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 6
+        },
+        {
+          "name": "high-level-isr-mask",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 7,
+            "level": 1,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 0,
+          "before_hits": 7
+        },
+        {
+          "name": "high-level-rearm",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 8,
+            "level": 1,
+            "raw": 8,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 7
+        },
+        {
+          "name": "shared-button-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 9,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 8
+        },
+        {
+          "name": "shared-touch-no-second-edge",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 9,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 9
+        },
+        {
+          "name": "shared-button-ack-keeps-touch-low",
+          "pass": true,
+          "observed": {
+            "stage": "ACK",
+            "pin": 3,
+            "hits": 9,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 0,
+          "before_hits": 9
+        },
+        {
+          "name": "shared-final-release-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 10,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 1,
+          "expected_delta": 1,
+          "before_hits": 9
+        },
+        {
+          "name": "touch-source-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 11,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 10
+        },
+        {
+          "name": "software-reset-ready",
+          "pass": true,
+          "observed": {
+            "stage": "READY",
+            "pin": 3,
+            "hits": 0,
+            "level": 1,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": 0,
+          "expected_level": 1,
+          "expected_delta": null,
+          "before_hits": null
+        },
+        {
+          "name": "software-reset-fresh-isr",
+          "pass": true,
+          "observed": {
+            "stage": "SNAPSHOT",
+            "pin": 3,
+            "hits": 1,
+            "level": 0,
+            "raw": 0,
+            "cpu": 0
+          },
+          "expected_hits": null,
+          "expected_level": 0,
+          "expected_delta": 1,
+          "before_hits": 0
+        }
+      ],
+      "boot_integrity": {
+        "ready_markers": 2,
+        "requested_reset_markers": 1,
+        "fatal_marker_count": 0
+      },
+      "harness_status": "PASS",
+      "cleanup": {
+        "owned_process_reaped": true,
+        "returncode": 0,
+        "uart_thread_stopped": true
+      },
+      "original_summary_sha256": "dd2b7b6e56ba1da6ee4309c8caa6f59504c79d1ebef5cb164edb72a894ff1c38"
+    }
+  ],
+  "service_runs": [
+    {
+      "device": "nesso-n1",
+      "lane": "Device Service ordinary merged firmware",
+      "status": "FAIL",
+      "harness_status": "FAIL",
+      "original_bin_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "16255a35d2142a7f68363c79d3a083bab207e6c104b6a91d3563f8646889a3aa",
+      "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "composition_preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "baseline_missing_irq_reproduced": false,
+      "cleanup": {
+        "service_reaped": true
+      },
+      "original_summary_sha256": "dbf50bfa2e63e03b91a3d9149e9a7cb2dbfcd544c7d2bc4406803ef579bef5f7",
+      "preflight_failure": {
+        "reason": "Required flash emulator file absent in isolated source checkout; subsequent run supplied explicit existing tool path",
+        "guest_created": false,
+        "boundary": "GET catalog before artifact/session POST",
+        "functional_test": "NOT RUN"
+      }
+    },
+    {
+      "device": "nesso-n1",
+      "lane": "Device Service ordinary merged firmware",
+      "status": "FAIL",
+      "harness_status": "PASS",
+      "original_bin_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "16255a35d2142a7f68363c79d3a083bab207e6c104b6a91d3563f8646889a3aa",
+      "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "composition_preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "serial_channel": "usb-serial-jtag",
+      "checks": [
+        {
+          "name": "disabled_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "disabled_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "falling_press",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "falling_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "falling_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "rising_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "both_press",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "both_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "both_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "shared_touch_keeps_low",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_button_ack_keeps_touch",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_last_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button_release_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "disabled_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "disabled_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "falling_press",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "falling_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "falling_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "rising_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "both_press",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "both_held_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "both_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "shared_touch_keeps_low",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_button_ack_keeps_touch",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_last_release",
+          "pass": false,
+          "hits": 0,
+          "delta": 0,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button_release_quiet",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        }
+      ],
+      "functional_result": "FAIL",
+      "baseline_missing_irq_reproduced": true,
+      "frame": {
+        "sha256": "9821be7f04cdc7b1445ab14da6af8ebd3717ac098bc3a9da3cb60ee3446a0e2b",
+        "width": 135,
+        "height": 240,
+        "pixel_4_4": [
+          255,
+          0,
+          0
+        ],
+        "expected": [
+          255,
+          0,
+          0
+        ],
+        "pass": true
+      },
+      "evidence_zip_sha256": "2ccfdfe5b050b8d28435f0f61f09c07c353a5d17202f2f44a141693f289b4986",
+      "evidence_manifest_valid": true,
+      "evidence_before_stop": true,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 7405568,
+          "sha256": "4743d8b5e3cf234b064dc01566fa1cce9e44b545ea72992081a2628b937a6ba4",
+          "original_executable_unchanged": true,
+          "unchanged_after_execution": true
+        }
+      ],
+      "serial_sha256": "98f4aad125cc0bddb69a10ce636fb7d5efa1dcce00c2dca3cbe7745a5fa0f665",
+      "cleanup": {
+        "guest_reaped": true,
+        "flash_released": true,
+        "lease_released": true,
+        "history_retained": true,
+        "service_reaped": true
+      },
+      "original_summary_sha256": "3ff62f926e000de1ca3924e9f3164ca11d1e8547d813442d78142d8d1b77b921"
+    },
+    {
+      "device": "nesso-n1",
+      "lane": "Device Service ordinary merged firmware",
+      "status": "PASS",
+      "harness_status": "PASS",
+      "original_bin_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "16255a35d2142a7f68363c79d3a083bab207e6c104b6a91d3563f8646889a3aa",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "composition_preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "serial_channel": "usb-serial-jtag",
+      "checks": [
+        {
+          "name": "disabled_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "disabled_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "falling_press",
+          "pass": true,
+          "hits": 1,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "falling_held_quiet",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "falling_release",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "rising_press",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_held_quiet",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_release",
+          "pass": true,
+          "hits": 2,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "both_press",
+          "pass": true,
+          "hits": 3,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "both_held_quiet",
+          "pass": true,
+          "hits": 3,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "both_release",
+          "pass": true,
+          "hits": 4,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button",
+          "pass": true,
+          "hits": 5,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "shared_touch_keeps_low",
+          "pass": true,
+          "hits": 5,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_button_ack_keeps_touch",
+          "pass": true,
+          "hits": 5,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_last_release",
+          "pass": true,
+          "hits": 6,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button_release_quiet",
+          "pass": true,
+          "hits": 6,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "disabled_press",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "disabled_release",
+          "pass": true,
+          "hits": 0,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "falling_press",
+          "pass": true,
+          "hits": 1,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "falling_held_quiet",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "falling_release",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        },
+        {
+          "name": "rising_press",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_held_quiet",
+          "pass": true,
+          "hits": 1,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "rising_release",
+          "pass": true,
+          "hits": 2,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "both_press",
+          "pass": true,
+          "hits": 3,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "both_held_quiet",
+          "pass": true,
+          "hits": 3,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "both_release",
+          "pass": true,
+          "hits": 4,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button",
+          "pass": true,
+          "hits": 5,
+          "delta": 1,
+          "expected": 1,
+          "level": 0
+        },
+        {
+          "name": "shared_touch_keeps_low",
+          "pass": true,
+          "hits": 5,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_button_ack_keeps_touch",
+          "pass": true,
+          "hits": 5,
+          "delta": 0,
+          "expected": 0,
+          "level": 0
+        },
+        {
+          "name": "shared_last_release",
+          "pass": true,
+          "hits": 6,
+          "delta": 1,
+          "expected": 1,
+          "level": 1
+        },
+        {
+          "name": "shared_button_release_quiet",
+          "pass": true,
+          "hits": 6,
+          "delta": 0,
+          "expected": 0,
+          "level": 1
+        }
+      ],
+      "functional_result": "PASS",
+      "baseline_missing_irq_reproduced": false,
+      "frame": {
+        "sha256": "cc7e2e57bc53ecc1930dfd93cb2807d3c798a2582bec9ed2a9c90f9012e2b043",
+        "width": 135,
+        "height": 240,
+        "pixel_4_4": [
+          0,
+          255,
+          0
+        ],
+        "expected": [
+          0,
+          255,
+          0
+        ],
+        "pass": true
+      },
+      "evidence_zip_sha256": "3462d0195e727af990489d0bce3aac374060dd746f8252736844a2a540591316",
+      "evidence_manifest_valid": true,
+      "evidence_before_stop": true,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 7405568,
+          "sha256": "4743d8b5e3cf234b064dc01566fa1cce9e44b545ea72992081a2628b937a6ba4",
+          "original_executable_unchanged": true,
+          "unchanged_after_execution": true
+        }
+      ],
+      "serial_sha256": "5037a1e3f4e3cd3688cf36ffbe986595889e1103969007c5c51a2a75f7aad2d9",
+      "cleanup": {
+        "guest_reaped": true,
+        "flash_released": true,
+        "lease_released": true,
+        "history_retained": true,
+        "service_reaped": true
+      },
+      "original_summary_sha256": "cf082c1edbcf6f9f41033f30ed9ea3f2fe09f60b10e6c6a28d46fadef8871c3d"
+    }
+  ],
+  "source_binding": {
+    "receipt_sha256": "d5a49beb0f186aff8e45481e02465191a02bfa68d440dadadb2d1b4b95822645",
+    "recorded_after_run": true,
+    "actual_service_files_unchanged_from": "9f51b19622e4373c3a8d7d3757b95b6002d4d384",
+    "baseline_test_only_commit_during_run": "469e45c6",
+    "candidate_started_after_test_only_commit": true
+  },
+  "matrix_case": {
+    "id": "nesso-gpio-irq",
+    "status": "PASS",
+    "runs": [
+      {
+        "status": "PASS",
+        "exit_code": 0,
+        "explicit_board_env": false,
+        "board": "nesso-n1",
+        "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+        "composed_firmware_sha256": "623a45423230352e354eb2f6c2f5c2bc1f7bec8472c9f9149ade3e4f4981ad42",
+        "serial_done": "NESSO_GPIO_IRQ_DONE PASS checks=16 passed=16",
+        "serial_check_count": 16,
+        "owned_guest_absent_after_exit": true,
+        "artifacts_sha256": {
+          "composition.json": "bf34dc9604879598543ca6c7dd53a5c6247e859e033138fddb5afea763755637",
+          "input-steps.jsonl": "5cfe6378cfb5080f535e0a647a9b49a2c79f2b34c658105754eb22a0f52b1cb8",
+          "console-capture.json": "97ca1f7c29a691fb23d2ecb26257e93dd1c1392fbffed50f2ad1d72ce150a61a",
+          "serial.log": "c352687d71110ee9b94167ab70e1c845d411f7fa6795df0ac7d690f1af743adf",
+          "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uart0.log": "62420da26380b7300d4e0153de9c9c55a5c1dbf2229b78ac63ae59ced19bd542",
+          "before.png": "e065f6ad86323ad934c39abae3aef0d9a2f02d546b47b0fb397a3f95620c195b",
+          "after.png": "cc7e2e57bc53ecc1930dfd93cb2807d3c798a2582bec9ed2a9c90f9012e2b043"
+        },
+        "matrix_summary_sha256": "ff3e0d6e11e26384b88252a36768a0ef74f51980a268d99f07bc230cc3eeb395"
+      },
+      {
+        "status": "PASS",
+        "exit_code": 0,
+        "explicit_board_env": true,
+        "board": "nesso-n1",
+        "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+        "composed_firmware_sha256": "623a45423230352e354eb2f6c2f5c2bc1f7bec8472c9f9149ade3e4f4981ad42",
+        "same_three_probe_sources_as_service": true,
+        "additional_unimported_common_source": "rtc_probe.py",
+        "source_sha256": "e4ffa3e9dc7b73db97cce09fe9e1fde6cbc1a06a76509fdf60c4bff1f8498c13",
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "serial_done": "NESSO_GPIO_IRQ_DONE PASS checks=16 passed=16",
+        "serial_check_count": 16,
+        "console_capture": {
+          "source": "QEMU serial backend configuration",
+          "primary_console_index": 2,
+          "backends": [
+            {
+              "index": 0,
+              "channel": "uart0",
+              "file": "uart0.log"
+            },
+            {
+              "index": 1,
+              "channel": "uart1",
+              "file": "serial1.log"
+            },
+            {
+              "index": 2,
+              "channel": "usb-serial-jtag",
+              "file": "serial.log"
+            }
+          ]
+        },
+        "frame_size": [
+          135,
+          240
+        ],
+        "expected_pixel_4_4": [
+          0,
+          255,
+          0
+        ],
+        "owned_guest_absent_after_exit": true,
+        "artifacts_sha256": {
+          "composition.json": "bf34dc9604879598543ca6c7dd53a5c6247e859e033138fddb5afea763755637",
+          "input-steps.jsonl": "a28199c10dd8c8b54261bb90cc6ead195b53b1580582311c68b464feec449c03",
+          "console-capture.json": "97ca1f7c29a691fb23d2ecb26257e93dd1c1392fbffed50f2ad1d72ce150a61a",
+          "serial.log": "c352687d71110ee9b94167ab70e1c845d411f7fa6795df0ac7d690f1af743adf",
+          "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uart0.log": "62420da26380b7300d4e0153de9c9c55a5c1dbf2229b78ac63ae59ced19bd542",
+          "before.png": "e065f6ad86323ad934c39abae3aef0d9a2f02d546b47b0fb397a3f95620c195b",
+          "after.png": "cc7e2e57bc53ecc1930dfd93cb2807d3c798a2582bec9ed2a9c90f9012e2b043"
+        },
+        "matrix_summary_sha256": "771f90c3fe2e605e6d8dc937e771c44dc3250e80dad7830cb6666c8075078fb4"
+      }
+    ]
+  },
+  "full_native_matrix": "NOT RUN",
+  "resident_deployment": "NOT RUN",
+  "browser_wasm": "NOT RUN; no rebuilt asset",
+  "physical_hardware": "NOT RUN",
+  "not_implemented": [
+    "NMI source31 delivery",
+    "GPIO wake/filter timing",
+    "BMI270 IRQ generation",
+    "FT6336 trigger pulse/sleep timing"
+  ],
+  "portable_idf_runner": {
+    "status": "PASS",
+    "checks": 21,
+    "passed": 21,
+    "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+    "firmware_sha256": "2a0e22623387a60c339eb075d12e39f2b674bb04365a1be41d9bf16582e5ca4c",
+    "driver_sha256": "481ae60d0493c6278f7ce80243d0845300dbbd96010cfe6e141545db23788dbd",
+    "original_summary_sha256": "fd76a9413dc023fa6f15caa1678eceb73d3c9bbe12aaf0e97dcbb72ab234735a",
+    "boot_integrity": {
+      "ready_markers": 2,
+      "requested_reset_markers": 1,
+      "fatal_marker_count": 0
+    },
+    "cleanup": {
+      "owned_process_reaped": true,
+      "returncode": 0,
+      "uart_thread_stopped": true
+    }
+  }
+}

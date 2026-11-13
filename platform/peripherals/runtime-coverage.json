@@ -554,6 +554,11 @@
     ],
     "nanoc6-usb-serial-jtag": [
       "usb-serial-jtag-c6"
+    ],
+    "nesso-gpio-irq": [
+      "gpio-button",
+      "pi4ioe5v6408",
+      "touch-ft5x06"
     ]
   },
   "device_case_groups": {
@@ -832,7 +837,8 @@
         "nesso-imu",
         "nesso-ir",
         "nesso-lora",
-        "nesso-buzzer"
+        "nesso-buzzer",
+        "nesso-gpio-irq"
       ],
       "external": [
         "nesso-unified"
@@ -1058,7 +1064,8 @@
     },
     "gpio-button": {
       "matrix": [
-        "sticks3-peripherals"
+        "sticks3-peripherals",
+        "nesso-gpio-irq"
       ],
       "external": [
         "paperdiy-et047-factory"
@@ -1092,7 +1099,8 @@
     "touch-ft5x06": {
       "matrix": [
         "cores3-peripherals",
-        "stackchan-touch"
+        "stackchan-touch",
+        "nesso-gpio-irq"
       ]
     },
     "touch-si12t": {
@@ -1137,7 +1145,8 @@
     },
     "pi4ioe5v6408": {
       "matrix": [
-        "nesso-peripherals"
+        "nesso-peripherals",
+        "nesso-gpio-irq"
       ]
     },
     "rx8130": {
