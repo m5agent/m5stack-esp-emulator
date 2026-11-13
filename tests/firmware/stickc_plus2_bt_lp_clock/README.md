@@ -57,6 +57,11 @@ rollover, read-only latch access, and reset. It also checks that `0x3ff7101c`
 continues to use the existing BR/EDR register behavior. The qtest accelerator
 executes no guest instructions.
 
+For a candidate that includes 0200, add `--rwbt-clock`. This mode checks the
+same BLE clock and confirms that sampling the separate BR/EDR latch leaves
+the BLE snapshot unchanged. Its previous-runtime oracle still reproduces the
+missing BLE latch before 0198.
+
 The ESP32 register offsets and widths come from the [ESP32 BTDM register map](https://github.com/esp-rs/esp-pacs/blob/e6d898ec67556b8d08b2fc6f6265da930954404f/esp32/svd/patches/btdm.yml#L336-L357).
 The [Renesas DA14535 manual, Tables 69 and 70](https://www.renesas.com/en/document/dst/da14535-datasheet#page=166)
 describes the same-IP 625 µs coarse clock, microsecond fine count, and
@@ -193,3 +198,19 @@ and waits for the guest's `STICKCPLUS2_BTN_A 1` marker before checking the
 green pixel. The
 [bounded evidence summary](rwbt-sleep-evidence-summary.json) binds each
 result to its original image, runtime, inputs, frame and retained ZIP.
+
+The integrated Device Service production tap run exercised the same original
+with `auto,sleep=on`. C reached home, the 100 ms B tap showed the disconnected
+mouse message, and the 100 ms A tap paused. The service queued a 2 s B hold.
+The guest then logged an IDLE0 task watchdog at 155.641 guest seconds before
+the settings frame appeared. It separately logged a `LoadProhibited` panic
+after the first reboot. Both app partitions still matched the original.
+This longer failure remains open alongside the shorter C-only result.
+
+The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
+cases once under ambient host load using the new Xtensa runtime and the
+existing C6 runtime. Its execution source predates the adaptive argument and
+Plus2 fixture changes. The seven explicit icount cases all used the same
+fixed Core2 arguments before and after that change, and the other 62 cases
+had no explicit icount arguments. The Plus2 fixture ran separately with the
+corrected adaptive clock and virtual tap.
