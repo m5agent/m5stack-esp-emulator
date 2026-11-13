@@ -39,7 +39,11 @@ static uint8_t received[1024];static unsigned received_len;static int64_t now;
 #define qemu_chr_fe_set_handlers(...) (handlers_removed=true)
 #define timer_free(t) (timer_freed=true)
 static int qemu_chr_fe_write(CharBackend *chr,const uint8_t *bytes,int len){
- if(write_limit<0)return -1;int count=MIN(len,write_limit);assert(received_len+count<=sizeof(received));
+ if (write_limit < 0) {
+  return -1;
+ }
+ int count = MIN(len, write_limit);
+ assert(received_len + count <= sizeof(received));
  memcpy(received+received_len,bytes,count);received_len+=count;return count;
 }
 """
@@ -53,10 +57,16 @@ int main(int argc,char **argv){
  case 0:wr(0x14,~0u);wr(0x10,8);wr(0,65);wr(0,66);wr(0,67);assert(!received_len);
   wr(4,1);assert(!(rd(4)&2)&&!irq_level);tick(&s);assert(received_len==3&&!memcmp(received,"ABC",3)&&irq_level&&(rd(4)&2));break;
  case 1:for(int i=0;i<65;i++)wr(0,i);assert(!(rd(4)&2));tick(&s);assert(received_len==64);
-  for(int i=0;i<64;i++)assert(received[i]==i);break;
+  for (int i = 0; i < 64; i++) {
+   assert(received[i] == i);
+  }
+  break;
  case 2:for(int i=0;i<5;i++)wr(0,i+7);wr(4,1);write_limit=2;tick(&s);assert(received_len==2&&!(rd(4)&2));
   tick(&s);assert(received_len==4&&!(rd(4)&2));tick(&s);assert(received_len==5&&(rd(4)&2));
-  for(int i=0;i<5;i++)assert(received[i]==i+7);break;
+  for (int i = 0; i < 5; i++) {
+   assert(received[i] == i + 7);
+  }
+  break;
  case 3:wr(0,42);wr(4,1);write_limit=0;tick(&s);assert(!received_len&&!(rd(8)&8)&&!(rd(4)&2));
   write_limit=-1;tick(&s);assert(!received_len&&!(rd(8)&8));write_limit=1;tick(&s);assert(received_len==1&&received[0]==42);break;
  case 4:{uint8_t data[]={9,8,7};wr(0x14,~0u);wr(0x10,4);receive(&s,data,3);assert(irq_level&&(rd(4)&4));

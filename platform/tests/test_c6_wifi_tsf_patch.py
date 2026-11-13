@@ -64,7 +64,10 @@ int main(int argc, char **argv) {
   assert(capture(0)==52);now=20000;assert(capture(0)==62);load(0,42);assert(capture(0)==42);break;
  case 7:load(0,UINT64_MAX-1);enable(0,true);now=3000;assert(capture(0)==1);break;
  case 8:for(unsigned i=0;i<4;i++){load(i,100*i);enable(i,i%2==0);}now=2000;
-  for(unsigned i=0;i<4;i++)assert(capture(i)==100*i+(i%2==0?2:0));break;
+  for (unsigned i = 0; i < 4; i++) {
+   assert(capture(i) == 100 * i + (i % 2 == 0 ? 2 : 0));
+  }
+  break;
  case 9:load(0,123);enable(0,true);now=2345;esp32c6_wifi_reset_hold(&s,0);
   now=900000;assert(capture(0)==0&&!(rd(0x50)&BIT(31)));break;
  case 10:load(0,42);enable(0,true);wr(0x14,1);now=100000;wr(0x14,1);

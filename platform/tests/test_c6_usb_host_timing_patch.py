@@ -73,7 +73,11 @@ int main(int argc,char**argv){
  assert(argc==2);unsigned test=atoi(argv[1]);init();
  switch(test){
  case 0: /* SOF is visible at MMIO before a delayed timer dispatch. */
-  for(int i=1;i<=8;i++)monitor_at(i*1000000);assert(s_usb_serial_jtag_conn_status&&removed==0);break;
+  for (int i = 1; i <= 8; i++) {
+   monitor_at(i * 1000000);
+  }
+  assert(s_usb_serial_jtag_conn_status && removed == 0);
+  break;
  case 1:wr(0x14,~0u);wr(0x10,8);wr(4,1);at(7999);assert(!(rd(8)&8));
   at(8000);run_due();assert((rd(8)&8)&&irq_level&&s.tx_packets==1&&received_len==0);break;
  case 2:fifo(64);at(63999);assert(!received_len&&!(rd(4)&2));
@@ -133,12 +137,18 @@ int main(int argc,char**argv){
    wr(0x18,(1u<<14)|(1u<<9));at(now+64000);run_due();assert(received_len==3*(gate+1));}break;
  case 23:{uint8_t b[64];memset(b,90,sizeof(b));esp32c6_jtag_receive(&s,b,64);
   assert(!esp32c6_jtag_can_receive(&s));b[0]=8;esp32c6_jtag_receive(&s,b,1);
-  for(int i=0;i<64;i++)assert(rd(0)==90);assert(esp32c6_jtag_can_receive(&s)==64);
+  for (int i = 0; i < 64; i++) {
+   assert(rd(0) == 90);
+  }
+  assert(esp32c6_jtag_can_receive(&s) == 64);
   esp32c6_jtag_receive(&s,b,1);assert(rd(0)==8);break;}
  case 24:drop_timer(&s);bound=false;esp32c6_jtag_reset_hold(&s,0);fifo(64);wr(4,1);at(10000000);
   assert(!(rd(4)&2)&&!(rd(8)&8)&&received_len==0&&rd(0x24)==0);break;
  case 25:fifo(64);wr(4,1);at(32000);wr(4,1);at(64000);run_due();assert(received_len==64);
-  for(unsigned i=0;i<64;i++)assert(received[i]==((i*7+3)&255));break;
+  for (unsigned i = 0; i < 64; i++) {
+   assert(received[i] == ((i * 7 + 3) & 255));
+  }
+  break;
  case 26:{ESP32C6UsbJtagState other={0};setup(&other);at(500000);esp32c6_jtag_reset_hold(&other,0);
   at(1000000);assert(rd(0x24)==1&&esp32c6_jtag_read(&other,0x24,4)==0);
   at(1500000);assert(esp32c6_jtag_read(&other,0x24,4)==1&&rd(0x24)==1);break;}
