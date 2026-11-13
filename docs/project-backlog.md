@@ -22,12 +22,12 @@
 ## 社区固件测试新增问题
 
 - [#205](https://github.com/m5agent/m5stack-esp-emulator/issues/205)：真实控制器方向元数据与显式 display 取帧已完成原版限定验证；剩余完整 native 回归、整合检查、main 与常驻发布及发布后复验。
-- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、SX1262、PHY/BLE AES/RNG 与 Nesso 显示/DMA 已有原驱动对照；剩余最终组合回归与发布。Launcher 独立 I2C 触摸配置的源码修复对照已完成，待上游交付；RFID 已发现 PCR 未接 MWDT 时钟及应用重复初始化 TWDT，需完成真实时钟修复和原 BIN 复验。Zigbee 无对应数据面，整项不关闭。
-- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：Matrix 的网络、RMT 和按键已有原版对照；重新构建后发现 IRQ 调度状态与 CPU 变频计数器连续性缺陷，修复候选已有原 Lite/Matrix 对照。剩余最终 fresh 运行时原版复验、完整回归与发布；远端厂测 HTTP 404 保留。
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界已通过定向回归；剩余最终组合回归与发布。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。Meshtastic RFID 原版另有 IDLE 订阅未喂狗问题，Zigbee 无对应数据面，整项不关闭。
+- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：IRQ 调度状态与 CPU 变频连续性修复已完成 fresh 运行时的原 Lite/Matrix/Matrix v1.1 复验；剩余完整高负载回归、主线与常驻发布验收。远端厂测 HTTP 404 保留。
 - [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：最终组合运行时上的原 UIFlow 1.15.5 已显示 Wi-Fi 配置页，原 HamRadio 从 SD 选择配置进入仪表页并运行 180 秒；剩余主线和常驻服务验收。远程无线电功能仍未验证。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。官方其它发布版本是否已集成该补丁仍未验证；需以对应原版包重新验收，不通过模拟器延时或修改本轮原 BIN 隐藏 SDK 竞态。
-- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：StickC Plus2 原 JIGGLER 的蓝牙低功耗时钟寄存器缺失；DPORT 读写/reset 与变频计数器修复已通过原 BIN 早期初始化；剩余 BLE coarse/fine 时钟模型、原 BIN 默认/auto 复验及应用首次显示。BLE HID 数据面独立验收。
-- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：Tab5 Maker Fighter 的 USB DWC 初始化断言需同原 BIN 复现并明确缺口分类；闭源后端缺少完整控制器/endpoint 时，不用伪造 GSNPSID 代替实现，实际枚举和传输仍待验收。
+- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：DPORT 读写/reset、变频计数器与 BLE coarse/fine 采样已通过控制及原 BIN 初始化子路径；原 BIN 尚未完成 C 长按手动唤醒验收，自动启动的设计熄屏不能单独判定未就绪。需核对 BR/EDR 低功耗与事件定时器路径并按真实输入复验，BLE HID 数据面独立验收。
+- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并按实际运行时元数据归为模型缺口；仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 eFuse 身份接线：服务已经明示 `unprovisioned`，后续如要提供非零身份，必须接通真实 controller/drive 并验证 guest API；不通过报告字段伪造读值。Core2 子项已由独立 controller/IDF API 证据移出待办。
 

@@ -43,10 +43,13 @@ descriptor/4 KiB 上限不等于完整 DMA 链支持。[恢复后的原版追踪
 确认 Launcher 的输入任务通过共享触摸配置释放显示任务持有的 SPI mutex；
 [完整 Launcher 与固定 M5GFX 源码对照](../tests/firmware/nesso_touch_bus_shared/README.md)
 已验证仅修正独立触摸配置即可消除该 owner 断言；原 BIN 不继承通过。
-RFID 的 PCR/MWDT 时钟接线与应用 TWDT 重复初始化分别继续核查，缺少 peer
-不能单独解释崩溃。新构建发现的高优先级 IRQ 调度状态和 CPU 变频计数器
-不连续已有 [原 Lite/Matrix/Core2 候选对照](../tests/firmware/classic_factory/irq-clock-recovery-summary.json)；
-最终 fresh 运行时、完整回归与发布仍单独验收。
+[RFID 时钟对照](../tests/firmware/esp32c6_mwdt_clock/README.md)区分 PCR 未接 MWDT
+时钟和应用 IDLE 订阅未喂狗；原 BIN 仍失败。全 OFF 阶段边界修正后，
+[fresh C6 定向复验](../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json)通过，完整组合发布仍独立验收。
+IRQ 调度状态和 CPU 变频连续性已完成 [fresh 原版复验](../tests/firmware/classic_factory/final-0194-0198-summary.json)，
+完整高负载矩阵与发布继续独立验收。[Tab5 USB DWC 缺口](../tests/firmware/tab5_usb_model_gap/README.md)
+按实际 `qemu` 会话元数据、特定自检断言及仍为 planned 的 controller 合同分类；
+原应用未就绪，闭源 P4 后端的控制器与 endpoint 缺口没有由分类修正关闭。
 
 ## 已关闭缺口
 

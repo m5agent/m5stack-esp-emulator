@@ -26,6 +26,8 @@ Launcher 的原 BIN 动态证据没有借用重建 ELF 的地址；源码修复�
 - [IRQ/CPU 变频控制](../../../tests/firmware/classic_factory/README.md)：正式 0194 跟踪实际中断槽；0197 在变频时保持 CCOUNT 连续并重排未来 CCOMPARE。增量候选 `a2c5e415…` 的原 Matrix/Lite 各 130 秒、Core2 UIFlow1 180 秒通过，旧 `dfb73748…` 与 MEMW 单行负控的 Matrix watchdog 仍保留。最终 fresh 组合验收不由这三例替代。
 - [Nesso 触摸源码控制](../../../tests/firmware/nesso_touch_bus_shared/README.md)：同 C6 `e4c9bb8d…` 上，完整固定 Launcher 和两份固定 M5GFX 探针均在未修版触发 owner assert；仅修改独立触摸 `bus_shared=false` 后，各运行超过 155 秒。完整应用通过菜单、触摸、返回及设置页；原发布 BIN 保持 FAIL。
 
+正式 146 补丁 fresh 构建 `35c35ef2…` 已完成[五条原版路径与 SD/IMU 定向回归](../../../tests/firmware/classic_factory/final-0194-0198-summary.json)。所有原 app 字节、ZIP-before-stop 与清场保持独立绑定；原厂 HTTP 404、HamRadio 首轮 harness 缺依赖和 JIGGLER 无输入观察的验收边界均保留。共享高负载矩阵与常驻交付另行验收。
+
 ## 身份与可复核范围
 
 - [运行时身份](runtime-identity.json)记录新旧 SHA、构建配方及证据可用性。
@@ -38,4 +40,4 @@ Launcher 的原 BIN 动态证据没有借用重建 ELF 的地址；源码修复�
   最初失败仍保留。C6 首次错误环境变量运行不计入新运行时验收。
 
 物理硬件、RF 和 browser-WASM 不继承这些原生结果。RFID 未连接外设
-不足以解释其重启；PCR/MWDT 时钟接线和重复 TWDT 初始化继续独立验证。没有修改原 BIN，也没有提交 Burner。
+不足以解释其重启；[PCR/MWDT 与 fresh C6 对照](../../../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json)已区分模型计时错误和原应用 IDLE 未喂狗。没有修改原 BIN，也没有提交 Burner。

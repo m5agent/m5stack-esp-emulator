@@ -22,6 +22,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| 146 补丁 fresh 原版复验 / virtual-device validation | Xtensa `35c35ef2…` 上原 Lite/Matrix/Matrix v1.1 各 130 秒，原 UIFlow1/HamRadio 各 180 秒；应用字节不变，真实输入/帧/网络/SD 子路径通过，Matrix HTTP 404 保留。SD/IMU 两项定向 case 单 attempt 通过；Pillow harness 错误另记 INFRA_FAILED；完整高负载和发布未由此授予 | [精确 SHA、阶段帧和清场](../tests/firmware/classic_factory/final-0194-0198-summary.json) |
+| C6 PCR/MWDT 计时对照 / virtual-device validation | 原 `e4c9bb8d…` 六控只过 80 MHz；增量 `d7a6f11d…` 六控通过，原 RFID 5 秒首超时恢复为 5002 guest ticks，但 IDLE 未喂狗导致重启仍 FAIL。全 OFF 阶段 host 边界另发现零时循环，最终修复另验，不授整组发布 | [controller 与原 BIN 两类原因](../tests/firmware/esp32c6_mwdt_clock/README.md) |
+| 19 补丁 fresh C6 / virtual-device validation | `3679e74e…` 上六项 PCR 时钟和三项 OFF 阶段控制通过，Nesso 外设/LoRa 单 attempt 通过；原 Mesh/Bruce 各超过 150 秒，按键/触摸/唤醒/请求 reset 后重挂载通过。原 RFID 仍一次非请求重启；五个 Device Service 会话均取证后停止，Flash/租约及进程清场 | [新 SHA、原 BIN 与失败历史](../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json) |
+| #226 Tab5 原版 USB 自检 / virtual-device validation | 原 `d9696236…` 在 P4 `a4c3468a…` 观察 40.199 秒、20 次 GSNPSID 断言，应用分区不变并取证后清场；同完整串口使用实际 `runtime=qemu` 重分类为模型缺口。最初无 guest 的 HTTP 400 和旧错误参数报告保留；USB 数据面/应用就绪未通过 | [同路径运行、分类重放与边界](../tests/firmware/tab5_usb_model_gap/README.md) |
 | IRQ/CPU 变频候选 / virtual-device validation | 0194 记录实际高优先级 IRQ 槽，0197 保持变频 CCOUNT 连续并重排未来 compare；增量 `a2c5e415…` 原 Matrix/Lite 各 130 秒与 UIFlow1 180 秒通过，旧失败和仅恢复 MEMW 门控的失败保留。最终 fresh 组合验收另行追加 | [控制历史与边界](../tests/firmware/classic_factory/irq-clock-recovery-summary.json) |
 | Nesso 触摸总线 / virtual-device validation | `e4c9bb8d…` 上原 Launcher 的实际错误任务释放链已定位；完整固定 Launcher、M5GFX 0.2.19 和固定 master 三组源码未修/修复对照通过。修正版各超过 155 秒，完整应用菜单/触摸/返回/设置正常；原发布 BIN 仍 FAIL | [源码、输入、SHA 与复现](../tests/firmware/nesso_touch_bus_shared/README.md) |
 | #205 原生帧方向 / virtual-device validation | native `fb90044a…`，原版 Bruce/Launcher/PulseOS/AirMouse/小智分别90/90/270/180/0度，同sample独立Pillow全像素一致、可读帧和取证后停止通过。192项相关host/API checks通过；额外UART探针未同步保留失败，镜像/reset只有host C证据 | [方向、固件身份与边界](evidence/2026-11-13-native-frame-orientation/README.md) |
