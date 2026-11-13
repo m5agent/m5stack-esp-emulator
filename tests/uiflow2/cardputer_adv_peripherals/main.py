@@ -1,9 +1,12 @@
 import M5
 import time
 from M5 import *
+from hardware import UART
 
 
 M5.begin()
+# The default Python console is not guaranteed to use UART0 on this image.
+_evidence_uart = UART(0, baudrate=115200, tx=43, rx=44)
 d = M5.Display
 d.fillScreen(d.COLOR.BLACK)
 d.setTextColor(d.COLOR.WHITE)
@@ -55,8 +58,8 @@ while True:
             gyro[0], gyro[1], gyro[2],
         )
         if now_ok and not ok:
-            print("CARDPUTER_ADV_IMU_ACCEL", *accel)
-            print("CARDPUTER_ADV_IMU_GYRO", *gyro)
+            _evidence_uart.write("CARDPUTER_ADV_IMU_ACCEL %.5f %.5f %.5f\n" % accel)
+            _evidence_uart.write("CARDPUTER_ADV_IMU_GYRO %.5f %.5f %.5f\n" % gyro)
         ok = now_ok
     except Exception as exc:
         detail = repr(exc)[:58]
@@ -66,5 +69,5 @@ while True:
         last_state = state
         draw_state()
         if ok:
-            print("CARDPUTER_ADV_IMU_DRAW_COMPLETE")
+            _evidence_uart.write("CARDPUTER_ADV_IMU_DRAW_COMPLETE\n")
     time.sleep_ms(100)
