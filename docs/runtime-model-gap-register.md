@@ -1,6 +1,6 @@
 # 运行时模型缺口登记
 
-日期：`2026-11-13`
+日期：`2026-11-14`
 
 本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
 运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
@@ -52,7 +52,7 @@ IRQ 调度状态和 CPU 变频连续性已完成 [fresh 原版复验](../tests/f
 原应用未就绪，闭源 P4 后端的控制器与 endpoint 缺口没有由分类修正关闭。
 
 [#225 最终原版对照](../tests/firmware/stickc_plus2_bt_lp_clock/bounded-adaptive-evidence-summary.json)在 `5ce7d9f5…` 上通过默认固定步长和两轮有界自适应：原 JIGGLER 进入主界面及设置页，正常看门狗下没有复位。DPORT/RWBT 复位域另有控制器 qtest。旧无界自适应失败保留，其首次 IDLE0 超时的完整事件链尚未定位；BLE HID 数据面不由本次显示/输入结果授予。
-[C6 最终原版与控制器对照](../tests/firmware/esp32c6_shared_irq_pad/README.md)记录真实 eFuse、USB endpoint、TSF 与共享 GPIO3 pad 的限定路径。pad 通过不代表 CPU GPIO 中断矩阵、BMI IRQ 或 FT6336 精确中断时序已实现；Honeypot 只通过完整配置输出，AP/HTTP/RF 未验，802.15.4 数据面仍缺失。
+[C6 最终原版与控制器对照](../tests/firmware/esp32c6_shared_irq_pad/README.md)记录真实 eFuse、USB endpoint、TSF 与共享 GPIO3 pad 的限定路径。此前 pad 结果不授予 CPU 中断；后续 [GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已补 raw/masked pending、五种模式、清除/重触发与复位，经 Nano/Nesso 公共 IDF ISR 和原版 UIFlow `Pin.irq` 同镜像新旧对照通过。NMI/source 31、唤醒/滤波、BMI270 IRQ 生成和 FT6336 精确模式/脉冲/扫描时序仍未实现；Honeypot 只通过完整配置输出，AP/HTTP/RF 未验，802.15.4 数据面仍缺失。
 Core2 AWS 原版的最终显示复验通过，但串口中的 BMI270 加速度/陀螺仪读取失败
 保留，未由介绍页授予传感器或云端功能通过。
 

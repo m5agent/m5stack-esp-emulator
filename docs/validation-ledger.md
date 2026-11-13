@@ -16,6 +16,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-14
 
+[C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md)：新 runtime `69493c4e…` 与旧 `80d92a6c…` 在同 BIN、输入和 ROM 上对照。Nano IDF 旧 12/21、新 21/21；Nesso IDF 旧 14/26、新 26/26；原版 Nesso UIFlow `fcbd588f…` 保留执行分区并组合 VFS 探针为 `16255a35…`，可见 Device Service 的两轮/一次复位为旧 20/32、新 32/32，真实回调由零变为每轮六次。ZIP、执行分区 SHA、画面及清场独立核验；初次前置依赖失败保留。新增矩阵 case 16/16 和可移植 IDF runner 21/21 分别通过。不是未改全 BIN、物理中断时序、浏览器 WASM 或部署后验收。
+
 [云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md)：执行源码 `3a4408e4…`、站点 `c9a3b79f…`、同一原版 CoreS3 `5847a2bc…` 与 Xtensa `5ce7d9f5…`。授权身份 195 秒的 UI/身份 36 项通过，5,847 次 304；标准 PONG 仍为零并超时重连，持续连接 FAIL。默认持久 key 的独立 45 秒 27 项通过、1,176 次 304，取码与未绑定状态分开显示。真实旧服务拒绝身份参数发生在 POST 前。前置 COI、阶段划分及随附 Chromium 304 事件差异造成的脚本失败均保留；新观察没有改写旧 FAIL。
 
 [UIFlow2 身份与 WebREPL 心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)：同一 CoreS3 原 BIN `5847a2bc…`、Xtensa `5ce7d9f5…` 的默认会话身份在约 68 秒出现 20 次有效握手、云端身份拒绝及 server-first FIN。授权身份收到真实 `deviceConnected` 和文本心跳，但无 control Pong，约 151 秒后 guest-first FIN，串口明确 PONG 超时；不能称长期连接通过。独立宿主标准协议对照仅作为诊断，未替代虚拟设备验收。旧配对码获取结果不等于账号绑定或 WebREPL 就绪。

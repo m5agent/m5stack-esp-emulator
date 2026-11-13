@@ -296,6 +296,7 @@ StickS3 `servo8-hat@0x36`、CoreS3 `8servos@0x25`、Joystick2
 `scripts/bootstrap-c6-runtime.py` 固定 ESP32-C6 独立基点、补丁和 riscv32 构建，
 保留源码/运行时哈希并拒绝覆盖不属于该配方的源码；入口见
 [C6 补丁说明](../patches/qemu-esp32c6-uiflow2-adapters/README.md)。
+`tests/firmware/esp32c6_gpio_irq/run_test.py` 以固定 runtime/ROM/构建回执、公共 IDF ISR 与真实 UART/QMP 输入比较普通 GPIO source 30；`tests/uiflow2/nesso_gpio_irq/` 保留原 UIFlow 执行分区，经 USB Serial-JTAG console 2 和逐标记输入回归共享 GPIO3 的 `Pin.irq`。复现与限制见 [C6 GPIO 证据](evidence/2026-11-14-c6-gpio-irq/README.md)。
 `scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
 `tests/units/runtime_evidence.py` 从活跃 session 的本地 QEMU PID 采样实际
