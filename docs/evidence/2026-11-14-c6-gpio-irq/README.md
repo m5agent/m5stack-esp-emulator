@@ -74,7 +74,9 @@ run explicitly sets `M5SW_C6_BOARD=nesso-n1`; the earlier default-board PASS is
 retained separately. Matrix composition additionally includes the unimported
 common `rtc_probe.py`, so its composed BIN has a separate SHA
 `623a45423230352e354eb2f6c2f5c2bc1f7bec8472c9f9149ade3e4f4981ad42`.
-The complete native matrix and deployment remain separate pending gates.
+At that checkpoint, the complete native matrix and deployment were pending.
+The later [full native matrix](native-matrix/README.md) passed 70/70; deployment
+remains a separate gate.
 
 NMI/source 31, sleep/wake/filter timing, BMI270 IRQ generation and FT6336 trigger
 pulse timing remain **NOT IMPLEMENTED / not validated by this change**.
