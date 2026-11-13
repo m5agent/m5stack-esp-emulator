@@ -20,6 +20,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [COI 条件取帧修复](evidence/2026-11-14-uiflow-cloud-identity/README.md)：真实 Chrome 13 例对照包含旧 Worker 失败及原地址更新恢复。同一原版 CoreS3 在修正后的候选站点 `a0705b95…` 完成 195 秒观察，5,859 次 304 成功、运行期 API 请求失败/HTTP 错误/页面错误均为零；真实云端 PONG 超时及重连仍 FAIL。证据 ZIP `503c88a7…` 校验和停止清场通过，先前页面误判及 910 次取帧失败保留。主机全量 Python 2,217 项通过、8 项跳过；该主机结果不替代 guest 执行。
 
+[Tab5 稳定后端原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)：固定服务 `a5990e72…`、正式 v1.0.0 `cdfe1e8f…` 下，原 UIFlow2 `94b6b43c…` 的 120.909 秒包含 133 次旧 CSR 指令故障；原 Maker Fighter `d9696236…` 的 60.516 秒包含 79 次同类故障，USB 未到达。两个 guest 均 FAIL，应用区原字节、4 项 ZIP manifest、完整 P4/C6 角色与清理均通过独立审计。后置 GDB 不是 fault-stop，不据零 DSI 推断 PHY 结论；此前失败不覆盖，未替换常驻后端。
+
 ## 2026-11-13
 
 原生后续：[SPI SD / RMT / 缓存 / C6 / SDK 竞态对照](evidence/2026-11-13-native-compatibility-followup/README.md)分别绑定原 BIN、运行时和失败控制；最终组合矩阵与常驻交付已由下方独立证据追加，旧失败及原有执行身份保持不变。

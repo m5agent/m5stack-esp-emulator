@@ -28,7 +28,7 @@
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。Meshtastic RFID 原版另有 IDLE 订阅未喂狗问题，Zigbee 无对应数据面，整项不关闭。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
-- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并按实际运行时元数据归为模型缺口；仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
+- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并归为模型缺口；[稳定后端复测](evidence/2026-11-14-tab5-stable-originals/README.md)被更早的旧 P4 CSR 故障阻断，仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 身份剩余范围：NanoC6 真实 controller/drive 与 guest API 的隔离和复位稳定性已验证；802.15.4 extended-address 寄存器数据面仍需实现，再验收 Zigbee 身份及协议。不将 NanoC6 子路径转授其它板型或用报告字段伪造读值。
 - Nesso N1 中断剩余范围：共享 GPIO3 pad 和扩展器锁存已有控制器证据；CPU GPIO 中断矩阵分发、BMI270 IRQ 与 FT6336 精确 IRQ 时序仍需实现并以相应 guest 驱动验收。

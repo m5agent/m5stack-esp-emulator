@@ -1,0 +1,63 @@
+{
+  "expected_runtime_role_counts": {
+    "p4": 1,
+    "c6": 1
+  },
+  "observed_start_role_counts": {
+    "p4": 1,
+    "c6": 1,
+    "unexpected": 0
+  },
+  "runtime_role_set_confirmed": true,
+  "runtime_roles_present_at_samples": true,
+  "observed_seconds": 120.909,
+  "gdb_observation": {
+    "state": "observed",
+    "exit_code": 0,
+    "after_main_observation_window": true,
+    "commands_write_registers": false,
+    "gdb_sha256": "6cb70ad8a5bd8cb5f34a4f04ca8d4fb329dee83d0ba7edaf5e8498e4c15139e5"
+  },
+  "frame_api_result": "api_http_409",
+  "source_commit": "a5990e720a8c79310456bf5868141f4cfd50afe8",
+  "original_firmware_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+  "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+  "normalized_firmware_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+  "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+  "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+  "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+  "evidence_before_stop": true,
+  "guest_stopped": true,
+  "flash_released": true,
+  "lease_released": true,
+  "p4_and_c6_exited": true,
+  "runtime_role_cleanup": "verified",
+  "owned_service_exited": true,
+  "rom_boots": 134,
+  "dwc_identity_assertions": 0,
+  "old_clic_instruction_faults": 133,
+  "panic_markers": 266,
+  "micropython_banner_observed": false,
+  "application_ready": "NOT_ESTABLISHED",
+  "frame_and_touch": "NOT_ESTABLISHED",
+  "usb_host_enumeration": "NOT_RUN",
+  "usb_host_transfer": "NOT_RUN",
+  "result": "FAIL",
+  "evidence_manifest_files": 4,
+  "evidence_manifest_valid": true,
+  "evidence_sha256": "70e665518a35b6a249b559d808eb5180c814a065fbe9e409577a517247a00f87",
+  "serial_sha256": "2e38f313bc00093c5c24a3a07115eed8d06d299d9424382bbc90a2221fb6142b",
+  "serial_bytes": 652055,
+  "app_partitions": [
+    {
+      "offset": 65536,
+      "size": 10027008,
+      "sha256": "f49ac654a62bd521a0ee9e1adbbcf90db8b9f29cbd4493a88786eee6612971a5",
+      "unchanged": true
+    }
+  ],
+  "issue": 188,
+  "validation": "virtual-device validation",
+  "harness_status": "PASS",
+  "guest_failure_not_masked": true
+}

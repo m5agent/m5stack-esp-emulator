@@ -1,0 +1,96 @@
+{
+  "source_commit": "a5990e720a8c79310456bf5868141f4cfd50afe8",
+  "kind": "independent offline audit of actual Device Service evidence",
+  "cases": [
+    {
+      "issue": 188,
+      "summary_sha256": "70fc7d631aa0d9b85b867f8cd2d72b313b5c56668f2a298b48718ef9c5c1154c",
+      "original_firmware_hash_matches": true,
+      "zip_sha256_matches": true,
+      "all_manifest_entries_valid": true,
+      "zip_serial_matches_final_log": true,
+      "app_rows_match_summary": true,
+      "roles": {
+        "c6": 1,
+        "p4": 1
+      },
+      "unique_role_processes": true,
+      "actual_runtime_hash_matches": true,
+      "actual_chip_role_flags_match": true,
+      "p4_no_unmatched_elf": true,
+      "start_tokens_present": true,
+      "captured_processes_now_gone": true,
+      "owned_service_now_gone": true,
+      "terminal_stopped_and_flash_lease_released": true,
+      "serial_fault_pc_counts": {
+        "0x4ff0255c": 133
+      },
+      "serial_fault_instruction_counts": {
+        "0x34602773": 133
+      },
+      "micropython_banner_present": false,
+      "dwc_assertions": 0,
+      "guest_result": "FAIL",
+      "usb_regression_result": "NOT_RUN",
+      "gdb_fixed_address_is_not_fault_instruction_proof": true,
+      "timeline_samples": 116,
+      "all_sampled_session_pids_match_p4": true,
+      "all_sampled_sessions_running": true,
+      "gdb_snapshot": {
+        "values": {
+          "pc": "0x4ff2ec3e",
+          "word_at_prior_fault_probe_address": "0xcc36d3c0",
+          "dsi_reset": "0x00000000",
+          "dsi_status": "0x00000000"
+        },
+        "stdout_sha256": "26bc76e52d66aa7edccac2800a16a0f270e70e5f2a8ec3344aec1bd96e90e493",
+        "interpretation": "single read-only sample during a repeated boot/fault loop; not a fault-stop or PHY initialization result"
+      }
+    },
+    {
+      "issue": 226,
+      "summary_sha256": "cadf602c97690186b80f941b18078879b9ca67a1ec058794146fd23b662387e8",
+      "original_firmware_hash_matches": true,
+      "zip_sha256_matches": true,
+      "all_manifest_entries_valid": true,
+      "zip_serial_matches_final_log": true,
+      "app_rows_match_summary": true,
+      "roles": {
+        "c6": 1,
+        "p4": 1
+      },
+      "unique_role_processes": true,
+      "actual_runtime_hash_matches": true,
+      "actual_chip_role_flags_match": true,
+      "p4_no_unmatched_elf": true,
+      "start_tokens_present": true,
+      "captured_processes_now_gone": true,
+      "owned_service_now_gone": true,
+      "terminal_stopped_and_flash_lease_released": true,
+      "serial_fault_pc_counts": {
+        "0x4ff01d82": 79
+      },
+      "serial_fault_instruction_counts": {
+        "0x34602773": 79
+      },
+      "micropython_banner_present": false,
+      "dwc_assertions": 0,
+      "guest_result": "FAIL",
+      "usb_regression_result": "NOT_REACHED",
+      "gdb_fixed_address_is_not_fault_instruction_proof": true,
+      "timeline_samples": 58,
+      "all_sampled_session_pids_match_p4": true,
+      "all_sampled_sessions_running": true,
+      "gdb_snapshot": {
+        "values": {
+          "pc": "0x4fc0405c",
+          "word_at_prior_fault_probe_address": "0x59713fdc",
+          "dsi_reset": "0x00000000",
+          "dsi_status": "0x00000000"
+        },
+        "stdout_sha256": "cacc41e2dc2b39293bf620ad831169f1c8434d1457855cafe9734f39d31223cd",
+        "interpretation": "single read-only sample during a repeated boot/fault loop; not a fault-stop or PHY initialization result"
+      }
+    }
+  ]
+}

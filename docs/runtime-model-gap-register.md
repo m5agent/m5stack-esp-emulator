@@ -162,7 +162,7 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) 保持 OPEN。
 同一未改应用字节的 v2.5.4 在 esp-emu 0.51.0 中等待 DSI PHY PLL lock，
-1.0.0-rc2 则在旧 P4 `mintstatus` CSR `0x346` 读取处触发非法指令；已使用
+1.0.0-rc2 和[正式 v1.0.0 原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)均在旧 P4 `mintstatus` CSR `0x346` 读取处触发非法指令；后者的 Maker Fighter 也未到 USB 初始化，不能据缺少 DWC 断言关闭 USB 缺口。已使用
 rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需上游补齐
 修订版 CLIC 和实际 DSI PHY 状态转换，再从原 BIN 验证 Python/UI/touch。
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
