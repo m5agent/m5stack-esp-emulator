@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 211,
+  "status": "PASS",
+  "validation": "virtual-device validation (browser WASM)",
+  "source_ui_commit": "8598b1f603ae6638a3f6d27824431781429b9e49",
+  "site_manifest_sha256": "48d868d88ce2ac5e615e6812a9295427b8c6b90ea1049537fd74569d384422da",
+  "implementation_commit": "6d02f46685e4b60d4553fcb312e2c81a4b45c2e8",
+  "test_harness_sha256": "d3497c2855d56804003cd86ef1a77e4aa6fbd54cbdf253b40f3d7baa126c9a47",
+  "scope": "Isolated export of the current user interface with existing pinned browser runtime; not a new Pages deployment or native-runtime result.",
+  "demo": {
+    "checks": 49,
+    "all_checks_pass": true,
+    "receipt": {
+      "engine": "qemu-wasm",
+      "deviceId": "cores3",
+      "board": "m5cores3",
+      "profile": "cores3-wasm-stock-wallclock",
+      "clockDivisor": 1,
+      "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+      "javascriptSha256": "5bc49e135de4900fd3444e7e8bf431e6ec91748e24bb15e294017c9930c3dffb",
+      "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "wasmSha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+      "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmwareInputSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "firmwareRuntimeSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "normalization": {
+        "kind": "none",
+        "inputBytes": 16777216,
+        "runtimeBytes": 16777216
+      }
+    },
+    "check_names": [
+      "pages-service-worker-shared-memory",
+      "explicit-public-reference-example",
+      "actual-cores3-lvgl-ready",
+      "c-qemu-runtime-and-exact-fixture",
+      "real-frame-pixels",
+      "cold-before-input-actual-clicks-and-count-pixels",
+      "actual-raw-canvas-input-target-visible",
+      "actual-trusted-native-pointer-down-up",
+      "negative-touch-does-not-click",
+      "actual-raw-canvas-input-target-visible",
+      "actual-trusted-native-pointer-down-up",
+      "actual-dom-touch-lvgl-callback",
+      "cold-stock-same-fixture-receipt",
+      "cold-stock-controller-down-up",
+      "cold-stock-controller-hold",
+      "cold-stock-guest-clicks1",
+      "cold-clicks1-actual-clicks-and-count-pixels",
+      "pir-qom-readback",
+      "pir-guest-both-transitions",
+      "qmp-pause-stops-guest-progress",
+      "qmp-resume",
+      "layout-1440",
+      "layout-1024",
+      "layout-768",
+      "layout-390",
+      "quit-and-container-cleanup",
+      "first-engine-and-five-pthreads-close-before-iframe-removal-pthreads-before-iframe-finalization",
+      "first-engine-and-five-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+      "no-instance-frame-after-stop",
+      "dedicated-engine-closing-notification-without-owner-fallback",
+      "local-history-retains-hash",
+      "shared-reference-restores-example",
+      "fresh-guest-reopen-from-shared-reference",
+      "shared-reference-exact-runtime-variant",
+      "reopened-before-input-actual-clicks-and-count-pixels",
+      "actual-raw-canvas-input-target-visible",
+      "actual-trusted-native-pointer-down-up",
+      "reopened-real-touch-clicks1",
+      "reopened-stock-same-fixture-receipt",
+      "reopened-stock-controller-down-up",
+      "reopened-stock-controller-hold",
+      "reopened-stock-guest-clicks1",
+      "reopened-clicks1-actual-clicks-and-count-pixels",
+      "reopen-cleanup",
+      "both-engines-and-ten-pthreads-close-before-iframe-removal-pthreads-before-iframe-finalization",
+      "both-engines-and-ten-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+      "reopened-engine-notification-without-owner-fallback",
+      "no-service-or-local-emulator-requests",
+      "no-javascript-errors"
+    ],
+    "actual_trusted_pointer_trials": 3,
+    "requested_touch_hold_ms": 650,
+    "visual_samples": [
+      {
+        "name": "cold-before-input",
+        "state": 0,
+        "sequence": 12,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+          }
+        ]
+      },
+      {
+        "name": "cold-clicks1",
+        "state": 1,
+        "sequence": 35,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+          }
+        ]
+      },
+      {
+        "name": "reopened-before-input",
+        "state": 0,
+        "sequence": 12,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "467791f6a283bc099e6f4004b3ff01b9821760194c99e06979092092c15bb23f"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "ff20083d11136131f279d5a9255a29eb166917c7f53066ced19cdcfd62b65c8e"
+          }
+        ]
+      },
+      {
+        "name": "reopened-clicks1",
+        "state": 1,
+        "sequence": 33,
+        "regions": [
+          {
+            "name": "Clicks label",
+            "rgba_sha256": "7755d8e1afc5dcbff0477707b761f924703fe98a86da1a71aa33345e5f801b94"
+          },
+          {
+            "name": "Count button text",
+            "rgba_sha256": "54b3f99534946e2e95d8ed92a5913915ae838ee56bef93491838fb517121ee3e"
+          }
+        ]
+      }
+    ],
+    "worker_cleanup": [
+      {
+        "name": "first-engine-and-five-pthreads-close-before-iframe-removal",
+        "pthreads_before_iframe_ok": true,
+        "all_targets_gone_before_context_close": true
+      },
+      {
+        "name": "both-engines-and-ten-pthreads-close-before-iframe-removal",
+        "pthreads_before_iframe_ok": true,
+        "all_targets_gone_before_context_close": true
+      }
+    ],
+    "report_sha256": "318dc5fc82364ef7926bab8042ea5da4706c40fef8d94c84f4fdd36d3e45072f",
+    "serial_and_evidence_sha256": "9ec189ffebeaf9301c948263889ebce754b75f0f97bfef97c95c3316234b9288"
+  },
+  "stock": {
+    "status": "PASS",
+    "checks": 13,
+    "receipt": {
+      "engine": "qemu-wasm",
+      "deviceId": "cores3",
+      "board": "m5cores3",
+      "profile": "cores3-wasm-vm-div8",
+      "clockDivisor": 8,
+      "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+      "javascriptSha256": "5bc49e135de4900fd3444e7e8bf431e6ec91748e24bb15e294017c9930c3dffb",
+      "workerSha256": "b3da90501116a254f0518048ff154ee695aa889ce168573adaf78e13bd5d3d8d",
+      "wasmSha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+      "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmwareInputSha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmwareRuntimeSha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73",
+      "normalization": {
+        "kind": "pad-ff",
+        "inputBytes": 16121856,
+        "runtimeBytes": 16777216
+      }
+    },
+    "input_bytes": 16121856,
+    "runtime_bytes": 16777216,
+    "check_names": [
+      "source-and-normalized-Flash-sha256",
+      "isolated-export-runtime-identity",
+      "isolated-static-tab",
+      "selected-browser-local-file-with-source-sha",
+      "guest-develop-tab-and-web-ide-match-stable-ROIs",
+      "dual-sha-and-separate-boot-frame-app-status",
+      "real-same-guest-frame-and-serial",
+      "browser-observed-WASM-bytes-match-runtime-manifest",
+      "stock-repl-unavailable-kept-separate-from-boot",
+      "stop-retains-same-session-record-and-removes-iframe",
+      "worker-targets-gone-before-browser-close",
+      "bad-source-sha-rejected-without-stale-frame-or-record",
+      "no-native-service-or-firmware-CDN-requests"
+    ],
+    "official_develop_screen_visually_confirmed": true,
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "sequence": 307,
+      "sha256": "f66ef53461cf497a1a6ac5de0631626b95e35fdd0d06b1041c00dcf2c2f3c51c",
+      "source": "qemu-display-surface-shared"
+    },
+    "screenshot_sha256": "565984ac24e8ecd8e134d71eef31806b394869254f126fcc13ff013d4a10800e",
+    "application_ready": "unknown",
+    "repl": "NOT AVAILABLE on this original BIN; runtime remains running and display verdict remains separate",
+    "bad_sha_rejected_without_stale_frame_or_evidence": true,
+    "download_requested_state_and_saved_json_parsed": true,
+    "same_session_before_after_stop": true,
+    "worker_targets_observed": 6,
+    "worker_targets_remaining": 0,
+    "report_sha256": "f43c172621111a0baa9310aa491891bcadf843f3d159a119f387b0580dd40060",
+    "running_evidence_sha256": "76a0ccc94458e4ea8be24a56aec0147520a5bc7f24a467f7f503608c346143ec",
+    "stopped_evidence_sha256": "50c8e23d9943744e201d712237109049834aad7858a44693a254f47bdfd5a380"
+  },
+  "retained_failure": {
+    "status": "HOST_HARNESS_FAIL",
+    "reason": "Local static test server wrote HTTP 200 headers before reading a missing file, then attempted a second 404 response. Fixed by reading bytes before writing headers. No firmware failure inferred.",
+    "log_sha256": "fc3a0e69796586018fd1aca87e7e477634b3fb5eef5efa202bbe80d5bb8fdaf4"
+  },
+  "limits": {
+    "physical_hardware": "NOT RUN",
+    "native_cloud_pairing": "separate validation; not inherited here",
+    "browser_network_cloud_pairing": "NOT RUN",
+    "extension_permission_error": "native-picker fallback documented; that extension-specific error was not reproduced by Playwright local input",
+    "arbitrary_stock_repl": "not granted"
+  },
+  "privacy": "Raw serial, screenshots, requests, URL, device/session identifiers and detailed worker records retained privately; public fields selected by whitelist."
+}

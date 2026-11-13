@@ -174,8 +174,9 @@ try{
         const file=resolve(site,decodeURIComponent(path.slice(base.length))||'index.html');
         if(!file.startsWith(site+'/')){res.writeHead(403).end();return;}
         // Deliberately no COOP/COEP response headers: exercise the Pages SW.
+        const body=await readFile(file);
         res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'no-cache'});
-        res.end(await readFile(file));
+        res.end(body);
       }catch{res.writeHead(404).end();}
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));url=`http://127.0.0.1:${server.address().port}${base}`;

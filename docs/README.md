@@ -346,6 +346,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | --- | --- | --- | --- |
 | [UIFlow2 原版启动与云端配对](plans/2026-11-13-uiflow-cloud-startup.md) | 实施计划 | `2026-11-13` | 官方启动与本地编程分流；真实网络、NVS 与配对屏幕独立验收，保留浏览器网络边界 |
 | [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |
+| [#211 浏览器上传、输入与证据验收](evidence/2026-11-13-browser-skill-acceptance/README.md) | 证据/差异 | `2026-11-13` | 实际 WASM demo 触摸/PIR、原版 BIN 上传/双 SHA/REPL 边界/下载/负控和 Worker 清场；测试服务器 404 失败独立保留 |
 | [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |
 | [初代 Cardputer K132](evidence/2026-11-09-cardputer-k132/README.md) | 日期化原生证据 | `2026-11-09` | 两版原厂固件与 UIFlow2 的 LCD、键盘和未覆盖路径 |
 | [PaperS3 与 PaperDIY](evidence/2026-11-09-paper-et047tc1/README.md) | 日期化原生证据 | `2026-11-09` | 原厂演示、UIFlow2 探针、GT911、A/B 与数字墨水屏扫描 |

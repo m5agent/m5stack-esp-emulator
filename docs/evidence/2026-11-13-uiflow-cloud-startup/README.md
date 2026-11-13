@@ -1,5 +1,11 @@
 # 2026-11-13 UIFlow2 原版启动与云端配对
 
+后续交付已完成：源码 `8598b1f603ae6638a3f6d27824431781429b9e49` 已合 main，
+完整平台 2098 项（1 项跳过）、前端契约、四项验证器与远端 CI 通过。更新后的
+两个执行角色完成八次原版配对及一次本地编程复验，旧历史保留、会话全部清场。
+逐次证据和一次观察脚本失败见[固定发布后记录](https://github.com/m5agent/agent-work-logs/blob/1d3fae72bd990be3ddda105e4185f665916c8e7d/records/esp-emulator/2026-11-13-uiflow-cloud-startup/followups/2026-11-13-published-source-paths/README.md)。
+下文及 `summary.json` 保留部署前独立验证的当时状态，不覆盖原始记录。
+
 本轮为 **virtual-device validation**。最终独立 Device Service 的六款原版
 固件已收到真实 MQTT 配对响应，并保存原生 framebuffer、网络证据和停止历史。
 最终六帧已逐张确认官方页面显示可读六位 Access Code，原生路径为 **PASS**。
