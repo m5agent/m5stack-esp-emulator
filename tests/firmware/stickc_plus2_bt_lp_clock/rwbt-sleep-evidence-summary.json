@@ -638,5 +638,135 @@
     "lease_released": true,
     "flash_released": true,
     "owned_qemu_reaped": true
+  },
+  "rwbt_modem_reset_qtest": {
+    "status": "PASS_WITH_NEGATIVE_CONTROL",
+    "candidate_controls": {
+      "runtime_sha256": "302f9674a1af331870995e2df36ad9f014f9c1a1895b7b18ddfde9c43203fc81",
+      "controls": {
+        "unrelated_btbb_reset": [
+          513,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "cpu_only_reset": [
+          513,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "asserted_combined_reset": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "post_reboot_no_stale_irq": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "fresh_slot_after_reprogramming": [
+          1,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "mac_reset_preserves_active_lp_clock": [
+          4,
+          0,
+          0,
+          32775,
+          50,
+          0
+        ],
+        "lp_wake_during_mac_reset": [
+          4,
+          4,
+          4,
+          3,
+          100,
+          64
+        ],
+        "lp_reset_preserves_active_mac_irq": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          64
+        ],
+        "atomic_domain_swaps": [
+          56,
+          56
+        ]
+      }
+    },
+    "baseline_controls": {
+      "runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+      "controls": {
+        "unrelated_btbb_reset": [
+          513,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "cpu_only_reset": [
+          513,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "ignored_original_modem_reset": [
+          513,
+          1,
+          1,
+          3,
+          1,
+          64
+        ],
+        "stale_fine_and_slot_irq_after_reboot_pulse": [
+          513,
+          513,
+          513,
+          3,
+          1,
+          64
+        ]
+      }
+    },
+    "previous_candidate_atomic_swap_failed": true,
+    "existing_0200_controls_passed": 19,
+    "candidate_build_receipt_sha256": "7e64a440e4f2c816df2a25e3242cc860abea00818bd09eb90ecd5703c6d7e7b0",
+    "mmio_access_width_bytes": 4,
+    "original_candidate_control": {
+      "status": "FAIL_FIRST_TASK_WATCHDOG",
+      "runtime_sha256": "302f9674a1af331870995e2df36ad9f014f9c1a1895b7b18ddfde9c43203fc81",
+      "source_commit": "672f79aa66858e89a1e011bf99508007e797b8e5",
+      "wall_seconds": 210.054,
+      "first_task_watchdog_guest_ms": 48888,
+      "resets": 1,
+      "serial_sha256": "9aacb8867c39bf498f97fd6cff600ba449e44b4cb7acebf52cd8a4d6fa84bf28",
+      "evidence_zip_sha256": "aa2bdc62d1c60d1aaa2b920a44edd42c71e6e8704a093812e8312b0c7e90c7fb",
+      "original_flash_readback_unchanged": true,
+      "owned_guest_reaped": true,
+      "secondary_path_limit": "First reset preceded the prior observed RWBT startup. Absence of secondary H4 panic in this control is not equivalent-path evidence."
+    }
   }
 }
