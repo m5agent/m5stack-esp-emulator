@@ -1,0 +1,1172 @@
+{
+  "source_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+  "source_files": {
+    "tests/uiflow2/run_peripheral_matrix.py": "982009ea01d67f8c693ba02a0d3f62d718496ed7dfdca2520246512df7c33979",
+    "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd",
+    "platform/tools/qemu_accel.py": "32546ef8edbf7e6231c31c59149ad4436cbb1363fdbd4c418a15ea823ad20a33",
+    "platform/peripherals/runtime-coverage.json": "f8d21a3b12150ee03a25c1f47cc14f41adab9a14d3fdf83673024d6d4cdc1022"
+  },
+  "runtime": {
+    "xtensa": {
+      "binary_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "roms": {
+        "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+        "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+        "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+        "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      }
+    },
+    "c6": {
+      "binary_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "roms": {
+        "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713"
+      }
+    }
+  },
+  "firmware_sha256": {
+    "platform/.cache/firmware/atoms3r/uiflow2.bin": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+    "platform/.cache/firmware/cardputer-adv/uiflow2.bin": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+    "platform/.cache/firmware/core2/uiflow2.bin": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+    "platform/.cache/firmware/cores3/uiflow2.bin": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+    "platform/.cache/firmware/nesso-n1/uiflow2.bin": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+    "platform/.cache/firmware/papercolor/uiflow2.bin": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+    "platform/.cache/firmware/papermono/uiflow2.bin": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+    "platform/.cache/firmware/stackchan/uiflow2.bin": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+    "platform/.cache/firmware/stamplc/uiflow2.bin": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+    "platform/.cache/firmware/sticks3/uiflow2.bin": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+    "platform/.cache/firmware/stopwatch/uiflow2.bin": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+  },
+  "cases": [
+    "sticks3-peripherals",
+    "sticks3-audio",
+    "sticks3-mic",
+    "cardputer-adv-sd",
+    "cores3-sd",
+    "core2-sd",
+    "cardputer-adv-imu",
+    "cardputer-adv-keyboard",
+    "cardputer-adv-nfc",
+    "cardputer-adv-cc1101",
+    "cardputer-adv-audio",
+    "cardputer-adv-mic",
+    "atoms3r-peripherals",
+    "sticks3-ir",
+    "sticks3-ir-rx",
+    "cores3-peripherals",
+    "cores3-power-transitions",
+    "cores3-usb-hid",
+    "cores3-camera",
+    "stackchan-camera",
+    "cores3-audio",
+    "cores3-mic",
+    "stamplc-peripherals",
+    "stopwatch-peripherals",
+    "papermono-peripherals",
+    "papermono-buzzer",
+    "papermono-pdm-mic",
+    "papermono-rgb",
+    "papercolor-peripherals",
+    "papercolor-sd",
+    "papercolor-audio",
+    "papercolor-sht4x",
+    "papercolor-mic",
+    "papermono-nfc",
+    "papermono-lora",
+    "stackchan-nfc",
+    "stackchan-touch",
+    "stackchan-rgb",
+    "stackchan-audio",
+    "stackchan-mic",
+    "stackchan-peripherals",
+    "stackchan-servo",
+    "stopwatch-vibration",
+    "stopwatch-audio",
+    "stopwatch-mic",
+    "atoms3r-lp5562",
+    "atoms3r-ir",
+    "cardputer-adv-ir",
+    "papercolor-ir",
+    "core2-peripherals",
+    "core2-audio",
+    "core2-mic",
+    "core2-power-monitor",
+    "stamplc-can",
+    "stamplc-rs485",
+    "stamplc-buzzer",
+    "core2-imu",
+    "core2-axp192",
+    "stamplc-lm75",
+    "papercolor-rgb",
+    "stamplc-onboard-io",
+    "cores3-aw9523-full",
+    "stopwatch-m5ioe1-full",
+    "stopwatch-m5pm1-full",
+    "nesso-peripherals",
+    "nesso-imu",
+    "nesso-ir",
+    "nesso-lora",
+    "nesso-buzzer"
+  ],
+  "max_attempts": 1,
+  "ambient_load_start": [
+    3.29541015625,
+    3.16943359375,
+    2.9609375
+  ],
+  "explicit_load_workers": 0,
+  "classification": "virtual-device validation",
+  "ambient_load_end": [
+    2.43310546875,
+    2.810546875,
+    2.896484375
+  ],
+  "wall_seconds": 964.7,
+  "raw_summary_sha256": "821e25c969bc2ea4d5e7275e42d8afd987f998b354c2fc85b884fecb3adfaa44",
+  "runner_log_sha256": "307b09e8df04b9ac511bb04aa8be7158d916ee5049c80e06c077b720e1e4c80e",
+  "returncode": 0,
+  "counts": {
+    "PASS": 69
+  },
+  "results": {
+    "sticks3-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "6e3635b47ec462c6e2907b8b595bcb88e598814faecd6a2345b8ed9adfcb15b9",
+        "composition.json": "14d7899d1f3c3cf328d8d5133304d0c8c6eebc925f15cc994f0c1a9a689d294b",
+        "serial.log": "7e3a722106382201cd927496691e656e14faddf1e84c0fa63eb832621b95de31",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "e83eb87b4a61210122ac1bdd22cd3b07ac753f8f98e4eb433724b3f417ff67bb"
+      }
+    },
+    "sticks3-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "d9bbc4d7a8ed1b530e94ae4ed2e6e10587055c3a28f8e336dc4b2ee7e7853058",
+        "composition.json": "14f2ddb5ab72a046b63729d9d63ce71e95394dcb66b8df6439badc95ee414179",
+        "serial.log": "34be88db294890d790c367337ac3b21fb09dcce7dac5b318a7532215acbc6125",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7"
+      }
+    },
+    "sticks3-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "b461b4b63595f42668db7e4b124ba9cc967f3a230db61b7bbef6848be459edb7",
+        "composition.json": "9c7c1aed9519bd5bea367ba0585ab0c9a727933e857531308aed4b989f9d1abc",
+        "serial.log": "832b5ea569f25d56005484982af89b4d85bc86bd13f2a45012745ff7c5dad341",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46"
+      }
+    },
+    "cardputer-adv-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "b1276cb61e890bac06d98939ad8a7f5a102aeeee7270d09a66a920eb10fdec29",
+        "composition.json": "86c23ae5f69afd086b5379a0a9e9ab73e2d6057616b453379a5fd020c88c1205",
+        "serial.log": "3ead03ebe4d268f084a00b46d333e5b23107aed3dd05aeb21be99c60202ac8bf",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083"
+      }
+    },
+    "cores3-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "121a8d625d66c83e55e272ed0b8629d734d599ef1eebb0b019b463861527e206",
+        "composition.json": "76ec0e410e8cf26c08c98eaa86104632c4b4354c989ce23a4ec6860389452fa3",
+        "serial.log": "0b79e29f1433aa9e64b940a08a76be6571473c8ba97a8e8213f67d503377db62",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "286e34be22f6f839a8e3bf6d1866698efcc317e5e56931a03aaf28a64dec718c"
+      }
+    },
+    "core2-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+        "composition.json": "0735514c5f5bdc7243f01bea9432dbb47943f87f71ede0cf6f181d4b5777e7e3",
+        "serial.log": "0fb8ce7639d923ffe2b7fcc9c8bb7b2a36ce6186f7be3dbd0e04d8c02ecfbffd",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+      }
+    },
+    "cardputer-adv-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "991bf741c69c8b9e65e71fb4f9aa62d781f8004cfa373c73e693ecc1feccbf1f",
+        "composition.json": "166ac7cab15ee8284562138848541df1237ef4d7e3e0effbbddeafaaed7764ae",
+        "serial.log": "e34f87e8c7047eab7f8c179830e52bd9f8de021b71f86bf510b5a86f98a0e944",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72"
+      }
+    },
+    "cardputer-adv-keyboard": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "61ea11c211c2c7d6ca54c6e3ddf2d5106ca9454a4d4a4bac23528d4ee4112665",
+        "composition.json": "6ee46cca3b3b82cfe5cad14c2848ca43c9a938bb8b6664240857c40d8048f9d6",
+        "serial.log": "d1c48924fecc37a4aa7da2d39028352c642e2f0955375588fa796b411d2a032d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "b9323721391b39d341570db53baa11bae2ff8bbc477414264459c1869cd7685b"
+      }
+    },
+    "cardputer-adv-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "9dc898068f8f0ed09e47c8e58c108b10935308211c53cf658e1e0d49ae30f03c",
+        "composition.json": "f32d665983e6d8401123fa20d965457b70472107eaf2fa1bbb1103c77f511687",
+        "serial.log": "eb81800eaf6577677f564c942eb5d027a00de2adbeccb6b3f735a1c37a1e7e91",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1"
+      }
+    },
+    "cardputer-adv-cc1101": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "e50eee32d024534d92feed5771e71a6b22082121e7fe480445d57bde8ad9020e",
+        "composition.json": "3271c02d193be6b7e019c5899a4fda29e4050c946ffa3800607243e0d5b21814",
+        "serial.log": "d847725b5318697681599c0c0fb211d6e993a3db2e2ab571b7f09cff15735298",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae"
+      }
+    },
+    "cardputer-adv-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "70ae1cc7cac045843997d2b49716337705138cd0c7e4b8808ab1090c88b3bed8",
+        "composition.json": "0e305dfbb4f1065c43ab8399d239d4b0bdf0bbb1b2325ca567161d98d39147f3",
+        "serial.log": "9b0f6cd6857580c2a51622da0e87dafc8ea672782d5d6a5856c9b79b1933f7a2",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256"
+      }
+    },
+    "cardputer-adv-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "3b9265cfd660474f7dd358e54fa15eb4730708744136c4074361aba7f7df014c",
+        "composition.json": "5468b6ac89234eb6c5efa6739c9e652084f6e8f50be6f8d699bc4697cd8cf544",
+        "serial.log": "9e12bd1e46e10b9d98d647862159ba0fa8e125e18743757b60c5b3df7ed94060",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e"
+      }
+    },
+    "atoms3r-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5atoms3r",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "05068fbd5f27f4d0234eed8628fb16a7a47548f3bd24e173e67f9185bcaec621",
+        "composition.json": "850e4ccb507bdb6dc505507855876fdd35ec778cd15f322d77650ac680a493cb",
+        "serial.log": "1724471cd21282929c3ab997092f833d9c9e561a2532db4c088015fdf3f6deff",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "c16a25db0250a05d08e4dda92c2e83527f4f561eaff83e1ec3a1a5d1670dc4b5"
+      }
+    },
+    "sticks3-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "06487c87b039c040ce103d914d6a0eeb2469c34b5b9d352e2f486ab5d22388c3",
+        "composition.json": "44615b0a3f37b2bbce35d4f1346471fb1219dad9bdcd3e45f917c3922a0fbb97",
+        "serial.log": "d2374158bb6935f3eae2c4421d2c7b758f717a7ba884973748e5fd65a3a9812a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545"
+      }
+    },
+    "sticks3-ir-rx": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5sticks3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "bc68d2e783d7ef4efac372a65065c16b62d6029c9f9b3e8988f804546b2a9ac1",
+        "composition.json": "a7fe50ab88df0c7bdfc11d90e89abb42d314d75af95e2a5a9f9c97f7483d9354",
+        "serial.log": "be3de599c3bd891e7a00328e49a91c04b1856266a110deda44c916ecea7aac31",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804"
+      }
+    },
+    "cores3-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "5f26e868542ba54286c767a89ec9ad193f1d88af1ccffab800e7e396a05f973e",
+        "composition.json": "e5f29894bab1e0235518fa0c11b8166fc66addd4a864cb6f2553eaca806d8526",
+        "serial.log": "2e2fb3f1645dc51b19f83c6cf1bb9d008bb9b209922cb017e3d825b5c314b5b1",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "9d82d50d47cccae042bbbcd6173492b395364f417c3bcd151dd49c1277e71cf3"
+      }
+    },
+    "cores3-power-transitions": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "22a5bae3534fdc77cf296f4ad3a015f609187786c81ddbab9fdf1d88962decac",
+        "composition.json": "8877bc193599b5921377991109893b8d2b1d37ff1d59919a6e2019b45f0dad41",
+        "serial.log": "c98fcc23baf1d6975f576f182845f63417232fb6f18907bc00f9282e406e2856",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572"
+      }
+    },
+    "cores3-usb-hid": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "93ebca97ba100a26ba8d43a5437bde0d598f4464b2681ce171836643bf1deb48",
+        "composition.json": "4a527c4f4ea416f81c041763c280d9908759f32f199a4b36b669c11134a3e11c",
+        "serial.log": "50349044cfe79ca11a485adea70955fce920c9a79205576c1b74f8fc88e6577d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7"
+      }
+    },
+    "cores3-camera": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "9a64806aca5a2caa0906c1d317ae117eff27d02da8c875731a4111ebc9e8197a",
+        "composition.json": "af6edc9acfddafe23887cee21f7b60ee93bea2369cd050c1f02c749cb417c0aa",
+        "serial.log": "2d7bd84a20f7342bbd823861f128157c63a09f471ebf2010d5abbc54623a8f62",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "3c2209263902cbcdf796cd9a4f7044e2b85de1f29a10bbb40f2be3c2f61e7935"
+      }
+    },
+    "stackchan-camera": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "8c505f5f4a760fd5c4b3bb92c7be3502e79e77ec173d1dca32b9d2b2df734207",
+        "composition.json": "39f67789ca0d34cf2a96a7bd3cfdea10ab2baad7c593a6ea88dfb894a0ec6074",
+        "serial.log": "d5e320e902adadfc8301baf79f3854075b091ad063bfe5953e56d5a3aa8cb230",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "2b97bb64a06c9d70e8e995fce592d32ebaabadc9324514746d80a504bf86e023"
+      }
+    },
+    "cores3-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "2eadd5e3338858854dc172f2f45a78b673c39687690db07a01eabe628f04dc65",
+        "composition.json": "723f1ca7639d69750ac1f9c205455e1dfbca771c7c4dc9d4df02306fad9d5b6e",
+        "serial.log": "ed9f6a801c60bd3976a06c1e697a92fc4c18591f39fb9b2c0acf5b9b0ceb8c90",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a"
+      }
+    },
+    "cores3-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "e36c7d95735e9f9d2ca6b14e87bbaa27c372051efec6f9aceeab36473da4d270",
+        "composition.json": "803fe17c0fb6b6de839d7c22d657793c32bef64683b570df000264c36e107c01",
+        "serial.log": "9db0f91344140d40e2b3c0a5b7587e45fdc7eaa81bdb27610ef904e8db98b773",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "fba93cd48797c65b4df22f24e2c6571d3c6f4bd6fdc26f281c3da90e16579e42"
+      }
+    },
+    "stamplc-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "a3b15940556fef1c3c97a3d2d4a8f392ec096988aa530182a9f3afdb79a0deb7",
+        "composition.json": "1d00d189a9b082fad56c9dea2c9459a0bca91374be6aaa736854a1b9c19e2da5",
+        "serial.log": "1729b152cdc446ffde2f6f64728bef184fd07cc137319f6650529e2d077133a9",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "bb1800dc1b2126d78747a583c10737f1b841df6f6e4d0530089bfb802b1dea8f"
+      }
+    },
+    "stopwatch-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "23cca24239800cc442d16814f7e9d511e523e97d3ada89b884aad7780a77a1d0",
+        "composition.json": "b71bd0674170da213a1851e72c57142c74f29af4ba2d308d8e5ee86af4e609aa",
+        "serial.log": "59e24995589c973d8c0be7a4be65915ccfbc95ba688411e00f1d24b09533e40c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "9a38b86d284b2a08f32942c4a3b67d4bea74e3d4a6237c2008dcc2ff3027416f"
+      }
+    },
+    "papermono-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "0c6177a744a8f1da68810dc8b83d9ef6fd4d54cdafe64c6daa1bbc6695e9aa82",
+        "composition.json": "adf206e319267d58fa5671aa4b86398457f3af3615e5be88a8ebf7f57ee4a861",
+        "serial.log": "3376c09d4bcadbb34f2aad77903bdca2f3a04dd39fe02dc54b932f407ec544d2",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "2ce9e5f9ec35d22dcec4b4ac7904a8e7c32e66ef762978400b7dfc2fb5388fc4"
+      }
+    },
+    "papermono-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "3f3e5303635ebc2c5319d0d36dfb727c32c6798f37c81f4342ff99de90ea31e4",
+        "composition.json": "7157debead2f298a0d865fcdd6b3fcffe417a7cbb7d2aefb142658deefdfc065",
+        "serial.log": "227e0c27768f8c294fe9188d9d7e92b53f74069bf49a905ba1110c9c705d123c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e"
+      }
+    },
+    "papermono-pdm-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "f5da4e556dde8223556697848e18d9e155eff27e6497f68a2dd3dbead205113b",
+        "composition.json": "1f96918d41e4c09c064678b093029e3da0ea5f097c1c735eafa8186cc1b52b1e",
+        "serial.log": "8d26d84f2888f70213b99766c420d4b8fd13ed995aea5d419911415d03efa1a8",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac"
+      }
+    },
+    "papermono-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "db4a7758fec3616d0e13b76cb1426c0f406c21ab2b3f82c60a670a5a6d225609",
+        "composition.json": "7581d3a94ccce2040eb1fa02c1455a6ed22de361cbff9b3c679e7674eb3c377d",
+        "serial.log": "9b0f6cd6857580c2a51622da0e87dafc8ea672782d5d6a5856c9b79b1933f7a2",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05"
+      }
+    },
+    "papercolor-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "a3cc5e6b40aca66412a4924748c8cd8f116cdbc657533a649f2c8f79eccabf2c",
+        "composition.json": "20697ae2cfb95e686c6ca43047c874c20a4d0a516ed893a56d1b9ec201199457",
+        "serial.log": "98966b163cd7cf81902b8498982747c236bed451081123f4bd2084f118f59f3d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91"
+      }
+    },
+    "papercolor-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "4cdcdd58aded253e6d64f5f4b712cb043d7edeaf4899e6028515ce755af0108b",
+        "composition.json": "502ca5426cdf113259b2f6362635867abcb56427a2abd9d5c57596faf2eb2273",
+        "serial.log": "2421c6daad499f2ca65fd7989c3f3666810ddb7cbed85f29f104faffe0894d8a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f"
+      }
+    },
+    "papercolor-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "7eb8eefdce12343b97f15c6538a3787467097dff75d8e592306669490028ba6d",
+        "composition.json": "0ea6b2f66c4e3781f0e21682935070f017533f9f3b2601b0b11bbb14efeba69d",
+        "serial.log": "d3ea3cb1b3c4561667191ba0491d6044ecee5c50678fcb643fc7a607b5ebc6f6",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "d38c7504e36d7ecb2597ad6f29fc3c6bd070a6b4e37b9d773ea80a45500ba284"
+      }
+    },
+    "papercolor-sht4x": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "f3b02e00dc586f010599d0ad765daa0817a8ab9b341d0e12387c6b782a2c64d5",
+        "composition.json": "a9fa263798ddf65816833702a3a88de68b1eeb58bbd3014bd41b371ea802156d",
+        "serial.log": "a137d472eb9c7162a21601251b6c5ca81df0c8e53ea9322060c2f0994aa8f088",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2"
+      }
+    },
+    "papercolor-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "8b493f35f7fa80ed1ef7ce9ada9dbbd0ca793cd04b40933a92312e0824ce0cd7",
+        "composition.json": "a9f0cc3f201d6d75c57665326cdf71b9da0f470a7c91539c53a2e8d57697a148",
+        "serial.log": "53ac5792b72cb7f2de96ce9121397effdf2fd1a899b20b5f2685d1bf43b0386c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe"
+      }
+    },
+    "papermono-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "636cbe3215690960ec4d2daa1c2ec145f10c96290cb52ab1b1809e5ad2e41f72",
+        "composition.json": "799f54ca74f9c71afc096c14ff74343cd3c26f374ee2bd5a7e857493834c996a",
+        "serial.log": "32c6aed06f011b9aed1b1fb3567262a3272329479004b0b7f3cb99085200a745",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d"
+      }
+    },
+    "papermono-lora": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "2c0a970c902dfc6964f6f98e3346006cbe47b1e77614bbecc85f9d549030b6ff",
+        "composition.json": "43fa95c8a130f07cbab7d0f4094b6614dc43f38a372ecbc6c2d3f22877b65209",
+        "serial.log": "0345b337a04272dee0a581280302c2805583656e2b1be4ddfa6b402d5e43d420",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da"
+      }
+    },
+    "stackchan-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "33be29367c6a89066ba75d00667e4125c8c905d912e4f62a0ca2ab66ff4659aa",
+        "composition.json": "43f96b45f4fbc3c274e1a3dbeb85615ab22a1489fa15b6e1ae1f7e122a11a214",
+        "serial.log": "15fda38aee550034b5dba20aea59ece118304a532610218ec176fb4ec946a2df",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "45704eaf36bd1d72d2b145f91f22dbbc1713748748d19bc2554be5270c85fe81"
+      }
+    },
+    "stackchan-touch": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "57ee60c1579caba8afc807a77401f8976edde1ce221b5bdc85b926c9785c0c97",
+        "composition.json": "825e8d6318e6323731bf49eac448023452614e9fc29d475396540cda9f1c528a",
+        "serial.log": "ee10b69171ead5f869873587bdd3b30ab791dfde2cfeb3929779de3dca5eec0c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "7d11a1584caef9788486287caad3eef9d459d44d83cc31c7f5f02ca7b23527bf"
+      }
+    },
+    "stackchan-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "7542f1f83873c693725d6c4859afb410134d0ea1fb2aac0a58d821c1a132d3f9",
+        "composition.json": "57d403a5ffc5ed65b0056731afc8c13c7609103b6a8c4a35a759eb8f0fb31315",
+        "serial.log": "a1875f36b026cf1d26779f9ab288c81ecc5124d89c1662d977f318396ce49807",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "178c4570bd68cc337ed895c77803b4fa563df663de39d59e79cab64e0d3b86ab"
+      }
+    },
+    "stackchan-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "fa1b503716c511ba7463d1d474a9023c158bcd315ca8223141743f94876c66cd",
+        "composition.json": "8353577598a7afa58492705ede75dc55f3d5f0544bd1ccbde41c867e8859012d",
+        "serial.log": "aa64b1e08e3cfd0b3177f72b684772fac1bda3e70b52ff07d0317aab842df404",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "41f874533f249bac7f39fdd15f18124a4103e51e848f40284daff37cbccaee12"
+      }
+    },
+    "stackchan-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "d255418382adb3712f97cefc77b1744a626855d54947618e14467fc62c42aa82",
+        "composition.json": "8120c805ad135d5cadd535acb2283ecbb10e2c821dcdd32b223ac97c2998efa4",
+        "serial.log": "89fd5bb7879a03225270e268ffa73320fd73c0aad03b0a891113a07695518708",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "650aad5e55574485b3f8edceee80674b357330198d39e1190fcf1283e73a7fd3"
+      }
+    },
+    "stackchan-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "6337636641889283773a0dbf957d23944d42733a19e7de49d3b0699e129e697c",
+        "composition.json": "b04833c65dcfa14735e5932ffb577ab11e67c38888e697d50fe0d8a25f439d82",
+        "serial.log": "b0e5f9ffdc5cb7d0cf0d0906fa3034f0c6eb48a8e2411ec3469a905fe25459ad",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0"
+      }
+    },
+    "stackchan-servo": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stackchan",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "eea735de2ab1f4ad8611c8f7433c91c3c9f47d7f26622a2d69138b028eff2476",
+        "composition.json": "e1b7e9afed5f69493f960aaad9807647a2dff1b80c55ffaf9b15e5b573192423",
+        "serial.log": "e24268a1becf4b5e06d4eda2ba498dc4295d409841f684c3ae989fd556debdad",
+        "serial1.log": "303ec9e947dd715aa2aa88a60beecee036c4bf819f6089e6a4bb1d879b8f05bd",
+        "after.png": "49e73a0fe2f249052f32fb5b5b6617b0f0142612089687926ed1afb301b8a518"
+      }
+    },
+    "stopwatch-vibration": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "8a43781722ac3df77fc1ce032da072a2045938c41b124361a78e1af777ec7903",
+        "composition.json": "be479c31e7261f21f637676d17a3ced289b230b6b26b548a2f5d9ade34aaf9e4",
+        "serial.log": "a69572e1f5c9ed832a63f39b4e0d088ff10c330e507133ee31e83e022034ef70",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e"
+      }
+    },
+    "stopwatch-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "61062089ddac3f8d70208398ee00c6433328d0e9a2ba71c54adf48728ba55e56",
+        "composition.json": "045b133cd64e44f6be18dfef8ee9ea4e1294d91ebdd46c7b70de8f5163405c87",
+        "serial.log": "b2c2533082de7aca790d434a902f07938ac47a80a9414f5068ffd3e1f6648f71",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+      }
+    },
+    "stopwatch-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "0e27bc0c68567c6fa7f80cfaaf21803c7f5998bf1d6b30d5c7c5fc0e0deffc21",
+        "composition.json": "a7de968a902b69c14766f2d56cdad1fc22221b8c8f0aec303900ffcf231bd04a",
+        "serial.log": "afd85f897fed6e52fe44c6b9a9bfc279d036200820c03218d109a50a0034bb03",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+      }
+    },
+    "atoms3r-lp5562": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5atoms3r",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "83bd781beef60a1fc9de32b3bc3078e676e3696c98a064849dc7728461265972",
+        "composition.json": "8d6d6a4ccaa4454ab5e87a6b73459cc6f4870aa07936e36af75b7ad4ed28d69d",
+        "serial.log": "daadbd54b460d84c4eef1a9f440cb784bf6786700c50e39b75ce6beecbc3a2ad",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "5fde79cd6cd1db43e6d1608230a9b5988e837b78e7dae3a7ebbc9c2b5234d010"
+      }
+    },
+    "atoms3r-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5atoms3r",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "b9992643c2d7faf6c1850468f37977854d0a12d4f3d7dd3dfe0104fb19d99e88",
+        "composition.json": "1e99d7486e20647637291d4ea5932b9457d8f9db8b21518d8950daf5e69da253",
+        "serial.log": "22e4551a7272f0f6e931a78eabe0684347918819ce32270301e5f0f9950d0950",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "07e408ce2bff67ca672823f8279c8ee9eb318afd7e6e57e9bad314bb111a1402"
+      }
+    },
+    "cardputer-adv-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "061376c4a2f0d8e1a8dbe4a0cc4fe36814a09d3b4a5a6195632ac7f1c29759b7",
+        "composition.json": "d2fcd6d6aca79a735b989ca47cad1e704235370279d2eda1db306a707f508ac8",
+        "serial.log": "16185e823deef0b090161dae366261663917f5151206f779d1c8dcc5bc034b63",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8"
+      }
+    },
+    "papercolor-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "4dd28f78d2c3c457a4b1864d81e562d49e08c1ee02506b089d99504e2d5b6056",
+        "composition.json": "5306bcb420eaec553b965545e416e9abd9d31446390bd8b22c6021c2165e1a8a",
+        "serial.log": "58477d9b945deeb31eec0cd172f22cd433553fb66fd0da7e1cbf9b3332721fdf",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "bd0edd19728398c1c3d9f25a1b77ec87e7ae2682038474ca6dce77bca274ebf4"
+      }
+    },
+    "core2-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "46018cd652921212fc358cbaf5fee105a71b46a1cbfe1f9bec82a55cab780129",
+        "composition.json": "e0eb575029e68ac8f2514b1ee82253d5b3cb54745146c1db9eb5d3ac26b46aee",
+        "serial.log": "2aca3356cba7c89423aaf1e7bd6c64553c923782653c0f950fb59eb537aa3545",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "feb3c871b808ed5100a74291b4f43ece159449865630081c1d2478ab986e620c"
+      }
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+        "composition.json": "33f026bd35f9c92c7a5a933f5074e3b7a147767e119b4feb8de429a0dec3fb47",
+        "serial.log": "f3ccf5360ef3f7ee54a0c005572e676768d0510e61b884a029df25690a363d6f",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0"
+      }
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "ba5d09e311ed8b4653398e3ebbc3174f79958a1f041786a5648929dd8e26aa85",
+        "composition.json": "48e09e7b6c2ba47721e01ccde8bec994775afe07ab17a4b3231130358d31e7bd",
+        "serial.log": "2a80a2f70de5284970ba5e3b9f17582c2445829c9f1795709fe943e3ae1d9b68",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a"
+      }
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "0cf7d295f10767e1f52bd172aa5c7255e7de23425740fb5ddd25a459599cce27",
+        "composition.json": "f66815be6faaa49e88b9b6d0eb7b97d1648ffda3cbbea3401b85bf4a6131aca0",
+        "serial.log": "8ff48bcf8e4764113bdddd7b5aa45e648d2a14e7b8f744071997c72475cea76a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae"
+      }
+    },
+    "stamplc-can": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "a2e9b8a20f3349b2ab05d197948b87d8e2eae019885964bb649d82cd6a28ef28",
+        "composition.json": "28a39281cdc9999cdee384ec70bdebdbb0ca140e3736b8cb3c205bbfddddfc3d",
+        "serial.log": "75ce46f3e8acb73f11460b3f83e33afcc267fc5dc51d7c7c07be2b3e4b34a034",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493"
+      }
+    },
+    "stamplc-rs485": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "9268fb92c086db61f7aaae3fb9cce4a31b25a0c20dd7f065ee04f1a9a4566712",
+        "composition.json": "0c88df39aa15708afb8d0706122d6b811a34e3ca2c30f8b99082ff6395da76f0",
+        "serial.log": "d8f955a9a2af992145d0bcf2fae9d73b51f5f7a6d00bc67222e8a9a43d0861a8",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "9cc4141ec21b714e522134b802ce9387874227cf0ea70315f4aea7199cd452bf"
+      }
+    },
+    "stamplc-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "cf533537c2703634cabbd33dfba25e6f01c8948ffccbbd9af799d57bafc19a4b",
+        "composition.json": "716a02347aa25170f866a95d44e30150830bb469d83a3349e2edc31dfd1487f2",
+        "serial.log": "0b6f61a0eeed25dcd8ff2a052a11be135375c2fa2b924bf18875066b626a9975",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392"
+      }
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "f5cb7dda74b272595e8df7a251ff732a390ce35dbda3cd461fb7a20714291f4d",
+        "composition.json": "84badbe68abadbf6bdcb7fa7bfc7df3d77a886ebabc01f5388fd570cf37562b0",
+        "serial.log": "ecebe34e53acd4a79a1769ace871405c4dd5d65d0f46f625a2f8b7c16ed6330c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "d6ac4c38057b23822ef19cf0e0c2b3a9cde0dcffe80e6faee31519fa66993277"
+      }
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "explicit_icount": "shift=5,align=off,sleep=off",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+        "composition.json": "f5bb41808c4feaeb2e889abd4146d58794ca7ebd3a5d03c14bbb8fc7f43cd37f",
+        "serial.log": "0574d4a5c5bf39580ddd6d305ca521eec40627edf7093d4b18b57ba0d004b966",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807"
+      }
+    },
+    "stamplc-lm75": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "224820eeb6e7996b242338f17ba1a9c0244f2dcde92cb80714f0f5827ddab3f2",
+        "composition.json": "e24df28af2b4d8dabf1ee615eba9023aec87e5b71e3df7ffdc635381e4643e88",
+        "serial.log": "6304a3f628bd6f4ae89e53cca4450bffcf8a01ca4fbafbb5bfad44365c64c2fa",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03"
+      }
+    },
+    "papercolor-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5papercolor",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "b70395e64868108b21b18fc1f263b0d1e32031afbcfca51985b9c345ca52e72d",
+        "composition.json": "3d0d147f83d78df3d8a2f8012329dcfef4770f84a6db13230007577651d05548",
+        "serial.log": "d1c48924fecc37a4aa7da2d39028352c642e2f0955375588fa796b411d2a032d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "aedb1fe5365257fc303b28864df3f1c737dc6b1d604e97ce74554d664e167c44"
+      }
+    },
+    "stamplc-onboard-io": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "c4364e7432a39cecf65e498715c75ed46f7c48384eb26da51538730d1dcd5f4f",
+        "composition.json": "856ae3d77c130f2e67bfa7d1e82e6c46246624ed8d4d23a126158f39b7cd9fd5",
+        "serial.log": "75ce46f3e8acb73f11460b3f83e33afcc267fc5dc51d7c7c07be2b3e4b34a034",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "0eab761572f86af4cbb5365e5bf3e0a0d47907e48859a2f080a8811157a56d08"
+      }
+    },
+    "cores3-aw9523-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5cores3",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "28b03421c9ebac30ec009d091b02e1e9ce4a3ca97eeb820cb5fbacf847491e02",
+        "composition.json": "6792b0699f28ffa9c0a3207f48dc3df7535fe81aa0cd0567ddafad2994c1a997",
+        "serial.log": "9b9db86e1a42479efb4e7058f0f36adcd1357a8068e5ff4866bfd63256d3f910",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "48e5a99ad6cc4dbb2e01930a8365883fb73bcd598db5f3d02795f5957b3766f2"
+      }
+    },
+    "stopwatch-m5ioe1-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "b67f6b06308599e5eba392c7db69a2c18793b627afeceea8e61287dabcbcc631",
+        "composition.json": "eaef6800dd9f24482226bd5a1f1a6a366da6746e5c922f9565e5ed0b3a51ea6c",
+        "serial.log": "fd7b5ba743d222bc74f7ba03e99433b5b0ffebde37bef57ccc666afa61bc50a7",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "86e68bd52cddb2854c0eefb04bc44a0428bc75c177d8618fdb085806d4a9515f"
+      }
+    },
+    "stopwatch-m5pm1-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "explicit_icount": null,
+      "firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "6ab410510ee403d5ed70a021d6d152077338ecf2f8a8801e5efb41ab5686a411",
+        "composition.json": "13742f06d840cfb6e05d51b1fc72e338ccb7df3629e64eb01bbcad267df2471a",
+        "serial.log": "1dc2edce890ca23a1194e95dab5bb17b36308150e80fd8d72cb0e8ea55ac7b68",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "4726a228d5fe1712b427250615b9f1e1bfc0dd861505171f236859d509ba7cf3"
+      }
+    },
+    "nesso-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "explicit_icount": null,
+      "firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050",
+        "composition.json": "968225aca43f214fb7c9e794c9304f9556b126a347739d7cbdf3eff6e7024e50",
+        "serial.log": "5c987589afced4781e6fc89ad288d8e882761fb79def1311acaf61b6faf51ffe",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4"
+      }
+    },
+    "nesso-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "explicit_icount": null,
+      "firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "f02cf3044ab20904cd66cc65e3de38cb5478e2fed739851635ff9d46f33db409",
+        "composition.json": "724edfdb3f9ae9d9f2ff3abe44828c44fa90ded16c1626f0fcd226ccbc50b58b",
+        "serial.log": "bf5d0127df6dc21e4e0c50ef027417b7db0d313a19bed57bea064440d87e7614",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c"
+      }
+    },
+    "nesso-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "explicit_icount": null,
+      "firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "773661e654abe13d71e5e3e08a5c480728f2d50e1c205e7fbb0b92871bb9b18a",
+        "composition.json": "876d2a0071ea26ac0ff2df9b3fc51203d66e9b4dfe7f07e896ea36af09e4c662",
+        "serial.log": "7150cd35e6e9e4c7b637704c56c12d03ee652eb8008b8baec69d4abcaa140c16",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "d4f2f0c4b90600be8975be6071380b2587c0fcc4a4563e5001c096a63a961518"
+      }
+    },
+    "nesso-lora": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "explicit_icount": null,
+      "firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb",
+        "composition.json": "febf4f28ae5bfb479dc8e81aefd0591a2fb341ac3250ca5dc6829a98db0dd240",
+        "serial.log": "8342d66b9e5c95155d71da821aab360558e546f3fbe48c49f40bf08a06f4e30a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354"
+      }
+    },
+    "nesso-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "explicit_icount": null,
+      "firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "evidence_sha256": {
+        "uiflow2-ui-test.bin": "f4fd8dab2f0cf5fb14bc990e5d968613b57acc7a7d6c1894d85b3327cae5fd6d",
+        "composition.json": "0f6912248c0b1db9cf87c1b61880420f4619e45b160a8f5a9d8f424b95751663",
+        "serial.log": "940026e8df807ec05f7cc74d5701d31decfbbbb9ba2a5506f27ce8eb0fc657dc",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after.png": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89"
+      }
+    }
+  },
+  "execution_arguments": "The private raw matrix summary preserves full runner argv. Explicit icount values follow the frozen runner and cleared override environment.",
+  "cleanup": {
+    "owned_guest_or_runner_processes": 0,
+    "owned_firmware_cache_link_removed": true
+  }
+}
