@@ -631,3 +631,90 @@ diff --git a/system/vl.c b/system/vl.c
          }, {
              .name = "gen_id",
              .type = QEMU_OPT_STRING,
+@@ -3631,80 +3634,86 @@
+                 error_report("Option not supported in this build");
+                 exit(1);
+             }
+         }
+     }
+     /*
+      * Clear error location left behind by the loop.
+      * Best done right after the loop.  Do not insert code here!
+      */
+     loc_set_none();
+ 
+     qemu_validate_options(machine_opts_dict);
+     qemu_process_sugar_options();
+ 
+     /*
+      * These options affect everything else and should be processed
+      * before daemonizing.
+      */
+     qemu_process_early_options();
+ 
+     qemu_process_help_options();
+     qemu_maybe_daemonize(pid_file);
+ 
+     /*
+      * The trace backend must be initialized after daemonizing.
+      * trace_init_backends() will call st_init(), which will create the
+      * trace thread in the parent, and also register st_flush_trace_buffer()
+      * in atexit(). This function will force the parent to wait for the
+      * writeout thread to finish, which will not occur, and the parent
+      * process will be left in the host.
+      */
+     if (!trace_init_backends()) {
+         exit(1);
+     }
+     trace_init_file();
+ 
+     qemu_init_main_loop(&error_fatal);
+     cpu_timers_init();
+ 
+     user_register_global_props();
++    /* Reject the incompatible combination before replay can open its file. */
++    if (icount_opts && qemu_opt_get(icount_opts, "max-shift") &&
++        qemu_opt_get(icount_opts, "rr")) {
++        error_report("icount max-shift cannot be combined with record/replay");
++        exit(1);
++    }
+     replay_configure(icount_opts);
+ 
+     configure_rtc(qemu_find_opts_singleton("rtc"));
+ 
+     /* Transfer QemuOpts options into machine options */
+     parse_memory_options();
+ 
+     qemu_create_machine(machine_opts_dict);
+ 
+     suspend_mux_open();
+ 
+     qemu_disable_default_devices();
+     qemu_setup_display();
+     qemu_create_default_devices();
+     qemu_create_early_backends();
+ 
+     qemu_apply_legacy_machine_options(machine_opts_dict);
+     qemu_apply_machine_options(machine_opts_dict);
+     qobject_unref(machine_opts_dict);
+     phase_advance(PHASE_MACHINE_CREATED);
+ 
+     /*
+      * Note: uses machine properties such as kernel-irqchip, must run
+      * after qemu_apply_machine_options.
+      */
+     configure_accelerators(argv[0]);
+     phase_advance(PHASE_ACCEL_CREATED);
+ 
+     /*
+      * Beware, QOM objects created before this point miss global and
+      * compat properties.
+      *
+      * Global properties get set up by qdev_prop_register_global(),
+      * called from user_register_global_props(), and certain option
+      * desugaring.  Also in CPU feature desugaring (buried in
+      * parse_cpu_option()), which happens below this point, but may
+      * only target the CPU type, which can only be created after
+      * parse_cpu_option() returned the type.
+      *
+      * Machine compat properties: object_set_machine_compat_props().

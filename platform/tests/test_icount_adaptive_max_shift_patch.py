@@ -217,7 +217,13 @@ class AdaptiveMaxShiftPatchTests(unittest.TestCase):
             subprocess.run([str(binary)], check=True, capture_output=True, text=True)
 
     def test_cli_and_existing_vmstate_registration(self):
-        self.assertIn('.name = "max-shift"', fragment(PATCH, "system/vl.c"))
+        cli = fragment(PATCH, "system/vl.c")
+        self.assertIn('.name = "max-shift"', cli)
+        replay_guard = cli.index('qemu_opt_get(icount_opts, "max-shift")')
+        replay_config = cli.index("replay_configure(icount_opts);")
+        self.assertLess(replay_guard, replay_config)
+        self.assertIn('qemu_opt_get(icount_opts, "rr")', cli[replay_guard:replay_config])
+        self.assertIn("exit(1);", cli[replay_guard:replay_config])
         state = fragment(PATCH, "system/cpu-timers.c")
         self.assertIn(".post_load = icount_shift_post_load,", state)
         self.assertIn("VMSTATE_INT16(icount_time_shift, TimersState)", state)
