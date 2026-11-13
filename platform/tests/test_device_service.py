@@ -2011,7 +2011,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
         ):
             session.runtime_env = {}
             self.assertTrue(session.inject(tap)["accepted"])
-            send_input.assert_called_once_with(session._qmp, "key:a", (135, 240), 0)
+            self.assertEqual(send_input.call_args.args[0].cmd, session._qmp_call)
+            self.assertEqual(send_input.call_args.args[1:], ("key:a", (135, 240), 0))
             qmp.assert_not_called()
             send_input.reset_mock()
 
@@ -5808,6 +5809,56 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session.state = "stopped"
         session._proc = None
 
+    def test_input_reconnects_after_qom_error_and_preserves_pointer_sequence(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session._proc = mock.Mock()
+        session._proc.poll.return_value = None
+        failed = mock.Mock()
+        failed.cmd.side_effect = RuntimeError("unsupported QOM property")
+        session._qmp = failed
+        with self.assertRaises(ServiceError) as error:
+            session._qmp_call("qom-get", path="/machine", property="missing")
+        self.assertEqual(error.exception.code, "qmp_error")
+        self.assertIsNone(session._qmp)
+        recovered = mock.Mock()
+        recovered.cmd.return_value = {"return": {}}
+        try:
+            with mock.patch.object(device_service_module, "wait_qmp", return_value=recovered) as connect, mock.patch("run_profile_ui_test.time.sleep"):
+                result = session.inject({"kind": "touch", "x": 85, "y": 100, "settle_seconds": 0})
+            self.assertTrue(result["accepted"])
+            connect.assert_called_once_with(session.qmp_path, timeout=5)
+            events = [call.kwargs["events"] for call in recovered.cmd.call_args_list]
+            self.assertEqual([call.args[0] for call in recovered.cmd.call_args_list], ["input-send-event"] * 2)
+            self.assertEqual([event[-1]["data"]["down"] for event in events], [True, False])
+            self.assertEqual(events[0][0:2], events[1][0:2])
+            self.assertEqual(session.events[-1]["spec"], "touch:85,100")
+        finally:
+            session.state = "stopped"
+            session._proc = None
+            session._qmp = None
+
+    def test_input_transport_failure_is_not_recorded_as_accepted(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session._proc = mock.Mock()
+        session._proc.poll.return_value = None
+        connection = mock.Mock()
+        connection.cmd.side_effect = TimeoutError("input timed out")
+        session._qmp = connection
+        before = len(session.events)
+        try:
+            with self.assertRaises(ServiceError) as error:
+                session.inject({"kind": "key", "key": "a", "action": "down", "settle_seconds": 0})
+            self.assertEqual((error.exception.code, error.exception.status), ("qmp_timeout", 504))
+            self.assertEqual(len(session.events), before)
+            self.assertIsNone(session._qmp)
+            connection.close.assert_called_once()
+        finally:
+            session.state = "stopped"
+            session._proc = None
+            session._qmp = None
+
     def test_physical_key_down_and_up_are_distinct_qmp_events(self):
         session = self._stopped_session()
         session.state = "running"
@@ -5819,6 +5870,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         class RecordingQMP:
             def __init__(self):
                 self.calls = []
+                self.sock = mock.Mock()
 
             def cmd(self, name, **arguments):
                 self.calls.append((name, arguments))

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "scope": "Native Device Service input after QMP connection invalidation",
+  "device": "stackchan",
+  "runtime_sha256": "e04488691fe185e9158463a01546425344754ae5966abb499a9044d9b3834cff",
+  "profile": "m5stackchan",
+  "firmware": {
+    "kind": "independent public-source rebuild with official I2C fix",
+    "sha256": "314ecb554f2091f8e19a8231f7187637675a52d0c44ded2db4d994804020bb30",
+    "normalized_sha256": "fb5f18305b4740097ae0f0286153da57f09895e2fcbdf19c2c531a74f7ec05b0",
+    "app_source_commit": "94856a77876255ceee36f2a7ffae40f572eeb1f2",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "idf_patch_commit": "09fb236cda71a7f67a33631a907b738dc41cba22"
+  },
+  "negative_control": {
+    "firmware_sha256": "53669b2456c0677ea884766dc23f67481d8b045913b607a9435bbda515222881",
+    "normalized_sha256": "8d9e6fbb0d9427f7e69885de6dd9e361154659bccda3b19f11c4044ee6053dfc",
+    "prior_qom_query_status": 503,
+    "input_http_status": 500,
+    "input_error_code": "internal_error",
+    "input_error_message": "'NoneType' object has no attribute 'cmd'",
+    "note": "Same UserDemo public source without the independent IDF lifetime fix; the service transport failure occurs before guest input."
+  },
+  "positive_control": {
+    "prior_qom_query_status": 503,
+    "prior_qom_error_code": "qmp_error",
+    "input": {
+      "kind": "touch",
+      "x": 85,
+      "y": 187,
+      "settle_seconds": 1
+    },
+    "accepted": true,
+    "before_frame_sha256": "0954ae1508a3803424067996c9c1a539bc549f5e1115b4d1c6773e26f68e898a",
+    "after_frame_sha256": "6f12064aca10bac1da763e7a8ee0de5619484ae7a29a5caa760f21ca1a8f1f62",
+    "visual_review": "Welcome to AI.AGENT launcher",
+    "guest_serial_marker": "[Setup-Startup] startup skipped",
+    "evidence_zip_sha256": "13c3495c00627277e9094d043808f2a49c2652919dbf8da2611bfbad22c9ab75",
+    "stopped": true
+  },
+  "checks": {
+    "focused_tests": 4,
+    "device_service_module_tests": 137,
+    "passed": true
+  },
+  "limits": [
+    "Original M5Burner BIN not used for this service recovery assertion.",
+    "The later exploratory AVATAR action intentionally requested WiFi setup and reboot; uninterrupted application stability is not asserted by this record.",
+    "Physical hardware, network/cloud and mechanical servo behavior NOT RUN."
+  ],
+  "source_sha256": {
+    "platform/tools/device_service.py": "5452b369906eda86ab224cc978ecff995524967cf1d42b3f2d8c8858d0c54f3d",
+    "platform/tests/test_device_service.py": "e937e7202377530327b5190ac656dfb81897c872b8af9f2135c1756a741f808b"
+  }
+}

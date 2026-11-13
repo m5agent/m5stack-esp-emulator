@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
 TEST_TOOLS = ROOT / "tests/uiflow2"
@@ -5346,8 +5347,8 @@ class DeviceSession:
             )
         wait_for_serial("UNIFIED_NESSO_READY", timeout=60)
         before = self.frame_metrics(force_persist=True)
-        send_input(self._qmp, "touch:67,175", (135, 240), 1.0)
-        send_input(self._qmp, "key:a", (135, 240), 0.8)
+        send_input(SimpleNamespace(cmd=self._qmp_call), "touch:67,175", (135, 240), 1.0)
+        send_input(SimpleNamespace(cmd=self._qmp_call), "key:a", (135, 240), 0.8)
         wait_for_serial("UNIFIED_NESSO_TOUCH")
         wait_for_serial("UNIFIED_NESSO_BUTTON 1")
         after = self.frame_metrics(force_persist=True)
@@ -7132,7 +7133,9 @@ class DeviceSession:
                 )
                 time.sleep(settle)
             else:
-                send_input(self._qmp, spec, frame_size, settle)
+                # QMP errors clear the cached connection. Route every input
+                # command through the same reconnect/error handling as QOM.
+                send_input(SimpleNamespace(cmd=self._qmp_call), spec, frame_size, settle)
             self._record_event(
                 "input",
                 spec=spec,
