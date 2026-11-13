@@ -22,10 +22,10 @@
 ## 社区固件测试新增问题
 
 - [#205](https://github.com/m5agent/m5stack-esp-emulator/issues/205)：真实控制器方向元数据与显式 display 取帧已完成原版限定验证；剩余完整 native 回归、整合检查、main 与常驻发布及发布后复验。
-- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 原版 Bruce 已通过 QIO Flash 修复进入菜单，SX1262 硬件 SPI、无网络后端时的 PHY 控制器和 BLE AES/DMA 已有原驱动对照；Meshtastic 的后续 WDT、Launcher 与 RFID 仍需同原 BIN 完整复验。不得从单个外设通过关闭整项。
-- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：Matrix 的原版 Wi-Fi DHCP/HTTP、实际 RMT 灯阵和按键已有同路径验证；真实厂测 HTTP 返回 404、不完整 LED 帧与历史失败保留。剩余最终组合运行时复测、完整回归与发布，不能把真实远端 404 改成模拟成功。
-- [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：原 UIFlow 1.15.5 已显示 Wi-Fi 配置页，HamRadio 可从 SD 选择配置并进入仪表页；剩余最终组合运行时、主线和常驻服务验收。无网络配置与无线电连接的远程功能仍未验证。
-- [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。剩余固件维护方集成和新版本发布；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、SX1262、PHY/BLE AES/RNG 与 Nesso 显示/DMA 已有原驱动对照；同原 Meshtastic 可完整显示、按键并休眠唤醒。板级 GPIO matrix 片选已有独立正反对照，最终组合回归与发布继续；Launcher 原版 mutex owner 断言和 RFID 未连接 PN532Killer 边界保留，整项不关闭。
+- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：最终组合运行时上的 Matrix 原版两次 130 秒、Lite 与 Matrix v1.1 各 130 秒均无重启，灯阵和按键通过；Matrix 真实网络 HTTP 404 保留。剩余完整回归与发布，不将远端 404 改成模拟成功。
+- [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：最终组合运行时上的原 UIFlow 1.15.5 已显示 Wi-Fi 配置页，原 HamRadio 从 SD 选择配置进入仪表页并运行 180 秒；剩余主线和常驻服务验收。远程无线电功能仍未验证。
+- [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。官方其它发布版本是否已集成该补丁仍未验证；需以对应原版包重新验收，不通过模拟器延时或修改本轮原 BIN 隐藏 SDK 竞态。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 eFuse 身份接线：服务已经明示 `unprovisioned`，后续如要提供非零身份，必须接通真实 controller/drive 并验证 guest API；不通过报告字段伪造读值。Core2 子项已由独立 controller/IDF API 证据移出待办。
 

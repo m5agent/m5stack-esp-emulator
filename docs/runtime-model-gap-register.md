@@ -37,6 +37,10 @@ RMT 时钟、C6 QIO/射频控制器存在性属于已验证的模型修复子路
 StackChan 两款原版 BIN 的 I2C ISR 在 RX 拷贝前通知另一个 CPU，公开源码
 负控重现崩溃，仅加入官方 SDK 修复的重建版通过连续动画/触摸对照；这不
 证明原版 BIN 已修复，也不允许用模拟器时序规避来关闭固件缺陷。
+Nesso 原版 Meshtastic 的 MADCTL、长 SPI2 DMA 与休眠唤醒另有同 BIN 对照；
+GPIO matrix 片选已补未选中/无线电隔离和硬件 CS 路由；当前 SPI2 单
+descriptor/4 KiB 上限不等于完整 DMA 链支持。Launcher 原版
+mutex owner 不一致、RFID 缺少 PN532Killer peer 的证据与源码限制分别保留。
 
 ## 已关闭缺口
 
