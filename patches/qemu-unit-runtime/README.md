@@ -404,3 +404,13 @@ pull-ups. The first candidate exposed a CoreS3 detection regression; its
 failure and the repair are preserved in the [cold-pad record](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md).
 New Unit API/Web and a new full matrix remain unrun at this wrap-up boundary;
 C/source/build checks must not upgrade the older guest validation records.
+
+`0021-native-icount-fairness-context.patch` ports the existing `0090` opt-in
+per-vCPU instruction-clock budget onto the reconstructed native source. The
+Device Service already requests 10,000 ns for classic LX6 boards through
+`qemu_accel.core2_accel_args`; without this source layer that environment
+setting was silently ignored. The existing zero opt-out removes the variable.
+No guest instructions, watchdog configuration or peripheral values change.
+Original Atom-Lite factory firmware now reaches initialization and responds to
+the button through GPIO and RMT; the separate Matrix WiFi startup remains
+partial. See `tests/firmware/classic_factory/bootstrap-summary.json`.

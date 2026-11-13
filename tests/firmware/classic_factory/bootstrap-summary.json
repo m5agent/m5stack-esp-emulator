@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "firmware": {
+    "atom_lite": {
+      "id": "1897200000000002325",
+      "sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4"
+    },
+    "atom_matrix": {
+      "id": "1897200000000002655",
+      "sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f"
+    }
+  },
+  "runtime": {
+    "baseline_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+    "candidate_sha256": "6a0a1e5efc08086e278e48e5270896278385282b84511ecae190be15ae09eb66",
+    "candidate_layers": [
+      "canonical native through0181",
+      "0185",
+      "0186",
+      "0184 interrupt status",
+      "0021 fairness context"
+    ],
+    "accelerator": "tcg,thread=single,tb-size=128; icount shift=5,align=off,sleep=off",
+    "max_percpu_ns": 10000,
+    "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b"
+  },
+  "controls": [
+    {
+      "configuration": "native recipe through0181 without fairness cap implementation",
+      "result": "FAIL",
+      "serial": "Task watchdog; CPU0 main; CPU1 ipc1"
+    },
+    {
+      "configuration": "0182 asynchronous IOMMU flush alone",
+      "result": "FAIL",
+      "serial": "Task watchdog; CPU0 main; CPU1 ipc1"
+    },
+    {
+      "configuration": "interrupt status registers alone",
+      "result": "FAIL",
+      "serial": "Interrupt wdt timeout on CPU1",
+      "cpu1_pc": "0x40082a60",
+      "cpu0_pc": "0x4008eaa0"
+    }
+  ],
+  "atom_lite": {
+    "result": "PASS",
+    "minimum_observation_seconds": 180,
+    "serial_marker": "M5Atom initializing...OK",
+    "watchdog_assertions": 0,
+    "button_input": [
+      "key:a down",
+      "key:a up"
+    ],
+    "gpio_pressed": [
+      false,
+      true,
+      false
+    ],
+    "gpio_level": [
+      true,
+      false,
+      true
+    ],
+    "rmt_led_rgb": [
+      0,
+      1310720,
+      1310720
+    ],
+    "rmt_led_frames": [
+      1,
+      9,
+      21
+    ]
+  },
+  "atom_matrix": {
+    "result": "PARTIAL",
+    "serial_marker": "Atom Matrix Factory test",
+    "remaining_failure": "CPU0 wifi watchdog without offline WiFi controller; full factory/LED acceptance incomplete"
+  },
+  "cleanup": "Each run downloaded its evidence ZIP before stop, purge=0, retain_flash=0.",
+  "not_run": [
+    "browser WASM",
+    "physical hardware",
+    "complete native peripheral matrix for this candidate"
+  ]
+}

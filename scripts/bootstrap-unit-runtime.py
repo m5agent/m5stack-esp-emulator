@@ -66,6 +66,7 @@ PATCHES = (
     "patches/qemu-unit-runtime/0011-native-wdt-feed-context.patch",
     "patches/qemu-unit-runtime/0012-native-uart-trace-context.patch",
     "patches/qemu-m5stack-peripherals/0087-unit-hard-reset-output-boundary.patch",
+    "patches/qemu-unit-runtime/0021-native-icount-fairness-context.patch",
     "patches/qemu-m5stack-peripherals/0091-esp32-timg-feed-reschedule.patch",
     "patches/qemu-unit-runtime/0015-native-wifi-cache-gate-context.patch",
     "patches/qemu-unit-runtime/0016-native-wifi-virtual-time-context.patch",
