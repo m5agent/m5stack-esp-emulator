@@ -83,6 +83,11 @@ SPI1 的 10-bit Flash 长度字段分开，保留 FIFO 字节并约束 DMA 缓�
 
 ## 当前开放边界
 
+`0021-c6-efuse-unprovisioned-defaults.patch` 隔离无 backing 时继承的 C3
+默认字段，保留 C3 与显式 C6 backing。原 Bruce 的 0019 前后差分及
+[实际 C 负/正控制](../../tests/firmware/esp32c6_efuse_defaults/README.md)
+已记录；修正后 combined runtime 原 BIN 验收仍为 **NOT RUN**。
+
 `0020-c6-usb-serial-jtag-endpoints.patch` 为固定 CDC IN/OUT 端点提供
 64 字节 FIFO、真实 chardev 收发、背压及 C6 IRQ48 接线。独立
 [HWCDC 与 UIFlow2 USB REPL 用例](../../tests/firmware/esp32c6_usb_serial_jtag/README.md)
