@@ -67,7 +67,7 @@ class Core2QemuAccelTests(unittest.TestCase):
         self.assertEqual(self.core2_args_with(" 07 "), expected)
         self.assertEqual(
             self.core2_args_with("auto")[-1],
-            "shift=auto,align=off,sleep=off",
+            "shift=auto,align=off,sleep=on",
         )
 
     def test_environment_override_rejects_invalid_values(self) -> None:

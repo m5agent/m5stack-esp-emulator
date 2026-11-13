@@ -178,10 +178,18 @@ register storage. BLE pairing, HID delivery and RF require separate evidence.
 
 With 0199 and 0200 applied, the unchanged original reached its home screen
 after a C hold at the default `icount` shift 5. The 85-second capture recorded
-no watchdog or reset. An independent C-hold capture with `icount=auto`
-still triggered an IDLE0 task watchdog at 14.844 guest seconds and rebooted.
-The original's home screen was unobserved in that trial. A separate auto trial
-without any input reproduced the same IDLE0 watchdog and reset at 14.801
-guest seconds. The
+no watchdog or reset. The original `shift=auto,sleep=off` argument caused
+an IDLE0 task watchdog at 14.844 guest seconds after a C hold and at 14.801
+guest seconds without any input. The same original, native binary, ROM and
+C hold with `shift=auto,sleep=on` reached the identical home frame after
+80.069 seconds and completed the 85-second observation without watchdogs or
+resets. The adaptive clock follows host time while idle. Fixed shifts keep
+the existing deterministic idle-time behavior.
+
+With the corrected adaptive profile, the first direct Plus2 UIFlow2 fixture
+run drew the ready frame but missed its host-timed A pulse. The fixture now
+uses `virtual-keytap:a,0.1`, schedules release on the QEMU virtual clock,
+and waits for the guest's `STICKCPLUS2_BTN_A 1` marker before checking the
+green pixel. The
 [bounded evidence summary](rwbt-sleep-evidence-summary.json) binds each
 result to its original image, runtime, inputs, frame and retained ZIP.

@@ -290,7 +290,7 @@
     }
   ],
   "limitations": [
-    "The original auto timing profile still reboots on an IDLE0 task watchdog after a C hold.",
+    "The historical auto/sleep=off mode still reproduces the IDLE0 watchdog. The corrected auto/sleep=on control reaches the original home screen.",
     "The C-only runs do not exercise A/B actions.",
     "RF, physical hardware, BLE pairing and HID reports received by a peer were not tested."
   ],
@@ -312,5 +312,98 @@
     "zip_retrieved_before_stop": true,
     "retained_session_stopped": true,
     "owned_qemu_reaped": true
-  }
+  },
+  "original_corrected_auto_control": {
+    "status": "PASS_HOME",
+    "device_service_base_commit": "f855a744277e6644d8d0bf2917a149eb95cc1a68",
+    "tested_accel_source_sha256": "cf632d6d236b849763e99e6a58c0ea8a15fffc4eaee29e41a2f582d49a58dbe7",
+    "original_merged_and_normalized_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+    "native_qemu_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+    "esp32_v3_rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+    "icount": "shift=auto,align=off,sleep=on",
+    "wall_seconds": 85.026,
+    "watchdogs_enabled": true,
+    "accepted_inputs": [
+      {
+        "input": "keydown:c",
+        "wall_seconds": 0.336
+      },
+      {
+        "input": "keyup:c",
+        "wall_seconds": 2.017
+      }
+    ],
+    "power_key_gpio": 35,
+    "home_frame": {
+      "sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+      "size": [
+        135,
+        240
+      ],
+      "nonblack": 32400,
+      "colors": 6,
+      "seconds": 80.069
+    },
+    "interrupt_watchdogs": 0,
+    "task_watchdogs": 0,
+    "resets": 0,
+    "serial_sha256": "9b2f3a2c65f9df9da9eb71da3acee23ba0c6b3d2b3b7c43d1e62f80a478d207f",
+    "evidence_zip_sha256": "7c0af0d5daafdac755ffa06fe67445850b83e84b99a3f608aac45f734ed0400e",
+    "zip_retrieved_before_stop": true,
+    "retained_session_stopped": true,
+    "owned_qemu_reaped": true
+  },
+  "ui_regression_host_tap_negative": {
+    "status": "FAIL_KEY_NOT_OBSERVED",
+    "device": "stickc-plus2",
+    "icount": "shift=auto,align=off,sleep=on",
+    "input": "key:a",
+    "guest_marker_before_input": "STICKCPLUS2_FRAME_READY",
+    "guest_marker_after_input": null,
+    "sampled_pixel_at_3_3": "000000",
+    "expected_pixel_at_3_3": "00ff00",
+    "serial_sha256": "da8a3c462818a96938208c92d44673ab038e8c3e066df3cd7609f83d962dd480",
+    "report_sha256": "6b3bad5473ae337c6b10a0deb424736aaf395c5a75388dca79f332f55ca27077"
+  },
+  "ui_regressions_after_accel_and_input_change": [
+    {
+      "device": "core2",
+      "status": "PASS",
+      "attempts": 1,
+      "runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+      "icount": "shift=5,align=off,sleep=off",
+      "input": "longpress:160,183,1.5",
+      "guest_marker_after_input": "CORE2_FRAME_AFTER_TOUCH 1",
+      "reference_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "serial_sha256": "89e844e7814e354fa2ffc9e2233071285f4add15fe838553fd115872bf1daf3f",
+      "frame_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "report_sha256": "5d0aad43cf47e0a5bc08be295677ac1a04f6f8ccc9a78100801a0b2df4abe29d"
+    },
+    {
+      "device": "stickc-plus2",
+      "status": "PASS",
+      "attempts": 1,
+      "runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+      "icount": "shift=auto,align=off,sleep=on",
+      "input": "virtual-keytap:a,0.1",
+      "guest_marker_after_input": "STICKCPLUS2_BTN_A 1",
+      "reference_firmware_sha256": "9b553277331a2cbb61b3fd73188da05bd312c66edd5ad2f39adfa4e155abf254",
+      "serial_sha256": "55b8470c8f9b5d6b52cd666e8fae1d5f16cf77d767e7b58c24de5ea7bfc03f47",
+      "frame_sha256": "6387ac647f3a22dbb14e3cbedc9707deee8759f33d47687a5411a646408d1ca4",
+      "report_sha256": "5d0aad43cf47e0a5bc08be295677ac1a04f6f8ccc9a78100801a0b2df4abe29d"
+    },
+    {
+      "device": "core2",
+      "status": "PASS",
+      "attempts": 1,
+      "runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+      "icount": "shift=auto,align=off,sleep=on",
+      "input": "longpress:160,183,1.5",
+      "guest_marker_after_input": "CORE2_FRAME_AFTER_TOUCH 1",
+      "reference_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "serial_sha256": "ef21a6c9dca107aefeb0b26fccb543639fef52cc7b67706fbe6fe125aba57aae",
+      "frame_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "report_sha256": "5f0119322c1df1e48926b104895beeff86065fcadb4a7add0bd4d2331d38f2e5"
+    }
+  ]
 }
