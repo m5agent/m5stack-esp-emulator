@@ -17,6 +17,28 @@ def digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def git_bytes(source, commit, path):
+    return subprocess.check_output(["git", "-C", str(source), "show", f"{commit}:{path}"])
+
+
+def copy_git_directory(source, commit, directory, destination):
+    """Copy the pinned blobs, ignoring dirty and untracked working-tree files."""
+    listing = subprocess.check_output([
+        "git", "-C", str(source), "ls-tree", "-r", "-z", commit, "--", directory,
+    ])
+    for item in listing.split(b"\0"):
+        if not item:
+            continue
+        metadata, raw_path = item.split(b"\t", 1)
+        mode, kind, oid = metadata.decode().split()
+        if kind != "blob" or mode not in ("100644", "100755"):
+            raise ValueError("Pinned board directory contains a non-file entry")
+        relative = Path(raw_path.decode()).relative_to(directory)
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(subprocess.check_output(["git", "-C", str(source), "cat-file", "blob", oid]))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
@@ -55,11 +77,11 @@ def main():
     (out / "boards").mkdir()
     shutil.copy2(HERE / (args.kind + ".cpp"), out / "src/main.cpp")
     shutil.copy2(HERE / "partitions.csv", out / "partitions.csv")
-    board = json.loads((launcher / "boards/_jsonfiles/esp32c6.json").read_text())
+    board = json.loads(git_bytes(launcher, commit, "boards/_jsonfiles/esp32c6.json"))
     board["build"].update(f_flash="40000000L", flash_mode="dio")
     board["upload"].update(flash_size="4MB", maximum_size=4194304)
     (out / "boards/esp32c6.json").write_text(json.dumps(board, indent=2) + "\n")
-    shutil.copytree(launcher / "boards/_jsonfiles", out / "boards/_jsonfiles")
+    copy_git_directory(launcher, commit, "boards/_jsonfiles", out / "boards/_jsonfiles")
     include = core / "packages/framework-arduinoespressif32/libraries"
     ini = "\n".join([
         "[platformio]", "boards_dir = boards", "", "[env:arduino-nesso-n1]",
