@@ -1,0 +1,63 @@
+{
+  "validation": "virtual-device validation",
+  "issue": 216,
+  "source_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "runtime_before_sha256": "588fa3cfcc41722504a7fc2254abd6f720eeb9d49f0c7c786fc3378e2a21d43f",
+  "runtime_after_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "fixture_sha256": "04cc390819a28e6610203e0017ebf2dea05dd0802aabee196024f0107cda784e",
+  "fixture_runs": [
+    {
+      "name": "nesso-positive",
+      "device": "nesso-n1",
+      "state": "running",
+      "cbc_pass_count": 3,
+      "large_dma_pass": true,
+      "ready": true,
+      "aes_irq_source_73_count": 2,
+      "serial_sha256": "24949254964570ef175d4031c2bf115ad20cd1f151dafcac00886055bdacc128",
+      "evidence_sha256": "5c2f262c8f2c34ab861c5691484a7820e553339dfd466360c328e012efabf665"
+    },
+    {
+      "name": "nanoc6-positive",
+      "device": "nanoc6",
+      "state": "running",
+      "cbc_pass_count": 3,
+      "large_dma_pass": true,
+      "ready": true,
+      "aes_irq_source_73_count": 2,
+      "serial_sha256": "d898ab0d6bd5a8d33b743386f9a7eb04ca96b5b8f07760b712f06c5c20c54640",
+      "evidence_sha256": "98f743003988b284077809f9438828848e78e7cfa2ef8ef10a13ba1b0840579d"
+    },
+    {
+      "name": "nesso-negative",
+      "device": "nesso-n1",
+      "state": "failed",
+      "cbc_pass_count": 0,
+      "large_dma_pass": false,
+      "ready": false,
+      "aes_irq_source_73_count": 0,
+      "serial_sha256": "ce26baff145afba41b274c3f446de4d6afd84c18df0a058d4bb5731339a7ea80",
+      "evidence_sha256": "c9687d30f4e0ccd652eed12b9348c62eb95d27c1c22bf3d1d7e868ef43dcd8ab"
+    }
+  ],
+  "original_bruce": {
+    "firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+    "before": "serial ends at entry; PC 0x4226e868 polls AES_STATE(0x6008804c) for 2",
+    "after_observation_seconds": 163.765,
+    "after": "application reaches LittleFS error page; no guest reset observed",
+    "frame": {
+      "width": 135,
+      "height": 240,
+      "nonblack_pixels": 3565,
+      "unique_rgb_colors": 4
+    },
+    "overall_status": "PARTIAL: LittleFS mount/format fails; full app features not verified"
+  },
+  "limits": [
+    "No physical hardware validation",
+    "Launcher mutex assertion and Meshtastic restart remain open",
+    "Fresh C6 build alone does not resolve all issue 216 samples"
+  ]
+}

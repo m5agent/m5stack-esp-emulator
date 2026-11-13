@@ -31,6 +31,12 @@ Last reviewed: `2026-11-13`
   SCL reset 寄存器布局、PCR LEDC clock、compact LEDC layout、SPI2/GDMA
   TX/RX、`TRANS_DONE` 中断，以及共享 GDMA 的 OUT FIFO 完成握手。
 
+`0008-c6-aes-gdma-wiring.patch` 将共享 ESP AES 数据面接到 C6 的
+AES MMIO、GDMA request 6 和 IRQ source 73；不再让原版 Bruce 永久等待
+未接线的 `AES_STATE`。Nesso/NanoC6 的 NIST CBC、4096 字节 DMA 与中断
+回归见 [AES 用例](../../tests/firmware/esp32c6_aes/README.md)。这不等于
+Bruce 的 LittleFS 或 issue #216 全部固件通过。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。

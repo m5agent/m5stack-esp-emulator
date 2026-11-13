@@ -1,0 +1,101 @@
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -60,6 +60,7 @@
+ #include "hw/ssi/esp32c3_spi.h"
+ #include "hw/dma/esp32c6_gdma.h"
+ #include "hw/misc/esp32c6_wifi.h"
++#include "hw/misc/esp32c6_aes.h"
+ 
+ #define ESP32C6_RESET_ADDRESS       0x40000000
+ #define ESP32C6_RESET_GPIO_NAME     "esp32c6.machine.reset_gpio"
+@@ -81,6 +82,7 @@
+ 
+     DeviceState *eth;
+     DeviceState *wifi;
++    ESPAesState aes;
+     ESP32C6IntMatrixState intmatrix;
+     ESP32C6IntpriState intpri;
+     ESP32C6UARTState uart[ESP32C6_UART_COUNT];
+@@ -399,6 +401,7 @@
+     object_initialize_child(OBJECT(machine), "clock", &ms->clock, TYPE_ESP32C6_CLOCK);
+     object_initialize_child(OBJECT(machine), "gdma", &ms->gdma, TYPE_ESP32C6_GDMA);
+     object_initialize_child(OBJECT(machine), "sha", &ms->sha, TYPE_ESP32C6_SHA);
++    object_initialize_child(OBJECT(machine), "aes", &ms->aes, TYPE_ESP32C6_AES);
+     object_initialize_child(OBJECT(machine), "ledc", &ms->ledc, TYPE_ESP32_LEDC);
+     qdev_prop_set_bit(DEVICE(&ms->ledc), "compact-layout", true);
+     object_initialize_child(OBJECT(machine), "timg0", &ms->timg[0], TYPE_ESP32C6_TIMG);
+@@ -680,6 +683,16 @@
+     /* I2S0: Nesso N1 GPIO11 1-bit delta-sigma buzzer output. */
+     esp32c6_i2s_board_init(sys_mem, &ms->gdma, intmatrix_dev);
+ 
++    /* AES uses the C6 GDMA request and interrupt matrix, as on silicon. */
++    {
++        ms->aes.gdma = ESP_GDMA(&ms->gdma);
++        sysbus_realize(SYS_BUS_DEVICE(&ms->aes), &error_fatal);
++        memory_region_add_subregion_overlap(sys_mem, DR_REG_AES_BASE,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->aes), 0), 0);
++        sysbus_connect_irq(SYS_BUS_DEVICE(&ms->aes), 0,
++            qdev_get_gpio_in(intmatrix_dev, C6_ETS_AES_INTR_SOURCE));
++    }
++
+     /* SHA */
+     {
+         ms->sha.parent.parent.gdma = ESP_GDMA(&ms->gdma);
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -159,6 +159,8 @@
+ ))
+ 
+ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
++  'esp_aes.c',
++  'esp32c6_aes.c',
+   'esp32_ledc.c',
+   'led.c',
+   'esp32c6_cache.c',
+diff --git a/include/hw/misc/esp32c6_reg.h b/include/hw/misc/esp32c6_reg.h
+--- a/include/hw/misc/esp32c6_reg.h
++++ b/include/hw/misc/esp32c6_reg.h
+@@ -68,6 +68,7 @@
+ #define C6_ETS_DMA_OUT_CH1_INTR_SOURCE          70
+ #define C6_ETS_DMA_OUT_CH2_INTR_SOURCE          71
+ #define C6_ETS_SPI2_INTR_SOURCE                 72
++#define C6_ETS_AES_INTR_SOURCE                   73
+ #define C6_ETS_SHA_INTR_SOURCE                   74
+ 
+ #define ESP32C6_INT_MATRIX_INPUTS               77
+diff --git a/hw/misc/esp32c6_aes.c b/hw/misc/esp32c6_aes.c
+new file mode 100644
+--- /dev/null
++++ b/hw/misc/esp32c6_aes.c
+@@ -0,0 +1,20 @@
++/*
++ * ESP32-C6 AES accelerator.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/misc/esp32c6_aes.h"
++
++static const TypeInfo esp32c6_aes_info = {
++    .name = TYPE_ESP32C6_AES,
++    .parent = TYPE_ESP_AES,
++    .instance_size = sizeof(ESPAesState),
++    .class_size = sizeof(ESPAesClass),
++};
++
++static void esp32c6_aes_register_types(void)
++{
++    type_register_static(&esp32c6_aes_info);
++}
++
++type_init(esp32c6_aes_register_types)
+diff --git a/include/hw/misc/esp32c6_aes.h b/include/hw/misc/esp32c6_aes.h
+new file mode 100644
+--- /dev/null
++++ b/include/hw/misc/esp32c6_aes.h
+@@ -0,0 +1,4 @@
++/* ESP32-C6 AES: the shared ESP AES register and GDMA interface. */
++#pragma once
++#include "hw/misc/esp_aes.h"
++#define TYPE_ESP32C6_AES "misc.esp32c6.aes"
