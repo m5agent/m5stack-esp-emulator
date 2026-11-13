@@ -1461,3 +1461,24 @@ chains cannot synthesize data beyond their owned buffers. The device-local
 [`core2-sd` regression](../../tests/uiflow2/core2_sd/README.md) checks real SDCard
 write/read, independent disk bytes and display output; original application
 observations are recorded with the classic panel fixture.
+
+## Native high-priority IRQ lifetime (0194)
+
+`0194-xtensa-restored-irq-level.patch` records accepted high-priority interrupts
+by architectural EPS/EPC slot. Entry is recorded only after interrupt acceptance;
+RFI retires its immediate level, preserving other active slots. RFE/RFDE and
+software changes to PS do not retire a high-priority IRQ. MEMW cooperation uses
+the executing CPU's active slots, while reset clears only that CPU's state.
+The earlier implementation could retain the global cooperative-yield flag
+after the original Atom Lite firmware returned from level 5, starving normal
+timer/Flash IPC progress. No guest clock, watchdog, delay or firmware byte is
+changed. The cache optimization in 0193 remains intact.
+
+`test_xtensa_restored_irq_level_patch.py` executes the actual C handlers and
+return translator operations with nested, rejected-pending, software-mask,
+cross-CPU and reset controls, retaining old-implementation negative controls.
+Native application results are recorded with the classic factory fixture.
+The state follows one active slot per level, matching architectural EPS/EPC
+storage; it does not model an arbitrary software-managed stack of repeated
+same-level interrupts or handlers that manually abandon the return path.
+The native selection does not change the separately pinned browser-WASM build.

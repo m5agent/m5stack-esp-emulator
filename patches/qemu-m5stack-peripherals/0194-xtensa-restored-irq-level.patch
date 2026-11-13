@@ -1,0 +1,972 @@
+diff --git a/target/xtensa/cpu.c b/target/xtensa/cpu.c
+index b0b2843..8b73891 100644
+--- a/target/xtensa/cpu.c
++++ b/target/xtensa/cpu.c
+@@ -37,160 +37,161 @@
+ #include "hw/qdev-clock.h"
+ #include "sysemu/cpu-timers.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "exec/memory.h"
+ #endif
+ 
+ 
+ static void xtensa_cpu_set_pc(CPUState *cs, vaddr value)
+ {
+     XtensaCPU *cpu = XTENSA_CPU(cs);
+ 
+     cpu->env.pc = value;
+ }
+ 
+ static vaddr xtensa_cpu_get_pc(CPUState *cs)
+ {
+     XtensaCPU *cpu = XTENSA_CPU(cs);
+ 
+     return cpu->env.pc;
+ }
+ 
+ static void xtensa_restore_state_to_opc(CPUState *cs,
+                                         const TranslationBlock *tb,
+                                         const uint64_t *data)
+ {
+     XtensaCPU *cpu = XTENSA_CPU(cs);
+ 
+     cpu->env.pc = data[0];
+ }
+ 
+ static bool xtensa_cpu_has_work(CPUState *cs)
+ {
+ #ifndef CONFIG_USER_ONLY
+     XtensaCPU *cpu = XTENSA_CPU(cs);
+ 
+     return !cpu->env.runstall && cpu->env.pending_irq_level;
+ #else
+     return true;
+ #endif
+ }
+ 
+ static int xtensa_cpu_mmu_index(CPUState *cs, bool ifetch)
+ {
+     return xtensa_get_cring(cpu_env(cs));
+ }
+ 
+ #ifdef CONFIG_USER_ONLY
+ static bool abi_call0;
+ 
+ void xtensa_set_abi_call0(void)
+ {
+     abi_call0 = true;
+ }
+ 
+ bool xtensa_abi_call0(void)
+ {
+     return abi_call0;
+ }
+ #endif
+ 
+ static void xtensa_cpu_reset_hold(Object *obj, ResetType type)
+ {
+     CPUState *cs = CPU(obj);
+     XtensaCPUClass *xcc = XTENSA_CPU_GET_CLASS(obj);
+     CPUXtensaState *env = cpu_env(cs);
+     bool dfpu = xtensa_option_enabled(env->config,
+                                       XTENSA_OPTION_DFP_COPROCESSOR);
+ 
+     if (xcc->parent_phases.hold) {
+         xcc->parent_phases.hold(obj, type);
+     }
+ 
+     icount_note_high_priority_irq(cs->cpu_index, false);
+     env->pc = env->config->exception_vector[EXC_RESET0 + env->static_vectors];
+     env->sregs[LITBASE] &= ~1;
+ #ifndef CONFIG_USER_ONLY
+     env->sregs[PS] = xtensa_option_enabled(env->config,
+             XTENSA_OPTION_INTERRUPT) ? 0x1f : 0x10;
+     env->sregs[CPENABLE] = 0xff;
+     env->pending_irq_level = 0;
++    env->high_priority_irq_levels = 0;
+ #else
+     env->sregs[PS] = PS_UM | (3 << PS_RING_SHIFT);
+     if (xtensa_option_enabled(env->config,
+                               XTENSA_OPTION_WINDOWED_REGISTER) &&
+         !xtensa_abi_call0()) {
+         env->sregs[PS] |= PS_WOE;
+     }
+     env->sregs[CPENABLE] = 0xff;
+ #endif
+     env->sregs[VECBASE] = env->config->vecbase;
+     env->sregs[IBREAKENABLE] = 0;
+     env->sregs[MEMCTL] = MEMCTL_IL0EN & env->config->memctl_mask;
+     env->sregs[ATOMCTL] = xtensa_option_enabled(env->config,
+             XTENSA_OPTION_ATOMCTL) ? 0x28 : 0x15;
+     env->sregs[CONFIGID0] = env->config->configid[0];
+     env->sregs[CONFIGID1] = env->config->configid[1];
+     env->exclusive_addr = -1;
+ 
+ #ifndef CONFIG_USER_ONLY
+     reset_mmu(env);
+     cs->halted = env->runstall;
+ #endif
+     set_no_signaling_nans(!dfpu, &env->fp_status);
+     xtensa_use_first_nan(env, !dfpu);
+ }
+ 
+ static ObjectClass *xtensa_cpu_class_by_name(const char *cpu_model)
+ {
+     ObjectClass *oc;
+     char *typename;
+ 
+     typename = g_strdup_printf(XTENSA_CPU_TYPE_NAME("%s"), cpu_model);
+     oc = object_class_by_name(typename);
+     g_free(typename);
+ 
+     return oc;
+ }
+ 
+ static void xtensa_cpu_disas_set_info(CPUState *cs, disassemble_info *info)
+ {
+     XtensaCPU *cpu = XTENSA_CPU(cs);
+ 
+     info->private_data = cpu->env.config->isa;
+     info->print_insn = print_insn_xtensa;
+ }
+ 
+ static void xtensa_cpu_realizefn(DeviceState *dev, Error **errp)
+ {
+     CPUState *cs = CPU(dev);
+     XtensaCPUClass *xcc = XTENSA_CPU_GET_CLASS(dev);
+     Error *local_err = NULL;
+ 
+ #ifndef CONFIG_USER_ONLY
+     xtensa_irq_init(&XTENSA_CPU(dev)->env);
+ #endif
+ 
+     cpu_exec_realizefn(cs, &local_err);
+     if (local_err != NULL) {
+         error_propagate(errp, local_err);
+         return;
+     }
+ 
+     cs->gdb_num_regs = xcc->config->gdb_regmap.num_regs;
+ 
+     qemu_init_vcpu(cs);
+ 
+     xcc->parent_realize(dev, errp);
+ }
+ 
+ static void xtensa_cpu_initfn(Object *obj)
+ {
+     XtensaCPU *cpu = XTENSA_CPU(obj);
+     XtensaCPUClass *xcc = XTENSA_CPU_GET_CLASS(obj);
+     CPUXtensaState *env = &cpu->env;
+ 
+     env->config = xcc->config;
+ 
+ #ifndef CONFIG_USER_ONLY
+     env->address_space_er = g_malloc(sizeof(*env->address_space_er));
+     env->system_er = g_malloc(sizeof(*env->system_er));
+diff --git a/target/xtensa/cpu.h b/target/xtensa/cpu.h
+index 315ab34..58746e6 100644
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -479,160 +479,162 @@ typedef struct XtensaConfig {
+     xtensa_isa isa;
+     XtensaOpcodeOps **opcode_ops;
+     const XtensaOpcodeTranslators **opcode_translators;
+     xtensa_regfile a_regfile;
+     void ***regfile;
+ 
+     uint32_t clock_freq_khz;
+ 
+     xtensa_tlb itlb;
+     xtensa_tlb dtlb;
+ 
+     uint32_t mpu_align;
+     unsigned n_mpu_fg_segments;
+     unsigned n_mpu_bg_segments;
+     const xtensa_mpu_entry *mpu_bg;
+ 
+     bool use_first_nan;
+ } XtensaConfig;
+ 
+ typedef struct XtensaConfigList {
+     const XtensaConfig *config;
+     struct XtensaConfigList *next;
+ } XtensaConfigList;
+ 
+ #if HOST_BIG_ENDIAN
+ enum {
+     FP_F32_HIGH,
+     FP_F32_LOW,
+ };
+ #else
+ enum {
+     FP_F32_LOW,
+     FP_F32_HIGH,
+ };
+ #endif
+ 
+ struct CPUArchState {
+     const XtensaConfig *config;
+     uint32_t regs[16];
+     uint32_t pc;
+     uint32_t native_hci_send_hook_pc;
+     uint32_t native_hci_send_return_pc;
+     uint32_t native_hci_idle_call_pc;
+     uint32_t (*native_hci_idle_dispatch)(void *opaque, CPUState *cs,
+                                          uint32_t idle_target);
+     void (*native_hci_idle_complete)(void *opaque, CPUState *cs);
+     uint32_t native_hci_cmd_semaphore_hook_pc;
+     uint32_t native_hci_cmd_semaphore_return_pc;
+     uint32_t native_hci_acl_semaphore_hook_pc;
+     uint32_t native_hci_acl_semaphore_return_pc;
+     uint32_t native_hci_recycle_hook_pc;
+     uint32_t native_hci_recycle_return_pc;
+     uint32_t native_hci_sleep_post_hook_pc;
+     uint32_t native_hci_sleep_post_return_pc;
+     uint32_t native_hci_trace_pcs[XTENSA_NATIVE_HCI_TRACE_SLOTS];
+     XtensaNativeHciSendCallback native_hci_send_callback;
+     void *native_hci_send_opaque;
+     XtensaNativeHciTraceCallback native_hci_trace_callback;
+     void *native_hci_trace_opaque;
+     uint32_t sregs[256];
+     uint32_t uregs[256];
+     uint32_t phys_regs[MAX_NAREG];
+     union {
+         float32 f32[2];
+         float64 f64;
+     } fregs[16];
+     float_status fp_status;
+     uint32_t windowbase_next;
+     uint32_t exclusive_addr;
+     uint32_t exclusive_val;
+ 
+ #ifndef CONFIG_USER_ONLY
+     xtensa_tlb_entry itlb[7][MAX_TLB_WAY_SIZE];
+     xtensa_tlb_entry dtlb[10][MAX_TLB_WAY_SIZE];
+     xtensa_mpu_entry mpu_fg[MAX_MPU_FOREGROUND_SEGMENTS];
+     unsigned autorefill_idx;
+     bool runstall;
+     AddressSpace *address_space_er;
+     MemoryRegion *system_er;
+     int pending_irq_level; /* level of last raised IRQ */
++    /* Accepted high-priority IRQs: one bit per architectural EPS/EPC slot. */
++    uint8_t high_priority_irq_levels;
+     qemu_irq *irq_inputs;
+     qemu_irq ext_irq_inputs[MAX_NINTERRUPT];
+     qemu_irq runstall_irq;
+     XtensaCcompareTimer ccompare[MAX_NCCOMPARE];
+     uint64_t time_base;
+     uint64_t ccount_time;
+     uint32_t ccount_base;
+ #endif
+ 
+     int yield_needed;
+     unsigned static_vectors;
+ 
+     /* Watchpoints for DBREAK registers */
+     struct CPUWatchpoint *cpu_watchpoint[MAX_NDBREAK];
+     /* Breakpoints for IBREAK registers */
+     struct CPUBreakpoint *cpu_breakpoint[MAX_NIBREAK];
+     /* Pointer to any kind of extension of basic Xtensa CPU.*/
+     void* ext;
+ };
+ 
+ /**
+  * XtensaCPU:
+  * @env: #CPUXtensaState
+  *
+  * An Xtensa CPU.
+  */
+ struct ArchCPU {
+     CPUState parent_obj;
+ 
+     CPUXtensaState env;
+     Clock *clock;
+ };
+ 
+ /**
+  * XtensaCPUClass:
+  * @parent_realize: The parent class' realize handler.
+  * @parent_phases: The parent class' reset phase handlers.
+  * @config: The CPU core configuration.
+  *
+  * An Xtensa CPU model.
+  */
+ struct XtensaCPUClass {
+     CPUClass parent_class;
+ 
+     DeviceRealize parent_realize;
+     ResettablePhases parent_phases;
+ 
+     const XtensaConfig *config;
+ };
+ 
+ #ifndef CONFIG_USER_ONLY
+ bool xtensa_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
+                          MMUAccessType access_type, int mmu_idx,
+                          bool probe, uintptr_t retaddr);
+ void xtensa_cpu_do_interrupt(CPUState *cpu);
+ bool xtensa_cpu_exec_interrupt(CPUState *cpu, int interrupt_request);
+ void xtensa_cpu_do_transaction_failed(CPUState *cs, hwaddr physaddr, vaddr addr,
+                                       unsigned size, MMUAccessType access_type,
+                                       int mmu_idx, MemTxAttrs attrs,
+                                       MemTxResult response, uintptr_t retaddr);
+ hwaddr xtensa_cpu_get_phys_page_debug(CPUState *cpu, vaddr addr);
+ bool xtensa_debug_check_breakpoint(CPUState *cs);
+ #endif
+ void xtensa_cpu_dump_state(CPUState *cpu, FILE *f, int flags);
+ void xtensa_count_regs(const XtensaConfig *config,
+                        unsigned *n_regs, unsigned *n_core_regs);
+ int xtensa_cpu_gdb_read_register(CPUState *cpu, GByteArray *buf, int reg);
+ int xtensa_cpu_gdb_write_register(CPUState *cpu, uint8_t *buf, int reg);
+ G_NORETURN void xtensa_cpu_do_unaligned_access(CPUState *cpu, vaddr addr,
+                                                MMUAccessType access_type, int mmu_idx,
+                                                uintptr_t retaddr);
+ 
+ #define CPU_RESOLVING_TYPE TYPE_XTENSA_CPU
+ 
+ #if TARGET_BIG_ENDIAN
+ #define XTENSA_DEFAULT_CPU_MODEL "fsf"
+ #define XTENSA_DEFAULT_CPU_NOMMU_MODEL "fsf"
+ #else
+ #define XTENSA_DEFAULT_CPU_MODEL "dc232b"
+ #define XTENSA_DEFAULT_CPU_NOMMU_MODEL "de212"
+diff --git a/target/xtensa/exc_helper.c b/target/xtensa/exc_helper.c
+index 8cb2752..9e247f5 100644
+--- a/target/xtensa/exc_helper.c
++++ b/target/xtensa/exc_helper.c
+@@ -105,181 +105,184 @@ void HELPER(debug_exception)(CPUXtensaState *env, uint32_t pc, uint32_t cause)
+ }
+ 
+ #ifndef CONFIG_USER_ONLY
+ 
+ void HELPER(waiti)(CPUXtensaState *env, uint32_t pc, uint32_t intlevel)
+ {
+     CPUState *cpu = env_cpu(env);
+ 
+     env->pc = pc;
+     env->sregs[PS] = (env->sregs[PS] & ~PS_INTLEVEL) |
+         (intlevel << PS_INTLEVEL_SHIFT);
+ 
+     bql_lock();
+     check_interrupts(env);
+     bql_unlock();
+ 
+     if (env->pending_irq_level) {
+         cpu_loop_exit(cpu);
+         return;
+     }
+ 
+     cpu->halted = 1;
+     HELPER(exception)(env, EXCP_HLT);
+ }
+ 
+ void HELPER(check_interrupts)(CPUXtensaState *env)
+ {
+     bql_lock();
+     check_interrupts(env);
+     bql_unlock();
+ }
+ 
+ void HELPER(intset)(CPUXtensaState *env, uint32_t v)
+ {
+     qatomic_or(&env->sregs[INTSET],
+               v & env->config->inttype_mask[INTTYPE_SOFTWARE]);
+ }
+ 
+ static void intclear(CPUXtensaState *env, uint32_t v)
+ {
+     qatomic_and(&env->sregs[INTSET], ~v);
+ }
+ 
+ void HELPER(intclear)(CPUXtensaState *env, uint32_t v)
+ {
+     intclear(env, v & (env->config->inttype_mask[INTTYPE_SOFTWARE] |
+                        env->config->inttype_mask[INTTYPE_EDGE]));
+ }
+ 
+ static uint32_t relocated_vector(CPUXtensaState *env, uint32_t vector)
+ {
+     if (xtensa_option_enabled(env->config,
+                               XTENSA_OPTION_RELOCATABLE_VECTOR)) {
+         return vector - env->config->vecbase + env->sregs[VECBASE];
+     } else {
+         return vector;
+     }
+ }
+ 
+ /*!
+  * Handle penging IRQ.
+  * For the high priority interrupt jump to the corresponding interrupt vector.
+  * For the level-1 interrupt convert it to either user, kernel or double
+  * exception with the 'level-1 interrupt' exception cause.
+  */
+ static void handle_interrupt(CPUXtensaState *env)
+ {
+     int level = env->pending_irq_level;
+ 
+     if ((level > xtensa_get_cintlevel(env) &&
+          level <= env->config->nlevel &&
+          (env->config->level_mask[level] &
+           env->sregs[INTSET] & env->sregs[INTENABLE])) ||
+         level == env->config->nmi_level) {
+         CPUState *cs = env_cpu(env);
+ 
+         if (level > 1) {
+             /* env->config->nlevel check should have ensured this */
+             assert(level < ARRAY_SIZE(env->config->interrupt_vector));
+ 
++            if (level >= 4 && level < 8) {
++                /* Set only after acceptance, not merely a pending IRQ. A
++                 * repeated level reuses the same hardware EPS/EPC slot. */
++                env->high_priority_irq_levels |= 1U << level;
++                icount_note_high_priority_irq(cs->cpu_index, true);
++            }
+             env->sregs[EPC1 + level - 1] = env->pc;
+             env->sregs[EPS2 + level - 2] = env->sregs[PS];
+             env->sregs[PS] =
+                 (env->sregs[PS] & ~PS_INTLEVEL) | level | PS_EXCM;
+             env->pc = relocated_vector(env,
+                                        env->config->interrupt_vector[level]);
+             if (level == env->config->nmi_level) {
+                 intclear(env, env->config->inttype_mask[INTTYPE_NMI]);
+             }
+         } else {
+             env->sregs[EXCCAUSE] = LEVEL1_INTERRUPT_CAUSE;
+ 
+             if (env->sregs[PS] & PS_EXCM) {
+                 if (env->config->ndepc) {
+                     env->sregs[DEPC] = env->pc;
+                 } else {
+                     env->sregs[EPC1] = env->pc;
+                 }
+                 cs->exception_index = EXC_DOUBLE;
+             } else {
+                 env->sregs[EPC1] = env->pc;
+                 cs->exception_index =
+                     (env->sregs[PS] & PS_UM) ? EXC_USER : EXC_KERNEL;
+             }
+             env->sregs[PS] |= PS_EXCM;
+         }
+     }
+ }
+ 
+ /* Called from cpu_handle_interrupt with BQL held */
+ void xtensa_cpu_do_interrupt(CPUState *cs)
+ {
+     CPUXtensaState *env = cpu_env(cs);
+ 
+     if (cs->exception_index == EXC_IRQ) {
+-        if (env->pending_irq_level >= 4) {
+-            icount_note_high_priority_irq(cs->cpu_index, true);
+-        }
+         qemu_log_mask(CPU_LOG_INT,
+                       "%s(EXC_IRQ) level = %d, cintlevel = %d, "
+                       "pc = %08x, a0 = %08x, ps = %08x, "
+                       "intset = %08x, intenable = %08x, "
+                       "ccount = %08x\n",
+                       __func__, env->pending_irq_level,
+                       xtensa_get_cintlevel(env),
+                       env->pc, env->regs[0], env->sregs[PS],
+                       env->sregs[INTSET], env->sregs[INTENABLE],
+                       env->sregs[CCOUNT]);
+         handle_interrupt(env);
+     }
+ 
+     switch (cs->exception_index) {
+     case EXC_WINDOW_OVERFLOW4:
+     case EXC_WINDOW_UNDERFLOW4:
+     case EXC_WINDOW_OVERFLOW8:
+     case EXC_WINDOW_UNDERFLOW8:
+     case EXC_WINDOW_OVERFLOW12:
+     case EXC_WINDOW_UNDERFLOW12:
+     case EXC_KERNEL:
+     case EXC_USER:
+     case EXC_DOUBLE:
+     case EXC_DEBUG:
+         qemu_log_mask(CPU_LOG_INT, "%s(%d) "
+                       "pc = %08x, a0 = %08x, ps = %08x, ccount = %08x\n",
+                       __func__, cs->exception_index,
+                       env->pc, env->regs[0], env->sregs[PS],
+                       env->sregs[CCOUNT]);
+         if (env->config->exception_vector[cs->exception_index]) {
+             uint32_t vector;
+ 
+             vector = env->config->exception_vector[cs->exception_index];
+             env->pc = relocated_vector(env, vector);
+         } else {
+             qemu_log_mask(CPU_LOG_INT,
+                           "%s(pc = %08x) bad exception_index: %d\n",
+                           __func__, env->pc, cs->exception_index);
+         }
+         break;
+ 
+     case EXC_IRQ:
+         break;
+ 
+     default:
+         qemu_log("%s(pc = %08x) unknown exception_index: %d\n",
+                  __func__, env->pc, cs->exception_index);
+         break;
+     }
+     check_interrupts(env);
+ }
+ 
+ bool xtensa_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
+ {
+     if (interrupt_request & CPU_INTERRUPT_HARD) {
+         cs->exception_index = EXC_IRQ;
+         xtensa_cpu_do_interrupt(cs);
+         return true;
+     }
+     return false;
+ }
+ 
+ #endif /* !CONFIG_USER_ONLY */
+diff --git a/target/xtensa/helper.h b/target/xtensa/helper.h
+index 4206e60..f5ee6f6 100644
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -1,113 +1,113 @@
+ DEF_HELPER_2(exception, noreturn, env, i32)
+ DEF_HELPER_3(exception_cause, noreturn, env, i32, i32)
+ DEF_HELPER_4(exception_cause_vaddr, noreturn, env, i32, i32, i32)
+ DEF_HELPER_3(debug_exception, noreturn, env, i32, i32)
+ 
+ DEF_HELPER_1(sync_windowbase, void, env)
+ DEF_HELPER_4(entry, void, env, i32, i32, i32)
+ DEF_HELPER_3(native_hci_send_packet, void, env, i32, i32)
+ DEF_HELPER_2(native_hci_idle_dispatch, i32, env, i32)
+ DEF_HELPER_1(native_hci_idle_complete, void, env)
+ DEF_HELPER_1(native_hci_semaphore_take_bypass, void, env)
+ DEF_HELPER_2(native_hci_trace_pc, void, env, i32)
+ DEF_HELPER_2(test_ill_retw, void, env, i32)
+ DEF_HELPER_2(test_underflow_retw, void, env, i32)
+ DEF_HELPER_2(retw, void, env, i32)
+ DEF_HELPER_3(window_check, noreturn, env, i32, i32)
+ DEF_HELPER_1(restore_owb, void, env)
+ DEF_HELPER_2(movsp, void, env, i32)
+ #ifndef CONFIG_USER_ONLY
+ DEF_HELPER_1(simcall, void, env)
+ #endif
+ 
+ #ifndef CONFIG_USER_ONLY
+ DEF_HELPER_3(waiti, void, env, i32, i32)
+ DEF_HELPER_1(update_ccount, void, env)
+ DEF_HELPER_2(wsr_ccount, void, env, i32)
+ DEF_HELPER_2(update_ccompare, void, env, i32)
+ DEF_HELPER_1(check_interrupts, void, env)
+ DEF_HELPER_2(intset, void, env, i32)
+ DEF_HELPER_2(intclear, void, env, i32)
+ DEF_HELPER_3(check_atomctl, void, env, i32, i32)
+ DEF_HELPER_4(check_exclusive, void, env, i32, i32, i32)
+-DEF_HELPER_1(high_priority_irq_return, void, env)
++DEF_HELPER_2(high_priority_irq_return, void, env, i32)
+ DEF_HELPER_2(high_priority_irq_yield, void, env, i32)
+ DEF_HELPER_2(wsr_memctl, void, env, i32)
+ 
+ DEF_HELPER_2(itlb_hit_test, void, env, i32)
+ DEF_HELPER_2(wsr_rasid, void, env, i32)
+ DEF_HELPER_FLAGS_3(rtlb0, TCG_CALL_NO_RWG_SE, i32, env, i32, i32)
+ DEF_HELPER_FLAGS_3(rtlb1, TCG_CALL_NO_RWG_SE, i32, env, i32, i32)
+ DEF_HELPER_3(itlb, void, env, i32, i32)
+ DEF_HELPER_3(ptlb, i32, env, i32, i32)
+ DEF_HELPER_4(wtlb, void, env, i32, i32, i32)
+ DEF_HELPER_2(wsr_mpuenb, void, env, i32)
+ DEF_HELPER_3(wptlb, void, env, i32, i32)
+ DEF_HELPER_FLAGS_2(rptlb0, TCG_CALL_NO_RWG_SE, i32, env, i32)
+ DEF_HELPER_FLAGS_2(rptlb1, TCG_CALL_NO_RWG_SE, i32, env, i32)
+ DEF_HELPER_2(pptlb, i32, env, i32)
+ 
+ DEF_HELPER_2(wsr_ibreakenable, void, env, i32)
+ DEF_HELPER_3(wsr_ibreaka, void, env, i32, i32)
+ DEF_HELPER_3(wsr_dbreaka, void, env, i32, i32)
+ DEF_HELPER_3(wsr_dbreakc, void, env, i32, i32)
+ #endif
+ 
+ DEF_HELPER_2(wur_fpu2k_fcr, void, env, i32)
+ DEF_HELPER_FLAGS_1(abs_s, TCG_CALL_NO_RWG_SE, f32, f32)
+ DEF_HELPER_FLAGS_1(neg_s, TCG_CALL_NO_RWG_SE, f32, f32)
+ DEF_HELPER_3(fpu2k_add_s, f32, env, f32, f32)
+ DEF_HELPER_3(fpu2k_sub_s, f32, env, f32, f32)
+ DEF_HELPER_3(fpu2k_mul_s, f32, env, f32, f32)
+ DEF_HELPER_4(fpu2k_madd_s, f32, env, f32, f32, f32)
+ DEF_HELPER_4(fpu2k_msub_s, f32, env, f32, f32, f32)
+ DEF_HELPER_4(ftoi_s, i32, env, f32, i32, i32)
+ DEF_HELPER_4(ftoui_s, i32, env, f32, i32, i32)
+ DEF_HELPER_3(itof_s, f32, env, i32, i32)
+ DEF_HELPER_3(uitof_s, f32, env, i32, i32)
+ DEF_HELPER_2(cvtd_s, f64, env, f32)
+ 
+ DEF_HELPER_3(un_s,  i32, env, f32, f32)
+ DEF_HELPER_3(oeq_s, i32, env, f32, f32)
+ DEF_HELPER_3(ueq_s, i32, env, f32, f32)
+ DEF_HELPER_3(olt_s, i32, env, f32, f32)
+ DEF_HELPER_3(ult_s, i32, env, f32, f32)
+ DEF_HELPER_3(ole_s, i32, env, f32, f32)
+ DEF_HELPER_3(ule_s, i32, env, f32, f32)
+ 
+ DEF_HELPER_2(wur_fpu_fcr, void, env, i32)
+ DEF_HELPER_1(rur_fpu_fsr, i32, env)
+ DEF_HELPER_2(wur_fpu_fsr, void, env, i32)
+ DEF_HELPER_FLAGS_1(abs_d, TCG_CALL_NO_RWG_SE, f64, f64)
+ DEF_HELPER_FLAGS_1(neg_d, TCG_CALL_NO_RWG_SE, f64, f64)
+ DEF_HELPER_3(add_d, f64, env, f64, f64)
+ DEF_HELPER_3(add_s, f32, env, f32, f32)
+ DEF_HELPER_3(sub_d, f64, env, f64, f64)
+ DEF_HELPER_3(sub_s, f32, env, f32, f32)
+ DEF_HELPER_3(mul_d, f64, env, f64, f64)
+ DEF_HELPER_3(mul_s, f32, env, f32, f32)
+ DEF_HELPER_4(madd_d, f64, env, f64, f64, f64)
+ DEF_HELPER_4(madd_s, f32, env, f32, f32, f32)
+ DEF_HELPER_4(msub_d, f64, env, f64, f64, f64)
+ DEF_HELPER_4(msub_s, f32, env, f32, f32, f32)
+ DEF_HELPER_3(mkdadj_d, f64, env, f64, f64)
+ DEF_HELPER_3(mkdadj_s, f32, env, f32, f32)
+ DEF_HELPER_2(mksadj_d, f64, env, f64)
+ DEF_HELPER_2(mksadj_s, f32, env, f32)
+ DEF_HELPER_4(ftoi_d, i32, env, f64, i32, i32)
+ DEF_HELPER_4(ftoui_d, i32, env, f64, i32, i32)
+ DEF_HELPER_3(itof_d, f64, env, i32, i32)
+ DEF_HELPER_3(uitof_d, f64, env, i32, i32)
+ DEF_HELPER_2(cvts_d, f32, env, f64)
+ 
+ DEF_HELPER_3(un_d,  i32, env, f64, f64)
+ DEF_HELPER_3(oeq_d, i32, env, f64, f64)
+ DEF_HELPER_3(ueq_d, i32, env, f64, f64)
+ DEF_HELPER_3(olt_d, i32, env, f64, f64)
+ DEF_HELPER_3(ult_d, i32, env, f64, f64)
+ DEF_HELPER_3(ole_d, i32, env, f64, f64)
+ DEF_HELPER_3(ule_d, i32, env, f64, f64)
+ 
+ DEF_HELPER_2(rer, i32, env, i32)
+ DEF_HELPER_3(wer, void, env, i32, i32)
+ 
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+index e485d55..7a917f2 100644
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -151,139 +151,143 @@ void HELPER(check_atomctl)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr)
+ 
+     if (rc) {
+         HELPER(exception_cause_vaddr)(env, pc, rc, vaddr);
+     }
+ 
+     /*
+      * When data cache is not configured use ATOMCTL bypass field.
+      * See ISA, 4.3.12.4 The Atomic Operation Control Register (ATOMCTL)
+      * under the Conditional Store Option.
+      */
+     if (!xtensa_option_enabled(env->config, XTENSA_OPTION_DCACHE)) {
+         access = PAGE_CACHE_BYPASS;
+     }
+ 
+     switch (access & PAGE_CACHE_MASK) {
+     case PAGE_CACHE_WB:
+         atomctl >>= 2;
+         /* fall through */
+     case PAGE_CACHE_WT:
+         atomctl >>= 2;
+         /* fall through */
+     case PAGE_CACHE_BYPASS:
+         if ((atomctl & 0x3) == 0) {
+             HELPER(exception_cause_vaddr)(env, pc,
+                     LOAD_STORE_ERROR_CAUSE, vaddr);
+         }
+         break;
+ 
+     case PAGE_CACHE_ISOLATE:
+         HELPER(exception_cause_vaddr)(env, pc,
+                 LOAD_STORE_ERROR_CAUSE, vaddr);
+         break;
+ 
+     default:
+         break;
+     }
+ }
+ 
+ void HELPER(check_exclusive)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
+                              uint32_t is_write)
+ {
+     uint32_t paddr, page_size, access;
+     uint32_t atomctl = env->sregs[ATOMCTL];
+     int rc = xtensa_get_physical_addr(env, true, vaddr, is_write,
+                                       xtensa_get_cring(env), &paddr,
+                                       &page_size, &access);
+ 
+     if (rc) {
+         HELPER(exception_cause_vaddr)(env, pc, rc, vaddr);
+     }
+ 
+     /* When data cache is not configured use ATOMCTL bypass field. */
+     if (!xtensa_option_enabled(env->config, XTENSA_OPTION_DCACHE)) {
+         access = PAGE_CACHE_BYPASS;
+     }
+ 
+     switch (access & PAGE_CACHE_MASK) {
+     case PAGE_CACHE_WB:
+         atomctl >>= 2;
+         /* fall through */
+     case PAGE_CACHE_WT:
+         atomctl >>= 2;
+         /* fall through */
+     case PAGE_CACHE_BYPASS:
+         if ((atomctl & 0x3) == 0) {
+             HELPER(exception_cause_vaddr)(env, pc,
+                                           EXCLUSIVE_ERROR_CAUSE, vaddr);
+         }
+         break;
+ 
+     case PAGE_CACHE_ISOLATE:
+         HELPER(exception_cause_vaddr)(env, pc,
+                 LOAD_STORE_ERROR_CAUSE, vaddr);
+         break;
+ 
+     default:
+         break;
+     }
+ }
+ 
+-void HELPER(high_priority_irq_return)(CPUXtensaState *env)
++void HELPER(high_priority_irq_return)(CPUXtensaState *env, uint32_t level)
+ {
+-    if (xtensa_get_cintlevel(env) == 4) {
+-        icount_note_high_priority_irq(env_cpu(env)->cpu_index, false);
++    /* RFI names the EPS/EPC slot being retired. Software PS changes are not
++     * IRQ entry/exit: preserve all other accepted (possibly nested) slots. */
++    if (level >= 4 && level < 8) {
++        env->high_priority_irq_levels &= ~(1U << level);
++        icount_note_high_priority_irq(env_cpu(env)->cpu_index,
++                                      env->high_priority_irq_levels != 0);
+     }
+ }
+ 
+ void HELPER(high_priority_irq_yield)(CPUXtensaState *env, uint32_t handler_only)
+ {
+     if (!icount_high_priority_irq_active()
+-        || (handler_only && xtensa_get_cintlevel(env) < 4)) {
++        || (handler_only && env->high_priority_irq_levels == 0)) {
+         return;
+     }
+     icount_yield_for_high_priority_irq(env_cpu(env));
+ }
+ 
+ void HELPER(wsr_memctl)(CPUXtensaState *env, uint32_t v)
+ {
+     if (xtensa_option_enabled(env->config, XTENSA_OPTION_ICACHE)) {
+         if (extract32(v, MEMCTL_IUSEWAYS_SHIFT, MEMCTL_IUSEWAYS_LEN) >
+             env->config->icache_ways) {
+             deposit32(v, MEMCTL_IUSEWAYS_SHIFT, MEMCTL_IUSEWAYS_LEN,
+                       env->config->icache_ways);
+         }
+     }
+     if (xtensa_option_enabled(env->config, XTENSA_OPTION_DCACHE)) {
+         if (extract32(v, MEMCTL_DUSEWAYS_SHIFT, MEMCTL_DUSEWAYS_LEN) >
+             env->config->dcache_ways) {
+             deposit32(v, MEMCTL_DUSEWAYS_SHIFT, MEMCTL_DUSEWAYS_LEN,
+                       env->config->dcache_ways);
+         }
+         if (extract32(v, MEMCTL_DALLOCWAYS_SHIFT, MEMCTL_DALLOCWAYS_LEN) >
+             env->config->dcache_ways) {
+             deposit32(v, MEMCTL_DALLOCWAYS_SHIFT, MEMCTL_DALLOCWAYS_LEN,
+                       env->config->dcache_ways);
+         }
+     }
+     env->sregs[MEMCTL] = v & env->config->memctl_mask;
+ }
+ 
+ #endif
+ 
+ uint32_t HELPER(rer)(CPUXtensaState *env, uint32_t addr)
+ {
+ #ifndef CONFIG_USER_ONLY
+     return address_space_ldl(env->address_space_er, addr,
+                              MEMTXATTRS_UNSPECIFIED, NULL);
+ #else
+     return 0;
+ #endif
+ }
+ 
+ void HELPER(wer)(CPUXtensaState *env, uint32_t data, uint32_t addr)
+ {
+ #ifndef CONFIG_USER_ONLY
+     address_space_stl(env->address_space_er, addr, data,
+                       MEMTXATTRS_UNSPECIFIED, NULL);
+ #endif
+ }
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+index f8b5709..63d1d56 100644
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -2004,170 +2004,169 @@ static void translate_quos(DisasContext *dc, const OpcodeArg arg[],
+         tcg_gen_div_i32(arg[0].out,
+                         arg[1].in, arg[2].in);
+     } else {
+         tcg_gen_rem_i32(arg[0].out,
+                         arg[1].in, arg[2].in);
+     }
+     gen_set_label(label2);
+ }
+ 
+ static void translate_quou(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_divu_i32(arg[0].out,
+                      arg[1].in, arg[2].in);
+ }
+ 
+ static void translate_read_impwire(DisasContext *dc, const OpcodeArg arg[],
+                                    const uint32_t par[])
+ {
+     /* TODO: GPIO32 may be a part of coprocessor */
+     tcg_gen_movi_i32(arg[0].out, 0);
+ }
+ 
+ static void translate_remu(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_remu_i32(arg[0].out,
+                      arg[1].in, arg[2].in);
+ }
+ 
+ static void translate_rer(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+     gen_helper_rer(arg[0].out, tcg_env, arg[1].in);
+ }
+ 
+ static void translate_ret(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+     gen_jump(dc, cpu_R[0]);
+ }
+ 
+ static uint32_t test_exceptions_retw(DisasContext *dc, const OpcodeArg arg[],
+                                      const uint32_t par[])
+ {
+     if (!dc->cwoe) {
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "Illegal retw instruction(pc = %08x)\n", dc->pc);
+         return XTENSA_OP_ILL;
+     } else {
+         TCGv_i32 pc = tcg_constant_i32(dc->pc);
+ 
+         gen_helper_test_ill_retw(tcg_env, pc);
+         return 0;
+     }
+ }
+ 
+ static void translate_retw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     TCGv_i32 tmp = tcg_temp_new();
+     tcg_gen_shl_i32(tmp, tcg_constant_i32(1), cpu_SR[WINDOW_BASE]);
+     tcg_gen_andc_i32(cpu_SR[WINDOW_START],
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
+     gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }
+ 
+ static void translate_rfde(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     gen_jump(dc, cpu_SR[dc->config->ndepc ? DEPC : EPC1]);
+ }
+ 
+ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+-    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_EXCM);
+     gen_jump(dc, cpu_SR[EPC1]);
+ }
+ 
+ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+-    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_mov_i32(cpu_SR[PS], cpu_SR[EPS2 + arg[0].imm - 2]);
++    gen_helper_high_priority_irq_return(tcg_env, tcg_constant_i32(arg[0].imm));
+     gen_jump(dc, cpu_SR[EPC1 + arg[0].imm - 1]);
+ }
+ 
+ static void translate_rfw(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+     TCGv_i32 tmp = tcg_temp_new();
+ 
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_EXCM);
+     tcg_gen_shl_i32(tmp, tcg_constant_i32(1), cpu_SR[WINDOW_BASE]);
+ 
+     if (par[0]) {
+         tcg_gen_andc_i32(cpu_SR[WINDOW_START],
+                          cpu_SR[WINDOW_START], tmp);
+     } else {
+         tcg_gen_or_i32(cpu_SR[WINDOW_START],
+                        cpu_SR[WINDOW_START], tmp);
+     }
+ 
+     gen_helper_restore_owb(tcg_env);
+     gen_jump(dc, cpu_SR[EPC1]);
+ }
+ 
+ static void translate_rotw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_addi_i32(cpu_windowbase_next, cpu_SR[WINDOW_BASE], arg[0].imm);
+ }
+ 
+ static void translate_rsil(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+     tcg_gen_mov_i32(arg[0].out, cpu_SR[PS]);
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_INTLEVEL);
+     tcg_gen_ori_i32(cpu_SR[PS], cpu_SR[PS], arg[1].imm);
+ }
+ 
+ static void translate_rsr(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
+     if (sr_name[par[0]]) {
+         tcg_gen_mov_i32(arg[0].out, cpu_SR[par[0]]);
+     } else {
+         tcg_gen_movi_i32(arg[0].out, 0);
+     }
+ }
+ 
+ static void translate_rsr_ccount(DisasContext *dc, const OpcodeArg arg[],
+                                  const uint32_t par[])
+ {
+ #ifndef CONFIG_USER_ONLY
+     translator_io_start(&dc->base);
+     gen_helper_update_ccount(tcg_env);
+     tcg_gen_mov_i32(arg[0].out, cpu_SR[par[0]]);
+     /*
+      * Timing loops poll CCOUNT until the virtual clock advances. End the
+      * translation block after the read so tightly looping guests cannot
+      * observe a frozen value inside one TB.
+      */
+     dc->base.is_jmp = DISAS_TOO_MANY;
+ #endif
+ }
+ 
+ static void translate_rsr_ptevaddr(DisasContext *dc, const OpcodeArg arg[],
+                                    const uint32_t par[])
+ {
+ #ifndef CONFIG_USER_ONLY
+     TCGv_i32 tmp = tcg_temp_new_i32();
+ 
+     tcg_gen_shri_i32(tmp, cpu_SR[EXCVADDR], 10);
+     tcg_gen_or_i32(tmp, tmp, cpu_SR[PTEVADDR]);
+     tcg_gen_andi_i32(arg[0].out, tmp, 0xfffffffc);
+ #endif
+ }
+ 
+ static void translate_rtlb(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
+ #ifndef CONFIG_USER_ONLY
+     static void (* const helper[])(TCGv_i32 r, TCGv_env env, TCGv_i32 a1,
