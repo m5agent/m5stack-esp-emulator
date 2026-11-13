@@ -21,7 +21,7 @@
 
 ## 社区固件测试新增问题
 
-- [#205](https://github.com/m5agent/m5stack-esp-emulator/issues/205)：保留面板 raw 帧与物理触摸/3D 语义，从真实 MADCTL 和固定 panel geometry 提供同 sample 方向元数据及显式 display 取帧。验证原版 StickS3 多方向固件、镜像/reset、局部刷新、缓存/304、历史与 evidence；旧 runtime 未提供元数据时明确 unknown。
+- [#205](https://github.com/m5agent/m5stack-esp-emulator/issues/205)：真实控制器方向元数据与显式 display 取帧已完成原版限定验证；剩余完整 native 回归、整合检查、main 与常驻发布及发布后复验。
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：AES/GDMA/IRQ 已修，继续定位 Launcher 的 mutex owner/current-task 不一致、Meshtastic 间接调用目标为零及 RFID 异常；原版整应用仍 PARTIAL，取得匹配 ELF/构建元数据后做写入生命周期对照。
 - [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：已补实际中断源状态读回和构建遗漏的双核时间片限制；Atom Lite 在最终服务/运行时两轮冷启及按键→RMT 通过，先前配置的 IWDT 负控保留；Matrix 的 Wi-Fi scan/灯阵未通过。保持原 BIN、正常 watchdog，继续定位其 DMA/IRQ/scan timer，完成可重复冷启、120 秒及 GPIO/LED 验收。
 - [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：0179 只关闭 AWS 的 SPI DMA link 子路径；原 UIFlow 1.15.5/HamRadio 0.1.5 在 plain/qemu-wifi、时间片限制和 AXP192 板型控制中仍未有应用就绪帧（UIFlow 的 Wi-Fi 路径已显示启动 logo）。继续定位固件初始化阶段，不能把黑帧或单个 PC 采样直接判为固件缺陷。
@@ -79,9 +79,7 @@ eFuse 或生产 key。
 已满足的前置基线：实际 VFS/stock 保留、真实 UART/controller 观测与按固件绑定的
 原生修复已有独立执行证据，见[日期化问题证据](evidence/2026-11-05-latest-firmware-issues/README.md)。
 
-- Tab5 最新官方应用保持 open：用未改应用字节在兼容 P4 路径证明 Python/UI/touch；
-  独立新后端仍等待 MIPI DSI PHY PLL lock；需要 P4 控制器实现修复后原路复验，
-  framebuffer/GDB 路径另需匹配 ELF 或实际可观测输出。旧 merged image 不满足验收。
+- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：完整 Flash/ELF 身份与诊断首触摸已修；仍需上游修复旧 P4 CLIC CSR 和 DSI PHY 状态机，再用未改应用字节证明 Python/UI/touch。旧参考应用的 GDB mailbox 不替代最新应用或 controller touch 验收。
 - [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
 - [#192](https://github.com/m5agent/m5stack-esp-emulator/issues/192) StackChan 与 Core2 AXP192 已按实际探针进度采样。完整验收仍需按报告条件完成两轮 68 项高负载矩阵。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。

@@ -130,6 +130,17 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### Tab5：最新原版应用的旧 P4 CLIC 与 DSI PHY
+
+[#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) 保持 OPEN。
+同一未改应用字节的 v2.5.4 在 esp-emu 0.51.0 中等待 DSI PHY PLL lock，
+1.0.0-rc2 则在旧 P4 `mintstatus` CSR `0x346` 读取处触发非法指令；已使用
+rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需上游补齐
+修订版 CLIC 和实际 DSI PHY 状态转换，再从原 BIN 验证 Python/UI/touch。
+服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
+首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller
+触摸缺口。两种原版失败及旧参考正控见[有界证据](evidence/2026-11-13-tab5-service-boundaries/README.md)。
+
 ### CoreMatrix C158：C61 官方固件运行边界
 
 官方 UIFlow2 v2.5.4 原镜像在原生隔离 Device Service 和独立 C61 浏览器 WASM

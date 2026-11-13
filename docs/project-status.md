@@ -1,10 +1,10 @@
 # 项目当前状态
 
-2026-11-13 [UIFlow2 原版云端配对](evidence/2026-11-13-uiflow-cloud-startup/README.md)恢复官方开机入口与真实网络：CoreS3、StickS3、Core2、AtomS3R、StopWatch、Cardputer ADV 的固定原版 BIN 均收到实际 MQTT 配对回包，官方六位码逐帧确认；原应用和 boot/main 保留，只配置隔离 NVS 与尾部 Flash 补齐。真实网页 CoreS3/StickS3 入口和本地编程绘图对照分别通过，Core2 真实 eFuse 接线另有 guest API 读回。原黑帧编程入口及三次镜像长度失败保留；main 已发布并更新常驻实例，八次原版配对及本地编程复验通过。完整平台、前端契约、验证器与 CI 通过；不覆盖 browser-WASM 联网、其它固件或物理硬件。
+2026-11-13 [UIFlow2 原版云端配对](evidence/2026-11-13-uiflow-cloud-startup/README.md)恢复官方开机入口与真实网络：CoreS3、StickS3、Core2、AtomS3R、StopWatch、Cardputer ADV 的固定原版 BIN 均收到实际 MQTT 配对回包，官方六位码逐帧确认；原应用和 boot/main 保留，只配置隔离 NVS 与尾部 Flash 补齐。真实网页 CoreS3/StickS3 入口和本地编程绘图对照分别通过，Core2 真实 eFuse 接线另有 guest API 读回。原黑帧编程入口及三次镜像长度失败保留；main 已发布并更新常驻实例，八次原版配对及本地编程复验通过。完整平台、前端契约、验证器与 CI 通过；不覆盖 browser-WASM 联网、其它固件或物理硬件。 [原生帧方向](evidence/2026-11-13-native-frame-orientation/README.md)已提供真实 MADCTL 绑定元数据和显式 display 旋转，五份原版 StickS3 BIN 的四方向逐像素验证通过；默认 raw/触摸/3D 保持物理坐标，镜像/reset仅有控制器宿主回归，本项常驻部署待完成。
 
 2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
 
-2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
+2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。[Tab5 服务与新运行时对照](evidence/2026-11-13-tab5-service-boundaries/README.md)已修完整 Flash/ELF/eFuse 隔离和旧参考首触摸；原版 v2.5.4 在 0.51.0 等待 DSI PHY lock、在 rc2 读取旧 P4 CSR 0x346 时非法指令，闭源控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
 
 2026-11-05 [统一 Web 工作台](evidence/2026-11-05-unified-web-workbench/README.md)将 Unit 装配、服务会话与 MicroPython 编程合并至首页；本机根入口提供同一页面。服务 UIFlow 编程复用 Preview/Run，已有会话停止查看不会结束原会话。浏览器未实现的 Unit 仍需兼容服务，拓扑在启动时冻结；不改变 QEMU、固件准入或既有启动问题。[后续修复](evidence/2026-11-05-unit-preview-local-control/README.md)恢复独立 Unit 目录模型；无 Token 的 loopback 同源 Preview 可直接运行，配置过 Token 的实例仍要求 Bearer。
 
