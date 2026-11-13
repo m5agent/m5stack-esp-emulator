@@ -285,6 +285,12 @@ CASES = [
         "expected_size": "240x135",
         "efuse_pkg_version": "0",
         "wait": "10",
+        "before_frame_timeout": 10,
+        "pre_input_marker": "CARDPUTER_ADV_IMU_DRAW_COMPLETE",
+        "serial_expect": [
+            "CARDPUTER_ADV_IMU_ACCEL", "CARDPUTER_ADV_IMU_GYRO",
+            "CARDPUTER_ADV_IMU_DRAW_COMPLETE",
+        ],
         "inputs": ["key:a"],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),

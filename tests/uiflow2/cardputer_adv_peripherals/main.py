@@ -65,4 +65,6 @@ while True:
     if state != last_state:
         last_state = state
         draw_state()
+        if ok:
+            print("CARDPUTER_ADV_IMU_DRAW_COMPLETE")
     time.sleep_ms(100)
