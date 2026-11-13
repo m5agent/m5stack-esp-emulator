@@ -1,6 +1,14 @@
 import { normalizeServiceUrl } from './public-config.js';
 import { FirmwareUploadClient } from './firmware-upload.js';
 
+// This contract must be explicitly advertised. Cloud startup or an API version
+// alone cannot establish that a service applies identity selectors.
+export function deviceIdentityCapability(device, runtime = 'qemu') {
+  const value = device?.device_identity;
+  return value?.schema_version === 1 && Array.isArray(value.selectors)
+    && Array.isArray(value.runtimes) && value.runtimes.includes(runtime) ? value : null;
+}
+
 // This client only addresses the explicitly selected service. Firmware URLs are
 // downloaded separately without credentials; they are never server fetch targets.
 export class PublicDeviceService {
@@ -8,6 +16,7 @@ export class PublicDeviceService {
     this.url = normalizeServiceUrl(url, {pageUrl});
     if (!this.url) throw new Error('请先连接仿真服务。');
     this.token = token;
+    this.deviceCatalog = [];
     this.fetchImpl = (...args) => fetchImpl(...args);
     this.uploads = new FirmwareUploadClient({fetchImpl: (path, options) => this.fetch(path, options), tokenProvider: () => this.token});
   }
@@ -49,7 +58,12 @@ export class PublicDeviceService {
     return content;
   }
 
-  devices(options) { return this.request('/api/v1/devices', options); }
+  async devices(options) {
+    this.deviceCatalog = [];
+    const result = await this.request('/api/v1/devices', options);
+    if (Array.isArray(result.devices)) this.deviceCatalog = structuredClone(result.devices);
+    return result;
+  }
   units(id, options) { return this.request(`/api/v1/units?device_id=${encodeURIComponent(id)}`, options); }
   session(id, options) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}`, options); }
   serial(id, offset = 0, {channel = "console", ...options} = {}) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}/serial?offset=${offset}&limit=65536&channel=${encodeURIComponent(channel)}`, options); }
@@ -65,6 +79,15 @@ export class PublicDeviceService {
   }
 
   create({deviceId, firmwareId, uiflowStartup, deviceIdentity, units = [], idempotencyKey, signal}) {
+    if (deviceIdentity !== undefined) {
+      const capability = deviceIdentityCapability(this.deviceCatalog.find(row => row?.device_id === deviceId),
+        uiflowStartup?.mode === 'cloud' ? 'qemu-wifi' : 'qemu');
+      const selectors = deviceIdentity && typeof deviceIdentity === 'object' ? Object.keys(deviceIdentity) : [];
+      if (selectors.length !== 1 || !['key', 'mac'].includes(selectors[0]))
+        return Promise.reject(Object.assign(new Error('设备身份必须指定一个 MAC 或持久身份名称。'), {status: 400, code: 'invalid_device_identity'}));
+      if (!capability?.selectors.includes(selectors[0]))
+        return Promise.reject(Object.assign(new Error('此服务未确认支持指定设备身份；请更新服务并重新连接。'), {status: 409, code: 'unsupported_device_identity'}));
+    }
     return this.request('/api/v1/sessions', {method: 'POST', signal,
       body: {device_id: deviceId, ...(firmwareId ? {firmware_id: firmwareId} : {}), ttl_seconds: 600,
         ...(uiflowStartup === undefined ? {} : {uiflow_startup: uiflowStartup}),

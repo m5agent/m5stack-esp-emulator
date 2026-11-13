@@ -5,6 +5,20 @@ import {Sha256} from './sha256.js';
 
 const ACTIVE = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const abortError = () => new DOMException('已取消启动。', 'AbortError');
+function canonicalIdentityMac(value) {
+  if (typeof value !== 'string' || !/^(?:[\da-f]{12}|(?:[\da-f]{2}:){5}[\da-f]{2})$/i.test(value)) return null;
+  const raw = value.replaceAll(':', '').toLowerCase();
+  if (raw === '000000000000' || (parseInt(raw.slice(0, 2), 16) & 1)) return null;
+  return raw.match(/../g).join(':');
+}
+function identityReceiptMatches(request, receipt) {
+  if (!request || typeof request !== 'object' || !receipt || canonicalIdentityMac(receipt.mac) === null) return false;
+  if (Object.keys(request).length !== 1) return false;
+  if (Object.hasOwn(request, 'mac')) return receipt.source === 'explicit-mac'
+    && canonicalIdentityMac(request.mac) !== null && canonicalIdentityMac(request.mac) === canonicalIdentityMac(receipt.mac);
+  return typeof request.key === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(request.key)
+    && receipt.source === 'persistent-fixture' && receipt.key === request.key;
+}
 // Only explicit pre-allocation rejections may retire a never-ambiguous intent.
 // Generic handler errors can be returned after a session was allocated.
 const PRECREATE_REJECTIONS = {
@@ -141,7 +155,7 @@ export class PublicSessionController {
     }
   }
 
-  async acquireIntent(intent) {
+  async acquireIntent(intent, {cleanupOnly = false} = {}) {
     const request = JSON.parse(intent.request), controller = new AbortController();
     const firstKnownAttempt = ++intent.attempts === 1 && !intent.uncertain;
     let timer;
@@ -154,20 +168,35 @@ export class PublicSessionController {
         }, this.createTimeoutMs);
       });
       const session = await Promise.race([this.service.create({...request, signal: controller.signal}), timeout]);
+      clearTimeout(timer);
       if (typeof session?.session_id !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(session.session_id) || session.device_id !== request.deviceId) {
         throw new Error('创建收据缺少有效的设备会话身份；请恢复收据后停止。');
       }
       this.current = session;
+      intent.receiptAcquired = true;
       if (this.createIntent === intent) this.createIntent = null;
+      if (request.deviceIdentity !== undefined && !identityReceiptMatches(request.deviceIdentity, session.device_identity)) {
+        // A valid session ID establishes ownership even when the device identity
+        // was ignored. Never discard that owner or retry POST with a fresh key.
+        if (cleanupOnly) return session;
+        this.stopPolling();
+        const error = new Error('服务未确认应用所选设备身份；本次启动未通过身份校验。');
+        error.code = 'device_identity_receipt_mismatch';
+        try {await this.stopOwnedSession(session);}
+        catch (cause) {error.cause = cause; error.cleanupPending = true;}
+        throw error;
+      }
       return session;
     } catch (error) {
       // These two store errors are returned before UUID/lease allocation. The
       // HTTP adapter marks every 5xx uncertain; only this explicit first-attempt
       // contract can override that flag, never an already-ambiguous retry.
       const identityStoreRejected = error.status === 503 && PRECREATE_REJECTIONS[503].has(error.code);
-      if (firstKnownAttempt && (error.outcomeUnknown !== true || identityStoreRejected) && PRECREATE_REJECTIONS[error.status]?.has(error.code)) {
-        if (this.createIntent === intent) this.createIntent = null;
-      } else intent.uncertain = true;
+      if (!intent.receiptAcquired) {
+        if (firstKnownAttempt && (error.outcomeUnknown !== true || identityStoreRejected) && PRECREATE_REJECTIONS[error.status]?.has(error.code)) {
+          if (this.createIntent === intent) this.createIntent = null;
+        } else intent.uncertain = true;
+      } // Otherwise current retains the known owner if identity cleanup failed.
       throw error;
     } finally {clearTimeout(timer);}
   }
@@ -429,7 +458,7 @@ export class PublicSessionController {
         return;
       }
       if (!this.current && this.createIntent) {
-        try {await this.acquireIntent(this.createIntent);}
+        try {await this.acquireIntent(this.createIntent, {cleanupOnly: true});}
         catch (error) {
           this.onState({status: 'stop_pending', sessionId: null, frameReady: false, createPending: true, error});
           throw error;

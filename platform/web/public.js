@@ -4,7 +4,7 @@ import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './publ
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
-import {PublicDeviceService} from './public-service.js';
+import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
@@ -102,6 +102,10 @@ function serviceProgrammingDevice(id=state.selected?.id) {
 function serviceCloudStartup(id=state.selected?.id) {
   const row=state.serviceDevices.find(row=>row.device_id===id&&row.creatable), startup=row?.uiflow_startup;
   return startup?.modes?.includes('cloud')&&startup.runtime==='qemu-wifi'&&/^[a-f0-9]{64}$/.test(startup.reference_sha256||'') ? startup : null;
+}
+function serviceCloudIdentity(id=state.selected?.id) {
+  const capability=deviceIdentityCapability(state.serviceDevices.find(row=>row.device_id===id&&row.creatable),'qemu-wifi');
+  return capability?.selectors.includes('key')&&capability.selectors.includes('mac')&&capability.cloud_default==='persistent-key';
 }
 function updateReferenceDefault() {
   if (!state.referenceExplicit && source()==='reference' && !$('firmwareSha').value.trim())
@@ -349,8 +353,9 @@ function updateCapability() {
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
   $('cancelLoadBtn').hidden = !state.busy;
   $('addSelectedUnitBtn').disabled=!state.selectedUnit||state.busy||!!state.run;
-  $('cloudIdentityFields').hidden = source() !== 'reference' || !reference()?.nativeCloud || selectedLane !== 'service';
-  $('cloudIdentityMac').disabled = state.busy || !!state.run;
+  const identitySupported=serviceCloudIdentity();
+  $('cloudIdentityFields').hidden = source() !== 'reference' || !reference()?.nativeCloud || selectedLane !== 'service' || !identitySupported;
+  $('cloudIdentityMac').disabled = state.busy || !!state.run || !identitySupported;
 }
 function renderDevices() {
   const query = $('search').value.trim().toLowerCase();
@@ -903,8 +908,9 @@ async function startRun() {
     const ref=reference(), nativeWorkbench=kind==='service'&&source()==='reference'&&ref?.nativeWorkbench;
     const nativeCloud=kind==='service'&&source()==='reference'&&ref?.nativeCloud;
     const uiflowStartup=nativeCloud?{mode:'cloud',reference_sha256:ref.sha256}:undefined;
-    const identityMac=nativeCloud?$('cloudIdentityMac').value.trim():'';
-    const deviceIdentity=identityMac?{mac:identityMac}:undefined;
+    const identitySupported=nativeCloud&&serviceCloudIdentity();
+    const identityMac=identitySupported?$('cloudIdentityMac').value.trim():'';
+    const deviceIdentity=identitySupported?(identityMac?{mac:identityMac}:{key:`uiflow-cloud-${state.selected.id}`}):undefined;
     if((nativeWorkbench||nativeCloud)&&$('firmwareSha').value.trim())throw new Error('此启动环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
     const loaded = nativeWorkbench||nativeCloud ? {name:ref.name,size:0} : await firmware(abort.signal, generation);
     if (generation !== state.runGeneration || selection !== state.selection) return;
@@ -1066,6 +1072,7 @@ async function connectService() {
     if (generation !== state.serviceGeneration) return;
     state.service = service;
     state.serviceDevices = result.devices;
+    $('cloudIdentityMac').value='';
     updateReferenceDefault();
     $('serviceUrl').value = service.url;
     updateServiceLinks();

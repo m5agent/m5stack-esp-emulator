@@ -18,6 +18,17 @@ SUPPORTED_EFUSE_DRIVERS = {
 }
 
 
+def device_identity_capability(spec) -> dict:
+    """Advertise the request/receipt contract, independently of cloud startup."""
+    supported = spec.supported and (spec.backend, spec.efuse_driver) in SUPPORTED_EFUSE_DRIVERS
+    return {
+        "schema_version": 1,
+        "selectors": ["key", "mac"] if supported else [],
+        "runtimes": ["qemu", "qemu-wifi", "qemu-ble", "qemu-unified"] if supported else [],
+        "cloud_default": "persistent-key" if supported else None,
+    }
+
+
 def canonical_mac(value: object) -> str:
     if not isinstance(value, str) or not re.fullmatch(
         r"(?:[0-9a-fA-F]{12}|(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2})", value

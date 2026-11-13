@@ -67,6 +67,20 @@ class IdentitySessionTests(unittest.TestCase):
     tearDown = fixtures.DeviceServiceUnitTests.tearDown
     _stopped_session = fixtures.DeviceServiceUnitTests._stopped_session
 
+    def test_identity_capability_is_explicit_and_device_scoped(self):
+        for device_id in ("cores3", "core2", "nanoc6"):
+            row = self.service.get_device(device_id)
+            self.assertEqual(row["device_identity"], {
+                "schema_version": 1, "selectors": ["key", "mac"],
+                "runtimes": ["qemu", "qemu-wifi", "qemu-ble", "qemu-unified"],
+                "cloud_default": "persistent-key",
+            })
+        for device_id in ("tab5", "cardputer-zero", "nesso-n1"):
+            capability = self.service.get_device(device_id)["device_identity"]
+            self.assertEqual(capability["selectors"], [])
+            self.assertEqual(capability["runtimes"], [])
+            self.assertIsNone(capability["cloud_default"])
+
     def create(self, identity=None, **extra):
         payload = {"device_id": "cores3", **extra}
         if identity is not None:

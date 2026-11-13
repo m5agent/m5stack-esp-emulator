@@ -432,6 +432,19 @@ class DocsCurrentStateContractTests(DocsContractBase):
                 f"copying {count}",
             )
 
+    def test_device_identity_negotiation_contract(self) -> None:
+        markdown = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        device = openapi.split("    Device:\n", 1)[1].split("    DeviceIdentityCapability:\n", 1)[0]
+        self.assertIn('$ref: "#/components/schemas/DeviceIdentityCapability"', device)
+        capability = openapi.split("    DeviceIdentityCapability:\n", 1)[1].split("    DeviceIdentityRequest:\n", 1)[0]
+        self.assertIn("required: [schema_version, selectors, runtimes, cloud_default]", capability)
+        self.assertIn("enum: [key, mac]", capability)
+        self.assertIn("enum: [persistent-key, null]", capability)
+        self.assertIn("Older services", markdown)
+        self.assertIn("Missing or\nmismatched identities fail startup", markdown)
+        self.assertIn("same request and idempotency key", markdown)
+
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()
         openapi = (DOCS / "device-service.openapi.yaml").read_text()

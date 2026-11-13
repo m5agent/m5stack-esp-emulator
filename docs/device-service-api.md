@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.62.0` and bounded
+Status: local MVP with unified-device runtime contract `1.63.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1558,6 +1558,25 @@ project authority pages.
 A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
+
+API 1.63 adds an explicit `Device.device_identity` capability to the device
+catalog: `{"schema_version":1,"selectors":["key","mac"],"runtimes":["qemu","qemu-wifi","qemu-ble","qemu-unified"],"cloud_default":"persistent-key"}`.
+Unsupported boards advertise empty selector/runtime lists and a null default.
+This describes identity support, not general runtime readiness. Older services
+may advertise cloud startup while ignoring identity selectors; clients must not
+infer identity support from that capability or a version string.
+
+The public workbench shows the optional MAC and persistent-default description
+only after this capability is confirmed for the selected board and cloud runtime.
+It sends the default persistent key explicitly when that field is blank. Without
+identity support, ordinary cloud startup remains available with no persistence
+promise. The client rejects an unnegotiated explicit identity before creating a
+session. After creation, its controller validates the receipt's source plus the
+normalized MAC or exact persistent key and a valid resolved MAC. Missing or
+mismatched identities fail startup: the valid owned session is exported/stopped,
+and a failed stop retains ownership for retry. An ambiguous create still replays
+the same request and idempotency key; cleanup never allocates a replacement.
+These admission receipts do not prove guest or cloud acceptance.
 
 `device_identity` optionally selects the virtual board identity independently of
 its session and firmware. Use `{"key":"bench-cores3"}` for a named persistent

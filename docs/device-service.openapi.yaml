@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.62.0
+  version: 1.63.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3301,6 +3301,9 @@ components:
           items:
             type: string
             enum: [uiflow-live]
+        device_identity:
+          $ref: "#/components/schemas/DeviceIdentityCapability"
+          description: Explicit selector/receipt support; absent in older services. Cloud startup alone never implies this capability.
         uiflow_startup:
           type: object
           additionalProperties: false
@@ -4274,6 +4277,28 @@ components:
             normalization:
               type: string
               const: trailing-ff-padding
+    DeviceIdentityCapability:
+      type: object
+      additionalProperties: false
+      required: [schema_version, selectors, runtimes, cloud_default]
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        selectors:
+          type: array
+          items:
+            type: string
+            enum: [key, mac]
+        runtimes:
+          type: array
+          items:
+            type: string
+            enum: [qemu, qemu-wifi, qemu-ble, qemu-unified]
+        cloud_default:
+          type: [string, "null"]
+          enum: [persistent-key, null]
+          description: Persistence contract for omitted stock-cloud identity; null when unsupported. This does not establish runtime readiness or cloud binding.
     DeviceIdentityRequest:
       type: object
       additionalProperties: false

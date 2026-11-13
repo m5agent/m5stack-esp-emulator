@@ -314,7 +314,7 @@ try {
   const originalService = 'https://original-service.public.invalid/device-center',
     candidateService = 'https://candidate-service.public.invalid/replacement';
   let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null, delayedSessionList = null, sessionListFailure = false;
-  let fixtureCloudStartup = false, fixtureCreates = [];
+  let fixtureCloudStartup = false, fixtureIdentityCapability = true, fixtureCreates = [];
   const cloudStatusFixture = {source:'guest-pcap',state:'observed',pairing:{state:'code_received'},
     webrepl:{state:'identity_rejected',reason:'mac_not_bound',handshakes:1,disconnects:1},observation:{status:'complete'}};
   const fixtureResponse = async (route, candidate = false) => {
@@ -331,12 +331,15 @@ try {
     let body;
     if (candidate && candidateMode === 'offline') body = {error:{message:'fixture offline'}};
     else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[],
-      ...(fixtureCloudStartup?{uiflow_startup:{modes:['cloud'],runtime:'qemu-wifi',reference_sha256:'f'.repeat(64)}}:{})}]};
+      ...(fixtureCloudStartup?{uiflow_startup:{modes:['cloud'],runtime:'qemu-wifi',reference_sha256:'f'.repeat(64)},
+        ...(fixtureIdentityCapability?{device_identity:{schema_version:1,selectors:['key','mac'],runtimes:['qemu','qemu-wifi'],cloud_default:'persistent-key'}}:{})}:{})}]};
     else if (url.pathname.endsWith('/units')) body = serviceFixture;
     else if (fixtureCloudStartup && url.pathname.endsWith('/sessions') && method === 'POST') {
       const request=route.request().postDataJSON();fixtureCreates.push(request);
       body={session_id:`cloud-fixture-${fixtureCreates.length}`,device_id:'cores3',state:'running',display:null,units:[],device_state_supported:false,
-        uiflow_startup:request.uiflow_startup,uiflow_cloud_status:structuredClone(cloudStatusFixture)};
+        uiflow_startup:request.uiflow_startup,uiflow_cloud_status:structuredClone(cloudStatusFixture),
+        ...(request.device_identity?{device_identity:request.device_identity.mac?{source:'explicit-mac',mac:request.device_identity.mac.match(/../g).join(':')}
+          :{source:'persistent-fixture',key:request.device_identity.key,mac:'02:00:00:00:00:02'}}:{})};
       fixtureSessions=[body];
     }
     else if (url.pathname.endsWith('/sessions')) body = sessionListFailure ? {error:{message:'session list unavailable'}} : {sessions:sessionList || fixtureSessions};
@@ -586,11 +589,26 @@ try {
     assert.match(await page.locator('#uiflowCloudStatus').textContent(),/末次观测/);
     await page.locator('#cloudIdentityMac').fill('');await page.locator('#startBtn').click();
     await page.waitForFunction(()=>window.__publicWorkbenchProbe.run?.controller.current?.session_id==='cloud-fixture-2');
-    assert.equal(Object.hasOwn(fixtureCreates[1],'device_identity'),false);
+    assert.deepEqual(fixtureCreates[1].device_identity,{key:'uiflow-cloud-cores3'},'the default persistent identity is explicit and receipt-checked');
     await page.locator('#stopBtn').click();await page.waitForFunction(()=>window.__publicWorkbenchProbe.run===null);
     await page.locator('#referenceExample').selectOption('uiflow');
     assert.equal(await page.locator('#cloudIdentityFields').isHidden(),true);
     fixtureCloudStartup=false;
+  });
+  await test('legacy-cloud-service-does-not-advertise-persistent-or-explicit-identity-ui-fixture', async () => {
+    fixtureCloudStartup=true;fixtureIdentityCapability=false;fixtureSessions=[];
+    await page.locator('#serviceConnection').evaluate(node=>node.open=true);
+    await page.locator('#connectServiceBtn').click();
+    await page.waitForFunction(()=>window.__publicWorkbenchProbe.serviceDevices[0]?.uiflow_startup&&!window.__publicWorkbenchProbe.serviceDevices[0]?.device_identity);
+    await page.locator('#referenceExample').selectOption('uiflow-cloud');
+    assert.equal(await page.locator('#cloudIdentityFields').isHidden(),true);
+    assert.equal(await page.locator('#cloudIdentityMac').isDisabled(),true);
+    const before=fixtureCreates.length;
+    await page.locator('#startBtn').click();
+    await page.waitForFunction(()=>window.__publicWorkbenchProbe.run?.controller.current?.session_id);
+    assert.equal(Object.hasOwn(fixtureCreates[before],'device_identity'),false);
+    await page.locator('#stopBtn').click();await page.waitForFunction(()=>window.__publicWorkbenchProbe.run===null);
+    fixtureCloudStartup=false;fixtureIdentityCapability=true;
   });
   if (realBrowser)
     await test('real-papers3-url-autostart-serial-screen-touch-pause-and-stop', async () => {

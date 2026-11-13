@@ -9,6 +9,7 @@ import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
 import * as uiflowFirmware from '../web/public-uiflow-firmware.js';
 import * as cloudStatus from '../web/uiflow-cloud-status.js';
+import {deviceIdentityCapability} from '../web/public-service.js';
 import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
@@ -81,7 +82,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
-    PublicMicroPythonRunner,
+    PublicMicroPythonRunner,deviceIdentityCapability,
     PublicSessionController:class {
       constructor(options){this.options=options;this.frameReady=false;}
       async start(request){nativeStarts.push(request);this.current={session_id:'cloud-host-contract',device_id:request.deviceId,state:'running',uiflow_startup:request.uiflowStartup};this.options.onState({status:'running',session:this.current,frameReady:false});return this.current;}
@@ -148,12 +149,14 @@ const cloud=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServi
   search:'?device=cores3&autostart=0',serviceRows:cloudRows});
 assert.equal(cloud.element('referenceExample').value,'uiflow-cloud');
 assert.equal(cloud.reference().nativeCloud,true);assert.equal(cloud.lane(),'service');
+cloud.updateCapability();assert.equal(cloud.element('cloudIdentityFields').hidden,true,'legacy cloud support must not expose identity promises');
 cloud.state.picker=null;
 cloud.state.service={importFirmware(){throw new Error('Cloud startup must not import a composed or uploaded BIN');}};
 await cloud.startRunActual();
 assert.equal(cloud.nativeStarts.length,1);
 assert.deepEqual(JSON.parse(JSON.stringify(cloud.nativeStarts[0].uiflowStartup)),{mode:'cloud',reference_sha256:'a'.repeat(64)});
 assert.equal(cloud.nativeStarts[0].firmwareId,undefined);
+assert.equal(cloud.nativeStarts[0].deviceIdentity,undefined);
 assert.equal(cloud.element('pythonRunBtn').disabled,true,'cloud startup must not replace the official boot with a web REPL');
 assert.match(cloud.element('pythonStatus').textContent,/云端配对模式/);
 assert.equal(cloud.element('stageFirmwareNotice').dataset.phase,'cloud-starting');
@@ -163,6 +166,14 @@ assert.equal(cloud.element('stageFirmwareNotice').hidden,true,'the startup overl
 await cloud.share();
 assert.equal(new URL(cloud.clipboard.at(-1)).searchParams.get('sha256'),null,'cloud service reference cannot masquerade as a browser upload hash');
 assert.equal(new URL(cloud.clipboard.at(-1)).searchParams.get('autostart'),'0');
+for(const mac of ['', '020000000001']) {
+  const identityRows=[{...cloudRows[0],device_identity:{schema_version:1,selectors:['key','mac'],runtimes:['qemu-wifi'],cloud_default:'persistent-key'}}];
+  const app=await entry({search:'?device=cores3&autostart=0',siteServiceUrl:'https://service.example.test',serviceRows:identityRows});
+  app.updateCapability();assert.equal(app.element('cloudIdentityFields').hidden,false);
+  app.state.picker=null;app.state.service={};app.element('cloudIdentityMac').value=mac;
+  await app.startRunActual();
+  assert.deepEqual(JSON.parse(JSON.stringify(app.nativeStarts[0].deviceIdentity)),mac?{mac}:{key:'uiflow-cloud-cores3'});
+}
 const explicitBrowserCloud=await entry({search:'?device=cores3&mode=browser&autostart=0',serviceRows:cloudRows});
 explicitBrowserCloud.state.serviceDevices=cloudRows;explicitBrowserCloud.updateReferenceDefault();
 assert.equal(explicitBrowserCloud.element('referenceExample').value,'uiflow');

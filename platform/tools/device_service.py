@@ -50,7 +50,7 @@ from ble_runtime_limits import (  # noqa: E402
 )
 from device_service_errors import ServiceError  # noqa: E402
 from device_service_identity import (  # noqa: E402
-    DeviceIdentityStore, parse_device_identity, restore_device_identity, validate_identity_runtime,
+    DeviceIdentityStore, device_identity_capability, parse_device_identity, restore_device_identity, validate_identity_runtime,
 )
 from device_service_execution_parsing import (  # noqa: E402, F401
     parse_nvs_execution,
@@ -9603,6 +9603,7 @@ class DeviceService:
             "warnings": spec.warnings,
             "firmware_families": ["uiflow2", "generic-flash"],
             "uiflow_startup": cloud_startup_capability(spec),
+            "device_identity": device_identity_capability(spec),
             "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_features": {

@@ -1,6 +1,6 @@
 import {SerialChannelState} from '../web/serial-channel-state.js';
 import assert from 'node:assert/strict';
-import {PublicDeviceService} from '../web/public-service.js';
+import {PublicDeviceService, deviceIdentityCapability} from '../web/public-service.js';
 import {PublicSessionController} from '../web/public-session-controller.js';
 
 const deferred = () => {let resolve, reject; const promise = new Promise((yes, no) => {resolve = yes; reject = no;}); return {promise, resolve, reject};};
@@ -33,7 +33,7 @@ function fakeService() {
 {
   const calls = [];
   const service = new PublicDeviceService('https://service.example/lab', {token: 'test-only', fetchImpl: async (url, options) => {
-    calls.push({url, options}); return Response.json({devices: []});
+    calls.push({url, options}); return Response.json({devices: [{device_id:'cores3',device_identity:{schema_version:1,selectors:['key','mac'],runtimes:['qemu','qemu-wifi'],cloud_default:'persistent-key'}}]});
   }});
   await service.devices();
   assert.equal(calls[0].url, 'https://service.example/lab/api/v1/devices');
@@ -831,3 +831,99 @@ console.log('PUBLIC_SESSION_CONTROLLER_OK: independent single-flight frame/metad
   assert.ok(calls.some(row=>row[2]==='usb-serial-jtag'&&row[1]===0));assert.ok(!views.some(view=>view.text.includes('UART')));
   await controller.stop();
 }
+
+// Identity negotiation uses the actual client/controller, not version guesses.
+// These are HTTP host fixtures: no guest or cloud identity is synthesized.
+const identityCapability = {schema_version:1,selectors:['key','mac'],runtimes:['qemu','qemu-wifi'],cloud_default:'persistent-key'};
+function identityClient({capability=identityCapability, receipt, failStop=false, loseFirst=false, createGate}={}) {
+  const calls=[];let posts=0,stops=0;
+  const service=new PublicDeviceService('https://identity.example',{fetchImpl:async(url,options)=>{
+    const method=options.method||'GET';calls.push({method,body:options.body&&JSON.parse(options.body),path:new URL(url).pathname});
+    if(url.endsWith('/devices'))return Response.json({devices:[{device_id:'cores3',creatable:true,
+      uiflow_startup:{modes:['cloud'],runtime:'qemu-wifi',reference_sha256:'a'.repeat(64)},
+      ...(capability===null?{}:{device_identity:capability})}]});
+    if(method==='POST'){
+      posts++;if(loseFirst&&posts===1)throw new Error('lost POST response');
+      if(createGate)await createGate.promise;
+      return Response.json({...result('identity-own'),display:null,...(receipt===undefined?{}:{device_identity:receipt})});
+    }
+    if(method==='DELETE'){
+      if(failStop&&++stops===1)return Response.json({error:{code:'cleanup_failed',message:'fixture cleanup pending'}},{status:503});
+      return Response.json(stopped('identity-own'));
+    }
+    if(url.endsWith('/evidence'))return new Response('host fixture only');
+    throw new Error('unexpected fixture request');
+  }});
+  const states=[],controller=new PublicSessionController({service,onState:value=>states.push(value),createKey:()=> 'identity-same-key'});
+  controller.poll=controller.pollFrames=controller.pollOutputs=()=>{};
+  return {service,controller,calls,states};
+}
+for(const capability of [null,{}, {schema_version:2,selectors:['mac'],runtimes:['qemu']},
+  {...identityCapability,runtimes:['network']},{...identityCapability,selectors:[]}]){
+  const x=identityClient({capability});await x.service.devices();
+  await assert.rejects(x.controller.start({deviceId:'cores3',deviceIdentity:{mac:'020000000001'}}),error=>error.code==='unsupported_device_identity');
+  assert.equal(x.calls.some(row=>row.method==='POST'),false,'unadvertised identity fails before allocation');
+  assert.equal(x.controller.createIntent,null);assert.equal(x.controller.current,null);
+}
+assert.equal(deviceIdentityCapability({uiflow_startup:{modes:['cloud']}}),null);
+{
+  const x=identityClient({capability:null});await x.service.devices();
+  await x.controller.start({deviceId:'cores3',uiflowStartup:{mode:'cloud'}});
+  assert.equal(Object.hasOwn(x.calls.find(row=>row.method==='POST').body,'device_identity'),false,'legacy cloud remains available without a persistence claim');
+  await x.controller.stop();
+}
+for(const [request,receipt] of [
+  [{mac:'020000000001'},undefined],
+  [{mac:'020000000001'},{source:'explicit-mac',mac:'02:00:00:00:00:02'}],
+  [{mac:'020000000001'},{source:'persistent-fixture',key:'wrong',mac:'02:00:00:00:00:01'}],
+  [{key:'named-board'},{source:'persistent-fixture',key:'another',mac:'02:00:00:00:00:01'}],
+  [{key:'named-board'},{source:'explicit-mac',key:'named-board',mac:'02:00:00:00:00:01'}],
+  [{key:'named-board'},{source:'persistent-fixture',key:'named-board',mac:'00:00:00:00:00:00'}],
+  [{key:'named-board'},{source:'persistent-fixture',key:'named-board',mac:'03:00:00:00:00:01'}],
+]){
+  const x=identityClient({receipt});await x.service.devices();
+  await assert.rejects(x.controller.start({deviceId:'cores3',deviceIdentity:request}),error=>error.code==='device_identity_receipt_mismatch');
+  assert.equal(x.states.some(state=>state.status==='running'),false,'unconfirmed identity is never presented as started');
+  assert.equal(x.calls.filter(row=>row.method==='POST').length,1);
+  assert.equal(x.calls.filter(row=>row.method==='DELETE').length,1);
+  assert.ok(x.calls.findIndex(row=>row.path.endsWith('/evidence'))<x.calls.findIndex(row=>row.method==='DELETE'));
+  assert.equal(x.controller.current,null);assert.equal(x.controller.createIntent,null);
+}
+for(const [request,receipt] of [
+  [{mac:'02AABB000001'},{source:'explicit-mac',mac:'02:aa:bb:00:00:01'}],
+  [{key:'named-board'},{source:'persistent-fixture',key:'named-board',mac:'02:aa:bb:00:00:01'}],
+]){
+  const x=identityClient({receipt});await x.service.devices();
+  const session=await x.controller.start({deviceId:'cores3',deviceIdentity:request});
+  assert.equal(session.session_id,'identity-own');assert.equal(x.states[0].status,'running');
+  await x.controller.stop();
+}
+{
+  const x=identityClient({failStop:true});await x.service.devices();
+  await assert.rejects(x.controller.start({deviceId:'cores3',deviceIdentity:{mac:'020000000001'}}),error=>error.code==='device_identity_receipt_mismatch'&&error.cleanupPending);
+  assert.equal(x.controller.current.session_id,'identity-own');assert.equal(x.controller.createIntent,null);
+  await x.controller.stop();
+  assert.equal(x.controller.current,null);assert.equal(x.calls.filter(row=>row.method==='POST').length,1,'cleanup retry never creates another session');
+}
+{
+  const x=identityClient({loseFirst:true});await x.service.devices();
+  await assert.rejects(x.controller.start({deviceId:'cores3',deviceIdentity:{key:'named-board'}}),/lost POST/);
+  assert.ok(x.controller.createIntent?.uncertain);
+  await x.controller.stop();
+  const posts=x.calls.filter(row=>row.method==='POST');assert.equal(posts.length,2);
+  assert.deepEqual(posts[0].body,posts[1].body,'uncertain create replays identical selector and key');
+  assert.equal(x.calls.filter(row=>row.method==='DELETE').length,1);
+  assert.equal(x.controller.current,null);assert.equal(x.controller.createIntent,null);
+}
+{
+  const createGate=deferred(),x=identityClient({createGate});await x.service.devices();
+  const abort=new AbortController();
+  const started=x.controller.start({deviceId:'cores3',deviceIdentity:{mac:'020000000001'},signal:abort.signal});
+  const rejected=assert.rejects(started,error=>error.code==='device_identity_receipt_mismatch');
+  await until(()=>x.calls.some(row=>row.method==='POST'));
+  abort.abort();const stop=x.controller.stop();createGate.resolve();
+  await Promise.all([rejected,stop]);
+  assert.equal(x.calls.filter(row=>row.method==='DELETE').length,1,'late mismatch remains single-owner cleanup');
+  assert.equal(x.controller.current,null);assert.equal(x.controller.createIntent,null);
+}
+console.log('Identity capability and receipt host controls passed');
