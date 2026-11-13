@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "classification": "virtual-device validation",
+  "status": "PASS",
+  "scope": "Existing UIFlow2 fixtures on exact final classic runtime. Core2 input redraw and StickC Plus2 GPIO A. Four independent Device Service sessions.",
+  "runs": [
+    {
+      "device": "core2",
+      "status": "PASS",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "prepared_flash_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+      "source": "a8c9b222c6af0081fd48bc7facafa7cd12b6e5c3",
+      "registry_sha256": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+      "fixture_source_sha256": {
+        "boot.py": "5e1b5b6c3dedc7cc04572523b7d77f9683d59cf180c548cce754f35e66604df0",
+        "main.py": "993814435cf459814b9ea60695f9ce9eab08a2dc98214c73544328d677cf2c54",
+        "make_image.py": "bb30f87ef5f0237378091c18372492024986b744e2c4bff273f3c62f48fd5fbe",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "input": {
+        "kind": "longpress",
+        "x": 160,
+        "y": 183,
+        "hold_seconds": 1.5,
+        "settle_seconds": 0
+      },
+      "markers": [
+        "CORE2_MAIN_START",
+        "CORE2_BOARD 2",
+        "CORE2_DISPLAY 320 240",
+        "CORE2_LOOP",
+        "CORE2_TOUCH",
+        "CORE2_FRAME_AFTER_TOUCH 1"
+      ],
+      "icount": "shift=5,align=off,sleep=off",
+      "before_png_sha256": "d8d444246fb299cfbacac71647bee5b65150a7961b018b79cb207b4f34eb74dd",
+      "input_receipt": {
+        "input": "longpress:160,183,1.5",
+        "action": "tap",
+        "accepted": true
+      },
+      "after_png_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "actual_size": [
+        320,
+        240
+      ],
+      "zip_sha256": "8fe7e366267bb3e98a9113eb45695c5c40a129b327463f1790313e60e9f686e5",
+      "serial_sha256": "89e844e7814e354fa2ffc9e2233071285f4add15fe838553fd115872bf1daf3f",
+      "cleanup": true,
+      "owned_pid_gone": true
+    },
+    {
+      "device": "core2",
+      "status": "PASS",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "prepared_flash_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+      "source": "a8c9b222c6af0081fd48bc7facafa7cd12b6e5c3",
+      "registry_sha256": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+      "fixture_source_sha256": {
+        "boot.py": "5e1b5b6c3dedc7cc04572523b7d77f9683d59cf180c548cce754f35e66604df0",
+        "main.py": "993814435cf459814b9ea60695f9ce9eab08a2dc98214c73544328d677cf2c54",
+        "make_image.py": "bb30f87ef5f0237378091c18372492024986b744e2c4bff273f3c62f48fd5fbe",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "input": {
+        "kind": "longpress",
+        "x": 160,
+        "y": 183,
+        "hold_seconds": 1.5,
+        "settle_seconds": 0
+      },
+      "markers": [
+        "CORE2_MAIN_START",
+        "CORE2_BOARD 2",
+        "CORE2_DISPLAY 320 240",
+        "CORE2_LOOP",
+        "CORE2_TOUCH",
+        "CORE2_FRAME_AFTER_TOUCH 1"
+      ],
+      "icount": "shift=auto,align=off,sleep=on,max-shift=5",
+      "before_png_sha256": "d8d444246fb299cfbacac71647bee5b65150a7961b018b79cb207b4f34eb74dd",
+      "input_receipt": {
+        "input": "longpress:160,183,1.5",
+        "action": "tap",
+        "accepted": true
+      },
+      "after_png_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "actual_size": [
+        320,
+        240
+      ],
+      "zip_sha256": "456186b502c51e2e3cb090ed0296b1a722a344778dd7db877ea8353b0cef75d7",
+      "serial_sha256": "530d954d1a94365c3eacea96ec92abdf018d8cc673718427632dcb62e13bb6f5",
+      "cleanup": true,
+      "owned_pid_gone": true
+    },
+    {
+      "device": "stickc-plus2",
+      "status": "PASS",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "base_sha256": "9b553277331a2cbb61b3fd73188da05bd312c66edd5ad2f39adfa4e155abf254",
+      "prepared_flash_sha256": "0eeec7e2dfe72c178b494ccb58f924f71fd208721ccda100cd43872a2c88bbb4",
+      "source": "a8c9b222c6af0081fd48bc7facafa7cd12b6e5c3",
+      "registry_sha256": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+      "fixture_source_sha256": {
+        "boot.py": "62d8e9f4135f3fa681bc803dc39450b5b9431bda617adb1e79ebecb1089383a6",
+        "main.py": "31d7e91e6e6c0f3068529d48c9106ea493a241300d17cbe9889318c33d350fdf",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "input": {
+        "kind": "key",
+        "key": "a",
+        "action": "tap",
+        "hold_seconds": 0.1,
+        "settle_seconds": 0
+      },
+      "markers": [
+        "STICKCPLUS2_MAIN_START",
+        "STICKCPLUS2_M5_BEGIN_OK",
+        "STICKCPLUS2_DISPLAY 135 240",
+        "STICKCPLUS2_BTN_A 1",
+        "STICKCPLUS2_BOARD 5"
+      ],
+      "icount": "shift=5,align=off,sleep=off",
+      "before_png_sha256": "66c5c9164ba6d6f9ac3e62ae34c6cbd5ec7e50372253473973e8f3def4f29132",
+      "input_receipt": {
+        "input": "key:a",
+        "action": "tap",
+        "accepted": true,
+        "timing": {
+          "clock": "virtual",
+          "hold_seconds": 0.1,
+          "hold_time_ms": 100,
+          "completion": "queued"
+        }
+      },
+      "after_png_sha256": "6387ac647f3a22dbb14e3cbedc9707deee8759f33d47687a5411a646408d1ca4",
+      "actual_size": [
+        135,
+        240
+      ],
+      "zip_sha256": "cc2929d23492b4404f51d81652e7c448eb159f78dc65ac0cf9e0c5e030c8adde",
+      "serial_sha256": "06e392a2aaee8d3d9d63c84f9bc820f605309e7237db46fb81b359a8b00c457a",
+      "cleanup": true,
+      "owned_pid_gone": true
+    },
+    {
+      "device": "stickc-plus2",
+      "status": "PASS",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "base_sha256": "9b553277331a2cbb61b3fd73188da05bd312c66edd5ad2f39adfa4e155abf254",
+      "prepared_flash_sha256": "0eeec7e2dfe72c178b494ccb58f924f71fd208721ccda100cd43872a2c88bbb4",
+      "source": "a8c9b222c6af0081fd48bc7facafa7cd12b6e5c3",
+      "registry_sha256": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+      "fixture_source_sha256": {
+        "boot.py": "62d8e9f4135f3fa681bc803dc39450b5b9431bda617adb1e79ebecb1089383a6",
+        "main.py": "31d7e91e6e6c0f3068529d48c9106ea493a241300d17cbe9889318c33d350fdf",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "input": {
+        "kind": "key",
+        "key": "a",
+        "action": "tap",
+        "hold_seconds": 0.1,
+        "settle_seconds": 0
+      },
+      "markers": [
+        "STICKCPLUS2_MAIN_START",
+        "STICKCPLUS2_M5_BEGIN_OK",
+        "STICKCPLUS2_DISPLAY 135 240",
+        "STICKCPLUS2_BTN_A 1",
+        "STICKCPLUS2_BOARD 5"
+      ],
+      "icount": "shift=auto,align=off,sleep=on,max-shift=5",
+      "before_png_sha256": "66c5c9164ba6d6f9ac3e62ae34c6cbd5ec7e50372253473973e8f3def4f29132",
+      "input_receipt": {
+        "input": "key:a",
+        "action": "tap",
+        "accepted": true,
+        "timing": {
+          "clock": "virtual",
+          "hold_seconds": 0.1,
+          "hold_time_ms": 100,
+          "completion": "queued"
+        }
+      },
+      "after_png_sha256": "6387ac647f3a22dbb14e3cbedc9707deee8759f33d47687a5411a646408d1ca4",
+      "actual_size": [
+        135,
+        240
+      ],
+      "zip_sha256": "494fb441c90b2437a9e475aaa46e06e1bb304541298c0ab004c03828b4abca2f",
+      "serial_sha256": "b1ed21347f13b8b8a0cabfd0889a52bcc8172a5fe5ffd8dc3ddd3bf9feff88ce",
+      "cleanup": true,
+      "owned_pid_gone": true
+    }
+  ]
+}
