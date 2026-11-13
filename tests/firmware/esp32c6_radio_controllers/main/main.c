@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "esp_random.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -83,5 +84,17 @@ void app_main(void)
     if (REG(BLE_BASE + 0xc4) || output[0] != 0xa5) {
         puts("C6_RADIO_AES_UNSUPPORTED_FAIL"); failed = 1;
     } else puts("C6_RADIO_AES_UNSUPPORTED_PASS");
+    uint32_t first = REG(0x600b2808), varied = 0;
+    for (unsigned i = 0; i < 32; i++) varied |= first ^ REG(0x600b2808);
+    if (!varied) { puts("C6_RADIO_RNG_REGISTER_FAIL"); failed = 1; }
+    else puts("C6_RADIO_RNG_REGISTER_PASS");
+    uint8_t random_bytes[64];
+    esp_fill_random(random_bytes, sizeof(random_bytes));
+    varied = 0;
+    for (unsigned i = 1; i < sizeof(random_bytes); i++) {
+        varied |= random_bytes[0] ^ random_bytes[i];
+    }
+    if (!varied) { puts("C6_RADIO_RNG_API_FAIL"); failed = 1; }
+    else puts("C6_RADIO_RNG_API_PASS");
     if (!failed) puts("C6_RADIO_READY");
 }

@@ -1,0 +1,125 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6: connect the LPPERI RNG register to guest entropy
+
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -541,6 +541,15 @@
+             sysbus_mmio_get_region(SYS_BUS_DEVICE(ble_aes), 0), 3);
+     }
+ 
++    /* LPPERI exposes RNG_DATA at +0x08 independently of WiFi networking. */
++    {
++        DeviceState *rng = qdev_new("esp32c6.rng");
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(rng), &error_fatal);
++        memory_region_add_subregion_overlap(
++            sys_mem, 0x600b2800,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(rng), 0), 1);
++    }
++
+     /* LEDC: six channels and four timers using the compact register layout. */
+     {
+         sysbus_realize(SYS_BUS_DEVICE(&ms->ledc), &error_fatal);
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -182,6 +182,7 @@
+   'esp32c6_soft_i2c.c',
+   'esp32c6_wifi.c',
+   'esp32c6_ble_aes.c',
++  'esp32c6_rng.c',
+ ))
+ 
+ system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+diff --git a/hw/misc/esp32c6_rng.c b/hw/misc/esp32c6_rng.c
+new file mode 100644
+--- /dev/null
++++ b/hw/misc/esp32c6_rng.c
+@@ -0,0 +1,87 @@
++/* ESP32-C6 LPPERI RNG register and clock gate.
++ * Register addresses/bits follow ESP-IDF esp32c6 lpperi_reg.h.
++ * Host entropy uses QEMU's guest-random provider, as other ESP RNG models do.
++ * This is functional randomness, not a model of physical entropy quality.
++ */
++#include "qemu/osdep.h"
++#include "qemu/module.h"
++#include "qemu/guest-random.h"
++#include "hw/sysbus.h"
++
++#define TYPE_ESP32C6_RNG "esp32c6.rng"
++#define LPPERI_RNG_CLK_EN BIT(24)
++
++typedef struct Esp32C6RngState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    uint32_t clock_enable;
++    uint32_t data;
++} Esp32C6RngState;
++
++static uint64_t esp32c6_rng_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C6RngState *s = opaque;
++    switch (addr) {
++    case 0x00:
++        return s->clock_enable;
++    case 0x08:
++        if (s->clock_enable & LPPERI_RNG_CLK_EN) {
++            qemu_guest_getrandom_nofail(&s->data, sizeof(s->data));
++        }
++        return s->data;
++    default:
++        return 0;
++    }
++}
++
++static void esp32c6_rng_write(void *opaque, hwaddr addr,
++                             uint64_t value, unsigned size)
++{
++    Esp32C6RngState *s = opaque;
++    if (addr == 0x00) {
++        s->clock_enable = value;
++    }
++}
++
++static const MemoryRegionOps esp32c6_rng_ops = {
++    .read = esp32c6_rng_read,
++    .write = esp32c6_rng_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static void esp32c6_rng_reset(Object *obj, ResetType type)
++{
++    Esp32C6RngState *s = (Esp32C6RngState *)obj;
++    s->clock_enable = 0x7f000000;
++    s->data = 0;
++}
++
++static void esp32c6_rng_init(Object *obj)
++{
++    Esp32C6RngState *s = (Esp32C6RngState *)obj;
++    memory_region_init_io(&s->iomem, obj, &esp32c6_rng_ops, s,
++                          TYPE_ESP32C6_RNG, 0x0c);
++    sysbus_init_mmio(SYS_BUS_DEVICE(obj), &s->iomem);
++}
++
++static void esp32c6_rng_class_init(ObjectClass *klass, void *data)
++{
++    ResettableClass *rc = RESETTABLE_CLASS(klass);
++    rc->phases.hold = esp32c6_rng_reset;
++}
++
++static const TypeInfo esp32c6_rng_info = {
++    .name = TYPE_ESP32C6_RNG,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C6RngState),
++    .instance_init = esp32c6_rng_init,
++    .class_init = esp32c6_rng_class_init,
++};
++
++static void esp32c6_rng_register_types(void)
++{
++    type_register_static(&esp32c6_rng_info);
++}
++type_init(esp32c6_rng_register_types)

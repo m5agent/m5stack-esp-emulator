@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "patch": "0013-c6-lpperi-rng.patch",
+  "patch_sha256": "8421f6572048b9e139504fce641fbf25479e775a24c13f64affa9e29600846ac",
+  "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+  "base": "febae182e132e4055529be423a818225ebddaa3a",
+  "source_file_sha256": {
+    "hw/riscv/esp32c6.c": "1f18cc4cf71c69579a4bc2ceaf399ea253150306c89d76da47880918344388e1",
+    "hw/misc/meson.build": "28cda4bde49655869d991ad511bcfe892b372b5295839fca3aa0e5bb006bb34e",
+    "hw/misc/esp32c6_rng.c": "f29d5957a04e320a5e3677a8edd82f5e995185aad0caa6b544da1c1a2b09426b"
+  },
+  "runs": [
+    {
+      "label": "controllers-rng-old",
+      "device": "nesso-n1",
+      "input_sha256": "89543a0752bdcb7a1a2c5ee57d554e0f18a0dd9e4adc20eb1d52bf7b6bc052db",
+      "input_bytes": 230416,
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=20485",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_PASS vectors=2",
+        "C6_RADIO_AES_UNSUPPORTED_PASS",
+        "C6_RADIO_RNG_REGISTER_FAIL",
+        "C6_RADIO_RNG_API_PASS"
+      ],
+      "zip_sha256": "037d7bfc6b9ffd30bf1c5b495330fe746d6d47d051d9999d3e3a56c9ab10e73d",
+      "zip_before_stop": true,
+      "purge": 0,
+      "terminal_state": "stopped",
+      "lease_active": false
+    },
+    {
+      "label": "controllers-rng-v1",
+      "device": "nesso-n1",
+      "input_sha256": "89543a0752bdcb7a1a2c5ee57d554e0f18a0dd9e4adc20eb1d52bf7b6bc052db",
+      "input_bytes": 230416,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=21092",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_PASS vectors=2",
+        "C6_RADIO_AES_UNSUPPORTED_PASS",
+        "C6_RADIO_RNG_REGISTER_PASS",
+        "C6_RADIO_RNG_API_PASS",
+        "C6_RADIO_READY"
+      ],
+      "zip_sha256": "a19f2e60f1fd77362180848bb6aeffdf869eb1a0daf1a454807517686f669352",
+      "zip_before_stop": true,
+      "purge": 0,
+      "terminal_state": "stopped",
+      "lease_active": false
+    },
+    {
+      "label": "controllers-rng-v1-nano",
+      "device": "nanoc6",
+      "input_sha256": "89543a0752bdcb7a1a2c5ee57d554e0f18a0dd9e4adc20eb1d52bf7b6bc052db",
+      "input_bytes": 230416,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=21644",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_PASS vectors=2",
+        "C6_RADIO_AES_UNSUPPORTED_PASS",
+        "C6_RADIO_RNG_REGISTER_PASS",
+        "C6_RADIO_RNG_API_PASS",
+        "C6_RADIO_READY"
+      ],
+      "zip_sha256": "c7ee0d4572d879e99bf46334963aaea4d4beb661994ebbbf978baf97fcf05f91",
+      "zip_before_stop": true,
+      "purge": 0,
+      "terminal_state": "stopped",
+      "lease_active": false
+    },
+    {
+      "label": "mesh-controllers-v2",
+      "device": "nesso-n1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "input_bytes": 16777216,
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [],
+      "zip_sha256": "5e2c5b8bbea208799451d8488df9450446efd9ae20234d94d34b7a059deb63df",
+      "zip_before_stop": true,
+      "purge": 0,
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "observation_wall_seconds": 112.524,
+      "rom_boot_markers": 3,
+      "panic_markers": 0,
+      "nimble_host_synced": true,
+      "gatt_services_registered": true,
+      "app_region_offset": "0x10000",
+      "app_region_length": "0x250000",
+      "app_region_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+      "app_region_matches_original": true
+    },
+    {
+      "label": "mesh-rng-v1",
+      "device": "nesso-n1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "input_bytes": 16777216,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1",
+      "markers": [],
+      "zip_sha256": "815dfca1dc39cdbd87e2851de07be8dffc762e94ef7241b38e255af7910390e8",
+      "zip_before_stop": true,
+      "purge": 0,
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "observation_wall_seconds": 140.714,
+      "rom_boot_markers": 1,
+      "panic_markers": 0,
+      "nimble_host_synced": true,
+      "gatt_services_registered": true,
+      "app_region_offset": "0x10000",
+      "app_region_length": "0x250000",
+      "app_region_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+      "app_region_matches_original": true
+    }
+  ],
+  "claim": "The documented LPPERI RNG data register now uses QEMU guest-random through real MMIO. The same fixture fails its raw-register variation check before the patch and passes on Nesso and NanoC6 afterward.",
+  "original_result": "PARTIAL: after this patch the original Meshtastic reaches NimBLE/GATT without a panic or reboot during the 140-second observation; its display is still black and full application readiness is not established.",
+  "causal_limit": "The public esp_fill_random API already passes before this patch because IDF also mixes LP-timer data. Earlier samples in esp_random do not establish the complete watchdog root cause.",
+  "source_reference": {
+    "repository": "https://github.com/espressif/esp-idf",
+    "commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "files": [
+      "components/soc/esp32c6/register/soc/lpperi_reg.h",
+      "components/soc/esp32c6/include/soc/wdev_reg.h",
+      "components/esp_hw_support/hw_random.c"
+    ]
+  },
+  "checks": [
+    "Fresh recipe replay and native build completed.",
+    "Reverse patch application check passed.",
+    "Three bootstrap source tests passed."
+  ],
+  "not_run": [
+    "Physical entropy quality, statistical certification, hardware security and RF behavior.",
+    "Full original Meshtastic readiness, native BLE advertising and connection.",
+    "Complete native matrix deferred to integration."
+  ]
+}

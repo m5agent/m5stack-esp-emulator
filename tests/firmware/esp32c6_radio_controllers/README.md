@@ -11,7 +11,9 @@ The checks are independent:
   unchanged, when no virtual AP/backend exists;
 - the Bluetooth AES engine at `0x600a9400` must read the programmed key and
   source buffer, encrypt one block, write the destination buffer and complete;
-- an unsupported AES mode must not report success or modify the destination.
+- an unsupported AES mode must not report success or modify the destination;
+- the documented LPPERI RNG register at `0x600b2808` and public
+  `esp_fill_random` API must both produce varying data.
 
 The BLE register transaction comes from the original binary's
 `r_ble_hw_encrypt_block` path (function identity retained in its own diagnostic
@@ -36,7 +38,8 @@ python -m esptool --chip esp32c6 merge_bin -o .work/c6-radio-controllers/merged.
 
 Upload to Device Service `nesso-n1` or `nanoc6`, `runtime=qemu`, without a NIC.
 Require `C6_RADIO_TIMER_PASS`, `C6_RADIO_PEERLESS_PASS`, `C6_RADIO_AES_PASS`,
-`C6_RADIO_AES_UNSUPPORTED_PASS` and `C6_RADIO_READY`. Request the evidence ZIP
+`C6_RADIO_AES_UNSUPPORTED_PASS`, `C6_RADIO_RNG_REGISTER_PASS`,
+`C6_RADIO_RNG_API_PASS` and `C6_RADIO_READY`. Request the evidence ZIP
 before stop with `purge=0`. The original Meshtastic BIN must be tested separately;
 these markers alone do not prove its readiness.
 
@@ -58,3 +61,11 @@ from [BLE AES and WiFi regressions](aes-evidence-2026-11-13.json). The original
 image reaches NimBLE host sync and GATT registration after AES completion is
 implemented, then encounters a further watchdog. A GDB sample in random-number
 code is a diagnostic location, not sufficient cause attribution.
+
+[RNG evidence](rng-evidence-2026-11-13.json) binds the raw-register negative
+control and Nesso/NanoC6 positive runs to the same rebuilt fixture. The public
+API already varies on the old runtime because IDF also mixes LP-timer data.
+Patch `0013-c6-lpperi-rng.patch` connects the documented LPPERI data register
+to QEMU guest-random; it does not claim physical entropy or security properties.
+The original Meshtastic image has no panic or reboot in the bounded post-patch
+observation, but its black frame still prevents an application-ready claim.
