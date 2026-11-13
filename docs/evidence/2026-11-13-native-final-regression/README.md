@@ -32,6 +32,12 @@ compiler reproduction were skipped because those local dependencies were
 unavailable. All 33 Node contract commands and the coverage/catalog/profile/
 snapshot validators passed. These host checks are separate from guest results.
 
+The first Linux CI run at `9216df5d` rejected two unbraced loops in the C6 SPI
+host fixture with GCC's `misleading-indentation` diagnostic. Explicit blocks
+correct that fixture: GCC 13 rejects both preserved pre-fix forms and accepts
+both corrected forms; the actual Clang ASan/UBSan controls still pass. No model,
+runtime binary or frozen matrix execution file changed.
+
 This closes the two-round regression requirement for #192, including the
 StackChan/Core2 readiness paths and the added Core2 SD case. Earlier executions
 with failures or insufficient load coverage remain in their historical records.

@@ -157,7 +157,10 @@ int main(int argc,char **argv) {
         esp32c3_spi_begin_transaction(s);assert(clocked==4096);expect_rx(4096);break;
     case 9: /* FIFO-only full duplex clamps both sides to W0..W15. */
         set_lengths(s,32768,32768);esp32c3_spi_begin_transaction(s);expect_tx(64,fifo);
-        for(unsigned i=0;i<64;i++)assert(((uint8_t *)s->data_reg)[i]==rx_oracle(i));break;
+        for(unsigned i=0;i<64;i++) {
+            assert(((uint8_t *)s->data_reg)[i]==rx_oracle(i));
+        }
+        break;
     case 10:
         set_lengths(s,32768,0);esp32c3_spi_begin_transaction(s);expect_tx(64,fifo);break;
     case 11: /* SPI1 still decodes its 10-bit field, independently of HP SPI2. */
@@ -166,7 +169,10 @@ int main(int argc,char **argv) {
     case 12: /* MOSI disabled cannot consume or emit an OUT descriptor. */
         s->dma_conf=DMA_TX_ENA|DMA_RX_ENA;set_lengths(s,0,352);
         esp32c3_spi_begin_transaction(s);assert(clocked==352&&!out_calls);
-        for(unsigned i=0;i<clocked;i++)assert(!mosi[i]);expect_rx(352);break;
+        for(unsigned i=0;i<clocked;i++) {
+            assert(!mosi[i]);
+        }
+        expect_rx(352);break;
     case 13: /* Missing IN channel does not dereference it or invent RX writes. */
         s->dma_conf=DMA_RX_ENA;in_bound=false;set_lengths(s,16,352);
         esp32c3_spi_begin_transaction(s);assert(clocked==352&&!in_calls);
