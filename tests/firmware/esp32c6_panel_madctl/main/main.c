@@ -58,5 +58,26 @@ void app_main(void)
         printf("C6_PANEL_ROTATION_%u_READY\n",r);fflush(stdout);
         vTaskDelay(pdMS_TO_TICKS(4000));
     }
+    /* Separate >128-byte DMA regression: the HP length field is 18 bits. */
+    ESP_ERROR_CHECK(spi_bus_remove_device(panel));
+    ESP_ERROR_CHECK(spi_bus_free(SPI2_HOST));
+    bus.max_transfer_sz=512;
+    ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST,&bus,SPI_DMA_CH_AUTO));
+    ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST,&dev,&panel));
+    unsigned r=1;
+    command(0x36,&rotations[r].madctl,1);
+    for(unsigned pass=0;pass<2;pass++) {
+        window(0x2a,40,279);window(0x2b,53,187);command(0x2c,NULL,0);
+        uint8_t bytes[352] __attribute__((aligned(4))); unsigned used=0;
+        for(unsigned y=0;y<135;y++)for(unsigned x=0;x<240;x++) {
+            const uint16_t colors[]={0xf800,0x07e0,0x001f,0xffff};
+            uint16_t color=pass ? colors[(y>=67)*2+(x>=120)] : 0;
+            bytes[used++]=color>>8;bytes[used++]=color;
+            if(used==(pass ? sizeof(bytes) : 64)){transfer(1,bytes,used);used=0;}
+        }
+        if(used)transfer(1,bytes,used);
+    }
+    puts("C6_PANEL_DMA_READY");fflush(stdout);
+    vTaskDelay(pdMS_TO_TICKS(4000));
     puts("C6_PANEL_READY");
 }

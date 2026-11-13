@@ -53,6 +53,12 @@ checks backend-independent PHY time, peerless MAC receive isolation and the
 Bluetooth AES block DMA path. Its original-image results retain the later
 watchdog and native BLE limitations.
 
+[The Nesso display probe](esp32c6_panel_madctl/README.md) separates four
+ST7789 MADCTL address rotations from the SPI2 18-bit transfer length, using
+independent physical/logical corner oracles and 352-byte DMA blocks. Original
+Meshtastic startup/input observations are kept separate from the controller
+fixture, and do not establish hardware CS, RF or native BLE coverage.
+
 ## StickS3 Wi-Fi monitor fixture
 
 [The peerless StickS3 fixture](sticks3_wifi_monitor/README.md) exercises the

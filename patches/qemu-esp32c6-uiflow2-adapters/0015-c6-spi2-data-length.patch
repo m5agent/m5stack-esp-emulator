@@ -1,0 +1,88 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6 SPI2: decode the HP transfer length independently of flash
+
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -312,9 +312,9 @@
+ {
+     uint8_t dma_buffer[4096];
+     uint32_t dma_channel = 0;
+-    bool dma_tx = s->m5_spi2 && s->gdma &&
++    bool dma_tx = s->m5_spi2 &&
+         (s->dma_conf & DMA_TX_ENA);
+-    bool dma_rx = s->m5_spi2 && s->gdma &&
++    bool dma_rx = s->m5_spi2 &&
+         (s->dma_conf & DMA_RX_ENA);
+     ESP32C3SpiTransaction t = {
+         .data = s->data_reg
+@@ -322,16 +322,33 @@
+ 
+     /* Get the number of bytes to read from the device */
+     if (s->mem_user & R_SPI_MEM_USER_USR_MISO_MASK) {
+-        t.rx_bytes = FIELD_EX32(s->mem_miso_len, SPI_MEM_MISO_DLEN, USR_MISO_DBITLEN);
++        t.rx_bytes = s->m5_spi2 ? (s->mem_miso_len & 0x3ffff) :
++            FIELD_EX32(s->mem_miso_len, SPI_MEM_MISO_DLEN, USR_MISO_DBITLEN);
+         t.rx_bytes = (t.rx_bytes + 1) / 8;
+     }
+ 
+     /* and the number of bytes to write to the device */
+     if (s->mem_user & R_SPI_MEM_USER_USR_MOSI_MASK) {
+-        t.tx_bytes = FIELD_EX32(s->mem_mosi_len, SPI_MEM_MOSI_DLEN, USR_MOSI_DBITLEN);
++        t.tx_bytes = s->m5_spi2 ? (s->mem_mosi_len & 0x3ffff) :
++            FIELD_EX32(s->mem_mosi_len, SPI_MEM_MOSI_DLEN, USR_MOSI_DBITLEN);
+         t.tx_bytes = (t.tx_bytes + 1) / 8;
+     }
+ 
++    /* HP SPI2 has an 18-bit MS_DLEN; SPI1 flash lengths are only 10 bits.
++     * FIFO transactions cannot expose host memory beyond W0..W15. DMA
++     * remains bounded by the existing one-descriptor transfer helper. */
++    if (s->m5_spi2) {
++        if (!dma_tx) { t.tx_bytes = MIN(t.tx_bytes, sizeof(s->data_reg)); }
++        t.rx_bytes = MIN(t.rx_bytes, dma_rx ? sizeof(dma_buffer) : sizeof(s->data_reg));
++        if (dma_rx || dma_tx) {
++            memset(dma_buffer, 0, sizeof(dma_buffer));
++            if (!dma_tx) {
++                memcpy(dma_buffer, s->data_reg, t.tx_bytes);
++            }
++            t.data = dma_buffer;
++        }
++    }
++
+     /* Get the command and its length, in bytes
+      * In theory we should test mem_user's command bit. In practice, if we do, `esptool`
+      * cannot write flash successfully and detects an error */
+@@ -379,13 +396,21 @@
+         }
+     }
+ 
+-    if (dma_tx &&
+-        esp_gdma_get_channel_periph(s->gdma, GDMA_SPI2,
++    if (dma_tx && t.tx_bytes) {
++        /* An unbound TX channel cannot fall back to the much smaller FIFO.
++         * Leave the transaction pending rather than invent MOSI bytes or
++         * complete a transfer whose DMA source was never supplied. */
++        if (!s->gdma || !esp_gdma_get_channel_periph(s->gdma, GDMA_SPI2,
+                                     ESP_GDMA_OUT_IDX, &dma_channel)) {
+-        uint32_t requested = t.tx_bytes ? t.tx_bytes : sizeof(dma_buffer);
++            return;
++        }
++        uint32_t requested = t.tx_bytes;
+         uint32_t got = esp_gdma_complete_out_descriptor(
+             s->gdma, dma_channel, dma_buffer,
+             MIN(requested, sizeof(dma_buffer)));
++        if (!got) {
++            return;
++        }
+         t.data = dma_buffer;
+         t.tx_bytes = got;
+     }
+@@ -411,7 +436,7 @@
+ 
+     esp32c3_spi_perform_transaction(s, &t);
+ 
+-    if (dma_rx && t.rx_bytes &&
++    if (dma_rx && s->gdma && t.rx_bytes &&
+         esp_gdma_get_channel_periph(s->gdma, GDMA_SPI2,
+                                     ESP_GDMA_IN_IDX, &dma_channel)) {
+         esp_gdma_complete_in_descriptor(

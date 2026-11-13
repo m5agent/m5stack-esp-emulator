@@ -43,3 +43,10 @@ The firmware declares input coordinates in physical glass space as before;
 rotation does not change the touch data plane. Original application validation
 and touch/button interaction are recorded separately. Physical optics, RF and
 hardware timing are NOT RUN.
+
+The additional `C6_PANEL_DMA_READY` phase clears the image and sends the same
+landscape quadrants using 352-byte SPI2/GDMA blocks. The prior model interpreted
+`SPI_MS_DLEN[17:0]` through SPI1's 10-bit field, reducing 352 bytes to 96 bytes.
+This phase detects the resulting missing rows independently from rotation.
+Coverage here is FIFO traffic up to 64 bytes and single-descriptor DMA blocks;
+large chained or split DMA transactions remain outside this fixture.

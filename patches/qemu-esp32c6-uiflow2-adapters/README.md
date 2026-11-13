@@ -61,14 +61,30 @@ packet-type 状态；[SPI 探针](../../tests/firmware/esp32c6_sx1262_spi/README
 Meshtastic 的 NimBLE 同步/GATT 注册有独立证据；后续 TG0 watchdog 仍在，
 并不意味着 native BLE、RF 或完整应用通过。
 
+`0013-c6-lpperi-rng.patch` 提供实际 LPPERI RNG 寄存器和 clock gate，
+数据来自 QEMU guest-random；寄存器/API 功能验证不等于熵质量或硬件安全验证。
+
+`0014-c6-nesso-panel-madctl.patch` 在固定物理裁剪之前执行 ST7789
+MADCTL 地址交换/镜像，并公开显示方向元数据。Device Service 可据此返回
+逻辑显示帧；触摸坐标仍保留物理玻璃空间契约。
+
+`0015-c6-spi2-data-length.patch` 将 HP SPI2 的 18-bit `MS_DLEN` 与
+SPI1 的 10-bit Flash 长度字段分开，保留 FIFO 字节并约束 DMA 缓冲区。
+没有绑定的 TX DMA 通道或空描述符不能退回 FIFO，也不能伪造传输完成。
+[显示探针](../../tests/firmware/esp32c6_panel_madctl/README.md) 分别验证
+四种旋转与 352 字节 DMA；当前 DMA helper 仍是单描述符、4096 字节上限，
+该探针不建立硬件自动 CS、链式 DMA 或超大传输的覆盖。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
 当前仍开放的模型缺口是 Zigbee/802.15.4 控制器未建模。C6
 `LP_SW_HPSYS` 后 chip id `13/12` 已定位为 16 MiB Flash legacy 写擦命令被
 全局 4-byte 模式误解析，以及 C6 reset 后旧 PMP range 未清除；对应修复已由
-Device Service 重跑关闭 `RUNTIME-01`。该 Meshtastic 样本修复后仍有独立的
-Instruction access fault，必须继续区分固件缺陷和新的模型偏差：
+Device Service 重跑关闭 `RUNTIME-01`。后续 Meshtastic 的 radio、PHY、
+AES、RNG 与显示故障已分层记录；早先 PC=0 或晚期黑帧不能替代最新同 BIN
+的启动、输入与定时观察结果。Launcher 的跨任务 SPI 锁失败、RFID 的
+未建模 PN532Killer 外设仍有独立边界，不能概括为 issue #216 全部通过：
 [运行时模型缺口登记](../../docs/runtime-model-gap-register.md)。
 
 ## 可重复构建
