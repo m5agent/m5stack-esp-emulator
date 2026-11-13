@@ -1,0 +1,33 @@
+From: m5agent <m5agent@local>
+Subject: [NEGATIVE FIXTURE] Initial unsafe C6 SPI2 length candidate
+
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -322,14 +322,25 @@
+ 
+     /* Get the number of bytes to read from the device */
+     if (s->mem_user & R_SPI_MEM_USER_USR_MISO_MASK) {
+-        t.rx_bytes = FIELD_EX32(s->mem_miso_len, SPI_MEM_MISO_DLEN, USR_MISO_DBITLEN);
++        t.rx_bytes = s->m5_spi2 ? (s->mem_miso_len & 0x3ffff) :
++            FIELD_EX32(s->mem_miso_len, SPI_MEM_MISO_DLEN, USR_MISO_DBITLEN);
+         t.rx_bytes = (t.rx_bytes + 1) / 8;
+     }
+ 
+     /* and the number of bytes to write to the device */
+     if (s->mem_user & R_SPI_MEM_USER_USR_MOSI_MASK) {
+-        t.tx_bytes = FIELD_EX32(s->mem_mosi_len, SPI_MEM_MOSI_DLEN, USR_MOSI_DBITLEN);
++        t.tx_bytes = s->m5_spi2 ? (s->mem_mosi_len & 0x3ffff) :
++            FIELD_EX32(s->mem_mosi_len, SPI_MEM_MOSI_DLEN, USR_MOSI_DBITLEN);
+         t.tx_bytes = (t.tx_bytes + 1) / 8;
++    }
++
++    /* HP SPI2 has an 18-bit MS_DLEN; SPI1 flash lengths are only 10 bits.
++     * FIFO transactions cannot expose host memory beyond W0..W15. DMA
++     * remains bounded by the existing one-descriptor transfer helper. */
++    if (s->m5_spi2) {
++        if (!dma_tx) { t.tx_bytes = MIN(t.tx_bytes, sizeof(s->data_reg)); }
++        t.rx_bytes = MIN(t.rx_bytes, dma_rx ? sizeof(dma_buffer) : sizeof(s->data_reg));
++        if (dma_rx) { memset(dma_buffer, 0, sizeof(dma_buffer)); t.data = dma_buffer; }
+     }
+ 
+     /* Get the command and its length, in bytes
