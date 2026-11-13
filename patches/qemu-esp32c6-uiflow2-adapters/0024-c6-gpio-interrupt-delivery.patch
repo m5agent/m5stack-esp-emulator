@@ -1,0 +1,235 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -38,17 +38,63 @@
+ } g_listeners[GPIO_NPINS];
+ 
+ static uint64_t gpio_line64(void);
++/* The C6 machine has one GPIO block. Other subclasses retain their existing
++ * behavior unless they explicitly opt into the interrupt register model. */
++static Esp32GpioState *g_irq_owner;
++
++static uint32_t gpio_irq_cpu_status(unsigned route)
++{
++    uint32_t enabled = 0;
++    if (!g_irq_owner) {
++        return 0;
++    }
++    for (unsigned pin = 0; pin < g_irq_owner->irq_pin_count; pin++) {
++        if (g_regs[(0x74 + pin * 4) / 4] & BIT(13 + route)) {
++            enabled |= BIT(pin);
++        }
++    }
++    return g_regs[0x44 / 4] & enabled;
++}
++
++static void gpio_irq_update(uint64_t before, uint64_t after)
++{
++    if (!g_irq_owner) {
++        return;
++    }
++    uint32_t valid = (uint32_t)((1ULL << g_irq_owner->irq_pin_count) - 1);
++    uint32_t pending = g_regs[0x44 / 4] & valid;
++    for (unsigned pin = 0; pin < g_irq_owner->irq_pin_count; pin++) {
++        unsigned type = (g_regs[(0x74 + pin * 4) / 4] >> 7) & 7;
++        bool old = (before >> pin) & 1;
++        bool level = (after >> pin) & 1;
++        bool triggered = (type == 1 && !old && level) ||
++                         (type == 2 && old && !level) ||
++                         (type == 3 && old != level) ||
++                         (type == 4 && !level) ||
++                         (type == 5 && level);
++        if (triggered) {
++            pending |= BIT(pin);
++        }
++    }
++    /* STATUS is the event latch; INT_ENA routes that latch, not its capture.
++     * A W1TC while a level remains active therefore reasserts that bit. */
++    g_regs[0x44 / 4] = pending;
++    g_regs[0x50 / 4] = 0;
++    qemu_set_irq(g_irq_owner->irq, gpio_irq_cpu_status(0) != 0);
++}
+ 
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) {
+         return;
+     }
++    uint64_t before = gpio_line64();
+     if (level) {
+         g_ext_in |= 1ULL << pin;
+     } else {
+         g_ext_in &= ~(1ULL << pin);
+     }
++    gpio_irq_update(before, gpio_line64());
+ }
+ 
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque)
+@@ -64,11 +110,13 @@
+     if (pin < 0 || pin >= GPIO_NPINS) {
+         return;
+     }
++    uint64_t before = gpio_line64();
+     if (enable) {
+         g_open_drain |= 1ULL << pin;
+     } else {
+         g_open_drain &= ~(1ULL << pin);
+     }
++    gpio_irq_update(before, gpio_line64());
+ }
+ 
+ void esp32_gpio_force_line(int pin, int level)
+@@ -76,12 +124,14 @@
+     if (pin < 0 || pin >= GPIO_NPINS) {
+         return;
+     }
++    uint64_t before = gpio_line64();
+     g_force_mask |= 1ULL << pin;
+     if (level) {
+         g_force_level |= 1ULL << pin;
+     } else {
+         g_force_level &= ~(1ULL << pin);
+     }
++    gpio_irq_update(before, gpio_line64());
+ }
+ 
+ int esp32_gpio_get_line(int pin)
+@@ -134,6 +184,7 @@
+ {
+     uint64_t diff = before ^ after;
+ 
++    gpio_irq_update(before, after);
+     for (int i = 0; diff && i < GPIO_NPINS; i++) {
+         if ((diff >> i) & 1) {
+             if (g_listeners[i].cb) {
+@@ -161,6 +212,24 @@
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+     uint64_t in = gpio_line64();
+ 
++    if (s->irq_pin_count) {
++        switch (addr) {
++        case 0x5c:
++            return gpio_irq_cpu_status(0);
++        case 0x60:
++            /* NMI status is readable, but the NMI output is not connected. */
++            return gpio_irq_cpu_status(1);
++        case 0x64:
++        case 0x68:
++        case 0x6c:
++        case 0x70:
++        case 0x48:
++        case 0x4c:
++        case 0x54:
++        case 0x58:
++            return 0;
++        }
++    }
+     switch (addr) {
+     case A_GPIO_STRAP:
+         return s->strap_mode;
+@@ -188,9 +257,13 @@
+ static void esp32_gpio_write(void *opaque, hwaddr addr,
+                              uint64_t value, unsigned int size)
+ {
++    Esp32GpioState *s = ESP32_GPIO(opaque);
+     uint64_t before = gpio_line64();
+     uint64_t after;
+ 
++    if (s->irq_pin_count && addr >= 0x5c && addr <= 0x70) {
++        return;                     /* CPU interrupt views are read-only. */
++    }
+     switch (addr) {
+     case 0x08:
+         g_regs[0x04 / 4] |= value;
+@@ -270,10 +343,41 @@
+ 
+ static void esp32_gpio_reset_hold(Object *obj, ResetType type)
+ {
++    Esp32GpioState *s = ESP32_GPIO(obj);
++    if (!s->irq_pin_count) {
++        return;
++    }
++    /* SoC reset does not acknowledge external I2C chips or release their
++     * driven pad. Clear only the newly modeled interrupt state. */
++    g_regs[0x44 / 4] = 0;
++    g_regs[0x50 / 4] = 0;
++    for (unsigned pin = 0; pin < s->irq_pin_count; pin++) {
++        g_regs[(0x74 + pin * 4) / 4] &= ~((7u << 7) | (31u << 13));
++    }
++    qemu_set_irq(s->irq, 0);
+ }
+ 
+ static void esp32_gpio_realize(DeviceState *dev, Error **errp)
+ {
++    Esp32GpioState *s = ESP32_GPIO(dev);
++    if (s->irq_pin_count > 32) {
++        error_setg(errp, "GPIO interrupt model supports at most 32 pins");
++        return;
++    }
++    if (s->irq_pin_count) {
++        if (g_irq_owner && g_irq_owner != s) {
++            error_setg(errp, "GPIO interrupt block is already registered");
++            return;
++        }
++        g_irq_owner = s;
++    }
++}
++
++static void esp32_gpio_unrealize(DeviceState *dev)
++{
++    if (g_irq_owner == ESP32_GPIO(dev)) {
++        g_irq_owner = NULL;
++    }
+ }
+ 
+ static void esp32_gpio_init(Object *obj)
+@@ -291,6 +395,7 @@
+ 
+ static Property esp32_gpio_properties[] = {
+     DEFINE_PROP_UINT32("strap_mode", Esp32GpioState, strap_mode, 0),
++    DEFINE_PROP_UINT32("irq-pin-count", Esp32GpioState, irq_pin_count, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -301,6 +406,7 @@
+ 
+     rc->phases.hold = esp32_gpio_reset_hold;
+     dc->realize = esp32_gpio_realize;
++    dc->unrealize = esp32_gpio_unrealize;
+     device_class_set_props(dc, esp32_gpio_properties);
+ }
+ 
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -20,6 +20,7 @@
+     MemoryRegion iomem;
+     qemu_irq irq;
+     uint32_t strap_mode;
++    uint32_t irq_pin_count;
+ } Esp32GpioState;
+ 
+ typedef struct Esp32GpioClass {
+diff --git a/hw/gpio/esp32c6_gpio.c b/hw/gpio/esp32c6_gpio.c
+--- a/hw/gpio/esp32c6_gpio.c
++++ b/hw/gpio/esp32c6_gpio.c
+@@ -15,6 +15,7 @@
+ static void esp32c6_gpio_init(Object *obj)
+ {
+     object_property_set_int(obj, "strap_mode", ESP32C6_STRAP_MODE_FLASH_BOOT, &error_fatal);
++    object_property_set_int(obj, "irq-pin-count", 31, &error_fatal);
+ }
+ 
+ static void esp32c6_gpio_class_init(ObjectClass *klass, void *data)
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -499,6 +499,8 @@
+         sysbus_realize(SYS_BUS_DEVICE(&ms->gpio), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->gpio), 0);
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
++        sysbus_connect_irq(SYS_BUS_DEVICE(&ms->gpio), 0,
++                           qdev_get_gpio_in(intmatrix_dev, C6_ETS_GPIO_INTR_SOURCE));
+     }
+     /*
+      * The WiFi/PHY register blocks exist even without a host network.

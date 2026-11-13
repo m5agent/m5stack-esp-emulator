@@ -1,0 +1,41 @@
+{
+  "upstream": {
+    "url": "https://github.com/espressif/qemu.git",
+    "commit": "febae182e132e4055529be423a818225ebddaa3a"
+  },
+  "recipe_commit": "a5990e720a8c79310456bf5868141f4cfd50afe8",
+  "ordered_patches": {
+    "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch": "3e1e0468d183c9aac066676875df2d693cf4dfebdf7898e36c75d5d7a772613b",
+    "patches/qemu-esp32c6-uiflow2-adapters/0002-nanoc6-board-isolation-gpio.patch": "e2a3d74ecf58cb77e69a0f4175b64372fe474abe2921fcba2ffbcf9406ebafcc",
+    "patches/qemu-m5stack-peripherals/0016-gigadevice-status2-qio.patch": "4b87d2bbff5a9f9a5591d20d8156163006ca6de9747198f6db66dc2b8b6cc38f",
+    "patches/qemu-m5stack-peripherals/0017-issi-status2-qio.patch": "d425608c5c000899e11a1a42e67deec86d03578f3b6fb310baf233f0b4770ff3",
+    "patches/qemu-esp32c6-uiflow2-adapters/0003-modem-syscon-clock-bits.patch": "3babbc51fea5bf08e996a613bad4ebc6f6c9a4fe42c5b25964da4a5eebd72b63",
+    "patches/qemu-esp32c6-uiflow2-adapters/0004-user-firmware-hot-samples.patch": "f61ef69c255391239298cd78eefb73cd6e2922cd78d595f79e552ec98c1abc49",
+    "patches/qemu-esp32c6-uiflow2-adapters/0005-c6-uart-timeout-registers.patch": "f52c023b07abc14b81694b2db328a650aa2ab8c754590378de967f06cbc71624",
+    "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch": "bd40fedbd604e11ebd081002a03d2d4f141b252cb881932519f54efbb4520a53",
+    "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch": "91b93e7876809258a55aa193b7fcde314de32be7c77234770f2b124cea51631b",
+    "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch": "6b6b352c3f18e3bac0e0e246a514008c0a03df34864d8234f3ed6cd133053e4d",
+    "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch": "4223de1bc528b682eeb7c5c50d284ec3d85be34ea2dfcbbfb42917e10e5e3345",
+    "patches/qemu-esp32c6-uiflow2-adapters/0010-c6-sx1262-hardware-spi.patch": "a5af6e7e846c44a7e3f406b6dbb8dc167ea88d67c0a061bc7bd41ab66ef965a1",
+    "patches/qemu-esp32c6-uiflow2-adapters/0011-c6-isolated-wifi-presence.patch": "625a89ac455c02a9b871536a5d4915e7849fa96f73f82e65a960ea5ceb8c823e",
+    "patches/qemu-esp32c6-uiflow2-adapters/0012-c6-ble-aes-dma.patch": "f942bec891bb64423a61e4230ddf7e40a2df6172fba7b4e600e881774f0a8f98",
+    "patches/qemu-esp32c6-uiflow2-adapters/0013-c6-lpperi-rng.patch": "8421f6572048b9e139504fce641fbf25479e775a24c13f64affa9e29600846ac",
+    "patches/qemu-esp32c6-uiflow2-adapters/0014-c6-nesso-panel-madctl.patch": "fb60c5e74b05b05de34379bcd1ef988f8a831419185fc8cf039d9c6bff6acecc",
+    "patches/qemu-esp32c6-uiflow2-adapters/0015-c6-spi2-data-length.patch": "559c7dd083e6eae5247762cbdbd3a531e11774f475e400acd60a08595e638cc8",
+    "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch": "7a0173bc469263d2d8be333465544f7b463710eaebf26b7ffaf8a4738919cfe9",
+    "patches/qemu-esp32c6-uiflow2-adapters/0017-c6-mwdt-pcr-clock.patch": "5f2749c7d2e4d7c36ccd3b0a073f149a8ccda7d64df1683d9aa78e640e3c5988",
+    "patches/qemu-esp32c6-uiflow2-adapters/0018-c6-wifi-tsf-counter.patch": "73389de5294a49fd531e142e219cf4be1c25665979de2553753caa775766329b",
+    "patches/qemu-esp32c6-uiflow2-adapters/0019-c6-efuse-lp-subregion.patch": "00fc46dd5ab41b0da2a497189f0d2f87f5d275b27192a4338a7484aadbea3df8",
+    "patches/qemu-esp32c6-uiflow2-adapters/0020-c6-usb-serial-jtag-endpoints.patch": "27fa22de9151d9654c159dfe2bc2d9968e7bd2f7f4f539794a35e18f6ccb5bc5",
+    "patches/qemu-esp32c6-uiflow2-adapters/0021-c6-efuse-unprovisioned-defaults.patch": "482687f2de803c1e2d079916e9c9487cd75307a0a3d3284028074eeaea7898bc",
+    "patches/qemu-esp32c6-uiflow2-adapters/0022-c6-usb-serial-jtag-host-timing.patch": "e87042e6e33dcb6451dcc928d4ceba3e3729838630b3ff387774508347983ab3",
+    "patches/qemu-esp32c6-uiflow2-adapters/0023-c6-nesso-shared-interrupt-pad.patch": "3ce8aea9a0c274c0c002ceb2c69e25712ae3d1581d208362f6badb54345afabe"
+  },
+  "fixture_files": {
+    "hw/gpio/esp32_gpio.c": "e162b0940354e1509a88a77572feaf9cbac851a8fbd2f882f5b353f10b03048c",
+    "include/hw/gpio/esp32_gpio.h": "5eb916a5e2c911256d0b40b9455c43b30240f40872281b3ad4b11bc607a62784",
+    "hw/gpio/esp32c6_gpio.c": "c28366b07d574df289c99e099ea259da8145c230128657153b68dd7b39406d22",
+    "hw/riscv/esp32c6.c": "009e0238bd8b5a79351c844e315b426ef76c451b5b68666d6fa6cff280ae30ab",
+    "hw/misc/esp32c6_board_i2c.c": "7c1fdf509cb24fba22b7746ca5a7731b93035943c29e0f77cbfd824637482e72"
+  }
+}

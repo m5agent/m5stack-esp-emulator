@@ -1,0 +1,7 @@
+menu "GPIO IRQ probe"
+config GPIO_IRQ_PROBE_NESSO
+    bool "Use Nesso N1 shared GPIO3 and its primary PI4IOE"
+    default n
+    help
+        Otherwise test the NanoC6 active-low GPIO9 button.
+endmenu

@@ -178,3 +178,13 @@ their existing selection. The canonical bootstrap replays this after 0016.
 See [the guest and actual-C controls](../../tests/firmware/esp32c6_mwdt_clock/README.md)
 for exact native runtime/firmware identities, original RFID failure separation,
 and the pending full-matrix boundary.
+
+## 0024: ordinary GPIO source 30
+
+`0024-c6-gpio-interrupt-delivery.patch` adds C6 raw GPIO pending, per-pin CPU
+routing, edge/level capture, W1TS/W1TC, IRQ reset and the machine connection to
+existing interrupt-matrix source 30. Only the C6 subclass opts into this model.
+NMI source 31, wakeup/filter timing, BMI270 IRQ generation and FT6336 trigger
+pulses are outside the change. The actual-C before/after sanitizer controls
+pass; the rebuilt runtime and guest ISR/Pin.irq probes are **NOT RUN**. See the
+[fixed-source and guest workflow](../../tests/firmware/esp32c6_gpio_irq/README.md).
