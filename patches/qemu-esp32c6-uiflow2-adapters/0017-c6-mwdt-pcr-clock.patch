@@ -1,0 +1,405 @@
+--- a/hw/misc/esp32c6_pcr.c
++++ b/hw/misc/esp32c6_pcr.c
+@@ -12,6 +12,7 @@
+ #include "qemu/module.h"
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
++#include "hw/qdev-clock.h"
+ #include "hw/misc/esp32c6_pcr.h"
+ #include <stdlib.h>
+ #include <time.h>
+@@ -28,6 +29,10 @@
+ REG32(PCR_LEDC_SCLK_CONF, 0x038)
+     FIELD(PCR_LEDC_SCLK_CONF, LEDC_SCLK_SEL, 20, 2)
+     FIELD(PCR_LEDC_SCLK_CONF, LEDC_SCLK_EN, 22, 1)
++REG32(PCR_TIMG0_WDT_CLK_CONF, 0x044)
++    FIELD(PCR_TIMG0_WDT_CLK_CONF, SEL, 20, 2)
++    FIELD(PCR_TIMG0_WDT_CLK_CONF, EN, 22, 1)
++REG32(PCR_TIMG1_WDT_CLK_CONF, 0x050)
+ REG32(SYSCON_RND_DATA,   0x0B0)
+ REG32(PCR_SYSCLK_CONF,   0x110)
+     FIELD(PCR_SYSCLK_CONF, HS_DIV_NUM,    8,  8)
+@@ -50,6 +55,17 @@
+ /* "QEMU" magic word in little-endian, returned at SYSCON_ORIGIN */
+ #define SYSCON_ORIGIN_QEMU_MAGIC     0x51454d55
+ 
++static void esp32c6_pcr_update_wdt_clock(ESP32C6PcrState *s, int tg)
++{
++    static const uint32_t hz[] = { 40000000, 80000000, 17500000, 0 };
++    unsigned offset = tg ? A_PCR_TIMG1_WDT_CLK_CONF : A_PCR_TIMG0_WDT_CLK_CONF;
++    uint32_t value = s->regs[offset / 4];
++    unsigned select = FIELD_EX32(value, PCR_TIMG0_WDT_CLK_CONF, SEL);
++    bool enabled = FIELD_EX32(value, PCR_TIMG0_WDT_CLK_CONF, EN);
++    /* RC_FAST is the nominal calibrated source, not a physical RC measurement. */
++    clock_update_hz(s->wdt_clock[tg], enabled ? hz[select] : 0);
++}
++
+ static uint64_t esp32c6_pcr_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     ESP32C6PcrState *s = ESP32C6_PCR(opaque);
+@@ -98,6 +114,9 @@
+ 
+     if (addr < sizeof(s->regs)) {
+         s->regs[addr / 4] = (uint32_t)value;
++        if (addr == A_PCR_TIMG0_WDT_CLK_CONF || addr == A_PCR_TIMG1_WDT_CLK_CONF) {
++            esp32c6_pcr_update_wdt_clock(s, addr == A_PCR_TIMG1_WDT_CLK_CONF);
++        }
+     }
+ }
+ 
+@@ -116,6 +135,10 @@
+     value = FIELD_DP32(value, PCR_LEDC_SCLK_CONF, LEDC_SCLK_SEL, 1);
+     value = FIELD_DP32(value, PCR_LEDC_SCLK_CONF, LEDC_SCLK_EN, 1);
+     s->regs[A_PCR_LEDC_SCLK_CONF / 4] = value;
++    s->regs[A_PCR_TIMG0_WDT_CLK_CONF / 4] = R_PCR_TIMG0_WDT_CLK_CONF_EN_MASK;
++    s->regs[A_PCR_TIMG1_WDT_CLK_CONF / 4] = R_PCR_TIMG0_WDT_CLK_CONF_EN_MASK;
++    esp32c6_pcr_update_wdt_clock(s, 0);
++    esp32c6_pcr_update_wdt_clock(s, 1);
+ }
+ 
+ static void esp32c6_pcr_init(Object *obj)
+@@ -127,6 +150,9 @@
+                           TYPE_ESP32C6_PCR, ESP32C6_PCR_IO_SIZE);
+ 
+     sysbus_init_mmio(sbd, &s->iomem);
++    s->wdt_clock[0] = qdev_init_clock_out(DEVICE(s), "timg0-wdt-clock");
++    s->wdt_clock[1] = qdev_init_clock_out(DEVICE(s), "timg1-wdt-clock");
++    esp32c6_pcr_reset_hold(obj, RESET_TYPE_COLD);
+ }
+ 
+ static void esp32c6_pcr_class_init(ObjectClass *klass, void *data)
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -8,6 +8,7 @@
+  * (at your option) any later version.
+  */
+ #include "qemu/osdep.h"
++#include "hw/qdev-clock.h"
+ #include "qemu/log.h"
+ #include "qemu/error-report.h"
+ #include "hw/qdev-properties.h"
+@@ -764,6 +765,8 @@
+ 
+     /* Timer Groups */
+     for (int tg = 0; tg < 2; tg++) {
++        qdev_connect_clock_in(DEVICE(&ms->timg[tg]), "wdt-clock",
++                              ms->pcr.wdt_clock[tg]);
+         sysbus_realize(SYS_BUS_DEVICE(&ms->timg[tg]), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->timg[tg]), 0);
+         const hwaddr timg_base[] = { DR_REG_TIMERGROUP0_BASE, DR_REG_TIMERGROUP1_BASE };
+--- a/hw/timer/esp32c6_timg.c
++++ b/hw/timer/esp32c6_timg.c
+@@ -9,12 +9,41 @@
+  */
+ #include "qemu/osdep.h"
+ #include "hw/timer/esp32c6_timg.h"
++#include "hw/qdev-clock.h"
++
++static void esp32c6_wdt_clock_update(void *opaque, ClockEvent event)
++{
++    ESP32C6TimgState *s = opaque;
++    esp_timg_set_wdt_clock(ESP_TIMG(s), clock_get_hz(s->wdt_clock));
++}
++
++static void esp32c6_timg_init(Object *obj)
++{
++    ESP32C6TimgState *s = ESP32C6_TIMG(obj);
++    esp_timg_set_wdt_clock(ESP_TIMG(s), 0);
++    s->wdt_clock = qdev_init_clock_in(DEVICE(s), "wdt-clock",
++                                    esp32c6_wdt_clock_update, s, ClockUpdate);
++}
++
++static void esp32c6_timg_realize(DeviceState *dev, Error **errp)
++{
++    ESP32C6TimgState *s = ESP32C6_TIMG(dev);
++    /* Connecting a Clock source copies its period without a callback. */
++    esp_timg_set_wdt_clock(ESP_TIMG(s), clock_get_hz(s->wdt_clock));
++}
++
++static void esp32c6_timg_class_init(ObjectClass *klass, void *data)
++{
++    DEVICE_CLASS(klass)->realize = esp32c6_timg_realize;
++}
+ 
+ static const TypeInfo esp32c6_timg_info = {
+     .name = TYPE_ESP32C6_TIMG,
+     .parent = TYPE_ESP32C3_TIMG,
+     .instance_size = sizeof(ESP32C6TimgState),
++    .instance_init = esp32c6_timg_init,
+     .class_size = sizeof(ESP32C6TimgClass),
++    .class_init = esp32c6_timg_class_init,
+ };
+ 
+ static void esp32c6_timg_register_types(void)
+--- a/hw/timer/esp_timg.c
++++ b/hw/timer/esp_timg.c
+@@ -164,6 +164,81 @@
+ }
+ 
+ 
++/* The C6 divider retains source-cycle progress across PCR mux/gate changes.
++ * Split seconds and nanoseconds to avoid overflow and retain sub-tick progress;
++ * integer output Hz would lose RC_FAST / 20000 = 875 Hz entirely in the legacy
++ * counter, which rounds frequency down to whole kHz. Other SoCs keep that path.
++ */
++static int64_t esp_wdt_counter_update(ESPWdtState *wdt)
++{
++    ESPVirtualCounter *counter = &wdt->counter;
++    if (!wdt->external_clock) {
++        return esp_virtual_counter_update(counter);
++    }
++    uint64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    uint64_t elapsed = now - counter->base;
++    if (wdt->armed) {
++        uint64_t fraction = (elapsed % 1000000000ULL) * wdt->source_hz +
++                            wdt->source_fraction;
++        uint64_t cycles = (elapsed / 1000000000ULL) * wdt->source_hz +
++                          fraction / 1000000000ULL + wdt->source_cycles;
++        uint32_t divider = MAX(wdt->prescaler, 1);
++        counter->value += cycles / divider;
++        wdt->source_cycles = cycles % divider;
++        wdt->source_fraction = fraction % 1000000000ULL;
++    }
++    counter->base = now;
++    return counter->value;
++}
++
++static void esp_wdt_reschedule(ESPWdtState *wdt)
++{
++    timer_del(&wdt->counter.timer);
++    if (!wdt->armed || !wdt->source_hz) {
++        return;
++    }
++    uint64_t delay = 0;
++    if (wdt->target > wdt->counter.value) {
++        uint64_t cycles = (wdt->target - wdt->counter.value) *
++                          MAX(wdt->prescaler, 1) - wdt->source_cycles;
++        int64_t fraction = (int64_t)((cycles % wdt->source_hz) * 1000000000ULL) -
++                           (int64_t)wdt->source_fraction;
++        int64_t hz = wdt->source_hz;
++        /* Signed division rounds a negative numerator toward zero (ceil). */
++        int64_t ns = fraction > 0 ?
++            (fraction + hz - 1) / hz : fraction / hz;
++        delay = (cycles / wdt->source_hz) * 1000000000ULL + ns;
++    }
++    timer_mod_ns(&wdt->counter.timer, wdt->counter.base + delay);
++}
++
++static void esp_wdt_alarm_in_ticks(ESPWdtState *wdt, uint64_t ticks)
++{
++    if (!wdt->external_clock) {
++        esp_virtual_counter_alarm_in_ticks(&wdt->counter, ticks);
++        return;
++    }
++    wdt->counter.base = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    wdt->counter.value = 0;
++    wdt->source_cycles = 0;
++    wdt->source_fraction = 0;
++    wdt->target = ticks;
++    wdt->armed = true;
++    esp_wdt_reschedule(wdt);
++}
++
++void esp_timg_set_wdt_clock(ESPTimgState *s, uint64_t hz)
++{
++    ESPWdtState *wdt = &s->wdt;
++    if (wdt->external_clock) {
++        esp_wdt_counter_update(wdt);
++    }
++    wdt->external_clock = true;
++    wdt->source_hz = hz;
++    wdt->counter.frequency = hz / MAX(wdt->prescaler, 1);
++    esp_wdt_reschedule(wdt);
++}
++
+ static void esp_wdt_cb(void* opaque)
+ {
+     ESPWdtState* wdt = (ESPWdtState*) opaque;
+@@ -184,6 +259,7 @@
+             qemu_irq_raise(wdt->interrupt_irq);
+         }
+     } else if (conf == ESP_WDT_RESET_CPU || conf == ESP_WDT_RESET_SYS) {
++        wdt->armed = false;
+         qemu_irq_raise(wdt->reset_irq);
+         /* Do not schedule anything if we have to reset the machine */
+         return;
+@@ -192,6 +268,17 @@
+     const int new_stage = (cur_stage + 1)  % ESP_WDT_STAGE_COUNT;
+     wdt->current_stage = new_stage;
+ 
++    if (wdt->external_clock) {
++        if (conf == ESP_WDT_OFF) {
++            esp_wdt_counter_update(wdt);
++            wdt->target = wdt->stage[new_stage];
++            esp_wdt_reschedule(wdt);
++        } else {
++            esp_wdt_alarm_in_ticks(wdt, wdt->stage[new_stage]);
++        }
++        return;
++    }
++
+     if (conf == ESP_WDT_OFF) {
+         /* If the current stage is disabled, the counter shall not be reset to 0!
+          * Get the number of ticks elapsed to calculate the remaining ticks before the next stage alarm.
+@@ -204,8 +291,38 @@
+     }
+ }
+ 
++static void esp_wdt_write_prescaler(ESPWdtState *wdt, uint32_t value)
++{
++    if (wdt->external_clock) {
++        if (!esp_wdt_is_writable(wdt)) {
++            return;
++        }
++        /* C6 DIVCNT_RST is WT: apply once at the register write, rather than
++         * latching it into every later CONFIG0.CONF_UPDATE_EN operation. */
++        if (FIELD_EX32(value, TIMG_WDTCONFIG1, DIVCNT_RST)) {
++            esp_wdt_counter_update(wdt);
++            wdt->source_cycles = 0;
++            wdt->source_fraction = 0;
++            esp_wdt_reschedule(wdt);
++        }
++        value &= ~R_TIMG_WDTCONFIG1_DIVCNT_RST_MASK;
++    }
++    wdt->prescaler_mirror = value;
++}
++
+ static void esp_wdt_update_prescaler(ESPWdtState* wdt, uint32_t value)
+ {
++    if (wdt->external_clock) {
++        esp_wdt_counter_update(wdt);
++        wdt->prescaler = MAX(FIELD_EX32(value, TIMG_WDTCONFIG1,
++                                      CLK_PRESCALE), 1);
++        /* Apply a new divider without restarting the stage. */
++        wdt->counter.value += wdt->source_cycles / wdt->prescaler;
++        wdt->source_cycles %= wdt->prescaler;
++        wdt->counter.frequency = wdt->source_hz / wdt->prescaler;
++        esp_wdt_reschedule(wdt);
++        return;
++    }
+     if (FIELD_EX32(value, TIMG_WDTCONFIG1, DIVCNT_RST) || value == 0) {
+         /* Avoid any divide-by-0 error in the code below */
+         wdt->prescaler = 1;
+@@ -227,8 +344,16 @@
+     /* If the updated stage is the current one and the watchdog is enabled, reprogram the timer */
+     if (esp_wdt_enabled(wdt) && wdt->current_stage == index && verify) {
+         /* Update the counter of the running timer, so that we can adjust the alarm */
+-        int64_t counter_value = esp_virtual_counter_update(&wdt->counter);
++        int64_t counter_value = esp_wdt_counter_update(wdt);
+         int64_t diff = (int64_t) value - counter_value;
++        if (wdt->external_clock) {
++            wdt->target = value;
++            if (diff <= 0) {
++                wdt->armed = false;
++            }
++            esp_wdt_reschedule(wdt);
++            return;
++        }
+         if (diff <= 0) {
+             /* On the real hardware, the WDT is simply disabled if the new comparator value for the current
+              * stage is smaller than the current value. It will be restarted (not resumed) when fed.
+@@ -246,7 +371,7 @@
+ {
+     if (esp_wdt_enabled(wdt)) {
+         wdt->current_stage = 0;
+-        esp_virtual_counter_alarm_in_ticks(&wdt->counter, wdt->stage[0]);
++        esp_wdt_alarm_in_ticks(wdt, wdt->stage[0]);
+     }
+ }
+ 
+@@ -290,10 +415,11 @@
+         if (enabled) {
+             wdt->config0 |= R_TIMG_WDTCONFIG0_EN_MASK;
+             /* Timer has just been (re-)enabled, schedule the timer */
+-            esp_virtual_counter_alarm_in_ticks(&wdt->counter, wdt->stage[0]);
++            esp_wdt_alarm_in_ticks(wdt, wdt->stage[0]);
+         } else {
+             wdt->config0 &= ~R_TIMG_WDTCONFIG0_EN_MASK;
+             /* Disable the timer! */
++            wdt->armed = false;
+             timer_del(&wdt->counter.timer);
+         }
+     }
+@@ -672,7 +798,7 @@
+             esp_wdt_update_config(&s->wdt, value);
+             break;
+         case A_TIMG_WDTCONFIG1:
+-            s->wdt.prescaler_mirror = value;
++            esp_wdt_write_prescaler(&s->wdt, value);
+             break;
+         case A_TIMG_WDTCONFIG2:
+         case A_TIMG_WDTCONFIG3:
+@@ -762,6 +888,13 @@
+     s->wdt.stage[2] = 0x0FFFFFFF;
+     s->wdt.stage[3] = 0x0FFFFFFF;
+     s->wdt.prescaler = 1;
++    s->wdt.armed = false;
++    s->wdt.target = 0;
++    s->wdt.source_cycles = 0;
++    s->wdt.source_fraction = 0;
++    if (s->wdt.external_clock) {
++        s->wdt.counter.frequency = s->wdt.source_hz;
++    }
+     s->wdt.raw_st = 0;
+     s->wdt.int_enabled = 0;
+ 
+--- a/include/hw/misc/esp32c6_pcr.h
++++ b/include/hw/misc/esp32c6_pcr.h
+@@ -10,6 +10,7 @@
+ #pragma once
+ 
+ #include "hw/sysbus.h"
++#include "hw/clock.h"
+ 
+ #define TYPE_ESP32C6_PCR "esp32c6.pcr"
+ #define ESP32C6_PCR(obj) OBJECT_CHECK(ESP32C6PcrState, (obj), TYPE_ESP32C6_PCR)
+@@ -19,5 +20,6 @@
+ typedef struct {
+     SysBusDevice parent;
+     MemoryRegion iomem;
++    Clock *wdt_clock[2];
+     uint32_t regs[ESP32C6_PCR_IO_SIZE / sizeof(uint32_t)];
+ } ESP32C6PcrState;
+--- a/include/hw/timer/esp32c6_timg.h
++++ b/include/hw/timer/esp32c6_timg.h
+@@ -10,6 +10,7 @@
+ #pragma once
+ 
+ #include "hw/timer/esp32c3_timg.h"
++#include "hw/clock.h"
+ 
+ #define TYPE_ESP32C6_TIMG           "timer.esp32c6.timg"
+ #define ESP32C6_TIMG(obj)           OBJECT_CHECK(ESP32C6TimgState, (obj), TYPE_ESP32C6_TIMG)
+@@ -22,6 +23,7 @@
+ 
+ typedef struct ESP32C6TimgState {
+     ESP32C3TimgState parent;
++    Clock *wdt_clock;
+ } ESP32C6TimgState;
+ 
+ typedef struct ESP32C6TimgClass {
+--- a/include/hw/timer/esp_timg.h
++++ b/include/hw/timer/esp_timg.h
+@@ -114,6 +114,13 @@
+     /* The stage is comprised between 0 and ESP_WDT_STAGE_COUNT */
+     int current_stage;
+     ESPVirtualCounter counter;
++    /* C6 obtains MWDT source/gate from PCR, not CONFIG0.USE_XTAL. */
++    bool external_clock;
++    uint64_t source_hz;
++    uint64_t source_cycles;
++    uint64_t source_fraction; /* fractional source cycle, denominator 1e9 */
++    uint64_t target;
++    bool armed;
+     qemu_irq reset_irq;
+     qemu_irq interrupt_irq;
+ } ESPWdtState;
+@@ -168,6 +175,8 @@
+ } ESPTimgClass;
+ 
+ 
++void esp_timg_set_wdt_clock(ESPTimgState *s, uint64_t hz);
++
+ REG32(TIMG_T0CONFIG, 0x0000)
+     FIELD(TIMG_T0CONFIG, EN, 31, 1)
+     FIELD(TIMG_T0CONFIG, INCREASE, 30, 1)

@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "device": "nesso-n1",
+  "scope": "C6 PCR source/gate to MWDT, retaining counted progress. No watchdog timeout change or firmware patch.",
+  "runtime_sha256": "d7a6f11d2274d67ea2d1b0c5016778f9f84bda7828190f5be927c00fa1cd2e09",
+  "qemu_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "prefix_patch_count": 18,
+  "new_patch_sha256": "b3b649cdd6c99cf03f2ad83d00368f82d9133e8db7b1e496a2a03b935fe50374",
+  "service_source_commit": "523a854c5c4b876d5e722233191b5dceaebc15e3",
+  "source_sha256": "44fb1f1c53ff2c0fdfa314434221255c2d1c4f561955ce7a11330e73ad2c164a",
+  "host": {
+    "actual_c_cases": 23,
+    "before_failed": 18,
+    "after_passed": 23,
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "legacy_apb_xtal_controls_pass": true,
+    "include": [
+      "PCR reset/mux/gate",
+      "remaining stage/ticks",
+      "RC_FAST 875Hz",
+      "fractional source cycles",
+      "divider change and one-shot WT reset",
+      "protected divider write",
+      "zero/max prescaler",
+      "feed and disable"
+    ]
+  },
+  "guest_probe": {
+    "before": {
+      "status": "EXPECTED_FAIL",
+      "firmware_sha256": "78c9c8c2c5073abc8b4c53094ab320fed456b82a9a95539d4ae6213811e78fa8",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 1.9610538331326097,
+      "boot_banners": 1,
+      "zip_sha256": "276f921a8e44b578a526902d58f9973064d9f31587d9a2c26ef4051fe700ce9b",
+      "zip_before_stop": true,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "before_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "after_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "unchanged": true
+        }
+      ],
+      "serial_sha256": "ea74f219f82ee192ae4dc960dc5ff04754ae830ae1059d1ea00dab45c75ee98c",
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "after": {
+      "status": "PASS",
+      "firmware_sha256": "78c9c8c2c5073abc8b4c53094ab320fed456b82a9a95539d4ae6213811e78fa8",
+      "runtime_sha256": "d7a6f11d2274d67ea2d1b0c5016778f9f84bda7828190f5be927c00fa1cd2e09",
+      "observed_seconds": 3.472700250102207,
+      "boot_banners": 1,
+      "zip_sha256": "e769a2343ebb649238beb7dcaeb02aeecf64356cbbfc4dd44f273176d395afda",
+      "zip_before_stop": true,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "before_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "after_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "unchanged": true
+        }
+      ],
+      "serial_sha256": "650cb686523519b8def179cbf819dd3f0213598fe16af7fe6a02a05e495a0b37",
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "after_cases": [
+      {
+        "index": 0,
+        "elapsed_us": 501297,
+        "expected_us": 500000,
+        "change_at_us": 0,
+        "result": "PASS"
+      },
+      {
+        "index": 1,
+        "elapsed_us": 251107,
+        "expected_us": 250000,
+        "change_at_us": 0,
+        "result": "PASS"
+      },
+      {
+        "index": 2,
+        "elapsed_us": 1000813,
+        "expected_us": 1000000,
+        "change_at_us": 0,
+        "result": "PASS"
+      },
+      {
+        "index": 3,
+        "elapsed_us": 301246,
+        "expected_us": 300282,
+        "change_at_us": 100564,
+        "result": "PASS"
+      },
+      {
+        "index": 4,
+        "elapsed_us": 701033,
+        "expected_us": 699958,
+        "change_at_us": 100060,
+        "result": "PASS"
+      },
+      {
+        "index": 5,
+        "elapsed_us": 399547,
+        "expected_us": 399458,
+        "change_at_us": 100542,
+        "result": "PASS"
+      }
+    ],
+    "independent_timer": "esp_timer_get_time via SYSTIMER, actual MWDT interrupt handler",
+    "tolerance_us": 20000,
+    "same_bin": true,
+    "before_results": "80MHz passes; 40MHz/RC_FAST/mux/gate fail.",
+    "after_results": "Six of six pass."
+  },
+  "original_firmware": {
+    "name": "Meshtastic RFID Demo",
+    "version": "2.7.21 Landscape PN532/PN532Killer",
+    "firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+    "status": "FAIL",
+    "run": {
+      "status": "FAIL",
+      "firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "runtime_sha256": "d7a6f11d2274d67ea2d1b0c5016778f9f84bda7828190f5be927c00fa1cd2e09",
+      "observed_seconds": 150.43336058408022,
+      "boot_banners": 2,
+      "zip_sha256": "d9d2083b68caa31fc94efd527966a56aaf0b26bae787c0a02a8e833a1d67eb50",
+      "zip_before_stop": true,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "before_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "after_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "before_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "after_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "serial_sha256": "b7ff979b4e30ab6b225871a3bcd80dbedbb6c242598bf42b9970e6ae5bfc272e",
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "register_dumps": 1,
+    "display": "Welcome to Meshtastic prompt is visible; first IDLE watchdog restart still fails stable boot.",
+    "frame_binding": {
+      "same_session_manifest": true,
+      "all_four_frame_requests_same_owned_session": true,
+      "original_bin_contains_welcome_and_pn532_strings": true
+    },
+    "frames": [
+      {
+        "file": "frame-10.png",
+        "sha256": "c654aee68fcb5d5304f93b65455e0a79edcd8de037a36c2aec70d78ef948e0e7",
+        "seconds_from_start": 10.171
+      },
+      {
+        "file": "frame-30.png",
+        "sha256": "465905048f08bb9e2135ce46a0e6a7b152dc2bf3da54a7821f7c4df23ae487fc",
+        "seconds_from_start": 30.014
+      },
+      {
+        "file": "frame-90.png",
+        "sha256": "ce309d1c4bfd0b0661ae0824dd9ca5defa66c3eb4cbeab6a47169ba262d17013",
+        "seconds_from_start": 90.117
+      },
+      {
+        "file": "frame-149.png",
+        "sha256": "22258fcb8689000ac156a3266d39146e193300dcc7f0e16a637b19cc4ff70b7f",
+        "seconds_from_start": 149.142
+      }
+    ],
+    "diagnostic": {
+      "before_subscription_to_isr_ticks": 2501,
+      "after_subscription_to_isr_ticks": 5002,
+      "after_idle_subscription_tick": 5032,
+      "after_isr_tick": 10034,
+      "mmio": {
+        "0x60096044": "0x400000",
+        "0x60096050": "0x400000",
+        "0x60008048": "0xb81f8000",
+        "0x6000804c": "0x4e200000",
+        "0x60008050": "0x2710",
+        "0x60008054": "0x4e20",
+        "0x60008058": "0x0",
+        "0x6000805c": "0x0",
+        "0x60009048": "0xb81f8000",
+        "0x6000904c": "0x4e200000"
+      },
+      "second_init_config_ms": 90000,
+      "second_init_result": "0x103 ESP_ERR_INVALID_STATE",
+      "retained_initial_config_ms": 5000,
+      "first_irq_pc": "0x420a962c",
+      "loopTask_has_reset": 1,
+      "IDLE_has_reset": 0,
+      "idle_hook_register_calls": 0,
+      "uart_read_ticks": [
+        [
+          6176,
+          7178
+        ],
+        [
+          7195,
+          8195
+        ]
+      ],
+      "diagnostic_trace_sha256": "9b6bd3e69135f36788ac7c4eca3daea64f6673ea7dd7cfe52443b8278222ed10",
+      "diagnostic_zip_sha256": "013b0a6ae865a322e32bc3194646bfbad84a9fa504da19a2db27cdbe70e4ba67",
+      "app_partitions_unchanged": true,
+      "cleanup": true
+    },
+    "conclusion": "The model halved the configured watchdog duration. After the clock repair, loopTask feeds correctly, but the manually subscribed IDLE task has no registered feed hook and remains unreset. A second init did not reconfigure the existing 5-second watchdog. PN532 UART reads return normally after their 1-second timeout; missing peer alone is not the first-fault explanation."
+  },
+  "retained_failed_attempts": [
+    "Owned service launcher/dependency omissions: no guest execution, not a firmware result.",
+    "Initial probe omitted explicit feed between cases and observed retained stage state; not accepted clock isolation control.",
+    "Earlier candidate build fdc26b1 was superseded before guest validation; final d7a6f11d includes WT reset fix."
+  ],
+  "not_run": [
+    "physical hardware/RF/RC oscillator electrical calibration",
+    "PN532/RFID card reading",
+    "full C6/native matrix on this new runtime; root integration gate pending"
+  ],
+  "cleanup": "All probe/original/diagnostic sessions exported ZIP before stop with purge=0; mutable Flash and lease released. Owned diagnostic service stopped."
+}

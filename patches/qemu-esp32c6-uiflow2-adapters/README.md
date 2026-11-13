@@ -151,3 +151,13 @@ git apply /path/to/0006-espressif-riscv-reset-pmp.patch
 - C6 reset/PMP：第二次 ROM boot 可将 LP-RAM trampoline 写入
   `0x50002000`，不再命中上一轮遗留的 read-only PMP range。
 - Core2 与 S3 设备的补丁分别位于 `qemu-multi-board-uiflow2/`；本补丁不改变它们的验收边界。
+
+## 0017: PCR MWDT source and gate
+
+`0017-c6-mwdt-pcr-clock.patch` connects each C6 PCR MWDT clock mux/gate to its
+TIMG input and preserves source-cycle progress when retiming. It also treats
+C6 divider reset as a one-shot write trigger. Other TIMG clock paths retain
+their existing selection. The canonical bootstrap replays this after 0016.
+See [the guest and actual-C controls](../../tests/firmware/esp32c6_mwdt_clock/README.md)
+for exact native runtime/firmware identities, original RFID failure separation,
+and the pending full-matrix boundary.
