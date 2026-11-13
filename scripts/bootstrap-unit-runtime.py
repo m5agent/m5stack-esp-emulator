@@ -173,6 +173,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0194-xtensa-restored-irq-level.patch",
     "patches/qemu-m5stack-peripherals/0195-classic-dport-bt-lp-clock.patch",
     "patches/qemu-m5stack-peripherals/0196-classic-dport-wifi-clock-enable.patch",
+    "patches/qemu-m5stack-peripherals/0197-xtensa-clock-switch-cycle-continuity.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

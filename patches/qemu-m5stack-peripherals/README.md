@@ -1506,3 +1506,26 @@ separates the missing-register negative control from the preceding Bluetooth
 divider fix. This configuration register does not establish physical clock
 gating or turn on a host radio backend; guest watchdog and application
 readiness remain separate acceptance requirements.
+
+## Classic CPU clock changes and compare deadlines (0197)
+
+`0197-xtensa-clock-switch-cycle-continuity.patch` carries completed CPU ticks
+forward at the old frequency before selecting the new rate. Both classic CPUs
+use one virtual-time sample; pending future CCOMPARE timers retain their
+remaining tick counts at the new rate. Already-due matches, unarmed timers,
+latched interrupts, APB configuration and watchdog settings are preserved.
+This fixes the observed counter jump and stale compare deadline across the
+original Matrix's 160→40→240 MHz and JIGGLER's 160→80 MHz transitions.
+
+The helper accepts the classic board's nonzero running clock sources; an
+initially unconfigured old clock is supported. This is not a clock-stop or
+physical divider-phase model. The fix runs in serialized TCG, as selected by
+the native Device Service profiles. MTTCG retains its prior clock-only path
+to avoid unsynchronized cross-vCPU state writes; coordinated MTTCG counter
+rebasing remains unimplemented. Browser-WASM does not inherit this native
+patch selection.
+
+`test_xtensa_cpu_clock_rebase_patch.py` executes the actual board callback,
+counter helper, compare interrupt callback and unchanged reset function with
+fixed deadline oracles. Original application, peripheral matrix and deployment
+acceptance remain distinct from these host controls.

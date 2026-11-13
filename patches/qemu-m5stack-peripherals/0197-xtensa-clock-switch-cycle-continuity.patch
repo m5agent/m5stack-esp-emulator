@@ -1,0 +1,201 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 1499327..dfc110e 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -274,82 +274,93 @@ static void esp32_soc_reset(DeviceState *dev)
+     }
+     s->requested_reset = 0;
+ }
+ 
+ static void esp32_cpu_stall(void* opaque, int n, int level)
+ {
+     Esp32SocState *s = ESP32_SOC(opaque);
+ 
+     bool stall;
+     if (n == 0) {
+         stall = s->rtc_cntl.cpu_stall_state[0];
+     } else {
+         stall = s->rtc_cntl.cpu_stall_state[1] || s->dport.appcpu_stall_state || (!s->dport.appcpu_clkgate_state);
+     }
+ 
+     if (stall != s->cpu[n].env.runstall) {
+         xtensa_runstall(&s->cpu[n].env, stall);
+     }
+ }
+ 
+ static void esp32_clk_update(void* opaque, int n, int level)
+ {
+     Esp32SocState *s = ESP32_SOC(opaque);
+     if (!level) {
+         return;
+     }
+ 
+     /* APB clock */
+     uint32_t apb_clk_freq, cpu_clk_freq;
+     if (s->rtc_cntl.soc_clk == ESP32_SOC_CLK_PLL) {
+         const uint32_t cpu_clk_mul[] = {1, 2, 3};
+         apb_clk_freq = s->rtc_cntl.pll_apb_freq;
+         cpu_clk_freq = cpu_clk_mul[s->dport.cpuperiod_sel] * apb_clk_freq;
+     } else {
+         apb_clk_freq = s->rtc_cntl.xtal_apb_freq;
+         cpu_clk_freq = apb_clk_freq;
+     }
+     qdev_prop_set_int32(DEVICE(&s->frc_timer), "apb_freq", apb_clk_freq);
+     qdev_prop_set_int32(DEVICE(&s->timg[0]), "apb_freq", apb_clk_freq);
+     qdev_prop_set_int32(DEVICE(&s->timg[1]), "apb_freq", apb_clk_freq);
+-    clock_update_hz(s->cpu[0].clock, cpu_clk_freq );
+-    clock_update_hz(s->cpu[1].clock, cpu_clk_freq );
++    if (qemu_tcg_mttcg_enabled()) {
++        /* A peer can be executing its counter helper outside the BQL.
++         * Keep the existing clock path until MTTCG has coordinated rebasing. */
++        for (unsigned i = 0; i < ESP32_CPU_COUNT; i++) {
++            clock_update_hz(s->cpu[i].clock, cpu_clk_freq);
++        }
++        return;
++    }
++
++    uint64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    for (unsigned i = 0; i < ESP32_CPU_COUNT; i++) {
++        xtensa_cpu_update_clock_hz(&s->cpu[i], cpu_clk_freq, now);
++    }
+ }
+ 
+ static void esp32_soc_add_periph_device(MemoryRegion *dest, void* dev, hwaddr dport_base_addr)
+ {
+     MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0);
+     memory_region_add_subregion_overlap(dest, dport_base_addr, mr, 0);
+     MemoryRegion *mr_apb = g_new(MemoryRegion, 1);
+     char *name = g_strdup_printf("mr-apb-0x%08x", (uint32_t) dport_base_addr);
+     memory_region_init_alias(mr_apb, OBJECT(dev), name, mr, 0, memory_region_size(mr));
+     memory_region_add_subregion_overlap(dest, dport_base_addr - DR_REG_DPORT_APB_BASE + APB_REG_BASE, mr_apb, 0);
+     g_free(name);
+ }
+ 
+ static void esp32_soc_add_periph_device_prio(MemoryRegion *dest, void *dev,
+                                              hwaddr dport_base_addr,
+                                              int priority)
+ {
+     MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0);
+     memory_region_add_subregion_overlap(dest, dport_base_addr, mr, priority);
+     MemoryRegion *mr_apb = g_new(MemoryRegion, 1);
+     char *name = g_strdup_printf("mr-apb-0x%08x",
+                                  (uint32_t) dport_base_addr);
+     memory_region_init_alias(mr_apb, OBJECT(dev), name, mr, 0,
+                              memory_region_size(mr));
+     memory_region_add_subregion_overlap(
+         dest, dport_base_addr - DR_REG_DPORT_APB_BASE + APB_REG_BASE,
+         mr_apb, priority);
+     g_free(name);
+ }
+ 
+ static void esp32_soc_add_unimp_device(MemoryRegion *dest, const char *name,
+                                        hwaddr dport_base_addr, size_t size,
+                                        uint64_t default_value)
+ {
+     create_unimplemented_default_device(name, dport_base_addr, size,
+                                         default_value);
+     char *name_apb = g_strdup_printf("%s-apb", name);
+     create_unimplemented_default_device(
+         name_apb, dport_base_addr - DR_REG_DPORT_APB_BASE + APB_REG_BASE,
+         size, default_value);
+diff --git a/hw/xtensa/pic_cpu.c b/hw/xtensa/pic_cpu.c
+index 8cef88c..a9bc761 100644
+--- a/hw/xtensa/pic_cpu.c
++++ b/hw/xtensa/pic_cpu.c
+@@ -80,40 +80,78 @@ static void xtensa_set_irq(void *opaque, int irq, int active)
+ 
+         check_interrupts(env);
+     }
+ }
+ 
+ static void xtensa_ccompare_cb(void *opaque)
+ {
+     XtensaCcompareTimer *ccompare = opaque;
+     CPUXtensaState *env = ccompare->env;
+     unsigned i = ccompare - env->ccompare;
+ 
+     qemu_set_irq(env->irq_inputs[env->config->timerint[i]], 1);
+ }
+ 
+ static void xtensa_set_runstall(void *opaque, int irq, int active)
+ {
+     CPUXtensaState *env = opaque;
+     xtensa_runstall(env, active);
+ }
+ 
++void xtensa_cpu_update_clock_hz(XtensaCPU *cpu, unsigned hz, uint64_t now)
++{
++    CPUXtensaState *env = &cpu->env;
++    Clock *clock = cpu->clock;
++    uint64_t period = CLOCK_PERIOD_FROM_HZ(hz);
++
++    /* Classic ESP32 CPU clock selection switches between running sources. */
++    assert(hz > 0);
++    if (period == clock_get(clock)) {
++        return;
++    }
++
++    if (!xtensa_option_enabled(env->config, XTENSA_OPTION_TIMER_INTERRUPT)) {
++        clock_update(clock, period);
++        return;
++    }
++
++    /* Carry forward all ticks accumulated at the previous rate. The new
++     * rate applies only to time after this clock change. */
++    env->ccount_base += (uint32_t)clock_ns_to_ticks(clock, now - env->time_base);
++    env->time_base = now;
++    env->ccount_time = now;
++    env->sregs[CCOUNT] = env->ccount_base;
++    clock_update(clock, period);
++
++    for (unsigned i = 0; i < env->config->nccompare; i++) {
++        QEMUTimer *timer = env->ccompare[i].timer;
++
++        /* Do not rearm idle timers or alter a match already due. A latched
++         * compare IRQ is acknowledged only by the guest compare write. */
++        if (timer && timer_pending(timer) && timer_expire_time_ns(timer) > now) {
++            uint32_t delta = env->sregs[CCOMPARE + i] - env->ccount_base;
++
++            timer_mod_ns(timer, now + clock_ticks_to_ns(clock, delta ? delta : 1));
++        }
++    }
++}
++
+ void xtensa_irq_init(CPUXtensaState *env)
+ {
+     unsigned i;
+ 
+     env->irq_inputs = qemu_allocate_irqs(xtensa_set_irq, env,
+                                          env->config->ninterrupt);
+     if (xtensa_option_enabled(env->config, XTENSA_OPTION_TIMER_INTERRUPT)) {
+         env->time_base = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+         env->ccount_base = env->sregs[CCOUNT];
+         for (i = 0; i < env->config->nccompare; ++i) {
+             env->ccompare[i].env = env;
+             env->ccompare[i].timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                     xtensa_ccompare_cb, env->ccompare + i);
+         }
+     }
+     for (i = 0; i < env->config->nextint; ++i) {
+         unsigned irq = env->config->extint[i];
+ 
+         env->ext_irq_inputs[i] = env->irq_inputs[irq];
+     }
+diff --git a/target/xtensa/cpu.h b/target/xtensa/cpu.h
+index 58746e6..00a702d 100644
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -648,12 +648,13 @@ void xtensa_collect_sr_names(const XtensaConfig *config);
+ void xtensa_translate_init(void);
+ void **xtensa_get_regfile_by_name(const char *name, int entries, int bits);
+ void xtensa_breakpoint_handler(CPUState *cs);
+ void xtensa_register_core(XtensaConfigList *node);
+ void xtensa_sim_open_console(Chardev *chr);
+ void check_interrupts(CPUXtensaState *s);
++void xtensa_cpu_update_clock_hz(XtensaCPU *cpu, unsigned hz, uint64_t now);
+ void xtensa_irq_init(CPUXtensaState *env);
+ qemu_irq *xtensa_get_extints(CPUXtensaState *env);
+ qemu_irq xtensa_get_runstall(CPUXtensaState *env);
+ void xtensa_sync_window_from_phys(CPUXtensaState *env);
+ void xtensa_sync_phys_from_window(CPUXtensaState *env);
+ void xtensa_rotate_window(CPUXtensaState *env, uint32_t delta);
