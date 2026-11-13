@@ -270,6 +270,13 @@ remain separate observations. The bounded runs establish application
 behavior within the observed window. Physical device timing and BLE HID
 delivery were outside this test.
 
+The [narrow classic input regression](classic-input-regression-summary.json)
+ran four Device Service sessions on runtime `5ce7d9f5…`. The existing Core2
+UIFlow2 fixture drew a 320×240 frame and a touch marker after a 1.5 s press.
+The existing Plus2 fixture identified board 5, drew a 135×240 frame and
+showed its A marker after a 100 ms virtual tap. Both boards passed with
+default fixed timing and bounded adaptive timing.
+
 The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
 cases once under ambient host load using the new Xtensa runtime and the
 existing C6 runtime. Its execution source predates the adaptive argument and
