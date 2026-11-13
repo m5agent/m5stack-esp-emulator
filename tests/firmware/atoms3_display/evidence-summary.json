@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 219,
+  "validation_class": "virtual-device validation",
+  "runtime_sha256": "31336bcfa2d12f57e440e96b9e9bf60b0ee2b59e0f8e9ed017c32083831fa25f",
+  "upstream": "40edccac415693c5130f91c01d84176ae6008566",
+  "base_source": "676ae67c",
+  "patches": {
+    "0185-atoms3-lcdcam-probe.patch": "8e23683f9f76254abe59385176cdd663d8f94cddc5ba6300cae3cd347f8a2630",
+    "0186-spi-panel-read-cursor.patch": "4919ea9f918269002d0ee9e95ea7bdb7043c9a82bb6104c293a68a71fb2d0622"
+  },
+  "runtime_configuration": {
+    "device": "atoms3",
+    "machine": "m5atoms3-st7735",
+    "runtime_env": {
+      "M5SW_ATOMS3_GC9107": "1"
+    },
+    "psram_mib": 0,
+    "flash_mode": "host-image"
+  },
+  "baseline": {
+    "runtime_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+    "snake_nonblack_pixels": 0,
+    "snake_serial_bytes": 225,
+    "cpu1_pc": "0x42022827",
+    "blocked_register": "LCD_CAM_INT_ST 0x6004106c bit 1",
+    "spi_read_failure": "four 8-bit RDDID transactions repeated byte 00 instead of 00 91 07 00"
+  },
+  "final": {
+    "snake": {
+      "source_sha256": "3e4fcd924596035d0240d5b15e53cffa7538151a0ac1ff04d32bd113f3c6b7af",
+      "source_bytes": 482096,
+      "status": "PASS",
+      "stable_seconds": 120.01290962519124,
+      "frames": [
+        {
+          "sha256": "98046a46fb6ef1463c92015fe217f339c12507ade8b3b0d32a591f86f3b3ccb3",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1575
+        },
+        {
+          "sha256": "af0b13dd33db23dcf360cd847d3c34a6c0570e4fc7fd6ba4179c2b6f59a96502",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1838
+        },
+        {
+          "sha256": "a450a8f2828f1358b15a1db9bf06735b30d6f7ddd4a7b5c5e6334ae11039ba44",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "8cf5341d925bee2b893cf6d64a59087a2db6b2581d54ffe98a99a2cdbfafccce",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1872
+        },
+        {
+          "sha256": "a1e77af88b357b32b641842d81f8f4c83361c96f1be445b4956c5db2aaf7c05e",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        }
+      ],
+      "inputs": [
+        {
+          "axis": "accel-y",
+          "value": 0.8,
+          "frame": {
+            "sha256": "0d0699742d6803fb70e4883797c61431ea3e2202d20faf0dff469e1b5c769187",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          }
+        },
+        {
+          "axis": "accel-x",
+          "value": -0.8,
+          "frame": {
+            "sha256": "8adff9eb8cb6cfc7766e08e9543d064b6182fb70a82237e67ddbe79ebeafebdb",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          }
+        },
+        {
+          "axis": "accel-y",
+          "value": -0.8,
+          "frame": {
+            "sha256": "bbe4d9ba1431a2225cc570c53332e033147cfeb62ca44e54056514db573dc48e",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          }
+        },
+        {
+          "axis": "accel-x",
+          "value": 0.8,
+          "frame": {
+            "sha256": "678940f6f66425a1a214ea27621988c46d42584b9b6985416fdae46284e4a091",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          }
+        }
+      ],
+      "evidence_zip_sha256": "06cc218e0d4057eeb27af5f59fa0e637677eb1955f85e421840a43fc44f72bea",
+      "serial_sha256": "19a90a624f40048e4ae62f5cd114ded2e4dd868273b89338c271873e3c283805",
+      "stop_state": "stopped"
+    },
+    "userdemo": {
+      "source_sha256": "2d78c3d8874eee0f6d91eb9c8fe6ad482488dad05e5a42adc1dde09977800b06",
+      "source_bytes": 2653696,
+      "status": "PASS",
+      "stable_seconds": 120.01501529105008,
+      "frames": [
+        {
+          "sha256": "40cc81c24bf16dd46121748b15526e6bba71a48f99a961d891d1c92eafa8e53c",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 3,
+          "nonblack": 1696
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        }
+      ],
+      "inputs": [],
+      "evidence_zip_sha256": "a3cf63f4642094f6e6a23d12f32ab418837ef842de509720b8b22bdfe6ba8dd1",
+      "serial_sha256": "cf76c14f9a2836b76ee42160e77ad66f343b019301e7de9ac34150de6e094a3b",
+      "stop_state": "stopped"
+    }
+  },
+  "host_checks": {
+    "SPI_regressions": 10,
+    "camera_regressions": 2,
+    "split_read_negative_control": "old fails 3 of 4; fixed passes all 4 with AddressSanitizer",
+    "patch_replay": "forward and reverse verified"
+  },
+  "probe_correction": "Initial runner sampled a black boot frame at state=running. Preserved failing runs; final runner waits bounded observed app frame before starting 120-second window.",
+  "limits": [
+    "native service only; browser-WASM not run",
+    "physical hardware not run",
+    "LCD_CAM 16-bit pixel transfers and camera input on AtomS3 not claimed"
+  ],
+  "same_runtime_controls": {
+    "atoms3r-final-hash": {
+      "source_sha256": "d3242a0ba536024c735fe9ca4b1670e629f0f97435a06da8f2979c06ebbfe805",
+      "frame_sha256": "d3caa5eb72b5a102581fbef8c367b8e1da5e47e10d54f27a861e65e240ed3622",
+      "colors": 95,
+      "nonblack": 4993,
+      "evidence_zip_sha256": "194e8799fb7398b59d1eecfa30c87b609f9f7d9c6e6f2a3c5b37672496f190d2"
+    },
+    "stampfly-final-hash": {
+      "source_sha256": "8235beaecf1b0703584f603f4e3bb952c95620a85e34bc13a230b06d16204886",
+      "frame_sha256": "2a99990bfdcc96e0b437c8dd7ff1883e452e9801b9ed2a153b7c7836f30da30a",
+      "colors": 57,
+      "nonblack": 3254,
+      "evidence_zip_sha256": "de1cf1a3fa901863b4400a6b28aaf3e9c6c4ca71a7295def7e23851b5139c017"
+    },
+    "sticks3-usb-final-hash": {
+      "source_sha256": "a93557398b87a50ac1bbd99ff98e93fb842bff0f0f3634d463d4d53497f8747e",
+      "frame_sha256": "ba9b46bdbdbfc47ab138f78a1825d9844fa3f9f8ec72f29eda6c0d59deaf2aa1",
+      "colors": 4,
+      "nonblack": 9836,
+      "evidence_zip_sha256": "a0d29aa3e832ac25a515688e48472b0afbb9f8d8b706fd9140dba919b4ac684d"
+    }
+  }
+}

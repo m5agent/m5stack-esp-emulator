@@ -158,6 +158,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0179-esp32-spi-dma-link-latch.patch",
     "patches/qemu-m5stack-peripherals/0180-papercolor-usb-otg.patch",
     "patches/qemu-m5stack-peripherals/0181-atoms3-gc9107-runtime-override.patch",
+    "patches/qemu-m5stack-peripherals/0185-atoms3-lcdcam-probe.patch",
+    "patches/qemu-m5stack-peripherals/0186-spi-panel-read-cursor.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

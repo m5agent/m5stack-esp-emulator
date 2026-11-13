@@ -1,0 +1,61 @@
+--- a/hw/m5stopwatch/m5atoms3.c
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -62,6 +62,17 @@
+     qdev_realize_and_unref(imu, (BusState *)bus, &error_fatal);
+     m5stopwatch_soft_i2c_init_pins(bus, 38, 39);
+ 
++    /* LCD_CAM is an on-chip controller even though C123 uses an SPI LCD.
++     * LovyanGFX probes the unconnected parallel bus before the GC9107. */
++    DeviceState *lcd = qdev_new(TYPE_M5_LCD_CAM);
++    object_property_add_child(qdev_get_machine(), "m5-lcd-cam", OBJECT(lcd));
++    m5_lcd_cam_attach_i80(lcd, gdma, NULL, NULL);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(lcd), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(lcd), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(lcd), 0,
++        qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -148,7 +148,7 @@
+         fprintf(stderr, "[lcd-cam] capture started=%d ena=%x chunks=%u offset=%u\n",
+                 s->started, s->int_ena, s->chunks_left, s->frame_offset);
+     }
+-    if (!s->started) {
++    if (!s->started || !s->width || !s->height) {
+         return;
+     }
+     if ((s->regs[R_CAM_CTRL1 / 4] & CAM_2BYTE_EN)
+@@ -302,7 +302,9 @@
+                 bytes[i] = (b >> 4) | (b << 4);
+             }
+         }
+-        s->i80_output(s->i80_opaque, bytes, count);
++        if (s->i80_output) {
++            s->i80_output(s->i80_opaque, bytes, count);
++        }
+     }
+ 
+     s->regs[R_LCD_USER / 4] &= ~LCD_START;
+@@ -349,13 +351,11 @@
+         break;
+     }
+     case R_LCD_USER:
+-        if (s->i80_output) {
+-            s->regs[addr / 4] = v & ~(LCD_UPDATE | LCD_RESET);
+-            if ((v & (LCD_START | LCD_RESET)) == LCD_START) {
+-                lcd_i80_transfer(s, v);
+-            }
+-        } else {
+-            s->regs[addr / 4] = v;
++        s->regs[addr / 4] = v & ~(LCD_UPDATE | LCD_RESET);
++        /* A command-only cycle completes even when no parallel panel is
++         * wired. Autodetect drivers use this before probing the SPI panel. */
++        if ((v & (LCD_START | LCD_RESET)) == LCD_START && s->gdma) {
++            lcd_i80_transfer(s, v);
+         }
+         break;
+     case R_INT_ENA:

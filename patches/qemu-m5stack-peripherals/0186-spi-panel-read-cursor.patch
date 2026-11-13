@@ -1,0 +1,122 @@
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -52,6 +52,7 @@
+     bool pix_half;
+     uint32_t key_a_pin, key_b_pin, key_power_pin;
+     uint32_t read_id;
++    uint32_t read_offset;
+     uint32_t glass_rotation;
+     bool apply_madctl;
+     bool touch;
+@@ -394,6 +395,7 @@
+                 fprintf(stderr, "[m5panel-window] cmd=%02x\n", b);
+             }
+             s->cmd = b;
++            s->read_offset = 0;
+             s->pidx = 0;
+             s->pixel_mode = false;
+             switch (b) {
+@@ -479,6 +481,19 @@
+     if (s->immediate_update && s->dirty) {
+         qemu_bh_schedule(s->refresh_bh);
+         qemu_clock_notify(QEMU_CLOCK_VIRTUAL);
++    }
++}
++
++/* Readback advances on bus clocks, never on host MMIO reads of the FIFO.
++ * RDDID is 00, ID1, ID2, ID3 in the existing panel identity encoding. */
++void m5_spi_panel_read(M5SpiPanelState *s, uint8_t *data, uint32_t len)
++{
++    for (uint32_t i = 0; i < len; ++i) {
++        data[i] = s->cmd == 0x04 && s->read_offset < 4
++                ? s->read_id >> (8 * s->read_offset) : 0;
++        if (s->read_offset < 4) {
++            ++s->read_offset;
++        }
+     }
+ }
+ 
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -121,6 +121,7 @@
+ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase);
+ uint32_t m5_spi_panel_read_id(M5SpiPanelState *s);
++void m5_spi_panel_read(M5SpiPanelState *s, uint8_t *data, uint32_t len);
+ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase);
+ void m5_lcd_cam_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -74,7 +74,6 @@
+     int active_slave;
+     int last_slave;
+     uint8_t rx[4096];
+-    uint32_t rx_len;
+     /* Byte offsets belong to a GDMA channel, independently of slave CS. */
+     M5GpspiDmaCursor dma_cursor[ESP32S3_GDMA_CHANNEL_COUNT];
+     int debug_id;
+@@ -297,11 +296,14 @@
+         uint32_t nb = (bits + 7) / 8;
+         uint32_t copy = MIN(nb, sizeof(xfer));
+ 
+-        memset(s->rx, 0, sizeof(s->rx));
++        memset(s->rx, 0xff, sizeof(s->rx));
++        if (s->spi_panel && s->active_slave < 0 &&
++            (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++            m5_spi_panel_read(s->spi_panel, s->rx, MIN(bits / 8, copy));
++        }
+         if (s->active_slave >= 0) {
+             s->last_slave = s->active_slave;
+             gpspi_forward_slave(s, xfer, copy, s->rx, true);
+-            s->rx_len = copy;
+             bool rx_dma = s->regs[R_DMA_CONF / 4] & DMA_RX_ENA;
+             if (getenv("M5SW_SPI_XFER_TRACE")) {
+                 fprintf(stderr, "[spi-dma] conf=%08x gdma=%p rx_dma=%d\n",
+@@ -335,6 +337,15 @@
+                         xfer[0], xfer[1], xfer[2], xfer[3]);
+             }
+         }
++        /* W0..W15 are the physical shared TX/RX FIFO. Latch the bus
++         * response now, while CS is active, so later MMIO reads and byte
++         * writes use the completed transaction rather than re-reading the
++         * peripheral or mixing a stale receive overlay into TX data. */
++        for (uint32_t i = 0; i < MIN(copy, 64); ++i) {
++            uint32_t *word = &s->regs[R_W0 / 4 + i / 4];
++            unsigned shift = (i & 3) * 8;
++            *word = (*word & ~(0xffu << shift)) | ((uint32_t)s->rx[i] << shift);
++        }
+     } else if (user & USER_MOSI) {
+         gpspi_forward_slave(s, xfer, xfer_len, NULL, false);
+     }
+@@ -360,30 +371,6 @@
+     case R_DATE:
+         return 0x2101190;
+     default:
+-        if (s->last_slave >= 0 && addr >= R_W0 && addr < R_W0 + 0x40
+-            && s->rx_len) {
+-            uint32_t offset = addr - R_W0;
+-            uint32_t value = 0;
+-            for (uint32_t i = 0; i < 4 && offset + i < s->rx_len; i++) {
+-                value |= (uint32_t)s->rx[offset + i] << (8 * i);
+-            }
+-            if (getenv("M5SW_SPI_XFER_TRACE")) {
+-                fprintf(stderr, "[spi-rx] read W0+%02x=%08x\n",
+-                        offset, value);
+-            }
+-            return value;
+-        }
+-        /*
+-         * A direct SPI panel must only answer while its CS pin is asserted.
+-         * Returning the panel ID for every W0..W15 read makes unrelated
+-         * M5GFX autodetect probes observe the same ST7789 ID and select the
+-         * wrong board (for example Cardputer becomes DinMeter).
+-         */
+-        if (s->spi_panel
+-            && (s->panel_cs_pin < 0 || !s->panel_cs_level)
+-            && addr >= R_W0 && addr < R_W0 + 0x40) {
+-            return m5_spi_panel_read_id(s->spi_panel);
+-        }
+         return addr < 0x100 ? s->regs[addr / 4] : 0;
+     }
+ }

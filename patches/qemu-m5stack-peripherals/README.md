@@ -1358,3 +1358,18 @@ active-low GPIO buttons and gates the panel on G46 plus M5PM1 PYG2. The
 native model does not reproduce optical e-paper behavior. See the hardware
 pin maps for [PaperS3](https://docs.m5stack.com/en/core/PaperS3) and
 [PaperDIY Complete Kit](https://docs.m5stack.com/en/core/PaperDIY_Complete_Kit).
+
+## AtomS3 display autodetection
+
+`0185-atoms3-lcdcam-probe.patch` connects the on-chip LCD_CAM controller on
+AtomS3, without a parallel display or camera source. Command-only I80 transfers
+raise the existing transaction-done interrupt; an absent external panel does
+not prevent the controller from completing. This lets LovyanGFX finish its
+parallel-display probe before trying the board's SPI panel.
+
+`0186-spi-panel-read-cursor.patch` implements sequential RDDID response bytes
+and stores completed SPI RX data in W0–W15. Both one 32-bit read and four 8-bit
+reads now observe the same identity. CS is tested during the transfer; later
+MMIO reads retain the FIFO data without clocking the peripheral again.
+The [stock-image regression](../../tests/firmware/atoms3_display/README.md)
+separates controller evidence from native guest and physical validation.
