@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-11-13`
+日期：`2026-11-14`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -20,6 +20,8 @@
 - 安全状态未知时保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
 
 ## 社区固件测试新增问题
+
+- UIFlow2 云端 WebREPL 心跳：授权设备身份被接受后，服务器未回复标准 WebSocket control Ping，原固件随后因 PONG 超时主动重连；独立宿主标准协议对照同样未收到 control Pong。需修云端协议处理并以原 BIN 跨多个超时周期复验；持久虚拟身份、配对码或文本心跳通过均不关闭此项。见[身份与心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)。
 
 本批经典 ESP32 / C6 已完成 main、常驻服务及发布后复验。这里保留未解决的固件和模型范围。 [最新交付证据](evidence/2026-11-13-native-clock-usb-followup/README.md) · [前一版交付](evidence/2026-11-13-native-resident-delivery/README.md)
 

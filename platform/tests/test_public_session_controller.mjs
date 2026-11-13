@@ -44,19 +44,37 @@ function fakeService() {
   assert.throws(() => service.fetch('/api/v1/../../private'));
   await service.evidence('own1');
   assert.match(calls[1].url, /\/sessions\/own1\/evidence$/);
+  await service.create({deviceId:'cores3', uiflowStartup:{mode:'cloud'}, deviceIdentity:{mac:'020000000001'}});
+  assert.deepEqual(JSON.parse(calls[2].options.body).device_identity, {mac:'020000000001'});
+  await service.create({deviceId:'cores3', uiflowStartup:{mode:'cloud'}});
+  assert.equal(Object.hasOwn(JSON.parse(calls[3].options.body), 'device_identity'), false, 'blank identity is omitted for the service default');
 }
 
 // A late frame/session response cannot paint a stopped or replaced model.
 {
-  const service = fakeService(), frames = [], serial = [];
-  const controller = new PublicSessionController({service, shell: {setImage: async () => {frames.push('paint');}}, onSerial: text => serial.push(text)});
+  const service = fakeService(), frames = [], serial = [], states = [];
+  const controller = new PublicSessionController({service, shell: {setImage: async () => {frames.push('paint');}}, onSerial: text => serial.push(text), onState: state => states.push(state)});
   await controller.start({deviceId: 'cores3'});
   await controller.stop();
-  service.pendingSession.resolve(result('own1'));
+  service.pendingSession.resolve({...result('own1'), uiflow_cloud_status:{state:'observed', webrepl:{state:'heartbeat_observed'}}});
   await tick();
   assert.deepEqual(frames, []);
   assert.deepEqual(serial, []);
+  assert.equal(states.some(state => state.session?.uiflow_cloud_status), false, 'a delayed cloud snapshot cannot restore stopped observations');
   assert.deepEqual(service.calls.map(row => row.slice(0, 2)), [['evidence', 'own1'], ['stop', 'own1']]);
+}
+
+// Metadata polling transports the full independent cloud observation unchanged.
+{
+  const service = fakeService(), states = [];
+  const controller = new PublicSessionController({service, onState: state => states.push(state)});
+  await controller.start({deviceId:'cores3'});
+  const cloud = {source:'guest-pcap',state:'observed',pairing:{state:'code_received'},webrepl:{state:'identity_rejected',reason:'mac_not_bound'}};
+  service.pendingSession.resolve({...result('own1'),uiflow_cloud_status:cloud});
+  await until(() => states.some(state => state.session?.uiflow_cloud_status));
+  assert.deepEqual(states.at(-1).session.uiflow_cloud_status,cloud);
+  assert.equal(states.at(-1).status,'running','guest lifecycle does not become a cloud success/failure verdict');
+  await controller.stop();
 }
 
 // A create that succeeds after cancellation is still owned and cleaned up.
@@ -199,17 +217,20 @@ function fakeService() {
 {
   const service=fakeService(),requests=[];
   const uiflowStartup={mode:'cloud',reference_sha256:'a'.repeat(64)};
+  const deviceIdentity={mac:'020000000001'};
   service.create=async({signal,...request})=>{
     requests.push(request);
     if(requests.length===1)throw new TypeError('cloud receipt lost');
     return result('cloud-lost');
   };
   const controller=new PublicSessionController({service,createKey:()=> 'cloud-stable'});
-  await assert.rejects(controller.start({deviceId:'cores3',uiflowStartup}),/receipt lost/);
+  await assert.rejects(controller.start({deviceId:'cores3',uiflowStartup,deviceIdentity}),/receipt lost/);
   uiflowStartup.reference_sha256='b'.repeat(64);uiflowStartup.mode='local';
+  deviceIdentity.mac='020000000002';
   await controller.stop();
   assert.deepEqual(requests[0],requests[1]);
   assert.deepEqual(requests[1].uiflowStartup,{mode:'cloud',reference_sha256:'a'.repeat(64)});
+  assert.deepEqual(requests[1].deviceIdentity,{mac:'020000000001'});
   assert.equal(requests[1].firmwareId,undefined);
   assert.deepEqual(service.calls.map(row=>row.slice(0,2)),[['evidence','cloud-lost'],['stop','cloud-lost']]);
 }
@@ -234,7 +255,9 @@ function fakeService() {
 
 // Explicit first-attempt pre-allocation errors do not invent an orphan guest.
 for (const [status,code] of [[429,'capacity_exhausted'],[400,'invalid_uiflow_startup'],
-  [409,'uiflow_startup_conflict'],[409,'uiflow_startup_unavailable'],[409,'uiflow_startup_reference_mismatch']]) {
+  [409,'uiflow_startup_conflict'],[409,'uiflow_startup_unavailable'],[409,'uiflow_startup_reference_mismatch'],
+  [400,'invalid_device_identity'],[409,'unsupported_device_identity'],[409,'device_identity_device_mismatch'],
+  [409,'device_identity_in_use'],[503,'device_identity_store_invalid'],[503,'device_identity_store_unavailable']]) {
   const service = fakeService(); let creates = 0;
   service.create = async () => {creates++; throw Object.assign(new Error('preallocation rejection'), {status,code});};
   const controller = new PublicSessionController({service});
@@ -242,6 +265,35 @@ for (const [status,code] of [[429,'capacity_exhausted'],[400,'invalid_uiflow_sta
   assert.equal(controller.createIntent, null);
   await controller.stop();
   assert.equal(creates, 1);
+}
+
+// The real HTTP adapter conservatively marks 5xx uncertain, including these
+// source-proven pre-allocation store failures.
+for (const code of ['device_identity_store_invalid','device_identity_store_unavailable']) {
+  let attempts=0;
+  const service=new PublicDeviceService('https://service.example', {fetchImpl:async()=>{
+    attempts++;return Response.json({error:{code,message:'Identity store unavailable'}},{status:503});
+  }});
+  const controller=new PublicSessionController({service});
+  await assert.rejects(controller.start({deviceId:'cores3'}),error=>error.code===code&&error.outcomeUnknown===true);
+  assert.equal(controller.createIntent,null,'the explicit pre-allocation store contract overrides the generic 5xx flag');
+  await controller.stop();assert.equal(attempts,1);
+}
+
+// The same fixed error cannot erase a previous ambiguous allocation attempt.
+{
+  const service=fakeService();let attempts=0;
+  service.create=async()=>{
+    if(++attempts===1)throw new TypeError('receipt lost');
+    if(attempts===2)throw Object.assign(new Error('store unavailable'),{status:503,code:'device_identity_store_unavailable',outcomeUnknown:true});
+    return result('identity-recovered');
+  };
+  const controller=new PublicSessionController({service});
+  await assert.rejects(controller.start({deviceId:'cores3'}),/receipt lost/);
+  await assert.rejects(controller.stop(),/store unavailable/);
+  assert.ok(controller.createIntent?.uncertain);
+  await controller.stop();assert.equal(controller.createIntent,null);
+  assert.deepEqual(service.calls.map(row=>row.slice(0,2)),[['evidence','identity-recovered'],['stop','identity-recovered']]);
 }
 
 // A malformed success receipt is ambiguous, never permission to stop an ID

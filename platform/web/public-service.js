@@ -64,10 +64,11 @@ export class PublicDeviceService {
     return result;
   }
 
-  create({deviceId, firmwareId, uiflowStartup, units = [], idempotencyKey, signal}) {
+  create({deviceId, firmwareId, uiflowStartup, deviceIdentity, units = [], idempotencyKey, signal}) {
     return this.request('/api/v1/sessions', {method: 'POST', signal,
       body: {device_id: deviceId, ...(firmwareId ? {firmware_id: firmwareId} : {}), ttl_seconds: 600,
         ...(uiflowStartup === undefined ? {} : {uiflow_startup: uiflowStartup}),
+        ...(deviceIdentity === undefined ? {} : {device_identity: deviceIdentity}),
         ...(units.length ? {units} : {}), ...(idempotencyKey === undefined ? {} : {idempotency_key: idempotencyKey})}});
   }
 

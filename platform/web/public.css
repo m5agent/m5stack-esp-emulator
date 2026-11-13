@@ -511,6 +511,19 @@ summary {
 #frameStatus {
   margin-left: auto;
 }
+.uiflow-cloud-status {
+  margin: 0 var(--m5-space-xl) var(--m5-space-m);
+  padding: var(--m5-space-m);
+  border-left: 3px solid var(--m5-line-strong);
+  background: var(--m5-surface-subtle);
+  color: var(--m5-ink-muted);
+  font-size: var(--m5-font-caption);
+  line-height: 1.65;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.uiflow-cloud-status[hidden] { display: none; }
+.uiflow-cloud-status[data-cloud-state='warning'] { color: var(--m5-ink); }
 .text-button {
   min-height: 36px;
   padding: var(--m5-space-xs) 0;

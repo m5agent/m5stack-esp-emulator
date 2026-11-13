@@ -64,9 +64,37 @@ assert.equal(createHash('sha256').update(vendor).digest('hex'),COI_SOURCE_SHA256
 assert.match(await readFile(new URL('../web/vendor/coi-serviceworker/NOTICE.md',import.meta.url),'utf8'),new RegExp(COI_SOURCE_COMMIT));
 assert.match(await readFile(new URL('../web/vendor/coi-serviceworker/LICENSE',import.meta.url),'utf8'),/MIT License/);
 const wrapper=await readFile(new URL('../web/public-coi-serviceworker.js',import.meta.url),'utf8');
-for (const project of ['https://example.test/','https://example.test/showcase/']) {
-  let imported;
-  vm.runInNewContext(wrapper,{URL,self:{location:{href:project+'coi-serviceworker.js'}},importScripts:url=>{imported=url;}});
-  assert.equal(imported,project+'platform/web/vendor/coi-serviceworker/coi-serviceworker.js');
+const handlers={},lifecycle=[],requests=[];
+let nextResponse;
+vm.runInNewContext(wrapper,{Headers,Request,Response,fetch:async request=>{requests.push(request);return nextResponse();},
+  self:{addEventListener:(type,handler)=>{handlers[type]=handler;},skipWaiting:()=>lifecycle.push('skipWaiting'),
+    clients:{claim:async()=>{lifecycle.push('claim');},matchAll:async()=>[{url:'https://example.test/showcase/',navigate:url=>lifecycle.push(['navigate',url])}]},
+    registration:{unregister:async()=>{lifecycle.push('unregister');}}}});
+handlers.install();let activation;handlers.activate({waitUntil:value=>{activation=value;}});await activation;
+assert.deepEqual(lifecycle,['skipWaiting','claim']);
+handlers.message({});handlers.message({data:{type:'unknown'}});
+const dispatch=request=>{let pending;handlers.fetch({request,respondWith:value=>{pending=value;}});return pending;};
+const request=new Request('https://example.test/showcase/frame.png',{cache:'no-store',redirect:'error'});
+for (const status of [204,205,304]) {
+  nextResponse=()=>({status,statusText:'',headers:{ETag:'"frame"'},body:new ReadableStream()});
+  const response=await dispatch(request);
+  assert.equal(response.status,status);assert.equal(response.body,null,'null-body HTTP statuses cannot inherit even an empty stream');
+  assert.equal(response.headers.get('ETag'),'"frame"');
+  assert.equal(response.headers.get('Cross-Origin-Embedder-Policy'),'require-corp');
+  assert.equal(response.headers.get('Cross-Origin-Resource-Policy'),'cross-origin');
+  assert.equal(response.headers.get('Cross-Origin-Opener-Policy'),'same-origin');
 }
-console.log('public COI scope, activation/control ordering, one-reload guard, timeouts and pinned source contracts passed');
+nextResponse=()=>new Response('actual bytes',{status:200,headers:{'Content-Type':'image/png','X-Frame-SHA256':'fixture'}});
+const ordinary=await dispatch(request);assert.equal(await ordinary.text(),'actual bytes');assert.equal(ordinary.headers.get('X-Frame-SHA256'),'fixture');
+const opaque={status:0};nextResponse=()=>opaque;assert.equal(await dispatch(request),opaque);
+const beforeGuard=requests.length;assert.equal(dispatch({cache:'only-if-cached',mode:'no-cors'}),undefined);assert.equal(requests.length,beforeGuard);
+handlers.message({data:{type:'coepCredentialless',value:true}});
+nextResponse=()=>new Response('credentialless');
+const credentialless=await dispatch(new Request('https://example.test/image',{mode:'no-cors',credentials:'include'}));
+assert.equal(requests.at(-1).credentials,'omit');assert.equal(credentialless.headers.get('Cross-Origin-Embedder-Policy'),'credentialless');
+assert.equal(credentialless.headers.get('Cross-Origin-Resource-Policy'),null);assert.equal(credentialless.headers.get('Cross-Origin-Opener-Policy'),'same-origin');
+handlers.message({data:{type:'coepCredentialless',value:false}});
+nextResponse=()=>{throw new TypeError('fixture network rejection');};await assert.rejects(dispatch(request),/fixture network rejection/);
+handlers.message({data:{type:'deregister'}});await new Promise(resolve=>setImmediate(resolve));
+assert.deepEqual(lifecycle.slice(-2),['unregister',['navigate','https://example.test/showcase/']]);
+console.log('public COI scope, lifecycle, headers, null-body responses, network rejection and pinned original source contracts passed');

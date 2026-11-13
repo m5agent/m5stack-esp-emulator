@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+  "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "initial_long_run": {
+    "site_manifest_sha256": "daff4a85a6a27ef44fab74fcba1288405d6ad9a7792546a9ac7878e258af11c4",
+    "corrected_ui_acceptance": "PARTIAL",
+    "long_connection_stability": "FAIL",
+    "corrected_summary_sha256": "e60a60d5f6e6863fca7ab503ee3897d638d1fa02c5e05ccbcea9e893c9819840",
+    "initial_verdict": {
+      "receipt_kind": "reconstructed_from_original_stdout",
+      "original_file_sha256": null,
+      "note": "The original summary file was corrected in place before an immutable copy was made. This receipt preserves only the initial stdout verdict and does not claim original-file bytes.",
+      "status": "PARTIAL",
+      "ui_acceptance": "PASS",
+      "long_connection_stability": "FAIL",
+      "initial_claim": "All 20 checks were true; later visual review disproved completeness of UI acceptance."
+    },
+    "initial_verdict_receipt_sha256": "f9100ac345faeea70fbc89c82f0ba0baf3304c41f517be46e1597ab5aaeecfbc",
+    "review_correction": {
+      "receipt_kind": "independent_review_correction",
+      "status": "PARTIAL",
+      "ui_acceptance": "PARTIAL",
+      "long_connection_stability": "FAIL",
+      "corrected_summary_sha256": "e60a60d5f6e6863fca7ab503ee3897d638d1fa02c5e05ccbcea9e893c9819840",
+      "findings": [
+        "Private screenshot shows Failed to fetch banner and runtime status error while the guest was running.",
+        "Absence of pageerror events did not establish UI acceptance.",
+        "Evidence ZIP serial.log contains one no PONG marker; the original regex missed this exact wording."
+      ],
+      "raw_evidence_modified": false
+    },
+    "review_correction_receipt_sha256": "bc8231492a1b9b9781651a644054cc0cfa3c6a7cdbb4794494007c5a16fa796e",
+    "private_evidence_zip_sha256": "b1781581c3aca7552f07f310ec00f4982bce59b816ee2efe2cde27c7d8e3c01f"
+  },
+  "short_reproduction": {
+    "ui_acceptance": "FAIL",
+    "long_connection_stability": "NOT RUN",
+    "observation_seconds": 30,
+    "summary_sha256": "d811bc8534db3bae68a7c5ddfa57e39c410cf87d673f17e38e10e499d20e28e6",
+    "running_request_failures": 910,
+    "ui_error_events": 910,
+    "no_error_banner_at_capture": false,
+    "runtime_status_matches_live_guest": false,
+    "actual_guest_pairing_and_registration": true,
+    "owned_guest_stopped_and_flash_released": true,
+    "no_active_guests_after_cleanup": true,
+    "browser_closed": true,
+    "root_cause": "Pinned upstream COI worker rebuilt a Chromium network 304 with a non-null stream. Response construction rejected the null-body status, causing frame fetch net::ERR_FAILED."
+  },
+  "retention": "The original guest timeline, network capture and ZIP remain intact. The initial UI PASS was corrected, not silently reused. The initial verdict receipt is explicitly reconstructed from stdout and has no claimed original-file hash."
+}

@@ -1,4 +1,5 @@
 import {SerialChannelState, renderSerialChannelSelect} from './serial-channel-state.js';
+import {renderUIFlowCloudStatus} from './uiflow-cloud-status.js';
 import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
 import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261028a';
 import { createProgramPanel } from './program-panel.js?v=20261027p';
@@ -596,6 +597,7 @@ function createSessionCard(session, allowThree) {
       </div>
       <div class="session-warning" data-field="warning" hidden></div>
       <div class="session-runtime-note" data-field="preview" role="status" hidden></div>
+      <div class="session-cloud-status" data-field="uiflow-cloud" role="status" aria-live="polite" hidden></div>
       <div data-unit-panel></div>
       <div data-program-panel></div>
       <details class="session-disclosure session-diagnostics">
@@ -648,6 +650,7 @@ function updateSessionCard(card, session) {
   const status = field('state');
   status.className = `status-chip ${statusClass(session.state)}`;
   status.textContent = session.state;
+  renderUIFlowCloudStatus(field('uiflow-cloud'), session);
   field('session-id').textContent = session.session_id;
   field('device-id').textContent = session.device_id;
   field('firmware-source').textContent = session.firmware_source || 'firmware';

@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-13`.
+Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.61.0` and bounded
+Status: local MVP with unified-device runtime contract `1.62.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -86,12 +86,34 @@ objects return `400 invalid_uiflow_startup`; unavailable stock references return
 `409 uiflow_startup_reference_mismatch` before allocating a guest.
 
 An allocated/running session or firmware connection status alone does not prove
-cloud pairing. Verify the actual stock startup framebuffer and, where needed,
+cloud account binding or WebREPL readiness. Verify the actual stock startup framebuffer and, where needed,
 the received MQTT `syscmd` response carrying `data.code`. Firmware log settings
 may suppress INFO markers. Packet captures and frames may contain access codes
 and unique device identities; retain raw evidence privately and redact public
 summaries. Native-service results do not establish browser-WASM networking or
 physical RF behavior.
+
+API 1.62 adds `uiflow_cloud_status` to cloud session snapshots. It independently
+reports `pairing.state=code_received` only after a captured MQTT code reply, and
+WebREPL observations from the guest's actual TCP/WebSocket traffic. A valid HTTP
+upgrade is `handshake_observed`, a matching Ping/Pong exchange is
+`heartbeat_observed`, and cloud identity refusals are `identity_rejected` with
+`mac_not_bound` or `mac_not_found`. Neither a code nor an upgrade proves account
+binding or remote program execution. `device_registered` records a matching
+cloud `deviceConnected` reply. Handshake/disconnect counters aggregate the capture;
+registration and heartbeat/control counts describe the latest connection.
+Protocol Ping/Pong counts are distinct from text heartbeat round trips; missing
+protocol Pongs alone are an observation, not a synthesized timeout verdict.
+
+Observations are bounded to 8 MiB of capture, 64 directional TCP streams and
+64 KiB per stream. Disabled/missing captures, unsafe reconstruction or exceeded
+limits report `unavailable`, rather than failing the guest or declaring success.
+Partial live tails are labelled. `observed_at` identifies the cached sample;
+running captures refresh at most once per second, terminal snapshots bypass
+that throttle. Raw peer messages, MACs and pairing codes are never included in
+this diagnostic object. Stopped history shows the last captured observations.
+The service does not inject Pong replies, suppress firmware logs, or change
+the original firmware's reconnect behavior.
 
 ### Runtime ACL and execution policy
 
@@ -1537,19 +1559,53 @@ A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
 
-`efuse_identity` reports the service's eFuse fixture independently of guest
-readiness. `provisioned` includes a session-stable, locally administered `mac`,
-`source: session-fixture`, and the attached eFuse `driver`. ESP32-S3 and classic
-ESP32 profiles with a wired eFuse drive receive this fixture; classic ESP32
-includes the factory MAC CRC. Core2 attaches its classic ESP32 eFuse drive;
-C6 profiles without an attached eFuse drive return `unprovisioned` with
-`reason: efuse_drive_not_attached`. Other
-unsupported runtimes also state why identity is unprovisioned. Before native
-fixture preparation the status is `unknown`; restored history with no identity
-record remains `unknown` (`not_recorded`). This field is retained in session
-history and evidence. It does not prove the guest read the MAC or that an app,
-Wi-Fi, or display works. Uploaded firmware and NVS calibration records are not
-changed by identity provisioning.
+`device_identity` optionally selects the virtual board identity independently of
+its session and firmware. Use `{"key":"bench-cores3"}` for a named persistent
+identity, or `{"mac":"<explicit unicast MAC>"}` for an explicitly supplied
+session identity. These fields are mutually exclusive; no other fields are
+accepted. Keys contain 1–64 ASCII letters, digits, dots, underscores or hyphens
+and start with a letter or digit. MAC input accepts 12 hexadecimal digits or six
+colon-separated octets, normalizes to lowercase colon notation, and rejects
+zero, broadcast and multicast addresses. No real-device address is a default.
+
+The service stores named identities privately in its state directory with mode
+`0600`, using atomic replacement. Their generated locally administered unicast
+MAC remains stable across sessions, reflashes and service restarts. A key is
+bound to one board profile. The stock `uiflow_startup.mode=cloud` path defaults
+to `uiflow-cloud-<device_id>` when `device_identity` is omitted; other sessions
+retain the existing session-scoped synthetic identity. Supply another key for a
+second independent cloud device. Explicit MAC requests are not imported into the
+persistent map. Existing session idempotency returns the original session
+before checking identity occupancy; its original request still must match.
+
+Only native runtimes with a supported attached ESP32, ESP32-S3 or ESP32-C6 eFuse
+drive accept this option. Diagnostic network and monitor fixtures reject it.
+The resolved MAC is frozen at admission and supplied to both the actual eFuse
+backing bytes and the NIC. The original BIN and uploaded NVS are unchanged.
+Same-MAC aliases cannot run concurrently in this service: active, stopping or
+unfinished cleanup returns `409 device_identity_in_use`, without silently
+rotating the identity. Profile mismatch returns `409 device_identity_device_mismatch`;
+unsupported runtime returns `409 unsupported_device_identity`; malformed
+requests return `400 invalid_device_identity`. These rejections occur before a
+session/worker lease is allocated. Invalid or unavailable persistent storage
+returns `503 device_identity_store_invalid` or `device_identity_store_unavailable`.
+
+Identity exclusion covers sessions owned by this service state directory. It
+cannot detect another independent service or physical device using the same
+explicit MAC. Identity persistence does not register a device with a cloud
+service or establish its binding, pairing or WebSocket acceptance. Retained
+session metadata and raw network evidence contain the resolved identity; redact
+these identifiers before publication.
+
+`efuse_identity` reports fixture preparation independently of guest readiness.
+`provisioned` includes the actual encoded `mac`, attached eFuse `driver`, and
+`source` (`session-fixture`, `persistent-fixture` or `explicit-mac`). Named
+identities also include their `key`. Classic ESP32 includes the factory MAC CRC.
+Unsupported drives return `unprovisioned` with a reason; before preparation the
+status is `unknown`. History without an identity record remains `unknown`
+(`not_recorded`). The separate `device_identity` in session/history records the
+resolved requested identity even before preparation. Neither field proves the
+guest read the MAC, cloud registration, application readiness or hardware identity.
 
 `runtime` is `qemu` by default. Use `qemu-unified` for the canonical complete
 virtual-device path and pair it with one of the `*-unified` profiles. It starts

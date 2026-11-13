@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.61.0
+  version: 1.62.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4274,6 +4274,34 @@ components:
             normalization:
               type: string
               const: trailing-ff-padding
+    DeviceIdentityRequest:
+      type: object
+      additionalProperties: false
+      oneOf:
+        - required: [key]
+        - required: [mac]
+      properties:
+        key:
+          type: string
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          description: Persistent service-local virtual board name, bound to one device profile.
+        mac:
+          type: string
+          pattern: "^(?:[0-9a-fA-F]{12}|(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2})$"
+          description: Explicit session MAC; must be nonzero unicast. No real-device default or implicit cloud registration.
+    ResolvedDeviceIdentity:
+      type: object
+      additionalProperties: false
+      required: [source, mac]
+      properties:
+        source:
+          type: string
+          enum: [persistent-fixture, explicit-mac]
+        key:
+          type: string
+        mac:
+          type: string
+          description: Canonical resolved identity; private device identifier, not proof of guest or cloud acceptance.
     CreateSessionRequest:
       type: object
       dependentRequired:
@@ -4281,6 +4309,21 @@ components:
         expected_base_sha256: [base_firmware_id, program_mode]
       required: [device_id]
       properties:
+        device_identity:
+          $ref: "#/components/schemas/DeviceIdentityRequest"
+          description: >
+            Optional stable virtual board key or explicit session MAC, mutually
+            exclusive. Omitted stock cloud startup defaults to the persistent key
+            uiflow-cloud-<device_id>; other sessions retain their session-scoped
+            generated identity. Requires a supported attached eFuse drive and
+            supplies the same MAC to NIC and eFuse without modifying BIN or NVS.
+            Persistent mappings survive restart and reflash in private service
+            state. Same-MAC aliases with active/stopping/unfinished sessions return
+            409 device_identity_in_use; a key for another board returns
+            409 device_identity_device_mismatch; unsupported runtimes return
+            409 unsupported_device_identity; malformed values return
+            400 invalid_device_identity. All precede session allocation.
+            No cloud registration or binding is implied.
         uiflow_startup:
           $ref: "#/components/schemas/UIFlowCloudStartup"
           description: >
@@ -4929,8 +4972,8 @@ components:
       description: >
         Service-generated eFuse identity fixture metadata, not a guest-read,
         application-readiness, network-connectivity or hardware-identity claim.
-        Provisioned means a session-scoped synthetic MAC was encoded for an
-        attached supported eFuse drive. Uploaded NVS is not rewritten. History
+        Provisioned means the resolved MAC was encoded for an attached supported
+        eFuse drive. The source may be session-scoped, persistent or explicit. Uploaded NVS is not rewritten. History
         without this record remains unknown.
       properties:
         status:
@@ -4938,23 +4981,67 @@ components:
           enum: [provisioned, unprovisioned, unknown]
         source:
           type: string
-          enum: [session-fixture]
+          enum: [session-fixture, persistent-fixture, explicit-mac]
+        key:
+          type: string
+          description: Present for a named persistent fixture.
         driver:
           type: [string, "null"]
         mac:
           type: string
-          description: Locally administered synthetic address, stable within this session.
+          description: Canonical encoded identity; generated addresses are locally administered, explicit addresses are caller-supplied.
         reason:
           type: string
           description: Explains unprovisioned or unknown status.
+    UIFlowCloudStatus:
+      type: object
+      additionalProperties: false
+      required: [source, state, pairing, webrepl, observation, observed_at]
+      properties:
+        source: {type: string, const: guest-pcap}
+        state: {type: string, enum: [observed, not_observed, unavailable]}
+        observed_at: {type: string, format: date-time}
+        pairing:
+          type: object
+          required: [state]
+          properties:
+            state: {type: string, enum: [code_received, not_observed]}
+        webrepl:
+          type: object
+          description: Captured events only; no account-binding or remote execution verdict. Protocol and text heartbeats are separate.
+          required: [state, reason, handshakes, disconnects, device_registered, heartbeat_roundtrips, protocol_ping_sent, protocol_pong_received, protocol_ping_without_pong_count]
+          properties:
+            state: {type: string, enum: [identity_rejected, server_error, heartbeat_observed, handshake_observed, disconnected, not_observed]}
+            reason: {type: [string, "null"], enum: [null, mac_not_bound, mac_not_found, server_error]}
+            handshakes: {type: integer, minimum: 0}
+            disconnects: {type: integer, minimum: 0}
+            device_registered: {type: boolean}
+            heartbeat_roundtrips: {type: integer, minimum: 0}
+            protocol_ping_sent: {type: integer, minimum: 0}
+            protocol_pong_received: {type: integer, minimum: 0}
+            protocol_ping_without_pong_count: {type: integer, minimum: 0}
+        observation:
+          type: object
+          description: Bounded reconstruction metadata; unavailable or partial results never imply readiness.
+          required: [status, reason, capture_bytes]
+          properties:
+            status: {type: string, enum: [complete, partial, unavailable]}
+            reason: {type: [string, "null"]}
+            capture_bytes: {type: integer, minimum: 0}
     Session:
       type: object
       additionalProperties: true
       required: [session_id, device_id, state]
       properties:
+        device_identity:
+          $ref: "#/components/schemas/ResolvedDeviceIdentity"
+          description: Frozen at admission and retained in history; absent for legacy session-scoped identity.
         uiflow_startup:
           $ref: "#/components/schemas/UIFlowCloudStartup"
           description: Present for stock cloud startup; retained in session history with the original reference pin.
+        uiflow_cloud_status:
+          $ref: "#/components/schemas/UIFlowCloudStatus"
+          description: Independent protocol observations for cloud sessions; raw capture retained privately. Missing on older services.
         program_capabilities:
           $ref: "#/components/schemas/MainLoaderCapabilities"
         units:

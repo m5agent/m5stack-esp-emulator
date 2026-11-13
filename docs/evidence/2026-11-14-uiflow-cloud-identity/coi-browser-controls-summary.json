@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "validation": "host-only real Chromium HTTP/Service Worker controls; guest NOT RUN",
+  "command": "node platform/tests/test_public_coi_worker_browser.mjs",
+  "browser_selection": "Playwright Chromium by default; optional PLAYWRIGHT_CHROMIUM_EXECUTABLE override",
+  "source_sha256": {
+    "platform/web/public-coi-serviceworker.js": "3edac3f984d6a099d3737d7ff37d39a1465a5651c9184004eb66ae90409e3d3d",
+    "platform/web/vendor/coi-serviceworker/coi-serviceworker.js": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+    "platform/tests/test_public_coi_worker_browser.mjs": "ddfb34d85494675c409a09f5ce72dd1de3506c6908b5240dd8a94a5da31593f6"
+  },
+  "private_report_sha256": "2831b3aec762d5cae10aeb9f1b59bf999b4bd7e7ddf1e5261a7ff9e1b94a9838",
+  "case_count": 13,
+  "cases": [
+    {
+      "worker": "none",
+      "cache": "no-store",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": null,
+      "coop": null,
+      "corp": null
+    },
+    {
+      "worker": "none",
+      "cache": "no-store",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": null,
+      "coop": null,
+      "corp": null
+    },
+    {
+      "worker": "none",
+      "cache": "default",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": null,
+      "coop": null,
+      "corp": null
+    },
+    {
+      "worker": "none",
+      "cache": "default",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": null,
+      "coop": null,
+      "corp": null
+    },
+    {
+      "worker": "upstream",
+      "cache": "no-store",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "worker": "upstream",
+      "cache": "no-store",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "worker": "upstream",
+      "cache": "default",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "worker": "upstream",
+      "cache": "default",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "worker": "owned-update",
+      "same_registration_refresh": true,
+      "status": 304,
+      "body": "",
+      "coep": "require-corp"
+    },
+    {
+      "worker": "owned",
+      "cache": "no-store",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": "require-corp",
+      "coop": "same-origin",
+      "corp": "cross-origin"
+    },
+    {
+      "worker": "owned",
+      "cache": "no-store",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": "require-corp",
+      "coop": "same-origin",
+      "corp": "cross-origin"
+    },
+    {
+      "worker": "owned",
+      "cache": "default",
+      "redirect": "error",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": "require-corp",
+      "coop": "same-origin",
+      "corp": "cross-origin"
+    },
+    {
+      "worker": "owned",
+      "cache": "default",
+      "redirect": "follow",
+      "first_status": 200,
+      "first_body": "DATA",
+      "conditional_status": 304,
+      "conditional_body": "",
+      "etag": "\"frame\"",
+      "coep": "require-corp",
+      "coop": "same-origin",
+      "corp": "cross-origin"
+    }
+  ],
+  "negative_control_failures": [
+    {
+      "worker": "upstream",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "worker": "upstream",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "worker": "upstream",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "worker": "upstream",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "scope_limit": "No native, WASM or physical guest runs in this control. Existing-registration update and require-corp/same-origin headers are exercised by the real browser."
+}

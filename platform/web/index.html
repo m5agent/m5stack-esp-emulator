@@ -110,6 +110,7 @@
             ><button type="button" class="text-button" id="pauseBtn" hidden>暂停</button
             ><button type="button" class="text-button" id="stopBtn" hidden>停止</button>
           </div>
+          <div id="uiflowCloudStatus" class="uiflow-cloud-status" role="status" aria-live="polite" hidden></div>
           <p id="browserBootStatus" class="field-help" role="status" data-testid="browser-boot-status" hidden></p>
           <p id="actuatorStatus" class="console-content" role="status" aria-live="polite" hidden></p>
           <div id="runtimeUnitPanel"></div>
@@ -179,6 +180,11 @@ print("Hello, UIFlow!")
             </div>
             <div class="reference-firmware">
               <strong id="referenceTitle">正在读取…</strong><span id="referenceDescription"></span>
+            </div>
+            <div id="cloudIdentityFields" hidden>
+              <label class="public-label" for="cloudIdentityMac">设备 MAC（可选，用于已授权设备对照）</label>
+              <input class="public-field" id="cloudIdentityMac" type="text" maxlength="17" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="cloudIdentityHelp" />
+              <p id="cloudIdentityHelp" class="field-help">留空使用此板型持久保存的虚拟身份。指定 MAC 不会保存到浏览器；同一身份应只运行一个设备。</p>
             </div>
           </div>
           <div id="urlFields" class="firmware-source-fields" hidden>

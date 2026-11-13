@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "distinct_sessions": 3,
+  "identity_unchanged_across_three_boots_and_service_restart": true,
+  "all_nic_efuse_match": true,
+  "cases": [
+    {
+      "case": "persistent-first-v2",
+      "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "identity_source": "persistent-fixture",
+      "evidence_zip_sha256": "0e273ded83b4d67ac450fa12b311244edfe1020c3f37d2a6b59514b950518865",
+      "cloud": {
+        "source": "guest-pcap",
+        "state": "observed",
+        "pairing": {
+          "state": "code_received"
+        },
+        "webrepl": {
+          "state": "identity_rejected",
+          "reason": "mac_not_bound",
+          "handshakes": 10,
+          "disconnects": 10,
+          "device_registered": false,
+          "heartbeat_roundtrips": 0,
+          "protocol_ping_sent": 0,
+          "protocol_pong_received": 0,
+          "protocol_ping_without_pong_count": 0
+        },
+        "observation": {
+          "status": "complete",
+          "reason": null,
+          "capture_bytes": 23224,
+          "packets": 200,
+          "tcp_streams": 22,
+          "partial_tail": false,
+          "partial_stream": false,
+          "protocol_unknown": false,
+          "unsupported_packets": 0
+        }
+      },
+      "stopped": true,
+      "flash_released": true,
+      "ws_mqtt_efuse_identity_match": true
+    },
+    {
+      "case": "persistent-second",
+      "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "identity_source": "persistent-fixture",
+      "evidence_zip_sha256": "5a96e41b742893ee19ee5aabd0c33a2a6093801f600e33997e8352e4c00f2461",
+      "cloud": {
+        "source": "guest-pcap",
+        "state": "observed",
+        "pairing": {
+          "state": "code_received"
+        },
+        "webrepl": {
+          "state": "identity_rejected",
+          "reason": "mac_not_bound",
+          "handshakes": 6,
+          "disconnects": 6,
+          "device_registered": false,
+          "heartbeat_roundtrips": 0,
+          "protocol_ping_sent": 0,
+          "protocol_pong_received": 0,
+          "protocol_ping_without_pong_count": 0
+        },
+        "observation": {
+          "status": "complete",
+          "reason": null,
+          "capture_bytes": 16387,
+          "packets": 140,
+          "tcp_streams": 16,
+          "partial_tail": false,
+          "partial_stream": false,
+          "protocol_unknown": false,
+          "unsupported_packets": 0
+        }
+      },
+      "stopped": true,
+      "flash_released": true,
+      "ws_mqtt_efuse_identity_match": true
+    },
+    {
+      "case": "persistent-after-restart",
+      "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "identity_source": "persistent-fixture",
+      "evidence_zip_sha256": "25a377aac99c367623965bd0a0565238ffaf823e1e7d2de71ffa85d36598310d",
+      "cloud": {
+        "source": "guest-pcap",
+        "state": "observed",
+        "pairing": {
+          "state": "code_received"
+        },
+        "webrepl": {
+          "state": "identity_rejected",
+          "reason": "mac_not_bound",
+          "handshakes": 9,
+          "disconnects": 9,
+          "device_registered": false,
+          "heartbeat_roundtrips": 0,
+          "protocol_ping_sent": 0,
+          "protocol_pong_received": 0,
+          "protocol_ping_without_pong_count": 0
+        },
+        "observation": {
+          "status": "complete",
+          "reason": null,
+          "capture_bytes": 21102,
+          "packets": 182,
+          "tcp_streams": 20,
+          "partial_tail": false,
+          "partial_stream": false,
+          "protocol_unknown": false,
+          "unsupported_packets": 0
+        }
+      },
+      "stopped": true,
+      "flash_released": true,
+      "ws_mqtt_efuse_identity_match": true
+    }
+  ],
+  "admission_controls": {
+    "idempotent_recovery": true,
+    "active_count_preserved": true,
+    "checks": [
+      {
+        "case": "stable-conflict",
+        "status": 409,
+        "error": "device_identity_in_use"
+      },
+      {
+        "case": "explicit-alias-conflict",
+        "status": 409,
+        "error": "device_identity_in_use"
+      }
+    ]
+  },
+  "setup_failures": [
+    "The first candidate client ran before service readiness and was refused before creation; preserved separately.",
+    "The first collision check arrived after the preceding guest had already stopped, so sequential reuse correctly created another session. It was recovered by the same idempotency key, tested for active conflicts and cleaned up."
+  ]
+}

@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-13`
+日期：`2026-11-14`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-14
+
+[UIFlow2 身份与 WebREPL 心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)：同一 CoreS3 原 BIN `5847a2bc…`、Xtensa `5ce7d9f5…` 的默认会话身份在约 68 秒出现 20 次有效握手、云端身份拒绝及 server-first FIN。授权身份收到真实 `deviceConnected` 和文本心跳，但无 control Pong，约 151 秒后 guest-first FIN，串口明确 PONG 超时；不能称长期连接通过。独立宿主标准协议对照仅作为诊断，未替代虚拟设备验收。旧配对码获取结果不等于账号绑定或 WebREPL 就绪。
+
+[COI 条件取帧修复](evidence/2026-11-14-uiflow-cloud-identity/README.md)：真实 Chrome 13 例对照包含旧 Worker 失败及原地址更新恢复。同一原版 CoreS3 在修正后的候选站点 `a0705b95…` 完成 195 秒观察，5,859 次 304 成功、运行期 API 请求失败/HTTP 错误/页面错误均为零；真实云端 PONG 超时及重连仍 FAIL。证据 ZIP `503c88a7…` 校验和停止清场通过，先前页面误判及 910 次取帧失败保留。主机全量 Python 2,217 项通过、8 项跳过；该主机结果不替代 guest 执行。
 
 ## 2026-11-13
 

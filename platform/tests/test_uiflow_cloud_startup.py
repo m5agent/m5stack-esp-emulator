@@ -58,6 +58,37 @@ class CloudStartupTests(unittest.TestCase):
         with mock.patch.object(service_module.DeviceSession, "start"):
             return self.service.create_session(self.request(**extra))
 
+    def test_cloud_snapshot_observes_capture_and_refreshes_terminal_tail(self):
+        from test_uiflow_cloud_status import Flow, pcap, request, response, ws
+        row = self.create()
+        session = self.service.get_session(row["session_id"])
+        self.assertEqual(row["uiflow_cloud_status"]["state"], "unavailable")
+        flow = Flow()
+        packets = [flow.send(request()), flow.send(response(), server=True)]
+        session.network_pcap.write_bytes(pcap(*packets))
+        session._cloud_observation_next_check = 0
+        snapshot = session.snapshot()
+        self.assertEqual(snapshot["uiflow_cloud_status"]["webrepl"]["state"], "handshake_observed")
+        snapshot["uiflow_cloud_status"]["webrepl"]["state"] = "forged"
+        self.assertEqual(session.snapshot()["uiflow_cloud_status"]["webrepl"]["state"], "handshake_observed")
+        packets.append(flow.send(ws('{"type":"error","payload":"mac has not been bound to a deviceId"}'), server=True))
+        session.network_pcap.write_bytes(pcap(*packets))
+        session._cloud_observation_next_check = float("inf")
+        session.state = "running"
+        self.assertEqual(session.snapshot()["uiflow_cloud_status"]["webrepl"]["state"], "handshake_observed")
+        session.state = "stopped"
+        final = session.snapshot()["uiflow_cloud_status"]
+        self.assertEqual(final["webrepl"]["state"], "identity_rejected")
+        self.assertEqual(final["webrepl"]["reason"], "mac_not_bound")
+        self.assertIn("observed_at", final)
+
+    def test_cloud_capture_disabled_never_reports_a_positive_observation(self):
+        row = self.create(network={"capture_pcap": False})
+        status = row["uiflow_cloud_status"]
+        self.assertEqual(status["state"], "unavailable")
+        self.assertEqual(status["observation"]["reason"], "capture_disabled")
+        self.assertEqual(status["pairing"]["state"], "not_observed")
+
     def assert_rejected(self, body, code):
         before = sorted(self.service.artifacts.root.iterdir())
         with self.assertRaises(service_module.ServiceError) as caught:
@@ -117,12 +148,13 @@ class CloudStartupTests(unittest.TestCase):
                 for key, value in policy.items():
                     self.assertEqual(session.network_config["policy"][key], value)
                 self.assertFalse(session.network_config["http_fixture"])
+                session.stop()
 
     def test_idempotency_keeps_original_pin_and_reuses_generated_fixture(self):
         body = self.request(idempotency_key="original-cloud-body")
         with mock.patch.object(service_module.DeviceSession, "start"):
             first = self.service.create_session(body)
-            second = self.service.create_session(self.request())
+            second = self.service.create_session(self.request(device_identity={"key": "second-cloud-device"}))
             self.assertEqual(first["source_artifacts"], second["source_artifacts"])
             self.reference.unlink()
             replay = self.service.create_session(body)

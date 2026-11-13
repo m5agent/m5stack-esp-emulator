@@ -1,4 +1,5 @@
 import {renderSerialChannelSelect} from './serial-channel-state.js';
+import {renderUIFlowCloudStatus} from './uiflow-cloud-status.js';
 import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './public-uiflow-firmware.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
@@ -187,7 +188,7 @@ function updateBrowserEvidence() {
   label.dataset.sessionId=session;
   browserEvidenceState(ready?'ready':'unavailable',ready?'本地运行记录可下载。':'');
 }
-function status(status, detail) {
+function status(status, detail, session = state.run?.controller?.current) {
   const labels = {
     loading: '正在加载固件',
     booting: '设备启动中',
@@ -205,6 +206,7 @@ function status(status, detail) {
   $('runtimeStatus').replaceChildren(node('i'), document.createTextNode(labels[status] || status));
   $('runtimeStatus').dataset.status = status;
   if (detail) $('frameStatus').textContent = detail;
+  renderUIFlowCloudStatus($('uiflowCloudStatus'), session, {cloudExpected: !!state.run?.cloudStartup});
   updatePythonControls(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
@@ -219,7 +221,7 @@ const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在�
 function pythonUnavailableReason() {
   const device=state.selected;
   if (state.run?.cloudStartup || state.run?.controller?.current?.uiflow_startup?.mode==='cloud')
-    return '官方 UIFlow2 云端配对模式：在设备屏幕查看配对码，并通过 UIFlow 编程。网页编辑器请另选“本地 MicroPython 编程”。';
+    return '官方 UIFlow2 云端配对模式：在设备屏幕查看配对码，完成绑定后通过 UIFlow 编程。网页编辑器请另选“本地 MicroPython 编程”。';
   if (state.run?.kind==='service') return '当前固件未启用网页编程。选择“本地 MicroPython 编程”后重新启动。';
   if (lane()==='service'&&serviceProgrammingDevice()) return '启动本地 MicroPython 编程环境后即可运行代码';
   if(device?.uiflow2?.supported===false)return '此型号不支持 UIFlow2，当前网页编程不可用';
@@ -347,6 +349,8 @@ function updateCapability() {
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
   $('cancelLoadBtn').hidden = !state.busy;
   $('addSelectedUnitBtn').disabled=!state.selectedUnit||state.busy||!!state.run;
+  $('cloudIdentityFields').hidden = source() !== 'reference' || !reference()?.nativeCloud || selectedLane !== 'service';
+  $('cloudIdentityMac').disabled = state.busy || !!state.run;
 }
 function renderDevices() {
   const query = $('search').value.trim().toLowerCase();
@@ -498,7 +502,7 @@ async function selectDevice(id, {openGeneration} = {}) {
   if(selection!==state.selection)return;
   await state.picker?.setDevice(id);
   if(selection!==state.selection)return;
-  if(state.selected?.id!==row.id)$('firmwareSha').value='';
+  if(state.selected?.id!==row.id){$('firmwareSha').value='';$('cloudIdentityMac').value='';}
   state.referenceExplicit=false;
   $('referenceExample').value='uiflow';
   state.selected = row;
@@ -650,6 +654,7 @@ async function stopRun() {
   const attempt = (async () => {
     try {
       await releaseInputs(run);
+      const lastSession = run.controller.current;
       const result=await run.controller.stop();
       if (run.controller instanceof PublicQemuRuntime) {
         updateBrowserBoot(result);
@@ -661,7 +666,8 @@ async function stopRun() {
       await state.picker?.attachShell(state.shell);
       clearBrowserOutputs(run.controller.outputProfile || run.controller.profile);
       status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录'
-        :result?.boot?.firstFrameSequence===null?'未取得屏幕帧':'保留最后显示帧');
+        :result?.boot?.firstFrameSequence===null?'未取得屏幕帧':'保留最后显示帧',
+        run.kind === 'service' ? {...lastSession, ...result, state: 'stopped'} : null);
       message('runProgress');
     } catch (cause) {
       state.stopUnconfirmed = true;
@@ -897,6 +903,8 @@ async function startRun() {
     const ref=reference(), nativeWorkbench=kind==='service'&&source()==='reference'&&ref?.nativeWorkbench;
     const nativeCloud=kind==='service'&&source()==='reference'&&ref?.nativeCloud;
     const uiflowStartup=nativeCloud?{mode:'cloud',reference_sha256:ref.sha256}:undefined;
+    const identityMac=nativeCloud?$('cloudIdentityMac').value.trim():'';
+    const deviceIdentity=identityMac?{mac:identityMac}:undefined;
     if((nativeWorkbench||nativeCloud)&&$('firmwareSha').value.trim())throw new Error('此启动环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
     const loaded = nativeWorkbench||nativeCloud ? {name:ref.name,size:0} : await firmware(abort.signal, generation);
     if (generation !== state.runGeneration || selection !== state.selection) return;
@@ -983,7 +991,7 @@ async function startRun() {
           if (active(run)) {
             run.python?.bindSession(value.session);
             if (['stopped', 'failed'].includes(value.status)) clearBrowserOutputs(outputProfile);
-            status(value.status, value.frameReady ? '实际会话屏幕已更新' : '等待应用显示帧');
+            status(value.status, value.frameReady ? '实际会话屏幕已更新' : '等待应用显示帧', value.session);
           }
         },
       });
@@ -993,7 +1001,7 @@ async function startRun() {
           onState:()=>{if(active(run))updatePythonControls();}});
         status('booting', '正在连接本地 MicroPython 编程环境');
         await run.python.start({deviceId:state.selected.id,units,signal:abort.signal});
-      } else await run.controller.start({deviceId:state.selected.id,...(nativeCloud?{uiflowStartup}:{firmwareId:imported.firmware_id}),units,signal:abort.signal});
+      } else await run.controller.start({deviceId:state.selected.id,...(nativeCloud?{uiflowStartup,deviceIdentity}:{firmwareId:imported.firmware_id}),units,signal:abort.signal});
     }
     if (active(run)) message('runProgress', nativeCloud ? '已创建官方 UIFlow2 会话，启动和配对进度请查看设备屏幕。' : nativeWorkbench ? `已启动 ${loaded.name}` : `已加载 ${loaded.name} · ${bytes(loaded.size)}`);
   } catch (cause) {
@@ -1143,7 +1151,7 @@ async function openServiceSession(id) {
   const run={kind:'service',generation:++state.runGeneration,owned:false,cloudStartup:session.uiflow_startup?.mode==='cloud'};
   run.controller=new PublicSessionController({service,shell:state.shell,unitContainer:$('runtimeUnitPanel'),
     onSerial:text=>{if(active(run))appendSerial(text);},onSerialView:view=>{if(active(run))showSerialView(view);},onError:cause=>{if(active(run))error(cause);},
-    onState:value=>{if(active(run)){run.python?.bindSession(value.session);status(value.status,value.frameReady?'实际会话屏幕已更新':'等待应用显示帧');}}});
+    onState:value=>{if(active(run)){run.python?.bindSession(value.session);status(value.status,value.frameReady?'实际会话屏幕已更新':'等待应用显示帧',value.session);}}});
   state.run=run;await state.picker?.setLocked(true,'当前显示已创建的会话，停止查看后可修改装配草稿。');
   if(!current()||!active(run))return;
   if(session.management_binding||session.program_transport==='uart-repl'){

@@ -31,6 +31,7 @@ const executedSourcePaths = [
   'platform/web/public-session-controller.js',
   'platform/web/public-service-program.js',
   'platform/web/public-service.js',
+  'platform/web/uiflow-cloud-status.js',
   'platform/web/model-shell.js',
   'platform/tests/test_public_workbench_browser.mjs',
 ];
@@ -313,6 +314,9 @@ try {
   const originalService = 'https://original-service.public.invalid/device-center',
     candidateService = 'https://candidate-service.public.invalid/replacement';
   let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null, delayedSessionList = null, sessionListFailure = false;
+  let fixtureCloudStartup = false, fixtureCreates = [];
+  const cloudStatusFixture = {source:'guest-pcap',state:'observed',pairing:{state:'code_received'},
+    webrepl:{state:'identity_rejected',reason:'mac_not_bound',handshakes:1,disconnects:1},observation:{status:'complete'}};
   const fixtureResponse = async (route, candidate = false) => {
     const url = new URL(route.request().url()), method = route.request().method();
     serviceCalls.push({candidate, method, path:url.pathname});
@@ -326,14 +330,25 @@ try {
     }
     let body;
     if (candidate && candidateMode === 'offline') body = {error:{message:'fixture offline'}};
-    else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[]}]};
+    else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[],
+      ...(fixtureCloudStartup?{uiflow_startup:{modes:['cloud'],runtime:'qemu-wifi',reference_sha256:'f'.repeat(64)}}:{})}]};
     else if (url.pathname.endsWith('/units')) body = serviceFixture;
+    else if (fixtureCloudStartup && url.pathname.endsWith('/sessions') && method === 'POST') {
+      const request=route.request().postDataJSON();fixtureCreates.push(request);
+      body={session_id:`cloud-fixture-${fixtureCreates.length}`,device_id:'cores3',state:'running',display:null,units:[],device_state_supported:false,
+        uiflow_startup:request.uiflow_startup,uiflow_cloud_status:structuredClone(cloudStatusFixture)};
+      fixtureSessions=[body];
+    }
     else if (url.pathname.endsWith('/sessions')) body = sessionListFailure ? {error:{message:'session list unavailable'}} : {sessions:sessionList || fixtureSessions};
     else if (url.pathname.endsWith('/serial')) {
       const channel=url.searchParams.get('channel')||'console', offset=Number(url.searchParams.get('offset')||0), text=fixtureSerial?.[channel]||'';
       body={session_id:url.pathname.split('/').at(-2),channel,data:text.slice(offset),next_offset:text.length};
     }
-    else if (/\/sessions\/[^/]+$/.test(url.pathname)) body = fixtureSessions.find(row=>row.session_id===url.pathname.split('/').at(-1)) || {};
+    else if (/\/sessions\/[^/]+$/.test(url.pathname)) {
+      body = fixtureSessions.find(row=>row.session_id===url.pathname.split('/').at(-1)) || {};
+      if (fixtureCloudStartup && method === 'DELETE') {body.state='stopped';body.worker={lease_active:false};}
+    }
+    else if (fixtureCloudStartup && url.pathname.endsWith('/evidence')) body={fixture:'HTTP UI contract only; no guest evidence'};
     else body = {error:{message:'unexpected host-fixture route'}};
     return route.fulfill({status:(candidate && candidateMode === 'offline') || (sessionListFailure && url.pathname.endsWith('/sessions')) ? 503 : 200, contentType:'application/json', body:JSON.stringify(body)});
   };
@@ -490,6 +505,21 @@ try {
     assert.equal(await page.locator('#serialCount').textContent(),'4 B');
     fixtureSerial=null;delete fixtureSessions[0].serial_channels;
   });
+  await test('cloud-observations-stay-independent-of-pairing-and-running-ui-fixture', async () => {
+    fixtureSessions[0].uiflow_startup={mode:'cloud'};
+    fixtureSessions[0].uiflow_cloud_status=structuredClone(cloudStatusFixture);
+    await page.waitForFunction(()=>document.querySelector('#uiflowCloudStatus').textContent.includes('设备尚未绑定'));
+    assert.match(await page.locator('#uiflowCloudStatus').textContent(),/已收到配对码（不代表已完成绑定）/);
+    assert.equal(await page.locator('#runtimeStatus').getAttribute('data-status'),'running');
+    fixtureSessions[0].uiflow_cloud_status.webrepl={state:'heartbeat_observed',reason:null,handshakes:1,disconnects:0,heartbeat_roundtrips:2,device_registered:true};
+    await page.waitForFunction(()=>document.querySelector('#uiflowCloudStatus').textContent.includes('心跳往返 2 次'));
+    assert.match(await page.locator('#uiflowCloudStatus').textContent(),/尚未验证远程代码执行/);
+    fixtureSessions[0].uiflow_cloud_status={...structuredClone(cloudStatusFixture),state:'unavailable'};
+    await page.waitForFunction(()=>document.querySelector('#uiflowCloudStatus').textContent.includes('暂无法判断'));
+    assert.doesNotMatch(await page.locator('#uiflowCloudStatus').textContent(),/已收到配对码|尚未绑定/);
+    delete fixtureSessions[0].uiflow_startup;delete fixtureSessions[0].uiflow_cloud_status;
+    await page.waitForFunction(()=>document.querySelector('#uiflowCloudStatus').hidden);
+  });
   await test('pending-borrowed-B-cannot-replace-current-A-after-A-is-reselected-ui-fixture', async () => {
     fixtureSessions.push({...fixtureSessions[0],session_id:'b'.repeat(32),firmware_sha256:'2'.repeat(64)});
     await page.locator('#refreshSessionsBtn').click(); await page.getByRole('button',{name:'在工作台打开',exact:true}).nth(1).waitFor();
@@ -530,6 +560,37 @@ try {
     assert.equal(await page.locator('#startBtn').isDisabled(), true); assert.equal(await page.locator('#stageTitle').textContent(), '请选择设备');
     await selectDevice('cores3'); assert.equal(await page.locator('#errorBanner').isHidden(), true);
     if(!realBrowser){assert.equal(workers.length,0);assert.equal(requests.some(url=>/\.wasm(?:\?|$)/.test(url)),false);}
+  });
+  await test('cloud-identity-is-optional-ephemeral-and-sent-only-on-explicit-cloud-start-ui-fixture', async () => {
+    fixtureCloudStartup=true;fixtureSessions=[];
+    await page.locator('#serviceConnection').evaluate(node=>node.open=true);
+    await page.locator('#serviceUrl').fill(originalService);await page.locator('#connectServiceBtn').click();
+    await page.waitForFunction(()=>!document.querySelector('#cloudIdentityFields').hidden);
+    await page.locator('input[name="firmwareSource"][value="local"]').check();
+    await page.locator('.advanced-options').evaluate(node=>node.open=true);
+    await page.locator('#runtimeMode').selectOption('service');await page.locator('#runtimeMode').selectOption('auto');
+    assert.equal(await page.locator('#cloudIdentityFields').isHidden(),true);
+    await page.locator('input[name="firmwareSource"][value="reference"]').check();
+    assert.equal(await page.locator('#cloudIdentityFields').isVisible(),true,'source changes must restore the selected cloud identity field after details were rerendered');
+    assert.equal(await page.locator('#cloudIdentityMac').inputValue(),'');
+    assert.equal(await page.locator('#cloudIdentityMac').getAttribute('autocomplete'),'off');
+    await page.locator('#cloudIdentityMac').fill('020000000001');
+    await page.locator('#startBtn').click();
+    await page.waitForFunction(()=>window.__publicWorkbenchProbe.run?.controller.current?.session_id==='cloud-fixture-1');
+    assert.deepEqual(fixtureCreates[0].device_identity,{mac:'020000000001'});
+    assert.equal(fixtureCreates[0].uiflow_startup.mode,'cloud');
+    assert.equal(await page.locator('#cloudIdentityMac').isDisabled(),true);
+    assert.equal(await page.evaluate(()=>[localStorage,sessionStorage].some(storage=>Object.values(storage).some(value=>value.includes('020000000001')))),false);
+    await page.locator('#uiflowCloudStatus').screenshot({path:resolve(out,'cloud-identity-rejection-host-fixture.png')});
+    await page.locator('#stopBtn').click();await page.waitForFunction(()=>window.__publicWorkbenchProbe.run===null);
+    assert.match(await page.locator('#uiflowCloudStatus').textContent(),/末次观测/);
+    await page.locator('#cloudIdentityMac').fill('');await page.locator('#startBtn').click();
+    await page.waitForFunction(()=>window.__publicWorkbenchProbe.run?.controller.current?.session_id==='cloud-fixture-2');
+    assert.equal(Object.hasOwn(fixtureCreates[1],'device_identity'),false);
+    await page.locator('#stopBtn').click();await page.waitForFunction(()=>window.__publicWorkbenchProbe.run===null);
+    await page.locator('#referenceExample').selectOption('uiflow');
+    assert.equal(await page.locator('#cloudIdentityFields').isHidden(),true);
+    fixtureCloudStartup=false;
   });
   if (realBrowser)
     await test('real-papers3-url-autostart-serial-screen-touch-pause-and-stop', async () => {

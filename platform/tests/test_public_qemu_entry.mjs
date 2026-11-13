@@ -8,6 +8,7 @@ import * as config from '../web/public-config.js';
 import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
 import * as uiflowFirmware from '../web/public-uiflow-firmware.js';
+import * as cloudStatus from '../web/uiflow-cloud-status.js';
 import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
@@ -77,7 +78,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,qemuProfiles,qemuFrame,qemuServo,{
+  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     PublicMicroPythonRunner,

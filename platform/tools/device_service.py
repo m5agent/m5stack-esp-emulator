@@ -49,6 +49,9 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from device_service_errors import ServiceError  # noqa: E402
+from device_service_identity import (  # noqa: E402
+    DeviceIdentityStore, parse_device_identity, restore_device_identity, validate_identity_runtime,
+)
 from device_service_execution_parsing import (  # noqa: E402, F401
     parse_nvs_execution,
     parse_storage_execution,
@@ -137,6 +140,7 @@ from uiflow_cloud_startup import (  # noqa: E402
     cloud_network_request, cloud_nvs_image, cloud_startup_capability,
     parse_uiflow_startup, prepare_cloud_reference, verified_cloud_reference,
 )
+from uiflow_cloud_status import read_uiflow_cloud_status  # noqa: E402
 from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
 from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
 from program_packages import (  # noqa: E402
@@ -677,7 +681,8 @@ def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
     efuse[10] = crc
 
 
-def prepare_qemu_efuse_identity(efuse: bytearray, spec: DeviceSpec, session_id: str) -> dict:
+def prepare_qemu_efuse_identity(efuse: bytearray, spec: DeviceSpec, session_id: str,
+                                identity: dict | None = None) -> dict:
     """Provision only an eFuse drive that this board actually attaches."""
     if spec.efuse_driver == "none":
         return {"status": "unprovisioned", "driver": None,
@@ -691,10 +696,9 @@ def prepare_qemu_efuse_identity(efuse: bytearray, spec: DeviceSpec, session_id: 
     if writer is None:
         return {"status": "unprovisioned", "driver": spec.efuse_driver,
                 "reason": "identity_fixture_not_supported"}
-    mac = qemu_station_mac(session_id)
-    writer(efuse, mac)
-    return {"status": "provisioned", "source": "session-fixture",
-            "driver": spec.efuse_driver, "mac": mac}
+    resolved = identity or {"source": "session-fixture", "mac": qemu_station_mac(session_id)}
+    writer(efuse, resolved["mac"])
+    return {"status": "provisioned", **resolved, "driver": spec.efuse_driver}
 
 
 def set_qemu_efuse_package(efuse: bytearray, backend: str, package: int) -> None:
@@ -2589,6 +2593,7 @@ class DeviceSession:
         uiflow_startup: dict | None = None,
         management_binding: dict | None = None,
         efuse_identity: dict | None = None,
+        device_identity: dict | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2609,6 +2614,7 @@ class DeviceSession:
             if self.units and not restored else None
         )
         self.runtime = runtime
+        self.device_identity = restore_device_identity(device_identity)
         if isinstance(efuse_identity, dict):
             self.efuse_identity = dict(efuse_identity)
         elif restored:
@@ -2708,6 +2714,9 @@ class DeviceSession:
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
+        self._cloud_observation = None
+        self._cloud_observation_signature = None
+        self._cloud_observation_next_check = 0.0
         self.sd_card_image = self.dir / "sd-card.img"
         self.storage_summary_path = self.dir / "storage.json"
         self.nvs_summary_path = self.dir / "nvs.json"
@@ -2938,6 +2947,7 @@ class DeviceSession:
             "unit_contract": self.unit_contract,
             "runtime": self.runtime,
             "efuse_identity": dict(self.efuse_identity),
+            **({"device_identity": dict(self.device_identity)} if self.device_identity else {}),
             "network": redacted_network_config(self.network_config),
             "network_result": self.network_result,
             "storage_config": dict(self.storage_config),
@@ -3409,6 +3419,29 @@ class DeviceSession:
         )
         self._persist_session()
 
+    def _cloud_status_snapshot(self) -> dict:
+        """Observe the real guest capture; never change transport or readiness."""
+        now = time.monotonic()
+        try:
+            capture = self.network_pcap.stat()
+            signature = (capture.st_ino, capture.st_size, capture.st_mtime_ns)
+        except OSError:
+            signature = None
+        cached = self._cloud_observation
+        if cached is None or (signature != self._cloud_observation_signature
+                              and (now >= self._cloud_observation_next_check
+                                   or self.state not in ACTIVE_STATES)):
+            cached = read_uiflow_cloud_status(self.network_pcap)
+            if not self.network_config.get("capture_pcap", False):
+                cached["state"] = "unavailable"
+                cached["observation"].update(status="unavailable", reason="capture_disabled")
+            cached["observed_at"] = iso_now()
+            self._cloud_observation = cached
+            self._cloud_observation_signature = signature
+            self._cloud_observation_next_check = now + 1.0
+        # Snapshot consumers must not mutate another request's observation.
+        return json.loads(json.dumps(cached))
+
     def snapshot(self) -> dict:
         if self._stop_event.is_set() and not self._stop_complete.is_set():
             return self._pending_stop_snapshot()
@@ -3468,10 +3501,12 @@ class DeviceSession:
                     "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
                 **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
                 **({"uiflow_startup": dict(self.uiflow_startup)} if self.uiflow_startup else {}),
+                **({"uiflow_cloud_status": self._cloud_status_snapshot()} if self.uiflow_startup else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": redacted_runtime_env(self.runtime_env),
                 "runtime": self.runtime,
                 "efuse_identity": dict(self.efuse_identity),
+                **({"device_identity": dict(self.device_identity)} if self.device_identity else {}),
                 "runtime_memory": (
                     qemu_runtime_memory(
                         self.spec.memory,
@@ -5386,8 +5421,8 @@ class DeviceSession:
             )
         # Keep the NIC and attached eFuse identity consistent. This does not
         # rewrite uploaded NVS calibration records or establish app readiness.
-        wifi_mac = qemu_station_mac(self.id)
-        efuse_identity = prepare_qemu_efuse_identity(efuse_data, self.spec, self.id)
+        wifi_mac = self.device_identity["mac"] if self.device_identity else qemu_station_mac(self.id)
+        efuse_identity = prepare_qemu_efuse_identity(efuse_data, self.spec, self.id, self.device_identity)
         if self.spec.backend == "qemu-esp32s3":
             adc_path = None
             adc_raw = None
@@ -9110,6 +9145,7 @@ class DeviceService:
                 error.status,
             ) from error
         try:
+            self.device_identities = DeviceIdentityStore(self.state_dir / "device-identities.json")
             self._observations = ObservationStore(self.state_dir / "observations.sqlite")
             self._restore_history()
             for record in self._observations.snapshot()["active"]:
@@ -9462,6 +9498,7 @@ class DeviceService:
                 },
                 runtime=runtime,
                 efuse_identity=record.get("efuse_identity"),
+                device_identity=record.get("device_identity"),
                 network_config=network_config,
                 network_result=network_result,
                 units=(record.get("units") if isinstance(record.get("units"), list) else []),
@@ -10069,6 +10106,7 @@ class DeviceService:
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
+        identity_request = parse_device_identity(payload, device_id=device_id, cloud=bool(uiflow_startup))
         monitor_config = parse_sticks3_wifi_monitor(payload)
         if program_mode:
             if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
@@ -10401,6 +10439,8 @@ class DeviceService:
                     issues=[memory_issue],
                 )
 
+        if identity_request is not None:
+            validate_identity_runtime(spec, runtime, monitor=bool(monitor_config))
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
             if self._stop.is_set():
@@ -10414,6 +10454,10 @@ class DeviceService:
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
+            device_identity = (self.device_identities.lookup(identity_request, device_id)
+                               if identity_request is not None else None)
+            if device_identity is not None:
+                self._require_identity_available_locked(device_identity["mac"])
             active = [
                 session
                 for session in self._sessions.values()
@@ -10707,6 +10751,9 @@ class DeviceService:
                 session_class = Tab5DeviceSession
             else:
                 session_class = DeviceSession
+            if identity_request is not None and device_identity is None:
+                device_identity = self.device_identities.resolve(identity_request, device_id)
+                self._require_identity_available_locked(device_identity["mac"])
             session_id = uuid.uuid4().hex
             try:
                 self.worker.reserve_lease(
@@ -10731,6 +10778,7 @@ class DeviceService:
                     program_transport=program_transport,
                     program_bootstrap=program_mode == "uiflow-live",
                     uiflow_startup=uiflow_startup,
+                    device_identity=device_identity,
                     management_binding=_management_binding,
                     source_artifacts=source_artifacts,
                     firmware_provenance=(cloud_reference["provenance"] if uiflow_startup else
@@ -10790,10 +10838,28 @@ class DeviceService:
                 raise
         session._observation_registered = True
         self._observe_session(session)
-        session.start()
+        try:
+            session.start()
+        except Exception:
+            session.stop(purge=False)
+            raise
         snapshot = session.snapshot()
         snapshot["idempotent_replay"] = False
         return snapshot
+
+    def _require_identity_available_locked(self, mac: str) -> None:
+        # Admission holds the service lock. Include stopping/failed cleanup and
+        # a surviving verified process, not only sessions labelled running.
+        for session in self._sessions.values():
+            identity = session.device_identity or session.efuse_identity
+            existing = identity.get("mac") or qemu_station_mac(session.id)
+            if existing != mac:
+                continue
+            occupied = (session.state in OCCUPIED_STATES or session._worker_lease_active
+                        or session._proc is not None and session._proc.poll() is None
+                        or session._process_identity_matches())
+            if occupied:
+                raise ServiceError("device_identity_in_use", "device identity is already in use by an unfinished session", 409)
 
     def get_session(self, session_id: str) -> DeviceSession:
         with self._lock:

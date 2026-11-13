@@ -65,6 +65,9 @@
 .session-runtime small { display: block; margin-bottom: var(--m5-space-xs); color: var(--m5-ink-muted); font-size: 11px; font-weight: 600; }
 .session-runtime strong { display: block; color: var(--m5-ink); font: 600 var(--m5-font-caption)/1.5 var(--m5-font-mono); overflow-wrap: anywhere; }
 .session-runtime-note { color: var(--m5-ink-muted); font-size: var(--m5-font-caption); line-height: 1.6; overflow-wrap: anywhere; }
+.session-cloud-status { padding: var(--m5-space-m); border-left: 3px solid var(--m5-line-strong); background: var(--m5-surface-subtle); color: var(--m5-ink-muted); font-size: var(--m5-font-caption); line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; }
+.session-cloud-status[hidden] { display: none; }
+.session-cloud-status[data-cloud-state='warning'] { color: var(--m5-ink); }
 .session-actions { display: flex; gap: var(--m5-space-s); flex-wrap: wrap; }
 .session-actions .btn { min-height: 40px; padding: var(--m5-space-s) var(--m5-space-m); font-size: 12px; }
 .session-actions .btn:disabled { opacity: .4; cursor: default; }

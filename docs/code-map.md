@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-11-06`
+日期：`2026-11-14`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -94,6 +94,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/observation_store.py` | 本地展示页的有界 SQLite 生命周期投影、全局游标、缺口与保留；独立于可清理的会话内容 | Device Service、`test_observation_store.py` |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
+| `platform/tools/device_service_identity.py` | 持久虚拟设备身份、显式 MAC 解析和私有原子存储；不修改固件或替云端注册 | `test_device_service_identity.py`；Device Service admission / eFuse / NIC |
 | `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_network_execution.py` | 无状态 esp-emu network execution 请求解析，保持 profile/port/ELF/I2C 契约 | `device_service.py` 兼容 re-export、network-execution tests |
 | `platform/tools/device_service_native_hid.py` | 原版 AirMouseS3 固件 SHA 绑定、S3 native VHCI 启动参数与 HID 证据 | Device Service BLE sessions |
@@ -105,6 +106,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/uiflow_cloud_startup.py` | 原版 UIFlow2 cloud startup 的逐镜像 SHA 准入、标准 Flash 尾部补齐、完整 NVS 配置和真实 Wi-Fi 默认值；保留调用者网络策略，不生成配对码或改写应用 | `test_uiflow_cloud_startup.py`；Device Service 原生 stock startup |
+| `platform/tools/uiflow_cloud_status.py` | 从真实 guest PCAP 有界重组 MQTT/WebSocket，分开报告配对码、身份拒绝、登记、文本心跳和协议 Ping/Pong；不注入数据或授予远程执行通过 | `test_uiflow_cloud_status.py`；cloud session snapshot 与网页诊断 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
 | `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files`/`revision_id` program请求、公共checkpoint、包证据 |
 | `platform/tools/preview_service.py` | 稳定Preview/同guest Run协调、串行UART、latest-wins、实际prompt取消与输入/帧身份门禁 | authenticated Preview HTTP、宿主并发负控 |
@@ -172,6 +174,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tests/test_public_qemu_admitted_boards.mjs` | 串行执行本次导出中每个公开板型与 CoreS3 两种示例，失败阻止 Pages 发布 | `.github/workflows/public-site.yml`；性能另由 `test_public_qemu_performance.mjs` 量测 |
 | `platform/tests/public_qemu_pixel_observer.mjs` | 显式 await 实际 canvas 观察；先取单份完整 RGBA，再异步计算两个 ROI SHA，并核对输入后的序号与时间边界 | `test_public_qemu_pixel_observer.mjs` 与 `test_public_qemu_pixel_observer_browser.mjs` 只验证 host oracle；真实固件画面由 `test_public_qemu_guest.mjs` 独立验证 |
 | `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径；浏览器方向更新按 owner 重绘保留的真实帧，不生成新帧或序号 | `test_public_config.mjs`、`test_public_workbench_browser.mjs`、`test_public_qemu_entry.mjs` |
+| `platform/web/public-coi-serviceworker.js` | 项目作用域隔离 Worker；保留第三方原始来源，重建 204/205/304 时使用空正文 | `test_public_coi.mjs` 为无浏览器合同；单独运行 `node platform/tests/test_public_coi_worker_browser.mjs` 验证真实浏览器条件响应与已有注册更新，只使用 HTTP fixture、不启动 guest。默认使用 Playwright Chromium，可通过 `PLAYWRIGHT_CHROMIUM_EXECUTABLE` 指定浏览器；不并入普通 contracts |
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js`、`serial-channel-state.js` | 可选服务桥接、owned session 输入/帧/独立串口通道与迟到响应隔离、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 | `platform/web/public-service-program.js`、`public-unit-assembly.js` | 首页原生 Preview 编程、既有会话接入与非拥有视图清理；每设备 Unit 草稿、主机装配与运行拓扑锁定 | `test_public_service_program.mjs`、`test_public_unit_assembly.mjs`；opt-in 新首页实际验收 `test_public_unified_service_browser.mjs` |

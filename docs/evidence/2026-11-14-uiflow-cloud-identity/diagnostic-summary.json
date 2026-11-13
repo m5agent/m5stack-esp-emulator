@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "source_commit": "ffa621cdcf8422005b7fdf66afdee1be7c5fbba7",
+  "cases": [
+    {
+      "case": "default-baseline-v2",
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "capture_duration_seconds": 67.98277,
+      "pcap_sha256": "3db861ece0062188c0b6ffa90c80da39b2a695d3f96f471c57586825db63c067",
+      "evidence_zip_sha256": "06e71fcc01d49e6607a7eb5a1098586963fb44a221fbb5fc5c1626e7902f26b0",
+      "frame_sha256": "f096414a63c5aa7f6eb875c6b0cda707de6b4a10f5294e5b9e94fdce6da0a034",
+      "code_received": true,
+      "websocket_attempts": 20,
+      "valid_handshakes": 20,
+      "server_errors": {
+        "mac_not_found": 1,
+        "mac_not_bound": 19
+      },
+      "server_first_fin_count": 20,
+      "serial_receive_errors": 20,
+      "tcp_missing_bytes": 0,
+      "tcp_conflicting_overlap_bytes": 0,
+      "efuse_ws_identity_match": true,
+      "mqtt_ws_identity_match": true,
+      "guest_text_ping_count": 0,
+      "server_text_pong_count": 0,
+      "stopped": true,
+      "flash_released": true,
+      "cloud_observation": {
+        "source": "guest-pcap",
+        "state": "observed",
+        "pairing": {
+          "state": "code_received"
+        },
+        "webrepl": {
+          "state": "identity_rejected",
+          "reason": "mac_not_bound",
+          "handshakes": 20,
+          "disconnects": 20,
+          "device_registered": false,
+          "heartbeat_roundtrips": 0,
+          "protocol_ping_sent": 0,
+          "protocol_pong_received": 0,
+          "protocol_ping_without_pong_count": 0
+        },
+        "observation": {
+          "status": "complete",
+          "reason": null,
+          "capture_bytes": 40812,
+          "packets": 358,
+          "tcp_streams": 42,
+          "partial_tail": false,
+          "partial_stream": false,
+          "protocol_unknown": false,
+          "unsupported_packets": 0
+        }
+      },
+      "serial_protocol_pong_timeouts": 0,
+      "sustained_webrepl": "FAIL"
+    },
+    {
+      "case": "authorized-identity",
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "capture_duration_seconds": 153.09217,
+      "pcap_sha256": "daf94a116ce40dea388f418268b678c14c755922ab4e08e93427c42b5398952b",
+      "evidence_zip_sha256": "4d9b40bdab2b46ae87db00515ac09ba6f57c750bec329f007ad683b6073e03b1",
+      "frame_sha256": "dc02ee9e77ddea041e124da4f10ece29154074d74e7460577ac1933bd8b502fc",
+      "code_received": true,
+      "websocket_attempts": 1,
+      "valid_handshakes": 1,
+      "server_errors": {},
+      "server_first_fin_count": 0,
+      "serial_receive_errors": 0,
+      "tcp_missing_bytes": 0,
+      "tcp_conflicting_overlap_bytes": 0,
+      "efuse_ws_identity_match": true,
+      "mqtt_ws_identity_match": true,
+      "guest_text_ping_count": 6,
+      "server_text_pong_count": 6,
+      "stopped": true,
+      "flash_released": true,
+      "cloud_observation": {
+        "source": "guest-pcap",
+        "state": "observed",
+        "pairing": {
+          "state": "code_received"
+        },
+        "webrepl": {
+          "state": "disconnected",
+          "reason": null,
+          "handshakes": 1,
+          "disconnects": 1,
+          "device_registered": true,
+          "heartbeat_roundtrips": 5,
+          "protocol_ping_sent": 4,
+          "protocol_pong_received": 0,
+          "protocol_ping_without_pong_count": 4
+        },
+        "observation": {
+          "status": "complete",
+          "reason": null,
+          "capture_bytes": 19191,
+          "packets": 208,
+          "tcp_streams": 4,
+          "partial_tail": false,
+          "partial_stream": false,
+          "protocol_unknown": false,
+          "unsupported_packets": 0
+        }
+      },
+      "serial_protocol_pong_timeouts": 1,
+      "sustained_webrepl": "FAIL",
+      "guest_first_fin_seconds_from_syn": 151.354205,
+      "guest_first_fin_count": 1,
+      "complete_text_heartbeat_roundtrips": 5
+    }
+  ],
+  "limitations": [
+    "Original firmware and transport unchanged; only isolated NIC/eFuse identity fixture differs in the baseline comparison.",
+    "Code receipt alone does not establish account binding.",
+    "Authorized identity is accepted, but control PONG timeout still causes disconnect; not a sustained-connectivity PASS.",
+    "Remote REPL execution and physical hardware not run.",
+    "No original BIN, identity, access code or raw peer message is included."
+  ],
+  "host_control_diagnostic": {
+    "kind": "host-control-diagnostic",
+    "guest_validation": false,
+    "http_101": true,
+    "received_opcodes": [
+      1,
+      1
+    ],
+    "protocol_pong_count": 0,
+    "protocol_pong_nonce_matched": false,
+    "text_pong_count": 1,
+    "device_connected": true,
+    "partial_frame": false
+  },
+  "host_control_diagnostic_v2": {
+    "kind": "host-control-diagnostic",
+    "guest_validation": false,
+    "http_101": true,
+    "valid_accept_key": true,
+    "received_opcodes": [
+      1,
+      1
+    ],
+    "protocol_pong_count": 0,
+    "protocol_pong_nonce_matched": false,
+    "text_pong_count": 1,
+    "device_connected": true,
+    "partial_frame": false
+  }
+}
