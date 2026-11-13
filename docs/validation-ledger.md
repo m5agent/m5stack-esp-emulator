@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-10`
+日期：`2026-11-13`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-13
+
+| 范围 | 结果与身份 | 证据 |
+| --- | --- | --- |
+| #218 主动关机 / virtual-device validation | 原版 PaperColor `0f9c9c0f…`、PaperDIY `d7de13e6…` 在干净 0181 runtime `481228b0…` 上均于启动就绪等待期间通过 QMP 识别下电、保存末帧和串口并清场。矩阵为 PARTIAL/guest_poweroff，应用就绪未授予；PaperDIY 首次短观察窗口另保留 | [事件、双 SHA 与证据摘要](evidence/2026-11-13-issue-triage/poweroff-summary.json) |
 
 ## 2026-11-10
 

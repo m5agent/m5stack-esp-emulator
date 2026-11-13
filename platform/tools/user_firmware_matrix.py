@@ -1236,6 +1236,7 @@ def classify_result(
     required_markers_observed: bool = True,
     forbidden_markers_observed: bool = False,
     network_observed: bool | None = None,
+    stop_reason: str | None = None,
 ) -> tuple[str, str, list[str]]:
     """Classify runtime evidence without conflating firmware and model gaps."""
 
@@ -1244,6 +1245,12 @@ def classify_result(
             "PARTIAL",
             "device_service_startup_failed",
             [f"runtime_startup: {boot_error}"],
+        )
+    if stop_reason == "guest_poweroff" and not crash and not forbidden_markers_observed:
+        return (
+            "PARTIAL",
+            "guest_poweroff",
+            ["guest requested poweroff; retained serial/frame do not establish application readiness"],
         )
     if runtime_model_gaps:
         fixture_gap = any(
@@ -1935,6 +1942,7 @@ def execute_sample(
             required_markers_observed=required_markers_observed,
             forbidden_markers_observed=forbidden_markers_observed,
             network_observed=network_observed,
+            stop_reason=final_snapshot.get("stop_reason"),
         )
         result["status"] = status
         result["status_reason"] = status_reason

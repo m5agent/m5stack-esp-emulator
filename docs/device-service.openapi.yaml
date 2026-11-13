@@ -4864,6 +4864,13 @@ components:
           format: date-time
         error:
           type: [string, "null"]
+        stop_reason:
+          type: [string, "null"]
+          enum: [guest_poweroff, null]
+          description: >
+            guest_poweroff identifies a QMP guest-shutdown event. Final frame
+            and serial remain available in stopped history; this is not an
+            application-readiness or successful-test verdict.
         completed_at:
           type: [string, "null"]
           format: date-time

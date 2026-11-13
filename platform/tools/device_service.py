@@ -2523,6 +2523,7 @@ class DeviceSession:
         expires_at: float | None = None,
         initial_state: str = "provisioning",
         error: str | None = None,
+        stop_reason: str | None = None,
         flash_info: dict | None = None,
         restored: bool = False,
         interrupted: bool = False,
@@ -2592,6 +2593,7 @@ class DeviceSession:
         )
         self.state = initial_state
         self.error = error
+        self.stop_reason = stop_reason
         self.pid: int | None = None
         self.process_start_token = process_start_token
         self._reattached_process = bool(reattached_process)
@@ -2886,6 +2888,7 @@ class DeviceSession:
             ).isoformat(),
             "completed_at": self.completed_at,
             "error": self.error,
+            "stop_reason": self.stop_reason,
             "restored": self.restored,
             "interrupted": self.interrupted,
             "worker_id": self.worker_id,
@@ -3443,6 +3446,7 @@ class DeviceSession:
                     self.expires_at, timezone.utc
                 ).isoformat(),
                 "error": self.error,
+                "stop_reason": self.stop_reason,
                 "display": self.spec.display,
                 "display_available": (
                     self.runtime in QEMU_QMP_RUNTIMES
@@ -3469,6 +3473,39 @@ class DeviceSession:
                     "lease_active": self._worker_lease_active,
                 },
             }
+
+    def _observe_guest_poweroff(self) -> bool:
+        """Observe controller shutdown, then use the normal fenced teardown.
+
+        -no-shutdown keeps QMP and the final display alive until evidence is
+        saved. A zero exit code or a guest UART string is not a poweroff oracle.
+        """
+        with self._lock:
+            if (self.state not in {"booting", "running"}
+                    or self.runtime not in QEMU_QMP_RUNTIMES
+                    or self._qmp is None or self._proc is None
+                    or self._proc.poll() is not None
+                    or self._stop_event.is_set()):
+                return False
+            try:
+                status = self._qmp_call("query-status").get("return", {})
+            except ServiceError:
+                return False
+            event = getattr(self._qmp, "last_shutdown_event", None)
+            if status.get("status") != "shutdown" or not isinstance(event, dict):
+                return False
+            if event.get("guest") is True and event.get("reason") == "guest-shutdown":
+                self.stop_reason = "guest_poweroff"
+                self._record_event("guest_poweroff", qmp_reason=event["reason"])
+            else:
+                self._request_failure(ServiceError(
+                    "runtime_shutdown", f"QEMU shutdown: {event.get('reason', 'unknown')}", 409,
+                ))
+            self._persist_session()
+        # Do not hold _lock while acquiring the lifecycle lock: startup may
+        # still be waiting for a marker that a powered-off guest cannot emit.
+        self.stop()
+        return True
 
     def _handle_process_exit(
         self,
@@ -3561,6 +3598,7 @@ class DeviceSession:
             "firmware_id": self.firmware_id,
             "firmware_sha256": self.firmware_sha,
             "error": self.error,
+            "stop_reason": self.stop_reason,
             "units": self.units,
             "display": self.spec.display,
             "created_at": self.created_at,
@@ -5394,6 +5432,7 @@ class DeviceSession:
             "-drive", f"file={self.virtual_flash},if=mtd,format=raw",
             "-L", str(self.spec.rom_dir),
             "-display", "none",
+            "-no-shutdown",
         ]
         if native_vhci:
             command[1:1] = [
@@ -5873,6 +5912,8 @@ class DeviceSession:
                 )
                 while True:
                     reply = json.loads(self._qmp.readline())
+                    if reply.get("event") == "SHUTDOWN":
+                        self._qmp.last_shutdown_event = reply.get("data", {})
                     if "event" in reply:
                         continue
                     if "error" in reply:
@@ -5896,6 +5937,7 @@ class DeviceSession:
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
         deadline = time.time() + max(0.1, timeout)
         while time.time() < deadline:
+            self._observe_guest_poweroff()
             self._check_cancelled()
             if self.serial0.exists() and marker in self.serial0.read_text(
                 errors="replace"
@@ -5951,6 +5993,7 @@ class DeviceSession:
         first_frame_at: str | None = None
         last_frame: dict | None = None
         while time.time() < deadline:
+            self._observe_guest_poweroff()
             self._check_cancelled()
             if serial_markers:
                 serial_text = (
@@ -7996,7 +8039,7 @@ class DeviceSession:
                     shutil.rmtree(self.dir, ignore_errors=True)
                     result["flash_retained"] = False
                 return result
-            if self.state == "running" and self.spec.has_display:
+            if self.state in {"running", "booting"} and self.spec.has_display:
                 try:
                     self.frame_metrics(force_persist=True)
                 except ServiceError:
@@ -9188,6 +9231,7 @@ class DeviceService:
                 ),
                 expires_at=expires_at,
                 initial_state=restored_state,
+                stop_reason=record.get("stop_reason"),
                 error=error if isinstance(error, str) else None,
                 flash_info=(
                     record.get("flash")
@@ -11683,6 +11727,7 @@ class DeviceService:
                             self._sessions.pop(session.id, None)
                     continue
                 try:
+                    session._observe_guest_poweroff()
                     if session.state in ACTIVE_STATES and session._proc is not None and session._proc.poll() is not None:
                         session._handle_process_exit(session._proc.returncode)
                     elif (

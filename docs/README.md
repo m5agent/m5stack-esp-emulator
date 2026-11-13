@@ -13,6 +13,8 @@
 
 [2026-11-09 四款主机接入与固件验证](evidence/2026-11-09-four-controller-integration/README.md)记录 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的执行与边界。
 
+[2026-11-13 新增模拟器问题复核](evidence/2026-11-13-issue-triage/README.md)记录主动关机等逐 issue 的验证与边界。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；

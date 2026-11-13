@@ -562,6 +562,15 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(reason, "serial_only_device")
         self.assertIn("no display", gaps[0])
 
+    def test_guest_poweroff_is_partial_and_does_not_hide_a_crash(self):
+        kwargs = dict(has_screenshot=True, nonblack=240000, running=False,
+                      serial_bytes=200, boot_error=None, input_observed=False,
+                      stop_reason="guest_poweroff")
+        status, reason, _ = classify_result(crash=False, **kwargs)
+        self.assertEqual((status, reason), ("PARTIAL", "guest_poweroff"))
+        status, reason, _ = classify_result(crash=True, **kwargs)
+        self.assertEqual((status, reason), ("PARTIAL", "fatal_after_application_frame"))
+
     def test_classify_result_reports_fatal_after_frame(self):
         status, reason, gaps = classify_result(
             has_screenshot=True,

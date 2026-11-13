@@ -1149,6 +1149,66 @@ class DeviceSessionCancellationTests(unittest.TestCase):
         self.assertTrue(all(process.poll() is not None for process in self.processes))
         session.service.worker.release_lease.assert_called_once()
 
+    def test_guest_poweroff_before_ready_is_stopped_and_retains_evidence(self):
+        session = self._session(ready_marker="never emitted", ready_timeout=3)
+        session.spec = replace(session.spec, display={"width": 2, "height": 2})
+        def command(name, **arguments):
+            if name == "query-status":
+                self.qmp.last_shutdown_event = {"guest": True, "reason": "guest-shutdown"}
+                return {"return": {"status": "shutdown"}}
+            if name == "screendump":
+                Path(arguments["filename"]).write_bytes(b"P6\n2 2\n255\n" + b"\xff" * 12)
+            return {}
+        self.qmp.cmd.side_effect = command
+        session.serial0.write_text("PM1 controller shutdown requested\n")
+        session._provision()
+        result = session.snapshot()
+        self.assertEqual(result["state"], "stopped")
+        self.assertEqual(result["stop_reason"], "guest_poweroff")
+        self.assertIsNone(result["error"])
+        self.assertTrue(result["last_frame_available"])
+        self.assertEqual(session.persisted_frame_metrics()["nonblack_pixels"], 4)
+        self.assertEqual(json.loads(session.session_record_path.read_text())["stop_reason"], "guest_poweroff")
+        self.assertIn("-no-shutdown", self.popen.call_args.args[0])
+        self.assertEqual(session.stop()["stop_reason"], "guest_poweroff")
+        session.service.worker.release_lease.assert_called_once()
+        self.assertTrue(all(process.poll() is not None for process in self.processes))
+
+    def test_shutdown_events_do_not_turn_host_failure_or_guest_panic_into_poweroff(self):
+        for event in ({"guest": False, "reason": "host-error"},
+                      {"guest": True, "reason": "guest-panic"}):
+            with self.subTest(event=event):
+                session = self._session()
+                session._provision()
+                self.qmp.cmd.return_value = {"return": {"status": "shutdown"}}
+                self.qmp.last_shutdown_event = event
+                self.assertTrue(session._observe_guest_poweroff())
+                self.assertEqual(session.state, "failed")
+                self.assertIsNone(session.stop_reason)
+                self.assertIn(event["reason"], session.error)
+                session.service.worker.release_lease.assert_called_once()
+
+    def test_zero_exit_without_shutdown_event_is_still_failed(self):
+        session = self._session()
+        session._provision()
+        self.processes[-1].returncode = 0
+        self.processes[-1].exited.set()
+        self.assertFalse(session._observe_guest_poweroff())
+        result = session.snapshot()
+        self.assertEqual(result["state"], "failed")
+        self.assertIsNone(result["stop_reason"])
+
+    def test_shutdown_observation_requires_controller_event_and_shutdown_state(self):
+        session = self._session()
+        session._provision()
+        self.qmp.last_shutdown_event = None
+        self.qmp.cmd.return_value = {"return": {"status": "shutdown"}}
+        self.assertFalse(session._observe_guest_poweroff())
+        self.qmp.last_shutdown_event = {"guest": True, "reason": "guest-shutdown"}
+        self.qmp.cmd.return_value = {"return": {"status": "running"}}
+        self.assertFalse(session._observe_guest_poweroff())
+        self.assertEqual(session.state, "running")
+
 
 if __name__ == "__main__":
     unittest.main()

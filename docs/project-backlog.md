@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-11-05`
+日期：`2026-11-13`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -18,6 +18,16 @@
   机械和电气结论必须来自真机。
 - 模型缺口、fixture 缺口、基础设施失败和固件 FAIL 不得混算。
 - 安全状态未知时保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
+
+## 社区固件测试新增问题
+
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：逐份定位 Nesso C6 的互斥量、AES 与访问异常，原版 Launcher/M5Launcher 稳定 120 秒、Meshtastic 不再访问异常并回归 NanoC6。
+- [#217](https://github.com/m5agent/m5stack-esp-emulator/issues/217) 与 [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：区分 host atomic 断言和 StackChan guest 上下文损坏；同固件并发复现、修复并完成 300 秒稳定性及受影响控制器回归。
+- [#219](https://github.com/m5agent/m5stack-esp-emulator/issues/219)：分别验收 AtomS3 面板变体和 Snake 的 LCD_CAM 探测路径，两原版镜像均需稳定首帧与 120 秒运行。
+- [#220](https://github.com/m5agent/m5stack-esp-emulator/issues/220)：PaperColor USB 初始化后还需同固件端点枚举、类控制传输和 StickS3 回归；后续 guest 崩溃单独保留。
+- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：Atom Lite/Matrix 厂测的 watchdog 与 Wi-Fi 控制器路径，需稳定运行和 LED/按钮行为。
+- [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：Core2 SPI DMA link 修复需覆盖 AWS、UIFlow、HamRadio 原版样本，不能由单一首帧代替全部兼容。
+- [#224](https://github.com/m5agent/m5stack-esp-emulator/issues/224)：补齐各 SoC 的非零 eFuse MAC 来源并定位原版 Evil-Parasite 的 PHY 回退等待；不改写原 BIN 的旧校准数据来消除正常失配日志。
 
 ## 新增主机剩余工作
 

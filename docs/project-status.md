@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-13 [主动关机语义](evidence/2026-11-13-issue-triage/README.md)已在原版 PaperColor／PaperDIY UserDemo 验证：QMP 主动下电记录为 `stopped/guest_poweroff`，保留串口与末帧；矩阵保持 PARTIAL，不将关机误报为启动失败或应用就绪。
+
 2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
 
 2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。

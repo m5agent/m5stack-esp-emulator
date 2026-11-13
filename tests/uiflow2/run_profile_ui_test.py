@@ -160,6 +160,7 @@ class QMP:
     def __init__(self, path: Path, timeout: float = 10.0):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.buffer = bytearray()
+        self.last_shutdown_event = None
         try:
             self.sock.settimeout(timeout)
             self.sock.connect(str(path))
@@ -188,6 +189,8 @@ class QMP:
         while True:
             line = self.readline()
             reply = json.loads(line)
+            if reply.get("event") == "SHUTDOWN":
+                self.last_shutdown_event = reply.get("data", {})
             if "event" not in reply:
                 if "error" in reply:
                     raise QMPCommandError(

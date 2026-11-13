@@ -1,0 +1,92 @@
+{
+  "scope": "virtual-device validation",
+  "date": "2026-11-13",
+  "source_base": "676ae67c",
+  "runtime_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+  "runtime_layers": "native bootstrap through 0181; clean replay",
+  "service_sha256": "0301c228cb5f1e8b98b1aa99755364363ec19eb87cabe04349c56bddae9a4b7d",
+  "runs": [
+    {
+      "device": "papercolor",
+      "firmware_id": "1897200000000001839",
+      "source_bin_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "source_bin_bytes": 16777216,
+      "flash_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "session_id": "0fa5ff88a82b4d2cb7160820dc10b498",
+      "state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "error": null,
+      "ready_marker": "deliberately-absent-after-poweroff",
+      "readiness_claimed": false,
+      "guest_poweroff_events": [
+        {
+          "at": "2026-11-13T01:21:13.919983+00:00",
+          "event": "guest_poweroff",
+          "qmp_reason": "guest-shutdown"
+        }
+      ],
+      "serial_sha256": "083d756acadd720e11095f9dbbfd278a0659a7fdc2d041d6aeca8fe27beb4a2e",
+      "serial_bytes": 5145,
+      "shutdown_marker": "M5PM1_PWR: Shutdown requested",
+      "frame_png_sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+      "frame": {
+        "width": 400,
+        "height": 600,
+        "captured_at": "2026-11-13T01:21:13.927440+00:00",
+        "nonblack_pixels": 240000,
+        "unique_colors": 1
+      },
+      "evidence_zip_sha256": "65ed33f14c2e8153bbd7631bd6e6a5ce51930f261f02f9a72054ca1ff7ac94a3",
+      "process_stopped": true,
+      "matrix": {
+        "status": "PARTIAL",
+        "status_reason": "guest_poweroff",
+        "application_ready": false
+      }
+    },
+    {
+      "device": "paperdiy",
+      "firmware_id": "2110309776206622722",
+      "source_bin_sha256": "d7de13e62342c1ab7115897a4a731abb054efda8ecb01d711aeb66c8bc6baa37",
+      "source_bin_bytes": 1404800,
+      "flash_sha256": "472574f62609b4eddfe6d810c1876f8fb42ecbf43a29d75c1f228a75bdbe680d",
+      "session_id": "e4785c46343443179e55dfd322e9d81c",
+      "state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "error": null,
+      "ready_marker": "deliberately-absent-after-poweroff",
+      "readiness_claimed": false,
+      "guest_poweroff_events": [
+        {
+          "at": "2026-11-13T01:21:42.947583+00:00",
+          "event": "guest_poweroff",
+          "qmp_reason": "guest-shutdown"
+        }
+      ],
+      "serial_sha256": "cd75d0de035414c69568c5f2c7d0f2d0cea1fca1bc31cab9a5654f979110153e",
+      "serial_bytes": 4592,
+      "shutdown_marker": "AppShutdown: Sending M5PM1 shutdown command",
+      "frame_png_sha256": "cd240d5c1c279972babe1038d17cb43484e3377eb3af7b942a0c5b180c2289db",
+      "frame": {
+        "width": 540,
+        "height": 960,
+        "captured_at": "2026-11-13T01:21:42.953543+00:00",
+        "nonblack_pixels": 508284,
+        "unique_colors": 1
+      },
+      "evidence_zip_sha256": "c3ebc76fda1e364353d4aaabe887c3a0b0f5b18cd7f566a0e8c29521541e6b54",
+      "process_stopped": true,
+      "matrix": {
+        "status": "PARTIAL",
+        "status_reason": "guest_poweroff",
+        "application_ready": false
+      }
+    }
+  ],
+  "limits": [
+    "No hardware or browser execution",
+    "Retained frame is not evidence of application readiness",
+    "Earlier all-zero exit classification failure retained in issue #218",
+    "Matrix short-window PaperDIY run ended before poweroff and remains PARTIAL/no_observable_input_response; default timeline rerun observes guest_poweroff"
+  ]
+}

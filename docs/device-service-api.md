@@ -402,6 +402,12 @@ Current scope:
   local QEMU can be re-attached only after PID start-time, session QMP
   ownership and `query-status=running` checks;
 - evidence: serial/QEMU logs remain under the configured state directory.
+  A QMP `SHUTDOWN` event with `guest=true` and `reason=guest-shutdown`
+  produces `state=stopped`, `stop_reason=guest_poweroff`, including shutdown
+  during startup. QEMU is held at shutdown long enough to save the final
+  framebuffer before ordinary lease/process cleanup. This is lifecycle
+  evidence, not application readiness; blank shutdown pages remain partial
+  functional evidence. Unexpected process exits and guest panic remain failures.
   QEMU radio sessions add pcap summaries, network policy evidence and a
   link-fault control for reconnect tests; versioned firmware manifests add
   capability/security preflight.
