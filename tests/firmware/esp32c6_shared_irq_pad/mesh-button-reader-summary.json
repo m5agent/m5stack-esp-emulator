@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "classification": "static exact-artifact disassembly, correlated separately with virtual-device input",
+  "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+  "function_entry": "0x4202a75c",
+  "constructor_vtable": "0x421a658c",
+  "vtable_words": [
+    "0x42069192",
+    "0x4206919c",
+    "0x4200d396",
+    "0x4202a688",
+    "0x4202a6c2",
+    "0x4200d2a2",
+    "0x4200d27c",
+    "0x4202a75c"
+  ],
+  "observations": [
+    {
+      "pc": "0x4202a77a",
+      "detail": "Address 0x43 passed before register 0x0F transaction"
+    },
+    {
+      "pc": "0x4202a786",
+      "detail": "Immediate 15 selects live input register; read proceeds without interrupt-status predicate"
+    },
+    {
+      "pc": "0x4202a940",
+      "detail": "Input byte bit1 is extracted; bit0 masked at 0x4202a948; both buttons have state paths"
+    },
+    {
+      "pc": "0x4202a9b8",
+      "detail": "A hold elapsed greater than 999 causes event value 10 at 0x4202a9d2"
+    },
+    {
+      "pc": "0x4202aa40",
+      "detail": "A release clears held state; short-release event value 28 emitted at 0x4202aa74"
+    },
+    {
+      "pc": "0x4202aa16",
+      "detail": "B long event numeric value 27; B short release event numeric value 29 at 0x4202aac4"
+    },
+    {
+      "pc": "0x4202aa3a",
+      "detail": "Normal return value is 60; failure return is 100 at 0x4202a8c8"
+    }
+  ],
+  "log_string_pc": "0x421a648c",
+  "log_string_marker": "i2cButton: read fail addr=0x43 reg=0x0f",
+  "source_comparison": {
+    "candidate_public_fork_commit": "e04698355294a1502dce7fa7e2932af42111b68c",
+    "same_source_not_established": true,
+    "difference": "Public fork polls status 0x13 and bit0 only, whereas this original artifact directly polls live input 0x0F and tracks both bits; its hypothesized release fault must not be attributed to this BIN"
+  },
+  "bounded_disassembly_sha256": "3fd74a9d1a7d0f8a29d83c47dab3de1cf520a79858c54491876230c1cd3fce62",
+  "limits": [
+    "No exact ELF/debug symbols available; function meaning follows constructor/vtable, transaction arguments and original diagnostic strings",
+    "Numeric event identity corroborated by separate same-BIN guest menu observations, not a symbol-name claim",
+    "No dynamic tracing, firmware modification or new guest was performed by this read-only inspection"
+  ]
+}
