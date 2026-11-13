@@ -193,6 +193,26 @@ function fakeService() {
   assert.equal(controller.disposed, true);
 }
 
+// A lost cloud-startup receipt replays the captured reference even if the
+// directory or selected startup mode changes before cancellation cleanup.
+{
+  const service=fakeService(),requests=[];
+  const uiflowStartup={mode:'cloud',reference_sha256:'a'.repeat(64)};
+  service.create=async({signal,...request})=>{
+    requests.push(request);
+    if(requests.length===1)throw new TypeError('cloud receipt lost');
+    return result('cloud-lost');
+  };
+  const controller=new PublicSessionController({service,createKey:()=> 'cloud-stable'});
+  await assert.rejects(controller.start({deviceId:'cores3',uiflowStartup}),/receipt lost/);
+  uiflowStartup.reference_sha256='b'.repeat(64);uiflowStartup.mode='local';
+  await controller.stop();
+  assert.deepEqual(requests[0],requests[1]);
+  assert.deepEqual(requests[1].uiflowStartup,{mode:'cloud',reference_sha256:'a'.repeat(64)});
+  assert.equal(requests[1].firmwareId,undefined);
+  assert.deepEqual(service.calls.map(row=>row.slice(0,2)),[['evidence','cloud-lost'],['stop','cloud-lost']]);
+}
+
 // A later 401 must not erase an already ambiguous allocation. Replacement
 // starts remain blocked until the original key is recovered and stopped.
 {
@@ -212,11 +232,12 @@ function fakeService() {
 }
 
 // Explicit first-attempt pre-allocation errors do not invent an orphan guest.
-{
+for (const [status,code] of [[429,'capacity_exhausted'],[400,'invalid_uiflow_startup'],
+  [409,'uiflow_startup_conflict'],[409,'uiflow_startup_unavailable'],[409,'uiflow_startup_reference_mismatch']]) {
   const service = fakeService(); let creates = 0;
-  service.create = async () => {creates++; throw Object.assign(new Error('full'), {status:429,code:'capacity_exhausted'});};
+  service.create = async () => {creates++; throw Object.assign(new Error('preallocation rejection'), {status,code});};
   const controller = new PublicSessionController({service});
-  await assert.rejects(controller.start({deviceId: 'cores3'}), /full/);
+  await assert.rejects(controller.start({deviceId: 'cores3'}), /preallocation/);
   assert.equal(controller.createIntent, null);
   await controller.stop();
   assert.equal(creates, 1);

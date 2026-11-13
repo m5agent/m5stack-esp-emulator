@@ -1,0 +1,861 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "final_api_status": "PASS",
+  "scope": "Six final native Device Service original UIFlow2 cloud startup cases and two actual browser frontend controls passed; resident deployment remains NOT RUN. Browser frontend checks are separate from browser-WASM networking.",
+  "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+  "source_file_sha256": {
+    "platform/tools/device_service.py": "547417eca176bb9e9fb1c92c9bde7c163d1365435c11f2264e10809aeeb79808",
+    "platform/tools/uiflow_cloud_startup.py": "28243f5c2608b748c926dd2c8d142a35b664a46128cfbc7da63eba507276f367",
+    "platform/tools/nvs_image.py": "67879c02018eefd7dcdbe6bfb2b97d6ce1b1cb600814a6cdcf370b978953dcd5",
+    "tests/uiflow2/esp_flash.py": "49d98a0f778977dc1018fd9eaf3fb980cbadd16b8cdd70031252b4bbbee397d3",
+    "tests/uiflow2/device_matrix.json": "7978ffbe48a413a8d997b8ce7d8766add6d47fa13b338c259cb003aa7393da98",
+    "platform/web/index.html": "2c326ac2d568e1fa7bbfae1f2db0d43ca5f8bfee5cb855344e8f595b2e305a48",
+    "platform/web/public.js": "b04544e4525d8447df86e7b50e5b91080d16646653a88b6f5356bb75defb5888",
+    "platform/web/public-service.js": "ae89e17ec5cd87caf5b88d38791000a404039a78dffe20dc1e7bb0e900fd1357",
+    "platform/web/public-session-controller.js": "4c47bc0541f4122a68d2e40e825cb99f9ed8cd3c6923bd693ebac41988c5385a"
+  },
+  "official_nvs_generator": {
+    "version": "0.3.0",
+    "partition_bytes": 24576,
+    "byte_comparison": "PASS",
+    "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee"
+  },
+  "baseline": {
+    "device": "cores3",
+    "kind": "old-default-local-programming-path",
+    "status": "NO_STOCK_CLOUD_STARTUP",
+    "runtime": "qemu",
+    "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+    "uart_repl": true,
+    "frame": {
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 0,
+      "unique_colors": 1
+    },
+    "evidence_zip_sha256": "53462c6ea44bd62a92b38377c58aeafba8b5626a8a9262eccf74c48ff0f65ff2",
+    "cleanup": {
+      "state": "stopped",
+      "worker_lease_released": true,
+      "retained_history": true,
+      "evidence_before_stop": true
+    }
+  },
+  "retained_failures": [
+    {
+      "device": "cores3",
+      "status": "FAIL",
+      "phase": "initial-cloud-api-unpadded-reference",
+      "firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "failure": "complete_flash_image_size_required",
+      "required_flash_bytes": 16777216,
+      "received_image_bytes": 16121856,
+      "frame": "NOT AVAILABLE",
+      "evidence_zip_sha256": "4b1b4e2b3aeb36d21a8ecf2866de67083698ae02149681c445f10674147c1bf4",
+      "cleanup": {
+        "state": "failed",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": false
+      }
+    },
+    {
+      "device": "sticks3",
+      "status": "FAIL",
+      "phase": "initial-cloud-api-unpadded-reference",
+      "firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "failure": "complete_flash_image_size_required",
+      "required_flash_bytes": 8388608,
+      "received_image_bytes": 8384512,
+      "frame": "NOT AVAILABLE",
+      "evidence_zip_sha256": "9b91d2ad6697664df2d8e1f772e250a37bb5242b7a17a18b4eeb51e7b1b9252f",
+      "cleanup": {
+        "state": "failed",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": false
+      }
+    },
+    {
+      "device": "core2",
+      "status": "FAIL",
+      "phase": "initial-cloud-api-unpadded-reference",
+      "firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "failure": "complete_flash_image_size_required",
+      "required_flash_bytes": 16777216,
+      "received_image_bytes": 16773120,
+      "frame": "NOT AVAILABLE",
+      "evidence_zip_sha256": "4aaafa067ba8bb96c435108cb5dd756cceb2227ea7616d527eb2b41713169b51",
+      "cleanup": {
+        "state": "failed",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": false
+      }
+    }
+  ],
+  "final_api": [
+    {
+      "device": "cores3",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "reference_size": 16121856,
+        "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+        "normalized_size": 16777216,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+        "effective_flash_sha256": "43a90f9362b093b699f72d09530601c2c0263105c8610d2c969822e044bd4e3f"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 137,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 18.61,
+        "ip_protocol_packet_counts": {
+          "UDP": 26,
+          "TCP": 99
+        },
+        "dns_counts": {
+          "uiflow_cloud_query": 6,
+          "uiflow_cloud_response": 6,
+          "response_rcode_0": 7,
+          "ntp_query": 1,
+          "ntp_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 7,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 7,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "975476cc2f008c8ca560f9b6fdaadf24a7e70fedfded0b96209f6efeba5cc6f3",
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 65113,
+        "unique_colors": 589,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "3856ff60e88086c0ec4b3f7656373462f88abbd08f0d24676fdfd04976e1cbfa",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    {
+      "device": "sticks3",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "reference_size": 8384512,
+        "normalized_sha256": "e9d52fa2459624f277e0d6aa2433ae42db61975b54e9d1c0eb47889cc4ba5579",
+        "normalized_size": 8388608,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "e9d52fa2459624f277e0d6aa2433ae42db61975b54e9d1c0eb47889cc4ba5579",
+        "effective_flash_sha256": "5dd52f227697e92f71a7f6a59d10905042aa9f728d4c035305d8d27652053bd6"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 133,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 17.714,
+        "ip_protocol_packet_counts": {
+          "UDP": 26,
+          "TCP": 95
+        },
+        "dns_counts": {
+          "uiflow_cloud_query": 6,
+          "uiflow_cloud_response": 6,
+          "response_rcode_0": 7,
+          "ntp_query": 1,
+          "ntp_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 7,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 7,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "46cbdfbc00bfa8172d32d9affb6103bbb22cd5919173d3119ea8c535d26417e8",
+        "width": 135,
+        "height": 240,
+        "nonblack_pixels": 32030,
+        "unique_colors": 1815,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "a38c7940cab320d48f645bf7a217829fd22954ed5e9edf400be81d32112039ed",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    {
+      "device": "core2",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "reference_size": 16773120,
+        "normalized_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+        "normalized_size": 16777216,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+        "effective_flash_sha256": "a01079a09a6642037f897a4f7515a9b3cc3f4d24d8c140c5a07b6947b02d6b36"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 55,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 20.182,
+        "ip_protocol_packet_counts": {
+          "UDP": 16,
+          "TCP": 27
+        },
+        "dns_counts": {
+          "ntp_query": 1,
+          "ntp_response": 1,
+          "response_rcode_0": 2,
+          "uiflow_cloud_query": 1,
+          "uiflow_cloud_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 4,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 4,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "c01578b15eaba82afdf71e511f5b774e5b248471fe005e6f8528bcb21af6d244",
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 65079,
+        "unique_colors": 588,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "80ee8f64b84aa6ca05acff0d67c0b775edd19b1b7e26d07f9c0072696080a964",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    {
+      "device": "atoms3r",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+        "reference_size": 8384512,
+        "normalized_sha256": "262602882d69eeeb9d4160e2ba7b8934981009c26eb42e494aa5defcab6cba29",
+        "normalized_size": 8388608,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "262602882d69eeeb9d4160e2ba7b8934981009c26eb42e494aa5defcab6cba29",
+        "effective_flash_sha256": "14505f84fe731b3c177d92cfbea9fd02563a3cfd4afc5cfe63518d619498ba79"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 139,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 17.796,
+        "ip_protocol_packet_counts": {
+          "UDP": 26,
+          "TCP": 101
+        },
+        "dns_counts": {
+          "uiflow_cloud_query": 6,
+          "uiflow_cloud_response": 6,
+          "response_rcode_0": 7,
+          "ntp_query": 1,
+          "ntp_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 7,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 7,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "07ddf181276eee5b329c9808439c755f95eb26ed70c0d3f27b39333fbc927aeb",
+        "width": 128,
+        "height": 128,
+        "nonblack_pixels": 16128,
+        "unique_colors": 129,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "7650041cdfd74020cb9702a9f87e81cb24e4d9cef6d83e863bc73d97fe2d5944",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    {
+      "device": "stopwatch",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+        "reference_size": 16773120,
+        "normalized_sha256": "7bf51befb4bdf7581367fdac993b6b3eb6a01f11c3f42c31a1feafa68365963c",
+        "normalized_size": 16777216,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "7bf51befb4bdf7581367fdac993b6b3eb6a01f11c3f42c31a1feafa68365963c",
+        "effective_flash_sha256": "99af2500711a144968afcc5b591d5488f652d6da269e74e984439a6f56cba7d0"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 131,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 17.547,
+        "ip_protocol_packet_counts": {
+          "UDP": 26,
+          "TCP": 92
+        },
+        "dns_counts": {
+          "uiflow_cloud_query": 6,
+          "uiflow_cloud_response": 6,
+          "response_rcode_0": 7,
+          "ntp_query": 1,
+          "ntp_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 4,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 4,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "c240cb8fc40e8a7148bd6860aa9fd5e417e73c05b71e8b640b6ae298c55dacac",
+        "width": 466,
+        "height": 466,
+        "nonblack_pixels": 166937,
+        "unique_colors": 975,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "ac1d404a40d9eaeec9eb1cf3b5bb2334dd5945a35955e89a46c40444e7b29739",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    {
+      "device": "cardputer-adv",
+      "status": "PASS",
+      "runtime": "qemu-wifi",
+      "firmware": {
+        "reference_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "reference_size": 8384512,
+        "normalized_sha256": "f9d6026012b893409b33fde8be2e7b508f6c669db8b6d4f42d56522fe2b7c9d4",
+        "normalized_size": 8388608,
+        "normalization": "trailing-ff-padding"
+      },
+      "nvs": {
+        "sha256": "370bb0fd9a8c0c226865982cb78fc87c850f32a5847707de6884879b277441ee",
+        "bytes": 24576,
+        "partition_label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "session_isolated_overlay": true,
+        "source_artifact_modified": false,
+        "base_flash_sha256": "f9d6026012b893409b33fde8be2e7b508f6c669db8b6d4f42d56522fe2b7c9d4",
+        "effective_flash_sha256": "ebfeaee768690b823866b4dfa6b5adf69f97bf54bf435d7f036e14bbc2ecaa75"
+      },
+      "checks": {
+        "normalization_only_trailing_ff": true,
+        "original_reference_pin_matches": true,
+        "stock_mode_in_receipt": true,
+        "identity_provisioned": true
+      },
+      "protocol": {
+        "complete_packets": 136,
+        "trailing_incomplete_bytes": 0,
+        "capture_duration_seconds": 17.818,
+        "ip_protocol_packet_counts": {
+          "UDP": 26,
+          "TCP": 98
+        },
+        "dns_counts": {
+          "uiflow_cloud_query": 6,
+          "uiflow_cloud_response": 6,
+          "response_rcode_0": 7,
+          "ntp_query": 1,
+          "ntp_response": 1
+        },
+        "dhcp_counts": {
+          "DISCOVER": 1,
+          "OFFER": 1,
+          "REQUEST": 1,
+          "ACK": 1
+        },
+        "ntp": {
+          "requests": 1,
+          "replies": 1,
+          "reply_mode4_count": 1,
+          "originate_matches_request_transmit_count": 1,
+          "nonzero_transmit_time_count": 1
+        },
+        "mqtt": {
+          "packet_counts": {
+            "guest_to_server_CONNECT": 1,
+            "guest_to_server_SUBSCRIBE": 7,
+            "guest_to_server_PUBLISH": 2,
+            "guest_to_server_PINGREQ": 1,
+            "server_to_guest_CONNACK": 1,
+            "server_to_guest_SUBACK": 7,
+            "server_to_guest_PUBLISH": 1,
+            "server_to_guest_PINGRESP": 1
+          },
+          "connack_return_codes": [
+            0
+          ],
+          "successful_connack_count": 1,
+          "access_code_request_count": 1,
+          "access_code_response_count": 1,
+          "actual_nonempty_access_code_received": true,
+          "all_codes_six_ascii_digits": true,
+          "all_down_topic_prefixes_match": true
+        }
+      },
+      "frame": {
+        "sha256": "6cf3937ada94dfbdc14312e73e00110aa37a05dcced002ea833d2120154205ac",
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 31207,
+        "unique_colors": 1733,
+        "stock_access_code_visual_review": "PASS"
+      },
+      "evidence_zip_sha256": "2784d72f4ad543148595ca365697429fa8800d341dae9aa2672cc586cce29f28",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    }
+  ],
+  "browser_frontend": {
+    "final_stock_startup": [
+      {
+        "device": "cores3",
+        "status": "PASS",
+        "execution_lane": "browser frontend controlling native-service",
+        "firmware": {
+          "reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+          "reference_size": 16121856,
+          "normalized_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+          "normalized_size": 16777216,
+          "normalization": "trailing-ff-padding"
+        },
+        "runtime": "qemu-wifi",
+        "receipt_mode_cloud": true,
+        "page_error_count": 0,
+        "protocol": {
+          "complete_packets": 64,
+          "trailing_incomplete_bytes": 0,
+          "capture_duration_seconds": 3.11,
+          "ip_protocol_packet_counts": {
+            "UDP": 14,
+            "TCP": 38
+          },
+          "dns_counts": {
+            "uiflow_cloud_query": 1,
+            "uiflow_cloud_response": 1,
+            "response_rcode_0": 2,
+            "ntp_query": 1,
+            "ntp_response": 1
+          },
+          "dhcp_counts": {
+            "DISCOVER": 1,
+            "OFFER": 1,
+            "REQUEST": 1,
+            "ACK": 1
+          },
+          "ntp": {
+            "requests": 1,
+            "replies": 1,
+            "reply_mode4_count": 1,
+            "originate_matches_request_transmit_count": 1,
+            "nonzero_transmit_time_count": 1
+          },
+          "mqtt": {
+            "packet_counts": {
+              "guest_to_server_CONNECT": 1,
+              "guest_to_server_SUBSCRIBE": 7,
+              "guest_to_server_PUBLISH": 2,
+              "server_to_guest_CONNACK": 1,
+              "server_to_guest_SUBACK": 7,
+              "server_to_guest_PUBLISH": 1
+            },
+            "connack_return_codes": [
+              0
+            ],
+            "successful_connack_count": 1,
+            "access_code_request_count": 1,
+            "access_code_response_count": 1,
+            "actual_nonempty_access_code_received": true,
+            "all_codes_six_ascii_digits": true,
+            "all_down_topic_prefixes_match": true
+          }
+        },
+        "frame": {
+          "sha256": "ef78b506e5354e9da6451fa6756b11a85a667b43bf54459da03cd34b7a0978ad",
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 65081,
+          "unique_colors": 586,
+          "stock_access_code_visual_review": "PASS"
+        },
+        "evidence_zip_sha256": "595178e1650c1c4a04b6bd45a31ad0b9646a3b713bbaf944a4bb5621b41d66cc",
+        "cleanup": {
+          "state": "stopped",
+          "worker_lease_released": true,
+          "retained_history": true,
+          "evidence_before_stop": true
+        }
+      },
+      {
+        "device": "sticks3",
+        "status": "PASS",
+        "execution_lane": "browser frontend controlling native-service",
+        "firmware": {
+          "reference_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+          "reference_size": 8384512,
+          "normalized_sha256": "e9d52fa2459624f277e0d6aa2433ae42db61975b54e9d1c0eb47889cc4ba5579",
+          "normalized_size": 8388608,
+          "normalization": "trailing-ff-padding"
+        },
+        "runtime": "qemu-wifi",
+        "receipt_mode_cloud": true,
+        "page_error_count": 0,
+        "protocol": {
+          "complete_packets": 61,
+          "trailing_incomplete_bytes": 0,
+          "capture_duration_seconds": 2.164,
+          "ip_protocol_packet_counts": {
+            "UDP": 14,
+            "TCP": 36
+          },
+          "dns_counts": {
+            "uiflow_cloud_query": 1,
+            "uiflow_cloud_response": 1,
+            "response_rcode_0": 2,
+            "ntp_query": 1,
+            "ntp_response": 1
+          },
+          "dhcp_counts": {
+            "DISCOVER": 1,
+            "OFFER": 1,
+            "REQUEST": 1,
+            "ACK": 1
+          },
+          "ntp": {
+            "requests": 1,
+            "replies": 1,
+            "reply_mode4_count": 1,
+            "originate_matches_request_transmit_count": 1,
+            "nonzero_transmit_time_count": 1
+          },
+          "mqtt": {
+            "packet_counts": {
+              "guest_to_server_CONNECT": 1,
+              "guest_to_server_SUBSCRIBE": 7,
+              "guest_to_server_PUBLISH": 2,
+              "server_to_guest_CONNACK": 1,
+              "server_to_guest_SUBACK": 7,
+              "server_to_guest_PUBLISH": 1
+            },
+            "connack_return_codes": [
+              0
+            ],
+            "successful_connack_count": 1,
+            "access_code_request_count": 1,
+            "access_code_response_count": 1,
+            "actual_nonempty_access_code_received": true,
+            "all_codes_six_ascii_digits": true,
+            "all_down_topic_prefixes_match": true
+          }
+        },
+        "frame": {
+          "sha256": "7ab1a64ce9df39722bbfe7265fa3914c1811c45d30bf776d0b500ab3e44c36f7",
+          "width": 135,
+          "height": 240,
+          "nonblack_pixels": 32025,
+          "unique_colors": 1815,
+          "stock_access_code_visual_review": "PASS"
+        },
+        "evidence_zip_sha256": "fa8a7ca371e02b7953c03bfb63365da45f95e55af0b54c9c589cbeb66df77954",
+        "cleanup": {
+          "state": "stopped",
+          "worker_lease_released": true,
+          "retained_history": true,
+          "evidence_before_stop": true
+        }
+      }
+    ],
+    "local_programming": {
+      "device": "cores3",
+      "status": "PASS",
+      "execution_lane": "browser frontend controlling native-service",
+      "phase": "before final artifact-helper change; programming path unchanged",
+      "runtime": "qemu",
+      "firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+      "program_source_sha256": "39e09ae297b12457f7ffd3d1a275b4f599ad60d74160a52a7e0683635dbfaf47",
+      "checks": {
+        "explicit_local_mode": true,
+        "real_guest_program_output": true,
+        "stopped": true
+      },
+      "frame": {
+        "sha256": "6a862feb5be7487dcc6f07152402fff3866eb274e9961c2d17f0c470a833aaa6",
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 75883,
+        "unique_colors": 17
+      },
+      "visual_program_frame": "PASS",
+      "evidence_zip_sha256": "432afcbc1182d6456f7407b60f0f45fabfd77e63687d622610de199f81c95819",
+      "cleanup": {
+        "state": "stopped",
+        "worker_lease_released": true,
+        "retained_history": true,
+        "evidence_before_stop": true
+      }
+    },
+    "browser_wasm_cloud_networking": "NOT RUN"
+  },
+  "resident_deployment": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "burner_submission": "NOT RUN",
+  "redaction": "Whitelisted hashes, protocol counts and booleans only. No device identities, addresses, credentials, access-code values, session identifiers, raw frames or packet payloads."
+}

@@ -41,9 +41,9 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
-  deviceCatalog=catalog,qemuRegistry=registry,
+  deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
   isolation={isolated:true,reloading:false}}={}){
-  const elements=new Map(),events=[],clipboard=[],downloads=[];
+  const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[];
   let evidenceBlob;
   class TestURL extends URL {
     static createObjectURL(blob){evidenceBlob=blob;return 'blob:https://example.test/evidence';}
@@ -81,6 +81,11 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     PublicMicroPythonRunner,
+    PublicSessionController:class {
+      constructor(options){this.options=options;this.frameReady=false;}
+      async start(request){nativeStarts.push(request);this.current={session_id:'cloud-host-contract',device_id:request.deviceId,state:'running',uiflow_startup:request.uiflowStartup};this.options.onState({status:'running',session:this.current,frameReady:false});return this.current;}
+      async stop(){return {state:'stopped'};}
+    },
     createPublicUnitAssembly:async()=>({attachments:()=>[]}),
     loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
     getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
@@ -89,19 +94,20 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
     navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
     URL:TestURL,URLSearchParams,Map,TextEncoder,AbortController,DOMException,Blob,console,setTimeout,
-    fetch:fetchFixture,events,
+    fetch:fetchFixture,events,serviceRows,
   });
   vm.runInContext(body+`
     renderDevices=()=>events.push('render-devices');renderUnits=()=>events.push('render-units');
     selectDevice=async id=>{state.selected=state.devices.find(item=>item.id===id);state.shell={};events.push('select:'+id);};
-    connectService=async()=>{state.serviceDevices=[{device_id:state.selected.id,creatable:true}];events.push('connect-service');};
+    connectService=async()=>{state.serviceDevices=serviceRows||[{device_id:state.selected.id,creatable:true}];updateReferenceDefault();events.push('connect-service');};
+    const startRunActual=startRun;
     startRun=async()=>events.push('start:'+lane());
     globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,
-      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity};
+      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
-  return {...context.contract,elements,events,clipboard,downloads,element,radios};
+  return {...context.contract,elements,events,clipboard,downloads,element,radios,nativeStarts};
 }
 
 for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavailable']){
@@ -134,6 +140,44 @@ assert.equal(localService.deviceRuntimeLabel(localService.state.selected),'服�
 const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&mode=browser&autostart=0'});
 assert.equal(localBrowser.element('serviceUrl').value,'http://127.0.0.1:8787');
 assert.equal(localBrowser.events.includes('connect-service'),false,'an explicit browser-only link must not create a service connection');
+
+const cloudRows=[{device_id:'cores3',creatable:true,program_modes:['uiflow-live'],
+  uiflow_startup:{modes:['cloud'],runtime:'qemu-wifi',reference_sha256:'a'.repeat(64)}}];
+const cloud=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',
+  search:'?device=cores3&autostart=0',serviceRows:cloudRows});
+assert.equal(cloud.element('referenceExample').value,'uiflow-cloud');
+assert.equal(cloud.reference().nativeCloud,true);assert.equal(cloud.lane(),'service');
+cloud.state.picker=null;
+cloud.state.service={importFirmware(){throw new Error('Cloud startup must not import a composed or uploaded BIN');}};
+await cloud.startRunActual();
+assert.equal(cloud.nativeStarts.length,1);
+assert.deepEqual(JSON.parse(JSON.stringify(cloud.nativeStarts[0].uiflowStartup)),{mode:'cloud',reference_sha256:'a'.repeat(64)});
+assert.equal(cloud.nativeStarts[0].firmwareId,undefined);
+assert.equal(cloud.element('pythonRunBtn').disabled,true,'cloud startup must not replace the official boot with a web REPL');
+assert.match(cloud.element('pythonStatus').textContent,/云端配对模式/);
+assert.equal(cloud.element('stageFirmwareNotice').dataset.phase,'cloud-starting');
+assert.doesNotMatch(cloud.element('stageFirmwareTitle').textContent,/已就绪|已联网|配对成功/);
+cloud.state.run.controller.frameReady=true;cloud.status('running');
+assert.equal(cloud.element('stageFirmwareNotice').hidden,true,'the startup overlay yields to actual guest frames without declaring pairing success');
+await cloud.share();
+assert.equal(new URL(cloud.clipboard.at(-1)).searchParams.get('sha256'),null,'cloud service reference cannot masquerade as a browser upload hash');
+assert.equal(new URL(cloud.clipboard.at(-1)).searchParams.get('autostart'),'0');
+const explicitBrowserCloud=await entry({search:'?device=cores3&mode=browser&autostart=0',serviceRows:cloudRows});
+explicitBrowserCloud.state.serviceDevices=cloudRows;explicitBrowserCloud.updateReferenceDefault();
+assert.equal(explicitBrowserCloud.element('referenceExample').value,'uiflow');
+assert.equal(explicitBrowserCloud.lane(),'browser');
+explicitBrowserCloud.element('referenceExample').value='uiflow-cloud';
+assert.equal(explicitBrowserCloud.lane(),null,'an explicitly selected browser lane never silently starts cloud mode in a service');
+cloud.element('referenceExample').value='uiflow';cloud.element('referenceExample').listeners.get('change')();
+cloud.updateReferenceDefault();assert.equal(cloud.element('referenceExample').value,'uiflow','an explicit local programming choice survives directory refresh');
+assert.equal(cloud.reference().nativeWorkbench,true);
+for(const [name,radio] of cloud.radios)radio.checked=name==='local';
+cloud.element('referenceExample').value='uiflow-cloud';cloud.element('runtimeMode').value='browser';
+assert.equal(cloud.lane(),'browser','an unrelated local BIN keeps its explicit execution lane');
+const pinnedReference=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',
+  search:`?device=cores3&sha256=${fixtureSha}&autostart=0`,serviceRows:cloudRows});
+assert.equal(pinnedReference.element('referenceExample').value,'stock-div8','a hash-pinned shared reference must not be replaced by cloud defaults');
+assert.equal(pinnedReference.reference().sha256,fixtureSha);
 const staticBrowser=await entry({pageUrl:'http://127.0.0.1:8000/platform/web/',search:'?device=cardputer-adv&autostart=0'});
 assert.equal(staticBrowser.element('serviceUrl').value,'');
 assert.equal(staticBrowser.events.includes('connect-service'),false,'a static loopback export must not probe or connect a Device Service');
@@ -209,10 +253,10 @@ assert.doesNotMatch(uploadedUart.element('pythonStatus').textContent,/UIFlow.*�
 assert.equal(uploadedUart.element('stageFirmwareNotice').hidden,true);
 const uploadedWorkbench=workbenchRegistry.profiles.find(row=>row.deviceId==='cores3');
 uploadController.receipt.firmwareSha256=uploadedWorkbench.firmwareSHA256;
-uploadedUart.status('booting');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);assert.match(uploadedUart.element('pythonStatus').textContent,/正在启动 UIFlow/);
+uploadedUart.status('booting');assert.equal(uploadedUart.element('pythonRunBtn').disabled,true);assert.match(uploadedUart.element('pythonStatus').textContent,/正在启动 MicroPython/);
 assert.equal(uploadedUart.element('stageFirmwareNotice').dataset.phase,'starting');
 assert.equal(uploadedUart.element('stageFirmwareEditor').hidden,true);
-uploadedUart.status('running');assert.equal(uploadedUart.element('pythonStatus').textContent,'UIFlow 已就绪');
+uploadedUart.status('running');assert.equal(uploadedUart.element('pythonStatus').textContent,'MicroPython 已就绪');
 assert.equal(uploadedUart.element('stageFirmwareNotice').dataset.phase,'ready');
 assert.match(uploadedUart.element('stageFirmwareDetail').textContent,/程序绘图后/);
 assert.equal(uploadedUart.element('stageFirmwareEditor').hidden,false);

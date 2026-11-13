@@ -70,10 +70,14 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
+  if ($('referenceExample').value==='uiflow-cloud') {
+    const startup=serviceCloudStartup(device?.id);
+    return startup ? {name:`${device.name} · 官方 UIFlow2 · 云端配对`,nativeCloud:true,sha256:startup.reference_sha256} : null;
+  }
   if (lane(device)==='service' && serviceProgrammingDevice(device?.id) && $('referenceExample').value==='uiflow')
-    return {name:`${device.name} · UIFlow2 编程环境`,nativeWorkbench:true};
+    return {name:`${device.name} · 本地 MicroPython 编程`,nativeWorkbench:true};
   const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
-  if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · UIFlow2 编程环境`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
+  if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · 本地 MicroPython 编程`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1','riscv-board-display-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
@@ -92,6 +96,14 @@ function reference(device = state.selected) {
 function serviceProgrammingDevice(id=state.selected?.id) {
   return state.serviceDevices.some(row=>row.device_id===id&&row.creatable&&row.program_modes?.includes('uiflow-live'));
 }
+function serviceCloudStartup(id=state.selected?.id) {
+  const row=state.serviceDevices.find(row=>row.device_id===id&&row.creatable), startup=row?.uiflow_startup;
+  return startup?.modes?.includes('cloud')&&startup.runtime==='qemu-wifi'&&/^[a-f0-9]{64}$/.test(startup.reference_sha256||'') ? startup : null;
+}
+function updateReferenceDefault() {
+  if (!state.referenceExplicit && source()==='reference' && !$('firmwareSha').value.trim())
+    $('referenceExample').value=serviceCloudStartup()&&!['browser','model'].includes($('runtimeMode').value)?'uiflow-cloud':'uiflow';
+}
 function selectedAttachments() {
   try {
     return state.picker?.attachments(state.selected?.id) || [];
@@ -101,6 +113,8 @@ function selectedAttachments() {
 }
 function lane(device = state.selected) {
   const mode = $('runtimeMode').value;
+  if (source()==='reference' && $('referenceExample').value==='uiflow-cloud' && mode!=='model')
+    return mode!=='browser'&&serviceCloudStartup(device?.id)?'service':null;
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
   return selectExecutionLane({mode,serviceReady,browserAvailable:!!browserProfile(device?.id),
     hasAttachments:selectedAttachments().length>0});
@@ -195,28 +209,32 @@ function status(status, detail) {
 const pythonPhases={connecting:'正在连接 MicroPython…',uploading:'正在传输代码…',running:'代码正在运行',complete:'运行完成',error:'代码执行出现异常',interrupted:'已中断',failed:'运行未完成',noRepl:'当前固件未响应网页 MicroPython REPL 握手'};
 function pythonUnavailableReason() {
   const device=state.selected;
-  if (state.run?.kind==='service') return '当前固件未启用网页编程。选择 UIFlow2 编程环境后重新启动。';
-  if (lane()==='service'&&serviceProgrammingDevice()) return '启动当前设备的 UIFlow 后即可运行代码';
+  if (state.run?.cloudStartup || state.run?.controller?.current?.uiflow_startup?.mode==='cloud')
+    return '官方 UIFlow2 云端配对模式：在设备屏幕查看配对码，并通过 UIFlow 编程。网页编辑器请另选“本地 MicroPython 编程”。';
+  if (state.run?.kind==='service') return '当前固件未启用网页编程。选择“本地 MicroPython 编程”后重新启动。';
+  if (lane()==='service'&&serviceProgrammingDevice()) return '启动本地 MicroPython 编程环境后即可运行代码';
   if(device?.uiflow2?.supported===false)return '此型号不支持 UIFlow2，当前网页编程不可用';
   if(device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!browserProfile(device.id)))
     return '当前浏览器仅提供此型号的模型预览，不能运行网页代码';
   if(state.browserUnavailable||state.config.browser_board_execution!==true)return '本站浏览器运行暂不可用，可浏览模型或连接仿真服务';
   if(!browserProfile(device?.id))return '此型号尚未取得浏览器运行准入，网页编程不可用';
   if(state.config.browser_runtime_engine!=='qemu-wasm')return '当前运行内核不提供网页 MicroPython 编程';
-  return '启动浏览器中的 UIFlow 后即可运行';
+  return '启动浏览器中的本地 MicroPython 编程环境后即可运行';
 }
 function updateStageFirmwareNotice(currentStatus, uiflowReady) {
   const starting = ['loading', 'provisioning', 'flashing', 'booting'].includes(currentStatus);
-  const phase = starting ? 'starting' : currentStatus === 'running' && uiflowReady ? 'ready' : '';
+  const cloud=state.run?.cloudStartup || state.run?.controller?.current?.uiflow_startup?.mode==='cloud';
+  const cloudWaiting=cloud&&currentStatus==='running'&&!state.run?.controller?.frameReady;
+  const phase = cloud&&(starting||cloudWaiting) ? 'cloud-starting' : starting ? 'starting' : currentStatus === 'running' && uiflowReady ? 'ready' : '';
   const notice = $('stageFirmwareNotice');
   if (notice.dataset.phase === phase) return;
   notice.dataset.phase = phase;
   notice.hidden = !phase;
-  $('stageFirmwareTitle').textContent = starting ? '正在启动固件' : phase ? 'UIFlow 已就绪' : '';
+  $('stageFirmwareTitle').textContent = phase==='cloud-starting' ? '正在启动官方 UIFlow2' : starting ? '正在启动固件' : phase ? 'MicroPython 已就绪' : '';
   const readyDetail = state.selected?.display
     ? '现在可以运行 MicroPython。程序绘图后，设备屏幕会更新。'
     : '现在可以运行 MicroPython，并在下方查看代码输出。';
-  $('stageFirmwareDetail').textContent = starting ? '正在准备设备，请稍候。' : phase ? readyDetail : '';
+  $('stageFirmwareDetail').textContent = phase==='cloud-starting' ? '正在等待设备画面。联网与配对状态以固件屏幕和串口为准。' : starting ? '正在准备设备，请稍候。' : phase ? readyDetail : '';
   $('stageFirmwareEditor').hidden = phase !== 'ready';
 }
 function updatePythonControls(currentStatus=state.run?.controller?.status || state.run?.controller?.current?.state) {
@@ -237,8 +255,8 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
   else if(currentStatus==='error')$('pythonStatus').textContent='设备运行未完成，请停止或重新启动';
   else if(currentStatus==='sleeping')$('pythonStatus').textContent='设备已休眠，请唤醒后运行代码';
-  else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 UIFlow…':'正在启动固件…';
-  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'UIFlow 已就绪':'当前固件的 MicroPython REPL 未验证，运行代码时尝试连接');
+  else if(currentStatus==='booting')$('pythonStatus').textContent=programming?'正在启动 MicroPython…':'正在启动固件…';
+  else if(currentStatus==='running')$('pythonStatus').textContent=pythonPhases[run.pythonPhase]||(native||programming?'MicroPython 已就绪':'当前固件的 MicroPython REPL 未验证，运行代码时尝试连接');
   const readyWorkbench = currentStatus === 'running' && supported && (programming || (native && run.owned !== false && run.python.ready));
   updateStageFirmwareNotice($('runtimeStatus').dataset.status, readyWorkbench && !busy && !run.pythonPhase);
 }
@@ -298,6 +316,12 @@ function updateCapability() {
     $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor>1?`虚拟时间与看门狗按 1/${p.clockDivisor} 慢放。`:'采用正常虚拟时钟。'}刷新不保存 Flash。`;
     if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
+  if (source()==='reference' && $('referenceExample').value==='uiflow-cloud') {
+    $('capabilityTitle').textContent=selectedLane==='service'?'官方 UIFlow2 · 原生服务运行':'云端配对需要原生设备服务';
+    $('capabilityText').textContent=selectedLane==='service'
+      ? '设备运行官方启动界面，并自行连接 UIFlow 云端。配对状态请查看设备屏幕。'
+      : '请连接支持此型号云端启动的服务并选择自动或服务运行；浏览器编程请选择“本地 MicroPython 编程”。';
+  }
   if (selectedAttachments().length && !['service','model'].includes(selectedLane)) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
@@ -349,7 +373,7 @@ function renderDetails() {
   const legacy=qemu?null:device.browser;
   const workbench=state.workbenchProfiles?.profiles.some(row=>row.deviceId===device.id);
   const range=qemu
-    ? profile?(workbench?'浏览器本地运行 · UIFlow2 编程环境':'浏览器候选预览 · 屏幕与按键示例')
+    ? profile?(workbench?'浏览器本地运行 · MicroPython 编程':'浏览器候选预览 · 屏幕与按键示例')
       : device.visual_only||device.browser_only?'当前浏览器仅供模型预览':'浏览器尚未准入；需连接支持本型号的仿真服务'
     : legacy?.description||device.runtime?.execution||'独立视觉模型';
   const limits=[...(legacy?.limitations||[]),...(device.runtime?.blockers||[])];
@@ -373,13 +397,16 @@ function renderDetails() {
   for (const text of limits)
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
-  $('referenceExampleFields').hidden = !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
-  for(const option of $('referenceExample').options)option.hidden=['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
+  $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
+  for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
+    ? !serviceCloudStartup() : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.nativeWorkbench
-    ? '在当前仿真服务中启动 UIFlow。Unit、屏幕和代码运行共用同一设备会话。'
+  $('referenceDescription').textContent = ref?.nativeCloud
+    ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
+    : ref?.nativeWorkbench
+    ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
     : ref?.composedWorkbench
-    ? '官方 UIFlow2 运行时配网页编程启动脚本。就绪后可在下方运行 MicroPython。'
+    ? '官方 UIFlow2 运行时配网页编程启动脚本，就绪后可在下方运行 MicroPython；不运行官方云端配对界面。'
     : ref?.wallclockCandidate
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
     : ref?.composedProbe
@@ -462,8 +489,10 @@ async function selectDevice(id, {openGeneration} = {}) {
   await state.picker?.setDevice(id);
   if(selection!==state.selection)return;
   if(state.selected?.id!==row.id)$('firmwareSha').value='';
+  state.referenceExplicit=false;
   $('referenceExample').value='uiflow';
   state.selected = row;
+  updateReferenceDefault();
   renderDevices();
   $('stageTitle').textContent = row.name;
   $('stageSub').textContent = `${row.sku || ''} · ${row.hardware?.soc || row.group_label || 'M5STACK DEVICE'}`;
@@ -850,13 +879,15 @@ async function startRun() {
   updateCapability();
   let run;
   try {
-    const nativeWorkbench=kind==='service'&&source()==='reference'&&reference()?.nativeWorkbench;
-    if(nativeWorkbench&&$('firmwareSha').value.trim())throw new Error('服务编程环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
-    const loaded = nativeWorkbench ? {name:reference().name,size:0} : await firmware(abort.signal, generation);
+    const ref=reference(), nativeWorkbench=kind==='service'&&source()==='reference'&&ref?.nativeWorkbench;
+    const nativeCloud=kind==='service'&&source()==='reference'&&ref?.nativeCloud;
+    const uiflowStartup=nativeCloud?{mode:'cloud',reference_sha256:ref.sha256}:undefined;
+    if((nativeWorkbench||nativeCloud)&&$('firmwareSha').value.trim())throw new Error('此启动环境使用服务绑定的 UIFlow 固件。请清空自定义 SHA-256，或选择链接／本地文件校验指定固件。');
+    const loaded = nativeWorkbench||nativeCloud ? {name:ref.name,size:0} : await firmware(abort.signal, generation);
     if (generation !== state.runGeneration || selection !== state.selection) return;
     clearBrowserOutputs(browserProfile(state.selected.id));
-    message('runProgress', nativeWorkbench ? '正在启动 UIFlow 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
-    run = {kind, generation, controller: null};
+    message('runProgress', nativeCloud ? '正在启动官方 UIFlow2，联网与配对进度请查看设备屏幕…' : nativeWorkbench ? '正在启动本地 MicroPython 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
+    run = {kind, generation, controller: null,cloudStartup:!!nativeCloud};
     const callbacks = {
       onSerial: (text) => {
         if (active(run)) appendSerial(text);
@@ -898,7 +929,7 @@ async function startRun() {
       state.shell?.focusInput?.();
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
-      const imported = nativeWorkbench ? null : await state.service.importFirmware(
+      const imported = nativeWorkbench||nativeCloud ? null : await state.service.importFirmware(
         new File([loaded.bytes], loaded.name, {type: 'application/octet-stream'}),
         state.selected.id,
         {signal: abort.signal},
@@ -910,7 +941,7 @@ async function startRun() {
         try {
           const registry = state.qemuProfiles || await loadQemuBrowserProfiles({root, signal: abort.signal});
           const board = registry.profiles.find(profile => profile.deviceId === 'stackchan');
-          if (board?.outputs?.kind === 'stackchan-scs-qom-v1' && typeof imported.sha256 === 'string' && /^[a-f0-9]{64}$/.test(imported.sha256)) outputProfile = {
+          if (board?.outputs?.kind === 'stackchan-scs-qom-v1' && typeof imported?.sha256 === 'string' && /^[a-f0-9]{64}$/.test(imported.sha256)) outputProfile = {
             deviceId: board.deviceId, board: board.board, outputs: structuredClone(board.outputs), firmwareSHA256: imported.sha256,
           };
         } catch (cause) {
@@ -944,11 +975,11 @@ async function startRun() {
       if(nativeWorkbench) {
         run.python=new PublicServiceProgram({service:state.service,controller:run.controller,
           onState:()=>{if(active(run))updatePythonControls();}});
-        status('booting', '正在连接 UIFlow 编程环境');
+        status('booting', '正在连接本地 MicroPython 编程环境');
         await run.python.start({deviceId:state.selected.id,units,signal:abort.signal});
-      } else await run.controller.start({deviceId:state.selected.id,firmwareId:imported.firmware_id,units,signal:abort.signal});
+      } else await run.controller.start({deviceId:state.selected.id,...(nativeCloud?{uiflowStartup}:{firmwareId:imported.firmware_id}),units,signal:abort.signal});
     }
-    if (active(run)) message('runProgress', nativeWorkbench ? `已启动 ${loaded.name}` : `已加载 ${loaded.name} · ${bytes(loaded.size)}`);
+    if (active(run)) message('runProgress', nativeCloud ? '已创建官方 UIFlow2 会话，启动和配对进度请查看设备屏幕。' : nativeWorkbench ? `已启动 ${loaded.name}` : `已加载 ${loaded.name} · ${bytes(loaded.size)}`);
   } catch (cause) {
     if (generation === state.runGeneration) {
       if (run?.controller && state.run === run) {
@@ -1011,9 +1042,10 @@ async function connectService() {
     if (generation !== state.serviceGeneration) return;
     state.service = service;
     state.serviceDevices = result.devices;
+    updateReferenceDefault();
     $('serviceUrl').value = service.url;
     updateServiceLinks();
-    message('serviceStatus', `已连接 · ${state.serviceDevices.filter((d) => d.creatable).length} 个可运行设备`);
+    message('serviceStatus', `仿真服务已连接 · ${state.serviceDevices.filter((d) => d.creatable).length} 个可运行设备；设备联网状态请查看屏幕。`);
     await loadServiceUnits(state.selection);
     renderDetails();
     updateCapability();
@@ -1091,7 +1123,7 @@ async function openServiceSession(id) {
   if(!current()||state.selected?.id!==session.device_id)return;
   await state.picker?.attachShell(null);
   if(!current())return;
-  const run={kind:'service',generation:++state.runGeneration,owned:false};
+  const run={kind:'service',generation:++state.runGeneration,owned:false,cloudStartup:session.uiflow_startup?.mode==='cloud'};
   run.controller=new PublicSessionController({service,shell:state.shell,unitContainer:$('runtimeUnitPanel'),
     onSerial:text=>{if(active(run))appendSerial(text);},onError:cause=>{if(active(run))error(cause);},
     onState:value=>{if(active(run)){run.python?.bindSession(value.session);status(value.status,value.frameReady?'实际会话屏幕已更新':'等待应用显示帧');}}});
@@ -1212,17 +1244,19 @@ async function share() {
       {
         deviceId: state.selected.id,
         firmware: firmwareUrl,
-        sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
+        sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference'&&!ref?.nativeCloud ? ref?.sha256 : null),
         serviceUrl: $('serviceUrl').value.trim(),
         mode: $('runtimeMode').value,
-        autostart: $('runtimeMode').value !== 'model',
+        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&ref?.nativeCloud),
       },
       new URL(root),
     );
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(url);
       $('shareStatus').textContent =
-        selectedSource === 'local'
+        selectedSource === 'reference'&&ref?.nativeCloud
+          ? '已复制设备链接。连接支持云端配对的服务后，可启动官方 UIFlow2。'
+          : selectedSource === 'local'
           ? '已复制设备链接。本地文件需由对方重新选择。'
           : '已复制链接，打开即可加载对应设备与固件。';
     } else $('shareStatus').textContent = `分享链接：${url}`;
@@ -1370,6 +1404,7 @@ for (const button of document.querySelectorAll('[data-unit-filter]'))
 for (const input of document.querySelectorAll('[name="firmwareSource"]'))
   input.addEventListener('change', sourceChanged);
 $('referenceExample').addEventListener('change', () => {
+  state.referenceExplicit=true;
   $('firmwareSha').value='';
   $('shareStatus').textContent='';
   renderDetails();updateCapability();
@@ -1383,7 +1418,7 @@ $('resetViewBtn').addEventListener('click', () => {
 $('startBtn').addEventListener('click', () => void startRun().catch(error));
 $('stopBtn').addEventListener('click', () => void stopRun().catch(error));
 $('cancelLoadBtn').addEventListener('click', () => void stopRun().catch(error));
-$('runtimeMode').addEventListener('change', ()=>{renderDetails();updateCapability();updatePythonControls();});
+$('runtimeMode').addEventListener('change', ()=>{updateReferenceDefault();renderDetails();updateCapability();updatePythonControls();});
 $('refreshSessionsBtn').addEventListener('click',()=>void refreshServiceSessions());
 $('addSelectedUnitBtn').addEventListener('click',async()=>{
   try {await state.picker?.addUnit(state.selectedUnit);$('unitAssemblyPanel').scrollIntoView({block:'center'});}

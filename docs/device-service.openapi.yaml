@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.57.0
+  version: 1.58.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3226,6 +3226,23 @@ components:
           items:
             type: string
             enum: [uiflow-live]
+        uiflow_startup:
+          type: object
+          additionalProperties: false
+          required: [modes]
+          description: Exact locally available stock UIFlow2 cloud startup admission; empty modes when unavailable.
+          properties:
+            modes:
+              type: array
+              items:
+                type: string
+                enum: [cloud]
+            reference_sha256:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            runtime:
+              type: string
+              const: qemu-wifi
         program_source_kinds:
           type: array
           items:
@@ -4141,6 +4158,47 @@ components:
             deployment phase/guest capabilities/hash inventory. Publishing or
             activating files is distinct from entering application execution.
           additionalProperties: true
+    UIFlowCloudStartup:
+      type: object
+      additionalProperties: false
+      required: [mode, reference_sha256]
+      properties:
+        mode:
+          type: string
+          const: cloud
+        reference_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: SHA256 of the original cached reference advertised by Device.uiflow_startup.
+    UIFlowCloudProvenance:
+      type: object
+      additionalProperties: false
+      required: [kind, artifact_id, metadata]
+      properties:
+        kind:
+          type: string
+          const: uiflow-cloud
+        artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        metadata:
+          type: object
+          additionalProperties: false
+          required: [reference_sha256, reference_size, normalized_sha256, normalized_size, normalization]
+          properties:
+            reference_sha256:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            reference_size:
+              type: integer
+            normalized_sha256:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            normalized_size:
+              type: integer
+            normalization:
+              type: string
+              const: trailing-ff-padding
     CreateSessionRequest:
       type: object
       dependentRequired:
@@ -4148,6 +4206,19 @@ components:
         expected_base_sha256: [base_firmware_id, program_mode]
       required: [device_id]
       properties:
+        uiflow_startup:
+          $ref: "#/components/schemas/UIFlowCloudStartup"
+          description: >
+            Boot an admitted original UIFlow2 reference through its stock startup
+            and real cloud connection. Selects qemu-wifi and a session-only full
+            NVS configuration with typed boot_option=1 and open AP myssid.
+            Preserves application, boot.py and main.py. Defaults http_fixture=false
+            and capture_pcap=true; valid caller network policy is preserved and
+            enforced. Conflicts with firmware/source/NVS/program options or Wi-Fi
+            environment overrides return 409 uiflow_startup_conflict. A mismatched
+            pin returns 409 uiflow_startup_reference_mismatch; unavailable reference
+            returns 409 uiflow_startup_unavailable. Malformed values return 400
+            invalid_uiflow_startup. Session running does not prove pairing.
         base_firmware_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
@@ -4802,6 +4873,9 @@ components:
       additionalProperties: true
       required: [session_id, device_id, state]
       properties:
+        uiflow_startup:
+          $ref: "#/components/schemas/UIFlowCloudStartup"
+          description: Present for stock cloud startup; retained in session history with the original reference pin.
         program_capabilities:
           $ref: "#/components/schemas/MainLoaderCapabilities"
         units:
@@ -4845,10 +4919,15 @@ components:
         firmware_source:
           type: string
         firmware_provenance:
-          $ref: "#/components/schemas/UIFlowFirmwareSource"
+          oneOf:
+            - $ref: "#/components/schemas/UIFlowFirmwareSource"
+            - $ref: "#/components/schemas/UIFlowCloudProvenance"
           description: >
             Optional frozen UIFlow source provenance, retained across history
             restoration and as firmware/uiflow-source.json in the evidence ZIP.
+            Cloud startup instead records original and normalized image hashes
+            and sizes in firmware/uiflow-cloud-reference.json; normalization
+            only pads the original BIN with trailing 0xff to complete Flash size.
             Contains hashes/metadata, never source bodies.
         runtime:
           $ref: "#/components/schemas/RuntimeName"

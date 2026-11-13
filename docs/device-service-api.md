@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-06`.
+Last reviewed: `2026-11-13`.
 
-Status: local MVP with unified-device runtime contract `1.57.0` and bounded
+Status: local MVP with unified-device runtime contract `1.58.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -32,6 +32,66 @@ option leaves the guest UART route to the caller. The Live sessions page offers
 an explicit programming checkbox and a per-session editor with execution
 identity checks. A late response never replaces the local source draft.
 
+
+### Official UIFlow2 cloud startup
+
+API 1.58 adds `uiflow_startup` for the original UIFlow2 startup screen and cloud
+pairing. Read `GET /devices/{device_id}` first. An admitted, locally available
+stock reference advertises:
+
+```json
+{"uiflow_startup":{"modes":["cloud"],"reference_sha256":"<64 lowercase hex characters>","runtime":"qemu-wifi"}}
+```
+
+Admission is bound to the exact cached original image on CoreS3, StickS3, Core2,
+AtomS3R, StopWatch and Cardputer ADV. Other or missing/unrecognized references
+advertise `{"modes":[]}`. Use the advertised SHA in the create request:
+
+```json
+{
+  "device_id": "cores3",
+  "uiflow_startup": {"mode": "cloud", "reference_sha256": "<advertised SHA256>"},
+  "ttl_seconds": 600,
+  "idempotency_key": "caller-stable-cloud-startup-key"
+}
+```
+
+The service freshly verifies the image pin, selects `runtime=qemu-wifi`, and
+uses the existing NVS overlay to initialize the isolated Flash copy. The NVS
+contains the official UIFlow startup fields, `boot_option` as typed `u8=1`, and
+the matching open virtual AP `myssid` with an empty password. Application,
+`boot.py`, `main.py` and filesystem bytes remain those of the original BIN.
+No UART programming bootstrap or synthetic pairing code is installed. The
+original firmware performs Wi-Fi, time synchronization and MQTT registration.
+Session snapshots and retained history include the same `uiflow_startup` mode
+and SHA; idempotency binds the original caller body before generated settings.
+The existing Flash padding helper pads a short stock BIN to device Flash size
+using trailing `0xff` only. `firmware_sha256` identifies that normalized image,
+while `uiflow_startup.reference_sha256` pins the original BIN. Both hashes and
+sizes are retained in `firmware_provenance` (`kind=uiflow-cloud`) and evidence
+`firmware/uiflow-cloud-reference.json`; the NVS overlay records its own effective
+Flash hash separately.
+
+Network defaults are `http_fixture=false` and `capture_pcap=true`. Callers may
+disable packet capture and supply an otherwise valid `network.policy`; existing
+capability and egress checks apply without fallback or permission expansion.
+A deny policy can prevent cloud pairing. Custom SSID/password/auth, HTTP
+fixtures, conflicting Wi-Fi runtime environment overrides, or a runtime other
+than `qemu-wifi` return `409 uiflow_startup_conflict`. The mode also rejects
+`firmware_id`, `source`, `nvs`, `program_mode`, `program_transport`, explicit
+program base fields and `uiflow_source_sha256`; choose the existing uploaded
+firmware or local programming workflow for those paths. Malformed startup
+objects return `400 invalid_uiflow_startup`; unavailable stock references return
+`409 uiflow_startup_unavailable`, and a caller SHA mismatch returns
+`409 uiflow_startup_reference_mismatch` before allocating a guest.
+
+An allocated/running session or firmware connection status alone does not prove
+cloud pairing. Verify the actual stock startup framebuffer and, where needed,
+the received MQTT `syscmd` response carrying `data.code`. Firmware log settings
+may suppress INFO markers. Packet captures and frames may contain access codes
+and unique device identities; retain raw evidence privately and redact public
+summaries. Native-service results do not establish browser-WASM networking or
+physical RF behavior.
 
 ### Runtime ACL and execution policy
 
@@ -1481,8 +1541,9 @@ serial log set.
 readiness. `provisioned` includes a session-stable, locally administered `mac`,
 `source: session-fixture`, and the attached eFuse `driver`. ESP32-S3 and classic
 ESP32 profiles with a wired eFuse drive receive this fixture; classic ESP32
-includes the factory MAC CRC. Core2 and C6 profiles without an attached eFuse
-drive return `unprovisioned` with `reason: efuse_drive_not_attached`. Other
+includes the factory MAC CRC. Core2 attaches its classic ESP32 eFuse drive;
+C6 profiles without an attached eFuse drive return `unprovisioned` with
+`reason: efuse_drive_not_attached`. Other
 unsupported runtimes also state why identity is unprovisioned. Before native
 fixture preparation the status is `unknown`; restored history with no identity
 record remains `unknown` (`not_recorded`). This field is retained in session

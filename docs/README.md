@@ -15,6 +15,8 @@
 
 [2026-11-13 新增模拟器问题复核](evidence/2026-11-13-issue-triage/README.md)记录主动关机等逐 issue 的验证与边界。
 
+[2026-11-13 UIFlow2 原版云端配对](evidence/2026-11-13-uiflow-cloud-startup/README.md)记录官方启动、真实配对响应、网页入口与旧失败对照；常驻交付状态单列。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
@@ -342,6 +344,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [UIFlow2 原版启动与云端配对](plans/2026-11-13-uiflow-cloud-startup.md) | 实施计划 | `2026-11-13` | 官方启动与本地编程分流；真实网络、NVS 与配对屏幕独立验收，保留浏览器网络边界 |
+| [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |
 | [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |
 | [初代 Cardputer K132](evidence/2026-11-09-cardputer-k132/README.md) | 日期化原生证据 | `2026-11-09` | 两版原厂固件与 UIFlow2 的 LCD、键盘和未覆盖路径 |
 | [PaperS3 与 PaperDIY](evidence/2026-11-09-paper-et047tc1/README.md) | 日期化原生证据 | `2026-11-09` | 原厂演示、UIFlow2 探针、GT911、A/B 与数字墨水屏扫描 |
@@ -529,7 +533,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
 | [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-06` | `1.52.0`；新增本地展示 snapshot/events 只读生命周期接口，保留 runtime ACL、会话内容权限及既有执行契约 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-13` | `1.58.0`；新增绑定原版 SHA 的 UIFlow2 云端启动，保留本地编程、幂等、网络策略与历史契约 |
 | [本地虚拟设备实验室](local-observatory.md) | 使用指南 | `2026-11-06` | 无输入自动巡展、短任务与黑屏、日志跟随和资源预算；不进入静态托管导出 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-29` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，Relay/Relay2 hard-reset A/B 已限定闭环，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |

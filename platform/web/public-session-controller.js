@@ -8,12 +8,13 @@ const abortError = () => new DOMException('已取消启动。', 'AbortError');
 // Generic handler errors can be returned after a session was allocated.
 const PRECREATE_REJECTIONS = {
   400: new Set(['invalid_idempotency_key', 'invalid_ttl', 'invalid_ready', 'invalid_worker_owner',
-    'invalid_runtime_env', 'unsupported_runtime', 'invalid_units', 'invalid_unit_topology', 'invalid_unit_input']),
+    'invalid_runtime_env', 'unsupported_runtime', 'invalid_units', 'invalid_unit_topology', 'invalid_unit_input', 'invalid_uiflow_startup']),
   401: new Set(['unauthorized']),
   404: new Set(['unknown_device', 'unknown_firmware', 'unknown_unit']),
   409: new Set(['unsupported_device', 'firmware_device_mismatch', 'reference_firmware_missing',
     'reference_firmware_too_large', 'unsupported_firmware_capability', 'units_not_supported',
-    'runtime_model_gap', 'unit_port_conflict', 'unit_port_not_supported', 'unit_bus_conflict', 'unit_address_conflict']),
+    'runtime_model_gap', 'unit_port_conflict', 'unit_port_not_supported', 'unit_bus_conflict', 'unit_address_conflict',
+    'uiflow_startup_conflict', 'uiflow_startup_unavailable', 'uiflow_startup_reference_mismatch']),
   429: new Set(['capacity_exhausted', 'device_capacity_exhausted']),
 };
 
@@ -79,7 +80,7 @@ export class PublicSessionController {
     return session;
   }
 
-  async start({deviceId, firmwareId, units = [], signal}) {
+  async start({deviceId, firmwareId, uiflowStartup, units = [], signal}) {
     if (this.disposed) throw new Error('会话控制器已关闭。');
     if (this.outputProfile && this.outputProfile.deviceId !== deviceId) throw new Error('舵机输出配置不属于当前设备。');
     if (this.pendingCreate) throw new Error('正在创建虚拟设备，请等待或取消。');
@@ -106,7 +107,7 @@ export class PublicSessionController {
     signal?.addEventListener('abort', cancel, {once: true});
     // Store bytes, not the caller's mutable Unit selection. Recovery must replay
     // exactly the same body and key, even after cancellation or UI edits.
-    const intent = {request: JSON.stringify({deviceId, firmwareId, units, idempotencyKey: this.createKey()}), attempts: 0, uncertain: false};
+    const intent = {request: JSON.stringify({deviceId, firmwareId, uiflowStartup, units, idempotencyKey: this.createKey()}), attempts: 0, uncertain: false};
     this.createIntent = intent;
     const pending = this.acquireIntent(intent);
     this.pendingCreate = pending;

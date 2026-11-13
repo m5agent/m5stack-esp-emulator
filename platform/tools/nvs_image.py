@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create deterministic NVS images containing string configuration values."""
+"""Create deterministic NVS images containing string and typed u8 values."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import hashlib
 import struct
 import zlib
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 
 PAGE_SIZE = 4096
@@ -26,6 +27,13 @@ CHUNK_ANY = 0xFF
 
 class NvsImageError(ValueError):
     """Raised when requested NVS contents cannot fit a valid image."""
+
+
+@dataclass(frozen=True)
+class NvsU8:
+    """Explicit unsigned-byte value; integers never silently become strings."""
+
+    value: int
 
 
 def _crc32(data: bytes) -> int:
@@ -92,9 +100,29 @@ def build_string_nvs_image(
     partition_size: int,
     namespaces: Mapping[str, Mapping[str, str]],
 ) -> bytes:
+    for values in namespaces.values() if isinstance(namespaces, Mapping) else ():
+        if isinstance(values, Mapping) and any(not isinstance(value, str) for value in values.values()):
+            raise NvsImageError("string NVS values must be strings")
+    return build_nvs_image(partition_size, namespaces)
+
+
+def _u8_entry(namespace_index: int, key: str, value: int) -> bytes:
+    if type(value) is not int or not 0 <= value <= 255:
+        raise NvsImageError("u8 NVS values must be integers from 0 to 255")
+    entry = bytearray(_namespace_entry(namespace_index, key))
+    entry[0] = namespace_index
+    entry[24] = value
+    _entry_crc(entry)
+    return bytes(entry)
+
+
+def build_nvs_image(
+    partition_size: int,
+    namespaces: Mapping[str, Mapping[str, str | NvsU8]],
+) -> bytes:
     """Build one active NVSv2 page followed by erased pages.
 
-    The supported subset is a namespace entry plus string key/value pairs.
+    The supported subset is namespaces with string and explicit NvsU8 values.
     This is sufficient for first-boot configuration fixtures while keeping
     the generator deterministic and dependency-free.
     """
@@ -120,7 +148,10 @@ def build_string_nvs_image(
         for key, value in values.items():
             if not isinstance(key, str):
                 raise NvsImageError("keys must be strings")
-            entries.extend(_string_entries(namespace_index, key, value))
+            if isinstance(value, NvsU8):
+                entries.append(_u8_entry(namespace_index, key, value.value))
+            else:
+                entries.extend(_string_entries(namespace_index, key, value))
     if len(entries) > MAX_ENTRIES:
         raise NvsImageError(
             f"NVS fixture needs {len(entries)} entries; maximum is {MAX_ENTRIES}"

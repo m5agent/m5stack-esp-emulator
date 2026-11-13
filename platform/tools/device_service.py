@@ -124,13 +124,17 @@ from device_service_specs import (  # noqa: E402, F401
     core2_radio_qemu_path,
     load_device_specs,
 )
-from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu, padded_image  # noqa: E402
 from evidence_store import (  # noqa: E402
     DEFAULT_EVIDENCE_RETENTION_SECONDS,
     EvidenceStore,
     EvidenceStoreError,
 )
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
+from uiflow_cloud_startup import (  # noqa: E402
+    cloud_network_request, cloud_nvs_image, cloud_startup_capability,
+    parse_uiflow_startup, prepare_cloud_reference, verified_cloud_reference,
+)
 from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
 from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
 from program_packages import (  # noqa: E402
@@ -2564,6 +2568,7 @@ class DeviceSession:
         firmware_provenance: dict | None = None,
         program_transport: str | None = None,
         program_bootstrap: bool = False,
+        uiflow_startup: dict | None = None,
         management_binding: dict | None = None,
         efuse_identity: dict | None = None,
     ):
@@ -2600,6 +2605,7 @@ class DeviceSession:
         else:
             self.efuse_identity = {"status": "unknown", "reason": "not_yet_initialized"}
         self.program_transport = program_transport
+        self.uiflow_startup = dict(uiflow_startup) if isinstance(uiflow_startup, dict) else None
         # Only service-owned bootstraps are safe to probe before the first Run.
         # Never interrupt an arbitrary manually prepared application's startup.
         self.program_bootstrap = program_bootstrap is True and program_transport == "uart-repl"
@@ -2907,6 +2913,7 @@ class DeviceSession:
             **({"program_bootstrap": self.program_bootstrap,
                 "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
             **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
+            **({"uiflow_startup": dict(self.uiflow_startup)} if self.uiflow_startup else {}),
             **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": redacted_runtime_env(self.runtime_env),
             "units": self.units,
@@ -3442,6 +3449,7 @@ class DeviceSession:
                        else {}),
                     "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
                 **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
+                **({"uiflow_startup": dict(self.uiflow_startup)} if self.uiflow_startup else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": redacted_runtime_env(self.runtime_env),
                 "runtime": self.runtime,
@@ -7484,7 +7492,8 @@ class DeviceSession:
             "files": {},
         }
         if self.firmware_provenance:
-            files["firmware/uiflow-source.json"] = json.dumps(
+            provenance_name = "uiflow-cloud-reference.json" if self.firmware_provenance.get("kind") == "uiflow-cloud" else "uiflow-source.json"
+            files[f"firmware/{provenance_name}"] = json.dumps(
                 self.firmware_provenance, ensure_ascii=False, indent=2,
             ).encode("utf-8")
         if self.program_transport and DeviceSession._runtime_permission_allowed(
@@ -9210,6 +9219,7 @@ class DeviceService:
                 firmware_source=str(record.get("firmware_source") or "unknown"),
                 program_transport=record.get("program_transport"),
                 program_bootstrap=record.get("program_bootstrap") is True,
+                uiflow_startup=record.get("uiflow_startup"),
                 management_binding=record.get("management_binding"),
                 source_artifacts=[
                     artifact
@@ -9346,6 +9356,7 @@ class DeviceService:
             "peripheral_status": spec.peripheral_status,
             "warnings": spec.warnings,
             "firmware_families": ["uiflow2", "generic-flash"],
+            "uiflow_startup": cloud_startup_capability(spec),
             "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_features": {
@@ -9816,6 +9827,7 @@ class DeviceService:
             _management_binding = _normalize_management_binding(_management_binding)
         if self._stop.is_set():
             raise ServiceError("service_stopping", "device service is shutting down", 503)
+        uiflow_startup = parse_uiflow_startup(payload)
         program_transport = payload.get("program_transport")
         if program_transport not in (None, "uart-repl"):
             raise ServiceError("unsupported_program_transport", "program_transport must be uart-repl", 400)
@@ -9896,6 +9908,11 @@ class DeviceService:
                 503,
                 worker=worker_snapshot,
             )
+        cloud_reference = None
+        if uiflow_startup:
+            cloud_reference = verified_cloud_reference(spec, uiflow_startup["reference_sha256"])
+            payload = {**payload, "runtime": "qemu-wifi",
+                       "network": cloud_network_request(payload.get("network"))}
         if program_mode:
             # Keep idempotency bound to the original caller request above.
             # Initialization uses the established immutable source/Flash path
@@ -9961,7 +9978,7 @@ class DeviceService:
                 ]
             )
         else:
-            reference = self.reference_info(spec)
+            reference = cloud_reference or self.reference_info(spec)
             firmware_id = reference["firmware_id"]
             firmware_path = reference["path"]
             firmware_sha = reference["sha256"]
@@ -10093,6 +10110,16 @@ class DeviceService:
             artifact_id = storage_config["sd_image_artifact_id"]
             if artifact_id not in source_artifacts:
                 source_artifacts.append(artifact_id)
+        if uiflow_startup:
+            partition = resolve_nvs_partition(firmware_path, flash_size=spec.flash_size, partition_label="nvs")
+            cloud_reference = prepare_cloud_reference(self, spec, cloud_reference, pad_image=padded_image)
+            firmware_id, firmware_path, firmware_sha = (
+                cloud_reference["firmware_id"], cloud_reference["path"], cloud_reference["sha256"]
+            )
+            source_artifacts.extend(artifact for artifact in cloud_reference["source_artifacts"] if artifact not in source_artifacts)
+            fixture = self.upload_artifact(cloud_nvs_image(int(partition["size"])),
+                                          name="uiflow-cloud-startup.nvs.bin")
+            payload = {**payload, "nvs": {"partition_label": "nvs", "image_artifact_id": fixture["artifact_id"]}}
         nvs_config = parse_nvs_execution(payload.get("nvs"))
         if nvs_config:
             if (
@@ -10485,10 +10512,12 @@ class DeviceService:
                     firmware_source=source,
                     program_transport=program_transport,
                     program_bootstrap=program_mode == "uiflow-live",
+                    uiflow_startup=uiflow_startup,
                     management_binding=_management_binding,
                     source_artifacts=source_artifacts,
-                    firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)
-                    if source == "uploaded" else None,
+                    firmware_provenance=(cloud_reference["provenance"] if uiflow_startup else
+                        (firmware_source if firmware_source.get("kind") == "uiflow" else None)
+                        if source == "uploaded" else None),
                     ttl_seconds=ttl,
                     ready_marker=ready_marker,
                     ready_timeout=ready_timeout,

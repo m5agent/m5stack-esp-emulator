@@ -24,6 +24,21 @@ import {PublicDeviceService} from '../web/public-service.js';
   assert.equal(replay.idempotent_replay, true);
 }
 
+// Cloud startup binds the advertised stock reference, without an uploaded or
+// locally recomposed firmware ID and without a programming bootstrap.
+{
+  const calls=[];
+  const service=new PublicDeviceService('https://service.example', {fetchImpl:async(url,options)=>{
+    calls.push({url,options});return Response.json({session_id:'cloud'});
+  }});
+  const uiflowStartup={mode:'cloud',reference_sha256:'a'.repeat(64)};
+  await service.create({deviceId:'cores3',uiflowStartup,idempotencyKey:'cloud-key'});
+  assert.deepEqual(JSON.parse(calls[0].options.body),{
+    device_id:'cores3',ttl_seconds:600,uiflow_startup:uiflowStartup,idempotency_key:'cloud-key',
+  });
+  assert.equal(calls.length,1,'cloud startup does not upload or fetch a firmware artifact');
+}
+
 // Structured API failures retain the HTTP status and code for the controller.
 for (const [status, code, outcomeUnknown] of [[409, 'session_idempotency_conflict', false], [503, 'backend_not_ready', true]]) {
   let calls = 0;

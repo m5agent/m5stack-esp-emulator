@@ -104,6 +104,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_specs.py` | 设备 catalog/matrix/profile 解析、QEMU backend 路径和 runtime profile 选择 | `device_service.py` 兼容 re-export、device-spec tests |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
+| `platform/tools/uiflow_cloud_startup.py` | 原版 UIFlow2 cloud startup 的逐镜像 SHA 准入、标准 Flash 尾部补齐、完整 NVS 配置和真实 Wi-Fi 默认值；保留调用者网络策略，不生成配对码或改写应用 | `test_uiflow_cloud_startup.py`；Device Service 原生 stock startup |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
 | `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files`/`revision_id` program请求、公共checkpoint、包证据 |
 | `platform/tools/preview_service.py` | 稳定Preview/同guest Run协调、串行UART、latest-wins、实际prompt取消与输入/帧身份门禁 | authenticated Preview HTTP、宿主并发负控 |
@@ -136,7 +137,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/legacy_device_config.py` | 严格识别 classic UIFlow `deviceCfg` 的 config partition，并仅在 session Flash 副本中应用 SSID/password | Device Service Core2 `qemu-wifi`、legacy config tests |
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件的 SHA-bound UI/headless/network-first Device Service 批量仿真；可加载 session-isolated NVS fixture | 回归操作员 |
 | `platform/tools/user_firmware_expectations.schema.json` | review expectation v1 的 JSON Schema；绑定 device/firmware/SHA，禁止明文 WiFi 密码 | matrix、审查工具 |
-| `platform/tools/nvs_image.py` | 确定性 NVSv2 namespace/string fixture 生成器 | Device Service、firmware probes |
+| `platform/tools/nvs_image.py` | 确定性 NVSv2 namespace/string/显式 u8 fixture 生成器 | Device Service、firmware probes；官方 generator 0.3.0 字节对照 |
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
 | `platform/tools/network_egress.py` | 精确 IPv4/IPv6 地址/协议/端口、双栈 veth/route/NAT、IPv6 neighbor control 和清理 | Device Service、隔离测试 |
 | `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
@@ -513,7 +514,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/runtime_acl.py` | 外部 operator policy 解析、设备/操作 allowlist、入口点与 guest package 路径 ACL、policy hash 和 fail-closed 决策 |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/user_firmware_expectations.schema.json` | UI/headless/network-first review expectation v1 schema |
-| `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
+| `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string/显式 u8 配置 fixture |
 | `platform/tools/legacy_device_config.py` | 校验 classic UIFlow `deviceCfg` schema、长度和 checksum，只更新匹配的 config partition |
 | [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI、Core2 PSRAM/flash-IPC 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |

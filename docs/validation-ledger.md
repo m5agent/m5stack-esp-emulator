@@ -18,6 +18,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| UIFlow2 原版云端配对 / virtual-device validation | 最终 native `dcb5c9f3…` 上，CoreS3/StickS3/Core2/AtomS3R/StopWatch/Cardputer ADV 六份固定原版经新 cloud API 完成 DHCP/DNS/SNTP/MQTT，收到实际配对回包并逐帧确认官方六位码；原 boot/main 保留，仅 NVS 与尾部补齐。真实网页两板入口及独立本地编程绘图对照通过，均取证后停止；旧黑帧入口和三次未补齐长度失败保留。常驻部署 NOT RUN，browser-WASM 联网及物理硬件不继承 | [结果、复现与边界](evidence/2026-11-13-uiflow-cloud-startup/README.md) · [白名单摘要](evidence/2026-11-13-uiflow-cloud-startup/summary.json) |
+| Core2 eFuse 接线后续 / virtual-device validation | `dcb5c9f3…` + 原 IDF probe `a55d69c9…`，plain/qemu-wifi 两个独立会话的三条 guest 身份 API 均读回与服务 fixture 一致、非零且不同的身份，ROM CRC 和停止后重启历史通过。此前 Core2 未接线结果保留；C6 不继承 | [独立身份读回](../tests/firmware/esp32_efuse_identity/evidence-2026-11-13-core2.json) |
 | #218 主动关机 / virtual-device validation | 原版 PaperColor `0f9c9c0f…`、PaperDIY `d7de13e6…` 在干净 0181 runtime `481228b0…` 上均于启动就绪等待期间通过 QMP 识别下电、保存末帧和串口并清场。矩阵为 PARTIAL/guest_poweroff，应用就绪未授予；PaperDIY 首次短观察窗口另保留 | [事件、双 SHA 与证据摘要](evidence/2026-11-13-issue-triage/poweroff-summary.json) |
 | #217 / #219 / #220 首轮整合 | 固定 native `d0c0054a…`：原 PaperColor factory 300.74 秒无宿主退出（guest assert/reboot 仍在）；原版两款 AtomS3 120 秒显示，USB MSC EP0 和 cache/atomic PASS。Snake 固定 200ms 输入 FAIL 与 bounded 观察 PASS 分别保留 | [整合摘要](evidence/2026-11-13-issue-triage/integration-summary.json) |
 | #216 C6 AES | 固定 C6 `1c5aead3…`，Nesso/NanoC6 同 IDF probe CBC/DMA/IRQ PASS，原 Bruce 越过 AES 等待到 LittleFS 错误页；Launcher/Meshtastic/RFID 整应用仍失败 | [AES 身份与对照](../tests/firmware/esp32c6_aes/evidence-2026-11-13.json) |
