@@ -1440,3 +1440,15 @@ Matrix factory BIN. Invalid phases or clock values reject the complete frame
 before any pixel changes. Existing classic/S3 routing and short-frame rejection
 remain intact. This is a digital relative-duration model, not validation of
 every LED variant's electrical pulse tolerance or reset/latch waveform.
+
+## Classic cache handoff (0193)
+
+`0193-classic-cache-dirty-sync.patch` avoids whole-region ROM notifications when
+cache enable did not process a changed MMU page, and batches the DROM, IROM and
+PSRAM memory topology updates before the cache-ready IRQ. Explicit flushes and
+MMU remapping still load changed bytes and notify translated-code users. The
+[original Core2 UIFlow regression](../../tests/firmware/classic_cache_boot/README.md)
+separates measured initialization progress from the independent hardware-CS
+black-screen defect and records the unmodified firmware's actual Flash/PSRAM
+path. This is a native model optimization, not a change to firmware delays or
+hardware cache timing.

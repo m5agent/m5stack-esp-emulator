@@ -168,6 +168,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0189-classic-rmt-symbol-timing.patch",
     "patches/qemu-m5stack-peripherals/0190-classic-spi-panel-cs-fifo.patch",
     "patches/qemu-m5stack-peripherals/0191-rmt-led-equal-duty-symbol.patch",
+    "patches/qemu-m5stack-peripherals/0193-classic-cache-dirty-sync.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

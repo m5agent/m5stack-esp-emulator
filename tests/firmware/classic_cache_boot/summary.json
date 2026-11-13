@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "validation_kind": "virtual-device validation",
+  "device": "core2",
+  "firmware": "UIFlow_Core2 1.15.5 original merged BIN",
+  "input_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+  "runtime_profile": "qemu-wifi / qemu-esp32lx6",
+  "http_fixture": false,
+  "firmware_modified": false,
+  "host_time_scope": "Single runs with five-second polling; concurrent host load was not controlled. Not a hardware timing measurement or controlled benchmark.",
+  "runtime_layers": "Native through 0186 plus 0187, 0188, 0189, 0190 and 0191; 0192 hardware CS routing is absent. Candidate modifications are named per run.",
+  "patch_0193_sha256": "a63decc095cad92430b33c64406ab5913f014baa091462ba5ea5f637b3004249",
+  "runs": [
+    {
+      "label": "baseline",
+      "runtime_sha256": "e04488691fe185e9158463a01546425344754ae5966abb499a9044d9b3834cff",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "elapsed_seconds": 330.01,
+      "first_board_name_seconds": 220.01,
+      "serial_bytes": 552,
+      "boot_count": 1,
+      "watchdog_count": 0,
+      "guru_meditation_count": 0,
+      "frames": [
+        {
+          "at_seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 60,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 90,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 120,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 150,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 180,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 210,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 240,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 270,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 300,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 330,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        }
+      ],
+      "raw_observations_sha256": "60e5b3b52167a93b23dd0a78e4ecee5da18020c022fc3434aad088dca7116e89",
+      "evidence_zip_sha256": "20d187f8335db097ca12cfdc60a2d47090cd7e4a7be7d94173da9f7e83ec6db4",
+      "evidence_before_stop": true,
+      "stop_state": "stopped",
+      "purge": 0,
+      "flash_retained": false,
+      "application_readiness": "FAIL: sampled frames black"
+    },
+    {
+      "label": "dirty_flush_only",
+      "runtime_sha256": "dee2adaaffca97f2a6ce050953ac1179c7c148db59413dd7248dbf4548f1b3f7",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "elapsed_seconds": 330.0,
+      "first_board_name_seconds": 175.01,
+      "serial_bytes": 552,
+      "boot_count": 1,
+      "watchdog_count": 0,
+      "guru_meditation_count": 0,
+      "frames": [
+        {
+          "at_seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 60,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 90,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 120,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 150,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 180,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 210,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 240,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 270,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 300,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 330,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        }
+      ],
+      "raw_observations_sha256": "79096163758d45452fae2e3c7b870c9c22e84b2ba1cb3e37a6ca5cd85db0e41a",
+      "evidence_zip_sha256": "5f2a4c03c7b8bf8841895c7f5acb51f31cb97629123915af70cf418822903b6f",
+      "evidence_before_stop": true,
+      "stop_state": "stopped",
+      "purge": 0,
+      "flash_retained": false,
+      "application_readiness": "FAIL: sampled frames black"
+    },
+    {
+      "label": "complete_0193",
+      "runtime_sha256": "a3892a6631e027f5baf2f425f349b8cc5128d5ee5df62c27a85f73b37111e642",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "elapsed_seconds": 330.001,
+      "first_board_name_seconds": 70.003,
+      "serial_bytes": 552,
+      "boot_count": 1,
+      "watchdog_count": 0,
+      "guru_meditation_count": 0,
+      "frames": [
+        {
+          "at_seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 60,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 90,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 120,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 150,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 180,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 210,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 240,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 270,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 300,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        },
+        {
+          "at_seconds": 330,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "nonblack_pixels": 0
+        }
+      ],
+      "raw_observations_sha256": "b073a1bdc6f45593a0d40de3cece7dbd165763ae9b8a850e1ffd480101788b43",
+      "evidence_zip_sha256": "c4c88bf169ca7223be1721323eba16a845eefd64653a2d1a600d780f58494902",
+      "evidence_before_stop": true,
+      "stop_state": "stopped",
+      "purge": 0,
+      "flash_retained": false,
+      "application_readiness": "FAIL: sampled frames black"
+    }
+  ],
+  "host_regression": {
+    "status": "PASS",
+    "affected_python_tests": 13,
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "old_clean_enable_rom_flush_count": 16,
+    "new_clean_enable_rom_flush_count": 0,
+    "old_memory_topology_commits": 45,
+    "new_memory_topology_commits": 15,
+    "cache_enable_cycles": 8,
+    "preserved": [
+      "explicit CACHE_FLUSH loads changed backing bytes",
+      "MMU remap and invalid-entry handling",
+      "decryption branch selection",
+      "PSRAM shared writes across cache gates",
+      "commit memory topology before cache-ready IRQ"
+    ]
+  },
+  "limits": {
+    "visible_application_readiness": "FAIL: all sampled frames black before separate hardware CS routing fix",
+    "integrated_native_matrix": "NOT RUN in this fixture; final combined runtime gate",
+    "full_platform_suite": "NOT RUN in this fixture; final integration gate",
+    "physical_hardware": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "cloud_pairing": "NOT RUN",
+    "burner_submission": "NOT RUN"
+  },
+  "hardware_cs_preview_control": {
+    "runtime_sha256": "bba6981426e2f9fcbb33af3d81662f76391f4955234862be1c221db84642ed43",
+    "preview_patch_sha256": "11959af1e81216197bb5478dd8e1b8dec1ad92c2e8496e475bd2c05892491c4b",
+    "elapsed_seconds": 180.01,
+    "first_board_name_seconds": 70.01,
+    "boot_count": 1,
+    "watchdog_count": 0,
+    "guru_count": 0,
+    "evidence_zip_sha256": "8e5ad57e94cf51a78c42cd84fd09352e540685934652c88464d8e9803a23906b",
+    "stop_state": "stopped",
+    "purge": 0,
+    "frames": [
+      {
+        "seconds": 0,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "nonblack_pixels": 0
+      },
+      {
+        "seconds": 30,
+        "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+        "nonblack_pixels": 4883
+      },
+      {
+        "seconds": 60,
+        "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+        "nonblack_pixels": 4883
+      },
+      {
+        "seconds": 90,
+        "sha256": "2ff7545c3dad9a4368a1031eb9e51cb535dc3f5d74ee1b39d06c1e408829db2d",
+        "nonblack_pixels": 76760
+      },
+      {
+        "seconds": 120,
+        "sha256": "afe9259e4de606e1b93924e6cae040143ad2106749b165bd82a5dc65bb5aba70",
+        "nonblack_pixels": 74862
+      },
+      {
+        "seconds": 150,
+        "sha256": "afe9259e4de606e1b93924e6cae040143ad2106749b165bd82a5dc65bb5aba70",
+        "nonblack_pixels": 74862
+      },
+      {
+        "seconds": 180,
+        "sha256": "afe9259e4de606e1b93924e6cae040143ad2106749b165bd82a5dc65bb5aba70",
+        "nonblack_pixels": 74862
+      }
+    ],
+    "application_observation": "UIFlow logo at 30s; Core2 V1.15.5 Wi-Fi Config screen at 120s and 180s",
+    "status": "PASS for original local configuration UI; intermediate hardware-CS preview, not final 0192 runtime"
+  }
+}
