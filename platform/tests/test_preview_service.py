@@ -1060,3 +1060,39 @@ class PreviewServiceTests(unittest.TestCase):
             self.assertFalse(self.preview(pid).get("held_inputs"))
             self.assertFalse(session.inputs)
             self.assertEqual(self.control._context(pid).inputs, 0)
+
+    def test_preview_virtual_key_tap_rejected_before_admission_and_default_tap_compatible(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        common = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"]}
+        self.assert_error(lambda: self.control.input(pid, {**common, "input": {
+            "kind": "key", "key": "a", "hold_seconds": 0.1}}, owner=LOCAL_OWNER), status=409)
+        self.assertFalse(self.preview(pid).get("held_inputs"))
+        self.assertFalse(session.inputs)
+        self.assertEqual(self.control._context(pid).inputs, 0)
+        self.control.input(pid, {**common, "input": {"kind": "key", "key": "a"}}, owner=LOCAL_OWNER)
+        self.assertEqual(len(session.inputs), 1)
+        self.assertEqual(self.control._context(pid).inputs, 0)
+
+    def test_preview_default_tap_drains_before_replacing_its_run(self):
+        preview, session, old = self.active()
+        pid, block = preview["preview_id"], self.block()
+        session.input_hook = block.wait
+        thread, result = self.background(lambda: self.control.input(pid, {
+            "expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+            "input": {"kind": "key", "key": "a"}}, owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        newer = self.submit(pid, key="after-tap")
+        self.step(pid)
+        self.assertFalse(session.interrupt_calls)
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertEqual(self.control._context(pid).inputs, 1)
+        block.release.set()
+        thread.join(timeout=2)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(session.inputs, [(old["execution_id"], {
+            "kind": "key", "key": "a", "action": "tap", "settle_seconds": 0.3})])
+        self.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+        self.assertLess(session.events.index(("input-finished", old["execution_id"])),
+                        session.events.index(("interrupt-entered", old["execution_id"])))
+        self.assertEqual(self.control._context(pid).inputs, 0)

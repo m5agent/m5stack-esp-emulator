@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.59.0
+  version: 1.60.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2359,12 +2359,23 @@ paths:
               $ref: "#/components/schemas/InputRequest"
       responses:
         "200":
-          description: Input accepted
+          description: >
+            Input submitted. Independent QMP key taps return timing.clock=virtual,
+            hold_seconds, rounded-up hold_time_ms, and completion=queued; this is
+            not queue completion or guest application acknowledgement. QEMU inserts
+            an equal release gap between queued taps. Explicit down/up does not
+            cancel the queue; system_reset does not guarantee cancellation, while
+            stopping the VM destroys it. Managed Preview default taps and NanoC6
+            GPIO taps retain synchronous host timing and completion=events_sent.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties: true
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
         "403":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/qom:
@@ -2928,7 +2939,14 @@ components:
           type: object
     PreviewHostInput:
       type: object
-      description: Canonical host command. Legacy-compatible coercions may also be accepted by the implementation; use the declared JSON types. Omitted coordinates default to zero.
+      description: >
+        Canonical host command. Legacy-compatible coercions may also be accepted
+        by the implementation; use the declared JSON types. Omitted coordinates
+        default to zero. Default key tap retains a synchronous 450 ms host hold
+        and returns timing.clock=host, completion=events_sent; it does not promise
+        a guest duration. Explicit key hold_seconds is unsupported (409) because
+        the virtual keyboard queue cannot be fenced to a Preview Run. Immediate
+        down/up remains available. Touch and drag retain host timing.
       required:
       - kind
       properties:
@@ -3148,6 +3166,9 @@ components:
         then:
           required:
           - key
+          not:
+            required:
+            - hold_seconds
     Error:
       type: object
       required: [error]
@@ -5136,10 +5157,32 @@ components:
               enum: [tap, down, up]
               default: tap
               description: >
-                Omit or use tap for a complete press/release. Use down and up
-                separately for a model button that is physically held.
+                Omit or use tap to queue a virtual-clock press/release in an
+                independent QMP session. Use down and up separately for a model
+                button that is physically held. Managed Preview and NanoC6
+                default taps retain host timing, without a guest-time guarantee.
+            hold_seconds:
+              type: number
+              minimum: 0.001
+              maximum: 5
+              default: 0.45
+              description: >
+                Tap duration in guest virtual seconds, rounded up to milliseconds.
+                Invalid with down/up (400); unsupported for managed Preview or
+                NanoC6 GPIO taps (409). QMP acceptance is not completion.
             settle_seconds:
               type: number
+              minimum: 0
+              description: Host wait after submission; does not define the guest hold.
+          allOf:
+            - if:
+                required: [action]
+                properties:
+                  action:
+                    enum: [down, up]
+              then:
+                not:
+                  required: [hold_seconds]
         - type: object
           required: [kind, x, y]
           properties:

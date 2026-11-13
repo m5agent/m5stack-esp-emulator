@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-13`.
 
-Status: local MVP with unified-device runtime contract `1.59.0` and bounded
+Status: local MVP with unified-device runtime contract `1.60.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3002,11 +3002,34 @@ last-known frame.
 
 ### Inject input
 
-Key:
+Automatic key tap in an independent QMP session:
 
 ```json
-{"kind":"key","key":"a","settle_seconds":0.3}
+{"kind":"key","key":"a","action":"tap","hold_seconds":0.1,"settle_seconds":0.3}
 ```
+
+Omitting `action` selects `tap`. Its `hold_seconds` defaults to `0.45` and
+must be finite and between `0.001` and `5`, inclusive. The service rounds the
+duration up to whole milliseconds and submits QMP `send-key`. QEMU schedules
+the press and release on its **virtual clock**, so host load does not shorten
+the requested guest hold. Multiple taps use QEMU's ordered keyboard queue;
+the existing queue also inserts a release gap equal to the hold duration.
+`settle_seconds` is only a host wait after submission.
+
+The response and input event include, for example,
+`"timing":{"clock":"virtual","hold_seconds":0.1,"hold_time_ms":100,"completion":"queued"}`.
+`accepted:true` confirms command submission, not queue completion or an
+application click. Observe the guest's actual output separately. Explicit
+down/up events do not join or cancel this queue. `system_reset` does **not**
+guarantee cancellation of already queued input; stopping the owned VM destroys
+its queue. There is no per-Run queue completion/cancellation protocol.
+
+Managed Preview sessions therefore retain their synchronous default tap:
+450 ms of host time between press and release. NanoC6 retains its GPIO-button
+tap, whose host hold is `settle_seconds`. Both return `timing.clock:"host"`
+and `timing.completion:"events_sent"`; neither guarantees a guest duration or
+application response. Explicit key `hold_seconds` on either path returns
+HTTP 409 `unsupported_input`. This preserves Preview Run replacement fencing.
 
 Physical hold uses separate key-down and key-up requests. The Live Sessions 3D
 shells use this form so a model button is down only while the pointer is held:
@@ -3015,6 +3038,11 @@ shells use this form so a model button is down only while the pointer is held:
 {"kind":"key","key":"a","action":"down","settle_seconds":0.02}
 {"kind":"key","key":"a","action":"up","settle_seconds":0.02}
 ```
+
+`hold_seconds` with key `down` or `up` returns HTTP 400 `invalid_input`.
+These immediate edges and browser pointer-held controls retain their existing
+timing. Touch, longpress and drag retain their existing host-timed injection;
+the virtual-clock guarantee above applies only to independent QMP key taps.
 
 Touch:
 

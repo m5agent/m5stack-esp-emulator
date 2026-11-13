@@ -7070,7 +7070,19 @@ class DeviceSession:
                 )
             command["key"] = key
             if action in {"down", "up"}:
+                if "hold_seconds" in payload:
+                    raise ServiceError("invalid_input", "hold_seconds requires key action tap", 400)
                 settle_default = 0.02
+            elif self.spec.id == "nanoc6" or getattr(self, "management_binding", None):
+                # Preview drains synchronous input before replacing a Run. The
+                # QEMU key queue has no per-Run completion/cancellation fence.
+                if "hold_seconds" in payload:
+                    raise ServiceError("unsupported_input", "timed key taps require an independent QMP key session", 409)
+            else:
+                hold = duration("hold_seconds", 0.45)
+                if not 0.001 <= hold <= 5:
+                    raise ServiceError("invalid_input", "key hold_seconds must be between 0.001 and 5", 400)
+                command["hold_seconds"] = hold
         elif kind == "touch":
             command.update(x=coordinate("x"), y=coordinate("y"))
         elif kind == "longpress":
@@ -7107,6 +7119,7 @@ class DeviceSession:
         else:
             spec = f"drag:{command['x1']},{command['y1']},{command['x2']},{command['y2']}"
         frame_size = self.spec.expected_size or (1, 1)
+        timing = {}
         with self._lock:
             if self.spec.id == "nanoc6" and kind == "key":
                 path = "/machine"
@@ -7127,31 +7140,41 @@ class DeviceSession:
                         property=property_name,
                         value=False,
                     )
-            elif kind == "key" and action == "tap" and (
-                self.runtime_env.get(STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV) == "1"
-            ):
-                # The capture lane advances virtual time independently of host time.
+                if action == "tap":
+                    timing = {"clock": "host", "hold_seconds": settle,
+                              "completion": "events_sent"}
+            elif kind == "key" and action == "tap" and "hold_seconds" in command:
+                # Use QEMU's virtual timer and ordered keyboard queue, not a
+                # host sleep: slow guests must still see the requested hold.
+                hold_ms = math.ceil(command["hold_seconds"] * 1000)
                 self._qmp_call(
                     "send-key",
                     keys=[{"type": "qcode", "data": command["key"]}],
-                    **{"hold-time": 450},
+                    **{"hold-time": hold_ms},
                 )
+                timing = {"clock": "virtual", "hold_seconds": command["hold_seconds"],
+                          "hold_time_ms": hold_ms, "completion": "queued"}
                 time.sleep(settle)
             else:
                 # QMP errors clear the cached connection. Route every input
                 # command through the same reconnect/error handling as QOM.
                 send_input(SimpleNamespace(cmd=self._qmp_call), spec, frame_size, settle)
+                if kind == "key" and action == "tap":
+                    timing = {"clock": "host", "hold_seconds": 0.45,
+                              "completion": "events_sent"}
             self._record_event(
                 "input",
                 spec=spec,
                 action=action,
                 runtime_acl_policy_id=acl_policy_id,
+                **({"timing": timing} if timing else {}),
             )
         return {
             "session_id": self.id,
             "input": spec,
             "action": action,
             "accepted": True,
+            **({"timing": timing} if timing else {}),
         }
 
     def qom_set(self, payload: dict) -> dict:
