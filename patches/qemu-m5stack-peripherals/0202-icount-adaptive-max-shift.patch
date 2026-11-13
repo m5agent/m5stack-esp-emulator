@@ -320,7 +320,7 @@ diff --git a/include/sysemu/cpu-timers-internal.h b/include/sysemu/cpu-timers-in
 diff --git a/qemu-options.hx b/qemu-options.hx
 --- a/qemu-options.hx
 +++ b/qemu-options.hx
-@@ -4782,91 +4782,96 @@
+@@ -4782,107 +4782,108 @@
      QEMU_ARCH_ALL)
  SRST
  ``-option-rom file``
@@ -387,15 +387,20 @@ diff --git a/qemu-options.hx b/qemu-options.hx
      number of instructions executed often has little or no correlation
      with actual performance.
  
-     When the virtual cpu is sleeping, the virtual time will advance at
-     default speed unless ``sleep=on`` is specified. With
-     ``sleep=on``, the virtual time will jump to the next timer
-     deadline instantly whenever the virtual cpu goes to sleep mode and
-     will not advance if no timer is enabled. This behavior gives
-     deterministic execution times from the guest point of view.
-     The default if icount is enabled is ``sleep=off``.
-     ``sleep=on`` cannot be used together with either ``shift=auto``
-     or ``align=on``.
+-    When the virtual cpu is sleeping, the virtual time will advance at
+-    default speed unless ``sleep=on`` is specified. With
+-    ``sleep=on``, the virtual time will jump to the next timer
+-    deadline instantly whenever the virtual cpu goes to sleep mode and
+-    will not advance if no timer is enabled. This behavior gives
+-    deterministic execution times from the guest point of view.
+-    The default if icount is enabled is ``sleep=off``.
+-    ``sleep=on`` cannot be used together with either ``shift=auto``
+-    or ``align=on``.
++    The default when icount is enabled is ``sleep=on``. With
++    ``sleep=off``, virtual time jumps to the next timer deadline as
++    soon as the virtual CPU sleeps. It stays unchanged if no timer is
++    pending. This provides deterministic guest execution timing.
++    ``sleep=off`` is incompatible with ``shift=auto`` and ``align=on``.
  
      ``align=on`` will activate the delay algorithm which will try to
      synchronise the host clock and the virtual clock. The goal is to
@@ -420,6 +425,22 @@ diff --git a/qemu-options.hx b/qemu-options.hx
  ERST
  
  DEF("watchdog-action", HAS_ARG, QEMU_OPTION_watchdog_action, \
+     "-watchdog-action reset|shutdown|poweroff|inject-nmi|pause|debug|none\n" \
+     "                action when watchdog fires [default=reset]\n",
+     QEMU_ARCH_ALL)
+ SRST
+ ``-watchdog-action action``
+     The action controls what QEMU will do when the watchdog timer
+     expires. The default is ``reset`` (forcefully reset the guest).
+     Other possible actions are: ``shutdown`` (attempt to gracefully
+     shutdown the guest), ``poweroff`` (forcefully poweroff the guest),
+     ``inject-nmi`` (inject a NMI into the guest), ``pause`` (pause the
+     guest), ``debug`` (print a debug message and continue), or ``none``
+     (do nothing).
+ 
+     Note that the ``shutdown`` action requires that the guest responds
+     to ACPI signals, which it may not be able to do in the sort of
+     situations where the watchdog would have expired, and thus
 diff --git a/system/cpu-timers.c b/system/cpu-timers.c
 --- a/system/cpu-timers.c
 +++ b/system/cpu-timers.c
