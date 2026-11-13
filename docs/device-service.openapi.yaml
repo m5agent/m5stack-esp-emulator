@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.56.0
+  version: 1.57.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4773,6 +4773,30 @@ components:
           type: string
         continuity_trigger:
           type: string
+    EfuseIdentity:
+      type: object
+      required: [status]
+      description: >
+        Service-generated eFuse identity fixture metadata, not a guest-read,
+        application-readiness, network-connectivity or hardware-identity claim.
+        Provisioned means a session-scoped synthetic MAC was encoded for an
+        attached supported eFuse drive. Uploaded NVS is not rewritten. History
+        without this record remains unknown.
+      properties:
+        status:
+          type: string
+          enum: [provisioned, unprovisioned, unknown]
+        source:
+          type: string
+          enum: [session-fixture]
+        driver:
+          type: [string, "null"]
+        mac:
+          type: string
+          description: Locally administered synthetic address, stable within this session.
+        reason:
+          type: string
+          description: Explains unprovisioned or unknown status.
     Session:
       type: object
       additionalProperties: true
@@ -4828,6 +4852,8 @@ components:
             Contains hashes/metadata, never source bodies.
         runtime:
           $ref: "#/components/schemas/RuntimeName"
+        efuse_identity:
+          $ref: "#/components/schemas/EfuseIdentity"
         runtime_memory:
           anyOf:
             - $ref: "#/components/schemas/RuntimeMemory"

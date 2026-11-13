@@ -2533,17 +2533,56 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             device_service_module.set_s3_efuse_mac(bytearray(29), mac)
 
-    def test_qemu_wifi_binds_classic_efuse_mac_to_peer_station_address(self):
-        session_id = "b" * 32
-        mac = device_service_module.qemu_station_mac(session_id)
-        efuse = bytearray(64)
-        device_service_module.set_esp32_efuse_mac(efuse, mac)
-        self.assertEqual(
-            bytes(efuse[4:10]),
-            bytes.fromhex(mac.replace(":", "")),
-        )
+    def test_classic_efuse_mac_byte_order_and_crc(self):
+        # Fixed vector also checked through ESP-IDF's guest APIs; unrelated
+        # eFuses (including the adjacent package/security bits) stay intact.
+        efuse = bytearray(b"\xa5" * 64)
+        device_service_module.set_esp32_efuse_mac(efuse, "02:12:34:56:78:9a")
+        self.assertEqual(efuse[4:10], bytes.fromhex("9a7856341202"))
+        self.assertEqual(efuse[10], 0xD2)
+        self.assertEqual(efuse[:4] + efuse[11:], b"\xa5" * 57)
         with self.assertRaises(ValueError):
-            device_service_module.set_esp32_efuse_mac(bytearray(9), mac)
+            device_service_module.set_esp32_efuse_mac(bytearray(10), "02:12:34:56:78:9a")
+        with self.assertRaises(ValueError):
+            device_service_module.set_esp32_efuse_mac(efuse, "02:12:34")
+
+    def test_efuse_identity_only_provisions_attached_supported_drivers(self):
+        for device_id in ("atom-lite", "atom-matrix", "sticks3", "core2", "nesso-n1", "nanoc6"):
+            with self.subTest(device=device_id):
+                spec = self.service.specs[device_id]
+                fixture = bytearray(4096)
+                identity = device_service_module.prepare_qemu_efuse_identity(fixture, spec, "a" * 32)
+                if device_id in {"core2", "nesso-n1", "nanoc6"}:
+                    self.assertEqual(identity, {"status": "unprovisioned", "driver": None,
+                                               "reason": "efuse_drive_not_attached"})
+                    self.assertFalse(any(fixture))
+                else:
+                    self.assertEqual(identity["status"], "provisioned")
+                    self.assertEqual(identity["source"], "session-fixture")
+                    self.assertEqual(identity["driver"], spec.efuse_driver)
+                    self.assertEqual(identity["mac"], device_service_module.qemu_station_mac("a" * 32))
+                    self.assertTrue(any(fixture))
+        spec = replace(self.service.specs["atom-lite"], efuse_driver="unknown.efuse")
+        identity = device_service_module.prepare_qemu_efuse_identity(bytearray(64), spec, "a" * 32)
+        self.assertEqual(identity["reason"], "identity_fixture_not_supported")
+
+    def test_efuse_identity_persists_and_old_history_stays_unknown(self):
+        session = self._stopped_session(session_id="c" * 32)
+        session.efuse_identity = device_service_module.prepare_qemu_efuse_identity(
+            bytearray(4096), session.spec, session.id)
+        session._persist_session()
+        old = self._stopped_session(session_id="d" * 32)
+        record = json.loads(old.session_record_path.read_text())
+        record.pop("efuse_identity")
+        self.service.close_all()
+        old.session_record_path.write_text(json.dumps(record))
+        restarted = DeviceService(state_dir=self.service.state_dir, max_sessions=2, max_per_device=1)
+        try:
+            self.assertEqual(restarted.get_session(session.id).snapshot()["efuse_identity"], session.efuse_identity)
+            self.assertEqual(restarted.get_session(old.id).snapshot()["efuse_identity"],
+                             {"status": "unknown", "reason": "not_recorded"})
+        finally:
+            restarted.close_all()
 
     def test_qemu_radio_capture_defaults_on_and_can_be_disabled(self):
         captured = device_service_module.parse_qemu_ble_execution(

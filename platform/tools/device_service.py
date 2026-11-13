@@ -647,9 +647,36 @@ def set_s3_efuse_mac(efuse: bytearray, mac: str) -> None:
 
 def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
     raw = bytes.fromhex(mac.replace(":", ""))
-    if len(raw) != 6 or len(efuse) < 10:
+    if len(raw) != 6 or len(efuse) < 11:
         raise ValueError("ESP32 eFuse MAC fixture is invalid")
-    efuse[4:10] = raw
+    # ESP_EFUSE_MAC_FACTORY reads BLK0 bits 72,64,...,32; the CRC byte
+    # occupies bits 80..87. Match esp_rom_efuse_mac_address_crc8(raw, 6).
+    crc = 0
+    for value in raw:
+        crc ^= value
+        for _ in range(8):
+            crc = (crc >> 1) ^ (0x8C if crc & 1 else 0)
+    efuse[4:10] = raw[::-1]
+    efuse[10] = crc
+
+
+def prepare_qemu_efuse_identity(efuse: bytearray, spec: DeviceSpec, session_id: str) -> dict:
+    """Provision only an eFuse drive that this board actually attaches."""
+    if spec.efuse_driver == "none":
+        return {"status": "unprovisioned", "driver": None,
+                "reason": "efuse_drive_not_attached"}
+    writers = {
+        ("qemu-esp32s3", "nvram.esp32s3.efuse"): set_s3_efuse_mac,
+        ("qemu-esp32lx6", "nvram.esp32.efuse"): set_esp32_efuse_mac,
+    }
+    writer = writers.get((spec.backend, spec.efuse_driver))
+    if writer is None:
+        return {"status": "unprovisioned", "driver": spec.efuse_driver,
+                "reason": "identity_fixture_not_supported"}
+    mac = qemu_station_mac(session_id)
+    writer(efuse, mac)
+    return {"status": "provisioned", "source": "session-fixture",
+            "driver": spec.efuse_driver, "mac": mac}
 
 
 def set_qemu_efuse_package(efuse: bytearray, backend: str, package: int) -> None:
@@ -2538,6 +2565,7 @@ class DeviceSession:
         program_transport: str | None = None,
         program_bootstrap: bool = False,
         management_binding: dict | None = None,
+        efuse_identity: dict | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2558,6 +2586,19 @@ class DeviceSession:
             if self.units and not restored else None
         )
         self.runtime = runtime
+        if isinstance(efuse_identity, dict):
+            self.efuse_identity = dict(efuse_identity)
+        elif restored:
+            self.efuse_identity = {"status": "unknown", "reason": "not_recorded"}
+        elif runtime == "network" or spec.backend not in {
+            "qemu-esp32s3", "qemu-esp32lx6", "qemu-esp32c6"
+        }:
+            self.efuse_identity = {
+                "status": "unprovisioned", "driver": None,
+                "reason": "runtime_has_no_service_identity_fixture",
+            }
+        else:
+            self.efuse_identity = {"status": "unknown", "reason": "not_yet_initialized"}
         self.program_transport = program_transport
         # Only service-owned bootstraps are safe to probe before the first Run.
         # Never interrupt an arbitrary manually prepared application's startup.
@@ -2871,6 +2912,7 @@ class DeviceSession:
             "units": self.units,
             "unit_contract": self.unit_contract,
             "runtime": self.runtime,
+            "efuse_identity": dict(self.efuse_identity),
             "network": redacted_network_config(self.network_config),
             "network_result": self.network_result,
             "storage_config": dict(self.storage_config),
@@ -3403,6 +3445,7 @@ class DeviceSession:
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": redacted_runtime_env(self.runtime_env),
                 "runtime": self.runtime,
+                "efuse_identity": dict(self.efuse_identity),
                 "runtime_memory": (
                     qemu_runtime_memory(
                         self.spec.memory,
@@ -5314,24 +5357,10 @@ class DeviceSession:
                 self.spec.backend,
                 self.service.raw_device(self.spec.id)["efuse_pkg_version"],
             )
-        espnow_peer_lane = (
-            "M5SW_ESPNOW_PEER_LOCAL_PORT" in self.runtime_env
-            and "M5SW_ESPNOW_PEER_REMOTE_PORT" in self.runtime_env
-        )
-        peer_mac_lane = (
-            espnow_peer_lane
-            and self.spec.backend in {"qemu-esp32s3", "qemu-esp32lx6"}
-        )
-        # Every ESP32-S3 session carries a stable, locally administered
-        # station MAC. Firmware validates the NVS PHY calibration data
-        # against this MAC during phy_init; a zero MAC sends those images
-        # down the mismatch path (issue #224). Classic ESP32 keeps its
-        # fixture-scoped behavior because its eFuse drive is not wired.
+        # Keep the NIC and attached eFuse identity consistent. This does not
+        # rewrite uploaded NVS calibration records or establish app readiness.
         wifi_mac = qemu_station_mac(self.id)
-        if self.spec.backend == "qemu-esp32s3":
-            set_s3_efuse_mac(efuse_data, wifi_mac)
-        elif self.spec.backend == "qemu-esp32lx6" and peer_mac_lane:
-            set_esp32_efuse_mac(efuse_data, wifi_mac)
+        efuse_identity = prepare_qemu_efuse_identity(efuse_data, self.spec, self.id)
         if self.spec.backend == "qemu-esp32s3":
             adc_path = None
             adc_raw = None
@@ -5371,6 +5400,7 @@ class DeviceSession:
                     }
                 atomic_write_json(self.unit_adc_calibration_path, receipt)
         efuse.write_bytes(efuse_data)
+        self.efuse_identity = efuse_identity
         try:
             self.qmp_path.unlink()
         except FileNotFoundError:
@@ -9212,6 +9242,7 @@ class DeviceService:
                     if key in ALLOWED_RUNTIME_ENV and isinstance(value, str)
                 },
                 runtime=runtime,
+                efuse_identity=record.get("efuse_identity"),
                 network_config=network_config,
                 network_result=network_result,
                 units=(record.get("units") if isinstance(record.get("units"), list) else []),

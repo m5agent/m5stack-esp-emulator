@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "scope": "Classic ESP32 factory MAC byte order and CRC; attached-driver identity metadata and history",
+  "firmware": {
+    "esp32_probe_sha256": "a55d69c99badb9de7a7256cf7c462aa1f1b73852d6fb6f801a95e2d7aa7ad74a",
+    "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "nesso_metadata_probe_sha256": "04cc390819a28e6610203e0017ebf2dea05dd0802aabee196024f0107cda784e"
+  },
+  "runtime": {
+    "xtensa_sha256": "41ba0cceed89802b6ced4ffdff1d6d5614502263a3f3e5f26a38ae9e7bd66b8e",
+    "esp32_rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+    "c6_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+    "c6_rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713"
+  },
+  "controls": [
+    {
+      "fixture_mode": "baseline",
+      "diagnostic_wrapper": true,
+      "evidence_sha256": "50b0a1c508dbce2adb0a8006db789589872e3aa91062d7b6449f5bf83be644a4",
+      "serial_sha256": "249dacfae41775cafad447b5aaa15632335670aa390de91ab16339d78e6b4f04",
+      "api_return_codes": {
+        "MAC_RAW": 0,
+        "MAC_FACTORY": 0,
+        "MAC_STA": 0
+      },
+      "outcome": "all-zero MAC accepted"
+    },
+    {
+      "fixture_mode": "old",
+      "diagnostic_wrapper": true,
+      "evidence_sha256": "aaeb503aa5f5e2419d09569557a1ffc9bcc6f677453da6e90251415585ff6a57",
+      "serial_sha256": "16c8453ac40bed72f17f757ed511141e4003f96e81caea13f8bedc580fc17d86",
+      "api_return_codes": {
+        "MAC_RAW": 0,
+        "MAC_FACTORY": 265,
+        "MAC_STA": -1
+      },
+      "outcome": "reversed MAC and CRC error; station read fails"
+    },
+    {
+      "fixture_mode": "candidate",
+      "diagnostic_wrapper": true,
+      "evidence_sha256": "e2f247b083c6b3ca28d864bd06e80aecf98b290eb66aebbf82c6e8fd7adcac7b",
+      "serial_sha256": "e04f6d7d83525297e6a348ddc0245743db05d70a742ebc34f49b01405d9180fa",
+      "api_return_codes": {
+        "MAC_RAW": 0,
+        "MAC_FACTORY": 0,
+        "MAC_STA": 0
+      },
+      "outcome": "three guest APIs agree on nonzero fixture identity; CRC matches"
+    }
+  ],
+  "final_runs": [
+    {
+      "device": "atom-lite",
+      "runtime": "qemu",
+      "diagnostic_wrapper": false,
+      "evidence_sha256": "61004bc3bd0e934f24616b26e601dd0b1d8c2c1331df1d073b9e148b23c58cee",
+      "serial_sha256": "2082a7289d19738a9bca164fa662c9a7bb19ce6a4a95fa86c9b726f83e8077d0",
+      "efuse_status": "provisioned",
+      "restored_identity_unchanged": true,
+      "cleanup": "evidence before stop; purge=0; state stopped",
+      "api_return_codes": [
+        0,
+        0,
+        0
+      ],
+      "all_guest_apis_equal_service_mac": true,
+      "nonzero_locally_administered_mac": true,
+      "stored_crc_matches_rom_crc": true
+    },
+    {
+      "device": "atom-matrix",
+      "runtime": "qemu",
+      "diagnostic_wrapper": false,
+      "evidence_sha256": "74c2c26fa2eae3632a9ed55ca71ebc84810f83ff5cca250c9e54def489e6251a",
+      "serial_sha256": "da8c7a89b8ad8198b9308efe2291479104e2247adc1bbd8b73ad8d60b3575d7b",
+      "efuse_status": "provisioned",
+      "restored_identity_unchanged": true,
+      "cleanup": "evidence before stop; purge=0; state stopped",
+      "api_return_codes": [
+        0,
+        0,
+        0
+      ],
+      "all_guest_apis_equal_service_mac": true,
+      "nonzero_locally_administered_mac": true,
+      "stored_crc_matches_rom_crc": true
+    },
+    {
+      "device": "core2",
+      "runtime": "qemu",
+      "diagnostic_wrapper": false,
+      "evidence_sha256": "a37a72d454694625179539eab206103126a50d6a52263e6d801a03fc2ea30da7",
+      "serial_sha256": "8d9afc450713e26b35a1d5d18b7a804cb2cec7d3abd78fdcb59429ffd66d7613",
+      "efuse_status": "unprovisioned",
+      "restored_identity_unchanged": true,
+      "cleanup": "evidence before stop; purge=0; state stopped",
+      "reason": "efuse_drive_not_attached",
+      "guest_observation": "three APIs return all-zero MAC"
+    },
+    {
+      "device": "nesso-n1",
+      "runtime": "qemu",
+      "diagnostic_wrapper": false,
+      "evidence_sha256": "d2bb0c31479b06cac9ea115fecb4cb0eb1651dfd971bb817c1db67a0b604a33e",
+      "serial_sha256": "3f75a95f296439825d01617f7e8b81fe8a3895dfe38ecb6b02c1f2a58c58d10c",
+      "efuse_status": "unprovisioned",
+      "restored_identity_unchanged": true,
+      "cleanup": "evidence before stop; purge=0; state stopped",
+      "reason": "efuse_drive_not_attached",
+      "guest_observation": "C6_AES_READY with three CBC passes and DMA/IRQ pass"
+    }
+  ],
+  "limits": [
+    "No physical hardware, RF, display or uploaded-NVS validity claim.",
+    "Core2 and C6 remain unprovisioned; C6 guest MAC read was not tested by the AES metadata probe.",
+    "First candidate-service setup lacked private esptool dependency for Atom profiles and flash-emulator path for C6. Failures retained separately; no guest success inferred from them."
+  ]
+}

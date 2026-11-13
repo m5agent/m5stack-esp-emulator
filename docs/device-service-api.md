@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-06`.
 
-Status: local MVP with unified-device runtime contract `1.56.0` and bounded
+Status: local MVP with unified-device runtime contract `1.57.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1476,6 +1476,19 @@ project authority pages.
 A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
+
+`efuse_identity` reports the service's eFuse fixture independently of guest
+readiness. `provisioned` includes a session-stable, locally administered `mac`,
+`source: session-fixture`, and the attached eFuse `driver`. ESP32-S3 and classic
+ESP32 profiles with a wired eFuse drive receive this fixture; classic ESP32
+includes the factory MAC CRC. Core2 and C6 profiles without an attached eFuse
+drive return `unprovisioned` with `reason: efuse_drive_not_attached`. Other
+unsupported runtimes also state why identity is unprovisioned. Before native
+fixture preparation the status is `unknown`; restored history with no identity
+record remains `unknown` (`not_recorded`). This field is retained in session
+history and evidence. It does not prove the guest read the MAC or that an app,
+Wi-Fi, or display works. Uploaded firmware and NVS calibration records are not
+changed by identity provisioning.
 
 `runtime` is `qemu` by default. Use `qemu-unified` for the canonical complete
 virtual-device path and pair it with one of the `*-unified` profiles. It starts
