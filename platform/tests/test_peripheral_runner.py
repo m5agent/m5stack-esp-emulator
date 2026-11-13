@@ -91,6 +91,22 @@ class PeripheralRunnerTests(unittest.TestCase):
         self.assertEqual(keyboard_command[wait_index], "10")
         self.assertEqual(keyboard_command[post_input_index], "2")
 
+    def test_marker_gated_input_steps_reach_runner_without_changing_legacy_inputs(self):
+        spec = importlib.util.spec_from_file_location("peripheral_matrix", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        case = {**module.CASES[0], "inputs": ["key:b"],
+                "input_steps": [(0, "keydown:a", "WAIT DOWN"),
+                                (0.25, "keyup:a", "WAIT UP")]}
+        command = module.command_for(case, ROOT / ".work/test")
+        self.assertEqual(command[command.index("--input"):command.index("--input")+2],
+                         ["--input", "key:b"])
+        start = command.index("--input-step")
+        self.assertEqual(command[start:start+8],
+                         ["--input-step", "0", "keydown:a", "WAIT DOWN",
+                          "--input-step", "0.25", "keyup:a", "WAIT UP"])
+        self.assertNotIn("--input-step", module.command_for(module.CASES[0], ROOT / ".work/test"))
+
     def test_core2_cases_use_deterministic_scheduling_without_retries(self):
         spec = importlib.util.spec_from_file_location(
             "peripheral_matrix", RUNNER

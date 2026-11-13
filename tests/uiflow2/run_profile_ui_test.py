@@ -497,6 +497,70 @@ def send_input(
     raise SystemExit(f"unsupported input spec: {spec}")
 
 
+def parse_input_steps(steps: list[list[str]]) -> list[tuple[float, str, str]]:
+    """Validate the new sequence before composing an image or starting QEMU."""
+    parsed = []
+    for step in steps:
+        if len(step) != 3:
+            raise ValueError("--input-step expects DELAY INPUT_SPEC WAIT_MARKER")
+        raw_delay, spec, marker = step
+        try:
+            delay = float(raw_delay)
+        except ValueError:
+            raise ValueError("--input-step delay must be finite and nonnegative") from None
+        if not math.isfinite(delay) or delay < 0:
+            raise ValueError("--input-step delay must be finite and nonnegative")
+        if not spec.strip() or ":" not in spec or not marker.strip():
+            raise ValueError("--input-step requires an input spec and a nonempty marker")
+        parsed.append((delay, spec, marker))
+    return parsed
+
+
+def run_input_steps(qmp, steps, serial, proc, frame_size, settle,
+                    evidence_path, after_input=None):
+    """Wait, delay and send real inputs; retain ordered evidence even on failure."""
+    if not steps:
+        return
+    started = time.monotonic()
+    with evidence_path.open("w", encoding="utf-8") as evidence:
+        def record(event, **values):
+            evidence.write(json.dumps({"event": event, "step": index,
+                                       "elapsed_seconds": time.monotonic() - started,
+                                       **values}) + "\n")
+            evidence.flush()
+
+        class RecordedInput:
+            def cmd(self, name, **arguments):
+                record("qmp-send", command=name, arguments=arguments)
+                result = qmp.cmd(name, **arguments)
+                record("qmp-complete", command=name)
+                return result
+
+        for index, (delay, spec, marker) in enumerate(steps):
+            phase = "marker"
+            try:
+                record("wait-marker", marker=marker, input_spec=spec,
+                       delay_seconds=delay)
+                wait_serial_marker(serial, marker, proc)
+                if proc.poll() is not None:
+                    raise RuntimeError("process exited before input step")
+                record("marker-observed")
+                phase = "delay"
+                time.sleep(delay)
+                if proc.poll() is not None:
+                    raise RuntimeError("process exited during input-step delay")
+                phase = "input"
+                record("input-start")
+                send_input(RecordedInput(), spec, frame_size, settle)
+                record("input-complete")
+                if after_input:
+                    phase = "capture"
+                    after_input(index)
+            except BaseException as error:
+                record("step-failed", phase=phase, error_type=type(error).__name__)
+                raise
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", required=True, type=Path)
@@ -524,6 +588,11 @@ def main():
             "key:a, keytap:p,0.1, virtual-keytap:a,0.1, touch:X,Y, drag:X1,Y1,X2,Y2, or "
             "longpress:X,Y,SECONDS; repeat for multiple input events"
         ),
+    )
+    parser.add_argument(
+        "--input-step", action="append", nargs=3,
+        metavar=("DELAY", "INPUT_SPEC", "WAIT_MARKER"), default=[],
+        help="after ordinary inputs, wait for a guest marker, delay, then send input",
     )
     parser.add_argument(
         "--qom-set",
@@ -670,6 +739,10 @@ def main():
         default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios",
     )
     args = parser.parse_args()
+    try:
+        input_steps = parse_input_steps(args.input_step)
+    except ValueError as error:
+        parser.error(str(error))
     if not math.isfinite(args.before_frame_timeout) or args.before_frame_timeout < 0:
         parser.error("--before-frame-timeout must be finite and nonnegative")
     if args.preserve_vfs and (args.format_vfs or args.mklittlefs):
@@ -827,27 +900,37 @@ def main():
             hashes = {hashlib.sha256(frame).digest() for frame in captured}
             if len(hashes) < 2:
                 raise RuntimeError("captured animation frames did not change")
+
+        def capture_input(index):
+            if not args.capture_each_input:
+                return
+            input_path = capture_dir / f"input-{index:03d}.ppm"
+            qmp.cmd("screendump", filename=str(input_path))
+            input_frame = canonicalize_screendump(input_path)
+            if input_frame[:2] != actual:
+                raise RuntimeError(
+                    f"input frame {index} size {input_frame[:2]} != {actual}"
+                )
+            nonblack, unique_colors = frame_stats(input_frame[2])
+            if nonblack < args.min_nonblack_pixels:
+                raise RuntimeError(
+                    f"input frame {index} is blank: "
+                    f"{nonblack} non-black pixels"
+                )
+            if unique_colors < args.min_unique_colors:
+                raise RuntimeError(
+                    f"input frame {index} has too few colors: "
+                    f"{unique_colors}"
+                )
+
         for index, input_spec in enumerate(args.input):
             send_input(qmp, input_spec, actual, args.post_input_wait)
-            if args.capture_each_input:
-                input_path = capture_dir / f"input-{index:03d}.ppm"
-                qmp.cmd("screendump", filename=str(input_path))
-                input_frame = canonicalize_screendump(input_path)
-                if input_frame[:2] != actual:
-                    raise RuntimeError(
-                        f"input frame {index} size {input_frame[:2]} != {actual}"
-                    )
-                nonblack, unique_colors = frame_stats(input_frame[2])
-                if nonblack < args.min_nonblack_pixels:
-                    raise RuntimeError(
-                        f"input frame {index} is blank: "
-                        f"{nonblack} non-black pixels"
-                    )
-                if unique_colors < args.min_unique_colors:
-                    raise RuntimeError(
-                        f"input frame {index} has too few colors: "
-                        f"{unique_colors}"
-                    )
+            capture_input(index)
+        run_input_steps(
+            qmp, input_steps, serial, proc, actual, args.post_input_wait,
+            args.out_dir / "input-steps.jsonl",
+            after_input=lambda index: capture_input(len(args.input) + index),
+        )
         if args.post_input_marker:
             wait_serial_marker(serial, args.post_input_marker, proc)
         qmp.cmd("screendump", filename=str(after))
@@ -934,7 +1017,7 @@ def main():
             )
         print(
             f"PASS machine={args.machine} size={actual[0]}x{actual[1]} "
-            f"inputs={','.join(args.input)}"
+            f"inputs={','.join(args.input)} input_steps={len(input_steps)}"
         )
     finally:
         proc.terminate()

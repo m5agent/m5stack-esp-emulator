@@ -2669,6 +2669,8 @@ def command_for(case: dict, out_dir: Path,
         command.append("--deterministic")
     for input_spec in case["inputs"]:
         command.extend(["--input", input_spec])
+    for step in case.get("input_steps", []):
+        command.extend(["--input-step", *(str(value) for value in step)])
     for path, prop, value in case.get("qom", []):
         command.extend(["--qom-set", path, prop, value])
     for path, prop, value in case.get("qom_set_boot", []):

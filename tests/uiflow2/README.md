@@ -332,6 +332,15 @@ RX 注入。固件启动后注入动态角速度，避免触发 M5Unified 的启
 `qom_sequence_settle` 控制最后一次状态后的等待时间，固件实例保持运行，
 不通过重启模拟“动态”状态。
 
+需要 guest 逐步确认的键盘或触摸测试可声明
+`input_steps: [(DELAY_SECONDS, INPUT_SPEC, WAIT_MARKER), ...]`，对应 runner
+的重复参数 `--input-step DELAY INPUT_SPEC WAIT_MARKER`。每步等待独立的串口
+标记（最多 30 秒），再等待非负有限延迟，最后使用原有 QMP 输入路径。
+步骤位于普通 `inputs` 之后、`post_input_marker` 之前；QOM、前置标记和
+基线截图顺序不变。超时、guest 退出或输入失败会停止后续步骤，并保留
+`input-steps.jsonl` 中实际 QMP 操作、完成状态和相对时间；标记应在同一次
+启动中唯一，不能用旧标记证明新阶段就绪。`--capture-each-input` 同样覆盖这些步骤。
+
 Tab5 需要先构建仿真固件和 16 MiB merged image：
 
 ```bash

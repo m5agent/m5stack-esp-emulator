@@ -65,5 +65,161 @@ class ProfileInputTests(unittest.TestCase):
         self.assertEqual(fake.keys, [('p', True, 0), ('p', False, 0)])
 
 
+class InputStepTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from types import SimpleNamespace
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.serial = Path(self.tmp.name) / 'serial.log'
+        self.evidence = Path(self.tmp.name) / 'input-steps.jsonl'
+        self.proc = SimpleNamespace(poll=lambda: None)
+        self.fake = FakeInput()
+
+    def events(self):
+        import json
+        return [json.loads(line) for line in self.evidence.read_text().splitlines()]
+
+    def run_steps(self, steps, **options):
+        with patch.object(RUNNER.time, 'sleep', side_effect=self.fake.sleep), \
+                patch.object(RUNNER.time, 'monotonic', side_effect=lambda: self.fake.now):
+            RUNNER.run_input_steps(self.fake, steps, self.serial, self.proc,
+                                   (320, 240), 0, self.evidence, **options)
+
+    def test_waits_then_delays_and_sends_each_real_key_in_order(self):
+        original_sleep = self.fake.sleep
+        def advance(seconds):
+            original_sleep(seconds)
+            if self.fake.now >= .1:
+                self.serial.write_text('FIRST\nSECOND\n')
+        self.fake.sleep = advance
+        self.run_steps([(0.2, 'keydown:a', 'FIRST'), (0.3, 'keyup:a', 'SECOND')])
+        self.assertEqual([(k, d) for k, d, _ in self.fake.keys], [('a', True), ('a', False)])
+        self.assertAlmostEqual(self.fake.keys[0][2], .3)
+        self.assertAlmostEqual(self.fake.keys[1][2], .6)
+        events = self.events()
+        self.assertEqual([e['event'] for e in events],
+                         ['wait-marker', 'marker-observed', 'input-start', 'qmp-send',
+                          'qmp-complete', 'input-complete'] * 2)
+        self.assertEqual(events[3]['arguments']['events'][0]['data']['down'], True)
+        self.assertAlmostEqual(events[-1]['elapsed_seconds'], .6)
+        self.assertEqual([e['step'] for e in events], [0]*6 + [1]*6)
+
+    def test_missing_marker_times_out_without_any_input_or_later_step(self):
+        with self.assertRaisesRegex(RuntimeError, 'timed out'):
+            self.run_steps([(0, 'keydown:a', 'MISSING'), (0, 'keyup:a', 'LATER')])
+        self.assertEqual(self.fake.keys, [])
+        self.assertGreaterEqual(self.fake.now, 30)
+        self.assertLess(self.fake.now, 30.1)
+        self.assertEqual([e['event'] for e in self.events()], ['wait-marker', 'step-failed'])
+        self.assertEqual(self.events()[-1]['phase'], 'marker')
+
+    def test_guest_exit_blocks_even_an_already_present_marker(self):
+        self.serial.write_text('READY')
+        self.proc.poll = lambda: 1
+        with self.assertRaisesRegex(RuntimeError, 'exited'):
+            self.run_steps([(0, 'keydown:a', 'READY')])
+        self.assertEqual(self.fake.keys, [])
+
+    def test_guest_exit_during_delay_blocks_input(self):
+        self.serial.write_text('READY')
+        self.proc.poll = lambda: 1 if self.fake.now >= 1 else None
+        with self.assertRaisesRegex(RuntimeError, 'during input-step delay'):
+            self.run_steps([(1, 'keydown:a', 'READY')])
+        self.assertEqual(self.fake.keys, [])
+        self.assertEqual(self.events()[-1]['phase'], 'delay')
+
+    def test_qmp_failure_is_retained_and_does_not_send_later_input(self):
+        self.serial.write_text('ONE\nTWO')
+        with patch.object(self.fake, 'cmd', side_effect=RUNNER.QMPCommandError('failed')) as cmd:
+            with self.assertRaises(RUNNER.QMPCommandError):
+                self.run_steps([(0, 'keydown:a', 'ONE'), (0, 'keyup:a', 'TWO')])
+        self.assertEqual(cmd.call_count, 1)
+        self.assertNotIn('input-complete', [e['event'] for e in self.events()])
+        self.assertEqual(self.events()[-1]['error_type'], 'QMPCommandError')
+
+    def test_actual_pointer_events_and_hold_timing_are_retained(self):
+        self.serial.write_text('TOUCH')
+        calls = []
+        self.fake.cmd = lambda name, **kw: calls.append((self.fake.now, name, kw))
+        self.run_steps([(0, 'longpress:67,160,0.5', 'TOUCH')])
+        self.assertEqual([c[0] for c in calls], [0, .5])
+        self.assertEqual(calls[0][2]['events'], RUNNER.pointer_events(67, 160, (320, 240), True))
+        self.assertEqual(calls[1][2]['events'], RUNNER.pointer_events(67, 160, (320, 240), False))
+        self.assertEqual([e['elapsed_seconds'] for e in self.events() if e['event']=='qmp-send'], [0, .5])
+
+    def test_capture_failure_stops_following_steps_but_keeps_completed_input(self):
+        self.serial.write_text('ONE\nTWO')
+        def failed_capture(index):
+            raise RuntimeError('blank frame')
+        with self.assertRaisesRegex(RuntimeError, 'blank frame'):
+            self.run_steps([(0, 'keydown:a', 'ONE'), (0, 'keyup:a', 'TWO')],
+                           after_input=failed_capture)
+        self.assertEqual(len(self.fake.keys), 1)
+        self.assertEqual(self.events()[-2]['event'], 'input-complete')
+        self.assertEqual(self.events()[-1]['phase'], 'capture')
+
+    def test_empty_sequence_does_not_create_evidence_or_change_input(self):
+        self.run_steps([])
+        self.assertFalse(self.evidence.exists())
+        self.assertEqual(self.fake.keys, [])
+        self.assertEqual(self.fake.sleeps, [])
+
+    def test_invalid_steps_are_rejected_before_execution(self):
+        for steps in ([['0', 'keydown:a']], [['-1', 'keydown:a', 'M']],
+                      [['nan', 'keydown:a', 'M']], [['inf', 'keydown:a', 'M']],
+                      [['no', 'keydown:a', 'M']], [['0', '', 'M']],
+                      [['0', 'keydown:a', '  ']], [['0', 'missing-colon', 'M']]):
+            with self.subTest(steps=steps), self.assertRaises(ValueError):
+                RUNNER.parse_input_steps(steps)
+        self.assertEqual(RUNNER.parse_input_steps([['0.25', 'keyup:a', 'M']]),
+                         [(0.25, 'keyup:a', 'M')])
+
+    def test_main_preserves_qom_pre_frame_legacy_step_post_frame_order(self):
+        import contextlib
+        import io
+        from types import SimpleNamespace
+        trace = []
+        process = SimpleNamespace(poll=lambda: None,
+                                  terminate=lambda: trace.append('terminate'),
+                                  wait=lambda timeout: trace.append('reaped'))
+        class Qmp:
+            def cmd(self, command, **arguments):
+                if command == 'screendump':
+                    trace.append(Path(arguments['filename']).name)
+                else:
+                    trace.append(command)
+                return {'return': {}}
+            def close(self):
+                trace.append('qmp-close')
+        out = Path(self.tmp.name)
+        (out/'serial.log').write_text('QOM')
+        (out/'serial1.log').write_text('')
+        argv = ['runner', '--base', 'unused', '--prebuilt-image', 'unused',
+                '--machine', 'test', '--files-dir', 'unused', '--vfs-offset', '0',
+                '--vfs-size', '1', '--flash-size', '1', '--expected-size', '2x2',
+                '--out-dir', str(out), '--wait', '0', '--allow-static-frame',
+                '--qom-step', '0', '/machine', 'value', 'true', 'QOM',
+                '--pre-input-marker', 'PRE', '--post-input-marker', 'POST',
+                '--input', 'keydown:b', '--input-step', '0', 'keyup:a', 'STEP',
+                '--capture-each-input', '--min-nonblack-pixels', '1']
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(RUNNER.sys, 'argv', argv))
+            stack.enter_context(patch.object(RUNNER.subprocess, 'Popen', return_value=process))
+            stack.enter_context(patch.object(RUNNER, 'efuse_image', return_value=b''))
+            stack.enter_context(patch.object(RUNNER, 'wait_qmp', return_value=Qmp()))
+            stack.enter_context(patch.object(RUNNER.time, 'sleep'))
+            stack.enter_context(patch.object(RUNNER, 'wait_serial_marker', side_effect=lambda p,m,proc: trace.append(m)))
+            stack.enter_context(patch.object(RUNNER, 'capture_before_frame', side_effect=lambda *a,**kw: trace.append('before') or (2,2)))
+            stack.enter_context(patch.object(RUNNER, 'send_input', side_effect=lambda q,s,*a: trace.append(s)))
+            stack.enter_context(patch.object(RUNNER, 'canonicalize_screendump', return_value=(2,2,b'pixels')))
+            stack.enter_context(patch.object(RUNNER, 'frame_stats', return_value=(4,2)))
+            stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+            RUNNER.main()
+        self.assertEqual(trace, ['qom-set', 'PRE', 'before', 'keydown:b', 'input-000.ppm',
+                                 'STEP', 'keyup:a', 'input-001.ppm', 'POST', 'after.ppm',
+                                 'qmp-close', 'terminate', 'reaped'])
+
+
 if __name__ == '__main__':
     unittest.main()
