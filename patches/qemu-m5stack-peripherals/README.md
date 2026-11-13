@@ -1482,3 +1482,18 @@ The state follows one active slot per level, matching architectural EPS/EPC
 storage; it does not model an arbitrary software-managed stack of repeated
 same-level interrupts or handlers that manually abandon the return path.
 The native selection does not change the separately pinned browser-WASM build.
+
+## Classic Bluetooth low-power clock configuration (0195)
+
+`0195-classic-dport-bt-lp-clock.patch` implements the ESP32 DPORT integer and
+fractional divider registers, their documented writable fields and reset
+values. The original JIGGLER controller initialization checks XTAL selection
+and divider readback; previously these writes were discarded. Configuration
+storage follows the existing DPORT reset domain. This does not add a physical
+oscillator, Bluetooth RF, wakeup waveform or BLE HID data plane.
+
+The [register regression](../../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
+pins the Espressif definitions and exercises guest-address-space read/write,
+reserved-bit masking and QMP reset through qtest. Original application and
+watchdog acceptance require separate Device Service execution with the
+unchanged BIN under the default and auto timing policies.

@@ -1,0 +1,82 @@
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+index 4ee7bbe..a15cc37 100644
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -139,6 +139,12 @@ static uint64_t esp32_dport_read(void *opaque, hwaddr addr, unsigned int size)
+     case A_DPORT_SLAVE_SPI_CONFIG:
+         r = s->slave_spi_config_reg;
+         break;
++    case A_DPORT_BT_LPCK_DIV_INT:
++        r = s->bt_lpck_div_int;
++        break;
++    case A_DPORT_BT_LPCK_DIV_FRAC:
++        r = s->bt_lpck_div_frac;
++        break;
+     }
+ 
+     return r;
+@@ -257,6 +263,20 @@ static void esp32_dport_write(void *opaque, hwaddr addr,
+         qemu_set_irq(s->flash_enc_en_gpio, FIELD_EX32(value, DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_ENCRYPT_ENABLE));
+         qemu_set_irq(s->flash_dec_en_gpio, FIELD_EX32(value, DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_DECRYPT_ENABLE));
+         break;
++    case A_DPORT_BT_LPCK_DIV_INT:
++        s->bt_lpck_div_int = value &
++            (R_DPORT_BT_LPCK_DIV_INT_DIV_NUM_MASK |
++             R_DPORT_BT_LPCK_DIV_INT_BTEXTWAKEUP_REQ_MASK);
++        break;
++    case A_DPORT_BT_LPCK_DIV_FRAC:
++        s->bt_lpck_div_frac = value &
++            (R_DPORT_BT_LPCK_DIV_FRAC_DIV_B_MASK |
++             R_DPORT_BT_LPCK_DIV_FRAC_DIV_A_MASK |
++             R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_RTC_SLOW_MASK |
++             R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_8M_MASK |
++             R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_XTAL_MASK |
++             R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_XTAL32K_MASK);
++        break;
+     }
+ }
+ 
+@@ -454,6 +474,11 @@ static void esp32_dport_reset_hold(Object *obj, ResetType type)
+     s->appcpu_reset_state = true;
+     s->appcpu_stall_state = false;
+     s->cache_ill_trap_en_reg = 0;
++    s->bt_lpck_div_int = FIELD_DP32(0, DPORT_BT_LPCK_DIV_INT, DIV_NUM, 255);
++    s->bt_lpck_div_frac =
++        R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_8M_MASK |
++        FIELD_DP32(0, DPORT_BT_LPCK_DIV_FRAC, DIV_A, 1) |
++        FIELD_DP32(0, DPORT_BT_LPCK_DIV_FRAC, DIV_B, 1);
+     esp32_cache_reset(&s->cache_state[0]);
+     esp32_cache_reset(&s->cache_state[1]);
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+diff --git a/include/hw/misc/esp32_dport.h b/include/hw/misc/esp32_dport.h
+index 2ed787e..62c713e 100644
+--- a/include/hw/misc/esp32_dport.h
++++ b/include/hw/misc/esp32_dport.h
+@@ -81,6 +81,8 @@ typedef struct Esp32DportState {
+     uint32_t cpuperiod_sel;
+     uint32_t cache_ill_trap_en_reg;
+     uint32_t slave_spi_config_reg;
++    uint32_t bt_lpck_div_int;
++    uint32_t bt_lpck_div_frac;
+ 
+ } Esp32DportState;
+ 
+@@ -135,6 +137,18 @@ REG32(DPORT_SLAVE_SPI_CONFIG, 0xC8)
+     FIELD(DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_ENCRYPT_ENABLE, 8, 1)
+     FIELD(DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_DECRYPT_ENABLE, 12, 1)
+ 
++REG32(DPORT_BT_LPCK_DIV_INT, 0xd4)
++    FIELD(DPORT_BT_LPCK_DIV_INT, DIV_NUM, 0, 12)
++    FIELD(DPORT_BT_LPCK_DIV_INT, BTEXTWAKEUP_REQ, 12, 1)
++
++REG32(DPORT_BT_LPCK_DIV_FRAC, 0xd8)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, DIV_B, 0, 12)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, DIV_A, 12, 12)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, LPCLK_SEL_RTC_SLOW, 24, 1)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, LPCLK_SEL_8M, 25, 1)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, LPCLK_SEL_XTAL, 26, 1)
++    FIELD(DPORT_BT_LPCK_DIV_FRAC, LPCLK_SEL_XTAL32K, 27, 1)
++
+ REG32(DPORT_CPU_INTR_FROM_CPU_0, 0xdc)
+ REG32(DPORT_CPU_INTR_FROM_CPU_1, 0xe0)
+ REG32(DPORT_CPU_INTR_FROM_CPU_2, 0xe4)
