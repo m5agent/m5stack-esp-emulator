@@ -1436,6 +1436,8 @@ CASES = [
         "inputs": ["key:a"],
         "qom": [],
         "allow_static_frame": True,
+        "pre_input_marker": "STACKCHAN_AUDIO_READY",
+        "serial_expect": ["STACKCHAN_AUDIO_READY status=ok"],
         "env": {
             "M5SW_I2S_DMA_IRQ": "1",
             "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
@@ -1886,6 +1888,8 @@ CASES = [
         "inputs": ["touch:160,183"],
         "qom": [],
         "allow_static_frame": True,
+        "pre_input_marker": "CORE2_AUDIO_READY",
+        "serial_expect": ["CORE2_AUDIO_READY status=ok"],
         "efuse_driver": "none",
         "memory": "0",
         "deterministic": True,

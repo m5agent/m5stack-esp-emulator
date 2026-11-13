@@ -3,6 +3,7 @@ import time
 from M5 import *
 
 
+print("CORE2_AUDIO_START")
 M5.begin()
 d = M5.Display
 d.fillScreen(d.COLOR.BLACK)
@@ -29,6 +30,7 @@ except Exception as exc:
 
 d.setCursor(6, 36)
 d.print("status=%s" % status)
+print("CORE2_AUDIO_READY status=%s" % status)
 
 while True:
     M5.update()

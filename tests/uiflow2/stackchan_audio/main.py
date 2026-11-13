@@ -4,6 +4,9 @@ from M5 import *
 
 
 M5.begin()
+from hardware import UART
+_evidence_uart = UART(0, baudrate=115200, tx=43, rx=44)
+_evidence_uart.write("STACKCHAN_AUDIO_START\n")
 d = M5.Display
 d.fillScreen(d.COLOR.BLACK)
 d.setTextColor(d.COLOR.WHITE)
@@ -29,6 +32,7 @@ except Exception as exc:
 
 d.setCursor(6, 36)
 d.print("status=%s" % status)
+_evidence_uart.write("STACKCHAN_AUDIO_READY status=%s\n" % status)
 
 while True:
     M5.update()
