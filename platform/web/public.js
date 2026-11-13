@@ -885,7 +885,9 @@ async function startRun() {
   $('serialOutput').textContent = '';
   $('serialCount').textContent = '0 B';
   $('serialChannel').disabled = true;
-  $('serialChannel').replaceChildren(new Option('默认控制台', 'console'));
+  const consoleOption = document.createElement('option');
+  consoleOption.value = 'console'; consoleOption.textContent = '默认控制台';
+  $('serialChannel').replaceChildren(consoleOption);
   delete $('serialChannel').dataset.channels;
   status('loading', '等待本次运行的屏幕帧');
   updateCapability();
