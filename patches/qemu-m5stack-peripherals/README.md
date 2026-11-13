@@ -1545,3 +1545,17 @@ snapshot retention, byte/halfword accesses, wrap and reset, with an old-runtime
 negative control. Sources and original firmware progress are recorded in the
 fixture README. This does not implement the remaining BR/EDR low-power state
 machine, radio timing or Bluetooth HID; application readiness is independent.
+
+## StickC Plus2 software SPI display identification (0199)
+
+`0199-stickcplus2-gpio-lcd-readback.patch` connects the StickC Plus2 ST7789V2
+panel to software GPIO SPI on CS5, SCK13, D/C14 and bidirectional SDA15.
+The GPIO path samples command bytes on rising clock edges and uses the same
+panel read cursor as hardware SPI. Readback starts after the host releases
+SDA and the turnaround clock completes. Chip-select deassertion, host SDA
+reclaim and GPIO reset release the display's drive. The existing hardware
+SPI attachments continue to carry the normal display data path.
+
+The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
+executes real classic GPIO and SPI MMIO controls. The original image's GPIO
+display probe and initial animation are covered in the same fixture's README.

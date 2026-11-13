@@ -1,0 +1,180 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -513,6 +513,14 @@
+     else { g_ext_in &= ~(1ULL << pin); }
+ }
+ 
++/* Release a line driven by the corresponding deferred-input endpoint. */
++void esp32_gpio_release_input_deferred(int pin)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) { return; }
++    g_external_seen &= ~(1ULL << pin);
++    g_ext_in |= 1ULL << pin;
++}
++
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+diff --git a/hw/m5stopwatch/m5stickcplus2.c b/hw/m5stopwatch/m5stickcplus2.c
+--- a/hw/m5stopwatch/m5stickcplus2.c
++++ b/hw/m5stopwatch/m5stickcplus2.c
+@@ -150,6 +150,135 @@
+ }
+ type_init(plus2_hold_register)
+ 
++enum {
++    PLUS2_LCD_CS = 5,
++    PLUS2_LCD_SCK = 13,
++    PLUS2_LCD_DC = 14,
++    PLUS2_LCD_SDA = 15,
++    PLUS2_LCD_READ_ID = 0x04,
++    PLUS2_LCD_READ_BITS = 32,
++};
++
++typedef struct Plus2GpioLcd {
++    M5SpiPanelState *panel;
++    Esp32GpioPadObserver *observers[4];
++    bool selected, clock, sda_driven, read_pending, reading;
++    uint8_t shift, write_bits, read_bits, read_byte;
++} Plus2GpioLcd;
++
++static bool plus2_lcd_gpio_output(const Esp32GpioPadSnapshot *pad)
++{
++    return pad->mux_path == ESP32_GPIO_MUX_GPIO_MATRIX && !pad->override_mask &&
++           pad->oe_known && pad->oe && pad->drive_known &&
++           (!pad->open_drain || !pad->drive_level);
++}
++
++static void plus2_lcd_release(Plus2GpioLcd *bus)
++{
++    if (bus->sda_driven) {
++        esp32_gpio_release_input_deferred(PLUS2_LCD_SDA);
++        bus->sda_driven = false;
++    }
++}
++
++static void plus2_lcd_clear(Plus2GpioLcd *bus)
++{
++    plus2_lcd_release(bus);
++    bus->selected = false;
++    bus->clock = false;
++    bus->read_pending = false;
++    bus->reading = false;
++    bus->write_bits = 0;
++    bus->read_bits = 0;
++}
++
++static void plus2_lcd_gpio_change(void *opaque, const Esp32GpioPadEvent *event)
++{
++    Plus2GpioLcd *bus = opaque;
++    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
++    Esp32GpioPadSnapshot cs, sck, dc, sda;
++
++    if (event->cause == ESP32_GPIO_PAD_RESET ||
++        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_CS, &cs) ||
++        !plus2_lcd_gpio_output(&cs) || cs.drive_level ||
++        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SCK, &sck) ||
++        !plus2_lcd_gpio_output(&sck)) {
++        plus2_lcd_clear(bus);
++        return;
++    }
++    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_DC, &dc);
++    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SDA, &sda);
++    if (!bus->selected) {
++        bus->selected = true;
++        bus->clock = sck.drive_level;
++        return;
++    }
++
++    bool host_drives = plus2_lcd_gpio_output(&sda);
++    bool host_receives = sda.mux_path == ESP32_GPIO_MUX_GPIO_MATRIX &&
++                         !sda.override_mask && sda.oe_known && !host_drives &&
++                         sda.fun_ie;
++    bool data_phase = plus2_lcd_gpio_output(&dc) && dc.drive_level;
++    if (bus->reading && (!host_receives || !data_phase)) {
++        plus2_lcd_release(bus);
++        bus->reading = bus->read_pending = false;
++    }
++    if (bus->read_pending && data_phase && host_receives) {
++        bus->read_pending = false;
++        bus->reading = true;
++        bus->read_bits = 0;
++    }
++    if (bus->clock == sck.drive_level) {
++        return;
++    }
++    bus->clock = sck.drive_level;
++    if (bus->reading) {
++        /* The first rising edge is the ST7789V2 turnaround clock. Present
++         * each output bit on its following falling edge for the next sample. */
++        if (!bus->clock) {
++            if (bus->read_bits == PLUS2_LCD_READ_BITS) {
++                plus2_lcd_release(bus);
++                bus->reading = false;
++                return;
++            }
++            unsigned bit = bus->read_bits++ % 8;
++            if (bit == 0) {
++                m5_spi_panel_read(bus->panel, &bus->read_byte, 1);
++            }
++            esp32_gpio_set_input_deferred(PLUS2_LCD_SDA,
++                                          (bus->read_byte >> (7 - bit)) & 1);
++            bus->sda_driven = true;
++        }
++        return;
++    }
++    if (!bus->clock || !host_drives || !plus2_lcd_gpio_output(&dc)) {
++        return;
++    }
++    bus->shift = (bus->shift << 1) | sda.drive_level;
++    if (++bus->write_bits == 8) {
++        m5_spi_panel_write(bus->panel, &bus->shift, 1, !data_phase);
++        bus->read_pending = !data_phase && bus->shift == PLUS2_LCD_READ_ID;
++        bus->write_bits = 0;
++    }
++}
++
++static void plus2_lcd_attach_gpio(M5SpiPanelState *panel)
++{
++    static Plus2GpioLcd bus;
++    static const unsigned pins[] = {
++        PLUS2_LCD_CS, PLUS2_LCD_SCK, PLUS2_LCD_DC, PLUS2_LCD_SDA,
++    };
++    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
++
++    bus.panel = panel;
++    for (unsigned i = 0; i < ARRAY_SIZE(pins); i++) {
++        Esp32GpioPadSnapshot initial;
++
++        bus.observers[i] = esp32_gpio_observe_pad(gpio, pins[i],
++                                plus2_lcd_gpio_change, &bus, &initial, &error_fatal);
++    }
++}
++
+ void m5stickcplus2_board_init(Esp32SocState *s)
+ {
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
+@@ -204,8 +333,9 @@
+ 
+     /* Autodetect probes SPI3; the initialized display uses SPI2. D/C is G14.
+      * Physical board pins: SCK13, MOSI15, CS5, reset12, backlight27. */
+-    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 14, 5);
+-    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 14, 5);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
++    plus2_lcd_attach_gpio(M5_SPI_PANEL(panel));
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -107,6 +107,7 @@
+ typedef void (*esp32_gpio_reset_cb)(void *opaque, int pin, int level);
+ void esp32_gpio_set_input(int pin, int level);
+ void esp32_gpio_set_input_deferred(int pin, int level);
++void esp32_gpio_release_input_deferred(int pin);
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
+ void esp32_gpio_add_reset_listener(int pin, esp32_gpio_reset_cb cb,
+                                    void *opaque);

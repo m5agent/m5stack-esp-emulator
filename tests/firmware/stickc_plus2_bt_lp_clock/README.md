@@ -83,3 +83,42 @@ that each ZIP was saved before its session stopped. A separate native trace
 shows the original ROM crossing the BLE time wait and reaching a BR/EDR sleep
 and wake path. Application UI readiness, BLE HID pairing, and physical
 hardware remain unverified.
+## GPIO display identification and original JIGGLER animation
+
+JIGGLER's original image uses a GPIO-driven `RDDID` probe before selecting
+the StickC Plus2 display and power-button path. The firmware's own panel
+description selects CS5, SCK13, D/C14, and bidirectional SDA15. It sends
+command `0x04`, releases SDA, clocks one turnaround bit, and checks the
+returned ID under mask `0xfb`. This matches the [StickC Plus2 board pinout](https://docs.m5stack.com/en/core/StickC-Plus2)
+and the [ST7789V2 serial and RDDID specification](https://www.mouser.com/datasheet/2/744/ST7789V2-3314280.pdf).
+
+Before the GPIO attachment, the original application saw GPIO35 go low and
+high during its loop but resolved board ID 129, M5AtomPsram. Its branch for
+board ID 5, M5StickCPlus2, consumes GPIO35 as the power button. The probe
+did not enter the existing SPI2/3 controller, and the LCD received zero
+commands or pixels. Both the original image's own board records and actual
+guest MMIO confirmed the board mismatch. RTC and IMU reads were separately
+observed on the board's I²C bus.
+
+The same GPIO MMIO sequence reads `0xffffffff` on the frozen runtime and
+`0x00000085` on the GPIO candidate. CS, D/C, data direction, turnaround,
+reselection and reset controls run through the actual GPIO data path.
+The existing VSPI FIFO read returns `0x85` on both runtimes. A Core2 with
+the same test-pin sequence does not expose the Plus2 panel. See the
+[bounded verification summary](gpio-lcd-evidence-summary.json).
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py \
+  --qemu /path/to/qemu-system-xtensa --rom-dir /path/to/pc-bios \
+  --expected-id 0x85
+```
+
+The unchanged original image produced the JIGGLER animation in Device
+Service with the GPIO candidate. The default profile stopped advancing
+the animation before the home screen. A separate auto-profile run displayed
+the animation and logged an IDLE0 task-watchdog reset. A/B injected during
+the short manual trials did not establish functional input responses. The
+longer default trial retained only the C input and the same stalled animation.
+The UIFlow2 Plus2 fixture reported board 5, a 135×240 display and an actual
+A press. The separate Core2 fixture still reported board 2 and touch-driven
+frame output. JIGGLER home, Bluetooth pairing, and HID delivery are pending.

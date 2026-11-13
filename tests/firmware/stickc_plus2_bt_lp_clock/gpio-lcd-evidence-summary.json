@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "validation": "native virtual-device",
+  "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+  "esp32_v3_rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "candidate_runtime_sha256": "592e76b63b876eeda30e4e34c6aaa103982b15c14a5495ef67f4b34761af49e0",
+  "baseline_runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+  "candidate_source_recipe": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "ordered_patches": 147,
+    "verified_postimages": 147,
+    "source_receipt_sha256": "c6f37f908f288f23e66cac101c83c02c81c0238503325b47503977b1686e2830",
+    "patch_sha256": "f867f520e6ba5c22e91af7bc1cd58fb73d96748d044f4fce00468c6c4ae6b511",
+    "fresh_candidate_objects": true
+  },
+  "controller_controls": {
+    "baseline_plus2": {
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "machine": "m5stickcplus2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 4294967295,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 4294967295,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 133
+      }
+    },
+    "candidate_plus2": {
+      "runtime_sha256": "592e76b63b876eeda30e4e34c6aaa103982b15c14a5495ef67f4b34761af49e0",
+      "machine": "m5stickcplus2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 133,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 133,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 133
+      }
+    },
+    "candidate_core2": {
+      "runtime_sha256": "592e76b63b876eeda30e4e34c6aaa103982b15c14a5495ef67f4b34761af49e0",
+      "machine": "m5core2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 4294967295,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 4294967295,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295
+      }
+    }
+  },
+  "original_application_runs": {
+    "baseline_manual_default": {
+      "profile": "default shift 5",
+      "result": "PARTIAL: unchanged black frame after C",
+      "observed_seconds": 40.008,
+      "inputs": [
+        {
+          "event": "keydown:c",
+          "seconds": 0.337
+        },
+        {
+          "event": "keyup:c",
+          "seconds": 1.985
+        }
+      ],
+      "samples": 80,
+      "nonblack_samples": 0,
+      "distinct_frames": 1,
+      "first_nonblack_seconds": null,
+      "first_nonblack_frame_sha256": null,
+      "last_frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "first_last_frame_seconds": 0.002,
+      "last_frame_seconds": 39.574,
+      "interrupt_wdt": 0,
+      "task_wdt": 0,
+      "guest_reboots": 0,
+      "watchdog_policy_enabled": true,
+      "zip_sha256": "d994a2ec1fa6b0457a007dda2180cfb3130590e6bddcaafe90fea5f35762c4cf",
+      "zip_before_stop": true,
+      "owned_process_exited": true
+    },
+    "candidate_manual_default": {
+      "profile": "default shift 5",
+      "result": "PARTIAL: actual startup animation, A/B during animation unverified",
+      "observed_seconds": 40.026,
+      "inputs": [
+        {
+          "event": "keydown:c",
+          "seconds": 0.341
+        },
+        {
+          "event": "keyup:c",
+          "seconds": 1.979
+        },
+        {
+          "event": "keydown:a",
+          "seconds": 5.052
+        },
+        {
+          "event": "keyup:a",
+          "seconds": 5.269
+        },
+        {
+          "event": "keydown:b",
+          "seconds": 10.599
+        },
+        {
+          "event": "keyup:b",
+          "seconds": 10.821
+        }
+      ],
+      "samples": 80,
+      "nonblack_samples": 77,
+      "distinct_frames": 53,
+      "first_nonblack_seconds": 1.547,
+      "first_nonblack_frame_sha256": "34b24bb1591661604c3f3a30b0b2967bcfd8cf0453c23c61d4757cef45dafd86",
+      "last_frame_sha256": "8ea51c3e40f5aed36c141ba567871e6a4aa169f2fee70a4707545e99ab213538",
+      "first_last_frame_seconds": 27.023,
+      "last_frame_seconds": 39.589,
+      "interrupt_wdt": 0,
+      "task_wdt": 0,
+      "guest_reboots": 0,
+      "watchdog_policy_enabled": true,
+      "zip_sha256": "00b169cbf640bdc945a2ed69bb20997f61776ee5c08669838d22abbc31dd5f16",
+      "zip_before_stop": true,
+      "owned_process_exited": true
+    },
+    "candidate_manual_auto": {
+      "profile": "auto shift",
+      "result": "FAIL after animation starts: IDLE0 task watchdog and reset",
+      "observed_seconds": 40.094,
+      "inputs": [
+        {
+          "event": "keydown:c",
+          "seconds": 0.336
+        },
+        {
+          "event": "keyup:c",
+          "seconds": 1.96
+        },
+        {
+          "event": "keydown:a",
+          "seconds": 5.034
+        },
+        {
+          "event": "keyup:a",
+          "seconds": 5.25
+        },
+        {
+          "event": "keydown:b",
+          "seconds": 11.09
+        },
+        {
+          "event": "keyup:b",
+          "seconds": 11.302
+        }
+      ],
+      "samples": 80,
+      "nonblack_samples": 75,
+      "distinct_frames": 65,
+      "first_nonblack_seconds": 2.074,
+      "first_nonblack_frame_sha256": "a6430b0a6e2314713089ce09d66c391d5753ed6f0d48245a1076e0bd72e12b39",
+      "last_frame_sha256": "6e02cc33c55aeaea50de1b6a103218dbeb559990f36cc927af9ef3e715e98094",
+      "first_last_frame_seconds": 39.555,
+      "last_frame_seconds": 39.555,
+      "interrupt_wdt": 0,
+      "task_wdt": 1,
+      "guest_reboots": 1,
+      "watchdog_policy_enabled": true,
+      "zip_sha256": "7603ec72a176680ce7735479b9b96f80c08374a34cb11c56e6281a6e37fceb3c",
+      "zip_before_stop": true,
+      "owned_process_exited": true
+    },
+    "candidate_manual_default_extended": {
+      "profile": "default shift 5",
+      "result": "PARTIAL: same startup frame through 98-second sample",
+      "observed_seconds": 100.093,
+      "inputs": [
+        {
+          "event": "keydown:c",
+          "seconds": 0.334
+        },
+        {
+          "event": "keyup:c",
+          "seconds": 2.001
+        }
+      ],
+      "samples": 50,
+      "nonblack_samples": 49,
+      "distinct_frames": 28,
+      "first_nonblack_seconds": 2.001,
+      "first_nonblack_frame_sha256": "de5987909348ccdd76df099ae6a9a72c68e1221242e1c9836e2a2566ef168f10",
+      "last_frame_sha256": "8ea51c3e40f5aed36c141ba567871e6a4aa169f2fee70a4707545e99ab213538",
+      "first_last_frame_seconds": 54.012,
+      "last_frame_seconds": 98.037,
+      "interrupt_wdt": 0,
+      "task_wdt": 0,
+      "guest_reboots": 0,
+      "watchdog_policy_enabled": true,
+      "zip_sha256": "cc4810283d7d43d83addf9f25b8657948b07705bbb55b47c187b3599f5fe6a64",
+      "zip_before_stop": true,
+      "owned_process_exited": true
+    }
+  },
+  "baseline_observation": {
+    "gpio_observer_sha256": "0bb79e698cadef19ca6801baa61febe8d0d75704cc4e58c8e4e2098287bf6ffa",
+    "gpio_observer_zip_sha256": "266369cae3ebc616b4b274744a97ad7f69a039914226c7c131474efd76e42e6c",
+    "spi_observer_sha256": "78878ccb0932a8c51cfacb2d3eb23d472d007ba156d53935c07c2761b8f7f8b5",
+    "spi_observer_zip_sha256": "ef19c6537ee9fe1c49e263cb2d5fd7f2971c4095218997ab0609d07bb59f7833",
+    "original_gpio_in1_pc": "0x400db20a",
+    "loop_c_low_reads": 727,
+    "loop_c_high_reads": 30848,
+    "selected_board_id": 129,
+    "expected_board_id": 5,
+    "spi2_spi3_transactions": 0,
+    "panel_commands": 0,
+    "panel_pixels": 0
+  },
+  "unrelated_guest_controls": {
+    "stickc-plus2": {
+      "status": "PASS",
+      "attempts": 1,
+      "fixture_image_sha256": "0eeec7e2dfe72c178b494ccb58f924f71fd208721ccda100cd43872a2c88bbb4",
+      "after_frame_sha256": "6387ac647f3a22dbb14e3cbedc9707deee8759f33d47687a5411a646408d1ca4",
+      "guest_marker": "STICKCPLUS2_BTN_A 1"
+    },
+    "core2": {
+      "status": "PASS",
+      "attempts": 1,
+      "fixture_image_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+      "after_frame_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "guest_marker": "CORE2_FRAME_AFTER_TOUCH 1"
+    }
+  },
+  "scope": {
+    "display_identification": "PASS",
+    "original_startup_animation": "PASS",
+    "original_home_and_a_b": "PARTIAL",
+    "pairing_hid_physical_and_browser": "NOT RUN"
+  }
+}
