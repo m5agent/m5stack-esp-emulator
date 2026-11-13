@@ -112,9 +112,9 @@ performed. There is no fixed host delay and nonzero holds are unchanged.
 
 The host controls cover all-OFF holds 1 and 0, OFF-to-interrupt elapsed time,
 clock-gated zero hold and source/divider dependence. The exact previous
-candidate code is separately restored and must fail these controls. Fresh
-runtime and affected guest revalidation after this correction are pending;
-do not reuse the historical d7a6/ef3c guest results as final acceptance.
+candidate code is separately restored and must fail these controls. The
+post-correction fresh runtime has separate results below; the historical
+d7a6/ef3c guest results remain bound to those earlier candidates.
 
 To build the extra guest stage control, repeat preparation with `--off-stages`
 in a separate output directory. Use the same `run.py` with `--mode after
@@ -122,3 +122,36 @@ in a separate output directory. Use the same `run.py` with `--mode after
 then a 200-tick Disabled stage followed by a 300-tick interrupt (250 ms total
 at 40 MHz / 20000). The historical negative for these stage cases is the
 bounded actual-C replay, avoiding an unbounded host timer loop.
+
+## Fresh final runtime acceptance
+
+[`final-runtime-summary.json`](final-runtime-summary.json) records a new full
+19-patch build from canonical QEMU `febae182e132e4055529be423a818225ebddaa3a`,
+with fresh QEMU objects. The native executable SHA is
+`3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4`.
+Its immutable build receipt is distinct from this later guest acceptance.
+
+- The same six-case clock probe passes all six IRQ timing oracles. The extra
+  stage probe stays live with all-Disabled holds 1 and 0, and Disabled-to-IRQ
+  takes 251309 microseconds against 250000 expected. These are two dedicated
+  Device Service runs, each with complete ZIP serial and unchanged app bytes.
+- The checked-in Nesso peripherals and LoRa cases each pass once without a
+  retry. The guest receives the modeled battery/charger transitions and the
+  SX1262 packet through its emulated controller/FIFO path.
+- Original Meshtastic runs 150.299 seconds with one boot and no fatal marker.
+  Real `key:b` changes the welcome selection; another press restores the
+  display after natural sleep. Its final black frame is a subsequent natural
+  sleep, not a failed boot.
+- Original Bruce runs 150.495 seconds. Touch `(66,214)` changes WiFi to Clock;
+  the one requested reset produces the second boot and a visible WiFi menu
+  after LittleFS remount, without mount/corruption errors.
+- Original Meshtastic RFID Demo runs 150.521 seconds and remains **FAIL**:
+  its prompt is visible, but the full serial records two boots and one
+  unrequested restart. The earlier first-fault diagnostic remains explicitly
+  bound to d7a6; it was not silently relabeled as a new 3679 diagnostic.
+
+All five Device Service sessions exported their own ZIP before `purge=0`
+stop, retained history, released Flash/leases and exited their native process.
+The owned service and regression processes were stopped. These targeted
+results do not claim the pending full high-load matrix, resident deployment,
+physical RF, or PN532 card reading.

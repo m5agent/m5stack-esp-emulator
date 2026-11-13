@@ -1,0 +1,675 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "status": "TARGETED_CONTROLS_PASS_ORIGINAL_RFID_FAIL",
+  "scope": "Fresh final C6 runtime after PCR clock and OFF-stage corrections; separate from pending full native high-load acceptance.",
+  "runtime": {
+    "binary_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+    "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+    "qemu": {
+      "url": "https://github.com/espressif/qemu.git",
+      "commit": "febae182e132e4055529be423a818225ebddaa3a"
+    },
+    "source_commit": "d30903784067cd45b7da04447b0eb5111e0cde17",
+    "private_identity_receipt_sha256": "3e49a2485d9160c1b394c20c2afcac68ee4c8f1f1f7c722de4fc7db2f55e2e24",
+    "identity_receipt_is_immutable_build_record": true,
+    "fresh_source": true,
+    "fresh_qemu_objects": true,
+    "build_recipe": "scripts/bootstrap-c6-runtime.py; complete 19-patch sequence; --jobs 2",
+    "non_qemu_dependency_reuse": "Declared subproject sources and static libgcrypt/libgpg-error dependencies reused; QEMU objects rebuilt in a fresh directory.",
+    "patches": {
+      "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch": "3e1e0468d183c9aac066676875df2d693cf4dfebdf7898e36c75d5d7a772613b",
+      "patches/qemu-esp32c6-uiflow2-adapters/0002-nanoc6-board-isolation-gpio.patch": "e2a3d74ecf58cb77e69a0f4175b64372fe474abe2921fcba2ffbcf9406ebafcc",
+      "patches/qemu-m5stack-peripherals/0016-gigadevice-status2-qio.patch": "4b87d2bbff5a9f9a5591d20d8156163006ca6de9747198f6db66dc2b8b6cc38f",
+      "patches/qemu-m5stack-peripherals/0017-issi-status2-qio.patch": "d425608c5c000899e11a1a42e67deec86d03578f3b6fb310baf233f0b4770ff3",
+      "patches/qemu-esp32c6-uiflow2-adapters/0003-modem-syscon-clock-bits.patch": "3babbc51fea5bf08e996a613bad4ebc6f6c9a4fe42c5b25964da4a5eebd72b63",
+      "patches/qemu-esp32c6-uiflow2-adapters/0004-user-firmware-hot-samples.patch": "f61ef69c255391239298cd78eefb73cd6e2922cd78d595f79e552ec98c1abc49",
+      "patches/qemu-esp32c6-uiflow2-adapters/0005-c6-uart-timeout-registers.patch": "f52c023b07abc14b81694b2db328a650aa2ab8c754590378de967f06cbc71624",
+      "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch": "bd40fedbd604e11ebd081002a03d2d4f141b252cb881932519f54efbb4520a53",
+      "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch": "91b93e7876809258a55aa193b7fcde314de32be7c77234770f2b124cea51631b",
+      "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch": "6b6b352c3f18e3bac0e0e246a514008c0a03df34864d8234f3ed6cd133053e4d",
+      "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch": "4223de1bc528b682eeb7c5c50d284ec3d85be34ea2dfcbbfb42917e10e5e3345",
+      "patches/qemu-esp32c6-uiflow2-adapters/0010-c6-sx1262-hardware-spi.patch": "a5af6e7e846c44a7e3f406b6dbb8dc167ea88d67c0a061bc7bd41ab66ef965a1",
+      "patches/qemu-esp32c6-uiflow2-adapters/0011-c6-isolated-wifi-presence.patch": "625a89ac455c02a9b871536a5d4915e7849fa96f73f82e65a960ea5ceb8c823e",
+      "patches/qemu-esp32c6-uiflow2-adapters/0012-c6-ble-aes-dma.patch": "f942bec891bb64423a61e4230ddf7e40a2df6172fba7b4e600e881774f0a8f98",
+      "patches/qemu-esp32c6-uiflow2-adapters/0013-c6-lpperi-rng.patch": "8421f6572048b9e139504fce641fbf25479e775a24c13f64affa9e29600846ac",
+      "patches/qemu-esp32c6-uiflow2-adapters/0014-c6-nesso-panel-madctl.patch": "fb60c5e74b05b05de34379bcd1ef988f8a831419185fc8cf039d9c6bff6acecc",
+      "patches/qemu-esp32c6-uiflow2-adapters/0015-c6-spi2-data-length.patch": "559c7dd083e6eae5247762cbdbd3a531e11774f475e400acd60a08595e638cc8",
+      "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch": "7a0173bc469263d2d8be333465544f7b463710eaebf26b7ffaf8a4738919cfe9",
+      "patches/qemu-esp32c6-uiflow2-adapters/0017-c6-mwdt-pcr-clock.patch": "5f2749c7d2e4d7c36ccd3b0a073f149a8ccda7d64df1683d9aa78e640e3c5988"
+    }
+  },
+  "host_controls": {
+    "status": "PASS",
+    "implementation": "actual extracted C functions with ASan/UBSan, old/new replay and exact previous OFF-stage candidate negative",
+    "source_commit": "d30903784067cd45b7da04447b0eb5111e0cde17",
+    "not_repeated_during_final_guest_window": true,
+    "actual_c_cases": 27
+  },
+  "probes": [
+    {
+      "status": "PASS",
+      "firmware_sha256": "78c9c8c2c5073abc8b4c53094ab320fed456b82a9a95539d4ae6213811e78fa8",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "observed_seconds": 3.519803874893114,
+      "zip_sha256": "8c1524903ce78dd90f37201e191044a7b14325e8c5c9205c71c129e23566722f",
+      "serial_sha256": "726093e917c239bc6bea2968b6ceff6cf44834bc49e22352920879a7eef7074f",
+      "boot_banners": 1,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "before_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "after_sha256": "f2146ca0eb392720d54395962907917248b0bd366eaeaf902a3fb9cc0f56ae66",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "case": "clock-mux-gate",
+      "lane": "dedicated Device Service session",
+      "actual_native_executable_sha_verified": true,
+      "zip_manifest_binding_verified": true,
+      "serial_markers": [
+        "MWDT_PROBE_READY",
+        "MWDT_CASE index=0 elapsed_us=500114 expected_us=500000 changed_us=0 result=PASS pcr=00400000",
+        "MWDT_CASE index=1 elapsed_us=250207 expected_us=250000 changed_us=0 result=PASS pcr=00500000",
+        "MWDT_CASE index=2 elapsed_us=1001018 expected_us=1000000 changed_us=0 result=PASS pcr=00600000",
+        "MWDT_CASE index=3 elapsed_us=302134 expected_us=300701 changed_us=101402 result=PASS pcr=00500000",
+        "MWDT_CASE index=4 elapsed_us=700389 expected_us=699456 changed_us=100331 result=PASS pcr=00400000",
+        "MWDT_CASE index=5 elapsed_us=399999 expected_us=398737 changed_us=101263 result=PASS pcr=00400000",
+        "MWDT_PROBE_DONE passed=6 total=6"
+      ],
+      "attempts": 1,
+      "retry_used": false
+    },
+    {
+      "status": "PASS",
+      "firmware_sha256": "ed7b5dc60446c9698b87d282c868d62deb62ed2e2b472da43ab656e3c7635234",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "observed_seconds": 0.6834035830106586,
+      "zip_sha256": "19a1ff2171305d22fc6406f556c2fe9b499531fb4fca809168d0130c1312ec68",
+      "serial_sha256": "57bbe2b9d5dadbb791549af9fcbb73126bfa6fb1d1fa81dec90442f36b808494",
+      "boot_banners": 1,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "before_sha256": "5aa448372efeeee22df03977acf1fc8bd908eaed3cabe00598ccd8a5b08e28f2",
+          "after_sha256": "5aa448372efeeee22df03977acf1fc8bd908eaed3cabe00598ccd8a5b08e28f2",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "case": "off-stage-progression",
+      "lane": "dedicated Device Service session",
+      "actual_native_executable_sha_verified": true,
+      "zip_manifest_binding_verified": true,
+      "serial_markers": [
+        "OFF_PROBE_READY",
+        "OFF_BEGIN hold=1",
+        "OFF_LIVE hold=1 elapsed_us=50562 result=PASS",
+        "OFF_BEGIN hold=0",
+        "OFF_LIVE hold=0 elapsed_us=49566 result=PASS",
+        "OFF_TO_INT elapsed_us=251309 expected_us=250000 result=PASS",
+        "OFF_PROBE_DONE"
+      ],
+      "attempts": 1,
+      "retry_used": false
+    }
+  ],
+  "native_fixtures": [
+    {
+      "case": "nesso-peripherals",
+      "device": "nesso-n1",
+      "status": "PASS",
+      "lane": "checked-in native peripheral regression",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "runtime_binding": "frozen executable selected by the runner command; unchanged executable SHA rechecked after execution",
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050",
+      "source_sha256": "87cf1ecb164091ad6aaf9b2915d9c9e4c47854d92f6fd1753b2383c094fdca86",
+      "effective_source_sha256": "87cf1ecb164091ad6aaf9b2915d9c9e4c47854d92f6fd1753b2383c094fdca86",
+      "input": [
+        "touch:67,160",
+        "key:a"
+      ],
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "attempts": 1,
+      "retry_used": false,
+      "serial_sha256": "e78678f51da5901f67fd1a044385d1319c7c08b4cd47b70a0969c683bfe39a75",
+      "before_png_sha256": "b9ab4bf6b6a6bc134e683af8a342542b73f705a327d4006ba49159b5e56a665b",
+      "after_png_sha256": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4",
+      "visual_review": "Green PASS marker and guest-rendered battery/charger transition text confirmed.",
+      "reason": "Both PI4IOE expanders, a button input, the BQ27220 battery gauge and AW32001 charger status are visible through the Nesso UIFlow2 firmware."
+    },
+    {
+      "case": "nesso-lora",
+      "device": "nesso-n1",
+      "status": "PASS",
+      "lane": "checked-in native peripheral regression",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "runtime_binding": "frozen executable selected by the runner command; unchanged executable SHA rechecked after execution",
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb",
+      "source_sha256": "99b69b6548ed12a062b56a22ef808aa75844a022ead50f9480df8c19b4fe7d8e",
+      "effective_source_sha256": "99b69b6548ed12a062b56a22ef808aa75844a022ead50f9480df8c19b4fe7d8e",
+      "input": [
+        "touch:67,160"
+      ],
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "attempts": 1,
+      "retry_used": false,
+      "serial_sha256": "169f363c3bcc57de7cea5c2ece3adf28c2fab214390d6b9895aff85d6f8c35ad",
+      "before_png_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "after_png_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "visual_review": "Green PASS marker and guest-rendered SX1262 packet=b'M5LORA' confirmed.",
+      "reason": "The Nesso SX1262 shares ESP32-C6 SPI2 with the display; the hardware.LoRa driver configures the modem and receives the packet sent through the chip packet FIFO."
+    }
+  ],
+  "original_firmware": [
+    {
+      "case": "meshtastic",
+      "device": "nesso-n1",
+      "validation": "virtual-device validation",
+      "service_source_commit": "d30903784067cd45b7da04447b0eb5111e0cde17",
+      "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "runtime": "qemu",
+      "network_added": false,
+      "peer_added": false,
+      "observed_seconds": 150.299,
+      "serial_bytes": 12260,
+      "serial_sha256": "0e7434e8809c48232ef94d99133262e2ba9a85a4247ae464ad07b3a4d8d04562",
+      "counts": {
+        "ESP-ROM:esp32c6": 1,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "control_checks": {
+        "one_boot": true,
+        "no_fatal": true,
+        "input_changed_frame": true,
+        "natural_sleep_observed": true,
+        "button_wake_nonblack": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_padded_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "final_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "8e980f96760bf9badb0dc0132edda14fa6fc90d9a965ea79f7cf8f6a883bcb4e",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "status": "PASS",
+      "visual_review": "Welcome options change after key:b; a later all-black sleep frame is followed by the welcome/options frame after a second key:b. Final t150 is another natural display sleep, with one boot and no fatal marker.",
+      "frames": [
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+          "pixel_sha256": "c66b5cf0ea55080ab6faf8751bcd78403a37f675c6dceeb0eb0d799c78a2c804",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 30.154
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "f99f52593d95ffc4fc146a54eb448bd6ae8c48a5a0397cdfe3aa76ef47a4af5a",
+          "pixel_sha256": "a78507c250badf7adee0ecdc51283c06787b4ac046342c840b6c8ef704f2a951",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 33.583
+        },
+        {
+          "sample": "sleep-observed",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 61.607
+        },
+        {
+          "sample": "after-wake",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "89a8baf56c1681b97c09cb2fef70b11f7f5eda6c1c6b23a5c8587371e5d8440a",
+          "pixel_sha256": "49383f7200ec714e9d45d2c82ad14dccd6e1f182ecc15fc3a8360c29c4323741",
+          "nonblack_pixels": 7546,
+          "colors": 3,
+          "elapsed_seconds": 65.044
+        },
+        {
+          "sample": "t120",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "8fa24fcf391d66a4924efacde1e6dfc6cc9b1e05762b7bc7b860580621de2454",
+          "pixel_sha256": "614c4c837b4fb876b93e18f11bcea9974fd9d6180d422145b306c86276ed3c68",
+          "nonblack_pixels": 7553,
+          "colors": 3,
+          "elapsed_seconds": 120.217
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 150.08
+        }
+      ],
+      "attempts": 1,
+      "retry_used": false,
+      "actual_native_executable_sha_verified": true,
+      "zip_manifest_binding_verified": true,
+      "inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 31.558,
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "tap",
+            "settle_seconds": 0.5
+          },
+          "accepted": true
+        },
+        {
+          "label": "wake",
+          "elapsed_seconds": 63.018,
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "tap",
+            "settle_seconds": 0.5
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "bruce",
+      "device": "nesso-n1",
+      "validation": "virtual-device validation",
+      "service_source_commit": "d30903784067cd45b7da04447b0eb5111e0cde17",
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "runtime": "qemu",
+      "network_added": false,
+      "peer_added": false,
+      "observed_seconds": 150.495,
+      "serial_bytes": 6044,
+      "serial_sha256": "328de062db9aa271629bf481ea9023a284fa163d692a1ddc0959a40ed27e0cd5",
+      "counts": {
+        "ESP-ROM:esp32c6": 2,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "control_checks": {
+        "two_boots_one_requested_reset": true,
+        "no_fatal": true,
+        "touch_changed_frame": true,
+        "remount_nonblack": true,
+        "post_reset_littlefs_error_absent": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "original_padded_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "final_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "9949ab7413b1a01cdbbf9278275797d14ceaf53b6074637bc175f5e7b30838ee",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "status": "PASS",
+      "visual_review": "Touch advances WiFi to Clock. After the one requested reset, the remount and t150 frames show the WiFi menu; no LittleFS mount/corruption error follows reset.",
+      "frames": [
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+          "pixel_sha256": "8172d8fcd69f3b44b9c8326022c3ad73d0c5b64455e498fc9782719a9b3081a8",
+          "nonblack_pixels": 3531,
+          "colors": 5,
+          "elapsed_seconds": 30.142
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "1494a15e663d2ee69538f1178ed24462106276b461dc3a645b5185db213ffc2f",
+          "pixel_sha256": "2879e5ce8c93e414caa0397a87601bc4082ed20f698b2f4ce88086475d7d9bae",
+          "nonblack_pixels": 3400,
+          "colors": 5,
+          "elapsed_seconds": 33.124
+        },
+        {
+          "sample": "remount",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "colors": 5,
+          "elapsed_seconds": 125.173
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "c64a2f1430d36b6dc5e4aa8f04d915f3c94019bcdccfae881731cc2e3b7447b6",
+          "pixel_sha256": "3511b59691b1c61a51c384d1a1899a87c5df4f7efd61498a229a08d94fa0d777",
+          "nonblack_pixels": 3521,
+          "colors": 5,
+          "elapsed_seconds": 150.216
+        }
+      ],
+      "attempts": 1,
+      "retry_used": false,
+      "actual_native_executable_sha_verified": true,
+      "zip_manifest_binding_verified": true,
+      "inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 31.103,
+          "request": {
+            "kind": "touch",
+            "x": 66,
+            "y": 214,
+            "action": "tap",
+            "settle_seconds": 0.5
+          },
+          "accepted": true
+        },
+        {
+          "label": "reset",
+          "elapsed_seconds": 100.11,
+          "request": {},
+          "reset_accepted": true
+        }
+      ]
+    },
+    {
+      "case": "rfid",
+      "device": "nesso-n1",
+      "validation": "virtual-device validation",
+      "service_source_commit": "d30903784067cd45b7da04447b0eb5111e0cde17",
+      "original_firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "runtime": "qemu",
+      "network_added": false,
+      "peer_added": false,
+      "observed_seconds": 150.521,
+      "serial_bytes": 4683,
+      "serial_sha256": "b7ff979b4e30ab6b225871a3bcd80dbedbb6c242598bf42b9970e6ae5bfc272e",
+      "counts": {
+        "ESP-ROM:esp32c6": 2,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 1,
+        "Rebooting...": 1,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_padded_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "final_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "0859d0c02918bbd36baebe0939bf54d551e633bc246f330e36b840e75feacd26",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "status": "FAIL",
+      "visual_review": "The original Meshtastic RFID Demo welcome prompt is visible, but the complete serial contains one unrequested reboot and two ROM banners. This is not RFID card-read acceptance.",
+      "frames": [
+        {
+          "sample": "t010",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "498d51379f14eea92f09f96deecdd44603fb81529203a45455c6494694e5a542",
+          "pixel_sha256": "772655001cbe783b16684a2e0e935ce7da21bc59e2b06d9a224a749ebdf02abe",
+          "nonblack_pixels": 4674,
+          "colors": 2,
+          "elapsed_seconds": 10.164
+        },
+        {
+          "sample": "t030",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "465905048f08bb9e2135ce46a0e6a7b152dc2bf3da54a7821f7c4df23ae487fc",
+          "pixel_sha256": "7d0a1d635ef1f57bcc74add472f4156c37e0d9e03d28a2c56f95d532ce7aa597",
+          "nonblack_pixels": 7653,
+          "colors": 2,
+          "elapsed_seconds": 30.153
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "22258fcb8689000ac156a3266d39146e193300dcc7f0e16a637b19cc4ff70b7f",
+          "pixel_sha256": "301dc7f0cca81b49206f25540c9aa526d9ee52587f53b84c97a8c9dd2c5864a4",
+          "nonblack_pixels": 7649,
+          "colors": 2,
+          "elapsed_seconds": 150.282
+        }
+      ],
+      "attempts": 1,
+      "retry_used": false,
+      "actual_native_executable_sha_verified": true,
+      "zip_manifest_binding_verified": true,
+      "firmware_name": "Meshtastic RFID Demo 2.7.21 Landscape PN532/PN532Killer",
+      "diagnostic_boundary": "The earlier first-fault GDB evidence in evidence-summary.json is bound to d7a6, not repeated here. This final 3679 run independently preserves the original-BIN restart failure after the clock and OFF-stage repair.",
+      "inputs": []
+    }
+  ],
+  "cleanup": {
+    "status": "PASS",
+    "service_stopped": true,
+    "session_count": 5,
+    "all_sessions_stopped": true,
+    "all_flash_released": true,
+    "all_leases_released": true,
+    "owned_processes_remaining": [],
+    "history_preserved": true,
+    "purge": 0
+  },
+  "history": {
+    "previous_fresh_candidate_sha256": "ef3c1eb5b7f2d395aebd4badf8c6adf33b099f39aaf72a0baaf976d47507aa25",
+    "previous_candidate_status": "SUPERSEDED_HAS_OFF_STAGE_BUG",
+    "previous_incremental_candidate_sha256": "d7a6f11d2274d67ea2d1b0c5016778f9f84bda7828190f5be927c00fa1cd2e09",
+    "successful_earlier_subcases_do_not_override_off_stage_failure": true,
+    "first_fault_diagnostics": "See evidence-summary.json for explicitly bound baseline/d7a6 RFID observations."
+  },
+  "limits": [
+    "Zero hold advances at the next source/divider/gate-derived MWDT edge; this is an explicit model quantization inference, not measured exact silicon behavior.",
+    "RFID original still fails stability; PN532/RFID card reading NOT RUN.",
+    "LoRa result exercises emulated SPI2 controller and packet FIFO loopback, not physical RF.",
+    "No network or simulated PN532 peer was added to the three original-firmware sessions.",
+    "Two full high-load native rounds and resident-service deployment are separate integration gates; NOT RUN in this record.",
+    "Original Launcher, Zigbee and NanoC6 Honeypot were not rerun on this final clock-only runtime; earlier limits remain bound to their earlier identities.",
+    "Physical hardware, RC oscillator electrical accuracy and browser-WASM validation NOT RUN."
+  ]
+}
