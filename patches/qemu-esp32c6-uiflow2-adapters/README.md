@@ -37,6 +37,11 @@ AES MMIO、GDMA request 6 和 IRQ source 73；不再让原版 Bruce 永久等待
 回归见 [AES 用例](../../tests/firmware/esp32c6_aes/README.md)。这不等于
 Bruce 的 LittleFS 或 issue #216 全部固件通过。
 
+`0009-c6-qio-flash-header.patch` 按 C6 SPI1 的实际 Flash 型号补齐
+SSI QIO mode/dummy header：16 MiB ISSI 使用 3 字节，其他支持的
+Winbond/GigaDevice 型号使用 5 字节。它保留 guest 寄存器和 SPI2 数据面；
+读写对照使用 [C6 Flash 探针](../../tests/firmware/esp32c6_flash_qio/README.md)。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。

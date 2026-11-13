@@ -1,0 +1,228 @@
+{
+  "validation": "virtual-device validation",
+  "issue": 216,
+  "source_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "runtime_before_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+  "runtime_after_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "patches": {
+    "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch": "3e1e0468d183c9aac066676875df2d693cf4dfebdf7898e36c75d5d7a772613b",
+    "patches/qemu-esp32c6-uiflow2-adapters/0002-nanoc6-board-isolation-gpio.patch": "e2a3d74ecf58cb77e69a0f4175b64372fe474abe2921fcba2ffbcf9406ebafcc",
+    "patches/qemu-m5stack-peripherals/0016-gigadevice-status2-qio.patch": "4b87d2bbff5a9f9a5591d20d8156163006ca6de9747198f6db66dc2b8b6cc38f",
+    "patches/qemu-m5stack-peripherals/0017-issi-status2-qio.patch": "d425608c5c000899e11a1a42e67deec86d03578f3b6fb310baf233f0b4770ff3",
+    "patches/qemu-esp32c6-uiflow2-adapters/0003-modem-syscon-clock-bits.patch": "3babbc51fea5bf08e996a613bad4ebc6f6c9a4fe42c5b25964da4a5eebd72b63",
+    "patches/qemu-esp32c6-uiflow2-adapters/0004-user-firmware-hot-samples.patch": "f61ef69c255391239298cd78eefb73cd6e2922cd78d595f79e552ec98c1abc49",
+    "patches/qemu-esp32c6-uiflow2-adapters/0005-c6-uart-timeout-registers.patch": "f52c023b07abc14b81694b2db328a650aa2ab8c754590378de967f06cbc71624",
+    "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch": "bd40fedbd604e11ebd081002a03d2d4f141b252cb881932519f54efbb4520a53",
+    "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch": "91b93e7876809258a55aa193b7fcde314de32be7c77234770f2b124cea51631b",
+    "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch": "6b6b352c3f18e3bac0e0e246a514008c0a03df34864d8234f3ed6cd133053e4d",
+    "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch": "4223de1bc528b682eeb7c5c50d284ec3d85be34ea2dfcbbfb42917e10e5e3345"
+  },
+  "changed_sources": {
+    "hw/riscv/esp32c6.c": "4b50987f41e978401a134e8a89c5868df1a88ba021c8ab575d4c46e243ac08ad",
+    "hw/ssi/esp32c3_spi.c": "8dff77b304adc2df287c3b5f7536003d612efd71795efddc2b098d147a6ef11a",
+    "include/hw/ssi/esp32c3_spi.h": "061702e89a5771767f15b8372470295aef0d4f050254e4861c38fea0cfbfbb91"
+  },
+  "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "fixture_runs": [
+    {
+      "name": "qio-probe-nesso-old",
+      "device": "nesso-n1",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_FAIL mode=QIO range=0 byte=0 expected=a5 actual=00 err=0",
+        "C6_FLASH_FAIL mode=QIO-erased range=0 byte=0 expected=ff actual=00 err=0"
+      ],
+      "serial_sha256": "f94e1ee1c154049e5ca64041ae9b023fc7045440a868f329c1d0fff905afb575",
+      "evidence_sha256": "06549981711f3f664b4ba8a24ac0107c90edc382a1f43e2ed7db69cf3bb7e512",
+      "zip_before_stop": false,
+      "purge": false
+    },
+    {
+      "name": "qio-probe-nano-old",
+      "device": "nanoc6",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_FAIL mode=QIO range=0 byte=0 expected=a5 actual=00 err=0",
+        "C6_FLASH_FAIL mode=QIO-erased range=0 byte=0 expected=ff actual=00 err=0"
+      ],
+      "serial_sha256": "ebc8f19ea0a176df558a51eebd2e44d5e2a562d568dd06dad9f11afe7cbfa9f3",
+      "evidence_sha256": "d2a3e3adbf1e4f9641bfb4afcb12a6d1e063e9e35b7f069c63e561da402547a5",
+      "zip_before_stop": false,
+      "purge": false
+    },
+    {
+      "name": "qio-probe-nesso-fixed-2",
+      "device": "nesso-n1",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "serial_sha256": "2d1705ba62a248daba0e4a5d258ba176f1340c021e491665e412ea45d1bc827b",
+      "evidence_sha256": "c65905a2d64551e0933102b1bf3aa93f0f6ad413e7ff7a8a7168a3e1dfce05e7",
+      "zip_before_stop": true,
+      "purge": false
+    },
+    {
+      "name": "qio-probe-nano-fixed",
+      "device": "nanoc6",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "serial_sha256": "7c2d7e68a842cd5d768c65ece80e219255a8a900e4b822283ffcdd168611b0da",
+      "evidence_sha256": "fbd9d1b9e31e4de7a961b0cdaae8f3f1d5f3bc827a1102413ccbff873d132105",
+      "zip_before_stop": true,
+      "purge": false
+    }
+  ],
+  "original_bruce": {
+    "firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+    "negative_gdb": {
+      "program_return": 0,
+      "read_return": 0,
+      "program_bytes": 128,
+      "program_sha256": "767645f2c58fbdc85d8e24c5b5b21635e1c9bf4549ee00a7209a5910fe25f0f1",
+      "read_sha256": "11470dd4c3a38e11494678fd0816128563f86a3fb51270f783bd1e2813e7dbf4",
+      "actual_flash_equals_program": true,
+      "read_leading_hex": "0000a201fffff00ffff76c6974746c65",
+      "expected_leading_hex": "a201fffff00ffff76c6974746c656673",
+      "read_2byte_prefix_shift": false,
+      "each_64byte_fifo_prefix_shift": true
+    },
+    "negative_evidence_sha256": "3a3a2684bc746854c0b395fa771d7b583fd57fe3972aaadf51724f9c3a49477b",
+    "spi_registers": {
+      "CTRL": "01002000",
+      "USER": "f0000080",
+      "USER1": "7c000003",
+      "USER2": "700000eb"
+    },
+    "positive": {
+      "observed_seconds": 118.852,
+      "resets": {
+        "operator_requested": 1,
+        "unexpected": 0
+      },
+      "cold_start": "empty filesystem mount fails, format then application main menu succeeds",
+      "after_reset_littlefs_error_count": 0,
+      "input": {
+        "kind": "touch",
+        "x": 100,
+        "y": 132,
+        "before_menu": "WiFi",
+        "after_menu": "NRF24",
+        "changed_rgb_pixels": 1511
+      },
+      "frame_size": [
+        135,
+        240
+      ],
+      "frame_before_sha256": "acb50ca1405147d8d62e2d609a74edf6e52f4a8ed2cf3e543060692dd1f8f3c6",
+      "frame_after_sha256": "c19873449510d8f2a20a916004beab3b09ffb6a0583fe4186f60ec68a2138535",
+      "serial_sha256": "1ea1ed29fb6b430193f39a35a6152100fc1094e2a2d4d22d4acad387b831b3b5",
+      "evidence_sha256": "890814a5f1756793db364e9e2b01171f424ff030fc03fa7efe0f8e33bf030c8d",
+      "flash_comparison": {
+        "app_segment_matches_original": true,
+        "app_region_sha256": "a089bef20f05e99fa60e576133431f840f12fb7cbc7299cfb20bfdcb9e16dbc5",
+        "littlefs_first_sector_sha256": "0fe17665968037201d06653a6c1bdd689902ad69e54c7170ac69bb6035cca053",
+        "littlefs_first_sector_non_ff": 59
+      },
+      "zip_before_stop": true,
+      "purge": false
+    }
+  },
+  "attempts_outside_acceptance": [
+    {
+      "name": "first original admission",
+      "result": "missing local esp-emu helper; no guest started; helper dependency restored"
+    },
+    {
+      "name": "first probe with generic ISSI driver",
+      "result": "DIO passes, QIO init rejected before read. Enabled ESP-IDF ISSI driver and rebuilt fixture; all paired controls use the resulting identical BIN."
+    }
+  ],
+  "limits": [
+    "Physical hardware NOT RUN; no matching target available.",
+    "Original Bruce external SD, WiFi/RF, full UI geometry and all application features NOT RUN.",
+    "Meshtastic and RFID original BINs still restart with this candidate; their independent causes remain open.",
+    "Launcher ownership assertion is independent; this Flash result does not close all of issue 216.",
+    "Full native peripheral matrix and resident-service rollout are separate integration gates."
+  ],
+  "other_original_runs": [
+    {
+      "application": "Meshtastic",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "input_bytes": 16777216,
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "boot_markers": 3,
+      "assertion_markers": 0,
+      "status": "FAIL: original application still restarts",
+      "evidence_sha256": "da55a5e78ca07f653070927758f574147f94d2bc7520d66b7dd09f6f25ba38be",
+      "serial_sha256": "7dec600d98313a3ee01c6588925624b5c41adeb412482c231e8414a8225984ed",
+      "zip_before_stop": true,
+      "purge": false
+    },
+    {
+      "application": "RFID",
+      "input_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "input_bytes": 2028592,
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "boot_markers": 3,
+      "assertion_markers": 0,
+      "status": "FAIL: original application still restarts",
+      "evidence_sha256": "a6c97882f71480657eed0a03dde2eb1ef411fc65d9253a71ceacd4296fcb7d39",
+      "serial_sha256": "4fba9c5994eb1ef063f88ea21d0b14429d72e590235ad41693ed42b1939ccd52",
+      "zip_before_stop": true,
+      "purge": false
+    },
+    {
+      "application": "Launcher 2.6.6",
+      "input_sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+      "input_bytes": 1657184,
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "boot_markers": 14,
+      "assertion_markers": 14,
+      "status": "FAIL: original application still restarts",
+      "evidence_sha256": "12a505a08617721933258aa70d630611ff3efe3f72288c9dd9c7bc93fbc2893f",
+      "serial_sha256": "8033dd04759862c442dd38e10feb26e6e8ad5c8f1a08e4db2ebd256756694c61",
+      "zip_before_stop": true,
+      "purge": false
+    }
+  ],
+  "platform_checks": {
+    "narrow_recipe": "PASS: 3 tests",
+    "full_platform": "2118 tests, 5 integration documentation/inventory failures, 10 skips; no runtime source-test errors",
+    "remaining_failures": [
+      "api-sweep inventory contract hash stale",
+      "documented test count stale",
+      "code-map missing existing frame_presentation.py",
+      "docs index missing existing native-frame-orientation record",
+      "project snapshot stale"
+    ],
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "STALE: parent integration owns authority updates",
+    "patch_forward_reverse": "PASS: isolated pinned source recipe replay plus reverse check"
+  }
+}

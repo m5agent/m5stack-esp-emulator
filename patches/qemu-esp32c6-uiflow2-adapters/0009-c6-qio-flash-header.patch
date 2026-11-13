@@ -1,0 +1,79 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6 SPI1: complete the attached flash model QIO header
+
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -69,6 +69,7 @@
+     bool has_mode_byte;
+ 
+     uint32_t dummy_bytes;
++    uint32_t extra_dummy_bytes;
+ 
+     void* data;
+     uint32_t tx_bytes;
+@@ -254,7 +255,7 @@
+     if (t->has_mode_byte) {
+         esp32c3_spi_txrx_buffer(s, &t->mode_byte, 1, NULL, 0);
+     }
+-    esp32c3_spi_dummy_cycles(s, t->dummy_bytes);
++    esp32c3_spi_dummy_cycles(s, t->dummy_bytes + t->extra_dummy_bytes);
+     esp32c3_spi_txrx_buffer(s, t->data, t->tx_bytes, t->data, t->rx_bytes);
+     if (s->m5_sink && t->tx_bytes &&
+         (!s->m5_slave_transfer ||
+@@ -359,6 +360,20 @@
+     if ((t.cmd == 0xbb || t.cmd == 0xeb) && t.dummy_bytes == 0) {
+         t.mode_byte = 0;
+         t.has_mode_byte = true;
++    }
++
++    /*
++     * The SSI flash device counts QIO mode/dummy clocks as header bytes.
++     * C6 SPI1 uses four address bytes, so none of those bytes represents
++     * this header. ISSI consumes three header bytes; Winbond/GigaDevice
++     * consume five. Bridge the attached model's header before receiving
++     * data, without changing guest registers or the shared SPI2 bus.
++     */
++    if (!s->m5_spi2 && t.cmd == 0xeb && t.addr_bytes && t.rx_bytes) {
++        uint32_t sent_header = t.dummy_bytes + (t.has_mode_byte ? 1 : 0);
++        if (sent_header < s->flash_qio_header_bytes) {
++            t.extra_dummy_bytes = s->flash_qio_header_bytes - sent_header;
++        }
+     }
+ 
+     if (dma_tx &&
+@@ -721,6 +736,8 @@
+ 
+ static Property esp32c3_spi_properties[] = {
+     DEFINE_PROP_BOOL("m5-spi2", ESP32C3SpiState, m5_spi2, false),
++    DEFINE_PROP_UINT32("flash-qio-header-bytes", ESP32C3SpiState,
++                       flash_qio_header_bytes, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
+--- a/include/hw/ssi/esp32c3_spi.h
++++ b/include/hw/ssi/esp32c3_spi.h
+@@ -55,6 +55,7 @@
+     uint32_t c6_din_mode;
+     uint32_t c6_din_num;
+     uint32_t c6_dout_mode;
++    uint32_t flash_qio_header_bytes;
+     bool m5_spi2;
+     void *m5_sink_opaque;
+     void (*m5_sink)(void *opaque, const uint8_t *buf, uint32_t len,
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -446,6 +446,11 @@
+     /* SPI1 (Flash) */
+     {
+         ms->spi1.parent.xts_aes = NULL;
++        if (blk) {
++            /* Match the m25p80 model selected in esp32c6_init_spi_flash. */
++            qdev_prop_set_uint32(DEVICE(&ms->spi1), "flash-qio-header-bytes",
++                                blk_getlength(blk) == 16 * MB ? 3 : 5);
++        }
+         sysbus_realize(SYS_BUS_DEVICE(&ms->spi1), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->spi1), 0);
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_SPI1_BASE, mr, 0);

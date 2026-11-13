@@ -28,6 +28,7 @@ PATCHES = (
     "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch",
+    "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch",
 )
 RECEIPT = ".m5-c6-runtime-source.json"
 
