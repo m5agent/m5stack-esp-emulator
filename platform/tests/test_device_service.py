@@ -2552,7 +2552,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 spec = self.service.specs[device_id]
                 fixture = bytearray(4096)
                 identity = device_service_module.prepare_qemu_efuse_identity(fixture, spec, "a" * 32)
-                if device_id in {"core2", "nesso-n1", "nanoc6"}:
+                if device_id in {"nesso-n1", "nanoc6"}:
                     self.assertEqual(identity, {"status": "unprovisioned", "driver": None,
                                                "reason": "efuse_drive_not_attached"})
                     self.assertFalse(any(fixture))

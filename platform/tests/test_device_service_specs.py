@@ -42,6 +42,7 @@ class DeviceServiceSpecTests(unittest.TestCase):
         self.assertEqual(set(specs), {row["id"] for row in matrix["devices"]})
         self.assertEqual(specs["core2"].memory, "8")
         self.assertEqual(specs["core2"].flash_size, 16 << 20)
+        self.assertEqual(specs["core2"].efuse_driver, "nvram.esp32.efuse")
         self.assertEqual(specs["tab5"].service_kind, "tab5")
         self.assertEqual(specs["tab5"].flash_size, 16 << 20)
         self.assertFalse(specs["cardputer-zero"].supported)

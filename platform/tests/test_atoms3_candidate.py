@@ -60,20 +60,21 @@ class AtomS3CandidateTests(unittest.TestCase):
                     set_qemu_efuse_package(efuse, backend, package)
                 self.assertEqual(efuse, bytearray(size))
 
-    def test_explicit_efuse_driver_does_not_change_the_legacy_backend_default(self):
+    def test_explicit_core2_efuse_driver_does_not_change_the_legacy_backend_default(self):
         original = load_device_specs()
-        self.assertEqual(original["core2"].efuse_driver, "none")
+        self.assertEqual(original["core2"].efuse_driver, "nvram.esp32.efuse")
         matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
+        self.assertEqual(matrix["backends"]["qemu-esp32lx6"]["efuse_driver"], "none")
         row = next(row for row in matrix["devices"] if row["id"] == "core2")
-        row["efuse_driver"] = "nvram.esp32.efuse"
+        row.pop("efuse_driver")
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "matrix.json"
             path.write_text(json.dumps(matrix))
             with mock.patch.object(device_service_specs, "MATRIX", path):
                 overridden = load_device_specs()
-        self.assertEqual(overridden["core2"].efuse_driver, "nvram.esp32.efuse")
+        self.assertEqual(overridden["core2"].efuse_driver, "none")
         self.assertEqual(overridden["atoms3"].efuse_driver, original["atoms3"].efuse_driver)
-        self.assertEqual(load_device_specs()["core2"].efuse_driver, "none")
+        self.assertEqual(load_device_specs()["core2"].efuse_driver, "nvram.esp32.efuse")
 
     def test_candidate_coverage_cannot_hide_a_simulated_model_or_missing_blocker(self):
         catalog = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())

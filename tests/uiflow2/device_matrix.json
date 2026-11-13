@@ -229,6 +229,7 @@
     {
       "id": "core2",
       "backend": "qemu-esp32lx6",
+      "efuse_driver": "nvram.esp32.efuse",
       "mode": "ui",
       "machine": "m5core2",
       "base": "platform/.cache/firmware/core2/uiflow2.bin",

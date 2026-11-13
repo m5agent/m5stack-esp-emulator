@@ -22,16 +22,19 @@ python -m esptool --chip esp32 merge-bin --fill-flash-size 4MB \
 ```
 
 Upload the same merged BIN through a dedicated Device Service `/api/v1` session
-for `atom-lite` and `atom-matrix`, `runtime=qemu`, readiness marker
+for `atom-lite`, `atom-matrix` and `core2`, `runtime=qemu`, readiness marker
 `MAC_PROBE_READY`. Require all three `MAC_* rc=0` results to agree with
 `Session.efuse_identity.mac`, a nonzero locally administered address, and equal
 stored/computed CRC. `MAC_PROBE_READY` alone is not a successful test. Retain the
 session evidence before stopping with `purge=0`.
 
-For `core2` with no attached eFuse drive, require `efuse_identity.status` to be
-`unprovisioned`, reason `efuse_drive_not_attached`; this probe still reads zeros.
-The C6 metadata check uses the separate `esp32c6_aes` firmware and the same reason.
-Do not report these profiles as provisioned.
+Core2 now explicitly attaches the existing classic ESP32 eFuse controller's
+drive rather than inheriting the historical backend default of `none`. Test
+two independent sessions to require different nonzero guest identities, each
+matching its own service receipt. The earlier unprovisioned/zero Core2 result
+remains in the dated evidence; it is a negative control, not current behavior.
+The C6 metadata check still uses the separate `esp32c6_aes` firmware and requires
+`efuse_identity.status=unprovisioned`, reason `efuse_drive_not_attached`.
 
 Negative controls use the same original probe BIN with diagnostic eFuse fixture
 preparation: a zero fixture returns all-zero addresses, while the former
@@ -43,3 +46,6 @@ Scope: virtual-device validation of fixture bytes, controller readout, public
 ESP-IDF MAC APIs, API metadata and history. No physical hardware, Wi-Fi/RF,
 application-display or NVS-calibration validity claim follows from this test.
 Dated hashes and bounded outcomes are in [evidence-2026-11-13.json](evidence-2026-11-13.json).
+The subsequent Core2 drive attachment, independent `qemu`/`qemu-wifi` guest
+reads and service-history restoration are recorded separately in
+[the Core2 follow-up](evidence-2026-11-13-core2.json).

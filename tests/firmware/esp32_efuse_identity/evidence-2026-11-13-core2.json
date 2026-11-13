@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "change": "Core2 device_matrix override attaches nvram.esp32.efuse to the existing controller; default factory bytes and CRC come from the normal per-session service fixture.",
+  "matrix_sha256": "7978ffbe48a413a8d997b8ce7d8766add6d47fa13b338c259cb003aa7393da98",
+  "status": "PASS",
+  "independent_sessions_have_distinct_guest_identities": true,
+  "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+  "records": [
+    {
+      "device": "core2",
+      "runtime": "qemu",
+      "firmware_sha256": "a55d69c99badb9de7a7256cf7c462aa1f1b73852d6fb6f801a95e2d7aa7ad74a",
+      "session_id_sha256": "ef18c806fe88c0cf61fa03773bd25d9d844f283015d4f85221eb29de97dc91dc",
+      "checks": {
+        "running": true,
+        "ready_marker": true,
+        "provisioned": true,
+        "real_classic_controller_driver": true,
+        "three_public_guest_reads": true,
+        "all_api_rc_zero": true,
+        "all_reads_match_service_identity": true,
+        "nonzero_locally_administered_unicast": true,
+        "stored_crc_matches_guest_rom": true
+      },
+      "status": "PASS",
+      "serial_sha256": "e0d22ca7a4ae8ce8cd0569d83cc1e32c8691d3aa959f0e4dd01d7b8c3386f4e3",
+      "evidence_sha256": "1fbc507044ccca834eceb0c9abbeb01aaaf3e450092f4408aa24a14325ef0b83",
+      "stop_state": "stopped",
+      "evidence_before_stop": true
+    },
+    {
+      "device": "core2",
+      "runtime": "qemu-wifi",
+      "firmware_sha256": "a55d69c99badb9de7a7256cf7c462aa1f1b73852d6fb6f801a95e2d7aa7ad74a",
+      "session_id_sha256": "c3791e3729277742c9461a3e2737af4c851464ef205e7645634f15f197f4c3d3",
+      "checks": {
+        "running": true,
+        "ready_marker": true,
+        "provisioned": true,
+        "real_classic_controller_driver": true,
+        "three_public_guest_reads": true,
+        "all_api_rc_zero": true,
+        "all_reads_match_service_identity": true,
+        "nonzero_locally_administered_unicast": true,
+        "stored_crc_matches_guest_rom": true
+      },
+      "status": "PASS",
+      "serial_sha256": "6c99117d2f99d546f875d1c3bfee87e3d07ee1fef6af4602fe30dd92a790c36b",
+      "evidence_sha256": "25a266e0a6f366b066e273b95ee4f53d321a9cb67f7c683b2475a1dba02fb285",
+      "stop_state": "stopped",
+      "evidence_before_stop": true
+    }
+  ],
+  "scope": "Actual classic eFuse MMIO/controller read path and three ESP-IDF MAC APIs; no firmware patch, no host-side value substitution, no physical or RF claim.",
+  "service_restart_history": {
+    "checked_sessions": 2,
+    "same_identity_receipt_after_restart": true,
+    "all_stopped_history_retained": true
+  },
+  "checks": {
+    "platform_tests": {
+      "tests": 140,
+      "status": "PASS",
+      "seconds": 10.103
+    },
+    "qemu_profiles": "PASS",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS"
+  },
+  "negative_control": "Earlier same-probe Core2 unprovisioned/zero identity result is preserved in evidence-2026-11-13.json; no original failure overwritten.",
+  "limits": [
+    "No original UIFlow cloud pairing result is inherited from this IDF probe.",
+    "No physical device, RF, security provisioning or persistent device identity across distinct new sessions is claimed."
+  ]
+}
