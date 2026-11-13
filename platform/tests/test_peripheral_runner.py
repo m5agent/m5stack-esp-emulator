@@ -107,6 +107,16 @@ class PeripheralRunnerTests(unittest.TestCase):
                           "--input-step", "0.25", "keyup:a", "WAIT UP"])
         self.assertNotIn("--input-step", module.command_for(module.CASES[0], ROOT / ".work/test"))
 
+    def test_console_index_is_only_forwarded_when_declared(self):
+        spec = importlib.util.spec_from_file_location("peripheral_matrix", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        case = {**module.CASES[0], "console_index": 2}
+        command = module.command_for(case, ROOT / ".work/test")
+        index = command.index("--console-index")
+        self.assertEqual(command[index:index+2], ["--console-index", "2"])
+        self.assertNotIn("--console-index", module.command_for(module.CASES[0], ROOT / ".work/test"))
+
     def test_core2_cases_use_deterministic_scheduling_without_retries(self):
         spec = importlib.util.spec_from_file_location(
             "peripheral_matrix", RUNNER

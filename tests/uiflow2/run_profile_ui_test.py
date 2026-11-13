@@ -497,6 +497,18 @@ def send_input(
     raise SystemExit(f"unsupported input spec: {spec}")
 
 
+def serial_capture_backends(machine: str, console_index: int) -> list[dict]:
+    """Keep UART1's meaning while selecting the C6 USB console explicitly."""
+    if console_index not in (0, 2) or (console_index == 2 and machine != "esp32c6"):
+        raise ValueError("--console-index 2 requires esp32c6; only indices 0 and 2 are supported")
+    if console_index == 2:
+        return [{"index": 0, "channel": "uart0", "file": "uart0.log"},
+                {"index": 1, "channel": "uart1", "file": "serial1.log"},
+                {"index": 2, "channel": "usb-serial-jtag", "file": "serial.log"}]
+    return [{"index": 0, "channel": "uart0", "file": "serial.log"},
+            {"index": 1, "channel": "uart1", "file": "serial1.log"}]
+
+
 def parse_input_steps(steps: list[list[str]]) -> list[tuple[float, str, str]]:
     """Validate the new sequence before composing an image or starting QEMU."""
     parsed = []
@@ -575,6 +587,10 @@ def main():
         help="create the test flash image and exit before starting QEMU",
     )
     parser.add_argument("--machine", required=True)
+    parser.add_argument(
+        "--console-index", type=int, choices=(0, 2), default=0,
+        help="primary marker/log console: 0=UART0 (default), 2=C6 USB Serial/JTAG",
+    )
     parser.add_argument("--files-dir", required=True, type=Path)
     parser.add_argument("--vfs-offset", required=True, type=lambda x: int(x, 0))
     parser.add_argument("--vfs-size", required=True, type=lambda x: int(x, 0))
@@ -741,6 +757,7 @@ def main():
     args = parser.parse_args()
     try:
         input_steps = parse_input_steps(args.input_step)
+        serial_backends = serial_capture_backends(args.machine, args.console_index)
     except ValueError as error:
         parser.error(str(error))
     if not math.isfinite(args.before_frame_timeout) or args.before_frame_timeout < 0:
@@ -773,6 +790,13 @@ def main():
     except FileNotFoundError:
         pass
 
+    serial_arguments = [value for row in serial_backends
+                        for value in ("-serial", f"file:{args.out_dir / row['file']}")]
+    (args.out_dir / "console-capture.json").write_text(json.dumps({
+        "source": "QEMU serial backend configuration",
+        "primary_console_index": args.console_index,
+        "backends": serial_backends,
+    }, indent=2) + "\n")
     command = [
         str(args.qemu),
         "-M", args.machine,
@@ -780,8 +804,7 @@ def main():
         "-drive", f"if=none,id=efuse,file={efuse},format=raw",
         "-L", str(args.rom_dir),
         "-display", "none",
-        "-serial", f"file:{serial}",
-        "-serial", f"file:{serial1}",
+        *serial_arguments,
         "-qmp", f"unix:{qmp_path},server=on,wait=off",
     ]
     if args.sd_image:

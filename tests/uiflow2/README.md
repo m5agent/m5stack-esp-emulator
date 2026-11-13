@@ -341,6 +341,13 @@ RX 注入。固件启动后注入动态角速度，避免触发 M5Unified 的启
 `input-steps.jsonl` 中实际 QMP 操作、完成状态和相对时间；标记应在同一次
 启动中唯一，不能用旧标记证明新阶段就绪。`--capture-each-input` 同样覆盖这些步骤。
 
+ESP32-C6 固件若使用 USB Serial/JTAG 控制台，可显式设置 `console_index: 2`
+或 `--console-index 2`。这将实际 QEMU serial index 2 写入主 `serial.log`，
+供 marker 与 `--serial-expect` 检查；UART0 另存 `uart0.log`，UART1 仍存
+`serial1.log` 并保持 `--serial1-expect` 的含义。默认 index 0 的两个串口参数
+保持不变；其他机型不能选择 index 2。`console-capture.json` 记录所选索引与
+文件映射，USB 输出不会被标记为 UART 输出。
+
 Tab5 需要先构建仿真固件和 16 MiB merged image：
 
 ```bash

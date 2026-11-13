@@ -221,5 +221,58 @@ class InputStepTests(unittest.TestCase):
                                  'qmp-close', 'terminate', 'reaped'])
 
 
+class ConsoleCaptureTests(unittest.TestCase):
+    def argv(self, folder, *extra):
+        return ['runner', '--base', 'unused', '--prebuilt-image', 'unused',
+                '--machine', 'esp32c6', '--files-dir', 'unused', '--vfs-offset', '0',
+                '--vfs-size', '1', '--flash-size', '1', '--expected-size', '2x2',
+                '--out-dir', str(folder), *extra]
+
+    def test_exact_qemu_serial_arguments_and_metadata_for_default_and_usb(self):
+        import contextlib
+        import json
+        import tempfile
+        for extra, expected in (([], ['serial.log', 'serial1.log']),
+                                (['--console-index', '2'], ['uart0.log', 'serial1.log', 'serial.log'])):
+            with self.subTest(extra=extra), tempfile.TemporaryDirectory() as tmp:
+                folder = Path(tmp)
+                with patch.object(RUNNER.sys, 'argv', self.argv(folder, *extra)), \
+                        patch.object(RUNNER.subprocess, 'Popen', side_effect=RuntimeError('host prelaunch stop')) as launch:
+                    with self.assertRaisesRegex(RuntimeError, 'host prelaunch stop'):
+                        RUNNER.main()
+                command = launch.call_args.args[0]
+                actual = [command[i+1] for i,value in enumerate(command) if value == '-serial']
+                self.assertEqual(actual, ['file:' + str(folder/name) for name in expected])
+                metadata = json.loads((folder/'console-capture.json').read_text())
+                self.assertEqual([row['file'] for row in metadata['backends']], expected)
+                self.assertEqual([row['index'] for row in metadata['backends']], list(range(len(expected))))
+                self.assertEqual(metadata['backends'][-1]['channel'], 'usb-serial-jtag' if extra else 'uart1')
+                self.assertEqual(metadata['primary_console_index'], 2 if extra else 0)
+
+    def test_illegal_console_or_machine_is_rejected_before_build_or_launch(self):
+        import contextlib
+        import io
+        import tempfile
+        for extra in (['--console-index', '1'], ['--console-index', '-1'],
+                      ['--console-index', '3'], ['--console-index', '2', '--machine', 'm5cores3']):
+            with self.subTest(extra=extra), tempfile.TemporaryDirectory() as tmp:
+                with patch.object(RUNNER.sys, 'argv', self.argv(tmp, *extra)), \
+                        patch.object(RUNNER, 'build_image') as build, \
+                        patch.object(RUNNER.subprocess, 'Popen') as launch, \
+                        contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit):
+                        RUNNER.main()
+                build.assert_not_called()
+                launch.assert_not_called()
+                self.assertEqual(list(Path(tmp).iterdir()), [])
+
+    def test_default_uart_mapping_is_identical_for_existing_machine_profiles(self):
+        expected = [{'index': 0, 'channel': 'uart0', 'file': 'serial.log'},
+                    {'index': 1, 'channel': 'uart1', 'file': 'serial1.log'}]
+        for machine in ('esp32c6', 'm5cores3', 'm5core2', 'm5cardputer'):
+            with self.subTest(machine=machine):
+                self.assertEqual(RUNNER.serial_capture_backends(machine, 0), expected)
+
+
 if __name__ == '__main__':
     unittest.main()

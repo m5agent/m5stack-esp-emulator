@@ -2656,6 +2656,8 @@ def command_for(case: dict, out_dir: Path,
         "--rom-dir", str(rom_dir),
         "--out-dir", str(out_dir),
     ]
+    if "console_index" in case:
+        command.extend(["--console-index", str(case["console_index"])])
     if "efuse_pkg_version" in case:
         command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
     if "memory" in case:
