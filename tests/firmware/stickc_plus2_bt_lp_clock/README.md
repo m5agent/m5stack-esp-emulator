@@ -57,6 +57,11 @@ rollover, read-only latch access, and reset. It also checks that `0x3ff7101c`
 continues to use the existing BR/EDR register behavior. The qtest accelerator
 executes no guest instructions.
 
+For a candidate that includes 0200, add `--rwbt-clock`. This mode checks the
+same BLE clock and confirms that sampling the separate BR/EDR latch leaves
+the BLE snapshot unchanged. Its previous-runtime oracle still reproduces the
+missing BLE latch before 0198.
+
 The ESP32 register offsets and widths come from the [ESP32 BTDM register map](https://github.com/esp-rs/esp-pacs/blob/e6d898ec67556b8d08b2fc6f6265da930954404f/esp32/svd/patches/btdm.yml#L336-L357).
 The [Renesas DA14535 manual, Tables 69 and 70](https://www.renesas.com/en/document/dst/da14535-datasheet#page=166)
 describes the same-IP 625 µs coarse clock, microsecond fine count, and

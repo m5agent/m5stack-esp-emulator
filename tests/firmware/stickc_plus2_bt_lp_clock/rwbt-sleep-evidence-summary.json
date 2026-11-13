@@ -405,5 +405,117 @@
       "frame_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
       "report_sha256": "5f0119322c1df1e48926b104895beeff86065fcadb4a7add0bd4d2331d38f2e5"
     }
-  ]
+  ],
+  "final_0195_0196_dport_qtest": {
+    "status": "PASS",
+    "report_sha256": "091b3ef82792ab991eaa4eedd5643ce5d5352e35b966b987f5cb06068ddd78de",
+    "candidate": {
+      "bt_lp_clock": {
+        "power_on": [
+          "0x000000ff",
+          "0x02001001"
+        ],
+        "xtal_readback": [
+          "0x0000004f",
+          "0x04001001"
+        ],
+        "all_ones_readback": [
+          "0x00001fff",
+          "0x0fffffff"
+        ],
+        "cleared": [
+          "0x00000000",
+          "0x00000000"
+        ],
+        "after_system_reset": [
+          "0x000000ff",
+          "0x02001001"
+        ]
+      },
+      "wifi_clock_enable": {
+        "power_on": "0xfffce030",
+        "phy_clocks_readback": "0xfffcefbf",
+        "all_ones_readback": "0xffffffff",
+        "cleared": "0x00000000",
+        "after_system_reset": "0xfffce030"
+      },
+      "qemu_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4"
+    }
+  },
+  "final_0198_ble_independent_rwbt_qtest": {
+    "status": "PASS_WITH_NEGATIVE_CONTROL",
+    "report_sha256": "f7f8624c508a22287919797270dfd4d1062037384f042ea64da257b1ca88dfb5",
+    "baseline_runtime_sha256": "bfbdd06a4a491e1cee809d2fa37228af7ffc4fedf18e68bab6b5ae9f49e65790",
+    "candidate": {
+      "power_on": [
+        0,
+        0
+      ],
+      "first_sample": [
+        0,
+        624
+      ],
+      "held_across_time": [
+        0,
+        624
+      ],
+      "phase_above_467": [
+        0,
+        468
+      ],
+      "phase_at_467": [
+        0,
+        467
+      ],
+      "write_without_samp": [
+        0,
+        467
+      ],
+      "partial_writes": [
+        0,
+        467
+      ],
+      "fine_low_byte": 211,
+      "fine_high_byte": 1,
+      "before_slot_boundary": [
+        0,
+        0
+      ],
+      "held_across_slot_boundary": [
+        0,
+        0
+      ],
+      "after_slot_boundary": [
+        1,
+        624
+      ],
+      "classic_bank_at_slot_boundary": 0,
+      "classic_bank_sample": 2,
+      "ble_held_after_classic_sample": [
+        1,
+        624
+      ],
+      "before_coarse_wrap": [
+        134217727,
+        0
+      ],
+      "after_coarse_wrap": [
+        0,
+        624
+      ],
+      "before_reset": [
+        0,
+        374
+      ],
+      "reset_latch": [
+        0,
+        0
+      ],
+      "reset_epoch_sample": [
+        0,
+        624
+      ],
+      "qemu_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4"
+    }
+  }
 }

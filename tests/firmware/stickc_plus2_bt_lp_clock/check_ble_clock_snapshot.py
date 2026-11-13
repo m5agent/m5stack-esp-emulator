@@ -18,7 +18,7 @@ SAMP = 1 << 31
 WRAP_US = (1 << 27) * 625
 
 
-def clock_checks(test, qmp):
+def clock_checks(test, qmp, rwbt_clock):
     def command(words):
         test.write((words + '\n').encode())
         reply = test.readline().decode().split()
@@ -54,6 +54,10 @@ def clock_checks(test, qmp):
     result['held_across_slot_boundary'] = read_pair()
     result['after_slot_boundary'] = sample()
     result['classic_bank_at_slot_boundary'] = command(f'readl {BT_BASE:#x}')
+    if rwbt_clock:
+        command(f'writel {BT_BASE:#x} {SAMP:#x}')
+        result['classic_bank_sample'] = command(f'readl {BT_BASE:#x}')
+        result['ble_held_after_classic_sample'] = read_pair()
     assert command(f'clock_set {(WRAP_US - 1) * 1000}') == (WRAP_US - 1) * 1000
     result['before_coarse_wrap'] = sample()
     assert command('clock_step 1000') == WRAP_US * 1000
@@ -66,7 +70,7 @@ def clock_checks(test, qmp):
     return result
 
 
-def check(qemu, rom, expected):
+def check(qemu, rom, expected, rwbt_clock=False):
     with tempfile.TemporaryDirectory(prefix='m5-ble-clock-') as temporary:
         root = Path(temporary)
         test_path, qmp_path = root / 'qtest.sock', root / 'qmp.sock'
@@ -82,7 +86,7 @@ def check(qemu, rom, expected):
                       connect(qmp_path, process) as qmp_socket,
                       qtest_socket.makefile('rwb', buffering=0) as test,
                       qmp_socket.makefile('rwb', buffering=0) as qmp):
-                    result = clock_checks(test, qmp)
+                    result = clock_checks(test, qmp, rwbt_clock)
             finally:
                 if process.poll() is None:
                     process.terminate()
@@ -100,6 +104,9 @@ def check(qemu, rom, expected):
                   'classic_bank_at_slot_boundary': 625,
                   'before_coarse_wrap': ((1 << 27) - 1, 0), 'after_coarse_wrap': (0, 624),
                   'before_reset': (0, 374), 'reset_latch': (0, 0), 'reset_epoch_sample': (0, 624)}
+        if rwbt_clock:
+            oracle.update(classic_bank_at_slot_boundary=0, classic_bank_sample=2,
+                          ble_held_after_classic_sample=(1, 624))
         if result != oracle:
             raise AssertionError(f'BLE snapshots differ: {result} != {oracle}')
     else:
@@ -117,9 +124,12 @@ def main():
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--rom-dir', type=Path, required=True)
+    parser.add_argument('--rwbt-clock', action='store_true',
+                        help='candidate includes the independent BR/EDR latch from patch 0200')
     args = parser.parse_args()
     report = {'baseline': check(args.baseline.resolve(), args.rom_dir.resolve(), False),
-              'candidate': check(args.candidate.resolve(), args.rom_dir.resolve(), True)}
+              'candidate': check(args.candidate.resolve(), args.rom_dir.resolve(), True,
+                                 rwbt_clock=args.rwbt_clock)}
     print(json.dumps(report, indent=2))
 
 
