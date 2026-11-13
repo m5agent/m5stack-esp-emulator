@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scope": "host C controller/consumer regression; no candidate native guest run",
+  "status": "PASS",
+  "original_application_status": "PARTIAL",
+  "source_base_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+  "patch_sha256": "e87042e6e33dcb6451dcc928d4ceba3e3729838630b3ff387774508347983ab3",
+  "postimages": {
+    "hw/misc/esp32c6_jtag.c": "53ed99947326e3bc444f6e323e0aa356c20a3225126f9b4e7832d2d8ed83129c",
+    "include/hw/misc/esp32c6_jtag.h": "7e68eae2cabce750d0911adec7b40d049f637bbff00f5748d26b9ae3ab0b7ec5"
+  },
+  "host_controls": {
+    "scenarios_per_model": 30,
+    "before_expected_failures": 18,
+    "before_unchanged_passes": 12,
+    "after_passes": 30,
+    "asan_ubsan": true,
+    "old_endpoint_module_passed": true,
+    "upstream_bytes_pinned": true
+  },
+  "controlled_consumer_observations": [
+    {
+      "expected_queue_bytes": 153,
+      "old_transmitted_bytes": 0,
+      "old_ring_consumed_bytes": 0,
+      "old_monitor_connected": false,
+      "candidate_transmitted_bytes": 153,
+      "candidate_order_exact": true
+    },
+    {
+      "expected_queue_bytes": 153,
+      "old_transmitted_bytes": 64,
+      "old_ring_consumed_bytes": 64,
+      "old_monitor_connected": false,
+      "candidate_transmitted_bytes": 153,
+      "candidate_order_exact": true
+    },
+    {
+      "expected_queue_bytes": 153,
+      "old_transmitted_bytes": 128,
+      "old_ring_consumed_bytes": 128,
+      "old_monitor_connected": false,
+      "candidate_transmitted_bytes": 153,
+      "candidate_order_exact": true
+    }
+  ],
+  "disconnect_controls": {
+    "closed_backend_no_new_sof": true,
+    "last_latched_sof_consumed_once": true,
+    "four_no_sof_ticks_disconnect": true,
+    "new_sof_required_to_reconnect": true
+  },
+  "limits": [
+    "Controlled callback/MMIO interleavings establish a model-level failure mechanism, not a trace of a particular original application run.",
+    "8 us empty-IN and 64 us data-IN are virtual host scheduling parameters, not physical USB measurements.",
+    "Native build and original-BIN smoke are NOT RUN for this candidate at this handoff.",
+    "No firmware changes, guest timing changes, forced connected state, host output synthesis or resident service changes."
+  ]
+}
