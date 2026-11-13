@@ -199,6 +199,14 @@ green pixel. The
 [bounded evidence summary](rwbt-sleep-evidence-summary.json) binds each
 result to its original image, runtime, inputs, frame and retained ZIP.
 
+The integrated Device Service production tap run exercised the same original
+with `auto,sleep=on`. C reached home, the 100 ms B tap showed the disconnected
+mouse message, and the 100 ms A tap paused. The service queued a 2 s B hold.
+The guest then logged an IDLE0 task watchdog at 155.641 guest seconds before
+the settings frame appeared. It separately logged a `LoadProhibited` panic
+after the first reboot. Both app partitions still matched the original.
+This longer failure remains open alongside the shorter C-only result.
+
 The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
 cases once under ambient host load using the new Xtensa runtime and the
 existing C6 runtime. Its execution source predates the adaptive argument and

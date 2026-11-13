@@ -26,7 +26,7 @@
 - [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：IRQ 调度状态与 CPU 变频连续性修复已完成 fresh 运行时的原 Lite/Matrix/Matrix v1.1 复验；完整高负载回归已通过；剩余主线与常驻发布验收。远端厂测 HTTP 404 保留。
 - [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：最终组合运行时上的原 UIFlow 1.15.5 已显示 Wi-Fi 配置页，原 HamRadio 从 SD 选择配置进入仪表页并运行 180 秒；剩余主线和常驻服务验收。远程无线电功能仍未验证。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。官方其它发布版本是否已集成该补丁仍未验证；需以对应原版包重新验收，不通过模拟器延时或修改本轮原 BIN 隐藏 SDK 竞态。
-- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：DPORT、变频计数、BLE 采样、Plus2 GPIO 显示识别和 BR/EDR 定时器已有 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)。原 BIN 经 C 长按在默认与修正后的 `icount=auto,sleep=on` 两种模式下均到主界面。继续验收生产按键路径；BLE HID 数据面独立验证。
+- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：DPORT、变频计数、BLE 采样、Plus2 GPIO 显示识别和 BR/EDR 定时器已有 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)。原 BIN 经 C 长按在默认与修正后的 `icount=auto,sleep=on` 两种模式下均到主界面。生产按键路径的 auto 长跑在 B 长按后仍触发 IDLE0 任务看门狗，设置页未见。继续定位晚期故障；BLE HID 数据面独立验证。
 - [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并按实际运行时元数据归为模型缺口；仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 eFuse 身份接线：服务已经明示 `unprovisioned`，后续如要提供非零身份，必须接通真实 controller/drive 并验证 guest API；不通过报告字段伪造读值。Core2 子项已由独立 controller/IDF API 证据移出待办。
