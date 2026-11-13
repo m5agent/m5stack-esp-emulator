@@ -312,7 +312,7 @@ try {
   const serviceFixture = {units:unitCatalog.units.map(unit => ({...unit, runtime:runtimeProfiles.units[unit.id] || {}})), hosts:hostPorts.hosts};
   const originalService = 'https://original-service.public.invalid/device-center',
     candidateService = 'https://candidate-service.public.invalid/replacement';
-  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null, delayedSessionList = null;
+  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null, delayedSessionList = null, sessionListFailure = false;
   const fixtureResponse = async (route, candidate = false) => {
     const url = new URL(route.request().url()), method = route.request().method();
     serviceCalls.push({candidate, method, path:url.pathname});
@@ -328,14 +328,14 @@ try {
     if (candidate && candidateMode === 'offline') body = {error:{message:'fixture offline'}};
     else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[]}]};
     else if (url.pathname.endsWith('/units')) body = serviceFixture;
-    else if (url.pathname.endsWith('/sessions')) body = {sessions:sessionList || fixtureSessions};
+    else if (url.pathname.endsWith('/sessions')) body = sessionListFailure ? {error:{message:'session list unavailable'}} : {sessions:sessionList || fixtureSessions};
     else if (url.pathname.endsWith('/serial')) {
       const channel=url.searchParams.get('channel')||'console', offset=Number(url.searchParams.get('offset')||0), text=fixtureSerial?.[channel]||'';
       body={session_id:url.pathname.split('/').at(-2),channel,data:text.slice(offset),next_offset:text.length};
     }
     else if (/\/sessions\/[^/]+$/.test(url.pathname)) body = fixtureSessions.find(row=>row.session_id===url.pathname.split('/').at(-1)) || {};
     else body = {error:{message:'unexpected host-fixture route'}};
-    return route.fulfill({status:candidate && candidateMode === 'offline' ? 503 : 200, contentType:'application/json', body:JSON.stringify(body)});
+    return route.fulfill({status:(candidate && candidateMode === 'offline') || (sessionListFailure && url.pathname.endsWith('/sessions')) ? 503 : 200, contentType:'application/json', body:JSON.stringify(body)});
   };
   await page.route(`${originalService}/**`, route => fixtureResponse(route));
   await page.route(`${candidateService}/**`, route => fixtureResponse(route, true));
@@ -464,6 +464,17 @@ try {
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run.controller.current.session_id), 'a'.repeat(32));
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.shell.model.port('grove').module), null, 'catalog preview cannot attach to the borrowed guest');
     assert.equal(serviceCalls.slice(before).some(row=>row.method==='POST'||row.method==='DELETE'), false, 'opening never creates or destroys another owner session');
+  });
+  await test('failed-list-refresh-keeps-same-service-retained-row-attachable', async () => {
+    await page.locator('#stopBtn').click();await page.waitForFunction(()=>window.__publicWorkbenchProbe.run===null);
+    sessionListFailure=true;const before=serviceCalls.length;
+    await page.locator('#refreshSessionsBtn').click();
+    await page.waitForFunction(()=>document.querySelector('#sessionsStatus').textContent.includes('会话读取失败'));
+    assert.equal(await page.locator('#serviceSessionList .workbench-session').count(),1);
+    await page.getByRole('button',{name:'在工作台打开',exact:true}).click();
+    await page.waitForFunction(()=>window.__publicWorkbenchProbe.run?.controller.current?.session_id==='a'.repeat(32));
+    assert.equal(serviceCalls.slice(before).some(row=>row.method==='POST'||row.method==='DELETE'),false);
+    sessionListFailure=false;
   });
   await test('native-serial-channel-selection-keeps-independent-text-and-cursors-ui-fixture', async () => {
     fixtureSessions[0].serial_channels=[{channel:'console',transport:'console',bytes:4},{channel:'usb-serial-jtag',transport:'usb-serial-jtag',bytes:3}];

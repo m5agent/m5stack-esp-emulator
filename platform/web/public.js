@@ -1120,7 +1120,7 @@ async function refreshServiceSessions() {
         node('small','',`${session.state} · ${session.session_id.slice(0,8)}`));
       if(['running','booting'].includes(session.state)) {
         const button=node('button','text-button','在工作台打开');button.type='button';
-        button.addEventListener('click',()=>{if(current())void openServiceSession(session.session_id).catch(error);});row.append(button);
+        button.addEventListener('click',()=>{if(service===state.service)void openServiceSession(session.session_id).catch(error);});row.append(button);
       }
       rows.push(row);
     }
