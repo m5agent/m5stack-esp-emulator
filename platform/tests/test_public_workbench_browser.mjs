@@ -312,7 +312,7 @@ try {
   const serviceFixture = {units:unitCatalog.units.map(unit => ({...unit, runtime:runtimeProfiles.units[unit.id] || {}})), hosts:hostPorts.hosts};
   const originalService = 'https://original-service.public.invalid/device-center',
     candidateService = 'https://candidate-service.public.invalid/replacement';
-  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null;
+  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null, delayedSessionList = null;
   const fixtureResponse = async (route, candidate = false) => {
     const url = new URL(route.request().url()), method = route.request().method();
     serviceCalls.push({candidate, method, path:url.pathname});
@@ -320,11 +320,15 @@ try {
     if(delayedSession && url.pathname.endsWith('/sessions/'+delayedSession.id)) {
       const gate=delayedSession; delayedSession=null; gate.seen(); await gate.promise;
     }
+    let sessionList;
+    if(delayedSessionList && url.pathname.endsWith('/sessions')) {
+      const gate=delayedSessionList; delayedSessionList=null; sessionList=gate.sessions; gate.seen(); await gate.promise;
+    }
     let body;
     if (candidate && candidateMode === 'offline') body = {error:{message:'fixture offline'}};
     else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[]}]};
     else if (url.pathname.endsWith('/units')) body = serviceFixture;
-    else if (url.pathname.endsWith('/sessions')) body = {sessions:fixtureSessions};
+    else if (url.pathname.endsWith('/sessions')) body = {sessions:sessionList || fixtureSessions};
     else if (url.pathname.endsWith('/serial')) {
       const channel=url.searchParams.get('channel')||'console', offset=Number(url.searchParams.get('offset')||0), text=fixtureSerial?.[channel]||'';
       body={session_id:url.pathname.split('/').at(-2),channel,data:text.slice(offset),next_offset:text.length};
@@ -427,6 +431,23 @@ try {
     await page.evaluate(() => window.__stopFault.allow=true); await page.locator('#stopBtn').click();
     await page.waitForFunction(() => window.__publicWorkbenchProbe.run === null);
     assert.equal(await page.locator('#unitAssemblyPanel fieldset').evaluate(node=>node.disabled), false);
+  });
+  await test('concurrent-session-list-refresh-replaces-only-newest-deduplicated-batch', async () => {
+    const old={session_id:'c'.repeat(32),device_id:'cores3',state:'running'},latest={...old,session_id:'d'.repeat(32)};
+    let release,seen;const promise=new Promise(resolve=>release=resolve),observed=new Promise(resolve=>seen=resolve);
+    delayedSessionList={sessions:[old],promise,seen};fixtureSessions=[latest,latest];
+    await page.locator('#serviceSessions').evaluate(node=>node.open=true);
+    await page.locator('#refreshSessionsBtn').click();await observed;
+    await page.locator('#refreshSessionsBtn').click();
+    await page.waitForFunction(()=>document.querySelector('#serviceSessionList').textContent.includes('dddddddd'));
+    assert.equal(await page.locator('#serviceSessionList .workbench-session').count(),1);
+    const stale=page.waitForResponse(r=>r.url()===originalService+'/api/v1/sessions');release();await (await stale).finished();
+    await page.waitForTimeout(100);
+    assert.equal(await page.locator('#serviceSessionList .workbench-session').count(),1);
+    assert.ok((await page.locator('#serviceSessionList').textContent()).includes('dddddddd'));
+    assert.ok(!(await page.locator('#serviceSessionList').textContent()).includes('cccccccc'));
+    fixtureSessions=[];await page.locator('#refreshSessionsBtn').click();
+    await page.waitForFunction(()=>!document.querySelector('#serviceSessionList').children.length);
   });
   await test('borrowed-live-session-opens-in-place-without-create-or-delete-ui-fixture', async () => {
     fixtureSessions=[{session_id:'a'.repeat(32),device_id:'cores3',created_at:'2026-11-05T00:00:00Z',state:'running',

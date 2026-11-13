@@ -30,6 +30,7 @@ const state = {
   runGeneration: 0,
   openGeneration: 0,
   serviceGeneration: 0,
+  serviceSessionsGeneration: 0,
   run: null,
   abort: null,
   service: null,
@@ -1105,13 +1106,13 @@ async function loadServiceUnits(selection) {
   }
 }
 async function refreshServiceSessions() {
-  const service=state.service;
-  $('serviceSessionList').replaceChildren();
-  if(!service){$('sessionsStatus').textContent='连接仿真服务后，可在这里查看已有会话。';return;}
+  const service=state.service, generation=++state.serviceSessionsGeneration;
+  const current=()=>service===state.service&&generation===state.serviceSessionsGeneration;
+  if(!service){$('serviceSessionList').replaceChildren();$('sessionsStatus').textContent='连接仿真服务后，可在这里查看已有会话。';return;}
   try {
     const result=await service.request('/api/v1/sessions');
-    if(service!==state.service)return;
-    const sessions=result.sessions||[];
+    if(!current())return;
+    const sessions=[...new Map((result.sessions||[]).map(session=>[session.session_id,session])).values()], rows=[];
     $('sessionsStatus').textContent=`${sessions.length} 个会话 · 打开已有会话不会重新创建设备。`;
     for(const session of sessions) {
       const row=node('div','workbench-session');
@@ -1119,11 +1120,12 @@ async function refreshServiceSessions() {
         node('small','',`${session.state} · ${session.session_id.slice(0,8)}`));
       if(['running','booting'].includes(session.state)) {
         const button=node('button','text-button','在工作台打开');button.type='button';
-        button.addEventListener('click',()=>void openServiceSession(session.session_id).catch(error));row.append(button);
+        button.addEventListener('click',()=>{if(current())void openServiceSession(session.session_id).catch(error);});row.append(button);
       }
-      $('serviceSessionList').append(row);
+      rows.push(row);
     }
-  } catch(cause){if(service===state.service)$('sessionsStatus').textContent=`会话读取失败：${cause.message}`;}
+    $('serviceSessionList').replaceChildren(...rows);
+  } catch(cause){if(current())$('sessionsStatus').textContent=`会话读取失败：${cause.message}`;}
 }
 async function openServiceSession(id) {
   if(state.run?.kind==='service'&&state.run.controller.current?.session_id===id&&!state.run.stopping) {
