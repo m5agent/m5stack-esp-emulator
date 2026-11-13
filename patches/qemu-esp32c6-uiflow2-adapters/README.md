@@ -56,6 +56,11 @@ packet-type 状态；[SPI 探针](../../tests/firmware/esp32c6_sx1262_spi/README
 原版 Meshtastic 可越过此前静止计时器的等待，后续 BLE 加密控制器缺口
 仍独立保留。
 
+`0012-c6-ble-aes-dma.patch` 为 `r_ble_hw_encrypt_block` 实际使用的
+`0x600a9400` 独立控制器执行 AES-128 ECB 单块 DMA。NIST 向量及同一原版
+Meshtastic 的 NimBLE 同步/GATT 注册有独立证据；后续 TG0 watchdog 仍在，
+并不意味着 native BLE、RF 或完整应用通过。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。

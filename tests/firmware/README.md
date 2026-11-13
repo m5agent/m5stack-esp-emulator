@@ -48,6 +48,11 @@ public ESP-IDF hardware and GPIO SPI drivers, including identity, byte-at-a-time
 transactions, packet type and adjacent registers. Its dated evidence keeps
 the original Meshtastic's later watchdog failure separate from the SPI PASS.
 
+[The C6 radio controller probe](esp32c6_radio_controllers/README.md) separately
+checks backend-independent PHY time, peerless MAC receive isolation and the
+Bluetooth AES block DMA path. Its original-image results retain the later
+watchdog and native BLE limitations.
+
 ## StickS3 Wi-Fi monitor fixture
 
 [The peerless StickS3 fixture](sticks3_wifi_monitor/README.md) exercises the

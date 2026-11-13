@@ -52,3 +52,9 @@ that configured networking still works.
 Scope is virtual-device counter, MAC/DMA isolation and AES block behavior.
 Native BLE link-layer interoperability, over-the-air WiFi/BLE, RF timing,
 physical power and hardware security are NOT RUN.
+
+Dated evidence separates [controller presence](presence-evidence-2026-11-13.json)
+from [BLE AES and WiFi regressions](aes-evidence-2026-11-13.json). The original
+image reaches NimBLE host sync and GATT registration after AES completion is
+implemented, then encounters a further watchdog. A GDB sample in random-number
+code is a diagnostic location, not sufficient cause attribution.

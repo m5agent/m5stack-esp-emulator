@@ -1,0 +1,160 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6: execute Bluetooth AES single-block DMA transactions
+
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -532,6 +532,15 @@
+         }
+     }
+ 
++    /* Bluetooth AES is a separate, always-present DMA engine. */
++    {
++        DeviceState *ble_aes = qdev_new("esp32c6.ble-aes");
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(ble_aes), &error_fatal);
++        memory_region_add_subregion_overlap(
++            sys_mem, 0x600a9400,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(ble_aes), 0), 3);
++    }
++
+     /* LEDC: six channels and four timers using the compact register layout. */
+     {
+         sysbus_realize(SYS_BUS_DEVICE(&ms->ledc), &error_fatal);
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -181,6 +181,7 @@
+   'esp32c6_nesso_panel.c',
+   'esp32c6_soft_i2c.c',
+   'esp32c6_wifi.c',
++  'esp32c6_ble_aes.c',
+ ))
+ 
+ system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+diff --git a/hw/misc/esp32c6_ble_aes.c b/hw/misc/esp32c6_ble_aes.c
+new file mode 100644
+--- /dev/null
++++ b/hw/misc/esp32c6_ble_aes.c
+@@ -0,0 +1,122 @@
++/*
++ * ESP32-C6 Bluetooth single-block AES DMA controller.
++ *
++ * This is the 0x600a9400 controller used by r_ble_hw_encrypt_block,
++ * separate from the general-purpose AES/GDMA engine at 0x60088000.
++ * The supported transaction is AES-128 ECB with one 16-byte DMA block.
++ * It implements data movement and encryption; no completion is reported
++ * for unsupported modes or failed memory transactions.
++ */
++#include "qemu/osdep.h"
++#include "hw/sysbus.h"
++#include "qemu/module.h"
++#include "exec/address-spaces.h"
++#include "crypto/aes.h"
++
++#define TYPE_ESP32C6_BLE_AES "esp32c6.ble-aes"
++#define BLE_AES_REG_SIZE 0x100
++#define BLE_AES_START 0x04
++#define BLE_AES_MODE 0x08
++#define BLE_AES_LENGTH 0x0c
++#define BLE_AES_KEY 0x10
++#define BLE_AES_SOURCE 0x20
++#define BLE_AES_DESTINATION 0x24
++#define BLE_AES_DMA_ENABLE 0xb8
++#define BLE_AES_DONE 0xc4
++
++typedef struct Esp32C6BleAesState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    uint32_t regs[BLE_AES_REG_SIZE / 4];
++} Esp32C6BleAesState;
++
++static void esp32c6_ble_aes_start(Esp32C6BleAesState *s)
++{
++    uint8_t key[16], input[16], output[16];
++    AES_KEY schedule;
++    uint32_t source = s->regs[BLE_AES_SOURCE / 4];
++    uint32_t destination = s->regs[BLE_AES_DESTINATION / 4];
++
++    s->regs[BLE_AES_DONE / 4] = 0;
++    s->regs[BLE_AES_START / 4] = 0;
++    if (s->regs[BLE_AES_MODE / 4] != 1 ||
++        s->regs[BLE_AES_LENGTH / 4] != sizeof(input) ||
++        (s->regs[BLE_AES_DMA_ENABLE / 4] & 3) != 3) {
++        return;
++    }
++    for (unsigned i = 0; i < 4; i++) {
++        stl_le_p(key + i * 4, s->regs[BLE_AES_KEY / 4 + i]);
++    }
++    if (address_space_read(&address_space_memory, source,
++                           MEMTXATTRS_UNSPECIFIED, input, sizeof(input)) != MEMTX_OK) {
++        return;
++    }
++    AES_set_encrypt_key(key, 128, &schedule);
++    AES_encrypt(input, output, &schedule);
++    if (address_space_write(&address_space_memory, destination,
++                            MEMTXATTRS_UNSPECIFIED, output, sizeof(output)) != MEMTX_OK) {
++        return;
++    }
++    s->regs[BLE_AES_DONE / 4] = 1;
++    if (getenv("M5SW_C6_BLE_AES_TRACE")) {
++        fprintf(stderr, "[c6-ble-aes] block complete bytes=16\n");
++    }
++}
++
++static uint64_t esp32c6_ble_aes_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C6BleAesState *s = opaque;
++    return s->regs[addr / 4];
++}
++
++static void esp32c6_ble_aes_write(void *opaque, hwaddr addr,
++                                 uint64_t value, unsigned size)
++{
++    Esp32C6BleAesState *s = opaque;
++    s->regs[addr / 4] = value;
++    if (addr == BLE_AES_START && (value & 1)) {
++        esp32c6_ble_aes_start(s);
++    }
++}
++
++static const MemoryRegionOps esp32c6_ble_aes_ops = {
++    .read = esp32c6_ble_aes_read,
++    .write = esp32c6_ble_aes_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static void esp32c6_ble_aes_reset(Object *obj, ResetType type)
++{
++    Esp32C6BleAesState *s = (Esp32C6BleAesState *)obj;
++    memset(s->regs, 0, sizeof(s->regs));
++}
++
++static void esp32c6_ble_aes_init(Object *obj)
++{
++    Esp32C6BleAesState *s = (Esp32C6BleAesState *)obj;
++    memory_region_init_io(&s->iomem, obj, &esp32c6_ble_aes_ops, s,
++                          TYPE_ESP32C6_BLE_AES, BLE_AES_REG_SIZE);
++    sysbus_init_mmio(SYS_BUS_DEVICE(obj), &s->iomem);
++}
++
++static void esp32c6_ble_aes_class_init(ObjectClass *klass, void *data)
++{
++    ResettableClass *rc = RESETTABLE_CLASS(klass);
++    rc->phases.hold = esp32c6_ble_aes_reset;
++}
++
++static const TypeInfo esp32c6_ble_aes_info = {
++    .name = TYPE_ESP32C6_BLE_AES,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C6BleAesState),
++    .instance_init = esp32c6_ble_aes_init,
++    .class_init = esp32c6_ble_aes_class_init,
++};
++
++static void esp32c6_ble_aes_register_types(void)
++{
++    type_register_static(&esp32c6_ble_aes_info);
++}
++type_init(esp32c6_ble_aes_register_types)

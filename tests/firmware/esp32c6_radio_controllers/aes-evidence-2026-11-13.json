@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "patch": "0012-c6-ble-aes-dma.patch",
+  "patch_sha256": "f942bec891bb64423a61e4230ddf7e40a2df6172fba7b4e600e881774f0a8f98",
+  "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+  "base": "febae182e132e4055529be423a818225ebddaa3a",
+  "source_file_sha256": {
+    "hw/riscv/esp32c6.c": "558e6216e951b92325f46ba4c449400dc448c3c0df9041f20443ad7a05897aae",
+    "hw/misc/meson.build": "ef0ff909c20dfeee8fa46727cf29a043f4ffa249aa9674d06d5a338fdbe1c2af",
+    "hw/misc/esp32c6_ble_aes.c": "270ea8605da5f366b68c3de00eebac7a98adda54d87dd1884f83a0df2cbc25f1"
+  },
+  "runs": [
+    {
+      "label": "controllers-presence",
+      "device": "nesso-n1",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "5dff55f24a65cfc3e7f692593ffc36c96de904ea92aa6552737a0915bf285f9c",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=33039",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_FAIL done=0 first=a5",
+        "C6_RADIO_AES_UNSUPPORTED_PASS"
+      ],
+      "zip_sha256": "697de65904701b0e5c0a505a05bff76773b16674581b5b5e1960f58574bdf2a8",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "failed"
+    },
+    {
+      "label": "controllers-v2-nesso",
+      "device": "nesso-n1",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=18671",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_PASS vectors=2",
+        "C6_RADIO_AES_UNSUPPORTED_PASS",
+        "C6_RADIO_READY"
+      ],
+      "zip_sha256": "1f7b999a363fa3d534e665109fceccbbf8e0b2f3729ed894489f0da529e85033",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "stopped"
+    },
+    {
+      "label": "controllers-v2-nano",
+      "device": "nanoc6",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=19085",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_PASS vectors=2",
+        "C6_RADIO_AES_UNSUPPORTED_PASS",
+        "C6_RADIO_READY"
+      ],
+      "zip_sha256": "05c89c3f9c46010b46cc76beb51cd62235079e5c8a9f208dc3bc6b4b7257c992",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "stopped"
+    },
+    {
+      "label": "mesh-controllers-v2",
+      "device": "nesso-n1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [],
+      "zip_sha256": "5e2c5b8bbea208799451d8488df9450446efd9ae20234d94d34b7a059deb63df",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "stopped",
+      "result": "FAIL overall: NimBLE host sync and GATT registration now succeed, followed by another TG0 watchdog.",
+      "app_region_offset": "0x10000",
+      "app_region_length": "0x250000",
+      "app_region_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+      "app_region_matches_original": true,
+      "host_synced": true,
+      "gatt_services_registered": true,
+      "reboot_count": 2
+    },
+    {
+      "label": "mesh-controllers-v2-panic",
+      "device": "nesso-n1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "Device Service /api/v1",
+      "markers": [],
+      "zip_sha256": "e00208bf9dbe70aac139f80823b6a6e6b222d5ff997953f08806526dc277ce75",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "stopped",
+      "result": "FAIL overall: NimBLE host sync and GATT registration now succeed, followed by another TG0 watchdog.",
+      "app_region_offset": "0x10000",
+      "app_region_length": "0x250000",
+      "app_region_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+      "app_region_matches_original": true,
+      "host_synced": true,
+      "gatt_services_registered": true,
+      "reboot_count": 1
+    }
+  ],
+  "wifi_regressions": [
+    {
+      "label": "wifi-controllers-v2-merged",
+      "firmware_sha256": "707a87f3b2acd2b41978244bc289c16ab570f8924fd60cfc2025367b1d9c3542",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "checked-in c6_qemu_wifi_probe direct regression",
+      "summary_sha256": "2f81183f2c8d4611eef23748c6127f2c33209a81871a0db2ee2f5fab485ec7fe",
+      "cleanup": "owned process terminated and reaped",
+      "scan_has_ap": true,
+      "connected": true,
+      "http_pass": true,
+      "done": true
+    },
+    {
+      "label": "wifi-controllers-v2-peerless",
+      "firmware_sha256": "707a87f3b2acd2b41978244bc289c16ab570f8924fd60cfc2025367b1d9c3542",
+      "runtime_sha256": "7d06868947e0cf31e38b15921d7ed34e983b568718653324ddf3dfa95d20a9d8",
+      "route": "checked-in c6_qemu_wifi_probe direct regression",
+      "summary_sha256": "d7b3d5608c24944bae38d217f7bc688be9413adff50f97781b8d57161489b509",
+      "cleanup": "owned process terminated and reaped",
+      "scan_has_ap": false,
+      "connected": false,
+      "http_pass": false,
+      "done": true
+    }
+  ],
+  "claim": "The observed Bluetooth AES-128 ECB controller path executes the guest key/source/destination through MMIO and DMA, passes independent vectors, and advances the original image through NimBLE sync/GATT registration.",
+  "remaining_failure": "TG0 watchdog remains; GDB samples esp_random/clock queries. Sampling location is not a completed causal attribution. Native BLE or whole Meshtastic readiness is not established.",
+  "diagnostic_sha256": "4e16b8576a7478b42de294d4c459a696b1d2589155ab6a59807e76f2ca368a2e",
+  "not_run": [
+    "Physical hardware, RF behavior, native BLE links, security and entropy guarantees.",
+    "Full native matrix deferred to integration."
+  ],
+  "retained_failed_attempts": [
+    "First 0012 source replay lacked the new-file patch mode; no runtime was built. Fresh v2 replay/build succeeded.",
+    "An initial WiFi fixture used app-only composition with the current base partition table, so its scripts were not mounted. That run is NOT RUN for the network assertions. The corrected fixture used its matching bootloader/partition table/app and both peer/peerless runs completed.",
+    "Duplicate local fixture build processes were stopped; the reported probe was rebuilt in a fresh output directory."
+  ]
+}
