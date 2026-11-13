@@ -1,0 +1,220 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6: route SPI2 SX1262 reads through shared register state
+
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -477,7 +477,7 @@
+         sysbus_connect_irq(
+             SYS_BUS_DEVICE(ms->spi2), 0,
+             qdev_get_gpio_in(intmatrix_dev, C6_ETS_SPI2_INTR_SOURCE));
+-        esp32c6_sx1262_attach_soft_spi(23, 20, 21, 22, 19, 15);
++        esp32c6_sx1262_attach_soft_spi(ms->spi2, 23, 20, 21, 22, 19, 15);
+     }
+ 
+     /* UARTs */
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -164,7 +164,7 @@
+              * model has no panel attached, so provide that one-board ID
+              * explicitly for the C6 display port.
+              */
+-            if (s->m5_spi2 && addr == A_SPI_MEM_W0) {
++            if (s->m5_spi2 && !s->m5_rx_from_slave && addr == A_SPI_MEM_W0) {
+                 r = 0x00000081;
+             }
+             break;
+@@ -186,7 +186,7 @@
+      */
+     if (s->m5_spi2 && addr >= 0x98 && addr < 0xd8) {
+         r = s->data_reg[(addr - 0x98) / sizeof(uint32_t)];
+-        if (addr == 0x98) {
++        if (addr == 0x98 && !s->m5_rx_from_slave) {
+             r = 0x00000081;
+         }
+     }
+@@ -240,6 +240,9 @@
+ 
+ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransaction *t)
+ {
++    /* Keep received radio bytes even if CS is raised before the FIFO read. */
++    s->m5_rx_from_slave = s->m5_spi2 && s->m5_slave_transfer &&
++                          !esp32_gpio_get_line(s->m5_slave_cs);
+     if (s->xts_aes != NULL)
+     {
+         ESP32C3XtsAesClass *xts_aes_class = ESP32C3_XTS_AES_GET_CLASS(s->xts_aes);
+@@ -578,9 +581,10 @@
+                 (s->m5_spi2 && (wvalue & (1u << 24)))) {
+                 s->dma_int_raw &= ~BIT(0);
+                 esp32c3_spi_begin_transaction(s);
+-            } else {
++            } else if (!s->m5_spi2) {
+                 esp32c3_spi_special_command(s, wvalue);
+             }
++            /* SPI2 UPDATE latches configuration; it is not a flash command. */
+             break;
+         case 0x34:
+             s->dma_int_ena = wvalue;
+@@ -673,6 +677,7 @@
+     s->dma_int_ena = 0;
+     s->dma_int_raw = 0;
+     s->dma_conf = 0;
++    s->m5_rx_from_slave = false;
+     s->c6_misc = 0;
+     s->c6_din_mode = 0;
+     s->c6_din_num = 0;
+diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
+--- a/include/hw/ssi/esp32c3_spi.h
++++ b/include/hw/ssi/esp32c3_spi.h
+@@ -57,6 +57,7 @@
+     uint32_t c6_dout_mode;
+     uint32_t flash_qio_header_bytes;
+     bool m5_spi2;
++    bool m5_rx_from_slave;
+     void *m5_sink_opaque;
+     void (*m5_sink)(void *opaque, const uint8_t *buf, uint32_t len,
+                     bool command_phase);
+diff --git a/hw/misc/esp32c6_sx1262.c b/hw/misc/esp32c6_sx1262.c
+--- a/hw/misc/esp32c6_sx1262.c
++++ b/hw/misc/esp32c6_sx1262.c
+@@ -21,6 +21,8 @@
+     SX_RESPONSE,
+     SX_WRITE_BUFFER,
+     SX_READ_BUFFER,
++    SX_WRITE_REGISTER,
++    SX_READ_REGISTER,
+ } Sx1262Mode;
+ 
+ typedef struct Esp32C6Sx1262State {
+@@ -38,7 +40,9 @@
+     uint16_t rx_len;
+     uint16_t rx_pos;
+     uint16_t irq_status;
+-    uint16_t registers[16];
++    uint8_t packet_type;
++    uint8_t registers[65536];
++    uint16_t register_address;
+     int soft_cs;
+     int soft_sck;
+     int soft_mosi;
+@@ -81,13 +85,21 @@
+         break;
+     case 0x0d: { /* WRITE_REGISTER */
+         uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
+-        s->registers[(addr >> 4) & 0xf] = s->args[2];
+-        s->mode = SX_IDLE;
++        s->register_address = addr;
++        s->mode = SX_WRITE_REGISTER;
+         break;
+     }
+     case 0x0e: /* WRITE_BUFFER */
+         s->tx_len = 0;
+         s->mode = SX_WRITE_BUFFER;
++        break;
++    case 0x11: /* GET_PACKET_TYPE */
++        response[1] = s->packet_type;
++        sx1262_set_response(s, response, 2);
++        break;
++    case 0x8a: /* SET_PACKET_TYPE */
++        s->packet_type = s->args[0];
++        s->mode = SX_IDLE;
+         break;
+     case 0x12: /* GET_IRQ_STATUS */
+         response[1] = s->irq_status >> 8;
+@@ -110,8 +122,8 @@
+         break;
+     case 0x1d: { /* READ_REGISTER */
+         uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
+-        response[0] = s->registers[(addr >> 4) & 0xf];
+-        sx1262_set_response(s, response, 1);
++        s->register_address = addr;
++        s->mode = SX_READ_REGISTER;
+         break;
+     }
+     case 0x1e: /* READ_BUFFER */
+@@ -126,7 +138,6 @@
+     case 0x83: /* SET_TX */
+     case 0x86: /* SET_RF_FREQUENCY */
+     case 0x89: /* CALIBRATE */
+-    case 0x8a: /* SET_PACKET_TYPE */
+     case 0x8b: /* SET_MODULATION_PARAMS */
+     case 0x8c: /* SET_PACKET_PARAMS */
+     case 0x8e: /* SET_TX_PARAMS */
+@@ -173,7 +184,7 @@
+         case 0x02: s->expected_args = 2; break;
+         case 0x07: s->expected_args = 1; break;
+         case 0x08: s->expected_args = 8; break;
+-        case 0x0d: s->expected_args = 3; break;
++        case 0x0d: s->expected_args = 2; break;
+         case 0x0e: s->expected_args = 1; break;
+         case 0x1d: s->expected_args = 3; break;
+         case 0x1e: s->expected_args = 1; break;
+@@ -214,6 +225,15 @@
+             return s->response[s->response_pos++];
+         }
+         return sx1262_status();
++    case SX_WRITE_REGISTER:
++        /* The factory version string is read-only device identification. */
++        if (s->register_address < 0x0320 || s->register_address >= 0x0330) {
++            s->registers[s->register_address] = value;
++        }
++        s->register_address++;
++        return sx1262_status();
++    case SX_READ_REGISTER:
++        return s->registers[s->register_address++];
+     case SX_WRITE_BUFFER:
+         if (s->tx_len < SX1262_MAX_PACKET) {
+             s->tx_packet[s->tx_len++] = value;
+@@ -241,6 +261,8 @@
+     } else if (s->mode == SX_READ_BUFFER &&
+                s->response_pos > 0 && s->rx_pos < s->rx_len) {
+         s->soft_rx_byte = s->rx_packet[s->rx_pos];
++    } else if (s->mode == SX_READ_REGISTER) {
++        s->soft_rx_byte = s->registers[s->register_address];
+     } else {
+         s->soft_rx_byte = sx1262_status();
+     }
+@@ -299,6 +321,10 @@
+                            int busy_pin, int dio1_pin)
+ {
+     Esp32C6Sx1262State *s = g_new0(Esp32C6Sx1262State, 1);
++    /* SX1262 silicon identifies as SX1261 in the version register. */
++    memcpy(&s->registers[0x0320], "SX1261", 6);
++    s->registers[0x0740] = 0x14;
++    s->registers[0x0741] = 0x24;
+ 
+     esp32c3_spi_set_m5_slave(spi, cs_pin, s, sx1262_transfer);
+     esp32_gpio_add_out_listener(cs_pin, sx1262_cs_changed, s);
+@@ -308,12 +334,18 @@
+     esp32_gpio_force_line(dio1_pin, 0);
+ }
+ 
+-void esp32c6_sx1262_attach_soft_spi(int cs_pin, int sck_pin,
++void esp32c6_sx1262_attach_soft_spi(DeviceState *spi, int cs_pin, int sck_pin,
+                                    int mosi_pin, int miso_pin,
+                                    int busy_pin, int dio1_pin)
+ {
+     Esp32C6Sx1262State *s = g_new0(Esp32C6Sx1262State, 1);
+-
++    /* SX1262 silicon identifies as SX1261 in the version register. */
++    memcpy(&s->registers[0x0320], "SX1261", 6);
++    s->registers[0x0740] = 0x14;
++    s->registers[0x0741] = 0x24;
++
++    /* Both controller-driven and GPIO SPI access the same physical radio. */
++    esp32c3_spi_set_m5_slave(spi, cs_pin, s, sx1262_transfer);
+     s->soft_cs = cs_pin;
+     s->soft_sck = sck_pin;
+     s->soft_mosi = mosi_pin;
+diff --git a/include/hw/misc/esp32c6_sx1262.h b/include/hw/misc/esp32c6_sx1262.h
+--- a/include/hw/misc/esp32c6_sx1262.h
++++ b/include/hw/misc/esp32c6_sx1262.h
+@@ -9,6 +9,6 @@
+ 
+ void esp32c6_sx1262_attach(DeviceState *spi, int cs_pin,
+                            int busy_pin, int dio1_pin);
+-void esp32c6_sx1262_attach_soft_spi(int cs_pin, int sck_pin,
++void esp32c6_sx1262_attach_soft_spi(DeviceState *spi, int cs_pin, int sck_pin,
+                                    int mosi_pin, int miso_pin,
+                                    int busy_pin, int dio1_pin);

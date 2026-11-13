@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 216,
+  "validation": "virtual-device validation",
+  "scope": "C6 SPI2 SX1262 controller, shared bus state and Flash non-regression; not full Meshtastic acceptance",
+  "source_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "patch_sha256": "a5af6e7e846c44a7e3f406b6dbb8dc167ea88d67c0a061bc7bd41ab66ef965a1",
+  "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+  "source_file_sha256": {
+    "hw/riscv/esp32c6.c": "5281851152e8eb786422128accec9f6a4f7ccbac21611eb22a015a637778a815",
+    "hw/ssi/esp32c3_spi.c": "c5b9387c4efcff7953b5ad4d2bd77177dbe0350a4ede93bfaff2d23ede15730e",
+    "include/hw/ssi/esp32c3_spi.h": "be055a173fdf1b193e67a94f64738f80543f81b34137cd71b88ba84e4e8f81f0",
+    "hw/misc/esp32c6_sx1262.c": "ed71ba9326fedf3e7f0ebf093d231e381401455ed0c355c529e3336991074d74",
+    "include/hw/misc/esp32c6_sx1262.h": "89a35486301a5ef23a4f44944abd0364fc5209886c06eed0201d25d47a241440"
+  },
+  "root_causes": [
+    "Nesso connected SX1262 only to GPIO SPI, leaving hardware SPI2 disconnected.",
+    "SPI2 FIFO reads returned panel ID 0x81 instead of radio receive bytes.",
+    "SPI2 UPDATE bit 23 was interpreted as SPI1 Flash block erase, injecting opcode D8 before each one-byte RadioLib transaction.",
+    "The radio register model aliased 16-byte addresses and lacked continuous read/write and silicon identity."
+  ],
+  "independent_oracles": [
+    "RadioLib 7.6.0 SX1262.h documents silicon identity SX1261 at the version register.",
+    "ESP-IDF public SPI master and GPIO APIs send/read independently specified adjacent bytes 37 49."
+  ],
+  "runs": [
+    {
+      "run": "radio-probe-old-final",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "5c3a9ab1d517e385edff0271c9447fe927ff9842e0585b6a3574ec4332957e8d",
+      "runtime_sha256": "29f23978e3998689f2ff8f3ae4f954f7e696a59286774d5bb78fba2d18ad849f",
+      "terminal_state": "failed",
+      "lease_active": false,
+      "serial_sha256": "5a83bb448188f2be95169d25ced9caba842689b7220e2a1a3e01bb9c6d91e60a",
+      "evidence_zip_sha256": "13cfe19ccff1446e1619f3579c55862aabb798abd9463caee12fb7d7bef15b51",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [
+        "C6_SX1262_START",
+        "C6_SX1262_FAIL identity first=00,00,00,00"
+      ],
+      "result": "FAIL: version bytes are zero; readiness failed and the service released the guest."
+    },
+    {
+      "run": "radio-probe-v4",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "5c3a9ab1d517e385edff0271c9447fe927ff9842e0585b6a3574ec4332957e8d",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "c9e3c5833bd9eb190300923383496237210219eb9ed4286b802ad1a82af45067",
+      "evidence_zip_sha256": "280093910c9890e6cb90d8a157b622f07561b1e5181e213cb73a5ff231a072e1",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [
+        "C6_SX1262_START",
+        "C6_SX1262_ID_PASS",
+        "C6_SX1262_SPLIT_PASS",
+        "C6_SX1262_PACKET_TYPE_PASS",
+        "C6_SX1262_HW_BURST_PASS",
+        "C6_SX1262_SHARED_STATE_PASS",
+        "C6_SX1262_READY"
+      ],
+      "result": "PASS: identity, split transactions, packet type, independent adjacent registers, shared GPIO/hardware SPI state."
+    },
+    {
+      "run": "mesh-radio-v3",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "abc693519dd6d12faf0f5995a8d2b39fabc139859be1ad8d1dcba8ab92db3da6",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "10be728a5f15e134627ec0b0a5939a25047305d513831c9fc60ee6d37b3e7894",
+      "evidence_zip_sha256": "db5e13205e12d63c081bc05cab69f5a3350b360400c5beb6ed8a2e561c72865e",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [],
+      "app_region": {
+        "offset": "0x10000",
+        "length": "0x250000",
+        "sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "matches_original": true
+      },
+      "reboot_markers": 3,
+      "result": "FAIL: SPI2 UPDATE still injected D8 between RadioLib bytes; superseded candidate retained as a negative control."
+    },
+    {
+      "run": "mesh-radio-v4",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "5b48d872fde9b42966bd4995e4ff2e548b249b3b9d58ad2aad02770b4186f2a1",
+      "evidence_zip_sha256": "5f025582231dcb738adf64d789b646406f48ebecc990407494c0a4b4ebadf614",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [],
+      "app_region": {
+        "offset": "0x10000",
+        "length": "0x250000",
+        "sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "matches_original": true
+      },
+      "reboot_markers": 2,
+      "result": "FAIL overall: radio configuration advances, followed by an independent TG0 watchdog."
+    },
+    {
+      "run": "mesh-radio-v4-panic",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "0c4c2dee73cc73006221e498486622881abfa0ee9f2a87b19180cd85c2977200",
+      "evidence_zip_sha256": "a9bdcd501da1322b38729e2f293a7e36621e3b696b9d9d9eecb964cf6a55c4d9",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [],
+      "app_region": {
+        "offset": "0x10000",
+        "length": "0x250000",
+        "sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "matches_original": true
+      },
+      "reboot_markers": 4,
+      "result": "FAIL overall: radio configuration advances, followed by an independent TG0 watchdog."
+    },
+    {
+      "run": "mesh-radio-v4-irq",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "b01cf802f546334efb843249d378b20d53f0c9b8cb97471778a7c5caffd17690",
+      "evidence_zip_sha256": "eb4a2cfa95f78a6d5c2aeabe6dbd9b83226b4aae1b8c7f2878324c5f355c61c7",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [],
+      "app_region": {
+        "offset": "0x10000",
+        "length": "0x250000",
+        "sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "matches_original": true
+      },
+      "reboot_markers": 3,
+      "result": "FAIL overall: radio configuration advances, followed by an independent TG0 watchdog."
+    },
+    {
+      "run": "qio-radio-v4-nesso",
+      "device": "nesso-n1",
+      "route": "Device Service /api/v1",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "fa4602b607007ea91959a596c6567d00454dd7d735589a5ce38251ed2c8acaa4",
+      "evidence_zip_sha256": "3f3578708f6a69594d1208f5d3f77fe0d58965434616600be91d88d364ad83bc",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "result": "PASS: DIO, QIO and erased QIO ranges preserve the previous Flash fix."
+    },
+    {
+      "run": "qio-radio-v4-nano",
+      "device": "nanoc6",
+      "route": "Device Service /api/v1",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "terminal_state": "stopped",
+      "lease_active": false,
+      "serial_sha256": "540cc98a39276f9b84d565719bf3922f78f810c5c1711789686f9b6ebdd1eea6",
+      "evidence_zip_sha256": "5afc832208e34c67f27c21a5a2fdaa133176ba68092e30fed849a50b631c85dd",
+      "zip_requested_before_stop": true,
+      "purge": 0,
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "result": "PASS: DIO, QIO and erased QIO ranges preserve the previous Flash fix."
+    }
+  ],
+  "original_meshtastic": {
+    "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+    "version": "unofficial 2.7.20.79f469c landscape",
+    "guest_modified": false,
+    "radio_object_before": "vtable 421b7488 with slot +80 zero, matching original flash bytes; inferred deleted radio object reused by another object",
+    "radio_object_after": "vtable 421ab644 remains in the original radio object",
+    "remaining_failure": "TG0 watchdog source 53 routed to CPU line 11, after CPU frequency changes and PHY initialization stack frames; exact PHY wait cause remains under investigation",
+    "actual_gdb_mcause": "8000000b",
+    "actual_gdb_mepc": "4080c670",
+    "irq_trace_sha256": "2ca53312155e482239cb23499402b01ff14256f8a1a78689650db582b6f3a97f",
+    "panic_capture_sha256": "ec228d9d876dc7df7a2eaeb46ce1fea17f95df4547a52c321264d07172239960",
+    "status": "FAIL overall; do not attribute remaining failure to firmware without further evidence"
+  },
+  "uiflow_regression": {
+    "case": "nesso-lora",
+    "status": "PASS",
+    "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+    "input": "touch:67,160",
+    "checks": [
+      "PI4IOE rails",
+      "SX1262 configuration",
+      "local TX/RX FIFO loopback",
+      "green UI marker"
+    ],
+    "summary_sha256": "71a95e893c11eac9bb42ca3221cb9f8d935c6c4ea699ef1c47a8ac3b750436fd",
+    "before_frame_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+    "after_frame_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354"
+  },
+  "not_run": [
+    "Physical hardware, RF propagation, RF timing, RF power and over-the-air Meshtastic interoperability.",
+    "Full native matrix on this candidate (integration gate remains with parent task)."
+  ],
+  "reproduction": [
+    "Build C6 recipe with scripts/bootstrap-c6-runtime.py at the pinned source base including patches 0009 and 0010.",
+    "Build the checked-in esp32c6_sx1262_spi fixture, then use the same BIN in baseline and candidate Device Service nesso-n1 sessions; require every documented marker.",
+    "Run tests/uiflow2/run_peripheral_matrix.py --case nesso-lora with the candidate binary.",
+    "Upload the unmodified original Meshtastic BIN into a separate Device Service session; observe its later watchdog independently."
+  ]
+}

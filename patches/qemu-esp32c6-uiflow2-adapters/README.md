@@ -42,6 +42,13 @@ SSI QIO mode/dummy header：16 MiB ISSI 使用 3 字节，其他支持的
 Winbond/GigaDevice 型号使用 5 字节。它保留 guest 寄存器和 SPI2 数据面；
 读写对照使用 [C6 Flash 探针](../../tests/firmware/esp32c6_flash_qio/README.md)。
 
+`0010-c6-sx1262-hardware-spi.patch` 将 Nesso 的硬件 SPI2 和 GPIO SPI
+接入同一个 SX1262 状态，保留接收 FIFO 字节，并将 SPI2 `UPDATE` 与
+SPI1 Flash 特殊命令分开。芯片支持连续寄存器读写、只读版本标识和
+packet-type 状态；[SPI 探针](../../tests/firmware/esp32c6_sx1262_spi/README.md)
+及原版 Meshtastic 的命令流覆盖该路径。原版 Meshtastic 越过无线初始化后
+仍触发 TG0 watchdog，不能据此宣称整份应用通过；这也不建立 RF 验证。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
