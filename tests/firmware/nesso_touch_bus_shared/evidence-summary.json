@@ -1,0 +1,584 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "device": "nesso-n1",
+  "service_source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+  "original_launcher_bin": {
+    "sha256": "58892afba6693f5316ace6610659e9386134b6ed714527713f0a820f35eb4e91",
+    "status": "FAIL",
+    "first_fault": "InputHandler ends loopTask display SPI transaction via touch bus_shared=true; FreeRTOS mutex owner assertion.",
+    "instruction_trace": "Legitimate loopTask mutex owner store, preemption before SPI transfer, InputHandler getTouchRaw, then wrong-owner release.",
+    "original_modified": false
+  },
+  "controls": [
+    {
+      "name": "minimal-m5gfx-0.2.19",
+      "library_commit": "53a7184601f3667b030ba141c58b87ce2acfaa2a",
+      "probe_source_sha256": "2fe080a79f69afa1014b672d80248777ab8e081bad2b59fc74e5f4aa5418101c",
+      "same_recipe": true,
+      "same_probe_source": true,
+      "only_change": "Nesso touch bus_shared true to false; panel remains true.",
+      "before": {
+        "status": "EXPECTED_FAIL",
+        "firmware_sha256": "a996cbeb7c627392d5abab00696bb231001f218dc6fa5ba6e065b5aa71512647",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 1.4492951249703765,
+        "boot_banners": 2,
+        "ownership_asserts": 1,
+        "release_markers": 0,
+        "zip_before_stop": true,
+        "zip_sha256": "8cb67d01e9d0c8f2a53afb877b57c4a225e4f0421e8e839623e42fe31898d1ea",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 8388608,
+            "before_sha256": "5a101636479b7c16b2e49e18013ce7cdbab2dcd970c238c25e06e6e6b09b18b9",
+            "after_sha256": "5a101636479b7c16b2e49e18013ce7cdbab2dcd970c238c25e06e6e6b09b18b9",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "59f1d4f5993a9052c758565bf16b7040c508104f04f4e7d502e68af5f4a33d8e",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [],
+        "frames": []
+      },
+      "after": {
+        "status": "PASS",
+        "firmware_sha256": "67bf34901d55558027b7a73f1db094f2f20d3fb7f99029f1fa15006c2748d077",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 155.1842876658775,
+        "boot_banners": 1,
+        "ownership_asserts": 0,
+        "release_markers": 585,
+        "zip_before_stop": true,
+        "zip_sha256": "d927877e81cddb7d14f198bb6a855a3765e23b6a5fc0f5da513935a39ae9e2be",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 8388608,
+            "before_sha256": "d0a97c55d023cfc502331e5f1761f817be614610ef5c9caf7a16ef9bcfa3a2e1",
+            "after_sha256": "d0a97c55d023cfc502331e5f1761f817be614610ef5c9caf7a16ef9bcfa3a2e1",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "a3dba3da7a3708614bbb113049600fab7bda6166f074d58983721155cec4c4b5",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [
+          {
+            "label": "press-a",
+            "request": {
+              "kind": "touch",
+              "x": 20,
+              "y": 30,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 12.035
+          },
+          {
+            "label": "release-a",
+            "request": {
+              "kind": "touch",
+              "x": 20,
+              "y": 30,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 16.107
+          },
+          {
+            "label": "press-b",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 180,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 28.086
+          },
+          {
+            "label": "release-b",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 180,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 32.173
+          },
+          {
+            "label": "press-c",
+            "request": {
+              "kind": "touch",
+              "x": 60,
+              "y": 100,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 55.166
+          },
+          {
+            "label": "release-c",
+            "request": {
+              "kind": "touch",
+              "x": 60,
+              "y": 100,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 59.249
+          }
+        ],
+        "frames": [
+          {
+            "file": "frame-10.png",
+            "sha256": "6fe379cfdae32bb96ddcb8e2c067259a01d8ffbd4b60b8899ae134749294f485",
+            "elapsed": 10.232648666016757
+          },
+          {
+            "file": "frame-18.png",
+            "sha256": "6bf490dade2b4863f8a54ae6bb19c73ae24a3bd8aa9f4224c398cb0f62ae6335",
+            "elapsed": 18.14838633290492
+          },
+          {
+            "file": "frame-34.png",
+            "sha256": "b1675ad0858ceb8a570875f6e89f165e741ce1969a7d1be081af863a8c780dd4",
+            "elapsed": 34.21273687505163
+          },
+          {
+            "file": "frame-61.png",
+            "sha256": "95430cca04a31f6d639242e722372b0a901de87a9fef76c00bca134809e5d34e",
+            "elapsed": 61.029004083015025
+          },
+          {
+            "file": "frame-150.png",
+            "sha256": "4c92fcfa9ba30bc4b8768505ab48525aa2d2c712d18b72abc47b6e62f81454bb",
+            "elapsed": 150.13863670802675
+          }
+        ]
+      }
+    },
+    {
+      "name": "minimal-master",
+      "library_commit": "28d47949bdc84f30881623476f555398e2194313",
+      "probe_source_sha256": "2fe080a79f69afa1014b672d80248777ab8e081bad2b59fc74e5f4aa5418101c",
+      "same_recipe": true,
+      "same_probe_source": true,
+      "only_change": "Nesso touch bus_shared true to false; panel remains true.",
+      "before": {
+        "status": "EXPECTED_FAIL",
+        "firmware_sha256": "816e980e18899679e00a26dc38b4970bf36dfafb92234cb5297e8adb02c94f08",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 1.4738991248887032,
+        "boot_banners": 2,
+        "ownership_asserts": 1,
+        "release_markers": 0,
+        "zip_before_stop": true,
+        "zip_sha256": "82b88c3ecd54f07da78d2e066eacc24ad05fbceb4055089ba24f35e628ae72ed",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 8388608,
+            "before_sha256": "be9085012f9cc3ca17858dd817439f4563e343f8ca453eb19e2fb27ffffa30ad",
+            "after_sha256": "be9085012f9cc3ca17858dd817439f4563e343f8ca453eb19e2fb27ffffa30ad",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "b41c52dac75920d4e0c0fccdc678a8bfc158afce132d45e39c3a5628262e302c",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [],
+        "frames": []
+      },
+      "after": {
+        "status": "PASS",
+        "firmware_sha256": "eed1014fa4f5300ff04384b23dc1f4b3d5e21fe457a263395f94b60f434fea2c",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 155.4220193750225,
+        "boot_banners": 1,
+        "ownership_asserts": 0,
+        "release_markers": 586,
+        "zip_before_stop": true,
+        "zip_sha256": "d569a23772dd662cdc6c2d613b717c604f6f2251546667c8e42ffbf22a857180",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 8388608,
+            "before_sha256": "aa1068c42fa0f885290c60d543535cc18af058fe81a0584ec190756a5e775f72",
+            "after_sha256": "aa1068c42fa0f885290c60d543535cc18af058fe81a0584ec190756a5e775f72",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "c2ebcd43437fcdca3e8ba55ef7764979c4e4e1519077c43b7c749910708641c0",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [
+          {
+            "label": "press-a",
+            "request": {
+              "kind": "touch",
+              "x": 20,
+              "y": 30,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 12.032
+          },
+          {
+            "label": "release-a",
+            "request": {
+              "kind": "touch",
+              "x": 20,
+              "y": 30,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 16.12
+          },
+          {
+            "label": "press-b",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 180,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 28.149
+          },
+          {
+            "label": "release-b",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 180,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 32.241
+          },
+          {
+            "label": "press-c",
+            "request": {
+              "kind": "touch",
+              "x": 60,
+              "y": 100,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 55.004
+          },
+          {
+            "label": "release-c",
+            "request": {
+              "kind": "touch",
+              "x": 60,
+              "y": 100,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_observation_start": 59.091
+          }
+        ],
+        "frames": [
+          {
+            "file": "frame-10.png",
+            "sha256": "6f8e094ac44662bb7b7a4940d252a2acb33befe11d7930bffa19c0a34c1abff9",
+            "elapsed": 10.24014858296141
+          },
+          {
+            "file": "frame-18.png",
+            "sha256": "6bf490dade2b4863f8a54ae6bb19c73ae24a3bd8aa9f4224c398cb0f62ae6335",
+            "elapsed": 18.150697791948915
+          },
+          {
+            "file": "frame-34.png",
+            "sha256": "9ca1999919a62ae7361bfb11a2e5d8be1903432185b6ad677b9c9914fe789bff",
+            "elapsed": 34.02416079188697
+          },
+          {
+            "file": "frame-61.png",
+            "sha256": "95430cca04a31f6d639242e722372b0a901de87a9fef76c00bca134809e5d34e",
+            "elapsed": 61.12842041696422
+          },
+          {
+            "file": "frame-150.png",
+            "sha256": "4c92fcfa9ba30bc4b8768505ab48525aa2d2c712d18b72abc47b6e62f81454bb",
+            "elapsed": 150.12870700005442
+          }
+        ]
+      }
+    },
+    {
+      "name": "full-launcher-fixed-tag",
+      "launcher_commit": "4b06de691df15b0fe6a9f09f56d1d107bbf32b12",
+      "m5unified_version": "0.2.24",
+      "m5gfx_version": "0.2.31",
+      "m5gfx_commit": "cd363dde6362ab3f9419661cf3ab7a6b4f06f620",
+      "same_recipe": true,
+      "generated_header_sha256": "3b555da4fa1348a3ccd42c5f1fdc7b23334e59978861d592448c9051c996428e",
+      "only_changed_library_file": "src/M5GFX.cpp",
+      "patch_sha256": "3f524dd89011a2b022c84c919f287d658fbdd61ebc24472a277e0d5793f6dd97",
+      "before": {
+        "status": "EXPECTED_FAIL",
+        "firmware_sha256": "afcae0687063a4cca63c0d295c439e4ae6afbfbc6c4e4c8a679df80efc16b190",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 1.807753583882004,
+        "boot_banners": 2,
+        "ownership_asserts": 1,
+        "release_markers": 0,
+        "zip_before_stop": true,
+        "zip_sha256": "316e731b648d4c89c0156e581b94149263cc2ccf849c96bb29759501dd8bccdf",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 1572864,
+            "before_sha256": "ed1bd409ecd5ff16b4db9412e0724d7766a39ea2cfdc316d005357d068a81cca",
+            "after_sha256": "ed1bd409ecd5ff16b4db9412e0724d7766a39ea2cfdc316d005357d068a81cca",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "7bbb57b4f91399b33c876f2265b21562352d3930a6358480745bc2c5ab51ae2d",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [],
+        "frames": []
+      },
+      "after": {
+        "status": "PASS",
+        "firmware_sha256": "8eb36e62ab87d59cc286955a56d43f6384d9a2cc8148dc54990bb5ac44eaac26",
+        "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+        "observed_seconds": 155.3513117909897,
+        "boot_banners": 1,
+        "ownership_asserts": 0,
+        "release_markers": 0,
+        "zip_before_stop": true,
+        "zip_sha256": "637552e82155c6b872a2901493c7f908614974d95db0990d179b270e6ee2e4d6",
+        "app_partitions": [
+          {
+            "offset": 65536,
+            "size": 1572864,
+            "before_sha256": "cdec6547a644864f8be4d0fc89e9bbf544f1a202e13fb23de27c2012ed2d5a5e",
+            "after_sha256": "cdec6547a644864f8be4d0fc89e9bbf544f1a202e13fb23de27c2012ed2d5a5e",
+            "unchanged": true
+          }
+        ],
+        "serial_sha256": "3f818786011ac4634b9218bedb8c10e97bfa46a854d03ec01fc313b6cfdddc7e",
+        "terminal_state": "stopped",
+        "flash_released": true,
+        "lease_released": true,
+        "inputs": [
+          {
+            "label": "next-menu",
+            "request": {
+              "kind": "key",
+              "key": "a",
+              "action": "tap",
+              "settle_seconds": 0.5
+            },
+            "accepted": true,
+            "seconds_from_first_input": 0.0
+          },
+          {
+            "label": "center-touch-down",
+            "request": {
+              "kind": "touch",
+              "x": 67,
+              "y": 120,
+              "action": "down",
+              "settle_seconds": 0.5
+            },
+            "accepted": true,
+            "seconds_from_first_input": 23.302
+          },
+          {
+            "label": "center-touch-up",
+            "request": {
+              "kind": "touch",
+              "x": 67,
+              "y": 120,
+              "action": "up",
+              "settle_seconds": 0.5
+            },
+            "accepted": true,
+            "seconds_from_first_input": 24.264
+          },
+          {
+            "label": "escape-down",
+            "request": {
+              "kind": "key",
+              "key": "b",
+              "action": "down",
+              "settle_seconds": 1.0
+            },
+            "accepted": true,
+            "seconds_from_first_input": 62.015
+          },
+          {
+            "label": "escape-up",
+            "request": {
+              "kind": "key",
+              "key": "b",
+              "action": "up",
+              "settle_seconds": 0.5
+            },
+            "accepted": true,
+            "seconds_from_first_input": 62.122
+          },
+          {
+            "label": "escape-actual-hold-down",
+            "request": {
+              "kind": "key",
+              "key": "b",
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_first_input": 78.963
+          },
+          {
+            "label": "escape-actual-hold-up",
+            "request": {
+              "kind": "key",
+              "key": "b",
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_first_input": 79.989
+          },
+          {
+            "label": "settings-touch-down",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 120,
+              "action": "down"
+            },
+            "accepted": true,
+            "seconds_from_first_input": 95.235
+          },
+          {
+            "label": "settings-touch-up",
+            "request": {
+              "kind": "touch",
+              "x": 100,
+              "y": 120,
+              "action": "up"
+            },
+            "accepted": true,
+            "seconds_from_first_input": 96.498
+          }
+        ],
+        "frames": [
+          {
+            "file": "frame-10.png",
+            "sha256": "6fc0b8fb3c4ccf666aa39c29b183a8db96af1a174d2d9a70e6dc49c821e92f98",
+            "elapsed": 10.237820707960054
+          },
+          {
+            "file": "frame-20.png",
+            "sha256": "6fc0b8fb3c4ccf666aa39c29b183a8db96af1a174d2d9a70e6dc49c821e92f98",
+            "elapsed": 20.220216125017032
+          },
+          {
+            "file": "frame-40.png",
+            "sha256": "f7e64598f697a09d1bfb61b9368c784de8d3303504316fc81f5d7740393ac6c5",
+            "elapsed": 40.02033145795576
+          },
+          {
+            "file": "frame-70.png",
+            "sha256": "cdbabc0f9df6395d5c5804842280596e969bb75f3bdebd935a4341db086a04bb",
+            "elapsed": 70.15482941595837
+          },
+          {
+            "file": "frame-150.png",
+            "sha256": "80123b4738cad5f34faeb3d757242e7dce393b72e8fb07e0cdfa77b01886a471",
+            "elapsed": 150.0205423750449
+          }
+        ]
+      },
+      "visual_review": [
+        {
+          "file": "frame-10.png",
+          "sha256": "6fc0b8fb3c4ccf666aa39c29b183a8db96af1a174d2d9a70e6dc49c821e92f98",
+          "review": "Main six-item menu; OTA highlighted"
+        },
+        {
+          "file": "after-next.png",
+          "sha256": "f7e64598f697a09d1bfb61b9368c784de8d3303504316fc81f5d7740393ac6c5",
+          "review": "Actual key:a moved highlight to WUI"
+        },
+        {
+          "file": "after-center-touch.png",
+          "sha256": "18ef9a1477dd990d15963813a313419a55e2f21424b78bdce4d223f62b825334",
+          "review": "Actual touch selected OTA and started scanning"
+        },
+        {
+          "file": "after-escape.png",
+          "sha256": "5e77209420e96478d3c8c655b78dd8615e021aa9ea8554f66411b7c2e05d8cae",
+          "review": "Scan returned to Hidden SSID/Main Menu choices"
+        },
+        {
+          "file": "after-actual-escape.png",
+          "sha256": "6fc0b8fb3c4ccf666aa39c29b183a8db96af1a174d2d9a70e6dc49c821e92f98",
+          "review": "Actual one-second key:b hold returned to main menu"
+        },
+        {
+          "file": "after-settings-touch.png",
+          "sha256": "01efc1f1700f46e34d9d78d49abfbfa10c002686cd967ac93dce6156fb1afc8d",
+          "review": "Actual touch opened CFG settings; Boot/DeepSleep choices"
+        },
+        {
+          "file": "frame-150.png",
+          "sha256": "80123b4738cad5f34faeb3d757242e7dce393b72e8fb07e0cdfa77b01886a471",
+          "review": "End of >=150s observation"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Original release remains FAIL; fixed-source rebuilds are separate artifacts.",
+    "Original CI proves M5Unified0.2.24, but not an exact cached M5GFX version. Full control pins 0.2.31.",
+    "Current master has minimal same-library-path validation; full Launcher current-master rebuild NOT RUN.",
+    "No physical hardware/RF/online installer PASS. Network scan warnings are retained.",
+    "Full controls share local deterministic gzip and dummy configuration key; formatting/outbound minifier hooks disabled.",
+    "Initial probe controls without actual SPI header visibility are INVALID_CONTROL and excluded from accepted controls.",
+    "Two build-only full patched attempts edited unused transitive M5GFX0.3.0. Same BIN detection prevented guest PASS. Baseline metadata corrected using compiler dependency path; original records retained.",
+    "Master first after preflight expected older field syntax; it rejected before any build. Descriptor preflight corrected; no failed guest hidden."
+  ],
+  "portable_runner_smoke": {
+    "status": "EXPECTED_FAIL",
+    "firmware_sha256": "816e980e18899679e00a26dc38b4970bf36dfafb92234cb5297e8adb02c94f08",
+    "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+    "observed_seconds": 1.4670847090892494,
+    "boot_banners": 2,
+    "ownership_asserts": 1,
+    "release_markers": 0,
+    "zip_before_stop": true,
+    "zip_sha256": "2e1a28b870a5ab3590cc4a0dcaae935f375192b710774574cefc952194c0327f",
+    "app_partitions": [
+      {
+        "offset": 65536,
+        "size": 8388608,
+        "before_sha256": "be9085012f9cc3ca17858dd817439f4563e343f8ca453eb19e2fb27ffffa30ad",
+        "after_sha256": "be9085012f9cc3ca17858dd817439f4563e343f8ca453eb19e2fb27ffffa30ad",
+        "unchanged": true
+      }
+    ],
+    "serial_sha256": "e510f941defd8abdc9df6564c6b112e9823288b37898868a5c0f897bb3fffe52",
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "lease_released": true,
+    "inputs": [],
+    "frames": []
+  }
+}

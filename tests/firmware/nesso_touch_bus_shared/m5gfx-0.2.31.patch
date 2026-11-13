@@ -1,0 +1,11 @@
+--- a/src/M5GFX.cpp
++++ b/src/M5GFX.cpp
+@@ -3552,7 +3552,7 @@
+                 cfg.x_max = 134;
+                 cfg.y_min = 0;
+                 cfg.y_max = 239;
+-                cfg.bus_shared = true;
++                cfg.bus_shared = false;
+                 cfg.offset_rotation = 0;
+                 
+                 cfg.i2c_port = I2C_NUM_0;
