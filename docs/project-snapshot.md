@@ -68,7 +68,7 @@
 
 - Unit 登记：`160` 款；主机接线登记：`23` 款。
 - Runtime profile 状态：`implemented` 158，`planned` 2。
-- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `de6cddc065674ecb53bba29c7fe90d9ab4ee32f7`；包含 `42` 款主机、`184` 款 Unit。视觉库存不构成控制器或电气验证。
+- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `dcb64c3e9dae4297854edaf2a2dfd3ec1db73bdf`；包含 `42` 款主机、`184` 款 Unit。视觉库存不构成控制器或电气验证。
 - 仅视觉主机：`atoms3r-ai-chatbot`，`atoms3r-cam-ai-chatbot`，`atoms3r-ext`，`atoms3r-m12-volcengine-kit`，`corematrix`，`stickv`；这些型号没有设备运行登记，不能创建 Device Service 会话。
 - 仅视觉、尚无内部协议契约：`c6l`，`cams3-5mp`，`esp32cam`，`gateway-h2`，`grove-to-grove`，`m5-bit`，`m5camera`，`m5camera-x`，`mini-proto`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`rca`，`timercamera`，`timercamera-f`，`timercamera-x`，`typec-to-grove`，`unit-396`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
@@ -149,7 +149,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`78` 个 Python 模块，`49139` 行；规模最大的模块如下。
+- `platform/tools`：`78` 个 Python 模块，`49128` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -161,7 +161,7 @@
 | `worker_agent.py` | 1501 |
 
 - `tests/`：`174` 个可执行 Python 测试文件，分布在 `77` 个目录；`244` 个 evidence JSON。
-- `patches/`：`17` 个补丁组，`328` 个 patch 文件。
+- `patches/`：`17` 个补丁组，`327` 个 patch 文件。
 - 文档：`669` 个 Markdown 页面；除本生成页外共 `72834` 行。
 
 ## 文档与测试
