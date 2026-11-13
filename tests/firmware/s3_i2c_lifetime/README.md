@@ -84,3 +84,9 @@ GPT SHA: `e680215dd1858dfcff5daff312ef13d1467ee72b77d9cb4a0caba2fd23e7cdc0`.
 minimal controls, runtime hashes and cleanup. Physical hardware and
 browser-WASM were **NOT RUN**. Keep issue 223 open: no complete original-BIN
 stability fix or physical-firmware attribution has been established.
+
+## Public application rebuild controls
+
+See [the pinned source and rebuild procedure](rebuild-applications.md) for the
+UserDemo 1.6.0 and GPT 1.8.11 full-application controls. These produce new firmware
+identities; they do not change the original-image results above.
