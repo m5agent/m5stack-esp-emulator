@@ -212,7 +212,6 @@
   - [tests/network/worker_queue/README.md](../tests/network/worker_queue/README.md) `2026-10-29`
   - [platform/README.md](../platform/README.md) `2026-10-30`
   - [tests/uiflow2/README.md](../tests/uiflow2/README.md) `2026-11-05`
-  - [docs/README.md](README.md) `2026-11-06`
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
 ## 维护入口
