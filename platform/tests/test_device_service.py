@@ -1974,6 +1974,59 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 expected.append(f"file:{session.dir / 'usb-serial-jtag.log'}")
             self.assertEqual(serials, expected)
 
+    def test_plain_nanoc6_usb_capture_uses_shared_guest_clock_only_on_its_serial_path(self):
+        class LaunchCaptured(Exception):
+            pass
+
+        # Capture the actual launch argv, including the upper HCI branches:
+        # backend/console-index checks alone must not change those profiles.
+        for device_id, runtime, profile, console_index, expected_clock in (
+            ("nanoc6", "qemu", None, 0, True),
+            ("nanoc6", "qemu", None, 2, False),
+            ("nanoc6", "qemu-wifi", None, 0, False),
+            ("nanoc6", "qemu-ble", "nanoc6-hci-ble", 0, False),
+            ("nanoc6", "qemu", "nanoc6-hci-ble", 0, False),
+            ("nesso-n1", "qemu", None, 0, False),
+            ("nesso-n1", "qemu", None, 2, False),
+            ("nesso-n1", "qemu-unified", "nesso-unified", 0, False),
+            ("cores3", "qemu", None, 0, False),
+        ):
+            with self.subTest(device=device_id, runtime=runtime, profile=profile,
+                              console_index=console_index):
+                session = self._stopped_session(session_id=uuid.uuid4().hex)
+                session.spec = replace(self.service.specs[device_id],
+                                       qemu_console_index=console_index)
+                session.runtime = runtime
+                session.network_config = {"nic": "misc.esp32c6.wifi"}
+                if profile:
+                    session.network_config["profile"] = profile
+                session.hci_port = 12345
+                session.state = "booting"
+                with (
+                    mock.patch.object(session, "_prepare_microphone_tone"),
+                    mock.patch.object(session, "_launch_hci_probe"),
+                    mock.patch.object(session, "_launch_http_fixture"),
+                    mock.patch.object(device_service_module.subprocess, "Popen",
+                                      side_effect=LaunchCaptured) as launch,
+                ):
+                    with self.assertRaises(LaunchCaptured):
+                        session._launch()
+                command = launch.call_args.args[0]
+                self.assertEqual(command.count("-accel"), int(expected_clock))
+                self.assertEqual(command.count("-icount"), int(expected_clock))
+                if expected_clock:
+                    index = command.index("-accel")
+                    self.assertEqual(command[index:index + 4], [
+                        "-accel", "tcg,thread=single",
+                        "-icount", "shift=5,align=off,sleep=off",
+                    ])
+                    serials = [command[index + 1] for index, value in enumerate(command)
+                               if value == "-serial"]
+                    self.assertEqual(serials, [
+                        f"file:{session.serial0}", f"file:{session.serial1}",
+                        f"file:{session.dir / 'usb-serial-jtag.log'}",
+                    ])
+
     def test_sticks3_usb_serial_jtag_capture_is_opt_in_and_separate(self):
         key = "M5SW_USB_SERIAL_JTAG_CAPTURE"
         for device_id, value in (("cores3", "1"), ("sticks3", "0")):
@@ -2009,6 +2062,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(chardev in command, bool(setting))
                 self.assertIn(f"file:{session.serial0}", command)
                 if setting:
+                    self.assertEqual(command.count("-accel"), 1)
+                    self.assertEqual(command.count("-icount"), 1)
+                    # Preserve the pre-existing capture argv, including order.
+                    index = command.index("-accel")
+                    self.assertEqual(command[index:index + 6], [
+                        "-accel", "tcg,thread=single",
+                        "-icount", "shift=5,align=off,sleep=off",
+                        "-chardev", chardev,
+                    ])
                     self.assertEqual(
                         command[command.index("-accel") + 1], "tcg,thread=single"
                     )

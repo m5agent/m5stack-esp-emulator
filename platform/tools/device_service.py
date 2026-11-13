@@ -5509,6 +5509,7 @@ class DeviceSession:
                     f"file={self.sd_card_image},if=sd,format=raw",
                 ]
             )
+        plain_nanoc6_usb_capture = False
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
             command.extend(
@@ -5591,6 +5592,9 @@ class DeviceSession:
                 # C6 has two UARTs, followed by its fixed USB Serial-JTAG
                 # chardev. Keep its bytes separate from either UART console.
                 command.extend(["-serial", f"file:{self.dir / USB_SERIAL_JTAG_LOG_NAME}"])
+                plain_nanoc6_usb_capture = (
+                    self.spec.id == "nanoc6" and self.runtime == "qemu" and not profile
+                )
         if native_hid:
             assert self.hci_port is not None
             command.extend(airmouse_native_hid_args(self.hci_port))
@@ -5605,6 +5609,13 @@ class DeviceSession:
                 "-icount", "shift=5,align=off,sleep=off",
                 "-chardev",
                 f"file,id=usb-serial-jtag,path={self.dir / USB_SERIAL_JTAG_LOG_NAME}",
+            ])
+        elif plain_nanoc6_usb_capture:
+            # The separate C6 USB host needs the same SOF/guest-clock ordering
+            # as StickS3 capture. Keep other serial/network profiles unchanged.
+            command.extend([
+                "-accel", "tcg,thread=single",
+                "-icount", "shift=5,align=off,sleep=off",
             ])
         nic: str | None = None
         if monitor_fixture:
