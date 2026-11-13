@@ -1,6 +1,6 @@
 # ESP32-C6 UIFlow2 虚拟主机补丁
 
-Last reviewed: `2026-10-26`
+Last reviewed: `2026-11-13`
 
 该补丁应用在公开的 Espressif QEMU ESP32-C6 提交
 `febae182e132e4055529be423a818225ebddaa3a` 上，新增：
@@ -40,6 +40,25 @@ Last reviewed: `2026-10-26`
 Device Service 重跑关闭 `RUNTIME-01`。该 Meshtastic 样本修复后仍有独立的
 Instruction access fault，必须继续区分固件缺陷和新的模型偏差：
 [运行时模型缺口登记](../../docs/runtime-model-gap-register.md)。
+
+## 可重复构建
+
+C6 使用独立的公开基点和 `riscv32-softmmu` 目标；Xtensa 的
+`bootstrap-unit-runtime.py` 不包含这条补丁线。安装本机 QEMU 构建依赖后运行：
+
+```sh
+python3 scripts/bootstrap-c6-runtime.py --source-dir .work/c6-runtime-source --jobs 4
+```
+
+该脚本固定源码提交和补丁顺序，保存每个修改文件及最终二进制的 SHA256，
+并拒绝覆盖无归属或被修改的源码树。`--prepare-only` 只准备源码；
+`PKG_CONFIG_PATH` 可指向已有的私有依赖目录。静态 libgcrypt 构建可通过
+`--extra-ldflags="<prefix>/lib/libgcrypt.a <prefix>/lib/libgpg-error.a"`
+显式提供依赖。脚本不会安装全局软件包。
+
+`0007-wifi-context.patch` 是已有 peripherals `0025` 的上下文移植；
+它只调整 C6 board 的空行上下文，WiFi 控制器实现不变。构建成功不表示
+社区固件运行通过；运行验证必须使用 Device Service 会话。
 
 ## 应用
 

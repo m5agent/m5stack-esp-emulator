@@ -288,6 +288,9 @@ StickS3 `servo8-hat@0x36`、CoreS3 `8servos@0x25`、Joystick2
 `unit_runtime.py`负责 Hat2/PORT.B/HUB 地址冲突准入；session QOM 暴露角度、
 模式、轴、按钮、ID/事务计数。该路径不建立舵机运动、RF、电气或机械 PASS。
 `ModelDeviceShell.installAssemblyCamera/fitAssembly`只包装该实例公开fit/resize与render(dt)，按主机/Unit/线缆world bounds构图；`test_model_camera_fit.mjs`保留旧窄屏与长RAF阻塞负控、四断点、用户视角与无回声回归，不修改共享vendor。
+`scripts/bootstrap-c6-runtime.py` 固定 ESP32-C6 独立基点、补丁和 riscv32 构建，
+保留源码/运行时哈希并拒绝覆盖不属于该配方的源码；入口见
+[C6 补丁说明](../patches/qemu-esp32c6-uiflow2-adapters/README.md)。
 `scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
 `tests/units/runtime_evidence.py` 从活跃 session 的本地 QEMU PID 采样实际
