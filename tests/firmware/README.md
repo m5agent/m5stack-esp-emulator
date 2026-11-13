@@ -426,3 +426,5 @@ evidence date.
 an unused MMU entry and performs atomics on the other CPU. Its before/after
 evidence covers the host TLB invalidation race in issue #217; original
 PaperColor guest mutex assertions and StackChan issue #223 remain separate.
+
+- [S3 I2C receive-buffer lifetime diagnostic](s3_i2c_lifetime/README.md): issue 223 virtual-device negative/positive controls; original firmware remains unresolved.

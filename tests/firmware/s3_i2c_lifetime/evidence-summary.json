@@ -1,0 +1,414 @@
+{
+  "date": "2026-11-13",
+  "issue": 223,
+  "scope": "virtual-device validation",
+  "status": "REVIEW: original firmware still fails; no simulator workaround accepted",
+  "runtime": {
+    "clean_0182_sha256": "df9df71a5133c47230d5075e74561e65b2c4c1c758ba92eaac02bd58f70ea126",
+    "instrumented_watch_sha256": "cd7529248b001796ce565c0c4b162cc0564692b10a5a823068a05fa37cdd924a",
+    "experimental_i2c_delay_sha256": "246f6e42384dfe94a16c7b92a024ad21ffcd77985948c214e5f8c37af46f7d6a",
+    "default_scheduler": "MTTCG, no icount",
+    "icount_experiment_arguments": [
+      "-accel",
+      "tcg,thread=single",
+      "-icount",
+      "shift=5,align=off,sleep=on"
+    ]
+  },
+  "device": {
+    "device_id": "stackchan",
+    "machine": "m5stackchan",
+    "flash_mib": 16,
+    "psram_mib": 8
+  },
+  "original_firmware_runs": [
+    {
+      "case": "stack-async",
+      "original_firmware_sha256": "245bc9af0a5dff0388017073d7f571fdd03268a0df71bc62c8de7567f8e32866",
+      "padded_flash_sha256": "aaab4d3878188c2977cab4a2fb68cd7493c675e43e44206142cdd1724fb3daa8",
+      "planned_observation_seconds": 330,
+      "early_stop_note": "The async runs stopped after panic; planned duration is not uptime.",
+      "results": [
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 0 panic'ed (LoadProhibited). Exception was unhandled.",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 2
+          },
+          "serial_sha256": "2b93e88033b282dc4dbf9eae28586a4e182c5b15972b99e8f2ad352c563e5c74",
+          "elapsed_to_early_stop_seconds": 82.94
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "269df9cb4415e8782378bd75ee1bbc717b83c4395acca678a6a3294828e40dc3",
+          "elapsed_to_early_stop_seconds": 83.21
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (InstrFetchProhibited). Exception was unhandled.",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "15941e9ed5a9dca4888edaeb1682eb63369122e7f577b37ae4cd8308e9e7b579",
+          "elapsed_to_early_stop_seconds": 83.47
+        }
+      ]
+    },
+    {
+      "case": "gpt-async",
+      "original_firmware_sha256": "e680215dd1858dfcff5daff312ef13d1467ee72b77d9cb4a0caba2fd23e7cdc0",
+      "padded_flash_sha256": "66dd7409fd844aa85f7f5100acf232bccdf9cbc59c5e8b59c42beaa444280195",
+      "planned_observation_seconds": 330,
+      "early_stop_note": "The async runs stopped after panic; planned duration is not uptime.",
+      "results": [
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "ae9128cd14fdeea79be8b9ef86fd96e5e85cb3f14e50eaf7f3c82731b2047b8c",
+          "elapsed_to_early_stop_seconds": 83.46
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "d44c2620d60e3386c75812c70b71720aa70d43df37b76eb262703d10ee6cde48",
+          "elapsed_to_early_stop_seconds": 83.76
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "stopped",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "66ad8f129ecf3447398e3cb04d565357575a35f592acd3a82a13caa7e8422840",
+          "elapsed_to_early_stop_seconds": 83.96
+        }
+      ]
+    },
+    {
+      "case": "stack-i2c-delay",
+      "original_firmware_sha256": "245bc9af0a5dff0388017073d7f571fdd03268a0df71bc62c8de7567f8e32866",
+      "padded_flash_sha256": "aaab4d3878188c2977cab4a2fb68cd7493c675e43e44206142cdd1724fb3daa8",
+      "planned_observation_seconds": 330,
+      "early_stop_note": null,
+      "results": [
+        {
+          "guest_panic": true,
+          "errors": [
+            "uru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "52978759e387241d4cf0cffbd094f0ebcdc0f6fe461e2224f61bc29717da6a37",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "929d203f6a415c5c96aaa2e3514f9fca1834be662186edc52f4b1876a9a18e58",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "4b0c63c0f2a4fdfb9b30631803f6e79b7733363f931aa003afef6bbb5927a0e5",
+          "elapsed_to_early_stop_seconds": null
+        }
+      ]
+    },
+    {
+      "case": "gpt-i2c-delay",
+      "original_firmware_sha256": "e680215dd1858dfcff5daff312ef13d1467ee72b77d9cb4a0caba2fd23e7cdc0",
+      "padded_flash_sha256": "66dd7409fd844aa85f7f5100acf232bccdf9cbc59c5e8b59c42beaa444280195",
+      "planned_observation_seconds": 330,
+      "early_stop_note": null,
+      "results": [
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "2f5a65f8b3f33469d5e425fb34b64c5333592188be72cbd467191e0f01ff1f5e",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "f5ac8796a7f0d905e49acba17d1e0825912c976d76fda0787d123ca5b7559615",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (InstrFetchProhibited). Exception was unhandled.",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "c871a073c7dc7d6472d394496f22a779e932a37e32c2148301a2faaa5df1a7c4",
+          "elapsed_to_early_stop_seconds": null
+        }
+      ]
+    },
+    {
+      "case": "stack-icount",
+      "original_firmware_sha256": "245bc9af0a5dff0388017073d7f571fdd03268a0df71bc62c8de7567f8e32866",
+      "padded_flash_sha256": "aaab4d3878188c2977cab4a2fb68cd7493c675e43e44206142cdd1724fb3daa8",
+      "planned_observation_seconds": 330,
+      "early_stop_note": null,
+      "results": [
+        {
+          "guest_panic": false,
+          "errors": [],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "233a0b958eaa93168a907c1b6b49bd85fd516d7c699481732aa634dd7d89dea8",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": false,
+          "errors": [],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "45547afc8747e74eac9aa4c6aeb0fe191afa872ecc7acd27e23c37e4ebe405c2",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": false,
+          "errors": [],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "14c0e0111f064ffb05543db3bdc2477ca6df6903c97ec116761e3cdbc515017b",
+          "elapsed_to_early_stop_seconds": null
+        }
+      ]
+    },
+    {
+      "case": "gpt-icount",
+      "original_firmware_sha256": "e680215dd1858dfcff5daff312ef13d1467ee72b77d9cb4a0caba2fd23e7cdc0",
+      "padded_flash_sha256": "66dd7409fd844aa85f7f5100acf232bccdf9cbc59c5e8b59c42beaa444280195",
+      "planned_observation_seconds": 330,
+      "early_stop_note": null,
+      "results": [
+        {
+          "guest_panic": true,
+          "errors": [
+            "Guru Meditation Error: Core 1 panic'ed (Unhandled debug exception).",
+            "Rebooting..."
+          ],
+          "state_at_collection": "running",
+          "frame": null,
+          "serial_sha256": "2708fe86c5870059296fe96989e6165766abdeb7114a5841a6ae0751671e07d9",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": false,
+          "errors": [],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "ddd9d98fc6329041bc34e4271120d5ecf9d6efdc279ddab9bb6bf37bcc6a2eef",
+          "elapsed_to_early_stop_seconds": null
+        },
+        {
+          "guest_panic": false,
+          "errors": [],
+          "state_at_collection": "running",
+          "frame": {
+            "width": 320,
+            "height": 240,
+            "nonblack_pixels": 76800,
+            "unique_colors": 60
+          },
+          "serial_sha256": "40d2d7ea3d7e90571d400d63b4d599a2d80ee76d974edc78ac6f788361fd1cd2",
+          "elapsed_to_early_stop_seconds": null
+        }
+      ]
+    }
+  ],
+  "write_trace": {
+    "original_firmware_sha256": "245bc9af0a5dff0388017073d7f571fdd03268a0df71bc62c8de7567f8e32866",
+    "stderr_sha256": "7715fd92e14d5202f85254758524013ca4e335f55384135967b17b3dbca597cc",
+    "guest_writer_cpu": 0,
+    "guest_writer_pc": "0x4038c043",
+    "instruction": "s8i a14,a9,0 after read of I2C DATA at controller+0x1c",
+    "target_range": "0x3c3d0410..0x3c3d0427",
+    "saved_frame_addresses": [
+      "0x3c3d0420",
+      "0x3c3d0424"
+    ],
+    "failed_ret_pc": "0x4038ffcf",
+    "secondary_double_exception_pc": "0x403783c0",
+    "ordering_limit": "Per-CPU ring counters are not one global store ordering trace."
+  },
+  "fixture": {
+    "idf_version": "v5.5.4",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "compiler": "xtensa-esp-elf GCC 14.2.0 20260121",
+    "iterations": 30000,
+    "bus": "I2C0 SDA12 SCL11, FT6336/FT5x06 at 0x38, register2, 25bytes",
+    "interrupt_core": 0,
+    "caller_core": 1,
+    "sdk_diagnostic_patch_sha256": "f5eb46978627c860e831445d0abadab9570b317333139911c87254346f07434c",
+    "controls": [
+      {
+        "case": "i2c-lifetime-negative-final",
+        "firmware_sha256": "75ce49076db67adb9c7f33caa0ae9e97290d25945590290526fa8171741aaa89",
+        "observation": "changed",
+        "expected_observation_met": true,
+        "serial_markers": [
+          "I2C_LIFETIME_BEGIN interrupt_core=0 reader_core=1",
+          "I2C_BUFFER_CHANGED_AFTER_RETURN n=75 ret=0 offset=0 before=a5 after=00 core=1 errors=0"
+        ],
+        "serial_sha256": "0d4689b09c5fd06398e3b3cd481f757e8e716373ea2dffed263af003e3ea14a8",
+        "evidence_zip_sha256": "4fc460a44cb3f390a7d1446f6377c6bc251350dff1b7f7fdcb8218699c807945",
+        "cleanup": "stopped"
+      },
+      {
+        "case": "i2c-lifetime-positive-final",
+        "firmware_sha256": "b606f767ba266faf48aba6abc93b5de52abd2456ef889b10a4dc31b2626a1828",
+        "observation": "stable",
+        "expected_observation_met": true,
+        "serial_markers": [
+          "I2C_LIFETIME_BEGIN interrupt_core=0 reader_core=1",
+          "I2C_LIFETIME_NO_CHANGE errors=0"
+        ],
+        "serial_sha256": "9a96295342136750d398d24e58a7c7a48313e84db70f99861eaf6fb77922b092",
+        "evidence_zip_sha256": "9b95774fc5b6b93b94b590f3fa24645cbdd1b40edc2ad76d787640bcfed95de3",
+        "cleanup": "stopped"
+      }
+    ],
+    "earlier_observations": [
+      "Original SDK: successful read returned before buffer completion at iteration10.",
+      "Diagnostic SDK: first bounded60s run reached27000 reads with no change/errors; final run reached30000."
+    ]
+  },
+  "limits": [
+    "No changes to either original public BIN.",
+    "SDK patch is a diagnostic positive control, not an emulator patch or complete driver timeout fix.",
+    "Physical hardware NOT RUN; original-firmware attribution remains open.",
+    "Browser-WASM NOT RUN.",
+    "Runtime delay and single-thread/icount were rejected as general fixes.",
+    "Frames may survive a guest panic and are not proof of continued animation."
+  ],
+  "cleanup": "Evidence collected before purge=0; all owned guests and four Device Services stopped. One icount session required final evidence collection and explicit stop."
+}

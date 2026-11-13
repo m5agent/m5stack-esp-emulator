@@ -1,0 +1,24 @@
+diff --git a/components/esp_driver_i2c/i2c_master.c b/components/esp_driver_i2c/i2c_master.c
+index 5018ccce..4f77d0e7 100644
+--- a/components/esp_driver_i2c/i2c_master.c
++++ b/components/esp_driver_i2c/i2c_master.c
+@@ -804,15 +804,16 @@ static void i2c_master_isr_handler_default(void *arg)
+         i2c_master->trans_done = true;
+         i2c_master->event = I2C_EVENT_DONE;
+     }
+-    if (i2c_master->event != I2C_EVENT_ALIVE) {
+-        xQueueSendFromISR(i2c_master->event_queue, (void *)&i2c_master->event, &HPTaskAwoken);
+-    }
+     if (i2c_master->contains_read == true) {
+         if (int_mask & I2C_LL_INTR_MST_COMPLETE || int_mask & I2C_LL_INTR_END_DETECT) {
+             i2c_isr_receive_handler(i2c_master);
+         }
+     }
+ 
++    if (i2c_master->event != I2C_EVENT_ALIVE) {
++        xQueueSendFromISR(i2c_master->event_queue, (void *)&i2c_master->event, &HPTaskAwoken);
++    }
++
+     if (i2c_master->async_trans) {
+         i2c_master_dev_handle_t i2c_dev = NULL;
+ 
