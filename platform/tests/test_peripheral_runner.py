@@ -102,7 +102,8 @@ class PeripheralRunnerTests(unittest.TestCase):
         core2_cases = [
             case for case in module.CASES if case["machine"] == "m5core2"
         ]
-        self.assertEqual(len(core2_cases), 6)
+        self.assertEqual(len(core2_cases), 7)
+        self.assertIn("core2-sd", {case["id"] for case in core2_cases})
         for case in core2_cases:
             self.assertIs(case.get("deterministic"), True, case["id"])
             self.assertNotIn("retries", case, case["id"])

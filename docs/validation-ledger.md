@@ -16,6 +16,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-13
 
+原生后续：[SPI SD / RMT / 缓存 / C6 / SDK 竞态对照](evidence/2026-11-13-native-compatibility-followup/README.md)分别绑定原 BIN、运行时和失败控制；最终组合矩阵与交付待独立追加。
+
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
 | #205 原生帧方向 / virtual-device validation | native `fb90044a…`，原版 Bruce/Launcher/PulseOS/AirMouse/小智分别90/90/270/180/0度，同sample独立Pillow全像素一致、可读帧和取证后停止通过。192项相关host/API checks通过；额外UART探针未同步保留失败，镜像/reset只有host C证据 | [方向、固件身份与边界](evidence/2026-11-13-native-frame-orientation/README.md) |

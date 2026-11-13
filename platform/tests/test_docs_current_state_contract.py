@@ -376,7 +376,7 @@ class DocsCurrentStateContractTests(DocsContractBase):
                 f"{task['id']} task board must keep evidence history out of Backlog",
             )
         self.assertIn(
-            "日期：`2026-11-04`",
+            "日期：`2026-11-13`",
             (DOCS / "runtime-model-gap-register.md").read_text(),
         )
         self.assertIsNone(

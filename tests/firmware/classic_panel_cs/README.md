@@ -71,3 +71,10 @@ The firmware copies the chosen file into Flash; a file named `.backup.ini` on
 SD does not replace this original selection flow. Keep all image bytes, input
 receipts, serial and frame evidence with that same session and request its ZIP
 before stopping with `purge=0`. Retain raw configuration only in private storage.
+
+The final combined native runtime `33c0ec98…` independently repeats the unchanged
+HamRadio/SD selection for 180 seconds: one boot, no panic/watchdog, the actual
+ICSMeter gauge page and `CHECK WIFI`. Its Device Service metadata reports `spi`,
+with the original storage artifact and isolated writable copy bound to the
+same lease. Exact service-timeline inputs and frame/ZIP hashes are in the
+`final_combined_runtime` section of the SD evidence; history is retained.

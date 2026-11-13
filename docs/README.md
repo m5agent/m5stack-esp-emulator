@@ -17,6 +17,8 @@
 
 [2026-11-13 UIFlow2 原版云端配对](evidence/2026-11-13-uiflow-cloud-startup/README.md)记录官方启动、真实配对响应、网页入口与旧失败对照；常驻交付状态单列。
 
+[2026-11-13 原生兼容性后续](evidence/2026-11-13-native-compatibility-followup/README.md)汇总 SPI SD、RMT、缓存、C6 控制器和固件 SDK 竞态的同路径对照。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
@@ -347,6 +349,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [UIFlow2 原版启动与云端配对](plans/2026-11-13-uiflow-cloud-startup.md) | 实施计划 | `2026-11-13` | 官方启动与本地编程分流；真实网络、NVS 与配对屏幕独立验收，保留浏览器网络边界 |
 | [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |
 | [#211 浏览器上传、输入与证据验收](evidence/2026-11-13-browser-skill-acceptance/README.md) | 证据/差异 | `2026-11-13` | 实际 WASM demo 触摸/PIR、原版 BIN 上传/双 SHA/REPL 边界/下载/负控和 Worker 清场；测试服务器 404 失败独立保留 |
+| [原生固件兼容性后续](evidence/2026-11-13-native-compatibility-followup/README.md) | 日期化原生证据 | `2026-11-13` | 原 BIN 与公开源码对照；SPI SD、缓存、RMT、C6 和 SDK 竞态边界 |
 | [原生帧方向与同帧派生](evidence/2026-11-13-native-frame-orientation/README.md) | 证据/差异 | `2026-11-13` | 真实MADCTL/玻璃几何、same-sample显示旋转、五原版与缓存/历史；raw/3D/触摸不变 |
 | [Tab5 服务完整性与原版运行时对照](evidence/2026-11-13-tab5-service-boundaries/README.md) | 证据/差异 | `2026-11-13` | 完整Flash、ELF/eFuse隔离和旧参考首触摸通过；原版latest CLIC/DSI缺口保持OPEN |
 | [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |
@@ -542,7 +545,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-30` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop、post-reset stop、八实例容量和九实例 fail-closed 边界；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-11-04` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0095` 已关闭 legacy Core2 normal-WDT stock startup；RUNTIME-07/08保留StamPLC原策略复位PIF和Cardputer复位WASM越界，精确策略或诊断通过不关闭根因；Zigbee、bit-exact controller、物理 RF/电气和真机边界仍独立 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-11-13` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`0095` 已关闭 legacy Core2 normal-WDT stock startup；RUNTIME-07/08保留StamPLC原策略复位PIF和Cardputer复位WASM越界，精确策略或诊断通过不关闭根因；Zigbee、bit-exact controller、物理 RF/电气和真机边界仍独立 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU 与 `qemu-unified` companion partition fencing、namespace/container-local execution、同 guest 网络生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |

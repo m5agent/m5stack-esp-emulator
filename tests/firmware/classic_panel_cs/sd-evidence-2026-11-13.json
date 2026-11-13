@@ -173,5 +173,48 @@
       "GPIO CS held low across transactions does not repeat slave reset callbacks"
     ],
     "host_tests": "30 actual-C before/after cases under ASan/UBSan plus existing 0190/0050 regressions"
+  },
+  "final_combined_runtime": {
+    "runtime_sha256": "33c0ec98b7576c22526deddf81519d8f0719efbfc5fb2221267e4d6bb83ffc58",
+    "runtime_patch_0192_sha256": "7aa67f8404d385ddc64d3c75e0817c3cd5fc6fdb7fccaa9557026728a82bb7a0",
+    "firmware_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+    "sd_image_sha256": "11c8de08df14009f4c30a37fb25b098fdf945305d5bc70ac4c693bd4b9095816",
+    "duration_seconds": 180,
+    "boot_count": 1,
+    "panic_or_watchdog_markers": [],
+    "storage_interface": "spi",
+    "session_isolated_storage": true,
+    "inputs": [
+      {
+        "at": "2026-11-13T05:16:51.788863+00:00",
+        "spec": "key:b",
+        "action": "tap"
+      },
+      {
+        "at": "2026-11-13T05:16:58.809218+00:00",
+        "spec": "key:c",
+        "action": "tap"
+      },
+      {
+        "at": "2026-11-13T05:17:00.740316+00:00",
+        "spec": "key:b",
+        "action": "tap"
+      }
+    ],
+    "input_timing_basis": "Service timeline records completion of actual QMP key press/release; each key uses the existing 450 ms press and release waits.",
+    "observed": "Original Ini Loader reads SD list, B opens menu, C selects IC705USB.ini, B loads it; actual ICSMeter gauge page with CHECK WIFI remains at the final sample.",
+    "frame": {
+      "at_seconds": 175.01,
+      "png_sha256": "5a7a8a4e23859952d0dd11907ee171e1b74765e4fa090a241c1b70eb250b4d27",
+      "pixel_sha256": "cff93b30a5172b0ee080c4f484af2cd9fcca4c971648011bdaf377ff52fa3c80",
+      "nonblack_pixels": 75773
+    },
+    "evidence_zip_sha256": "e3214265259691079dfca5b775ab85cbbbba484c62a28d00aca3bcae2408ea99",
+    "stopped": true,
+    "history_retained": true,
+    "limits": [
+      "No configured WiFi credentials or transceiver; remote CI-V/RF NOT RUN.",
+      "Physical SD timing/electrical behavior and browser-WASM NOT RUN."
+    ]
   }
 }
