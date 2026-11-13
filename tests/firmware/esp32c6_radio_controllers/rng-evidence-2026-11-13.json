@@ -141,11 +141,121 @@
   "checks": [
     "Fresh recipe replay and native build completed.",
     "Reverse patch application check passed.",
-    "Three bootstrap source tests passed."
+    "Three bootstrap source tests passed.",
+    "QIO Nesso/Nano, SX1262 hardware/shared bus and existing Nesso LoRa fixture passed on the final runtime.",
+    "Configured WiFi scan/association/DHCP/DNS/HTTP passed; peerless scan remained empty and connection failed as expected.",
+    "runtime_coverage, peripheral_catalog and qemu_profiles validators passed."
   ],
   "not_run": [
     "Physical entropy quality, statistical certification, hardware security and RF behavior.",
     "Full original Meshtastic readiness, native BLE advertising and connection.",
     "Complete native matrix deferred to integration."
+  ],
+  "affected_regressions": [
+    {
+      "label": "qio-rng-v1-nesso",
+      "device": "nesso-n1",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "zip_sha256": "0b3f4d3ea14a4320556f1124a9e156303900f322389b79443315168d44d4287d",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false
+    },
+    {
+      "label": "qio-rng-v1-nano",
+      "device": "nanoc6",
+      "input_sha256": "3969eb9fd766225de8147602ce8dc81b8a79ddf73b216f21af159dadec216a6a",
+      "input_bytes": 233312,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "markers": [
+        "C6_FLASH_START",
+        "C6_FLASH_READ_PASS mode=DIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO ranges=5 bytes=8192",
+        "C6_FLASH_READ_PASS mode=QIO-erased ranges=5 bytes=8192",
+        "C6_FLASH_READY"
+      ],
+      "zip_sha256": "40c04120ac4cd36773c85e835eecb0a0323b9818d7350b85cff63e2e12f86481",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false
+    },
+    {
+      "label": "radio-rng-v1-nesso",
+      "device": "nesso-n1",
+      "input_sha256": "5c3a9ab1d517e385edff0271c9447fe927ff9842e0585b6a3574ec4332957e8d",
+      "input_bytes": 267248,
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "markers": [
+        "C6_SX1262_START",
+        "C6_SX1262_ID_PASS",
+        "C6_SX1262_SPLIT_PASS",
+        "C6_SX1262_PACKET_TYPE_PASS",
+        "C6_SX1262_HW_BURST_PASS",
+        "C6_SX1262_SHARED_STATE_PASS",
+        "C6_SX1262_READY"
+      ],
+      "zip_sha256": "782d03094aa9199e47858ba4d5c26beca47bcb987f7ae1ee082ac2b0f4454539",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false
+    },
+    {
+      "label": "wifi-rng-v1-peer",
+      "route": "checked-in c6_qemu_wifi_probe direct regression",
+      "firmware_sha256": "707a87f3b2acd2b41978244bc289c16ab570f8924fd60cfc2025367b1d9c3542",
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "summary_sha256": "0b87646937fa7f03881fd49bb4901e7104192e91cddb076c93812fb73b3087f4",
+      "scan_has_ap": true,
+      "connected": true,
+      "http_pass": true,
+      "done": true,
+      "cleanup": "owned process terminated and reaped"
+    },
+    {
+      "label": "wifi-rng-v1-peerless",
+      "route": "checked-in c6_qemu_wifi_probe direct regression",
+      "firmware_sha256": "707a87f3b2acd2b41978244bc289c16ab570f8924fd60cfc2025367b1d9c3542",
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "summary_sha256": "1d6640dc48f904d569114ff59cb8fac5d1955d4710c383623230c8a84af17463",
+      "scan_has_ap": false,
+      "connected": false,
+      "http_pass": false,
+      "done": true,
+      "cleanup": "owned process terminated and reaped"
+    },
+    {
+      "label": "nesso-lora",
+      "route": "checked-in run_peripheral_matrix.py",
+      "summary_sha256": "770bbedf5b533b03773d2f1fdec846286e8e72843ebcd808d27a1c5722fa4e58",
+      "status": "PASS",
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS"
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS"
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS"
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS"
+        }
+      ]
+    }
   ]
 }
