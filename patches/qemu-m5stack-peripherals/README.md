@@ -1497,3 +1497,12 @@ pins the Espressif definitions and exercises guest-address-space read/write,
 reserved-bit masking and QMP reset through qtest. Original application and
 watchdog acceptance require separate Device Service execution with the
 unchanged BIN under the default and auto timing policies.
+
+`0196-classic-dport-wifi-clock-enable.patch` adds the adjacent modem-clock
+enable register at `0x3ff000cc`, with its documented 32-bit read/write state
+and `0xfffce030` reset value. The same original firmware's PHY driver checks
+the actual enabled bits after programming this register. The qtest fixture
+separates the missing-register negative control from the preceding Bluetooth
+divider fix. This configuration register does not establish physical clock
+gating or turn on a host radio backend; guest watchdog and application
+readiness remain separate acceptance requirements.

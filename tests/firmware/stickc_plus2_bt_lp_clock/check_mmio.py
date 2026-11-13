@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the classic ESP32 BT low-power clock registers via QEMU qtest."""
+"""Verify classic ESP32 BT low-power and modem clock registers via QEMU qtest."""
 
 import argparse
 import hashlib
@@ -13,6 +13,9 @@ import time
 
 DIV_INT = 0x3FF000D4
 DIV_FRAC = 0x3FF000D8
+WIFI_CLK_EN = 0x3FF000CC
+WIFI_CLK_RESET = 0xFFFCE030
+PHY_REQUIRED_CLOCKS = 0x8F8F
 RESET_VALUES = (0x000000FF, 0x02001001)
 WRITABLE_MASKS = (0x00001FFF, 0x0FFFFFFF)
 XTAL_DIVIDER = 79
@@ -54,7 +57,7 @@ def request_reset(qmp):
         reset_seen = json.loads(qmp.readline()).get("event") == "RESET"
 
 
-def sample(test, qmp, expected_present):
+def sample(test, qmp, expected_bt_clock, expected_wifi_clock):
     def mmio(command):
         test.write((command + "\n").encode())
         reply = test.readline().decode().split()
@@ -69,6 +72,19 @@ def sample(test, qmp, expected_present):
         mmio(f"writel {DIV_INT:#x} {integer:#x}")
         mmio(f"writel {DIV_FRAC:#x} {fractional:#x}")
 
+    def read_wifi():
+        return mmio(f"readl {WIFI_CLK_EN:#x}")
+
+    def write_wifi(value):
+        mmio(f"writel {WIFI_CLK_EN:#x} {value:#x}")
+
+    wifi_reset = read_wifi()
+    write_wifi(wifi_reset | PHY_REQUIRED_CLOCKS)
+    wifi_phy_enabled = read_wifi()
+    write_wifi(0xFFFFFFFF)
+    wifi_all_ones = read_wifi()
+    write_wifi(0)
+    wifi_cleared = read_wifi()
     reset = read_pair()
     frac = (reset[1] & ~RC_FAST_SELECT) | XTAL_SELECT
     write_pair(XTAL_DIVIDER, frac)
@@ -94,14 +110,37 @@ def sample(test, qmp, expected_present):
         "cleared": (0, 0),
         "after_system_reset": RESET_VALUES,
     }
-    if not expected_present:
+    if not expected_bt_clock:
         expected = dict.fromkeys(expected, (0, 0))
     if observed != expected:
         raise AssertionError(f"unexpected DPORT registers: {observed} != {expected}")
-    return {key: [f"{value:#010x}" for value in values] for key, values in observed.items()}
+    wifi_observed = {
+        "power_on": wifi_reset,
+        "phy_clocks_readback": wifi_phy_enabled,
+        "all_ones_readback": wifi_all_ones,
+        "cleared": wifi_cleared,
+        "after_system_reset": read_wifi(),
+    }
+    wifi_expected = {
+        "power_on": WIFI_CLK_RESET,
+        "phy_clocks_readback": WIFI_CLK_RESET | PHY_REQUIRED_CLOCKS,
+        "all_ones_readback": 0xFFFFFFFF,
+        "cleared": 0,
+        "after_system_reset": WIFI_CLK_RESET,
+    }
+    if not expected_wifi_clock:
+        wifi_expected = dict.fromkeys(wifi_expected, 0)
+    if wifi_observed != wifi_expected:
+        raise AssertionError(f"unexpected DPORT modem clock: {wifi_observed} != {wifi_expected}")
+    return {
+        "bt_lp_clock": {
+            key: [f"{value:#010x}" for value in values] for key, values in observed.items()
+        },
+        "wifi_clock_enable": {key: f"{value:#010x}" for key, value in wifi_observed.items()},
+    }
 
 
-def check(qemu, rom_dir, expected_present):
+def check(qemu, rom_dir, expected_bt_clock, expected_wifi_clock):
     with tempfile.TemporaryDirectory(prefix="m5-bt-lpck-") as temporary:
         root = Path(temporary)
         test_path, qmp_path = root / "qtest.sock", root / "qmp.sock"
@@ -120,9 +159,10 @@ def check(qemu, rom_dir, expected_present):
                     test_socket.makefile("rwb", buffering=0) as test,
                     qmp_socket.makefile("rwb", buffering=0) as qmp,
                 ):
-                    result = sample(test, qmp, expected_present)
+                    result = sample(test, qmp, expected_bt_clock, expected_wifi_clock)
             except (OSError, RuntimeError) as error:
-                raise RuntimeError((root / "qemu.stderr").read_text()[-4000:]) from error
+                detail = (root / "qemu.stderr").read_text(errors="replace")[-4000:]
+                raise RuntimeError(f"{error}\n{detail}") from error
             finally:
                 if process.poll() is None:
                     process.terminate()
@@ -140,13 +180,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--qemu", required=True, type=Path)
     parser.add_argument("--rom-dir", required=True, type=Path)
-    parser.add_argument("--unpatched-qemu", type=Path)
+    parser.add_argument("--unpatched-qemu", type=Path, help="optional pre-0195 control")
+    parser.add_argument("--bt-clock-only-qemu", type=Path, help="optional 0195-only control")
     args = parser.parse_args()
     rom_dir = args.rom_dir.resolve()
     result = {}
     if args.unpatched_qemu:
-        result["unpatched"] = check(args.unpatched_qemu.resolve(), rom_dir, False)
-    result["patched"] = check(args.qemu.resolve(), rom_dir, True)
+        result["unpatched"] = check(args.unpatched_qemu.resolve(), rom_dir, False, False)
+    if args.bt_clock_only_qemu:
+        result["bt_clock_only"] = check(args.bt_clock_only_qemu.resolve(), rom_dir, True, False)
+    result["patched"] = check(args.qemu.resolve(), rom_dir, True, True)
     print(json.dumps(result, indent=2))
 
 

@@ -1,0 +1,54 @@
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+index a15cc37..e5d122c 100644
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -139,6 +139,9 @@ static uint64_t esp32_dport_read(void *opaque, hwaddr addr, unsigned int size)
+     case A_DPORT_SLAVE_SPI_CONFIG:
+         r = s->slave_spi_config_reg;
+         break;
++    case A_DPORT_WIFI_CLK_EN:
++        r = s->wifi_clk_en;
++        break;
+     case A_DPORT_BT_LPCK_DIV_INT:
+         r = s->bt_lpck_div_int;
+         break;
+@@ -263,6 +266,10 @@ static void esp32_dport_write(void *opaque, hwaddr addr,
+         qemu_set_irq(s->flash_enc_en_gpio, FIELD_EX32(value, DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_ENCRYPT_ENABLE));
+         qemu_set_irq(s->flash_dec_en_gpio, FIELD_EX32(value, DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_DECRYPT_ENABLE));
+         break;
++    case A_DPORT_WIFI_CLK_EN:
++        /* Retain guest modem clock enables for register readback. */
++        s->wifi_clk_en = value;
++        break;
+     case A_DPORT_BT_LPCK_DIV_INT:
+         s->bt_lpck_div_int = value &
+             (R_DPORT_BT_LPCK_DIV_INT_DIV_NUM_MASK |
+@@ -474,6 +481,7 @@ static void esp32_dport_reset_hold(Object *obj, ResetType type)
+     s->appcpu_reset_state = true;
+     s->appcpu_stall_state = false;
+     s->cache_ill_trap_en_reg = 0;
++    s->wifi_clk_en = 0xfffce030;
+     s->bt_lpck_div_int = FIELD_DP32(0, DPORT_BT_LPCK_DIV_INT, DIV_NUM, 255);
+     s->bt_lpck_div_frac =
+         R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_8M_MASK |
+diff --git a/include/hw/misc/esp32_dport.h b/include/hw/misc/esp32_dport.h
+index 62c713e..af582f9 100644
+--- a/include/hw/misc/esp32_dport.h
++++ b/include/hw/misc/esp32_dport.h
+@@ -81,6 +81,7 @@ typedef struct Esp32DportState {
+     uint32_t cpuperiod_sel;
+     uint32_t cache_ill_trap_en_reg;
+     uint32_t slave_spi_config_reg;
++    uint32_t wifi_clk_en;
+     uint32_t bt_lpck_div_int;
+     uint32_t bt_lpck_div_frac;
+ 
+@@ -137,6 +138,8 @@ REG32(DPORT_SLAVE_SPI_CONFIG, 0xC8)
+     FIELD(DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_ENCRYPT_ENABLE, 8, 1)
+     FIELD(DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_DECRYPT_ENABLE, 12, 1)
+ 
++REG32(DPORT_WIFI_CLK_EN, 0xcc)
++
+ REG32(DPORT_BT_LPCK_DIV_INT, 0xd4)
+     FIELD(DPORT_BT_LPCK_DIV_INT, DIV_NUM, 0, 12)
+     FIELD(DPORT_BT_LPCK_DIV_INT, BTEXTWAKEUP_REQ, 12, 1)
