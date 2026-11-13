@@ -652,6 +652,16 @@ def set_s3_efuse_mac(efuse: bytearray, mac: str) -> None:
     efuse[24:30] = raw[::-1]
 
 
+def set_c6_efuse_mac(efuse: bytearray, mac: str) -> None:
+    raw = bytes.fromhex(mac.replace(":", ""))
+    if len(raw) != 6 or len(efuse) < 32:
+        raise ValueError("ESP32-C6 eFuse MAC fixture is invalid")
+    # C6 BLK1 MAC reads bits 40,32,...,0; MAC_EXT reads bits 56,48.
+    # The guest inserts ff:fe between the two halves for IEEE 802.15.4.
+    # These are controller backing bytes, not a guest API return override.
+    efuse[24:32] = raw[::-1] + b"\xfe\xff"
+
+
 def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
     raw = bytes.fromhex(mac.replace(":", ""))
     if len(raw) != 6 or len(efuse) < 11:
@@ -675,6 +685,7 @@ def prepare_qemu_efuse_identity(efuse: bytearray, spec: DeviceSpec, session_id: 
     writers = {
         ("qemu-esp32s3", "nvram.esp32s3.efuse"): set_s3_efuse_mac,
         ("qemu-esp32lx6", "nvram.esp32.efuse"): set_esp32_efuse_mac,
+        ("qemu-esp32c6", "nvram.esp32c6.efuse"): set_c6_efuse_mac,
     }
     writer = writers.get((spec.backend, spec.efuse_driver))
     if writer is None:

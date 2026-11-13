@@ -1,0 +1,84 @@
+diff --git a/hw/misc/esp32c6_wifi.c b/hw/misc/esp32c6_wifi.c
+--- a/hw/misc/esp32c6_wifi.c
++++ b/hw/misc/esp32c6_wifi.c
+@@ -78,6 +78,23 @@
+     return getenv("M5SW_C6_WIFI_TRACE") != NULL;
+ }
+ 
++/* TSF is a 64-bit microsecond counter. The stock HAL gates each counter
++ * at +0x50 + index*8, loads through +0x18/+0x1c, and captures both halves
++ * through +0x20/+0x24. No host peer is required for this local clock.
++ */
++static void esp32c6_wifi_tsf_update(Esp32C6WifiState *s, unsigned index,
++                                   int64_t now_ns)
++{
++    if ((s->regs[(0x50 + index * 8) / 4] & BIT(31)) &&
++        now_ns > s->tsf_epoch_ns[index]) {
++        uint64_t elapsed = (uint64_t)(now_ns - s->tsf_epoch_ns[index]) +
++                           s->tsf_phase_ns[index];
++        s->tsf_count[index] += elapsed / 1000;
++        s->tsf_phase_ns[index] = elapsed % 1000;
++    }
++    s->tsf_epoch_ns[index] = now_ns;
++}
++
+ static uint64_t esp32c6_wifi_read(void *opaque, hwaddr addr, unsigned size)
+ {
+     Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
+@@ -103,6 +120,30 @@
+     if (wifi_trace_enabled() && addr != 0) {
+         fprintf(stderr, "[c6-wifi] wr %05x <- %08x\n",
+                 (unsigned)addr, (unsigned)value);
++    }
++    int64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++
++    if (addr == 0x14) {
++        uint32_t previous = s->regs[0x14 / 4];
++        uint64_t load = (uint64_t)s->regs[0x1c / 4] << 32 |
++                        s->regs[0x18 / 4];
++        for (unsigned index = 0; index < 4; index++) {
++            esp32c6_wifi_tsf_update(s, index, now_ns);
++            if (value & BIT(index + 4)) {
++                s->tsf_count[index] = load;
++                s->tsf_phase_ns[index] = 0;
++            }
++            if ((value & ~previous) & BIT(index)) {
++                s->regs[0x20 / 4] = s->tsf_count[index];
++                s->regs[0x24 / 4] = s->tsf_count[index] >> 32;
++            }
++        }
++        /* Load requests are write triggers; capture requests stay asserted
++         * until the HAL releases them, keeping high/low reads coherent. */
++        value &= ~0xf0u;
++    } else if (addr >= 0x50 && addr <= 0x68 && (addr - 0x50) % 8 == 0) {
++        /* Account for the old gate before replacing it. */
++        esp32c6_wifi_tsf_update(s, (addr - 0x50) / 8, now_ns);
+     }
+     s->regs[addr / sizeof(uint32_t)] = value;
+ }
+@@ -705,6 +746,11 @@
+     static const uint8_t sta_mac[] = { 0x02, 0x00, 0x00, 0x00, 0x00, 0x01 };
+ 
+     memset(s->regs, 0, sizeof(s->regs));
++    memset(s->tsf_count, 0, sizeof(s->tsf_count));
++    memset(s->tsf_phase_ns, 0, sizeof(s->tsf_phase_ns));
++    for (unsigned index = 0; index < 4; index++) {
++        s->tsf_epoch_ns[index] = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    }
+     memset(s->phy_regs, 0, sizeof(s->phy_regs));
+     memset(s->agc_regs, 0, sizeof(s->agc_regs));
+     memset(s->mac_regs, 0, sizeof(s->mac_regs));
+diff --git a/include/hw/misc/esp32c6_wifi.h b/include/hw/misc/esp32c6_wifi.h
+--- a/include/hw/misc/esp32c6_wifi.h
++++ b/include/hw/misc/esp32c6_wifi.h
+@@ -32,6 +32,10 @@
+     uint32_t mac_regs[ESP32C6_WIFI_MAC_IO_SIZE / sizeof(uint32_t)];
+     uint32_t modem_regs[ESP32C6_WIFI_MODEM_IO_SIZE / sizeof(uint32_t)];
+     uint32_t rf_regs[ESP32C6_WIFI_RF_IO_SIZE / sizeof(uint32_t)];
++    /* Four TSF counters share software load and capture registers. */
++    uint64_t tsf_count[4];
++    int64_t tsf_epoch_ns[4];
++    uint32_t tsf_phase_ns[4];
+     uint32_t raw_interrupt;
+     uint32_t rx_dma_ptr;
+     uint32_t rx_ring_head;

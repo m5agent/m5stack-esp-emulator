@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "service_base_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "canonical_qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+  "patches": {
+    "0018-c6-wifi-tsf-counter.patch": "73389de5294a49fd531e142e219cf4be1c25665979de2553753caa775766329b",
+    "0019-c6-efuse-lp-subregion.patch": "00fc46dd5ab41b0da2a497189f0d2f87f5d275b27192a4338a7484aadbea3df8"
+  },
+  "runs": [
+    {
+      "case": "zigbee",
+      "original_firmware_sha256": "a736daf26ca51983bf6a9bd30dd79c3148631291edf50acea1b8f29600183504",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "execution_status": "PASS",
+      "application_status": "FAIL",
+      "observed_seconds": 30.01162466709502,
+      "boot_banners": 120,
+      "serial_sha256": "2262266d9305fa31f52b48cb43c90b5fcd0b479b82429c4e2a6ad897cc73943b",
+      "serial_bytes": 944082,
+      "evidence_zip_sha256": "9b143f96855ad3747250abcf0b7666c8f22c352369a246a70415d03590eb100c",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 921600,
+          "sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 921600,
+          "sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 357,
+      "tsf_case_results": []
+    },
+    {
+      "case": "honeypot",
+      "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 90.0053758751601,
+      "boot_banners": 1,
+      "serial_sha256": "38726e758dc09ac9a0149ca6bc5a8aeb6243c3ecb5fc57cb45fe2b0a4f75a0ac",
+      "serial_bytes": 461,
+      "evidence_zip_sha256": "1299c35326fdd25b362941cf104f1c5f97f826e6db287bbc0043dc679546d432",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "tsf-probe-before",
+      "original_firmware_sha256": "50a1ec99e10b6a3c86a2ed2192687d391772834b478fca0d40afd9c7fc772b8c",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.002192749874666,
+      "boot_banners": 1,
+      "serial_sha256": "4700614f1c6ea58a8d4e80d77c7fb264f5c1b0d57817cb8964e7b8bfd0a9c4a3",
+      "serial_bytes": 538,
+      "evidence_zip_sha256": "fcc637cec4f37fc97cabb857ca2182271ea66210e02ac5b75a288a78556813ab",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "58a3a46c685f642ed55905b472be5ef3cb9e7292d45c7eb4b589e974432aa065",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "58a3a46c685f642ed55905b472be5ef3cb9e7292d45c7eb4b589e974432aa065",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": [
+        "TSF_CASE index=0 delta_us=0 wall_us=21003 result=FAIL",
+        "TSF_CASE index=1 result=FAIL",
+        "TSF_CASE index=2 result=FAIL",
+        "TSF_CASE index=3 result=FAIL",
+        "TSF_CASE index=4 result=FAIL",
+        "TSF_CASE index=5 result=FAIL"
+      ]
+    },
+    {
+      "case": "tsf-probe-after",
+      "original_firmware_sha256": "50a1ec99e10b6a3c86a2ed2192687d391772834b478fca0d40afd9c7fc772b8c",
+      "runtime_sha256": "17ac31429bd80c11f525c3f89dd3d59b5d84f7298d05ff526e74d84da29bd634",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.004629584029317,
+      "boot_banners": 1,
+      "serial_sha256": "ac4e5117cf7a2169371a22ff1a5f056ff3555f3cc677d5c086e170c60ea9d788",
+      "serial_bytes": 542,
+      "evidence_zip_sha256": "ab7bad1b22ec232e2a0c5e3b87089f32d8dce6bfd77cab47879d2151ca8bc160",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "58a3a46c685f642ed55905b472be5ef3cb9e7292d45c7eb4b589e974432aa065",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "58a3a46c685f642ed55905b472be5ef3cb9e7292d45c7eb4b589e974432aa065",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": [
+        "TSF_CASE index=0 delta_us=19510 wall_us=19537 result=PASS",
+        "TSF_CASE index=1 result=PASS",
+        "TSF_CASE index=2 result=PASS",
+        "TSF_CASE index=3 result=PASS",
+        "TSF_CASE index=4 result=PASS",
+        "TSF_CASE index=5 result=PASS"
+      ]
+    },
+    {
+      "case": "identity-probe-v2-before",
+      "original_firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.002104375045747,
+      "boot_banners": 1,
+      "serial_sha256": "671beab820a7d22c94d871703ce269498e035cf4b85baa5bc5b4c4f422a2c3ec",
+      "serial_bytes": 642,
+      "evidence_zip_sha256": "4082c19e94572569110513b82323d794e4a487d33f8ff42d76ddb15e58d47879",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "identity-probe-v2-after",
+      "original_firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.0075413750018924,
+      "boot_banners": 1,
+      "serial_sha256": "671beab820a7d22c94d871703ce269498e035cf4b85baa5bc5b4c4f422a2c3ec",
+      "serial_bytes": 642,
+      "evidence_zip_sha256": "aa436b9c77f27e3e3706fbb29e5a3b83173bb465b8692823185c1e504463e501",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "identity-probe-bfd4",
+      "original_firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.002318167127669,
+      "boot_banners": 1,
+      "serial_sha256": "70879051ad2602e9ee81078e61fc7d9b14f4aceec5a3e87644dba9fa165d8459",
+      "serial_bytes": 642,
+      "evidence_zip_sha256": "eddcc530f68b0cf3dc69dce73b3b7375131ed120b78005e0a72142ccac59dec0",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "identity-stability-a",
+      "original_firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.01323362486437,
+      "boot_banners": 2,
+      "serial_sha256": "9229278844bdb7a1b5649634fa56507f03c0c2ac1e6a3cf3e5a3c63d401f7f6d",
+      "serial_bytes": 1284,
+      "evidence_zip_sha256": "b0cff82c5c1ab007218628c4447670b971b4f04f4cbd7c4ce26792b111776068",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "identity_reset_stable": true,
+      "identity_api_passes": 2,
+      "controlled_resets": 1,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "identity-stability-b",
+      "original_firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 5.008313958067447,
+      "boot_banners": 2,
+      "serial_sha256": "6b813272f96c3376cb8b9f35f1980ac2d1fba303d1b4a3494150d9a37f1123c6",
+      "serial_bytes": 1284,
+      "evidence_zip_sha256": "374c613d372acb74d68ecca31bb13ce3c6d98b780a8b3b4a7408e1f8493b0f2c",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "identity_reset_stable": true,
+      "identity_api_passes": 2,
+      "controlled_resets": 1,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "zigbee-bfd4",
+      "original_firmware_sha256": "a736daf26ca51983bf6a9bd30dd79c3148631291edf50acea1b8f29600183504",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 30.004765624878928,
+      "boot_banners": 1,
+      "serial_sha256": "c33e68624d415df730f5a69a93aaf2e1f30c1d0c68ad235b5d3a5d482da78a69",
+      "serial_bytes": 4131,
+      "evidence_zip_sha256": "905417a7246b3b85997c1432af8c56b0a12905fba552c50c59857f221910bc66",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 921600,
+          "sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 921600,
+          "sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    },
+    {
+      "case": "honeypot-bfd4",
+      "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "execution_status": "PASS",
+      "application_status": "PARTIAL",
+      "observed_seconds": 90.01272725011222,
+      "boot_banners": 1,
+      "serial_sha256": "26bf1822783c40c13f7730071bba263c0f0d91fed3e37a2caba5ea53f320bdae",
+      "serial_bytes": 461,
+      "evidence_zip_sha256": "fb3efde00f04add70a5b614d63536c6b0a2bfcb24eea3027b5050de30be3fb6d",
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "fatal_count": 0,
+      "tsf_case_results": []
+    }
+  ],
+  "identity_stability": {
+    "two_independent_sessions_distinct": true,
+    "each_same_session_reset_stable": true,
+    "guest_api_passes": 4,
+    "controlled_reset_count": 2,
+    "identities_not_public": true
+  },
+  "host_actual_c": {
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "cases": 12,
+    "before_passed": 3,
+    "before_expected_failed": 9,
+    "after_passed": 12
+  },
+  "remaining_limits": [
+    "802.15.4 EXTADDR register set/get remains zero; its MMIO controller, command/IRQ/DMA and frame transport are unimplemented.",
+    "Zigbee now survives the former zero-EUI assertion but ZDO Config Ready still reports ESP_FAIL; joining/light control not validated.",
+    "Honeypot original softAP returns true at exact PC 0x42001330 (a0=1) under read-only instruction diagnosis; no peer/HTTP data-plane claim.",
+    "Honeypot Arduino HWCDC asynchronous USB Serial-JTAG output remains absent; C6 endpoint model has no IRQ/status implementation.",
+    "NanoC6 qemu-wifi admission is unsupported (409); native qemu identity does not grant network validation.",
+    "Only identity bytes are provisioned; all other C6 eFuse fields remain unburned. No factory calibration, silicon revision, RF or security claim.",
+    "Final combined native runtime, broad integration matrix, resident deployment, physical hardware and browser-WASM NOT RUN here."
+  ],
+  "invalid_attempts_retained": [
+    "First identity probe used a 16MiB board definition on NanoC6 4MiB and is not an accepted control.",
+    "Two service preflights failed before original execution (missing unused PIL import, missing emulator helper).",
+    "First identity-stability-a socket bind failed on the recently closed port before guest creation; a new owned attempt uses SO_REUSEADDR."
+  ],
+  "diagnostic_gdb_logs": {
+    "zigbee-diagnostic": "2a7cc95fcd6aea3039e726c9e7ece5ae61e2a23c6ecc95c297d222dc813a0c21",
+    "honeypot-bfd4-diagnostic": "1f282da22f8cab8e0e470e21ab4bc89f79fb866aca312eb8c60fc74c9fcdde5b",
+    "honeypot-bfd4-softap-diagnostic": "796dda621e42ab74b287787051dd2e72fc6130d83227eced39123d6db1a1e288"
+  }
+}

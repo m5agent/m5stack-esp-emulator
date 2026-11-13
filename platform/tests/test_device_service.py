@@ -2542,13 +2542,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             device_service_module.set_esp32_efuse_mac(efuse, "02:12:34")
 
+    def test_c6_efuse_identity_and_extended_address_bytes(self):
+        efuse = bytearray(b"\xa5" * 64)
+        device_service_module.set_c6_efuse_mac(efuse, "02:12:34:56:78:9a")
+        self.assertEqual(efuse[24:32], bytes.fromhex("9a7856341202feff"))
+        self.assertEqual(efuse[:24] + efuse[32:], b"\xa5" * 56)
+        for invalid in (bytearray(31), bytearray()):
+            with self.assertRaises(ValueError):
+                device_service_module.set_c6_efuse_mac(invalid, "02:12:34:56:78:9a")
+        with self.assertRaises(ValueError):
+            device_service_module.set_c6_efuse_mac(efuse, "02:12:34")
+
     def test_efuse_identity_only_provisions_attached_supported_drivers(self):
         for device_id in ("atom-lite", "atom-matrix", "sticks3", "core2", "nesso-n1", "nanoc6"):
             with self.subTest(device=device_id):
                 spec = self.service.specs[device_id]
                 fixture = bytearray(4096)
                 identity = device_service_module.prepare_qemu_efuse_identity(fixture, spec, "a" * 32)
-                if device_id in {"nesso-n1", "nanoc6"}:
+                if device_id == "nesso-n1":
                     self.assertEqual(identity, {"status": "unprovisioned", "driver": None,
                                                "reason": "efuse_drive_not_attached"})
                     self.assertFalse(any(fixture))
