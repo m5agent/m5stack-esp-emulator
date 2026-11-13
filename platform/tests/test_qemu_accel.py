@@ -67,6 +67,10 @@ class Core2QemuAccelTests(unittest.TestCase):
         self.assertEqual(self.core2_args_with(" 07 "), expected)
         self.assertEqual(
             self.core2_args_with("auto")[-1],
+            "shift=auto,align=off,sleep=on,max-shift=5",
+        )
+        self.assertEqual(
+            qemu_accel.icount_mode("auto"),
             "shift=auto,align=off,sleep=on",
         )
 

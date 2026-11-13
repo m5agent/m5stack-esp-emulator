@@ -1576,3 +1576,18 @@ wrap, mask, acknowledgement and source-6 delivery. The unchanged original
 reaches home with the default and corrected adaptive profiles. The former
 adaptive argument with `sleep=off` reproduced an IDLE0 task-watchdog reset.
 Pairing, HID report delivery and physical timing remain unverified.
+
+## Classic RWBT modem reset and adaptive instruction clock (0201–0202)
+
+`0201-classic-rwbt-modem-reset.patch` stores classic ESP32 DPORT core reset
+control and applies the separate RWBT MAC and low-power reset bits to the
+modeled controller. The original restart pulses both reset bits before
+requesting a CPU-only reset. The [qtest control](../../tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_modem_reset.py)
+checks the original pulse, IRQ clearing, rearming and separate domains.
+
+`0202-icount-adaptive-max-shift.patch` adds an explicit upper bound to QEMU
+adaptive icount. The classic ESP32 service selects `max-shift=5` for the
+opt-in auto profile. Fixed shifts and auto profiles that omit the option
+retain their existing range. The bound lets virtual time lag the host to
+retain instruction progress per virtual-time interval. The local bound is
+validated on migration load and cannot be combined with record/replay.
