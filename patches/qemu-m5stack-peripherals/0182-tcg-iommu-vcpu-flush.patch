@@ -1,0 +1,56 @@
+Subject: [PATCH] tcg: invalidate IOMMU translations on their owning vCPU
+
+A shared ESP32-S3 cache IOMMU calls its unmap notifiers from the CPU that
+programmed the MMU. With MTTCG, directly clearing another running CPU's
+software TLB races its current translated memory access, including atomic
+read-modify-write lookup. Schedule foreign invalidations on that vCPU and
+atomically consume/re-arm the notifier's activity flag. Keep local/cold
+invalidations synchronous. Do not weaken atomic permission checks.
+
+diff --git a/system/physmem.c b/system/physmem.c
+index 7538906..8477961 100644
+--- a/system/physmem.c
++++ b/system/physmem.c
+@@ -587,15 +587,28 @@ typedef struct TCGIOMMUNotifier {
+     bool active;
+ } TCGIOMMUNotifier;
+ 
++static void tcg_iommu_tlb_flush(CPUState *cpu, run_on_cpu_data data)
++{
++    tlb_flush(cpu);
++}
++
+ static void tcg_iommu_unmap_notify(IOMMUNotifier *n, IOMMUTLBEntry *iotlb)
+ {
+     TCGIOMMUNotifier *notifier = container_of(n, TCGIOMMUNotifier, n);
+ 
+-    if (!notifier->active) {
++    /* A shared IOMMU can invalidate a different vCPU's cached mapping.
++     * Only that vCPU may clear or resize its software TLB while running;
++     * the BQL does not exclude another MTTCG execution thread.
++     */
++    if (!qatomic_xchg(&notifier->active, false)) {
+         return;
+     }
+-    tlb_flush(notifier->cpu);
+-    notifier->active = false;
++    if (!notifier->cpu->created || qemu_cpu_is_self(notifier->cpu)) {
++        tlb_flush(notifier->cpu);
++    } else {
++        async_run_on_cpu(notifier->cpu, tcg_iommu_tlb_flush,
++                         RUN_ON_CPU_NULL);
++    }
+     /* We leave the notifier struct on the list to avoid reallocating it later.
+      * Generally the number of IOMMUs a CPU deals with will be small.
+      * In any case we can't unregister the iommu notifier from a notify
+@@ -646,9 +659,7 @@ static void tcg_register_iommu_notifier(CPUState *cpu,
+                                               &error_fatal);
+     }
+ 
+-    if (!notifier->active) {
+-        notifier->active = true;
+-    }
++    qatomic_set(&notifier->active, true);
+ }
+ 
+ void tcg_iommu_free_notifier_list(CPUState *cpu)

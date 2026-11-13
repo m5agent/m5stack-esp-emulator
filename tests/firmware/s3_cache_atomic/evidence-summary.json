@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-13",
+  "scope": "virtual-device validation",
+  "issue": 217,
+  "qemu_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch_sha256": "616f461d5d4ba7071b3d7d47d44e733aa01701a46f19fc4f347d772e3d1ac420",
+  "runtimes": {
+    "before": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+    "after": "df9df71a5133c47230d5075e74561e65b2c4c1c758ba92eaac02bd58f70ea126"
+  },
+  "profile": {
+    "device": "stackchan",
+    "machine": "m5stackchan",
+    "scheduler": "default MTTCG, no icount",
+    "psram_mib": 8
+  },
+  "fixture": {
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "compiler": "xtensa-esp-elf GCC 14.2.0 20260121",
+    "changes": 200000,
+    "results": [
+      {
+        "case": "atomic-final-baseline",
+        "status": "FAIL",
+        "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+        "runtime": "before",
+        "session_state_before_stop": "failed",
+        "host_error": "process exited with code -11",
+        "stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "guest_completed": false,
+        "serial_sha256": "725509e9ee7c3d95c26ed6b991eac22510c6b699af421c599b345a4c23c39ea9"
+      },
+      {
+        "case": "atomic-final-baseline2",
+        "status": "FAIL",
+        "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+        "runtime": "before",
+        "session_state_before_stop": "failed",
+        "host_error": "process exited with code -6",
+        "stderr_sha256": "6f4b7cb0971d78de37a8363e11c2ff99e44f23b3dd8fa4e3b94d9b73a8d7dc02",
+        "guest_completed": false,
+        "serial_sha256": "7a1711047b41215e56d48585b332e8082a133cd91b52fff56f77028a05b82c2e"
+      },
+      {
+        "case": "atomic-final-baseline3",
+        "status": "FAIL",
+        "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+        "runtime": "before",
+        "session_state_before_stop": "failed",
+        "host_error": "process exited with code -11",
+        "stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "guest_completed": false,
+        "serial_sha256": "5e25417a646022dd75b0ff226473bfd6efbf410571660ab24ebc08716ed545fd"
+      },
+      {
+        "case": "atomic-final-fixed",
+        "status": "PASS",
+        "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+        "runtime": "after",
+        "session_state_before_stop": "running",
+        "host_error": null,
+        "stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "guest_completed": true,
+        "serial_sha256": "4678ef8d7d0510b3e0a040e2e6a69fdc7b823afaa49566a7ee7790ca6216cab5"
+      },
+      {
+        "case": "atomic-final-fixed2",
+        "status": "PASS",
+        "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+        "runtime": "after",
+        "session_state_before_stop": "running",
+        "host_error": null,
+        "stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "guest_completed": true,
+        "serial_sha256": "5c5fa3d3e79c65f7e2c29631ad78d8e1fc823e6084e950c0488c3d3bdd69915e"
+      }
+    ]
+  },
+  "original_papercolor": {
+    "firmware_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+    "observation_seconds_each": 120,
+    "count": 2,
+    "results": [
+      {
+        "state_before_stop": "running",
+        "host_error": null,
+        "host_abort": false,
+        "guest_mutex_assert": true,
+        "frame": {
+          "width": 400,
+          "height": 600,
+          "nonblack_pixels": 240000,
+          "unique_colors": 1
+        },
+        "serial_sha256": "3596d7e9215742d4bd3d0c4e07c331e209aa83fddcb06660f443574543d26828"
+      },
+      {
+        "state_before_stop": "running",
+        "host_error": null,
+        "host_abort": false,
+        "guest_mutex_assert": true,
+        "frame": {
+          "width": 400,
+          "height": 600,
+          "nonblack_pixels": 240000,
+          "unique_colors": 1
+        },
+        "serial_sha256": "8d8f5bf200a823a5675f2d7451266e5a9936239d24b22cec2965f16be503b37a"
+      }
+    ],
+    "classification": "PARTIAL: host stays alive, existing guest xTaskPriorityDisinherit remains"
+  },
+  "limits": [
+    "Full native matrix delegated to integration gate",
+    "Browser-WASM NOT RUN",
+    "Physical hardware NOT RUN",
+    "StackChan original-firmware crashes in issue 223 remain open; cache fix does not close that issue"
+  ],
+  "negative_control_note": "The same cross-thread TLB race produced atomic_mmu_lookup in an earlier fixture, and host SIGSEGV/Bad ram pointer with this final fixture. The original assertion is unchanged."
+}

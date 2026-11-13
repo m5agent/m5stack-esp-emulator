@@ -1373,3 +1373,14 @@ reads now observe the same identity. CS is tested during the transfer; later
 MMIO reads retain the FIFO data without clocking the peripheral again.
 The [stock-image regression](../../tests/firmware/atoms3_display/README.md)
 separates controller evidence from native guest and physical validation.
+
+## Cross-vCPU cache invalidation (0182)
+
+`0182-tcg-iommu-vcpu-flush.patch` follows `0181` in the native bootstrap.
+Shared IOMMU unmaps now queue a foreign vCPU's software TLB invalidation on that
+vCPU instead of clearing or resizing a TLB while its owner executes. Notifier
+activity is atomic across the mapping and executing threads. The original TCG
+atomic permission assertion remains intact. The
+[S3 cache/atomic fixture](../../tests/firmware/s3_cache_atomic/README.md) provides
+a guest-level race regression; its result does not establish StackChan firmware
+stability or browser-WASM support.

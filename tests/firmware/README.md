@@ -419,3 +419,10 @@ Current overall status and unfinished work must be read from
 [project status](../../docs/project-status.md) and
 [project backlog](../../docs/project-backlog.md), not inferred from an older
 evidence date.
+
+## ESP32-S3 cache and atomic operations
+
+[The shared cache IOMMU fixture](s3_cache_atomic/README.md) concurrently changes
+an unused MMU entry and performs atomics on the other CPU. Its before/after
+evidence covers the host TLB invalidation race in issue #217; original
+PaperColor guest mutex assertions and StackChan issue #223 remain separate.
