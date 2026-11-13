@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "status": "PASS",
+  "scope": "Explicit serial API and three native-service pages on a new original NanoC6 guest with the final-v3 runtime",
+  "validation": "virtual-device validation",
+  "firmware_application_status": "PARTIAL",
+  "source_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+  "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+  "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+  "normalized_flash_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+  "device": "nanoc6",
+  "runtime": "qemu",
+  "execution_clock": [
+    "-accel",
+    "tcg,thread=single",
+    "-icount",
+    "shift=5,align=off,sleep=off"
+  ],
+  "product_source_changed_for_this_observation": false,
+  "source_tools_web_files_verified": 2178,
+  "product_tools_web_equal_to_10c826": true,
+  "firmware_application_regions_unchanged": true,
+  "guest_inputs": [],
+  "observed_host_seconds": 90.01247145910747,
+  "browser_seconds": 14.602316125063226,
+  "payload": {
+    "console_bytes": 461,
+    "usb_bytes": 614,
+    "usb_prefix_equals_console": true,
+    "application_suffix_bytes": 153,
+    "application_suffix_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+    "crlf_lines": 4,
+    "complete_payload_exact": true,
+    "configuration_message_only_usb": true,
+    "console_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+    "usb_sha256": "9385d803be1ec76c8e1cbcb8114e3cc185c60c16c63ae207fae205afe95af2e9"
+  },
+  "serial_api": {
+    "status": "PASS",
+    "chunk_size_bytes": 64,
+    "response_count": 18,
+    "all_bytes_match_same_channel_final_zip": true,
+    "independent_offsets": true
+  },
+  "pages": [
+    {
+      "kind": "public",
+      "status": "PASS",
+      "console_before_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "usb_sha256": "9385d803be1ec76c8e1cbcb8114e3cc185c60c16c63ae207fae205afe95af2e9",
+      "console_after_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "configuration_only_usb": true,
+      "complete_application_payload_rendered": true,
+      "expected_payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+      "console_restored_without_usb": true,
+      "actual_serial_requests": 3
+    },
+    {
+      "kind": "sessions",
+      "status": "PASS",
+      "console_before_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "usb_sha256": "9385d803be1ec76c8e1cbcb8114e3cc185c60c16c63ae207fae205afe95af2e9",
+      "console_after_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "configuration_only_usb": true,
+      "complete_application_payload_rendered": true,
+      "expected_payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+      "console_restored_without_usb": true,
+      "actual_serial_requests": 5
+    },
+    {
+      "kind": "observatory",
+      "status": "PASS",
+      "console_before_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "usb_sha256": "9385d803be1ec76c8e1cbcb8114e3cc185c60c16c63ae207fae205afe95af2e9",
+      "console_after_sha256": "80149be8fea395b4673f5e20203f9e9192063647bdfb9d830b5c1a60dbaa93b7",
+      "configuration_only_usb": true,
+      "complete_application_payload_rendered": true,
+      "expected_payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+      "console_restored_without_usb": true,
+      "actual_serial_requests": 5
+    }
+  ],
+  "page_request_count": 13,
+  "all_page_bytes_match_same_channel_final_zip": true,
+  "browser_attempt": {
+    "status": "PASS",
+    "pages": [
+      "public",
+      "sessions",
+      "observatory"
+    ],
+    "same_running_guest_for_all_pages": true,
+    "browser_closed": true,
+    "mutating_api_requests": 0,
+    "page_errors": 0,
+    "read_only_observer_sha256": "6596d06e3159d9a3a22f97130b39c0d09c2bc6c9381ec7ce58fdb450b0a09ae4",
+    "runner_sha256": "e2f5a042978f6c52fb12134571f1a1c021e5bdebd58d253315581a1428fc94eb",
+    "raw_result_sha256": "416e23841cc2d3426951049599a8c894472158ac796c7182e339809df9a67773",
+    "borrow_summary_sha256": "560460c5e658516f1710aec747a1014fa7f7d61a70e949c9b4f1d26f8008e43f"
+  },
+  "retained_attempts": [
+    {
+      "kind": "prior final-v3 owner observation window",
+      "status": "INFRA_FAILED",
+      "three_page_result": "NOT RUN",
+      "browser_started": false,
+      "cause": "Owner fixed observation window ended before the borrower initial GET; service connection refused",
+      "classification_sha256": "06e3a3046a7cee9743c37fe04229cbfc4dc0c4b38db1392233c39f9f9a484fa6",
+      "raw_summary_sha256": "ad296498e2662824de5828fdad04aa1b4a4ed55d2ec77ff9c490c2f94e842d96",
+      "different_guest_from_this_successful_run": true
+    },
+    {
+      "kind": "earlier 8df serial-page acceptance",
+      "status": "PASS within its own source/runtime scope",
+      "retained_observer_failure": "First Observatory body observer failed; only that page was repeated on the same earlier guest",
+      "summary_sha256": "347c62fcc837eb24b405b743681f5f40b32612c0b0f51e81051462c5eb6de877",
+      "not_relabelled_as_final_v3": true
+    }
+  ],
+  "screenshots_sha256": {
+    "public-console.png": "bbc1764c28db672080f0a003b66777722c24089038ad0893e3cd50659180f6ef",
+    "public-usb.png": "b01419c76dd2c2a314e26879c3acaf2055ae758eca7a8d3b1bb9ce877583136f",
+    "public-console-return.png": "bbc1764c28db672080f0a003b66777722c24089038ad0893e3cd50659180f6ef",
+    "sessions-console.png": "0f4f7ba0143c4e96c64278ddcadd94cf9b699e8560416e6dc7cefc87e3912a90",
+    "sessions-usb.png": "e2ca668901b8d86c5ccd9701f67c8c4264a69f30ab61302d38f03e68be3cacc0",
+    "sessions-console-return.png": "0f4f7ba0143c4e96c64278ddcadd94cf9b699e8560416e6dc7cefc87e3912a90",
+    "observatory-console.png": "f9f3e54da2995b3f1d7a02fa2497df41b9c4d8cd535633dbdba5b965d2ce615d",
+    "observatory-usb.png": "a373b6ee463ccb3815a7c24c7db3b733f1468c9833a8f33499e8cb65f5cd7f44",
+    "observatory-console-return.png": "f9f3e54da2995b3f1d7a02fa2497df41b9c4d8cd535633dbdba5b965d2ce615d"
+  },
+  "visual_review": {
+    "status": "PASS",
+    "reviewer": "independent root review",
+    "screenshots": 9,
+    "review_receipt_sha256": "74c9c8da78c540b62831bb4ea207526e435e8e9fe34ddb91b59f6a97638bc0e1"
+  },
+  "artifact_sha256": {
+    "evidence_zip": "3d8b5a2e15b34ce2de66c3da60010dbf205c8d3ccd33886926de6ff0f16fd751",
+    "owner_summary": "3de26c1f0e1e319d3c2a693d3114dc9d46f4b80c7f9408e331b7d2a4df126e9c",
+    "terminal_snapshot": "b0d3768b52e48e09ff21a2b9b6ec45af5799b6c9e6774ed86fb4a0ba04e72a6f",
+    "source_receipt": "067f1967707e1a2b3f3e2009d1b3b7d37739f28b8c6dc98fdc005fb3b14b4535",
+    "browser_done_receipt": "389551183dfa27d6027406860aa6722538d7c2fd3c3939066a821873aee6d245"
+  },
+  "cleanup": {
+    "zip_before_stop": true,
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "lease_released": true,
+    "native_process_exited": true,
+    "owned_service_stopped": true,
+    "browser_closed": true
+  },
+  "limits": [
+    "Native-service frontend only; browser WASM and physical hardware NOT RUN.",
+    "Configuration output and channel isolation do not validate AP association, HTTP, honeypot network operation or RF.",
+    "Original PHY calibration and PLL diagnostics remain; no complete application readiness claim.",
+    "The window-ended borrower failure and earlier 8df evidence remain independent.",
+    "Final combined matrix, main and resident delivery have separate acceptance gates.",
+    "No raw screenshot, log, credential, endpoint or session identity is included."
+  ]
+}

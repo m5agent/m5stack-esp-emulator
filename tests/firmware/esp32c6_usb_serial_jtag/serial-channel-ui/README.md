@@ -77,3 +77,9 @@ Earlier plain-clock startup failures, truncated output and diagnostic runs
 remain separate retained evidence. The later clock control and production
 run do not erase them. USB fixed-endpoint model tests, full platform checks,
 resident deployment and broader firmware acceptance have their own evidence.
+
+## Subsequent final-v3 runtime
+
+[The independent final-v3 page validation](final-v3/README.md) binds runtime
+`80d92a6c…` and source `4a5d28e6…` to a new original guest and its own ZIP.
+The 8df results and two page-observation attempts above remain unchanged.
