@@ -1,0 +1,369 @@
+diff --git a/hw/misc/esp32c6_jtag.c b/hw/misc/esp32c6_jtag.c
+--- a/hw/misc/esp32c6_jtag.c
++++ b/hw/misc/esp32c6_jtag.c
+@@ -2,59 +2,180 @@
+  * ESP32-C6 USB Serial JTAG emulation
+  *
+  * Copyright (c) 2026 Espressif Systems (Shanghai) Co. Ltd.
++ * Portions copyright (c) 2023 Espressif Systems (Shanghai) Co. Ltd.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 or
+  * (at your option) any later version.
+  */
+-
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "qemu/module.h"
+ #include "qemu/error-report.h"
+ #include "hw/hw.h"
+-#include "hw/sysbus.h"
++#include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/qdev-properties-system.h"
++#include "hw/sysbus.h"
+ #include "hw/misc/esp32c6_jtag.h"
+ 
+ 
++/*
++ * Fixed USB Serial/JTAG CDC endpoints, distinct from USB OTG.
++ * The IN FIFO/host-frame path follows the existing ESP32-S3/C3 model.
++ * This chardev is an explicit virtual serial host, not USB enumeration.
++ * Off without an explicit virtual host chardev.
++ */
++enum {
++    EP1 = 0x00,
++    EP1_CONF = 0x04,
++    INT_RAW = 0x08,
++    INT_STATUS = 0x0c,
++    INT_ENABLE = 0x10,
++    INT_CLEAR = 0x14,
++    CONF0 = 0x18,
++    FRAME_NUM = 0x24,
++
++    WR_DONE = BIT(0),
++    IN_DATA_FREE = BIT(1),
++    OUT_DATA_AVAIL = BIT(2),
++    IRQ_SOF = BIT(1),
++    IRQ_OUT_PACKET = BIT(2),
++    IRQ_IN_EMPTY = BIT(3),
++    PHY_EXTERNAL = BIT(0),
++    PAD_PULL_OVERRIDE = BIT(8),
++    DP_PULLUP = BIT(9),
++    PAD_ENABLE = BIT(14),
++};
++
++static void esp32c6_jtag_update_irq(ESP32C6UsbJtagState *s)
++{
++    qemu_set_irq(s->irq, (s->int_raw & s->int_enable) != 0);
++}
++
++static bool esp32c6_jtag_host_attached(ESP32C6UsbJtagState *s)
++{
++    return qemu_chr_fe_backend_open(&s->chr) &&
++           (s->conf & PAD_ENABLE) && !(s->conf & PHY_EXTERNAL) &&
++           (!(s->conf & PAD_PULL_OVERRIDE) || (s->conf & DP_PULLUP));
++}
++
++static int esp32c6_jtag_can_receive(void *opaque)
++{
++    ESP32C6UsbJtagState *s = opaque;
++    /* One complete OUT packet remains owned by the guest until consumed. */
++    return esp32c6_jtag_host_attached(s) && !s->rx_len ? sizeof(s->rx) : 0;
++}
++
++static void esp32c6_jtag_receive(void *opaque, const uint8_t *buf, int size)
++{
++    ESP32C6UsbJtagState *s = opaque;
++    int accepted = MIN(size, esp32c6_jtag_can_receive(s));
++    if (accepted <= 0) {
++        return;
++    }
++    memcpy(s->rx, buf, accepted);
++    s->rx_pos = 0;
++    s->rx_len = accepted;
++    s->rx_bytes += accepted;
++    s->int_raw |= IRQ_OUT_PACKET;
++    esp32c6_jtag_update_irq(s);
++}
++
++static void esp32c6_jtag_host_frame(void *opaque)
++{
++    ESP32C6UsbJtagState *s = opaque;
++
++    if (esp32c6_jtag_host_attached(s)) {
++        s->frame = (s->frame + 1) & 0x7ff;
++        s->int_raw |= IRQ_SOF;
++        if (s->committed) {
++            int done = s->tx_len ? qemu_chr_fe_write(&s->chr, s->tx, s->tx_len) : 0;
++            if (done > 0) {
++                s->tx_bytes += done;
++                s->tx_len -= done;
++                memmove(s->tx, s->tx + done, s->tx_len);
++            }
++            if (!s->tx_len) {
++                s->tx_packets++;
++                s->committed = false;
++                s->int_raw |= IRQ_IN_EMPTY;
++            }
++        }
++    }
++    esp32c6_jtag_update_irq(s);
++    timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++}
++
+ static uint64_t esp32c6_jtag_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+-    uint32_t r = 0;
++    ESP32C6UsbJtagState *s = ESP32C6_JTAG(opaque);
+ 
+     switch (addr) {
+-    case USB_SERIAL_JTAG_EP1_REG:
+-        r = 0;
+-        break;
+-    case USB_SERIAL_JTAG_EP1_CONF_REG:
+-        /* SERIAL_IN_EP_DATA_FREE=1: TX FIFO ready to accept data */
+-        r = USB_SERIAL_JTAG_SERIAL_IN_EP_DATA_FREE;
+-        break;
++    case EP1: {
++        uint8_t value = 0;
++        if (s->rx_len) {
++            value = s->rx[s->rx_pos++];
++            s->rx_len--;
++            if (!s->rx_len) {
++                s->rx_pos = 0;
++                qemu_chr_fe_accept_input(&s->chr);
++            }
++        }
++        return value;
++    }
++    case EP1_CONF:
++        return (!s->committed && s->tx_len < sizeof(s->tx) ? IN_DATA_FREE : 0) |
++               (s->rx_len ? OUT_DATA_AVAIL : 0);
++    case INT_RAW:
++        return s->int_raw;
++    case INT_STATUS:
++        return s->int_raw & s->int_enable;
++    case INT_ENABLE:
++        return s->int_enable;
++    case CONF0:
++        return s->conf;
++    case FRAME_NUM:
++        return s->frame;
+     default:
+-        break;
+-    }
+-    return r;
++        return 0;
++    }
+ }
+ 
+ static void esp32c6_jtag_write(void *opaque, hwaddr addr, uint64_t value,
+-                               unsigned int size)
++                              unsigned int size)
+ {
+     ESP32C6UsbJtagState *s = ESP32C6_JTAG(opaque);
+ 
+     switch (addr) {
+-    case USB_SERIAL_JTAG_EP1_REG:
+-        /* Byte written to UART TX FIFO - forward to chardev */
+-        if (qemu_chr_fe_backend_connected(&s->chr)) {
+-            uint8_t ch = value & 0xff;
+-            qemu_chr_fe_write(&s->chr, &ch, 1);
+-        }
+-        break;
+-    case USB_SERIAL_JTAG_EP1_CONF_REG:
+-        /* WR_DONE - no-op, we output immediately on byte write */
+-        break;
+-    default:
+-        break;
+-    }
++    case EP1:
++        if (!s->committed && s->tx_len < sizeof(s->tx)) {
++            s->tx[s->tx_len++] = value;
++            /* The fixed 64-byte endpoint automatically commits a full FIFO. */
++            if (s->tx_len == sizeof(s->tx)) {
++                s->committed = true;
++                s->int_raw &= ~IRQ_IN_EMPTY;
++            }
++        }
++        break;
++    case EP1_CONF:
++        if (value & WR_DONE) {
++            s->committed = true;
++            s->int_raw &= ~IRQ_IN_EMPTY;
++        }
++        break;
++    case INT_ENABLE:
++        s->int_enable = value & (IRQ_SOF | IRQ_OUT_PACKET | IRQ_IN_EMPTY);
++        break;
++    case INT_CLEAR:
++        s->int_raw &= ~value;
++        break;
++    case CONF0:
++        s->conf = value & 0x1ffff;
++        qemu_chr_fe_accept_input(&s->chr);
++        break;
++    }
++    esp32c6_jtag_update_irq(s);
+ }
+ 
+ static const MemoryRegionOps esp32c6_jtag_ops = {
+@@ -66,14 +187,41 @@
+ static void esp32c6_jtag_reset_hold(Object *obj, ResetType type)
+ {
+     ESP32C6UsbJtagState *s = ESP32C6_JTAG(obj);
+-    (void) s;
++
++    s->int_raw = IRQ_IN_EMPTY;
++    s->int_enable = 0;
++    s->conf = PAD_ENABLE | DP_PULLUP;
++    s->frame = 0;
++    s->tx_len = 0;
++    s->rx_pos = 0;
++    s->rx_len = 0;
++    s->committed = false;
++    esp32c6_jtag_update_irq(s);
++    if (s->host_frame) {
++        timer_mod(s->host_frame, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++    }
+ }
+ 
+ static void esp32c6_jtag_realize(DeviceState *dev, Error **errp)
+ {
+     ESP32C6UsbJtagState *s = ESP32C6_JTAG(dev);
+-
+-    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL, s, NULL, true);
++    qemu_chr_fe_set_handlers(&s->chr, esp32c6_jtag_can_receive,
++                            esp32c6_jtag_receive, NULL, NULL, s, NULL, true);
++    if (qemu_chr_fe_backend_connected(&s->chr)) {
++        s->host_frame = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++                                     esp32c6_jtag_host_frame, s);
++    }
++    esp32c6_jtag_reset_hold(OBJECT(dev), RESET_TYPE_COLD);
++}
++
++static void esp32c6_jtag_unrealize(DeviceState *dev)
++{
++    ESP32C6UsbJtagState *s = ESP32C6_JTAG(dev);
++    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL, NULL, NULL, false);
++    if (s->host_frame) {
++        timer_free(s->host_frame);
++        s->host_frame = NULL;
++    }
+ }
+ 
+ static void esp32c6_jtag_init(Object *obj)
+@@ -83,11 +231,14 @@
+ 
+     memory_region_init_io(&s->iomem, obj, &esp32c6_jtag_ops, s,
+                           TYPE_ESP32C6_JTAG, ESP32C6_JTAG_REGS_SIZE);
+-
+     sysbus_init_mmio(sbd, &s->iomem);
+-}
+-
+-static Property esp32c6_jtag_properties[] = {
++    sysbus_init_irq(sbd, &s->irq);
++    object_property_add_uint64_ptr(obj, "cdc-tx-bytes", &s->tx_bytes, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(obj, "cdc-tx-packets", &s->tx_packets, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(obj, "cdc-rx-bytes", &s->rx_bytes, OBJ_PROP_FLAG_READ);
++}
++
++static const Property esp32c6_jtag_props[] = {
+     DEFINE_PROP_CHR("chardev", ESP32C6UsbJtagState, chr),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+@@ -99,7 +250,8 @@
+ 
+     rc->phases.hold = esp32c6_jtag_reset_hold;
+     dc->realize = esp32c6_jtag_realize;
+-    device_class_set_props(dc, esp32c6_jtag_properties);
++    dc->unrealize = esp32c6_jtag_unrealize;
++    device_class_set_props(dc, esp32c6_jtag_props);
+ }
+ 
+ static const TypeInfo esp32c6_jtag_info = {
+@@ -107,12 +259,12 @@
+     .parent = TYPE_SYS_BUS_DEVICE,
+     .instance_size = sizeof(ESP32C6UsbJtagState),
+     .instance_init = esp32c6_jtag_init,
+-    .class_init = esp32c6_jtag_class_init,
+-};
+-
+-static void esp32c6_jtag_register_types(void)
++    .class_init = esp32c6_jtag_class_init
++};
++
++static void esp32c6_jtag_types(void)
+ {
+     type_register_static(&esp32c6_jtag_info);
+ }
+ 
+-type_init(esp32c6_jtag_register_types)
++type_init(esp32c6_jtag_types)
+diff --git a/include/hw/misc/esp32c6_jtag.h b/include/hw/misc/esp32c6_jtag.h
+--- a/include/hw/misc/esp32c6_jtag.h
++++ b/include/hw/misc/esp32c6_jtag.h
+@@ -2,6 +2,7 @@
+  * ESP32-C6 USB Serial JTAG emulation
+  *
+  * Copyright (c) 2026 Espressif Systems (Shanghai) Co. Ltd.
++ * Portions copyright (c) 2023 Espressif Systems (Shanghai) Co. Ltd.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 or
+@@ -10,23 +11,35 @@
+ #pragma once
+ 
+ #include "hw/hw.h"
++#include "chardev/char-fe.h"
++#include "qemu/timer.h"
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
+-#include "chardev/char-fe.h"
+ 
+ #define TYPE_ESP32C6_JTAG "misc.esp32c6.usb_serial_jtag"
+ #define ESP32C6_JTAG(obj) OBJECT_CHECK(ESP32C6UsbJtagState, (obj), TYPE_ESP32C6_JTAG)
+ 
+ #define ESP32C6_JTAG_REGS_SIZE (0x84)
+ 
+-/* USB Serial JTAG EP1 register offsets */
+-#define USB_SERIAL_JTAG_EP1_REG                  0x00
+-#define USB_SERIAL_JTAG_EP1_CONF_REG             0x04
+-#define USB_SERIAL_JTAG_SERIAL_IN_EP_DATA_FREE   (1 << 1)
+-#define USB_SERIAL_JTAG_WR_DONE                  (1 << 0)
+ 
+ typedef struct ESP32C6UsbJtagState {
+     SysBusDevice parent_object;
+     MemoryRegion iomem;
+     CharBackend chr;
++    qemu_irq irq;
++    QEMUTimer *host_frame;
++    uint32_t int_raw;
++    uint32_t int_enable;
++    uint32_t conf;
++    uint16_t frame;
++    uint8_t tx[64];
++    uint8_t rx[64];
++    unsigned tx_len;
++    unsigned rx_pos;
++    unsigned rx_len;
++    bool committed;
++    uint64_t tx_bytes;
++    uint64_t tx_packets;
++    uint64_t rx_bytes;
+ } ESP32C6UsbJtagState;
++
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -442,6 +442,9 @@
+         sysbus_realize(SYS_BUS_DEVICE(&ms->jtag), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->jtag), 0);
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_USB_SERIAL_JTAG_BASE, mr, 0);
++        sysbus_connect_irq(SYS_BUS_DEVICE(&ms->jtag), 0,
++                           qdev_get_gpio_in(intmatrix_dev,
++                                           C6_ETS_USB_SERIAL_JTAG_INTR_SOURCE));
+     }
+ 
+     /* SPI1 (Flash) */

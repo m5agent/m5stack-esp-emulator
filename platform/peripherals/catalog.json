@@ -1507,6 +1507,25 @@
         "unavailable"
       ],
       "blocker": "The C139 GPIO3 battery-divider ADC conversion and voltage injection are not modeled."
+    },
+    "usb-serial-jtag-c6": {
+      "kind": "usb-fixed-cdc-endpoints",
+      "interface": "usb-serial-jtag",
+      "capabilities": [
+        "usb-serial-jtag"
+      ],
+      "status": "simulated",
+      "injection": [
+        "chardev-serial-host"
+      ],
+      "data_plane": "Fixed 64-byte CDC IN/OUT FIFOs at C6 USB Serial-JTAG MMIO; actual guest HWCDC or USB REPL driver uses RAW/ENA/ST/W1C and interrupt-matrix source 48. The explicit virtual serial host consumes committed TX packets with backpressure and injects RX packets through the FIFO, with gated 1ms virtual host frames. This model excludes enumeration, EP0 line coding, USB OTG, JTAG and physical signaling.",
+      "tested_devices": [
+        "nanoc6"
+      ],
+      "evidence": [
+        "https://github.com/espressif/esp-idf/blob/v5.1.4/components/hal/esp32c6/include/hal/usb_serial_jtag_ll.h",
+        "tests/firmware/esp32c6_usb_serial_jtag/evidence-summary.json"
+      ]
     }
   },
   "devices": {
@@ -2368,6 +2387,11 @@
         {
           "id": "ir",
           "model": "ir-tx-c6"
+        },
+        {
+          "id": "usb-serial-jtag",
+          "model": "usb-serial-jtag-c6",
+          "bus": "usb-fixed-cdc"
         }
       ]
     },

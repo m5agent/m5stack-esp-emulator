@@ -125,6 +125,11 @@
       "device": "paperdiy",
       "test": "tests/firmware/paper_runtime/run_test.py",
       "evidence": "docs/evidence/2026-11-09-paper-et047tc1/summary.json"
+    },
+    "nanoc6-usb-serial-jtag": {
+      "device": "nanoc6",
+      "test": "tests/firmware/esp32c6_usb_serial_jtag/run.py",
+      "evidence": "tests/firmware/esp32c6_usb_serial_jtag/evidence-summary.json"
     }
   },
   "case_models": {
@@ -546,6 +551,9 @@
     ],
     "core2-sd": [
       "sd-card-spi"
+    ],
+    "nanoc6-usb-serial-jtag": [
+      "usb-serial-jtag-c6"
     ]
   },
   "device_case_groups": {
@@ -844,13 +852,15 @@
     "nanoc6": {
       "external": [
         "nanoc6-peripherals",
-        "nanoc6-hci-ble"
+        "nanoc6-hci-ble",
+        "nanoc6-usb-serial-jtag"
       ],
       "models": [
         "gpio-button",
         "gpio-led",
         "rgb-led",
-        "ir-tx-c6"
+        "ir-tx-c6",
+        "usb-serial-jtag-c6"
       ]
     },
     "tab5": {
@@ -1370,6 +1380,11 @@
     "touch-gt911": {
       "external": [
         "papers3-et047-factory"
+      ]
+    },
+    "usb-serial-jtag-c6": {
+      "external": [
+        "nanoc6-usb-serial-jtag"
       ]
     }
   }

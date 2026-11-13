@@ -5586,6 +5586,10 @@ class DeviceSession:
                 )
             elif not self.spec.qemu_console_index:
                 command.extend(["-serial", f"file:{self.serial1}"])
+            if self.spec.backend == "qemu-esp32c6" and not self.spec.qemu_console_index:
+                # C6 has two UARTs, followed by its fixed USB Serial-JTAG
+                # chardev. Keep its bytes separate from either UART console.
+                command.extend(["-serial", f"file:{self.dir / USB_SERIAL_JTAG_LOG_NAME}"])
         if native_hid:
             assert self.hci_port is not None
             command.extend(airmouse_native_hid_args(self.hci_port))
