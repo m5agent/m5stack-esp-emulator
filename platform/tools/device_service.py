@@ -204,6 +204,7 @@ from run_profile_ui_test import (  # noqa: E402
     write_rgb_png,
 )
 from run_tab5_ui_test import (  # noqa: E402
+    admit_image as admit_tab5_image,
     capture_framebuffer,
     free_tcp_port,
     inject_touch,
@@ -8501,6 +8502,84 @@ class Tab5DeviceSession(DeviceSession):
         self._c6_proc: subprocess.Popen | None = None
         self._gdb_port: int | None = None
         self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
+        self._tab5_elf: Path | None = None
+        self._tab5_efuse = self.dir / "runtime.efuse"
+
+    def _prepare_tab5_identity(self) -> dict:
+        """Admit the actual session image before starting either companion."""
+        assert self.virtual_flash is not None
+        original = self.firmware_path.read_bytes()
+        if hashlib.sha256(original).hexdigest() != self.firmware_sha:
+            raise ServiceError(
+                "firmware_hash_mismatch", "Tab5 source firmware changed before launch", 409
+            )
+        actual = self.virtual_flash.read_bytes()
+        expected = _padded(original, self.spec.flash_size)
+        if actual != expected:
+            raise ServiceError(
+                "tab5_flash_mismatch",
+                "Tab5 execution image changed the admitted firmware bytes", 409,
+            )
+        try:
+            identity = admit_tab5_image(original, actual, None, probe_only=True)
+        except ValueError as error:
+            if self.firmware_source == "reference":
+                raise ServiceError("invalid_tab5_image", str(error), 400) from error
+            # Generic intake already admits uploaded P4 images. The regression
+            # ELF contract only identifies one factory app, not an OTA selection.
+            identity = {
+                "application": None, "elf_sha256": None,
+                "gdb_app_identity_matched": False,
+                "symbols_unavailable_reason": str(error),
+            }
+        self._tab5_elf = None
+        configured = self.spec.elf
+        elf_bytes = configured.read_bytes() if configured and configured.is_file() else None
+        elf_sha = hashlib.sha256(elf_bytes).hexdigest() if elf_bytes is not None else None
+        application = identity["application"] or {}
+        if elf_sha and elf_sha == application.get("elf_sha256"):
+            self._tab5_elf = self.dir / "runtime.elf"
+            self._tab5_elf.write_bytes(elf_bytes)
+            identity.update(elf_sha256=elf_sha, gdb_app_identity_matched=True)
+        elif self.firmware_source == "reference":
+            raise ServiceError(
+                "tab5_elf_mismatch",
+                "Tab5 reference ELF does not match the actual application; "
+                "framebuffer and touch symbols are unsafe", 409,
+            )
+        # An uploaded image may boot without the service reference's ELF. Never
+        # hand symbols from another build to either esp-emu or the GDB helpers.
+        identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
+        assert self.spec.efuse is not None
+        seed = self.spec.efuse.read_bytes()
+        self._tab5_efuse.write_bytes(seed)
+        self._tab5_efuse.chmod(0o600)
+        identity.update(
+            input_firmware_sha256=self.firmware_sha,
+            execution_firmware_sha256=hashlib.sha256(actual).hexdigest(),
+            application_bytes_unchanged=True,
+            efuse_input_sha256=hashlib.sha256(seed).hexdigest(),
+            efuse_session_owned=True,
+        )
+        return identity
+
+    def _require_tab5_symbols(self, code: str, operation: str) -> Path:
+        identity = (self.flash_info or {}).get("tab5", {})
+        if not self._tab5_elf or not identity.get("gdb_app_identity_matched"):
+            raise ServiceError(
+                code, f"Tab5 {operation} requires an ELF matching this session's application", 409
+            )
+        try:
+            actual_sha = hashlib.sha256(self._tab5_elf.read_bytes()).hexdigest()
+        except OSError as error:
+            raise ServiceError(
+                "tab5_elf_mismatch", "Tab5 session ELF is unavailable after admission", 409
+            ) from error
+        if actual_sha != identity.get("elf_sha256"):
+            raise ServiceError(
+                "tab5_elf_mismatch", "Tab5 session ELF changed after admission", 409
+            )
+        return self._tab5_elf
 
     def _provision_runtime(self) -> None:
         self._set_state("flashing")
@@ -8514,6 +8593,7 @@ class Tab5DeviceSession(DeviceSession):
         self.flash_info = {
             **prepared["info"],
             "session_isolated_copy": True,
+            "tab5": self._prepare_tab5_identity(),
         }
         self._record_event("flash_prepared", **self.flash_info)
         self._persist_session()
@@ -8534,10 +8614,29 @@ class Tab5DeviceSession(DeviceSession):
         self._check_cancelled()
         assert self.virtual_flash is not None
         assert self.spec.emulator is not None
-        assert self.spec.elf is not None
         assert self.spec.rom is not None
         assert self.spec.efuse is not None
         assert self.spec.c6_firmware is not None
+        elf = (
+            self._require_tab5_symbols("tab5_elf_mismatch", "launch")
+            if self._tab5_elf else None
+        )
+        if elf:
+            try:
+                admit_tab5_image(
+                    self.firmware_path.read_bytes(), self.virtual_flash.read_bytes(),
+                    elf, probe_only=False,
+                )
+            except ValueError as error:
+                raise ServiceError(
+                    "tab5_elf_mismatch", f"Tab5 application changed before launch: {error}", 409
+                ) from error
+        if (not self._tab5_efuse.is_file()
+                or self._tab5_efuse.resolve() == self.spec.efuse.resolve()):
+            raise ServiceError(
+                "tab5_efuse_not_isolated",
+                "Tab5 requires a session-owned eFuse seed before launch", 409,
+            )
         try:
             self._hosted_socket.unlink()
         except FileNotFoundError:
@@ -8569,9 +8668,8 @@ class Tab5DeviceSession(DeviceSession):
             str(self.spec.emulator),
             "--chip", "esp32p4",
             "--firmware", str(self.virtual_flash),
-            "--elf", str(self.spec.elf),
             "--rom", str(self.spec.rom),
-            "--efuse", str(self.spec.efuse),
+            "--efuse", str(self._tab5_efuse),
             "--hosted", f"bridge:host:{self._hosted_socket}",
             "--hosted-reset-gpio", "15",
             "--hosted-reset-active-high",
@@ -8580,6 +8678,8 @@ class Tab5DeviceSession(DeviceSession):
             "--gdb", str(self._gdb_port),
             "--timeout", f"{int(self.ttl_seconds + 120)}s",
         ]
+        if elf:
+            command.extend(["--elf", str(elf)])
         for i2c_device in TAB5_I2C_DEVICES:
             command.extend(["--i2c-dev", i2c_device])
         try:
@@ -8632,17 +8732,10 @@ class Tab5DeviceSession(DeviceSession):
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
-        if self.firmware_source != "reference":
-            raise ServiceError(
-                "screenshot_requires_matching_elf",
-                "Tab5 screenshot capture requires the reference ELF; "
-                "uploaded firmware has no matching symbol file yet",
-                409,
-            )
-        assert self.spec.elf is not None
+        elf = self._require_tab5_symbols("screenshot_requires_matching_elf", "screenshot capture")
         name = f"api-frame-{uuid.uuid4().hex}"
         raw_width, raw_height, raw565, _ = capture_framebuffer(
-            self.spec.elf, self._gdb_port, self.dir, name
+            elf, self._gdb_port, self.dir, name
         )
         width, height, oriented = orient_rgb565(
             raw565, raw_width, raw_height, 1
@@ -8680,12 +8773,7 @@ class Tab5DeviceSession(DeviceSession):
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
-        if self.firmware_source != "reference":
-            raise ServiceError(
-                "input_requires_matching_elf",
-                "Tab5 touch injection currently requires the reference ELF",
-                409,
-            )
+        elf = self._require_tab5_symbols("input_requires_matching_elf", "touch injection")
         kind = payload.get("kind")
         if kind not in {"touch", "longpress"}:
             raise ServiceError(
@@ -8701,9 +8789,8 @@ class Tab5DeviceSession(DeviceSession):
             else float(payload.get("settle_seconds", 0.15))
         )
         raw_x, raw_y = logical_to_raw_touch(x, y, 720, 1280, 1)
-        assert self.spec.elf is not None
         inject_touch(
-            self.spec.elf,
+            elf,
             self._gdb_port,
             self.dir,
             f"api-touch-down-{uuid.uuid4().hex}",
@@ -8713,7 +8800,7 @@ class Tab5DeviceSession(DeviceSession):
         )
         time.sleep(max(0.05, hold))
         inject_touch(
-            self.spec.elf,
+            elf,
             self._gdb_port,
             self.dir,
             f"api-touch-up-{uuid.uuid4().hex}",
@@ -9694,12 +9781,19 @@ class DeviceService:
                 "path": image,
                 "info": _public_flash_info(info),
             }
+        tab5_bytes = None
+        if spec.service_kind == "tab5":
+            source = image.read_bytes()
+            if hashlib.sha256(source).hexdigest() != firmware_sha:
+                raise ServiceError("firmware_hash_mismatch", "Tab5 source firmware changed before Flash preparation", 409)
+            tab5_bytes = _padded(source, spec.flash_size)
         cache_dir = self.state_dir / "flash-cache" / spec.id
         cache_dir.mkdir(parents=True, exist_ok=True)
         cache_path = cache_dir / f"{firmware_sha}.bin"
         work_dir = cache_dir / f".work-{uuid.uuid4().hex}"
         with self._flash_lock:
-            if cache_path.is_file() and cache_path.stat().st_size == spec.flash_size:
+            if (cache_path.is_file() and cache_path.stat().st_size == spec.flash_size
+                    and (tab5_bytes is None or cache_path.read_bytes() == tab5_bytes)):
                 return {
                     "path": cache_path,
                         "info": _public_flash_info({
@@ -9725,7 +9819,7 @@ class DeviceService:
                         "virtual_flash": str(virtual_flash),
                     }
                     virtual_flash.write_bytes(
-                        _padded(image.read_bytes(), spec.flash_size)
+                        tab5_bytes if tab5_bytes is not None else _padded(image.read_bytes(), spec.flash_size)
                     )
                 else:
                     info = self.flash_preparer(spec, image, firmware_sha, work_dir)
@@ -9737,6 +9831,8 @@ class DeviceService:
                         f"!= {spec.flash_size}",
                         500,
                     )
+                if tab5_bytes is not None and produced.read_bytes() != tab5_bytes:
+                    raise ServiceError("tab5_flash_mismatch", "Prepared Tab5 Flash changed the admitted firmware bytes", 500)
                 shutil.copyfile(produced, cache_path)
                 return {"path": cache_path, "info": _public_flash_info(info)}
             finally:

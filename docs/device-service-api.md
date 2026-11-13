@@ -2733,6 +2733,20 @@ path does not support upper flash regions. Later sessions with the same device
 and firmware hash copy the prepared flash cache into a new per-session flash
 file.
 
+Tab5 verifies the complete cached and session Flash bytes against the admitted
+image, including application and upper Flash regions. Its mutable eFuse seed
+and any matching ELF are copied into the session before either companion starts.
+Reset keeps the session's eFuse state. `flash.tab5` records the application
+identity when a single factory app can be identified, firmware/eFuse input
+hashes, byte preservation, and `symbols_status` (`matched` or `unavailable`).
+The ELF SHA must match the actual app descriptor before symbolic frame/touch
+operations. A stale reference ELF fails with `tab5_elf_mismatch`; an uploaded
+image without matching symbols may execute, but frame/input return
+`screenshot_requires_matching_elf` / `input_requires_matching_elf` (409).
+An OTA-only upload retains its complete image and has no factory-symbol binding.
+These integrity checks do not establish application readiness or controller
+coverage. The current matching-ELF touch path is a diagnostic GDB mailbox.
+
 Core2 board inventory and the QEMU machine both expose 8 MiB PSRAM.
 Native-controller profiles request CLI `-m 0`, and the current `m5core2`
 machine resolves this to an 8 MiB QOM memory with `has_psram=true`; the
@@ -3204,8 +3218,8 @@ restart.
   one C6 guest. Stock Nesso UIFlow2 `hardware.RGB()` remains `NOT RUN`;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
-- uploaded Tab5 firmware can boot, but screenshot/input currently require the
-  matching reference ELF;
+- uploaded Tab5 firmware can execute without an ELF, but screenshot/input require
+  the configured ELF to match that session's actual factory application;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
   StamPLC, plus environment-gated Core2; other devices expose session

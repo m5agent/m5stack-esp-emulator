@@ -8,6 +8,7 @@ import struct
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/uiflow2"))
@@ -93,6 +94,25 @@ class AdmissionTests(unittest.TestCase):
         self.elf = Path(self.temp.name) / 'app.elf'
         self.elf.write_bytes(ELF_BYTES)
         self.base = p4_base(blank=True)
+
+    def test_touch_coordinates_are_published_before_pressed_flag(self):
+        # Model a guest polling the mailbox after every individual GDB write.
+        # The first observed press must never expose zero/stale coordinates.
+        state = [1, 0, 0, 0, 0, 0]
+        observed = []
+        def inspect_writes(**kwargs):
+            for command in kwargs["commands"]:
+                if not command.startswith("set {unsigned int}&m5_emu_touch_state["):
+                    continue
+                index = int(command.split("[")[1].split("]")[0])
+                value = command.split(" = ", 1)[1]
+                state[index] = state[5] + 1 if "+ 1" in value else int(value)
+                if state[0]:
+                    observed.append(tuple(state[1:3]))
+        with mock.patch.object(runner, "run_gdb", side_effect=inspect_writes):
+            runner.inject_touch(self.elf, 12345, Path(self.temp.name), "touch",
+                                down=True, x=199, y=640)
+        self.assertEqual(observed, [(199, 640)])
 
     def test_matching_app_descriptor_binds_exact_elf(self):
         result = runner.admit_image(self.base, self.base, self.elf, probe_only=False)

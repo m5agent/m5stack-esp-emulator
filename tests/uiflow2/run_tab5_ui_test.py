@@ -374,12 +374,15 @@ def inject_touch(
         out_dir=out_dir,
         name=name,
         commands=[
-            f"set {{unsigned int}}&m5_emu_touch_state[0] = {1 if down else 0}",
+            # A running guest can observe this mailbox between GDB writes.
+            # Release first, then publish coordinates before the pressed flag.
+            "set {unsigned int}&m5_emu_touch_state[0] = 0",
             f"set {{unsigned int}}&m5_emu_touch_state[1] = {x}",
             f"set {{unsigned int}}&m5_emu_touch_state[2] = {y}",
             "set {unsigned int}&m5_emu_touch_state[3] = 0",
             "set {unsigned int}&m5_emu_touch_state[4] = 18",
             "set {unsigned int}&m5_emu_touch_state[5] = m5_emu_touch_state[5] + 1",
+            f"set {{unsigned int}}&m5_emu_touch_state[0] = {1 if down else 0}",
             'printf "TAB5_TOUCH_STATE %u %u %u %u %u %u\\n", '
             "m5_emu_touch_state[0], m5_emu_touch_state[1], "
             "m5_emu_touch_state[2], m5_emu_touch_state[3], "

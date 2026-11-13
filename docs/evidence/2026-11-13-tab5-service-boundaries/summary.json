@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-13",
+  "issue": 188,
+  "status": "PARTIAL / OPEN",
+  "validation": "virtual-device validation via isolated Device Service artifacts -> merged firmware -> sessions; evidence before stop",
+  "source_base": "8598b1f603ae6638a3f6d27824431781429b9e49",
+  "service_changes": [
+    "verify complete cached/session Flash against the admitted original",
+    "bind optional session ELF to actual application descriptor, preserve OTA uploads without factory symbols",
+    "use session-owned eFuse and ELF snapshots",
+    "publish GDB mailbox coordinates before pressed flag"
+  ],
+  "original": {
+    "raw_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+    "execution_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+    "application": {
+      "offset": 65536,
+      "size": 10027008,
+      "segments_end": 7920420,
+      "partition_sha256": "f49ac654a62bd521a0ee9e1adbbcf90db8b9f29cbd4493a88786eee6612971a5",
+      "segments_sha256": "5682f3c0e7b802dcbcd07bfcfafd3ed3f40b4054a78a398a35ae3293df7222f7",
+      "elf_sha256": "0bb5647cd2dd4136c3b0ef41ce1e84f50d87d98dfdac621768cfeb606f194fbb",
+      "version": "V2.5.4"
+    },
+    "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "revision": "P4 1.0 eFuse with rev0 ROM",
+    "application_bytes_unchanged": true,
+    "symbols_status": "unavailable",
+    "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "efuse_input_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e"
+  },
+  "rc2": {
+    "runtime_sha256": "fc07ca633a7451cc8038b3cd24540ee811a1a4cc159042930705038f53dfdb08",
+    "archive_sha256": "2ad91043180152a50046f148654fd61fa47f3bc9bdc82a2b3a23bcb9c2f57618",
+    "result": "FAIL: illegal-instruction reboot loop before Python/UI readiness",
+    "mepc": "0x4ff0255c",
+    "mtval": "0x34602773",
+    "mcause": 2,
+    "instruction_raw_bin_offset": "0x4141dc",
+    "csr": "0x346 (old P4 mintstatus)",
+    "evidence_sha256": "ba2d25143ba645c7d9e0fee9e1aec1d8bac4cc299df8760f92c7dc183eacc369"
+  },
+  "baseline_051": {
+    "runtime_sha256": "162761d52bcee36fe8be5fd039202fed5873ca550a83a12229038311a4bbc18c",
+    "result": "FAIL: no Python/UI readiness; DSI PHY lock absent",
+    "pc_sample": "0x4ff09a1a",
+    "memory_0x4ff0255c": "0x34602773",
+    "phy_rstz_0x500a00a0": "0x0000000f",
+    "phy_status_0x500a00b0": "0x00000000",
+    "gdb_observation_sha256": "05980f85ba80fd240d2fe03c92f74166ef4716a92a5d04c6963641313f6d791b",
+    "evidence_sha256": "0786ea7c9f892f46afff2cfad7c2efe0f494fca635404642f74cefc44ae66739"
+  },
+  "reference_control": {
+    "firmware_sha256": "04a809b78b1bf8718ed68f501e6c6e5caa7a250484c102d69cf4fbb76a76068f",
+    "application": {
+      "offset": 65536,
+      "size": 5242880,
+      "segments_end": 5027704,
+      "partition_sha256": "55b98352c0ca6f874dd3848d791eefae8138dbde0d081a178644de08fc3a38d8",
+      "segments_sha256": "57aec652059f8354315d4c9285561042530fb10d155869662511b07bf49db09a",
+      "elf_sha256": "b02f850429014de264138b56babc2bdf263fc9cf66b0b014551f4eca90a59886",
+      "version": "V2.5.3"
+    },
+    "elf_sha256": "b02f850429014de264138b56babc2bdf263fc9cf66b0b014551f4eca90a59886",
+    "runtime": "0.51.0",
+    "kind": "older emulator-specific V2.5.3 reference with checked-in UI probe; not stock latest",
+    "before_fix": {
+      "input": [
+        640,
+        520
+      ],
+      "first_guest_touch": [
+        0,
+        719,
+        0
+      ],
+      "second_guest_touch": [
+        640,
+        520,
+        1
+      ],
+      "evidence_sha256": "b80dfdaae87b2b2bf24c935a229103f3041eac12b0c851d462b8302ae9fa9e7d"
+    },
+    "after_fix": {
+      "fresh_session": true,
+      "input": [
+        640,
+        520
+      ],
+      "hold_seconds": 0.2,
+      "settle_seconds": 0.25,
+      "serial_markers": [
+        "TAB5_UI_DRAWN 1280 720",
+        "TAB5_TOUCH 640 520 1",
+        "TAB5_DRAW_AFTER_TOUCH 1",
+        "TAB5_TOUCH 640 520 2",
+        "TAB5_DRAW_AFTER_TOUCH 2"
+      ],
+      "first_touch_png_sha256": "7a6302a1ad6e8db4731e205e334c353d2e51d59712da7e64f3984a775dfc733e",
+      "second_touch_png_sha256": "0e18c562298afa2709c1d7297294918ebac5d8fafba7cba896c510dfa4ca96ea",
+      "first_touch_evidence_sha256": "85f6ee77a4839a32ce77d9a3b9e27e0587db8d7b96d010ab073855618a66291f",
+      "final_evidence_sha256": "c565744b42fbada8a5bcb79258d0f77864d6ff5428a4e24e671ebf0d530d2773",
+      "result": "PASS for first touch, release/repress and rendered count; diagnostic GDB mailbox only"
+    }
+  },
+  "cleanup": {
+    "all_owned_guests_stopped": true,
+    "evidence_before_stop": true,
+    "purge": false,
+    "flash_retained_for_identity_comparison": true,
+    "owned_services_stopped": true,
+    "shared_seed_sha_unchanged": true,
+    "resident_services_changed": false
+  },
+  "limits": [
+    "latest original Python/UI/touch not ready on either candidate",
+    "no old ELF was supplied to latest original guest",
+    "no CSR instruction patch, forced PLL status or rewritten original application",
+    "no physical hardware, browser-WASM or peripheral controller-touch claim",
+    "emulator core implementation is not distributed by the public upstream repository; upstream CSR/DSI repair still required"
+  ],
+  "host_checks": {
+    "tab5_contracts": "22 PASS",
+    "device_service": "135 PASS",
+    "docs_core2_runtime_contract": "12 PASS",
+    "diff_check": "PASS",
+    "full_platform_suite": "NOT RUN in isolated branch; integrating root owns final suite"
+  }
+}

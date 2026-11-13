@@ -4954,6 +4954,15 @@ components:
           $ref: "#/components/schemas/RuntimeACLSession"
         flash:
           type: [object, "null"]
+          description: >
+            Flash preparation metadata. Tab5 includes tab5.application (factory
+            app identity or null), symbols_status (matched or unavailable),
+            gdb_app_identity_matched, elf_sha256, input_firmware_sha256,
+            execution_firmware_sha256, application_bytes_unchanged,
+            efuse_input_sha256 and efuse_session_owned. These fields describe
+            complete-image preservation and session-owned input copies, not
+            application readiness. Symbolic frame/touch operations require the
+            configured ELF SHA to match the actual factory app descriptor.
         flash_retained:
           type: boolean
           description: >
