@@ -102,7 +102,12 @@ observed on the board's I²C bus.
 
 The same GPIO MMIO sequence reads `0xffffffff` on the frozen runtime and
 `0x00000085` on the GPIO candidate. CS, D/C, data direction, turnaround,
-reselection and reset controls run through the actual GPIO data path.
+reselection and GPIO-controller reset controls run through the actual GPIO
+data path. The final candidate retains separate SDA drive ownership and
+keeps SDA released while the host has an active but unresolved output route.
+The [host C ownership control](check_gpio_peer_ownership_actual_c.py) runs the
+actual GPIO receiver and verifies that LCD release preserves an independently
+driven input level.
 The existing VSPI FIFO read returns `0x85` on both runtimes. A Core2 with
 the same test-pin sequence does not expose the Plus2 panel. See the
 [bounded verification summary](gpio-lcd-evidence-summary.json).
@@ -114,7 +119,7 @@ python3 tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py \
 ```
 
 The unchanged original image produced the JIGGLER animation in Device
-Service with the GPIO candidate. The default profile stopped advancing
+Service with both GPIO candidates. The default profile stopped advancing
 the animation before the home screen. A separate auto-profile run displayed
 the animation and logged an IDLE0 task-watchdog reset. A/B injected during
 the short manual trials did not establish functional input responses. The

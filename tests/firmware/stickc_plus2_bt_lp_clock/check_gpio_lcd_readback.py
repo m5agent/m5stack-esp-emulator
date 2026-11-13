@@ -133,6 +133,21 @@ def verify(test, qmp, expected_id, machine):
     select()
     send(4)
     pin_level(DC, True)
+    # A peripheral route with software OE set is not known to be high-Z.
+    # With an open-drain high latch the old GPIO receiver still exposes an
+    # external low, so this independently detects unintended panel drive.
+    pin_level(SDA, True)
+    write(GPIO + 0x88 + SDA * 4, 1 << 2)
+    write(GPIO + 0x530 + SDA * 4, (1 << 10) | 1)
+    clock()
+    report['active_unknown_route_no_reply'] = read_word()
+    assert report['active_unknown_route_no_reply'] == 0xFFFFFFFF
+    deselect()
+    write(GPIO + 0x88 + SDA * 4, 0)
+
+    select()
+    send(4)
+    pin_level(DC, True)
     direction(SDA, False)
     report['without_turnaround_no_bit_yet'] = (command(f'readl {GPIO + 0x3C:#x}') >> SDA) & 1
     assert report['without_turnaround_no_bit_yet'] == 1

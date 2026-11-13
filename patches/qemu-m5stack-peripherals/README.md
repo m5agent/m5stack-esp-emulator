@@ -1553,7 +1553,8 @@ panel to software GPIO SPI on CS5, SCK13, D/C14 and bidirectional SDA15.
 The GPIO path samples command bytes on rising clock edges and uses the same
 panel read cursor as hardware SPI. Readback starts after the host releases
 SDA and the turnaround clock completes. Chip-select deassertion, host SDA
-reclaim and GPIO reset release the display's drive. The existing hardware
+reclaim and GPIO-controller reset release the display's dedicated SDA drive.
+The read path requires known host high impedance. The existing hardware
 SPI attachments continue to carry the normal display data path.
 
 The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
