@@ -8,6 +8,17 @@ parser.add_argument('--firmware',required=True,type=Path)
 parser.add_argument('--firmware-sha256',required=True)
 parser.add_argument('--runtime-sha256',required=True)
 parser.add_argument('--out',required=True,type=Path)
+def validate_serial(serial, mode):
+ assert 'PROBE_READY' in serial, 'Missing real probe readiness marker'
+ if mode == 'before':
+  assert 'assert failed: xTaskPriorityDisinherit' in serial and 'touch_bus_shared=1' in serial, 'Negative control missed expected ownership assert'
+ else:
+  assert 'assert failed:' not in serial, 'Patched probe asserted'
+  assert serial.count('ESP-ROM:esp32c6') == 1, 'Unexpected guest reboot'
+  assert 'touch_bus_shared=0' in serial and 'OWNER_RELEASE_OK' in serial
+  for x,y in [(20,30),(100,180),(60,100)]:
+   assert f'count=1 x={x} y={y}' in serial, f'Missing actual touch coordinate {x},{y}'
+
 args=parser.parse_args()
 BASE=args.base_url.rstrip('/')+'/api/v1/'
 MODE=args.mode
@@ -86,6 +97,10 @@ finally:
  result={'mode':MODE,'status':'FAIL' if primary or cleanup else 'EXPECTED_FAIL' if MODE=='before' else 'PASS','validation':'virtual-device validation','firmware_sha256':sha(image),'runtime_sha256':RUNTIME,'source_build':receipt,'observed_seconds':time.monotonic()-start if start else None,'inputs':events,'frames':frames,'error':str(primary) if primary else None,'cleanup_error':str(cleanup) if cleanup else None}
  if bundle:
   z=zipfile.ZipFile(io.BytesIO(bundle));raw=z.read('serial.log');(OUT/'serial.log').write_bytes(raw);flash=z.read('flash/virtual-flash.bin');parts=[]
+  try:validate_serial(raw.decode('utf-8',errors='replace'),MODE)
+  except AssertionError as error:
+   if primary is None:primary=error
+   result.update(status='FAIL',error=str(primary))
   for pos in range(0x8000,0x9000,32):
    magic,kind,sub,offset,size,label,flags=struct.unpack_from('<HBBII16sI',image,pos)
    if magic!=0x50aa:break
