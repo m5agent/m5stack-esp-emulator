@@ -318,5 +318,28 @@
         "guest_marker": "CORE2_FRAME_AFTER_TOUCH 1"
       }
     }
+  },
+  "candidate_ui_regression": {
+    "core2": {
+      "status": "PASS",
+      "attempts": 1,
+      "fixture_image_sha256": "2764572268f5d11973f6aa0ed99703917df8cff634cfa8e64fd341294c3da41d",
+      "after_frame_sha256": "b0d2c7bac2c8a51637e56deb6efbcc275c1fa75ee56b2906b75a3055ff6aaa8c",
+      "guest_markers": [
+        "CORE2_BOARD 2",
+        "CORE2_FRAME_AFTER_TOUCH 1"
+      ]
+    },
+    "stickc-plus2": {
+      "status": "PASS",
+      "attempts": 1,
+      "fixture_image_sha256": "0eeec7e2dfe72c178b494ccb58f924f71fd208721ccda100cd43872a2c88bbb4",
+      "after_frame_sha256": "6387ac647f3a22dbb14e3cbedc9707deee8759f33d47687a5411a646408d1ca4",
+      "guest_markers": [
+        "STICKCPLUS2_BOARD 5",
+        "STICKCPLUS2_DISPLAY 135 240",
+        "STICKCPLUS2_BTN_A 1"
+      ]
+    }
   }
 }
