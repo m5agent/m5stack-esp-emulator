@@ -214,3 +214,32 @@ Plus2 fixture changes. The seven explicit icount cases all used the same
 fixed Core2 arguments before and after that change, and the other 62 cases
 had no explicit icount arguments. The Plus2 fixture ran separately with the
 corrected adaptive clock and virtual tap.
+
+## Default-clock automated keys and post-settings stability
+
+The later [default-only validation](default-stability-public-summary.json) uses
+unchanged original JIGGLER BIN `c5ce5ad2…`, native runtime `0d53fcb1…`
+(GPIO 0199 and BR/EDR 0200), and executed service source
+`672f79aa66858e89a1e011bf99508007e797b8e5`. That source includes production
+virtual-time key taps from `173705f7b2ad85fa46d00b5983d3c3420ca70b15`.
+The exact full hashes, input receipts and framebuffer hashes are in the summary.
+
+In `shift=5,align=off,sleep=off`, startup C down/up reached the home screen.
+Production B 100 ms, A 100 ms and B 2000 ms taps then showed the unavailable
+mouse, pause and settings screens. A private host observer used the existing
+service lock and QMP HMP reads of the guest-latched LACT counter and clock
+configuration; it wrote no registers or guest code and did not alter the
+native executable. After observing settings, a seed read followed by a
+strictly larger shadow established a fresh baseline. The next counter delta
+proves at least **14.801883 guest seconds** after that baseline, using divider
+40 and the 80 MHz APB upper bound. Final ZIP serial contains one boot and no
+watchdog or reset; both original application partitions remain byte-identical.
+The ZIP was saved while running, then the session, Flash, lease and owned
+process were released.
+
+The preceding attempt's script reported PASS but used a possibly stale first
+shadow. Its audited result is **INCONCLUSIVE**, retained separately; six oracle
+negative controls reject stale/missing baselines, insufficient duration and
+late fatal/reset output. This result does not resolve the separate auto-icount
+IDLE0 watchdog failure, or establish indefinite stability, BLE HID delivery,
+physical timing, touch/drag timing, browser-WASM or resident deployment.

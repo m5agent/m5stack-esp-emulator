@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "Original JIGGLER default-icount production Device Service key taps and at least 10 guest seconds after the settings UI; virtual-device validation only.",
+  "source_commit": "672f79aa66858e89a1e011bf99508007e797b8e5",
+  "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+  "initial_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+  "runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+  "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "runtime_profile": "m5stickcplus2",
+  "runtime_args": {
+    "icount": "shift=5,align=off,sleep=off",
+    "max_percpu_ns": 10000,
+    "watchdogs_disabled": false
+  },
+  "source_files": {
+    "platform/tools/device_service.py": "1810a5001623a982129af1b6947b23b3c34deeb66671a1f400071977c5453c80",
+    "platform/tools/serve.py": "ae4de559a1b16028843866064215cfd041832382a3d20931f222351f194fe41b",
+    "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd"
+  },
+  "private_host_observer": {
+    "launcher_sha256": "4daea3f7f46be741f3847b9d0d7fd1e6c2fcb096a38ce7fea3cb6109fb9f6d00",
+    "runner_sha256": "a65ce5ce1e1cb9658ced0cc877c66fe024e079c88065040fad935ed83a81a176",
+    "audit_sha256": "ddaa72f1589fa7fd8702c449a9b4ca735c3fbf05af921e63a176af41521a1d1c",
+    "mechanism": "Existing service session lock and QMP human-monitor-command xp read only; no second QMP connection; runtime and original firmware are unchanged.",
+    "registers": [
+      "RTC_CNTL_CLK_CONF 0x3ff48070",
+      "TIMG0_LACTCONFIG 0x3ff5f070",
+      "TIMG0_LACTLO 0x3ff5f078",
+      "TIMG0_LACTHI 0x3ff5f07c",
+      "TIMG0_LACTLOADLO 0x3ff5f08c",
+      "TIMG0_LACTLOADHI 0x3ff5f090"
+    ],
+    "writes": false,
+    "update_written": false,
+    "latch_semantics": "Reads expose only the previous guest UPDATE snapshot. The first post-settings read is a seed, never the elapsed-time baseline. A subsequent strictly larger snapshot proves an UPDATE after that seed; elapsed time starts at this fresh second sample."
+  },
+  "inputs": [
+    {
+      "host_seconds": 0.3383094579912722,
+      "input": "keydown:c",
+      "timing": null
+    },
+    {
+      "host_seconds": 1.9696752920281142,
+      "input": "keyup:c",
+      "timing": null
+    },
+    {
+      "host_seconds": 32.53107170807198,
+      "input": "key:b",
+      "timing": {
+        "clock": "virtual",
+        "hold_seconds": 0.1,
+        "hold_time_ms": 100,
+        "completion": "queued"
+      }
+    },
+    {
+      "host_seconds": 47.54383583297022,
+      "input": "key:a",
+      "timing": {
+        "clock": "virtual",
+        "hold_seconds": 0.1,
+        "hold_time_ms": 100,
+        "completion": "queued"
+      }
+    },
+    {
+      "host_seconds": 62.59390329197049,
+      "input": "key:b",
+      "timing": {
+        "clock": "virtual",
+        "hold_seconds": 2.0,
+        "hold_time_ms": 2000,
+        "completion": "queued"
+      }
+    }
+  ],
+  "visual_review": {
+    "status": "PASS",
+    "frames": [
+      {
+        "result": "home",
+        "png_sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941"
+      },
+      {
+        "result": "B short: mouse not ready",
+        "png_sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c"
+      },
+      {
+        "result": "A short: paused",
+        "png_sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695"
+      },
+      {
+        "result": "B long: settings",
+        "png_sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39"
+      }
+    ],
+    "raw_frames_included": false
+  },
+  "stability": {
+    "settings_first_observed_host_seconds": 66.016,
+    "shadow_seed": {
+      "config": 3221556224,
+      "config_after": 3221556224,
+      "rtc_clock_config": 693633152,
+      "rtc_clock_config_after": 693633152,
+      "high_before": 0,
+      "low": 73920639,
+      "high_after": 0,
+      "load_low": 0,
+      "load_high": 0,
+      "reads_only": true,
+      "update_written": false,
+      "maximum_apb_hz": 80000000,
+      "host_seconds": 66.130933,
+      "ticks": 73920639,
+      "divider": 40,
+      "basis": [
+        3221553152,
+        0,
+        0,
+        693633152
+      ]
+    },
+    "fresh_baseline": {
+      "config": 3221556224,
+      "config_after": 3221556224,
+      "rtc_clock_config": 693633152,
+      "rtc_clock_config_after": 693633152,
+      "high_before": 0,
+      "low": 104928873,
+      "high_after": 0,
+      "load_low": 0,
+      "load_high": 0,
+      "reads_only": true,
+      "update_written": false,
+      "maximum_apb_hz": 80000000,
+      "host_seconds": 67.213632,
+      "ticks": 104928873,
+      "divider": 40,
+      "basis": [
+        3221553152,
+        0,
+        0,
+        693633152
+      ]
+    },
+    "endpoint": {
+      "config": 3221556224,
+      "config_after": 3221556224,
+      "rtc_clock_config": 693633152,
+      "rtc_clock_config_after": 693633152,
+      "high_before": 0,
+      "low": 134532639,
+      "high_after": 0,
+      "load_low": 0,
+      "load_high": 0,
+      "reads_only": true,
+      "update_written": false,
+      "maximum_apb_hz": 80000000,
+      "host_seconds": 68.30066,
+      "ticks": 134532639,
+      "divider": 40,
+      "basis": [
+        3221553152,
+        0,
+        0,
+        693633152
+      ]
+    },
+    "guest_seconds_lower_bound": 14.801883,
+    "oracle": "(endpoint_ticks - fresh_baseline_ticks) * divider / 80,000,000. PLL-selected APB, enabled increasing LACT, divider 40, zero reload values and unchanged sampled clock configuration; no counter decrease, rollover or reset.",
+    "observed_host_seconds": 68.30191858299077,
+    "final_zip_fatal_markers": false,
+    "final_zip_rom_boots": 1
+  },
+  "app_partitions": [
+    {
+      "offset": 65536,
+      "bytes": 3342336,
+      "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+      "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+      "unchanged": true
+    },
+    {
+      "offset": 3407872,
+      "bytes": 3342336,
+      "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+      "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+      "unchanged": true
+    }
+  ],
+  "evidence": {
+    "raw_summary_sha256": "211724c8722e5624995b855bb8d778e9daab707333b85e35235fb069d824c908",
+    "zip_sha256": "5c947a4c9e85779922cc69d7087ed32939352a7207656f7cd9e24a1d29705585",
+    "zip_serial_sha256": "19715288729ad9ec56dd9c8b498ceedcfa10fd33489fa3391898df97647548cf",
+    "audit_sha256": "f51e54e3a9b2cf0706a2f006079ddb93ddf406c711d449421f1f3446745c640f",
+    "zip_before_stop": true,
+    "zip_manifest_state": "running"
+  },
+  "cleanup": {
+    "terminal_state": "stopped",
+    "mutable_flash_released": true,
+    "lease_released": true,
+    "owned_guest_pid_gone": true,
+    "service_stopped": true
+  },
+  "oracle_negative_controls": [
+    "stale_seed",
+    "only_two_samples",
+    "short_elapsed",
+    "fatal_at_end",
+    "reset_at_end",
+    "actual_first_run_has_no_fresh_baseline"
+  ],
+  "retained_prior_attempt": {
+    "raw_summary_sha256": "fa3d2158672a9f07770618d74d302ef606211516904438895f949c9af87c4e7d",
+    "raw_gate": "PASS",
+    "audited_gate": "INCONCLUSIVE",
+    "reason": "Only two post-settings shadow reads; first baseline freshness was not proved. Its no-WDT observation is retained but does not pass the strict time gate."
+  },
+  "limits": [
+    "This result does not resolve the independent auto-icount IDLE0 watchdog failure.",
+    "This bounded default-clock observation does not establish indefinite stability, Bluetooth HID delivery, physical timing, RF behavior, or performance.",
+    "Explicit startup C down/up retains real-time event semantics; only automated B/A taps use the guest virtual queue.",
+    "No touch/drag timing claim. No resident deployment or Burner submission."
+  ]
+}
