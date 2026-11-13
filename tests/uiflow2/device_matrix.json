@@ -271,7 +271,7 @@
       "expected_size": "135x240",
       "api_size": "135x240",
       "ui_rotation": 0,
-      "input": "key:a",
+      "input": "virtual-keytap:a,0.1",
       "post_frame_color": "3,3,00FF00",
       "efuse_pkg_version": 6,
       "efuse_driver": "nvram.esp32.efuse",
@@ -283,7 +283,8 @@
         "STICKCPLUS2_DISPLAY 135 240",
         "STICKCPLUS2_BTN_A 1"
       ],
-      "pre_input_marker": "STICKCPLUS2_FRAME_READY"
+      "pre_input_marker": "STICKCPLUS2_FRAME_READY",
+      "post_input_marker": "STICKCPLUS2_BTN_A 1"
     },
     {
       "id": "nesso-n1",

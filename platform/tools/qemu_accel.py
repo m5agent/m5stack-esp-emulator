@@ -9,9 +9,15 @@ CORE2_ICOUNT_SHIFT_ENV = "M5_CORE2_ICOUNT_SHIFT"
 CORE2_ICOUNT_MAX_PERCPU_NS = 10_000
 CORE2_ICOUNT_MAX_PERCPU_NS_ENV = "M5_CORE2_ICOUNT_MAX_PERCPU_NS"
 QEMU_ICOUNT_MAX_PERCPU_NS_ENV = "M5SW_ICOUNT_MAX_PERCPU_NS"
-CORE2_ICOUNT_MODE = (
-    f"shift={CORE2_ICOUNT_SHIFT},align=off,sleep=off"
-)
+
+
+def icount_mode(shift: str | int) -> str:
+    """Use host-paced idle time when the instruction rate is adaptive."""
+    sleep = "on" if shift == "auto" else "off"
+    return f"shift={shift},align=off,sleep={sleep}"
+
+
+CORE2_ICOUNT_MODE = icount_mode(CORE2_ICOUNT_SHIFT)
 
 
 def core2_accel_args() -> list[str]:
@@ -54,5 +60,5 @@ def core2_accel_args() -> list[str]:
         "-accel",
         f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}",
         "-icount",
-        f"shift={shift},align=off,sleep=off",
+        icount_mode(shift),
     ]

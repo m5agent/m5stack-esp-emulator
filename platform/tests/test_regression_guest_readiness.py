@@ -12,6 +12,16 @@ import run_profile_ui_test as runner
 
 
 class GuestReadinessTests(unittest.TestCase):
+    def test_virtual_keytap_schedules_release_on_qemu_clock(self):
+        qmp = mock.Mock()
+        with mock.patch.object(runner.time, "sleep") as sleep:
+            runner.send_input(qmp, "virtual-keytap:a,0.1", (135, 240), 0.2)
+        qmp.cmd.assert_called_once_with(
+            "send-key", keys=[{"type": "qcode", "data": "a"}],
+            **{"hold-time": 100},
+        )
+        sleep.assert_called_once_with(0.2)
+
     def test_marker_can_arrive_after_initial_poll(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "serial.log"

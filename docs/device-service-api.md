@@ -3172,8 +3172,9 @@ restart.
   batch but an independent confirmation failed `3/5`. The current default is
   fixed `icount shift=5,align=off,sleep=off`; `M5_CORE2_ICOUNT_SHIFT` accepts
   `auto` or `0-10` only as an explicit diagnostic override, while the
-  concurrency gate requires the fixed value. Core2 also defaults the QEMU
-  per-vCPU icount slice cap to `10000` ns; set
+  concurrency gate requires the fixed value. The adaptive `auto` override
+  sets `sleep=on` so idle virtual time follows the host clock. Core2 also
+  defaults the QEMU per-vCPU icount slice cap to `10000` ns; set
   `M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` to reproduce the uncapped scheduler or
   provide an explicit `1000-1000000000` value for a diagnostic A/B. The cap
   does not change the guest API or watchdog configuration. The unified test

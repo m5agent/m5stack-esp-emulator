@@ -1573,6 +1573,6 @@ cancels pending timers and clears the clock and IRQ state.
 The [RWBT regression](../../tests/firmware/stickc_plus2_bt_lp_clock/README.md#bredr-sleep-native-clock-and-timer-interrupts)
 covers baseline and candidate MMIO, sleep clock selection and changes, timer
 wrap, mask, acknowledgement and source-6 delivery. The unchanged original
-reaches home with the default profile. Its separate `icount=auto` trial
-still has an IDLE0 task-watchdog reset. Pairing, HID report delivery and
-physical timing remain unverified.
+reaches home with the default and corrected adaptive profiles. The former
+adaptive argument with `sleep=off` reproduced an IDLE0 task-watchdog reset.
+Pairing, HID report delivery and physical timing remain unverified.

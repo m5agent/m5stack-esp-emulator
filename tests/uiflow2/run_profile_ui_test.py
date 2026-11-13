@@ -28,7 +28,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT / "platform/tools"))
 
-from qemu_accel import core2_accel_args  # noqa: E402
+from qemu_accel import core2_accel_args, icount_mode  # noqa: E402
 from uiflow_source import build_uiflow_source_image, uiflow_vfs_layout  # noqa: E402
 
 
@@ -426,21 +426,27 @@ def send_input(
             send_key_event(qmp, value, down, settle=0.45)
         time.sleep(settle)
         return
-    if kind == "keytap":
+    if kind in {"keytap", "virtual-keytap"}:
         parts = value.split(",")
         if len(parts) != 2 or not parts[0].strip():
-            raise SystemExit(f"keytap expects QCODE,SECONDS: {spec}")
+            raise SystemExit(f"{kind} expects QCODE,SECONDS: {spec}")
         try:
             hold = float(parts[1])
         except ValueError:
-            raise SystemExit(f"keytap expects a numeric hold duration: {spec}") from None
+            raise SystemExit(f"{kind} expects a numeric hold duration: {spec}") from None
         if not math.isfinite(hold) or not 0 < hold <= 10:
-            raise SystemExit(f"keytap hold must be finite and in (0, 10] seconds: {spec}")
-        send_key_event(qmp, parts[0], True)
-        try:
-            time.sleep(hold)
-        finally:
-            send_key_event(qmp, parts[0], False)
+            raise SystemExit(f"{kind} hold must be finite and in (0, 10] seconds: {spec}")
+        if kind == "virtual-keytap":
+            qmp.cmd(
+                "send-key", keys=[{"type": "qcode", "data": parts[0]}],
+                **{"hold-time": math.ceil(hold * 1000)},
+            )
+        else:
+            send_key_event(qmp, parts[0], True)
+            try:
+                time.sleep(hold)
+            finally:
+                send_key_event(qmp, parts[0], False)
         time.sleep(settle)
         return
     if kind in {"keydown", "keyup"}:
@@ -515,7 +521,7 @@ def main():
         action="append",
         default=[],
         help=(
-            "key:a, keytap:p,0.1, touch:X,Y, drag:X1,Y1,X2,Y2, or "
+            "key:a, keytap:p,0.1, virtual-keytap:a,0.1, touch:X,Y, drag:X1,Y1,X2,Y2, or "
             "longpress:X,Y,SECONDS; repeat for multiple input events"
         ),
     )
@@ -719,7 +725,7 @@ def main():
                 "-accel",
                 "tcg,thread=single",
                 "-icount",
-                "shift=auto,align=off,sleep=off",
+                icount_mode("auto"),
             ]
         )
     if args.qemu_log:
