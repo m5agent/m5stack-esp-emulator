@@ -34,9 +34,16 @@ and mirror-reload expectations fail; four C3/backing/preservation controls
 remain valid. All six pass with the correction. The fixture contains exact
 canonical preimages for the affected C6 files and the unchanged C3 parent.
 
-**Candidate guest validation is NOT RUN yet.** The next combined native build
-must replay the ordered bootstrap patches, record fresh build provenance,
-and repeat the same original Bruce BIN through Device Service, including
-visible UI, input, requested reset and filesystem remount. A host test or the
-older TSF-only runtime does not grant the corrected runtime a PASS. Physical
-hardware and browser-WASM are NOT RUN.
+The [combined 24-patch runtime record](../esp32c6_usb_serial_jtag/pre-shared-irq-runtime-summary.json)
+now binds that same original Bruce BIN to the fresh `8df53714…` runtime and
+the exact production service source. Over 150 seconds it displays the WiFi
+menu, changes to Clock after the recorded touch, and returns to WiFi after one
+requested reset and filesystem remount. The complete ZIP contains two boot
+banners for that single reset and no fatal or LittleFS error. Application
+bytes, Flash/lease release and native process exit were verified.
+
+The same record retains the earlier black-screen failure and a separate Mesh
+input-oracle correction: B is not the Select action; an actual A hold opens
+Home Action and a short A advances its selection. These observations do not
+close the separate shared-interrupt-pad model gap or grant a later runtime
+acceptance. Physical hardware, browser-WASM and resident deployment are NOT RUN.

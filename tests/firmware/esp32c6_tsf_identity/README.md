@@ -86,13 +86,20 @@ Ready `ESP_FAIL`. The separate real guest `esp_ieee802154_set_extended_address`
 and get control still returns zero: `0x600a3010/14` belong to an unimplemented
 802.15.4 region. No joining, light-control, RF or complete Zigbee PASS follows.
 
-The original Honeypot survives 90 seconds without restart. Read-only original
+In the earlier TSF/eFuse-only candidate, the original Honeypot survives 90 seconds without restart. Read-only original
 instruction observations prove that `softAP` now returns true, rather than
 remaining in the zero-TSF loop. Its Arduino HWCDC output is still not visible:
-the C6 USB Serial-JTAG model currently lacks the asynchronous endpoint IRQ
+that candidate's C6 USB Serial-JTAG model lacks the asynchronous endpoint IRQ
 path used by the original driver. No application-ready or network data-plane
 PASS is claimed from the absence of an error. NanoC6 `qemu-wifi` remains an
 unsupported admission mode; these plain `qemu` results are not network tests.
 
 Physical hardware, RF, browser-WASM, final combined-runtime regression and
 resident deployment are **NOT RUN** in this fixture's candidate summary.
+
+The later [combined-runtime record](../esp32c6_usb_serial_jtag/pre-shared-irq-runtime-summary.json)
+keeps these failures and records TSF 6/6, two distinct session identities each
+stable across reset, and the corrected USB console path on its exact runtime
+and production service source. The 802.15.4 extended-address control still
+reports `EXPECTED_FAIL`; it does not inherit a radio result from the identity
+or TSF checks. Its separate shared-interrupt-pad limitation remains open.

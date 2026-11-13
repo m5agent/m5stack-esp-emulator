@@ -31,7 +31,7 @@ wrap, reset and teardown. The old model must fail fourteen cases; its existing
 single-byte output is retained as the one unchanged control.
 
 Build the native runtime in a new owned source directory with
-`scripts/bootstrap-c6-runtime.py`; retain all twenty-two ordered patch hashes,
+`scripts/bootstrap-c6-runtime.py`; retain the complete ordered patch hashes,
 source postimages, configure/Ninja logs and binary/ROM hashes. The original
 source-only manifest is not a substitute for a fresh-object build receipt.
 
@@ -94,3 +94,25 @@ not validate AP association, HTTP, honeypot network behavior or RF. Earlier
 TSF/eFuse and Zigbee/802.15.4 limits remain in the adjacent fixture. A later
 fresh-runtime summary, broad integration matrix and resident deployment are
 separate acceptance gates; candidate results do not replace them.
+
+## Combined runtime before the shared interrupt correction
+
+[`pre-shared-irq-runtime-summary.json`](pre-shared-irq-runtime-summary.json)
+binds the fresh 24-patch runtime `8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d`
+and Device Service source `10c826b832b78c9bc42e9f788bd3e595584978ae`.
+The original Honeypot exposes a launch-clock prerequisite: the unchanged
+direct run produced no application bytes over 180 seconds, while two diagnostic
+observer runs produced 151 and 153 bytes. These remain separate observations.
+Adding only the existing StickS3 single-thread, fixed-icount USB clock recipe
+produced the complete 153-byte, four-line response over 90 seconds. The formal
+plain NanoC6 launch path then repeated that result over 180 seconds, without
+an observer wrapper or injected button. UART and USB each had one boot and no
+fatal output; the final ZIP, original application bytes and cleanup were checked.
+
+The same production launch passes the 257-byte TX / 197-byte RX Arduino
+control and the original UIFlow2 USB REPL response. The clock change is limited
+to plain NanoC6 sessions using the separate USB chardev; Nesso and other
+profiles keep their prior recipe. This is a console/controller result, not
+WiFi association, HTTP, physical USB, or resident-deployment acceptance.
+The separate PI4IOE/shared-interrupt-pad gap is explicitly unresolved in this
+runtime and requires a new runtime identity and affected validation.
